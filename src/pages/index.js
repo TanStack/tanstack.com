@@ -8,21 +8,21 @@ import Nav from '../components/Nav'
 const libraries = [
   {
     name: 'React Query',
-    styles: tw`bg-red-500 hover:(border-red-500 bg-transparent text-red-400)`,
+    styles: tw`bg-red-500 hover:(border-red-500 bg-transparent text-red-500 dark:text-red-400)`,
     href: 'https://react-query.tanstack.com',
     tagline: `Performant and powerful data synchronization for React`,
     description: `Fetch, cache and update data in your React and React Native applications all without touching any "global state".`,
   },
   {
     name: 'React Table',
-    styles: tw`bg-blue-700 hover:(border-blue-500 bg-transparent text-blue-400)`,
+    styles: tw`bg-blue-700 hover:(border-blue-500 bg-transparent text-blue-600 dark:text-blue-400)`,
     href: 'https://react-table.tanstack.com',
     tagline: `Lightweight and extensible data tables for React`,
     description: `Build and design powerful datagrid experiences while retaining 100% control over markup and styles.`,
   },
   {
     name: 'React Charts',
-    styles: tw`bg-yellow-500 text-black hover:(border-yellow-500 bg-transparent text-yellow-500)`,
+    styles: tw`bg-yellow-500 text-black hover:(border-yellow-500 bg-transparent dark:text-yellow-500)`,
     href: 'https://react-charts.tanstack.com',
     tagline: `Simple, immersive & interactive charts for React`,
     description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
@@ -94,7 +94,7 @@ export default function IndexPage() {
           <div data-element="fields" tw="grid grid-cols-3 mt-4 gap-2">
             <input
               className="formkit-input"
-              tw="col-span-2 p-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow outline-none focus:outline-none w-full text-white dark:(bg-gray-700)"
+              tw="col-span-2 p-3 placeholder-gray-400 text-gray-700 bg-gray-200 rounded text-sm outline-none focus:outline-none w-full text-black dark:(text-white bg-gray-700)"
               name="email_address"
               placeholder="Your email address"
               type="text"
@@ -103,7 +103,7 @@ export default function IndexPage() {
             <button
               data-element="submit"
               className="formkit-submit"
-              tw="bg-blue-500 rounded"
+              tw="bg-blue-500 rounded text-white"
             >
               <span>Subscribe</span>
             </button>

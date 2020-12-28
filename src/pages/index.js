@@ -130,12 +130,20 @@ export default function IndexPage() {
       <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
         <h1 tw="text-4xl font-light">Products</h1>
         <div tw="mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)">
+          <div tw="bg-white shadow-lg rounded-lg p-4 opacity-70 italic text-center text-gray-600 md:(p-10) dark:(bg-gray-800)">
+            Coming soon!
+          </div>
+        </div>
+      </div>
+      <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
+        <h1 tw="text-4xl font-light">Open Source Libraries</h1>
+        <div tw="mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)">
           {libraries.map((library) => (
             <Link key={library.name} href={library.href}>
               <a
                 href={library.href}
                 css={[
-                  tw`border-4 border-transparent rounded-lg p-4 md:(p-10) text-white transition-all`,
+                  tw`border-4 border-transparent rounded-lg shadow-lg p-4 md:(p-10) text-white transition-all`,
                   library.styles,
                 ]}
               >

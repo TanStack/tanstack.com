@@ -1,6 +1,6 @@
 import React from 'react'
-import Image from 'next/Image'
-import Link from 'next/Link'
+import Image from 'next/image'
+import Link from 'next/link'
 import tw, { theme } from 'twin.macro'
 
 import Nav from '../components/Nav'

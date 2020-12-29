@@ -1,8 +1,9 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { tw } from 'twind';
 import Nav from '../components/Nav';
+
+import { tw } from 'twind';
 
 const libraries = [
   {
@@ -42,13 +43,18 @@ export default function IndexPage() {
   return (
     <div>
       <section
-        className={tw`text-white relative bg-red-500`}
-        // style={{
-        //   backgroundImage: `
-        //   radial-gradient(circle at 25% 140vw, transparent 85%, ${theme`colors.yellow.500`}),
-        //   radial-gradient(circle at 75% -100vw, transparent 85%, ${theme`colors.blue.500`})
-        //   `,
-        // }}
+        className={tw`text-white relative bg-red-500 ${({ theme }) => ({
+          backgroundImage: `
+            radial-gradient(circle at 25% 140vw, transparent 85%, ${theme(
+              'colors',
+              'yellow.500'
+            )}),
+            radial-gradient(circle at 75% -100vw, transparent 85%, ${theme(
+              'colors',
+              'blue.500'
+            )})
+            `,
+        })}`}
       >
         <div
           className={tw`absolute bg-cover bg-center inset-0`}
@@ -161,10 +167,10 @@ export default function IndexPage() {
             <Link key={library.name} href={library.href}>
               <a
                 href={library.href}
-                css={[
+                className={tw([
                   tw`border-4 border-transparent rounded-lg shadow-lg p-4 md:(p-10) text-white transition-all`,
                   library.styles,
-                ]}
+                ])}
               >
                 <div className={tw`text-3xl font-bold `}>{library.name}</div>
                 <div className={tw`text-lg italic font-extralight mt-2`}>
@@ -183,10 +189,10 @@ export default function IndexPage() {
             <Link key={course.name} href={course.href}>
               <a
                 href={course.href}
-                css={[
+                className={tw([
                   tw`bg-white rounded-lg shadow-lg p-4 grid grid-cols-3 gap-6 transition-all ease-linear md:(p-10) dark:(bg-gray-800) md:(grid-cols-6)`,
                   course.styles,
-                ]}
+                ])}
               >
                 <div className={tw`col-span-2 md:(col-span-5)`}>
                   <div className={tw`text-2xl font-bold `}>{course.name}</div>
@@ -210,9 +216,11 @@ export default function IndexPage() {
           ))}
         </div>
       </div>
-      <div tw="h-20" />
-      <div tw="bg-gray-800 text-white shadow-lg">
-        <div tw="max-w-screen-md mx-auto py-6 px-4 grid gap-1 md:(grid-cols-2)">
+      <div className={tw`h-20`} />
+      <div className={tw`bg-gray-800 text-white shadow-lg`}>
+        <div
+          className={tw`max-w-screen-md mx-auto py-6 px-4 grid gap-1 md:(grid-cols-2)`}
+        >
           {[
             { name: 'Twitter', href: 'https://twitter.com/tannerlinsley' },
             {
@@ -229,7 +237,7 @@ export default function IndexPage() {
               href: 'https://tannerlinsley.com',
             },
           ].map((link) => (
-            <div>
+            <div key={link.name}>
               <Link href={link.href}>
                 <a href={link.href} tw="hover:underline">
                   {link.name}

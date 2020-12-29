@@ -1,40 +1,31 @@
-import React from 'react'
-import Document, { Html, Head, Main, NextScript } from 'next/document'
-import { setup, tw } from 'twind'
-import { asyncVirtualSheet, getStyleTagProperties } from 'twind/server'
-import twindConfig from '../twind.config'
-import { css } from 'twind/css'
+import React from 'react';
+import Document, { Html, Head, Main, NextScript } from 'next/document';
+import { asyncVirtualSheet, getStyleTagProperties } from 'twind/server';
 
-const sheet = asyncVirtualSheet()
-setup({ ...twindConfig, sheet })
+import { setup } from 'twind';
+import twindConfig from '../twind.config';
 
-// const styles = tw`text-blue-900 bg-gray-100 dark:bg-gray-900 dark:text-gray-100;`
-
-// console.log(styles)
-
+const sheet = asyncVirtualSheet();
+setup({ ...twindConfig, sheet });
 export default class MyDocument extends Document {
   static async getInitialProps(ctx) {
-    sheet.reset()
-
-    const initialProps = await Document.getInitialProps(ctx)
-
-    const { id, textContent } = getStyleTagProperties(sheet)
-
+    sheet.reset();
+    const initialProps = await Document.getInitialProps(ctx);
+    const { id, textContent } = getStyleTagProperties(sheet);
     const styleProps = {
       id,
       key: id,
       dangerouslySetInnerHTML: {
         __html: textContent,
       },
-    }
-
+    };
     return {
       ...initialProps,
       styles: [
         ...initialProps.styles,
         React.createElement('style', styleProps),
       ],
-    }
+    };
   }
 
   render() {
@@ -58,11 +49,11 @@ export default class MyDocument extends Document {
             }}
           ></script>
         </Head>
-        <body className={''}>
+        <body>
           <Main />
           <NextScript />
         </body>
       </Html>
-    )
+    );
   }
 }

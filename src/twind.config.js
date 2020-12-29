@@ -1,12 +1,39 @@
-// import { strict } from 'twind'
-
 export default {
-  // mode: strict, // Throw errors for invalid rules instead of logging
+  preflight: (defaultPreflight, { theme }) => {
+    return {
+      ...defaultPreflight,
+      'html,body': {
+        color: theme('colors', 'blue.900'),
+        background: theme('colors', 'gray.100'),
+      },
+      '@media (prefers-color-scheme: dark)': {
+        'html,body': {
+          color: theme('colors', 'gray.100'),
+          background: theme('colors', 'gray.900'),
+        },
+        '*': {
+          'scrollbar-color': `${theme('colors', 'gray.700')} ${theme(
+            'colors',
+            'gray.800'
+          )}`,
+        },
+        '*::-webkit-scrollbar, scrollbar': {
+          width: '1rem',
+          height: '1rem',
+        },
+        '*::-webkit-scrollbar-track, scrollbar-track': {
+          background: theme('colors', 'gray.800'),
+        },
+        '*::-webkit-scrollbar-thumb, scrollbar-thumb': {
+          background: theme('colors', 'gray.700'),
+          'border-radius': '.5rem',
+          border: `3px solid ${theme('colors', 'gray.800')}`,
+        },
+      },
+    };
+  },
   theme: {
     extend: {
-      // zIndex: {
-      //   '-10': '-10',
-      // },
       boxShadow: {
         sm: '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
         DEFAULT:
@@ -74,4 +101,4 @@ export default {
       },
     },
   },
-}
+};

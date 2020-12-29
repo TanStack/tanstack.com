@@ -1,6 +1,7 @@
 import React from 'react'
 import Head from 'next/head'
-import { GlobalStyles } from 'twin.macro'
+import { GlobalStyles, theme } from 'twin.macro'
+import { createGlobalStyle } from 'styled-components'
 import '../styles.css'
 
 // function loadScript(src, attrs = {}) {
@@ -14,6 +15,31 @@ import '../styles.css'
 //   }
 // }
 
+const MyGlobalStyles = createGlobalStyle`
+  @media (prefers-color-scheme: dark) {
+    * {
+      box-sizing: border-box;
+      outline: 0;
+      scrollbar-color: ${theme`colors.gray.700`} ${theme`colors.gray.800`};
+
+      ::-webkit-scrollbar, scrollbar {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      ::-webkit-scrollbar-track, scrollbar-track {
+        background: ${theme`colors.gray.800`};
+      }
+
+      ::-webkit-scrollbar-thumb, scrollbar-thumb {
+        background: ${theme`colors.gray.700`};
+        border-radius: .5rem;
+        border: 3px solid ${theme`colors.gray.800`};
+      }
+    }
+  }
+`
+
 function MyApp({ Component, pageProps }) {
   // React.useEffect(() => {
   //   loadScript('https://tanstack.ck.page/7b33d93773/index.js', {
@@ -24,6 +50,7 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
       <GlobalStyles />
+      <MyGlobalStyles />
       <Component {...pageProps} />
     </>
   )

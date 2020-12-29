@@ -18,8 +18,6 @@ import '../styles.css'
 const MyGlobalStyles = createGlobalStyle`
   @media (prefers-color-scheme: dark) {
     * {
-      box-sizing: border-box;
-      outline: 0;
       scrollbar-color: ${theme`colors.gray.700`} ${theme`colors.gray.800`};
 
       ::-webkit-scrollbar, scrollbar {
@@ -49,6 +47,9 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <>
+      <Head>
+        <title>TanStack | Quality Softare & Libraries for the Modern Web</title>
+      </Head>
       <GlobalStyles />
       <MyGlobalStyles />
       <Component {...pageProps} />

@@ -5,17 +5,6 @@ import { createGlobalStyle } from 'styled-components'
 import '../styles.css'
 import { Seo } from '../components/Seo'
 
-// function loadScript(src, attrs = {}) {
-//   if (typeof document !== 'undefined') {
-//     const script = document.createElement('script')
-//     script.async = true
-//     script.defer = true
-//     Object.keys(attrs).forEach((attr) => script.setAttribute(attr, attrs[attr]))
-//     script.src = src
-//     document.body.appendChild(script)
-//   }
-// }
-
 const MyGlobalStyles = createGlobalStyle`
   @media (prefers-color-scheme: dark) {
     * {
@@ -39,13 +28,7 @@ const MyGlobalStyles = createGlobalStyle`
   }
 `
 
-function MyApp({ Component, pageProps }) {
-  // React.useEffect(() => {
-  //   loadScript('https://tanstack.ck.page/7b33d93773/index.js', {
-  //     'data-uid': '7b33d93773',
-  //   })
-  // }, [])
-
+export default function MyApp({ Component, pageProps }) {
   return (
     <>
       <Seo
@@ -58,5 +41,3 @@ function MyApp({ Component, pageProps }) {
     </>
   )
 }
-
-export default MyApp

@@ -48,7 +48,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <>
-      <Seo title="Quality Softare & Open Source Libraries for the Modern Web" />
+      <Seo title="Quality Software & Open Source Libraries for the Modern Web" />
       <GlobalStyles />
       <MyGlobalStyles />
       <Component {...pageProps} />

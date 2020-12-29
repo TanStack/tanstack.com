@@ -182,7 +182,7 @@ export default function IndexPage() {
                 <div tw="col-span-2 md:(col-span-5)">
                   <div tw="text-2xl font-bold ">{course.name}</div>
                   <div tw="text-sm mt-2">{course.description}</div>
-                  <div tw="inline-block mt-4 p-2 bg-green-500 text-white rounded shadow">
+                  <div tw="inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded shadow">
                     Enroll →
                   </div>
                 </div>

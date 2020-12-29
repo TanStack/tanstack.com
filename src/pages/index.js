@@ -29,6 +29,16 @@ const libraries = [
   },
 ]
 
+const courses = [
+  {
+    name: 'React Query Essentials (v2)',
+    styles: tw`border-t-4 border-red-500 hover:(border-green-500)`,
+    href: 'https://learn.tanstack.com',
+    description: `The official and exclusive guide to mastering server-state in your applications, straight from the original creator and maintainer of the library.`,
+    price: 150,
+  },
+]
+
 export default function IndexPage() {
   return (
     <div>
@@ -152,6 +162,34 @@ export default function IndexPage() {
                   {library.tagline}
                 </div>
                 <div tw="text-sm mt-2">{library.description}</div>
+              </a>
+            </Link>
+          ))}
+        </div>
+      </div>
+      <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
+        <h1 tw="text-4xl font-light">Courses</h1>
+        <div tw="mt-4 grid grid-cols-1 gap-4">
+          {courses.map((course) => (
+            <Link key={course.name} href={course.href}>
+              <a
+                href={course.href}
+                css={[
+                  tw`bg-white rounded-lg shadow-lg p-4 grid grid-cols-3 gap-6 transition-all ease-linear md:(p-10) dark:(bg-gray-800) md:(grid-cols-6)`,
+                  course.styles,
+                ]}
+              >
+                <div tw="col-span-2 md:(col-span-5)">
+                  <div tw="text-2xl font-bold ">{course.name}</div>
+                  <div tw="text-sm mt-2">{course.description}</div>
+                  <div tw="inline-block mt-4 p-2 bg-green-500 text-white rounded shadow">
+                    Enroll →
+                  </div>
+                </div>
+                <div tw="flex-col text-center md:(text-right)">
+                  <div tw="text-center text-3xl font-bold">${course.price}</div>
+                  <div tw="text-center text-sm opacity-70">per license</div>
+                </div>
               </a>
             </Link>
           ))}

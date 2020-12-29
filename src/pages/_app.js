@@ -3,6 +3,7 @@ import Head from 'next/head'
 import { GlobalStyles, theme } from 'twin.macro'
 import { createGlobalStyle } from 'styled-components'
 import '../styles.css'
+import { Seo } from '../components/Seo'
 
 // function loadScript(src, attrs = {}) {
 //   if (typeof document !== 'undefined') {
@@ -47,9 +48,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <>
-      <Head>
-        <title>TanStack | Quality Softare & Libraries for the Modern Web</title>
-      </Head>
+      <Seo title="Quality Softare & Open Source Libraries for the Modern Web" />
       <GlobalStyles />
       <MyGlobalStyles />
       <Component {...pageProps} />

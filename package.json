@@ -1,15 +1,10 @@
 {
-  "name": "with-tailwindcss",
+  "private": true,
   "version": "1.0.0",
   "scripts": {
     "dev": "next",
     "build": "next build",
     "start": "next start"
-  },
-  "babelMacros": {
-    "twin": {
-      "preset": "styled-components"
-    }
   },
   "dependencies": {
     "@babel/core": "^7.12.10",
@@ -17,13 +12,11 @@
     "next": "latest",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "styled-components": "^5.2.1",
-    "twin.macro": "^2.0.7"
+    "twind": "^0.10.0"
   },
+  "license": "MIT",
   "devDependencies": {
-    "autoprefixer": "10.0.2",
-    "postcss": "^8.2.1",
-    "tailwindcss": "^2.0.1"
-  },
-  "license": "MIT"
+    "eslint": "^7.16.0",
+    "eslint-plugin-react": "^7.21.5"
+  }
 }

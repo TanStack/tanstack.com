@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import tw from 'twin.macro'
+import { tw } from 'twind'
 
 const links = [
   { href: 'https://github.com/tannerlinsley', label: 'GitHub' },
@@ -10,8 +10,8 @@ const links = [
 
 export default function Nav() {
   return (
-    <nav tw="max-w-screen-md mx-auto text-white ">
-      <ul tw="flex items-center justify-between p-8">
+    <nav className={tw`max-w-screen-md mx-auto text-white`}>
+      <ul className={tw`flex items-center justify-between p-8`}>
         <li>
           <Link href="/">
             <a>
@@ -24,13 +24,13 @@ export default function Nav() {
             </a>
           </Link>
         </li>
-        <ul tw="flex items-center justify-between space-x-2">
+        <ul className={tw`flex items-center justify-between space-x-2`}>
           {links.map(({ href, label }) => (
             <li key={`${href}${label}`}>
               <Link href={href}>
                 <a
                   href={href}
-                  tw="inline px-2 py-1 rounded-md transition-all hover:(bg-gray-900 bg-opacity-20)"
+                  className={tw`inline px-2 py-1 rounded-md transition-all hover:(bg-gray-900 bg-opacity-20)`}
                 >
                   {label}
                 </a>

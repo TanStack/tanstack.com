@@ -1,9 +1,8 @@
-import React from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import tw, { theme } from 'twin.macro'
-
-import Nav from '../components/Nav'
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { tw } from 'twind';
+import Nav from '../components/Nav';
 
 const libraries = [
   {
@@ -27,7 +26,7 @@ const libraries = [
     tagline: `Simple, immersive & interactive charts for React`,
     description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
   },
-]
+];
 
 const courses = [
   {
@@ -37,30 +36,30 @@ const courses = [
     description: `The official and exclusive guide to mastering server-state in your applications, straight from the original creator and maintainer of the library.`,
     price: 150,
   },
-]
+];
 
 export default function IndexPage() {
   return (
     <div>
       <section
-        tw="text-white relative bg-red-500"
-        style={{
-          backgroundImage: `
-          radial-gradient(circle at 25% 140vw, transparent 85%, ${theme`colors.yellow.500`}),
-          radial-gradient(circle at 75% -100vw, transparent 85%, ${theme`colors.blue.500`})
-          `,
-        }}
+        className={tw`text-white relative bg-red-500`}
+        // style={{
+        //   backgroundImage: `
+        //   radial-gradient(circle at 25% 140vw, transparent 85%, ${theme`colors.yellow.500`}),
+        //   radial-gradient(circle at 75% -100vw, transparent 85%, ${theme`colors.blue.500`})
+        //   `,
+        // }}
       >
         <div
-          tw="absolute bg-cover bg-center inset-0"
+          className={tw`absolute bg-cover bg-center inset-0`}
           style={{
             backgroundImage: 'url(/img/header-left-overlay.svg)',
           }}
         />
-        <div tw="relative">
+        <div className={tw`relative`}>
           <Nav />
-          <div tw="text-center mt--20 p-20">
-            <div tw="w-max mx-auto grid gap-2 grid-cols-2">
+          <div className={tw`text-center -mt-20 p-20`}>
+            <div className={tw`w-max mx-auto grid gap-2 grid-cols-2`}>
               <Image
                 src="/img/javascript-logo-white.svg"
                 alt="Javascript Logo"
@@ -74,14 +73,18 @@ export default function IndexPage() {
                 height={70}
               />
             </div>
-            <p tw="text-4xl text-center italic font-semibold mt-6">
+            <p className={tw`text-4xl text-center italic font-semibold mt-6`}>
               Quality Software & Libraries
             </p>
-            <p tw="text-2xl text-center font-extralight">for the Modern Web</p>
+            <p className={tw`text-2xl text-center font-extralight`}>
+              for the Modern Web
+            </p>
           </div>
         </div>
       </section>
-      <div tw="relative max-w-screen-md mx-2 rounded-md p-8 mt--10 bg-white shadow-lg md:(p-14 mx-auto) dark:(bg-gray-800)">
+      <div
+        className={tw`relative max-w-screen-md mx-2 rounded-md p-8 -mt-10 bg-white shadow-lg md:(p-14 mx-auto) dark:(bg-gray-800)`}
+      >
         <form
           action="https://app.convertkit.com/forms/1913546/subscriptions"
           method="post"
@@ -98,13 +101,18 @@ export default function IndexPage() {
           />
 
           <div>
-            <h3 tw="text-3xl">Don't miss a beat!</h3>
-            <h3 tw="text-lg mt-1">Subscribe to our newsletter.</h3>
+            <h3 className={tw`text-3xl`}>Don't miss a beat!</h3>
+            <h3 className={tw`text-lg mt-1`}>Subscribe to our newsletter.</h3>
           </div>
-          <div data-element="fields" tw="grid grid-cols-3 mt-4 gap-2">
+          <div
+            data-element="fields"
+            className={tw`grid grid-cols-3 mt-4 gap-2`}
+          >
             <input
-              className="formkit-input"
-              tw="col-span-2 p-3 placeholder-gray-400 text-gray-700 bg-gray-200 rounded text-sm outline-none focus:outline-none w-full text-black dark:(text-white bg-gray-700)"
+              className={
+                'formkit-input ' +
+                tw`col-span-2 p-3 placeholder-gray-400 text-gray-700 bg-gray-200 rounded text-sm outline-none focus:outline-none w-full text-black dark:(text-white bg-gray-700)`
+              }
               name="email_address"
               placeholder="Your email address"
               type="text"
@@ -112,42 +120,43 @@ export default function IndexPage() {
             />
             <button
               data-element="submit"
-              className="formkit-submit"
-              tw="bg-blue-500 rounded text-white"
+              className={'formkit-submit ' + tw`bg-blue-500 rounded text-white`}
             >
               <span>Subscribe</span>
             </button>
           </div>
-          <p tw="text-sm opacity-30 font-semibold italic mt-2">
+          <p className={tw`text-sm opacity-30 font-semibold italic mt-2`}>
             We never spam, promise!
           </p>
         </form>
       </div>
-      {/* <div tw="relative max-w-screen-md mx-2 rounded-md p-8 mt--10 bg-white shadow-lg md:(p-14 mx-auto) dark:(bg-gray-800)">
-        <h1 tw="text-2xl font-bold">Blog</h1>
+      {/* <div className={tw`relative max-w-screen-md mx-2 rounded-md p-8 -mt-10 bg-white shadow-lg md:(p-14 mx-auto) dark:(bg-gray-800)`}>
+        <h1 className={tw`text-2xl font-bold`}>Blog</h1>
         <div>
           {[1, 2, 3].map((d) => (
-            <div key={d} tw="mt-10 text-lg">
-              <div tw="font-bold">Hello</div>
-              <div tw="italic mt-2">Preview</div>
-              <div tw="mt-2 text-blue-500 dark:(text-red-500)">
+            <div key={d} className={tw`mt-10 text-lg`}>
+              <div className={tw`font-bold`}>Hello</div>
+              <div className={tw`italic mt-2`}>Preview</div>
+              <div className={tw`mt-2 text-blue-500 dark:(text-red-500)`}>
                 <Link href="/">Read →</Link>
               </div>
             </div>
           ))}
         </div>
       </div> */}
-      <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
-        <h1 tw="text-4xl font-light">Products</h1>
-        <div tw="mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)">
-          <div tw="bg-white shadow-lg rounded-lg p-4 opacity-70 italic text-center text-gray-600 md:(p-10) dark:(bg-gray-800)">
+      <div className={tw`mt-12 max-w-screen-md mx-4 md:(mx-auto)`}>
+        <h1 className={tw`text-4xl font-light`}>Products</h1>
+        <div className={tw`mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)`}>
+          <div
+            className={tw`bg-white shadow-lg rounded-lg p-4 opacity-70 italic text-center text-gray-600 md:(p-10) dark:(bg-gray-800)`}
+          >
             Coming soon!
           </div>
         </div>
       </div>
-      <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
-        <h1 tw="text-4xl font-light">Open Source Libraries</h1>
-        <div tw="mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)">
+      <div className={tw`mt-12 max-w-screen-md mx-4 md:(mx-auto)`}>
+        <h1 className={tw`text-4xl font-light`}>Open Source Libraries</h1>
+        <div className={tw`mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)`}>
           {libraries.map((library) => (
             <Link key={library.name} href={library.href}>
               <a
@@ -157,19 +166,19 @@ export default function IndexPage() {
                   library.styles,
                 ]}
               >
-                <div tw="text-3xl font-bold ">{library.name}</div>
-                <div tw="text-lg italic font-extralight mt-2">
+                <div className={tw`text-3xl font-bold `}>{library.name}</div>
+                <div className={tw`text-lg italic font-extralight mt-2`}>
                   {library.tagline}
                 </div>
-                <div tw="text-sm mt-2">{library.description}</div>
+                <div className={tw`text-sm mt-2`}>{library.description}</div>
               </a>
             </Link>
           ))}
         </div>
       </div>
-      <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
-        <h1 tw="text-4xl font-light">Courses</h1>
-        <div tw="mt-4 grid grid-cols-1 gap-4">
+      <div className={tw`mt-12 max-w-screen-md mx-4 md:(mx-auto)`}>
+        <h1 className={tw`text-4xl font-light`}>Courses</h1>
+        <div className={tw`mt-4 grid grid-cols-1 gap-4`}>
           {courses.map((course) => (
             <Link key={course.name} href={course.href}>
               <a
@@ -179,16 +188,22 @@ export default function IndexPage() {
                   course.styles,
                 ]}
               >
-                <div tw="col-span-2 md:(col-span-5)">
-                  <div tw="text-2xl font-bold ">{course.name}</div>
-                  <div tw="text-sm mt-2">{course.description}</div>
-                  <div tw="inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded shadow">
+                <div className={tw`col-span-2 md:(col-span-5)`}>
+                  <div className={tw`text-2xl font-bold `}>{course.name}</div>
+                  <div className={tw`text-sm mt-2`}>{course.description}</div>
+                  <div
+                    className={tw`inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded shadow`}
+                  >
                     Enroll →
                   </div>
                 </div>
-                <div tw="flex-col text-center md:(text-right)">
-                  <div tw="text-center text-3xl font-bold">${course.price}</div>
-                  <div tw="text-center text-sm opacity-70">per license</div>
+                <div className={tw`flex-col text-center md:(text-right)`}>
+                  <div className={tw`text-center text-3xl font-bold`}>
+                    ${course.price}
+                  </div>
+                  <div className={tw`text-center text-sm opacity-70`}>
+                    per license
+                  </div>
                 </div>
               </a>
             </Link>
@@ -225,5 +240,5 @@ export default function IndexPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

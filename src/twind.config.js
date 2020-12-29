@@ -1,11 +1,12 @@
-module.exports = {
-  darkMode: 'media', // 'media' or 'class',
-  purge: ['./src/**/*.html', './src/**/*.vue', './src/**/*.jsx'],
+// import { strict } from 'twind'
+
+export default {
+  // mode: strict, // Throw errors for invalid rules instead of logging
   theme: {
     extend: {
-      zIndex: {
-        '-10': '-10',
-      },
+      // zIndex: {
+      //   '-10': '-10',
+      // },
       boxShadow: {
         sm: '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
         DEFAULT:
@@ -73,8 +74,4 @@ module.exports = {
       },
     },
   },
-  variants: {
-    extend: {},
-  },
-  plugins: [],
 }

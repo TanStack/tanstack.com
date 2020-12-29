@@ -196,6 +196,34 @@ export default function IndexPage() {
         </div>
       </div>
       <div tw="h-20" />
+      <div tw="bg-gray-800 text-white shadow-lg">
+        <div tw="max-w-screen-md mx-auto py-6 px-4 grid gap-1 md:(grid-cols-2)">
+          {[
+            { name: 'Twitter', href: 'https://twitter.com/tannerlinsley' },
+            {
+              name: 'Youtube',
+              href: 'https://www.youtube.com/user/tannerlinsley',
+            },
+            { name: 'Github', href: 'https://github.com/tannerlinsley' },
+            {
+              name: 'Nozzle.io - Keyword Rank Tracker',
+              href: 'https://nozzle.io',
+            },
+            {
+              name: `Tanner's Blog`,
+              href: 'https://tannerlinsley.com',
+            },
+          ].map((link) => (
+            <div>
+              <Link href={link.href}>
+                <a href={link.href} tw="hover:underline">
+                  {link.name}
+                </a>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

@@ -5,6 +5,17 @@ import { createGlobalStyle } from 'styled-components'
 import '../styles.css'
 import { Seo } from '../components/Seo'
 
+function loadScript(src, attrs = {}) {
+  if (typeof document !== 'undefined') {
+    const script = document.createElement('script')
+    script.async = true
+    script.defer = true
+    Object.keys(attrs).forEach((attr) => script.setAttribute(attr, attrs[attr]))
+    script.src = src
+    document.body.appendChild(script)
+  }
+}
+
 const MyGlobalStyles = createGlobalStyle`
   @media (prefers-color-scheme: dark) {
     * {
@@ -28,7 +39,13 @@ const MyGlobalStyles = createGlobalStyle`
   }
 `
 
-export default function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps }) {
+  React.useEffect(() => {
+    loadScript('//js.hs-scripts.com/8180418.js', {
+      id: 'hs-script-loader',
+    })
+  }, [])
+
   return (
     <>
       <Seo
@@ -41,3 +58,5 @@ export default function MyApp({ Component, pageProps }) {
     </>
   )
 }
+
+export default MyApp

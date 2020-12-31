@@ -40,27 +40,7 @@ const courses = [
 ]
 
 const Anchor = React.forwardRef((props, ref) => {
-  return (
-    <a
-      ref={ref}
-      {...props}
-      onMouseEnter={(e) => {
-        window.gtag?.('event', 'outbound', 'hover', props.href, {
-          transport: 'beacon',
-        })
-        props.onHover?.(e)
-      }}
-      onClick={(e) => {
-        window.gtag?.('event', 'outbound', 'click', props.href, {
-          transport: 'beacon',
-          // hitCallback: function () {
-          //   document.location = url
-          // },
-        })
-        props.onClick?.(e)
-      }}
-    />
-  )
+  return <a ref={ref} {...props} />
 })
 
 export default function IndexPage() {

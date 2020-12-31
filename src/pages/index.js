@@ -39,6 +39,30 @@ const courses = [
   },
 ]
 
+const Anchor = React.forwardRef((props, ref) => {
+  return (
+    <a
+      ref={ref}
+      {...props}
+      onMouseEnter={(e) => {
+        window.gtag?.('event', 'outbound', 'hover', props.href, {
+          transport: 'beacon',
+        })
+        props.onHover?.(e)
+      }}
+      onClick={(e) => {
+        window.gtag?.('event', 'outbound', 'click', props.href, {
+          transport: 'beacon',
+          // hitCallback: function () {
+          //   document.location = url
+          // },
+        })
+        props.onClick?.(e)
+      }}
+    />
+  )
+})
+
 export default function IndexPage() {
   return (
     <div>
@@ -150,7 +174,7 @@ export default function IndexPage() {
         <div tw="mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)">
           {libraries.map((library) => (
             <Link key={library.name} href={library.href}>
-              <a
+              <Anchor
                 href={library.href}
                 css={[
                   tw`border-4 border-transparent rounded-lg shadow-lg p-4 md:(p-10) text-white transition-all`,
@@ -162,7 +186,7 @@ export default function IndexPage() {
                   {library.tagline}
                 </div>
                 <div tw="text-sm mt-2">{library.description}</div>
-              </a>
+              </Anchor>
             </Link>
           ))}
         </div>
@@ -172,7 +196,7 @@ export default function IndexPage() {
         <div tw="mt-4 grid grid-cols-1 gap-4">
           {courses.map((course) => (
             <Link key={course.name} href={course.href}>
-              <a
+              <Anchor
                 href={course.href}
                 css={[
                   tw`bg-white rounded-lg shadow-lg p-4 grid grid-cols-3 gap-6 transition-all ease-linear md:(p-10) dark:(bg-gray-800) md:(grid-cols-6)`,
@@ -190,7 +214,7 @@ export default function IndexPage() {
                   <div tw="text-center text-3xl font-bold">${course.price}</div>
                   <div tw="text-center text-sm opacity-70">per license</div>
                 </div>
-              </a>
+              </Anchor>
             </Link>
           ))}
         </div>
@@ -214,11 +238,11 @@ export default function IndexPage() {
               href: 'https://tannerlinsley.com',
             },
           ].map((link) => (
-            <div>
+            <div key={link.href}>
               <Link href={link.href}>
-                <a href={link.href} tw="hover:underline">
+                <Anchor href={link.href} tw="hover:underline">
                   {link.name}
-                </a>
+                </Anchor>
               </Link>
             </div>
           ))}

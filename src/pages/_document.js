@@ -1,7 +1,6 @@
 import React from 'react'
 import Document, { Html, Head, Main, NextScript } from 'next/document'
 import { ServerStyleSheet } from 'styled-components'
-import tw from 'twin.macro'
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx) {
@@ -34,7 +33,6 @@ export default class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          {/* <!-- Global site tag (gtag.js) - Google Analytics --> */}
           <script
             async
             src="https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS"

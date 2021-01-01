@@ -39,6 +39,23 @@ const courses = [
   },
 ]
 
+const footerLinks = [
+  { name: 'Twitter', href: 'https://twitter.com/tannerlinsley' },
+  {
+    name: 'Youtube',
+    href: 'https://www.youtube.com/user/tannerlinsley',
+  },
+  { name: 'Github', href: 'https://github.com/tannerlinsley' },
+  {
+    name: 'Nozzle.io - Keyword Rank Tracker',
+    href: 'https://nozzle.io',
+  },
+  {
+    name: `Tanner's Blog`,
+    href: 'https://tannerlinsley.com',
+  },
+]
+
 const Anchor = React.forwardRef((props, ref) => {
   return <a ref={ref} {...props} />
 })
@@ -142,7 +159,7 @@ export default function IndexPage() {
         </div>
       </div> */}
       <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
-        <h1 tw="text-4xl font-light">Products</h1>
+        <h3 tw="text-4xl font-light">Products</h3>
         <div tw="mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)">
           <div tw="bg-white shadow-lg rounded-lg p-4 opacity-70 italic text-center text-gray-600 md:(p-10) dark:(bg-gray-800)">
             Coming soon!
@@ -150,7 +167,7 @@ export default function IndexPage() {
         </div>
       </div>
       <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
-        <h1 tw="text-4xl font-light">Open Source Libraries</h1>
+        <h3 tw="text-4xl font-light">Open Source Libraries</h3>
         <div tw="mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)">
           {libraries.map((library) => (
             <Link key={library.name} href={library.href}>
@@ -171,26 +188,37 @@ export default function IndexPage() {
           ))}
         </div>
       </div>
-      <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
-        <h1 tw="text-4xl font-light">Courses</h1>
+      <div
+        tw="mt-12 max-w-screen-md mx-4
+            md:(mx-auto)"
+      >
+        <h3 tw="text-4xl font-light">Courses</h3>
         <div tw="mt-4 grid grid-cols-1 gap-4">
           {courses.map((course) => (
             <Link key={course.name} href={course.href}>
               <Anchor
                 href={course.href}
                 css={[
-                  tw`bg-white rounded-lg shadow-lg p-4 grid grid-cols-3 gap-6 transition-all ease-linear md:(p-10) dark:(bg-gray-800) md:(grid-cols-6)`,
+                  tw`bg-white rounded-lg shadow-lg p-4 grid grid-cols-3 gap-6 transition-all ease-linear
+                    md:(p-8 grid-cols-6)
+                    dark:(bg-gray-800)`,
                   course.styles,
                 ]}
               >
-                <div tw="col-span-2 md:(col-span-5)">
+                <div
+                  tw="col-span-2
+                    md:(col-span-5)"
+                >
                   <div tw="text-2xl font-bold ">{course.name}</div>
                   <div tw="text-sm mt-2">{course.description}</div>
                   <div tw="inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded shadow">
                     Enroll →
                   </div>
                 </div>
-                <div tw="flex-col text-center md:(text-right)">
+                <div
+                  tw="flex-col text-center
+                      md:(text-right)"
+                >
                   <div tw="text-center text-3xl font-bold">${course.price}</div>
                   <div tw="text-center text-sm opacity-70">per license</div>
                 </div>
@@ -199,25 +227,41 @@ export default function IndexPage() {
           ))}
         </div>
       </div>
+      <div
+        tw="
+          mt-12 max-w-screen-md mx-4 rounded-md p-4 shadow-lg grid gap-6 bg-discord text-white overflow-hidden relative
+          sm:(p-8 mx-auto grid-cols-3)"
+      >
+        <div
+          tw="absolute transform opacity-10 z-0
+            right-0 top-0 -translate-y-1/3 translate-x-1/3
+            sm:(opacity-20)
+        "
+        >
+          <Image src="/img/discord-logo-white.svg" width={300} height={300} />
+        </div>
+        <div tw="sm:(col-span-2)">
+          <h3 tw="text-3xl">TanStack on Discord</h3>
+          <p tw="mt-4">
+            The official TanStack community to ask questions, network and make
+            new friends and get lightning fast news about what's coming next for
+            TanStack!
+          </p>
+        </div>
+        <div tw="flex items-center justify-center">
+          <a
+            href="https://discord.com/invite/WrRKjPJ"
+            target="_blank"
+            tw="block w-full mt-4 px-4 py-2 bg-white text-discord text-center text-lg rounded shadow-lg z-10"
+          >
+            Join TanStack Discord
+          </a>
+        </div>
+      </div>
       <div tw="h-20" />
       <div tw="bg-gray-800 text-white shadow-lg">
         <div tw="max-w-screen-md mx-auto py-6 px-4 grid gap-1 md:(grid-cols-2)">
-          {[
-            { name: 'Twitter', href: 'https://twitter.com/tannerlinsley' },
-            {
-              name: 'Youtube',
-              href: 'https://www.youtube.com/user/tannerlinsley',
-            },
-            { name: 'Github', href: 'https://github.com/tannerlinsley' },
-            {
-              name: 'Nozzle.io - Keyword Rank Tracker',
-              href: 'https://nozzle.io',
-            },
-            {
-              name: `Tanner's Blog`,
-              href: 'https://tannerlinsley.com',
-            },
-          ].map((link) => (
+          {footerLinks.map((link) => (
             <div key={link.href}>
               <Link href={link.href}>
                 <Anchor href={link.href} tw="hover:underline">

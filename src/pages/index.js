@@ -260,17 +260,23 @@ export default function IndexPage() {
       </div>
       <div tw="h-20" />
       <div tw="bg-gray-800 text-white shadow-lg">
-        <div tw="max-w-screen-md mx-auto py-6 px-4 grid gap-1 md:(grid-cols-2)">
-          {footerLinks.map((link) => (
-            <div key={link.href}>
-              <Link href={link.href}>
-                <Anchor href={link.href} tw="hover:underline">
-                  {link.name}
-                </Anchor>
-              </Link>
-            </div>
-          ))}
+        <div tw="max-w-screen-md mx-auto py-12 px-4">
+          <div tw="grid gap-1 md:(grid-cols-2)">
+            {footerLinks.map((link) => (
+              <div key={link.href}>
+                <Link href={link.href}>
+                  <Anchor href={link.href} tw="hover:underline">
+                    {link.name}
+                  </Anchor>
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
+        <div tw="text-center opacity-20 text-sm">
+          &copy; {new Date().getFullYear()} Tanner Linsley
+        </div>
+        <div tw="h-8"></div>
       </div>
     </div>
   )

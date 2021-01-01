@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
+    "vercel-build": "PLAYWRIGHT_BROWSERS_PATH=0 yarn add playwright-chromium && yarn build",
     "start": "next start"
   },
   "babelMacros": {

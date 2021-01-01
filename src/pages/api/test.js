@@ -1,15 +1,26 @@
+import { chromium } from 'playwright-chromium'
 import { middleware } from '../../server/middleware'
 
 export default async function handler(req, res) {
   // Run the middleware
   await middleware(req, res)
 
-  console.log('hello')
+  console.log('testing...')
+
+  const browser = await chromium.launch()
+  const page = await browser.newPage()
+  await page.goto('http://whatsmyuseragent.org/')
+  const imageBuf = await page.screenshot()
+  await browser.close()
+
+  res.setHeader('Content-Disposition', 'attachment; filename=screenshot.png')
 
   // Get data from your database
   res.setHeader('Cache-Control', 's-maxage=5, stale-while-revalidate')
 
-  res.status(200).json({
-    message: Date.now(),
-  })
+  res.send(imageBuf)
+
+  // res.status(200).json({
+  //   message: Date.now(),
+  // })
 }

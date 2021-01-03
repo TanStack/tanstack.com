@@ -2621,6 +2621,13 @@ klona@^2.0.4:
   resolved "https://registry.yarnpkg.com/klona/-/klona-2.0.4.tgz#7bb1e3affb0cb8624547ef7e8f6708ea2e39dfc0"
   integrity sha512-ZRbnvdg/NxqzC7L9Uyqzf4psi1OM4Cuc+sJAkQPjO6XkQIJTNbfK2Rsmbw8fx1p2mkZdp2FZYo2+LwXYY/uwIA==
 
+lambdafs@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/lambdafs/-/lambdafs-1.3.0.tgz#7e369cedc9a09623bb365fa99a1113c2ab2fc7ae"
+  integrity sha512-HqRPmEgtkTW4sCYDUjTEuTGkjCHuLvtZU8iM8GkhD7SpjW4AJJbBk86YU4K43sWGuW5Vmzp1lVCx4ab/kJsuBw==
+  dependencies:
+    tar-fs "^2.0.0"
+
 line-column@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/line-column/-/line-column-1.0.2.tgz#d25af2936b6f4849172b312e4792d1d987bc34a2"
@@ -3331,10 +3338,17 @@ platform@1.3.3:
   resolved "https://registry.yarnpkg.com/platform/-/platform-1.3.3.tgz#646c77011899870b6a0903e75e997e8e51da7461"
   integrity sha1-ZGx3ARiZhwtqCQPnXpl+jlHadGE=
 
-playwright-chromium@^1.7.1:
+playwright-aws-lambda@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/playwright-aws-lambda/-/playwright-aws-lambda-0.6.0.tgz#3ce1db2011384a92740a557dc6b7deb277560cbb"
+  integrity sha512-lu3XYrI0NDMZ4P9pZBEDSnuwVl7EQKtSRPioGQbSoG3c8hJt71H5EynaBGjXVDdgeRz9HPgwajHv3Ed7kW59Jw==
+  dependencies:
+    lambdafs "^1.3.0"
+
+playwright-core@^1.7.1:
   version "1.7.1"
-  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.7.1.tgz#e0bec47eaeeefcec16db1170ee18a78a53ce612d"
-  integrity sha512-Q/xdDwvHPLEWGVP6rLbg6bvE4Nhkt7qqZqMHW7iGpW+IHcO/6FgnEDT7tReFFBbLaRk1MNXHoCCHVphbCPwtEw==
+  resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.7.1.tgz#351a1f6558f5a196e37a4ebc07fb4baa29c64ea1"
+  integrity sha512-HVc7q+xLPBmZTQ4ddTpF+QA2Qf0SdIIzXKP7gQ+1eY98AP84yuFstnD/4rI4FoR14aJm4iXgdIKXYyDFWOXfQQ==
   dependencies:
     debug "^4.1.1"
     extract-zip "^2.0.1"

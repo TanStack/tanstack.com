@@ -1,4 +1,4 @@
-// import { middleware } from '../../server/middleware'
+import { middleware } from '../../server/middleware'
 
 async function verifySecret(req, res) {
   const sig = req.headers['x-hub-signature'] || ''
@@ -22,7 +22,7 @@ async function verifySecret(req, res) {
 }
 
 export default async function handler(req, res) {
-  // Run the middleware
+  await middleware(req, res)
   await verifySecret(req, res)
 
   res.status(200)

@@ -26,6 +26,8 @@ export default async function handler(req, res) {
   await middleware(req, res)
   await verifySecret(req, res)
 
+  console.log(JSON.stringify(req.body, null, 2))
+
   res.status(200)
   res.json({ status: 'OK' })
 }

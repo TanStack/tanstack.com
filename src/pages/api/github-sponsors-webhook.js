@@ -1,6 +1,6 @@
 import { middleware } from '../../server/middleware'
 
-async function verifySecret(req, res) {
+async function verifySecret(req) {
   const sig = req.headers['x-hub-signature'] || ''
   const hmac = crypto.createHmac(
     'sha1',

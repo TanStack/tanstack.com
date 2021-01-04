@@ -1,7 +1,7 @@
 import { devices } from 'playwright-core'
 
 import { middleware } from '../../server/middleware'
-import { makeBrowser } from '../../utils/Browser'
+import { makeBrowser } from '../../utils/browser'
 
 const iPhone11Pro = devices['iPhone 11 Pro']
 const maxAge = 60 * 5 // 5 minutes

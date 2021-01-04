@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { middleware } from '../../server/middleware'
 
 async function verifySecret(req) {

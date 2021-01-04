@@ -17,6 +17,7 @@
     "cors": "^2.8.5",
     "next": "latest",
     "playwright-aws-lambda": "^0.6.0",
+    "playwright-chromium": "^1.7.1",
     "playwright-core": "^1.7.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

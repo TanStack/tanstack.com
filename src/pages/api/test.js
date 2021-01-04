@@ -1,4 +1,3 @@
-import * as playwright from 'playwright-aws-lambda'
 import { middleware } from '../../server/middleware'
 
 export default async function handler(req, res) {
@@ -7,7 +6,7 @@ export default async function handler(req, res) {
 
   console.log('testing...')
 
-  const browser = await playwright.launchChromium()
+  const browser = await makeBrowser()
   const page = await browser.newPage()
   await page.goto('http://whatsmyuseragent.org/')
   const imageBuf = await page.screenshot()

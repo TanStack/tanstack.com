@@ -27,7 +27,5 @@ export default async function handler(req, res) {
   await verifySecret(req, res)
 
   res.status(200)
-  // .json({
-  //   message: Date.now(),
-  // })
+  res.json({ status: 'OK' })
 }

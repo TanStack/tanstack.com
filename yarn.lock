@@ -3345,6 +3345,23 @@ playwright-aws-lambda@^0.6.0:
   dependencies:
     lambdafs "^1.3.0"
 
+playwright-chromium@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/playwright-chromium/-/playwright-chromium-1.7.1.tgz#e0bec47eaeeefcec16db1170ee18a78a53ce612d"
+  integrity sha512-Q/xdDwvHPLEWGVP6rLbg6bvE4Nhkt7qqZqMHW7iGpW+IHcO/6FgnEDT7tReFFBbLaRk1MNXHoCCHVphbCPwtEw==
+  dependencies:
+    debug "^4.1.1"
+    extract-zip "^2.0.1"
+    https-proxy-agent "^5.0.0"
+    jpeg-js "^0.4.2"
+    mime "^2.4.6"
+    pngjs "^5.0.0"
+    progress "^2.0.3"
+    proper-lockfile "^4.1.1"
+    proxy-from-env "^1.1.0"
+    rimraf "^3.0.2"
+    ws "^7.3.1"
+
 playwright-core@^1.7.1:
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/playwright-core/-/playwright-core-1.7.1.tgz#351a1f6558f5a196e37a4ebc07fb4baa29c64ea1"

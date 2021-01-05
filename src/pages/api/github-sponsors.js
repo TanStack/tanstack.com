@@ -32,15 +32,15 @@ async function getSponsorsAndTiers() {
 
     if (matchingSponsor) {
       Object.assign(matchingSponsor, {
-        logoURL: meta.logoURL,
-        linkURL: meta.linkURL,
+        imageUrl: meta.imageUrl,
+        linkUrl: meta.linkUrl,
         privacyLevel: meta.privacyLevel,
       })
     } else {
       const tier = tiers.find((d) => d.id === meta.tierId[0])
       sponsors.push({
-        logoURL: meta.logoURL,
-        linkURL: meta.linkURL,
+        imageUrl: meta.imageUrl,
+        linkUrl: meta.linkUrl,
         name: meta.name,
         login: meta.login,
         tierId: meta.tierId,

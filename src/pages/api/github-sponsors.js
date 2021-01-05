@@ -32,6 +32,7 @@ async function getSponsorsAndTiers() {
 
     if (matchingSponsor) {
       Object.assign(matchingSponsor, {
+        name: meta.name,
         imageUrl: meta.imageUrl,
         linkUrl: meta.linkUrl,
         privacyLevel: meta.privacyLevel,

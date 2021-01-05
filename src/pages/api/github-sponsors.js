@@ -34,9 +34,20 @@ async function getSponsorsAndTiers() {
       Object.assign(matchingSponsor, {
         logoURL: meta.logoURL,
         linkURL: meta.linkURL,
+        privacyLevel: meta.privacyLevel,
       })
     } else {
-      sponsors.push(meta)
+      const tier = tiers.find((d) => d.id === meta.tierId[0])
+      sponsors.push({
+        logoURL: meta.logoURL,
+        linkURL: meta.linkURL,
+        name: meta.name,
+        login: meta.login,
+        tierId: meta.tierId,
+        createdAt: meta.createdAt,
+        monthlyPriceInCents: tier.monthlyPriceInCents,
+        privacyLevel: meta.privacyLevel,
+      })
     }
   })
 
@@ -68,9 +79,15 @@ async function getGithubSponsors() {
             edges {
               node {
                 createdAt
-                sponsor {
-                  name
-                  login
+                sponsorEntity {
+                  ... on User {
+                    name
+                    login
+                  }
+                  ... on Organization {
+                    name
+                    login
+                  }
                 }
                 tier {
                   id
@@ -88,6 +105,8 @@ async function getGithubSponsors() {
       }
     )
 
+    console.log(res)
+
     const {
       viewer: {
         sponsorshipsAsMaintainer: {
@@ -103,17 +122,17 @@ async function getGithubSponsors() {
         const {
           node: {
             createdAt,
-            sponsor,
+            sponsorEntity,
             tier: { id: tierId, monthlyPriceInCents },
             privacyLevel,
           },
         } = edge
 
-        if (!sponsor) {
+        if (!sponsorEntity) {
           return null
         }
 
-        const { name, login } = sponsor
+        const { name, login } = sponsorEntity
 
         return {
           name,

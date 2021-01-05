@@ -14,6 +14,8 @@
   "dependencies": {
     "@babel/core": "^7.12.10",
     "@babel/plugin-transform-react-jsx": "^7.12.12",
+    "@octokit/graphql": "^4.5.8",
+    "airtable": "^0.10.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "next": "latest",

@@ -4,6 +4,8 @@ import Link from 'next/link'
 import tw, { theme } from 'twin.macro'
 
 import Nav from '../components/Nav'
+import SponsorPack from '../components/SponsorPack'
+import axios from 'axios'
 
 const libraries = [
   {
@@ -60,7 +62,21 @@ const Anchor = React.forwardRef((props, ref) => {
   return <a ref={ref} {...props} />
 })
 
-export default function IndexPage() {
+export const getStaticProps = async () => {
+  const {
+    data: { sponsors, tiers },
+  } = await axios.get('https://tanstack.com/api/github-sponsors')
+
+  return {
+    props: {
+      sponsors,
+      tiers,
+    },
+    revalidate: 60, // In seconds
+  }
+}
+
+export default function Home({ sponsors }) {
   return (
     <div>
       <section
@@ -228,6 +244,15 @@ export default function IndexPage() {
         </div>
       </div>
       <div
+        tw="mt-12 max-w-screen-md mx-4
+            md:(mx-auto)"
+      >
+        <h3 tw="text-4xl font-light">OSS Sponsors</h3>
+        <div tw="mt-4">
+          <SponsorPack sponsors={sponsors} height={700} />
+        </div>
+      </div>
+      <div
         tw="
           mt-12 max-w-screen-md mx-4 rounded-md p-4 shadow-lg grid gap-6 bg-discord text-white overflow-hidden relative
           sm:(p-8 mx-auto grid-cols-3)"
@@ -252,6 +277,7 @@ export default function IndexPage() {
           <a
             href="https://discord.com/invite/WrRKjPJ"
             target="_blank"
+            rel="noreferrer"
             tw="block w-full mt-4 px-4 py-2 bg-white text-discord text-center text-lg rounded shadow-lg z-10"
           >
             Join TanStack Discord

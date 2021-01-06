@@ -248,13 +248,14 @@ export default function Home({ sponsors }) {
             md:(mx-auto)"
       >
         <h3 tw="text-4xl font-light">OSS Sponsors</h3>
-        <div tw="mt-4">
+        <div tw="mt-4 overflow-hidden">
           <SponsorPack sponsors={sponsors} height={700} />
         </div>
       </div>
       <div
         tw="
-          mt-12 max-w-screen-md mx-4 rounded-md p-4 shadow-lg grid gap-6 bg-discord text-white overflow-hidden relative
+          mt-12 max-w-screen-md mx-4 rounded-md p-4 shadow-lg grid gap-6
+          bg-discord text-white overflow-hidden relative
           sm:(p-8 mx-auto grid-cols-3)"
       >
         <div

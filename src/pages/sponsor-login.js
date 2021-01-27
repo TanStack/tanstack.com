@@ -112,72 +112,77 @@ export default function DiscordAuth() {
         </div>
       ) : null}
       <div tw="h-4" />
-      <h1 tw="text-center text-2xl">Sponsor Log-in</h1>
-      <div tw="h-6" />
-      <div>
-        {loadingMessage ? (
-          <div tw="text-center">{loadingMessage}</div>
-        ) : (
-          <div tw="flex flex-col gap-2 items-center">
-            <div tw="flex items-center justify-center gap-2">
-              <Button
-                onClick={loginToGithub}
-                css={[tw`bg-gray-900 text-white`, githubCode && tw`opacity-50`]}
-              >
-                {githubCode ? (
-                  <>
-                    <FaCheck /> Github
-                  </>
-                ) : (
-                  <>
-                    <FaGithub />
-                    Log In to Github
-                  </>
-                )}
-              </Button>
-              <Button
-                onClick={loginToDiscord}
-                css={[
-                  tw`bg-purple-500 text-white`,
-                  discordCode && tw`opacity-50`,
-                ]}
-              >
-                {discordCode ? (
-                  <>
-                    <FaCheck /> Discord
-                  </>
-                ) : (
-                  <>
-                    <FaDiscord /> Log In to Discord
-                  </>
-                )}
-              </Button>
-            </div>
-            {githubCode && discordCode ? (
-              <div tw="text-center">
+      <div tw="p-2">
+        <h1 tw="text-center text-2xl">Sponsor Log-in</h1>
+        <div tw="h-6" />
+        <div>
+          {loadingMessage ? (
+            <div tw="text-center">{loadingMessage}</div>
+          ) : (
+            <div tw="flex flex-col gap-2 flex-wrap items-center">
+              <div tw="flex items-center justify-center gap-2">
                 <Button
-                  onClick={() => linkAccounts()}
-                  disabled={loadingMessage}
-                  css={[tw`bg-blue-500 text-white`]}
+                  onClick={loginToGithub}
+                  css={[
+                    tw`bg-gray-900 text-white`,
+                    githubCode && tw`opacity-50`,
+                  ]}
                 >
-                  <FaPlug /> Link Accounts
+                  {githubCode ? (
+                    <>
+                      <FaCheck /> Github
+                    </>
+                  ) : (
+                    <>
+                      <FaGithub />
+                      Log In to Github
+                    </>
+                  )}
+                </Button>
+                <Button
+                  onClick={loginToDiscord}
+                  css={[
+                    tw`bg-purple-500 text-white`,
+                    discordCode && tw`opacity-50`,
+                  ]}
+                >
+                  {discordCode ? (
+                    <>
+                      <FaCheck /> Discord
+                    </>
+                  ) : (
+                    <>
+                      <FaDiscord /> Log In to Discord
+                    </>
+                  )}
                 </Button>
               </div>
-            ) : null}
-          </div>
-        )}
-      </div>
-      <div tw="h-6" />
-      <div tw="text-center">
-        <p>
-          Not a sponsor yet?{' '}
-          <a
-            href="https://github.com/sponsors/tannerlinsley"
-            tw="underline text-green-600 font-bold"
-          >
-            Sign up here!
-          </a>
-        </p>
+              {githubCode && discordCode ? (
+                <div tw="text-center">
+                  <Button
+                    onClick={() => linkAccounts()}
+                    disabled={loadingMessage}
+                    css={[tw`bg-blue-500 text-white`]}
+                  >
+                    <FaPlug /> Link Accounts
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </div>
+        <div tw="h-6" />
+        <div tw="text-center">
+          <p>
+            Not a sponsor yet?{' '}
+            <a
+              href="https://github.com/sponsors/tannerlinsley"
+              tw="underline text-green-600 font-bold"
+            >
+              Sign up here!
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   )

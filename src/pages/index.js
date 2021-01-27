@@ -2,10 +2,10 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import tw, { theme } from 'twin.macro'
+import { getSponsorsAndTiers } from '../server/sponsors'
 
 import Nav from '../components/Nav'
 import SponsorPack from '../components/SponsorPack'
-import axios from 'axios'
 
 const libraries = [
   {
@@ -65,16 +65,16 @@ const Anchor = React.forwardRef((props, ref) => {
 Anchor.displayName = 'Anchor'
 
 export const getStaticProps = async () => {
-  const {
-    data: { sponsors, tiers },
-  } = await axios.get('https://tanstack.com/api/github-sponsors')
-  // const { sponsors, tiers } = await getSponsorsAndTiers()
+  let { sponsors } = await getSponsorsAndTiers()
+
+  sponsors = sponsors.filter((d) => d.privacyLevel === 'PUBLIC')
 
   return {
-    props: {
-      sponsors,
-      tiers,
-    },
+    props: JSON.parse(
+      JSON.stringify({
+        sponsors,
+      })
+    ),
     revalidate: 60, // In seconds
   }
 }
@@ -252,7 +252,7 @@ export default function Home({ sponsors }) {
       >
         <h3 tw="text-4xl font-light">OSS Sponsors</h3>
         <div tw="mt-4 overflow-hidden">
-          <SponsorPack sponsors={sponsors} height={700} />
+          <SponsorPack sponsors={sponsors} />
         </div>
       </div>
       <div

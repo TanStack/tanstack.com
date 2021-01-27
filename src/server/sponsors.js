@@ -14,7 +14,7 @@ export async function sponsorCreated({ login, newTier }) {
       username: login,
     })
 
-    console.log(`invited user:${login} to team:${newTier.meta.githubTeamSlug}`)
+    console.info(`invited user:${login} to team:${newTier.meta.githubTeamSlug}`)
   }
 }
 
@@ -27,14 +27,14 @@ export async function sponsorEdited({ login, oldTier, newTier }) {
     team_slug: oldTier.meta.githubTeamSlug,
     username: login,
   })
-  console.log(`removed user:${login} from team:${oldTier.meta.githubTeamSlug}`)
+  console.info(`removed user:${login} from team:${oldTier.meta.githubTeamSlug}`)
 
   await octokit.teams.addOrUpdateMembershipForUserInOrg({
     org: GITHUB_ORG,
     team_slug: newTier.meta.githubTeamSlug,
     username: login,
   })
-  console.log(`invited user:${login} to team:${newTier.meta.githubTeamSlug}`)
+  console.info(`invited user:${login} to team:${newTier.meta.githubTeamSlug}`)
 }
 
 export async function sponsorCancelled({ login, oldTier }) {
@@ -44,7 +44,7 @@ export async function sponsorCancelled({ login, oldTier }) {
     team_slug: oldTier.meta.githubTeamSlug,
     username: login,
   })
-  console.log(`removed user:${login} from team:${oldTier.meta.githubTeamSlug}`)
+  console.info(`removed user:${login} from team:${oldTier.meta.githubTeamSlug}`)
 }
 
 export async function inviteAllSponsors() {

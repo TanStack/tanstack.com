@@ -32,7 +32,7 @@ const TanBotToken = process.env.DISCORD_TOKEN
 
 //     clientsByToken[discordToken] = new Promise((resolve, reject) => {
 //       client.on('ready', async () => {
-//         console.log('Discord Connected.')
+//         console.info('Discord Connected.')
 //         resolve(client)
 //       })
 //       client.login(discordToken).catch(reject)
@@ -76,7 +76,7 @@ export async function linkSponsorToken({ discordToken, sponsorType }) {
     const { data } = await botClient.get(`/guilds/${guildId}/roles`)
     roles = data
   } catch (err) {
-    console.log(err)
+    console.error(err)
     throw new Error('Unable to fetch Discord roles. Please contact support!')
   }
 
@@ -84,7 +84,7 @@ export async function linkSponsorToken({ discordToken, sponsorType }) {
     const { data } = await userClient.get('/users/@me')
     userData = data
   } catch (err) {
-    console.log(err)
+    console.error(err)
     throw new Error(
       'Unable to fetch Discord user info. Please contact support!'
     )
@@ -157,7 +157,7 @@ export async function exchangeDiscordCodeForToken({ code, redirectUrl }) {
 
     return data.access_token
   } catch (err) {
-    console.log(err)
+    console.error(err)
     throw new Error('Unable to authenticate with Discord. Please log in again.')
   }
 }

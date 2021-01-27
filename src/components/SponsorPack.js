@@ -3,7 +3,7 @@ import 'twin.macro'
 import { Pack, hierarchy } from '@visx/hierarchy'
 import { ParentSize } from '@visx/responsive'
 
-export default function SponsorPack({ sponsors, height }) {
+export default function SponsorPack({ sponsors }) {
   const pack = React.useMemo(
     () => ({
       children: sponsors,
@@ -17,7 +17,7 @@ export default function SponsorPack({ sponsors, height }) {
   const root = React.useMemo(
     () =>
       hierarchy(pack)
-        .sum((d) => 100 + d.tier.monthlyPriceInDollars)
+        .sum((d) => 1 + d?.tier?.monthlyPriceInDollars)
         .sort(
           (a, b) =>
             b.data.tier.monthlyPriceInDollars -
@@ -33,7 +33,7 @@ export default function SponsorPack({ sponsors, height }) {
           <div
             style={{
               width,
-              height,
+              height: width,
               position: 'relative',
             }}
           >
@@ -57,7 +57,7 @@ export default function SponsorPack({ sponsors, height }) {
             `,
               }}
             />
-            <Pack root={root} size={[width, height]} padding={width * 0.005}>
+            <Pack root={root} size={[width, width]} padding={width * 0.005}>
               {(packData) => {
                 const circles = packData.descendants().slice(1) // skip first layer
                 return (

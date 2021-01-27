@@ -2,7 +2,7 @@ import axios from 'axios'
 import * as qss from 'qss'
 
 const discordClientId = '725855554362146899'
-const discordClientSecret = 'V19IkUUPHgSRih_xwV-q-R2NfifaB-gM'
+const discordClientSecret = process.env.DISCORD_APP_CLIENT_SECRET
 const guildId = '719702312431386674'
 const discordBaseURL = 'https://discord.com/api/'
 

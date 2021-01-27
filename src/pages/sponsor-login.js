@@ -167,6 +167,18 @@ export default function DiscordAuth() {
           </div>
         )}
       </div>
+      <div tw="h-6" />
+      <div tw="text-center">
+        <p>
+          Not a sponsor yet?{' '}
+          <a
+            href="https://github.com/sponsors/tannerlinsley"
+            tw="underline text-green-600 font-bold"
+          >
+            Sign up here!
+          </a>
+        </p>
+      </div>
     </div>
   )
 }

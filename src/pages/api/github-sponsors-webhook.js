@@ -1,6 +1,13 @@
 import crypto from 'crypto'
 import { middleware } from '../../server/middleware'
 
+import {
+  inviteAllSponsors,
+  sponsorCreated,
+  sponsorCancelled,
+  sponsorEdited,
+} from '../../server/sponsors'
+
 async function verifySecret(req) {
   const sig = req.headers['x-hub-signature'] || ''
   const hmac = crypto.createHmac(
@@ -26,44 +33,54 @@ export default async function handler(req, res) {
   await middleware(req, res)
   await verifySecret(req, res)
 
-  // const { body } = req
+  const githubEvent = req.headers['x-github-event']
+  const id = req.headers['x-github-delivery']
 
-  // switch (body.action) {
-  //   case 'created':
-  //     {
-  //       const {
-  //         sponsorship: {
-  //           created_at,
-  //           sponsor: { login: username },
-  //           tier: {
-  //             node_id: tier_id,
-  //             name: tier_name
-  //           }
-  //         },
-  //       } = body
+  if (!githubEvent) {
+    return res.status(400).send('No X-Github-Event found on request')
+  }
 
-  //       "tier": {
-  //         "node_id": "MDEyOlNwb25zb3JzVGllcjE=",
-  //         "created_at": "2019-12-20T19:17:05Z",
-  //         "description": "foo",
-  //         "monthly_price_in_cents": 500,
-  //         "monthly_price_in_dollars": 5,
-  //         "name": "$5 a month"
-  //       }
-  //     }
-  //     break
-  //   case 'cancelled':
-  //     break
-  //   case 'edited':
-  //     break
-  //   case 'tier_changed':
-  //     break
-  //   case 'pending_cancellation':
-  //     break
-  //   case 'pending_tier_change':
-  //     break
-  // }
+  if (!id) {
+    return res.status(400).send('No X-Github-Delivery found on request')
+  }
 
-  res.status(200)
-  res.json({ status: 'ok' })
+  const event = req.body
+
+  if ('hook' in event) {
+    if (event.hook.name === 'web' && event.hook.type === 'SponsorsListing') {
+      inviteAllSponsors()
+    }
+    res.status(200).send('OK')
+    return
+  }
+
+  if (event.action == 'created') {
+    sponsorCreated({
+      login: event.sponsorship.sponsor.login,
+      newTier: event.sponsorship.tier,
+    })
+    res.status(200).send('OK')
+    return
+  }
+
+  if (event.action == 'cancelled') {
+    sponsorCancelled({
+      login: event.sponsorship.sponsor.login,
+      oldTier: event.sponsorship.tier,
+    })
+    res.status(200).send('OK')
+    return
+  }
+
+  if (event.action == 'tier_changed') {
+    sponsorEdited({
+      login: event.sponsorship.sponsor.login,
+      oldTier: event.changes.tier,
+      newTier: event.sponsorship.tier,
+    })
+    res.status(200).send('OK')
+    return
+  }
+
+  res.status(200).send('Not handling this event')
 }

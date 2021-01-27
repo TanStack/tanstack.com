@@ -1,5 +1,5 @@
 import React from 'react'
-import tw from 'twin.macro'
+import 'twin.macro'
 import { Pack, hierarchy } from '@visx/hierarchy'
 import { ParentSize } from '@visx/responsive'
 
@@ -17,9 +17,11 @@ export default function SponsorPack({ sponsors, height }) {
   const root = React.useMemo(
     () =>
       hierarchy(pack)
-        .sum((d) => 100 + d.monthlyPriceInCents)
+        .sum((d) => 100 + d.tier.monthlyPriceInDollars)
         .sort(
-          (a, b) => b.data.monthlyPriceInCents - a.data.monthlyPriceInCents
+          (a, b) =>
+            b.data.tier.monthlyPriceInDollars -
+            a.data.tier.monthlyPriceInDollars
         ),
     [pack]
   )

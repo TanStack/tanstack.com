@@ -1,6 +1,5 @@
 import React from 'react'
-import Head from 'next/head'
-import { GlobalStyles, theme } from 'twin.macro'
+import tw, { GlobalStyles, theme } from 'twin.macro'
 import { createGlobalStyle } from 'styled-components'
 import '../styles.css'
 import { Seo } from '../components/Seo'
@@ -36,6 +35,10 @@ const MyGlobalStyles = createGlobalStyle`
         border: 3px solid ${theme`colors.gray.800`};
       }
     }
+  }
+
+  [disabled] {
+    ${tw`opacity-50 pointer-events-none`}
   }
 `
 

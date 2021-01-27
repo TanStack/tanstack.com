@@ -11,3 +11,8 @@ export async function getTiersTable() {
   const base = airtable.base('apppS8mjo4MMR3pif')
   return base('tiers')
 }
+
+export async function getDiscordInvitesTable() {
+  const base = airtable.base('apppS8mjo4MMR3pif')
+  return base('tiers')
+}

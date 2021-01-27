@@ -53,6 +53,12 @@ const TanBotToken = process.env.DISCORD_TOKEN
 // }
 
 export async function linkSponsorToken({ discordToken, sponsorType }) {
+  if (sponsorType === 'sleep-aid') {
+    throw new Error(
+      '😔 You must be at least a "Fan" sponsor to access exclusive discord channels.'
+    )
+  }
+
   if (!rolesBySponsorType[sponsorType]) {
     throw new Error('Invalid sponsor type! Contact support, please!')
   }

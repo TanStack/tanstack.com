@@ -15,7 +15,7 @@ export async function linkGithubAndDiscordUser({ githubToken, discordToken }) {
 
     login = data.login
   } catch (err) {
-    console.log(err)
+    console.error(err)
     throw new Error('Unable to fetch Github user info. Please log in again.')
   }
 

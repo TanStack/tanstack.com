@@ -88,8 +88,6 @@ export default function DiscordAuth() {
     if (search) {
       let { code, state } = qss.decode(search)
 
-      console.log(search, code)
-
       state = state + ''
 
       if (state === githubState) {

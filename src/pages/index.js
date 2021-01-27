@@ -62,10 +62,13 @@ const Anchor = React.forwardRef((props, ref) => {
   return <a ref={ref} {...props} />
 })
 
+Anchor.displayName = 'Anchor'
+
 export const getStaticProps = async () => {
   const {
     data: { sponsors, tiers },
   } = await axios.get('https://tanstack.com/api/github-sponsors')
+  // const { sponsors, tiers } = await getSponsorsAndTiers()
 
   return {
     props: {

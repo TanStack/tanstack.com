@@ -4,7 +4,6 @@ import Link from 'next/link'
 import tw, { theme } from 'twin.macro'
 
 import Nav from '../components/Nav'
-import SponsorPack from '../components/SponsorPack'
 import { ParentSize } from '@visx/responsive'
 
 const libraries = [
@@ -255,6 +254,26 @@ export default function Home() {
               )
             }}
           </ParentSize>
+        </div>
+        <div tw="h-6" />
+        <div tw="text-center">
+          <div>
+            <a
+              href="https://github.com/sponsors/tannerlinsley"
+              tw="inline-block p-4 text-lg bg-green-500 rounded text-white"
+            >
+              Become a Sponsor!
+            </a>
+          </div>
+          <div tw="h-4" />
+          <p tw="italic mx-auto max-w-screen-sm text-gray-500">
+            Sponsors get special perks like{' '}
+            <strong>
+              private discord channels, priority issue requests, direct support
+              and even course vouchers
+            </strong>
+            !
+          </p>
         </div>
       </div>
       <div

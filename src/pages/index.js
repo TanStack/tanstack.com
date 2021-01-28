@@ -2,10 +2,10 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import tw, { theme } from 'twin.macro'
-import { getSponsorsAndTiers } from '../server/sponsors'
 
 import Nav from '../components/Nav'
 import SponsorPack from '../components/SponsorPack'
+import { ParentSize } from '@visx/responsive'
 
 const libraries = [
   {
@@ -64,22 +64,7 @@ const Anchor = React.forwardRef((props, ref) => {
 
 Anchor.displayName = 'Anchor'
 
-export const getStaticProps = async () => {
-  let { sponsors } = await getSponsorsAndTiers()
-
-  sponsors = sponsors.filter((d) => d.privacyLevel === 'PUBLIC')
-
-  return {
-    props: JSON.parse(
-      JSON.stringify({
-        sponsors,
-      })
-    ),
-    revalidate: 60, // In seconds
-  }
-}
-
-export default function Home({ sponsors }) {
+export default function Home() {
   return (
     <div>
       <section
@@ -252,7 +237,24 @@ export default function Home({ sponsors }) {
       >
         <h3 tw="text-4xl font-light">OSS Sponsors</h3>
         <div tw="mt-4 overflow-hidden">
-          <SponsorPack sponsors={sponsors} />
+          <ParentSize>
+            {({ width }) => {
+              return (
+                <iframe
+                  src={
+                    process.env.NODE_ENV === 'production'
+                      ? 'https://tanstack.com/sponsors-embed'
+                      : 'http://localhost:3000/sponsors-embed'
+                  }
+                  style={{
+                    width: width,
+                    height: width,
+                    overflow: 'hidden',
+                  }}
+                />
+              )
+            }}
+          </ParentSize>
         </div>
       </div>
       <div

@@ -1,7 +1,7 @@
 import React from 'react'
-import 'twin.macro'
 import { Pack, hierarchy } from '@visx/hierarchy'
 import { ParentSize } from '@visx/responsive'
+import tw from 'twin.macro'
 
 export default function SponsorPack({ sponsors }) {
   const pack = React.useMemo(
@@ -62,53 +62,69 @@ export default function SponsorPack({ sponsors }) {
                 const circles = packData.descendants().slice(1) // skip first layer
                 return (
                   <div>
-                    {[...circles].reverse().map((circle, i) => (
-                      <a
-                        key={`circle-${i}`}
-                        href={
-                          circle.data.linkUrl ||
-                          `https://github.com/${circle.data.login}`
-                        }
-                        className="spon-link"
-                        tw="absolute shadow-lg bg-white rounded-full z-0"
-                        style={{
-                          left: circle.x,
-                          top: circle.y,
-                          width: circle.r * 2,
-                          height: circle.r * 2,
-                        }}
-                      >
-                        <div
+                    {[...circles].reverse().map((circle, i) => {
+                      const tooltipX = circle.x > width / 2 ? 'left' : 'right'
+                      const tooltipY = circle.y > width / 2 ? 'top' : 'bottom'
+
+                      return (
+                        <a
                           key={`circle-${i}`}
-                          tw="absolute bg-no-repeat bg-center bg-contain rounded-full"
+                          href={
+                            circle.data.linkUrl ||
+                            `https://github.com/${circle.data.login}`
+                          }
+                          className="spon-link"
+                          tw="absolute shadow-lg bg-white rounded-full z-0"
                           style={{
-                            left: '50%',
-                            top: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            width: '90%',
-                            height: '90%',
-                            backgroundImage: `url(${
-                              circle.data.imageUrl ||
-                              `https://avatars0.githubusercontent.com/${circle.data.login}?v=3&s=200`
-                            })`,
+                            left: circle.x,
+                            top: circle.y,
+                            width: circle.r * 2,
+                            height: circle.r * 2,
                           }}
-                        />
-                        {circle.data.name ? (
+                        >
+                          <div
+                            key={`circle-${i}`}
+                            tw="absolute bg-no-repeat bg-center bg-contain rounded-full"
+                            style={{
+                              left: '50%',
+                              top: '50%',
+                              transform: 'translate(-50%, -50%)',
+                              width: '90%',
+                              height: '90%',
+                              backgroundImage: `url(${
+                                circle.data.imageUrl ||
+                                `https://avatars0.githubusercontent.com/${circle.data.login}?v=3&s=200`
+                              })`,
+                            }}
+                          />
                           <div
                             className="spon-tooltip"
-                            tw="absolute -top-0 left-1/2
+                            css={[
+                              tw`absolute
                           text-sm
                           bg-gray-900 text-white p-2 pointer-events-none
-                          transform -translate-x-1/2 -translate-y-full opacity-0
-                          shadow-xl rounded-lg"
+                          transform opacity-0
+                          shadow-xl rounded-lg
+                          flex flex-col items-center
+                          `,
+                              tooltipX == 'left'
+                                ? tw`left-1/4 -translate-x-full`
+                                : tw`right-1/4 translate-x-full`,
+                              tooltipY == 'top'
+                                ? tw`top-1/4 -translate-y-full`
+                                : tw`bottom-1/4 translate-y-full`,
+                            ]}
                           >
-                            <span tw="whitespace-nowrap">
-                              {circle.data.name}
-                            </span>
+                            <p tw="whitespace-nowrap font-bold">
+                              {circle.data.name || circle.data.login}
+                            </p>
+                            <p tw="whitespace-nowrap">
+                              ${circle.data.tier.monthlyPriceInDollars} / month
+                            </p>
                           </div>
-                        ) : null}
-                      </a>
-                    ))}
+                        </a>
+                      )
+                    })}
                   </div>
                 )
               }}

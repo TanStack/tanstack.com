@@ -16,7 +16,7 @@ const discordBaseURL = 'https://discord.com/api/'
 const rolesBySponsorType = {
   fan: 'Fan',
   supporter: 'Supporter',
-  permierSponsor: 'Premier Sponsor',
+  premierSponsor: 'Premier Sponsor',
 }
 
 const TanBotToken = process.env.DISCORD_TOKEN

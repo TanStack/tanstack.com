@@ -2,25 +2,31 @@ import { getSponsorsTable } from './airtable'
 import { GITHUB_ORG, graphqlWithAuth, octokit } from './github'
 import { getGithubTiersWithMeta, getTierById, updateTiersMeta } from './tiers'
 
-inviteAllSponsors()
+// const teamsBySponsorType = {
+//   fan: 'Fan',
+//   supporter: 'Supporter',
+//   premierSponsor: 'Premier Sponsor',
+// }
 
 export async function sponsorCreated({ login, newTier }) {
-  newTier = await getTierById(newTier.id)
+  // newTier = await getTierById(newTier.id)
 
-  if (newTier.meta.githubTeamSlug) {
-    await octokit.teams.addOrUpdateMembershipForUserInOrg({
-      org: GITHUB_ORG,
-      team_slug: newTier.meta.githubTeamSlug,
-      username: login,
-    })
+  await inviteAllSponsors()
 
-    console.info(`invited user:${login} to team:${newTier.meta.githubTeamSlug}`)
-  }
+  // if (newTier.meta.githubTeamSlug) {
+  //   await octokit.teams.addOrUpdateMembershipForUserInOrg({
+  //     org: GITHUB_ORG,
+  //     team_slug: newTier.meta.githubTeamSlug,
+  //     username: login,
+  //   })
+
+  //   console.info(`invited user:${login} to team:${newTier.meta.githubTeamSlug}`)
+  // }
 }
 
 export async function sponsorEdited({ login, oldTier, newTier }) {
   oldTier = await getTierById(oldTier.id)
-  newTier = await getTierById(newTier.id)
+  // newTier = await getTierById(newTier.id)
 
   await octokit.teams.removeMembershipForUserInOrg({
     org: GITHUB_ORG,
@@ -29,12 +35,13 @@ export async function sponsorEdited({ login, oldTier, newTier }) {
   })
   console.info(`removed user:${login} from team:${oldTier.meta.githubTeamSlug}`)
 
-  await octokit.teams.addOrUpdateMembershipForUserInOrg({
-    org: GITHUB_ORG,
-    team_slug: newTier.meta.githubTeamSlug,
-    username: login,
-  })
-  console.info(`invited user:${login} to team:${newTier.meta.githubTeamSlug}`)
+  await inviteAllSponsors()
+  // await octokit.teams.addOrUpdateMembershipForUserInOrg({
+  //   org: GITHUB_ORG,
+  //   team_slug: newTier.meta.githubTeamSlug,
+  //   username: login,
+  // })
+  // console.info(`invited user:${login} to team:${newTier.meta.githubTeamSlug}`)
 }
 
 export async function sponsorCancelled({ login, oldTier }) {
@@ -47,16 +54,14 @@ export async function sponsorCancelled({ login, oldTier }) {
   console.info(`removed user:${login} from team:${oldTier.meta.githubTeamSlug}`)
 }
 
-export async function inviteAllSponsors() {
-  const { sponsors } = await getSponsorsAndTiers()
-
-  return
+async function inviteAllSponsors() {
+  let { sponsors } = await getSponsorsAndTiers()
 
   await Promise.all(
     sponsors.map(async (sponsor) => {
       await octokit.teams.addOrUpdateMembershipForUserInOrg({
         org: GITHUB_ORG,
-        team_slug: sponsor.tier.githubTeamSlug,
+        team_slug: sponsor.tier.meta.githubTeamSlug,
         username: sponsor.login,
       })
       console.log(

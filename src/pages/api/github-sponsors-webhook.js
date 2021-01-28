@@ -46,14 +46,6 @@ export default async function handler(req, res) {
 
   const event = req.body
 
-  if ('hook' in event) {
-    if (event.hook.name === 'web' && event.hook.type === 'SponsorsListing') {
-      inviteAllSponsors()
-    }
-    res.status(200).send('OK')
-    return
-  }
-
   if (event.action == 'created') {
     sponsorCreated({
       login: event.sponsorship.sponsor.login,

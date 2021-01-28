@@ -28,4 +28,4 @@ This example is a basic starting point for using [Tailwind CSS](https://tailwind
 
 To control the generated stylesheet's filesize, this example uses Tailwind CSS' [`purge` option](https://tailwindcss.com/docs/controlling-file-size/#removing-unused-css) to remove unused CSS.
 
-<!-- force -->
+<!-- force 1 -->

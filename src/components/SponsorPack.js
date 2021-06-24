@@ -20,8 +20,8 @@ export default function SponsorPack({ sponsors }) {
         .sum((d) => 1 + d?.tier?.monthlyPriceInDollars)
         .sort(
           (a, b) =>
-            b.data.tier.monthlyPriceInDollars -
-            a.data.tier.monthlyPriceInDollars
+            (b.data.tier?.monthlyPriceInDollars ?? 0) -
+            (a.data.tier?.monthlyPriceInDollars ?? 0)
         ),
     [pack]
   )
@@ -118,9 +118,12 @@ export default function SponsorPack({ sponsors }) {
                             <p tw="whitespace-nowrap font-bold">
                               {circle.data.name || circle.data.login}
                             </p>
-                            <p tw="whitespace-nowrap">
-                              ${circle.data.tier.monthlyPriceInDollars} / month
-                            </p>
+                            {circle.data.tier?.monthlyPriceInDollars ? (
+                              <p tw="whitespace-nowrap">
+                                ${circle.data.tier?.monthlyPriceInDollars} /
+                                month
+                              </p>
+                            ) : null}
                           </div>
                         </a>
                       )

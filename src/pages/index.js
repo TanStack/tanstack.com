@@ -4,6 +4,7 @@ import Link from 'next/link'
 import tw, { theme } from 'twin.macro'
 
 import Nav from '../components/Nav'
+import CarbonAds from '../components/CarbonAds'
 import { ParentSize } from '@visx/responsive'
 
 const libraries = [
@@ -162,10 +163,18 @@ export default function Home() {
         </div>
       </div> */}
       <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
-        <h3 tw="text-4xl font-light">Products</h3>
-        <div tw="mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)">
-          <div tw="bg-white shadow-lg rounded-lg p-4 opacity-70 italic text-center text-gray-600 md:(p-10) dark:(bg-gray-800)">
-            Coming soon!
+        <div tw="grid grid-cols-2 gap-4 sm:(grid-cols-2)">
+          <div>
+            <h3 tw="text-4xl font-light">Products</h3>
+            <div tw="mt-4 bg-white shadow-lg rounded-lg p-4 opacity-70 italic text-center text-gray-600 md:(p-10) dark:(bg-gray-800)">
+              Coming soon!
+            </div>
+          </div>
+          <div>
+            <h3 tw="text-4xl font-light">Partners</h3>
+            <div tw="mt-4">
+              <CarbonAds />
+            </div>
           </div>
         </div>
       </div>

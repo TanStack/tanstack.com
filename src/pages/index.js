@@ -163,7 +163,7 @@ export default function Home() {
         </div>
       </div> */}
       <div tw="mt-12 max-w-screen-md mx-4 md:(mx-auto)">
-        <div tw="grid grid-cols-2 gap-4 sm:(grid-cols-2)">
+        <div tw="grid grid-cols-1 gap-4 sm:(grid-cols-2)">
           <div>
             <h3 tw="text-4xl font-light">Products</h3>
             <div tw="mt-4 bg-white shadow-lg rounded-lg p-4 opacity-70 italic text-center text-gray-600 md:(p-10) dark:(bg-gray-800)">

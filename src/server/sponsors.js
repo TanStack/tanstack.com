@@ -97,7 +97,7 @@ export async function getSponsorsAndTiers() {
         privacyLevel: sponsorMeta.privacyLevel ?? matchingSponsor.privacyLevel,
       })
     } else {
-      const tier = tiers.find((d) => d.id === sponsorMeta.tierId[0])
+      const tier = tiers.find((d) => d.id === sponsorMeta.tierId?.[0])
       sponsors.push({
         ...sponsorMeta,
         tier,

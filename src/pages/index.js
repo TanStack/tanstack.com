@@ -29,6 +29,13 @@ const libraries = [
     tagline: `Simple, immersive & interactive charts for React`,
     description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
   },
+  {
+    name: 'React Virtual',
+    styles: tw`bg-purple-700 hover:(bg-white border-purple-500 bg-transparent text-purple-600 dark:text-purple-400)`,
+    href: 'https://react-virtual.tanstack.com',
+    tagline: `Auto-sizing, buttery smooth headless virtualization... with just one hook.`,
+    description: `Oh, did we mention it supports vertical, horizontal, grid, fixed, variable, dynamic, smooth and infinite virtualization too?`,
+  },
 ]
 
 const courses = [

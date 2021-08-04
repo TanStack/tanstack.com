@@ -17,7 +17,7 @@ const libraries = [
   },
   {
     name: 'React Table',
-    styles: tw`bg-blue-700 hover:(bg-white border-blue-500 bg-transparent text-blue-600 dark:text-blue-400)`,
+    styles: tw`bg-blue-500 hover:(bg-white border-blue-500 bg-transparent text-blue-600 dark:text-blue-400)`,
     href: 'https://react-table.tanstack.com',
     tagline: `Lightweight and extensible data tables for React`,
     description: `Build and design powerful datagrid experiences while retaining 100% control over markup and styles.`,
@@ -31,7 +31,7 @@ const libraries = [
   },
   {
     name: 'React Virtual',
-    styles: tw`bg-purple-500 hover:(bg-white border-purple-500 bg-transparent text-purple-500 dark:text-purple-400)`,
+    styles: tw`bg-purple-600 hover:(bg-white border-purple-700 bg-transparent text-purple-700 dark:text-purple-400)`,
     href: 'https://react-virtual.tanstack.com',
     tagline: `Auto-sizing, buttery smooth headless virtualization... with just one hook.`,
     description: `Oh, did we mention it supports vertical, horizontal, grid, fixed, variable, dynamic, smooth and infinite virtualization too?`,

@@ -31,7 +31,7 @@ const libraries = [
   },
   {
     name: 'React Virtual',
-    styles: tw`bg-orange-700 hover:(bg-white border-orange-500 bg-transparent text-orange-600 dark:text-orange-400)`,
+    styles: tw`bg-purple-500 hover:(bg-white border-purple-500 bg-transparent text-purple-500 dark:text-purple-400)`,
     href: 'https://react-virtual.tanstack.com',
     tagline: `Auto-sizing, buttery smooth headless virtualization... with just one hook.`,
     description: `Oh, did we mention it supports vertical, horizontal, grid, fixed, variable, dynamic, smooth and infinite virtualization too?`,

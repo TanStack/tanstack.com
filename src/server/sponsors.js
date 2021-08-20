@@ -82,7 +82,7 @@ export async function getSponsorsAndTiers() {
 
   sponsors = sponsors.map((d) => ({
     ...d,
-    tier: tiers.find((tier) => tier.id === d.tier.id),
+    tier: tiers.find((tier) => tier.id == d.tier.id),
   }))
 
   sponsorsMeta.forEach((sponsorMeta) => {

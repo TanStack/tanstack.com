@@ -102,7 +102,7 @@ export async function getGithubTiersWithMeta() {
 
   return githubTiers.map((d) => ({
     ...d,
-    meta: tiersMeta.find((meta) => meta.fields.id == d.id).fields,
+    meta: tiersMeta.find((meta) => meta.fields?.id == d.id)?.fields,
   }))
 }
 

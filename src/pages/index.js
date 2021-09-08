@@ -44,7 +44,7 @@ const courses = [
     styles: tw`border-t-4 border-red-500 hover:(border-green-500)`,
     href: 'https://learn.tanstack.com',
     description: `The official and exclusive guide to mastering server-state in your applications, straight from the original creator and maintainer of the library.`,
-    price: 150,
+    price: `$30 - $100`,
   },
 ]
 
@@ -238,7 +238,7 @@ export default function Home() {
                   tw="flex-col text-center
                       md:(text-right)"
                 >
-                  <div tw="text-center text-3xl font-bold">${course.price}</div>
+                  <div tw="text-center text-3xl font-bold">{course.price}</div>
                   <div tw="text-center text-sm opacity-70">per license</div>
                 </div>
               </Anchor>

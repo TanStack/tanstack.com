@@ -30,6 +30,13 @@ const libraries = [
     description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
   },
   {
+    name: 'React Location',
+    styles: tw`bg-green-500 hover:(bg-white border-green-700 bg-transparent text-green-700 dark:text-green-400)`,
+    href: 'https://react-location.tanstack.com',
+    tagline: `Enterprise routing for React applications`,
+    description: `Powerful, enterprise-grade routing including first-class URL Search APIs, declarative/suspendable route loaders & code-splitting and more.`,
+  },
+  {
     name: 'React Virtual',
     styles: tw`bg-purple-600 hover:(bg-white border-purple-700 bg-transparent text-purple-700 dark:text-purple-400)`,
     href: 'https://react-virtual.tanstack.com',

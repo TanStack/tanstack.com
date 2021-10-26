@@ -254,10 +254,10 @@ export default function Home() {
         </div>
       </div>
       <div
-        tw="mt-12 max-w-screen-md mx-4
-            md:(mx-auto)"
+        tw="mt-12 mx-4 max-width[95%]
+            md:(mx-auto)" 
       >
-        <h3 tw="text-4xl font-light">OSS Sponsors</h3>
+        <h3 tw="text-4xl font-light text-center">OSS Sponsors</h3>
         <div tw="mt-4 overflow-hidden">
           <ParentSize>
             {({ width }) => {

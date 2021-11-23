@@ -118,12 +118,12 @@ export default function SponsorPack({ sponsors }) {
                             <p tw="whitespace-nowrap font-bold">
                               {circle.data.name || circle.data.login}
                             </p>
-                            {circle.data.tier?.monthlyPriceInDollars ? (
+                            {/* circle.data.tier?.monthlyPriceInDollars ? (
                               <p tw="whitespace-nowrap">
                                 ${circle.data.tier?.monthlyPriceInDollars} /
                                 month
                               </p>
-                            ) : null}
+                            ) : null */}
                           </div>
                         </a>
                       )

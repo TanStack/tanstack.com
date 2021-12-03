@@ -18,7 +18,7 @@ export let links: LinksFunction = () => {
   return [
     {
       rel: 'stylesheet',
-      href: require('./styles/carbonads.css'),
+      href: require('./styles/carbon.css'),
     },
   ]
 }

@@ -229,20 +229,21 @@ export default function Index() {
         <h3 className={tw`text-4xl font-light`}>Open Source Libraries</h3>
         <div className={tw`mt-4 grid grid-cols-1 gap-4 sm:(grid-cols-2)`}>
           {libraries.map((library) => (
-            <Link
+            <a
               key={library.name}
-              to={library.href}
+              href={library.href}
               className={tw(
                 `border-4 border-transparent rounded-lg shadow-lg p-4 md:(p-10) text-white transition-all`,
                 library.getStyles()
               )}
+              target="_blank"
             >
               <div className={tw`text-3xl font-bold `}>{library.name}</div>
               <div className={tw`text-lg italic font-extralight mt-2`}>
                 {library.tagline}
               </div>
               <div className={tw`text-sm mt-2`}>{library.description}</div>
-            </Link>
+            </a>
           ))}
         </div>
       </div>
@@ -253,15 +254,16 @@ export default function Index() {
         <h3 className={tw`text-4xl font-light`}>Courses</h3>
         <div className={tw`mt-4 grid grid-cols-1 gap-4`}>
           {courses.map((course) => (
-            <Link
+            <a
               key={course.name}
-              to={course.href}
+              href={course.href}
               className={tw(
                 `bg-white rounded-lg shadow-lg p-4 grid grid-cols-3 gap-6 transition-all ease-linear
                     md:(p-8 grid-cols-6)
                     dark:(bg-gray-800)`,
                 course.getStyles()
               )}
+              target="_blank"
             >
               <div
                 className={tw`col-span-2
@@ -286,7 +288,7 @@ export default function Index() {
                   per license
                 </div>
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       </div>
@@ -379,9 +381,9 @@ export default function Index() {
           <div className={tw`grid gap-1 md:(grid-cols-2)`}>
             {footerLinks.map((link) => (
               <div key={link.href}>
-                <Link to={link.href} className={tw`hover:underline`}>
+                <a href={link.href} className={tw`hover:underline`}>
                   {link.name}
-                </Link>
+                </a>
               </div>
             ))}
           </div>

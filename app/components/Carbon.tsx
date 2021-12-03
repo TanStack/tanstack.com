@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-export function CarbonAds() {
+export function Carbon() {
   const ref = React.useRef<HTMLDivElement>(null!)
 
   React.useEffect(() => {

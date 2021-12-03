@@ -2,7 +2,7 @@ import { tw, theme } from 'twind/css'
 import type { MetaFunction } from 'remix'
 import { Link } from 'remix'
 import { Nav } from '~/components/Nav'
-import { CarbonAds } from '~/components/CarbonAds'
+import { Carbon } from '~/components/Carbon'
 import { ParentSize } from '@visx/responsive'
 
 const libraries = [
@@ -220,7 +220,7 @@ export default function Index() {
           <div>
             <h3 className={tw`text-4xl font-light`}>Partners</h3>
             <div className={tw`mt-4`}>
-              <CarbonAds />
+              <Carbon />
             </div>
           </div>
         </div>

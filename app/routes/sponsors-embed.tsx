@@ -3,7 +3,7 @@ import { HeadersFunction, json, LoaderFunction, useLoaderData } from 'remix'
 import { tw } from 'twind'
 
 export const handle = {
-  // baseParent: true,
+  baseParent: true,
 }
 
 export const loader: LoaderFunction = async () => {

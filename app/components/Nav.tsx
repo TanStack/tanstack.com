@@ -23,12 +23,13 @@ export function Nav() {
         <ul className={tw`flex items-center justify-between space-x-2`}>
           {links.map(({ href, label }) => (
             <li key={`${href}${label}`}>
-              <Link
-                to={href}
+              <a
+                href={href}
                 className={tw`inline px-2 py-1 rounded-md transition-all hover:(bg-gray-900 bg-opacity-20)`}
+                target="_blank"
               >
                 {label}
-              </Link>
+              </a>
             </li>
           ))}
         </ul>

@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { tw } from 'twind'
 import {
-  Link,
   Links,
   LiveReload,
   Meta,

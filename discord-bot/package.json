@@ -1,0 +1,22 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "author": "Tanner Linsley",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "rollup src/index.js --file dist/index.js --format cjs --watch",
+    "build": "rollup src/index.js --file dist/index.js --format cjs",
+    "serve": "nodemon ./dist/index.js localhost 8080",
+    "heroku-serve": "node ./dist/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7",
+    "rollup": "^2.38.0"
+  }
+}

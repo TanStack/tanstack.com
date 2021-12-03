@@ -1,0 +1,101 @@
+{
+  "version": "b811ff90",
+  "entry": {
+    "module": "/build/entry.client-UMGESPWR.js",
+    "imports": [
+      "/build/_shared/chunk-U5ST3BNZ.js",
+      "/build/_shared/chunk-EMR6UMUW.js",
+      "/build/_shared/chunk-YZVLR6ER.js"
+    ]
+  },
+  "routes": {
+    "root": {
+      "id": "root",
+      "path": "",
+      "module": "/build/root-YEC4YGZP.js",
+      "imports": [
+        "/build/_shared/chunk-XMSDIJXT.js"
+      ],
+      "hasAction": false,
+      "hasLoader": false,
+      "hasCatchBoundary": true,
+      "hasErrorBoundary": true
+    },
+    "routes/api/github-sponsors-webhook": {
+      "id": "routes/api/github-sponsors-webhook",
+      "parentId": "root",
+      "path": "api/github-sponsors-webhook",
+      "module": "/build/routes/api/github-sponsors-webhook-P2SRS4TN.js",
+      "imports": [
+        "/build/_shared/chunk-YM2Q3JZV.js",
+        "/build/_shared/chunk-ZXPRBUZI.js",
+        "/build/_shared/chunk-OJOXPLSD.js"
+      ],
+      "hasAction": true,
+      "hasLoader": false,
+      "hasCatchBoundary": false,
+      "hasErrorBoundary": false
+    },
+    "routes/api/link-discord-github": {
+      "id": "routes/api/link-discord-github",
+      "parentId": "root",
+      "path": "api/link-discord-github",
+      "module": "/build/routes/api/link-discord-github-54ARLBZ5.js",
+      "imports": [
+        "/build/_shared/chunk-YM2Q3JZV.js",
+        "/build/_shared/chunk-IY6FRGQD.js",
+        "/build/_shared/chunk-ZXPRBUZI.js",
+        "/build/_shared/chunk-OJOXPLSD.js"
+      ],
+      "hasAction": true,
+      "hasLoader": false,
+      "hasCatchBoundary": false,
+      "hasErrorBoundary": false
+    },
+    "routes/index": {
+      "id": "routes/index",
+      "parentId": "root",
+      "index": true,
+      "module": "/build/routes/index-O7H3NOLI.js",
+      "imports": [
+        "/build/_shared/chunk-M2EGXUTB.js",
+        "/build/_shared/chunk-OJOXPLSD.js"
+      ],
+      "hasAction": false,
+      "hasLoader": false,
+      "hasCatchBoundary": false,
+      "hasErrorBoundary": false
+    },
+    "routes/sponsor-login": {
+      "id": "routes/sponsor-login",
+      "parentId": "root",
+      "path": "sponsor-login",
+      "module": "/build/routes/sponsor-login-PFGWNPIO.js",
+      "imports": [
+        "/build/_shared/chunk-IY6FRGQD.js",
+        "/build/_shared/chunk-ZXPRBUZI.js"
+      ],
+      "hasAction": false,
+      "hasLoader": false,
+      "hasCatchBoundary": false,
+      "hasErrorBoundary": false
+    },
+    "routes/sponsors-embed": {
+      "id": "routes/sponsors-embed",
+      "parentId": "root",
+      "path": "sponsors-embed",
+      "module": "/build/routes/sponsors-embed-W7JBIYFF.js",
+      "imports": [
+        "/build/_shared/chunk-YM2Q3JZV.js",
+        "/build/_shared/chunk-ZXPRBUZI.js",
+        "/build/_shared/chunk-M2EGXUTB.js",
+        "/build/_shared/chunk-OJOXPLSD.js"
+      ],
+      "hasAction": false,
+      "hasLoader": true,
+      "hasCatchBoundary": false,
+      "hasErrorBoundary": false
+    }
+  },
+  "url": "/build/manifest-B811FF90.js"
+}

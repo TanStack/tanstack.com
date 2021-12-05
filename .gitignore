@@ -6,3 +6,4 @@ node_modules
 /api/_build
 .env
 .DS_Store
+.vercel

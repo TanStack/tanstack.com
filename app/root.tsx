@@ -58,11 +58,6 @@ function Document({
         {children}
         <ScrollRestoration />
         <Scripts />
-        {/* Hubspot */}
-        <script
-          src="https://js.hs-scripts.com/8180418.js"
-          id="hs-script-loader"
-        />
         {process.env.NODE_ENV === 'development' && <LiveReload />}
       </body>
     </html>

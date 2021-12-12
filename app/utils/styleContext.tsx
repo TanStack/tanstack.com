@@ -39,9 +39,12 @@ export function renderWithStyles(children: React.ReactNode) {
   // Store the styles by hash
   global.__cssByHash[hash] = textContent
   // Feed the hash to the app and render again
-  return renderToString(
-    <styleContext.Provider value={hash}>{children}</styleContext.Provider>
-  )
+  return [
+    renderToString(
+      <styleContext.Provider value={hash}>{children}</styleContext.Provider>
+    ),
+    getPathForHash(hash),
+  ]
 }
 
 export function getStylesByHash(hash: string) {
@@ -55,5 +58,9 @@ export function useStyles() {
     return null
   }
 
-  return <link rel="stylesheet" href={`/api/styles?hash=${hash}`} />
+  return <link rel="stylesheet" href={getPathForHash(hash)} />
+}
+
+function getPathForHash(hash: string) {
+  return `/api/styles?hash=${hash}`
 }

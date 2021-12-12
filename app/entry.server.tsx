@@ -11,11 +11,12 @@ export default function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
-  const markup = renderWithStyles(
+  const [markup, hashPath] = renderWithStyles(
     <RemixServer context={remixContext} url={request.url} />
   )
 
   responseHeaders.set('Content-Type', 'text/html')
+  responseHeaders.append('Link', `<${hashPath}>; rel=preload; as=style;`)
 
   return new Response('<!DOCTYPE html>' + markup, {
     status: responseStatusCode,

@@ -16,7 +16,7 @@ export default function handleRequest(
   )
 
   responseHeaders.set('Content-Type', 'text/html')
-  responseHeaders.append('Link', `<${hashPath}>; rel=preload; as=style;`)
+  responseHeaders.append('Link', `<${hashPath}>; rel=preload; as=style`)
 
   return new Response('<!DOCTYPE html>' + markup, {
     status: responseStatusCode,

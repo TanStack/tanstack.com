@@ -12,6 +12,7 @@ import {
   useMatches,
 } from 'remix'
 import { getGlobalStyles } from './styles/global'
+import { useStyles } from './utils/styleContext'
 
 export let links: LinksFunction = () => {
   return [
@@ -38,6 +39,7 @@ function Document({
   title?: string
 }) {
   const matches = useMatches()
+  const styles = useStyles()
 
   return (
     <html lang="en" className={tw(getGlobalStyles())}>
@@ -50,6 +52,7 @@ function Document({
         {title ? <title>{title}</title> : null}
         <Meta />
         <Links />
+        {styles}
       </head>
       <body>
         {children}

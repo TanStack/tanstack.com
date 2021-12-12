@@ -36,8 +36,8 @@ export function renderWithStyles(children: React.ReactNode) {
     .update(textContent)
     .digest('hex')
     .substring(0, 10)
-  // Store the styles by hash
-  global.__cssByHash[hash] = textContent
+  // Store the styles by hash, removing new lines
+  global.__cssByHash[hash] = textContent.replace(/\n/g, '')
   // Feed the hash to the app and render again
   return [
     renderToString(

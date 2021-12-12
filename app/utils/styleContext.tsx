@@ -2,7 +2,6 @@ import * as React from 'react'
 import { virtualSheet, getStyleTagProperties } from 'twind/sheets'
 import { setup } from 'twind'
 import { sharedTwindConfig } from '../../twind.shared'
-import crypto from 'crypto'
 import { renderToString } from 'react-dom/server'
 
 const styleContext = React.createContext<string>('')
@@ -24,6 +23,7 @@ export function initStyles() {
 }
 
 export function renderWithStyles(children: React.ReactNode) {
+  const crypto = require('crypto')
   // Reset the virtual sheet before render
   global.__sheet.reset()
   // Render the app

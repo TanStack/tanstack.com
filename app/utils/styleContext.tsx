@@ -29,15 +29,17 @@ export function renderWithStyles(children: React.ReactNode) {
   // Render the app
   renderToString(<>{children}</>)
   // Harvest the styles
-  const { textContent } = getStyleTagProperties(global.__sheet)
+  let { textContent } = getStyleTagProperties(global.__sheet)
+  // Remove whitespace from styles
+  textContent = textContent.replace(/\n/g, '')
   // Hash the styles
   const hash = crypto
     .createHash('sha256')
     .update(textContent)
     .digest('hex')
     .substring(0, 10)
-  // Store the styles by hash, removing new lines
-  global.__cssByHash[hash] = textContent.replace(/\n/g, '')
+  // Store the styles by hash
+  global.__cssByHash[hash] = textContent
   // Feed the hash to the app and render again
   return [
     renderToString(

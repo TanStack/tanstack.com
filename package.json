@@ -7,7 +7,6 @@
     "build": "remix build",
     "dev": "env PORT=3001 node -r dotenv/config node_modules/.bin/remix dev",
     "postinstall": "remix setup node",
-    "deploy": "flyctl deploy --build-arg REMIX_TOKEN=${REMIX_TOKEN}",
     "start": "remix-serve build"
   },
   "dependencies": {

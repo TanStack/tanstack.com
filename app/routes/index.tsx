@@ -78,7 +78,7 @@ const footerLinks = [
 export let meta: MetaFunction = () => {
   const title = 'Quality Software & Open Source Libraries for the Modern Web'
   const description = `TanStack is an incubator and collection of software, products, tools and courses for building professional and enterprise-grade front-end applciations for the web.`
-  const imageHref = 'https://remix-jokes.lol/img/og.png'
+  const imageHref = 'https://tanstack.com/favicon.png'
   return {
     title,
     description,
@@ -86,9 +86,9 @@ export let meta: MetaFunction = () => {
       'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
     'twitter:image': imageHref,
     'twitter:card': 'summary_large_image',
-    'twitter:creator': '@remix_run',
-    'twitter:site': '@remix_run',
-    'twitter:title': 'Remix Jokes',
+    'twitter:creator': '@tannerlinsley',
+    'twitter:site': '@tannerlinsley',
+    'twitter:title': 'TanStack',
     'twitter:description': description,
     'og:type': 'website',
     'og:title': title,

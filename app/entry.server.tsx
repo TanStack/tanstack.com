@@ -1,17 +1,9 @@
 import { renderToString } from 'react-dom/server'
 import { RemixServer } from 'remix'
 import type { EntryContext } from 'remix'
-import { virtualSheet, getStyleTag } from 'twind/sheets'
-import { setup } from 'twind'
-import { sharedTwindConfig } from '../twind.shared'
+import { initStyles, renderWithStyles } from './utils/styleContext'
 
-if (!global.__sheet) {
-  global.__sheet = virtualSheet()
-  setup({
-    ...sharedTwindConfig,
-    sheet: global.__sheet,
-  })
-}
+initStyles()
 
 export default function handleRequest(
   request: Request,
@@ -19,15 +11,9 @@ export default function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
-  global.__sheet.reset()
-
-  let markup = renderToString(
+  const markup = renderWithStyles(
     <RemixServer context={remixContext} url={request.url} />
   )
-
-  const styleTag = getStyleTag(global.__sheet)
-
-  markup = markup.replace('</head>', styleTag + '</head>')
 
   responseHeaders.set('Content-Type', 'text/html')
 

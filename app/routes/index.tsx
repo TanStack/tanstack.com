@@ -77,7 +77,7 @@ const footerLinks = [
 
 export let meta: MetaFunction = () => {
   const title = 'Quality Software & Open Source Libraries for the Modern Web'
-  const description = `TanStack is an incubator and collection of software, products, tools and courses for building professional and enterprise-grade front-end applciations for the web.`
+  const description = `TanStack is an incubator and collection of software, products, tools and courses for building professional and enterprise-grade front-end applications for the web.`
   const imageHref = 'https://tanstack.com/favicon.png'
   return {
     title,

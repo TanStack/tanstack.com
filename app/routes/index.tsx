@@ -1,9 +1,14 @@
-import { tw, theme } from 'twind/css'
-import type { MetaFunction } from 'remix'
-import { Link } from 'remix'
-import { Nav } from '~/components/Nav'
-import { Carbon } from '~/components/Carbon'
-import { ParentSize } from '@visx/responsive'
+import { tw } from 'twind/css';
+import {
+  ActionFunction,
+  Form,
+  MetaFunction,
+  useActionData,
+  useTransition,
+} from 'remix';
+import { Nav } from '~/components/Nav';
+import { Carbon } from '~/components/Carbon';
+import { ParentSize } from '@visx/responsive';
 
 const libraries = [
   {
@@ -46,17 +51,17 @@ const libraries = [
     tagline: `Auto-sizing, buttery smooth headless virtualization... with just one hook.`,
     description: `Oh, did we mention it supports vertical, horizontal, grid, fixed, variable, dynamic, smooth and infinite virtualization too?`,
   },
-]
+];
 
 const courses = [
   {
-    name: 'React Query Essentials (v2)',
+    name: 'The Official React Query Course',
     getStyles: () => tw`border-t-4 border-red-500 hover:(border-green-500)`,
-    href: 'https://learn.tanstack.com',
-    description: `The official and exclusive guide to mastering server-state in your applications, straight from the original creator and maintainer of the library.`,
-    price: `$30 - $100`,
+    href: 'https://ui.dev/checkout/react-query?from=tanstack',
+    description: `Learn how to build enterprise quality apps with React Query the easy way with our brand new course.`,
+    price: `$149`,
   },
-]
+];
 
 const footerLinks = [
   { name: 'Twitter', href: 'https://twitter.com/tannerlinsley' },
@@ -73,12 +78,12 @@ const footerLinks = [
     name: `Tanner's Blog`,
     href: 'https://tannerlinsley.com',
   },
-]
+];
 
 export let meta: MetaFunction = () => {
-  const title = 'Quality Software & Open Source Libraries for the Modern Web'
-  const description = `TanStack is an incubator and collection of software, products, tools and courses for building professional and enterprise-grade front-end applications for the web.`
-  const imageHref = 'https://tanstack.com/favicon.png'
+  const title = 'Quality Software & Open Source Libraries for the Modern Web';
+  const description = `TanStack is an incubator and collection of software, products, tools and courses for building professional and enterprise-grade front-end applications for the web.`;
+  const imageHref = 'https://tanstack.com/favicon.png';
   return {
     title,
     description,
@@ -94,10 +99,31 @@ export let meta: MetaFunction = () => {
     'og:title': title,
     'og:description': description,
     'og:image': imageHref,
-  }
-}
+  };
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  return fetch(`https://bytes.dev/api/bytes-optin-cors`, {
+    method: 'POST',
+    body: JSON.stringify({
+      email: formData.get('email_address'),
+      influencer: 'tanstack',
+    }),
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  });
+};
 
 export default function Index() {
+  const data = useActionData();
+  const transition = useTransition();
+  const isLoading = transition.state === 'submitting';
+  const hasSubmitted = data?.status === 'success';
+  const hasError = data?.status === 'error';
+
   return (
     <div>
       <section
@@ -148,50 +174,54 @@ export default function Index() {
       <div
         className={tw`relative max-w-screen-md mx-2 rounded-md p-8 -mt-10 bg-white shadow-lg md:(p-14 mx-auto) dark:(bg-gray-800)`}
       >
-        <form
-          action="https://app.convertkit.com/forms/1913546/subscriptions"
-          method="post"
-          data-sv-form="1913546"
-          data-uid="7b33d93773"
-          data-format="inline"
-          data-version="5"
-          data-options='{"settings":{"after_subscribe":{"action":"message","success_message":"Success! Please, check your email to confirm your subscription.","redirect_url":""},"modal":{"trigger":null,"scroll_percentage":null,"timer":null,"devices":null,"show_once_every":null},"recaptcha":{"enabled":false},"slide_in":{"display_in":null,"trigger":null,"scroll_percentage":null,"timer":null,"devices":null,"show_once_every":null}}}'
-        >
-          <ul
-            className={`formkit-alert formkit-alert-error ` + tw`hidden`}
-            data-element="errors"
-            data-group="alert"
-          />
+        {!hasSubmitted ? (
+          <Form method="post">
+            <div>
+              <div className={tw`relative inline-block`}>
+                <h3 className={tw`text-3xl`}>Subscribe to Bytes</h3>
+                <figure className={tw`absolute top-0 right-[-48px]`}>
+                  <img
+                    src={require('../images/bytes.svg')}
+                    alt="Bytes Logo"
+                    width={40}
+                    height={40}
+                  />
+                </figure>
+              </div>
 
-          <div>
-            <h3 className={tw`text-3xl`}>Don't miss a beat!</h3>
-            <h3 className={tw`text-lg mt-1`}>Subscribe to our newsletter.</h3>
-          </div>
-          <div
-            data-element="fields"
-            className={tw`grid grid-cols-3 mt-4 gap-2`}
-          >
-            <input
-              className={
-                'formkit-input ' +
-                tw`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`
-              }
-              name="email_address"
-              placeholder="Your email address"
-              type="text"
-              required
-            />
-            <button
-              data-element="submit"
-              className={'formkit-submit ' + tw`bg-blue-500 rounded text-white`}
-            >
-              <span>Subscribe</span>
-            </button>
-          </div>
-          <p className={tw`text-sm opacity-30 font-semibold italic mt-2`}>
-            We never spam, promise!
-          </p>
-        </form>
+              <h3 className={tw`text-lg mt-1`}>
+                The Best Javascript Newletter
+              </h3>
+            </div>
+            <div className={tw`grid grid-cols-3 mt-4 gap-2`}>
+              <input
+                disabled={transition.state === 'submitting'}
+                className={tw`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`}
+                name="email_address"
+                placeholder="Your email address"
+                type="text"
+                required
+              />
+              <button
+                type="submit"
+                className={tw`bg-[#ED203D] text-white rounded`}
+              >
+                <span>{isLoading ? 'Loading ...' : 'Subscribe'}</span>
+              </button>
+            </div>
+            {hasError ? (
+              <p className={tw`text-sm text-red-500 font-semibold italic mt-2`}>
+                Looks like something went wrong. Please try again.
+              </p>
+            ) : (
+              <p className={tw`text-sm opacity-30 font-semibold italic mt-2`}>
+                Join over 76,000 devs
+              </p>
+            )}
+          </Form>
+        ) : (
+          <p>🎉 Thank you! Please confirm your email</p>
+        )}
       </div>
       {/* <div className={tw`relative max-w-screen-md mx-2 rounded-md p-8 -mt-10 bg-white shadow-lg md:(p-14 mx-auto) dark:(bg-gray-800)`}>
         <h1 className={tw`text-2xl font-bold`}>Blog</h1>
@@ -314,7 +344,7 @@ export default function Index() {
                     overflow: 'hidden',
                   }}
                 />
-              )
+              );
             }}
           </ParentSize>
         </div>
@@ -394,5 +424,5 @@ export default function Index() {
         <div className={tw`h-8`}></div>
       </div>
     </div>
-  )
+  );
 }

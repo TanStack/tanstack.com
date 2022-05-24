@@ -24,7 +24,7 @@ const libraries = [
     name: 'React Table',
     getStyles: () =>
       `bg-blue-500 hover:bg-white hover:border-blue-500 hover:bg-transparent hover:text-blue-600 hover:dark:text-blue-400`,
-    href: 'https://react-table.tanstack.com',
+    href: 'https://tanstack.com/table',
     tagline: `Lightweight and extensible data tables for React`,
     description: `Build and design powerful datagrid experiences while retaining 100% control over markup and styles.`,
   },

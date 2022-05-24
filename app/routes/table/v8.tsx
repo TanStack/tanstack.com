@@ -36,7 +36,7 @@ export const loader: LoaderFunction = async () => {
 }
 
 export const useReactTableV8Config = () =>
-  useMatchesData('/react-table/v8') as V8Config
+  useMatchesData('/table/v8') as V8Config
 
 export default function RouteReactTable() {
   return <Outlet />

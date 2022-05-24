@@ -1,4 +1,4 @@
-import { gradientText } from '~/routes/react-table/v8/index'
+import { gradientText } from '~/routes/table/v8/index'
 
 export function DocTitle(props: { children: React.ReactNode }) {
   return (

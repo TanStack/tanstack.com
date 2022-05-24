@@ -1,7 +1,7 @@
 import React from 'react'
 import { Pack, hierarchy } from '@visx/hierarchy'
 import { ParentSize } from '@visx/responsive'
-import { tw } from 'twind'
+import { twMerge } from 'tailwind-merge'
 
 export default function SponsorPack({ sponsors }: { sponsors: any }) {
   const pack = React.useMemo(
@@ -75,7 +75,7 @@ export default function SponsorPack({ sponsors }: { sponsors: any }) {
                           }
                           className={
                             `spon-link ` +
-                            tw`absolute shadow-lg bg-white rounded-full z-0`
+                            `absolute shadow-lg bg-white rounded-full z-0`
                           }
                           style={{
                             left: circle.x,
@@ -86,13 +86,13 @@ export default function SponsorPack({ sponsors }: { sponsors: any }) {
                         >
                           <div
                             key={`circle-${i}`}
-                            className={tw`absolute bg-no-repeat bg-center bg-contain rounded-full`}
+                            className={`absolute bg-no-repeat bg-center bg-contain rounded-full`}
                             style={{
                               left: '50%',
                               top: '50%',
                               transform: 'translate(-50%, -50%)',
-                              width: '90%',
-                              height: '90%',
+                              width: '95%',
+                              height: '95%',
                               backgroundImage: `url(${
                                 circle.data.imageUrl ||
                                 `https://avatars0.githubusercontent.com/${circle.data.login}?v=3&s=200`
@@ -100,26 +100,23 @@ export default function SponsorPack({ sponsors }: { sponsors: any }) {
                             }}
                           />
                           <div
-                            className={
-                              `spon-tooltip ` +
-                              tw(
-                                `absolute
-                              text-sm
+                            className={twMerge(
+                              `spon-tooltip absolute text-sm
                               bg-gray-900 text-white p-2 pointer-events-none
                               transform opacity-0
                               shadow-xl rounded-lg
                               flex flex-col items-center
                             `,
-                                tooltipX == 'left'
-                                  ? tw`left-1/4 -translate-x-full`
-                                  : tw`right-1/4 translate-x-full`,
-                                tooltipY == 'top'
-                                  ? tw`top-1/4 -translate-y-full`
-                                  : tw`bottom-1/4 translate-y-full`
-                              )
-                            }
+
+                              tooltipX == 'left'
+                                ? `left-1/4 -translate-x-full`
+                                : `right-1/4 translate-x-full`,
+                              tooltipY == 'top'
+                                ? `top-1/4 -translate-y-full`
+                                : `bottom-1/4 translate-y-full`
+                            )}
                           >
-                            <p className={tw`whitespace-nowrap font-bold`}>
+                            <p className={`whitespace-nowrap font-bold`}>
                               {circle.data.name || circle.data.login}
                             </p>
                           </div>

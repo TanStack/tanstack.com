@@ -1,9 +1,7 @@
 import { renderToString } from 'react-dom/server'
-import { RemixServer } from 'remix'
-import type { EntryContext } from 'remix'
-import { initStyles, renderWithStyles } from './utils/styleContext'
-
-initStyles()
+import { EntryContext, RemixServer } from 'remix'
+// import { initStyles, renderWithStyles } from './utils/styleContext'
+// initStyles()
 
 export default function handleRequest(
   request: Request,
@@ -11,12 +9,16 @@ export default function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
-  const [markup, hashPath] = renderWithStyles(
+  // const [markup, hashPath] = renderWithStyles(
+  //   <RemixServer context={remixContext} url={request.url} />
+  // )
+
+  const markup = renderToString(
     <RemixServer context={remixContext} url={request.url} />
   )
 
   responseHeaders.set('Content-Type', 'text/html')
-  responseHeaders.append('Link', `<${hashPath}>; rel=preload; as=style`)
+  // responseHeaders.append('Link', `<${hashPath}>; rel=preload; as=style`)
 
   return new Response('<!DOCTYPE html>' + markup, {
     status: responseStatusCode,

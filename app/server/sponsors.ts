@@ -2,6 +2,8 @@ import { getSponsorsTable } from './airtable'
 import { GITHUB_ORG, graphqlWithAuth, octokit } from './github'
 import { getGithubTiersWithMeta, getTierById, updateTiersMeta } from './tiers'
 
+export type Sponsor = {}
+
 // const teamsBySponsorType = {
 //   fan: 'Fan',
 //   supporter: 'Supporter',
@@ -118,7 +120,7 @@ export async function getSponsorsAndTiers() {
 }
 
 async function getGithubSponsors() {
-  let sponsors = []
+  let sponsors: Sponsor = []
 
   const fetchPage = async (cursor = '') => {
     const res = await graphqlWithAuth(

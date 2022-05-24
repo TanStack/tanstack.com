@@ -1,8 +1,4 @@
-import { sharedTwindConfig } from '../twind.shared'
-setup(sharedTwindConfig)
+import { RemixBrowser } from '@remix-run/react'
 import { hydrate } from 'react-dom'
-import { RemixBrowser } from 'remix'
-
-import { setup } from 'twind'
 
 hydrate(<RemixBrowser />, document)

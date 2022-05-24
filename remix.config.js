@@ -7,4 +7,10 @@ module.exports = {
   publicPath: '/build/',
   serverBuildDirectory: 'api/_build',
   devServerPort: 8002,
+  serverDependenciesToBundle: [
+    /^rehype.*/,
+    /^remark.*/,
+    /^unified.*/,
+    // '@sindresorhus/slugify',
+  ],
 }

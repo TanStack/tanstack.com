@@ -5,7 +5,7 @@ import { graphql } from '@octokit/graphql'
 export const GITHUB_ORG = 'TanStack'
 
 export const octokit = new Octokit({
-  // auth: process.env.GITHUB_AUTH_TOKEN,
+  auth: process.env.GITHUB_AUTH_TOKEN,
   userAgent: 'TanStack.com',
 })
 

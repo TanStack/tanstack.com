@@ -20,8 +20,8 @@ import docsearchCss from '@docsearch/css/dist/style.css'
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
   viewport: 'width=device-width,initial-scale=1',
-  title: 'React Table',
-  description: `Headless UI for building powerful tables & datagrids for TS/JS, React, Vue, Solid`,
+  title: 'TanStack Table - React Table, Solid Table, Svelte Table, Vue Table',
+  description: `Headless UI for building powerful tables & datagrids for TS/JS, React, Vue, Solid and Svelte`,
 })
 
 export let links: LinksFunction = () => {

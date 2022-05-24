@@ -91,7 +91,7 @@ export default function ReactTableRoute() {
             md:text-6xl
             lg:text-7xl`}
           >
-            <span className={gradientText}>React Table</span>{' '}
+            <span className={gradientText}>TanStack Table</span>{' '}
             <span
               className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"

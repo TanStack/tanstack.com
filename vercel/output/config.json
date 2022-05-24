@@ -3,7 +3,8 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "/",
+      "check": true
     }
   ]
 }

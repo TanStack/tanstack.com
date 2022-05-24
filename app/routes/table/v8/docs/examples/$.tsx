@@ -1,6 +1,6 @@
 import { json, LoaderFunction, useLoaderData } from 'remix'
 import { DocTitle } from '~/components/DocTitle'
-import { v8branch } from '~/routes/react-table/v8'
+import { v8branch } from '~/routes/table/v8'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
 export const loader: LoaderFunction = async (context) => {

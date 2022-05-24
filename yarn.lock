@@ -153,7 +153,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@docsearch/css@3.1.0":
+"@docsearch/css@3.1.0", "@docsearch/css@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@docsearch/css/-/css-3.1.0.tgz#6781cad43fc2e034d012ee44beddf8f93ba21f19"
   integrity sha512-bh5IskwkkodbvC0FzSg1AxMykfDl95hebEKwxNoq4e5QaGzOXSBgW8+jnMFZ7JU4sTBiB04vZWoUSzNrPboLZA==

@@ -27,7 +27,7 @@ export const loader: LoaderFunction = async (context) => {
 
   return json(doc, {
     headers: {
-      'Cache-Control': 's-maxage=1, stale-while-revalidate=59',
+      'Cache-Control': 's-maxage=1, stale-while-revalidate=300',
     },
   })
 }
@@ -63,6 +63,14 @@ const markdownComponents = {
   h4: makeHeading('h4'),
   h5: makeHeading('h5'),
   h6: makeHeading('h6'),
+  code: (props: React.HTMLProps<HTMLElement>) => {
+    return (
+      <code
+        {...props}
+        className={`bg-gray-500 bg-opacity-50 rounded p-1 ${props.className}`}
+      />
+    )
+  },
 }
 
 export default function RouteReactTableDocs() {

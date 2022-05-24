@@ -1,9 +1,15 @@
-import type { MetaFunction } from 'remix'
+import {
+  ActionFunction,
+  Form,
+  MetaFunction,
+  useActionData,
+  useTransition,
+} from 'remix'
 import { Nav } from '~/components/Nav'
 import { Carbon } from '~/components/Carbon'
 import { ParentSize } from '@visx/responsive'
-import { fromTheme, twMerge } from 'tailwind-merge'
 import { twConfig } from '~/utils/twConfig'
+import { twMerge } from 'tailwind-merge'
 
 const libraries = [
   {
@@ -50,11 +56,11 @@ const libraries = [
 
 const courses = [
   {
-    name: 'React Query Essentials (v2)',
-    getStyles: () => `border-t-4 border-red-500 hover:border-green-500`,
-    href: 'https://learn.tanstack.com',
-    description: `The official and exclusive guide to mastering server-state in your applications, straight from the original creator and maintainer of the library.`,
-    price: `$30 - $100`,
+    name: 'The Official React Query Course',
+    getStyles: () => `border-t-4 border-red-500 hover:(border-green-500)`,
+    href: 'https://ui.dev/checkout/react-query?from=tanstack',
+    description: `Learn how to build enterprise quality apps with React Query the easy way with our brand new course.`,
+    price: `$149`,
   },
 ]
 
@@ -77,7 +83,7 @@ const footerLinks = [
 
 export let meta: MetaFunction = () => {
   const title = 'Quality Software & Open Source Libraries for the Modern Web'
-  const description = `TanStack is an incubator and collection of software, products, tools and courses for building professional and enterprise-grade front-end applciations for the web.`
+  const description = `TanStack is an incubator and collection of software, products, tools and courses for building professional and enterprise-grade front-end applications for the web.`
   const imageHref = 'https://tanstack.com/favicon.png'
   return {
     title,
@@ -97,7 +103,28 @@ export let meta: MetaFunction = () => {
   }
 }
 
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData()
+  return fetch(`https://bytes.dev/api/bytes-optin-cors`, {
+    method: 'POST',
+    body: JSON.stringify({
+      email: formData.get('email_address'),
+      influencer: 'tanstack',
+    }),
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
 export default function Index() {
+  const data = useActionData()
+  const transition = useTransition()
+  const isLoading = transition.state === 'submitting'
+  const hasSubmitted = data?.status === 'success'
+  const hasError = data?.status === 'error'
+
   return (
     <div>
       <section
@@ -144,47 +171,52 @@ export default function Index() {
       <div
         className={`relative max-w-screen-md mx-2 rounded-md p-8 -mt-10 bg-white shadow-lg md:p-14 md:mx-auto dark:bg-gray-800`}
       >
-        <form
-          action="https://app.convertkit.com/forms/1913546/subscriptions"
-          method="post"
-          data-sv-form="1913546"
-          data-uid="7b33d93773"
-          data-format="inline"
-          data-version="5"
-          data-options='{"settings":{"after_subscribe":{"action":"message","success_message":"Success! Please, check your email to confirm your subscription.","redirect_url":""},"modal":{"trigger":null,"scroll_percentage":null,"timer":null,"devices":null,"show_once_every":null},"recaptcha":{"enabled":false},"slide_in":{"display_in":null,"trigger":null,"scroll_percentage":null,"timer":null,"devices":null,"show_once_every":null}}}'
-        >
-          <ul
-            className={`formkit-alert formkit-alert-error ` + `hidden`}
-            data-element="errors"
-            data-group="alert"
-          />
+        {!hasSubmitted ? (
+          <Form method="post">
+            <div>
+              <div className={`relative inline-block`}>
+                <h3 className={`text-3xl`}>Subscribe to Bytes</h3>
+                <figure className={`absolute top-0 right-[-48px]`}>
+                  <img
+                    src={require('../images/bytes.svg')}
+                    alt="Bytes Logo"
+                    width={40}
+                    height={40}
+                  />
+                </figure>
+              </div>
 
-          <div>
-            <h3 className={`text-3xl`}>Don't miss a beat!</h3>
-            <h3 className={`text-lg mt-1`}>Subscribe to our newsletter.</h3>
-          </div>
-          <div data-element="fields" className={`grid grid-cols-3 mt-4 gap-2`}>
-            <input
-              className={
-                'formkit-input ' +
-                `col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:text-white dark:bg-gray-700`
-              }
-              name="email_address"
-              placeholder="Your email address"
-              type="text"
-              required
-            />
-            <button
-              data-element="submit"
-              className={'formkit-submit ' + `bg-blue-500 rounded text-white`}
-            >
-              <span>Subscribe</span>
-            </button>
-          </div>
-          <p className={`text-sm opacity-30 font-semibold italic mt-2`}>
-            We never spam, promise!
-          </p>
-        </form>
+              <h3 className={`text-lg mt-1`}>The Best Javascript Newletter</h3>
+            </div>
+            <div className={`grid grid-cols-3 mt-4 gap-2`}>
+              <input
+                disabled={transition.state === 'submitting'}
+                className={`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`}
+                name="email_address"
+                placeholder="Your email address"
+                type="text"
+                required
+              />
+              <button
+                type="submit"
+                className={`bg-[#ED203D] text-white rounded`}
+              >
+                <span>{isLoading ? 'Loading ...' : 'Subscribe'}</span>
+              </button>
+            </div>
+            {hasError ? (
+              <p className={`text-sm text-red-500 font-semibold italic mt-2`}>
+                Looks like something went wrong. Please try again.
+              </p>
+            ) : (
+              <p className={`text-sm opacity-30 font-semibold italic mt-2`}>
+                Join over 76,000 devs
+              </p>
+            )}
+          </Form>
+        ) : (
+          <p>🎉 Thank you! Please confirm your email</p>
+        )}
       </div>
       <div className={`mt-12 max-w-screen-md mx-4 md:mx-auto`}>
         <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2`}>

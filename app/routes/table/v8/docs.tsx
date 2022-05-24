@@ -13,8 +13,8 @@ const logo = (
       TanStack
     </Link>
     <Link to=".." className={`font-bold`}>
-      <span className={`${gradientText}`}>TanStack Table</span>{' '}
-      <span className="text-sm opacity-50 align-super">v8</span>
+      <span className={`${gradientText}`}>Table</span>{' '}
+      <span className="text-sm align-super">v8</span>
     </Link>
   </>
 )

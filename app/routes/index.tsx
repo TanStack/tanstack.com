@@ -21,12 +21,12 @@ const libraries = [
     description: `Fetch, cache and update data in your React and React Native applications all without touching any "global state".`,
   },
   {
-    name: 'React Table',
+    name: 'TanStack Table',
     getStyles: () =>
       `bg-blue-500 hover:bg-white hover:border-blue-500 hover:bg-transparent hover:text-blue-600 hover:dark:text-blue-400`,
     href: 'https://tanstack.com/table',
-    tagline: `Lightweight and extensible data tables for React`,
-    description: `Build and design powerful datagrid experiences while retaining 100% control over markup and styles.`,
+    tagline: `Headless UI for building powerful tables & datagrids`,
+    description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid & Svelte while retaining 100% control over markup and styles.`,
   },
   {
     name: 'React Charts',

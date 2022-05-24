@@ -25,7 +25,11 @@ export const loader: LoaderFunction = async (context) => {
 
   console.log()
 
-  return json(doc)
+  return json(doc, {
+    headers: {
+      'Cache-Control': 's-maxage=1, stale-while-revalidate=59',
+    },
+  })
 }
 
 const CustomHeading = ({

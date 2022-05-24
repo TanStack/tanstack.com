@@ -255,7 +255,7 @@ export default function ReactTableRoute() {
 
         <div className="pt-24 pb-8 flex flex-col gap-4">
           <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
-            <h3 className="text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10 lg:leading-none mt-2">
+            <h3 className="text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
               Take it for a spin!
             </h3>
             <p className="my-4 text-xl leading-7  text-gray-600">
@@ -315,12 +315,12 @@ export default function ReactTableRoute() {
         <div className="py-24 px-4 sm:px-6 lg:px-8 mx-auto container">
           <div className=" sm:text-center pb-16">
             <h3 className="text-3xl mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-              Feature Rich,
+              Framework Agnostic & Feature Rich
             </h3>
             <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-              React Table is built with hooks in mind for just about everything.
-              Even the plugins themselves are hooks! And as you can see with
-              these features, hooks pack a powerful punch.
+              React Table's API and engine are highly modular and
+              framework-independent while still prioritizing ergonomics. Behold,
+              the obligatory and expected feature-list:
             </p>
           </div>
           <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto text-lg">

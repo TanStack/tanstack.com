@@ -135,10 +135,10 @@ export default function ReactTableRoute() {
             <p className="text-sm opacity-70 leading-6">
               You want your tables to be powerful without sacrificing how they
               look! After all, what good is that nice theme you designed if you
-              can't use it?! React Table is <strong>headless</strong> by design
-              (it's just a hook), which means that you are in complete and full
-              control of how your table renders down to the very last component,
-              class or style.
+              can't use it?! TanStack Table is <strong>headless</strong> by
+              design (it's just a hook), which means that you are in complete
+              and full control of how your table renders down to the very last
+              component, class or style.
             </p>
           </div>
           <div className="flex flex-col gap-2">
@@ -146,10 +146,10 @@ export default function ReactTableRoute() {
               Powerful and Declarative
             </h3>
             <p className="text-sm opacity-70 leading-6">
-              React Table is a workhorse. It's built to materialize, filter,
+              TanStack Table is a workhorse. It's built to materialize, filter,
               sort, group, aggregate, paginate and display massive data sets
               using a very small API surface. Just hitch your wagon (new or
-              existing tables) to React Table and you'll be supercharged into
+              existing tables) to TanStack Table and you'll be supercharged into
               productivity like never before.
             </p>
           </div>
@@ -318,7 +318,7 @@ export default function ReactTableRoute() {
               Framework Agnostic & Feature Rich
             </h3>
             <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-              React Table's API and engine are highly modular and
+              TanStack Table's API and engine are highly modular and
               framework-independent while still prioritizing ergonomics. Behold,
               the obligatory and expected feature-list:
             </p>

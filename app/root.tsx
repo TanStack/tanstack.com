@@ -21,7 +21,7 @@ export const meta: MetaFunction = () => ({
   charset: 'utf-8',
   viewport: 'width=device-width,initial-scale=1',
   title: 'React Table',
-  description: `🤖 Headless UI for building powerful tables & datagrids for TS/JS, React, Vue, Solid`,
+  description: `Headless UI for building powerful tables & datagrids for TS/JS, React, Vue, Solid`,
 })
 
 export let links: LinksFunction = () => {

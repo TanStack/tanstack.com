@@ -4,7 +4,7 @@
   "description": "",
   "license": "",
   "scripts": {
-    "build": "cp -r vercel .vercel && yarn css -m && remix build",
+    "build": "cp -rf vercel .vercel && yarn css -m && remix build",
     "css": "tailwindcss -i app/styles/app.css -o app/styles/app.generated.css",
     "dev": "env PORT=3001 concurrently \"yarn css -w\" \"node -r dotenv/config node_modules/.bin/remix dev\"",
     "postinstall": "remix setup node",

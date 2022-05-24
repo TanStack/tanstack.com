@@ -1,6 +1,5 @@
 import SponsorPack from '../components/SponsorPack'
 import { HeadersFunction, json, LoaderFunction, useLoaderData } from 'remix'
-import { tw } from 'twind'
 
 export const handle = {
   baseParent: true,
@@ -37,13 +36,13 @@ export default function Sponsors() {
   return (
     <>
       <div
-        className={tw`h-screen w-screen flex items-center justify-center overflow-hidden`}
+        className={`h-screen w-screen flex items-center justify-center overflow-hidden`}
       >
         <style
           dangerouslySetInnerHTML={{
             __html: `
         html, body {
-          background: transparent;
+          background: transparent !important;
         }
       `,
           }}

@@ -4,7 +4,6 @@ import { FaGithub, FaDiscord, FaPlug, FaCheck } from 'react-icons/fa'
 
 import useSessionStorage from '../hooks/useSessionStorage'
 import axios from 'axios'
-import { tw } from 'twind'
 
 const discordClientID = '725855554362146899'
 const githubClientID = 'Iv1.3aa8d13a4a3fde91'
@@ -19,7 +18,7 @@ const discordScope = 'identify guilds.join'
 
 const githubScope = 'user'
 
-const getbuttonStyles = () => tw`
+const getbuttonStyles = () => `
   px-4 py-2
   cursor-pointer
   rounded-lg
@@ -103,29 +102,29 @@ export default function SponsorsLogin() {
   return (
     <div>
       {error ? (
-        <div className={tw`p-2 text-center bg-red-500 text-white`}>
+        <div className={`p-2 text-center bg-red-500 text-white`}>
           <p>{error}</p>
         </div>
       ) : message ? (
-        <div className={tw`p-2 text-center bg-blue-500 text-white`}>
+        <div className={`p-2 text-center bg-blue-500 text-white`}>
           <p>{message}</p>
         </div>
       ) : null}
-      <div className={tw`h-4`} />
-      <div className={tw`p-2`}>
-        <h1 className={tw`text-center text-2xl`}>Sponsor Log-in</h1>
-        <div className={tw`h-6`} />
+      <div className={`h-4`} />
+      <div className={`p-2`}>
+        <h1 className={`text-center text-2xl`}>Sponsor Log-in</h1>
+        <div className={`h-6`} />
         <div>
           {loadingMessage ? (
-            <div className={tw`text-center`}>{loadingMessage}</div>
+            <div className={`text-center`}>{loadingMessage}</div>
           ) : (
-            <div className={tw`flex flex-col gap-2 flex-wrap items-center`}>
-              <div className={tw`flex items-center justify-center gap-2`}>
+            <div className={`flex flex-col gap-2 flex-wrap items-center`}>
+              <div className={`flex items-center justify-center gap-2`}>
                 <button
                   className={[
                     getbuttonStyles(),
-                    tw`bg-gray-900 text-white`,
-                    githubCode && tw`opacity-50`,
+                    `bg-gray-900 text-white`,
+                    githubCode && `opacity-50`,
                   ].join(' ')}
                   onClick={loginToGithub}
                 >
@@ -143,8 +142,8 @@ export default function SponsorsLogin() {
                 <button
                   className={[
                     getbuttonStyles(),
-                    tw`bg-purple-500 text-white`,
-                    discordCode && tw`opacity-50`,
+                    `bg-purple-500 text-white`,
+                    discordCode && `opacity-50`,
                   ].join(' ')}
                   onClick={loginToDiscord}
                 >
@@ -160,11 +159,11 @@ export default function SponsorsLogin() {
                 </button>
               </div>
               {githubCode && discordCode ? (
-                <div className={tw`text-center`}>
+                <div className={`text-center`}>
                   <button
                     className={[
                       getbuttonStyles(),
-                      tw`bg-blue-500 text-white`,
+                      `bg-blue-500 text-white`,
                     ].join(' ')}
                     onClick={() => linkAccounts()}
                     disabled={loadingMessage}
@@ -176,13 +175,13 @@ export default function SponsorsLogin() {
             </div>
           )}
         </div>
-        <div className={tw`h-6`} />
-        <div className={tw`text-center`}>
+        <div className={`h-6`} />
+        <div className={`text-center`}>
           <p>
             Not a sponsor yet?{' '}
             <a
               href="https://github.com/sponsors/tannerlinsley"
-              className={tw`underline text-green-600 font-bold`}
+              className={`underline text-green-600 font-bold`}
             >
               Sign up here!
             </a>

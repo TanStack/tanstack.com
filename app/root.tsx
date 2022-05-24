@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { tw } from 'twind'
 import {
   Links,
   LiveReload,
@@ -10,12 +9,38 @@ import {
   useCatch,
   LinksFunction,
   useMatches,
+  MetaFunction,
 } from 'remix'
-import { getGlobalStyles } from './styles/global'
-import { useStyles } from './utils/styleContext'
+
+import styles from './styles/app.generated.css'
+import prismThemeLight from './styles/prismThemeLight.css'
+import prismThemeDark from './styles/prismThemeDark.css'
+import docsearchCss from '@docsearch/css/dist/style.css'
+
+export const meta: MetaFunction = () => ({
+  charset: 'utf-8',
+  viewport: 'width=device-width,initial-scale=1',
+  title: 'React Table',
+  description: `🤖 Headless UI for building powerful tables & datagrids for TS/JS, React, Vue, Solid`,
+})
 
 export let links: LinksFunction = () => {
   return [
+    { rel: 'stylesheet', href: styles },
+    {
+      rel: 'stylesheet',
+      href: prismThemeLight,
+      media: '(prefers-color-scheme: light)',
+    },
+    {
+      rel: 'stylesheet',
+      href: prismThemeDark,
+      media: '(prefers-color-scheme: dark)',
+    },
+    {
+      rel: 'stylesheet',
+      href: docsearchCss,
+    },
     {
       rel: 'stylesheet',
       href: require('./styles/carbon.css'),
@@ -39,20 +64,19 @@ function Document({
   title?: string
 }) {
   const matches = useMatches()
-  const styles = useStyles()
+  // const styles = useStylesLink()
 
   return (
-    <html lang="en" className={tw(getGlobalStyles())}>
+    // <html lang="en" className={cx(getGlobalStyles())}>
+    <html lang="en">
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {/* {styles} */}
         {matches.find((d) => d.handle?.baseParent) ? (
           <base target="_parent" />
         ) : null}
         {title ? <title>{title}</title> : null}
         <Meta />
         <Links />
-        {styles}
       </head>
       <body>
         {children}

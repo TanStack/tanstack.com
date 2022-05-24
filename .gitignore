@@ -3,7 +3,8 @@ node_modules
 /.cache
 /server/build
 /public/build
-_build
 /app/styles/app.generated.css
 .env
 .DS_Store
+.vercel
+_build

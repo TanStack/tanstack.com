@@ -4,7 +4,8 @@
   "description": "",
   "license": "",
   "scripts": {
-    "build": "rm -rf .vercel && cp -r vercel .vercel && yarn css -m && remix build",
+    "build": "yarn prep-vercel && yarn css -m && remix build",
+    "prep-vercel": "rm -rf .vercel && cp -r vercel .vercel && cp -r node_modules .vercel/output/functions/index.func",
     "css": "tailwindcss -i app/styles/app.css -o app/styles/app.generated.css",
     "dev": "env PORT=3001 concurrently \"yarn css -w\" \"node -r dotenv/config node_modules/.bin/remix dev\"",
     "postinstall": "remix setup node",

@@ -1,56 +1,86 @@
 import {
   ActionFunction,
   Form,
+  Link,
   MetaFunction,
   useActionData,
   useTransition,
 } from 'remix'
-import { Nav } from '~/components/Nav'
 import { Carbon } from '~/components/Carbon'
 import { ParentSize } from '@visx/responsive'
-import { twConfig } from '~/utils/twConfig'
 import { twMerge } from 'tailwind-merge'
+import { FaDiscord, FaGithub } from 'react-icons/fa'
+
+export const gradientText =
+  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-blue-500 to-green-500'
+
+const menu = [
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <FaGithub className="text-lg" /> Github
+      </div>
+    ),
+    to: 'https://github.com/tanstack/react-table',
+  },
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <FaDiscord className="text-lg" /> Discord
+      </div>
+    ),
+    to: 'https://tlinz.com/discord',
+  },
+]
 
 const libraries = [
   {
     name: 'React Query',
     getStyles: () =>
-      `bg-red-500 hover:bg-white hover:border-red-500 hover:bg-transparent hover:text-red-500 hover:dark:text-red-400`,
-    href: 'https://react-query.tanstack.com',
+      `shadow-xl shadow-red-700/20 dark:shadow-lg dark:shadow-red-500/30 text-red-500 border-2 border-transparent hover:border-current`,
+    to: 'https://react-query.tanstack.com',
     tagline: `Performant and powerful data synchronization for React`,
     description: `Fetch, cache and update data in your React and React Native applications all without touching any "global state".`,
   },
   {
     name: 'TanStack Table',
     getStyles: () =>
-      `bg-blue-500 hover:bg-white hover:border-blue-500 hover:bg-transparent hover:text-blue-600 hover:dark:text-blue-400`,
-    href: 'https://tanstack.com/table',
+      `shadow-xl shadow-blue-700/20 dark:shadow-lg dark:shadow-blue-500/30 text-blue-500 border-2 border-transparent hover:border-current`,
+    to: '/table',
     tagline: `Headless UI for building powerful tables & datagrids`,
     description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid & Svelte while retaining 100% control over markup and styles.`,
   },
   {
     name: 'React Charts',
     getStyles: () =>
-      `bg-yellow-500 text-black hover:bg-white hover:border-yellow-500 hover:bg-transparent hover:dark:text-yellow-500`,
-    href: 'https://react-charts.tanstack.com',
+      `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-600 border-2 border-transparent hover:border-current`,
+    to: 'https://react-charts.tanstack.com',
     tagline: `Simple, immersive & interactive charts for React`,
     description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
   },
   {
     name: 'React Location',
     getStyles: () =>
-      `bg-green-500 hover:bg-white hover:border-green-700 hover:bg-transparent hover:text-green-700 hover:dark:text-green-400`,
-    href: 'https://react-location.tanstack.com',
+      `shadow-xl shadow-green-700/20 dark:shadow-lg dark:shadow-green-500/30 text-green-600 border-2 border-transparent hover:border-current`,
+    to: 'https://react-location.tanstack.com',
     tagline: `Enterprise routing for React applications`,
     description: `Powerful, enterprise-grade routing including first-class URL Search APIs, declarative/suspendable route loaders & code-splitting and more.`,
   },
   {
     name: 'React Virtual',
     getStyles: () =>
-      `bg-purple-600 hover:bg-white hover:border-purple-700 hover:bg-transparent hover:text-purple-700 hover:dark:text-purple-400`,
-    href: 'https://react-virtual.tanstack.com',
+      `shadow-xl shadow-purple-700/20 dark:shadow-lg dark:shadow-purple-500/30 text-purple-500 border-2 border-transparent hover:border-current`,
+    to: 'https://react-virtual.tanstack.com',
     tagline: `Auto-sizing, buttery smooth headless virtualization... with just one hook.`,
     description: `Oh, did we mention it supports vertical, horizontal, grid, fixed, variable, dynamic, smooth and infinite virtualization too?`,
+  },
+  {
+    name: 'React Ranger',
+    getStyles: () =>
+      `shadow-xl shadow-pink-700/20 dark:shadow-lg dark:shadow-pink-500/30 text-pink-500 border-2 border-transparent hover:border-current`,
+    to: 'https://github.com/tannerlinsley/react-ranger',
+    tagline: `Headless range and multi-range slider utilities.`,
+    description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup fo that perfect design.`,
   },
 ]
 
@@ -126,142 +156,132 @@ export default function Index() {
   const hasError = data?.status === 'error'
 
   return (
-    <div>
-      <section
-        className={`text-white relative bg-red-500`}
-        style={{
-          backgroundImage: `
-          radial-gradient(circle at 25% 140vw, transparent 85%, ${twConfig.theme.colors.yellow[500]}),
-          radial-gradient(circle at 75% -100vw, transparent 85%, ${twConfig.theme.colors.blue[500]})
-          `,
-        }}
-      >
-        <div
-          className={`absolute bg-cover bg-center inset-0`}
-          style={{
-            backgroundImage: `url(${require('../images/header-left-overlay.svg')})`,
-          }}
-        />
-        <div className={`relative`}>
-          <Nav />
-          <div className={`text-center -mt-20 p-20`}>
-            <div className={`w-max mx-auto grid gap-2 grid-cols-2`}>
-              <img
-                src={require('../images/javascript-logo-white.svg')}
-                alt="Javascript Logo"
-                width={70}
-                height={70}
-              />
-              <img
-                src={require('../images/react-logo-white.svg')}
-                alt="React Logo"
-                width={70}
-                height={70}
-              />
+    <>
+      <div className="flex flex-wrap px-4 gap-4 items-center justify-center md:justify-end">
+        {menu?.map((item, i) => {
+          const label = (
+            <div className="py-4 opacity-90 hover:opacity-100">
+              {item.label}
             </div>
-            <p className={`text-4xl text-center italic font-semibold mt-6`}>
-              Quality Software & Libraries
-            </p>
-            <p className={`text-2xl text-center font-extralight`}>
-              for the Modern Web
-            </p>
-          </div>
-        </div>
-      </section>
-      <div
-        className={`relative max-w-screen-md mx-2 rounded-md p-8 -mt-10 bg-white shadow-lg md:p-14 md:mx-auto dark:bg-gray-800`}
-      >
-        {!hasSubmitted ? (
-          <Form method="post">
-            <div>
-              <div className={`relative inline-block`}>
-                <h3 className={`text-3xl`}>Subscribe to Bytes</h3>
-                <figure className={`absolute top-0 right-[-48px]`}>
-                  <img
-                    src={require('../images/bytes.svg')}
-                    alt="Bytes Logo"
-                    width={40}
-                    height={40}
-                  />
-                </figure>
-              </div>
+          )
 
-              <h3 className={`text-lg mt-1`}>The Best Javascript Newletter</h3>
+          return (
+            <div key={i} className="hover:underline">
+              {item.to.startsWith('http') ? (
+                <a href={item.to}>{label}</a>
+              ) : (
+                <Link to={item.to}>{label}</Link>
+              )}
             </div>
-            <div className={`grid grid-cols-3 mt-4 gap-2`}>
-              <input
-                disabled={transition.state === 'submitting'}
-                className={`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`}
-                name="email_address"
-                placeholder="Your email address"
-                type="text"
-                required
-              />
-              <button
-                type="submit"
-                className={`bg-[#ED203D] text-white rounded`}
-              >
-                <span>{isLoading ? 'Loading ...' : 'Subscribe'}</span>
-              </button>
-            </div>
-            {hasError ? (
-              <p className={`text-sm text-red-500 font-semibold italic mt-2`}>
-                Looks like something went wrong. Please try again.
-              </p>
-            ) : (
-              <p className={`text-sm opacity-30 font-semibold italic mt-2`}>
-                Join over 76,000 devs
-              </p>
-            )}
-          </Form>
-        ) : (
-          <p>🎉 Thank you! Please confirm your email</p>
-        )}
+          )
+        })}
       </div>
-      <div className={`mt-12 max-w-screen-md mx-4 md:mx-auto`}>
+      <div className="flex flex-col items-center gap-6 text-center px-4 py-12 lg:py-24">
+        <h1
+          className={`inline-block
+            font-black text-4xl
+            md:text-6xl
+            lg:text-7xl`}
+        >
+          <span className={gradientText}>TanStack</span>
+        </h1>
+        <h2
+          className="font-bold text-2xl max-w-md
+            md:text-3xl
+            lg:text-5xl lg:max-w-2xl"
+        >
+          High-quality open-source software for{' '}
+          <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
+            web developers.
+          </span>
+        </h2>
+        <p
+          className="text opacity-90 max-w-sm
+            lg:text-xl lg:max-w-2xl"
+        >
+          Headless, type-safe, powerful utilities for complex workflows like
+          Data Management, Data Visualization, Charts, Tables, and UI Components
+        </p>
+      </div>
+      <div className="h-8" />
+      <div className="px-4 lg:max-w-screen-lg md:mx-auto">
+        <h3 className={`text-3xl font-light`}>Open Source Libraries</h3>
+        <div
+          className={`mt-4 grid grid-cols-1 gap-8
+            sm:grid-cols-2 sm:gap-4
+            lg:grid-cols-3`}
+        >
+          {libraries.map((library, i) => {
+            const Comp = library.to.startsWith('http') ? 'a' : Link
+            return (
+              <Comp
+                key={library.name}
+                to={library.to}
+                href={library.to.startsWith('http') ? library.to : undefined}
+                className={twMerge(
+                  `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white dark:bg-gray-900`,
+                  library.getStyles()
+                )}
+                style={{
+                  zIndex: i,
+                }}
+              >
+                <div className={`text-2xl font-extrabold `}>{library.name}</div>
+                <div className={`text-lg italic font-light mt-2`}>
+                  {library.tagline}
+                </div>
+                <div className={`text-sm mt-2 text-black dark:text-white`}>
+                  {library.description}
+                </div>
+              </Comp>
+            )
+          })}
+        </div>
+      </div>
+      <div className="h-12" />
+      <div className={`px-4 lg:max-w-screen-lg md:mx-auto`}>
         <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2`}>
-          <div>
-            <h3 className={`text-4xl font-light`}>Products</h3>
+          <div className="flex flex-col gap-4">
+            <h3 className={`text-4xl font-light`}>Partners</h3>
             <div
-              className={`mt-4 bg-white shadow-lg rounded-lg p-4 opacity-70 italic text-center text-gray-600 md:p-10 dark:bg-gray-800`}
+              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex
+                        divide-x-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-900 dark:shadow-none"
             >
-              Coming soon!
+              <div className="flex-1 bg-white flex items-center justify-center">
+                <img src={require('~/images/ag-grid.png')} />
+              </div>
+              <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+                <div>
+                  TanStack Table and AG Grid are respectfully the{' '}
+                  <strong>best grids around</strong>. Instead of competing,
+                  we've chosen to conquer the entire grid landscape together.
+                </div>
+                <Link
+                  to="/blog/ag-grid-partnership"
+                  className="text-blue-500 uppercase font-black text-sm"
+                >
+                  Read More
+                </Link>
+              </div>
             </div>
           </div>
-          <div>
-            <h3 className={`text-4xl font-light`}>Partners</h3>
-            <div className={`mt-4`}>
+          <div className="flex flex-col gap-4">
+            <h3 className={`text-4xl font-light`}>Affiliates </h3>
+            <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-900 dark:text-white">
               <Carbon />
             </div>
+            <span
+              className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
+                dark:bg-opacity-20 self-end"
+            >
+              These ads help us keep the lights on 😉
+            </span>
           </div>
         </div>
       </div>
-      <div className={`mt-12 max-w-screen-md mx-4 md:mx-auto`}>
-        <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>
-        <div className={`mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2`}>
-          {libraries.map((library) => (
-            <a
-              key={library.name}
-              href={library.href}
-              className={twMerge(
-                `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-10 text-white transition-all`,
-                library.getStyles()
-              )}
-              target="_blank"
-            >
-              <div className={`text-3xl font-bold `}>{library.name}</div>
-              <div className={`text-lg italic font-extralight mt-2`}>
-                {library.tagline}
-              </div>
-              <div className={`text-sm mt-2`}>{library.description}</div>
-            </a>
-          ))}
-        </div>
-      </div>
-      <div
-        className={`mt-12 max-w-screen-md mx-4
-            md:mx-auto`}
-      >
+      <div className="h-12" />
+      <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
         <h3 className={`text-4xl font-light`}>Courses</h3>
         <div className={`mt-4 grid grid-cols-1 gap-4`}>
           {courses.map((course) => (
@@ -300,7 +320,8 @@ export default function Index() {
           ))}
         </div>
       </div>
-      <div className={`mt-12 max-w-screen-md mx-4 md:mx-auto`}>
+      <div className="h-12" />
+      <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
         <h3 className={`text-4xl font-light`}>OSS Sponsors</h3>
         <div className={`mt-4 overflow-hidden`}>
           <ParentSize>
@@ -380,6 +401,58 @@ export default function Index() {
           </a>
         </div>
       </div>
+      <div className="h-12" />
+      <div
+        className={`relative max-w-screen-md mx-2 rounded-md p-8 bg-white
+        shadow-xl shadow-gray-900/10 md:p-14 md:mx-auto dark:bg-gray-800`}
+      >
+        {!hasSubmitted ? (
+          <Form method="post">
+            <div>
+              <div className={`relative inline-block`}>
+                <h3 className={`text-3xl`}>Subscribe to Bytes</h3>
+                <figure className={`absolute top-0 right-[-48px]`}>
+                  <img
+                    src={require('../images/bytes.svg')}
+                    alt="Bytes Logo"
+                    width={40}
+                    height={40}
+                  />
+                </figure>
+              </div>
+
+              <h3 className={`text-lg mt-1`}>The Best Javascript Newletter</h3>
+            </div>
+            <div className={`grid grid-cols-3 mt-4 gap-2`}>
+              <input
+                disabled={transition.state === 'submitting'}
+                className={`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`}
+                name="email_address"
+                placeholder="Your email address"
+                type="text"
+                required
+              />
+              <button
+                type="submit"
+                className={`bg-[#ED203D] text-white rounded`}
+              >
+                <span>{isLoading ? 'Loading ...' : 'Subscribe'}</span>
+              </button>
+            </div>
+            {hasError ? (
+              <p className={`text-sm text-red-500 font-semibold italic mt-2`}>
+                Looks like something went wrong. Please try again.
+              </p>
+            ) : (
+              <p className={`text-sm opacity-30 font-semibold italic mt-2`}>
+                Join over 76,000 devs
+              </p>
+            )}
+          </Form>
+        ) : (
+          <p>🎉 Thank you! Please confirm your email</p>
+        )}
+      </div>
       <div className={`h-20`} />
       <div className={`bg-gray-800 text-white shadow-lg`}>
         <div className={`max-w-screen-md mx-auto py-12 px-4`}>
@@ -398,6 +471,6 @@ export default function Index() {
         </div>
         <div className={`h-8`}></div>
       </div>
-    </div>
+    </>
   )
 }

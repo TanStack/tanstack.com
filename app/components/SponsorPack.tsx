@@ -86,13 +86,11 @@ export default function SponsorPack({ sponsors }: { sponsors: any }) {
                         >
                           <div
                             key={`circle-${i}`}
-                            className={`absolute bg-no-repeat bg-center bg-contain rounded-full`}
+                            className={`absolute bg-no-repeat bg-center bg-contain rounded-full
+                                    w-[95%] h-[95%] dark:w-[100.5%] dark:h-[100.5%]
+                                    left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+                                    `}
                             style={{
-                              left: '50%',
-                              top: '50%',
-                              transform: 'translate(-50%, -50%)',
-                              width: '95%',
-                              height: '95%',
                               backgroundImage: `url(${
                                 circle.data.imageUrl ||
                                 `https://avatars0.githubusercontent.com/${circle.data.login}?v=3&s=200`

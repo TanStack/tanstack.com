@@ -53,7 +53,7 @@ const menu = [
 
 export default function ReactTableRoute() {
   // const config = useReactTableV8Config()
-  const [params, setParams] = useSearchParams()
+  // const [params, setParams] = useSearchParams()
   // const framework = params.get('framework') ?? 'react'
   const [framework, setFramework] = React.useState<
     'react' | 'svelte' | 'vue' | 'solid'
@@ -61,14 +61,11 @@ export default function ReactTableRoute() {
 
   return (
     <>
-      <div
-        className="
-      dark:bg-black dark:text-white"
-      >
-        <div className="p-4 flex flex-wrap gap-2 items-center justify-center lg:justify-end">
+      <div>
+        <div className="flex flex-wrap px-4 gap-4 items-center justify-center lg:justify-end">
           {menu?.map((item, i) => {
             const label = (
-              <div className="py-4 px-2 opacity-90 hover:opacity-100">
+              <div className="py-4 opacity-90 hover:opacity-100">
                 {item.label}
               </div>
             )
@@ -211,18 +208,18 @@ export default function ReactTableRoute() {
         </div>
         <div
           className="relative text-lg overflow-hidden py-12"
-          style={{
-            backgroundImage: `radial-gradient(
-              closest-side,
-            ${twConfig.theme.colors.slate['200']} 25%,
-            ${twConfig.theme.colors.white} 100%
-          )`,
-          }}
+          // style={{
+          //   backgroundImage: `radial-gradient(
+          //     closest-side,
+          //   ${twConfig.theme.colors.slate['800']} 25%,
+          //   ${twConfig.theme.colors.black} 100%
+          // )`,
+          // }}
         >
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10 lg:leading-none mt-8">
+          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Sponsors
           </h3>
-          <div className="py-4 flex flex-wrap mx-auto max-w-[800px]">
+          <div className="py-4 flex flex-wrap mx-auto max-w-screen-lg">
             <ParentSize>
               {({ width }) => {
                 return (
@@ -253,7 +250,7 @@ export default function ReactTableRoute() {
           </div>
         </div>
 
-        <div className="pt-24 pb-8 flex flex-col gap-4">
+        <div className="py-24 flex flex-col gap-4">
           <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
             <h3 className="text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
               Take it for a spin!

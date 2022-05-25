@@ -3,55 +3,37 @@ import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { Link, NavLink, Outlet } from 'remix'
 import { useMatchesData } from '~/utils/utils'
-import { useReactTableV8Config, V8Config } from '../v8'
 import { DocSearch } from '@docsearch/react'
 import { gradientText } from './index'
-import { Search } from '../export function Search () {'
+import { Search } from './table/export function Search () {'
 
 const logo = (
   <>
     <Link to="/" className="font-light">
       TanStack
     </Link>
-    <Link to=".." className={`font-bold`}>
-      <span className={`${gradientText}`}>Table</span>{' '}
-      <span className="text-sm align-super">v8</span>
+    <Link to="" className={`font-bold`}>
+      <span className={`${gradientText}`}>Blog</span>
     </Link>
   </>
 )
 
-const localMenu = {
-  label: 'Menu',
-  children: [
-    {
-      label: 'Home',
-      to: '..',
-    },
-    {
-      label: (
-        <div className="flex items-center gap-2">
-          Github <FaGithub className="text-lg opacity-20" />
-        </div>
-      ),
-      to: 'https://github.com/tanstack/react-table',
-    },
-    {
-      label: (
-        <div className="flex items-center gap-2">
-          Discord <FaDiscord className="text-lg opacity-20" />
-        </div>
-      ),
-      to: 'https://tlinz.com/discord',
-    },
-  ],
-}
+const localMenu = [
+  {
+    label: 'Blog',
+    children: [
+      {
+        label: 'Latest',
+        to: '',
+      },
+    ],
+  },
+] as const
 
-export default function RouteReactTable() {
-  const config = useReactTableV8Config()
-
+export default function RouteBlog() {
   const detailsRef = React.useRef<HTMLElement>(null!)
 
-  const menuItems = [localMenu, ...config.menu].map((group) => {
+  const menuItems = localMenu.map((group) => {
     return (
       <div key={group.label}>
         <div className="text-[.9em] uppercase font-black">{group.label}</div>
@@ -116,14 +98,10 @@ export default function RouteReactTable() {
   )
 
   const largeMenu = (
-    <div className="hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
+    <div className="hidden w-[250px] lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div>
-        <DocSearch
-          appId={config.docSearch.appId}
-          indexName={config.docSearch.indexName}
-          apiKey={config.docSearch.apiKey}
-        />
+        <Search />
       </div>
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base">
         {menuItems}

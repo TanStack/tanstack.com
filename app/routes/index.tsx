@@ -10,11 +10,20 @@ import { Carbon } from '~/components/Carbon'
 import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { CgMusicSpeaker } from 'react-icons/cg'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-blue-500 to-green-500'
 
 const menu = [
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <CgMusicSpeaker className="text-lg" /> Blog
+      </div>
+    ),
+    to: '/blog',
+  },
   {
     label: (
       <div className="flex items-center gap-1">
@@ -157,12 +166,13 @@ export default function Index() {
 
   return (
     <>
-      <div className="flex flex-wrap px-4 gap-4 items-center justify-center md:justify-end">
+      <div
+        className="flex flex-wrap py-2 px-4 items-center justify-center text-sm
+          md:text-base md:justify-end"
+      >
         {menu?.map((item, i) => {
           const label = (
-            <div className="py-4 opacity-90 hover:opacity-100">
-              {item.label}
-            </div>
+            <div className="p-2 opacity-90 hover:opacity-100">{item.label}</div>
           )
 
           return (
@@ -244,18 +254,22 @@ export default function Index() {
           <div className="flex flex-col gap-4">
             <h3 className={`text-4xl font-light`}>Partners</h3>
             <div
-              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex
-                        divide-x-2 divide-gray-500 divide-opacity-10 overflow-hidden
+              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
                         dark:bg-gray-900 dark:shadow-none"
             >
-              <div className="flex-1 bg-white flex items-center justify-center">
-                <img src={require('~/images/ag-grid.png')} />
+              <div className="flex-1 bg-white flex items-center justify-center p-2">
+                <img
+                  src={require('~/images/ag-grid.png')}
+                  className="w-[250px] max-w-full"
+                />
               </div>
               <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
                 <div>
                   TanStack Table and AG Grid are respectfully the{' '}
-                  <strong>best grids around</strong>. Instead of competing,
-                  we've chosen to conquer the entire grid landscape together.
+                  <strong>best table/datagrid libraries around</strong>. Instead
+                  of competing, we've chosen work together to make sure people
+                  *can* have the best of both worlds.
                 </div>
                 <Link
                   to="/blog/ag-grid-partnership"
@@ -288,22 +302,23 @@ export default function Index() {
             <a
               key={course.name}
               href={course.href}
-              className={twMerge(
-                `bg-white rounded-lg shadow-lg p-4 grid grid-cols-3 gap-6 transition-all ease-linear
-                    md:p-8 md:grid-cols-6
-                    dark:bg-gray-800`,
-                course.getStyles()
-              )}
+              className={`flex gap-2 justify-between border-2 border-transparent rounded-lg p-4 md:p-8
+              transition-all bg-white dark:bg-gray-900
+              shadow-xl shadow-green-700/10 dark:shadow-green-500/30
+              hover:border-green-500
+              `}
               target="_blank"
             >
               <div
                 className={`col-span-2
                     md:col-span-5`}
               >
-                <div className={`text-2xl font-bold `}>{course.name}</div>
+                <div className={`text-2xl font-bold text-green-500`}>
+                  {course.name}
+                </div>
                 <div className={`text-sm mt-2`}>{course.description}</div>
                 <div
-                  className={`inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded shadow`}
+                  className={`inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded shadow uppercase font-black text-sm`}
                 >
                   Enroll →
                 </div>
@@ -349,7 +364,7 @@ export default function Index() {
           <div>
             <a
               href="https://github.com/sponsors/tannerlinsley"
-              className={`inline-block p-4 text-lg bg-green-500 rounded text-white`}
+              className={`inline-block p-4 bg-green-500 rounded text-white uppercase font-black`}
             >
               Become a Sponsor!
             </a>
@@ -365,96 +380,102 @@ export default function Index() {
           </p>
         </div>
       </div>
-      <div
-        className={`
-          mt-12 mx-4 max-w-screen-md rounded-md p-4 shadow-lg grid gap-6
-          bg-discord text-white overflow-hidden relative
-          sm:p-8 sm:mx-auto sm:grid-cols-3`}
-      >
+      <div className="h-12" />
+      <div className="px-4 mx-auto max-w-screen-lg">
         <div
-          className={`absolute transform opacity-10 z-0
+          className={`
+          rounded-md p-4 grid gap-6
+          bg-discord text-white overflow-hidden relative
+          shadow-xl shadow-indigo-700/30
+          sm:p-8 sm:grid-cols-3`}
+        >
+          <div
+            className={`absolute transform opacity-10 z-0
             right-0 top-0 -translate-y-1/3 translate-x-1/3
             sm:opacity-20`}
-        >
-          <img
-            src={require('../images/discord-logo-white.svg')}
-            width={300}
-            height={300}
-          />
-        </div>
-        <div className={`sm:col-span-2`}>
-          <h3 className={`text-3xl`}>TanStack on Discord</h3>
-          <p className={`mt-4`}>
-            The official TanStack community to ask questions, network and make
-            new friends and get lightning fast news about what's coming next for
-            TanStack!
-          </p>
-        </div>
-        <div className={`flex items-center justify-center`}>
-          <a
-            href="https://discord.com/invite/WrRKjPJ"
-            target="_blank"
-            rel="noreferrer"
-            className={`block w-full mt-4 px-4 py-2 bg-white text-discord text-center text-lg rounded shadow-lg z-10`}
           >
-            Join TanStack Discord
-          </a>
+            <img
+              src={require('../images/discord-logo-white.svg')}
+              width={300}
+              height={300}
+            />
+          </div>
+          <div className={`sm:col-span-2`}>
+            <h3 className={`text-3xl`}>TanStack on Discord</h3>
+            <p className={`mt-4`}>
+              The official TanStack community to ask questions, network and make
+              new friends and get lightning fast news about what's coming next
+              for TanStack!
+            </p>
+          </div>
+          <div className={`flex items-center justify-center`}>
+            <a
+              href="https://discord.com/invite/WrRKjPJ"
+              target="_blank"
+              rel="noreferrer"
+              className={`block w-full mt-4 px-4 py-2 bg-white text-discord
+                text-center rounded shadow-lg z-10 uppercase font-black`}
+            >
+              Join TanStack Discord
+            </a>
+          </div>
         </div>
       </div>
-      <div className="h-12" />
-      <div
-        className={`relative max-w-screen-md mx-2 rounded-md p-8 bg-white
-        shadow-xl shadow-gray-900/10 md:p-14 md:mx-auto dark:bg-gray-800`}
-      >
-        {!hasSubmitted ? (
-          <Form method="post">
-            <div>
-              <div className={`relative inline-block`}>
-                <h3 className={`text-3xl`}>Subscribe to Bytes</h3>
-                <figure className={`absolute top-0 right-[-48px]`}>
-                  <img
-                    src={require('../images/bytes.svg')}
-                    alt="Bytes Logo"
-                    width={40}
-                    height={40}
-                  />
-                </figure>
-              </div>
+      <div className="h-4" />
+      <div className="px-4 mx-auto max-w-screen-lg relative">
+        <div className="rounded-md p-8 bg-white shadow-xl shadow-gray-900/10 md:p-14 dark:bg-gray-800">
+          {!hasSubmitted ? (
+            <Form method="post">
+              <div>
+                <div className={`relative inline-block`}>
+                  <h3 className={`text-3xl`}>Subscribe to Bytes</h3>
+                  <figure className={`absolute top-0 right-[-48px]`}>
+                    <img
+                      src={require('../images/bytes.svg')}
+                      alt="Bytes Logo"
+                      width={40}
+                      height={40}
+                    />
+                  </figure>
+                </div>
 
-              <h3 className={`text-lg mt-1`}>The Best Javascript Newletter</h3>
-            </div>
-            <div className={`grid grid-cols-3 mt-4 gap-2`}>
-              <input
-                disabled={transition.state === 'submitting'}
-                className={`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`}
-                name="email_address"
-                placeholder="Your email address"
-                type="text"
-                required
-              />
-              <button
-                type="submit"
-                className={`bg-[#ED203D] text-white rounded`}
-              >
-                <span>{isLoading ? 'Loading ...' : 'Subscribe'}</span>
-              </button>
-            </div>
-            {hasError ? (
-              <p className={`text-sm text-red-500 font-semibold italic mt-2`}>
-                Looks like something went wrong. Please try again.
-              </p>
-            ) : (
-              <p className={`text-sm opacity-30 font-semibold italic mt-2`}>
-                Join over 76,000 devs
-              </p>
-            )}
-          </Form>
-        ) : (
-          <p>🎉 Thank you! Please confirm your email</p>
-        )}
+                <h3 className={`text-lg mt-1`}>
+                  The Best Javascript Newletter
+                </h3>
+              </div>
+              <div className={`grid grid-cols-3 mt-4 gap-2`}>
+                <input
+                  disabled={transition.state === 'submitting'}
+                  className={`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`}
+                  name="email_address"
+                  placeholder="Your email address"
+                  type="text"
+                  required
+                />
+                <button
+                  type="submit"
+                  className={`bg-[#ED203D] text-white rounded uppercase font-black`}
+                >
+                  <span>{isLoading ? 'Loading ...' : 'Subscribe'}</span>
+                </button>
+              </div>
+              {hasError ? (
+                <p className={`text-sm text-red-500 font-semibold italic mt-2`}>
+                  Looks like something went wrong. Please try again.
+                </p>
+              ) : (
+                <p className={`text-sm opacity-30 font-semibold italic mt-2`}>
+                  Join over 76,000 devs
+                </p>
+              )}
+            </Form>
+          ) : (
+            <p>🎉 Thank you! Please confirm your email</p>
+          )}
+        </div>
       </div>
       <div className={`h-20`} />
-      <div className={`bg-gray-800 text-white shadow-lg`}>
+      <div className={`bg-gray-900 text-white shadow-lg`}>
         <div className={`max-w-screen-md mx-auto py-12 px-4`}>
           <div className={`grid gap-1 md:grid-cols-2`}>
             {footerLinks.map((link) => (

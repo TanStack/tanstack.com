@@ -58,6 +58,11 @@ const libraries = [
     to: '/table',
     tagline: `Headless UI for building powerful tables & datagrids`,
     description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid & Svelte while retaining 100% control over markup and styles.`,
+    badge: (
+      <div className="uppercase text-white bg-blue-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        New
+      </div>
+    ),
   },
   {
     name: 'React Charts',
@@ -236,7 +241,12 @@ export default function Index() {
                   zIndex: i,
                 }}
               >
-                <div className={`text-2xl font-extrabold `}>{library.name}</div>
+                <div className="flex gap-2 justify-between items-center">
+                  <div className={`text-2xl font-extrabold `}>
+                    {library.name}
+                  </div>
+                  {library.badge ?? null}
+                </div>
                 <div className={`text-lg italic font-light mt-2`}>
                   {library.tagline}
                 </div>

@@ -29,3 +29,12 @@ export function slugToTitle(str: string) {
     .map((word) => capitalize(word))
     .join(' ')
 }
+
+// export const tw = {
+//   group: (prefix: string, tokens: string) => {
+//     return tokens
+//       .split(' ')
+//       .map((d) => `${prefix}${d}`)
+//       .join(' ')
+//   },
+// }

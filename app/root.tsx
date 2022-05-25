@@ -10,12 +10,15 @@ import {
   LinksFunction,
   useMatches,
   MetaFunction,
+  useTransition,
 } from 'remix'
 
 import styles from './styles/app.generated.css'
 import prismThemeLight from './styles/prismThemeLight.css'
 import prismThemeDark from './styles/prismThemeDark.css'
 import docsearchCss from '@docsearch/css/dist/style.css'
+import { FaSpinner } from 'react-icons/fa'
+import { CgSpinner } from 'react-icons/cg'
 
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
@@ -63,6 +66,7 @@ function Document({
   children: React.ReactNode
   title?: string
 }) {
+  const transition = useTransition()
   const matches = useMatches()
   // const styles = useStylesLink()
 
@@ -83,6 +87,15 @@ function Document({
         <ScrollRestoration />
         <Scripts />
         {process.env.NODE_ENV === 'development' && <LiveReload />}
+        <div
+          className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-900
+          rounded-lg shadow-lg transition-opacity duration-300 hover:opacity-0 pointer-events-none
+          z-30 delay-300 ${
+            transition.state !== 'idle' ? 'opacity-1' : 'opacity-0'
+          }`}
+        >
+          <CgSpinner className="animate-spin text-2xl" />
+        </div>
       </body>
     </html>
   )

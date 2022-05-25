@@ -66,9 +66,6 @@ async function inviteAllSponsors() {
         team_slug: sponsor.tier.meta.githubTeamSlug,
         username: sponsor.login,
       })
-      console.log(
-        `invited user:${sponsor.login} to team:${sponsor.tier.meta.githubTeamSlug}`
-      )
     })
   )
 }

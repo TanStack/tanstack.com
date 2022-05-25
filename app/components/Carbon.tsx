@@ -11,5 +11,5 @@ export function Carbon() {
     ref.current.appendChild(s)
   }, [])
 
-  return <div ref={ref} />
+  return <div ref={ref} className="carbon-outer" />
 }

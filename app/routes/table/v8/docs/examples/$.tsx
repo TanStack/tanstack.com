@@ -15,7 +15,7 @@ export default function RouteReactTableDocs() {
   const [kind, name] = examplePath.split('/')
 
   return (
-    <div className="h-full flex flex-col min-h-0">
+    <div className="flex-1 flex flex-col min-h-0">
       <div className="p-4 lg:p-6">
         <DocTitle>
           {capitalize(kind)} Example: {slugToTitle(name)}

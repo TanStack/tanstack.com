@@ -62,6 +62,10 @@
     @apply opacity-50 pointer-events-none;
   }
 
+  #docs-details summary::-webkit-details-marker {
+    display: none;
+  }
+
   #docs-details .icon-close {
     display: none;
   }

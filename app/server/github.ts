@@ -44,7 +44,6 @@ export async function exchangeGithubCodeForToken({ code, state, redirectUrl }) {
 }
 
 export async function getTeamBySlug(slug) {
-  console.log(process.env.GITHUB_AUTH_TOKEN)
   const teams = await octokit.teams.list({
     org: GITHUB_ORG,
   })

@@ -1,17 +1,9 @@
 import * as React from 'react'
 import { ParentSize } from '@visx/responsive'
 import { CgCornerUpLeft } from 'react-icons/cg'
-import {
-  FaBackward,
-  FaBook,
-  FaCheckCircle,
-  FaDiscord,
-  FaGithub,
-  FaUndo,
-} from 'react-icons/fa'
-import { Link, useSearchParams } from 'remix'
-import { twConfig } from '~/utils/twConfig'
-import { useReactTableV8Config, v8branch } from '../v8'
+import { FaBook, FaCheckCircle, FaDiscord, FaGithub } from 'react-icons/fa'
+import { Link } from 'remix'
+import { v8branch } from '../v8'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
@@ -62,10 +54,13 @@ export default function ReactTableRoute() {
   return (
     <>
       <div>
-        <div className="flex flex-wrap px-4 gap-4 items-center justify-center lg:justify-end">
+        <div
+          className="flex flex-wrap py-2 px-4 items-center justify-center text-sm
+          md:text-base md:justify-end"
+        >
           {menu?.map((item, i) => {
             const label = (
-              <div className="py-4 opacity-90 hover:opacity-100">
+              <div className="p-2 opacity-90 hover:opacity-100">
                 {item.label}
               </div>
             )
@@ -206,16 +201,7 @@ export default function ReactTableRoute() {
             </marquee>
           </div>
         </div>
-        <div
-          className="relative text-lg overflow-hidden py-12"
-          // style={{
-          //   backgroundImage: `radial-gradient(
-          //     closest-side,
-          //   ${twConfig.theme.colors.slate['800']} 25%,
-          //   ${twConfig.theme.colors.black} 100%
-          // )`,
-          // }}
-        >
+        <div className="relative text-lg overflow-hidden py-12">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Sponsors
           </h3>

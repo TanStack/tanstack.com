@@ -3,8 +3,9 @@ import { json, Link, LoaderFunction, useLoaderData } from 'remix'
 import {
   Doc,
   DocFrontMatter,
-  fetchRepoFrontMatter,
-  fetchRepoMarkdown,
+  extractFrontMatter,
+  fetchRepoFile,
+  markdownToMdx,
 } from '~/utils/docCache.server'
 import { getPostList } from '~/utils/blog'
 import { FaEdit } from 'react-icons/fa'
@@ -16,14 +17,31 @@ export const loader: LoaderFunction = async (context) => {
   const postInfos = getPostList()
   const frontMatters = await Promise.all(
     postInfos.map(async (info) => {
-      const frontMatter = await fetchRepoFrontMatter(
+      const filePath = `app/blog/${info.id}.md`
+
+      const file = await fetchRepoFile(
         'tanstack',
         'main',
-        `app/blog/${info.id}.md`,
+        filePath,
         process.env.NODE_ENV === 'development'
       )
 
-      return [info.id, frontMatter]
+      if (!file) {
+        throw new Error('file not found')
+      }
+
+      const frontMatter = extractFrontMatter(file)
+
+      const mdx = await markdownToMdx(frontMatter.excerpt ?? '')
+
+      return [
+        info.id,
+        {
+          title: frontMatter.data.title,
+          published: frontMatter.data.published,
+          exerptCode: mdx.code,
+        },
+      ]
     })
   )
 
@@ -31,9 +49,10 @@ export const loader: LoaderFunction = async (context) => {
 }
 
 export default function RouteReactTableDocs() {
-  const frontMatters = useLoaderData() as [string, DocFrontMatter][]
-
-  console.log(frontMatters)
+  const frontMatters = useLoaderData() as [
+    string,
+    { title: string; published: string; exerptCode: string }
+  ][]
 
   return (
     <div className="p-4 lg:p-6">
@@ -43,8 +62,8 @@ export default function RouteReactTableDocs() {
         <div className="h-px bg-gray-500 opacity-20" />
         <div className="h-4" />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {frontMatters.map(([id, { title, published, exerpt }]) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {frontMatters.map(([id, { title, published, exerptCode }]) => {
           return (
             <Link
               to={`${id}`}
@@ -61,7 +80,7 @@ export default function RouteReactTableDocs() {
                 </div>
               ) : null}
               <div className={`text-sm mt-2 text-black dark:text-white`}>
-                {exerpt}...
+                <Mdx code={exerptCode} />
               </div>
               <div className="h-4" />
               <div className="text-blue-500 uppercase font-black text-sm">

@@ -7,6 +7,7 @@ import { useReactTableV8Config, V8Config } from '../v8'
 import { DocSearch } from '@docsearch/react'
 import { gradientText } from './index'
 import { Search } from '../export function Search () {'
+import { Carbon } from '~/components/Carbon'
 
 const logo = (
   <>
@@ -125,8 +126,11 @@ export default function RouteReactTable() {
           apiKey={config.docSearch.apiKey}
         />
       </div>
-      <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base">
+      <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
         {menuItems}
+      </div>
+      <div className="carbon-small absolute bottom-0 w-full">
+        <Carbon />
       </div>
     </div>
   )
@@ -135,7 +139,7 @@ export default function RouteReactTable() {
     <div className="min-h-screen flex flex-col lg:flex-row">
       {smallMenu}
       {largeMenu}
-      <div className="flex-1 min-h-0 flex flex-col">
+      <div className="flex-1 min-h-0 flex">
         <Outlet />
       </div>
     </div>

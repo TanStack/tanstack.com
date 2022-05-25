@@ -1,5 +1,10 @@
 import { json, LoaderFunction, useLoaderData } from 'remix'
-import { Doc, fetchRepoMarkdown } from '~/utils/docCache.server'
+import {
+  Doc,
+  extractFrontMatter,
+  fetchRepoFile,
+  markdownToMdx,
+} from '~/utils/docCache.server'
 import { v8branch } from '../../v8'
 import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
@@ -14,35 +19,47 @@ export const loader: LoaderFunction = async (context) => {
 
   const filePath = `docs/${docsPath}.md`
 
-  const doc = await fetchRepoMarkdown(
-    'tanstack/react-table',
-    v8branch,
-    filePath
-  )
+  const file = await fetchRepoFile('tanstack/react-table', v8branch, filePath)
 
-  return json(doc, {
-    headers: {
-      'Cache-Control': 's-maxage=1, stale-while-revalidate=300',
+  if (!file) {
+    throw new Error('File not found')
+  }
+
+  const frontMatter = extractFrontMatter(file)
+
+  const mdx = await markdownToMdx(frontMatter.content)
+
+  return json(
+    {
+      code: mdx.code,
+      title: frontMatter.data.title,
+      filePath,
     },
-  })
+    {
+      headers: {
+        'Cache-Control': 's-maxage=1, stale-while-revalidate=300',
+      },
+    }
+  )
 }
 
 export default function RouteReactTableDocs() {
-  const doc = useLoaderData() as Doc
+  const { title, code, filePath } = useLoaderData()
 
   return (
     <div className="p-4 lg:p-6">
-      <DocTitle>{doc.mdx.frontmatter.title ?? ''}</DocTitle>
+      <DocTitle>{title ?? ''}</DocTitle>
       <div className="h-4" />
       <div className="h-px bg-gray-500 opacity-20" />
       <div className="h-4" />
       <div className="prose prose-gray prose-sm dark:prose-invert max-w-none">
-        <Mdx code={doc.mdx.code} />
+        <Mdx code={code} />
       </div>
+      <div className="h-4" />
       <hr />
       <div className="py-4">
         <a
-          href={`https://github.com/tanstack/react-table/tree/${v8branch}/${doc.filepath}`}
+          href={`https://github.com/tanstack/react-table/tree/${v8branch}/${filePath}`}
           className="flex items-center gap-2"
         >
           <FaEdit /> Edit on Github

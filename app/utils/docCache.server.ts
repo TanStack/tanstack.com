@@ -46,110 +46,56 @@ export async function fetchCached<T>(
 }
 
 export async function fetchRepoFile(
-  repo: string,
-  ref: string,
-  filepath: string,
-  isLocal?: boolean
-) {
-  const key = `${repo}:${ref}:${path}`
-  const file = await fetchCached(key, async () =>
-    _fetchRepoContent(repo, ref, filepath, isLocal)
-  )
-
-  return file
-}
-
-export async function fetchRepoMarkdown(
-  repo: string,
-  ref: string,
-  filepath: string,
-  isLocal?: boolean
-): Promise<undefined | Doc> {
-  const key = `${repo}:${ref}:${filepath}`
-  return fetchCached(key, async () => {
-    const file = await _fetchRepoContent(repo, ref, filepath, isLocal)
-
-    if (!file) {
-      return undefined
-    }
-
-    const { default: rehypeSlug } =
-      // @ts-ignore
-      await import('rehype-slug')
-
-    const mdx = await bundleMDX<{ title: string }>({
-      source: file,
-      mdxOptions: (options, frontmatter) => {
-        // options.remarkPlugins = [...(options.remarkPlugins ?? []), rehypeSlug]
-        options.rehypePlugins = [...(options.rehypePlugins ?? []), rehypeSlug]
-
-        return options
-      },
-    })
-
-    if (mdx.frontmatter.title === undefined) {
-      const title = path.basename(filepath, '.md')
-      mdx.frontmatter.title = title
-    }
-
-    return { filepath, mdx }
-  })
-}
-
-export async function fetchRepoFrontMatter(
-  repo: string,
-  ref: string,
-  filepath: string,
-  isLocal?: boolean
-): Promise<undefined | DocFrontMatter> {
-  const key = `${repo}:${ref}:${filepath}`
-  return fetchCached(key, async () => {
-    const file = await _fetchRepoContent(repo, ref, filepath, isLocal)
-
-    if (!file) {
-      return undefined
-    }
-
-    const matter = graymatter.default(file, {
-      excerpt: (file: any) =>
-        (file.excerpt = file.content.split('\n').slice(0, 4).join('\n')),
-    })
-
-    const data = matter.data
-
-    if (data.title === undefined) {
-      const title = path.basename(filepath, '.md')
-      data.title = title
-    }
-
-    console.log(matter)
-
-    return { ...data, exerpt: matter.excerpt } as DocFrontMatter
-  })
-}
-
-async function _fetchRepoContent(
   repoPair: string,
   ref: string,
   filepath: string,
   isLocal?: boolean
-): Promise<string | null> {
-  let [owner, repo] = repoPair.split('/')
-  if (isLocal) {
-    const localFilePath = path.join(__dirname, '../../../../..', filepath)
-    const file = await fsp.readFile(localFilePath)
-    return file.toString()
-  }
+) {
+  const key = `${repoPair}:${ref}:${path}`
+  const file = await fetchCached(key, async () => {
+    let [owner, repo] = repoPair.split('/')
+    if (isLocal) {
+      const localFilePath = path.join(__dirname, '../../../../..', filepath)
+      const file = await fsp.readFile(localFilePath)
+      return file.toString()
+    }
 
-  let filePath = `${owner}/${repo}/${ref}/${filepath}`
-  const href = new URL(`/${filePath}`, 'https://raw.githubusercontent.com/')
-    .href
+    let filePath = `${owner}/${repo}/${ref}/${filepath}`
+    const href = new URL(`/${filePath}`, 'https://raw.githubusercontent.com/')
+      .href
 
-  let response = await fetch(href, {
-    headers: { 'User-Agent': `docs:${owner}/${repo}` },
+    let response = await fetch(href, {
+      headers: { 'User-Agent': `docs:${owner}/${repo}` },
+    })
+
+    if (!response.ok) return null
+
+    return response.text()
   })
 
-  if (!response.ok) return null
+  return file
+}
 
-  return response.text()
+export async function markdownToMdx(content: string) {
+  const { default: rehypeSlug } =
+    // @ts-ignore
+    await import('rehype-slug')
+
+  const mdx = await bundleMDX<{ title: string }>({
+    source: content,
+    mdxOptions: (options) => {
+      // options.remarkPlugins = [...(options.remarkPlugins ?? []), rehypeSlug]
+      options.rehypePlugins = [...(options.rehypePlugins ?? []), rehypeSlug]
+      return options
+    },
+  })
+
+  return mdx
+}
+
+export function extractFrontMatter(content: string) {
+  return graymatter.default(content, {
+    excerpt: (file: any) =>
+      (file.excerpt = file.content.split('\n').slice(0, 4).join('\n')),
+  })
 }

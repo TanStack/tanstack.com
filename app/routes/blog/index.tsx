@@ -12,6 +12,7 @@ import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { format } from 'date-fns'
+import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 
 export const loader: LoaderFunction = async (context) => {
   const postInfos = getPostList()
@@ -47,6 +48,8 @@ export const loader: LoaderFunction = async (context) => {
 
   return json(frontMatters)
 }
+
+export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactTableDocs() {
   const frontMatters = useLoaderData() as [

@@ -1,16 +1,21 @@
 import * as React from 'react'
-import { json, LoaderFunction, useLoaderData } from 'remix'
+import {
+  ErrorBoundaryComponent,
+  json,
+  LoaderFunction,
+  useLoaderData,
+} from 'remix'
 import {
   Doc,
   extractFrontMatter,
   fetchRepoFile,
-  fetchRepoMarkdown,
   markdownToMdx,
 } from '~/utils/docCache.server'
 import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { format } from 'date-fns'
+import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 
 export const loader: LoaderFunction = async (context) => {
   const { '*': docsPath } = context.params
@@ -24,8 +29,8 @@ export const loader: LoaderFunction = async (context) => {
   const file = await fetchRepoFile(
     'tanstack',
     'main',
-    filePath,
-    process.env.NODE_ENV === 'development'
+    filePath
+    // process.env.NODE_ENV === 'development'
   )
 
   if (!file) {
@@ -43,6 +48,8 @@ export const loader: LoaderFunction = async (context) => {
     filePath,
   })
 }
+
+export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactTableDocs() {
   const { title, published, code, filePath } = useLoaderData()

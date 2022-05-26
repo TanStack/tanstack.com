@@ -1,11 +1,14 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { Link, NavLink, Outlet } from 'remix'
+import { ErrorBoundaryComponent, Link, NavLink, Outlet } from 'remix'
 import { useMatchesData } from '~/utils/utils'
 import { DocSearch } from '@docsearch/react'
 import { gradientText } from './index'
 import { Search } from './table/export function Search () {'
+import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+
+export const ErrorBoundary = DefaultErrorBoundary
 
 const logo = (
   <>

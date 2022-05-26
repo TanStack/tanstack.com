@@ -77,7 +77,9 @@ export default function ReactTableRoute() {
               {item.to.startsWith('http') ? (
                 <a href={item.to}>{label}</a>
               ) : (
-                <Link to={item.to}>{label}</Link>
+                <Link to={item.to} prefetch="intent">
+                  {label}
+                </Link>
               )}
             </div>
           )
@@ -119,6 +121,7 @@ export default function ReactTableRoute() {
         <Link
           to="./docs/guide/00-introduction"
           className={`py-2 px-4 bg-rose-500 rounded text-white uppercase font-extrabold`}
+          prefetch="intent"
         >
           Get Started
         </Link>
@@ -308,6 +311,7 @@ export default function ReactTableRoute() {
             <Link
               to="/blog/ag-grid-partnership"
               className="text-blue-500 uppercase font-black text-sm"
+              prefetch="intent"
             >
               Read More
             </Link>
@@ -434,6 +438,7 @@ export default function ReactTableRoute() {
           <Link
             to="./docs/guide/00-introduction"
             className={`inline-block py-2 px-4 bg-rose-500 rounded text-white uppercase font-extrabold`}
+            prefetch="intent"
           >
             Get Started!
           </Link>

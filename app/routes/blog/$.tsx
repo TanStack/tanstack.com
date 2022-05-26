@@ -23,8 +23,8 @@ export const loader: LoaderFunction = async (context) => {
   const file = await fetchRepoFile(
     'tanstack/tanstack.com',
     'main',
-    filePath
-    // process.env.NODE_ENV === 'development'
+    filePath,
+    process.env.NODE_ENV === 'development'
   )
 
   if (!file) {

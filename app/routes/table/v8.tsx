@@ -62,7 +62,7 @@ export default function RouteReactTable() {
           <div>
             Looking for the{' '}
             <a
-              href="https://github.com/TanStack/table/tree/v7/docs/src/pages/docs"
+              href="https://react-table-v7.tanstack.com"
               className="font-bold underline"
             >
               React Table v7 documentation

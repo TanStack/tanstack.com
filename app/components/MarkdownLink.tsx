@@ -6,5 +6,5 @@ export function MarkdownLink(props: HTMLProps<HTMLAnchorElement>) {
     return <a {...props} />
   }
 
-  return <Link to={props.href!} {...props} ref={null} />
+  return <Link to={props.href!} {...props} ref={null} prefetch="intent" />
 }

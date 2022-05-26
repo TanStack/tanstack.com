@@ -169,7 +169,9 @@ export default function Index() {
               {item.to.startsWith('http') ? (
                 <a href={item.to}>{label}</a>
               ) : (
-                <Link to={item.to}>{label}</Link>
+                <Link to={item.to} prefetch="intent">
+                  {label}
+                </Link>
               )}
             </div>
           )
@@ -224,6 +226,7 @@ export default function Index() {
                 style={{
                   zIndex: i,
                 }}
+                prefetch="intent"
               >
                 <div className="flex gap-2 justify-between items-center">
                   <div className={`text-2xl font-extrabold `}>
@@ -274,6 +277,7 @@ export default function Index() {
                 <Link
                   to="/blog/ag-grid-partnership"
                   className="text-blue-500 uppercase font-black text-sm"
+                  prefetch="intent"
                 >
                   Read More
                 </Link>

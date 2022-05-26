@@ -54,6 +54,7 @@ export default function RouteReactTable() {
   const location = useLocation()
 
   const show = params.get('from') === 'reactTableV7'
+  const original = params.get('original')
 
   return (
     <>
@@ -62,7 +63,7 @@ export default function RouteReactTable() {
           <div>
             Looking for the{' '}
             <a
-              href="https://react-table-v7.tanstack.com"
+              href={original || 'https://react-table-v7.tanstack.com'}
               className="font-bold underline"
             >
               React Table v7 documentation

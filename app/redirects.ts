@@ -4,41 +4,43 @@ export function handleRedirects(context: Parameters<LoaderFunction>[0]) {
   const url = new URL(context.request.url)
   // prettier-ignore
   const reactTablev7List = [
-    {from: '/table/v7/docs/api/overview',to: '/table/v8/docs/guide/01-overview',},
-    {from: '/table/v7/docs/api/useColumnOrder',to: '/table/v8/docs/api/features/column-ordering',},
-    {from: '/table/v7/docs/api/useExpanded',to: '/table/v8/docs/api/features/expanding',},
-    {from: '/table/v7/docs/api/useFilters',to: '/table/v8/docs/api/features/filters',},
-    {from: '/table/v7/docs/api/useGlobalFilter',to: '/table/v8/docs/api/features/filters',},
-    {from: '/table/v7/docs/api/useGroupBy',to: '/table/v8/docs/api/features/grouping',},
-    {from: '/table/v7/docs/api/usePagination',to: '/table/v8/docs/api/features/pagination',},
-    {from: '/table/v7/docs/api/useResizeColumns',to: '/table/v8/docs/api/features/column-resizing',},
-    {from: '/table/v7/docs/api/useRowSelect',to: '/table/v8/docs/api/features/row-selection',},
-    {from: '/table/v7/docs/api/useSortBy',to: '/table/v8/docs/api/features/sorting',},
-    {from: '/table/v7/docs/api/useTable',to: '/table/v8/docs/guide/03-tables',},
-    {from: '/table/v7/docs/examples/basic',to: '/table/v8/docs/examples/react/basic',},
-    {from: '/table/v7/docs/examples/filtering',to: '/table/v8/docs/examples/react/filters',},
-    {from: '/table/v7/docs/examples/footers',to: '/table/v8/docs/examples/react/basic',},
-    {from: '/table/v7/docs/examples/grouping',to: '/table/v8/docs/examples/react/grouping',},
-    {from: '/table/v7/docs/examples/pagination',to: '/table/v8/docs/examples/react/pagination',},
-    {from: '/table/v7/docs/examples/sorting',to: '/table/v8/docs/examples/react/sorting',},
-    {from: '/table/v7/docs/examples/row-selection',to: '/table/v8/docs/examples/react/row-selection',},
-    {from: '/table/v7/docs/examples/row-selection-with-pagination',to: '/table/v8/docs/examples/react/row-selection',},
-    {from: '/table/v7/docs/examples/expanding',to: '/table/v8/docs/examples/react/expanding',},
-    {from: '/table/v7/docs/examples/editable-data',to: '/table/v8/docs/examples/react/editable-data',},
-    {from: '/table/v7/docs/examples/column-ordering',to: '/table/v8/docs/examples/react/column-ordering',},
-    {from: '/table/v7/docs/examples/column-hiding',to: '/table/v8/docs/examples/react/column-visibility',},
-    {from: '/table/v7/docs/examples/column-resizing',to: '/table/v8/docs/examples/react/column-resizing',},
-    {from: '/table/v7/docs/examples/pagination-controlled',to: '/table/v8/docs/examples/react/pagination-controlled',},
-    {from: '/table/v7/docs/examples/pagination-controlled',to: '/table/v8/docs/examples/react/pagination-controlled',},
-    {from: '/table/v7/docs/installation',to: '/table/v8/docs/guide/02-installation',},
-    {from: '/table/v7/docs/overview',to: '/table/v8/docs/guide/00-introduction',},
-    {from: '/table/v7/docs/quick-start',to: '/table/v8/docs/guide/01-overview',},
-    {from: '/table/v7',to: '/table/v8',},
+    {from: 'docs/api/overview',to: 'docs/guide/01-overview',},
+    {from: 'docs/api/useColumnOrder',to: 'docs/api/features/column-ordering',},
+    {from: 'docs/api/useExpanded',to: 'docs/api/features/expanding',},
+    {from: 'docs/api/useFilters',to: 'docs/api/features/filters',},
+    {from: 'docs/api/useGlobalFilter',to: 'docs/api/features/filters',},
+    {from: 'docs/api/useGroupBy',to: 'docs/api/features/grouping',},
+    {from: 'docs/api/usePagination',to: 'docs/api/features/pagination',},
+    {from: 'docs/api/useResizeColumns',to: 'docs/api/features/column-resizing',},
+    {from: 'docs/api/useRowSelect',to: 'docs/api/features/row-selection',},
+    {from: 'docs/api/useSortBy',to: 'docs/api/features/sorting',},
+    {from: 'docs/api/useTable',to: 'docs/guide/03-tables',},
+    {from: 'docs/examples/basic',to: 'docs/examples/react/basic',},
+    {from: 'docs/examples/filtering',to: 'docs/examples/react/filters',},
+    {from: 'docs/examples/footers',to: 'docs/examples/react/basic',},
+    {from: 'docs/examples/grouping',to: 'docs/examples/react/grouping',},
+    {from: 'docs/examples/pagination',to: 'docs/examples/react/pagination',},
+    {from: 'docs/examples/sorting',to: 'docs/examples/react/sorting',},
+    {from: 'docs/examples/row-selection',to: 'docs/examples/react/row-selection',},
+    {from: 'docs/examples/row-selection-with-pagination',to: 'docs/examples/react/row-selection',},
+    {from: 'docs/examples/expanding',to: 'docs/examples/react/expanding',},
+    {from: 'docs/examples/editable-data',to: 'docs/examples/react/editable-data',},
+    {from: 'docs/examples/column-ordering',to: 'docs/examples/react/column-ordering',},
+    {from: 'docs/examples/column-hiding',to: 'docs/examples/react/column-visibility',},
+    {from: 'docs/examples/column-resizing',to: 'docs/examples/react/column-resizing',},
+    {from: 'docs/examples/pagination-controlled',to: 'docs/examples/react/pagination-controlled',},
+    {from: 'docs/examples/pagination-controlled',to: 'docs/examples/react/pagination-controlled',},
+    {from: 'docs/installation',to: 'docs/guide/02-installation',},
+    {from: 'docs/overview',to: 'docs/guide/00-introduction',},
+    {from: 'docs/quick-start',to: 'docs/guide/01-overview',},
+    {from: '',to: '',},
   ]
 
   reactTablev7List.forEach((item) => {
-    if (url.pathname.startsWith(item.from)) {
-      throw redirect(`${item.to}?from=reactTableV7`)
+    if (url.pathname.startsWith(`/table/v7/${item.from}`)) {
+      throw redirect(
+        `/table/v8/${item.to}?from=reactTableV7&original=https://react-table-v7.tanstack.com/${item.from}`
+      )
     }
   })
 }

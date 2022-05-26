@@ -4,6 +4,8 @@ import { CgCornerUpLeft } from 'react-icons/cg'
 import { FaBook, FaCheckCircle, FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from 'remix'
 import { v8branch } from '../v8'
+import { Carbon } from '~/components/Carbon'
+import { Footer } from '~/components/Footer'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
@@ -201,6 +203,40 @@ export default function ReactTableRoute() {
             </marquee>
           </div>
         </div>
+        <div className="px-4 w-[450px] max-w-full mx-auto">
+          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
+            Partners
+          </h3>
+          <div className="h-4" />
+          <div
+            className="flex-1 flex flex-col items-center text-sm text-center
+                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-900 dark:shadow-none"
+          >
+            <a
+              href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
+              target="_blank"
+            >
+              <img src={require('~/images/ag-grid.png')} className="w-full" />
+            </a>
+            <div className="flex flex-col p-4 gap-4">
+              <div>
+                TanStack Table and AG Grid are respectfully the{' '}
+                <strong>best table/datagrid libraries around</strong>. Instead
+                of competing, we're working together to ensure the highest
+                quality table/datagrid options are available for the entire
+                JS/TS ecosystem and every use-case.
+              </div>
+              <Link
+                to="/blog/ag-grid-partnership"
+                className="text-blue-500 uppercase font-black text-sm"
+              >
+                Read More
+              </Link>
+            </div>
+          </div>
+        </div>
         <div className="relative text-lg overflow-hidden py-12">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Sponsors
@@ -226,7 +262,7 @@ export default function ReactTableRoute() {
               }}
             </ParentSize>
           </div>
-          <div className="text-center mb-8">
+          <div className="text-center">
             <a
               href="https://github.com/sponsors/tannerlinsley"
               className="inline-block bg-green-500 px-4 py-2 text-xl mx-auto leading-tight font-extrabold tracking-tight text-white rounded-full"
@@ -235,8 +271,20 @@ export default function ReactTableRoute() {
             </a>
           </div>
         </div>
-
-        <div className="py-24 flex flex-col gap-4">
+        <div className="h-12" />
+        <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
+          <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-900 dark:text-white">
+            <Carbon />
+          </div>
+          <span
+            className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
+                dark:bg-opacity-20"
+          >
+            This ad help us keep the lights on 😉
+          </span>
+        </div>
+        <div className="h-20" />
+        <div className="flex flex-col gap-4">
           <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
             <h3 className="text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
               Take it for a spin!
@@ -276,7 +324,7 @@ export default function ReactTableRoute() {
             </div>
           </div>
         </div>
-
+        <div className="h-16" />
         <div className="bg-black body-font">
           <iframe
             key={framework}
@@ -339,56 +387,25 @@ export default function ReactTableRoute() {
             })}
           </div>
         </div>
-        {/*<div className="bg-gray-200 border-b border-gray-300">
-          <div className="container mx-auto py-12 text-center">
-            <h3 className="text-2xl md:text-5xl mx-auto leading-tight font-extrabold tracking-tight text-gray-800  lg:leading-none mt-2">
-              Feeling Chatty?
-            </h3>
-            <a
-              href="https://discord.gg/WrRKjPJ"
-              target="_blank"
-              className="inline-block bg-gray-800 p-5 text-2xl mx-auto leading-tight font-extrabold tracking-tight text-white mt-12 rounded-full"
+        <div className="flex flex-col gap-4 items-center">
+          <div className="font-extrabold text-xl lg:text-2xl">
+            Wow, you've come a long way!
+          </div>
+          <div className="italic font-sm opacity-70">
+            Only one thing left to do...
+          </div>
+          <div>
+            <Link
+              to="./docs/guide/00-introduction"
+              className={`inline-block py-2 px-4 bg-rose-500 rounded text-white uppercase font-extrabold`}
             >
-              Join the #TanStack Discord!
-            </a>
+              Get Started!
+            </Link>
           </div>
         </div>
-        <div className="bg-gray-50 border-b border-gray-100">
-          <div className="container mx-auto py-24 px-4 flex flex-wrap md:flex-no-wrap items-center justify-between md:space-x-8">
-            <h2 className="text-3xl leading-9 font-extrabold tracking-tight text-gray-900 sm:text-4xl sm:leading-10">
-              Wow, you've come a long way!
-            </h2>
-            <div className="mt-8 flex lg:flex-shrink-0 md:mt-0">
-              <div className="inline-flex rounded-md shadow">
-                <Link href="/docs/overview">
-                  <a className="inline-flex items-center justify-center text-center px-5 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-white bg-coral hover:bg-coral-light focus:outline-none focus:shadow-outline transition duration-150 ease-in-out">
-                    Okay, let's get started!
-                  </a>
-                </Link>
-              </div>
-              <div className="ml-3 inline-flex rounded-md shadow">
-                <a
-                  href={siteConfig.repoUrl}
-                  className="inline-flex items-center justify-center text-center px-5 py-3 border border-transparent text-base leading-6 font-medium rounded-md text-coral bg-white hover:text-coral-light focus:outline-none focus:shadow-outline transition duration-150 ease-in-out"
-                >
-                  Take me to the GitHub repo.
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className="h-16" />
+
         <Footer />
-        <style jsx global>{`
-          .gradient {
-            -webkit-mask-image: linear-gradient(
-              180deg,
-              transparent 0,
-              #000 30px,
-              #000 calc(100% - 200px),
-              transparent calc(100% - 100px)
-            );
-          }
-        `}</style> */}
       </div>
     </>
   )

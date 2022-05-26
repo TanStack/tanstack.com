@@ -9,6 +9,7 @@ import { v8branch } from '../../v8'
 import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
+import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 
 export const loader: LoaderFunction = async (context) => {
   const { '*': docsPath } = context.params
@@ -42,6 +43,8 @@ export const loader: LoaderFunction = async (context) => {
     }
   )
 }
+
+export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactTableDocs() {
   const { title, code, filePath } = useLoaderData()

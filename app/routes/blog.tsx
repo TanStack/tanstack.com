@@ -4,6 +4,7 @@ import { Link, NavLink, Outlet } from 'remix'
 import { gradientText } from './index'
 import { Search } from './table/export function Search () {'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { Carbon } from '~/components/Carbon'
 
 export const ErrorBoundary = DefaultErrorBoundary
 
@@ -105,6 +106,9 @@ export default function RouteBlog() {
       </div>
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base">
         {menuItems}
+      </div>
+      <div className="carbon-small absolute bottom-0 w-full">
+        <Carbon />
       </div>
     </div>
   )

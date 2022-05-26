@@ -11,6 +11,7 @@ import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { CgMusicSpeaker } from 'react-icons/cg'
+import { Footer } from '~/components/Footer'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-blue-500 to-green-500'
@@ -105,23 +106,6 @@ const courses = [
     href: 'https://ui.dev/checkout/react-query?from=tanstack',
     description: `Learn how to build enterprise quality apps with React Query the easy way with our brand new course.`,
     price: `$149`,
-  },
-]
-
-const footerLinks = [
-  { name: 'Twitter', href: 'https://twitter.com/tannerlinsley' },
-  {
-    name: 'Youtube',
-    href: 'https://www.youtube.com/user/tannerlinsley',
-  },
-  { name: 'Github', href: 'https://github.com/tannerlinsley' },
-  {
-    name: 'Nozzle.io - Keyword Rank Tracker',
-    href: 'https://nozzle.io',
-  },
-  {
-    name: `Tanner's Blog`,
-    href: 'https://tannerlinsley.com',
   },
 ]
 
@@ -283,8 +267,9 @@ export default function Index() {
                 <div>
                   TanStack Table and AG Grid are respectfully the{' '}
                   <strong>best table/datagrid libraries around</strong>. Instead
-                  of competing, we've chosen work together to make sure people
-                  *can* have the best of both worlds.
+                  of competing, we're working together to ensure the highest
+                  quality table/datagrid options are available for the entire
+                  JS/TS ecosystem and every use-case.
                 </div>
                 <Link
                   to="/blog/ag-grid-partnership"
@@ -304,7 +289,7 @@ export default function Index() {
               className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20 self-end"
             >
-              These ads help us keep the lights on 😉
+              This ad help us keep the lights on 😉
             </span>
           </div>
         </div>
@@ -490,23 +475,7 @@ export default function Index() {
         </div>
       </div>
       <div className={`h-20`} />
-      <div className={`bg-gray-900 text-white shadow-lg`}>
-        <div className={`max-w-screen-md mx-auto py-12 px-4`}>
-          <div className={`grid gap-1 md:grid-cols-2`}>
-            {footerLinks.map((link) => (
-              <div key={link.href}>
-                <a href={link.href} className={`hover:underline`}>
-                  {link.name}
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className={`text-center opacity-20 text-sm`}>
-          &copy; {new Date().getFullYear()} Tanner Linsley
-        </div>
-        <div className={`h-8`}></div>
-      </div>
+      <Footer />
     </>
   )
 }

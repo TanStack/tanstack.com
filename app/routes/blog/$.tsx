@@ -1,12 +1,6 @@
 import * as React from 'react'
+import { json, LoaderFunction, useLoaderData } from 'remix'
 import {
-  ErrorBoundaryComponent,
-  json,
-  LoaderFunction,
-  useLoaderData,
-} from 'remix'
-import {
-  Doc,
   extractFrontMatter,
   fetchRepoFile,
   markdownToMdx,
@@ -27,7 +21,7 @@ export const loader: LoaderFunction = async (context) => {
   const filePath = `app/blog/${docsPath}.md`
 
   const file = await fetchRepoFile(
-    'tanstack',
+    'tanstack/tanstack.com',
     'main',
     filePath
     // process.env.NODE_ENV === 'development'

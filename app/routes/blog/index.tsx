@@ -1,14 +1,11 @@
 import * as React from 'react'
 import { json, Link, LoaderFunction, useLoaderData } from 'remix'
 import {
-  Doc,
-  DocFrontMatter,
   extractFrontMatter,
   fetchRepoFile,
   markdownToMdx,
 } from '~/utils/docCache.server'
 import { getPostList } from '~/utils/blog'
-import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { format } from 'date-fns'
@@ -21,7 +18,7 @@ export const loader: LoaderFunction = async (context) => {
       const filePath = `app/blog/${info.id}.md`
 
       const file = await fetchRepoFile(
-        'tanstack',
+        'tanstack/tanstack.com',
         'main',
         filePath,
         process.env.NODE_ENV === 'development'

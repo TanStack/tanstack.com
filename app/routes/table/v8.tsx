@@ -22,7 +22,7 @@ export const v8branch = 'alpha'
 
 export const loader: LoaderFunction = async () => {
   const config = await fetchRepoFile(
-    'tanstack/react-table/',
+    'tanstack/table',
     v8branch,
     `docs/config.json`
   )

@@ -20,7 +20,7 @@ export const loader: LoaderFunction = async (context) => {
 
   const filePath = `docs/${docsPath}.md`
 
-  const file = await fetchRepoFile('tanstack/react-table', v8branch, filePath)
+  const file = await fetchRepoFile('tanstack/table', v8branch, filePath)
 
   if (!file) {
     throw new Error('File not found')
@@ -62,7 +62,7 @@ export default function RouteReactTableDocs() {
       <hr />
       <div className="py-4">
         <a
-          href={`https://github.com/tanstack/react-table/tree/${v8branch}/${filePath}`}
+          href={`https://github.com/tanstack/table/tree/${v8branch}/${filePath}`}
           className="flex items-center gap-2"
         >
           <FaEdit /> Edit on Github

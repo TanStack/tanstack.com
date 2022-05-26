@@ -34,7 +34,7 @@ const localMenu = {
           Github <FaGithub className="text-lg opacity-20" />
         </div>
       ),
-      to: 'https://github.com/tanstack/react-table',
+      to: 'https://github.com/tanstack/table',
     },
     {
       label: (

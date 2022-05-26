@@ -33,7 +33,7 @@ const menu = [
         <FaGithub className="text-lg" /> Github
       </div>
     ),
-    to: 'https://github.com/tanstack/react-table',
+    to: 'https://github.com/tanstack/table',
   },
   {
     label: (
@@ -328,7 +328,7 @@ export default function ReactTableRoute() {
         <div className="bg-black body-font">
           <iframe
             key={framework}
-            src={`https://codesandbox.io/embed/github/tanstack/react-table/tree/${v8branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=dark`}
+            src={`https://codesandbox.io/embed/github/tanstack/table/tree/${v8branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=dark`}
             title="tannerlinsley/react-table: basic"
             sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
             className="shadow-2xl"

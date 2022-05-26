@@ -31,7 +31,7 @@ const menu = [
         <FaGithub className="text-lg" /> Github
       </div>
     ),
-    to: 'https://github.com/tanstack/react-table',
+    to: 'https://github.com/tanstack/table',
   },
   {
     label: (

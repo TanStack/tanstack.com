@@ -22,7 +22,7 @@ export default function RouteReactTableDocs() {
         </DocTitle>
       </div>
       <iframe
-        src={`https://codesandbox.io/embed/github/tanstack/react-table/tree/${v8branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=dark`}
+        src={`https://codesandbox.io/embed/github/tanstack/table/tree/${v8branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=dark`}
         title="tannerlinsley/react-table: basic"
         sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
         className="flex-1 w-full"

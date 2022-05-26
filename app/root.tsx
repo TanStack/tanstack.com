@@ -11,6 +11,7 @@ import {
   useMatches,
   MetaFunction,
   useTransition,
+  LoaderFunction,
 } from 'remix'
 
 import styles from './styles/app.generated.css'
@@ -19,6 +20,7 @@ import prismThemeDark from './styles/prismThemeDark.css'
 import docsearchCss from '@docsearch/css/dist/style.css'
 import { FaSpinner } from 'react-icons/fa'
 import { CgSpinner } from 'react-icons/cg'
+import { handleRedirects } from './redirects'
 
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',

@@ -1,4 +1,5 @@
 import { json, LoaderFunction, Outlet } from 'remix'
+import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { fetchRepoFile } from '~/utils/docCache.server'
 import { useMatchesData } from '~/utils/utils'
 
@@ -34,6 +35,8 @@ export const loader: LoaderFunction = async () => {
 
   return json(parsedConfig)
 }
+
+export const ErrorBoundary = DefaultErrorBoundary
 
 export const useReactTableV8Config = () =>
   useMatchesData('/table/v8') as V8Config

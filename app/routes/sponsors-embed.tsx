@@ -1,5 +1,6 @@
 import SponsorPack from '../components/SponsorPack'
 import { HeadersFunction, json, LoaderFunction, useLoaderData } from 'remix'
+import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 
 export const handle = {
   baseParent: true,
@@ -23,6 +24,8 @@ export const loader: LoaderFunction = async () => {
     }
   )
 }
+
+export const ErrorBoundary = DefaultErrorBoundary
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => {
   return {

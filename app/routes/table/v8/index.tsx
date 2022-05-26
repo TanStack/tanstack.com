@@ -1,7 +1,14 @@
 import * as React from 'react'
 import { ParentSize } from '@visx/responsive'
 import { CgCornerUpLeft } from 'react-icons/cg'
-import { FaBook, FaCheckCircle, FaDiscord, FaGithub } from 'react-icons/fa'
+import {
+  FaBolt,
+  FaBook,
+  FaCheckCircle,
+  FaCogs,
+  FaDiscord,
+  FaGithub,
+} from 'react-icons/fa'
 import { Link } from 'remix'
 import { v8branch } from '../v8'
 import { Carbon } from '~/components/Carbon'
@@ -141,7 +148,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaBook className="text-pink-600 text-6xl" />
+            <FaBolt className="text-pink-600 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -161,7 +168,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaBook className="text-violet-500 text-6xl" />
+            <FaCogs className="text-violet-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -177,6 +184,51 @@ export default function ReactTableRoute() {
               clone? Be our guest 😉
             </p>
           </div>
+        </div>
+      </div>
+
+      <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
+        <div className=" sm:text-center pb-16">
+          <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
+            Framework Agnostic & Feature Rich
+          </h3>
+          <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
+            TanStack Table's API and engine are highly modular and
+            framework-independent while still prioritizing ergonomics. Behold,
+            the obligatory feature-list:
+          </p>
+        </div>
+        <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4 w-[max-content] mx-auto">
+          {[
+            'Lightweight (10 - 15kb)',
+            'Tree-Shaking',
+            'Headless',
+            'Cell Formatters',
+            'Auto-managed internal state',
+            'Opt-in fully controlled state',
+            'Sorting',
+            'Multi Sort',
+            'Global Filters',
+            'Columns Filters',
+            'Pagination',
+            'Row Grouping',
+            'Aggregation',
+            'Row Selection',
+            'Row Expansion',
+            'Column Ordering',
+            'Column Visibility',
+            'Column Resizing',
+            'Virtualizable',
+            'Server-side/external Data',
+            'Nested/Grouped Headers',
+            'Footers',
+          ].map((d, i) => {
+            return (
+              <span key={i} className="flex items-center gap-2">
+                <FaCheckCircle className="text-green-500 " /> {d}
+              </span>
+            )
+          })}
         </div>
       </div>
 
@@ -223,6 +275,7 @@ export default function ReactTableRoute() {
           {/* @ts-ignore */}
         </marquee>
       </div>
+
       <div className="px-4 w-[450px] max-w-full mx-auto">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Partners
@@ -237,7 +290,7 @@ export default function ReactTableRoute() {
           <a
             href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
             target="_blank"
-            className="p-2"
+            className="p-2 bg-white w-full"
           >
             <img
               src={require('~/images/ag-grid.png')}
@@ -261,6 +314,7 @@ export default function ReactTableRoute() {
           </div>
         </div>
       </div>
+
       <div className="relative text-lg overflow-hidden">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Sponsors
@@ -295,6 +349,7 @@ export default function ReactTableRoute() {
           </a>
         </div>
       </div>
+
       <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
         <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-900 dark:text-white">
           <Carbon />
@@ -306,6 +361,7 @@ export default function ReactTableRoute() {
           This ad help us keep the lights on 😉
         </span>
       </div>
+
       <div className="flex flex-col gap-4">
         <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
           <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
@@ -347,6 +403,7 @@ export default function ReactTableRoute() {
           </div>
         </div>
       </div>
+
       <div className="bg-black body-font">
         <iframe
           key={framework}
@@ -365,50 +422,7 @@ export default function ReactTableRoute() {
           }}
         ></iframe>
       </div>
-      <div className="py-24 px-4 sm:px-6 lg:px-8 mx-auto container">
-        <div className=" sm:text-center pb-16">
-          <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-            Framework Agnostic & Feature Rich
-          </h3>
-          <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-            TanStack Table's API and engine are highly modular and
-            framework-independent while still prioritizing ergonomics. Behold,
-            the obligatory and expected feature-list:
-          </p>
-        </div>
-        <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto text-lg">
-          {[
-            'Lightweight (10 - 15kb)',
-            'Tree-Shaking',
-            'Headless',
-            'Cell Formatters',
-            'Auto-managed internal state',
-            'Opt-in fully controlled state',
-            'Sorting',
-            'Multi Sort',
-            'Global Filters',
-            'Columns Filters',
-            'Pagination',
-            'Row Grouping',
-            'Aggregation',
-            'Row Selection',
-            'Row Expansion',
-            'Column Ordering',
-            'Column Visibility',
-            'Column Resizing',
-            'Virtualizable',
-            'Server-side/external Data',
-            'Nested/Grouped Headers',
-            'Footers',
-          ].map((d, i) => {
-            return (
-              <span key={i} className="flex items-center gap-2">
-                <FaCheckCircle className="text-green-500 " /> {d}
-              </span>
-            )
-          })}
-        </div>
-      </div>
+
       <div className="flex flex-col gap-4 items-center">
         <div className="font-extrabold text-xl lg:text-2xl">
           Wow, you've come a long way!

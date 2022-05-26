@@ -269,10 +269,15 @@ export default function Index() {
                         dark:bg-gray-900 dark:shadow-none"
             >
               <div className="flex-1 bg-white flex items-center justify-center p-2">
-                <img
-                  src={require('~/images/ag-grid.png')}
-                  className="w-[250px] max-w-full"
-                />
+                <a
+                  href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
+                  target="_blank"
+                >
+                  <img
+                    src={require('~/images/ag-grid.png')}
+                    className="w-[250px] max-w-full"
+                  />
+                </a>
               </div>
               <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
                 <div>

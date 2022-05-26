@@ -245,7 +245,7 @@ export default function Index() {
       <div className="h-12" />
       <div className={`px-4 lg:max-w-screen-lg md:mx-auto`}>
         <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2`}>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-8">
             <h3 className={`text-4xl font-light`}>Partners</h3>
             <div
               className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col

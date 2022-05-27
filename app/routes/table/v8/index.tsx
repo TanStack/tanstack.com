@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ParentSize } from '@visx/responsive'
+
 import { CgCornerUpLeft } from 'react-icons/cg'
 import {
   FaBolt,
@@ -9,14 +9,12 @@ import {
   FaDiscord,
   FaGithub,
 } from 'react-icons/fa'
-import { json, Link, LoaderFunction, MetaFunction, useLoaderData } from 'remix'
+import { json, Link, LoaderFunction, useLoaderData } from 'remix'
 import { v8branch } from '../v8'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
-import { fetchCached } from '~/utils/cache.server'
-import { seo } from '~/utils/seo'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
@@ -119,7 +117,7 @@ export default function ReactTableRoute() {
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
         >
-          <span className="underline decoration-dashed decoration-rose-500 decoration-3 underline-offset-2">
+          <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
             Headless
           </span>{' '}
           UI for building powerful tables & datagrids
@@ -155,7 +153,7 @@ export default function ReactTableRoute() {
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               What good is a powerful table if that super hip designer you just
               hired can't work their UI magic on it?{' '}
-              <span className="font-semibold underline decoration-dotted decoration-2 decoration-rose-500">
+              <span className="font-semibold text-rose-700 dark:text-rose-400">
                 TanStack Table is headless by design
               </span>
               , which means 100% control down to the very smallest HTML tag,
@@ -176,7 +174,7 @@ export default function ReactTableRoute() {
               workhorse. It's built to materialize, filter, sort, group,
               aggregate, paginate and display massive data sets using a very
               small API surface. Wire up your new or existing tables and{' '}
-              <span className="font-semibold underline decoration-dotted decoration-2 decoration-pink-600">
+              <span className="font-semibold text-pink-700 dark:text-pink-400">
                 watch your users become instantly more productive
               </span>
               .
@@ -194,7 +192,7 @@ export default function ReactTableRoute() {
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               TanStack table ships with excellent defaults to get you off the
               ground as fast as possible, but nothing is stopping you from{' '}
-              <span className="font-semibold underline decoration-dotted decoration-2 decoration-violet-500">
+              <span className="font-semibold text-violet-700 dark:text-violet-400">
                 customizing and overriding literally everything to your liking
               </span>
               . Feeling tenacious enough to build your own Sheets/Excel/AirTable

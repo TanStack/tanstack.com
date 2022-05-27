@@ -27,23 +27,20 @@ export async function fetchRepoFile(
   isLocal?: boolean
 ) {
   const key = `${repoPair}:${ref}:${filepath}`
-  console.log(key)
   const file = await fetchCached({
     key,
     ttl: 1 * 60 * 1000, // 5 minute
     fn: async () => {
       let [owner, repo] = repoPair.split('/')
-      // if (isLocal) {
-      //   const localFilePath = path.join(__dirname, '../../../../..', filepath)
-      //   const file = await fsp.readFile(localFilePath)
-      //   return file.toString()
-      // }
+      if (isLocal) {
+        const localFilePath = path.join(__dirname, '../../../../..', filepath)
+        const file = await fsp.readFile(localFilePath)
+        return file.toString()
+      }
 
       let filePath = `${owner}/${repo}/${ref}/${filepath}`
       const href = new URL(`/${filePath}`, 'https://raw.githubusercontent.com/')
         .href
-
-      console.log('Fetching:', href)
 
       let response = await fetch(href, {
         headers: { 'User-Agent': `docs:${owner}/${repo}` },

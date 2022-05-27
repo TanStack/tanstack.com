@@ -30,7 +30,7 @@ function getClient() {
       const client = new Discord.Client()
 
       client.on('ready', async () => {
-        console.log('Logged in to Discord.')
+        console.info('Logged in to Discord.')
         resolve(client)
       })
 
@@ -51,10 +51,10 @@ async function init() {
 
   // const guild = await getGuild()
 
-  // console.log(guild)
+  // console.info(guild)
 
   client.on('message', (message) => {
-    // console.log(message)
+    // console.info(message)
     // let tierRole = message.guild.roles.cache.find(
     //   (role) => role.name === roles[tier.sponsorType]
     // )
@@ -62,7 +62,7 @@ async function init() {
 
   //Welcome & goodbye messages\\
   client.on('guildMemberAdd', (member) => {
-    console.log(member)
+    console.info(member)
 
     member.roles.add(
       member.guild.roles.cache.find((i) => i.name === 'Among The Server')

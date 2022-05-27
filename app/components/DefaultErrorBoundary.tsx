@@ -1,7 +1,7 @@
 import { ErrorBoundaryComponent } from 'remix'
 
 export const DefaultErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
-  console.log(error)
+  console.error(error)
 
   return (
     <div className="w-full h-full flex flex-col gap-2 items-center justify-center p-4">

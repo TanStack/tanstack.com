@@ -16,7 +16,7 @@ import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { CgMusicSpeaker } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { fetchCached } from '~/utils/docCache.server'
+import { fetchCached } from '~/utils/cache'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-blue-500 to-green-500'
@@ -139,18 +139,11 @@ export let meta: MetaFunction = () => {
 export const loader: LoaderFunction = async () => {
   const { getSponsorsForSponsorPack } = require('../server/sponsors')
 
-  const sponsors = await fetchCached('sponsors', getSponsorsForSponsorPack)
+  const sponsors = await getSponsorsForSponsorPack()
 
-  return json(
-    {
-      sponsors,
-    },
-    {
-      headers: {
-        'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
-      },
-    }
-  )
+  return json({
+    sponsors,
+  })
 }
 
 export const action: ActionFunction = async ({ request }) => {

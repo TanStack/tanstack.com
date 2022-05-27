@@ -1,3 +1,4 @@
+import { fetchCached } from '~/utils/cache'
 import { getSponsorsTable } from './airtable'
 import { GITHUB_ORG, graphqlWithAuth, octokit } from './github'
 import { getGithubTiersWithMeta, getTierById, updateTiersMeta } from './tiers'
@@ -225,7 +226,11 @@ async function getSponsorsMeta() {
 }
 
 export async function getSponsorsForSponsorPack() {
-  let { sponsors } = await getSponsorsAndTiers()
+  let { sponsors } = await fetchCached({
+    key: 'sponsors',
+    ttl: 60 * 60 * 1000,
+    fn: getSponsorsAndTiers,
+  })
 
   return sponsors.filter((d) => d.privacyLevel === 'PUBLIC')
 }

@@ -21,6 +21,7 @@ export async function fetchCached<T>(opts: {
   }
 
   const result = await opts.fn()
+
   docCache.set(opts.key, result, {
     ttl: opts.ttl,
   })

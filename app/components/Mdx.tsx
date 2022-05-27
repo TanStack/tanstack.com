@@ -23,7 +23,13 @@ const CustomHeading = ({
 const makeHeading =
   (type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
   (props: React.HTMLProps<HTMLHeadingElement>) =>
-    <CustomHeading Comp={type} {...props} />
+    (
+      <CustomHeading
+        Comp={type}
+        {...props}
+        className={`${props.className ?? ''} inline-block`}
+      />
+    )
 
 const markdownComponents = {
   a: MarkdownLink,

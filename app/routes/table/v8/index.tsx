@@ -311,6 +311,8 @@ export default function ReactTableRoute() {
             <img
               src={require('~/images/ag-grid.png')}
               className="w-full mx-auto max-w-[300px]"
+              width="300"
+              height="104"
             />
           </a>
           <div className="flex flex-col p-4 gap-4">

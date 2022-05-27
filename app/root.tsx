@@ -20,11 +20,27 @@ import prismThemeDark from './styles/prismThemeDark.css'
 import docsearchCss from '@docsearch/css/dist/style.css'
 import { CgSpinner } from 'react-icons/cg'
 
+const title = 'High Quality Open-Source Software for Web Developers'
+const description = ` Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`
+const imageHref = 'https://tanstack.com/images/og.png'
+
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
   viewport: 'width=device-width,initial-scale=1',
-  title: 'TanStack Table - React Table, Solid Table, Svelte Table, Vue Table',
-  description: `Headless UI for building powerful tables & datagrids for TS/JS, React, Vue, Solid and Svelte`,
+  title,
+  description,
+  keywords:
+    'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
+  'twitter:image': imageHref,
+  'twitter:card': 'summary_large_image',
+  'twitter:creator': '@tannerlinsley',
+  'twitter:site': '@tannerlinsley',
+  'twitter:title': 'TanStack',
+  'twitter:description': description,
+  'og:type': 'website',
+  'og:title': title,
+  'og:description': description,
+  'og:image': imageHref,
 })
 
 export let links: LinksFunction = () => {

@@ -174,37 +174,39 @@ export default function RouteReactTable() {
       <div className="flex-1 min-h-0 flex relative">
         <Outlet />
         <div
-          className="fixed bottom-0 left-0 right-0 flex justify-between
+          className="fixed bottom-0 left-0 right-0
                       lg:pl-[250px]"
         >
-          {prevItem ? (
-            <LinkOrA
-              to={prevItem.to}
-              className="flex gap-2 items-center m-4 py-1 px-2 text-sm self-start rounded-md
+          <div className="p-4 flex justify-center gap-4">
+            {prevItem ? (
+              <LinkOrA
+                to={prevItem.to}
+                className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
               bg-white text-gray-600 dark:bg-gray-900 dark:text-gray-400
               shadow-lg dark:border dark:border-gray-800
               lg:text-lg"
-            >
-              <FaArrowLeft /> {prevItem.label}
-            </LinkOrA>
-          ) : null}
-          {nextItem ? (
-            <LinkOrA
-              to={nextItem.to}
-              className="m-4 py-1 px-2 text-sm self-end rounded-md
+              >
+                <FaArrowLeft /> {prevItem.label}
+              </LinkOrA>
+            ) : null}
+            {nextItem ? (
+              <LinkOrA
+                to={nextItem.to}
+                className="py-1 px-2 text-sm self-end rounded-md
                 bg-white dark:bg-gray-900
                 shadow-lg dark:border dark:border-gray-800
                 lg:text-lg
                 "
-            >
-              <div
-                className="flex gap-2 items-center font-bold
-              bg-gradient-to-r from-rose-500 to-violet-500 bg-clip-text text-transparent"
               >
-                {nextItem.label} <FaArrowRight className="text-violet-500" />
-              </div>
-            </LinkOrA>
-          ) : null}
+                <div
+                  className="flex gap-2 items-center font-bold
+              bg-gradient-to-r from-rose-500 to-violet-500 bg-clip-text text-transparent"
+                >
+                  {nextItem.label} <FaArrowRight className="text-violet-500" />
+                </div>
+              </LinkOrA>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

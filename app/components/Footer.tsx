@@ -2,9 +2,9 @@ import { Link } from 'remix'
 
 const footerLinks = [
   { label: 'Blog', to: '/blog' },
-  { label: 'Twitter (TanStack', to: 'https://twitter.com/tan_stack' },
+  { label: '@Tan_Stack Twitter', to: 'https://twitter.com/tan_stack' },
   {
-    label: 'Twitter (Tanner Linsley)',
+    label: '@TannerLinsley Twitter',
     to: 'https://twitter.com/tannerlinsley',
   },
   { label: 'Github', to: 'https://github.com/tanstack' },

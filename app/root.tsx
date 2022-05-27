@@ -34,7 +34,7 @@ export const meta: MetaFunction = () => ({
   'twitter:image': imageHref,
   'twitter:card': 'summary_large_image',
   'twitter:creator': '@tannerlinsley',
-  'twitter:site': '@tannerlinsley',
+  'twitter:site': '@tan_stack',
   'twitter:title': 'TanStack',
   'twitter:description': description,
   'og:type': 'website',

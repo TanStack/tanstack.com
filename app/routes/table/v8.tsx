@@ -28,7 +28,7 @@ export type V8Config = {
   }[]
 }
 
-export const v8branch = 'alpha'
+export const v8branch = 'beta'
 
 export const loader: LoaderFunction = async () => {
   const config = await fetchRepoFile(

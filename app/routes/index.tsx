@@ -16,7 +16,7 @@ import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { CgMusicSpeaker } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { fetchCached } from '~/utils/cache'
+import { fetchCached } from '~/utils/cache.server'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-blue-500 to-green-500'

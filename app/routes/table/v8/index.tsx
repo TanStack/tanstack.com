@@ -15,7 +15,7 @@ import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
-import { fetchCached } from '~/utils/cache'
+import { fetchCached } from '~/utils/cache.server'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'

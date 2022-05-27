@@ -4,7 +4,7 @@ import {
   extractFrontMatter,
   fetchRepoFile,
   markdownToMdx,
-} from '~/utils/documentse
+} from '~/utils/documents.server'
 import { v8branch } from '../../v8'
 import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'

@@ -1,4 +1,4 @@
-import { fetchCached } from '~/utils/cache'
+import { fetchCached } from '~/utils/cache.server'
 import { getSponsorsTable } from './airtable'
 import { GITHUB_ORG, graphqlWithAuth, octokit } from './github'
 import { getGithubTiersWithMeta, getTierById, updateTiersMeta } from './tiers'

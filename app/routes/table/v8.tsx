@@ -8,7 +8,7 @@ import {
   useSearchParams,
 } from 'remix'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { fetchRepoFile } from '~/utils/docCache.server'
+import { fetchRepoFile } from '~/utils/documentse
 import { useMatchesData } from '~/utils/utils'
 
 export type V8Config = {

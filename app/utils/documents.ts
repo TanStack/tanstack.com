@@ -1,9 +1,9 @@
 import fsp from 'fs/promises'
-import LRUCache from 'lru-cache'
+
 import path from 'path'
 import { bundleMDX } from 'mdx-bundler'
 import * as graymatter from 'gray-matter'
-import { useContext } from 'react'
+import { fetchCached } from './cache'
 
 type BundledMDX = Awaited<ReturnType<typeof bundleMDX>>
 
@@ -20,31 +20,6 @@ export type DocFrontMatter = {
   exerpt?: string
 }
 
-declare global {
-  var docCache: LRUCache<string, unknown>
-}
-
-let docCache =
-  global.docCache ||
-  (global.docCache = new LRUCache<string, unknown>({
-    max: 300,
-    ttl: process.env.NODE_ENV === 'production' ? 1 : 1000000,
-  }))
-
-export async function fetchCached<T>(
-  key: string,
-  fn: () => Promise<T>
-): Promise<T> {
-  if (docCache.has(key)) {
-    return docCache.get(key) as T
-  }
-
-  const result = await fn()
-  docCache.set(key, result)
-
-  return result
-}
-
 export async function fetchRepoFile(
   repoPair: string,
   ref: string,
@@ -52,27 +27,31 @@ export async function fetchRepoFile(
   isLocal?: boolean
 ) {
   const key = `${repoPair}:${ref}:${path}`
-  const file = await fetchCached(key, async () => {
-    let [owner, repo] = repoPair.split('/')
-    if (isLocal) {
-      const localFilePath = path.join(__dirname, '../../../../..', filepath)
-      const file = await fsp.readFile(localFilePath)
-      return file.toString()
-    }
+  const file = await fetchCached({
+    key,
+    ttl: 1 * 60 * 1000, // 5 minute
+    fn: async () => {
+      let [owner, repo] = repoPair.split('/')
+      if (isLocal) {
+        const localFilePath = path.join(__dirname, '../../../../..', filepath)
+        const file = await fsp.readFile(localFilePath)
+        return file.toString()
+      }
 
-    let filePath = `${owner}/${repo}/${ref}/${filepath}`
-    const href = new URL(`/${filePath}`, 'https://raw.githubusercontent.com/')
-      .href
+      let filePath = `${owner}/${repo}/${ref}/${filepath}`
+      const href = new URL(`/${filePath}`, 'https://raw.githubusercontent.com/')
+        .href
 
-    console.log('Fetching:', href)
+      console.log('Fetching:', href)
 
-    let response = await fetch(href, {
-      headers: { 'User-Agent': `docs:${owner}/${repo}` },
-    })
+      let response = await fetch(href, {
+        headers: { 'User-Agent': `docs:${owner}/${repo}` },
+      })
 
-    if (!response.ok) return null
+      if (!response.ok) return null
 
-    return response.text()
+      return response.text()
+    },
   })
 
   return file

@@ -15,7 +15,7 @@ import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
-import { fetchCached } from '~/utils/docCache.server'
+import { fetchCached } from '~/utils/cache'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
@@ -58,18 +58,11 @@ const menu = [
 export const loader: LoaderFunction = async () => {
   const { getSponsorsForSponsorPack } = require('~/server/sponsors')
 
-  const sponsors = await fetchCached('sponsors', getSponsorsForSponsorPack)
+  const sponsors = await getSponsorsForSponsorPack()
 
-  return json(
-    {
-      sponsors,
-    },
-    {
-      headers: {
-        'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
-      },
-    }
-  )
+  return json({
+    sponsors,
+  })
 }
 
 export default function ReactTableRoute() {

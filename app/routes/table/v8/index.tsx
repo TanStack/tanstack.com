@@ -9,11 +9,13 @@ import {
   FaDiscord,
   FaGithub,
 } from 'react-icons/fa'
-import { Link } from 'remix'
+import { json, Link, LoaderFunction, useLoaderData } from 'remix'
 import { v8branch } from '../v8'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
+import SponsorPack from '~/components/SponsorPack'
+import { fetchCached } from '~/utils/docCache.server'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
@@ -53,7 +55,25 @@ const menu = [
   },
 ]
 
+export const loader: LoaderFunction = async () => {
+  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
+
+  const sponsors = await fetchCached('sponsors', getSponsorsForSponsorPack)
+
+  return json(
+    {
+      sponsors,
+    },
+    {
+      headers: {
+        'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
+      },
+    }
+  )
+}
+
 export default function ReactTableRoute() {
+  const { sponsors } = useLoaderData()
   // const config = useReactTableV8Config()
   // const [params, setParams] = useSearchParams()
   // const framework = params.get('framework') ?? 'react'
@@ -323,26 +343,13 @@ export default function ReactTableRoute() {
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Sponsors
         </h3>
-        <div className="py-4 flex flex-wrap mx-auto max-w-screen-lg">
-          <ParentSize>
-            {({ width }) => {
-              return (
-                <iframe
-                  title="sponsors"
-                  src={
-                    process.env.NODE_ENV === 'development'
-                      ? 'http://localhost:3001/sponsors-embed'
-                      : 'https://tanstack.com/sponsors-embed'
-                  }
-                  style={{
-                    width: width,
-                    height: width,
-                    overflow: 'hidden',
-                  }}
-                />
-              )
-            }}
-          </ParentSize>
+        <div
+          className="py-4 flex flex-wrap mx-auto max-w-screen-lg"
+          style={{
+            aspectRatio: '1/1',
+          }}
+        >
+          <SponsorPack sponsors={sponsors} />
         </div>
         <div className="text-center">
           <a
@@ -362,7 +369,7 @@ export default function ReactTableRoute() {
           className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20"
         >
-          This ad help us keep the lights on 😉
+          This ad helps us keep the lights on 😉
         </span>
       </div>
 
@@ -415,6 +422,7 @@ export default function ReactTableRoute() {
           title="tannerlinsley/react-table: basic"
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
           className="shadow-2xl"
+          loading="lazy"
           style={{
             width: '100%',
             height: '80vh',

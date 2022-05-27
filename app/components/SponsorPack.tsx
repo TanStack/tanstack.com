@@ -93,7 +93,9 @@ export default function SponsorPack({ sponsors }: { sponsors: any }) {
                             style={{
                               backgroundImage: `url(${
                                 circle.data.imageUrl ||
-                                `https://avatars0.githubusercontent.com/${circle.data.login}?v=3&s=200`
+                                `https://avatars0.githubusercontent.com/${
+                                  circle.data.login
+                                }?v=3&s=${Math.round(circle.r * 2)}`
                               })`,
                             }}
                           />

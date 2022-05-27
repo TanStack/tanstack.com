@@ -7,11 +7,9 @@ export const handle = {
 }
 
 export const loader: LoaderFunction = async () => {
-  const { getSponsorsAndTiers } = require('../server/sponsors')
+  const { getSponsorsForSponsorPack } = require('../server/sponsors')
 
-  let { sponsors } = await getSponsorsAndTiers()
-
-  sponsors = sponsors.filter((d) => d.privacyLevel === 'PUBLIC')
+  const sponsors = await getSponsorsForSponsorPack()
 
   return json(
     {

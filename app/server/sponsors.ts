@@ -223,3 +223,9 @@ async function getSponsorsMeta() {
     )
   })
 }
+
+export async function getSponsorsForSponsorPack() {
+  let { sponsors } = await getSponsorsAndTiers()
+
+  return sponsors.filter((d) => d.privacyLevel === 'PUBLIC')
+}

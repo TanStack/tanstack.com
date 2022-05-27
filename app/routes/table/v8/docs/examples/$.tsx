@@ -6,7 +6,7 @@ import { capitalize, slugToTitle } from '~/utils/utils'
 
 export const loader: LoaderFunction = async (context) => {
   const { '*': examplePath } = context.params
-  const [kind, name] = examplePath ?? ''.split('/')
+  const [kind, name] = (examplePath ?? '').split('/')
 
   return json({ kind, name })
 }

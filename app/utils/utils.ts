@@ -38,3 +38,7 @@ export function slugToTitle(str: string) {
 //       .join(' ')
 //   },
 // }
+
+export function last<T>(arr: T[]) {
+  return arr[arr.length - 1]
+}

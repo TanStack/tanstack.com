@@ -22,7 +22,7 @@ import { CgSpinner } from 'react-icons/cg'
 
 const title = 'High Quality Open-Source Software for Web Developers'
 const description = ` Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`
-const imageHref = 'https://tanstack.com/images/og.png'
+import imageHref from './images/og.png'
 
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',

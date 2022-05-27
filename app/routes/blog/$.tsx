@@ -60,7 +60,7 @@ export default function RouteReactTableDocs() {
   const { title, published, code, filePath } = useLoaderData()
 
   return (
-    <div className="p-4 lg:p-6 max-w-screen-lg mx-auto">
+    <div className="p-4 lg:p-6 max-w-screen-lg mx-auto overflow-auto">
       <div>
         <DocTitle>{title ?? ''}</DocTitle>
         <div className="h-2" />

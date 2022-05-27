@@ -130,21 +130,4 @@ export default function RouteBlog() {
       </div>
     </div>
   )
-  //  : (
-  //   <div className="flex items-start min-h-0 h-screen">
-  //     <div
-  //       className="p-8 flex w-[300px] min-h-0 h-screen overflow-y-auto
-  //       flex-col gap-4 whitespace-nowrap"
-  //     >
-  //       <div className="flex flex-col text-2xl">{logo}</div>
-  //       {menu}
-  //     </div>
-  //     <div className="flex-1 h-screen pl-4 overflow-y-auto flex flex-col">
-  //       <div className="h-12" />
-  //       <div className="flex-1 min-h-0">
-  //         <Outlet />
-  //       </div>
-  //     </div>
-  //   </div>
-  // )
 }

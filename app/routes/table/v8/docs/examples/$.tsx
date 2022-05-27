@@ -22,7 +22,7 @@ export default function RouteReactTableDocs() {
   const { kind, name } = useLoaderData()
 
   return (
-    <div className="flex-1 flex flex-col min-h-0">
+    <div className="flex-1 flex flex-col min-h-0 overflow-auto">
       <div className="p-4 lg:p-6">
         <DocTitle>
           {capitalize(kind)} Example: {slugToTitle(name)}

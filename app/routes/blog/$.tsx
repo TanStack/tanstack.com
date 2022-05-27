@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { json, LoaderFunction, useLoaderData } from 'remix'
+import { json, LoaderFunction, MetaFunction, useLoaderData } from 'remix'
 import {
   extractFrontMatter,
   fetchRepoFile,
@@ -10,6 +10,8 @@ import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { format } from 'date-fns'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import removeMarkdown from 'remove-markdown'
+import { seo } from '~/utils/seo'
 
 export const loader: LoaderFunction = async (context) => {
   const { '*': docsPath } = context.params
@@ -32,14 +34,23 @@ export const loader: LoaderFunction = async (context) => {
   }
 
   const frontMatter = extractFrontMatter(file)
+  const description = removeMarkdown(frontMatter.excerpt ?? '')
 
   const mdx = await markdownToMdx(frontMatter.content)
 
   return json({
     title: frontMatter.data.title,
+    description,
     published: frontMatter.data.published,
     code: mdx.code,
     filePath,
+  })
+}
+
+export let meta: MetaFunction = ({ data }) => {
+  return seo({
+    title: `${data.title} | TanStack Blog`,
+    description: data.description,
   })
 }
 

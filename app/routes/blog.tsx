@@ -1,10 +1,11 @@
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { Link, NavLink, Outlet } from 'remix'
+import { Link, MetaFunction, NavLink, Outlet } from 'remix'
 import { gradientText } from './index'
-import { Search } from './table/export function Search () {'
+import { Search } from '../components/Search'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { Carbon } from '~/components/Carbon'
+import { seo } from '~/utils/seo'
 
 export const ErrorBoundary = DefaultErrorBoundary
 
@@ -30,6 +31,13 @@ const localMenu = [
     ],
   },
 ] as const
+
+export let meta: MetaFunction = () => {
+  return seo({
+    title: 'Blog | TanStack',
+    description: 'The latest news and blog posts from TanStack!',
+  })
+}
 
 export default function RouteBlog() {
   const detailsRef = React.useRef<HTMLElement>(null!)

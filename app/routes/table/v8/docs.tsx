@@ -1,13 +1,14 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { Link, NavLink, Outlet } from 'remix'
+import { Link, MetaFunction, NavLink, Outlet } from 'remix'
 import { useMatchesData } from '~/utils/utils'
 import { useReactTableV8Config, V8Config } from '../v8'
 import { DocSearch } from '@docsearch/react'
 import { gradientText } from './index'
-import { Search } from '../export function Search () {'
+import { Search } from '../../../components/Search'
 import { Carbon } from '~/components/Carbon'
+import { seo } from '~/utils/seo'
 
 const logo = (
   <>
@@ -45,6 +46,15 @@ const localMenu = {
       to: 'https://tlinz.com/discord',
     },
   ],
+}
+
+export let meta: MetaFunction = () => {
+  return seo({
+    title:
+      'TanStack Table Docs | React Table, Solid Table, Svelte Table, Vue Table',
+    description:
+      'Headless UI for building powerful tables & datagrids with TS/JS, React, Solid, Svelte and Vue',
+  })
 }
 
 export default function RouteReactTable() {

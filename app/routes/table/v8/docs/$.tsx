@@ -1,4 +1,4 @@
-import { json, LoaderFunction, useLoaderData } from 'remix'
+import { json, LoaderFunction, MetaFunction, useLoaderData } from 'remix'
 import {
   Doc,
   extractFrontMatter,
@@ -10,6 +10,8 @@ import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { seo } from '~/utils/seo'
+import removeMarkdown from 'remove-markdown'
 
 export const loader: LoaderFunction = async (context) => {
   const { '*': docsPath } = context.params
@@ -27,14 +29,16 @@ export const loader: LoaderFunction = async (context) => {
   }
 
   const frontMatter = extractFrontMatter(file)
+  const description = removeMarkdown(frontMatter.excerpt ?? '')
 
   const mdx = await markdownToMdx(frontMatter.content)
 
   return json(
     {
-      code: mdx.code,
       title: frontMatter.data.title,
+      description,
       filePath,
+      code: mdx.code,
     },
     {
       headers: {
@@ -42,6 +46,13 @@ export const loader: LoaderFunction = async (context) => {
       },
     }
   )
+}
+
+export let meta: MetaFunction = ({ data }) => {
+  return seo({
+    title: `${data.title} | TanStack Table Docs`,
+    description: data.description,
+  })
 }
 
 export const ErrorBoundary = DefaultErrorBoundary

@@ -114,28 +114,6 @@ const courses = [
   },
 ]
 
-export let meta: MetaFunction = () => {
-  const title = 'Quality Software & Open Source Libraries for the Modern Web'
-  const description = `TanStack is an incubator and collection of software, products, tools and courses for building professional and enterprise-grade front-end applications for the web.`
-  const imageHref = 'https://tanstack.com/favicon.png'
-  return {
-    title,
-    description,
-    keywords:
-      'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
-    'twitter:image': imageHref,
-    'twitter:card': 'summary_large_image',
-    'twitter:creator': '@tannerlinsley',
-    'twitter:site': '@tannerlinsley',
-    'twitter:title': 'TanStack',
-    'twitter:description': description,
-    'og:type': 'website',
-    'og:title': title,
-    'og:description': description,
-    'og:image': imageHref,
-  }
-}
-
 export const loader: LoaderFunction = async () => {
   const { getSponsorsForSponsorPack } = require('../server/sponsors')
 

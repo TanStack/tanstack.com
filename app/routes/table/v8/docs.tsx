@@ -198,11 +198,11 @@ export default function RouteReactTable() {
                 lg:text-lg
                 "
               >
-                <div
-                  className="flex gap-2 items-center font-bold
-              bg-gradient-to-r from-rose-500 to-violet-500 bg-clip-text text-transparent"
-                >
-                  {nextItem.label} <FaArrowRight className="text-violet-500" />
+                <div className="flex gap-2 items-center font-bold">
+                  <span className="bg-gradient-to-r from-rose-500 to-violet-500 bg-clip-text text-transparent">
+                    {nextItem.label}
+                  </span>{' '}
+                  <FaArrowRight className="text-violet-500" />
                 </div>
               </LinkOrA>
             ) : null}

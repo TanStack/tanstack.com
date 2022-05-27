@@ -26,7 +26,8 @@ export async function fetchRepoFile(
   filepath: string,
   isLocal?: boolean
 ) {
-  const key = `${repoPair}:${ref}:${path}`
+  const key = `${repoPair}:${ref}:${filepath}`
+  console.log(key)
   const file = await fetchCached({
     key,
     ttl: 1 * 60 * 1000, // 5 minute

@@ -20,27 +20,18 @@ import prismThemeDark from './styles/prismThemeDark.css'
 import docsearchCss from '@docsearch/css/dist/style.css'
 import { CgSpinner } from 'react-icons/cg'
 
-const title = 'High Quality Open-Source Software for Web Developers'
-const description = ` Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`
-import imageHref from './images/og.png'
+import { seo } from './utils/seo'
 
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
   viewport: 'width=device-width,initial-scale=1',
-  title,
-  description,
-  keywords:
-    'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
-  'twitter:image': imageHref,
-  'twitter:card': 'summary_large_image',
-  'twitter:creator': '@tannerlinsley',
-  'twitter:site': '@tan_stack',
-  'twitter:title': 'TanStack',
-  'twitter:description': description,
-  'og:type': 'website',
-  'og:title': title,
-  'og:description': description,
-  'og:image': imageHref,
+  ...seo({
+    title: 'TanStack | High Quality Open-Source Software for Web Developers',
+    description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
+    image: require('./images/og.png'),
+    keywords:
+      'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
+  }),
 })
 
 export let links: LinksFunction = () => {

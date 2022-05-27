@@ -3,12 +3,14 @@ import {
   json,
   Link,
   LoaderFunction,
+  MetaFunction,
   Outlet,
   useLocation,
   useSearchParams,
 } from 'remix'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { fetchRepoFile } from '~/utils/documents.server'
+import { seo } from '~/utils/seo'
 import { useMatchesData } from '~/utils/utils'
 
 export type V8Config = {

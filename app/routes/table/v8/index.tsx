@@ -9,13 +9,14 @@ import {
   FaDiscord,
   FaGithub,
 } from 'react-icons/fa'
-import { json, Link, LoaderFunction, useLoaderData } from 'remix'
+import { json, Link, LoaderFunction, MetaFunction, useLoaderData } from 'remix'
 import { v8branch } from '../v8'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
 import { fetchCached } from '~/utils/cache.server'
+import { seo } from '~/utils/seo'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'

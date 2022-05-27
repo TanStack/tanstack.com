@@ -279,6 +279,8 @@ export default function Index() {
                   <img
                     src={require('~/images/ag-grid.png')}
                     className="w-[250px] max-w-full"
+                    width="250"
+                    height="87"
                   />
                 </a>
               </div>

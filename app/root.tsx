@@ -81,6 +81,21 @@ function Document({
         {title ? <title>{title}</title> : null}
         <Meta />
         <Links />
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS"
+        ></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', 'G-JMT1Z50SPS');
+            `,
+          }}
+        ></script>
       </head>
       <body>
         {children}

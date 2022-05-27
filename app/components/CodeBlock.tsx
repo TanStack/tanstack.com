@@ -55,7 +55,7 @@ export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
   const code = child.props.children || ''
   const identifier = code
   return (
-    <div className="w-full">
+    <div className="w-full max-w-full">
       <Highlight {...defaultProps} code={code.trim()} language={lang || 'bash'}>
         {({ className, tokens, getLineProps, getTokenProps }) => (
           <div className="relative not-prose">

@@ -33,7 +33,7 @@ export async function fetchRepoFile(
     fn: async () => {
       let [owner, repo] = repoPair.split('/')
       if (isLocal) {
-        const localFilePath = path.join(__dirname, '../../../../..', filepath)
+        const localFilePath = path.resolve(__dirname, '..', filepath)
         const file = await fsp.readFile(localFilePath)
         return file.toString()
       }

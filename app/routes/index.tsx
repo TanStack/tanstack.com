@@ -1,9 +1,12 @@
 import {
   ActionFunction,
   Form,
+  json,
   Link,
+  LoaderFunction,
   MetaFunction,
   useActionData,
+  useLoaderData,
   useTransition,
 } from 'remix'
 import { Carbon } from '~/components/Carbon'
@@ -12,6 +15,8 @@ import { twMerge } from 'tailwind-merge'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { CgMusicSpeaker } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
+import SponsorPack from '~/components/SponsorPack'
+import { fetchCached } from '~/utils/docCache.server'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-blue-500 to-green-500'
@@ -131,6 +136,23 @@ export let meta: MetaFunction = () => {
   }
 }
 
+export const loader: LoaderFunction = async () => {
+  const { getSponsorsForSponsorPack } = require('../server/sponsors')
+
+  const sponsors = await fetchCached('sponsors', getSponsorsForSponsorPack)
+
+  return json(
+    {
+      sponsors,
+    },
+    {
+      headers: {
+        'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
+      },
+    }
+  )
+}
+
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
   return fetch(`https://bytes.dev/api/bytes-optin-cors`, {
@@ -148,6 +170,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Index() {
   const data = useActionData()
+  const { sponsors } = useLoaderData()
   const transition = useTransition()
   const isLoading = transition.state === 'submitting'
   const hasSubmitted = data?.status === 'success'
@@ -291,9 +314,9 @@ export default function Index() {
             </div>
             <span
               className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
-                dark:bg-opacity-20 self-end"
+                dark:bg-opacity-20 self-center"
             >
-              This ad help us keep the lights on 😉
+              This ad helps us keep the lights on 😉
             </span>
           </div>
         </div>
@@ -342,26 +365,28 @@ export default function Index() {
       <div className="h-12" />
       <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
         <h3 className={`text-4xl font-light`}>OSS Sponsors</h3>
-        <div className={`mt-4 overflow-hidden`}>
-          <ParentSize>
-            {({ width }) => {
-              return (
-                <iframe
-                  src={
-                    process.env.NODE_ENV === 'production'
-                      ? 'https://tanstack.com/sponsors-embed'
-                      : 'http://localhost:3001/sponsors-embed'
-                  }
-                  loading="lazy"
-                  style={{
-                    width: width,
-                    height: width,
-                    overflow: 'hidden',
-                  }}
-                />
-              )
-            }}
-          </ParentSize>
+        <div className="h-4" />
+        <div
+          style={{
+            aspectRatio: '1/1',
+          }}
+        >
+          <SponsorPack sponsors={sponsors} />
+          {/* return (
+                 <iframe
+                   src={
+                     process.env.NODE_ENV === 'production'
+                       ? 'https://tanstack.com/sponsors-embed'
+                       : 'http://localhost:3001/sponsors-embed'
+                   }
+                   loading="lazy"
+                   style={{
+                     width: width,
+                     height: width,
+                     overflow: 'hidden',
+                   }}
+                 />
+               ) */}
         </div>
         <div className={`h-6`} />
         <div className={`text-center`}>

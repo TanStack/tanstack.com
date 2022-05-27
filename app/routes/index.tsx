@@ -17,6 +17,7 @@ import { CgMusicSpeaker } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { fetchCached } from '~/utils/cache.server'
+import { LinkOrA } from '~/components/LinkOrA'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-blue-500 to-green-500'
@@ -207,12 +208,10 @@ export default function Index() {
             lg:grid-cols-3`}
         >
           {libraries.map((library, i) => {
-            const Comp = library.to.startsWith('http') ? 'a' : Link
             return (
-              <Comp
+              <LinkOrA
                 key={library.name}
                 to={library.to}
-                href={library.to.startsWith('http') ? library.to : undefined}
                 className={twMerge(
                   `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white dark:bg-gray-900`,
                   library.getStyles()
@@ -234,7 +233,7 @@ export default function Index() {
                 <div className={`text-sm mt-2 text-black dark:text-white`}>
                   {library.description}
                 </div>
-              </Comp>
+              </LinkOrA>
             )
           })}
         </div>

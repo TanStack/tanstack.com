@@ -1,14 +1,23 @@
 import * as React from 'react'
-import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { FaArrowLeft, FaArrowRight, FaDiscord, FaGithub } from 'react-icons/fa'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { Link, MetaFunction, NavLink, Outlet } from 'remix'
-import { useMatchesData } from '~/utils/utils'
+import {
+  Link,
+  MetaFunction,
+  NavLink,
+  Outlet,
+  useLoaderData,
+  useLocation,
+  useMatches,
+} from 'remix'
+import { last, useMatchesData } from '~/utils/utils'
 import { useReactTableV8Config, V8Config } from '../v8'
 import { DocSearch } from '@docsearch/react'
 import { gradientText } from './index'
 import { Search } from '../../../components/Search'
 import { Carbon } from '~/components/Carbon'
 import { seo } from '~/utils/seo'
+import { LinkOrA } from '~/components/LinkOrA'
 
 const logo = (
   <>
@@ -59,8 +68,21 @@ export let meta: MetaFunction = () => {
 
 export default function RouteReactTable() {
   const config = useReactTableV8Config()
+  const matches = useMatches()
+  const lastMatch = last(matches)
 
   const detailsRef = React.useRef<HTMLElement>(null!)
+
+  const flatMenu = React.useMemo(
+    () => [localMenu, ...config.menu].flatMap((d) => d.children),
+    [config.menu]
+  )
+
+  const relativePathname = lastMatch.pathname.replace('/table/v8/docs/', '')
+
+  const index = flatMenu.findIndex((d) => d.to === relativePathname)
+  const prevItem = flatMenu[index - 1]
+  const nextItem = flatMenu[index + 1]
 
   const menuItems = [localMenu, ...config.menu].map((group) => {
     return (
@@ -127,7 +149,7 @@ export default function RouteReactTable() {
   )
 
   const largeMenu = (
-    <div className="hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
+    <div className="hidden lg:flex w-[250px] flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div>
         <DocSearch
@@ -149,8 +171,41 @@ export default function RouteReactTable() {
     <div className="min-h-screen flex flex-col lg:flex-row">
       {smallMenu}
       {largeMenu}
-      <div className="flex-1 min-h-0 flex">
+      <div className="flex-1 min-h-0 flex relative">
         <Outlet />
+        <div
+          className="fixed bottom-0 left-0 right-0 flex justify-between
+                      lg:pl-[250px]"
+        >
+          {prevItem ? (
+            <LinkOrA
+              to={prevItem.to}
+              className="flex gap-2 items-center m-4 py-1 px-2 text-sm self-start rounded-md
+              bg-white text-gray-600 dark:bg-gray-900 dark:text-gray-400
+              shadow-lg dark:border dark:border-gray-800
+              lg:text-lg"
+            >
+              <FaArrowLeft /> {prevItem.label}
+            </LinkOrA>
+          ) : null}
+          {nextItem ? (
+            <LinkOrA
+              to={nextItem.to}
+              className="m-4 py-1 px-2 text-sm self-end rounded-md
+                bg-white dark:bg-gray-900
+                shadow-lg dark:border dark:border-gray-800
+                lg:text-lg
+                "
+            >
+              <div
+                className="flex gap-2 items-center font-bold
+              bg-gradient-to-r from-rose-500 to-violet-500 bg-clip-text text-transparent"
+              >
+                {nextItem.label} <FaArrowRight className="text-violet-500" />
+              </div>
+            </LinkOrA>
+          ) : null}
+        </div>
       </div>
     </div>
   )

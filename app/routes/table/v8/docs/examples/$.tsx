@@ -37,7 +37,7 @@ export default function RouteReactTableDocs() {
         sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
         className="flex-1 w-full"
       />
-      <div className="h-12" />
+      <div className="h-16" />
     </div>
   )
 }

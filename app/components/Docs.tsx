@@ -46,9 +46,14 @@ export function Docs({
     [config.menu]
   )
 
-  const docsMatch = matches.find((d) => d.pathname.endsWith('/docs/'))
+  const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
 
-  const relativePathname = lastMatch.pathname.replace(docsMatch?.pathname!, '')
+  const relativePathname = lastMatch.pathname.replace(
+    docsMatch?.pathname! + '/',
+    ''
+  )
+
+  console.log(relativePathname)
 
   const index = flatMenu.findIndex((d) => d.to === relativePathname)
   const prevItem = flatMenu[index - 1]

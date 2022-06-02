@@ -24,7 +24,7 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
   ]
 
   reactVirtualv2List.forEach((item) => {
-    if (url.pathname.startsWith(`/virtual/v3/${item.from}`)) {
+    if (url.pathname.startsWith(`/virtual/v2/${item.from}`)) {
       throw redirect(
         `/virtual/v3/${item.to}?from=reactVirtualV2&original=https://react-virtual-v2.tanstack.com/${item.from}`
       )

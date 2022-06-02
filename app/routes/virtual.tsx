@@ -7,6 +7,7 @@ export let meta: MetaFunction = () => {
       'TanStack Virtual | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',
     description:
       'Headless UI for virtualizing large element lists with TS/JS, React, Solid, Svelte and Vue',
+    image: 'https://github.com/tanstack/virtual/raw/beta/media/header.png',
   })
 }
 

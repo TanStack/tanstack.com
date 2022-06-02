@@ -3,7 +3,7 @@ import { LoaderFunction, redirect } from 'remix'
 export const loader: LoaderFunction = (context) => {
   handleRedirects(context)
 
-  return new Response('OK')
+  return redirect('/table/v8')
 }
 
 function handleRedirects(context: Parameters<LoaderFunction>[0]) {

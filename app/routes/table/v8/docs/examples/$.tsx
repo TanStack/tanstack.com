@@ -40,6 +40,7 @@ export default function RouteReactTableDocs() {
         sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
         className="flex-1 w-full overflow-hidden rounded-tl-2xl"
       />
+      <div className="h-16" />
     </div>
   )
 }

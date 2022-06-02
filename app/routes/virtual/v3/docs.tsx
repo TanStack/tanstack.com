@@ -1,15 +1,9 @@
 import * as React from 'react'
-import { FaArrowLeft, FaArrowRight, FaDiscord, FaGithub } from 'react-icons/fa'
-import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { Link, MetaFunction, NavLink, Outlet, useMatches } from 'remix'
-import { last } from '~/utils/utils'
-import { useReactTableV8Config } from '../v8'
-import { DocSearch } from '@docsearch/react'
+import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { Link, MetaFunction } from 'remix'
+import { useReactVirtualV3Config } from '../v3'
 import { gradientText } from './index'
-import { Search } from '../../../components/Search'
-import { Carbon } from '~/components/Carbon'
 import { seo } from '~/utils/seo'
-import { LinkOrA } from '~/components/LinkOrA'
 import { Docs, DocsConfig } from '~/components/Docs'
 
 const logo = (
@@ -18,8 +12,8 @@ const logo = (
       TanStack
     </Link>
     <Link to=".." className={`font-bold`}>
-      <span className={`${gradientText}`}>Table</span>{' '}
-      <span className="text-sm align-super">v8</span>
+      <span className={`${gradientText}`}>Virtual</span>{' '}
+      <span className="text-sm align-super">v3</span>
     </Link>
   </>
 )
@@ -37,7 +31,7 @@ const localMenu = {
           Github <FaGithub className="text-lg opacity-20" />
         </div>
       ),
-      to: 'https://github.com/tanstack/table',
+      to: 'https://github.com/tanstack/virtual',
     },
     {
       label: (
@@ -53,14 +47,14 @@ const localMenu = {
 export let meta: MetaFunction = () => {
   return seo({
     title:
-      'TanStack Table Docs | React Table, Solid Table, Svelte Table, Vue Table',
+      'TanStack Virtual Docs | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',
     description:
-      'Headless UI for building powerful tables & datagrids with TS/JS, React, Solid, Svelte and Vue',
+      'Headless UI for virtualizing long scrollable lists with TS/JS, React, Solid, Svelte and Vue',
   })
 }
 
 export default function RouteReactTable() {
-  let config = useReactTableV8Config()
+  let config = useReactVirtualV3Config()
 
   config = React.useMemo(
     () =>
@@ -75,9 +69,9 @@ export default function RouteReactTable() {
     <Docs
       {...{
         logo,
-        colorFrom: 'from-rose-500',
-        colorTo: 'to-violet-500',
-        textColor: 'text-violet-500',
+        colorFrom: 'from-teal-500',
+        colorTo: 'to-blue-500',
+        textColor: 'text-blue-500',
         config,
       }}
     />

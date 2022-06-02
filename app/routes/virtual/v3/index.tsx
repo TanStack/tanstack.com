@@ -10,14 +10,14 @@ import {
   FaGithub,
 } from 'react-icons/fa'
 import { json, Link, LoaderFunction, useLoaderData } from 'remix'
-import { v8branch } from '../v8'
+import { v3branch } from '../v3'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
 
 export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
+  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
 
 const menu = [
   {
@@ -42,7 +42,7 @@ const menu = [
         <FaGithub className="text-lg" /> Github
       </div>
     ),
-    to: 'https://github.com/tanstack/table',
+    to: 'https://github.com/tanstack/virtual',
   },
   {
     label: (
@@ -104,12 +104,12 @@ export default function ReactTableRoute() {
             md:text-6xl
             lg:text-7xl`}
         >
-          <span className={gradientText}>TanStack Table</span>{' '}
+          <span className={gradientText}>TanStack Virtual</span>{' '}
           <span
             className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
           >
-            v8
+            v3
           </span>
         </h1>
         <h2
@@ -120,19 +120,19 @@ export default function ReactTableRoute() {
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
             Headless
           </span>{' '}
-          UI for building powerful tables & datagrids
+          UI for Virtualizing Large Element Lists
         </h2>
         <p
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          Supercharge your tables or build a datagrid from scratch for TS/JS,
-          React, Vue, Solid & Svelte while retaining 100% control over markup
-          and styles.
+          Virtualize only the visible DOM nodes within massive scrollable
+          elements at 60FPS in TS/JS, React, Vue, Solid & Svelte while retaining
+          100% control over markup and styles.
         </p>
         <Link
           to="./docs/guide/00-introduction"
-          className={`py-2 px-4 bg-rose-500 rounded text-white uppercase font-extrabold`}
+          className={`py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
           prefetch="intent"
         >
           Get Started
@@ -144,59 +144,58 @@ export default function ReactTableRoute() {
       >
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center overflow-hidden">
-            <IoIosBody className="text-rose-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
+            <IoIosBody className="text-teal-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
               Designed for zero design
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              What good is a powerful table if that super hip designer you just
-              hired can't work their UI magic on it?{' '}
-              <span className="font-semibold text-rose-700 dark:text-rose-400">
-                TanStack Table is headless by design
+              Headless Virtualization means you're always in control of your{' '}
+              <span className="font-semibold text-teal-600 dark:text-teal-400">
+                markup, styles and components
               </span>
-              , which means 100% control down to the very smallest HTML tag,
-              component, class and style. Pixel Perfection? Go for it!
+              . Go design and implement the most beautiful UI you can dream up
+              and let us take care of the hard parts.
             </p>
           </div>
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaBolt className="text-pink-600 text-6xl" />
+            <FaBolt className="text-blue-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
               Big Power, Small Package
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Don't be fooled by the small bundle size. TanStack Table is a
-              workhorse. It's built to materialize, filter, sort, group,
-              aggregate, paginate and display massive data sets using a very
-              small API surface. Wire up your new or existing tables and{' '}
-              <span className="font-semibold text-pink-700 dark:text-pink-400">
-                watch your users become instantly more productive
-              </span>
-              .
+              Don't be fooled by the small bundle size. TanStack Virtual uses
+              every byte to deliver powerful performance. After all,{' '}
+              <span className="font-semibold text-blue-700 dark:text-blue-400">
+                {' '}
+                60FPS is table stakes
+              </span>{' '}
+              these days and we refuse to sacrifice anything for that 🧈-y
+              smooth UX.
             </p>
           </div>
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaCogs className="text-violet-500 text-6xl" />
+            <FaCogs className="text-indigo-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
-              Extensible
+              Maximum Composability
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              TanStack table ships with excellent defaults to get you off the
-              ground as fast as possible, but nothing is stopping you from{' '}
-              <span className="font-semibold text-violet-700 dark:text-violet-400">
-                customizing and overriding literally everything to your liking
+              With a single function/hook, you'll get limitless virtualization
+              for{' '}
+              <span className="font-semibold text-indigo-700 dark:text-indigo-400">
+                vertical, horizontal, and grid-style
               </span>
-              . Feeling tenacious enough to build your own Sheets/Excel/AirTable
-              clone? Be our guest 😉
+              layouts. The API is tiny (literally 1 function), but its
+              composability is not.
             </p>
           </div>
         </div>
@@ -218,25 +217,15 @@ export default function ReactTableRoute() {
             'Lightweight (10 - 15kb)',
             'Tree-Shaking',
             'Headless',
-            'Cell Formatters',
-            'Auto-managed internal state',
-            'Opt-in fully controlled state',
-            'Sorting',
-            'Multi Sort',
-            'Global Filters',
-            'Columns Filters',
-            'Pagination',
-            'Row Grouping',
-            'Aggregation',
-            'Row Selection',
-            'Row Expansion',
-            'Column Ordering',
-            'Column Visibility',
-            'Column Resizing',
-            'Virtualizable',
-            'Server-side/external Data',
-            'Nested/Grouped Headers',
-            'Footers',
+            'Vertical/Column Virtualization',
+            'Horizontal/Row Virtualization',
+            'Grid Virtualization',
+            'Window-Scrolling',
+            'Fixed Sizing',
+            'Variable Sizing',
+            'Dynamic/Measured Sizing',
+            'Scrolling Utilities',
+            'Sticky Items',
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">
@@ -247,11 +236,10 @@ export default function ReactTableRoute() {
         </div>
       </div>
 
-      <div>
+      {/* <div>
         <div className="uppercase tracking-wider text-sm font-semibold text-center text-gray-400 mb-3">
           Trusted in Production by
         </div>
-        {/* @ts-ignore */}
         <marquee scrollamount="2">
           <div className="flex gap-2 items-center text-3xl font-bold ml-[-100%]">
             {(new Array(4) as string[])
@@ -287,51 +275,8 @@ export default function ReactTableRoute() {
                 </span>
               ))}
           </div>
-          {/* @ts-ignore */}
         </marquee>
-      </div>
-
-      <div className="px-4 w-[450px] max-w-full mx-auto">
-        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-          Partners
-        </h3>
-        <div className="h-8" />
-        <div
-          className="flex-1 flex flex-col items-center text-sm text-center
-                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-900 dark:shadow-none"
-        >
-          <a
-            href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
-            target="_blank"
-            className="p-2 bg-white w-full"
-          >
-            <img
-              src={require('~/images/ag-grid.png')}
-              className="w-full mx-auto max-w-[300px]"
-              width="300"
-              height="104"
-            />
-          </a>
-          <div className="flex flex-col p-4 gap-4">
-            <div>
-              TanStack Table and AG Grid are respectfully the{' '}
-              <strong>best table/datagrid libraries around</strong>. Instead of
-              competing, we're working together to ensure the highest quality
-              table/datagrid options are available for the entire JS/TS
-              ecosystem and every use-case.
-            </div>
-            <Link
-              to="/blog/ag-grid-partnership"
-              className="text-blue-500 uppercase font-black text-sm"
-              prefetch="intent"
-            >
-              Read More
-            </Link>
-          </div>
-        </div>
-      </div>
+      </div> */}
 
       <div className="relative text-lg overflow-hidden">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
@@ -373,8 +318,9 @@ export default function ReactTableRoute() {
             Take it for a spin!
           </h3>
           <p className="my-4 text-xl leading-7  text-gray-600">
-            With some basic styles, some table markup and few columns, you're
-            already well on your way to creating a drop-dead powerful table.
+            With just a few divs and some inline styles, you're already well on
+            your way to creating an extremely powerful virtualization
+            experience.
           </p>
           <div className="flex flex-wrap gap-2 justify-center">
             {(
@@ -389,8 +335,8 @@ export default function ReactTableRoute() {
                 key={item.value}
                 className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold ${
                   item.value === framework
-                    ? 'bg-rose-500'
-                    : 'bg-gray-300 dark:bg-gray-700 hover:bg-rose-300'
+                    ? 'bg-teal-500'
+                    : 'bg-gray-300 dark:bg-gray-700 hover:bg-teal-300'
                 }`}
                 onClick={
                   () => setFramework(item.value)
@@ -412,8 +358,8 @@ export default function ReactTableRoute() {
       <div className="bg-black body-font">
         <iframe
           key={framework}
-          src={`https://codesandbox.io/embed/github/tanstack/table/tree/${v8branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=dark`}
-          title="tannerlinsley/react-table: basic"
+          src={`https://codesandbox.io/embed/github/tanstack/virtual/tree/${v3branch}/examples/${framework}/dynamic?autoresize=1&fontsize=16&theme=dark`}
+          title="tannerlinsley/react-table: dynamic"
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
           className="shadow-2xl"
           loading="lazy"
@@ -439,7 +385,7 @@ export default function ReactTableRoute() {
         <div>
           <Link
             to="./docs/guide/00-introduction"
-            className={`inline-block py-2 px-4 bg-rose-500 rounded text-white uppercase font-extrabold`}
+            className={`inline-block py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
             prefetch="intent"
           >
             Get Started!

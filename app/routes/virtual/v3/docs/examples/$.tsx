@@ -1,6 +1,6 @@
 import { json, LoaderFunction, MetaFunction, useLoaderData } from 'remix'
 import { DocTitle } from '~/components/DocTitle'
-import { v8branch } from '~/routes/table/v8'
+import { v3branch } from '~/routes/virtual/v3'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
@@ -13,12 +13,12 @@ export const loader: LoaderFunction = async (context) => {
 
 export let meta: MetaFunction = ({ data }) => {
   return seo({
-    title: `${capitalize(data.kind)} Table ${slugToTitle(
+    title: `${capitalize(data.kind)} Virtual ${slugToTitle(
       data.name
-    )} Example | TanStack Table Docs`,
-    description: `An example showing how to implement ${
-      slugToTitle(data.name)
-    } in ${capitalize(data.kind)} Table`,
+    )} Example | TanStack Virtual Docs`,
+    description: `An example showing how to implement ${slugToTitle(
+      data.name
+    )} in ${capitalize(data.kind)} Virtual`,
   })
 }
 
@@ -35,8 +35,8 @@ export default function RouteReactTableDocs() {
         </DocTitle>
       </div>
       <iframe
-        src={`https://codesandbox.io/embed/github/tanstack/table/tree/${v8branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=dark`}
-        title={`tanstack/table: ${examplePath}`}
+        src={`https://codesandbox.io/embed/github/tanstack/virtual/tree/${v3branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=dark`}
+        title={`tanstack/virtual: ${examplePath}`}
         sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
         className="flex-1 w-full overflow-hidden rounded-tl-2xl"
       />

@@ -11,15 +11,14 @@ import {
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
-import { seo } from '~/utils/seo'
 import { useMatchesData } from '~/utils/utils'
 
-export const v8branch = 'beta'
+export const v3branch = 'beta'
 
 export const loader: LoaderFunction = async () => {
   const config = await fetchRepoFile(
-    'tanstack/table',
-    v8branch,
+    'tanstack/virtual',
+    v3branch,
     `docs/config.json`
   )
 
@@ -34,14 +33,14 @@ export const loader: LoaderFunction = async () => {
 
 export const ErrorBoundary = DefaultErrorBoundary
 
-export const useReactTableV8Config = () =>
-  useMatchesData('/table/v8') as DocsConfig
+export const useReactVirtualV3Config = () =>
+  useMatchesData('/virtual/v3') as DocsConfig
 
-export default function RouteReactTable() {
+export default function RouteReactVirtual() {
   const [params] = useSearchParams()
   const location = useLocation()
 
-  const show = params.get('from') === 'reactTableV7'
+  const show = params.get('from') === 'reactVirtualV2'
   const original = params.get('original')
 
   return (
@@ -51,10 +50,10 @@ export default function RouteReactTable() {
           <div>
             Looking for the{' '}
             <a
-              href={original || 'https://react-table-v7.tanstack.com'}
+              href={original || 'https://react-virtual-v2.tanstack.com'}
               className="font-bold underline"
             >
-              React Table v7 documentation
+              React Virtual v2 documentation
             </a>
             ?
           </div>

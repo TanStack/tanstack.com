@@ -91,9 +91,14 @@ const libraries = [
     name: 'React Virtual',
     getStyles: () =>
       `shadow-xl shadow-purple-700/20 dark:shadow-lg dark:shadow-purple-500/30 text-purple-500 border-2 border-transparent hover:border-current`,
-    to: 'https://react-virtual.tanstack.com',
-    tagline: `Auto-sizing, buttery smooth headless virtualization... with just one hook.`,
-    description: `Oh, did we mention it supports vertical, horizontal, grid, fixed, variable, dynamic, smooth and infinite virtualization too?`,
+    to: '/virtual',
+    tagline: `Headless UI for Virtualizing Large Element Lists`,
+    description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid & Svelte while retaining 100% control over markup and styles.`,
+    badge: (
+      <div className="uppercase text-white bg-purple-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        New
+      </div>
+    ),
   },
   {
     name: 'React Ranger',

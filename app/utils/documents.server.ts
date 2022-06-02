@@ -42,6 +42,8 @@ export async function fetchRepoFile(
       const href = new URL(`/${filePath}`, 'https://raw.githubusercontent.com/')
         .href
 
+      console.log('fetching', href)
+
       let response = await fetch(href, {
         headers: { 'User-Agent': `docs:${owner}/${repo}` },
       })

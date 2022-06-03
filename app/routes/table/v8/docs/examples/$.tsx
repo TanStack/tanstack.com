@@ -16,11 +16,15 @@ export let meta: MetaFunction = ({ data }) => {
     title: `${capitalize(data.kind)} Table ${slugToTitle(
       data.name
     )} Example | TanStack Table Docs`,
-    description: `An example showing how to implement ${
-      slugToTitle(data.name)
-    } in ${capitalize(data.kind)} Table`,
+    description: `An example showing how to implement ${slugToTitle(
+      data.name
+    )} in ${capitalize(data.kind)} Table`,
   })
 }
+
+const isDark =
+  typeof window !== 'undefined' &&
+  window.matchMedia?.(`(prefers-color-scheme: dark)`).matches
 
 export default function RouteReactTableDocs() {
   const { kind, name } = useLoaderData()
@@ -35,12 +39,14 @@ export default function RouteReactTableDocs() {
         </DocTitle>
       </div>
       <iframe
-        src={`https://codesandbox.io/embed/github/tanstack/table/tree/${v8branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=dark`}
+        src={`https://codesandbox.io/embed/github/tanstack/virtual/tree/${v8branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
+          isDark ? 'dark' : 'light'
+        }`}
         title={`tanstack/table: ${examplePath}`}
         sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-        className="flex-1 w-full overflow-hidden rounded-tl-2xl"
+        className="flex-1 w-full overflow-hidden lg:ml-6 lg:rounded-l-2xl shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
       />
-      <div className="h-16" />
+      <div className="h-16 mt-2" />
     </div>
   )
 }

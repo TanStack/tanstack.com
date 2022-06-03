@@ -88,7 +88,7 @@ const libraries = [
     description: `Powerful, enterprise-grade routing including first-class URL Search APIs, declarative/suspendable route loaders & code-splitting and more.`,
   },
   {
-    name: 'React Virtual',
+    name: 'TanStack Virtual',
     getStyles: () =>
       `shadow-xl shadow-purple-700/20 dark:shadow-lg dark:shadow-purple-500/30 text-purple-500 border-2 border-transparent hover:border-current`,
     to: '/virtual',

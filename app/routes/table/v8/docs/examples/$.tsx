@@ -1,3 +1,4 @@
+import React from 'react'
 import { json, LoaderFunction, MetaFunction, useLoaderData } from 'remix'
 import { DocTitle } from '~/components/DocTitle'
 import { v8branch } from '~/routes/table/v8'
@@ -22,14 +23,16 @@ export let meta: MetaFunction = ({ data }) => {
   })
 }
 
-const isDark =
-  typeof window !== 'undefined' &&
-  window.matchMedia?.(`(prefers-color-scheme: dark)`).matches
-
 export default function RouteReactTableDocs() {
   const { kind, name } = useLoaderData()
 
   const examplePath = [kind, name].join('/')
+
+  const [isDark, setIsDark] = React.useState(true)
+
+  React.useEffect(() => {
+    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
+  }, [])
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto">

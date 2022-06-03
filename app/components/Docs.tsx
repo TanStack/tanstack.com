@@ -53,8 +53,6 @@ export function Docs({
     ''
   )
 
-  console.log(relativePathname)
-
   const index = flatMenu.findIndex((d) => d.to === relativePathname)
   const prevItem = flatMenu[index - 1]
   const nextItem = flatMenu[index + 1]

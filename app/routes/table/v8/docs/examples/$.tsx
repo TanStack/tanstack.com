@@ -42,7 +42,7 @@ export default function RouteReactTableDocs() {
         </DocTitle>
       </div>
       <iframe
-        src={`https://codesandbox.io/embed/github/tanstack/virtual/tree/${v8branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
+        src={`https://codesandbox.io/embed/github/tanstack/table/tree/${v8branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
           isDark ? 'dark' : 'light'
         }`}
         title={`tanstack/table: ${examplePath}`}

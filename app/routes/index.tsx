@@ -72,22 +72,6 @@ const libraries = [
     ),
   },
   {
-    name: 'React Charts',
-    getStyles: () =>
-      `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-600 border-2 border-transparent hover:border-current`,
-    to: 'https://react-charts.tanstack.com',
-    tagline: `Simple, immersive & interactive charts for React`,
-    description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
-  },
-  {
-    name: 'React Location',
-    getStyles: () =>
-      `shadow-xl shadow-green-700/20 dark:shadow-lg dark:shadow-green-500/30 text-green-600 border-2 border-transparent hover:border-current`,
-    to: 'https://react-location.tanstack.com',
-    tagline: `Enterprise routing for React applications`,
-    description: `Powerful, enterprise-grade routing including first-class URL Search APIs, declarative/suspendable route loaders & code-splitting and more.`,
-  },
-  {
     name: 'React Virtual',
     getStyles: () =>
       `shadow-xl shadow-purple-700/20 dark:shadow-lg dark:shadow-purple-500/30 text-purple-500 border-2 border-transparent hover:border-current`,
@@ -99,6 +83,22 @@ const libraries = [
         New
       </div>
     ),
+  },
+  {
+    name: 'React Location',
+    getStyles: () =>
+      `shadow-xl shadow-green-700/20 dark:shadow-lg dark:shadow-green-500/30 text-green-600 border-2 border-transparent hover:border-current`,
+    to: 'https://react-location.tanstack.com',
+    tagline: `Enterprise routing for React applications`,
+    description: `Powerful, enterprise-grade routing including first-class URL Search APIs, declarative/suspendable route loaders & code-splitting and more.`,
+  },
+  {
+    name: 'React Charts',
+    getStyles: () =>
+      `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-600 border-2 border-transparent hover:border-current`,
+    to: 'https://react-charts.tanstack.com',
+    tagline: `Simple, immersive & interactive charts for React`,
+    description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
   },
   {
     name: 'React Ranger',

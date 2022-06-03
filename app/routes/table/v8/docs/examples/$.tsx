@@ -1,3 +1,4 @@
+import React from 'react'
 import { json, LoaderFunction, MetaFunction, useLoaderData } from 'remix'
 import { DocTitle } from '~/components/DocTitle'
 import { v8branch } from '~/routes/table/v8'
@@ -16,9 +17,9 @@ export let meta: MetaFunction = ({ data }) => {
     title: `${capitalize(data.kind)} Table ${slugToTitle(
       data.name
     )} Example | TanStack Table Docs`,
-    description: `An example showing how to implement ${
-      slugToTitle(data.name)
-    } in ${capitalize(data.kind)} Table`,
+    description: `An example showing how to implement ${slugToTitle(
+      data.name
+    )} in ${capitalize(data.kind)} Table`,
   })
 }
 
@@ -27,6 +28,12 @@ export default function RouteReactTableDocs() {
 
   const examplePath = [kind, name].join('/')
 
+  const [isDark, setIsDark] = React.useState(true)
+
+  React.useEffect(() => {
+    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
+  }, [])
+
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto">
       <div className="p-4 lg:p-6">
@@ -34,13 +41,17 @@ export default function RouteReactTableDocs() {
           {capitalize(kind)} Example: {slugToTitle(name)}
         </DocTitle>
       </div>
-      <iframe
-        src={`https://codesandbox.io/embed/github/tanstack/table/tree/${v8branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=dark`}
-        title={`tanstack/table: ${examplePath}`}
-        sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-        className="flex-1 w-full overflow-hidden rounded-tl-2xl"
-      />
-      <div className="h-16" />
+      <div className="flex-1 lg:ml-6 flex flex-col min-h-0">
+        <iframe
+          src={`https://codesandbox.io/embed/github/tanstack/table/tree/${v8branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
+            isDark ? 'dark' : 'light'
+          }`}
+          title={`tanstack/table: ${examplePath}`}
+          sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+          className="flex-1 w-full overflow-hidden lg:rounded-l-2xl shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
+        />
+      </div>
+      <div className="h-16 lg:mt-2" />
     </div>
   )
 }

@@ -270,11 +270,11 @@ export default function ReactQueryRoute() {
             Less Code. Fewer Edge Cases.
           </h3>
           <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-            Instead of writing reducers, caching logic, timers, retry logic,
-            complex async/await scripting (I could keep going...), you literally
-            write a tiny fraction of the code you normally would. You will be
-            surprised at how little code you're writing or how much code you're
-            deleting when you use TanSTack Query.
+            With zero dependencies, TanSTack Query is extremely lean given the
+            dense feature set it provides. From weekend hobbies all the way to
+            enterprise e-commerce systems (Yes, I'm lookin' at you Walmart! 😉),
+            React Query is the battle-hardened tool to help you succeed at the
+            speed of your creativity.
           </p>
         </div>
         <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
@@ -422,11 +422,14 @@ export default function ReactQueryRoute() {
       <div className="flex flex-col gap-4">
         <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
           <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
-            Take it for a spin!
+            Less code, fewer edge cases.
           </h3>
           <p className="my-4 text-xl leading-7  text-gray-600">
-            With some basic styles, some query markup and few columns, you're
-            already well on your way to creating a drop-dead powerful query.
+            Instead of writing reducers, caching logic, timers, retry logic,
+            complex async/await scripting (I could keep going...), you literally
+            write a tiny fraction of the code you normally would. You will be
+            surprised at how little code you're writing or how much code you're
+            deleting when you use React Query.
           </p>
           <div className="flex flex-wrap gap-2 justify-center">
             {(

@@ -429,7 +429,8 @@ export default function ReactQueryRoute() {
             complex async/await scripting (I could keep going...), you literally
             write a tiny fraction of the code you normally would. You will be
             surprised at how little code you're writing or how much code you're
-            deleting when you use React Query.
+            deleting when you use React Query. Try it out with one of the
+            examples below!
           </p>
           <div className="flex flex-wrap gap-2 justify-center">
             {(

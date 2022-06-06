@@ -57,6 +57,11 @@ const libraries = [
     to: '/query',
     tagline: `Powerful asynchronous state management, server-state utilities and data fetching`,
     description: `Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid & Svelte applications all without touching any "global state".`,
+    badge: (
+      <div className="uppercase text-white bg-red-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        New
+      </div>
+    ),
   },
   {
     name: 'TanStack Table',

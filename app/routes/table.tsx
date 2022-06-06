@@ -6,6 +6,7 @@ export let meta: MetaFunction = () => {
     title: 'TanStack Table | React Table, Solid Table, Svelte Table, Vue Table',
     description:
       'Headless UI for building powerful tables & datagrids with TS/JS, React, Solid, Svelte and Vue',
+    image: 'https://github.com/tanstack/table/raw/beta/media/repo-header.png',
   })
 }
 

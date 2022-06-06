@@ -267,7 +267,7 @@ export default function ReactQueryRoute() {
       <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
         <div className=" sm:text-center pb-16">
           <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-            Less Code. Fewer Edge Cases.
+            No dependencies. All the Features.
           </h3>
           <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
             With zero dependencies, TanSTack Query is extremely lean given the

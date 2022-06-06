@@ -54,9 +54,9 @@ const libraries = [
     name: 'React Query',
     getStyles: () =>
       `shadow-xl shadow-red-700/20 dark:shadow-lg dark:shadow-red-500/30 text-red-500 border-2 border-transparent hover:border-current`,
-    to: 'https://react-query.tanstack.com',
-    tagline: `Performant and powerful data synchronization for React`,
-    description: `Fetch, cache and update data in your React and React Native applications all without touching any "global state".`,
+    to: '/query',
+    tagline: `Powerful asynchronous state management, server-state utilities and data fetching`,
+    description: `Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid & Svelte applications all without touching any "global state".`,
   },
   {
     name: 'TanStack Table',

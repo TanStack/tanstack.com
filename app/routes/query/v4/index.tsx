@@ -385,7 +385,7 @@ export default function ReactQueryRoute() {
               href="mailto:parters@tanstack.com?subject=TanStack Query Partnership"
               className="text-blue-500 uppercase font-black text-sm"
             >
-              Inquire Now
+              Let's chat
             </a>
           </div>
         </div>

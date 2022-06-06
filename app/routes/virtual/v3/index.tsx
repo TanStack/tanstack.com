@@ -310,7 +310,7 @@ export default function ReactTableRoute() {
               href="mailto:parters@tanstack.com?subject=TanStack Virtual Partnership"
               className="text-blue-500 uppercase font-black text-sm"
             >
-              Inquire Now
+              Let's chat
             </a>
           </div>
         </div>

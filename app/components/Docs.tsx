@@ -108,7 +108,7 @@ export function Docs({
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
-          <Search />
+          <Search {...config.docSearch} />
         </summary>
         <div
           className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto

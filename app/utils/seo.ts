@@ -5,7 +5,7 @@ export function seo({
   image,
 }: {
   title: string
-  description: string
+  description?: string
   image?: string
   keywords?: string
 }) {

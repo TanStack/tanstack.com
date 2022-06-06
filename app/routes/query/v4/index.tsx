@@ -36,7 +36,7 @@ const menu = [
         <FaBook className="text-lg" /> Docs
       </div>
     ),
-    to: './docs/guide/overview',
+    to: './docs/overview',
   },
   {
     label: (
@@ -138,7 +138,7 @@ export default function ReactQueryRoute() {
           .
         </p>
         <Link
-          to="./docs/guide/overview"
+          to="./docs/overview"
           className={`py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
           prefetch="intent"
         >
@@ -490,7 +490,7 @@ export default function ReactQueryRoute() {
         </div>
         <div>
           <Link
-            to="./docs/guide/overview"
+            to="./docs/overview"
             className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
             prefetch="intent"
           >

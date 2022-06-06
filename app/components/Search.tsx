@@ -1,11 +1,9 @@
-import { DocSearch } from '@docsearch/react'
+import {
+  DocSearch,
+  DocSearchButtonProps,
+  DocSearchProps,
+} from '@docsearch/react'
 
-export function Search() {
-  return (
-    <DocSearch
-      appId="YOUR_APP_ID"
-      indexName="YOUR_INDEX_NAME"
-      apiKey="YOUR_SEARCH_API_KEY"
-    />
-  )
+export function Search(props: DocSearchProps) {
+  return <DocSearch {...props} />
 }

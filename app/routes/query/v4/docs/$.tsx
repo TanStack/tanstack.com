@@ -35,7 +35,7 @@ export const loader: LoaderFunction = async (context) => {
 
   return json(
     {
-      title: frontMatter.data.title,
+      title: frontMatter.data?.title,
       description,
       filePath,
       code: mdx.code,
@@ -50,8 +50,8 @@ export const loader: LoaderFunction = async (context) => {
 
 export let meta: MetaFunction = ({ data }) => {
   return seo({
-    title: `${data.title} | TanStack Query Docs`,
-    description: data.description,
+    title: `${data?.title} | TanStack Query Docs`,
+    description: data?.description,
   })
 }
 
@@ -61,8 +61,8 @@ export default function RouteReactQueryDocs() {
   const { title, code, filePath } = useLoaderData()
 
   return (
-    <div className="p-4 lg:p-6 overflow-auto">
-      <DocTitle>{title ?? ''}</DocTitle>
+    <div className="p-4 lg:p-6 overflow-auto w-full">
+      {title ? <DocTitle>{title}</DocTitle> : null}
       <div className="h-4" />
       <div className="h-px bg-gray-500 opacity-20" />
       <div className="h-4" />

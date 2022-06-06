@@ -75,6 +75,12 @@ export default function ReactQueryRoute() {
     'react' | 'svelte' | 'vue' | 'solid'
   >('react')
 
+  const [isDark, setIsDark] = React.useState(true)
+
+  React.useEffect(() => {
+    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
+  }, [])
+
   return (
     <div className="flex flex-col gap-20 md:gap-32">
       <div
@@ -468,7 +474,9 @@ export default function ReactQueryRoute() {
       <div className="bg-black body-font">
         <iframe
           key={framework}
-          src={`https://codesandbox.io/embed/github/tanstack/query/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=dark`}
+          src={`https://codesandbox.io/embed/github/tanstack/query/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+            isDark ? 'dark' : 'light'
+          }`}
           title="tannerlinsley/react-query: basic"
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
           className="shadow-2xl"

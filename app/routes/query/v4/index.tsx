@@ -111,7 +111,7 @@ export default function ReactQueryRoute() {
             className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
           >
-            v8
+            v4
           </span>
         </h1>
         <h2

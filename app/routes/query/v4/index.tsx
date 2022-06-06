@@ -471,7 +471,7 @@ export default function ReactQueryRoute() {
         </div>
       </div>
 
-      <div className="bg-black body-font">
+      <div className="bg-white dark:bg-black">
         <iframe
           key={framework}
           src={`https://codesandbox.io/embed/github/tanstack/query/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
@@ -485,10 +485,6 @@ export default function ReactQueryRoute() {
             width: '100%',
             height: '80vh',
             border: '0',
-            borderRadius: 8,
-            overflow: 'hidden',
-            position: 'static',
-            zIndex: 0,
           }}
         ></iframe>
       </div>

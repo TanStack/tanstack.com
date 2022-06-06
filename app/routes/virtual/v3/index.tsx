@@ -378,7 +378,7 @@ export default function ReactTableRoute() {
           </div>
         </div>
       ) : (
-        <div className="bg-black body-font">
+        <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
             src={`https://codesandbox.io/embed/github/tanstack/virtual/tree/${v3branch}/examples/${framework}/dynamic?autoresize=1&fontsize=16&theme=${
@@ -392,10 +392,6 @@ export default function ReactTableRoute() {
               width: '100%',
               height: '80vh',
               border: '0',
-              borderRadius: 8,
-              overflow: 'hidden',
-              position: 'static',
-              zIndex: 0,
             }}
           ></iframe>
         </div>

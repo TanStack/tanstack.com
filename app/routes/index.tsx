@@ -51,7 +51,7 @@ const menu = [
 
 const libraries = [
   {
-    name: 'React Query',
+    name: 'TanStack Query',
     getStyles: () =>
       `shadow-xl shadow-red-700/20 dark:shadow-lg dark:shadow-red-500/30 text-red-500 border-2 border-transparent hover:border-current`,
     to: '/query',
@@ -112,10 +112,10 @@ const libraries = [
 
 const courses = [
   {
-    name: 'The Official React Query Course',
+    name: 'The Official TanStack React Query Course',
     getStyles: () => `border-t-4 border-red-500 hover:(border-green-500)`,
     href: 'https://ui.dev/checkout/react-query?from=tanstack',
-    description: `Learn how to build enterprise quality apps with React Query the easy way with our brand new course.`,
+    description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
     price: `$149`,
   },
 ]

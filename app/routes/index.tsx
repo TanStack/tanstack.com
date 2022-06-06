@@ -72,7 +72,7 @@ const libraries = [
     ),
   },
   {
-    name: 'React Virtual',
+    name: 'TanStack Virtual',
     getStyles: () =>
       `shadow-xl shadow-purple-700/20 dark:shadow-lg dark:shadow-purple-500/30 text-purple-500 border-2 border-transparent hover:border-current`,
     to: '/virtual',

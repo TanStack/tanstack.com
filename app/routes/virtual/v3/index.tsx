@@ -16,6 +16,7 @@ import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
 import { capitalize } from '~/utils/utils'
+import { TbHeartHandshake } from 'react-icons/tb'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
@@ -284,6 +285,36 @@ export default function ReactTableRoute() {
           </div>
         </marquee>
       </div> */}
+
+      <div className="px-4 w-[500px] max-w-full mx-auto">
+        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
+          Partners
+        </h3>
+        <div className="h-8" />
+        <div
+          className="flex-1 flex flex-col items-center text-sm text-center
+                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-900 dark:shadow-none"
+        >
+          <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
+            Virtual <TbHeartHandshake /> You?
+          </span>
+          <div className="flex flex-col p-4 gap-4">
+            <div>
+              We're looking for a TanStack Virtual OSS Partner to go above and
+              beyond the call of sponsorship. Are you as invested in TanStack
+              Virtual as we are? Let's push the boundaries of Virtual together!
+            </div>
+            <a
+              href="mailto:parters@tanstack.com?subject=TanStack Virtual Partnership"
+              className="text-blue-500 uppercase font-black text-sm"
+            >
+              Inquire Now
+            </a>
+          </div>
+        </div>
+      </div>
 
       <div className="relative text-lg overflow-hidden">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">

@@ -119,18 +119,23 @@ export default function ReactQueryRoute() {
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
         >
+          Powerful{' '}
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-            Headless
+            asynchronous state management
           </span>{' '}
-          UI for building powerful querys & datagrids
+          for TS/JS, React, Solid, Vue and Svelte
         </h2>
         <p
-          className="text opacity-90 max-w-sm
-            lg:text-xl lg:max-w-2xl"
+          className="text opacity-90 max-w-[500px]
+            lg:text-xl lg:max-w-[600px]"
         >
-          Supercharge your querys or build a datagrid from scratch for TS/JS,
-          React, Vue, Solid & Svelte while retaining 100% control over markup
-          and styles.
+          Toss out that granular state management, manual refetching and endless
+          bowls of async-spaghetti code. TanStack Query gives you declarative,
+          always-up-to-date auto-managed queries and mutations that{' '}
+          <strong>
+            directly improve both your developer and user experiences
+          </strong>
+          .
         </p>
         <Link
           to="./docs/guide/00-introduction"
@@ -272,7 +277,7 @@ export default function ReactQueryRoute() {
             deleting when you use TanSTack Query.
           </p>
         </div>
-        <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4 w-[max-content] mx-auto">
+        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
           {[
             'Backend agnostic',
             'Dedicated Devtools',

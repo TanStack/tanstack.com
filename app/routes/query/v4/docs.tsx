@@ -19,7 +19,7 @@ const logo = (
     </Link>
     <Link to=".." className={`font-bold`}>
       <span className={`${gradientText}`}>Query</span>{' '}
-      <span className="text-sm align-super">v8</span>
+      <span className="text-sm align-super">v4</span>
     </Link>
   </>
 )

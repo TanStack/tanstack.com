@@ -471,23 +471,40 @@ export default function ReactQueryRoute() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-black">
-        <iframe
-          key={framework}
-          src={`https://codesandbox.io/embed/github/tanstack/query/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
-            isDark ? 'dark' : 'light'
-          }`}
-          title="tannerlinsley/react-query: basic"
-          sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-          className="shadow-2xl"
-          loading="lazy"
-          style={{
-            width: '100%',
-            height: '80vh',
-            border: '0',
-          }}
-        ></iframe>
-      </div>
+      {['vue', 'solid', 'svelte'].includes(framework) ? (
+        <div className="px-2">
+          <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
+            Looking for the <strong>@tanstack/{framework}-query</strong>{' '}
+            example? We could use your help to build the{' '}
+            <strong>@tanstack/{framework}-query</strong> adapter! Join the{' '}
+            <a
+              href="https://tlinz.com/discord"
+              className="text-teal-500 font-bold"
+            >
+              TanStack Discord Server
+            </a>{' '}
+            and let's get to work!
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-black">
+          <iframe
+            key={framework}
+            src={`https://codesandbox.io/embed/github/tanstack/query/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+              isDark ? 'dark' : 'light'
+            }`}
+            title="tannerlinsley/react-query: basic"
+            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+            className="shadow-2xl"
+            loading="lazy"
+            style={{
+              width: '100%',
+              height: '80vh',
+              border: '0',
+            }}
+          ></iframe>
+        </div>
+      )}
 
       <div className="flex flex-col gap-4 items-center">
         <div className="font-extrabold text-xl lg:text-2xl">

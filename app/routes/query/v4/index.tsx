@@ -276,10 +276,10 @@ export default function ReactQueryRoute() {
             No dependencies. All the Features.
           </h3>
           <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-            With zero dependencies, TanSTack Query is extremely lean given the
+            With zero dependencies, TanStack Query is extremely lean given the
             dense feature set it provides. From weekend hobbies all the way to
             enterprise e-commerce systems (Yes, I'm lookin' at you Walmart! 😉),
-            React Query is the battle-hardened tool to help you succeed at the
+            TanStack Query is the battle-hardened tool to help you succeed at the
             speed of your creativity.
           </p>
         </div>
@@ -435,7 +435,7 @@ export default function ReactQueryRoute() {
             complex async/await scripting (I could keep going...), you literally
             write a tiny fraction of the code you normally would. You will be
             surprised at how little code you're writing or how much code you're
-            deleting when you use React Query. Try it out with one of the
+            deleting when you use TanStack Query. Try it out with one of the
             examples below!
           </p>
           <div className="flex flex-wrap gap-2 justify-center">

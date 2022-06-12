@@ -31,6 +31,10 @@ Since v3, persisters existed as an experimental feature. They allow you to sync 
 
 Those persisters works pretty well for most use-cases, but nothing stops you from writing your own persister - as long it adheres to the required interface.
 
+### Support for React 18
+
+React 18 was released earlier this year, and v4 now has first class support for it and the new concurrent features it brings. To achieve that, internal subscriptions were re-written to leverage the new `useSyncExternalStore` hook.
+
 ### Tracked Queries per default
 
 Tracked Queries are a performance optimization that were added in v3.6.0 as an opt-in feature. This optimization is now the default behaviour in v4, which should give you a nice boost in render performance.

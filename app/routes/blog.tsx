@@ -2,7 +2,6 @@ import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { Link, MetaFunction, NavLink, Outlet } from 'remix'
 import { gradientText } from './index'
-import { Search } from '../components/Search'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { Carbon } from '~/components/Carbon'
 import { seo } from '~/utils/seo'
@@ -93,7 +92,6 @@ export default function RouteBlog() {
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
-          <Search />
         </summary>
         <div
           className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto
@@ -109,9 +107,7 @@ export default function RouteBlog() {
   const largeMenu = (
     <div className="hidden w-[250px] lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
-      <div>
-        <Search />
-      </div>
+      <div></div>
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base">
         {menuItems}
       </div>

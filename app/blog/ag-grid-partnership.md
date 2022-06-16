@@ -1,8 +1,18 @@
 ---
 title: TanStack Table + Ag-Grid Partnership
-published: 5/25/2022
+published: 6/17/2022
 ---
 
-TanStack's [Tanner Linsley](https://twitter.com/tannerlinsley) and AG Grid's [Niall Crosby](https://twitter.com/niallcrosby) will be announcing the full details of the partnership in their talks at this year's [React Summit 2022](https://reactsummit.com/amsterdam) in Amsterdam. After which this blog post will be updated with the full details of the partnership.
+We're excited to announce that TanStack Table and AG Grid are officially forming an open-source partnership to achieve the following mutually beneficial goals:
 
-We hope to see you there! (either digitally or in-person 🙂)
+- To jointly educate the Javascript and TypeScript ecosystem about the differences between the two libraries and when to choose which.
+- To cover as many use-cases as possible across the ecosystem by encouraging the usage of the other when goals and limitations of either are not met.
+- To improve the quality of both libraries through shared experience, knowledge and even code when appropriate.
+
+TanStack Table and AG Grid share the same general problem space, but are implemented via drastically different architectures and paradigms, each offering unique trade-offs, opinions and optimizations depending on use-case. These differences and trade-offs are complimentary to one another and together form what we believe are the best two datagrid/table options available in the Javascript and TypeScript ecosystem.
+
+To learn about the differences and trade-offs between the two libraries, start by reading the [introduction to TanStack Table](/table/v8/docs/guide/00-introduction) and the [introduction to AG Grid](https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable)!
+
+We are excited about the future of datagrids and tables and we at TanStack are honored that AG Grid is invested in the success of it's open source ecosystem!
+
+- Tanner Linsley & Niall Crosby

@@ -14,7 +14,7 @@ import { fetchRepoFile } from '~/utils/documents.server'
 import { seo } from '~/utils/seo'
 import { useMatchesData } from '~/utils/utils'
 
-export const v8branch = 'beta'
+export const v8branch = 'main'
 
 export const loader: LoaderFunction = async () => {
   const config = await fetchRepoFile(

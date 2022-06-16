@@ -15,4 +15,4 @@ To learn about the differences and trade-offs between the two libraries, start b
 
 We are excited about the future of datagrids and tables and we at TanStack are honored that AG Grid is invested in the success of it's open source ecosystem!
 
-- Tanner Linsley & Niall Crosby
+- [Tanner Linsley](https://twitter.com/tannerlinsley) & [Niall Crosby](https://twitter.com/niallcrosby)

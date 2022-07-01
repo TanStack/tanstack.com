@@ -34,7 +34,7 @@ const menu = [
         <FaBook className="text-lg" /> Docs
       </div>
     ),
-    to: './docs/guide/00-introduction',
+    to: './docs/guide/introduction',
   },
   {
     label: (
@@ -137,7 +137,7 @@ export default function ReactTableRoute() {
           and styles.
         </p>
         <Link
-          to="./docs/guide/00-introduction"
+          to="./docs/guide/introduction"
           className={`py-2 px-4 bg-rose-500 rounded text-white uppercase font-extrabold`}
           prefetch="intent"
         >
@@ -442,7 +442,7 @@ export default function ReactTableRoute() {
         </div>
         <div>
           <Link
-            to="./docs/guide/00-introduction"
+            to="./docs/guide/introduction"
             className={`inline-block py-2 px-4 bg-rose-500 rounded text-white uppercase font-extrabold`}
             prefetch="intent"
           >

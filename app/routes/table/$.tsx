@@ -10,7 +10,7 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
   const url = new URL(context.request.url)
   // prettier-ignore
   const reactTablev7List = [
-    {from: 'docs/api/overview',to: 'docs/guide/01-overview',},
+    {from: 'docs/api/overview',to: 'docs/guide/overview',},
     {from: 'docs/api/useColumnOrder',to: 'docs/api/features/column-ordering',},
     {from: 'docs/api/useExpanded',to: 'docs/api/features/expanding',},
     {from: 'docs/api/useFilters',to: 'docs/api/features/filters',},
@@ -20,7 +20,7 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
     {from: 'docs/api/useResizeColumns',to: 'docs/api/features/column-sizing',},
     {from: 'docs/api/useRowSelect',to: 'docs/api/features/row-selection',},
     {from: 'docs/api/useSortBy',to: 'docs/api/features/sorting',},
-    {from: 'docs/api/useTable',to: 'docs/guide/03-tables',},
+    {from: 'docs/api/useTable',to: 'docs/guide/tables',},
     {from: 'docs/examples/basic',to: 'docs/examples/react/basic',},
     {from: 'docs/examples/filtering',to: 'docs/examples/react/filters',},
     {from: 'docs/examples/footers',to: 'docs/examples/react/basic',},
@@ -36,9 +36,9 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
     {from: 'docs/examples/column-resizing',to: 'docs/examples/react/column-sizing',},
     {from: 'docs/examples/pagination-controlled',to: 'docs/examples/react/pagination-controlled',},
     {from: 'docs/examples/pagination-controlled',to: 'docs/examples/react/pagination-controlled',},
-    {from: 'docs/installation',to: 'docs/guide/02-installation',},
-    {from: 'docs/overview',to: 'docs/guide/00-introduction',},
-    {from: 'docs/quick-start',to: 'docs/guide/01-overview',},
+    {from: 'docs/installation',to: 'docs/guide/installation',},
+    {from: 'docs/overview',to: 'docs/guide/introduction',},
+    {from: 'docs/quick-start',to: 'docs/guide/overview',},
     {from: '',to: '',},
   ]
 

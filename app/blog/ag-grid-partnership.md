@@ -11,7 +11,7 @@ We're excited to announce that [AG Grid](https://ag-grid.com/react-data-grid/?ut
 
 TanStack Table and [AG Grid](https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable) share the same general problem space, but are implemented via drastically different architectures and paradigms, each offering unique trade-offs, opinions and optimizations depending on use-case. These differences and trade-offs are complimentary to one another and together form what we believe are the best two datagrid/table options available in the Javascript and TypeScript ecosystem.
 
-To learn about the differences and trade-offs between the two libraries, start by reading the [introduction to TanStack Table](/table/v8/docs/guide/00-introduction) and the [introduction to AG Grid](https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable)!
+To learn about the differences and trade-offs between the two libraries, start by reading the [introduction to TanStack Table](/table/v8/docs/guide/introduction) and the [introduction to AG Grid](https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable)!
 
 We are excited about the future of datagrids and tables and we at TanStack are honored that AG Grid is invested in the success of it's open source ecosystem!
 

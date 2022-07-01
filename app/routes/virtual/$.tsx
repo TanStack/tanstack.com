@@ -10,8 +10,8 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
   const url = new URL(context.request.url)
   // prettier-ignore
   const reactVirtualv2List = [
-    {from: 'docs/overview',to: 'docs/guide/00-introduction',},
-    {from: 'docs/installation',to: 'docs/guide/01-installation',},
+    {from: 'docs/overview',to: 'docs/guide/introduction',},
+    {from: 'docs/installation',to: 'docs/guide/installation',},
     {from: 'docs/api',to: 'docs/api/virtualizer',},
     {from: 'examples/fixed',to: 'docs/examples/react/fixed',},
     {from: 'examples/variable',to: 'docs/examples/react/variable',},

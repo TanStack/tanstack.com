@@ -10,7 +10,7 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
   const url = new URL(context.request.url)
   // prettier-ignore
   const reactQueryv3List = [
-    // {from: 'api/overview',to: 'docs/guide/01-overview',},
+    // {from: 'api/overview',to: 'docs/guide/overview',},
     {from: "overview", to: "docs/overview"},
     {from: "installation", to: "docs/installation"},
     {from: "quick-start", to: "docs/quick-start"},

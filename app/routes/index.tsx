@@ -111,7 +111,7 @@ const libraries = [
       `shadow-xl shadow-pink-700/20 dark:shadow-lg dark:shadow-pink-500/30 text-pink-500 border-2 border-transparent hover:border-current`,
     to: 'https://github.com/tannerlinsley/react-ranger',
     tagline: `Headless range and multi-range slider utilities.`,
-    description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup fo that perfect design.`,
+    description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup for that perfect design.`,
   },
 ]
 

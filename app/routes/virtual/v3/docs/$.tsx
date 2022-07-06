@@ -73,7 +73,7 @@ export default function RouteReactTableDocs() {
       <div className="w-full h-px bg-gray-500 opacity-30" />
       <div className="py-4 opacity-70">
         <a
-          href={`https://github.com/tanstack/table/tree/${v3branch}/${filePath}`}
+          href={`https://github.com/tanstack/virtual/tree/${v3branch}/${filePath}`}
           className="flex items-center gap-2"
         >
           <FaEdit /> Edit on Github

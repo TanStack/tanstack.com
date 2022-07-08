@@ -1,4 +1,4 @@
-import { Link } from 'remix'
+import { Link } from '@remix-run/react'
 
 const footerLinks = [
   { label: 'Blog', to: '/blog' },

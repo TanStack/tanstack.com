@@ -1,14 +1,11 @@
 import * as React from 'react'
-import { FaArrowLeft, FaArrowRight, FaDiscord, FaGithub } from 'react-icons/fa'
-import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { Link, MetaFunction, NavLink, Outlet, useMatches } from 'remix'
-import { last } from '~/utils/utils'
+import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { Link } from '@remix-run/react'
+import { MetaFunction } from '@remix-run/node'
+
 import { useReactTableV8Config } from '../v8'
-import { DocSearch } from '@docsearch/react'
 import { gradientText } from './index'
-import { Carbon } from '~/components/Carbon'
 import { seo } from '~/utils/seo'
-import { LinkOrA } from '~/components/LinkOrA'
 import { Docs, DocsConfig } from '~/components/Docs'
 
 const logo = (

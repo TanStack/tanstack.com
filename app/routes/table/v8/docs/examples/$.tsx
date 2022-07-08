@@ -1,5 +1,6 @@
 import React from 'react'
-import { json, LoaderFunction, MetaFunction, useLoaderData } from 'remix'
+import { json, LoaderFunction, MetaFunction } from '@remix-run/node'
+import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
 import { v8branch } from '~/routes/table/v8'
 import { seo } from '~/utils/seo'

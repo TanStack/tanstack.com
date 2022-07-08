@@ -12,7 +12,7 @@ import {
   MetaFunction,
   useTransition,
   LoaderFunction,
-} from 'remix'
+} from '@remix-run/react'
 
 import styles from './styles/app.generated.css'
 import prismThemeLight from './styles/prismThemeLight.css'

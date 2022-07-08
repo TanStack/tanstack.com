@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import { Link, MetaFunction } from 'remix'
+import { Link, MetaFunction } from '@remix-run/react'
 import { useReactVirtualV3Config } from '../v3'
 import { gradientText } from './index'
 import { seo } from '~/utils/seo'

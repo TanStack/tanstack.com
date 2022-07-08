@@ -1,13 +1,6 @@
 import * as React from 'react'
-import {
-  json,
-  Link,
-  LoaderFunction,
-  MetaFunction,
-  Outlet,
-  useLocation,
-  useSearchParams,
-} from 'remix'
+import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
+import { LoaderFunction, json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'

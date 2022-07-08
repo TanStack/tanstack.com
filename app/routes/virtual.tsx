@@ -1,4 +1,5 @@
-import { LoaderFunction, MetaFunction, Outlet, redirect } from 'remix'
+import { Outlet } from '@remix-run/react'
+import { LoaderFunction, MetaFunction, redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 
 export let meta: MetaFunction = () => {

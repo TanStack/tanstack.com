@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { Link, MetaFunction, NavLink, Outlet } from 'remix'
+import { Link, MetaFunction, NavLink, Outlet } from '@remix-run/react'
 import { gradientText } from './index'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { Carbon } from '~/components/Carbon'

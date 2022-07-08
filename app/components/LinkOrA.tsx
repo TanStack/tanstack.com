@@ -1,5 +1,5 @@
 import { HTMLProps } from 'react'
-import { LinkProps, Link } from 'remix'
+import { LinkProps, Link } from '@remix-run/react'
 
 export function LinkOrA(
   props: HTMLProps<HTMLAnchorElement> & LinkProps & { to?: string }

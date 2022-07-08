@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { ActionFunction, LoaderFunction } from 'remix'
+import { ActionFunction, LoaderFunction } from '@remix-run/react'
 
 import {
   sponsorCreated,

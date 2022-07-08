@@ -1,4 +1,4 @@
-import { Link } from 'remix'
+import { Link } from '@remix-run/react'
 
 const links = [
   { href: 'https://github.com/tannerlinsley', label: 'GitHub' },

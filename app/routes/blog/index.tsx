@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { json, Link, LoaderFunction, useLoaderData } from 'remix'
+import { useLoaderData, Link } from '@remix-run/react'
+import { json, LoaderFunction } from '@remix-run/node'
 import {
   extractFrontMatter,
   fetchRepoFile,

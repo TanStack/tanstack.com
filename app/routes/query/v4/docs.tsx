@@ -1,7 +1,13 @@
 import * as React from 'react'
 import { FaArrowLeft, FaArrowRight, FaDiscord, FaGithub } from 'react-icons/fa'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { Link, MetaFunction, NavLink, Outlet, useMatches } from 'remix'
+import {
+  Link,
+  MetaFunction,
+  NavLink,
+  Outlet,
+  useMatches,
+} from '@remix-run/react'
 import { last } from '~/utils/utils'
 import { useReactQueryV4Config } from '../v4'
 import { DocSearch } from '@docsearch/react'

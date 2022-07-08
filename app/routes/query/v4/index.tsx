@@ -9,7 +9,8 @@ import {
   FaDiscord,
   FaGithub,
 } from 'react-icons/fa'
-import { json, Link, LoaderFunction, useLoaderData } from 'remix'
+import { json, LoaderFunction } from '@remix-run/node'
+import { Link, useLoaderData } from '@remix-run/react'
 import { v4branch } from '../v4'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
@@ -279,8 +280,8 @@ export default function ReactQueryRoute() {
             With zero dependencies, TanStack Query is extremely lean given the
             dense feature set it provides. From weekend hobbies all the way to
             enterprise e-commerce systems (Yes, I'm lookin' at you Walmart! 😉),
-            TanStack Query is the battle-hardened tool to help you succeed at the
-            speed of your creativity.
+            TanStack Query is the battle-hardened tool to help you succeed at
+            the speed of your creativity.
           </p>
         </div>
         <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">

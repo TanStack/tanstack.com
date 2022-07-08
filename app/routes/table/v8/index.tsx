@@ -9,7 +9,8 @@ import {
   FaDiscord,
   FaGithub,
 } from 'react-icons/fa'
-import { json, Link, LoaderFunction, useLoaderData } from 'remix'
+import { Link, useLoaderData } from '@remix-run/react'
+import { LoaderFunction, json } from '@remix-run/node'
 import { v8branch } from '../v8'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'

@@ -8,9 +8,9 @@ module.exports = {
   // serverBuildDirectory: '.vercel/output/functions/index.func/_build',
   devServerPort: 8002,
   serverDependenciesToBundle: [
-    /^rehype.*/,
-    /^remark.*/,
-    /^unified.*/,
+    // /^rehype.*/,
+    // /^remark.*/,
+    // /^unified.*/,
     // '@sindresorhus/slugify',
   ],
 }

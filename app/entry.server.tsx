@@ -1,5 +1,5 @@
 import { renderToString } from 'react-dom/server'
-import { EntryContext, RemixServer } from 'remix'
+import { EntryContext, RemixServer } from '@remix-run/react'
 // import { initStyles, renderWithStyles } from './utils/styleContext'
 // initStyles()
 

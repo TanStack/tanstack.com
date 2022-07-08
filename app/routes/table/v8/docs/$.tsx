@@ -1,4 +1,6 @@
-import { json, LoaderFunction, MetaFunction, useLoaderData } from 'remix'
+import { useLoaderData } from '@remix-run/react'
+import { LoaderFunction, MetaFunction, json } from '@remix-run/node'
+
 import {
   Doc,
   extractFrontMatter,

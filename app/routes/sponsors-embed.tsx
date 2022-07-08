@@ -1,5 +1,6 @@
 import SponsorPack from '../components/SponsorPack'
-import { HeadersFunction, json, LoaderFunction, useLoaderData } from 'remix'
+import { json, LoaderFunction, MetaFunction } from '@remix-run/node'
+import { useLoaderData } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 
 export const handle = {
@@ -25,7 +26,7 @@ export const loader: LoaderFunction = async () => {
 
 export const ErrorBoundary = DefaultErrorBoundary
 
-export const headers: HeadersFunction = ({ loaderHeaders }) => {
+export const headers = ({ loaderHeaders }: { loaderHeaders: Headers }) => {
   return {
     'Cache-Control': loaderHeaders.get('Cache-Control') ?? '',
   }

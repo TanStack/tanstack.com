@@ -1,4 +1,4 @@
-import { json, LoaderFunction, MetaFunction, useLoaderData } from 'remix'
+import { json, LoaderFunction, MetaFunction } from '@remix-run/node'
 import {
   Doc,
   extractFrontMatter,
@@ -12,6 +12,7 @@ import { Mdx } from '~/components/Mdx'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
+import { useLoaderData } from '@remix-run/react'
 
 export const loader: LoaderFunction = async (context) => {
   const { '*': docsPath } = context.params

@@ -118,7 +118,7 @@ const courses = [
     getStyles: () => `border-t-4 border-red-500 hover:(border-green-500)`,
     href: 'https://ui.dev/checkout/react-query?from=tanstack',
     description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
-    price: `$149`,
+    price: `$195`,
   },
 ]
 
@@ -473,7 +473,7 @@ export default function Index() {
                 </p>
               ) : (
                 <p className={`text-sm opacity-30 font-semibold italic mt-2`}>
-                  Join over 76,000 devs
+                  Join over 100,000 devs
                 </p>
               )}
             </Form>

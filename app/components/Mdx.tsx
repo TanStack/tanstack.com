@@ -1,3 +1,4 @@
+import { MDXComponents } from 'mdx/types'
 import { getMDXComponent } from 'mdx-bundler/client'
 import * as React from 'react'
 import { CodeBlock } from './CodeBlock'
@@ -50,8 +51,14 @@ const markdownComponents = {
   },
 }
 
-export function Mdx({ code }: { code: string }) {
+export function Mdx({
+  code,
+  components,
+}: {
+  code: string
+  components?: MDXComponents
+}) {
   const Doc = React.useMemo(() => getMDXComponent(code), [code])
 
-  return <Doc components={markdownComponents} />
+  return <Doc components={{ ...markdownComponents, ...components }} />
 }

@@ -70,24 +70,33 @@ export default function RouteReactTableDocs() {
             return (
               <Link
                 to={`${id}`}
-                className={`border-2 border-transparent rounded-lg p-4 md:p-8
-              transition-all bg-white dark:bg-gray-900
-              shadow-xl dark:shadow-lg dark:shadow-blue-500/30
-              hover:border-blue-500
+                className={`flex flex-col gap-4 justify-between
+                  border-2 border-transparent rounded-lg p-4 md:p-8
+                  transition-all bg-white dark:bg-gray-900
+                  shadow-xl dark:shadow-lg dark:shadow-blue-500/30
+                  hover:border-blue-500
               `}
               >
-                <div className={`text-lg font-extrabold `}>{title}</div>
-                {published ? (
-                  <div className={`italic font-light mt-2`}>
-                    {format(new Date(published), 'MMM dd, yyyy')}
+                <div>
+                  <div className={`text-lg font-extrabold`}>{title}</div>
+                  {published ? (
+                    <div className={`italic font-light mt-2`}>
+                      {format(new Date(published), 'MMM dd, yyyy')}
+                    </div>
+                  ) : null}
+                  <div className={`text-sm mt-2 text-black dark:text-white`}>
+                    <Mdx
+                      code={exerptCode}
+                      components={{
+                        a: (props) => <span {...props} />,
+                      }}
+                    />
                   </div>
-                ) : null}
-                <div className={`text-sm mt-2 text-black dark:text-white`}>
-                  <Mdx code={exerptCode} />
                 </div>
-                <div className="h-4" />
-                <div className="text-blue-500 uppercase font-black text-sm">
-                  Read More
+                <div>
+                  <div className="text-blue-500 uppercase font-black text-sm">
+                    Read More
+                  </div>
                 </div>
               </Link>
             )

@@ -16,8 +16,12 @@ import SponsorPack from '~/components/SponsorPack'
 import { fetchCached } from '~/utils/cache.server'
 import { LinkOrA } from '~/components/LinkOrA'
 
-export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-blue-500 to-green-500'
+const gradients = [
+  `from-rose-500 to-yellow-500`,
+  `from-yellow-500 to-teal-500`,
+  `from-teal-500 to-violet-500`,
+  `from-blue-500 to-pink-500`,
+]
 
 const menu = [
   {
@@ -129,6 +133,7 @@ export const loader: LoaderFunction = async () => {
 
   return json({
     sponsors,
+    randomNumber: Math.random(),
   })
 }
 
@@ -147,13 +152,19 @@ export const action: ActionFunction = async ({ request }) => {
   })
 }
 
+function sample(arr: any[], random = Math.random()) {
+  return arr[Math.floor(random * arr.length)]
+}
+
 export default function Index() {
   const data = useActionData()
-  const { sponsors } = useLoaderData()
+  const { sponsors, randomNumber } = useLoaderData()
   const transition = useTransition()
   const isLoading = transition.state === 'submitting'
   const hasSubmitted = data?.status === 'success'
   const hasError = data?.status === 'error'
+
+  const gradient = sample(gradients, randomNumber)
 
   return (
     <>
@@ -182,11 +193,19 @@ export default function Index() {
       <div className="flex flex-col items-center gap-6 text-center px-4 py-12 lg:py-24">
         <h1
           className={`inline-block
-            font-black text-4xl
+            font-black text-5xl
             md:text-6xl
-            lg:text-7xl`}
+            lg:text-8xl`}
         >
-          <span className={gradientText}>TanStack</span>
+          <span
+            className={`
+            inline-block text-transparent bg-clip-text bg-gradient-to-r ${gradient}
+            underline decoration-8 underline-offset-[1rem] decoration-gray-200 dark:decoration-gray-800
+            mb-2
+            `}
+          >
+            TanStack
+          </span>
         </h1>
         <h2
           className="font-bold text-2xl max-w-md

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { Link, MetaFunction, NavLink, Outlet } from '@remix-run/react'
-import { gradientText } from './index'
+import { Link, NavLink, Outlet } from '@remix-run/react'
+import { MetaFunction } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { Carbon } from '~/components/Carbon'
 import { seo } from '~/utils/seo'
@@ -14,7 +14,12 @@ const logo = (
       TanStack
     </Link>
     <Link to="" className={`font-bold`}>
-      <span className={`${gradientText}`}>Blog</span>
+      <span
+        className="inline-block text-transparent bg-clip-text
+            bg-gradient-to-r from-rose-500 via-purple-500 to-yellow-500"
+      >
+        Blog
+      </span>
     </Link>
   </>
 )

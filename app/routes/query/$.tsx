@@ -1,4 +1,4 @@
-import { LoaderFunction, redirect } from '@remix-run/react'
+import { LoaderFunction, redirect } from '@remix-run/node'
 
 export const loader: LoaderFunction = (context) => {
   handleRedirects(context)

@@ -18,6 +18,7 @@ function isLanguageSupported(lang: string): lang is Language {
     lang === 'cpp' ||
     lang === 'css' ||
     lang === 'javascript' ||
+    lang === 'js' ||
     lang === 'jsx' ||
     lang === 'coffeescript' ||
     lang === 'actionscript' ||

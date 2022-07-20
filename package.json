@@ -4,10 +4,13 @@
   "description": "",
   "license": "",
   "scripts": {
-    "build": "npm run css -- -m && remix build",
-    "css": "tailwindcss -i app/styles/app.css -o app/styles/app.generated.css",
-    "dev": "env PORT=3001 concurrently \"npm run css -- -w\" \"node -r dotenv/config node_modules/.bin/remix dev\"",
-    "start": "remix-serve build"
+    "build": "run-s \"build:*\"",
+    "build:css": "npm run generate:css -- --minify",
+    "build:remix": "remix build",
+    "dev": "run-p \"dev:*\"",
+    "dev:css": "npm run generate:css -- --watch",
+    "dev:remix": "remix dev --port 3001",
+    "generate:css": "npx tailwindcss -i app/styles/app.css -o app/styles/app.generated.css"
   },
   "dependencies": {
     "@docsearch/css": "^3.1.0",
@@ -46,7 +49,6 @@
     "remark-rehype": "^10.1.0",
     "remove-markdown": "^0.5.0",
     "tailwind-merge": "^1.2.1",
-    "tailwindcss": "^3.0.24",
     "tiny-invariant": "^1.2.0",
     "unified": "^10.1.2"
   },
@@ -58,13 +60,11 @@
     "@types/react": "^17.0.24",
     "@types/react-dom": "^17.0.9",
     "@types/remove-markdown": "^0.3.1",
-    "@types/tailwindcss": "^3.0.10",
     "@vercel/remix": "^0.0.2-canary.2",
-    "autoprefixer": "^10.4.7",
-    "concurrently": "^7.2.0",
     "esbuild": "^0.14.49",
     "eslint": "^8.20.0",
-    "postcss": "^8.4.14",
+    "npm-run-all": "^4.1.5",
+    "tailwindcss": "^3.1.6",
     "typescript": "^4.1.2"
   },
   "sideEffects": false,

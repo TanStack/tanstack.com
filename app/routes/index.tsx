@@ -227,7 +227,7 @@ export default function Index() {
       </div>
       <div className="h-8" />
       <div className="px-4 lg:max-w-screen-lg md:mx-auto">
-        <h3 className={`text-3xl font-light`}>Open Source Libraries</h3>
+        <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>
         <div
           className={`mt-4 grid grid-cols-1 gap-8
             sm:grid-cols-2 sm:gap-4

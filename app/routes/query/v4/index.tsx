@@ -371,7 +371,7 @@ export default function ReactQueryRoute() {
           className="flex-1 flex flex-col items-center text-sm text-center
                       bg-white shadow-xl shadow-gray-500/20 rounded-lg
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-900 dark:shadow-none"
+                        dark:bg-gray-800 dark:shadow-none"
         >
           <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
             Query <TbHeartHandshake /> You?
@@ -415,7 +415,7 @@ export default function ReactQueryRoute() {
       </div>
 
       <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
-        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-900 dark:text-white">
+        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
           <Carbon />
         </div>
         <span

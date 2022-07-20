@@ -18,7 +18,7 @@ import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
 
 export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
+  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
 
 const menu = [
   {
@@ -139,7 +139,7 @@ export default function ReactTableRoute() {
         </p>
         <Link
           to="./docs/guide/introduction"
-          className={`py-2 px-4 bg-rose-500 rounded text-white uppercase font-extrabold`}
+          className={`py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
           prefetch="intent"
         >
           Get Started
@@ -151,7 +151,7 @@ export default function ReactTableRoute() {
       >
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center overflow-hidden">
-            <IoIosBody className="text-rose-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
+            <IoIosBody className="text-teal-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -160,7 +160,7 @@ export default function ReactTableRoute() {
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               What good is a powerful table if that super hip designer you just
               hired can't work their UI magic on it?{' '}
-              <span className="font-semibold text-rose-700 dark:text-rose-400">
+              <span className="font-semibold text-teal-700 dark:text-teal-400">
                 TanStack Table is headless by design
               </span>
               , which means 100% control down to the very smallest HTML tag,
@@ -170,7 +170,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaBolt className="text-pink-600 text-6xl" />
+            <FaBolt className="text-blue-600 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -181,7 +181,7 @@ export default function ReactTableRoute() {
               workhorse. It's built to materialize, filter, sort, group,
               aggregate, paginate and display massive data sets using a very
               small API surface. Wire up your new or existing tables and{' '}
-              <span className="font-semibold text-pink-700 dark:text-pink-400">
+              <span className="font-semibold text-blue-700 dark:text-blue-400">
                 watch your users become instantly more productive
               </span>
               .
@@ -190,7 +190,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaCogs className="text-violet-500 text-6xl" />
+            <FaCogs className="text-indigo-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -199,7 +199,7 @@ export default function ReactTableRoute() {
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               TanStack table ships with excellent defaults to get you off the
               ground as fast as possible, but nothing is stopping you from{' '}
-              <span className="font-semibold text-violet-700 dark:text-violet-400">
+              <span className="font-semibold text-indigo-700 dark:text-indigo-400">
                 customizing and overriding literally everything to your liking
               </span>
               . Feeling tenacious enough to build your own Sheets/Excel/AirTable
@@ -307,7 +307,7 @@ export default function ReactTableRoute() {
           className="flex-1 flex flex-col items-center text-sm text-center
                       bg-white shadow-xl shadow-gray-500/20 rounded-lg
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-900 dark:shadow-none"
+                        dark:bg-gray-800 dark:shadow-none"
         >
           <a
             href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
@@ -363,7 +363,7 @@ export default function ReactTableRoute() {
       </div>
 
       <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
-        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-900 dark:text-white">
+        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
           <Carbon />
         </div>
         <span

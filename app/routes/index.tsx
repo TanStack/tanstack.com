@@ -239,7 +239,7 @@ export default function Index() {
                 key={library.name}
                 to={library.to}
                 className={twMerge(
-                  `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white dark:bg-gray-900`,
+                  `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white dark:bg-gray-800`,
                   library.getStyles()
                 )}
                 style={{
@@ -272,7 +272,7 @@ export default function Index() {
             <div
               className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-900 dark:shadow-none"
+                        dark:bg-gray-800 dark:shadow-none"
             >
               <div className="flex-1 bg-white flex items-center justify-center p-2">
                 <a
@@ -307,7 +307,7 @@ export default function Index() {
           </div>
           <div className="flex flex-col gap-4">
             <h3 className={`text-4xl font-light`}>Affiliates </h3>
-            <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-900 dark:text-white">
+            <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
               <Carbon />
             </div>
             <span
@@ -328,7 +328,7 @@ export default function Index() {
               key={course.name}
               href={course.href}
               className={`flex gap-2 justify-between border-2 border-transparent rounded-lg p-4 md:p-8
-              transition-all bg-white dark:bg-gray-900
+              transition-all bg-white dark:bg-gray-800
               shadow-xl shadow-green-700/10 dark:shadow-green-500/30
               hover:border-green-500
               `}

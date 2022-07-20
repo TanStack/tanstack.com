@@ -155,7 +155,7 @@ export function Docs({
               <LinkOrA
                 to={prevItem.to}
                 className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
-              bg-white text-gray-600 dark:bg-gray-900 dark:text-gray-400
+              bg-white text-gray-600 dark:bg-black dark:text-gray-400
               shadow-lg dark:border dark:border-gray-800
               lg:text-lg"
               >
@@ -166,7 +166,7 @@ export function Docs({
               <LinkOrA
                 to={nextItem.to}
                 className="py-1 px-2 text-sm self-end rounded-md
-                bg-white dark:bg-gray-900
+                bg-white dark:bg-black
                 shadow-lg dark:border dark:border-gray-800
                 lg:text-lg
                 "

@@ -102,7 +102,7 @@ export default function SponsorPack({ sponsors }: { sponsors: any }) {
                           <div
                             className={twMerge(
                               `spon-tooltip absolute text-sm
-                              bg-gray-900 text-white p-2 pointer-events-none
+                              bg-gray-800 text-white p-2 pointer-events-none
                               transform opacity-0
                               shadow-xl rounded-lg
                               flex flex-col items-center

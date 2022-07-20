@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { DocsConfig } from '~/components/Docs'
@@ -10,7 +10,7 @@ import { useMatchesData } from '~/utils/utils'
 
 export const v8branch = 'main'
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const config = await fetchRepoFile(
     'tanstack/table',
     v8branch,

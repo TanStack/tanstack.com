@@ -439,7 +439,7 @@ export default function ReactTableRoute() {
         <div>
           <Link
             to="./docs/guide/introduction"
-            className={`inline-block py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
+            className={`inline-block py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
             prefetch="intent"
           >
             Get Started!

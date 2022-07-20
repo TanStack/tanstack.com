@@ -1,4 +1,4 @@
-import { json, LoaderFunction, MetaFunction } from '@remix-run/node'
+import { json, LoaderArgs, MetaFunction } from '@remix-run/node'
 import {
   Doc,
   extractFrontMatter,
@@ -15,7 +15,7 @@ import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
 import { useLoaderData } from '@remix-run/react'
 
-export const loader: LoaderFunction = async (context) => {
+export const loader = async (context: LoaderArgs) => {
   const { '*': docsPath } = context.params
 
   if (!docsPath) {
@@ -63,7 +63,7 @@ export const ErrorBoundary = DefaultErrorBoundary
 export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactQueryDocs() {
-  const { title, code, filePath } = useLoaderData()
+  const { title, code, filePath } = useLoaderData<typeof loader>()
 
   return (
     <div className="p-4 lg:p-6 overflow-auto w-full">

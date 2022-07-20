@@ -9,7 +9,6 @@ import {
   useCatch,
   useMatches,
   useTransition,
-  Link,
 } from '@remix-run/react'
 import { LinksFunction, MetaFunction } from '@remix-run/node'
 
@@ -79,18 +78,18 @@ function Document({
 
   return (
     // <html lang="en" className={cx(getGlobalStyles())}>
-    <html lang="en">
+    <html lang='en'>
       <head>
         {/* {styles} */}
         {matches.find((d) => d.handle?.baseParent) ? (
-          <base target="_parent" />
+          <base target='_parent' />
         ) : null}
         {title ? <title>{title}</title> : null}
         <Meta />
         <Links />
         <script
           async
-          src="https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS"
+          src='https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS'
         ></script>
         <script
           dangerouslySetInnerHTML={{
@@ -108,7 +107,7 @@ function Document({
         {children}
         <ScrollRestoration />
         <Scripts />
-        {process.env.NODE_ENV === 'development' && <LiveReload />}
+        <LiveReload />
         <div
           className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-800
           rounded-lg shadow-lg transition-opacity duration-300 hover:opacity-0 pointer-events-none
@@ -116,7 +115,7 @@ function Document({
             transition.state !== 'idle' ? 'opacity-1' : 'opacity-0'
           }`}
         >
-          <CgSpinner className="animate-spin text-2xl" />
+          <CgSpinner className='animate-spin text-2xl' />
         </div>
       </body>
     </html>

@@ -1,12 +1,12 @@
-import { LoaderFunction, redirect } from '@remix-run/node'
+import { LoaderArgs, redirect } from '@remix-run/node'
 
-export const loader: LoaderFunction = (context) => {
+export const loader = (context : LoaderArgs) => {
   handleRedirects(context)
 
   return redirect('/table/v8')
 }
 
-function handleRedirects(context: Parameters<LoaderFunction>[0]) {
+function handleRedirects(context: LoaderArgs) {
   const url = new URL(context.request.url)
   // prettier-ignore
   const reactTablev7List = [

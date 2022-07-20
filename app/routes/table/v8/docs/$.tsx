@@ -1,5 +1,5 @@
 import { useLoaderData } from '@remix-run/react'
-import { LoaderFunction, MetaFunction, json } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, json } from '@remix-run/node'
 
 import {
   Doc,
@@ -16,7 +16,7 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
 
-export const loader: LoaderFunction = async (context) => {
+export const loader = async (context: LoaderArgs) => {
   const { '*': docsPath } = context.params
 
   if (!docsPath) {
@@ -66,7 +66,7 @@ export const ErrorBoundary = DefaultErrorBoundary
 export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactTableDocs() {
-  const { title, code, filePath } = useLoaderData()
+  const { title, code, filePath } = useLoaderData<typeof loader>()
 
   return (
     <div className="p-4 lg:p-6 overflow-auto w-full">

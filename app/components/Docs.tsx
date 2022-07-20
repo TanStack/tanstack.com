@@ -1,27 +1,29 @@
-import { DocSearch } from '@docsearch/react'
-import * as React from 'react'
-import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
-import { NavLink, Outlet, useMatches } from '@remix-run/react'
-import { last } from '~/utils/utils'
-import { Carbon } from './Carbon'
-import { LinkOrA } from './LinkOrA'
-import { Search } from './Search'
+import { DocSearch } from "@docsearch/react";
+import * as React from "react";
+import { CgClose, CgMenuLeft } from "react-icons/cg";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { NavLink, Outlet, useMatches } from "@remix-run/react";
+import { last } from "~/utils/utils";
+import { Carbon } from "./Carbon";
+import { LinkOrA } from "./LinkOrA";
+import { Search } from "./Search";
+import { gradientText } from "~/routes/query/v4/index";
+import BytesForm from "./BytesForm";
 
 export type DocsConfig = {
   docSearch: {
-    appId: string
-    indexName: string
-    apiKey: string
-  }
+    appId: string;
+    indexName: string;
+    apiKey: string;
+  };
   menu: {
-    label: string | React.ReactNode
+    label: string | React.ReactNode;
     children: {
-      label: string
-      to: string
-    }[]
-  }[]
-}
+      label: string;
+      to: string;
+    }[];
+  }[];
+};
 
 export function Docs({
   colorFrom,
@@ -30,32 +32,32 @@ export function Docs({
   logo,
   config,
 }: {
-  colorFrom: string
-  colorTo: string
-  textColor: string
-  logo: React.ReactNode
-  config: DocsConfig
+  colorFrom: string;
+  colorTo: string;
+  textColor: string;
+  logo: React.ReactNode;
+  config: DocsConfig;
 }) {
-  const matches = useMatches()
-  const lastMatch = last(matches)
+  const matches = useMatches();
+  const lastMatch = last(matches);
 
-  const detailsRef = React.useRef<HTMLElement>(null!)
+  const detailsRef = React.useRef<HTMLElement>(null!);
 
   const flatMenu = React.useMemo(
     () => config.menu.flatMap((d) => d.children),
     [config.menu]
-  )
+  );
 
-  const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
+  const docsMatch = matches.find((d) => d.pathname.includes("/docs"));
 
   const relativePathname = lastMatch.pathname.replace(
-    docsMatch?.pathname! + '/',
-    ''
-  )
+    docsMatch?.pathname! + "/",
+    ""
+  );
 
-  const index = flatMenu.findIndex((d) => d.to === relativePathname)
-  const prevItem = flatMenu[index - 1]
-  const nextItem = flatMenu[index + 1]
+  const index = flatMenu.findIndex((d) => d.to === relativePathname);
+  const prevItem = flatMenu[index - 1];
+  const nextItem = flatMenu[index + 1];
 
   const menuItems = config.menu.map((group, i) => {
     return (
@@ -66,7 +68,7 @@ export function Docs({
           {group.children?.map((child, i) => {
             return (
               <div key={i}>
-                {child.to.startsWith('http') ? (
+                {child.to.startsWith("http") ? (
                   <a href={child.to}>{child.label}</a>
                 ) : (
                   <NavLink
@@ -74,10 +76,10 @@ export function Docs({
                     className={(props) =>
                       props.isActive
                         ? `font-bold text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
-                        : ''
+                        : ""
                     }
                     onClick={() => {
-                      detailsRef.current.removeAttribute('open')
+                      detailsRef.current.removeAttribute("open");
                     }}
                     end
                   >
@@ -85,12 +87,12 @@ export function Docs({
                   </NavLink>
                 )}
               </div>
-            )
+            );
           })}
         </div>
       </div>
-    )
-  })
+    );
+  });
 
   const smallMenu = (
     <div
@@ -119,7 +121,7 @@ export function Docs({
         </div>
       </details>
     </div>
-  )
+  );
 
   const largeMenu = (
     <div className="hidden lg:flex w-[250px] flex-col gap-4 h-screen sticky top-0 z-20">
@@ -138,10 +140,44 @@ export function Docs({
         <Carbon />
       </div>
     </div>
-  )
+  );
+
+  const aside = (
+    <aside className="p-12">
+      <ul className="sticky top-10 border border-black/10 dark:border-white/10 p-6 rounded-lg max-w-[30ch]">
+        {config?.docSearch?.indexName?.includes("query") && (
+          <li className="mb-8">
+            <h6 className="text-[.9em] uppercase font-black mb-4">
+              Want to Skip the Docs?
+            </h6>
+            <p className="text-sm">
+              Fast track your learning and <br />
+              <a
+                className={`${gradientText}`}
+                href="https://ui.dev/react-query?from=tanstack"
+                target="_blank"
+              >
+                <span>take the offical React Query course ↗️</span>
+              </a>
+            </p>
+          </li>
+        )}
+        <li>
+          <h6 className="text-[.9em] uppercase font-black mb-4">
+            Subscribe to Bytes
+          </h6>
+          <p className="text-sm mb-4">
+            Your weekly dose of JavaScript news. Delivered every Monday to over
+            100,000 devs, for free.
+          </p>
+          <BytesForm />
+        </li>
+      </ul>
+    </aside>
+  );
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen grid lg:grid-cols-[auto_1fr_auto]">
       {smallMenu}
       {largeMenu}
       <div className="flex-1 min-h-0 flex relative">
@@ -176,7 +212,7 @@ export function Docs({
                     className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
                   >
                     {nextItem.label}
-                  </span>{' '}
+                  </span>{" "}
                   <FaArrowRight className={textColor} />
                 </div>
               </LinkOrA>
@@ -184,6 +220,7 @@ export function Docs({
           </div>
         </div>
       </div>
+      {aside}
     </div>
-  )
+  );
 }

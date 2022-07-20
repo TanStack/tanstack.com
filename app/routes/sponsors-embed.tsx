@@ -1,5 +1,5 @@
 import SponsorPack from '../components/SponsorPack'
-import { json, LoaderFunction, MetaFunction } from '@remix-run/node'
+import { json, LoaderArgs, MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
@@ -8,7 +8,7 @@ export const handle = {
   baseParent: true,
 }
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const { getSponsorsForSponsorPack } = require('../server/sponsors')
 
   const sponsors = await getSponsorsForSponsorPack()
@@ -35,7 +35,7 @@ export const headers = ({ loaderHeaders }: { loaderHeaders: Headers }) => {
 }
 
 export default function Sponsors() {
-  const { sponsors } = useLoaderData()
+  const { sponsors } = useLoaderData<typeof loader>()
 
   return (
     <>

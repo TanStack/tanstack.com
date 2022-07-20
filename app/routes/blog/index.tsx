@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useLoaderData, Link } from '@remix-run/react'
-import { json, LoaderFunction } from '@remix-run/node'
+import { json, LoaderArgs } from '@remix-run/node'
 import {
   extractFrontMatter,
   fetchRepoFile,
@@ -14,7 +14,7 @@ import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { Footer } from '~/components/Footer'
 
-export const loader: LoaderFunction = async (context) => {
+export const loader = async (context: LoaderArgs) => {
   const postInfos = getPostList()
   const frontMatters = await Promise.all(
     postInfos.map(async (info) => {
@@ -55,7 +55,7 @@ export const ErrorBoundary = DefaultErrorBoundary
 export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactTableDocs() {
-  const frontMatters = useLoaderData() as [
+  const frontMatters = useLoaderData<typeof loader>() as [
     string,
     { title: string; published: string; exerptCode: string }
   ][]

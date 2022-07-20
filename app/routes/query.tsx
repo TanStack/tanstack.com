@@ -1,5 +1,5 @@
 import { Outlet } from '@remix-run/react'
-import { json, LoaderFunction, MetaFunction, redirect } from '@remix-run/node'
+import { json, LoaderArgs, MetaFunction, redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 
 export let meta: MetaFunction = (meta) => {
@@ -11,7 +11,7 @@ export let meta: MetaFunction = (meta) => {
   })
 }
 
-export const loader: LoaderFunction = async (context) => {
+export const loader = async (context: LoaderArgs) => {
   if (!context.request.url.includes('/query/v')) {
     return redirect(`${new URL(context.request.url).origin}/query/v4`)
   }

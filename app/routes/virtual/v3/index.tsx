@@ -10,7 +10,7 @@ import {
   FaGithub,
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
-import { LoaderFunction, json } from '@remix-run/node'
+import { LoaderArgs, json } from '@remix-run/node'
 import { v3branch } from '../v3'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
@@ -66,7 +66,7 @@ const menu = [
   },
 ]
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const { getSponsorsForSponsorPack } = require('~/server/sponsors')
 
   const sponsors = await getSponsorsForSponsorPack()
@@ -77,7 +77,7 @@ export const loader: LoaderFunction = async () => {
 }
 
 export default function ReactTableRoute() {
-  const { sponsors } = useLoaderData()
+  const { sponsors } = useLoaderData<typeof loader>()
   // const config = useReactTableV8Config()
   // const [params, setParams] = useSearchParams()
   // const framework = params.get('framework') ?? 'react'

@@ -1,12 +1,12 @@
 import React from 'react'
-import { json, LoaderFunction, MetaFunction } from '@remix-run/node'
+import { json, LoaderArgs, MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
 import { v4branch } from '~/routes/query/v4'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
-export const loader: LoaderFunction = async (context) => {
+export const loader = async (context: LoaderArgs) => {
   const { '*': examplePath } = context.params
   const [kind, name] = (examplePath ?? '').split('/')
 
@@ -25,7 +25,7 @@ export let meta: MetaFunction = ({ data }) => {
 }
 
 export default function RouteReactQueryDocs() {
-  const { kind, name } = useLoaderData()
+  const { kind, name } = useLoaderData<typeof loader>()
 
   const examplePath = [kind, name].join('/')
 

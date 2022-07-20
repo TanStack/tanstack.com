@@ -5,7 +5,7 @@ import {
   useLoaderData,
   useTransition,
 } from '@remix-run/react'
-import { json, ActionFunction, LoaderFunction } from '@remix-run/node'
+import { json, ActionFunction, LoaderArgs } from '@remix-run/node'
 import { Carbon } from '~/components/Carbon'
 import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
@@ -126,7 +126,7 @@ const courses = [
   },
 ]
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const { getSponsorsForSponsorPack } = require('../server/sponsors')
 
   const sponsors = await getSponsorsForSponsorPack()
@@ -158,7 +158,7 @@ function sample(arr: any[], random = Math.random()) {
 
 export default function Index() {
   const data = useActionData()
-  const { sponsors, randomNumber } = useLoaderData()
+  const { sponsors, randomNumber } = useLoaderData<typeof loader>()
   const transition = useTransition()
   const isLoading = transition.state === 'submitting'
   const hasSubmitted = data?.status === 'success'

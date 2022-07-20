@@ -9,7 +9,7 @@ import {
   FaDiscord,
   FaGithub,
 } from 'react-icons/fa'
-import { json, LoaderFunction } from '@remix-run/node'
+import { json, LoaderArgs } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import { v4branch } from '../v4'
 import { Carbon } from '~/components/Carbon'
@@ -65,7 +65,7 @@ const menu = [
   },
 ]
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const { getSponsorsForSponsorPack } = require('~/server/sponsors')
 
   const sponsors = await getSponsorsForSponsorPack()
@@ -76,7 +76,7 @@ export const loader: LoaderFunction = async () => {
 }
 
 export default function ReactQueryRoute() {
-  const { sponsors } = useLoaderData()
+  const { sponsors } = useLoaderData<typeof loader>()
   // const config = useReactQueryV8Config()
   // const [params, setParams] = useSearchParams()
   // const framework = params.get('framework') ?? 'react'

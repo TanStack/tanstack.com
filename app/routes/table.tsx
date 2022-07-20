@@ -1,4 +1,4 @@
-import { LoaderFunction, MetaFunction, redirect } from '@remix-run/node'
+import { LoaderArgs, MetaFunction, redirect } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
 import { seo } from '~/utils/seo'
 
@@ -11,7 +11,7 @@ export let meta: MetaFunction = () => {
   })
 }
 
-export const loader: LoaderFunction = async (context) => {
+export const loader = async (context: LoaderArgs) => {
   if (!context.request.url.includes('/table/v')) {
     return redirect(`${new URL(context.request.url).origin}/table/v8`)
   }

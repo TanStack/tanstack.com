@@ -11,6 +11,7 @@ import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { format } from 'date-fns'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { Footer } from '~/components/Footer'
 
 export const loader: LoaderFunction = async (context) => {
@@ -27,7 +28,9 @@ export const loader: LoaderFunction = async (context) => {
       )
 
       if (!file) {
-        throw new Error('file not found')
+        throw new Response('Not Found', {
+          status: 404,
+        })
       }
 
       const frontMatter = extractFrontMatter(file)
@@ -49,6 +52,7 @@ export const loader: LoaderFunction = async (context) => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
+export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactTableDocs() {
   const frontMatters = useLoaderData() as [

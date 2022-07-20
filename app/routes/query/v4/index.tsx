@@ -15,7 +15,7 @@ import { v4branch } from '../v4'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
-import { VscWand } from 'react-icons/vsc'
+import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 
@@ -30,6 +30,14 @@ const menu = [
       </div>
     ),
     to: '/',
+  },
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <VscPreview className="text-lg" /> Examples
+      </div>
+    ),
+    to: './docs/examples',
   },
   {
     label: (

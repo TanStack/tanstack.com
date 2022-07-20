@@ -18,6 +18,7 @@ import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
 import { capitalize } from '~/utils/utils'
 import { TbHeartHandshake } from 'react-icons/tb'
+import { VscPreview } from 'react-icons/vsc'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
@@ -30,6 +31,14 @@ const menu = [
       </div>
     ),
     to: '/',
+  },
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <VscPreview className="text-lg" /> Examples
+      </div>
+    ),
+    to: './docs/examples',
   },
   {
     label: (

@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { LoaderFunction, json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { seo } from '~/utils/seo'
@@ -26,6 +27,7 @@ export const loader: LoaderFunction = async () => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
+export const CatchBoundary = DefaultCatchBoundary
 
 export const useReactTableV8Config = () =>
   useMatchesData('/table/v8') as DocsConfig

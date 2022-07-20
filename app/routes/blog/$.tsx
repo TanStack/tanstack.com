@@ -11,6 +11,7 @@ import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { format } from 'date-fns'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import removeMarkdown from 'remove-markdown'
 import { seo } from '~/utils/seo'
 
@@ -31,7 +32,9 @@ export const loader: LoaderFunction = async (context) => {
   )
 
   if (!file) {
-    throw new Error('File not found')
+    throw new Response('Not Found', {
+      status: 404,
+    })
   }
 
   const frontMatter = extractFrontMatter(file)
@@ -50,12 +53,13 @@ export const loader: LoaderFunction = async (context) => {
 
 export let meta: MetaFunction = ({ data }) => {
   return seo({
-    title: `${data.title} | TanStack Blog`,
-    description: data.description,
+    title: `${data?.title ?? 'Docs'} | TanStack Blog`,
+    description: data?.description,
   })
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
+export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactTableDocs() {
   const { title, published, code, filePath } = useLoaderData()

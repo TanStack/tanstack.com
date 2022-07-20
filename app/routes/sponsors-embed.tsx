@@ -2,6 +2,7 @@ import SponsorPack from '../components/SponsorPack'
 import { json, LoaderFunction, MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 
 export const handle = {
   baseParent: true,
@@ -25,6 +26,7 @@ export const loader: LoaderFunction = async () => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
+export const CatchBoundary = DefaultCatchBoundary
 
 export const headers = ({ loaderHeaders }: { loaderHeaders: Headers }) => {
   return {

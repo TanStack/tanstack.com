@@ -5,6 +5,9 @@ import { DocTitle } from '~/components/DocTitle'
 import { v8branch } from '~/routes/table/v8'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
+import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+
+export const ErrorBoundary = DefaultErrorBoundary
 
 export const loader: LoaderFunction = async (context) => {
   const { '*': examplePath } = context.params

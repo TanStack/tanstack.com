@@ -7,12 +7,11 @@ import {
   Scripts,
   ScrollRestoration,
   useCatch,
-  LinksFunction,
   useMatches,
-  MetaFunction,
   useTransition,
-  LoaderFunction,
+  Link,
 } from '@remix-run/react'
+import { LinksFunction, MetaFunction } from '@remix-run/node'
 
 import styles from './styles/app.generated.css'
 import prismThemeLight from './styles/prismThemeLight.css'
@@ -21,6 +20,7 @@ import docsearchCss from '@docsearch/css/dist/style.css'
 import { CgSpinner } from 'react-icons/cg'
 
 import { seo } from './utils/seo'
+import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
@@ -126,32 +126,11 @@ function Document({
 export function CatchBoundary() {
   let caught = useCatch()
 
-  let message
-  switch (caught.status) {
-    case 401:
-      message = (
-        <p>
-          Oops! Looks like you tried to visit a page that you do not have access
-          to.
-        </p>
-      )
-      break
-    case 404:
-      message = (
-        <p>Oops! Looks like you tried to visit a page that does not exist.</p>
-      )
-      break
-
-    default:
-      throw new Error(caught.data || caught.statusText)
-  }
-
   return (
     <Document title={`${caught.status} ${caught.statusText}`}>
-      <h1>
-        {caught.status}: {caught.statusText}
-      </h1>
-      {message}
+      <div className="h-[50vh] flex flex-col items-center justify-center gap-6">
+        <DefaultCatchBoundary isRoot />
+      </div>
     </Document>
   )
 }

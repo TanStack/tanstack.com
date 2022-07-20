@@ -16,6 +16,7 @@ import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
+import { VscPreview } from 'react-icons/vsc'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
@@ -28,6 +29,14 @@ const menu = [
       </div>
     ),
     to: '/',
+  },
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <VscPreview className="text-lg" /> Examples
+      </div>
+    ),
+    to: './docs/examples',
   },
   {
     label: (

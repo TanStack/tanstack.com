@@ -7,6 +7,8 @@ import { useReactTableV8Config } from '../v8'
 import { gradientText } from './index'
 import { seo } from '~/utils/seo'
 import { Docs, DocsConfig } from '~/components/Docs'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
+import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 
 const logo = (
   <>
@@ -54,6 +56,9 @@ export let meta: MetaFunction = () => {
       'Headless UI for building powerful tables & datagrids with TS/JS, React, Solid, Svelte and Vue',
   })
 }
+
+export const ErrorBoundary = DefaultErrorBoundary
+export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactTable() {
   let config = useReactTableV8Config()

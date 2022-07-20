@@ -1,4 +1,4 @@
-import { ErrorBoundaryComponent } from '@remix-run/react'
+import { ErrorBoundaryComponent } from '@remix-run/node'
 
 export const DefaultErrorBoundary: ErrorBoundaryComponent = ({ error }) => {
   console.error(error)

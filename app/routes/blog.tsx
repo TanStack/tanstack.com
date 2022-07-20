@@ -3,10 +3,12 @@ import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { Link, NavLink, Outlet } from '@remix-run/react'
 import { MetaFunction } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { Carbon } from '~/components/Carbon'
 import { seo } from '~/utils/seo'
 
 export const ErrorBoundary = DefaultErrorBoundary
+export const CatchBoundary = DefaultCatchBoundary
 
 const logo = (
   <>

@@ -12,6 +12,7 @@ import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
 
@@ -27,8 +28,12 @@ export const loader: LoaderFunction = async (context) => {
   const file = await fetchRepoFile('tanstack/table', v8branch, filePath)
 
   if (!file) {
-    throw new Error('File not found')
+    throw new Response('Not Found', {
+      status: 404,
+    })
   }
+
+  console.log('file', file)
 
   const frontMatter = extractFrontMatter(file)
   const description = removeMarkdown(frontMatter.excerpt ?? '')
@@ -52,12 +57,13 @@ export const loader: LoaderFunction = async (context) => {
 
 export let meta: MetaFunction = ({ data }) => {
   return seo({
-    title: `${data.title} | TanStack Table Docs`,
-    description: data.description,
+    title: `${data?.title ?? 'Docs'} | TanStack Table Docs`,
+    description: data?.description,
   })
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
+export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactTableDocs() {
   const { title, code, filePath } = useLoaderData()

@@ -10,6 +10,7 @@ import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
 import { useLoaderData } from '@remix-run/react'
@@ -26,7 +27,9 @@ export const loader: LoaderFunction = async (context) => {
   const file = await fetchRepoFile('tanstack/query', v4branch, filePath)
 
   if (!file) {
-    throw new Error('File not found')
+    throw new Response('Not Found', {
+      status: 404,
+    })
   }
 
   const frontMatter = extractFrontMatter(file)
@@ -57,6 +60,7 @@ export let meta: MetaFunction = ({ data }) => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
+export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactQueryDocs() {
   const { title, code, filePath } = useLoaderData()

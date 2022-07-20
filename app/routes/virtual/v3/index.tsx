@@ -20,7 +20,7 @@ import { capitalize } from '~/utils/utils'
 import { TbHeartHandshake } from 'react-icons/tb'
 
 export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
+  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
 
 const menu = [
   {
@@ -141,7 +141,7 @@ export default function ReactTableRoute() {
         </p>
         <Link
           to="./docs/guide/introduction"
-          className={`py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
+          className={`py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
           prefetch="intent"
         >
           Get Started
@@ -153,7 +153,7 @@ export default function ReactTableRoute() {
       >
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center overflow-hidden">
-            <IoIosBody className="text-teal-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
+            <IoIosBody className="text-rose-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -161,7 +161,7 @@ export default function ReactTableRoute() {
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Headless Virtualization means you're always in control of your{' '}
-              <span className="font-semibold text-teal-600 dark:text-teal-400">
+              <span className="font-semibold text-rose-600 dark:text-rose-400">
                 markup, styles and components
               </span>
               . Go design and implement the most beautiful UI you can dream up
@@ -171,7 +171,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaBolt className="text-blue-500 text-6xl" />
+            <FaBolt className="text-pink-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -180,7 +180,7 @@ export default function ReactTableRoute() {
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Don't be fooled by the small bundle size. TanStack Virtual uses
               every byte to deliver powerful performance. After all,{' '}
-              <span className="font-semibold text-blue-700 dark:text-blue-400">
+              <span className="font-semibold text-pink-700 dark:text-pink-400">
                 {' '}
                 60FPS is table stakes
               </span>{' '}
@@ -191,7 +191,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaCogs className="text-indigo-500 text-6xl" />
+            <FaCogs className="text-violet-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -200,7 +200,7 @@ export default function ReactTableRoute() {
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               With a single function/hook, you'll get limitless virtualization
               for{' '}
-              <span className="font-semibold text-indigo-700 dark:text-indigo-400">
+              <span className="font-semibold text-violet-700 dark:text-violet-400">
                 vertical, horizontal, and grid-style
               </span>
               layouts. The API is tiny (literally 1 function), but its
@@ -296,7 +296,7 @@ export default function ReactTableRoute() {
           className="flex-1 flex flex-col items-center text-sm text-center
                       bg-white shadow-xl shadow-gray-500/20 rounded-lg
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-900 dark:shadow-none"
+                        dark:bg-gray-800 dark:shadow-none"
         >
           <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
             Virtual <TbHeartHandshake /> You?
@@ -340,7 +340,7 @@ export default function ReactTableRoute() {
       </div>
 
       <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
-        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-900 dark:text-white">
+        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
           <Carbon />
         </div>
         <span

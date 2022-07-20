@@ -69,9 +69,9 @@ export default function RouteReactTable() {
     <Docs
       {...{
         logo,
-        colorFrom: 'from-teal-500',
-        colorTo: 'to-blue-500',
-        textColor: 'text-blue-500',
+        colorFrom: 'from-rose-500',
+        colorTo: 'to-violet-500',
+        textColor: 'text-violet-500',
         config,
       }}
     />

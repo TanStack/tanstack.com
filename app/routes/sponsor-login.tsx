@@ -123,7 +123,7 @@ export default function SponsorsLogin() {
                 <button
                   className={[
                     getbuttonStyles(),
-                    `bg-gray-900 text-white`,
+                    `bg-gray-800 text-white`,
                     githubCode && `opacity-50`,
                   ].join(' ')}
                   onClick={loginToGithub}

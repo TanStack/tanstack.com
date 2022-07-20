@@ -54,7 +54,6 @@ export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
   const userLang = getLanguageFromClassName(className)
   const lang = isLanguageSupported(userLang) ? userLang : 'bash'
   const code = child.props.children || ''
-  const identifier = code
   return (
     <div className="w-full max-w-full">
       <Highlight {...defaultProps} code={code.trim()} language={lang || 'bash'}>

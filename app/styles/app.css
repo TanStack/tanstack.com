@@ -5,7 +5,7 @@
 @layer base {
   html,
   body {
-    @apply text-gray-900 bg-gray-50 dark:bg-black dark:text-gray-100;
+    @apply text-gray-900 bg-gray-50 dark:bg-gray-900 dark:text-gray-200;
   }
 
   .using-mouse * {
@@ -121,7 +121,7 @@
 }
 
 .carbon-small .carbon-wrap .carbon-text {
-  @apply bg-white dark:bg-gray-900 rounded-tr-lg !pb-6 !m-0 !pointer-events-auto border-t border-r border-gray-500 border-opacity-10;
+  @apply bg-white dark:bg-gray-800 rounded-tr-lg !pb-6 !m-0 !pointer-events-auto border-t border-r border-gray-500 border-opacity-10;
 }
 
 .carbon-small .carbon-wrap .carbon-poweredby {

@@ -110,7 +110,7 @@ function Document({
         <Scripts />
         {process.env.NODE_ENV === 'development' && <LiveReload />}
         <div
-          className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-900
+          className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-800
           rounded-lg shadow-lg transition-opacity duration-300 hover:opacity-0 pointer-events-none
           z-30 delay-300 ${
             transition.state !== 'idle' ? 'opacity-1' : 'opacity-0'

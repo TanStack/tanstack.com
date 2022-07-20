@@ -72,7 +72,7 @@ export default function RouteReactTableDocs() {
                 to={`${id}`}
                 className={`flex flex-col gap-4 justify-between
                   border-2 border-transparent rounded-lg p-4 md:p-8
-                  transition-all bg-white dark:bg-gray-900
+                  transition-all bg-white dark:bg-gray-800
                   shadow-xl dark:shadow-lg dark:shadow-blue-500/30
                   hover:border-blue-500
               `}

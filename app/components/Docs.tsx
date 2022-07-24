@@ -177,7 +177,7 @@ export function Docs({
   );
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-[auto_1fr_auto]">
+    <div className="min-h-screen block lg:grid lg:grid-cols-[auto_1fr_auto]">
       {smallMenu}
       {largeMenu}
       <div className="flex-1 min-h-0 flex relative">

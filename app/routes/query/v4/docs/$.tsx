@@ -66,7 +66,7 @@ export default function RouteReactQueryDocs() {
   const { title, code, filePath } = useLoaderData<typeof loader>()
 
   return (
-    <div className="p-4 lg:p-6 overflow-auto w-full">
+    <div className="p-4 lg:p-6 overflow-auto w-full max-w-3xl">
       {title ? <DocTitle>{title}</DocTitle> : null}
       <div className="h-4" />
       <div className="h-px bg-gray-500 opacity-20" />

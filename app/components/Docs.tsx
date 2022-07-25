@@ -124,7 +124,7 @@ export function Docs({
   );
 
   const largeMenu = (
-    <div className="hidden lg:flex w-[250px] flex-col gap-4 h-screen sticky top-0 z-20">
+    <div className="hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div>
         <DocSearch
@@ -143,7 +143,7 @@ export function Docs({
   );
 
   const aside = (
-    <aside className="p-12">
+    <aside className="p-6 xl:p-12">
       <ul className="sticky top-10 border border-black/10 dark:border-white/10 p-6 rounded-lg max-w-[30ch]">
         {config?.docSearch?.indexName?.includes("query") && (
           <li className="mb-8">
@@ -177,10 +177,10 @@ export function Docs({
   );
 
   return (
-    <div className="min-h-screen block lg:grid lg:grid-cols-[auto_1fr_auto]">
+    <div className="min-h-screen block lg:grid lg:grid-cols-[250px_minmax(500px,_1fr)_minmax(300px,_400px)] w-full">
       {smallMenu}
       {largeMenu}
-      <div className="flex-1 min-h-0 flex relative">
+      <div className="flex-1 min-h-0 flex relative justify-center">
         <Outlet />
         <div
           className="fixed bottom-0 left-0 right-0

@@ -2,7 +2,7 @@ import type { FC, HTMLAttributes, ReactElement } from 'react'
 import { Children } from 'react'
 import invariant from 'tiny-invariant'
 import type { Language } from 'prism-react-renderer'
-import Highlight, { defaultProps } from 'prism-react-renderer'
+import Highlight, { defaultProps, Prism } from 'prism-react-renderer'
 
 function getLanguageFromClassName(className: string) {
   const match = className.match(/language-(\w+)/)
@@ -10,41 +10,7 @@ function getLanguageFromClassName(className: string) {
 }
 
 function isLanguageSupported(lang: string): lang is Language {
-  return (
-    lang === 'markup' ||
-    lang === 'bash' ||
-    lang === 'clike' ||
-    lang === 'c' ||
-    lang === 'cpp' ||
-    lang === 'css' ||
-    lang === 'javascript' ||
-    lang === 'js' ||
-    lang === 'jsx' ||
-    lang === 'coffeescript' ||
-    lang === 'actionscript' ||
-    lang === 'css-extr' ||
-    lang === 'diff' ||
-    lang === 'git' ||
-    lang === 'go' ||
-    lang === 'graphql' ||
-    lang === 'handlebars' ||
-    lang === 'json' ||
-    lang === 'less' ||
-    lang === 'makefile' ||
-    lang === 'markdown' ||
-    lang === 'objectivec' ||
-    lang === 'ocaml' ||
-    lang === 'python' ||
-    lang === 'reason' ||
-    lang === 'sass' ||
-    lang === 'scss' ||
-    lang === 'sql' ||
-    lang === 'stylus' ||
-    lang === 'tsx' ||
-    lang === 'typescript' ||
-    lang === 'wasm' ||
-    lang === 'yaml'
-  )
+  return lang in Prism.languages
 }
 
 export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {

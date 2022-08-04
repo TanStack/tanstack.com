@@ -21,7 +21,7 @@ yarn add @tanstack/react-query
 ### Proper offline support
 
 v4 has evolved TanStack Query from a data-fetching library to a true async state manager. All assumptions that were previously taken about having to have an active network connection are now gone, so TanStack Query _really_ works with any Promise, no matter how you produce it.
-To achieve this, we've introduced a brand new [Network Mode](../query/v4/docs/guides/network-mode) that helps TanStack Query to decide when queries should respect being online or not.
+To achieve this, we've introduced a brand new [Network Mode](https://tanstack.com/query/v4/docs/guides/network-mode) that helps TanStack Query to decide when queries should respect being online or not.
 
 ### Stable Persisters
 

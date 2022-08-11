@@ -184,7 +184,7 @@ export function Docs({
         <Outlet />
         <div
           className="fixed bottom-0 left-0 right-0
-                      lg:pl-[250px]"
+                      lg:pl-[250px] z-10"
         >
           <div className="p-4 flex justify-center gap-4">
             {prevItem ? (

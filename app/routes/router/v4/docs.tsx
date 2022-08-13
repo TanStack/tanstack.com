@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import { Link, MetaFunction } from '@remix-run/react'
-import { useVirtualV3Config } from '../v3'
+import { Link } from '@remix-run/react'
+import { MetaFunction } from '@remix-run/node'
+import { useRouterV4Config } from '../v4'
 import { gradientText } from './index'
 import { seo } from '~/utils/seo'
 import { Docs, DocsConfig } from '~/components/Docs'
@@ -12,7 +13,7 @@ const logo = (
       TanStack
     </Link>
     <Link to=".." className={`font-bold`}>
-      <span className={`${gradientText}`}>Virtual</span>{' '}
+      <span className={`${gradientText}`}>Router</span>{' '}
       <span className="text-sm align-super">v3</span>
     </Link>
   </>
@@ -31,7 +32,7 @@ const localMenu = {
           Github <FaGithub className="text-lg opacity-20" />
         </div>
       ),
-      to: 'https://github.com/tanstack/virtual',
+      to: 'https://github.com/tanstack/router',
     },
     {
       label: (
@@ -47,14 +48,14 @@ const localMenu = {
 export let meta: MetaFunction = () => {
   return seo({
     title:
-      'TanStack Virtual Docs | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',
+      'TanStack Router Docs | React Router, Solid Router, Svelte Router, Vue Router',
     description:
       'Headless UI for virtualizing long scrollable lists with TS/JS, React, Solid, Svelte and Vue',
   })
 }
 
-export default function RouteReactTable() {
-  let config = useVirtualV3Config()
+export default function DocsRoute() {
+  let config = useRouterV4Config()
 
   config = React.useMemo(
     () =>

@@ -3,7 +3,7 @@ title: Announcing TanStack Query v4
 published: 7/14/2022
 ---
 
-We're excited to announce the next version of [TanStack Query](../query/v4), previously known as `react-query` 🎉.
+We're excited to announce the next version of [TanStack Query](/query/v4), previously known as `react-query` 🎉.
 The rebranding and restructuring to a monorepo now finally allows us to bring the joy of `react-query` to other frameworks, like `vue`, `svelte` or `solid`.
 
 TanStack Query is built upon an agnostic core with framework specific adapters on top of it. This allows us to share the core logic that make TanStack Query awesome like the QueryClient or Query Subscriptions between frameworks, while also having framework specific code like hooks (useQuery and useMutation) inside adapters.
@@ -21,7 +21,7 @@ yarn add @tanstack/react-query
 ### Proper offline support
 
 v4 has evolved TanStack Query from a data-fetching library to a true async state manager. All assumptions that were previously taken about having to have an active network connection are now gone, so TanStack Query _really_ works with any Promise, no matter how you produce it.
-To achieve this, we've introduced a brand new [Network Mode](../query/v4/docs/guides/network-mode) that helps TanStack Query to decide when queries should respect being online or not.
+To achieve this, we've introduced a brand new [Network Mode](/query/v4/docs/guides/network-mode) that helps TanStack Query to decide when queries should respect being online or not.
 
 ### Stable Persisters
 

@@ -10,7 +10,8 @@ import {
   FaGithub,
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
-import { LoaderFunction, json } from '@remix-run/node'
+import type { LoaderFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import { v4branch } from '../v4'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
@@ -129,7 +130,7 @@ export default function ReactTableRoute() {
             className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
           >
-            v4
+            v4 BETA
           </span>
         </h1>
         <h2

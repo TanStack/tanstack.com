@@ -173,7 +173,7 @@ export default function ReactTableRoute() {
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               While React Router and Next.js have set amazing new expectations
               for application routing, we believe TanStack Router has something
-              more to offer. With more powerful APIs around
+              more to offer. With more powerful APIs around{' '}
               <span className="font-semibold text-lime-600 dark:text-lime-400">
                 URL manipulation, navigation, and search params
               </span>
@@ -217,7 +217,7 @@ export default function ReactTableRoute() {
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Where most other routers provide the bare minimum support for URL
               search param management, TanStack Router takes them very seriously
-              with support for
+              with support for{' '}
               <span className="font-semibold text-emerald-700 dark:text-emerald-400">
                 search param schemas, param type-safety, and functional
                 manipulation.

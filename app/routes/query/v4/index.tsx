@@ -179,10 +179,10 @@ export default function ReactQueryRoute() {
           className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
                         md:flex-row"
         >
-          <div className="flex-1 flex flex-col gap-8 items-center">
+          <div className="flex-1 flex flex-col gap-8 items-start">
             <VscWand className="text-red-500 text-6xl" />
             <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
+              <h3 className="uppercase text-xl font-black">
                 Declarative & Automatic
               </h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
@@ -197,12 +197,10 @@ export default function ReactQueryRoute() {
               </p>
             </div>
           </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <FaBolt className="text-orange-600 text-6xl" />
-            </div>
+          <div className="flex-1 flex flex-col gap-8 items-start">
+            <FaBolt className="text-orange-600 text-6xl" />
             <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
+            <h3 className="uppercase text-xl font-black">
                 Simple & Familiar
               </h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
@@ -217,12 +215,10 @@ export default function ReactQueryRoute() {
               </p>
             </div>
           </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <FaCogs className="text-amber-500 text-6xl" />
-            </div>
+          <div className="flex-1 flex flex-col gap-8 items-start">
+            <FaCogs className="text-amber-500 text-6xl" />
             <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
+            <h3 className="uppercase text-xl font-black">
                 Extensible
               </h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">

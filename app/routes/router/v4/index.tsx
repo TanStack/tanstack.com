@@ -162,12 +162,12 @@ export default function ReactTableRoute() {
         className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
                         md:flex-row"
       >
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
+        <div className="flex-1 flex flex-col gap-8 items-start">
+          <div>
             <RiLightbulbFlashLine className="text-lime-500 text-6xl scale-125 animate-pulse" />
           </div>
           <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
+            <h3 className="uppercase text-xl font-black">
               Powerful, yet familiar.
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
@@ -181,8 +181,8 @@ export default function ReactTableRoute() {
             </p>
           </div>
         </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
+        <div className="flex-1 flex flex-col gap-8 items-start">
+          <div>
             <CgTimelapse
               className="text-teal-500 text-6xl animate-spin"
               style={{
@@ -192,7 +192,7 @@ export default function ReactTableRoute() {
             />
           </div>
           <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
+            <h3 className="uppercase text-xl font-black">
               Loaders, actions, prefetching, oh my!
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
@@ -206,12 +206,12 @@ export default function ReactTableRoute() {
             </p>
           </div>
         </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
+        <div className="flex-1 flex flex-col gap-8 items-start">
+          <div>
             <TbZoomQuestion className="text-emerald-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
+            <h3 className="uppercase text-xl font-black">
               First-Class Search Params API
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">

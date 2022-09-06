@@ -55,7 +55,7 @@ export default function RouteReactTableDocs() {
           className="flex-1 w-full overflow-hidden lg:rounded-l-2xl shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
         />
       </div>
-      <div className="h-16 lg:mt-2" />
+      <div className="lg:h-16 lg:mt-2" />
     </div>
   )
 }

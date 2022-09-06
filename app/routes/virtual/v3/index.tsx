@@ -317,7 +317,7 @@ export default function ReactTableRoute() {
               Virtual as we are? Let's push the boundaries of Virtual together!
             </div>
             <a
-              href="mailto:parters@tanstack.com?subject=TanStack Virtual Partnership"
+              href="mailto:partners@tanstack.com?subject=TanStack Virtual Partnership"
               className="text-blue-500 uppercase font-black text-sm"
             >
               Let's chat

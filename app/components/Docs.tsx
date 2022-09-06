@@ -177,7 +177,7 @@ export function Docs({
   );
 
   return (
-    <div className="min-h-screen block lg:grid lg:grid-cols-[250px_minmax(500px,_1fr)_minmax(300px,_400px)] w-full">
+    <div className="min-h-screen flex flex-col  lg:grid lg:grid-cols-[250px_minmax(500px,_1fr)_minmax(300px,_400px)] w-full">
       {smallMenu}
       {largeMenu}
       <div className="flex-1 min-h-0 flex relative justify-center">

@@ -406,7 +406,7 @@ export default function ReactQueryRoute() {
                 Query as we are? Let's push the boundaries of Query together!
               </div>
               <a
-                href="mailto:parters@tanstack.com?subject=TanStack Query Partnership"
+                href="mailto:partners@tanstack.com?subject=TanStack Query Partnership"
                 className="text-blue-500 uppercase font-black text-sm"
               >
                 Let's chat

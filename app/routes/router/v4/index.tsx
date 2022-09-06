@@ -329,7 +329,7 @@ export default function ReactTableRoute() {
               Router as we are? Let's push the boundaries of Router together!
             </div>
             <a
-              href="mailto:parters@tanstack.com?subject=TanStack Router Partnership"
+              href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
               className="text-blue-500 uppercase font-black text-sm"
             >
               Let's chat

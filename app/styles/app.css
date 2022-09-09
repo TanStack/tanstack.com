@@ -6,12 +6,16 @@
   html,
   body {
     @apply text-gray-900 bg-gray-50 dark:bg-gray-900 dark:text-gray-200;
-    color-scheme: dark;
   }
 
   .using-mouse * {
     outline: none !important;
   }
+
+  @media (prefers-color-scheme: dark) {
+    * {
+      color-scheme: dark;
+    }
 
   /* * {
     scrollbar-color: theme(colors.gray.500) theme(colors.gray.100);

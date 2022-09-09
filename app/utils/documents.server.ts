@@ -56,14 +56,14 @@ export async function fetchRepoFile(
 }
 
 export async function markdownToMdx(content: string) {
-  const { default: rehypeSlug } =
+  const [{ default: rehypeSlug }, { default: remarkGfm }] =
     // @ts-ignore
-    await import('rehype-slug')
+    await Promise.all([import('rehype-slug'), import('remark-gfm')])
 
   const mdx = await bundleMDX<{ title: string }>({
     source: content,
     mdxOptions: (options) => {
-      // options.remarkPlugins = [...(options.remarkPlugins ?? []), rehypeSlug]
+      options.remarkPlugins = [...(options.remarkPlugins ?? []), remarkGfm]
       options.rehypePlugins = [...(options.rehypePlugins ?? []), rehypeSlug]
       return options
     },

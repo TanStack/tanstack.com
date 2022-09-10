@@ -12,6 +12,11 @@
     outline: none !important;
   }
 
+  @media (prefers-color-scheme: dark) {
+    * {
+      color-scheme: dark;
+    }
+
   /* * {
     scrollbar-color: theme(colors.gray.500) theme(colors.gray.100);
   }

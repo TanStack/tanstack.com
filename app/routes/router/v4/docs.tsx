@@ -14,7 +14,7 @@ const logo = (
     </Link>
     <Link to=".." className={`font-bold`}>
       <span className={`${gradientText}`}>Router</span>{' '}
-      <span className="text-sm align-super">v3</span>
+      <span className="text-sm align-super">v4</span>
     </Link>
   </>
 )

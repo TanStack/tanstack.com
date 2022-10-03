@@ -4,6 +4,9 @@ import invariant from 'tiny-invariant'
 import type { Language } from 'prism-react-renderer'
 import Highlight, { defaultProps, Prism } from 'prism-react-renderer'
 
+// @ts-ignore Alias markup as vue highlight
+Prism.languages.vue = Prism.languages.markup;
+
 function getLanguageFromClassName(className: string) {
   const match = className.match(/language-(\w+)/)
   return match ? match[1] : ''
@@ -22,14 +25,14 @@ export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
   const code = child.props.children || ''
   return (
     <div className="w-full max-w-full">
-      <Highlight {...defaultProps} code={code.trim()} language={lang || 'bash'}>
+      <Highlight {...defaultProps} code={code.trim()} language={lang}>
         {({ className, tokens, getLineProps, getTokenProps }) => (
           <div className="relative not-prose">
             <div
               className="absolute bg-white text-sm z-10 border border-gray-300 px-2 rounded-md -top-3 right-2
             dark:bg-gray-600 dark:border-0"
             >
-              {lang || 'text'}
+              {lang}
             </div>
             <div
               className="rounded-md font-normal w-full border border-gray-200

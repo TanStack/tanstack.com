@@ -495,7 +495,7 @@ export default function ReactQueryRoute() {
           </div>
         </div>
 
-        {["vue", "solid", "svelte"].includes(framework) ? (
+        {["svelte"].includes(framework) ? (
           <div className="px-2">
             <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
               Looking for the <strong>@tanstack/{framework}-query</strong>{" "}
@@ -517,7 +517,7 @@ export default function ReactQueryRoute() {
               src={`https://codesandbox.io/embed/github/tanstack/query/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
                 isDark ? "dark" : "light"
               }`}
-              title="tannerlinsley/react-query: basic"
+              title={`tannerlinsley/${framework}-query: basic`}
               sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
               className="shadow-2xl"
               loading="lazy"

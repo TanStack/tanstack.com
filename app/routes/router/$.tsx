@@ -1,15 +1,16 @@
-import { LoaderFunction, redirect } from '@remix-run/node'
+import type { LoaderFunction } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 
 export const loader: LoaderFunction = (context) => {
   handleRedirects(context)
 
-  return redirect('/router/v4')
+  return redirect('/router/v1')
 }
 
 function handleRedirects(context: Parameters<LoaderFunction>[0]) {
   const url = new URL(context.request.url)
   // prettier-ignore
-  const reactVirtualv2List = [
+  const reactLocationv2List = [
     {from: 'docs/overview',to: 'docs/guide/introduction',},
     {from: 'docs/installation',to: 'docs/guide/installation',},
     {from: 'docs/api',to: 'docs/api/virtualizer',},
@@ -23,10 +24,10 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
     {from: '',to: '',},
   ]
 
-  reactVirtualv2List.forEach((item) => {
-    if (url.pathname.startsWith(`/router/v3/${item.from}`)) {
+  reactLocationv2List.forEach((item) => {
+    if (url.pathname.startsWith(`/router/vrl/${item.from}`)) {
       throw redirect(
-        `/router/v3/${item.to}?from=reactVirtualV2&original=https://react-location-v2.tanstack.com/${item.from}`
+        `/router/v1/${item.to}?from=reactLocationV2&original=https://react-location-v2.tanstack.com/${item.from}`
       )
     }
   })

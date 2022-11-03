@@ -1,17 +1,18 @@
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
-import { json, LoaderFunction } from '@remix-run/node'
+import type { LoaderFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { DocsConfig } from '~/components/Docs'
+import type { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { useMatchesData } from '~/utils/utils'
 
-export const v4branch = 'alpha'
+export const v1branch = 'alpha'
 
 export const loader: LoaderFunction = async () => {
   const config = await fetchRepoFile(
     'tanstack/router',
-    v4branch,
+    v1branch,
     `docs/config.json`
   )
 
@@ -27,8 +28,8 @@ export const loader: LoaderFunction = async () => {
 export const ErrorBoundary = DefaultErrorBoundary
 export const CatchBoundary = DefaultCatchBoundary
 
-export const useRouterV4Config = () =>
-  useMatchesData('/router/v4') as DocsConfig
+export const useRouterV1Config = () =>
+  useMatchesData('/router/v1') as DocsConfig
 
 export default function RouteReactRouter() {
   const [params] = useSearchParams()

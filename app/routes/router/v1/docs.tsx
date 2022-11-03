@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
-import { MetaFunction } from '@remix-run/node'
-import { useRouterV4Config } from '../v4'
+import type { MetaFunction } from '@remix-run/node'
+import { useRouterV1Config } from '../v1'
 import { gradientText } from './index'
 import { seo } from '~/utils/seo'
-import { Docs, DocsConfig } from '~/components/Docs'
+import type { DocsConfig } from '~/components/Docs'
+import { Docs } from '~/components/Docs'
 
 const logo = (
   <>
@@ -14,7 +15,7 @@ const logo = (
     </Link>
     <Link to=".." className={`font-bold`}>
       <span className={`${gradientText}`}>Router</span>{' '}
-      <span className="text-sm align-super">v3</span>
+      <span className="text-sm align-super">BETA</span>
     </Link>
   </>
 )
@@ -49,13 +50,12 @@ export let meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Router Docs | React Router, Solid Router, Svelte Router, Vue Router',
-    description:
-      'Headless UI for virtualizing long scrollable lists with TS/JS, React, Solid, Svelte and Vue',
+    description: 'Modern and scalable routing for applications',
   })
 }
 
 export default function DocsRoute() {
-  let config = useRouterV4Config()
+  let config = useRouterV1Config()
 
   config = React.useMemo(
     () =>
@@ -70,9 +70,9 @@ export default function DocsRoute() {
     <Docs
       {...{
         logo,
-        colorFrom: 'from-rose-500',
-        colorTo: 'to-violet-500',
-        textColor: 'text-violet-500',
+        colorFrom: 'from-lime-500',
+        colorTo: 'to-emerald-500',
+        textColor: 'text-emerald-500',
         config,
       }}
     />

@@ -1,4 +1,5 @@
-import { LoaderFunction, MetaFunction, redirect } from '@remix-run/node'
+import type { LoaderFunction, MetaFunction } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
 import { seo } from '~/utils/seo'
 
@@ -14,7 +15,7 @@ export let meta: MetaFunction = () => {
 
 export const loader: LoaderFunction = async (context) => {
   if (!context.request.url.includes('/router/v')) {
-    return redirect(`${new URL(context.request.url).origin}/router/v4`)
+    return redirect(`${new URL(context.request.url).origin}/router/v1`)
   }
 
   return new Response('OK')

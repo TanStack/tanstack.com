@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { json, LoaderArgs, MetaFunction } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { DocsConfig } from '~/components/Docs'
+import type { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { useMatchesData } from '~/utils/utils'
 

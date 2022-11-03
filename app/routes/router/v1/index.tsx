@@ -1,23 +1,14 @@
 import * as React from 'react'
 
 import { CgCornerUpLeft } from 'react-icons/cg'
-import {
-  FaBolt,
-  FaBook,
-  FaCheckCircle,
-  FaCogs,
-  FaDiscord,
-  FaGithub,
-} from 'react-icons/fa'
+import { FaBook, FaCheckCircle, FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import { v4branch } from '../v4'
+import { v1branch } from '../v1'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
-import { capitalize } from '~/utils/utils'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
@@ -79,13 +70,10 @@ export const loader: LoaderFunction = async () => {
   })
 }
 
-export default function ReactTableRoute() {
+export default function TanStackRouterRoute() {
   const { sponsors } = useLoaderData()
-  // const config = useReactTableV8Config()
-  // const [params, setParams] = useSearchParams()
-  // const framework = params.get('framework') ?? 'react'
   const [framework, setFramework] = React.useState<
-    'react' | 'svelte' | 'vue' | 'solid'
+    'react' | 'preact' | 'svelte' | 'vue' | 'solid'
   >('react')
 
   const [isDark, setIsDark] = React.useState(true)
@@ -130,7 +118,7 @@ export default function ReactTableRoute() {
             className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
           >
-            v4 BETA
+            BETA
           </span>
         </h1>
         <h2
@@ -138,17 +126,19 @@ export default function ReactTableRoute() {
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
         >
-          Routing and URL management for your{' '}
+          Modern and{' '}
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-            applications
-          </span>
+            scalable routing
+          </span>{' '}
+          for applications
         </h2>
         <p
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          Powerful routing with first-class search-param APIs for JS/TS, React,
-          Solid, Vue and Svelte
+          A fully typesafe router with first-class search-param APIs and
+          built-in caching, built for JS/TS, React, Preact, Solid, Vue and
+          Svelte
         </p>
         <Link
           to="./docs/guide/introduction"
@@ -166,18 +156,18 @@ export default function ReactTableRoute() {
           <div className="text-center">
             <RiLightbulbFlashLine className="text-lime-500 text-6xl scale-125 animate-pulse" />
           </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
-              Powerful, yet familiar.
+          <div className="flex flex-col gap-4 text-center">
+            <h3 className="uppercase text-xl font-black">
+              Typesafe & powerful, yet familiarly simple
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              While React Router and Next.js have set amazing new expectations
-              for application routing, we believe TanStack Router has something
-              more to offer. With more powerful APIs around{' '}
+              TanStack Router builds on modern routing patterns made popular by
+              tools like React Router, Next.js and Remix, but is architected
+              from the ground up to be{' '}
               <span className="font-semibold text-lime-600 dark:text-lime-400">
-                URL manipulation, navigation, and search params
+                100% typesafe and extremely powerful all while using less code
               </span>
-              , routing just get better and better.
+              .
             </p>
           </div>
         </div>
@@ -191,18 +181,19 @@ export default function ReactTableRoute() {
               }}
             />
           </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
-              Loaders, actions, prefetching, oh my!
+          <div className="flex flex-col gap-4 text-center">
+            <h3 className="uppercase text-xl font-black">
+              Fetch responsibly with built-in caching
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Async routing is expected for full-stack react frameworks but what
-              about SPA's?, TanStack Router is async-first and provides
-              out-of-the-box support for{' '}
+              Ephemeral say what? When you fetch on the client, it's cache or
+              die. TanStack Router comes with{' '}
               <span className="font-semibold text-teal-700 dark:text-teal-400">
-                parallelized data loaders, code-splitting and even route actions
-              </span>
-              .
+                built-in caching, custom cache timings, and even automatic
+                preloading.
+              </span>{' '}
+              Your users will notice the difference while you write less code
+              and ship more features.
             </p>
           </div>
         </div>
@@ -210,19 +201,17 @@ export default function ReactTableRoute() {
           <div className="text-center">
             <TbZoomQuestion className="text-emerald-500 text-6xl" />
           </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
-              First-Class Search Params API
+          <div className="flex flex-col gap-4 text-center">
+            <h3 className="uppercase text-xl font-black">
+              Search Param APIs to make your state-manager jealous
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Where most other routers provide the bare minimum support for URL
-              search param management, TanStack Router takes them very seriously
-              with support for{' '}
+              Instead of throwing you to the wolves, TanStack Router outfits you
+              with state-manager-grade search param APIs. With{' '}
               <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                search param schemas, param type-safety, and functional
-                manipulation.
-              </span>
-              .
+                schemas, validation, full type-safety and pre/post manipulation
+              </span>{' '}
+              you'll wonder why you're not storing everything in the URL.
             </p>
           </div>
         </div>
@@ -241,21 +230,29 @@ export default function ReactTableRoute() {
         </div>
         <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
           {[
-            'Lightweight (8kb)',
-            'Asynchronous Elements',
-            'Route Loaders',
-            'Route Actions',
-            'Route Params',
-            'Code-Splitting',
+            '100% Typesafe',
+            'Built-in Caching',
+            '1st-class Search Param APIs',
             'Nested/Layout Routes',
-            '1st-Class Search Params API',
-            'Search Param Route Matching',
-            'Search Param Filters/Persistence',
-            'Search Param Compression + Stability',
-            'Default Elements',
-            'Error Boundary Elements',
+            'Lightweight (10kb)',
+            'Parallel Route Loaders',
+            'Route Actions',
+            'Strict Navigation',
+            'Auto-completed Paths',
+            'Search Param Schemas',
+            'Search Param Validation',
+            'Search Param Parsing + Serialization',
+            'Search Param Pre/Post Processing',
+            'Structural Sharing',
+            'Stale-While-Revalidate / Max-Age',
+            'Auto Garbage Collection',
+            'Auto Invalidation',
+            'Automatic Prefetching',
+            'Atomic Transitions',
+            'Asynchronous Elements',
             'Pending Elements',
-            'Minimum Pending Duration',
+            'Error Boundaries',
+            'Code Splitting',
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">
@@ -265,48 +262,6 @@ export default function ReactTableRoute() {
           })}
         </div>
       </div>
-
-      {/* <div>
-        <div className="uppercase tracking-wider text-sm font-semibold text-center text-gray-400 mb-3">
-          Trusted in Production by
-        </div>
-        <marquee scrollamount="2">
-          <div className="flex gap-2 items-center text-3xl font-bold ml-[-100%]">
-            {(new Array(4) as string[])
-              .fill('')
-              .reduce(
-                (all) => [...all, ...all],
-                [
-                  'Intuit',
-                  'Google',
-                  'Amazon',
-                  'Apple',
-                  'AutoZone',
-                  'Microsoft',
-                  'Cisco',
-                  'Uber',
-                  'Salesforce',
-                  'Walmart',
-                  'Wix',
-                  'HP',
-                  'Docusign',
-                  'Tripwire',
-                  'Yahoo!',
-                  'Ocado',
-                  'Nordstrom',
-                  'TicketMaster',
-                  'Comcast Business',
-                  'Nozzle.io',
-                ]
-              )
-              .map((d, i) => (
-                <span key={i} className="opacity-70 even:opacity-40">
-                  {d}
-                </span>
-              ))}
-          </div>
-        </marquee>
-      </div> */}
 
       <div className="px-4 w-[500px] max-w-full mx-auto">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
@@ -385,9 +340,10 @@ export default function ReactTableRoute() {
             {(
               [
                 { label: 'React', value: 'react' },
+                { label: 'Preact', value: 'preact' },
                 { label: 'Solid', value: 'solid' },
-                { label: 'Svelte', value: 'svelte' },
                 { label: 'Vue', value: 'vue' },
+                { label: 'Svelte', value: 'svelte' },
               ] as const
             ).map((item) => (
               <button
@@ -414,26 +370,26 @@ export default function ReactTableRoute() {
         </div>
       </div>
 
-      {['vue', 'solid', 'svelte'].includes(framework) ? (
+      {['preact', 'vue', 'solid', 'svelte'].includes(framework) ? (
         <div className="px-2">
           <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
             Looking for the <strong>@tanstack/{framework}-router</strong>{' '}
-            example? We could use your help to build the{' '}
-            <strong>@tanstack/{framework}-router</strong> adapter! Join the{' '}
+            example? The <strong>@tanstack/{framework}-router</strong> adapter
+            is currently under development! Join the{' '}
             <a
               href="https://tlinz.com/discord"
               className="text-teal-500 font-bold"
             >
               TanStack Discord Server
             </a>{' '}
-            and let's get to work!
+            and help us make routing in {framework} a better place!
           </div>
         </div>
       ) : (
         <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
-            src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v4branch}/examples/${framework}/kitchen-sink?autoresize=1&fontsize=16&theme=${
+            src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink?autoresize=1&fontsize=16&theme=${
               isDark ? 'dark' : 'light'
             }`}
             title="tannerlinsley/react-router: kitchen-sink"

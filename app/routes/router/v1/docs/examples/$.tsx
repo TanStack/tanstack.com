@@ -1,8 +1,9 @@
 import * as React from 'react'
-import { json, LoaderFunction, MetaFunction } from '@remix-run/node'
+import type { LoaderFunction, MetaFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
-import { v4branch } from '~/routes/router/v4'
+import { v1branch } from '~/routes/router/v1'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
@@ -44,7 +45,7 @@ export default function RouteReactTableDocs() {
       </div>
       <div className="flex-1 lg:ml-6 flex flex-col min-h-0">
         <iframe
-          src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v4branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
+          src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v1branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
             isDark ? 'dark' : 'light'
           }`}
           title={`tanstack/router: ${examplePath}`}

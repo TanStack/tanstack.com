@@ -1,12 +1,13 @@
 import { useLoaderData } from '@remix-run/react'
-import { LoaderFunction, MetaFunction, json } from '@remix-run/node'
+import type { LoaderFunction, MetaFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import {
   Doc,
   extractFrontMatter,
   fetchRepoFile,
   markdownToMdx,
 } from '~/utils/documents.server'
-import { v4branch } from '../../v4'
+import { v1branch } from '../../v1'
 import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
@@ -24,7 +25,7 @@ export const loader: LoaderFunction = async (context) => {
 
   const filePath = `docs/${docsPath}.md`
 
-  const file = await fetchRepoFile('tanstack/router', v4branch, filePath)
+  const file = await fetchRepoFile('tanstack/router', v1branch, filePath)
 
   if (!file) {
     throw new Response('Not Found', {
@@ -78,7 +79,7 @@ export default function RouteReactTableDocs() {
       <div className="w-full h-px bg-gray-500 opacity-30" />
       <div className="py-4 opacity-70">
         <a
-          href={`https://github.com/tanstack/router/tree/${v4branch}/${filePath}`}
+          href={`https://github.com/tanstack/router/tree/${v1branch}/${filePath}`}
           className="flex items-center gap-2"
         >
           <FaEdit /> Edit on Github

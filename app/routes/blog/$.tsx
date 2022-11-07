@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useLoaderData } from '@remix-run/react'
-import { json, LoaderArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderArgs, MetaFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import {
   extractFrontMatter,
   fetchRepoFile,
@@ -24,12 +25,7 @@ export const loader = async (context: LoaderArgs) => {
 
   const filePath = `app/blog/${docsPath}.md`
 
-  const file = await fetchRepoFile(
-    'tanstack/tanstack.com',
-    'main',
-    filePath,
-    process.env.NODE_ENV === 'development'
-  )
+  const file = await fetchRepoFile('tanstack/tanstack.com', 'main', filePath)
 
   if (!file) {
     throw new Response('Not Found', {

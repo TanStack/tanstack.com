@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
-import { json, LoaderArgs, MetaFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import type { DocsConfig } from '~/components/Docs'

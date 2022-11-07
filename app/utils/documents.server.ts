@@ -23,21 +23,21 @@ export type DocFrontMatter = {
 export async function fetchRepoFile(
   repoPair: string,
   ref: string,
-  filepath: string,
-  isLocal?: boolean
+  filepath: string
 ) {
   const key = `${repoPair}:${ref}:${filepath}`
+  let [owner, repo] = repoPair.split('/')
+
+  if (process.env.NODE_ENV === 'development') {
+    const localFilePath = path.resolve(__dirname, `../../${repo}`, filepath)
+    const file = await fsp.readFile(localFilePath)
+    return file.toString()
+  }
+
   const file = await fetchCached({
     key,
     ttl: 1 * 60 * 1000, // 5 minute
     fn: async () => {
-      let [owner, repo] = repoPair.split('/')
-      if (isLocal) {
-        const localFilePath = path.resolve(__dirname, '..', filepath)
-        const file = await fsp.readFile(localFilePath)
-        return file.toString()
-      }
-
       let filePath = `${owner}/${repo}/${ref}/${filepath}`
       const href = new URL(`/${filePath}`, 'https://raw.githubusercontent.com/')
         .href

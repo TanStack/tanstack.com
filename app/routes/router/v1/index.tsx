@@ -40,7 +40,7 @@ const menu = [
         <FaBook className="text-lg" /> Docs
       </div>
     ),
-    to: './docs/guide/introduction',
+    to: './docs/overview',
   },
   {
     label: (
@@ -141,7 +141,7 @@ export default function TanStackRouterRoute() {
           Svelte
         </p>
         <Link
-          to="./docs/guide/introduction"
+          to="./docs/overview"
           className={`py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
           prefetch="intent"
         >
@@ -414,7 +414,7 @@ export default function TanStackRouterRoute() {
         </div>
         <div>
           <Link
-            to="./docs/guide/introduction"
+            to="./docs/overview"
             className={`inline-block py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
             prefetch="intent"
           >

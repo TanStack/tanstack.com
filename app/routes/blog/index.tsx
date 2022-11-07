@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useLoaderData, Link } from '@remix-run/react'
-import { json, LoaderArgs } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import {
   extractFrontMatter,
   fetchRepoFile,
@@ -23,8 +24,7 @@ export const loader = async (context: LoaderArgs) => {
       const file = await fetchRepoFile(
         'tanstack/tanstack.com',
         'main',
-        filePath,
-        process.env.NODE_ENV === 'development'
+        filePath
       )
 
       if (!file) {

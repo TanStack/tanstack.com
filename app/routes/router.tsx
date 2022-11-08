@@ -9,7 +9,7 @@ export let meta: MetaFunction = () => {
       'TanStack Router | React Router, Solid Router, Svelte Router, Vue Router',
     description:
       'Powerful routing and first-class search-param APIs for JS/TS, React, Solid, Vue and Svelte',
-    image: 'https://github.com/tanstack/router/raw/main/media/repo-header.png',
+    image: 'https://github.com/tanstack/router/raw/beta/media/header.png',
   })
 }
 

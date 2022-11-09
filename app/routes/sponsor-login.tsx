@@ -130,12 +130,12 @@ export default function SponsorsLogin() {
                 >
                   {githubCode ? (
                     <>
-                      <FaCheck /> Github
+                      <FaCheck /> GitHub
                     </>
                   ) : (
                     <>
                       <FaGithub />
-                      Log In to Github
+                      Log In to GitHub
                     </>
                   )}
                 </button>

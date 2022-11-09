@@ -32,7 +32,7 @@ const localMenu = {
     {
       label: (
         <div className="flex items-center gap-2">
-          Github <FaGithub className="text-lg opacity-20" />
+          GitHub <FaGithub className="text-lg opacity-20" />
         </div>
       ),
       to: 'https://github.com/tanstack/table',

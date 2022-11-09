@@ -81,7 +81,7 @@ export default function RouteReactQueryDocs() {
           href={`https://github.com/tanstack/query/tree/${v4branch}/${filePath}`}
           className="flex items-center gap-2"
         >
-          <FaEdit /> Edit on Github
+          <FaEdit /> Edit on GitHub
         </a>
       </div>
       <div className="h-24" />

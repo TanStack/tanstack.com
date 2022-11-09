@@ -7,7 +7,7 @@ const footerLinks = [
     label: '@TannerLinsley Twitter',
     to: 'https://twitter.com/tannerlinsley',
   },
-  { label: 'Github', to: 'https://github.com/tanstack' },
+  { label: 'GitHub', to: 'https://github.com/tanstack' },
   {
     label: 'Youtube',
     to: 'https://www.youtube.com/user/tannerlinsley',

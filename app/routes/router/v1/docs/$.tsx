@@ -82,7 +82,7 @@ export default function RouteReactTableDocs() {
           href={`https://github.com/tanstack/router/tree/${v1branch}/${filePath}`}
           className="flex items-center gap-2"
         >
-          <FaEdit /> Edit on Github
+          <FaEdit /> Edit on GitHub
         </a>
       </div>
       <div className="h-24" />

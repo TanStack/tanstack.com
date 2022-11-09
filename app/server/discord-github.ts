@@ -16,7 +16,7 @@ export async function linkGithubAndDiscordUser({ githubToken, discordToken }) {
     login = data.login
   } catch (err) {
     console.error(err)
-    throw new Error('Unable to fetch Github user info. Please log in again.')
+    throw new Error('Unable to fetch GitHub user info. Please log in again.')
   }
 
   let sponsor
@@ -30,7 +30,7 @@ export async function linkGithubAndDiscordUser({ githubToken, discordToken }) {
 
   if (!sponsor) {
     throw new Error(
-      `TanStack sponsorship not found for Github user "${login}". Please sign up at https://github.com/sponsors/tannerlinsley`
+      `TanStack sponsorship not found for GitHub user "${login}". Please sign up at https://github.com/sponsors/tannerlinsley`
     )
   }
 

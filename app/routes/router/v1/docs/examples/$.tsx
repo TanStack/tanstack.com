@@ -9,9 +9,10 @@ import { capitalize, slugToTitle } from '~/utils/utils'
 
 export const loader: LoaderFunction = async (context) => {
   const { '*': examplePath } = context.params
-  const [kind, name] = (examplePath ?? '').split('/')
+  const [kind, _name] = (examplePath ?? '').split('/')
+  const [name, search] = _name.split('?')
 
-  return json({ kind, name })
+  return json({ kind, name, search: search ?? '' })
 }
 
 export let meta: MetaFunction = ({ data }) => {
@@ -26,7 +27,7 @@ export let meta: MetaFunction = ({ data }) => {
 }
 
 export default function RouteReactTableDocs() {
-  const { kind, name } = useLoaderData()
+  const { kind, name, search } = useLoaderData()
 
   const examplePath = [kind, name].join('/')
 
@@ -45,7 +46,7 @@ export default function RouteReactTableDocs() {
       </div>
       <div className="flex-1 lg:ml-6 flex flex-col min-h-0">
         <iframe
-          src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v1branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
+          src={`https://stackblitz.com/github/tanstack/router/tree/${v1branch}/examples/${examplePath}?${search}embed=1&theme=${
             isDark ? 'dark' : 'light'
           }`}
           title={`tanstack/router: ${examplePath}`}

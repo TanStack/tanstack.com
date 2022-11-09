@@ -39,7 +39,7 @@ export async function exchangeGithubCodeForToken({ code, state, redirectUrl }) {
     return data.access_token
   } catch (err) {
     console.error(err)
-    throw new Error('Unable to authenticate with Github. Please log in again.')
+    throw new Error('Unable to authenticate with GitHub. Please log in again.')
   }
 }
 

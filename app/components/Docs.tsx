@@ -143,8 +143,8 @@ export function Docs({
   );
 
   const aside = (
-    <aside className="p-6 xl:p-12">
-      <ul className="sticky top-10 border border-black/10 dark:border-white/10 p-6 rounded-lg max-w-[30ch]">
+    <aside className="hidden md:block p-6 xl:p-12">
+      <ul className="sticky top-10 border border-black/10 dark:border-white/10 p-6 rounded-lg lg:max-w-[30ch]">
         {config?.docSearch?.indexName?.includes("query") && (
           <li className="mb-8">
             <h6 className="text-[.9em] uppercase font-black mb-4">

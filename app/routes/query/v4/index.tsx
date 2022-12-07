@@ -14,7 +14,6 @@ import { Link, useLoaderData } from '@remix-run/react'
 import { v4branch } from '../v4'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { IoIosBody } from 'react-icons/io'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
@@ -38,7 +37,7 @@ const menu = [
         <VscPreview className="text-lg" /> Examples
       </div>
     ),
-    to: "./docs/examples",
+    to: "./docs/react/examples/",
   },
   {
     label: (
@@ -46,7 +45,7 @@ const menu = [
         <FaBook className="text-lg" /> Docs
       </div>
     ),
-    to: "./docs/overview",
+    to: "./docs/",
   },
   {
     label: (
@@ -159,7 +158,7 @@ export default function ReactQueryRoute() {
             .
           </p>
           <Link
-            to="./docs/overview"
+            to="./docs/"
             className={`py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
             prefetch="intent"
           >
@@ -539,7 +538,7 @@ export default function ReactQueryRoute() {
           </div>
           <div>
             <Link
-              to="./docs/overview"
+              to="./docs/"
               className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
               prefetch="intent"
             >

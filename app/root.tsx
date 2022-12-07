@@ -10,7 +10,7 @@ import {
   useMatches,
   useTransition,
 } from '@remix-run/react'
-import { LinksFunction, MetaFunction } from '@remix-run/node'
+import type { LinksFunction, MetaFunction } from '@remix-run/node'
 
 import styles from './styles/app.generated.css'
 import prismThemeLight from './styles/prismThemeLight.css'

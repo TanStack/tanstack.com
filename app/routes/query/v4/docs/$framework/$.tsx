@@ -5,7 +5,7 @@ import {
   fetchRepoFile,
   markdownToMdx,
 } from '~/utils/documents.server'
-import { v4branch } from '../../v4'
+import { v4branch } from '../../../v4'
 import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
@@ -16,13 +16,13 @@ import removeMarkdown from 'remove-markdown'
 import { useLoaderData } from '@remix-run/react'
 
 export const loader = async (context: LoaderArgs) => {
-  const { '*': docsPath } = context.params
+  const { '*': docsPath, framework } = context.params
 
   if (!docsPath) {
     throw new Error('Invalid docs path')
   }
 
-  const filePath = `docs/${docsPath}.md`
+  const filePath = `docs/${framework}/${docsPath}.md`
 
   const file = await fetchRepoFile('tanstack/query', v4branch, filePath)
 

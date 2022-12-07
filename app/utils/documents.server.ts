@@ -38,6 +38,28 @@ export async function fetchRepoFile(
     key,
     ttl: 1 * 60 * 1000, // 5 minute
     fn: async () => {
+      const maxDepth = 4;
+      let currentDepth = 1;
+      while (maxDepth > currentDepth) {
+        let filePath = `${owner}/${repo}/${ref}/${filepath}`
+        const href = new URL(`/${filePath}`, 'https://raw.githubusercontent.com/')
+          .href
+        let response = await fetch(href, {
+          headers: { 'User-Agent': `docs:${owner}/${repo}` },
+        })
+        const text = await response.text()
+        if (!response.ok) return Promise.resolve(text)
+        try {
+          const frontmatter = extractFrontMatter(text)
+          if (!frontmatter.data.ref) return Promise.resolve(text)
+          filepath = frontmatter.data.ref
+        } catch (error) {
+          return Promise.resolve(text)
+        }
+        currentDepth++;
+      }
+
+
       let filePath = `${owner}/${repo}/${ref}/${filepath}`
       const href = new URL(`/${filePath}`, 'https://raw.githubusercontent.com/')
         .href

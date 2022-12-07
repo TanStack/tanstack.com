@@ -15,6 +15,7 @@
   "dependencies": {
     "@docsearch/css": "^3.1.1",
     "@docsearch/react": "^3.1.1",
+    "@headlessui/react": "1.7.4",
     "@octokit/graphql": "^5.0.0",
     "@octokit/rest": "^19.0.3",
     "@remix-run/node": "^1.6.5",

@@ -25,6 +25,7 @@ export type DocsConfig = {
     }[];
   }[];
   framework?: string;
+  availableFrameworks?: string[];
 };
 
 export function Docs({
@@ -34,6 +35,7 @@ export function Docs({
   logo,
   config,
   framework,
+  availableFrameworks = ['react'],
 }: {
   colorFrom: string;
   colorTo: string;
@@ -41,6 +43,7 @@ export function Docs({
   logo: React.ReactNode;
   config: DocsConfig;
   framework?: string;
+  availableFrameworks?: string[];
 }) {
   const matches = useMatches();
   const lastMatch = last(matches);
@@ -123,7 +126,7 @@ export function Docs({
         >
           {menuItems}
         </div>
-        {framework ? <FrameworkSelect /> : null }
+        {framework ? <FrameworkSelect framework={framework} availableFrameworks={availableFrameworks} /> : null }
       </details>
     </div>
   );
@@ -138,7 +141,7 @@ export function Docs({
           apiKey={config.docSearch.apiKey}
         />
       </div>
-      {framework ? <FrameworkSelect /> : null }
+      {framework ? <FrameworkSelect framework={framework} availableFrameworks={availableFrameworks} /> : null }
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
         {menuItems}
       </div>

@@ -119,10 +119,10 @@ export async function getSponsorsAndTiers() {
 
 async function getGithubSponsors() {
   let sponsors: Sponsor = []
-
-  const fetchPage = async (cursor = '') => {
-    const res = await graphqlWithAuth(
-      `
+  try {
+    const fetchPage = async (cursor = '') => {
+      const res = await graphqlWithAuth(
+        `
       query ($cursor: String) {
         viewer {
           sponsorshipsAsMaintainer(first: 100, after: $cursor, includePrivate: true) {
@@ -156,73 +156,89 @@ async function getGithubSponsors() {
         }
       }
       `,
-      {
-        cursor,
-      }
-    )
+        {
+          cursor,
+        }
+      )
 
-    const {
-      viewer: {
-        sponsorshipsAsMaintainer: {
-          pageInfo: { hasNextPage, endCursor },
-          edges,
+      const {
+        viewer: {
+          sponsorshipsAsMaintainer: {
+            pageInfo: { hasNextPage, endCursor },
+            edges,
+          },
         },
-      },
-    } = res
+      } = res
 
-    sponsors = [
-      ...sponsors,
-      ...edges.map((edge) => {
-        const {
-          node: { createdAt, sponsorEntity, tier, privacyLevel },
-        } = edge
+      sponsors = [
+        ...sponsors,
+        ...edges.map((edge) => {
+          const {
+            node: { createdAt, sponsorEntity, tier, privacyLevel },
+          } = edge
 
-        if (!sponsorEntity) {
-          return null
-        }
+          if (!sponsorEntity) {
+            return null
+          }
 
-        const { name, login, email } = sponsorEntity
+          const { name, login, email } = sponsorEntity
 
-        return {
-          name,
-          login,
-          email,
-          tier,
-          createdAt,
-          privacyLevel,
-        }
-      }),
-    ]
+          return {
+            name,
+            login,
+            email,
+            tier,
+            createdAt,
+            privacyLevel,
+          }
+        }),
+      ]
 
-    if (hasNextPage) {
-      await fetchPage(endCursor)
+      if (hasNextPage) {
+        await fetchPage(endCursor)
+      }
     }
+
+    await fetchPage()
+
+    return sponsors.filter(Boolean)
+  } catch (err: any) {
+    if (err.status === 401) {
+      console.log('Missing github credentials, returning mock data.')
+      return []
+    }
+    throw err
   }
-
-  await fetchPage()
-
-  return sponsors.filter(Boolean)
 }
 
 async function getSponsorsMeta() {
-  const sponsorsTable = await getSponsorsTable()
+  try {
+    const sponsorsTable = await getSponsorsTable()
 
-  return new Promise((resolve, reject) => {
-    let allSponsors = []
-    sponsorsTable.select().eachPage(
-      function page(records, fetchNextPage) {
-        allSponsors = [...allSponsors, ...records]
-        fetchNextPage()
-      },
-      function done(err) {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(allSponsors)
+    return new Promise((resolve, reject) => {
+      let allSponsors = []
+      sponsorsTable.select().eachPage(
+        function page(records, fetchNextPage) {
+          allSponsors = [...allSponsors, ...records]
+          fetchNextPage()
+        },
+        function done(err) {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(allSponsors)
+          }
         }
-      }
-    )
-  })
+      )
+    })
+  } catch (err: any) {
+    if (err.message === 'An API key is required to connect to Airtable') {
+      console.log('Missing airtable credentials, returning mock data.')
+
+      return []
+    }
+    throw err
+  }
 }
 
 export async function getSponsorsForSponsorPack() {

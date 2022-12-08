@@ -59,12 +59,14 @@ export default function RouteReactQuery() {
   let { framework } = useParams();
 
   const docsConfig = React.useMemo(() => {
+    const availableFrameworks = config.menu.map((m) => m.framework)
     const frameworkMenu = config.menu.find((d) => d.framework === framework);
     if (!frameworkMenu) return null;
     return {
       ...config,
       menu: [localMenu, ...frameworkMenu.menuItems],
       framework: frameworkMenu.framework,
+      availableFrameworks,
     } as DocsConfig;
   }, [framework, config]);
 
@@ -79,6 +81,7 @@ export default function RouteReactQuery() {
           textColor: "text-violet-500",
           config: docsConfig!,
           framework: docsConfig!.framework,
+          availableFrameworks: docsConfig!.availableFrameworks,
         }}
       />
     </>

@@ -1,4 +1,5 @@
-import type { LoaderArgs, MetaFunction } from '@remix-run/node';
+import type { LoaderArgs, MetaFunction} from '@remix-run/node';
+import { redirect } from '@remix-run/node';
 import { json } from '@remix-run/node'
 import {
   extractFrontMatter,
@@ -17,6 +18,16 @@ import { useLoaderData } from '@remix-run/react'
 
 export const loader = async (context: LoaderArgs) => {
   const { '*': docsPath, framework } = context.params
+
+  // When first path part after docs does not contain framework name, add `react`
+  if (
+    !context.request.url.includes("/docs/react") &&
+    !context.request.url.includes("/docs/solid") &&
+    !context.request.url.includes("/docs/vue") &&
+    !context.request.url.includes("/docs/svelte")
+  ) {
+    throw redirect(context.request.url.replace(/\/docs\//, "/docs/react/"));
+  }
 
   if (!docsPath) {
     throw new Error('Invalid docs path')

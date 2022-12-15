@@ -6,6 +6,7 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { useMatchesData } from '~/utils/utils'
 
+export const repo = 'tanstack/query'
 export const v4branch = 'main'
 
 export type GithubDocsConfig = {
@@ -28,7 +29,7 @@ export type GithubDocsConfig = {
 
 export const loader = async () => {
   const config = await fetchRepoFile(
-    'tanstack/query',
+    repo,
     v4branch,
     `docs/config.json`
   )

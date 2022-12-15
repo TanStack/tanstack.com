@@ -2,7 +2,7 @@ import * as React from "react";
 import { FaDiscord, FaGithub } from "react-icons/fa";
 import type { MetaFunction } from "@remix-run/node";
 import { Link, useParams } from "@remix-run/react";
-import { useReactQueryV4Config } from "../../v4";
+import { repo, useReactQueryV4Config } from "../../v4";
 import { gradientText } from "../index";
 import { seo } from "~/utils/seo";
 import type { DocsConfig } from "~/components/Docs";
@@ -34,7 +34,7 @@ const localMenu = {
           Github <FaGithub className="text-lg opacity-20" />
         </div>
       ),
-      to: "https://github.com/tanstack/query",
+      to: `https://github.com/${repo}`,
     },
     {
       label: (
@@ -59,13 +59,13 @@ export default function RouteReactQuery() {
   let { framework } = useParams();
 
   const docsConfig = React.useMemo(() => {
-    const availableFrameworks = config.menu.map((m) => m.framework)
+    const availableFrameworks = config.menu.map((m) => m.framework);
     const frameworkMenu = config.menu.find((d) => d.framework === framework);
     if (!frameworkMenu) return null;
     return {
       ...config,
-      menu: [localMenu, ...frameworkMenu.menuItems],
-      framework: frameworkMenu.framework,
+      menu: [localMenu, ...(frameworkMenu?.menuItems || [])],
+      framework: frameworkMenu?.framework,
       availableFrameworks,
     } as DocsConfig;
   }, [framework, config]);

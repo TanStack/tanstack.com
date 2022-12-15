@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
-import { v4branch } from '../v4'
+import { repo, v4branch } from '../v4'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
@@ -53,7 +53,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: "https://github.com/tanstack/query",
+    to: `https://github.com/${repo}`,
   },
   {
     label: (
@@ -513,7 +513,7 @@ export default function ReactQueryRoute() {
           <div className="bg-white dark:bg-black">
             <iframe
               key={framework}
-              src={`https://codesandbox.io/embed/github/tanstack/query/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+              src={`https://codesandbox.io/embed/github/${repo}/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
                 isDark ? "dark" : "light"
               }`}
               title={`tannerlinsley/${framework}-query: basic`}

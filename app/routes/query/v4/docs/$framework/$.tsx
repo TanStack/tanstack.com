@@ -1,11 +1,12 @@
-import { json, LoaderArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderArgs, MetaFunction} from '@remix-run/node';
+import { redirect } from '@remix-run/node';
+import { json } from '@remix-run/node'
 import {
-  Doc,
   extractFrontMatter,
   fetchRepoFile,
   markdownToMdx,
 } from '~/utils/documents.server'
-import { v4branch } from '../../v4'
+import { repo, v4branch } from '../../../v4'
 import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
@@ -16,15 +17,25 @@ import removeMarkdown from 'remove-markdown'
 import { useLoaderData } from '@remix-run/react'
 
 export const loader = async (context: LoaderArgs) => {
-  const { '*': docsPath } = context.params
+  const { '*': docsPath, framework } = context.params
+
+  // When first path part after docs does not contain framework name, add `react`
+  if (
+    !context.request.url.includes("/docs/react") &&
+    !context.request.url.includes("/docs/solid") &&
+    !context.request.url.includes("/docs/vue") &&
+    !context.request.url.includes("/docs/svelte")
+  ) {
+    throw redirect(context.request.url.replace(/\/docs\//, "/docs/react/"));
+  }
 
   if (!docsPath) {
     throw new Error('Invalid docs path')
   }
 
-  const filePath = `docs/${docsPath}.md`
+  const filePath = `docs/${framework}/${docsPath}.md`
 
-  const file = await fetchRepoFile('tanstack/query', v4branch, filePath)
+  const file = await fetchRepoFile(repo, v4branch, filePath)
 
   if (!file) {
     throw new Response('Not Found', {
@@ -78,7 +89,7 @@ export default function RouteReactQueryDocs() {
       <div className="w-full h-px bg-gray-500 opacity-30" />
       <div className="py-4 opacity-70">
         <a
-          href={`https://github.com/tanstack/query/tree/${v4branch}/${filePath}`}
+          href={`https://github.com/${repo}/tree/${v4branch}/${filePath}`}
           className="flex items-center gap-2"
         >
           <FaEdit /> Edit on GitHub

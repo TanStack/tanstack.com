@@ -20,6 +20,21 @@ export type DocFrontMatter = {
   exerpt?: string
 }
 
+async function fetchRemote(owner: string, repo: string, ref: string, filepath: string) {
+  const href = new URL(`${owner}/${repo}/${ref}/${filepath}`, 'https://raw.githubusercontent.com/').href
+  console.log('fetching file', href)
+  
+  const response = await fetch(href, {
+    headers: { 'User-Agent': `docs:${owner}/${repo}` },
+  })
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return await response.text()
+}
+
 export async function fetchRepoFile(
   repoPair: string,
   ref: string,
@@ -28,27 +43,38 @@ export async function fetchRepoFile(
   const key = `${repoPair}:${ref}:${filepath}`
   let [owner, repo] = repoPair.split('/')
 
-  if (process.env.NODE_ENV === 'development') {
-    const localFilePath = path.resolve(__dirname, `../../${repo}`, filepath)
-    const file = await fsp.readFile(localFilePath)
-    return file.toString()
-  }
-
   const file = await fetchCached({
     key,
     ttl: 1 * 60 * 1000, // 5 minute
     fn: async () => {
-      let filePath = `${owner}/${repo}/${ref}/${filepath}`
-      const href = new URL(`/${filePath}`, 'https://raw.githubusercontent.com/')
-        .href
+      const maxDepth = 4;
+      let currentDepth = 1;
+      while (maxDepth > currentDepth) {
+        let text: string | null;
+        if (process.env.NODE_ENV === 'development') {
+          const localFilePath = path.resolve(__dirname, `../../${repo}`, filepath)
 
-      let response = await fetch(href, {
-        headers: { 'User-Agent': `docs:${owner}/${repo}` },
-      })
+          console.log('local path', __dirname, filepath, localFilePath)
+          const file = await fsp.readFile(localFilePath)
+          text = file.toString()
+        } else {
+          text = await fetchRemote(owner, repo, ref, filepath);
+        }
+        
+        if (text === null) {
+          return null;
+        }
+        try {
+          const frontmatter = extractFrontMatter(text)
+          if (!frontmatter.data.ref) return Promise.resolve(text)
+          filepath = frontmatter.data.ref
+        } catch (error) {
+          return Promise.resolve(text)
+        }
+        currentDepth++;
+      }
 
-      if (!response.ok) return null
-
-      return response.text()
+      return null
     },
   })
 

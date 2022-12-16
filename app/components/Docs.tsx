@@ -124,9 +124,9 @@ export function Docs({
           border-t border-gray-500 border-opacity-20 bg-gray-100 text-lg
           dark:bg-gray-900"
         >
+          {framework ? <FrameworkSelect framework={framework} availableFrameworks={availableFrameworks} /> : null }
           {menuItems}
         </div>
-        {framework ? <FrameworkSelect framework={framework} availableFrameworks={availableFrameworks} /> : null }
       </details>
     </div>
   );

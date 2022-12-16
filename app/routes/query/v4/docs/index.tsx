@@ -1,5 +1,6 @@
-import { LoaderArgs, redirect } from '@remix-run/node'
+import type { LoaderArgs} from '@remix-run/node';
+import { redirect } from '@remix-run/node'
 
 export const loader = (context : LoaderArgs) => {
-  throw redirect(context.request.url.replace(/\/docs.*/, '/docs/overview'))
+  throw redirect(context.request.url.replace(/\/docs.*/, '/docs/react/overview'))
 }

@@ -11,10 +11,9 @@ import {
 } from 'react-icons/fa'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
-import { v4branch } from '../v4'
+import { repo, v4branch } from '../v4'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { IoIosBody } from 'react-icons/io'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
@@ -38,7 +37,7 @@ const menu = [
         <VscPreview className="text-lg" /> Examples
       </div>
     ),
-    to: "./docs/examples",
+    to: "./docs/react/examples/",
   },
   {
     label: (
@@ -46,7 +45,7 @@ const menu = [
         <FaBook className="text-lg" /> Docs
       </div>
     ),
-    to: "./docs/overview",
+    to: "./docs/",
   },
   {
     label: (
@@ -54,7 +53,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: "https://github.com/tanstack/query",
+    to: `https://github.com/${repo}`,
   },
   {
     label: (
@@ -159,7 +158,7 @@ export default function ReactQueryRoute() {
             .
           </p>
           <Link
-            to="./docs/overview"
+            to="./docs/"
             className={`py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
             prefetch="intent"
           >
@@ -514,7 +513,7 @@ export default function ReactQueryRoute() {
           <div className="bg-white dark:bg-black">
             <iframe
               key={framework}
-              src={`https://codesandbox.io/embed/github/tanstack/query/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+              src={`https://codesandbox.io/embed/github/${repo}/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
                 isDark ? "dark" : "light"
               }`}
               title={`tannerlinsley/${framework}-query: basic`}
@@ -539,7 +538,7 @@ export default function ReactQueryRoute() {
           </div>
           <div>
             <Link
-              to="./docs/overview"
+              to="./docs/"
               className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
               prefetch="intent"
             >

@@ -20,9 +20,12 @@ export type DocFrontMatter = {
   exerpt?: string
 }
 
+/**
+ * Return text content of file from remote location
+ */
 async function fetchRemote(owner: string, repo: string, ref: string, filepath: string) {
   const href = new URL(`${owner}/${repo}/${ref}/${filepath}`, 'https://raw.githubusercontent.com/').href
-  console.log('fetching file', href)
+  console.log('fetching remote file', href)
 
   const response = await fetch(href, {
     headers: { 'User-Agent': `docs:${owner}/${repo}` },
@@ -35,6 +38,9 @@ async function fetchRemote(owner: string, repo: string, ref: string, filepath: s
   return await response.text()
 }
 
+/**
+ * Return text content of file from local file system
+ */
 async function fetchFs(repo: string, filepath: string) {
   const localFilePath = path.resolve(__dirname, `../../${repo}`, filepath)
 
@@ -43,6 +49,9 @@ async function fetchFs(repo: string, filepath: string) {
   return file.toString()
 }
 
+/**
+ * Perform global string replace in text for given key-value map
+ */
 function replaceContent(text: string, frontmatter: graymatter.GrayMatterFile<string>) {
   let result = text
   const replace = frontmatter.data.replace as Record<string, string> | undefined
@@ -55,18 +64,44 @@ function replaceContent(text: string, frontmatter: graymatter.GrayMatterFile<str
   return result
 }
 
+/**
+ * Perform tokenized sections replace in text.
+ * - Discover sections based on token marker via RegExp in origin file.
+ * - Discover sections based on token marker via RegExp in target file.
+ * - replace sections in target file staring from the end, with sections defined in origin file
+ * @param text File content
+ * @param frontmatter Referencing file front-matter
+ * @returns File content with replaced sections
+ */
 function replaceSections(text: string, frontmatter: graymatter.GrayMatterFile<string>) {
   let result = text
-  const sectionRegex = /\[\/\/\]: # \(([a-zA-Z]*)\)[\S\s]*?\[\/\/\]: # \(([a-zA-Z]*)\)/g
+  // RegExp defining token pair to dicover sections in the document
+  // [//]: # (<Section Token>)
+  const sectionRegex = /\[\/\/\]: # \(([a-zA-Z\d]*)\)[\S\s]*?\[\/\/\]: # \(([a-zA-Z\d]*)\)/g
 
+  // Find all sections in origin file
   const substitutes = new Map<string, RegExpMatchArray>()
   for (const match of frontmatter.content.matchAll(sectionRegex)) {
+    console.log('match', match)
+    if (match[1] !== match[2]) {
+      console.error(
+        `Origin section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`
+      )
+    }
+
     substitutes.set(match[1], match)
   }
 
   if (substitutes.size > 0) {
+    // Find all sections in target file
     const sections = new Map<string, RegExpMatchArray>()
     for (const match of result.matchAll(sectionRegex)) {
+      if (match[1] !== match[2]) {
+        console.error(
+          `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`
+        )
+      }
+
       sections.set(match[1], match)
     }
 
@@ -100,6 +135,7 @@ export async function fetchRepoFile(repoPair: string, ref: string, filepath: str
       let originFrontmatter: graymatter.GrayMatterFile<string> | undefined
       while (maxDepth > currentDepth) {
         let text: string | null
+        // Read file contents
         if (process.env.NODE_ENV === 'development') {
           text = await fetchFs(repo, filepath)
         } else {
@@ -111,6 +147,7 @@ export async function fetchRepoFile(repoPair: string, ref: string, filepath: str
         }
         try {
           const frontmatter = extractFrontMatter(text)
+          // If file does not have a ref in front-matter, replace necessary content
           if (!frontmatter.data.ref) {
             if (originFrontmatter) {
               text = replaceContent(text, originFrontmatter)
@@ -118,6 +155,7 @@ export async function fetchRepoFile(repoPair: string, ref: string, filepath: str
             }
             return Promise.resolve(text)
           }
+          // If file has a ref to another file, cache current front-matter and load referenced file
           filepath = frontmatter.data.ref
           originFrontmatter = frontmatter
         } catch (error) {

@@ -198,7 +198,7 @@ export function Docs({
           <div className="p-4 flex justify-center gap-4">
             {prevItem ? (
               <LinkOrA
-                to={prevItem.to}
+                to={framework ? `../${prevItem.to}` : prevItem.to}
                 className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
               bg-white text-gray-600 dark:bg-black dark:text-gray-400
               shadow-lg dark:border dark:border-gray-800
@@ -209,7 +209,7 @@ export function Docs({
             ) : null}
             {nextItem ? (
               <LinkOrA
-                to={nextItem.to}
+                to={framework ? `../${nextItem.to}` : nextItem.to}
                 className="py-1 px-2 text-sm self-end rounded-md
                 bg-white dark:bg-black
                 shadow-lg dark:border dark:border-gray-800

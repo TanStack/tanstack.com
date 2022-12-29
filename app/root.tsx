@@ -47,8 +47,8 @@ export let links: LinksFunction = () => {
       media: '(prefers-color-scheme: dark)',
     },
     {
-			rel: "stylesheet",
-			href: docSearchStyles
+      rel: "stylesheet",
+      href: docSearchStyles
     },
     {
       rel: 'stylesheet',
@@ -122,8 +122,8 @@ function Document({
           }}
         ></script>
 				<script
-					dangerouslySetInnerHTML={{
-						__html: `
+          dangerouslySetInnerHTML={{
+            __html: `
               try {
                 if (matchMedia("(prefers-color-scheme: dark)").matches) {
                   document.documentElement.setAttribute("data-theme", "dark");
@@ -132,7 +132,7 @@ function Document({
                 }
               } catch (error) {}
             `,
-					}}
+          }}
 				></script>
       </head>
       <body>

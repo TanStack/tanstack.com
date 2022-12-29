@@ -47,7 +47,7 @@ export let links: LinksFunction = () => {
       media: '(prefers-color-scheme: dark)',
     },
     {
-      rel: "stylesheet",
+      rel: 'stylesheet',
       href: docSearchStyles
     },
     {

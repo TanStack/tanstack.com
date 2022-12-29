@@ -77,7 +77,7 @@ function replaceSections(text: string, frontmatter: graymatter.GrayMatterFile<st
   let result = text
   // RegExp defining token pair to dicover sections in the document
   // [//]: # (<Section Token>)
-  const sectionRegex = /\[\/\/\]: # \(([a-zA-Z\d]*)\)[\S\s]*?\[\/\/\]: # \(([a-zA-Z\d]*)\)/g
+  const sectionRegex = /\[\/\/\]: # '([a-zA-Z\d]*)'[\S\s]*?\[\/\/\]: # '([a-zA-Z\d]*)'/g
 
   // Find all sections in origin file
   const substitutes = new Map<string, RegExpMatchArray>()

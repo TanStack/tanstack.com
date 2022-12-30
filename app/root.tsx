@@ -15,7 +15,7 @@ import type { LinksFunction, MetaFunction } from '@remix-run/node'
 import styles from './styles/app.generated.css'
 import prismThemeLight from './styles/prismThemeLight.css'
 import prismThemeDark from './styles/prismThemeDark.css'
-import docsearchCss from '@docsearch/css/dist/style.css'
+import docSearchStyles from '@docsearch/css/dist/style.css'
 import { CgSpinner } from 'react-icons/cg'
 
 import { seo } from './utils/seo'
@@ -48,7 +48,7 @@ export let links: LinksFunction = () => {
     },
     {
       rel: 'stylesheet',
-      href: docsearchCss,
+      href: docSearchStyles
     },
     {
       rel: 'stylesheet',
@@ -121,6 +121,19 @@ function Document({
             `,
           }}
         ></script>
+				<script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (matchMedia("(prefers-color-scheme: dark)").matches) {
+                  document.documentElement.setAttribute("data-theme", "dark");
+                } else {
+                  document.documentElement.removeAttribute('data-theme');
+                }
+              } catch (error) {}
+            `,
+          }}
+				></script>
       </head>
       <body>
         {children}

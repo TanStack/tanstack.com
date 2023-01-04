@@ -7,7 +7,7 @@ import { last } from "~/utils/utils";
 import { Carbon } from "./Carbon";
 import { LinkOrA } from "./LinkOrA";
 import { Search } from "./Search";
-import { gradientText } from "~/routes/query/v4/index";
+import { gradientText } from "~/routes/query/$version/index";
 import BytesForm from "./BytesForm";
 import { FrameworkSelect } from "./FrameworkSelect";
 
@@ -20,7 +20,7 @@ export type DocsConfig = {
   menu: {
     label: string | React.ReactNode;
     children: {
-      label: string;
+      label: string | React.ReactNode;
       to: string;
     }[];
   }[];

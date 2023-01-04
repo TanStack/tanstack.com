@@ -1,9 +1,9 @@
 import React from 'react'
 import type { LoaderArgs, MetaFunction } from '@remix-run/node';
 import { json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData, useParams } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
-import { repo, v4branch } from '~/routes/query/v4'
+import { repo, getBranch } from '~/routes/query'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
@@ -27,14 +27,15 @@ export let meta: MetaFunction = ({ data }) => {
 
 export default function RouteReactQueryDocs() {
   const { kind, name } = useLoaderData<typeof loader>()
+  const { version } = useParams();
+  const branch = getBranch(version);
 
   const examplePath = [kind, name].join('/')
-
-  const [isDark, setIsDark] = React.useState(true)
+  const [isDark, setIsDark] = React.useState(true);
 
   React.useEffect(() => {
-    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
-  }, [])
+    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches);
+  }, []);
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto">
@@ -45,7 +46,7 @@ export default function RouteReactQueryDocs() {
       </div>
       <div className="flex-1 lg:ml-6 flex flex-col min-h-0">
         <iframe
-          src={`https://codesandbox.io/embed/github/${repo}/tree/${v4branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
+          src={`https://codesandbox.io/embed/github/${repo}/tree/${branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
             isDark ? 'dark' : 'light'
           }`}
           title={`${repo}: ${examplePath}`}

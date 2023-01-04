@@ -1,14 +1,15 @@
-import { redirect } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import { redirect } from "@remix-run/node";
+import type { LoaderArgs } from "@remix-run/node";
+import { defaultVersion } from "../query";
 
 export const loader = (context: LoaderArgs) => {
-  handleRedirects(context)
+  handleRedirectsFromV3(context);
 
-  return redirect('/query/v4', 301)
-}
+  return redirect(`/query/${defaultVersion}`, 301);
+};
 
-function handleRedirects(context: LoaderArgs) {
-  const url = new URL(context.request.url)
+export function handleRedirectsFromV3(context: LoaderArgs) {
+  const url = new URL(context.request.url);
   // prettier-ignore
   const reactQueryv3List = [
     // {from: 'api/overview',to: 'docs/guide/overview',},
@@ -103,9 +104,9 @@ function handleRedirects(context: LoaderArgs) {
   reactQueryv3List.forEach((item) => {
     if (url.pathname.startsWith(`/query/v3/${item.from}`)) {
       throw redirect(
-        `/query/v4/${item.to}?from=reactQueryV3&original=https://react-query-v3.tanstack.com/${item.from}`,
+        `/query/${defaultVersion}/${item.to}?from=reactQueryV3&original=https://react-query-v3.tanstack.com/${item.from}`,
         301
-      )
+      );
     }
-  })
+  });
 }

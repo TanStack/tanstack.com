@@ -6,7 +6,7 @@ import {
   fetchRepoFile,
   markdownToMdx,
 } from '~/utils/documents.server'
-import { repo, v4branch } from '../../../v4'
+import { repo, getBranch } from '~/routes/query'
 import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
@@ -14,10 +14,10 @@ import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData, useParams } from '@remix-run/react'
 
 export const loader = async (context: LoaderArgs) => {
-  const { '*': docsPath, framework } = context.params
+  const { '*': docsPath, framework, version } = context.params
 
   // When first path part after docs does not contain framework name, add `react`
   if (
@@ -35,7 +35,8 @@ export const loader = async (context: LoaderArgs) => {
 
   const filePath = `docs/${framework}/${docsPath}.md`
 
-  const file = await fetchRepoFile(repo, v4branch, filePath)
+  const branch = getBranch(version);
+  const file = await fetchRepoFile(repo, branch, filePath)
 
   if (!file) {
     throw new Response('Not Found', {
@@ -75,6 +76,8 @@ export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactQueryDocs() {
   const { title, code, filePath } = useLoaderData<typeof loader>()
+  const { version } = useParams();
+  const branch = getBranch(version);
 
   return (
     <div className="p-4 lg:p-6 overflow-auto w-full max-w-3xl">
@@ -89,7 +92,7 @@ export default function RouteReactQueryDocs() {
       <div className="w-full h-px bg-gray-500 opacity-30" />
       <div className="py-4 opacity-70">
         <a
-          href={`https://github.com/${repo}/tree/${v4branch}/${filePath}`}
+          href={`https://github.com/${repo}/tree/${branch}/${filePath}`}
           className="flex items-center gap-2"
         >
           <FaEdit /> Edit on GitHub

@@ -136,10 +136,14 @@ export async function fetchRepoFile(repoPair: string, ref: string, filepath: str
       while (maxDepth > currentDepth) {
         let text: string | null
         // Read file contents
-        if (process.env.NODE_ENV === 'development') {
-          text = await fetchFs(repo, filepath)
-        } else {
-          text = await fetchRemote(owner, repo, ref, filepath)
+        try {
+          if (process.env.NODE_ENV === 'development') {
+            text = await fetchFs(repo, filepath)
+          } else {
+            text = await fetchRemote(owner, repo, ref, filepath)
+          }
+        } catch {
+          return null
         }
 
         if (text === null) {

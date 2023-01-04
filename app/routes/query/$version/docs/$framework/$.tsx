@@ -39,9 +39,7 @@ export const loader = async (context: LoaderArgs) => {
   const file = await fetchRepoFile(repo, branch, filePath)
 
   if (!file) {
-    throw new Response('Not Found', {
-      status: 404,
-    })
+    throw redirect(context.request.url.replace(/\/docs.*/, `/docs/${framework}`));
   }
 
   const frontMatter = extractFrontMatter(file)

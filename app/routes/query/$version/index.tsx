@@ -8,16 +8,19 @@ import {
   FaCogs,
   FaDiscord,
   FaGithub,
-} from 'react-icons/fa'
-import { json } from '@remix-run/node'
-import { Link, useLoaderData } from '@remix-run/react'
-import { repo, v4branch } from '../v4'
-import { Carbon } from '~/components/Carbon'
-import { Footer } from '~/components/Footer'
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { TbHeartHandshake } from 'react-icons/tb'
-import SponsorPack from '~/components/SponsorPack'
+} from "react-icons/fa";
+import type { LoaderArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Link, useLoaderData, useParams } from "@remix-run/react";
+import { Carbon } from "~/components/Carbon";
+import { Footer } from "~/components/Footer";
+import { VscPreview, VscWand } from "react-icons/vsc";
+import { TbHeartHandshake } from "react-icons/tb";
+import SponsorPack from "~/components/SponsorPack";
 import { PPPBanner } from "~/components/PPPBanner";
+import { getBranch, repo } from "~/routes/query";
+
+export type Framework = "react" | "svelte" | "vue" | "solid";
 
 export const gradientText =
   "inline-block text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500";
@@ -65,10 +68,10 @@ const menu = [
   },
 ];
 
-export const loader = async () => {
-  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
+export const loader = async (context: LoaderArgs) => {
+  const { getSponsorsForSponsorPack } = require("~/server/sponsors");
 
-  const sponsors = await getSponsorsForSponsorPack()
+  const sponsors = await getSponsorsForSponsorPack();
 
   return json({
     sponsors,
@@ -76,14 +79,10 @@ export const loader = async () => {
 };
 
 export default function ReactQueryRoute() {
-  const { sponsors } = useLoaderData<typeof loader>()
-  // const config = useReactQueryV8Config()
-  // const [params, setParams] = useSearchParams()
-  // const framework = params.get('framework') ?? 'react'
-  const [framework, setFramework] = React.useState<
-    "react" | "svelte" | "vue" | "solid"
-  >("react");
-
+  const { sponsors } = useLoaderData<typeof loader>();
+  const { version } = useParams();
+  const branch = getBranch(version);
+  const [framework, setFramework] = React.useState<Framework>("react");
   const [isDark, setIsDark] = React.useState(true);
 
   React.useEffect(() => {
@@ -130,7 +129,7 @@ export default function ReactQueryRoute() {
               className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
             >
-              v4
+              {version}
             </span>
           </h1>
           <h2
@@ -513,7 +512,7 @@ export default function ReactQueryRoute() {
           <div className="bg-white dark:bg-black">
             <iframe
               key={framework}
-              src={`https://codesandbox.io/embed/github/${repo}/tree/${v4branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+              src={`https://codesandbox.io/embed/github/${repo}/tree/${branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
                 isDark ? "dark" : "light"
               }`}
               title={`tannerlinsley/${framework}-query: basic`}

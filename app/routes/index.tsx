@@ -185,7 +185,13 @@ export default function Index() {
           return (
             <div key={i} className="hover:underline">
               {item.to.startsWith('http') ? (
-                <a href={item.to}>{label}</a>
+                <a
+                  href={item.to}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {label}
+                </a>
               ) : (
                 <Link to={item.to} prefetch="intent">
                   {label}
@@ -282,7 +288,7 @@ export default function Index() {
               <div className="flex-1 bg-white flex items-center justify-center p-2">
                 <a
                   href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
-                  target="_blank"
+                  target="_blank" rel="noreferrer"
                 >
                   <img
                     src={require('~/images/ag-grid.png')}
@@ -338,6 +344,7 @@ export default function Index() {
               hover:border-green-500
               `}
               target="_blank"
+              rel="noreferrer"
             >
               <div
                 className={`col-span-2

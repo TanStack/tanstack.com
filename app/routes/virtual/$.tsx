@@ -1,6 +1,7 @@
-import { LoaderArgs, redirect } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 
-export const loader = (context : LoaderArgs) => {
+export const loader = (context: LoaderArgs) => {
   handleRedirects(context)
 
   return redirect('/virtual/v3')
@@ -26,7 +27,8 @@ function handleRedirects(context: LoaderArgs) {
   reactVirtualv2List.forEach((item) => {
     if (url.pathname.startsWith(`/virtual/v2/${item.from}`)) {
       throw redirect(
-        `/virtual/v3/${item.to}?from=reactVirtualV2&original=https://react-virtual-v2.tanstack.com/${item.from}`
+        `/virtual/v3/${item.to}?from=reactVirtualV2&original=https://react-virtual-v2.tanstack.com/${item.from}`,
+        301
       )
     }
   })

@@ -1,6 +1,7 @@
-import { LoaderArgs, redirect } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 
-export const loader = (context : LoaderArgs) => {
+export const loader = (context: LoaderArgs) => {
   handleRedirects(context)
 
   return redirect('/table/v8')
@@ -45,7 +46,8 @@ function handleRedirects(context: LoaderArgs) {
   reactTablev7List.forEach((item) => {
     if (url.pathname.startsWith(`/table/v7/${item.from}`)) {
       throw redirect(
-        `/table/v8/${item.to}?from=reactTableV7&original=https://react-table-v7.tanstack.com/${item.from}`
+        `/table/v8/${item.to}?from=reactTableV7&original=https://react-table-v7.tanstack.com/${item.from}`,
+        301
       )
     }
   })

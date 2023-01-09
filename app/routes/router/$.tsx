@@ -27,7 +27,8 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
   reactLocationv2List.forEach((item) => {
     if (url.pathname.startsWith(`/router/react-location/${item.from}`)) {
       throw redirect(
-        `/router/v1/${item.to}?from=reactLocationV2&original=https://react-location-v2.tanstack.com/${item.from}`
+        `/router/v1/${item.to}?from=reactLocationV2&original=https://react-location-v2.tanstack.com/${item.from}`,
+        301
       )
     }
   })

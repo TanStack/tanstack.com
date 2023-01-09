@@ -7,17 +7,19 @@ import { seo } from "~/utils/seo";
 import type { DocsConfig } from "~/components/Docs";
 import { Docs } from "~/components/Docs";
 import { PPPBanner } from "~/components/PPPBanner";
-import { repo, useReactQueryDocsConfig } from "~/routes/query";
+import { latestVersion, repo, useReactQueryDocsConfig } from "~/routes/query";
 import type { MenuItem } from "~/routes/query";
 
-const logo = (
+const logo = (version?: string) => (
   <>
     <Link to="/" className="font-light">
       TanStack
     </Link>
     <Link to=".." className={`font-bold`}>
       <span className={`${gradientText}`}>Query</span>{" "}
-      <span className="text-sm align-super">v4</span>
+      <span className="text-sm align-super">
+        {version === "latest" ? latestVersion : version}
+      </span>
     </Link>
   </>
 );
@@ -76,7 +78,7 @@ export default function RouteReactQuery() {
       <PPPBanner />
       <Docs
         {...{
-          logo,
+          logo: logo(version),
           colorFrom: "from-rose-500",
           colorTo: "to-violet-500",
           textColor: "text-violet-500",

@@ -5,13 +5,13 @@ import { seo } from "~/utils/seo";
 import { useMatchesData } from "~/utils/utils";
 
 export const repo = "tanstack/query";
-export const defaultVersion = "v4";
-export const defaultBranch = "main";
+export const latestVersion = "v4";
+export const latestBranch = "main";
 
 export function getBranch(argVersion?: string) {
-  const version = argVersion || defaultVersion;
+  const version = argVersion || latestVersion;
 
-  return version === defaultVersion ? defaultBranch : version;
+  return ['latest', latestVersion].includes(version) ? latestBranch : version;
 }
 
 export type Menu = {
@@ -50,9 +50,9 @@ export let meta: MetaFunction = (meta) => {
 };
 
 export const loader = async (context: LoaderArgs) => {
-  if (!context.request.url.includes("/query/v")) {
+  if (!context.request.url.includes("/query/v") && !context.request.url.includes("/query/latest")) {
     return redirect(
-      `${new URL(context.request.url).origin}/query/${defaultVersion}`
+      `${new URL(context.request.url).origin}/query/latest`
     );
   }
 

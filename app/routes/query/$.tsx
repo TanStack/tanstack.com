@@ -1,11 +1,10 @@
 import { redirect } from "@remix-run/node";
 import type { LoaderArgs } from "@remix-run/node";
-import { defaultVersion } from "../query";
 
 export const loader = (context: LoaderArgs) => {
   handleRedirectsFromV3(context);
 
-  return redirect(`/query/${defaultVersion}`, 301);
+  return redirect(`/query/latest`, 301);
 };
 
 export function handleRedirectsFromV3(context: LoaderArgs) {
@@ -104,7 +103,7 @@ export function handleRedirectsFromV3(context: LoaderArgs) {
   reactQueryv3List.forEach((item) => {
     if (url.pathname.startsWith(`/query/v3/${item.from}`)) {
       throw redirect(
-        `/query/${defaultVersion}/${item.to}?from=reactQueryV3&original=https://react-query-v3.tanstack.com/${item.from}`,
+        `/query/latest/${item.to}?from=reactQueryV3&original=https://react-query-v3.tanstack.com/${item.from}`,
         301
       );
     }

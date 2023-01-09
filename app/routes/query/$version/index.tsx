@@ -18,7 +18,7 @@ import { VscPreview, VscWand } from "react-icons/vsc";
 import { TbHeartHandshake } from "react-icons/tb";
 import SponsorPack from "~/components/SponsorPack";
 import { PPPBanner } from "~/components/PPPBanner";
-import { getBranch, repo } from "~/routes/query";
+import { getBranch, latestVersion, repo } from "~/routes/query";
 
 export type Framework = "react" | "svelte" | "vue" | "solid";
 
@@ -129,7 +129,7 @@ export default function ReactQueryRoute() {
               className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
             >
-              {version}
+              {version === "latest" ? latestVersion : version}
             </span>
           </h1>
           <h2

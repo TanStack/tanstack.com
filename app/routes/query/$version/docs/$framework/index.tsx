@@ -9,7 +9,7 @@ export const loader = (context: LoaderArgs) => {
     context.request.url.includes("/docs/vue") ||
     context.request.url.includes("/docs/svelte")
   ) {
-    throw redirect(context.request.url + '/overview')
+    throw redirect(context.request.url + "/overview");
   }
   // Otherwise it's an old react doc path, so add `react` after `docs`
   throw redirect(context.request.url.replace(/\/docs\//, "/docs/react/"));

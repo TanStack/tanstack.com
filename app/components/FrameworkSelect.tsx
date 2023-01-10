@@ -8,7 +8,7 @@ import reactLogo from "../images/react-logo.svg";
 import solidLogo from "../images/solid-logo.svg";
 import svelteLogo from "../images/svelte-logo.svg";
 import angularLogo from "../images/angular-logo.svg";
-import { Form } from "@remix-run/react";
+import { Form, useParams } from "@remix-run/react";
 import { useNavigate } from "@remix-run/react";
 
 const frameworks = [
@@ -37,11 +37,12 @@ export function FrameworkSelect({
   availableFrameworks: string[];
 }) {
   const navigate = useNavigate();
+  const params = useParams();
 
   const selected = { label: properCase(framework), value: framework };
 
   const selectFramework = (framework: typeof selected) => {
-    navigate(`../${framework.value}`);
+    navigate(`../${framework.value}/${params['*']}`);
   };
 
   return (
@@ -94,9 +95,7 @@ export function FrameworkSelect({
                             <img
                               height={18}
                               width={18}
-                              src={
-                                logoMap[f.value as keyof typeof logoMap]
-                              }
+                              src={logoMap[f.value as keyof typeof logoMap]}
                               alt={`${f.label} logo`}
                             />
                           </figure>

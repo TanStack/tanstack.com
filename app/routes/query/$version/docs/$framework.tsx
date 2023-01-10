@@ -2,26 +2,29 @@ import * as React from "react";
 import { FaDiscord, FaGithub } from "react-icons/fa";
 import type { MetaFunction } from "@remix-run/node";
 import { Link, useParams } from "@remix-run/react";
-import { repo, useReactQueryV4Config } from "../../v4";
 import { gradientText } from "../index";
 import { seo } from "~/utils/seo";
 import type { DocsConfig } from "~/components/Docs";
 import { Docs } from "~/components/Docs";
 import { PPPBanner } from "~/components/PPPBanner";
+import { latestVersion, repo, useReactQueryDocsConfig } from "~/routes/query";
+import type { MenuItem } from "~/routes/query";
 
-const logo = (
+const logo = (version?: string) => (
   <>
     <Link to="/" className="font-light">
       TanStack
     </Link>
     <Link to=".." className={`font-bold`}>
       <span className={`${gradientText}`}>Query</span>{" "}
-      <span className="text-sm align-super">v4</span>
+      <span className="text-sm align-super">
+        {version === "latest" ? latestVersion : version}
+      </span>
     </Link>
   </>
 );
 
-const localMenu = {
+const localMenu: MenuItem = {
   label: "Menu",
   children: [
     {
@@ -55,8 +58,8 @@ export let meta: MetaFunction = () => {
 };
 
 export default function RouteReactQuery() {
-  let config = useReactQueryV4Config();
-  let { framework } = useParams();
+  const { framework, version } = useParams();
+  let config = useReactQueryDocsConfig(version);
 
   const docsConfig = React.useMemo(() => {
     const availableFrameworks = config.menu.map((m) => m.framework);
@@ -75,7 +78,7 @@ export default function RouteReactQuery() {
       <PPPBanner />
       <Docs
         {...{
-          logo,
+          logo: logo(version),
           colorFrom: "from-rose-500",
           colorTo: "to-violet-500",
           textColor: "text-violet-500",

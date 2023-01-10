@@ -82,7 +82,6 @@ function replaceSections(text: string, frontmatter: graymatter.GrayMatterFile<st
   // Find all sections in origin file
   const substitutes = new Map<string, RegExpMatchArray>()
   for (const match of frontmatter.content.matchAll(sectionRegex)) {
-    console.log('match', match)
     if (match[1] !== match[2]) {
       console.error(
         `Origin section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`
@@ -136,10 +135,14 @@ export async function fetchRepoFile(repoPair: string, ref: string, filepath: str
       while (maxDepth > currentDepth) {
         let text: string | null
         // Read file contents
-        if (process.env.NODE_ENV === 'development') {
-          text = await fetchFs(repo, filepath)
-        } else {
-          text = await fetchRemote(owner, repo, ref, filepath)
+        try {
+          if (process.env.NODE_ENV === 'development') {
+            text = await fetchFs(repo, filepath)
+          } else {
+            text = await fetchRemote(owner, repo, ref, filepath)
+          }
+        } catch {
+          return null
         }
 
         if (text === null) {

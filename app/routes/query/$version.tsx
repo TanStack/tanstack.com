@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useSearchParams } from "@remix-run/react";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import type { LoaderArgs } from "@remix-run/node";
 import { DefaultErrorBoundary } from "~/components/DefaultErrorBoundary";
 import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
@@ -7,6 +7,14 @@ import { fetchRepoFile } from "~/utils/documents.server";
 import { repo, getBranch } from "~/routes/query";
 
 export const loader = async (context: LoaderArgs) => {
+  const url = new URL(context.request.url);
+  if (
+    url.pathname.endsWith(`/query/v3`) ||
+    url.pathname.endsWith(`/query/v3/`)
+  ) {
+    throw redirect(`https://react-query-v3.tanstack.com`, 301);
+  }
+
   const branch = getBranch(context.params.version);
   const config = await fetchRepoFile(repo, branch, `docs/config.json`);
 

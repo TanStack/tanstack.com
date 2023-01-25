@@ -97,7 +97,7 @@ export function handleRedirectsFromV3(context: LoaderArgs) {
     {from: "reference/focusManager", to: "docs/reference/focusManager"},
     {from: "reference/onlineManager", to: "docs/reference/onlineManager"},
     {from: "reference/hydration", to: "docs/reference/hydration"},
-    {from: '',to: ''},
+    // {from: '',to: ''},
   ]
 
   reactQueryv3List.forEach((item) => {

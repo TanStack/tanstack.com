@@ -1,10 +1,11 @@
-import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
-import { json, redirect } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { fetchRepoFile } from '~/utils/documents.server'
-import { repo, getBranch } from '~/routes/query'
+import * as React from "react"
+import { Link, Outlet, useLocation } from "@remix-run/react"
+import { json, redirect } from "@remix-run/node"
+import type { LoaderArgs } from "@remix-run/node"
+import { DefaultErrorBoundary } from "~/components/DefaultErrorBoundary"
+import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary"
+import { fetchRepoFile } from "~/utils/documents.server"
+import { repo, getBranch, latestVersion } from "~/routes/query"
 
 export const loader = async (context: LoaderArgs) => {
   handleRedirectsFromV3(context)
@@ -13,7 +14,7 @@ export const loader = async (context: LoaderArgs) => {
   const config = await fetchRepoFile(repo, branch, `docs/config.json`)
 
   if (!config) {
-    throw new Error('Repo docs/config.json not found!')
+    throw new Error("Repo docs/config.json not found!")
   }
 
   return json(JSON.parse(config))
@@ -109,15 +110,12 @@ export function handleRedirectsFromV3(context: LoaderArgs) {
     {from: "reference/focusManager", to: "docs/reference/focusManager"},
     {from: "reference/onlineManager", to: "docs/reference/onlineManager"},
     {from: "reference/hydration", to: "docs/reference/hydration"},
-    {from: '',to: ''},
+    // {from: '',to: ''},
   ]
 
   reactQueryv3List.forEach((item) => {
     if (url.pathname.startsWith(`/query/v3/${item.from}`)) {
-      throw redirect(
-        `/query/latest/${item.to}?from=reactQueryV3&original=https://react-query-v3.tanstack.com/${item.from}`,
-        301
-      )
+      throw redirect(`/query/latest/${item.to}`, 301)
     }
   })
 }
@@ -126,33 +124,38 @@ export const ErrorBoundary = DefaultErrorBoundary
 export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactQuery() {
-  const [params] = useSearchParams()
+  const [showModal, setShowModal] = React.useState(true)
   const location = useLocation()
 
-  const showV3Redirect = params.get('from') === 'reactQueryV3'
-  const original = params.get('original')
+  const version = location.pathname.match(/\/query\/v(\d)/)?.[1] || "999"
+  const showRedirectModal = Number(version) < Number(latestVersion[1])
+  const redirectTarget = location.pathname.replace(`v${version}`, "latest")
 
   return (
     <>
-      {showV3Redirect ? (
+      {showRedirectModal && showModal ? (
         <div className="p-4 bg-blue-500 text-white flex items-center justify-center gap-4">
           <div>
-            Looking for the{' '}
-            <a
-              href={original || 'https://react-query-v3.tanstack.com'}
-              className="font-bold underline"
-            >
-              React Query v3 documentation
-            </a>
-            ?
+            You are currently reading <strong>v{version}</strong> docs. Redirect
+            to{" "}
+            <a href={redirectTarget} className="font-bold underline">
+              latest
+            </a>{" "}
+            version?
           </div>
           <Link
-            to={location.pathname}
+            to={redirectTarget}
             replace
             className="bg-white text-black py-1 px-2 rounded-md uppercase font-black text-xs"
           >
-            Hide
+            Latest
           </Link>
+          <button
+            onClick={() => setShowModal(false)}
+            className="bg-white text-black py-1 px-2 rounded-md uppercase font-black text-xs"
+          >
+            Hide
+          </button>
         </div>
       ) : null}
       <Outlet />

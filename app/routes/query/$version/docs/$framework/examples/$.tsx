@@ -30,7 +30,7 @@ export default function RouteReactQueryDocs() {
   const { version } = useParams();
   const branch = getBranch(version);
 
-  const examplePath = [kind, name].join('/')
+  const examplePath = branch === 'v3' ? name : [kind, name].join('/')
   const [isDark, setIsDark] = React.useState(true);
 
   React.useEffect(() => {

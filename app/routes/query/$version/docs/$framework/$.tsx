@@ -72,7 +72,7 @@ export let meta: MetaFunction = ({ data }) => {
 export const ErrorBoundary = DefaultErrorBoundary
 export const CatchBoundary = DefaultCatchBoundary
 
-export default function RouteReactQueryDocs() {
+export default function RouteDocs() {
   const { title, code, filePath } = useLoaderData<typeof loader>()
   const { version } = useParams();
   const branch = getBranch(version);

@@ -1,15 +1,9 @@
 import * as React from 'react'
 import { flag } from 'country-emoji'
 import { IoIosClose } from 'react-icons/io'
-import useLocalStorage from './useLocalStorage'
+import { useLocalStorage } from '~/utils/useLocalStorage'
+import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
 
-function useClientOnlyRender() {
-  const [rendered, setRendered] = React.useState(false)
-  React.useEffect(() => {
-    setRendered(true)
-  }, [])
-  return rendered
-}
 export function PPPBanner() {
   const [hidden, setHidden] = useLocalStorage('pppbanner-hidden', false)
   const [data, setData] = useLocalStorage('pppbanner-data', null)

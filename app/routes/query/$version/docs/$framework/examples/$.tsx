@@ -25,7 +25,7 @@ export let meta: MetaFunction = ({ data }) => {
   })
 }
 
-export default function RouteReactQueryDocs() {
+export default function RouteExamples() {
   const { kind, name } = useLoaderData<typeof loader>()
   const { version } = useParams();
   const branch = getBranch(version);

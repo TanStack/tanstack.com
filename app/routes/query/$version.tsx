@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Link, Outlet, useLocation } from "@remix-run/react"
+import { Link, Outlet, useLocation, useSearchParams } from "@remix-run/react"
 import { json } from "@remix-run/node"
 import type { LoaderArgs } from "@remix-run/node"
 import { DefaultErrorBoundary } from "~/components/DefaultErrorBoundary"
@@ -24,6 +24,10 @@ export const CatchBoundary = DefaultCatchBoundary
 export default function RouteReactQuery() {
   const [showModal, setShowModal] = React.useState(true)
   const location = useLocation()
+  const [params] = useSearchParams()
+
+  const showV3Redirect = params.get("from") === "reactQueryV3"
+  const original = params.get("original")
 
   const version = location.pathname.match(/\/query\/v(\d)/)?.[1] || "999"
   const showRedirectModal = Number(version) < Number(latestVersion[1])
@@ -31,6 +35,27 @@ export default function RouteReactQuery() {
 
   return (
     <>
+      {showV3Redirect ? (
+        <div className="p-4 bg-blue-500 text-white flex items-center justify-center gap-4">
+          <div>
+            Looking for the{" "}
+            <a
+              href={original || "/query/latest"}
+              className="font-bold underline"
+            >
+              React Query v3 documentation
+            </a>
+            ?
+          </div>
+          <Link
+            to={location.pathname}
+            replace
+            className="bg-white text-black py-1 px-2 rounded-md uppercase font-black text-xs"
+          >
+            Hide
+          </Link>
+        </div>
+      ) : null}
       {showRedirectModal && showModal ? (
         <div className="p-4 bg-blue-500 text-white flex items-center justify-center gap-4">
           <div>

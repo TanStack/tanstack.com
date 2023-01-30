@@ -1,14 +1,34 @@
 import * as React from "react";
 import { FaDiscord, FaGithub } from "react-icons/fa";
 import type { MetaFunction } from "@remix-run/node";
-import { Link, useParams } from "@remix-run/react";
+import { Link, useMatches, useNavigate, useParams } from "@remix-run/react";
 import { gradientText } from "../index";
 import { seo } from "~/utils/seo";
 import type { DocsConfig } from "~/components/Docs";
 import { Docs } from "~/components/Docs";
 import { PPPBanner } from "~/components/PPPBanner";
-import { latestVersion, repo, useReactQueryDocsConfig } from "~/routes/query";
+import {
+  availableVersions,
+  latestVersion,
+  repo,
+  useReactQueryDocsConfig,
+} from "~/routes/query";
 import type { MenuItem } from "~/routes/query";
+import reactLogo from "~/images/react-logo.svg";
+import solidLogo from "~/images/solid-logo.svg";
+import vueLogo from "~/images/vue-logo.svg";
+import svelteLogo from "~/images/svelte-logo.svg";
+import angularLogo from "~/images/angular-logo.svg";
+import type { AvailableOptions } from "~/components/Select";
+import { generatePath } from "~/utils/utils";
+
+const frameworks = {
+  react: { label: "React", logo: reactLogo, value: "react" },
+  solid: { label: "Solid", logo: solidLogo, value: "solid" },
+  vue: { label: "Vue", logo: vueLogo, value: "vue" },
+  svelte: { label: "Svelte", logo: svelteLogo, value: "svelte" },
+  angular: { label: "Angular", logo: angularLogo, value: "angular" },
+};
 
 const logo = (version?: string) => (
   <>
@@ -57,21 +77,80 @@ export let meta: MetaFunction = () => {
   });
 };
 
-export default function RouteReactQuery() {
-  const { framework, version } = useParams();
+export default function RouteFrameworkParam() {
+  const matches = useMatches();
+  const match = matches[matches.length - 1];
+  const navigate = useNavigate();
+  const params = useParams();
+  const framework = params.framework;
+  const version = params.version;
   let config = useReactQueryDocsConfig(version);
 
   const docsConfig = React.useMemo(() => {
-    const availableFrameworks = config.menu.map((m) => m.framework);
     const frameworkMenu = config.menu.find((d) => d.framework === framework);
     if (!frameworkMenu) return null;
     return {
       ...config,
       menu: [localMenu, ...(frameworkMenu?.menuItems || [])],
-      framework: frameworkMenu?.framework,
-      availableFrameworks,
     } as DocsConfig;
   }, [framework, config]);
+
+  const frameworkConfig = React.useMemo(() => {
+    const availableFrameworks = config.menu.reduce(
+      (acc: AvailableOptions, menuEntry) => {
+        acc[menuEntry.framework as string] =
+          frameworks[menuEntry.framework as keyof typeof frameworks];
+        return acc;
+      },
+      { react: frameworks["react"] }
+    );
+
+    return {
+      label: "Framework",
+      selected: framework!,
+      available: availableFrameworks,
+      onSelect: (option: { label: string; value: string }) => {
+        const url = generatePath(match.id, {
+          ...match.params,
+          framework: option.value,
+        });
+        console.log("on framework", option, match, url);
+        navigate(url);
+      },
+    };
+  }, [config.menu, framework, match, navigate]);
+
+  const versionConfig = React.useMemo(() => {
+    const available = availableVersions.reduce(
+      (acc: AvailableOptions, version) => {
+        acc[version] = {
+          label: version,
+          value: version,
+        };
+        return acc;
+      },
+      {
+        latest: {
+          label: "Latest",
+          value: "latest",
+        },
+      }
+    );
+
+    return {
+      label: "Version",
+      selected: version!,
+      available,
+      onSelect: (option: { label: string; value: string }) => {
+        const url = generatePath(match.id, {
+          ...match.params,
+          version: option.value,
+        });
+        console.log("on framework", option, match, url);
+        navigate(url);
+      },
+    };
+  }, [version, match, navigate]);
 
   return (
     <>
@@ -83,8 +162,8 @@ export default function RouteReactQuery() {
           colorTo: "to-violet-500",
           textColor: "text-violet-500",
           config: docsConfig!,
-          framework: docsConfig!.framework,
-          availableFrameworks: docsConfig!.availableFrameworks,
+          framework: frameworkConfig,
+          version: versionConfig,
         }}
       />
     </>

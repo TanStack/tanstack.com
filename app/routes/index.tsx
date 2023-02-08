@@ -58,11 +58,6 @@ const libraries = [
     to: '/query',
     tagline: `Powerful asynchronous state management, server-state utilities and data fetching`,
     description: `Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid & Svelte applications all without touching any "global state".`,
-    badge: (
-      <div className="uppercase text-white bg-red-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        New
-      </div>
-    ),
   },
   {
     name: 'TanStack Table',
@@ -71,16 +66,11 @@ const libraries = [
     to: '/table',
     tagline: `Headless UI for building powerful tables & datagrids`,
     description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid & Svelte while retaining 100% control over markup and styles.`,
-    badge: (
-      <div className="uppercase text-white bg-blue-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        New
-      </div>
-    ),
   },
   {
     name: 'TanStack Router',
     getStyles: () =>
-      `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 text-emerald-500 border-2 border-transparent hover:border-current`,
+      `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 text-emerald-500 dark:text-emerald-400 border-2 border-transparent hover:border-current`,
     to: '/router',
     tagline: `Routing and URL management for your applications.`,
     description: `Powerful routing with first-class search-param APIs for JS/TS, React, Solid, Vue and Svelte`,
@@ -106,7 +96,7 @@ const libraries = [
   {
     name: 'React Charts',
     getStyles: () =>
-      `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-600 border-2 border-transparent hover:border-current`,
+      `shadow-xl shadow-orange-700/20 dark:shadow-lg dark:shadow-orange-500/30 text-orange-500 border-2 border-transparent hover:border-current`,
     to: 'https://react-charts.tanstack.com',
     tagline: `Simple, immersive & interactive charts for React`,
     description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
@@ -118,6 +108,38 @@ const libraries = [
     to: 'https://github.com/tannerlinsley/react-ranger',
     tagline: `Headless range and multi-range slider utilities.`,
     description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup for that perfect design.`,
+    badge: (
+      <div className="uppercase text-white bg-pink-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        New
+      </div>
+    ),
+  },
+
+  {
+    name: 'TanStack Loaders',
+    getStyles: () =>
+      `shadow-xl shadow-amber-700/20 dark:shadow-lg dark:shadow-amber-500/30 text-amber-500 border-2 border-transparent hover:border-current`,
+    // to: 'https://github.com/tannerlinsley/react-ranger',
+    tagline: `Simple data loading and caching utilities for apps`,
+    description: `Simple and lightweight cached data loading designed for fetch-as-you-render patterns in React, Vue, Solid & Svelte. It's basically React Query lite!`,
+    badge: (
+      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-amber-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        Coming Soon
+      </div>
+    ),
+  },
+  {
+    name: 'TanStack Actions',
+    getStyles: () =>
+      `shadow-xl shadow-lime-700/20 dark:shadow-lg dark:shadow-lime-500/30 text-lime-500 border-2 border-transparent hover:border-current`,
+    // to: 'https://github.com/tannerlinsley/react-ranger',
+    tagline: `Simple mutation management utilities for apps`,
+    description: `Simple and lightweight action/mutation management utility for frameworks like React, Vue, Solid & Svelte.`,
+    badge: (
+      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-lime-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        Coming Soon
+      </div>
+    ),
   },
 ]
 
@@ -185,11 +207,7 @@ export default function Index() {
           return (
             <div key={i} className="hover:underline">
               {item.to.startsWith('http') ? (
-                <a
-                  href={item.to}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a href={item.to} target="_blank" rel="noreferrer">
                   {label}
                 </a>
               ) : (
@@ -248,7 +266,7 @@ export default function Index() {
             return (
               <LinkOrA
                 key={library.name}
-                to={library.to}
+                to={library.to ?? '#'}
                 className={twMerge(
                   `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white dark:bg-gray-800`,
                   library.getStyles()
@@ -288,7 +306,8 @@ export default function Index() {
               <div className="flex-1 bg-white flex items-center justify-center p-2">
                 <a
                   href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
-                  target="_blank" rel="noreferrer"
+                  target="_blank"
+                  rel="noreferrer"
                 >
                   <img
                     src={require('~/images/ag-grid.png')}

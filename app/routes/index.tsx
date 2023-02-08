@@ -250,8 +250,8 @@ export default function Index() {
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          Headless, type-safe, powerful utilities for complex workflows like
-          Data Management, Data Visualization, Charts, Tables, and UI Components
+          Headless, type-safe, & powerful utilities for State Management,
+          Routing, Data Visualization, Charts, Tables, and more.
         </p>
       </div>
       <div className="h-8" />

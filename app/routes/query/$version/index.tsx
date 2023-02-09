@@ -78,7 +78,7 @@ export const loader = async (context: LoaderArgs) => {
   });
 };
 
-export default function ReactQueryRoute() {
+export default function RouteVersion() {
   const { sponsors } = useLoaderData<typeof loader>();
   const { version } = useParams();
   const branch = getBranch(version);

@@ -9,7 +9,8 @@ import { LinkOrA } from "./LinkOrA";
 import { Search } from "./Search";
 import { gradientText } from "~/routes/query/$version/index";
 import BytesForm from "./BytesForm";
-import { FrameworkSelect } from "./FrameworkSelect";
+import type { SelectProps } from "./Select";
+import { Select } from "./Select";
 
 export type DocsConfig = {
   docSearch: {
@@ -24,8 +25,6 @@ export type DocsConfig = {
       to: string;
     }[];
   }[];
-  framework?: string;
-  availableFrameworks?: string[];
 };
 
 export function Docs({
@@ -35,15 +34,15 @@ export function Docs({
   logo,
   config,
   framework,
-  availableFrameworks = ['react'],
+  version,
 }: {
   colorFrom: string;
   colorTo: string;
   textColor: string;
   logo: React.ReactNode;
   config: DocsConfig;
-  framework?: string;
-  availableFrameworks?: string[];
+  framework?: SelectProps;
+  version?: SelectProps;
 }) {
   const matches = useMatches();
   const lastMatch = last(matches);
@@ -124,7 +123,24 @@ export function Docs({
           border-t border-gray-500 border-opacity-20 bg-gray-100 text-lg
           dark:bg-gray-900"
         >
-          {framework ? <FrameworkSelect framework={framework} availableFrameworks={availableFrameworks} /> : null }
+          <div className="flex gap-4">
+            {framework?.selected ? (
+              <Select
+                label={framework.label}
+                selected={framework.selected}
+                available={framework.available}
+                onSelect={framework.onSelect}
+              />
+            ) : null}
+            {version?.selected ? (
+              <Select
+                label={version.label}
+                selected={version.selected}
+                available={version.available}
+                onSelect={version.onSelect}
+              />
+            ) : null}
+          </div>
           {menuItems}
         </div>
       </details>
@@ -141,7 +157,26 @@ export function Docs({
           apiKey={config.docSearch.apiKey}
         />
       </div>
-      {framework ? <FrameworkSelect framework={framework} availableFrameworks={availableFrameworks} /> : null }
+      <div className="flex gap-2 px-2">
+        {framework?.selected ? (
+          <Select
+            className="flex-[3_1_0%]"
+            label={framework.label}
+            selected={framework.selected}
+            available={framework.available}
+            onSelect={framework.onSelect}
+          />
+        ) : null}
+        {version?.selected ? (
+          <Select
+          className="flex-[2_1_0%]"
+            label={version.label}
+            selected={version.selected}
+            available={version.available}
+            onSelect={version.onSelect}
+          />
+        ) : null}
+      </div>
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
         {menuItems}
       </div>

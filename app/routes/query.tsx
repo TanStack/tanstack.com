@@ -5,13 +5,15 @@ import { seo } from "~/utils/seo";
 import { useMatchesData } from "~/utils/utils";
 
 export const repo = "tanstack/query";
-export const latestVersion = "v4";
+
 export const latestBranch = "main";
+export const latestVersion = "v4";
+export const availableVersions = ["v5", "v4", "v3"];
 
 export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion;
 
-  return ['latest', latestVersion].includes(version) ? latestBranch : version;
+  return ["latest", latestVersion].includes(version) ? latestBranch : version;
 }
 
 export type Menu = {
@@ -50,15 +52,16 @@ export let meta: MetaFunction = (meta) => {
 };
 
 export const loader = async (context: LoaderArgs) => {
-  if (!context.request.url.includes("/query/v") && !context.request.url.includes("/query/latest")) {
-    return redirect(
-      `${new URL(context.request.url).origin}/query/latest`
-    );
+  if (
+    !context.request.url.includes("/query/v") &&
+    !context.request.url.includes("/query/latest")
+  ) {
+    return redirect(`${new URL(context.request.url).origin}/query/latest`);
   }
 
   return new Response("OK");
 };
 
-export default function RouteReactTable() {
+export default function RouteQuery() {
   return <Outlet />;
 }

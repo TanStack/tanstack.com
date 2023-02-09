@@ -389,7 +389,7 @@ export default function TanStackRouterRoute() {
         <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
-            src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink?autoresize=1&fontsize=16&theme=${
+            src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-multi-file?autoresize=1&fontsize=16&theme=${
               isDark ? 'dark' : 'light'
             }`}
             title="tannerlinsley/react-router: kitchen-sink"

@@ -81,6 +81,19 @@ const libraries = [
     ),
   },
   {
+    name: 'TanStack Start',
+    getStyles: () =>
+      `shadow-xl shadow-amber-700/20 dark:shadow-lg dark:shadow-amber-500/30 text-amber-500 border-2 border-transparent hover:border-current`,
+    // to: 'https://github.com/tannerlinsley/react-ranger',
+    tagline: `Type-safe meta-framework, powered by TanStack Router`,
+    description: `A full-stack meta-framework for building modern web applications with TypeScript, React, Vue, Solid & Svelte, powered by TanStack Router.`,
+    badge: (
+      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-amber-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        Coming Soon
+      </div>
+    ),
+  },
+  {
     name: 'TanStack Virtual',
     getStyles: () =>
       `shadow-xl shadow-purple-700/20 dark:shadow-lg dark:shadow-purple-500/30 text-purple-500 border-2 border-transparent hover:border-current`,
@@ -114,33 +127,19 @@ const libraries = [
       </div>
     ),
   },
-
-  {
-    name: 'TanStack Loaders',
-    getStyles: () =>
-      `shadow-xl shadow-amber-700/20 dark:shadow-lg dark:shadow-amber-500/30 text-amber-500 border-2 border-transparent hover:border-current`,
-    // to: 'https://github.com/tannerlinsley/react-ranger',
-    tagline: `Simple data loading and caching utilities for apps`,
-    description: `Simple and lightweight cached data loading designed for fetch-as-you-render patterns in React, Vue, Solid & Svelte. It's basically React Query lite!`,
-    badge: (
-      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-amber-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Coming Soon
-      </div>
-    ),
-  },
-  {
-    name: 'TanStack Actions',
-    getStyles: () =>
-      `shadow-xl shadow-lime-700/20 dark:shadow-lg dark:shadow-lime-500/30 text-lime-500 border-2 border-transparent hover:border-current`,
-    // to: 'https://github.com/tannerlinsley/react-ranger',
-    tagline: `Simple mutation management utilities for apps`,
-    description: `Simple and lightweight action/mutation management utility for frameworks like React, Vue, Solid & Svelte.`,
-    badge: (
-      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-lime-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Coming Soon
-      </div>
-    ),
-  },
+  // {
+  //   name: 'TanStack Actions',
+  //   getStyles: () =>
+  //     `shadow-xl shadow-lime-700/20 dark:shadow-lg dark:shadow-lime-500/30 text-lime-500 border-2 border-transparent hover:border-current`,
+  //   // to: 'https://github.com/tannerlinsley/react-ranger',
+  //   tagline: `Simple mutation management utilities for apps`,
+  //   description: `Simple and lightweight action/mutation management utility for frameworks like React, Vue, Solid & Svelte.`,
+  //   badge: (
+  //     <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-lime-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+  //       Coming Soon
+  //     </div>
+  //   ),
+  // },
 ]
 
 const courses = [

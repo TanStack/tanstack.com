@@ -89,7 +89,7 @@ const libraries = [
     description: `A full-stack meta-framework for building modern web applications with TypeScript, React, Vue, Solid & Svelte, powered by TanStack Router.`,
     badge: (
       <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-amber-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Coming Soon
+        Soon
       </div>
     ),
   },

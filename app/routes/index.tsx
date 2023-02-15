@@ -85,8 +85,8 @@ const libraries = [
     getStyles: () =>
       `shadow-xl shadow-amber-700/20 dark:shadow-lg dark:shadow-amber-500/30 text-amber-500 border-2 border-transparent hover:border-current`,
     // to: 'https://github.com/tannerlinsley/react-ranger',
-    tagline: `Type-safe meta-framework, powered by TanStack Router`,
-    description: `A meta-framework for building modern web applications with TypeScript, React, Vue, Solid & Svelte, powered by TanStack Router.`,
+    tagline: `Type-safe, SSR-friendly meta-framework for React & Preact.`,
+    description: `A meta-framework for building modern React & Preact applications, powered by TanStack Router, Astro & Bling.`,
     badge: (
       <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-amber-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
         Soon

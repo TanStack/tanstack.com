@@ -139,7 +139,7 @@ const libraries = [
     description: `Simple and lightweight cached data loading designed for fetch-as-you-render patterns in React, Vue, Solid & Svelte. It's basically React Query lite!`,
     badge: (
       <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-amber-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Coming Soon
+        Soon
       </div>
     ),
   },
@@ -152,7 +152,7 @@ const libraries = [
     description: `Simple and lightweight action/mutation management utility for frameworks like React, Vue, Solid & Svelte.`,
     badge: (
       <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-lime-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Coming Soon
+        Soon
       </div>
     ),
   },

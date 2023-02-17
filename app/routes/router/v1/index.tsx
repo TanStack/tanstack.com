@@ -130,15 +130,14 @@ export default function TanStackRouterRoute() {
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
             scalable routing
           </span>{' '}
-          for applications
+          for React applications
         </h2>
         <p
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          A fully typesafe router with first-class search-param APIs and
-          built-in caching, built for JS/TS, React, Preact, Solid, Vue and
-          Svelte
+          A fully typesafe router for React with first-class search-param APIs
+          and client-side cache aware design.
         </p>
         <Link
           to="./docs/overview"
@@ -162,10 +161,10 @@ export default function TanStackRouterRoute() {
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               TanStack Router builds on modern routing patterns made popular by
-              tools like React Router, Next.js and Remix, but is architected
-              from the ground up to be{' '}
+              tools like React Router, Next.js, but is architected from the
+              ground up to be{' '}
               <span className="font-semibold text-lime-600 dark:text-lime-400">
-                100% typesafe and extremely powerful all while using less code
+                100% typesafe without compromising on DX
               </span>
               .
             </p>
@@ -183,17 +182,16 @@ export default function TanStackRouterRoute() {
           </div>
           <div className="flex flex-col gap-4 text-center">
             <h3 className="uppercase text-xl font-black">
-              Fetch responsibly with built-in caching
+              Built for both server-side and client-side data fetching
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Ephemeral say what? When you fetch on the client, it's cache or
-              die. TanStack Router comes with{' '}
+              Fetch on the server, of course, but don't give up your client side
+              caches! TanStack Router's API is{' '}
               <span className="font-semibold text-teal-700 dark:text-teal-400">
-                built-in caching, custom cache timings, and even automatic
-                preloading.
+                designed to work with client-side caching!
               </span>{' '}
-              Your users will notice the difference while you write less code
-              and ship more features.
+              Your users will notice the difference when your pages load quickly
+              from the server AND stay up to date.
             </p>
           </div>
         </div>
@@ -220,12 +218,10 @@ export default function TanStackRouterRoute() {
       <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
         <div className=" sm:text-center pb-16">
           <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-            Framework Agnostic & Feature Rich
+            Feature Rich and Lightweight
           </h3>
           <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-            TanStack Router's core API is very portable and
-            framework-independent while still prioritizing the ergonomics of
-            frameworks via adapters. Behold, the obligatory feature-list:
+            Behold, the obligatory feature-list:
           </p>
         </div>
         <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
@@ -336,7 +332,7 @@ export default function TanStackRouterRoute() {
             Pop in a Router component and start slinging some routes. Let's see
             it in action!
           </p>
-          <div className="flex flex-wrap gap-2 justify-center">
+          {/* <div className="flex flex-wrap gap-2 justify-center">
             {(
               [
                 { label: 'React', value: 'react' },
@@ -366,11 +362,11 @@ export default function TanStackRouterRoute() {
                 {item.label}
               </button>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
 
-      {['preact', 'vue', 'solid', 'svelte'].includes(framework) ? (
+      {/* {['preact', 'vue', 'solid', 'svelte'].includes(framework) ? (
         <div className="px-2">
           <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
             Looking for the <strong>@tanstack/{framework}-router</strong>{' '}
@@ -385,25 +381,25 @@ export default function TanStackRouterRoute() {
             and help us make routing in {framework} a better place!
           </div>
         </div>
-      ) : (
-        <div className="bg-white dark:bg-black">
-          <iframe
-            key={framework}
-            src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-multi-file?autoresize=1&fontsize=16&theme=${
-              isDark ? 'dark' : 'light'
-            }`}
-            title="tannerlinsley/react-router: kitchen-sink"
-            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-            className="shadow-2xl"
-            loading="lazy"
-            style={{
-              width: '100%',
-              height: '80vh',
-              border: '0',
-            }}
-          ></iframe>
-        </div>
-      )}
+      ) : ( */}
+      <div className="bg-white dark:bg-black">
+        <iframe
+          key={framework}
+          src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-multi-file?autoresize=1&fontsize=16&theme=${
+            isDark ? 'dark' : 'light'
+          }`}
+          title="tannerlinsley/react-router: kitchen-sink"
+          sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+          className="shadow-2xl"
+          loading="lazy"
+          style={{
+            width: '100%',
+            height: '80vh',
+            border: '0',
+          }}
+        ></iframe>
+      </div>
+      {/* )} */}
 
       <div className="flex flex-col gap-4 items-center">
         <div className="font-extrabold text-xl lg:text-2xl">

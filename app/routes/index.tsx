@@ -72,8 +72,8 @@ const libraries = [
     getStyles: () =>
       `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 text-emerald-500 dark:text-emerald-400 border-2 border-transparent hover:border-current`,
     to: '/router',
-    tagline: `Routing and URL management for your applications.`,
-    description: `Powerful routing with first-class search-param APIs for JS/TS, React, Solid, Vue and Svelte`,
+    tagline: `Type-safe Routing for React applications.`,
+    description: `Powerful routing for your React applications including a fully type-safe API and first-class search-param for managing state in the URL.`,
     badge: (
       <div className="uppercase text-white bg-emerald-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
         New

@@ -123,9 +123,9 @@ export default function RouteFrameworkParam() {
   const versionConfig = React.useMemo(() => {
     const available = availableVersions.reduce(
       (acc: AvailableOptions, version) => {
-        acc[version] = {
-          label: version,
-          value: version,
+        acc[version.name] = {
+          label: version.name,
+          value: version.name,
         };
         return acc;
       },

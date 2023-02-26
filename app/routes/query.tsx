@@ -6,14 +6,31 @@ import { useMatchesData } from "~/utils/utils";
 
 export const repo = "tanstack/query";
 
-export const latestBranch = "main";
+const latestBranch = "main";
 export const latestVersion = "v4";
-export const availableVersions = ["v5", "v4", "v3"];
+export const availableVersions = [
+  {
+    name: "v5",
+    branch: "alpha",
+  },
+  {
+    name: "v4",
+    branch: latestBranch,
+  },
+  {
+    name: "v3",
+    branch: "v3",
+  },
+] as const
 
 export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion;
 
-  return ["latest", latestVersion].includes(version) ? latestBranch : version;
+  if (version === "latest") {
+    return latestBranch
+  }
+  
+  return availableVersions.find(v => v.name === version)?.branch ?? latestBranch;
 }
 
 export type Menu = {

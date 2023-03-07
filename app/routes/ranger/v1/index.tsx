@@ -297,8 +297,7 @@ export default function TanStackRangerRoute() {
             Take it for a spin!
           </h3>
           <p className="my-4 text-xl leading-7  text-gray-600">
-            Pop in a Router component and start slinging some routes. Let's see
-            it in action!
+            Let's see it in action!
           </p>
           {/* <div className="flex flex-wrap gap-2 justify-center">
             {(
@@ -353,10 +352,10 @@ export default function TanStackRangerRoute() {
       <div className="bg-white dark:bg-black">
         <iframe
           key={framework}
-          src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-multi-file?autoresize=1&fontsize=16&theme=${
+          src={`https://codesandbox.io/embed/github/tanstack/ranger/tree/${v1branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
             isDark ? 'dark' : 'light'
           }`}
-          title="tannerlinsley/react-router: kitchen-sink"
+          title="tannerlinsley/react-ranger: basic"
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
           className="shadow-2xl"
           loading="lazy"

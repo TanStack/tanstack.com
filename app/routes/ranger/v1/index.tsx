@@ -195,7 +195,7 @@ export default function TanStackRangerRoute() {
               Extensible
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              UI presents countless edge cases for a library simply because it's a creative medium, and one where every developer does things differently. By not dictating UI concerns, React Ranger empowers the developer to design and extend the UI based on their unique use-case.
+              UI presents countless edge cases for a library simply because it's a creative medium, and one where every developer does things differently. By not dictating UI concerns, Ranger empowers the developer to design and extend the UI based on their unique use-case.
             </p>
           </div>
         </div>
@@ -213,7 +213,7 @@ export default function TanStackRangerRoute() {
         <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
           {[
             '100% Typesafe',
-            'Lightweight (10kb)',
+            'Lightweight (306 kB)',
             'Easy to maintain',
             'Extensible',
             'Not dictating UI',
@@ -248,7 +248,7 @@ export default function TanStackRangerRoute() {
               Ranger as we are? Let's push the boundaries of Ranger together!
             </div>
             <a
-              href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
+              href="mailto:partners@tanstack.com?subject=TanStack Ranger Partnership"
               className="text-blue-500 uppercase font-black text-sm"
             >
               Let's chat

@@ -13,7 +13,6 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
   const reactRangerV1List = [
     {from: 'docs/overview',to: 'docs/guide/introduction',},
     {from: 'docs/installation',to: 'docs/guide/installation',},
-    {from: 'docs/api',to: 'docs/api/virtualizer',},
     {from: 'examples/basic',to: 'docs/examples/react/basic',},
     {from: 'examples/custom-steps',to: 'docs/examples/react/custom-steps',},
     {from: 'examples/custom-styles',to: 'docs/examples/react/custom-styles',},

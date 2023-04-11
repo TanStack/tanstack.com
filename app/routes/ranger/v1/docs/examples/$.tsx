@@ -3,7 +3,7 @@ import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { DocTitle } from "~/components/DocTitle";
-import { v1branch } from "~/routes/router/v1";
+import { v1branch } from "~/routes/ranger/v1";
 import { seo } from "~/utils/seo";
 import { capitalize, slugToTitle } from "~/utils/utils";
 

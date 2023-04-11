@@ -7,7 +7,7 @@ import type { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { useMatchesData } from '~/utils/utils'
 
-export const v1branch = 'beta'
+export const v1branch = 'main'
 
 export const loader: LoaderFunction = async () => {
   const config = await fetchRepoFile(

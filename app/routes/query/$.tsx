@@ -9,6 +9,24 @@ export const loader = (context: LoaderArgs) => {
 
 export function handleRedirectsFromV3(context: LoaderArgs) {
   const url = new URL(context.request.url);
+  
+  // Redirect old `adapters` pages
+  const adaptersRedirects = [
+    {from: "docs/react/adapters/vue-query", to: "docs/vue/overview"},
+    {from: "docs/react/adapters/solid-query", to: "docs/solid/overview"},
+    {from: "docs/react/adapters/svelte-query", to: "docs/svelte/overview"},
+  ]
+
+  adaptersRedirects.forEach((item) => {
+    if (url.pathname.startsWith(`/query/v4/${item.from}`)) {
+      throw redirect(
+        `/query/latest/${item.to}`,
+        301
+      );
+    }
+  });
+
+  // Redirect old query v3 docs
   // prettier-ignore
   const reactQueryv3List = [
     // {from: 'api/overview',to: 'docs/guide/overview',},

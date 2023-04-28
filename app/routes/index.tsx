@@ -5,7 +5,8 @@ import {
   useLoaderData,
   useTransition,
 } from '@remix-run/react'
-import { json, ActionFunction, LoaderArgs } from '@remix-run/node'
+import type { ActionFunction } from '@remix-run/node'
+import { json, LoaderArgs } from '@remix-run/node'
 import { Carbon } from '~/components/Carbon'
 import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
@@ -76,7 +77,7 @@ const libraries = [
     description: `Powerful routing for your React applications including a fully type-safe API and first-class search-param for managing state in the URL.`,
     badge: (
       <div className="uppercase text-white bg-emerald-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        New
+        Beta
       </div>
     ),
   },
@@ -92,7 +93,7 @@ const libraries = [
     description: `A meta-framework for building modern React & Preact applications, powered by TanStack Router, Astro & Bling.`,
     badge: (
       <div className="flex items-center justify-center whitespace-nowrap uppercase text-white rounded-full px-2 py-1 text-xs font-black animate-pulse bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600)]">
-        Soon
+        Alpha
       </div>
     ),
   },
@@ -103,9 +104,22 @@ const libraries = [
     to: '/virtual',
     tagline: `Headless UI for Virtualizing Large Element Lists`,
     description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid & Svelte while retaining 100% control over markup and styles.`,
+    // badge: (
+    //   <div className="uppercase text-white bg-purple-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+    //     New
+    //   </div>
+    // ),
+  },
+  {
+    name: 'TanStack Form',
+    getStyles: () =>
+      `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
+    to: '/form',
+    tagline: `Headless range and multi-range slider utilities.`,
+    description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup for that perfect design.`,
     badge: (
-      <div className="uppercase text-white bg-purple-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        New
+      <div className="uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        Alpha
       </div>
     ),
   },
@@ -126,7 +140,7 @@ const libraries = [
     description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup for that perfect design.`,
     badge: (
       <div className="uppercase text-white bg-pink-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        New
+        Beta
       </div>
     ),
   },
@@ -139,7 +153,7 @@ const libraries = [
     description: `Simple and lightweight cached data loading designed for fetch-as-you-render patterns in React, Vue, Solid & Svelte. It's basically React Query lite!`,
     badge: (
       <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-amber-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Soon
+        Alpha
       </div>
     ),
   },
@@ -152,7 +166,7 @@ const libraries = [
     description: `Simple and lightweight action/mutation management utility for frameworks like React, Vue, Solid & Svelte.`,
     badge: (
       <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-lime-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Soon
+        Alpha
       </div>
     ),
   },
@@ -338,14 +352,55 @@ export default function Index() {
                   <strong>best table/datagrid libraries around</strong>. Instead
                   of competing, we're working together to ensure the highest
                   quality table/datagrid options are available for the entire
-                  JS/TS ecosystem and every use-case.
+                  JS/TS ecosystem and every use-case imaginable for UI/UX
+                  developers.
                 </div>
                 <Link
                   to="/blog/ag-grid-partnership"
                   className="text-blue-500 uppercase font-black text-sm"
                   prefetch="intent"
                 >
-                  Read More
+                  Learn More
+                </Link>
+              </div>
+            </div>
+            <div
+              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-800 dark:shadow-none"
+            >
+              <div className="flex-1 bg-white flex items-center justify-center p-2">
+                <a
+                  href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <img
+                    src={require('~/images/nozzle.png')}
+                    className="w-[230px] max-w-full my-2"
+                    width="230"
+                    height="80"
+                  />
+                </a>
+              </div>
+              <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+                <div>
+                  For years, TanStack technologies have been used to power
+                  Nozzle's SEO platform. As one of the{' '}
+                  <strong>
+                    most technically advanced search engine monitoring platforms
+                  </strong>
+                  , its enterprise rank tracking and keyword research tools are
+                  setting a new bar for quality and scale. Nozzle uses the full
+                  gamut of TanStack tools on the front-end to deliver users with
+                  unmatched UI/UX.
+                </div>
+                <Link
+                  to="/blog/ag-grid-partnership"
+                  className="text-blue-500 uppercase font-black text-sm"
+                  prefetch="intent"
+                >
+                  Learn More
                 </Link>
               </div>
             </div>

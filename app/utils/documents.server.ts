@@ -23,8 +23,16 @@ export type DocFrontMatter = {
 /**
  * Return text content of file from remote location
  */
-async function fetchRemote(owner: string, repo: string, ref: string, filepath: string) {
-  const href = new URL(`${owner}/${repo}/${ref}/${filepath}`, 'https://raw.githubusercontent.com/').href
+async function fetchRemote(
+  owner: string,
+  repo: string,
+  ref: string,
+  filepath: string
+) {
+  const href = new URL(
+    `${owner}/${repo}/${ref}/${filepath}`,
+    'https://raw.githubusercontent.com/'
+  ).href
   console.log('fetching remote file', href)
 
   const response = await fetch(href, {
@@ -44,7 +52,7 @@ async function fetchRemote(owner: string, repo: string, ref: string, filepath: s
 async function fetchFs(repo: string, filepath: string) {
   const localFilePath = path.resolve(__dirname, `../../${repo}`, filepath)
 
-  console.log('local path', __dirname, filepath, localFilePath)
+  console.log('local path', { __dirname, filepath, localFilePath })
   const file = await fsp.readFile(localFilePath)
   return file.toString()
 }
@@ -52,7 +60,10 @@ async function fetchFs(repo: string, filepath: string) {
 /**
  * Perform global string replace in text for given key-value map
  */
-function replaceContent(text: string, frontmatter: graymatter.GrayMatterFile<string>) {
+function replaceContent(
+  text: string,
+  frontmatter: graymatter.GrayMatterFile<string>
+) {
   let result = text
   const replace = frontmatter.data.replace as Record<string, string> | undefined
   if (replace) {
@@ -73,11 +84,15 @@ function replaceContent(text: string, frontmatter: graymatter.GrayMatterFile<str
  * @param frontmatter Referencing file front-matter
  * @returns File content with replaced sections
  */
-function replaceSections(text: string, frontmatter: graymatter.GrayMatterFile<string>) {
+function replaceSections(
+  text: string,
+  frontmatter: graymatter.GrayMatterFile<string>
+) {
   let result = text
   // RegExp defining token pair to dicover sections in the document
   // [//]: # (<Section Token>)
-  const sectionRegex = /\[\/\/\]: # '([a-zA-Z\d]*)'[\S\s]*?\[\/\/\]: # '([a-zA-Z\d]*)'/g
+  const sectionRegex =
+    /\[\/\/\]: # '([a-zA-Z\d]*)'[\S\s]*?\[\/\/\]: # '([a-zA-Z\d]*)'/g
 
   // Find all sections in origin file
   const substitutes = new Map<string, RegExpMatchArray>()
@@ -112,7 +127,10 @@ function replaceSections(text: string, frontmatter: graymatter.GrayMatterFile<st
           result =
             result.slice(0, sectionMatch.index!) +
             value[0] +
-            result.slice(sectionMatch.index! + sectionMatch[0].length, result.length)
+            result.slice(
+              sectionMatch.index! + sectionMatch[0].length,
+              result.length
+            )
         }
       })
   }
@@ -120,7 +138,11 @@ function replaceSections(text: string, frontmatter: graymatter.GrayMatterFile<st
   return result
 }
 
-export async function fetchRepoFile(repoPair: string, ref: string, filepath: string) {
+export async function fetchRepoFile(
+  repoPair: string,
+  ref: string,
+  filepath: string
+) {
   const key = `${repoPair}:${ref}:${filepath}`
   let [owner, repo] = repoPair.split('/')
 
@@ -193,6 +215,7 @@ export async function markdownToMdx(content: string) {
 
 export function extractFrontMatter(content: string) {
   return graymatter.default(content, {
-    excerpt: (file: any) => (file.excerpt = file.content.split('\n').slice(0, 4).join('\n')),
+    excerpt: (file: any) =>
+      (file.excerpt = file.content.split('\n').slice(0, 4).join('\n')),
   })
 }

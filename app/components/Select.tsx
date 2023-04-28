@@ -1,30 +1,30 @@
-import { Fragment } from "react";
-import { Listbox, Transition } from "@headlessui/react";
+import { Fragment } from 'react'
+import { Listbox, Transition } from '@headlessui/react'
 
-import { HiCheck, HiChevronDown } from "react-icons/hi";
-import { Form } from "@remix-run/react";
+import { HiCheck, HiChevronDown } from 'react-icons/hi'
+import { Form } from '@remix-run/react'
 
 export type AvailableOptions = Record<
   string,
   { label: string; value: string; logo?: string }
->;
+>
 
 export type SelectProps = {
-  className?: string;
-  label: string;
-  selected: string;
-  available: AvailableOptions;
-  onSelect: (selected: { label: string; value: string }) => void;
-};
+  className?: string
+  label: string
+  selected: string
+  available: AvailableOptions
+  onSelect: (selected: { label: string; value: string }) => void
+}
 
 export function Select({
-  className = "",
+  className = '',
   label,
   selected,
   available,
   onSelect,
 }: SelectProps) {
-  const selectedOption = available[selected];
+  const selectedOption = available[selected]
 
   return (
     <div className={`top-16 w-full flex-1 ${className}`}>
@@ -57,16 +57,16 @@ export function Select({
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="absolute z-10 dark:bg-gray-800 dark:border-2 border-gray-600/70 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+              <Listbox.Options className="absolute z-10 dark:bg-gray-800 dark:border-2 border-gray-600/70 mt-1 max-h-60 w-fit overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                 {Object.values(available).map((option) => (
                   <Listbox.Option
                     key={option.value}
                     className={({ active }) =>
                       `relative cursor-default select-none py-2 pr-10 ${
                         active
-                          ? "bg-gray-100 dark:bg-gray-700"
-                          : "text-gray-900 dark:text-gray-300"
-                      } ${option.logo ? "pl-10" : "pl-2"}`
+                          ? 'bg-gray-100 dark:bg-gray-700'
+                          : 'text-gray-900 dark:text-gray-300'
+                      } ${option.logo ? 'pl-10' : 'pl-2'}`
                     }
                     value={option}
                   >
@@ -84,7 +84,7 @@ export function Select({
                         ) : null}
                         <span
                           className={`block truncate ${
-                            selected ? "font-medium" : "font-normal"
+                            selected ? 'font-medium' : 'font-normal'
                           }`}
                         >
                           {option.label}
@@ -104,5 +104,5 @@ export function Select({
         </Listbox>
       </Form>
     </div>
-  );
+  )
 }

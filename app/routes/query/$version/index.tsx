@@ -493,7 +493,7 @@ export default function RouteVersion() {
           </div>
         </div>
 
-        {["svelte"].includes(framework) ? (
+        {[""].includes(framework) ? (
           <div className="px-2">
             <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
               Looking for the <strong>@tanstack/{framework}-query</strong>{" "}

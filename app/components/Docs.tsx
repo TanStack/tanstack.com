@@ -186,7 +186,7 @@ export function Docs({
   )
 
   const largeMenu = (
-    <div className="hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
+    <div className="min-w-[250px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div>
         <DocSearch
@@ -224,48 +224,11 @@ export function Docs({
     </div>
   )
 
-  const aside = (
-    <aside className="hidden md:block">
-      <div className="p-6 sticky top-0">
-        <ul className="border border-black/10 dark:border-white/10 p-6 rounded-lg">
-          {config?.docSearch?.indexName?.includes('query') && (
-            <li className="mb-8">
-              <h6 className="text-[.9em] uppercase font-black mb-4">
-                Want to Skip the Docs?
-              </h6>
-              <p className="text-sm">
-                Fast track your learning and <br />
-                <a
-                  className={`${gradientText}`}
-                  href="https://ui.dev/react-query?from=tanstack"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <span>take the offical React Query course ↗️</span>
-                </a>
-              </p>
-            </li>
-          )}
-          <li>
-            <h6 className="text-[.9em] uppercase font-black mb-4">
-              Subscribe to Bytes
-            </h6>
-            <p className="text-sm mb-4">
-              Your weekly dose of JavaScript news. Delivered every Monday to
-              over 100,000 devs, for free.
-            </p>
-            <BytesForm />
-          </li>
-        </ul>
-      </div>
-    </aside>
-  )
-
   return (
-    <div className="min-h-screen flex flex-col  lg:grid lg:grid-cols-[250px_minmax(500px,_1fr)_minmax(300px,_400px)] w-full">
+    <div className="min-h-screen flex flex-col lg:flex-row w-full">
       {smallMenu}
       {largeMenu}
-      <div className="flex-1 min-h-0 flex relative justify-center">
+      <div className="flex-1 min-w-0 min-h-0 flex relative justify-center">
         {children || <Outlet />}
         <div
           className="fixed bottom-0 left-0 right-0
@@ -317,7 +280,40 @@ export function Docs({
           </div>
         </div>
       </div>
-      {aside}
+      <aside className="w-[25vw] hidden md:block max-w-[350px]">
+        <div className="p-6 sticky top-0">
+          <ul className="border border-black/10 dark:border-white/10 p-6 rounded-lg">
+            {config?.docSearch?.indexName?.includes('query') && (
+              <li className="mb-8">
+                <h6 className="text-[.9em] uppercase font-black mb-4">
+                  Want to Skip the Docs?
+                </h6>
+                <p className="text-sm">
+                  Fast track your learning and <br />
+                  <a
+                    className={`${gradientText}`}
+                    href="https://ui.dev/react-query?from=tanstack"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span>take the offical React Query course ↗️</span>
+                  </a>
+                </p>
+              </li>
+            )}
+            <li>
+              <h6 className="text-[.9em] uppercase font-black mb-4">
+                Subscribe to Bytes
+              </h6>
+              <p className="text-sm mb-4">
+                Your weekly dose of JavaScript news. Delivered every Monday to
+                over 100,000 devs, for free.
+              </p>
+              <BytesForm />
+            </li>
+          </ul>
+        </div>
+      </aside>
     </div>
   )
 }

@@ -69,7 +69,7 @@ export const createLogo = (version?: string) => (
     <Link to="/" className="font-light">
       TanStack
     </Link>
-    <Link to="../.." className={`font-bold`}>
+    <Link to="../../" className={`font-bold`}>
       <span className={`${gradientText}`}>Form</span>{' '}
       <span className="text-sm align-super">
         {version === 'latest' ? latestVersion : version}

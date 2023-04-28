@@ -215,7 +215,7 @@ export let meta: MetaFunction = (meta) => {
     title: 'TanStack Form | React Form, Solid Form, Svelte Form, Vue Form',
     description:
       'Simple, performant, type-safe forms for TS/JS, React, Solid, Svelte and Vue',
-    image: 'https://github.com/tanstack/form/raw/beta/media/repo-header.png',
+    image: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
   })
 }
 

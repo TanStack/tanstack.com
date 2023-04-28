@@ -132,3 +132,8 @@
 .carbon-small .carbon-wrap .carbon-poweredby {
   @apply absolute bottom-0 right-0;
 }
+
+code[class*="language-"] {
+  white-space: pre-wrap;
+  word-break: break-all;
+}

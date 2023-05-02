@@ -299,56 +299,9 @@ export default function TanStackRangerRoute() {
           <p className="my-4 text-xl leading-7  text-gray-600">
             Let's see it in action!
           </p>
-          {/* <div className="flex flex-wrap gap-2 justify-center">
-            {(
-              [
-                { label: 'React', value: 'react' },
-                { label: 'Preact', value: 'preact' },
-                { label: 'Solid', value: 'solid' },
-                { label: 'Vue', value: 'vue' },
-                { label: 'Svelte', value: 'svelte' },
-              ] as const
-            ).map((item) => (
-              <button
-                key={item.value}
-                className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold ${
-                  item.value === framework
-                    ? 'bg-teal-500'
-                    : 'bg-gray-300 dark:bg-gray-700 hover:bg-teal-300'
-                }`}
-                onClick={
-                  () => setFramework(item.value)
-                  // setParams(new URLSearchParams({ framework: item.value }), {
-                  //   replace: true,
-                  //   state: {
-                  //     scroll: false,
-                  //   },
-                  // })
-                }
-              >
-                {item.label}
-              </button>
-            ))}
-          </div> */}
         </div>
       </div>
 
-      {/* {['preact', 'vue', 'solid', 'svelte'].includes(framework) ? (
-        <div className="px-2">
-          <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
-            Looking for the <strong>@tanstack/{framework}-router</strong>{' '}
-            example? The <strong>@tanstack/{framework}-router</strong> adapter
-            is currently under development! Join the{' '}
-            <a
-              href="https://tlinz.com/discord"
-              className="text-teal-500 font-bold"
-            >
-              TanStack Discord Server
-            </a>{' '}
-            and help us make routing in {framework} a better place!
-          </div>
-        </div>
-      ) : ( */}
       <div className="bg-white dark:bg-black">
         <iframe
           key={framework}

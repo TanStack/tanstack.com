@@ -27,7 +27,7 @@ export let meta: MetaFunction = ({ data }) => {
 };
 
 export default function RouteReactTableDocs() {
-  const { kind, name, search } = useLoaderData();
+  const { kind, name } = useLoaderData();
 
   const examplePath = [kind, name].join("/");
 
@@ -46,7 +46,7 @@ export default function RouteReactTableDocs() {
       </div>
       <div className="flex-1 lg:ml-6 flex flex-col min-h-0">
         <iframe
-          src={`https://stackblitz.com/github/tanstack/ranger/tree/${v1branch}/examples/${examplePath}?${search}embed=1&theme=${
+          src={`https://codesandbox.io/embed/github/tanstack/ranger/tree/${v1branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
             isDark ? "dark" : "light"
           }`}
           title={`tanstack/ranger: ${examplePath}`}

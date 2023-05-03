@@ -115,8 +115,8 @@ const libraries = [
     getStyles: () =>
       `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
     to: '/form',
-    tagline: `Headless range and multi-range slider utilities.`,
-    description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup for that perfect design.`,
+    tagline: `Headless UI for building performant and type-safe forms`,
+    description: `Headless, performant, and type-safe form state management for TS/JS, React, Solid, Svelte and Vue`,
     badge: (
       <div className="uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
         Alpha

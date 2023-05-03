@@ -115,8 +115,8 @@ const libraries = [
     getStyles: () =>
       `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
     to: '/form',
-    tagline: `Headless range and multi-range slider utilities.`,
-    description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup for that perfect design.`,
+    tagline: `Simple, performant, and type-safe form state management`,
+    description: `Tiny footprint, zero dependencies, framework agnostic core and granular type-safe APIs, TanStack Form is the perfect combination of simplicity and power you need to build forms fast with peace of mind.`,
     badge: (
       <div className="uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
         Alpha

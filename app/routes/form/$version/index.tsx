@@ -134,7 +134,7 @@ export default function RouteVersion() {
             lg:text-5xl lg:max-w-2xl"
           >
             <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-              Simple, performant, and type-safe
+              Headless, performant, and type-safe
             </span>{' '}
             form state management for TS/JS, React, Solid, Svelte and Vue
           </h2>

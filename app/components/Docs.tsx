@@ -50,7 +50,6 @@ export function Docs({
   v2?: boolean
 }) {
   const matches = useMatches()
-  console.log(matches)
   const lastMatch = last(matches)
 
   const detailsRef = React.useRef<HTMLElement>(null!)
@@ -70,6 +69,15 @@ export function Docs({
   const index = flatMenu.findIndex((d) => d.to === relativePathname)
   const prevItem = flatMenu[index - 1]
   const nextItem = flatMenu[index + 1]
+  
+  document.body.style.overflow = 'visible'
+  const toggleBodyOverflow = () => {
+    if (detailsRef.current?.hasAttribute('open')) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'visible'
+    }
+  }
 
   const menuItems = config.menu.map((group, i) => {
     return (
@@ -147,6 +155,7 @@ export function Docs({
         ref={detailsRef as any}
         id="docs-details"
         className="border-b border-gray-500 border-opacity-20"
+        onToggle={toggleBodyOverflow}
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
           <div className="flex gap-2 items-center text-xl md:text-2xl">
@@ -157,9 +166,9 @@ export function Docs({
           <Search {...config.docSearch} />
         </summary>
         <div
-          className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto
+          className="flex flex-col gap-4 p-4 whitespace-nowrap
           border-t border-gray-500 border-opacity-20 bg-gray-100 text-lg
-          dark:bg-gray-900"
+          dark:bg-gray-900 h-[100vh] overflow-y-auto pb-24"
         >
           <div className="flex gap-4">
             {framework?.selected ? (

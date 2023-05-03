@@ -83,10 +83,6 @@
     display: none;
   }
 
-  #docs-details[open] > summary + * {
-    height: 80vh;
-  }
-
   .anchor-heading {
     text-decoration: none !important;
   }

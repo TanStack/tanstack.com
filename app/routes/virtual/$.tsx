@@ -27,7 +27,11 @@ function handleRedirects(context: LoaderArgs) {
   reactVirtualv2List.forEach((item) => {
     if (url.pathname.startsWith(`/virtual/v2/${item.from}`)) {
       throw redirect(
-        `/virtual/v3/${item.to}?from=reactVirtualV2&original=https://react-virtual-v2.tanstack.com/${item.from}`,
+        `/virtual/v3/${
+          item.to
+        }?from=reactVirtualV2&original=https://github.com/TanStack/virtual/tree/v2/docs/src/pages/docs/${
+          item.from
+        }${item.from ? '.md' : ''}`,
         301
       )
     }

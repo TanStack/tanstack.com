@@ -29,7 +29,7 @@ function handleRedirects(context: LoaderArgs) {
       throw redirect(
         `/virtual/v3/${
           item.to
-        }?from=reactVirtualV2&original=https://github.com/TanStack/virtual/tree/v2/docs/src/pages/docs/${
+        }?from=reactVirtualV2&original=https://github.com/TanStack/virtual/tree/v2/docs/src/pages/${
           item.from
         }${item.from ? '.md' : ''}`,
         301

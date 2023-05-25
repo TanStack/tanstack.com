@@ -4,7 +4,6 @@ import {
   LiveReload,
   Meta,
   Outlet,
-  Scripts,
   ScrollRestoration,
   useCatch,
   useMatches,
@@ -138,7 +137,6 @@ function Document({
       <body>
         {children}
         <ScrollRestoration />
-        <Scripts />
         <LiveReload />
         <div
           className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-800

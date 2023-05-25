@@ -46,7 +46,7 @@ function handleRedirects(context: LoaderArgs) {
   reactTablev7List.forEach((item) => {
     if (url.pathname.startsWith(`/table/v7/${item.from}`)) {
       throw redirect(
-        `/table/v8/${item.to}?from=reactTableV7&original=https://react-table-v7.tanstack.com/${item.from}`,
+        `/table/v8/${item.to}?from=reactTableV7&original=https://github.com/TanStack/table/tree/v7/docs/src/pages/${item.from}`,
         301
       )
     }

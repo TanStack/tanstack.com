@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { LoaderArgs, json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { DocsConfig } from '~/components/Docs'
+import type { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { seo } from '~/utils/seo'
 import { useMatchesData } from '~/utils/utils'
@@ -46,7 +46,10 @@ export default function RouteReactTable() {
           <div>
             Looking for the{' '}
             <a
-              href={original || 'https://react-table-v7.tanstack.com'}
+              href={
+                original ||
+                'https://github.com/TanStack/table/tree/v7/docs/src/pages/docs/'
+              }
               className="font-bold underline"
             >
               React Table v7 documentation

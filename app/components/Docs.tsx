@@ -228,7 +228,7 @@ export function Docs({
     <div className="min-h-screen flex flex-col lg:flex-row w-full">
       {smallMenu}
       {largeMenu}
-      <div className="flex-1 min-w-0 min-h-0 flex relative justify-center">
+      <article className="flex-1 min-w-0 min-h-0 flex relative justify-center">
         {children || <Outlet />}
         <div
           className="fixed bottom-0 left-0 right-0
@@ -279,7 +279,7 @@ export function Docs({
             ) : null}
           </div>
         </div>
-      </div>
+      </article>
       <aside className="w-[25vw] hidden md:block max-w-[350px]">
         <div className="p-6 sticky top-0">
           <ul className="border border-black/10 dark:border-white/10 p-6 rounded-lg">

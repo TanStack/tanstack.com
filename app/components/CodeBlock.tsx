@@ -2,10 +2,13 @@ import type { FC, HTMLAttributes, ReactElement } from 'react'
 import { Children } from 'react'
 import invariant from 'tiny-invariant'
 import type { Language } from 'prism-react-renderer'
-import Highlight, { defaultProps, Prism } from 'prism-react-renderer'
+import { Highlight, Prism } from 'prism-react-renderer'
 
 // @ts-ignore Alias markup as vue highlight
 Prism.languages.vue = Prism.languages.markup;
+
+// @ts-ignore Alias markup as svelte highlight
+Prism.languages.svelte = Prism.languages.markup;
 
 function getLanguageFromClassName(className: string) {
   const match = className.match(/language-(\w+)/)
@@ -25,7 +28,7 @@ export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
   const code = child.props.children || ''
   return (
     <div className="w-full max-w-full">
-      <Highlight {...defaultProps} code={code.trim()} language={lang}>
+      <Highlight code={code.trim()} language={lang}>
         {({ className, tokens, getLineProps, getTokenProps }) => (
           <div className="relative not-prose">
             <div

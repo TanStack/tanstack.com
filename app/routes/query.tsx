@@ -11,7 +11,7 @@ export const latestVersion = "v4";
 export const availableVersions = [
   {
     name: "v5",
-    branch: "alpha",
+    branch: "beta",
   },
   {
     name: "v4",

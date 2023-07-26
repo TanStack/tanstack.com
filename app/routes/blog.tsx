@@ -4,7 +4,6 @@ import { Link, NavLink, Outlet } from '@remix-run/react'
 import { MetaFunction } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { Carbon } from '~/components/Carbon'
 import { seo } from '~/utils/seo'
 
 export const ErrorBoundary = DefaultErrorBoundary
@@ -117,9 +116,6 @@ export default function RouteBlog() {
       <div></div>
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base">
         {menuItems}
-      </div>
-      <div className="carbon-small absolute bottom-0 w-full">
-        <Carbon />
       </div>
     </div>
   )

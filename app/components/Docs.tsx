@@ -218,9 +218,6 @@ export function Docs({
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
         {menuItems}
       </div>
-      <div className="carbon-small absolute bottom-0 w-full">
-        <Carbon />
-      </div>
     </div>
   )
 
@@ -312,6 +309,9 @@ export function Docs({
               <BytesForm />
             </li>
           </ul>
+        </div>
+        <div className="carbon-small p-6 fixed bottom-0">
+          <Carbon />
         </div>
       </aside>
     </div>

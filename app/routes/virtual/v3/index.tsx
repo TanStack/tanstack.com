@@ -210,7 +210,7 @@ export default function ReactTableRoute() {
               With a single function/hook, you'll get limitless virtualization
               for{' '}
               <span className="font-semibold text-violet-700 dark:text-violet-400">
-                vertical, horizontal, and grid-style
+                vertical, horizontal, and grid-style{' '}
               </span>
               layouts. The API is tiny (literally 1 function), but its
               composability is not.

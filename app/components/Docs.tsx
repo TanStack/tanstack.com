@@ -337,7 +337,10 @@ export function Docs({
             setShowBytes(true)
           }}
         >
-          <div className="origin-bottom-right -rotate-90 text-xs bg-white text-gray-500 border border-gray-100 hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md">
+          <div
+            className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
+          hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
+          >
             {config?.docSearch?.indexName?.includes('query') ? (
               <>
                 <strong>Skip the docs?</strong>

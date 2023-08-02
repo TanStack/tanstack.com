@@ -33,7 +33,6 @@ async function fetchRemote(
     `${owner}/${repo}/${ref}/${filepath}`,
     'https://raw.githubusercontent.com/'
   ).href
-  console.log('fetching remote file', href)
 
   const response = await fetch(href, {
     headers: { 'User-Agent': `docs:${owner}/${repo}` },
@@ -51,8 +50,6 @@ async function fetchRemote(
  */
 async function fetchFs(repo: string, filepath: string) {
   const localFilePath = path.resolve(__dirname, `../../${repo}`, filepath)
-
-  console.log('local path', { __dirname, filepath, localFilePath })
   const file = await fsp.readFile(localFilePath)
   return file.toString()
 }

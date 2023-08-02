@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { json, LoaderArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderArgs, MetaFunction } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
 import { v3branch } from '~/routes/virtual/v3'
@@ -42,14 +43,14 @@ export default function RouteReactTableDocs() {
           {capitalize(kind)} Example: {slugToTitle(name)}
         </DocTitle>
       </div>
-      <div className="flex-1 lg:ml-6 flex flex-col min-h-0">
+      <div className="flex-1 lg:px-6 flex flex-col min-h-0">
         <iframe
           src={`https://codesandbox.io/embed/github/tanstack/virtual/tree/${v3branch}/examples/${examplePath}?autoresize=1&fontsize=14&theme=${
             isDark ? 'dark' : 'light'
           }`}
           title={`tanstack/virtual: ${examplePath}`}
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-          className="flex-1 w-full overflow-hidden lg:rounded-l-2xl shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
+          className="flex-1 w-full overflow-hidden lg:rounded-lg shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
         />
       </div>
       <div className="lg:h-16 lg:mt-2" />

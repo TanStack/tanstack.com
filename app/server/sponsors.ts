@@ -204,7 +204,7 @@ async function getGithubSponsors() {
     return sponsors.filter(Boolean)
   } catch (err: any) {
     if (err.status === 401) {
-      console.log('Missing github credentials, returning mock data.')
+      console.error('Missing github credentials, returning mock data.')
       return []
     }
     throw err
@@ -233,7 +233,7 @@ async function getSponsorsMeta() {
     })
   } catch (err: any) {
     if (err.message === 'An API key is required to connect to Airtable') {
-      console.log('Missing airtable credentials, returning mock data.')
+      console.error('Missing airtable credentials, returning mock data.')
 
       return []
     }

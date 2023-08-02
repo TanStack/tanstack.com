@@ -146,7 +146,6 @@ export const useReactFormDocsConfig = () => {
           ...match.params,
           framework: option.value,
         })
-        console.log('on framework', option, match, url)
         navigate(url)
       },
     }
@@ -178,7 +177,6 @@ export const useReactFormDocsConfig = () => {
           ...match.params,
           version: option.value,
         })
-        console.log('on framework', option, match, url)
         navigate(url)
       },
     }

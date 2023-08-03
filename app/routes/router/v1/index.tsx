@@ -385,10 +385,10 @@ export default function TanStackRouterRoute() {
       <div className="bg-white dark:bg-black">
         <iframe
           key={framework}
-          src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-multi-file?autoresize=1&fontsize=16&theme=${
+          src={`https://stackblitz.com/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-single-file?file=src%2Fmain.tsx&embed=1&theme=${
             isDark ? 'dark' : 'light'
           }`}
-          title="tannerlinsley/react-router: kitchen-sink"
+          title="tannerlinsley/router: kitchen-sink"
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
           className="shadow-2xl"
           loading="lazy"

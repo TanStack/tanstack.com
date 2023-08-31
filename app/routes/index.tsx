@@ -81,22 +81,22 @@ const libraries = [
       </div>
     ),
   },
-  {
-    name: 'TanStack Start',
-    getStyles: () =>
-      `
-      text-transparent bg-clip-text bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600,red)]
-      shadow-xl shadow-amber-700/20 dark:shadow-lg dark:shadow-amber-500/30 border-2 border-transparent hover:border-current
-      `,
-    // to: 'https://github.com/tannerlinsley/react-ranger',
-    tagline: `Type-safe, SSR-friendly meta-framework for React & Preact.`,
-    description: `A meta-framework for building modern React & Preact applications, powered by TanStack Router, Astro & Bling.`,
-    badge: (
-      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white rounded-full px-2 py-1 text-xs font-black animate-pulse bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600)]">
-        Alpha
-      </div>
-    ),
-  },
+  // {
+  //   name: 'TanStack Start',
+  //   getStyles: () =>
+  //     `
+  //     text-transparent bg-clip-text bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600,red)]
+  //     shadow-xl shadow-amber-700/20 dark:shadow-lg dark:shadow-amber-500/30 border-2 border-transparent hover:border-current
+  //     `,
+  //   // to: 'https://github.com/tannerlinsley/react-ranger',
+  //   tagline: `Type-safe, SSR-friendly meta-framework for React & Preact.`,
+  //   description: `A meta-framework for building modern React & Preact applications, powered by TanStack Router, Astro & Bling.`,
+  //   badge: (
+  //     <div className="flex items-center justify-center whitespace-nowrap uppercase text-white rounded-full px-2 py-1 text-xs font-black animate-pulse bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600)]">
+  //       Alpha
+  //     </div>
+  //   ),
+  // },
   {
     name: 'TanStack Virtual',
     getStyles: () =>
@@ -119,7 +119,7 @@ const libraries = [
     description: `Headless, performant, and type-safe form state management for TS/JS, React, Solid, Svelte and Vue`,
     badge: (
       <div className="uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Alpha
+        New
       </div>
     ),
   },
@@ -167,6 +167,19 @@ const libraries = [
     badge: (
       <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-lime-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
         Alpha
+      </div>
+    ),
+  },
+  {
+    name: 'TanStack Store',
+    getStyles: () =>
+      `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-600 border-2 border-transparent hover:border-current`,
+    // to: 'https://github.com/tannerlinsley/react-ranger',
+    tagline: `Framework agnostic data store with reactive framework adapters`,
+    description: `The core data store that powers TanStack libraries and their framework adapters. Use it if you dare.`,
+    badge: (
+      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-slate-700 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        New
       </div>
     ),
   },

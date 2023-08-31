@@ -8,6 +8,7 @@ import {
   FaCogs,
   FaDiscord,
   FaGithub,
+  FaTshirt,
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { LoaderArgs, json } from '@remix-run/node'
@@ -64,6 +65,14 @@ const menu = [
       </div>
     ),
     to: 'https://tlinz.com/discord',
+  },
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <FaTshirt className="text-lg" /> Merch
+      </div>
+    ),
+    to: `https://cottonbureau.com/people/tanstack`,
   },
 ]
 

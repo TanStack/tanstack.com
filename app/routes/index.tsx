@@ -10,7 +10,7 @@ import { json, LoaderArgs } from '@remix-run/node'
 import { Carbon } from '~/components/Carbon'
 import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
-import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { FaDiscord, FaGithub, FaShirtsinbulk, FaTshirt } from 'react-icons/fa'
 import { CgMusicSpeaker } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
@@ -18,39 +18,20 @@ import { fetchCached } from '~/utils/cache.server'
 import { LinkOrA } from '~/components/LinkOrA'
 import { Logo } from '~/components/Logo'
 import { LogoColor } from '~/components/LogoColor'
+import { TbShirt } from 'react-icons/tb'
+
+const textColors = [
+  `text-rose-500`,
+  `text-yellow-500`,
+  `text-teal-500`,
+  `text-blue-500`,
+]
 
 const gradients = [
   `from-rose-500 to-yellow-500`,
   `from-yellow-500 to-teal-500`,
   `from-teal-500 to-violet-500`,
   `from-blue-500 to-pink-500`,
-]
-
-const menu = [
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <CgMusicSpeaker className="text-lg" /> Blog
-      </div>
-    ),
-    to: '/blog',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaGithub className="text-lg" /> GitHub
-      </div>
-    ),
-    to: 'https://github.com/tanstack',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaDiscord className="text-lg" /> Discord
-      </div>
-    ),
-    to: 'https://tlinz.com/discord',
-  },
 ]
 
 const libraries = [
@@ -236,6 +217,7 @@ export default function Index() {
   const hasError = data?.status === 'error'
 
   const gradient = sample(gradients, randomNumber)
+  const textColor = sample(textColors, randomNumber)
 
   return (
     <>
@@ -243,7 +225,43 @@ export default function Index() {
         className="flex flex-wrap py-2 px-4 items-center justify-center text-sm
           md:text-base md:justify-end"
       >
-        {menu?.map((item, i) => {
+        {[
+          {
+            label: (
+              <div className="flex items-center gap-1">
+                <FaTshirt
+                  className={twMerge('text-lg animate-bounce', textColor)}
+                />
+                Merch
+              </div>
+            ),
+            to: 'https://cottonbureau.com/people/tanstack',
+          },
+          {
+            label: (
+              <div className="flex items-center gap-1">
+                <CgMusicSpeaker className="text-lg" /> Blog
+              </div>
+            ),
+            to: '/blog',
+          },
+          {
+            label: (
+              <div className="flex items-center gap-1">
+                <FaGithub className="text-lg" /> GitHub
+              </div>
+            ),
+            to: 'https://github.com/tanstack',
+          },
+          {
+            label: (
+              <div className="flex items-center gap-1">
+                <FaDiscord className="text-lg" /> Discord
+              </div>
+            ),
+            to: 'https://tlinz.com/discord',
+          },
+        ]?.map((item, i) => {
           const label = (
             <div className="p-2 opacity-90 hover:opacity-100">{item.label}</div>
           )

@@ -20,6 +20,7 @@ import SponsorPack from '~/components/SponsorPack'
 import { PPPBanner } from '~/components/PPPBanner'
 import type { Framework } from '~/routes/store'
 import { getBranch, gradientText, latestVersion, repo } from '~/routes/store'
+import { Logo } from '~/components/Logo'
 
 const menu = [
   {
@@ -114,20 +115,20 @@ export default function RouteVersion() {
           })}
         </div>
         <div className="flex flex-col items-center gap-6 text-center px-4">
-          <h1
-            className={`inline-block
-            font-black text-4xl
-            md:text-6xl
-            lg:text-7xl`}
-          >
-            <span className={gradientText}>TanStack Store</span>{' '}
-            <span
-              className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
+          <div className="flex gap-2 lg:gap-4 items-center">
+            <Logo className="w-[40px] md:w-[60px] lg:w-[100px]" />
+            <h1
+              className={`inline-block font-black text-4xl md:text-6xl lg:text-7xl`}
             >
-              {version === 'latest' ? latestVersion : version}
-            </span>
-          </h1>
+              <span className={gradientText}>TanStack Store</span>{' '}
+              <span
+                className="text-[.5em] align-super text-black animate-bounce
+              dark:text-white"
+              >
+                {version === 'latest' ? latestVersion : version}
+              </span>
+            </h1>
+          </div>
           <h2
             className="font-bold text-2xl max-w-md
             md:text-3xl

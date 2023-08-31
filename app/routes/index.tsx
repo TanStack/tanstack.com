@@ -174,7 +174,7 @@ const libraries = [
     name: 'TanStack Store',
     getStyles: () =>
       `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-600 border-2 border-transparent hover:border-current`,
-    // to: 'https://github.com/tannerlinsley/react-ranger',
+    to: '/store',
     tagline: `Framework agnostic data store with reactive framework adapters`,
     description: `The core data store that powers TanStack libraries and their framework adapters. Use it if you dare.`,
     badge: (

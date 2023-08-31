@@ -16,6 +16,8 @@ import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { fetchCached } from '~/utils/cache.server'
 import { LinkOrA } from '~/components/LinkOrA'
+import { Logo } from '~/components/Logo'
+import { LogoColor } from '~/components/LogoColor'
 
 const gradients = [
   `from-rose-500 to-yellow-500`,
@@ -262,22 +264,25 @@ export default function Index() {
         })}
       </div>
       <div className="flex flex-col items-center gap-6 text-center px-4 py-12 lg:py-24">
-        <h1
-          className={`inline-block
+        <div className="flex gap-2 lg:gap-4 items-center">
+          <LogoColor className="w-[40px] md:w-[60px] lg:w-[100px]" />
+          <h1
+            className={`inline-block
             font-black text-5xl
             md:text-6xl
             lg:text-8xl`}
-        >
-          <span
-            className={`
+          >
+            <span
+              className={`
             inline-block text-transparent bg-clip-text bg-gradient-to-r ${gradient}
-            underline decoration-8 underline-offset-[1rem] decoration-gray-200 dark:decoration-gray-800
+            underline decoration-4 md:decoration-8 underline-offset-[.5rem] md:underline-offset-[1rem] decoration-gray-200 dark:decoration-gray-800
             mb-2
             `}
-          >
-            TanStack
-          </span>
-        </h1>
+            >
+              TanStack
+            </span>
+          </h1>
+        </div>
         <h2
           className="font-bold text-2xl max-w-md
             md:text-3xl

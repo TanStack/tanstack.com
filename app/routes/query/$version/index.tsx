@@ -1,6 +1,6 @@
-import * as React from "react";
+import * as React from 'react'
 
-import { CgCornerUpLeft } from "react-icons/cg";
+import { CgCornerUpLeft } from 'react-icons/cg'
 import {
   FaBolt,
   FaBook,
@@ -8,22 +8,23 @@ import {
   FaCogs,
   FaDiscord,
   FaGithub,
-} from "react-icons/fa";
-import type { LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Link, useLoaderData, useParams } from "@remix-run/react";
-import { Carbon } from "~/components/Carbon";
-import { Footer } from "~/components/Footer";
-import { VscPreview, VscWand } from "react-icons/vsc";
-import { TbHeartHandshake } from "react-icons/tb";
-import SponsorPack from "~/components/SponsorPack";
-import { PPPBanner } from "~/components/PPPBanner";
-import { getBranch, latestVersion, repo } from "~/routes/query";
+} from 'react-icons/fa'
+import type { LoaderArgs } from '@remix-run/node'
+import { json } from '@remix-run/node'
+import { Link, useLoaderData, useParams } from '@remix-run/react'
+import { Carbon } from '~/components/Carbon'
+import { Footer } from '~/components/Footer'
+import { VscPreview, VscWand } from 'react-icons/vsc'
+import { TbHeartHandshake } from 'react-icons/tb'
+import SponsorPack from '~/components/SponsorPack'
+import { PPPBanner } from '~/components/PPPBanner'
+import { getBranch, latestVersion, repo } from '~/routes/query'
+import { Logo } from '~/components/Logo'
 
-export type Framework = "react" | "svelte" | "vue" | "solid";
+export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
 
 export const gradientText =
-  "inline-block text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500";
+  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500'
 
 const menu = [
   {
@@ -32,7 +33,7 @@ const menu = [
         <CgCornerUpLeft className="text-lg" /> TanStack
       </div>
     ),
-    to: "/",
+    to: '/',
   },
   {
     label: (
@@ -40,7 +41,7 @@ const menu = [
         <VscPreview className="text-lg" /> Examples
       </div>
     ),
-    to: "./docs/react/examples/react/basic",
+    to: './docs/react/examples/react/basic',
   },
   {
     label: (
@@ -48,7 +49,7 @@ const menu = [
         <FaBook className="text-lg" /> Docs
       </div>
     ),
-    to: "./docs/",
+    to: './docs/',
   },
   {
     label: (
@@ -64,30 +65,30 @@ const menu = [
         <FaDiscord className="text-lg" /> Discord
       </div>
     ),
-    to: "https://tlinz.com/discord",
+    to: 'https://tlinz.com/discord',
   },
-];
+]
 
 export const loader = async (context: LoaderArgs) => {
-  const { getSponsorsForSponsorPack } = require("~/server/sponsors");
+  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
 
-  const sponsors = await getSponsorsForSponsorPack();
+  const sponsors = await getSponsorsForSponsorPack()
 
   return json({
     sponsors,
-  });
-};
+  })
+}
 
 export default function RouteVersion() {
-  const { sponsors } = useLoaderData<typeof loader>();
-  const { version } = useParams();
-  const branch = getBranch(version);
-  const [framework, setFramework] = React.useState<Framework>("react");
-  const [isDark, setIsDark] = React.useState(true);
+  const { sponsors } = useLoaderData<typeof loader>()
+  const { version } = useParams()
+  const branch = getBranch(version)
+  const [framework, setFramework] = React.useState<Framework>('react')
+  const [isDark, setIsDark] = React.useState(true)
 
   React.useEffect(() => {
-    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches);
-  }, []);
+    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
+  }, [])
 
   return (
     <>
@@ -102,11 +103,11 @@ export default function RouteVersion() {
               <div className="p-2 opacity-90 hover:opacity-100">
                 {item.label}
               </div>
-            );
+            )
 
             return (
               <div key={i} className="hover:underline">
-                {item.to.startsWith("http") ? (
+                {item.to.startsWith('http') ? (
                   <a href={item.to}>{label}</a>
                 ) : (
                   <Link to={item.to} prefetch="intent">
@@ -114,33 +115,36 @@ export default function RouteVersion() {
                   </Link>
                 )}
               </div>
-            );
+            )
           })}
         </div>
-        <div className="flex flex-col items-center gap-6 text-center px-4">
-          <h1
-            className={`inline-block
+        <div className="flex flex-col items-center gap-8 text-center px-4">
+          <div className="flex gap-2 lg:gap-4 items-center">
+            <Logo className="w-[40px] md:w-[60px] lg:w-[100px]" />
+            <h1
+              className={`inline-block
             font-black text-4xl
             md:text-6xl
             lg:text-7xl`}
-          >
-            <span className={gradientText}>TanStack Query</span>{" "}
-            <span
-              className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
             >
-              {version === "latest" ? latestVersion : version}
-            </span>
-          </h1>
+              <span className={gradientText}>TanStack Query</span>{' '}
+              <span
+                className="text-[.5em] align-super text-black animate-bounce
+              dark:text-white"
+              >
+                {version === 'latest' ? latestVersion : version}
+              </span>
+            </h1>
+          </div>
           <h2
             className="font-bold text-2xl max-w-md
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
           >
-            Powerful{" "}
+            Powerful{' '}
             <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
               asynchronous state management
-            </span>{" "}
+            </span>{' '}
             for TS/JS, React, Solid, Vue and Svelte
           </h2>
           <p
@@ -150,7 +154,7 @@ export default function RouteVersion() {
             Toss out that granular state management, manual refetching and
             endless bowls of async-spaghetti code. TanStack Query gives you
             declarative, always-up-to-date auto-managed queries and mutations
-            that{" "}
+            that{' '}
             <strong>
               directly improve both your developer and user experiences
             </strong>
@@ -164,7 +168,7 @@ export default function RouteVersion() {
             Get Started
           </Link>
           <p>
-            Want to skip the docs?{" "}
+            Want to skip the docs?{' '}
             <a
               href="https://ui.dev/react-query?from=tanstack"
               className={`${gradientText} underline`}
@@ -186,7 +190,7 @@ export default function RouteVersion() {
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
                 Writing your data fetching logic by hand is over. Tell TanStack
                 Query where to get your data and how fresh you need it to be and
-                the rest is automatic. It handles{" "}
+                the rest is automatic. It handles{' '}
                 <span className="font-semibold text-red-700 dark:text-red-400">
                   caching, background updates and stale data out of the box with
                   zero-configuration
@@ -205,7 +209,7 @@ export default function RouteVersion() {
               </h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
                 If you know how to work with promises or async/await, then you
-                already know how to use TanStack Query. There's{" "}
+                already know how to use TanStack Query. There's{' '}
                 <span className="font-semibold text-orange-700 dark:text-orange-400">
                   no global state to manage, reducers, normalization systems or
                   heavy configurations to understand
@@ -226,7 +230,7 @@ export default function RouteVersion() {
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
                 TanStack Query is configurable down to each observer instance of
                 a query with knobs and options to fit every use-case. It comes
-                wired up with{" "}
+                wired up with{' '}
                 <span className="font-semibold text-amber-700 dark:text-amber-400">
                   dedicated devtools, infinite-loading APIs, and first class
                   mutation tools that make updating your data a breeze
@@ -243,11 +247,11 @@ export default function RouteVersion() {
               <div className="text-center">
                 <div className="text-lg uppercase font-black">The Official</div>
                 <div className="py-2 text-3xl md:text-4xl font-black">
-                  TanStack{" "}
+                  TanStack{' '}
                   <span className={`${gradientText}`}>React Query</span> Course
                 </div>
                 <div className="text opacity-60 mt-2">
-                  Created by <strong>Tanner Linsley</strong> and{" "}
+                  Created by <strong>Tanner Linsley</strong> and{' '}
                   <a className="font-bold underline" href="https://ui.dev/">
                     ui.dev
                   </a>
@@ -285,6 +289,7 @@ export default function RouteVersion() {
                 href="https://ui.dev/react-query?from=tanstack"
                 target="_blank"
                 className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
+                rel="noreferrer"
               >
                 ENROLL NOW
               </a>
@@ -307,33 +312,33 @@ export default function RouteVersion() {
           </div>
           <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
             {[
-              "Backend agnostic",
-              "Dedicated Devtools",
-              "Auto Caching",
-              "Auto Refetching",
-              "Window Focus Refetching",
-              "Polling/Realtime Queries",
-              "Parallel Queries",
-              "Dependent Queries",
-              "Mutations API",
-              "Automatic Garbage Collection",
-              "Paginated/Cursor Queries",
-              "Load-More/Infinite Scroll Queries",
-              "Scroll Recovery",
-              "Request Cancellation",
-              "Suspense Ready!",
-              "Render-as-you-fetch",
-              "Prefetching",
-              "Variable-length Parallel Queries",
-              "Offline Support",
-              "SSR Support",
-              "Data Selectors",
+              'Backend agnostic',
+              'Dedicated Devtools',
+              'Auto Caching',
+              'Auto Refetching',
+              'Window Focus Refetching',
+              'Polling/Realtime Queries',
+              'Parallel Queries',
+              'Dependent Queries',
+              'Mutations API',
+              'Automatic Garbage Collection',
+              'Paginated/Cursor Queries',
+              'Load-More/Infinite Scroll Queries',
+              'Scroll Recovery',
+              'Request Cancellation',
+              'Suspense Ready!',
+              'Render-as-you-fetch',
+              'Prefetching',
+              'Variable-length Parallel Queries',
+              'Offline Support',
+              'SSR Support',
+              'Data Selectors',
             ].map((d, i) => {
               return (
                 <span key={i} className="flex items-center gap-2">
                   <FaCheckCircle className="text-green-500 " /> {d}
                 </span>
-              );
+              )
             })}
           </div>
         </div>
@@ -346,31 +351,31 @@ export default function RouteVersion() {
           <marquee scrollamount="2">
             <div className="flex gap-2 items-center text-3xl font-bold ml-[-100%]">
               {(new Array(4) as string[])
-                .fill("")
+                .fill('')
                 .reduce(
                   (all) => [...all, ...all],
                   [
-                    "Google",
-                    "Walmart",
-                    "Facebook",
-                    "PayPal",
-                    "Amazon",
-                    "American Express",
-                    "Microsoft",
-                    "Target",
-                    "Ebay",
-                    "Autodesk",
-                    "CarFAX",
-                    "Docusign",
-                    "HP",
-                    "MLB",
-                    "Volvo",
-                    "Ocado",
-                    "UPC.ch",
-                    "EFI.com",
-                    "ReactBricks",
-                    "Nozzle.io",
-                    "Uber",
+                    'Google',
+                    'Walmart',
+                    'Facebook',
+                    'PayPal',
+                    'Amazon',
+                    'American Express',
+                    'Microsoft',
+                    'Target',
+                    'Ebay',
+                    'Autodesk',
+                    'CarFAX',
+                    'Docusign',
+                    'HP',
+                    'MLB',
+                    'Volvo',
+                    'Ocado',
+                    'UPC.ch',
+                    'EFI.com',
+                    'ReactBricks',
+                    'Nozzle.io',
+                    'Uber',
                   ]
                 )
                 .map((d, i) => (
@@ -420,7 +425,7 @@ export default function RouteVersion() {
           <div
             className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
             style={{
-              aspectRatio: "1/1",
+              aspectRatio: '1/1',
             }}
           >
             <SponsorPack sponsors={sponsors} />
@@ -463,18 +468,18 @@ export default function RouteVersion() {
             <div className="flex flex-wrap gap-2 justify-center">
               {(
                 [
-                  { label: "React", value: "react" },
-                  { label: "Solid", value: "solid" },
-                  { label: "Svelte", value: "svelte" },
-                  { label: "Vue", value: "vue" },
+                  { label: 'React', value: 'react' },
+                  { label: 'Solid', value: 'solid' },
+                  { label: 'Svelte', value: 'svelte' },
+                  { label: 'Vue', value: 'vue' },
                 ] as const
               ).map((item) => (
                 <button
                   key={item.value}
                   className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold ${
                     item.value === framework
-                      ? "bg-red-500"
-                      : "bg-gray-300 dark:bg-gray-700 hover:bg-red-300"
+                      ? 'bg-red-500'
+                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-red-300'
                   }`}
                   onClick={
                     () => setFramework(item.value)
@@ -493,18 +498,18 @@ export default function RouteVersion() {
           </div>
         </div>
 
-        {[""].includes(framework) ? (
+        {[''].includes(framework) ? (
           <div className="px-2">
             <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
-              Looking for the <strong>@tanstack/{framework}-query</strong>{" "}
-              example? We could use your help to build the{" "}
-              <strong>@tanstack/{framework}-query</strong> adapter! Join the{" "}
+              Looking for the <strong>@tanstack/{framework}-query</strong>{' '}
+              example? We could use your help to build the{' '}
+              <strong>@tanstack/{framework}-query</strong> adapter! Join the{' '}
               <a
                 href="https://tlinz.com/discord"
                 className="text-teal-500 font-bold"
               >
                 TanStack Discord Server
-              </a>{" "}
+              </a>{' '}
               and let's get to work!
             </div>
           </div>
@@ -513,16 +518,16 @@ export default function RouteVersion() {
             <iframe
               key={framework}
               src={`https://codesandbox.io/embed/github/${repo}/tree/${branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
-                isDark ? "dark" : "light"
+                isDark ? 'dark' : 'light'
               }`}
               title={`tannerlinsley/${framework}-query: basic`}
               sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
               className="shadow-2xl"
               loading="lazy"
               style={{
-                width: "100%",
-                height: "80vh",
-                border: "0",
+                width: '100%',
+                height: '80vh',
+                border: '0',
               }}
             ></iframe>
           </div>
@@ -548,5 +553,5 @@ export default function RouteVersion() {
         <Footer />
       </div>
     </>
-  );
+  )
 }

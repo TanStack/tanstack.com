@@ -13,6 +13,7 @@ import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { CgTimelapse } from 'react-icons/cg'
+import { Logo } from '~/components/Logo'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-lime-500 to-emerald-500'
@@ -106,21 +107,24 @@ export default function TanStackRouterRoute() {
           )
         })}
       </div>
-      <div className="flex flex-col items-center gap-6 text-center px-4">
-        <h1
-          className={`inline-block
+      <div className="flex flex-col items-center gap-8 text-center px-4">
+        <div className="flex gap-2 lg:gap-4 items-center">
+          <Logo className="w-[40px] md:w-[60px] lg:w-[100px]" />
+          <h1
+            className={`inline-block
             font-black text-4xl
             md:text-6xl
             lg:text-7xl`}
-        >
-          <span className={gradientText}>TanStack Router</span>{' '}
-          <span
-            className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
           >
-            BETA
-          </span>
-        </h1>
+            <span className={gradientText}>TanStack Router</span>{' '}
+            <span
+              className="text-[.5em] align-super text-black animate-bounce
+              dark:text-white"
+            >
+              BETA
+            </span>
+          </h1>
+        </div>
         <h2
           className="font-bold text-2xl max-w-md
             md:text-3xl

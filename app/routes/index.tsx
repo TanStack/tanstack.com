@@ -604,7 +604,7 @@ export default function Index() {
                 </div>
 
                 <h3 className={`text-lg mt-1`}>
-                  The Best Javascript Newletter
+                  The Best Javascript Newsletter
                 </h3>
               </div>
               <div className={`grid grid-cols-3 mt-4 gap-2`}>

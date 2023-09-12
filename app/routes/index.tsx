@@ -10,45 +10,28 @@ import { json, LoaderArgs } from '@remix-run/node'
 import { Carbon } from '~/components/Carbon'
 import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
-import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { FaDiscord, FaGithub, FaShirtsinbulk, FaTshirt } from 'react-icons/fa'
 import { CgMusicSpeaker } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { fetchCached } from '~/utils/cache.server'
 import { LinkOrA } from '~/components/LinkOrA'
+import { Logo } from '~/components/Logo'
+import { LogoColor } from '~/components/LogoColor'
+import { TbShirt } from 'react-icons/tb'
+
+const textColors = [
+  `text-rose-500`,
+  `text-yellow-500`,
+  `text-teal-500`,
+  `text-blue-500`,
+]
 
 const gradients = [
   `from-rose-500 to-yellow-500`,
   `from-yellow-500 to-teal-500`,
   `from-teal-500 to-violet-500`,
   `from-blue-500 to-pink-500`,
-]
-
-const menu = [
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <CgMusicSpeaker className="text-lg" /> Blog
-      </div>
-    ),
-    to: '/blog',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaGithub className="text-lg" /> GitHub
-      </div>
-    ),
-    to: 'https://github.com/tanstack',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaDiscord className="text-lg" /> Discord
-      </div>
-    ),
-    to: 'https://tlinz.com/discord',
-  },
 ]
 
 const libraries = [
@@ -81,22 +64,22 @@ const libraries = [
       </div>
     ),
   },
-  {
-    name: 'TanStack Start',
-    getStyles: () =>
-      `
-      text-transparent bg-clip-text bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600,red)]
-      shadow-xl shadow-amber-700/20 dark:shadow-lg dark:shadow-amber-500/30 border-2 border-transparent hover:border-current
-      `,
-    // to: 'https://github.com/tannerlinsley/react-ranger',
-    tagline: `Type-safe, SSR-friendly meta-framework for React & Preact.`,
-    description: `A meta-framework for building modern React & Preact applications, powered by TanStack Router, Astro & Bling.`,
-    badge: (
-      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white rounded-full px-2 py-1 text-xs font-black animate-pulse bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600)]">
-        Alpha
-      </div>
-    ),
-  },
+  // {
+  //   name: 'TanStack Start',
+  //   getStyles: () =>
+  //     `
+  //     text-transparent bg-clip-text bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600,red)]
+  //     shadow-xl shadow-amber-700/20 dark:shadow-lg dark:shadow-amber-500/30 border-2 border-transparent hover:border-current
+  //     `,
+  //   // to: 'https://github.com/tannerlinsley/react-ranger',
+  //   tagline: `Type-safe, SSR-friendly meta-framework for React & Preact.`,
+  //   description: `A meta-framework for building modern React & Preact applications, powered by TanStack Router, Astro & Bling.`,
+  //   badge: (
+  //     <div className="flex items-center justify-center whitespace-nowrap uppercase text-white rounded-full px-2 py-1 text-xs font-black animate-pulse bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600)]">
+  //       Alpha
+  //     </div>
+  //   ),
+  // },
   {
     name: 'TanStack Virtual',
     getStyles: () =>
@@ -119,7 +102,7 @@ const libraries = [
     description: `Headless, performant, and type-safe form state management for TS/JS, React, Solid, Svelte and Vue`,
     badge: (
       <div className="uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Alpha
+        New
       </div>
     ),
   },
@@ -167,6 +150,19 @@ const libraries = [
     badge: (
       <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-lime-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
         Alpha
+      </div>
+    ),
+  },
+  {
+    name: 'TanStack Store',
+    getStyles: () =>
+      `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-600 border-2 border-transparent hover:border-current`,
+    to: '/store',
+    tagline: `Framework agnostic data store with reactive framework adapters`,
+    description: `The core data store that powers TanStack libraries and their framework adapters. Use it if you dare.`,
+    badge: (
+      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-slate-700 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        New
       </div>
     ),
   },
@@ -221,6 +217,7 @@ export default function Index() {
   const hasError = data?.status === 'error'
 
   const gradient = sample(gradients, randomNumber)
+  const textColor = sample(textColors, randomNumber)
 
   return (
     <>
@@ -228,7 +225,43 @@ export default function Index() {
         className="flex flex-wrap py-2 px-4 items-center justify-center text-sm
           md:text-base md:justify-end"
       >
-        {menu?.map((item, i) => {
+        {[
+          {
+            label: (
+              <div className="flex items-center gap-1">
+                <FaTshirt
+                  className={twMerge('text-lg animate-bounce', textColor)}
+                />
+                Merch
+              </div>
+            ),
+            to: 'https://cottonbureau.com/people/tanstack',
+          },
+          {
+            label: (
+              <div className="flex items-center gap-1">
+                <CgMusicSpeaker className="text-lg" /> Blog
+              </div>
+            ),
+            to: '/blog',
+          },
+          {
+            label: (
+              <div className="flex items-center gap-1">
+                <FaGithub className="text-lg" /> GitHub
+              </div>
+            ),
+            to: 'https://github.com/tanstack',
+          },
+          {
+            label: (
+              <div className="flex items-center gap-1">
+                <FaDiscord className="text-lg" /> Discord
+              </div>
+            ),
+            to: 'https://tlinz.com/discord',
+          },
+        ]?.map((item, i) => {
           const label = (
             <div className="p-2 opacity-90 hover:opacity-100">{item.label}</div>
           )
@@ -249,22 +282,25 @@ export default function Index() {
         })}
       </div>
       <div className="flex flex-col items-center gap-6 text-center px-4 py-12 lg:py-24">
-        <h1
-          className={`inline-block
+        <div className="flex gap-2 lg:gap-4 items-center">
+          <LogoColor className="w-[40px] md:w-[60px] lg:w-[100px]" />
+          <h1
+            className={`inline-block
             font-black text-5xl
             md:text-6xl
             lg:text-8xl`}
-        >
-          <span
-            className={`
+          >
+            <span
+              className={`
             inline-block text-transparent bg-clip-text bg-gradient-to-r ${gradient}
-            underline decoration-8 underline-offset-[1rem] decoration-gray-200 dark:decoration-gray-800
+            underline decoration-4 md:decoration-8 underline-offset-[.5rem] md:underline-offset-[1rem] decoration-gray-200 dark:decoration-gray-800
             mb-2
             `}
-          >
-            TanStack
-          </span>
-        </h1>
+            >
+              TanStack
+            </span>
+          </h1>
+        </div>
         <h2
           className="font-bold text-2xl max-w-md
             md:text-3xl
@@ -568,7 +604,7 @@ export default function Index() {
                 </div>
 
                 <h3 className={`text-lg mt-1`}>
-                  The Best Javascript Newletter
+                  The Best Javascript Newsletter
                 </h3>
               </div>
               <div className={`grid grid-cols-3 mt-4 gap-2`}>

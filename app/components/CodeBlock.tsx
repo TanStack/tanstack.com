@@ -7,7 +7,7 @@ import { svelteHighlighter } from "../utils/svelteHighlighter"
 // @ts-ignore Alias markup as vue highlight
 Prism.languages.vue = Prism.languages.markup
 
-// @ts-ignore Enable svelte syntax highlighter
+// Enable svelte syntax highlighter
 svelteHighlighter()
 
 function getLanguageFromClassName(className: string) {

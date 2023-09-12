@@ -3,13 +3,13 @@ import { Children } from 'react'
 import invariant from 'tiny-invariant'
 import type { Language } from 'prism-react-renderer'
 import { Highlight, Prism } from 'prism-react-renderer'
-
-// Add prism-svelte package for syntax highlighting
-(typeof global !== "undefined" ? global : window).Prism = Prism
-require('prism-svelte');
+import { svelteHighlighter } from "../utils/svelteHighlighter"
 
 // @ts-ignore Alias markup as vue highlight
 Prism.languages.vue = Prism.languages.markup;
+
+// @ts-ignore Enable svelte syntax highlighter
+svelteHighlighter()
 
 function getLanguageFromClassName(className: string) {
   const match = className.match(/language-(\w+)/)

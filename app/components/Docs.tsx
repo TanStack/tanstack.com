@@ -1,7 +1,12 @@
 import { DocSearch } from '@docsearch/react'
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'
+import {
+  FaArrowLeft,
+  FaArrowRight,
+  FaTimes,
+  FaTimesCircle,
+} from 'react-icons/fa'
 import { NavLink, Outlet, useMatches } from '@remix-run/react'
 import { last } from '~/utils/utils'
 import { Carbon } from './Carbon'
@@ -11,6 +16,7 @@ import { gradientText } from '~/routes/query/$version/index'
 import BytesForm from './BytesForm'
 import type { SelectProps } from './Select'
 import { Select } from './Select'
+import { useLocalStorage } from '~/utils/useLocalStorage'
 
 export type DocsConfig = {
   docSearch: {
@@ -50,7 +56,6 @@ export function Docs({
   v2?: boolean
 }) {
   const matches = useMatches()
-  console.log(matches)
   const lastMatch = last(matches)
 
   const detailsRef = React.useRef<HTMLElement>(null!)
@@ -70,6 +75,8 @@ export function Docs({
   const index = flatMenu.findIndex((d) => d.to === relativePathname)
   const prevItem = flatMenu[index - 1]
   const nextItem = flatMenu[index + 1]
+
+  const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
 
   const menuItems = config.menu.map((group, i) => {
     return (
@@ -280,40 +287,72 @@ export function Docs({
           </div>
         </div>
       </div>
-      <aside className="w-[25vw] hidden md:block max-w-[350px]">
-        <div className="p-6 sticky top-0">
-          <ul className="border border-black/10 dark:border-white/10 p-6 rounded-lg">
-            {config?.docSearch?.indexName?.includes('query') && (
-              <li className="mb-8">
-                <h6 className="text-[.9em] uppercase font-black mb-4">
-                  Want to Skip the Docs?
+      {showBytes ? (
+        <div className="w-[300px] max-w-[350px] fixed top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
+          <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
+            <div className="space-y-4">
+              {config?.docSearch?.indexName?.includes('query') && (
+                <div className="space-y-1 md:space-y-2">
+                  <h6 className="text-[.7rem] md:text-[.9em] uppercase font-black">
+                    Want to Skip the Docs?
+                  </h6>
+                  <p className="text-xs md:text-sm">
+                    Fast track your learning and <br />
+                    <a
+                      className={`${gradientText}`}
+                      href="https://ui.dev/react-query?from=tanstack"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <span>take the offical React Query course ↗️</span>
+                    </a>
+                  </p>
+                </div>
+              )}
+              <div className="space-y-1 md:space-y-2">
+                <h6 className="text-[.7rem] md:text-[.9em] uppercase font-black">
+                  Subscribe to Bytes
                 </h6>
-                <p className="text-sm">
-                  Fast track your learning and <br />
-                  <a
-                    className={`${gradientText}`}
-                    href="https://ui.dev/react-query?from=tanstack"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span>take the offical React Query course ↗️</span>
-                  </a>
+                <p className="text-xs md:text-sm">
+                  Your weekly dose of JavaScript news. Delivered every Monday to
+                  over 100,000 devs, for free.
                 </p>
-              </li>
-            )}
-            <li>
-              <h6 className="text-[.9em] uppercase font-black mb-4">
-                Subscribe to Bytes
-              </h6>
-              <p className="text-sm mb-4">
-                Your weekly dose of JavaScript news. Delivered every Monday to
-                over 100,000 devs, for free.
-              </p>
+              </div>
               <BytesForm />
-            </li>
-          </ul>
+            </div>
+            <button
+              className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
+              onClick={() => {
+                setShowBytes(false)
+              }}
+            >
+              <FaTimes />
+            </button>
+          </div>
         </div>
-      </aside>
+      ) : (
+        <button
+          className="fixed right-0 top-1/2 -translate-y-[50px] "
+          onClick={() => {
+            setShowBytes(true)
+          }}
+        >
+          <div
+            className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
+          hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
+          >
+            {config?.docSearch?.indexName?.includes('query') ? (
+              <>
+                <strong>Skip the docs?</strong>
+              </>
+            ) : (
+              <>
+                Subscribe to <strong>Bytes</strong>
+              </>
+            )}
+          </div>
+        </button>
+      )}
     </div>
   )
 }

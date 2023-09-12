@@ -22,7 +22,7 @@ export default function BytesForm() {
           />
         </figure>
         <input
-          className="border border-black/50 dark:border-white/50 rounded p-2 mb-2 w-full bg-transparent"
+          className="text-xs md:text-base border border-black/50 dark:border-white/50 rounded p-2 mb-1 md:mb-2 w-full bg-transparent"
           name="email_address"
           placeholder="Your email address"
           type="email"
@@ -30,7 +30,7 @@ export default function BytesForm() {
         />
         <button
           type="submit"
-          className="mb-4 border rounded bg-rose-600 border-none text-white p-2"
+          className="text-xs md:text-base mb-4 border rounded bg-rose-600 border-none text-white p-2"
         >
           {state !== 'loading' ? (
             <span>Subscribe</span>
@@ -39,7 +39,7 @@ export default function BytesForm() {
           )}
         </button>
       </div>
-      <p className="text-gray-400 text-xs">
+      <p className="text-xs md:text-sm text-gray-400">
         No spam. Unsubscribe at <em>any</em> time.
       </p>
       {error && <p className="text-red-600">{error}</p>}

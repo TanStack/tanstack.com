@@ -19,6 +19,7 @@ import { Doc } from '~/components/Doc'
 
 export const loader = async (context: LoaderArgs) => {
   const { '*': docsPath, framework, version } = context.params
+  const url = new URL(context.request.url)
 
   // When first path part after docs does not contain framework name, add `react`
   if (
@@ -29,6 +30,19 @@ export const loader = async (context: LoaderArgs) => {
   ) {
     throw redirect(context.request.url.replace(/\/docs\//, '/docs/react/'))
   }
+
+  // Redirect old `adapters` pages
+  const adaptersRedirects = [
+    { from: 'docs/react/adapters/vue-query', to: 'docs/vue/overview' },
+    { from: 'docs/react/adapters/solid-query', to: 'docs/solid/overview' },
+    { from: 'docs/react/adapters/svelte-query', to: 'docs/svelte/overview' },
+  ]
+
+  adaptersRedirects.forEach((item) => {
+    if (url.pathname.startsWith(`/query/v4/${item.from}`)) {
+      throw redirect(`/query/latest/${item.to}`, 301)
+    }
+  })
 
   if (!docsPath) {
     throw new Error('Invalid docs path')

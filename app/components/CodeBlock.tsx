@@ -1,12 +1,11 @@
 import type { FC, HTMLAttributes, ReactElement } from 'react'
-import { Children } from 'react'
 import invariant from 'tiny-invariant'
 import type { Language } from 'prism-react-renderer'
 import { Highlight, Prism } from 'prism-react-renderer'
 import { svelteHighlighter } from "../utils/svelteHighlighter"
 
 // @ts-ignore Alias markup as vue highlight
-Prism.languages.vue = Prism.languages.markup;
+Prism.languages.vue = Prism.languages.markup
 
 // @ts-ignore Enable svelte syntax highlighter
 svelteHighlighter()

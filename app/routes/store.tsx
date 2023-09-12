@@ -47,14 +47,14 @@ export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
 
 //
 
-export const repo = 'tanstack/form'
+export const repo = 'tanstack/store'
 
 export const latestBranch = 'main'
 export const latestVersion = 'v0'
 export const availableVersions = ['v0']
 
 export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600'
+  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700'
 
 export const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
@@ -70,7 +70,7 @@ export const createLogo = (version?: string) => (
       TanStack
     </Link>
     <Link to="../../" className={`font-bold`}>
-      <span className={`${gradientText}`}>Form</span>{' '}
+      <span className={`${gradientText}`}>Store</span>{' '}
       <span className="text-sm align-super">
         {version === 'latest' ? latestVersion : version}
       </span>
@@ -112,7 +112,7 @@ export function getBranch(argVersion?: string) {
 
 //
 
-export const useReactFormDocsConfig = () => {
+export const useReactStoreDocsConfig = () => {
   const matches = useMatches()
   const match = matches[matches.length - 1]
   const params = useParams()
@@ -121,7 +121,7 @@ export const useReactFormDocsConfig = () => {
     params.framework || localStorage.getItem('framework') || 'react'
   const navigate = useNavigate()
 
-  const config = useMatchesData(`/form/${version}`) as GithubDocsConfig
+  const config = useMatchesData(`/store/${version}`) as GithubDocsConfig
 
   const frameworkMenuItems =
     config.frameworkMenus.find((d) => d.framework === framework)?.menuItems ??
@@ -210,24 +210,24 @@ export const useReactFormDocsConfig = () => {
 
 export let meta: MetaFunction = (meta) => {
   return seo({
-    title: 'TanStack Form | React Form, Solid Form, Svelte Form, Vue Form',
+    title: 'TanStack Store | React Store, Solid Store, Svelte Store, Vue Store',
     description:
-      'Simple, performant, type-safe forms for TS/JS, React, Solid, Svelte and Vue',
-    image: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
+      'Framework agnostic, type-safe store w/ reactive framework adapters',
+    image: 'https://github.com/tanstack/store/raw/main/media/repo-header.png',
   })
 }
 
 export const loader = async (context: LoaderArgs) => {
   if (
-    !context.request.url.includes('/form/v') &&
-    !context.request.url.includes('/form/latest')
+    !context.request.url.includes('/store/v') &&
+    !context.request.url.includes('/store/latest')
   ) {
-    return redirect(`${new URL(context.request.url).origin}/form/latest`)
+    return redirect(`${new URL(context.request.url).origin}/store/latest`)
   }
 
   return new Response('OK')
 }
 
-export default function RouteForm() {
+export default function RouteStore() {
   return <Outlet />
 }

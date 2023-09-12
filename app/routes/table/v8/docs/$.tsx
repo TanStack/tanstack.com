@@ -31,8 +31,6 @@ export const loader = async (context: LoaderArgs) => {
     })
   }
 
-  console.log('file', file)
-
   const frontMatter = extractFrontMatter(file)
   const description = removeMarkdown(frontMatter.excerpt ?? '')
 

@@ -1,7 +1,13 @@
 import * as React from 'react'
 
 import { CgCornerUpLeft } from 'react-icons/cg'
-import { FaBook, FaCheckCircle, FaDiscord, FaGithub } from 'react-icons/fa'
+import {
+  FaBook,
+  FaCheckCircle,
+  FaDiscord,
+  FaGithub,
+  FaTshirt,
+} from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
@@ -13,6 +19,7 @@ import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { CgTimelapse } from 'react-icons/cg'
+import { Logo } from '~/components/Logo'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-lime-500 to-emerald-500'
@@ -57,6 +64,14 @@ const menu = [
       </div>
     ),
     to: 'https://tlinz.com/discord',
+  },
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <FaTshirt className="text-lg" /> Merch
+      </div>
+    ),
+    to: `https://cottonbureau.com/people/tanstack`,
   },
 ]
 
@@ -106,21 +121,24 @@ export default function TanStackRouterRoute() {
           )
         })}
       </div>
-      <div className="flex flex-col items-center gap-6 text-center px-4">
-        <h1
-          className={`inline-block
+      <div className="flex flex-col items-center gap-8 text-center px-4">
+        <div className="flex gap-2 lg:gap-4 items-center">
+          <Logo className="w-[40px] md:w-[60px] lg:w-[100px]" />
+          <h1
+            className={`inline-block
             font-black text-4xl
             md:text-6xl
             lg:text-7xl`}
-        >
-          <span className={gradientText}>TanStack Router</span>{' '}
-          <span
-            className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
           >
-            BETA
-          </span>
-        </h1>
+            <span className={gradientText}>TanStack Router</span>{' '}
+            <span
+              className="text-[.5em] align-super text-black animate-bounce
+              dark:text-white"
+            >
+              BETA
+            </span>
+          </h1>
+        </div>
         <h2
           className="font-bold text-2xl max-w-md
             md:text-3xl
@@ -136,8 +154,9 @@ export default function TanStackRouterRoute() {
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          A fully typesafe router for React with first-class search-param APIs
-          and client-side cache aware design.
+          A fully type-safe router for React with built-in data fetching,
+          caching, first-class search-param APIs and client-side cache friendly
+          design.
         </p>
         <Link
           to="./docs/overview"
@@ -161,12 +180,11 @@ export default function TanStackRouterRoute() {
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               TanStack Router builds on modern routing patterns made popular by
-              tools like React Router, Next.js, but is architected from the
-              ground up to be{' '}
+              other tools, but has been re-engineered from the ground up to be{' '}
               <span className="font-semibold text-lime-600 dark:text-lime-400">
                 100% typesafe without compromising on DX
               </span>
-              .
+              . You <em>can</em> have your cake and eat it too!
             </p>
           </div>
         </div>
@@ -182,12 +200,16 @@ export default function TanStackRouterRoute() {
           </div>
           <div className="flex flex-col gap-4 text-center">
             <h3 className="uppercase text-xl font-black">
-              Built for both server-side and client-side data fetching
+              Built-in Data Fetching, Caching & Library-Friendly
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Fetch on the server, of course, but don't give up your client side
-              caches! TanStack Router's API is{' '}
-              <span className="font-semibold text-teal-700 dark:text-teal-400">
+              Hoist your data fetching and avoid waterfalls with TanStack
+              Router's loader API that comes with{' '}
+              <span className="font-semibold text-teal-500 dark:text-teal-400">
+                built-in stale-while-revalidate
+              </span>{' '}
+              caching. Need something more custom? Router's API is{' '}
+              <span className="font-semibold text-teal-500 dark:text-teal-400">
                 designed to work with client-side caching!
               </span>{' '}
               Your users will notice the difference when your pages load quickly
@@ -206,10 +228,11 @@ export default function TanStackRouterRoute() {
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Instead of throwing you to the wolves, TanStack Router outfits you
               with state-manager-grade search param APIs. With{' '}
-              <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+              <span className="font-semibold text-emerald-500 dark:text-emerald-400">
                 schemas, validation, full type-safety and pre/post manipulation
               </span>{' '}
               you'll wonder why you're not storing everything in the URL.
+              Goodbye in-memory state 👋!
             </p>
           </div>
         </div>
@@ -259,58 +282,6 @@ export default function TanStackRouterRoute() {
         </div>
       </div>
 
-      <div className="px-4 w-[500px] max-w-full mx-auto">
-        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-          Partners
-        </h3>
-        <div className="h-8" />
-        <div
-          className="flex-1 flex flex-col items-center text-sm text-center
-                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-800 dark:shadow-none"
-        >
-          <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-            Router <TbHeartHandshake /> You?
-          </span>
-          <div className="flex flex-col p-4 gap-4">
-            <div>
-              We're looking for a TanStack Router OSS Partner to go above and
-              beyond the call of sponsorship. Are you as invested in TanStack
-              Router as we are? Let's push the boundaries of Router together!
-            </div>
-            <a
-              href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
-              className="text-blue-500 uppercase font-black text-sm"
-            >
-              Let's chat
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div className="relative text-lg overflow-hidden">
-        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-          Sponsors
-        </h3>
-        <div
-          className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
-          style={{
-            aspectRatio: '1/1',
-          }}
-        >
-          <SponsorPack sponsors={sponsors} />
-        </div>
-        <div className="text-center">
-          <a
-            href="https://github.com/sponsors/tannerlinsley"
-            className="inline-block bg-green-500 px-4 py-2 text-xl mx-auto leading-tight font-extrabold tracking-tight text-white rounded-full"
-          >
-            Become a Sponsor!
-          </a>
-        </div>
-      </div>
-
       <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
         <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
           <Carbon />
@@ -323,16 +294,16 @@ export default function TanStackRouterRoute() {
         </span>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
-          <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
-            Take it for a spin!
-          </h3>
-          <p className="my-4 text-xl leading-7  text-gray-600">
-            Pop in a Router component and start slinging some routes. Let's see
-            it in action!
-          </p>
-          {/* <div className="flex flex-wrap gap-2 justify-center">
+      <div>
+        <div className="flex flex-col gap-4">
+          <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
+            <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
+              Take it for a spin!
+            </h3>
+            <p className="my-4 text-xl leading-7  text-gray-600">
+              Create a route, pop in a Router, and start slingin' some code!
+            </p>
+            {/* <div className="flex flex-wrap gap-2 justify-center">
             {(
               [
                 { label: 'React', value: 'react' },
@@ -363,10 +334,10 @@ export default function TanStackRouterRoute() {
               </button>
             ))}
           </div> */}
+          </div>
         </div>
-      </div>
 
-      {/* {['preact', 'vue', 'solid', 'svelte'].includes(framework) ? (
+        {/* {['preact', 'vue', 'solid', 'svelte'].includes(framework) ? (
         <div className="px-2">
           <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
             Looking for the <strong>@tanstack/{framework}-router</strong>{' '}
@@ -382,24 +353,76 @@ export default function TanStackRouterRoute() {
           </div>
         </div>
       ) : ( */}
-      <div className="bg-white dark:bg-black">
-        <iframe
-          key={framework}
-          src={`https://codesandbox.io/embed/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-multi-file?autoresize=1&fontsize=16&theme=${
-            isDark ? 'dark' : 'light'
-          }`}
-          title="tannerlinsley/react-router: kitchen-sink"
-          sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-          className="shadow-2xl"
-          loading="lazy"
-          style={{
-            width: '100%',
-            height: '80vh',
-            border: '0',
-          }}
-        ></iframe>
+        <div className="bg-white dark:bg-black">
+          <iframe
+            key={framework}
+            src={`https://stackblitz.com/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-single-file?file=src%2Fmain.tsx&embed=1&theme=${
+              isDark ? 'dark' : 'light'
+            }`}
+            title="tannerlinsley/router: kitchen-sink"
+            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+            className="shadow-2xl"
+            loading="lazy"
+            style={{
+              width: '100%',
+              height: '80vh',
+              border: '0',
+            }}
+          ></iframe>
+        </div>
       </div>
-      {/* )} */}
+
+      <div className="relative text-lg overflow-hidden">
+        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
+          Sponsors
+        </h3>
+        <div
+          className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
+          style={{
+            aspectRatio: '1/1',
+          }}
+        >
+          <SponsorPack sponsors={sponsors} />
+        </div>
+        <div className="text-center">
+          <a
+            href="https://github.com/sponsors/tannerlinsley"
+            className="inline-block bg-green-500 px-4 py-2 text-xl mx-auto leading-tight font-extrabold tracking-tight text-white rounded-full"
+          >
+            Become a Sponsor!
+          </a>
+        </div>
+      </div>
+
+      <div className="px-4 w-[500px] max-w-full mx-auto">
+        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
+          Partners
+        </h3>
+        <div className="h-8" />
+        <div
+          className="flex-1 flex flex-col items-center text-sm text-center
+                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-800 dark:shadow-none"
+        >
+          <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
+            Router <TbHeartHandshake /> You?
+          </span>
+          <div className="flex flex-col p-4 gap-4">
+            <div>
+              We're looking for a TanStack Router OSS Partner to go above and
+              beyond the call of sponsorship. Are you as invested in TanStack
+              Router as we are? Let's push the boundaries of Router together!
+            </div>
+            <a
+              href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
+              className="text-blue-500 uppercase font-black text-sm"
+            >
+              Let's chat
+            </a>
+          </div>
+        </div>
+      </div>
 
       <div className="flex flex-col gap-4 items-center">
         <div className="font-extrabold text-xl lg:text-2xl">

@@ -8,6 +8,7 @@ import {
   FaCogs,
   FaDiscord,
   FaGithub,
+  FaTshirt,
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { LoaderArgs, json } from '@remix-run/node'
@@ -19,6 +20,7 @@ import SponsorPack from '~/components/SponsorPack'
 import { capitalize } from '~/utils/utils'
 import { TbHeartHandshake } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
+import { Logo } from '~/components/Logo'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
@@ -63,6 +65,14 @@ const menu = [
       </div>
     ),
     to: 'https://tlinz.com/discord',
+  },
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <FaTshirt className="text-lg" /> Merch
+      </div>
+    ),
+    to: `https://cottonbureau.com/people/tanstack`,
   },
 ]
 
@@ -115,21 +125,24 @@ export default function ReactTableRoute() {
           )
         })}
       </div>
-      <div className="flex flex-col items-center gap-6 text-center px-4">
-        <h1
-          className={`inline-block
+      <div className="flex flex-col items-center gap-8 text-center px-4">
+        <div className="flex gap-2 lg:gap-4 items-center">
+          <Logo className="w-[40px] md:w-[60px] lg:w-[100px]" />
+          <h1
+            className={`inline-block
             font-black text-4xl
             md:text-6xl
             lg:text-7xl`}
-        >
-          <span className={gradientText}>TanStack Virtual</span>{' '}
-          <span
-            className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
           >
-            v3
-          </span>
-        </h1>
+            <span className={gradientText}>TanStack Virtual</span>{' '}
+            <span
+              className="text-[.5em] align-super text-black animate-bounce
+              dark:text-white"
+            >
+              v3
+            </span>
+          </h1>
+        </div>
         <h2
           className="font-bold text-2xl max-w-md
             md:text-3xl
@@ -210,7 +223,7 @@ export default function ReactTableRoute() {
               With a single function/hook, you'll get limitless virtualization
               for{' '}
               <span className="font-semibold text-violet-700 dark:text-violet-400">
-                vertical, horizontal, and grid-style
+                vertical, horizontal, and grid-style{' '}
               </span>
               layouts. The API is tiny (literally 1 function), but its
               composability is not.

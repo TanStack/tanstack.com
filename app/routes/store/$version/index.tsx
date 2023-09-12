@@ -19,8 +19,8 @@ import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { PPPBanner } from '~/components/PPPBanner'
-import type { Framework } from '~/routes/form'
-import { getBranch, gradientText, latestVersion, repo } from '~/routes/form'
+import type { Framework } from '~/routes/store'
+import { getBranch, gradientText, latestVersion, repo } from '~/routes/store'
 import { Logo } from '~/components/Logo'
 
 const menu = [
@@ -123,16 +123,13 @@ export default function RouteVersion() {
             )
           })}
         </div>
-        <div className="flex flex-col items-center gap-8 text-center px-4">
+        <div className="flex flex-col items-center gap-6 text-center px-4">
           <div className="flex gap-2 lg:gap-4 items-center">
             <Logo className="w-[40px] md:w-[60px] lg:w-[100px]" />
             <h1
-              className={`inline-block
-            font-black text-4xl
-            md:text-6xl
-            lg:text-7xl`}
+              className={`inline-block font-black text-4xl md:text-6xl lg:text-7xl`}
             >
-              <span className={gradientText}>TanStack Form</span>{' '}
+              <span className={gradientText}>TanStack Store</span>{' '}
               <span
                 className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
@@ -142,42 +139,36 @@ export default function RouteVersion() {
             </h1>
           </div>
           <h2
-            className="font-bold text-2xl max-w-[600px]
+            className="font-bold text-2xl max-w-md
             md:text-3xl
-            lg:text-5xl lg:max-w-[800px]"
+            lg:text-5xl lg:max-w-2xl"
           >
-            <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-              Headless, performant, and type-safe
+            <span className="underline decoration-dashed decoration-red-500 decoration-3 underline-offset-2">
+              Framework agnostic
             </span>{' '}
-            form state management for TS/JS, React, Solid, Svelte and Vue
+            type-safe store w/ reactive framework adapters
           </h2>
-          <p
+          {/* <p
             className="text opacity-90 max-w-[500px]
-            lg:text-xl lg:max-w-[800px]"
+            lg:text-xl lg:max-w-[600px]"
           >
-            Stop crying over your forms with a return to simplicity,
-            composability and type-safety with TanStack Form. Sporting a{' '}
-            <strong>
-              tiny footprint, zero dependencies, framework agnostic core and
-              granular type-safe APIs
-            </strong>
-            , TanStack Form is the perfect combination of simplicity and power
-            you need to build forms fast with peace of mind.
-          </p>
+            A description <strong>may
+            </strong> go here in the future
+          </p> */}
           <Link
             to="./docs/"
-            className={`py-2 px-4 bg-yellow-400 text-black rounded uppercase font-extrabold`}
+            className={`py-2 px-4 bg-red-400 text-black rounded uppercase font-extrabold`}
             prefetch="intent"
           >
             Get Started
           </Link>
         </div>
-        <div
+        {/* <div
           className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
                         md:flex-row"
         >
           <div className="flex-1 flex flex-col gap-8 items-center">
-            <VscWand className="text-yellow-400 text-6xl" />
+            <VscWand className="text-red-400 text-6xl" />
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
                 First-Class TypeScript Support
@@ -186,7 +177,7 @@ export default function RouteVersion() {
                 TanStack Form touts first-class TypeScript support with
                 outstanding autocompletion, excellent generic throughput and
                 inferred types everywhere possible.{' '}
-                <span className="font-semibold text-yellow-600 dark:text-yellow-300">
+                <span className="font-semibold text-red-600 dark:text-red-300">
                   This results in fewer runtime errors, increased code
                   maintainability, and a smoother development experience
                 </span>{' '}
@@ -197,7 +188,7 @@ export default function RouteVersion() {
           </div>
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <FaBolt className="text-yellow-500 text-6xl" />
+              <FaBolt className="text-red-500 text-6xl" />
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
@@ -209,7 +200,7 @@ export default function RouteVersion() {
                 frameworks, or no framework at all. By both supplying and
                 encouraging a headless approach to your forms, building custom
                 reusable form components tailored to your application's needs{' '}
-                <span className="font-semibold text-amber-600 dark:text-yellow-500">
+                <span className="font-semibold text-amber-600 dark:text-red-500">
                   requires little abstraction and keeps your code modular,
                   simple and composable.
                 </span>
@@ -237,9 +228,9 @@ export default function RouteVersion() {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
 
-        <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
+        {/* <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
           <div className=" sm:text-center pb-16">
             <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
               No dependencies. All the Features.
@@ -274,7 +265,7 @@ export default function RouteVersion() {
               )
             })}
           </div>
-        </div>
+        </div> */}
 
         <div className="px-4 w-[500px] max-w-full mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
@@ -340,7 +331,7 @@ export default function RouteVersion() {
           </span>
         </div>
 
-        <div className="flex flex-col gap-4">
+        {/* <div className="flex flex-col gap-4">
           <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
             <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
               Less code, fewer edge cases.
@@ -367,8 +358,8 @@ export default function RouteVersion() {
                   key={item.value}
                   className={`inline-block py-2 px-4 rounded text-black uppercase font-extrabold ${
                     item.value === framework
-                      ? 'bg-yellow-500'
-                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-yellow-400'
+                      ? 'bg-red-500'
+                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-red-400'
                   }`}
                   onClick={
                     () => setFramework(item.value)
@@ -420,7 +411,7 @@ export default function RouteVersion() {
               }}
             ></iframe>
           </div>
-        )}
+        )} */}
 
         <div className="flex flex-col gap-4 items-center">
           <div className="font-extrabold text-xl lg:text-2xl">
@@ -432,7 +423,7 @@ export default function RouteVersion() {
           <div>
             <Link
               to="./docs/"
-              className={`inline-block py-2 px-4 bg-yellow-500 rounded text-black uppercase font-extrabold`}
+              className={`inline-block py-2 px-4 bg-red-500 rounded text-black uppercase font-extrabold`}
               prefetch="intent"
             >
               Get Started!

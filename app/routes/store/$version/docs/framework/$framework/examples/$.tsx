@@ -3,25 +3,24 @@ import type { LoaderArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
-import { repo, getBranch } from '~/routes/query'
+import { repo, getBranch } from '~/routes/store'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
 export const loader = async (context: LoaderArgs) => {
-  const { '*': examplePath } = context.params
-  const [kind, name] = (examplePath ?? '').split('/')
+  const { framework: kind, '*': name } = context.params
 
   return json({ kind, name })
 }
 
 export let meta: MetaFunction = ({ data }) => {
   return seo({
-    title: `${capitalize(data.kind)} Query ${slugToTitle(
+    title: `${capitalize(data.kind)} Store ${slugToTitle(
       data.name
-    )} Example | TanStack Query Docs`,
+    )} Example | TanStack Store Docs`,
     description: `An example showing how to implement ${slugToTitle(
       data.name
-    )} in ${capitalize(data.kind)} Query`,
+    )} in ${capitalize(data.kind)} Store`,
   })
 }
 

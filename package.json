@@ -34,7 +34,6 @@
     "marked": "^4.0.18",
     "mdx-bundler": "^9.0.1",
     "prism-react-renderer": "^2.0.6",
-    "prism-svelte": "^0.5.0",
     "qss": "^2.0.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

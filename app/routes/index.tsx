@@ -413,7 +413,7 @@ export default function Index() {
                 >
                   <img
                     src={require('~/images/nozzle.png')}
-                    alt="Enterprise Keyword Rank Tracker"
+                    alt="SEO keyword rank tracker"
                     className="w-[230px] max-w-full my-2"
                     width="230"
                     height="80"

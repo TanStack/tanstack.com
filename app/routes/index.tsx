@@ -413,6 +413,7 @@ export default function Index() {
                 >
                   <img
                     src={require('~/images/nozzle.png')}
+                    alt="Enterprise Keyword Rank Tracker"
                     className="w-[230px] max-w-full my-2"
                     width="230"
                     height="80"
@@ -431,13 +432,14 @@ export default function Index() {
                   gamut of TanStack tools on the front-end to deliver users with
                   unmatched UI/UX.
                 </div>
-                <Link
-                  to="/blog/ag-grid-partnership"
+                <a
+                  href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-blue-500 uppercase font-black text-sm"
-                  prefetch="intent"
                 >
                   Learn More
-                </Link>
+                </a>
               </div>
             </div>
           </div>

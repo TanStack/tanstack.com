@@ -2,7 +2,11 @@ import type { FC, HTMLAttributes, ReactElement } from 'react'
 import invariant from 'tiny-invariant'
 import type { Language } from 'prism-react-renderer'
 import { Highlight, Prism } from 'prism-react-renderer'
-import { svelteHighlighter } from "../utils/svelteHighlighter"
+import { svelteHighlighter } from '../utils/svelteHighlighter'
+// Add back additional language support after `prism-react` upgrade
+;(typeof global !== 'undefined' ? global : window).Prism = Prism
+require('prismjs/components/prism-diff')
+require('prismjs/components/prism-bash')
 
 // @ts-ignore Alias markup as vue highlight
 Prism.languages.vue = Prism.languages.markup

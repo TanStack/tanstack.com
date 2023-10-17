@@ -7,15 +7,15 @@ import { useMatchesData } from "~/utils/utils";
 export const repo = "tanstack/query";
 
 const latestBranch = "main";
-export const latestVersion = "v4";
+export const latestVersion = "v5";
 export const availableVersions = [
   {
     name: "v5",
-    branch: "rc",
+    branch: latestBranch,
   },
   {
     name: "v4",
-    branch: latestBranch,
+    branch: "v4",
   },
   {
     name: "v3",

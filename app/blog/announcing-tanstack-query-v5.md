@@ -3,7 +3,7 @@ title: Announcing TanStack Query v5
 published: 10/17/2023
 ---
 
-About one year ago, we announced the [TanStack Query v5 roadmap](https://github.com/TanStack/query/discussions/4252), and the whole team has been working hard on that version ever since. So we're super happy to announce that today is the day: After 91 alpha releases, 35 betas and 16 release candidates, TanStack Query v5.0.0 is finally here! 🎉
+About one year ago, we announced the [TanStack Query v5 roadmap](https://github.com/TanStack/query/discussions/4252), and the whole team has been working hard on that version ever since. So we're super happy to announce that today is the day: After 91 alpha releases, 35 betas and 16 release candidates, TanStack Query [v5.0.0](https://github.com/TanStack/query/releases/tag/v5.0.0) is finally here! 🎉
 
 v5 continues the journey of v4, trying to make TanStack Query smaller (v5 is ~20% smaller than v4), better and adding more intuitive to use. One of the main focus points for this release was around streamlining and simplifying the APIs we offer:
 

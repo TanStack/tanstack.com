@@ -31,7 +31,7 @@ A frequently requested feature, as seen in this [two-year-old issue](https://git
 
 ### 1st class `suspense` support
 
-That's right - `suspense` for data fetching is no longer experimental, but fully supported. React Query ships with new `useSuspenseQuery`, `useSuspenseInfiniteQuery` and `useSuspenseQueries` hooks. Have a look at the [suspense docs](query/v5/docs/react/guides/suspense) to learn about the differences to the non-suspense versions.
+That's right - `suspense` for data fetching is no longer experimental, but fully supported. React Query ships with new `useSuspenseQuery`, `useSuspenseInfiniteQuery` and `useSuspenseQueries` hooks. Have a look at the [suspense docs](/query/v5/docs/react/guides/suspense) to learn about the differences to the non-suspense versions.
 
 #### Streaming with React Server Components
 
@@ -51,7 +51,7 @@ Another long-standing [discussion from 2021](https://github.com/TanStack/query/d
 
 ### The `queryOptions` API
 
-Now that we have a unified way to call `useQuery` (with just one object as parameter), we can also build better abstractions on top of that. The new [queryOptions](https://tanstack.com/query/v5/docs/react/typescript#typing-query-options) function gives us a type-safe way to share our query definitions between `useQuery`and imperative methods like `queryClient.prefetchQuery`. On top of that, it can make `queryClient.getQueryData` type-safe as well.
+Now that we have a unified way to call `useQuery` (with just one object as parameter), we can also build better abstractions on top of that. The new [queryOptions](/query/v5/docs/react/typescript#typing-query-options) function gives us a type-safe way to share our query definitions between `useQuery`and imperative methods like `queryClient.prefetchQuery`. On top of that, it can make `queryClient.getQueryData` type-safe as well.
 
 ---
 

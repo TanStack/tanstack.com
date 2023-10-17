@@ -41,6 +41,10 @@ v5 also comes with an experimental integration for suspense on the server in nex
 
 Infinite Queries can now [prefetch multiple pages](/query/v5/docs/react/guides/prefetching) at once, and you have the option to specify the [maximum amount of pages](/query/v5/docs/react/guides/infinite-queries#what-if-i-want-to-limit-the-number-of-pages) stored in the cache as well.
 
+### New Devtools
+
+The Query devtools have been re-written from scratch in a framework-agnostic way to make them available to all adapters. They also got a UI revamp and some new features like cache inline editing and light mode.
+
 ### Fine-grained persistence
 
 Another long-standing [discussion from 2021](https://github.com/TanStack/query/discussions/2649) highlights the importance of fine-grained persistence with just-in-time restore capabilities (especially for mobil development) that the `PersistQueryClient` plugin doesn't have. With v5, we now have a new [experimental_createPersister](/query/v5/docs/react/plugins/createPersister) plugin that allows you to persist queries individually.

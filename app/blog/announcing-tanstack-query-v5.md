@@ -5,7 +5,7 @@ published: 10/17/2023
 
 About one year ago, we announced the [TanStack Query v5 roadmap](https://github.com/TanStack/query/discussions/4252), and the whole team has been working hard on that version ever since. So we're super happy to announce that today is the day: After 91 alpha releases, 35 betas and 16 release candidates, TanStack Query [v5.0.0](https://github.com/TanStack/query/releases/tag/v5.0.0) is finally here! 🎉
 
-v5 continues the journey of v4, trying to make TanStack Query smaller (v5 is ~20% smaller than v4), better and adding more intuitive to use. One of the main focus points for this release was around streamlining and simplifying the APIs we offer:
+v5 continues the journey of v4, trying to make TanStack Query smaller (v5 is ~20% smaller than v4), better and more intuitive to use. One of the main focus points for this release was around streamlining and simplifying the APIs we offer:
 
 ## Breaking changes
 
@@ -27,7 +27,7 @@ Enjoy a brand new, simplified way to perform optimistic updates by leveraging th
 
 ### Sharable mutation state
 
-A frequently requested feature, as seen in this [two-year-old issue](https://github.com/TanStack/query/issues/2304), finally comes to life in v5: You can now get access to the state of all mutations, shared accross components thanks to the new [useMutationState](/query/v5/docs/react/reference/useMutationState) hook.
+A frequently requested feature, as seen in this [two-year-old issue](https://github.com/TanStack/query/issues/2304), finally comes to life in v5: You can now get access to the state of all mutations, shared across components thanks to the new [useMutationState](/query/v5/docs/react/reference/useMutationState) hook.
 
 ### 1st class `suspense` support
 
@@ -47,7 +47,7 @@ The Query devtools have been re-written from scratch in a framework-agnostic way
 
 ### Fine-grained persistence
 
-Another long-standing [discussion from 2021](https://github.com/TanStack/query/discussions/2649) highlights the importance of fine-grained persistence with just-in-time restore capabilities (especially for mobil development) that the `PersistQueryClient` plugin doesn't have. With v5, we now have a new [experimental_createPersister](/query/v5/docs/react/plugins/createPersister) plugin that allows you to persist queries individually.
+Another long-standing [discussion from 2021](https://github.com/TanStack/query/discussions/2649) highlights the importance of fine-grained persistence with just-in-time restore capabilities (especially for mobile development) that the `PersistQueryClient` plugin doesn't have. With v5, we now have a new [experimental_createPersister](/query/v5/docs/react/plugins/createPersister) plugin that allows you to persist queries individually.
 
 ### The `queryOptions` API
 

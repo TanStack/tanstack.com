@@ -57,4 +57,4 @@ Now that we have a unified way to call `useQuery` (with just one object as param
 
 ## THANK YOU
 
-I hope you're going to enjoy using v5 as much as I've enjoyed building it. What's left for me is to say thanks to everyone who made this release possible. No matter if you're core contributor, implemented an issue from the roadmap, if you've fixed a typo in the docs or gave feedback on the alpha releases: Every contribution matters! It's the people that makes this library great, and we're blessed to have such an amazing community. ❤️
+We hope you're going to enjoy using v5 as much as we've enjoyed building it. What's left for us to say thanks to everyone who made this release possible. No matter if you're core contributor, implemented an issue from the roadmap, if you've fixed a typo in the docs or gave feedback on the alpha releases: Every contribution matters! It's the people that makes this library great, and we're blessed to have such an amazing community. ❤️

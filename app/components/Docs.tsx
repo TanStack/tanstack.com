@@ -304,7 +304,7 @@ export function Docs({
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <span>take the offical React Query course ↗️</span>
+                      <span>check out the official React Query course ↗️</span>
                     </a>
                   </p>
                 </div>

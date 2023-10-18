@@ -432,7 +432,7 @@ export default function RouteVersion() {
               aspectRatio: '1/1',
             }}
           >
-            {/* <SponsorPack sponsors={sponsors} /> */}
+            <SponsorPack sponsors={sponsors} />
           </div>
           <div className="text-center">
             <a

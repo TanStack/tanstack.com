@@ -83,7 +83,6 @@ export const loader = async (context: LoaderArgs) => {
   const { getSponsorsForSponsorPack } = require('~/server/sponsors')
 
   const sponsors = await getSponsorsForSponsorPack()
-  const sponsors = []
 
   return json({
     sponsors,

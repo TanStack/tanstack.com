@@ -21,6 +21,7 @@ import SponsorPack from '~/components/SponsorPack'
 import { PPPBanner } from '~/components/PPPBanner'
 import { getBranch, latestVersion, repo } from '~/routes/query'
 import { Logo } from '~/components/Logo'
+import { LogoQueryGG } from '~/components/LogoQueryGG'
 
 export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
 
@@ -182,7 +183,7 @@ export default function RouteVersion() {
               href="https://ui.dev/react-query?from=tanstack"
               className={`${gradientText} underline`}
             >
-              Take the official React Query course
+              Check out the official React Query course
             </a>
           </p>
         </div>
@@ -251,43 +252,37 @@ export default function RouteVersion() {
         </div>
 
         <div className="px-4">
-          <div className="bg-white w-[600px] max-w-full mx-auto dark:bg-gray-800 shadow-xl rounded-xl p-8">
-            <div className="flex flex-col items-center gap-8">
+          <div className="bg-white w-[600px] max-w-full mx-auto dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
+            <LogoQueryGG className="w-full" />
+            <div className="flex flex-col items-center gap-8 p-4 sm:p-8 pt-2">
               <div className="text-center">
-                <div className="text-lg uppercase font-black">The Official</div>
-                <div className="py-2 text-3xl md:text-4xl font-black">
-                  TanStack{' '}
-                  <span className={`${gradientText}`}>React Query</span> Course
-                </div>
-                <div className="text opacity-60 mt-2">
-                  Created by <strong>Tanner Linsley</strong> and{' '}
+                <div className="text opacity-70 mt-2">
+                  Created by <strong>Dominik Dorfmeister</strong> and{' '}
                   <a className="font-bold underline" href="https://ui.dev/">
                     ui.dev
                   </a>
                 </div>
               </div>
 
-              <div className="text-xl w-[600px] max-w-full leading-7 text-center">
-                "This is the fastest way to learn how to build enterprise-level
-                applications with TanStack's Query + React and support my open
-                source work. Win. Win."
+              <div className="text-xl w-[34ch] max-w-full leading-7 text-center">
+                “This is the best way to learn how to use React Query in real-world applications.”
                 <div className="mt-2 text-base italic">- Tanner Linsley</div>
               </div>
 
-              <div className="grid max-w-screen-lg mx-auto text-lg leading-loose">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl text-green-500">
+              <div className="grid max-w-screen-lg mx-auto text-lg gap-2">
+                <div className="flex items-start gap-2">
+                  <span className="text-2xl text-green-500 mt-0.5">
                     <FaCheckCircle />
                   </span>
                   Save time by learning with a guided approach
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl text-green-500">
+                <div className="flex items-start gap-2">
+                  <span className="text-2xl text-green-500 mt-0.5">
                     <FaCheckCircle />
                   </span>
                   Get hands-on experience building a real world application
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-start gap-2 mt-0.5">
                   <span className="text-2xl text-green-500">
                     <FaCheckCircle />
                   </span>
@@ -295,12 +290,12 @@ export default function RouteVersion() {
                 </div>
               </div>
               <a
-                href="https://ui.dev/react-query?from=tanstack"
+                href="https://query.gg?from=tanstack"
                 target="_blank"
                 className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
                 rel="noreferrer"
               >
-                ENROLL NOW
+                Check it out
               </a>
             </div>
           </div>

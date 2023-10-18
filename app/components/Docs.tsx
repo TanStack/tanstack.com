@@ -300,7 +300,7 @@ export function Docs({
                     Fast track your learning and <br />
                     <a
                       className={`${gradientText}`}
-                      href="https://ui.dev/react-query?from=tanstack"
+                      href="https://query.gg?from=tanstack"
                       target="_blank"
                       rel="noreferrer"
                     >

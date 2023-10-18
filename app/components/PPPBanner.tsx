@@ -52,7 +52,7 @@ export function PPPBanner() {
             </a>{' '}
             to get{' '}
             <strong>{data.discount * 100}% off</strong> off when it launches
-            <span className='scale-[2] inline-block relative top-[1px] m-3'>{flag(data.code)}</span>
+            <span className='scale-[2] inline-block relative top-[1px] ml-3'>{flag(data.code)}</span>
           </p>
           <button
             onClick={() => setHidden(true)}

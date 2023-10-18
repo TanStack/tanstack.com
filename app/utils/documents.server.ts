@@ -155,7 +155,8 @@ export async function fetchRepoFile(
         let text: string | null
         // Read file contents
         try {
-          if (process.env.NODE_ENV === 'development') {
+          // if (process.env.NODE_ENV === 'development') {
+          if (false) {
             text = await fetchFs(repo, filepath)
           } else {
             text = await fetchRemote(owner, repo, ref, filepath)

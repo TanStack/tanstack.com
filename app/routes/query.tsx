@@ -64,7 +64,7 @@ export let meta: MetaFunction = (meta) => {
     title: "TanStack Query | React Query, Solid Query, Svelte Query, Vue Query",
     description:
       "Powerful asynchronous state management, server-state utilities and  data fetching for TS/JS, React, Solid, Svelte and Vue",
-    image: "https://github.com/tanstack/query/raw/beta/media/repo-header.png",
+    image: "https://github.com/tanstack/query/raw/main/media/repo-header.png",
   });
 };
 

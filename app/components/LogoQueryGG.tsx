@@ -31,6 +31,7 @@ export function LogoQueryGG(props: React.HTMLProps<HTMLDivElement>) {
                 y={195.9}
                 fill="none"
                 stroke="#231f20"
+                className="stroke-gray-800 dark:stroke-gray-100"
                 strokeLinejoin="round"
                 strokeWidth={1.24}
                 rx={11.53}
@@ -215,7 +216,7 @@ export function LogoQueryGG(props: React.HTMLProps<HTMLDivElement>) {
                 className="fill-gray-800 dark:fill-gray-100"
                 d="M549.98 19.75h-61.25L549.98 81l61.25-61.25h-61.25zm10.55 13.09c1.26 0 2.38 1 2.39 2.23-.02 1.26-1.14 2.26-2.39 2.26-1.33 0-2.41-1-2.39-2.26-.02-1.23 1.07-2.23 2.39-2.23zm-5.33 9.11c0 4.47-3.57 6.88-9.06 6.88s-9.06-2.41-9.06-6.88V29.04h5.7v12.68c0 1.45 1.27 2.44 3.36 2.44s3.4-.99 3.4-2.44V29.04h5.66v12.91zm7.69-.33c-.2 2.63-1.23 5.1-1.88 6.52l-.28.67h-.82l-1.51.01h-1.6l.45-1.43c.44-1.5.98-3.68.98-5.78l-.02-1.21h4.67v1.21z"
             />
-            </svg>
+        </svg>
     </div>
   )
 }

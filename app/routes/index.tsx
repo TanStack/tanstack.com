@@ -174,7 +174,7 @@ const courses = [
     getStyles: () => `border-t-4 border-red-500 hover:(border-green-500)`,
     href: 'https://ui.dev/checkout/react-query?from=tanstack',
     description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
-    price: `$195`,
+    // price: `$195`,
   },
 ]
 
@@ -484,17 +484,18 @@ export default function Index() {
                 <div
                   className={`inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded shadow uppercase font-black text-sm`}
                 >
-                  Enroll →
+                  Check it out →
                 </div>
               </div>
-              <div className={`flex-col text-center md:text-right`}>
+              {/* Removing for now until course launches */}
+              {/* <div className={`flex-col text-center md:text-right`}>
                 <div className={`text-center text-3xl font-bold`}>
                   {course.price}
                 </div>
                 <div className={`text-center text-sm opacity-70`}>
                   per license
                 </div>
-              </div>
+              </div> */}
             </a>
           ))}
         </div>
@@ -606,7 +607,7 @@ export default function Index() {
                 </div>
 
                 <h3 className={`text-lg mt-1`}>
-                  The Best Javascript Newsletter
+                  The Best JavaScript Newsletter
                 </h3>
               </div>
               <div className={`grid grid-cols-3 mt-4 gap-2`}>

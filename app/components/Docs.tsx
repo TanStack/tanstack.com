@@ -17,6 +17,7 @@ import BytesForm from './BytesForm'
 import type { SelectProps } from './Select'
 import { Select } from './Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
+import { LogoQueryGGSmall } from '~/components/LogoQueryGGSmall'
 
 export type DocsConfig = {
   docSearch: {
@@ -290,36 +291,37 @@ export function Docs({
       {showBytes ? (
         <div className="w-[300px] max-w-[350px] fixed top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
           <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
-            <div className="space-y-4">
-              {config?.docSearch?.indexName?.includes('query') && (
+            {config?.docSearch?.indexName?.includes('query') ? (
+              <div className="space-y-4">
+                <h6 className="text-[.7rem] md:text-[.9em] uppercase font-black">
+                  Want to Skip the Docs?
+                </h6>
+                <LogoQueryGGSmall className="w-full" />
+                <blockquote className="text-sm -indent-[.45em] pl-2">
+                  “This course is the best way to learn how to use React Query in real-world applications.”
+                  <cite className="italic block text-right">—Tanner Linsley</cite>
+                </blockquote>
+                <a
+                  className="block w-full px-4 py-2 bg-gradient-to-r from-rose-500 to-violet-500 text-white rounded uppercase font-bold text-sm text-center"
+                  href="https://query.gg?from=tanstack"
+                  target="_blank"
+                  rel="noreferrer"
+                >Check it out</a>
+              </div>
+            ) : (
+              <div className="space-y-4">
                 <div className="space-y-1 md:space-y-2">
                   <h6 className="text-[.7rem] md:text-[.9em] uppercase font-black">
-                    Want to Skip the Docs?
+                    Subscribe to Bytes
                   </h6>
                   <p className="text-xs md:text-sm">
-                    Fast track your learning and <br />
-                    <a
-                      className={`${gradientText}`}
-                      href="https://query.gg?from=tanstack"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <span>check out the official React Query course ↗️</span>
-                    </a>
+                    Your weekly dose of JavaScript news. Delivered every Monday to
+                    over 100,000 devs, for free.
                   </p>
                 </div>
-              )}
-              <div className="space-y-1 md:space-y-2">
-                <h6 className="text-[.7rem] md:text-[.9em] uppercase font-black">
-                  Subscribe to Bytes
-                </h6>
-                <p className="text-xs md:text-sm">
-                  Your weekly dose of JavaScript news. Delivered every Monday to
-                  over 100,000 devs, for free.
-                </p>
+                <BytesForm />
               </div>
-              <BytesForm />
-            </div>
+            )}
             <button
               className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
               onClick={() => {
@@ -343,7 +345,7 @@ export function Docs({
           >
             {config?.docSearch?.indexName?.includes('query') ? (
               <>
-                <strong>Skip the docs?</strong>
+                <strong><span role="img" aria-label="crystal ball">&#128302;</span> Skip the docs?</strong>
               </>
             ) : (
               <>

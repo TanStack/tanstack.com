@@ -254,7 +254,7 @@ export default function RouteVersion() {
         <div className="px-4">
           <div className="bg-white w-[600px] max-w-full mx-auto dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
             <LogoQueryGG className="w-full" />
-            <div className="flex flex-col items-center gap-8 p-4 sm:p-8 pt-2">
+            <div className="flex flex-col items-center gap-8 p-4 sm:px-8 sm:pb-8 ">
               <div className="text-center">
                 <div className="text opacity-70 mt-2">
                   Created by <strong>Dominik Dorfmeister</strong> and{' '}
@@ -266,7 +266,7 @@ export default function RouteVersion() {
 
               <div className="text-xl w-[34ch] max-w-full leading-7 text-center">
                 “This is the best way to learn how to use React Query in real-world applications.”
-                <div className="mt-2 text-base italic">- Tanner Linsley</div>
+                <div className="mt-2 text-base italic">—Tanner Linsley</div>
               </div>
 
               <div className="grid max-w-screen-lg mx-auto text-lg gap-2">
@@ -280,7 +280,7 @@ export default function RouteVersion() {
                   <span className="text-2xl text-green-500 mt-0.5">
                     <FaCheckCircle />
                   </span>
-                  Get hands-on experience building a real world application
+                  Get hands-on experience building a real-world application
                 </div>
                 <div className="flex items-start gap-2 mt-0.5">
                   <span className="text-2xl text-green-500">

@@ -17,7 +17,7 @@ import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
-import SponsorPack from '~/components/SponsorPack'
+// import SponsorPack from '~/components/SponsorPack'
 import { PPPBanner } from '~/components/PPPBanner'
 import { getBranch, latestVersion, repo } from '~/routes/query'
 import { Logo } from '~/components/Logo'
@@ -79,18 +79,18 @@ const menu = [
   },
 ]
 
-export const loader = async (context: LoaderArgs) => {
-  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
+// export const loader = async (context: LoaderArgs) => {
+//   const { getSponsorsForSponsorPack } = require('~/server/sponsors')
 
-  const sponsors = await getSponsorsForSponsorPack()
+//   const sponsors = await getSponsorsForSponsorPack()
 
-  return json({
-    sponsors,
-  })
-}
+//   return json({
+//     sponsors,
+//   })
+// }
 
 export default function RouteVersion() {
-  const { sponsors } = useLoaderData<typeof loader>()
+  // const { sponsors } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
   const [framework, setFramework] = React.useState<Framework>('react')
@@ -432,7 +432,7 @@ export default function RouteVersion() {
               aspectRatio: '1/1',
             }}
           >
-            <SponsorPack sponsors={sponsors} />
+            {/* <SponsorPack sponsors={sponsors} /> */}
           </div>
           <div className="text-center">
             <a

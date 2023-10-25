@@ -288,8 +288,7 @@ export function Docs({
             </div>
           </div>
         </div>
-        {/* TODO: Is there a better way to do this? */}
-          <div className="p-4 max-w-[240px] shrink-0 border-l hidden md:block">
+          <div className="p-4 max-w-[240px] shrink-0 border-l border-gray-200 dark:border-white/10 hidden md:block">
           {config?.docSearch?.indexName?.includes('query') ? (
               <DocsCalloutQueryGG />
             ) : (

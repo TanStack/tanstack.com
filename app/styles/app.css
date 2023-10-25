@@ -99,6 +99,14 @@
   .anchor-heading:hover > *:after {
     @apply opacity-50;
   }
+
+  :has(+ .anchor-heading) {
+    margin-bottom: 0 !important;
+  }
+
+  .anchor-heading + p {
+    margin-top: 0 !important;
+  }
 }
 
 .carbon-small {

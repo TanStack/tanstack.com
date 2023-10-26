@@ -12,12 +12,11 @@ import { last } from '~/utils/utils'
 import { Carbon } from './Carbon'
 import { LinkOrA } from './LinkOrA'
 import { Search } from './Search'
-import { gradientText } from '~/routes/query/$version/index'
-import BytesForm from './BytesForm'
 import type { SelectProps } from './Select'
 import { Select } from './Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
-import { LogoQueryGGSmall } from '~/components/LogoQueryGGSmall'
+import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
+import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 
 export type DocsConfig = {
   docSearch: {
@@ -233,128 +232,111 @@ export function Docs({
   )
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row w-full">
+    <div className="max-w-[1400px] min-h-screen mx-auto flex flex-col lg:flex-row w-full">
       {smallMenu}
       {largeMenu}
-      <div className="flex-1 min-w-0 min-h-0 flex relative justify-center">
-        {children || <Outlet />}
-        <div
-          className="fixed bottom-0 left-0 right-0
-                      lg:pl-[250px] z-10"
-        >
-          <div className="p-4 flex justify-center gap-4">
-            {prevItem ? (
-              <LinkOrA
-                to={
-                  v2
-                    ? prevItem.to
-                    : framework
-                    ? `../${prevItem.to}`
-                    : prevItem.to
-                }
-                className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
-              bg-white text-gray-600 dark:bg-black dark:text-gray-400
-              shadow-lg dark:border dark:border-gray-800
-              lg:text-lg"
-              >
-                <FaArrowLeft /> {prevItem.label}
-              </LinkOrA>
-            ) : null}
-            {nextItem ? (
-              <LinkOrA
-                to={
-                  v2
-                    ? nextItem.to
-                    : framework
-                    ? `../${nextItem.to}`
-                    : nextItem.to
-                }
-                className="py-1 px-2 text-sm self-end rounded-md
-                bg-white dark:bg-black
-                shadow-lg dark:border dark:border-gray-800
-                lg:text-lg
-                "
-              >
-                <div className="flex gap-2 items-center font-bold">
-                  <span
-                    className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
-                  >
-                    {nextItem.label}
-                  </span>{' '}
-                  <FaArrowRight className={textColor} />
-                </div>
-              </LinkOrA>
-            ) : null}
-          </div>
-        </div>
-      </div>
-      {showBytes ? (
-        <div className="w-[300px] max-w-[350px] fixed top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
-          <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
-            {config?.docSearch?.indexName?.includes('query') ? (
-              <div className="space-y-4">
-                <h6 className="text-[.7rem] md:text-[.9em] uppercase font-black">
-                  Want to Skip the Docs?
-                </h6>
-                <LogoQueryGGSmall className="w-full" />
-                <blockquote className="text-sm -indent-[.45em] pl-2">
-                  “This course is the best way to learn how to use React Query in real-world applications.”
-                  <cite className="italic block text-right">—Tanner Linsley</cite>
-                </blockquote>
-                <a
-                  className="block w-full px-4 py-2 bg-gradient-to-r from-rose-500 to-violet-500 text-white rounded uppercase font-bold text-sm text-center"
-                  href="https://query.gg?from=tanstack"
-                  target="_blank"
-                  rel="noreferrer"
-                >Check it out</a>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="space-y-1 md:space-y-2">
-                  <h6 className="text-[.7rem] md:text-[.9em] uppercase font-black">
-                    Subscribe to Bytes
-                  </h6>
-                  <p className="text-xs md:text-sm">
-                    Your weekly dose of JavaScript news. Delivered every Monday to
-                    over 100,000 devs, for free.
-                  </p>
-                </div>
-                <BytesForm />
-              </div>
-            )}
-            <button
-              className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
-              onClick={() => {
-                setShowBytes(false)
-              }}
-            >
-              <FaTimes />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <button
-          className="fixed right-0 top-1/2 -translate-y-[50px] "
-          onClick={() => {
-            setShowBytes(true)
-          }}
-        >
+      <div className="flex w-full lg:w-[calc(100%-250px)]">
+        <div className="min-w-0 min-h-0 flex relative justify-center">
+          {children || <Outlet />}
           <div
-            className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
-          hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
+            className="fixed bottom-0 left-0 right-0
+                        lg:pl-[250px] z-10"
           >
-            {config?.docSearch?.indexName?.includes('query') ? (
-              <>
-                <strong><span role="img" aria-label="crystal ball">&#128302;</span> Skip the docs?</strong>
-              </>
+            <div className="p-4 flex justify-center gap-4">
+              {prevItem ? (
+                <LinkOrA
+                  to={
+                    v2
+                      ? prevItem.to
+                      : framework
+                      ? `../${prevItem.to}`
+                      : prevItem.to
+                  }
+                  className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
+                bg-white text-gray-600 dark:bg-black dark:text-gray-400
+                shadow-lg dark:border dark:border-gray-800
+                lg:text-lg"
+                >
+                  <FaArrowLeft /> {prevItem.label}
+                </LinkOrA>
+              ) : null}
+              {nextItem ? (
+                <LinkOrA
+                  to={
+                    v2
+                      ? nextItem.to
+                      : framework
+                      ? `../${nextItem.to}`
+                      : nextItem.to
+                  }
+                  className="py-1 px-2 text-sm self-end rounded-md
+                  bg-white dark:bg-black
+                  shadow-lg dark:border dark:border-gray-800
+                  lg:text-lg
+                  "
+                >
+                  <div className="flex gap-2 items-center font-bold">
+                    <span
+                      className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
+                    >
+                      {nextItem.label}
+                    </span>{' '}
+                    <FaArrowRight className={textColor} />
+                  </div>
+                </LinkOrA>
+              ) : null}
+            </div>
+          </div>
+        </div>
+          <div className="p-4 max-w-[240px] shrink-0 border-l border-gray-200 dark:border-white/10 hidden md:block">
+          {config?.docSearch?.indexName?.includes('query') ? (
+              <DocsCalloutQueryGG />
             ) : (
-              <>
-                Subscribe to <strong>Bytes</strong>
-              </>
+              <DocsCalloutBytes />
             )}
           </div>
-        </button>
-      )}
+        {showBytes ? (
+          <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
+            <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
+              {config?.docSearch?.indexName?.includes('query') ? (
+                <DocsCalloutQueryGG />
+              ) : (
+                <DocsCalloutBytes />
+              )}
+              <button
+                className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
+                onClick={() => {
+                  setShowBytes(false)
+                }}
+              >
+                <FaTimes />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            className="right-0 top-1/2 -translate-y-[50px] fixed md:hidden"
+            onClick={() => {
+              setShowBytes(true)
+            }}
+          >
+            <div
+              className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
+            hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
+            >
+              {config?.docSearch?.indexName?.includes('query') ? (
+                <>
+                  <strong><span role="img" aria-label="crystal ball">&#128302;</span> Skip the docs?</strong>
+                </>
+              ) : (
+                <>
+                  Subscribe to <strong>Bytes</strong>
+                </>
+              )}
+            </div>
+          </button>
+        )}
+      </div>
     </div>
   )
 }

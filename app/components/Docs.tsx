@@ -236,7 +236,7 @@ export function Docs({
       {smallMenu}
       {largeMenu}
       <div className="flex w-full lg:w-[calc(100%-250px)]">
-        <div className="min-w-0 min-h-0 flex relative justify-center">
+        <div className="min-w-0 min-h-0 flex relative justify-center flex-1">
           {children || <Outlet />}
           <div
             className="fixed bottom-0 left-0 right-0

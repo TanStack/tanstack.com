@@ -1,4 +1,4 @@
-import useBytesSubmit from './useBytesSubmit'
+import useBytesSubmit from '~/components/useBytesSubmit'
 
 export default function BytesForm() {
   const { state, handleSubmit, error } = useBytesSubmit()

@@ -3,7 +3,7 @@ import {
   extractFrontMatter,
   fetchRepoFile,
   markdownToMdx,
-} from './documents.server'
+} from '~/utils/documents.server'
 import RemoveMarkdown from 'remove-markdown'
 
 export async function loadDocs({

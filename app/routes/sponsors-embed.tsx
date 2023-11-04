@@ -1,4 +1,4 @@
-import SponsorPack from '../components/SponsorPack'
+import SponsorPack from '~/components/SponsorPack'
 import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'

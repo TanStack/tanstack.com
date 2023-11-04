@@ -2,7 +2,7 @@ import fsp from 'node:fs/promises'
 import path from 'node:path'
 import { bundleMDX } from 'mdx-bundler'
 import * as graymatter from 'gray-matter'
-import { fetchCached } from './cache.server'
+import { fetchCached } from '~/utils/cache.server'
 
 type BundledMDX = Awaited<ReturnType<typeof bundleMDX>>
 

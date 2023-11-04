@@ -6,7 +6,7 @@ import {
   fetchRepoFile,
   markdownToMdx,
 } from '~/utils/documents.server'
-import { v1branch } from './router.v1'
+import { v1branch } from '~/routes/router.v1'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'

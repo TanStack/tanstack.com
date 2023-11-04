@@ -12,7 +12,7 @@ import {
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { v8branch } from './table.v8'
+import { v8branch } from '~/routes/table.v8'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import { Link, MetaFunction } from '@remix-run/react'
+import { Link, V2_MetaFunction } from '@remix-run/react'
 import { useVirtualV3Config } from '../v3'
 import { gradientText } from './index'
 import { seo } from '~/utils/seo'
@@ -44,7 +44,7 @@ const localMenu = {
   ],
 }
 
-export const meta: MetaFunction = () => {
+export const meta: V2_MetaFunction = () => {
   return seo({
     title:
       'TanStack Virtual Docs | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',

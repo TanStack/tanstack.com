@@ -1,5 +1,5 @@
 import React from 'react'
-import { json, LoaderArgs, MetaFunction } from '@remix-run/node'
+import { json, LoaderArgs, V2_MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
 import { v8branch } from '~/routes/table/v8'
@@ -16,7 +16,7 @@ export const loader = async (context: LoaderArgs) => {
   return json({ kind, name })
 }
 
-export const meta: MetaFunction = ({ data }) => {
+export const meta: V2_MetaFunction = ({ data }) => {
   return seo({
     title: `${capitalize(data.kind)} Table ${slugToTitle(
       data.name

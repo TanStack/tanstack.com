@@ -4,7 +4,7 @@ import { Link, NavLink, Outlet } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { Carbon } from '~/components/Carbon'
 import { seo } from '~/utils/seo'
-import type { MetaFunction } from '@remix-run/node'
+import type { V2_MetaFunction } from '@remix-run/node'
 
 export const ErrorBoundary = DefaultErrorBoundary
 
@@ -36,7 +36,7 @@ const localMenu = [
   },
 ] as const
 
-export const meta: MetaFunction = () => {
+export const meta: V2_MetaFunction = () => {
   return seo({
     title: 'Blog | TanStack',
     description: 'The latest news and blog posts from TanStack!',

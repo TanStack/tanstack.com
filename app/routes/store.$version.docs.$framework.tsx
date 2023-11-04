@@ -1,7 +1,5 @@
 import type { MetaFunction } from '@remix-run/node'
 import { seo } from '~/utils/seo'
-import { Docs } from '~/components/Docs'
-import { createLogo, useReactStoreDocsConfig } from '~/routes/store'
 import { Outlet } from '@remix-run/react'
 
 export const meta: MetaFunction = () => {
@@ -12,8 +10,6 @@ export const meta: MetaFunction = () => {
 }
 
 export default function RouteFrameworkParam() {
-  let config = useReactStoreDocsConfig()
-
   return (
     <>
       <Outlet />

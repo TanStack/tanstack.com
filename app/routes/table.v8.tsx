@@ -4,7 +4,6 @@ import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import type { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
-import { seo } from '~/utils/seo'
 import { useMatchesData } from '~/utils/utils'
 
 export const v8branch = 'main'

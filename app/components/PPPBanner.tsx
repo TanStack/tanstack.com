@@ -45,7 +45,9 @@ export function PPPBanner() {
           </p> */}
           <p>
             Want to master React Query?{' '}
-            <a href="https://query.gg?from=tanstack&coupon_code=${data.coupon}">
+            <a
+              href={`https://query.gg?from=tanstack&coupon_code=${data.coupon}`}
+            >
               <strong>Sign up for offical course updates</strong>
             </a>{' '}
             to get <strong>{data.discount * 100}% off</strong> off when it

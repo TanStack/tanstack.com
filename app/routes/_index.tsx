@@ -175,7 +175,7 @@ const courses = [
 ]
 
 export const loader = async () => {
-  const { getSponsorsForSponsorPack } = await import('../server/sponsors')
+  const { getSponsorsForSponsorPack } = require('../server/sponsors')
 
   const sponsors = await getSponsorsForSponsorPack()
 

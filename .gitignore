@@ -9,9 +9,7 @@ yarn.lock
 .output
 
 /build/
-/api/_assets/
+/api/
 /server/build
 /public/build
-/api/index.js
-/api/index.js.map
 /app/styles/app.generated.css

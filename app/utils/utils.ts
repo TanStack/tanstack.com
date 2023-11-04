@@ -48,7 +48,7 @@ export function generatePath(
   id: string,
   params: Record<string, string | undefined>
 ) {
-  let result = id.replace('routes', '')
+  let result = id.replace('routes', '').replaceAll('.', '/')
   Object.entries(params).forEach(([key, value]) => {
     result = result.replace(`$${key}`, value!)
   })

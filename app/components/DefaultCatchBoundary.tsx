@@ -7,7 +7,12 @@ type DefaultCatchBoundaryType = {
   isRoot?: boolean
 }
 
-export function DefaultCatchBoundary({ status, statusText, data, isRoot }: DefaultCatchBoundaryType) {
+export function DefaultCatchBoundary({
+  status,
+  statusText,
+  data,
+  isRoot,
+}: DefaultCatchBoundaryType) {
   let message
   switch (status) {
     case 401:

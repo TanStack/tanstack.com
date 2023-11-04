@@ -1,23 +1,28 @@
 import { Link, isRouteErrorResponse, useRouteError } from '@remix-run/react'
-import { DefaultCatchBoundary } from "~/components/DefaultCatchBoundary";
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 
 export const DefaultErrorBoundary = () => {
-  const error = useRouteError();
-  
+  const error = useRouteError()
+
   // when true, this is what used to go to `CatchBoundary`
   if (isRouteErrorResponse(error)) {
     return (
-      <DefaultCatchBoundary status={error.status} statusText={error.statusText} data={error.data} isRoot={false} />
-    );
+      <DefaultCatchBoundary
+        status={error.status}
+        statusText={error.statusText}
+        data={error.data}
+        isRoot={false}
+      />
+    )
   }
 
   console.error(error)
 
   // Don't forget to typecheck with your own logic.
   // Any value can be thrown, not just errors!
-  let errorMessage = "Unknown error";
+  let errorMessage = 'Unknown error'
   if (error instanceof Error) {
-    errorMessage = error.message;
+    errorMessage = error.message
   }
 
   return (

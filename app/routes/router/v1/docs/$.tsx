@@ -1,5 +1,5 @@
 import { useLoaderData } from '@remix-run/react'
-import type { LoaderFunction, MetaFunction } from '@remix-run/node'
+import type { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import {
   extractFrontMatter,
@@ -49,7 +49,7 @@ export const loader: LoaderFunction = async (context) => {
   )
 }
 
-export const meta: MetaFunction = ({ data }) => {
+export const meta: V2_MetaFunction = ({ data }) => {
   return seo({
     title: `${data?.title ?? 'Docs'} | TanStack Router Docs`,
     description: data?.description,

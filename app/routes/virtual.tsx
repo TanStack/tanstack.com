@@ -1,8 +1,9 @@
 import { Outlet } from '@remix-run/react'
-import { LoaderArgs, MetaFunction, redirect } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
+import type { LoaderArgs, V2_MetaFunction } from '@remix-run/node'
 
-export const meta: MetaFunction = () => {
+export const meta: V2_MetaFunction = () => {
   return seo({
     title:
       'TanStack Virtual | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',

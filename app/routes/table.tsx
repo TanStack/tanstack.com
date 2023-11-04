@@ -1,8 +1,9 @@
-import { LoaderArgs, MetaFunction, redirect } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
 import { seo } from '~/utils/seo'
+import type { LoaderArgs, V2_MetaFunction } from '@remix-run/node'
 
-export const meta: MetaFunction = () => {
+export const meta: V2_MetaFunction = () => {
   return seo({
     title: 'TanStack Table | React Table, Solid Table, Svelte Table, Vue Table',
     description:

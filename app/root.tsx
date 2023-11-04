@@ -1,28 +1,22 @@
-import {
-  Outlet,
-  isRouteErrorResponse,
-  useRouteError,
-} from '@remix-run/react'
-import type { LinksFunction, MetaFunction } from '@remix-run/node'
-
+import { Outlet, isRouteErrorResponse, useRouteError } from '@remix-run/react'
 import styles from './styles/app.generated.css'
 import prismThemeLight from './styles/prismThemeLight.css'
 import prismThemeDark from './styles/prismThemeDark.css'
 import docSearchStyles from '@docsearch/css/dist/style.css'
-
 import { seo } from './utils/seo'
 import { RootDocument } from './components/RootDocument'
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
+import type { LinksFunction, V2_MetaFunction } from '@remix-run/node'
 
-export const meta: MetaFunction = () => ({
-  ...seo({
+export const meta: V2_MetaFunction = () => {
+  return seo({
     title: 'TanStack | High Quality Open-Source Software for Web Developers',
     description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
     image: require('./images/og.png'),
     keywords:
       'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
-  }),
-})
+  })
+}
 
 export const links: LinksFunction = () => {
   return [
@@ -76,26 +70,31 @@ export default function App() {
 }
 
 export const ErrorBoundary = () => {
-  const error = useRouteError();
+  const error = useRouteError()
 
   // when true, this is what used to go to `CatchBoundary`
   if (isRouteErrorResponse(error)) {
     return (
       <RootDocument title={`${error.status} ${error.statusText}`}>
-      <div className="h-[50vh] flex flex-col items-center justify-center gap-6">
-        <DefaultCatchBoundary status={error.status} statusText={error.statusText} data={error.data} isRoot={true} />
-      </div>
-    </RootDocument>
-    );
+        <div className="h-[50vh] flex flex-col items-center justify-center gap-6">
+          <DefaultCatchBoundary
+            status={error.status}
+            statusText={error.statusText}
+            data={error.data}
+            isRoot={true}
+          />
+        </div>
+      </RootDocument>
+    )
   }
 
   console.error(error)
 
   // Don't forget to typecheck with your own logic.
   // Any value can be thrown, not just errors!
-  let errorMessage = "Unknown error";
+  let errorMessage = 'Unknown error'
   if (error instanceof Error) {
-    errorMessage = error.message;
+    errorMessage = error.message
   }
 
   return (

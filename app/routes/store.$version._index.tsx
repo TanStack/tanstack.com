@@ -1,12 +1,7 @@
 import * as React from 'react'
 
 import { CgCornerUpLeft } from 'react-icons/cg'
-import {
-  FaBook,
-  FaDiscord,
-  FaGithub,
-  FaTshirt,
-} from 'react-icons/fa'
+import { FaBook, FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
 import type { LoaderArgs } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'

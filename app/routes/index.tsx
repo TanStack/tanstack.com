@@ -3,7 +3,7 @@ import {
   Link,
   useActionData,
   useLoaderData,
-  useTransition,
+  useNavigation,
 } from '@remix-run/react'
 import type { ActionFunction } from '@remix-run/node'
 import { json, LoaderArgs } from '@remix-run/node'
@@ -211,7 +211,7 @@ function sample(arr: any[], random = Math.random()) {
 export default function Index() {
   const data = useActionData()
   const { sponsors, randomNumber } = useLoaderData<typeof loader>()
-  const transition = useTransition()
+  const navigation = useNavigation()
   const isLoading = transition.state === 'submitting'
   const hasSubmitted = data?.status === 'success'
   const hasError = data?.status === 'error'
@@ -612,7 +612,7 @@ export default function Index() {
               </div>
               <div className={`grid grid-cols-3 mt-4 gap-2`}>
                 <input
-                  disabled={transition.state === 'submitting'}
+                  disabled={navigation.state === 'submitting'}
                   className={`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`}
                   name="email_address"
                   placeholder="Your email address"

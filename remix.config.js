@@ -14,9 +14,12 @@ module.exports = {
   // assetsBuildDirectory: "public/build",
   // serverBuildPath: "api/index.js",
   // publicPath: "/build/",
+  serverModuleFormat: "cjs",
   routes: (defineRoutes) => createRoutesFromFolders(defineRoutes),
   future: {
     v2_dev: true,
+    v2_headers: true,
+    v2_normalizeFormMethod: true,
     v2_routeConvention: true,
   },
 };

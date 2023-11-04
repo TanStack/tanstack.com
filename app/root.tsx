@@ -8,7 +8,7 @@ import {
   ScrollRestoration,
   useCatch,
   useMatches,
-  useTransition,
+  useNavigation,
 } from '@remix-run/react'
 import type { LinksFunction, MetaFunction } from '@remix-run/node'
 
@@ -91,7 +91,7 @@ function Document({
   children: React.ReactNode
   title?: string
 }) {
-  const transition = useTransition()
+  const navigation = useNavigation()
   const matches = useMatches()
   // const styles = useStylesLink()
 
@@ -144,7 +144,7 @@ function Document({
           className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-800
           rounded-lg shadow-lg transition-opacity duration-300 hover:opacity-0 pointer-events-none
           z-30 delay-300 ${
-            transition.state !== 'idle' ? 'opacity-1' : 'opacity-0'
+            navigation.state !== 'idle' ? 'opacity-1' : 'opacity-0'
           }`}
         >
           <CgSpinner className='text-2xl animate-spin' />

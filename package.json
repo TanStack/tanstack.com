@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "remix dev --manual",
     "build": "remix build",
+    "start": "remix-serve ./build/index.js",
     "format": "prettier --plugin-search-dir . \"**/*.{md,js,jsx,cjs,ts,tsx,json}\" --write",
     "lint": "eslint --ext .ts,.tsx ./app"
   },

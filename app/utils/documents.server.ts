@@ -1,6 +1,6 @@
-import fsp from 'fs/promises'
-
-import path from 'path'
+import fsp from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { bundleMDX } from 'mdx-bundler'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from './cache.server'
@@ -49,6 +49,7 @@ async function fetchRemote(
  * Return text content of file from local file system
  */
 async function fetchFs(repo: string, filepath: string) {
+  const __dirname = fileURLToPath(new URL('.', import.meta.url))
   const localFilePath = path.resolve(__dirname, `../../${repo}`, filepath)
   const file = await fsp.readFile(localFilePath)
   return file.toString()

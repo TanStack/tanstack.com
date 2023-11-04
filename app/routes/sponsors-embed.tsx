@@ -8,7 +8,7 @@ export const handle = {
 }
 
 export const loader = async () => {
-  const { getSponsorsForSponsorPack } = require('../server/sponsors')
+  const { getSponsorsForSponsorPack } = await import('../server/sponsors')
 
   const sponsors = await getSponsorsForSponsorPack()
 

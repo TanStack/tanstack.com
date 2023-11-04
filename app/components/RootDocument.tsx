@@ -30,6 +30,8 @@ export function RootDocument({
             <base target="_parent" />
           ) : null}
           {title ? <title>{title}</title> : null}
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
           <Meta />
           <Links />
           <script

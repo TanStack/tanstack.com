@@ -265,7 +265,8 @@ export default function RouteVersion() {
               </div>
 
               <div className="text-xl w-[34ch] max-w-full leading-7 text-center">
-                “This is the best way to learn how to use React Query in real-world applications.”
+                “This is the best way to learn how to use React Query in
+                real-world applications.”
                 <div className="mt-2 text-base italic">—Tanner Linsley</div>
               </div>
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
 function sendBytesOptIn({ email, influencer, source, referral }) {
   return fetch(`https://bytes.dev/api/bytes-optin-cors`, {
@@ -12,21 +12,21 @@ function sendBytesOptIn({ email, influencer, source, referral }) {
 }
 
 export default function useBytesSubmit() {
-  const [state, setState] = useState("initial");
-  const [error, setError] = useState(null);
+  const [state, setState] = useState('initial')
+  const [error, setError] = useState(null)
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    const email = e.target.email_address.value;
-    setState("loading");
-    sendBytesOptIn({ email, influencer: "tanstack"  })
+    e.preventDefault()
+    const email = e.target.email_address.value
+    setState('loading')
+    sendBytesOptIn({ email, influencer: 'tanstack' })
       .then(() => {
-        setState("submitted");
+        setState('submitted')
       })
       .catch((err) => {
-        setError(err);
-      });
-  };
+        setError(err)
+      })
+  }
 
-  return { handleSubmit, state, error };
+  return { handleSubmit, state, error }
 }

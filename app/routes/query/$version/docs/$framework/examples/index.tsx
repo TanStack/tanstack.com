@@ -1,7 +1,7 @@
 import { redirect } from '@remix-run/node'
-import type { LoaderArgs} from '@remix-run/node';
+import type { LoaderArgs } from '@remix-run/node'
 
-export const loader = (context : LoaderArgs) => {
+export const loader = (context: LoaderArgs) => {
   const { framework } = context.params
 
   throw redirect(

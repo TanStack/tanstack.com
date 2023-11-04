@@ -1,14 +1,14 @@
-import { redirect } from "@remix-run/node";
-import type { LoaderArgs } from "@remix-run/node";
+import { redirect } from '@remix-run/node'
+import type { LoaderArgs } from '@remix-run/node'
 
 export const loader = (context: LoaderArgs) => {
-  handleRedirectsFromV3(context);
+  handleRedirectsFromV3(context)
 
-  return redirect(`/query/latest`, 301);
-};
+  return redirect(`/query/latest`, 301)
+}
 
 export function handleRedirectsFromV3(context: LoaderArgs) {
-  const url = new URL(context.request.url);
+  const url = new URL(context.request.url)
 
   // Redirect old query v3 docs
   // prettier-ignore
@@ -107,7 +107,7 @@ export function handleRedirectsFromV3(context: LoaderArgs) {
       throw redirect(
         `/query/latest/${item.to}?from=reactQueryV3&original=https://tanstack.com/query/v3/${item.to}`,
         301
-      );
+      )
     }
-  });
+  })
 }

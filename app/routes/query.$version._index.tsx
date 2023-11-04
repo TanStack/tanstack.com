@@ -80,7 +80,7 @@ const menu = [
 ]
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const { getSponsorsForSponsorPack } = await import('~/server/sponsors')
+  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
 
   const sponsors = await getSponsorsForSponsorPack()
 

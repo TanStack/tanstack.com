@@ -1,12 +1,7 @@
 import { DocSearch } from '@docsearch/react'
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import {
-  FaArrowLeft,
-  FaArrowRight,
-  FaTimes,
-  FaTimesCircle,
-} from 'react-icons/fa'
+import { FaArrowLeft, FaArrowRight, FaTimes } from 'react-icons/fa'
 import { NavLink, Outlet, useMatches } from '@remix-run/react'
 import { last } from '~/utils/utils'
 import { Carbon } from './Carbon'

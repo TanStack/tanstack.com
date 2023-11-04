@@ -1,7 +1,6 @@
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import type { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { useMatchesData } from '~/utils/utils'
@@ -25,7 +24,6 @@ export const loader = async () => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-export const CatchBoundary = DefaultCatchBoundary
 
 export const useVirtualV3Config = () =>
   useMatchesData('/virtual/v3') as DocsConfig

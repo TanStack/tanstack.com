@@ -1,14 +1,12 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
-import { MetaFunction } from '@remix-run/node'
-
 import { useReactTableV8Config } from '../v8'
 import { gradientText } from './index'
 import { seo } from '~/utils/seo'
 import { Docs, DocsConfig } from '~/components/Docs'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import type { MetaFunction } from '@remix-run/node'
 
 const logo = (
   <>
@@ -58,7 +56,6 @@ export const meta: MetaFunction = () => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactTable() {
   let config = useReactTableV8Config()

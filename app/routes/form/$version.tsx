@@ -2,7 +2,6 @@ import { Link, Outlet, useLocation } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import type { LoaderArgs } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
@@ -20,7 +19,6 @@ export const loader = async (context: LoaderArgs) => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteVersionParam() {
   // After user clicks hide, do not show modal for a month, and then remind users that there is a new version!

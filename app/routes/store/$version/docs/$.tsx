@@ -1,7 +1,6 @@
 import type { LoaderArgs, MetaFunction } from '@remix-run/node'
 import { repo, getBranch } from '~/routes/store'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { seo } from '~/utils/seo'
 import { useLoaderData, useParams } from '@remix-run/react'
 import { loadDocs } from '~/utils/docs'
@@ -26,7 +25,6 @@ export const meta: MetaFunction = ({ data }) => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteDocs() {
   const { title, code, filePath } = useLoaderData<typeof loader>()

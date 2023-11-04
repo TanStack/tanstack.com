@@ -1,5 +1,5 @@
 import React from 'react'
-import type { LoaderArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
@@ -7,7 +7,7 @@ import { repo, getBranch } from '~/routes/query'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': examplePath } = context.params
   const [kind, name] = (examplePath ?? '').split('/')
 

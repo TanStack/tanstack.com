@@ -1,7 +1,7 @@
 import { redirect } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
 import { seo } from '~/utils/seo'
-import type { LoaderArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 
 export const meta: MetaFunction = () => {
   return seo({
@@ -12,7 +12,7 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   if (!context.request.url.includes('/table/v')) {
     return redirect(`${new URL(context.request.url).origin}/table/v8`)
   }

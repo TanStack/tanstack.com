@@ -10,7 +10,7 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
@@ -79,7 +79,7 @@ const menu = [
   },
 ]
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const { getSponsorsForSponsorPack } = require('~/server/sponsors')
 
   const sponsors = await getSponsorsForSponsorPack()

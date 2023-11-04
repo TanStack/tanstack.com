@@ -6,7 +6,7 @@ import {
   useNavigate,
   useParams,
 } from '@remix-run/react'
-import type { LoaderArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { generatePath, useMatchesData } from '~/utils/utils'
@@ -217,7 +217,7 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   if (
     !context.request.url.includes('/form/v') &&
     !context.request.url.includes('/form/latest')

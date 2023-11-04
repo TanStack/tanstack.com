@@ -1,13 +1,13 @@
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 
-export const loader = (context: LoaderArgs) => {
+export const loader = (context: LoaderFunctionArgs) => {
   handleRedirects(context)
 
   return redirect('/virtual/v3')
 }
 
-function handleRedirects(context: LoaderArgs) {
+function handleRedirects(context: LoaderFunctionArgs) {
   const url = new URL(context.request.url)
   // prettier-ignore
   const reactVirtualv2List = [

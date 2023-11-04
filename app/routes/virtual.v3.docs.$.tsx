@@ -6,7 +6,7 @@ import {
   fetchRepoFile,
   markdownToMdx,
 } from '~/utils/documents.server'
-import { v3branch } from './virtual.v3'
+import { v3branch } from '~/routes/virtual.v3'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'

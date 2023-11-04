@@ -7,7 +7,7 @@ import {
   fetchRepoFile,
   markdownToMdx,
 } from '~/utils/documents.server'
-import { v8branch } from './table.v8'
+import { v8branch } from '~/routes/table.v8'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'

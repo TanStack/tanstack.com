@@ -1,5 +1,5 @@
 import { Outlet, isRouteErrorResponse, useRouteError } from '@remix-run/react'
-import styles from './styles/app.generated.css'
+import styles from './styles/app.css'
 import prismThemeLight from './styles/prismThemeLight.css'
 import prismThemeDark from './styles/prismThemeDark.css'
 import docSearchStyles from '@docsearch/css/dist/style.css'

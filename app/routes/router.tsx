@@ -3,7 +3,7 @@ import { redirect } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
 import { seo } from '~/utils/seo'
 
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Router | React Router, Solid Router, Svelte Router, Vue Router',

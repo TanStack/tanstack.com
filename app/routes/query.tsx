@@ -61,7 +61,7 @@ export type GithubDocsConfig = {
 export const useReactQueryDocsConfig = (version?: string) =>
   useMatchesData(`/query/${version}`) as GithubDocsConfig
 
-export let meta: MetaFunction = (meta) => {
+export const meta: MetaFunction = (meta) => {
   return seo({
     title: 'TanStack Query | React Query, Solid Query, Svelte Query, Vue Query',
     description:

@@ -46,7 +46,7 @@ const localMenu = {
   ],
 }
 
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack Router Docs | React Router',
     description: 'Modern and scalable routing for React applications',

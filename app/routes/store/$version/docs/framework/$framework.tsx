@@ -4,7 +4,7 @@ import { Docs } from '~/components/Docs'
 import { createLogo, useReactStoreDocsConfig } from '~/routes/store'
 import { Outlet } from '@remix-run/react'
 
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Query Docs | React Query, Solid Query, Svelte Query, Vue Query',

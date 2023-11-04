@@ -11,9 +11,7 @@ export default function BytesForm() {
     <form onSubmit={handleSubmit}>
       <div data-element="fields" className="grid relative">
         <div className="relative">
-          <figure
-            className="absolute right-[-8px] bottom-3 md:bottom-4"
-          >
+          <figure className="absolute right-[-8px] bottom-3 md:bottom-4">
             <img
               height={38}
               width={38}

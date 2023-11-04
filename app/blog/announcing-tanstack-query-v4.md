@@ -26,6 +26,7 @@ To achieve this, we've introduced a brand new [Network Mode](/query/v4/docs/guid
 ### Stable Persisters
 
 Since v3, persisters existed as an experimental feature. They allow you to sync the Query Cache to an external location (e.g. localStorage) for later use. We have revamped and improved the APIs after getting lots of feedback, and we are now providing two main peristers out of the box:
+
 - SyncStoragePersister
 - AsyncStoragePersister
 
@@ -42,11 +43,12 @@ Tracked Queries are a performance optimization that were added in v3.6.0 as an o
 ### Streamlined APIs
 
 Over time, some of our APIs have become quite complex, to the extent that they were contradicting each other. Some examples include:
+
 - QueryKeys sometimes being converted to an Array when exposed, sometimes not.
 - Query Filters being unintuitive and mutually exclusive.
 - Default values for parameters defaulting to opposite values on different methods
 
-We've cleaned up a lot of these inconsistencies to make the developer experience even better. v4 also comes with a codemod to help you with the migration path. 
+We've cleaned up a lot of these inconsistencies to make the developer experience even better. v4 also comes with a codemod to help you with the migration path.
 
 ## What's next?
 

@@ -8,7 +8,8 @@ export function DocsCalloutQueryGG(props: React.HTMLProps<HTMLDivElement>) {
       </h6>
       <LogoQueryGGSmall className="w-full" />
       <blockquote className="text-sm -indent-[.45em] pl-2">
-        “This course is the best way to learn how to use React Query in real-world applications.”
+        “This course is the best way to learn how to use React Query in
+        real-world applications.”
         <cite className="italic block text-right">—Tanner Linsley</cite>
       </blockquote>
       <a
@@ -16,7 +17,9 @@ export function DocsCalloutQueryGG(props: React.HTMLProps<HTMLDivElement>) {
         href="https://query.gg?from=tanstack"
         target="_blank"
         rel="noreferrer"
-      >Check it out</a>
+      >
+        Check it out
+      </a>
     </div>
   )
 }

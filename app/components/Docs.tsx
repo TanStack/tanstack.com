@@ -288,13 +288,13 @@ export function Docs({
             </div>
           </div>
         </div>
-          <div className="p-4 max-w-[240px] shrink-0 border-l border-gray-200 dark:border-white/10 hidden md:block">
+        <div className="p-4 max-w-[240px] shrink-0 border-l border-gray-200 dark:border-white/10 hidden md:block">
           {config?.docSearch?.indexName?.includes('query') ? (
-              <DocsCalloutQueryGG />
-            ) : (
-              <DocsCalloutBytes />
-            )}
-          </div>
+            <DocsCalloutQueryGG />
+          ) : (
+            <DocsCalloutBytes />
+          )}
+        </div>
         {showBytes ? (
           <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
             <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
@@ -326,7 +326,12 @@ export function Docs({
             >
               {config?.docSearch?.indexName?.includes('query') ? (
                 <>
-                  <strong><span role="img" aria-label="crystal ball">&#128302;</span> Skip the docs?</strong>
+                  <strong>
+                    <span role="img" aria-label="crystal ball">
+                      &#128302;
+                    </span>{' '}
+                    Skip the docs?
+                  </strong>
                 </>
               ) : (
                 <>

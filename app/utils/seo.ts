@@ -1,4 +1,4 @@
-export function seo({
+export const seo = ({
   title,
   description,
   keywords,
@@ -8,34 +8,26 @@ export function seo({
   description?: string
   image?: string
   keywords?: string
-}) {
-  const tags = {
-    title,
-    description,
-    keywords,
-    'twitter:title': title,
-    'twitter:description': description,
-    'twitter:creator': '@tannerlinsley',
-    'twitter:site': '@tannerlinsley',
+}) => {
+  const tags = [
+    { title: title },
+    { name: 'description', content: description },
+    { name: 'keywords', content: keywords },
+    { name: 'twitter:title', content: title },
+    { name: 'twitter:description', content: description },
+    { name: 'twitter:creator', content: '@tannerlinsley' },
+    { name: 'twitter:site', content: '@tannerlinsley' },
+    { name: 'og:type', content: 'website' },
+    { name: 'og:title', content: title },
+    { name: 'og:description', content: description },
     ...(image
-      ? {
-          'twitter:image': image,
-          'twitter:card': 'summary_large_image',
-        }
-      : {}),
-    'og:type': 'website',
-    'og:title': title,
-    'og:description': description,
-    'og:image': image,
-  } as const
+      ? [
+          { name: 'twitter:image', content: image },
+          { name: 'twitter:card', content: 'summary_large_image' },
+          { name: 'og:image', content: image },
+        ]
+      : []),
+  ]
 
-  Object.keys(tags).forEach((key) => {
-    const _tags = tags as any
-
-    if (!_tags[key]) {
-      delete _tags[key]
-    }
-  })
-
-  return tags as Record<string, string>
+  return tags
 }

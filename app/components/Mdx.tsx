@@ -45,7 +45,9 @@ const markdownComponents = {
     return (
       <code
         {...props}
-        className={`border border-gray-500 border-opacity-20 bg-gray-500 bg-opacity-10 rounded p-1${className ?? ` ${className}`}`}
+        className={`border border-gray-500 border-opacity-20 bg-gray-500 bg-opacity-10 rounded p-1${
+          className ?? ` ${className}`
+        }`}
       />
     )
   },

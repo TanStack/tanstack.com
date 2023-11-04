@@ -8,8 +8,8 @@ export function DocsCalloutBytes(props: React.HTMLProps<HTMLDivElement>) {
           Subscribe to Bytes
         </h6>
         <p className="text-xs md:text-sm">
-          Your weekly dose of JavaScript news. Delivered every Monday to
-          over 100,000 devs, for free.
+          Your weekly dose of JavaScript news. Delivered every Monday to over
+          100,000 devs, for free.
         </p>
       </div>
       <BytesForm />

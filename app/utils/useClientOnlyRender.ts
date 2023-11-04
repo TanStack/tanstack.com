@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 
 export function useClientOnlyRender() {
-  const [rendered, setRendered] = useState(false);
+  const [rendered, setRendered] = useState(false)
   useEffect(() => {
-    setRendered(true);
-  }, []);
-  return rendered;
+    setRendered(true)
+  }, [])
+  return rendered
 }

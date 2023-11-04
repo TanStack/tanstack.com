@@ -18,10 +18,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="71.6497581%"
             id="linearGradient-1"
           >
-            <stop stop-color="#6BDAFF" offset="0%"></stop>
-            <stop stop-color="#F9FFB5" offset="31.9219843%"></stop>
-            <stop stop-color="#FFA770" offset="70.626639%"></stop>
-            <stop stop-color="#FF7373" offset="100%"></stop>
+            <stop stopColor="#6BDAFF" offset="0%"></stop>
+            <stop stopColor="#F9FFB5" offset="31.9219843%"></stop>
+            <stop stopColor="#FFA770" offset="70.626639%"></stop>
+            <stop stopColor="#FF7373" offset="100%"></stop>
           </linearGradient>
           <circle id="path-2" cx="316.5" cy="316.5" r="316.5"></circle>
           <linearGradient
@@ -31,8 +31,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="54.8323242%"
             id="linearGradient-4"
           >
-            <stop stop-color="#EE2700" offset="0%"></stop>
-            <stop stop-color="#FF008E" offset="100%"></stop>
+            <stop stopColor="#EE2700" offset="0%"></stop>
+            <stop stopColor="#FF008E" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="50%"
@@ -41,8 +41,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-5"
           >
-            <stop stop-color="#A17500" offset="0%"></stop>
-            <stop stop-color="#5D2100" offset="100%"></stop>
+            <stop stopColor="#A17500" offset="0%"></stop>
+            <stop stopColor="#5D2100" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="50%"
@@ -51,8 +51,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-6"
           >
-            <stop stop-color="#2F8A00" offset="0%"></stop>
-            <stop stop-color="#90FF57" offset="100%"></stop>
+            <stop stopColor="#2F8A00" offset="0%"></stop>
+            <stop stopColor="#90FF57" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="50%"
@@ -61,8 +61,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-7"
           >
-            <stop stop-color="#2F8A00" offset="0%"></stop>
-            <stop stop-color="#90FF57" offset="100%"></stop>
+            <stop stopColor="#2F8A00" offset="0%"></stop>
+            <stop stopColor="#90FF57" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="50%"
@@ -71,8 +71,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-8"
           >
-            <stop stop-color="#2F8A00" offset="0%"></stop>
-            <stop stop-color="#90FF57" offset="100%"></stop>
+            <stop stopColor="#2F8A00" offset="0%"></stop>
+            <stop stopColor="#90FF57" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="50%"
@@ -81,8 +81,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-9"
           >
-            <stop stop-color="#2F8A00" offset="0%"></stop>
-            <stop stop-color="#90FF57" offset="100%"></stop>
+            <stop stopColor="#2F8A00" offset="0%"></stop>
+            <stop stopColor="#90FF57" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="50%"
@@ -91,8 +91,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-10"
           >
-            <stop stop-color="#2F8A00" offset="0%"></stop>
-            <stop stop-color="#90FF57" offset="100%"></stop>
+            <stop stopColor="#2F8A00" offset="0%"></stop>
+            <stop stopColor="#90FF57" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="50%"
@@ -101,8 +101,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-11"
           >
-            <stop stop-color="#2F8A00" offset="0%"></stop>
-            <stop stop-color="#90FF57" offset="100%"></stop>
+            <stop stopColor="#2F8A00" offset="0%"></stop>
+            <stop stopColor="#90FF57" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="61.1087051%"
@@ -111,8 +111,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="43.072423%"
             id="linearGradient-12"
           >
-            <stop stop-color="#FFF400" offset="0%"></stop>
-            <stop stop-color="#3C8700" offset="100%"></stop>
+            <stop stopColor="#FFF400" offset="0%"></stop>
+            <stop stopColor="#3C8700" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="50%"
@@ -121,8 +121,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-13"
           >
-            <stop stop-color="#FFDF00" offset="0%"></stop>
-            <stop stop-color="#FF9D00" offset="100%"></stop>
+            <stop stopColor="#FFDF00" offset="0%"></stop>
+            <stop stopColor="#FF9D00" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="127.278646%"
@@ -131,8 +131,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="50.2222222%"
             id="linearGradient-14"
           >
-            <stop stop-color="#FFA400" offset="0%"></stop>
-            <stop stop-color="#FF5E00" offset="100%"></stop>
+            <stop stopColor="#FFA400" offset="0%"></stop>
+            <stop stopColor="#FF5E00" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="127.278646%"
@@ -141,8 +141,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="52.4691358%"
             id="linearGradient-15"
           >
-            <stop stop-color="#FFA400" offset="0%"></stop>
-            <stop stop-color="#FF5E00" offset="100%"></stop>
+            <stop stopColor="#FFA400" offset="0%"></stop>
+            <stop stopColor="#FF5E00" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="127.278646%"
@@ -151,8 +151,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="53.8049941%"
             id="linearGradient-16"
           >
-            <stop stop-color="#FFA400" offset="0%"></stop>
-            <stop stop-color="#FF5E00" offset="100%"></stop>
+            <stop stopColor="#FFA400" offset="0%"></stop>
+            <stop stopColor="#FF5E00" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="127.278646%"
@@ -161,8 +161,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="64.6701389%"
             id="linearGradient-17"
           >
-            <stop stop-color="#FFA400" offset="0%"></stop>
-            <stop stop-color="#FF5E00" offset="100%"></stop>
+            <stop stopColor="#FFA400" offset="0%"></stop>
+            <stop stopColor="#FF5E00" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="127.278646%"
@@ -171,8 +171,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="95.125%"
             id="linearGradient-18"
           >
-            <stop stop-color="#FFA400" offset="0%"></stop>
-            <stop stop-color="#FF5E00" offset="100%"></stop>
+            <stop stopColor="#FFA400" offset="0%"></stop>
+            <stop stopColor="#FF5E00" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="78.3339993%"
@@ -181,8 +181,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-19"
           >
-            <stop stop-color="#FFA400" offset="0%"></stop>
-            <stop stop-color="#FF5E00" offset="100%"></stop>
+            <stop stopColor="#FFA400" offset="0%"></stop>
+            <stop stopColor="#FF5E00" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="57.9133333%"
@@ -191,8 +191,8 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-20"
           >
-            <stop stop-color="#FFA400" offset="0%"></stop>
-            <stop stop-color="#FF5E00" offset="100%"></stop>
+            <stop stopColor="#FFA400" offset="0%"></stop>
+            <stop stopColor="#FF5E00" offset="100%"></stop>
           </linearGradient>
           <linearGradient
             x1="50.4945833%"
@@ -201,17 +201,17 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             y2="100%"
             id="linearGradient-21"
           >
-            <stop stop-color="#FFA400" offset="0%"></stop>
-            <stop stop-color="#FF5E00" offset="100%"></stop>
+            <stop stopColor="#FFA400" offset="0%"></stop>
+            <stop stopColor="#FF5E00" offset="100%"></stop>
           </linearGradient>
           <circle id="path-22" cx="315.5" cy="316.5" r="316.5"></circle>
         </defs>
         <g
           id="Icon"
           stroke="none"
-          stroke-width="1"
+          strokeWidth="1"
           fill="none"
-          fill-rule="evenodd"
+          fillRule="evenodd"
         >
           <g id="Group-3-Copy" transform="translate(1, 0)">
             <mask id="mask-3" fill="white">
@@ -225,7 +225,7 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             <ellipse
               id="Oval-Copy-2"
               stroke="#00CFE2"
-              stroke-width="25"
+              strokeWidth="25"
               fill="#015064"
               mask="url(#mask-3)"
               cx="89.5"
@@ -236,7 +236,7 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             <ellipse
               id="Oval-Copy-3"
               stroke="#00CFE2"
-              stroke-width="25"
+              strokeWidth="25"
               fill="#015064"
               mask="url(#mask-3)"
               cx="543.5"
@@ -247,7 +247,7 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             <ellipse
               id="Oval-Copy-5"
               stroke="#00A8B8"
-              stroke-width="25"
+              strokeWidth="25"
               fill="#015064"
               mask="url(#mask-3)"
               cx="89.5"
@@ -258,7 +258,7 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             <ellipse
               id="Oval-Copy-4"
               stroke="#00A8B8"
-              stroke-width="25"
+              strokeWidth="25"
               fill="#015064"
               mask="url(#mask-3)"
               cx="543.5"
@@ -269,7 +269,7 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             <ellipse
               id="Oval-Copy-7"
               stroke="#007782"
-              stroke-width="25"
+              strokeWidth="25"
               fill="#015064"
               mask="url(#mask-3)"
               cx="89.5"
@@ -280,7 +280,7 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             <ellipse
               id="Oval-Copy-6"
               stroke="#007782"
-              stroke-width="25"
+              strokeWidth="25"
               fill="#015064"
               mask="url(#mask-3)"
               cx="543.5"
@@ -297,9 +297,9 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="96.3741676"
                   id="Path-9"
                   stroke="#000000"
-                  stroke-width="11"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeWidth="11"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
                 <line
                   x1="171.16062"
@@ -308,9 +308,9 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="94.757749"
                   id="Path-10"
                   stroke="#000000"
-                  stroke-width="11"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeWidth="11"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
                 <line
                   x1="122.423839"
@@ -319,15 +319,15 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="93.8898074"
                   id="Path-10-Copy"
                   stroke="#000000"
-                  stroke-width="11"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeWidth="11"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
                 <g
                   id="Group-6"
                   stroke="none"
-                  stroke-width="1"
-                  fill-rule="evenodd"
+                  strokeWidth="1"
+                  fillRule="evenodd"
                   transform="translate(6.8389, -0)"
                 >
                   <path
@@ -342,10 +342,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                     y2="43.7025053"
                     id="Path-12"
                     stroke="#FFFFFF"
-                    stroke-width="7"
+                    strokeWidth="7"
                     fill="#D8D8D8"
-                    stroke-linecap="round"
-                    stroke-linejoin="bevel"
+                    strokeLinecap="round"
+                    strokeLinejoin="bevel"
                   ></line>
                   <line
                     x1="55.0275427"
@@ -354,10 +354,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                     y2="44.5088564"
                     id="Path-13"
                     stroke="#FFFFFF"
-                    stroke-width="7"
+                    strokeWidth="7"
                     fill="#D8D8D8"
-                    stroke-linecap="round"
-                    stroke-linejoin="bevel"
+                    strokeLinecap="round"
+                    strokeLinejoin="bevel"
                   ></line>
                   <line
                     x1="88.5632217"
@@ -366,10 +366,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                     y2="44.7685661"
                     id="Path-14"
                     stroke="#FFFFFF"
-                    stroke-width="7"
+                    strokeWidth="7"
                     fill="#D8D8D8"
-                    stroke-linecap="round"
-                    stroke-linejoin="bevel"
+                    strokeLinecap="round"
+                    strokeLinejoin="bevel"
                   ></line>
                   <line
                     x1="129.85648"
@@ -378,10 +378,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                     y2="31.0744195"
                     id="Path-15"
                     stroke="#FFFFFF"
-                    stroke-width="7"
+                    strokeWidth="7"
                     fill="#D8D8D8"
-                    stroke-linecap="round"
-                    stroke-linejoin="bevel"
+                    strokeLinecap="round"
+                    strokeLinejoin="bevel"
                   ></line>
                   <line
                     x1="154.010406"
@@ -390,10 +390,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                     y2="15.0248762"
                     id="Path-16"
                     stroke="#FFFFFF"
-                    stroke-width="7"
+                    strokeWidth="7"
                     fill="#D8D8D8"
-                    stroke-linecap="round"
-                    stroke-linejoin="bevel"
+                    strokeLinecap="round"
+                    strokeLinejoin="bevel"
                   ></line>
                 </g>
               </g>
@@ -408,7 +408,7 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                 ></path>
                 <g
                   id="Group-5"
-                  stroke-width="1"
+                  strokeWidth="1"
                   fill="none"
                   transform="translate(-0, 0)"
                 >
@@ -416,71 +416,71 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                     d="M110.145578,66.9163305 C110.145578,66.9163305 96.4053436,45.4902344 72.176828,38.9726563 C56.0244843,34.6276042 37.7425832,39.2848832 17.3311249,52.9444934 C33.957427,66.3499874 47.9359426,73.9375 59.2666718,75.7070313 C76.2627655,78.3613281 110.145578,66.9163305 110.145578,66.9163305 Z"
                     id="Path-3"
                     stroke="#2F8A00"
-                    stroke-width="13"
+                    strokeWidth="13"
                     fill="url(#linearGradient-6)"
                   ></path>
                   <path
                     d="M110.145578,67.5195313 C110.145578,67.5195313 62.2627655,61.4882813 27.8721405,87.5683594 C4.94505719,104.955078 -3.83749489,138.576823 1.52448427,188.433594 C30.3632332,159.046875 51.0019051,137.308594 63.4404999,123.21875 C82.0983921,102.083984 110.145578,67.5195313 110.145578,67.5195313 Z"
                     id="Path-2"
                     stroke="#2F8A00"
-                    stroke-width="13"
+                    strokeWidth="13"
                     fill="url(#linearGradient-7)"
                   ></path>
                   <path
                     d="M110.145578,66.9163305 C108.155995,45.0879956 114.183338,28.6816406 128.227609,17.6972656 C142.27188,6.71289062 157.135161,0.813802083 172.817453,-6.62434122e-15 C167.879953,21.6489797 160.260812,36.5200734 149.960031,44.6132812 C139.65925,52.7064891 126.387766,60.1408388 110.145578,66.9163305 Z"
                     id="Path-4"
                     stroke="#2F8A00"
-                    stroke-width="13"
+                    strokeWidth="13"
                     fill="url(#linearGradient-8)"
                   ></path>
                   <path
                     d="M110.145578,67.5195313 C140.424224,35.8543766 172.107818,24.5005879 205.196359,33.4581652 C238.284901,42.4157426 257.493234,61.1302083 262.821359,89.6015625 C227.408599,85.9244792 201.962635,83.2233073 186.483469,81.4980469 C171.004302,79.7727865 145.558338,75.1132813 110.145578,67.5195313 Z"
                     id="Path-5"
                     stroke="#2F8A00"
-                    stroke-width="13"
+                    strokeWidth="13"
                     fill="url(#linearGradient-9)"
                   ></path>
                   <path
                     d="M110.145578,67.5195313 C145.528391,58.0846354 175.600656,63.8404948 200.362375,84.7871094 C225.124094,105.733724 240.60326,131.73763 246.799875,162.798828 C206.588937,155.181641 177.39037,142.56901 159.204172,124.960938 C141.017974,107.352865 124.665109,88.2057292 110.145578,67.5195313 Z"
                     id="Path-6"
                     stroke="#2F8A00"
-                    stroke-width="13"
+                    strokeWidth="13"
                     fill="url(#linearGradient-10)"
                   ></path>
                   <path
                     d="M110.145578,67.5195313 C77.3304739,83.0690104 58.458078,105.964193 53.5283905,136.205078 C48.598703,166.445964 53.2321666,199.453125 67.4287811,235.226563 C92.6683645,193.572917 106.907297,163.453125 110.145578,144.867188 C113.383859,126.28125 113.383859,100.498698 110.145578,67.5195313 Z"
                     id="Path"
                     stroke="#2F8A00"
-                    stroke-width="13"
+                    strokeWidth="13"
                     fill="url(#linearGradient-11)"
                   ></path>
                   <path
                     d="M111.547396,65.2435124 C97.8844958,87.5989394 88.6614926,107.90621 83.8783865,126.165325 C79.0952803,144.424439 76.1711848,159.635107 75.1060999,171.797326"
                     id="Path-17"
                     stroke="#2F8A00"
-                    stroke-width="8"
-                    stroke-linecap="round"
+                    strokeWidth="8"
+                    strokeLinecap="round"
                   ></path>
                   <path
                     d="M110.117177,68.6949816 C85.8302849,71.694603 66.8856755,79.9730794 53.2833489,93.5304109 C39.6810223,107.087742 29.9206735,120.223332 24.0023024,132.937181"
                     id="Path-18"
                     stroke="#2F8A00"
-                    stroke-width="8"
-                    stroke-linecap="round"
+                    strokeWidth="8"
+                    strokeLinecap="round"
                   ></path>
                   <path
                     d="M119.312523,58.8946477 C148.627912,50.6195284 170.848749,47.7702925 185.975033,50.3469399 C201.101318,52.9235874 213.309014,57.5770861 222.598122,64.3074361"
                     id="Path-19"
                     stroke="#2F8A00"
-                    stroke-width="8"
-                    stroke-linecap="round"
+                    strokeWidth="8"
+                    strokeLinecap="round"
                   ></path>
                   <path
                     d="M111.559466,64.3783677 C132.30744,73.1793341 150.809156,82.8632404 167.064615,93.4300867 C183.320074,103.996933 195.555604,114.050308 203.771206,123.590212"
                     id="Path-20"
                     stroke="#2F8A00"
-                    stroke-width="8"
-                    stroke-linecap="round"
+                    strokeWidth="8"
+                    strokeLinecap="round"
                   ></path>
                 </g>
               </g>
@@ -500,7 +500,7 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   id="Oval"
                   stroke="none"
                   fill="url(#linearGradient-13)"
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   cx="168.5"
                   cy="113.5"
                   r="113.5"
@@ -512,10 +512,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="113"
                   id="Line"
                   stroke="url(#linearGradient-14)"
-                  stroke-width="12"
+                  strokeWidth="12"
                   fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
                 <line
                   x1="33.5"
@@ -524,10 +524,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="74"
                   id="Line-Copy-4"
                   stroke="url(#linearGradient-15)"
-                  stroke-width="12"
+                  strokeWidth="12"
                   fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
                 <line
                   x1="34"
@@ -536,10 +536,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="154"
                   id="Line-Copy"
                   stroke="url(#linearGradient-16)"
-                  stroke-width="12"
+                  strokeWidth="12"
                   fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
                 <line
                   x1="45"
@@ -548,10 +548,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="190"
                   id="Line-Copy-2"
                   stroke="url(#linearGradient-17)"
-                  stroke-width="12"
+                  strokeWidth="12"
                   fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
                 <line
                   x1="67"
@@ -560,10 +560,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="223"
                   id="Line-Copy-3"
                   stroke="url(#linearGradient-18)"
-                  stroke-width="12"
+                  strokeWidth="12"
                   fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
                 <line
                   x1="94.3730469"
@@ -572,10 +572,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="249.84668"
                   id="Line-Copy-6"
                   stroke="url(#linearGradient-19)"
-                  stroke-width="12"
+                  strokeWidth="12"
                   fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
                 <line
                   x1="127.5"
@@ -584,10 +584,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="268"
                   id="Line-Copy-7"
                   stroke="url(#linearGradient-20)"
-                  stroke-width="12"
+                  strokeWidth="12"
                   fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
                 <line
                   x1="167.5"
@@ -596,10 +596,10 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
                   y2="277"
                   id="Line-Copy-5"
                   stroke="url(#linearGradient-21)"
-                  stroke-width="12"
+                  strokeWidth="12"
                   fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="bevel"
+                  strokeLinecap="round"
+                  strokeLinejoin="bevel"
                 ></line>
               </g>
             </g>
@@ -608,7 +608,7 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
             </mask>
             <circle
               stroke="#000000"
-              stroke-width="25"
+              strokeWidth="25"
               cx="315.5"
               cy="316.5"
               r="304"

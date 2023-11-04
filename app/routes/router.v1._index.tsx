@@ -75,7 +75,7 @@ const menu = [
 ]
 
 export const loader: LoaderFunction = async () => {
-  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
+  const { getSponsorsForSponsorPack } = await import('~/server/sponsors')
 
   const sponsors = await getSponsorsForSponsorPack()
 

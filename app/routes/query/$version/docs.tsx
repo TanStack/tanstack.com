@@ -1,5 +1,5 @@
-import { Outlet } from "@remix-run/react";
+import { Outlet } from '@remix-run/react'
 
 export default function RouteDocsParam() {
-  return <Outlet />;
+  return <Outlet />
 }

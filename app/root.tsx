@@ -33,7 +33,7 @@ export const meta: MetaFunction = () => ({
   }),
 })
 
-export let links: LinksFunction = () => {
+export const links: LinksFunction = () => {
   return [
     { rel: 'stylesheet', href: styles },
     {
@@ -48,7 +48,7 @@ export let links: LinksFunction = () => {
     },
     {
       rel: 'stylesheet',
-      href: docSearchStyles
+      href: docSearchStyles,
     },
     {
       rel: 'stylesheet',
@@ -97,18 +97,18 @@ function Document({
 
   return (
     // <html lang="en" className={cx(getGlobalStyles())}>
-    <html lang='en'>
+    <html lang="en">
       <head>
         {/* {styles} */}
         {matches.find((d) => d.handle?.baseParent) ? (
-          <base target='_parent' />
+          <base target="_parent" />
         ) : null}
         {title ? <title>{title}</title> : null}
         <Meta />
         <Links />
         <script
           async
-          src='https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS'
+          src="https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS"
         ></script>
         <script
           dangerouslySetInnerHTML={{
@@ -121,7 +121,7 @@ function Document({
             `,
           }}
         ></script>
-				<script
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               try {
@@ -133,7 +133,7 @@ function Document({
               } catch (error) {}
             `,
           }}
-				></script>
+        ></script>
       </head>
       <body>
         {children}
@@ -147,7 +147,7 @@ function Document({
             navigation.state !== 'idle' ? 'opacity-1' : 'opacity-0'
           }`}
         >
-          <CgSpinner className='text-2xl animate-spin' />
+          <CgSpinner className="text-2xl animate-spin" />
         </div>
       </body>
     </html>

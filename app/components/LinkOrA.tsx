@@ -1,5 +1,5 @@
 import type { HTMLProps } from 'react'
-import type { LinkProps} from '@remix-run/react';
+import type { LinkProps } from '@remix-run/react'
 import { Link } from '@remix-run/react'
 
 export function LinkOrA(

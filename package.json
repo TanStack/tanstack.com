@@ -21,9 +21,9 @@
     "@headlessui/react": "1.7.17",
     "@octokit/graphql": "^5.0.0",
     "@octokit/rest": "^19.0.3",
-    "@remix-run/node": "^1.19.3",
-    "@remix-run/react": "^1.19.3",
-    "@remix-run/vercel": "^1.19.3",
+    "@remix-run/node": "^2.2.0",
+    "@remix-run/react": "^2.2.0",
+    "@remix-run/serve": "^2.2.0",
     "@tailwindcss/typography": "^0.5.4",
     "@vercel/node": "^2.4.4",
     "@visx/hierarchy": "^2.10.0",
@@ -39,8 +39,8 @@
     "prism-react-renderer": "^2.1.0",
     "prismjs": "^1.29.0",
     "qss": "^2.0.3",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-icons": "^4.4.0",
     "rehype-autolink-headings": "^6.1.1",
     "rehype-parse": "^8.0.4",
@@ -57,9 +57,8 @@
     "unified": "^10.1.2"
   },
   "devDependencies": {
-    "@remix-run/dev": "^1.19.3",
-    "@remix-run/eslint-config": "^1.19.3",
-    "@remix-run/serve": "^1.19.3",
+    "@remix-run/dev": "^2.2.0",
+    "@remix-run/eslint-config": "^2.2.0",
     "@types/marked": "^4.0.3",
     "@types/react": "^17.0.45",
     "@types/react-dom": "^17.0.17",
@@ -68,9 +67,9 @@
     "eslint": "^8.53.0",
     "npm-run-all": "^4.1.5",
     "tailwindcss": "^3.3.5",
-    "typescript": "^4.7.4"
+    "typescript": "^5.2.2"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18.0.0"
   }
 }

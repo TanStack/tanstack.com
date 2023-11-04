@@ -38,7 +38,7 @@ const localMenu = [
   },
 ] as const
 
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title: 'Blog | TanStack',
     description: 'The latest news and blog posts from TanStack!',

@@ -18,7 +18,7 @@ export const loader = async (context: LoaderArgs) => {
   })
 }
 
-export let meta: MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ data }) => {
   return seo({
     title: `${data?.title} | TanStack Query Docs`,
     description: data?.description,

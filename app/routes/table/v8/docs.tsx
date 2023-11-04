@@ -48,7 +48,7 @@ const localMenu = {
   ],
 }
 
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Table Docs | React Table, Solid Table, Svelte Table, Vue Table',

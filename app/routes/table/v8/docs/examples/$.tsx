@@ -16,7 +16,7 @@ export const loader = async (context: LoaderArgs) => {
   return json({ kind, name })
 }
 
-export let meta: MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ data }) => {
   return seo({
     title: `${capitalize(data.kind)} Table ${slugToTitle(
       data.name

@@ -208,7 +208,7 @@ export const useReactFormDocsConfig = () => {
 
 //
 
-export let meta: MetaFunction = (meta) => {
+export const meta: MetaFunction = (meta) => {
   return seo({
     title: 'TanStack Form | React Form, Solid Form, Svelte Form, Vue Form',
     description:

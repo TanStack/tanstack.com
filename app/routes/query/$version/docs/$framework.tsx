@@ -70,7 +70,7 @@ const localMenu: MenuItem = {
   ],
 }
 
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Query Docs | React Query, Solid Query, Svelte Query, Vue Query',

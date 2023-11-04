@@ -6,7 +6,7 @@ import {
   useNavigate,
   useParams,
 } from '@remix-run/react'
-import type { LoaderArgs, V2_MetaFunction } from '@remix-run/node'
+import type { LoaderArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { generatePath, useMatchesData } from '~/utils/utils'
@@ -208,7 +208,7 @@ export const useReactFormDocsConfig = () => {
 
 //
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack Form | React Form, Solid Form, Svelte Form, Vue Form',
     description:

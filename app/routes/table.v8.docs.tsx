@@ -6,7 +6,7 @@ import { gradientText } from './table.v8._index'
 import { seo } from '~/utils/seo'
 import { Docs, DocsConfig } from '~/components/Docs'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import type { V2_MetaFunction } from '@remix-run/node'
+import type { MetaFunction } from '@remix-run/node'
 
 const logo = (
   <>
@@ -46,7 +46,7 @@ const localMenu = {
   ],
 }
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Table Docs | React Table, Solid Table, Svelte Table, Vue Table',

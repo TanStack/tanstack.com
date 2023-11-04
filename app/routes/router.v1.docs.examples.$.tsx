@@ -1,5 +1,5 @@
 import * as React from 'react'
-import type { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
+import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
@@ -15,7 +15,7 @@ export const loader: LoaderFunction = async (context) => {
   return json({ kind, name, search: search ?? '' })
 }
 
-export const meta: V2_MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ data }) => {
   return seo({
     title: `${capitalize(data.kind)} Router ${slugToTitle(
       data.name

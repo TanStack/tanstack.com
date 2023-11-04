@@ -9,7 +9,6 @@ import {
 } from '~/utils/documents.server'
 import { v8branch } from '../../v8'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
 import { Doc } from '~/components/Doc'
@@ -59,7 +58,6 @@ export const meta: MetaFunction = ({ data }) => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactTableDocs() {
   const { title, code, filePath } = useLoaderData<typeof loader>()

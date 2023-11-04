@@ -12,7 +12,6 @@ import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { format } from 'date-fns'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { Footer } from '~/components/Footer'
 
 export const loader = async (context: LoaderArgs) => {
@@ -52,7 +51,6 @@ export const loader = async (context: LoaderArgs) => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteReactTableDocs() {
   const frontMatters = useLoaderData<typeof loader>() as [

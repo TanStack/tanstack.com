@@ -1,6 +1,5 @@
 import type { LoaderArgs, MetaFunction } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
-import { json } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 import {
   extractFrontMatter,
   fetchRepoFile,
@@ -11,7 +10,6 @@ import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
 import { useLoaderData, useParams } from '@remix-run/react'
@@ -87,7 +85,6 @@ export const meta: MetaFunction = ({ data }) => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-export const CatchBoundary = DefaultCatchBoundary
 
 export default function RouteDocs() {
   const { title, code, filePath } = useLoaderData<typeof loader>()

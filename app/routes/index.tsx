@@ -212,7 +212,7 @@ export default function Index() {
   const data = useActionData()
   const { sponsors, randomNumber } = useLoaderData<typeof loader>()
   const navigation = useNavigation()
-  const isLoading = transition.state === 'submitting'
+  const isLoading = navigation.state === 'submitting'
   const hasSubmitted = data?.status === 'success'
   const hasError = data?.status === 'error'
 

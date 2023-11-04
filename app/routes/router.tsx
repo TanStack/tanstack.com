@@ -1,9 +1,9 @@
-import type { LoaderFunction, MetaFunction } from '@remix-run/node'
+import type { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
 import { seo } from '~/utils/seo'
 
-export let meta: MetaFunction = () => {
+export const meta: V2_MetaFunction = () => {
   return seo({
     title:
       'TanStack Router | React Router, Solid Router, Svelte Router, Vue Router',

@@ -19,6 +19,7 @@ import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
 import { VscPreview } from 'react-icons/vsc'
 import { Logo } from '~/components/Logo'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
@@ -75,8 +76,6 @@ const menu = [
 ]
 
 export const loader = async () => {
-  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
-
   const sponsors = await getSponsorsForSponsorPack()
 
   return json({

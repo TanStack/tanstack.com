@@ -1,4 +1,4 @@
-import type { LoaderArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { repo, getBranch } from '~/routes/form'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
@@ -6,7 +6,7 @@ import { useLoaderData, useParams } from '@remix-run/react'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath, framework, version } = context.params
 
   return loadDocs({

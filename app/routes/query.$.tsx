@@ -1,13 +1,13 @@
 import { redirect } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 
-export const loader = (context: LoaderArgs) => {
+export const loader = (context: LoaderFunctionArgs) => {
   handleRedirectsFromV3(context)
 
   return redirect(`/query/latest`, 301)
 }
 
-export function handleRedirectsFromV3(context: LoaderArgs) {
+export function handleRedirectsFromV3(context: LoaderFunctionArgs) {
   const url = new URL(context.request.url)
 
   // Redirect old query v3 docs

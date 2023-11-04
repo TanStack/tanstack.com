@@ -1,5 +1,5 @@
 import { Outlet } from '@remix-run/react'
-import type { LoaderArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { useMatchesData } from '~/utils/utils'
@@ -70,7 +70,7 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   if (
     !context.request.url.includes('/query/v') &&
     !context.request.url.includes('/query/latest')

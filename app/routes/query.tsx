@@ -1,5 +1,5 @@
 import { Outlet } from '@remix-run/react'
-import type { LoaderArgs, V2_MetaFunction } from '@remix-run/node'
+import type { LoaderArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { useMatchesData } from '~/utils/utils'
@@ -61,7 +61,7 @@ export type GithubDocsConfig = {
 export const useReactQueryDocsConfig = (version?: string) =>
   useMatchesData(`/query/${version}`) as GithubDocsConfig
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack Query | React Query, Solid Query, Svelte Query, Vue Query',
     description:

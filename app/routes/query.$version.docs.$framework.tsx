@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import type { V2_MetaFunction } from '@remix-run/node'
+import type { MetaFunction } from '@remix-run/node'
 import { Link, useMatches, useNavigate, useParams } from '@remix-run/react'
 import { gradientText } from './query.$version._index'
 import { seo } from '~/utils/seo'
@@ -70,7 +70,7 @@ const localMenu: MenuItem = {
   ],
 }
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Query Docs | React Query, Solid Query, Svelte Query, Vue Query',

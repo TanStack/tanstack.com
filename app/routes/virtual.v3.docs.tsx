@@ -5,7 +5,7 @@ import { useVirtualV3Config } from './virtual.v3'
 import { gradientText } from './virtual.v3._index'
 import { seo } from '~/utils/seo'
 import { Docs, DocsConfig } from '~/components/Docs'
-import type { V2_MetaFunction } from '@remix-run/react'
+import type { MetaFunction } from '@remix-run/react'
 
 const logo = (
   <>
@@ -45,7 +45,7 @@ const localMenu = {
   ],
 }
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Virtual Docs | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',

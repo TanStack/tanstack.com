@@ -6,9 +6,9 @@ import docSearchStyles from '@docsearch/css/dist/style.css'
 import { seo } from './utils/seo'
 import { RootDocument } from './components/RootDocument'
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
-import type { LinksFunction, V2_MetaFunction } from '@remix-run/node'
+import type { LinksFunction, MetaFunction } from '@remix-run/node'
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack | High Quality Open-Source Software for Web Developers',
     description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,

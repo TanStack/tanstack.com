@@ -15,8 +15,6 @@ import { RootDocument } from './components/RootDocument'
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 
 export const meta: MetaFunction = () => ({
-  charset: 'utf-8',
-  viewport: 'width=device-width,initial-scale=1',
   ...seo({
     title: 'TanStack | High Quality Open-Source Software for Web Developers',
     description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,

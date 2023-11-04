@@ -4,6 +4,7 @@
   "sideEffects": false,
   "repository": "https://github.com/TanStack/tanstack.com.git",
   "packageManager": "pnpm@8.10.2",
+  "type": "commonjs",
   "scripts": {
     "build": "run-s \"build:*\"",
     "build:css": "npm run generate:css -- --minify",
@@ -25,7 +26,6 @@
     "@remix-run/react": "^2.2.0",
     "@remix-run/serve": "^2.2.0",
     "@tailwindcss/typography": "^0.5.4",
-    "@vercel/node": "^2.4.4",
     "@visx/hierarchy": "^2.10.0",
     "@visx/responsive": "^2.10.0",
     "airtable": "^0.11.4",

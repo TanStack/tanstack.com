@@ -10,7 +10,6 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import type { LoaderFunctionArgs } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
@@ -19,9 +18,10 @@ import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { PPPBanner } from '~/components/PPPBanner'
-import type { Framework } from '~/routes/form'
 import { getBranch, gradientText, latestVersion, repo } from '~/routes/form'
 import { Logo } from '~/components/Logo'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import type { Framework } from '~/routes/form'
 
 const menu = [
   {
@@ -74,9 +74,7 @@ const menu = [
   },
 ]
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
-
+export const loader = async () => {
   const sponsors = await getSponsorsForSponsorPack()
 
   return json({

@@ -1,5 +1,4 @@
 import * as React from 'react'
-
 import { CgCornerUpLeft, CgTimelapse } from 'react-icons/cg'
 import {
   FaBook,
@@ -9,16 +8,17 @@ import {
   FaTshirt,
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
-import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import { v1branch } from './router.v1'
-import { Carbon } from '~/components/Carbon'
-import { Footer } from '~/components/Footer'
-import SponsorPack from '~/components/SponsorPack'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
+import { v1branch } from '~/routes/router.v1'
+import { Carbon } from '~/components/Carbon'
+import { Footer } from '~/components/Footer'
+import SponsorPack from '~/components/SponsorPack'
 import { Logo } from '~/components/Logo'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import type { LoaderFunction } from '@remix-run/node'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-lime-500 to-emerald-500'
@@ -75,8 +75,6 @@ const menu = [
 ]
 
 export const loader: LoaderFunction = async () => {
-  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
-
   const sponsors = await getSponsorsForSponsorPack()
 
   return json({
@@ -85,7 +83,7 @@ export const loader: LoaderFunction = async () => {
 }
 
 export default function TanStackRouterRoute() {
-  const { sponsors } = useLoaderData()
+  const { sponsors } = useLoaderData<typeof loader>()
   const [framework, setFramework] = React.useState<
     'react' | 'preact' | 'svelte' | 'vue' | 'solid'
   >('react')

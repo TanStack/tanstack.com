@@ -10,7 +10,6 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import type { LoaderFunctionArgs } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
@@ -22,6 +21,7 @@ import { PPPBanner } from '~/components/PPPBanner'
 import { getBranch, latestVersion, repo } from '~/routes/query'
 import { Logo } from '~/components/Logo'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
 
 export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
 
@@ -79,9 +79,7 @@ const menu = [
   },
 ]
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
-
+export const loader = async () => {
   const sponsors = await getSponsorsForSponsorPack()
 
   return json({

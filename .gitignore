@@ -12,4 +12,3 @@ yarn.lock
 /api/
 /server/build
 /public/build
-/app/styles/app.generated.css

@@ -18,7 +18,7 @@ import { LogoColor } from '~/components/LogoColor'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import discordImage from '~/images/discord-logo-white.svg'
 import agGridImage from '~/images/ag-grid.png'
-import drizzleImage from '~/images/nozzle.png'
+import nozzleImage from '~/images/nozzle.png'
 import bytesImage from '~/images/bytes.svg'
 
 const textColors = [
@@ -411,7 +411,7 @@ export default function Index() {
                   rel="noreferrer"
                 >
                   <img
-                    src={drizzleImage}
+                    src={nozzleImage}
                     alt="SEO keyword rank tracker"
                     className="w-[230px] max-w-full my-2"
                     width="230"

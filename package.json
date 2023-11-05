@@ -9,7 +9,7 @@
     "dev": "vite dev",
     "build": "vite build && vite build --ssr",
     "start": "remix-serve ./build/index.js",
-    "format": "prettier --plugin-search-dir . \"**/*.{md,js,jsx,cjs,ts,tsx,json}\" --write",
+    "format": "prettier --plugin-search-dir . \"**/*.{js,jsx,cjs,ts,tsx,css,md,json}\" --write",
     "lint": "eslint --ext .ts,.tsx ./app"
   },
   "dependencies": {

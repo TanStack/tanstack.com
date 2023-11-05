@@ -4,14 +4,18 @@ import {
   CodiconPreview,
   FaBrandsGithub,
   FaBrandsDiscord,
+  TablerHeartHandshake,
+  CodiconWand,
+  FaSolidCheckCircle,
+  FaSolidBook,
+  FaSolidTshirt,
+  FaSolidBolt,
+  FaSolidCogs,
 } from '~/components/icons'
-import { FaBolt, FaBook, FaCheckCircle, FaCogs, FaTshirt } from 'react-icons/fa'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { VscWand } from 'react-icons/vsc'
-import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { PPPBanner } from '~/components/PPPBanner'
 import { getBranch, gradientText, latestVersion, repo } from '~/routes/form'
@@ -39,7 +43,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBook className="text-lg" /> Docs
+        <FaSolidBook className="text-lg" /> Docs
       </div>
     ),
     to: './docs/',
@@ -63,7 +67,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaTshirt className="text-lg" /> Merch
+        <FaSolidTshirt className="text-lg" /> Merch
       </div>
     ),
     to: `https://cottonbureau.com/people/tanstack`,
@@ -171,7 +175,7 @@ export default function RouteVersion() {
                         md:flex-row"
         >
           <div className="flex-1 flex flex-col gap-8 items-center">
-            <VscWand className="text-yellow-400 text-6xl" />
+            <CodiconWand className="text-yellow-400 text-6xl" />
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
                 First-Class TypeScript Support
@@ -191,7 +195,7 @@ export default function RouteVersion() {
           </div>
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <FaBolt className="text-yellow-500 text-6xl" />
+              <FaSolidBolt className="text-yellow-500 text-6xl" />
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
@@ -212,7 +216,7 @@ export default function RouteVersion() {
           </div>
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <FaCogs className="text-amber-500 text-6xl" />
+              <FaSolidCogs className="text-amber-500 text-6xl" />
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
@@ -263,7 +267,7 @@ export default function RouteVersion() {
             ].map((d, i) => {
               return (
                 <span key={i} className="flex items-center gap-2">
-                  <FaCheckCircle className="text-green-500 " /> {d}
+                  <FaSolidCheckCircle className="text-green-500 " /> {d}
                 </span>
               )
             })}
@@ -282,7 +286,7 @@ export default function RouteVersion() {
                         dark:bg-gray-800 dark:shadow-none"
           >
             <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Form <TbHeartHandshake /> You?
+              Form <TablerHeartHandshake /> You?
             </span>
             <div className="flex flex-col p-4 gap-4">
               <div>

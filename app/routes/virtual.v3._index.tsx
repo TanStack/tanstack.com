@@ -5,15 +5,19 @@ import {
   IonBody,
   FaBrandsDiscord,
   FaBrandsGithub,
+  TablerHeartHandshake,
+  FaSolidCheckCircle,
+  FaSolidBook,
+  FaSolidTshirt,
+  FaSolidBolt,
+  FaSolidCogs,
 } from '~/components/icons'
-import { FaBolt, FaBook, FaCheckCircle, FaCogs, FaTshirt } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { v3branch } from '~/routes/virtual.v3'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { TbHeartHandshake } from 'react-icons/tb'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 
@@ -40,7 +44,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBook className="text-lg" /> Docs
+        <FaSolidBook className="text-lg" /> Docs
       </div>
     ),
     to: './docs/guide/introduction',
@@ -64,7 +68,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaTshirt className="text-lg" /> Merch
+        <FaSolidTshirt className="text-lg" /> Merch
       </div>
     ),
     to: `https://cottonbureau.com/people/tanstack`,
@@ -186,7 +190,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaBolt className="text-pink-500 text-6xl" />
+            <FaSolidBolt className="text-pink-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -206,7 +210,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaCogs className="text-violet-500 text-6xl" />
+            <FaSolidCogs className="text-violet-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -253,7 +257,7 @@ export default function ReactTableRoute() {
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">
-                <FaCheckCircle className="text-green-500 " /> {d}
+                <FaSolidCheckCircle className="text-green-500 " /> {d}
               </span>
             )
           })}
@@ -314,7 +318,7 @@ export default function ReactTableRoute() {
                         dark:bg-gray-800 dark:shadow-none"
         >
           <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-            Virtual <TbHeartHandshake /> You?
+            Virtual <TablerHeartHandshake /> You?
           </span>
           <div className="flex flex-col p-4 gap-4">
             <div>

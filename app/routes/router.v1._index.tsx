@@ -4,13 +4,16 @@ import {
   CodiconPreview,
   FaBrandsDiscord,
   FaBrandsGithub,
+  TablerZoomQuestion,
+  TablerHeartHandshake,
+  GgTimelapse,
+  RiLightbulbFlashLine,
+  FaSolidCheckCircle,
+  FaSolidBook,
+  FaSolidTshirt,
 } from '~/components/icons'
-import { CgTimelapse } from 'react-icons/cg'
-import { FaBook, FaCheckCircle, FaTshirt } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
-import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { v1branch } from '~/routes/router.v1'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
@@ -42,7 +45,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBook className="text-lg" /> Docs
+        <FaSolidBook className="text-lg" /> Docs
       </div>
     ),
     to: './docs/overview',
@@ -66,7 +69,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaTshirt className="text-lg" /> Merch
+        <FaSolidTshirt className="text-lg" /> Merch
       </div>
     ),
     to: `https://cottonbureau.com/people/tanstack`,
@@ -186,7 +189,7 @@ export default function TanStackRouterRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <CgTimelapse
+            <GgTimelapse
               className="text-teal-500 text-6xl animate-spin"
               style={{
                 animationDuration: '3s',
@@ -215,7 +218,7 @@ export default function TanStackRouterRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <TbZoomQuestion className="text-emerald-500 text-6xl" />
+            <TablerZoomQuestion className="text-emerald-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4 text-center">
             <h3 className="uppercase text-xl font-black">
@@ -271,7 +274,7 @@ export default function TanStackRouterRoute() {
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">
-                <FaCheckCircle className="text-green-500 " /> {d}
+                <FaSolidCheckCircle className="text-green-500 " /> {d}
               </span>
             )
           })}
@@ -402,7 +405,7 @@ export default function TanStackRouterRoute() {
                         dark:bg-gray-800 dark:shadow-none"
         >
           <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-            Router <TbHeartHandshake /> You?
+            Router <TablerHeartHandshake /> You?
           </span>
           <div className="flex flex-col p-4 gap-4">
             <div>

@@ -1,7 +1,12 @@
 import { useMemo, useRef } from 'react'
 import { DocSearch } from '@docsearch/react'
-import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { FaArrowLeft, FaArrowRight, FaTimes } from 'react-icons/fa'
+import {
+  FaSolidArrowLeft,
+  FaSolidArrowRight,
+  FaSolidTimes,
+  GgClose,
+  GgMenuLeft,
+} from '~/components/icons'
 import { NavLink, Outlet, useMatches } from '@remix-run/react'
 import { last } from '~/utils/utils'
 import { Carbon } from '~/components/Carbon'
@@ -153,8 +158,8 @@ export function Docs({
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
           <div className="flex gap-2 items-center text-xl md:text-2xl">
-            <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
-            <CgClose className="icon-close mr-2 cursor-pointer" />
+            <GgMenuLeft className="icon-open mr-2 cursor-pointer" />
+            <GgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
           <Search {...config.docSearch} />
@@ -253,7 +258,7 @@ export function Docs({
                 shadow-lg dark:border dark:border-gray-800
                 lg:text-lg"
                 >
-                  <FaArrowLeft /> {prevItem.label}
+                  <FaSolidArrowLeft /> {prevItem.label}
                 </LinkOrA>
               ) : null}
               {nextItem ? (
@@ -277,7 +282,7 @@ export function Docs({
                     >
                       {nextItem.label}
                     </span>{' '}
-                    <FaArrowRight className={textColor} />
+                    <FaSolidArrowRight className={textColor} />
                   </div>
                 </LinkOrA>
               ) : null}
@@ -305,7 +310,7 @@ export function Docs({
                   setShowBytes(false)
                 }}
               >
-                <FaTimes />
+                <FaSolidTimes />
               </button>
             </div>
           </div>

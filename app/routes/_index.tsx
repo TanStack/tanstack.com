@@ -9,9 +9,12 @@ import type { ActionFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
-import { FaBrandsDiscord, FaBrandsGithub } from '~/components/icons'
-import { FaTshirt } from 'react-icons/fa'
-import { CgMusicSpeaker } from 'react-icons/cg'
+import {
+  FaBrandsDiscord,
+  FaBrandsGithub,
+  FaSolidTshirt,
+  GgMusicSpeaker,
+} from '~/components/icons'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { LinkOrA } from '~/components/LinkOrA'
@@ -229,7 +232,7 @@ export default function Index() {
           {
             label: (
               <div className="flex items-center gap-1">
-                <FaTshirt
+                <FaSolidTshirt
                   className={twMerge('text-lg animate-bounce', textColor)}
                 />
                 Merch
@@ -240,7 +243,7 @@ export default function Index() {
           {
             label: (
               <div className="flex items-center gap-1">
-                <CgMusicSpeaker className="text-lg" /> Blog
+                <GgMusicSpeaker className="text-lg" /> Blog
               </div>
             ),
             to: '/blog',

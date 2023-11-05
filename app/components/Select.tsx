@@ -1,7 +1,6 @@
 import { Fragment } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
-
-import { HiCheck, HiChevronDown } from 'react-icons/hi'
+import { HeroiconsCheck, HeroiconsChevronDown } from '~/components/icons'
 import { Form } from '@remix-run/react'
 
 export type AvailableOptions = Record<
@@ -45,7 +44,7 @@ export function Select({
               ) : null}
               <span className="truncate">{selectedOption.label}</span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <HiChevronDown
+                <HeroiconsChevronDown
                   className="h-5 w-5 text-gray-400"
                   aria-hidden="true"
                 />
@@ -91,7 +90,10 @@ export function Select({
                         </span>
                         {selected ? (
                           <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-800 dark:text-gray-400">
-                            <HiCheck className="h-5 w-5" aria-hidden="true" />
+                            <HeroiconsCheck
+                              className="h-5 w-5"
+                              aria-hidden="true"
+                            />
                           </span>
                         ) : null}
                       </>

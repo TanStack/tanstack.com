@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
 import * as qss from 'qss'
-import { FaBrandsDiscord, FaBrandsGithub } from '~/components/icons'
-import { FaPlug, FaCheck } from 'react-icons/fa'
+import {
+  FaBrandsDiscord,
+  FaBrandsGithub,
+  FaSolidCheck,
+  FaSolidPlug,
+} from '~/components/icons'
 import useSessionStorage from '~/hooks/useSessionStorage'
 import axios from 'axios'
 
@@ -130,7 +134,7 @@ export default function SponsorsLogin() {
                 >
                   {githubCode ? (
                     <>
-                      <FaCheck /> GitHub
+                      <FaSolidCheck /> GitHub
                     </>
                   ) : (
                     <>
@@ -149,7 +153,7 @@ export default function SponsorsLogin() {
                 >
                   {discordCode ? (
                     <>
-                      <FaCheck /> Discord
+                      <FaSolidCheck /> Discord
                     </>
                   ) : (
                     <>
@@ -168,7 +172,7 @@ export default function SponsorsLogin() {
                     onClick={() => linkAccounts()}
                     disabled={loadingMessage}
                   >
-                    <FaPlug /> Link Accounts
+                    <FaSolidPlug /> Link Accounts
                   </button>
                 </div>
               ) : null}

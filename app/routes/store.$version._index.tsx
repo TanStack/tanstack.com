@@ -4,13 +4,14 @@ import {
   CodiconPreview,
   FaBrandsGithub,
   FaBrandsDiscord,
+  TablerHeartHandshake,
+  FaSolidBook,
+  FaSolidTshirt,
 } from '~/components/icons'
-import { FaBook, FaTshirt } from 'react-icons/fa'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { PPPBanner } from '~/components/PPPBanner'
 import { getBranch, gradientText, latestVersion, repo } from '~/routes/store'
@@ -38,7 +39,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBook className="text-lg" /> Docs
+        <FaSolidBook className="text-lg" /> Docs
       </div>
     ),
     to: './docs/',
@@ -62,7 +63,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaTshirt className="text-lg" /> Merch
+        <FaSolidTshirt className="text-lg" /> Merch
       </div>
     ),
     to: `https://cottonbureau.com/people/tanstack`,
@@ -253,7 +254,7 @@ export default function RouteVersion() {
             ].map((d, i) => {
               return (
                 <span key={i} className="flex items-center gap-2">
-                  <FaCheckCircle className="text-green-500 " /> {d}
+                  <FaSolidCheckCircle className="text-green-500 " /> {d}
                 </span>
               )
             })}
@@ -272,7 +273,7 @@ export default function RouteVersion() {
                         dark:bg-gray-800 dark:shadow-none"
           >
             <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Form <TbHeartHandshake /> You?
+              Form <TablerHeartHandshake /> You?
             </span>
             <div className="flex flex-col p-4 gap-4">
               <div>

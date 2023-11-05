@@ -5,8 +5,12 @@ import {
   IonBody,
   FaBrandsGithub,
   FaBrandsDiscord,
+  FaSolidCheckCircle,
+  FaSolidBook,
+  FaSolidTshirt,
+  FaSolidBolt,
+  FaSolidCogs,
 } from '~/components/icons'
-import { FaBolt, FaBook, FaCheckCircle, FaCogs, FaTshirt } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { v8branch } from '~/routes/table.v8'
@@ -40,7 +44,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBook className="text-lg" /> Docs
+        <FaSolidBook className="text-lg" /> Docs
       </div>
     ),
     to: './docs/guide/introduction',
@@ -64,7 +68,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaTshirt className="text-lg" /> Merch
+        <FaSolidTshirt className="text-lg" /> Merch
       </div>
     ),
     to: `https://cottonbureau.com/people/tanstack`,
@@ -187,7 +191,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaBolt className="text-blue-600 text-6xl" />
+            <FaSolidBolt className="text-blue-600 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -207,7 +211,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaCogs className="text-indigo-500 text-6xl" />
+            <FaSolidCogs className="text-indigo-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -264,7 +268,7 @@ export default function ReactTableRoute() {
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">
-                <FaCheckCircle className="text-green-500 " /> {d}
+                <FaSolidCheckCircle className="text-green-500 " /> {d}
               </span>
             )
           })}

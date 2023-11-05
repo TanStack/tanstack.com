@@ -1,4 +1,4 @@
-import type { FC, HTMLAttributes } from 'react'
+import type { HTMLProps } from 'react'
 import invariant from 'tiny-invariant'
 
 function getLanguageFromChildren(children: any): string | undefined {
@@ -6,7 +6,7 @@ function getLanguageFromChildren(children: any): string | undefined {
   return language ? language : undefined
 }
 
-export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = (props) => {
+export const CodeBlock = (props: HTMLProps<HTMLPreElement>) => {
   const { children, className, style } = props
   invariant(!!children, 'children is required')
   const lang = getLanguageFromChildren(children)

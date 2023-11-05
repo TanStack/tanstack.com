@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { getMDXComponent } from 'mdx-bundler/client'
+import { CodeBlock } from '~/components/CodeBlock'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { MDXComponents } from 'mdx/types'
 
@@ -39,6 +40,7 @@ const markdownComponents = {
   h4: makeHeading('h4'),
   h5: makeHeading('h5'),
   h6: makeHeading('h6'),
+  pre: CodeBlock,
 }
 
 export function Mdx({

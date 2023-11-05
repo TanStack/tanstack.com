@@ -205,7 +205,7 @@ export async function markdownToMdx(content: string) {
   const mdx = await bundleMDX<{ title: string }>({
     source: content,
     mdxOptions: (options) => {
-      options.remarkPlugins = [...(options.remarkPlugins ?? []), remarkGfm, [remarkShikiTwoslash, { theme: "dark-plus" }]]
+      options.remarkPlugins = [...(options.remarkPlugins ?? []), remarkGfm, [remarkShikiTwoslash, { theme: "github-dark" }]]
       // @ts-ignore
       options.rehypePlugins = [...(options.rehypePlugins ?? []), rehypeSlug, [rehypeRaw, {passThrough: nodeTypes}]]
       return options

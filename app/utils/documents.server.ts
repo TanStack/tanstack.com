@@ -4,9 +4,12 @@ import { fileURLToPath } from 'node:url'
 import { bundleMDX } from 'mdx-bundler'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
-import remarkShikiTwoslash from 'remark-shiki-twoslash'
+import remarkTwoslash from 'remark-shiki-twoslash'
 import rehypeRaw from 'rehype-raw'
 import { nodeTypes } from '@mdx-js/mdx'
+
+// @ts-ignore Hack for broken CJS/ESM export compatibility
+const remarkShikiTwoslash = process.env.NODE_ENV === 'development' ? remarkTwoslash : remarkTwoslash.default
 
 type BundledMDX = Awaited<ReturnType<typeof bundleMDX>>
 

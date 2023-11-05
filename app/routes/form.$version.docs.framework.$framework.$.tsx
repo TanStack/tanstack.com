@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/routes/store'
+import { repo, getBranch } from '~/routes/form'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import { useLoaderData, useParams } from '@remix-run/react'
@@ -12,7 +12,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   return loadDocs({
     repo,
     branch: getBranch(version),
-    docPath: `docs/${framework}/${docsPath}`,
+    docPath: `docs/framework/${framework}/${docsPath}`,
     redirectPath: context.request.url.replace(/\/docs.*/, ``),
   })
 }

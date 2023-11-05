@@ -30,7 +30,7 @@ const menu = [
         <VscPreview className="text-lg" /> Examples
       </div>
     ),
-    to: './docs/react/examples/simple',
+    to: './docs/framework/react/examples/simple',
   },
   {
     label: (

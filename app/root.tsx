@@ -1,5 +1,8 @@
 import { Outlet, isRouteErrorResponse, useRouteError } from '@remix-run/react'
+import '~/styles/app.css'
+import '~/styles/carbon.css'
 import '~/styles/prismThemeDark.css'
+import '@docsearch/css/dist/style.css'
 import { seo } from '~/utils/seo'
 import { RootDocument } from '~/components/RootDocument'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'

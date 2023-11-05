@@ -1,5 +1,6 @@
 import { Outlet, isRouteErrorResponse, useRouteError } from '@remix-run/react'
 import styles from '~/styles/app.css'
+import carbonStyles from '~/styles/carbon.css'
 import prismThemeLight from '~/styles/prismThemeLight.css'
 import prismThemeDark from '~/styles/prismThemeDark.css'
 import docSearchStyles from '@docsearch/css/dist/style.css'
@@ -7,12 +8,13 @@ import { seo } from '~/utils/seo'
 import { RootDocument } from '~/components/RootDocument'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import type { LinksFunction, MetaFunction } from '@remix-run/node'
+import ogImage from '~/images/og.png'
 
 export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack | High Quality Open-Source Software for Web Developers',
     description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
-    image: require('./images/og.png'),
+    image: ogImage,
     keywords:
       'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
   })
@@ -37,7 +39,7 @@ export const links: LinksFunction = () => {
     },
     {
       rel: 'stylesheet',
-      href: require('./styles/carbon.css'),
+      href: carbonStyles,
     },
     {
       rel: 'apple-touch-icon',

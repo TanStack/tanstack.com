@@ -15,6 +15,11 @@ import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { LinkOrA } from '~/components/LinkOrA'
 import { LogoColor } from '~/components/LogoColor'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import discordImage from '~/images/discord-logo-white.svg'
+import agGridImage from '~/images/ag-grid.png'
+import drizzleImage from '~/images/nozzle.png'
+import bytesImage from '~/images/bytes.svg'
 
 const textColors = [
   `text-rose-500`,
@@ -175,8 +180,6 @@ const courses = [
 ]
 
 export const loader = async () => {
-  const { getSponsorsForSponsorPack } = require('../server/sponsors')
-
   const sponsors = await getSponsorsForSponsorPack()
 
   return json({
@@ -371,7 +374,7 @@ export default function Index() {
                   rel="noreferrer"
                 >
                   <img
-                    src={require('~/images/ag-grid.png')}
+                    src={agGridImage}
                     className="w-[250px] max-w-full"
                     width="250"
                     height="87"
@@ -408,7 +411,7 @@ export default function Index() {
                   rel="noreferrer"
                 >
                   <img
-                    src={require('~/images/nozzle.png')}
+                    src={drizzleImage}
                     alt="SEO keyword rank tracker"
                     className="w-[230px] max-w-full my-2"
                     width="230"
@@ -557,11 +560,7 @@ export default function Index() {
             right-0 top-0 -translate-y-1/3 translate-x-1/3
             sm:opacity-20`}
           >
-            <img
-              src={require('../images/discord-logo-white.svg')}
-              width={300}
-              height={300}
-            />
+            <img src={discordImage} width={300} height={300} />
           </div>
           <div className={`sm:col-span-2`}>
             <h3 className={`text-3xl`}>TanStack on Discord</h3>
@@ -594,7 +593,7 @@ export default function Index() {
                   <h3 className={`text-3xl`}>Subscribe to Bytes</h3>
                   <figure className={`absolute top-0 right-[-48px]`}>
                     <img
-                      src={require('../images/bytes.svg')}
+                      src={bytesImage}
                       alt="Bytes Logo"
                       width={40}
                       height={40}

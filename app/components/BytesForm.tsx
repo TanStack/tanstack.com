@@ -1,4 +1,5 @@
 import useBytesSubmit from '~/components/useBytesSubmit'
+import bytesImage from '~/images/bytes.svg'
 
 export default function BytesForm() {
   const { state, handleSubmit, error } = useBytesSubmit()
@@ -12,12 +13,7 @@ export default function BytesForm() {
       <div data-element="fields" className="grid relative">
         <div className="relative">
           <figure className="absolute right-[-8px] bottom-3 md:bottom-4">
-            <img
-              height={38}
-              width={38}
-              src={require('../images/bytes.svg')}
-              alt="Bytes"
-            />
+            <img height={38} width={38} src={bytesImage} alt="Bytes" />
           </figure>
           <input
             className="text-xs md:text-base border border-black/50 dark:border-white/50 rounded p-2 mb-1 md:mb-2 w-full bg-transparent"

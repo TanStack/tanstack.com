@@ -1,5 +1,4 @@
 import * as React from 'react'
-
 import { CgCornerUpLeft } from 'react-icons/cg'
 import {
   FaBolt,
@@ -20,6 +19,7 @@ import SponsorPack from '~/components/SponsorPack'
 import { VscPreview } from 'react-icons/vsc'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import agGridImage from '~/images/ag-grid.png'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
@@ -337,7 +337,7 @@ export default function ReactTableRoute() {
             rel="noreferrer"
           >
             <img
-              src={require('~/images/ag-grid.png')}
+              src={agGridImage}
               className="w-full mx-auto max-w-[300px]"
               width="300"
               height="104"

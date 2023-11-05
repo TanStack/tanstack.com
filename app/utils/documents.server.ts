@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url'
 import { bundleMDX } from 'mdx-bundler'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
+import remarkShikiTwoslash from "remark-shiki-twoslash"
+import rehypeRaw from 'rehype-raw'
+import { nodeTypes } from '@mdx-js/mdx'
 
 type BundledMDX = Awaited<ReturnType<typeof bundleMDX>>
 
@@ -202,8 +205,9 @@ export async function markdownToMdx(content: string) {
   const mdx = await bundleMDX<{ title: string }>({
     source: content,
     mdxOptions: (options) => {
-      options.remarkPlugins = [...(options.remarkPlugins ?? []), remarkGfm]
-      options.rehypePlugins = [...(options.rehypePlugins ?? []), rehypeSlug]
+      options.remarkPlugins = [...(options.remarkPlugins ?? []), remarkGfm, [remarkShikiTwoslash, { theme: "dark-plus" }]]
+      // @ts-ignore
+      options.rehypePlugins = [...(options.rehypePlugins ?? []), rehypeSlug, [rehypeRaw, {passThrough: nodeTypes}]]
       return options
     },
   })

@@ -1,12 +1,10 @@
 import * as React from 'react'
-
-import { CgCornerUpLeft } from 'react-icons/cg'
+import { GgCornerUpLeft, CodiconPreview } from "~/components/icons"
 import { FaBook, FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { VscPreview } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { PPPBanner } from '~/components/PPPBanner'
@@ -19,7 +17,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-2">
-        <CgCornerUpLeft className="text-lg" /> TanStack
+        <GgCornerUpLeft className="text-lg" /> TanStack
       </div>
     ),
     to: '/',
@@ -27,7 +25,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <VscPreview className="text-lg" /> Examples
+        <CodiconPreview className="text-lg" /> Examples
       </div>
     ),
     to: './docs/framework/react/examples/simple',

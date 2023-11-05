@@ -1,6 +1,5 @@
 import * as React from 'react'
-
-import { CgCornerUpLeft } from 'react-icons/cg'
+import { GgCornerUpLeft, CodiconPreview } from "~/components/icons"
 import {
   FaBolt,
   FaBook,
@@ -18,7 +17,6 @@ import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
 import { TbHeartHandshake } from 'react-icons/tb'
-import { VscPreview } from 'react-icons/vsc'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 
@@ -29,7 +27,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-2">
-        <CgCornerUpLeft className="text-lg" /> TanStack
+        <GgCornerUpLeft className="text-lg" /> TanStack
       </div>
     ),
     to: '/',
@@ -37,7 +35,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <VscPreview className="text-lg" /> Examples
+        <CodiconPreview className="text-lg" /> Examples
       </div>
     ),
     to: './docs/examples',

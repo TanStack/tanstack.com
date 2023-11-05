@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { CgCornerUpLeft, CgTimelapse } from 'react-icons/cg'
+import { GgCornerUpLeft, CodiconPreview } from "~/components/icons"
+import { CgTimelapse } from 'react-icons/cg'
 import {
   FaBook,
   FaCheckCircle,
@@ -10,7 +11,6 @@ import {
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
-import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { v1branch } from '~/routes/router.v1'
 import { Carbon } from '~/components/Carbon'
@@ -27,7 +27,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-2">
-        <CgCornerUpLeft className="text-lg" /> TanStack
+        <GgCornerUpLeft className="text-lg" /> TanStack
       </div>
     ),
     to: '/',
@@ -35,7 +35,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <VscPreview className="text-lg" /> Examples
+        <CodiconPreview className="text-lg" /> Examples
       </div>
     ),
     to: './docs/examples',

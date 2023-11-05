@@ -1,9 +1,5 @@
 import { Outlet, isRouteErrorResponse, useRouteError } from '@remix-run/react'
-import styles from '~/styles/app.css'
-import carbonStyles from '~/styles/carbon.css'
-import prismThemeLight from '~/styles/prismThemeLight.css'
-import prismThemeDark from '~/styles/prismThemeDark.css'
-import docSearchStyles from '@docsearch/css/dist/style.css'
+import '~/styles/prismThemeDark.css'
 import { seo } from '~/utils/seo'
 import { RootDocument } from '~/components/RootDocument'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
@@ -22,25 +18,6 @@ export const meta: MetaFunction = () => {
 
 export const links: LinksFunction = () => {
   return [
-    { rel: 'stylesheet', href: styles },
-    {
-      rel: 'stylesheet',
-      href: prismThemeLight,
-      media: '(prefers-color-scheme: light)',
-    },
-    {
-      rel: 'stylesheet',
-      href: prismThemeDark,
-      media: '(prefers-color-scheme: dark)',
-    },
-    {
-      rel: 'stylesheet',
-      href: docSearchStyles,
-    },
-    {
-      rel: 'stylesheet',
-      href: carbonStyles,
-    },
     {
       rel: 'apple-touch-icon',
       sizes: '180x180',

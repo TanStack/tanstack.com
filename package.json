@@ -4,10 +4,10 @@
   "sideEffects": false,
   "repository": "https://github.com/TanStack/tanstack.com.git",
   "packageManager": "pnpm@8.10.2",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
-    "dev": "remix dev --manual",
-    "build": "remix build",
+    "dev": "vite dev",
+    "build": "vite build && vite build --ssr",
     "start": "remix-serve ./build/index.js",
     "format": "prettier --plugin-search-dir . \"**/*.{md,js,jsx,cjs,ts,tsx,json}\" --write",
     "lint": "eslint --ext .ts,.tsx ./app"
@@ -57,7 +57,9 @@
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vite-tsconfig-paths": "^4.2.1"
   },
   "engines": {
     "node": ">=18.0.0"

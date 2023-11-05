@@ -66,8 +66,8 @@ export function RootDocument({
       <body>
         {children}
         <ScrollRestoration />
-        <Scripts />
         <LiveReload />
+        <Scripts />
         <div
           className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-800
             rounded-lg shadow-lg transition-opacity duration-300 hover:opacity-0 pointer-events-none

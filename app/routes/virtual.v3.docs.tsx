@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { FaBrandsDiscord, FaBrandsGithub } from '~/components/icons'
 import { Link } from '@remix-run/react'
 import { useVirtualV3Config } from '~/routes/virtual.v3'
 import { gradientText } from '~/routes/virtual.v3._index'
@@ -30,7 +30,7 @@ const localMenu = {
     {
       label: (
         <div className="flex items-center gap-2">
-          GitHub <FaGithub className="text-lg opacity-20" />
+          GitHub <FaBrandsGithub className="text-lg opacity-20" />
         </div>
       ),
       to: 'https://github.com/tanstack/virtual',
@@ -38,7 +38,7 @@ const localMenu = {
     {
       label: (
         <div className="flex items-center gap-2">
-          Discord <FaDiscord className="text-lg opacity-20" />
+          Discord <FaBrandsDiscord className="text-lg opacity-20" />
         </div>
       ),
       to: 'https://tlinz.com/discord',

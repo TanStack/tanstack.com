@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
-import { GgCornerUpLeft, CodiconPreview } from '~/components/icons'
-import { CgTimelapse } from 'react-icons/cg'
 import {
-  FaBook,
-  FaCheckCircle,
-  FaDiscord,
-  FaGithub,
-  FaTshirt,
-} from 'react-icons/fa'
+  GgCornerUpLeft,
+  CodiconPreview,
+  FaBrandsDiscord,
+  FaBrandsGithub,
+} from '~/components/icons'
+import { CgTimelapse } from 'react-icons/cg'
+import { FaBook, FaCheckCircle, FaTshirt } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
@@ -51,7 +50,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaGithub className="text-lg" /> GitHub
+        <FaBrandsGithub className="text-lg" /> GitHub
       </div>
     ),
     to: 'https://github.com/tanstack/router',
@@ -59,7 +58,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaDiscord className="text-lg" /> Discord
+        <FaBrandsDiscord className="text-lg" /> Discord
       </div>
     ),
     to: 'https://tlinz.com/discord',

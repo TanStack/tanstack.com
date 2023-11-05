@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { flag } from 'country-emoji'
-import { IoIosClose } from 'react-icons/io'
+import { IonClose } from '~/components/icons'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
 
@@ -61,7 +61,7 @@ export function PPPBanner() {
             className="absolute right-0"
             aria-label="Hide Banner"
           >
-            <IoIosClose size={30} className="text-black" />
+            <IonClose size={30} className="text-black" />
           </button>
         </div>
       )}

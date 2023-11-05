@@ -9,7 +9,8 @@ import type { ActionFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
-import { FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
+import { FaBrandsDiscord, FaBrandsGithub } from '~/components/icons'
+import { FaTshirt } from 'react-icons/fa'
 import { CgMusicSpeaker } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
@@ -247,7 +248,7 @@ export default function Index() {
           {
             label: (
               <div className="flex items-center gap-1">
-                <FaGithub className="text-lg" /> GitHub
+                <FaBrandsGithub className="text-lg" /> GitHub
               </div>
             ),
             to: 'https://github.com/tanstack',
@@ -255,7 +256,7 @@ export default function Index() {
           {
             label: (
               <div className="flex items-center gap-1">
-                <FaDiscord className="text-lg" /> Discord
+                <FaBrandsDiscord className="text-lg" /> Discord
               </div>
             ),
             to: 'https://tlinz.com/discord',

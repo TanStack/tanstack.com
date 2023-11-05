@@ -1,20 +1,17 @@
 import { useEffect, useState } from 'react'
-import { GgCornerUpLeft, CodiconPreview } from '~/components/icons'
 import {
-  FaBolt,
-  FaBook,
-  FaCheckCircle,
-  FaCogs,
-  FaDiscord,
-  FaGithub,
-  FaTshirt,
-} from 'react-icons/fa'
+  GgCornerUpLeft,
+  CodiconPreview,
+  IonBody,
+  FaBrandsDiscord,
+  FaBrandsGithub,
+} from '~/components/icons'
+import { FaBolt, FaBook, FaCheckCircle, FaCogs, FaTshirt } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { v3branch } from '~/routes/virtual.v3'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
 import { TbHeartHandshake } from 'react-icons/tb'
 import { Logo } from '~/components/Logo'
@@ -51,7 +48,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaGithub className="text-lg" /> GitHub
+        <FaBrandsGithub className="text-lg" /> GitHub
       </div>
     ),
     to: 'https://github.com/tanstack/virtual',
@@ -59,7 +56,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaDiscord className="text-lg" /> Discord
+        <FaBrandsDiscord className="text-lg" /> Discord
       </div>
     ),
     to: 'https://tlinz.com/discord',
@@ -171,7 +168,7 @@ export default function ReactTableRoute() {
       >
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center overflow-hidden">
-            <IoIosBody className="text-rose-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
+            <IonBody className="text-rose-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">

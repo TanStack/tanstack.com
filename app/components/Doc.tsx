@@ -1,4 +1,4 @@
-import { FaEdit } from 'react-icons/fa'
+import { FaSolidEdit } from '~/components/icons'
 import { DocTitle } from '~/components/DocTitle'
 import { Mdx } from '~/components/Mdx'
 
@@ -31,7 +31,7 @@ export function Doc({
           href={`https://github.com/${repo}/tree/${branch}/${filePath}`}
           className="flex items-center gap-2"
         >
-          <FaEdit /> Edit on GitHub
+          <FaSolidEdit /> Edit on GitHub
         </a>
       </div>
       <div className="h-24" />

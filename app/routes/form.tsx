@@ -15,7 +15,7 @@ import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
 import svelteLogo from '~/images/svelte-logo.svg'
 import angularLogo from '~/images/angular-logo.svg'
-import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { FaBrandsDiscord, FaBrandsGithub } from '~/components/icons'
 import type { AvailableOptions } from '~/components/Select'
 import type { ReactNode } from 'react'
 
@@ -89,7 +89,7 @@ export const localMenu: MenuItem = {
     {
       label: (
         <div className="flex items-center gap-2">
-          GitHub <FaGithub className="text-lg opacity-20" />
+          GitHub <FaBrandsGithub className="text-lg opacity-20" />
         </div>
       ),
       to: `https://github.com/${repo}`,
@@ -97,7 +97,7 @@ export const localMenu: MenuItem = {
     {
       label: (
         <div className="flex items-center gap-2">
-          Discord <FaDiscord className="text-lg opacity-20" />
+          Discord <FaBrandsDiscord className="text-lg opacity-20" />
         </div>
       ),
       to: 'https://tlinz.com/discord',

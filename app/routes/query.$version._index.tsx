@@ -1,14 +1,11 @@
 import { useEffect, useState } from 'react'
-import { CodiconPreview, GgCornerUpLeft } from '~/components/icons'
 import {
-  FaBolt,
-  FaBook,
-  FaCheckCircle,
-  FaCogs,
-  FaDiscord,
-  FaGithub,
-  FaTshirt,
-} from 'react-icons/fa'
+  CodiconPreview,
+  FaBrandsDiscord,
+  FaBrandsGithub,
+  GgCornerUpLeft,
+} from '~/components/icons'
+import { FaBolt, FaBook, FaCheckCircle, FaCogs, FaTshirt } from 'react-icons/fa'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
@@ -55,7 +52,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaGithub className="text-lg" /> GitHub
+        <FaBrandsGithub className="text-lg" /> GitHub
       </div>
     ),
     to: `https://github.com/${repo}`,
@@ -63,7 +60,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaDiscord className="text-lg" /> Discord
+        <FaBrandsDiscord className="text-lg" /> Discord
       </div>
     ),
     to: 'https://tlinz.com/discord',

@@ -1,10 +1,10 @@
-import React from 'react'
+import { useMemo } from 'react'
 import { Pack, hierarchy } from '@visx/hierarchy'
 import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
 
 export default function SponsorPack({ sponsors }: { sponsors: any }) {
-  const pack = React.useMemo(
+  const pack = useMemo(
     () => ({
       children: sponsors,
       name: 'root',
@@ -14,7 +14,7 @@ export default function SponsorPack({ sponsors }: { sponsors: any }) {
     [sponsors]
   )
 
-  const root = React.useMemo(
+  const root = useMemo(
     () =>
       hierarchy(pack)
         .sum((d) => 1 + d?.tier?.monthlyPriceInDollars)

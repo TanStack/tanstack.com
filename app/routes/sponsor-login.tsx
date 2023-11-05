@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import * as qss from 'qss'
 import { FaGithub, FaDiscord, FaPlug, FaCheck } from 'react-icons/fa'
 
@@ -26,11 +26,11 @@ const getbuttonStyles = () => `
 `
 
 export default function SponsorsLogin() {
-  const [loadingMessage, setIsLoading] = React.useState<string | boolean>(
+  const [loadingMessage, setIsLoading] = useState<string | boolean>(
     'Loading...'
   )
-  const [error, setError] = React.useState(null)
-  const [message, setMessage] = React.useState(null)
+  const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
   const [discordState, setDiscordState] =
     useSessionStorage(discordOauthStateKey)
   const [githubState, setGithubState] = useSessionStorage(githubOauthStateKey)
@@ -79,7 +79,7 @@ export default function SponsorsLogin() {
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsLoading(false)
 
     const search = window.location.search.substring(1)

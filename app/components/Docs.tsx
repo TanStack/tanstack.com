@@ -1,5 +1,5 @@
+import { useMemo, useRef } from 'react'
 import { DocSearch } from '@docsearch/react'
-import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { FaArrowLeft, FaArrowRight, FaTimes } from 'react-icons/fa'
 import { NavLink, Outlet, useMatches } from '@remix-run/react'
@@ -12,6 +12,7 @@ import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
+import type { ReactNode } from 'react'
 
 export type DocsConfig = {
   docSearch: {
@@ -20,9 +21,9 @@ export type DocsConfig = {
     apiKey: string
   }
   menu: {
-    label: string | React.ReactNode
+    label: string | ReactNode
     children: {
-      label: string | React.ReactNode
+      label: string | ReactNode
       to: string
       badge?: string
     }[]
@@ -43,7 +44,7 @@ export function Docs({
   colorFrom: string
   colorTo: string
   textColor: string
-  logo: React.ReactNode
+  logo: ReactNode
   config: DocsConfig
   framework?: SelectProps
   version?: SelectProps
@@ -53,9 +54,9 @@ export function Docs({
   const matches = useMatches()
   const lastMatch = last(matches)
 
-  const detailsRef = React.useRef<HTMLElement>(null!)
+  const detailsRef = useRef<HTMLElement>(null!)
 
-  const flatMenu = React.useMemo(
+  const flatMenu = useMemo(
     () => config.menu.flatMap((d) => d.children),
     [config.menu]
   )

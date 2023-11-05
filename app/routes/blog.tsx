@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useRef } from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { Link, NavLink, Outlet } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
@@ -44,7 +44,7 @@ export const meta: MetaFunction = () => {
 }
 
 export default function RouteBlog() {
-  const detailsRef = React.useRef<HTMLElement>(null!)
+  const detailsRef = useRef<HTMLElement>(null!)
 
   const menuItems = localMenu.map((group) => {
     return (

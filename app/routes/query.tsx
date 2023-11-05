@@ -3,6 +3,7 @@ import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { useMatchesData } from '~/utils/utils'
+import type { ReactNode } from 'react'
 
 export const repo = 'tanstack/query'
 
@@ -41,9 +42,9 @@ export type Menu = {
 }
 
 export type MenuItem = {
-  label: string | React.ReactNode
+  label: string | ReactNode
   children: {
-    label: string | React.ReactNode
+    label: string | ReactNode
     to: string
   }[]
 }

@@ -1,14 +1,15 @@
-import * as React from 'react'
+import { useMemo } from 'react'
 import { getMDXComponent } from 'mdx-bundler/client'
 import { CodeBlock } from '~/components/CodeBlock'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { MDXComponents } from 'mdx/types'
+import type { HTMLProps } from 'react'
 
 const CustomHeading = ({
   Comp,
   id,
   ...props
-}: React.HTMLProps<HTMLHeadingElement> & {
+}: HTMLProps<HTMLHeadingElement> & {
   Comp: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 }) => {
   if (id) {
@@ -23,7 +24,7 @@ const CustomHeading = ({
 
 const makeHeading =
   (type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
-  (props: React.HTMLProps<HTMLHeadingElement>) =>
+  (props: HTMLProps<HTMLHeadingElement>) =>
     (
       <CustomHeading
         Comp={type}
@@ -50,7 +51,7 @@ export function Mdx({
   code: string
   components?: MDXComponents
 }) {
-  const Doc = React.useMemo(() => getMDXComponent(code), [code])
+  const Doc = useMemo(() => getMDXComponent(code), [code])
 
   return <Doc components={{ ...markdownComponents, ...components }} />
 }

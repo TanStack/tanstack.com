@@ -1,4 +1,6 @@
-export function Logo(props: React.HTMLProps<HTMLDivElement>) {
+import type { HTMLProps } from 'react'
+
+export function Logo(props: HTMLProps<HTMLDivElement>) {
   return (
     <div {...props}>
       <svg

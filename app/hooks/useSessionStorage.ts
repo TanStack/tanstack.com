@@ -1,7 +1,7 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 
 export default function useSessionStorage(key, defaultValue = '') {
-  const [state, setState] = React.useState(() => {
+  const [state, setState] = useState(() => {
     if (typeof document !== 'undefined') {
       const data = sessionStorage.getItem(key)
       if (data) {
@@ -16,7 +16,7 @@ export default function useSessionStorage(key, defaultValue = '') {
     return defaultValue
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     sessionStorage.setItem(key, JSON.stringify(state))
   }, [state])
 

@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
 import { useVirtualV3Config } from '~/routes/virtual.v3'
@@ -58,7 +58,7 @@ export const meta: MetaFunction = () => {
 export default function RouteReactTable() {
   let config = useVirtualV3Config()
 
-  config = React.useMemo(
+  config = useMemo(
     () =>
       ({
         ...config,

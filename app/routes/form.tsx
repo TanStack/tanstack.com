@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useMemo } from 'react'
 import {
   Link,
   Outlet,
@@ -17,6 +17,7 @@ import svelteLogo from '~/images/svelte-logo.svg'
 import angularLogo from '~/images/angular-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import type { AvailableOptions } from '~/components/Select'
+import type { ReactNode } from 'react'
 
 //
 
@@ -26,9 +27,9 @@ export type FrameworkMenu = {
 }
 
 export type MenuItem = {
-  label: string | React.ReactNode
+  label: string | ReactNode
   children: {
-    label: string | React.ReactNode
+    label: string | ReactNode
     to: string
   }[]
 }
@@ -127,7 +128,7 @@ export const useReactFormDocsConfig = () => {
     config.frameworkMenus.find((d) => d.framework === framework)?.menuItems ??
     []
 
-  const frameworkConfig = React.useMemo(() => {
+  const frameworkConfig = useMemo(() => {
     const availableFrameworks = config.frameworkMenus.reduce(
       (acc: AvailableOptions, menuEntry) => {
         acc[menuEntry.framework as string] =
@@ -151,7 +152,7 @@ export const useReactFormDocsConfig = () => {
     }
   }, [config.frameworkMenus, framework, match, navigate])
 
-  const versionConfig = React.useMemo(() => {
+  const versionConfig = useMemo(() => {
     const available = availableVersions.reduce(
       (acc: AvailableOptions, version) => {
         acc[version] = {

@@ -1,4 +1,4 @@
-import React from 'react'
+import { useEffect, useState } from 'react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData, useParams } from '@remix-run/react'
@@ -31,9 +31,9 @@ export default function RouteExamples() {
   const branch = getBranch(version)
 
   const examplePath = branch === 'v3' ? name : [kind, name].join('/')
-  const [isDark, setIsDark] = React.useState(true)
+  const [isDark, setIsDark] = useState(true)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 

@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'

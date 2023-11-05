@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect } from 'react'
 import { flag } from 'country-emoji'
 import { IoIosClose } from 'react-icons/io'
 import { useLocalStorage } from '~/utils/useLocalStorage'
@@ -8,7 +8,7 @@ export function PPPBanner() {
   const [hidden, setHidden] = useLocalStorage('pppbanner-hidden', false)
   const [data, setData] = useLocalStorage('pppbanner-data', null)
 
-  React.useEffect(() => {
+  useEffect(() => {
     // This function has CORS configured to allow
     // react-query.tanstack.com and tanstack.com
     if (!data) {

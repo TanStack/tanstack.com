@@ -1,9 +1,9 @@
-import * as React from 'react'
+import { useEffect, useRef } from 'react'
 
 export function Carbon() {
-  const ref = React.useRef<HTMLDivElement>(null!)
+  const ref = useRef<HTMLDivElement>(null!)
 
-  React.useEffect(() => {
+  useEffect(() => {
     ref.current.innerHTML = ''
     const s = document.createElement('script')
     s.id = '_carbonads_js'

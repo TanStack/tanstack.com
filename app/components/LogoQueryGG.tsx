@@ -1,4 +1,6 @@
-export function LogoQueryGG(props: React.HTMLProps<HTMLDivElement>) {
+import type { HTMLProps } from 'react'
+
+export function LogoQueryGG(props: HTMLProps<HTMLDivElement>) {
   return (
     <div {...props}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 361">

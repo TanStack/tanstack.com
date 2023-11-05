@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect, useState } from 'react'
 import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
@@ -31,9 +31,9 @@ export default function RouteReactTableDocs() {
 
   const examplePath = [kind, name].join('/')
 
-  const [isDark, setIsDark] = React.useState(true)
+  const [isDark, setIsDark] = useState(true)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 

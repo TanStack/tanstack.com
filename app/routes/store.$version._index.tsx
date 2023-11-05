@@ -1,5 +1,5 @@
-import * as React from 'react'
-import { GgCornerUpLeft, CodiconPreview } from "~/components/icons"
+import { useEffect, useState } from 'react'
+import { GgCornerUpLeft, CodiconPreview } from '~/components/icons'
 import { FaBook, FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
@@ -76,10 +76,10 @@ export default function RouteVersion() {
   const { sponsors } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
-  const [framework, setFramework] = React.useState<Framework>('react')
-  const [isDark, setIsDark] = React.useState(true)
+  const [framework, setFramework] = useState<Framework>('react')
+  const [isDark, setIsDark] = useState(true)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 

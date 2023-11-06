@@ -1,10 +1,8 @@
-import type { V2_MetaFunction } from '@remix-run/node'
+import type { MetaFunction } from '@remix-run/node'
 import { seo } from '~/utils/seo'
-import { Docs } from '~/components/Docs'
-import { createLogo, useReactStoreDocsConfig } from '~/routes/store'
 import { Outlet } from '@remix-run/react'
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Query Docs | React Query, Solid Query, Svelte Query, Vue Query',
@@ -12,8 +10,6 @@ export const meta: V2_MetaFunction = () => {
 }
 
 export default function RouteFrameworkParam() {
-  let config = useReactStoreDocsConfig()
-
   return (
     <>
       <Outlet />

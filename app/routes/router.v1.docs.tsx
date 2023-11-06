@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
-import type { V2_MetaFunction } from '@remix-run/node'
-import { useRouterV1Config } from './router.v1'
-import { gradientText } from './router.v1._index'
+import type { MetaFunction } from '@remix-run/node'
+import { useRouterV1Config } from '~/routes/router.v1'
+import { gradientText } from '~/routes/router.v1._index'
 import { seo } from '~/utils/seo'
 import type { DocsConfig } from '~/components/Docs'
 import { Docs } from '~/components/Docs'
@@ -46,7 +46,7 @@ const localMenu = {
   ],
 }
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack Router Docs | React Router',
     description: 'Modern and scalable routing for React applications',

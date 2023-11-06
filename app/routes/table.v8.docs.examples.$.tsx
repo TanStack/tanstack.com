@@ -6,18 +6,18 @@ import { v8branch } from '~/routes/table.v8'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import type { LoaderArgs, V2_MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 
 export const ErrorBoundary = DefaultErrorBoundary
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': examplePath } = context.params
   const [kind, name] = (examplePath ?? '').split('/')
 
   return json({ kind, name })
 }
 
-export const meta: V2_MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ data }) => {
   return seo({
     title: `${capitalize(data.kind)} Table ${slugToTitle(
       data.name

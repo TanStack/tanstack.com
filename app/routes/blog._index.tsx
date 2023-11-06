@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { useLoaderData, Link } from '@remix-run/react'
-import type { LoaderArgs } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import {
   extractFrontMatter,
@@ -14,7 +13,7 @@ import { format } from 'date-fns'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { Footer } from '~/components/Footer'
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async () => {
   const postInfos = getPostList()
   const frontMatters = await Promise.all(
     postInfos.map(async (info) => {

@@ -1,5 +1,4 @@
 import * as React from 'react'
-
 import { CgCornerUpLeft } from 'react-icons/cg'
 import {
   FaBolt,
@@ -12,13 +11,15 @@ import {
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { v8branch } from './table.v8'
+import { v8branch } from '~/routes/table.v8'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
 import { VscPreview } from 'react-icons/vsc'
 import { Logo } from '~/components/Logo'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import agGridImage from '~/images/ag-grid.png'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
@@ -75,8 +76,6 @@ const menu = [
 ]
 
 export const loader = async () => {
-  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
-
   const sponsors = await getSponsorsForSponsorPack()
 
   return json({
@@ -338,7 +337,7 @@ export default function ReactTableRoute() {
             rel="noreferrer"
           >
             <img
-              src={require('~/images/ag-grid.png')}
+              src={agGridImage}
               className="w-full mx-auto max-w-[300px]"
               width="300"
               height="104"

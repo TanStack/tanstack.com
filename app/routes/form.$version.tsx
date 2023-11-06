@@ -1,13 +1,13 @@
 import { Link, Outlet, useLocation } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import type { LoaderArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
 import { repo, getBranch, latestVersion } from '~/routes/form'
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const branch = getBranch(context.params.version)
   const config = await fetchRepoFile(repo, branch, `docs/config.json`)
 

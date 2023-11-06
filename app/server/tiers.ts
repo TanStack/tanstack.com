@@ -1,5 +1,5 @@
-import { getTiersTable } from './airtable'
-import { graphqlWithAuth } from './github'
+import { getTiersTable } from '~/server/airtable'
+import { graphqlWithAuth } from '~/server/github'
 
 async function getTiersMeta() {
   try {

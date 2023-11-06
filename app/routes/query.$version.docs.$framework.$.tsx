@@ -1,4 +1,4 @@
-import type { LoaderArgs, V2_MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json, redirect } from '@remix-run/node'
 import {
   extractFrontMatter,
@@ -12,7 +12,7 @@ import removeMarkdown from 'remove-markdown'
 import { useLoaderData, useParams } from '@remix-run/react'
 import { Doc } from '~/components/Doc'
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath, framework, version } = context.params
   const url = new URL(context.request.url)
 
@@ -74,7 +74,7 @@ export const loader = async (context: LoaderArgs) => {
   )
 }
 
-export const meta: V2_MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ data }) => {
   return seo({
     title: `${data?.title} | TanStack Query Docs`,
     description: data?.description,

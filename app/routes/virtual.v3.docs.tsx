@@ -1,11 +1,12 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
-import { useVirtualV3Config } from './virtual.v3'
-import { gradientText } from './virtual.v3._index'
+import { useVirtualV3Config } from '~/routes/virtual.v3'
+import { gradientText } from '~/routes/virtual.v3._index'
 import { seo } from '~/utils/seo'
-import { Docs, DocsConfig } from '~/components/Docs'
-import type { V2_MetaFunction } from '@remix-run/react'
+import { Docs } from '~/components/Docs'
+import type { MetaFunction } from '@remix-run/react'
+import type { DocsConfig } from '~/components/Docs'
 
 const logo = (
   <>
@@ -45,7 +46,7 @@ const localMenu = {
   ],
 }
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Virtual Docs | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',

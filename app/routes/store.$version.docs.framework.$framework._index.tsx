@@ -1,7 +1,4 @@
-import type { LoaderArgs } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
-
-export const loader = (context: LoaderArgs) => {
+export const loader = () => {
   // When first path part after docs contain framework name, just redirect to overview
   // if (
   //   context.request.url.includes('/docs/react') ||

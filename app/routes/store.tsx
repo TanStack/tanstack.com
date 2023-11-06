@@ -6,7 +6,7 @@ import {
   useNavigate,
   useParams,
 } from '@remix-run/react'
-import type { LoaderArgs, V2_MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { generatePath, useMatchesData } from '~/utils/utils'
@@ -208,7 +208,7 @@ export const useReactStoreDocsConfig = () => {
 
 //
 
-export const meta: V2_MetaFunction = (meta) => {
+export const meta: MetaFunction = (meta) => {
   return seo({
     title: 'TanStack Store | React Store, Solid Store, Svelte Store, Vue Store',
     description:
@@ -217,7 +217,7 @@ export const meta: V2_MetaFunction = (meta) => {
   })
 }
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   if (
     !context.request.url.includes('/store/v') &&
     !context.request.url.includes('/store/latest')

@@ -1,6 +1,6 @@
 import { FaEdit } from 'react-icons/fa'
-import { DocTitle } from './DocTitle'
-import { Mdx } from './Mdx'
+import { DocTitle } from '~/components/DocTitle'
+import { Mdx } from '~/components/Mdx'
 
 export function Doc({
   title,

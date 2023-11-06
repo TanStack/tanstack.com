@@ -1,18 +1,18 @@
 import { useLoaderData } from '@remix-run/react'
-import type { LoaderArgs, V2_MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import {
   extractFrontMatter,
   fetchRepoFile,
   markdownToMdx,
 } from '~/utils/documents.server'
-import { v3branch } from './virtual.v3'
+import { v3branch } from '~/routes/virtual.v3'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
 import { Doc } from '~/components/Doc'
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath } = context.params
 
   if (!docsPath) {
@@ -49,7 +49,7 @@ export const loader = async (context: LoaderArgs) => {
   )
 }
 
-export const meta: V2_MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ data }) => {
   return seo({
     title: `${data?.title ?? 'Docs'} | TanStack Table Docs`,
     description: data?.description,

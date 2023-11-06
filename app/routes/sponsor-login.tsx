@@ -2,7 +2,7 @@ import React from 'react'
 import * as qss from 'qss'
 import { FaGithub, FaDiscord, FaPlug, FaCheck } from 'react-icons/fa'
 
-import useSessionStorage from '../hooks/useSessionStorage'
+import useSessionStorage from '~/hooks/useSessionStorage'
 import axios from 'axios'
 
 const discordClientID = '725855554362146899'

@@ -1,12 +1,13 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
-import { useReactTableV8Config } from './table.v8'
-import { gradientText } from './table.v8._index'
+import { useReactTableV8Config } from '~/routes/table.v8'
+import { gradientText } from '~/routes/table.v8._index'
 import { seo } from '~/utils/seo'
-import { Docs, DocsConfig } from '~/components/Docs'
+import { Docs } from '~/components/Docs'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import type { V2_MetaFunction } from '@remix-run/node'
+import type { MetaFunction } from '@remix-run/node'
+import type { DocsConfig } from '~/components/Docs'
 
 const logo = (
   <>
@@ -46,7 +47,7 @@ const localMenu = {
   ],
 }
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Table Docs | React Table, Solid Table, Svelte Table, Vue Table',

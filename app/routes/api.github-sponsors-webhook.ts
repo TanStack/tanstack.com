@@ -1,11 +1,11 @@
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 import type { ActionFunction } from '@remix-run/node'
 
 import {
   sponsorCreated,
   sponsorCancelled,
   sponsorEdited,
-} from '../server/sponsors'
+} from '~/server/sponsors'
 
 async function verifySecret(req: Request) {
   const sig = req.headers.get('x-hub-signature') || ''

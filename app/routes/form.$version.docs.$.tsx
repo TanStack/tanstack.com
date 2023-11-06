@@ -1,4 +1,4 @@
-import type { LoaderArgs, V2_MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { repo, getBranch } from '~/routes/form'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
@@ -6,7 +6,7 @@ import { useLoaderData, useParams } from '@remix-run/react'
 import { loadDocs } from '~/utils/docs'
 import { Doc } from '~/components/Doc'
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath, version } = context.params
 
   return loadDocs({
@@ -17,7 +17,7 @@ export const loader = async (context: LoaderArgs) => {
   })
 }
 
-export const meta: V2_MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ data }) => {
   return seo({
     title: `${data?.title} | TanStack Query Docs`,
     description: data?.description,

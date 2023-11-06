@@ -6,7 +6,7 @@ import {
   useNavigate,
   useParams,
 } from '@remix-run/react'
-import type { LoaderArgs, V2_MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { generatePath, useMatchesData } from '~/utils/utils'
@@ -208,7 +208,7 @@ export const useReactFormDocsConfig = () => {
 
 //
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack Form | React Form, Solid Form, Svelte Form, Vue Form',
     description:
@@ -217,7 +217,7 @@ export const meta: V2_MetaFunction = () => {
   })
 }
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   if (
     !context.request.url.includes('/form/v') &&
     !context.request.url.includes('/form/latest')

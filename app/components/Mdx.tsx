@@ -1,8 +1,8 @@
-import { MDXComponents } from 'mdx/types'
-import { getMDXComponent } from 'mdx-bundler/client'
 import * as React from 'react'
-import { CodeBlock } from './CodeBlock'
-import { MarkdownLink } from './MarkdownLink'
+import { getMDXComponent } from 'mdx-bundler/client'
+import { CodeBlock } from '~/components/CodeBlock'
+import { MarkdownLink } from '~/components/MarkdownLink'
+import type { MDXComponents } from 'mdx/types'
 
 const CustomHeading = ({
   Comp,

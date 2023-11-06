@@ -1,4 +1,4 @@
-import * as DocSearch from '@docsearch/react';
+import * as DocSearch from '@docsearch/react'
 import type { DocSearchProps } from '@docsearch/react'
 
 export function Search(props: DocSearchProps) {

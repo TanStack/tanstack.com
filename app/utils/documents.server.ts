@@ -9,7 +9,10 @@ import rehypeRaw from 'rehype-raw'
 import { nodeTypes } from '@mdx-js/mdx'
 
 // @ts-ignore Hack for broken CJS/ESM export compatibility
-const remarkShikiTwoslash = process.env.NODE_ENV === 'development' ? remarkTwoslash : remarkTwoslash.default
+const remarkShikiTwoslash =
+  process.env.NODE_ENV === 'development'
+    ? remarkTwoslash
+    : remarkTwoslash.default
 
 type BundledMDX = Awaited<ReturnType<typeof bundleMDX>>
 

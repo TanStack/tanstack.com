@@ -321,8 +321,8 @@ export function CodiconWand(props: SVGProps<SVGSVGElement>) {
   )
 }
 
-// https://api.iconify.design/heroicons:chevron-down.svg
-export function HeroiconsChevronDown(props: SVGProps<SVGSVGElement>) {
+// https://api.iconify.design/gg:chevron-down.svg
+export function GgChevronDown(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -332,19 +332,15 @@ export function HeroiconsChevronDown(props: SVGProps<SVGSVGElement>) {
       {...props}
     >
       <path
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-        d="m19.5 8.25l-7.5 7.5l-7.5-7.5"
+        fill="currentColor"
+        d="M6.343 7.757L4.93 9.172l7.07 7.07l7.071-7.07l-1.414-1.415L12 13.414L6.343 7.757Z"
       ></path>
     </svg>
   )
 }
 
-// https://api.iconify.design/heroicons:check.svg
-export function HeroiconsCheck(props: SVGProps<SVGSVGElement>) {
+// https://api.iconify.design/gg:check.svg
+export function GgCheck(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -354,12 +350,8 @@ export function HeroiconsCheck(props: SVGProps<SVGSVGElement>) {
       {...props}
     >
       <path
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-        d="m4.5 12.75l6 6l9-13.5"
+        fill="currentColor"
+        d="m10.586 13.414l-2.829-2.828L6.343 12l4.243 4.243l7.07-7.071l-1.413-1.415l-5.657 5.657Z"
       ></path>
     </svg>
   )

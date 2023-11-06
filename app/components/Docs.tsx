@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react'
-import * as DocSearch from '@docsearch/react';
+import * as DocSearch from '@docsearch/react'
 import {
   FaSolidArrowLeft,
   FaSolidArrowRight,

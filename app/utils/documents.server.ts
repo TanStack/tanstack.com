@@ -4,11 +4,13 @@ import { fileURLToPath } from 'node:url'
 import { bundleMDX } from 'mdx-bundler'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
+import remarkGfm from 'remark-gfm'
 import remarkTwoslash from 'remark-shiki-twoslash'
+import rehypeSlug from 'rehype-slug'
 import rehypeRaw from 'rehype-raw'
 import { nodeTypes } from '@mdx-js/mdx'
 
-// @ts-ignore Hack for broken CJS/ESM export compatibility
+// Hack for broken CJS/ESM export compatibility
 const remarkShikiTwoslash =
   process.env.NODE_ENV === 'development'
     ? remarkTwoslash
@@ -204,10 +206,6 @@ export async function fetchRepoFile(
 }
 
 export async function markdownToMdx(content: string) {
-  const [{ default: rehypeSlug }, { default: remarkGfm }] =
-    // @ts-ignore
-    await Promise.all([import('rehype-slug'), import('remark-gfm')])
-
   const mdx = await bundleMDX<{ title: string }>({
     source: content,
     mdxOptions: (options) => {

@@ -21,5 +21,7 @@ jobs:
           cache: pnpm
       - name: Install Packages
         run: pnpm install --frozen-lockfile
+      - name: Run Lint
+        run: pnpm lint
       - name: Run Build
         run: pnpm build

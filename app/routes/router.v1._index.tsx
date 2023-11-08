@@ -84,7 +84,7 @@ export const loader: LoaderFunction = async () => {
 
 export default function TanStackRouterRoute() {
   const { sponsors } = useLoaderData<typeof loader>()
-  const [framework, setFramework] = React.useState<
+  const [framework] = React.useState<
     'react' | 'preact' | 'svelte' | 'vue' | 'solid'
   >('react')
 

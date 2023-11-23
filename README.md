@@ -13,8 +13,8 @@ It's deployed automagically with Vercel!
 From your terminal:
 
 ```sh
-yarn install
-yarn dev
+pnpm install
+pnpm dev
 ```
 
 This starts your app in development mode, rebuilding assets on file changes.

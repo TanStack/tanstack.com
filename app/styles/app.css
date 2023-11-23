@@ -99,6 +99,14 @@
   .anchor-heading:hover > *:after {
     @apply opacity-50;
   }
+
+  :has(+ .anchor-heading) {
+    margin-bottom: 0 !important;
+  }
+
+  .anchor-heading + * {
+    margin-top: 0 !important;
+  }
 }
 
 .carbon-small {
@@ -131,4 +139,9 @@
 
 .carbon-small .carbon-wrap .carbon-poweredby {
   @apply absolute bottom-0 right-0;
+}
+
+code[class*="language-"] {
+  white-space: pre-wrap;
+  word-break: break-all;
 }

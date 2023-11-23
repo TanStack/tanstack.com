@@ -1,8 +1,9 @@
-import { LoaderArgs, MetaFunction, redirect } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
 import { seo } from '~/utils/seo'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack Table | React Table, Solid Table, Svelte Table, Vue Table',
     description:
@@ -11,7 +12,7 @@ export let meta: MetaFunction = () => {
   })
 }
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   if (!context.request.url.includes('/table/v')) {
     return redirect(`${new URL(context.request.url).origin}/table/v8`)
   }

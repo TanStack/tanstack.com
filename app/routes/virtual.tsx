@@ -1,8 +1,9 @@
 import { Outlet } from '@remix-run/react'
-import { LoaderArgs, MetaFunction, redirect } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Virtual | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',
@@ -12,7 +13,7 @@ export let meta: MetaFunction = () => {
   })
 }
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   if (!context.request.url.includes('/virtual/v')) {
     return redirect(`${new URL(context.request.url).origin}/virtual/v3`)
   }

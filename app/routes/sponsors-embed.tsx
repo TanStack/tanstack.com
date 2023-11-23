@@ -1,16 +1,14 @@
-import SponsorPack from '../components/SponsorPack'
-import { json, LoaderArgs, MetaFunction } from '@remix-run/node'
+import SponsorPack from '~/components/SponsorPack'
+import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
 
 export const handle = {
   baseParent: true,
 }
 
 export const loader = async () => {
-  const { getSponsorsForSponsorPack } = require('../server/sponsors')
-
   const sponsors = await getSponsorsForSponsorPack()
 
   return json(
@@ -26,7 +24,6 @@ export const loader = async () => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-export const CatchBoundary = DefaultCatchBoundary
 
 export const headers = ({ loaderHeaders }: { loaderHeaders: Headers }) => {
   return {

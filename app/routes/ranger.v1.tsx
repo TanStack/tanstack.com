@@ -2,7 +2,6 @@ import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import type { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { useMatchesData } from '~/utils/utils'
@@ -26,16 +25,15 @@ export const loader: LoaderFunction = async () => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-export const CatchBoundary = DefaultCatchBoundary
 
-export const useRouterV1Config = () =>
+export const useRangerV1Config = () =>
   useMatchesData('/ranger/v1') as DocsConfig
 
 export default function RouteReactRouter() {
   const [params] = useSearchParams()
   const location = useLocation()
 
-  const show = params.get('from') === 'reactRangerV1'
+  const show = params.get('from') === 'reactLocationV2'
   const original = params.get('original')
 
   return (

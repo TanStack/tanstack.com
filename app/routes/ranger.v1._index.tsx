@@ -1,18 +1,24 @@
 import * as React from 'react'
-
-import { CgCornerUpLeft } from 'react-icons/cg'
-import { FaBook, FaCheckCircle, FaDiscord, FaGithub } from 'react-icons/fa'
+import { CgCornerUpLeft, CgTimelapse } from 'react-icons/cg'
+import {
+  FaBook,
+  FaCheckCircle,
+  FaDiscord,
+  FaGithub,
+  FaTshirt,
+} from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
-import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import { v1branch } from '../v1'
-import { Carbon } from '~/components/Carbon'
-import { Footer } from '~/components/Footer'
-import SponsorPack from '~/components/SponsorPack'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { CgTimelapse } from 'react-icons/cg'
+import { v1branch } from '~/routes/router.v1'
+import { Carbon } from '~/components/Carbon'
+import { Footer } from '~/components/Footer'
+import SponsorPack from '~/components/SponsorPack'
+import { Logo } from '~/components/Logo'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import type { LoaderFunction } from '@remix-run/node'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-lime-500 to-emerald-500'
@@ -58,11 +64,17 @@ const menu = [
     ),
     to: 'https://tlinz.com/discord',
   },
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <FaTshirt className="text-lg" /> Merch
+      </div>
+    ),
+    to: `https://cottonbureau.com/people/tanstack`,
+  },
 ]
 
 export const loader: LoaderFunction = async () => {
-  const { getSponsorsForSponsorPack } = require('~/server/sponsors')
-
   const sponsors = await getSponsorsForSponsorPack()
 
   return json({
@@ -70,8 +82,8 @@ export const loader: LoaderFunction = async () => {
   })
 }
 
-export default function TanStackRangerRoute() {
-  const { sponsors } = useLoaderData()
+export default function TanStackRouterRoute() {
+  const { sponsors } = useLoaderData<typeof loader>()
   const [framework, setFramework] = React.useState<
     'react' | 'preact' | 'svelte' | 'vue' | 'solid'
   >('react')
@@ -182,7 +194,8 @@ export default function TanStackRangerRoute() {
               "Headless" UI library
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Headless utility, which means out of the box, it doesn't render or supply any actual UI elements
+              Headless utility, which means out of the box, it doesn't render or
+              supply any actual UI elements
             </p>
           </div>
         </div>
@@ -191,11 +204,13 @@ export default function TanStackRangerRoute() {
             <TbZoomQuestion className="text-emerald-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4 text-center">
-            <h3 className="uppercase text-xl font-black">
-              Extensible
-            </h3>
+            <h3 className="uppercase text-xl font-black">Extensible</h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              UI presents countless edge cases for a library simply because it's a creative medium, and one where every developer does things differently. By not dictating UI concerns, Ranger empowers the developer to design and extend the UI based on their unique use-case.
+              UI presents countless edge cases for a library simply because it's
+              a creative medium, and one where every developer does things
+              differently. By not dictating UI concerns, Ranger empowers the
+              developer to design and extend the UI based on their unique
+              use-case.
             </p>
           </div>
         </div>
@@ -204,7 +219,8 @@ export default function TanStackRangerRoute() {
       <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
         <div className=" sm:text-center pb-16">
           <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-            Feature Rich and Lightweight Headless utility, which means out of the box, it doesn't render or supply any actual UI elements.
+            Feature Rich and Lightweight Headless utility, which means out of
+            the box, it doesn't render or supply any actual UI elements.
           </h3>
           <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
             Behold, the obligatory feature-list:

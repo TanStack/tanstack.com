@@ -2,8 +2,8 @@ import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
 import type { MetaFunction } from '@remix-run/node'
-import { useRouterV1Config } from '../v1'
-import { gradientText } from './index'
+import { useRangerV1Config } from '~/routes/ranger.v1'
+import { gradientText } from '~/routes/ranger.v1._index'
 import { seo } from '~/utils/seo'
 import type { DocsConfig } from '~/components/Docs'
 import { Docs } from '~/components/Docs'
@@ -14,7 +14,7 @@ const logo = (
       TanStack
     </Link>
     <Link to=".." className={`font-bold`}>
-      <span className={`${gradientText}`}>Router</span>{' '}
+      <span className={`${gradientText}`}>Ranger</span>{' '}
       <span className="text-sm align-super">BETA</span>
     </Link>
   </>
@@ -46,15 +46,15 @@ const localMenu = {
   ],
 }
 
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack Ranger Docs | React Ranger',
-    description: 'Ranger component for React applications',
+    description: 'Modern and scalable routing for React applications',
   })
 }
 
 export default function DocsRoute() {
-  let config = useRouterV1Config()
+  let config = useRangerV1Config()
 
   config = React.useMemo(
     () =>

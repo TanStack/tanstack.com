@@ -43,7 +43,7 @@ export type GithubDocsConfig = {
   frameworkMenus: FrameworkMenu[]
 }
 
-export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
+export type Framework = 'angular' | 'react' | 'svelte' | 'vue' | 'solid'
 
 //
 

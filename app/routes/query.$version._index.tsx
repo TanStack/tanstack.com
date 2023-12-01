@@ -23,7 +23,7 @@ import { Logo } from '~/components/Logo'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 
-export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
+export type Framework = 'angular' | 'react' | 'svelte' | 'vue' | 'solid'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500'
@@ -471,6 +471,7 @@ export default function RouteVersion() {
             <div className="flex flex-wrap gap-2 justify-center">
               {(
                 [
+                  { label: 'Angular', value: 'angular' },
                   { label: 'React', value: 'react' },
                   { label: 'Solid', value: 'solid' },
                   { label: 'Svelte', value: 'svelte' },

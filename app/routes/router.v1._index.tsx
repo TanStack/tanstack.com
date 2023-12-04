@@ -151,9 +151,9 @@ export default function TanStackRouterRoute() {
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          A fully type-safe router for React with built-in data fetching,
-          caching, first-class search-param APIs and client-side cache friendly
-          design.
+          A fully type-safe router designed for React suspense/transitions with
+          built-in data fetching, first-class search-param APIs and client-side
+          cache friendly design.
         </p>
         <Link
           to="./docs/overview"
@@ -197,20 +197,20 @@ export default function TanStackRouterRoute() {
           </div>
           <div className="flex flex-col gap-4 text-center">
             <h3 className="uppercase text-xl font-black">
-              Built-in Data Fetching, Caching & Library-Friendly
+              Built-in Data Fetching & Client-Cache Friendly
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Hoist your data fetching and avoid waterfalls with TanStack
-              Router's loader API that comes with{' '}
+              Router's{' '}
               <span className="font-semibold text-teal-500 dark:text-teal-400">
-                built-in stale-while-revalidate
+                built-in loader API
               </span>{' '}
-              caching. Need something more custom? Router's API is{' '}
+              . Need something more custom? Router's API is{' '}
               <span className="font-semibold text-teal-500 dark:text-teal-400">
-                designed to work with client-side caching!
+                designed to work with your favorite client-side cache libraries!
               </span>{' '}
-              Your users will notice the difference when your pages load quickly
-              from the server AND stay up to date.
+              Your users will notice the difference when your pages not only
+              load in parallel but also stay up to date over time.
             </p>
           </div>
         </div>
@@ -223,8 +223,9 @@ export default function TanStackRouterRoute() {
               Search Param APIs to make your state-manager jealous
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Instead of throwing you to the wolves, TanStack Router outfits you
-              with state-manager-grade search param APIs. With{' '}
+              Instead of throwing you to the URLSearchParam wolves, TanStack
+              Router outfits you with state-manager-grade search param APIs.
+              With{' '}
               <span className="font-semibold text-emerald-500 dark:text-emerald-400">
                 schemas, validation, full type-safety and pre/post manipulation
               </span>{' '}
@@ -247,12 +248,11 @@ export default function TanStackRouterRoute() {
         <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
           {[
             '100% Typesafe',
-            'Built-in Caching',
+            'Parallel Route Loaders',
             '1st-class Search Param APIs',
             'Nested/Layout Routes',
-            'Lightweight (10kb)',
-            'Parallel Route Loaders',
-            'Route Actions',
+            'Lightweight (12kb)',
+            'Suspense + Transitions',
             'Strict Navigation',
             'Auto-completed Paths',
             'Search Param Schemas',
@@ -260,15 +260,10 @@ export default function TanStackRouterRoute() {
             'Search Param Parsing + Serialization',
             'Search Param Pre/Post Processing',
             'Structural Sharing',
-            'Stale-While-Revalidate / Max-Age',
-            'Auto Garbage Collection',
-            'Auto Invalidation',
             'Automatic Prefetching',
-            'Atomic Transitions',
             'Asynchronous Elements',
             'Pending Elements',
             'Error Boundaries',
-            'Code Splitting',
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">

@@ -318,153 +318,156 @@ export default function Index() {
       </div>
       <div className="h-12" />
       <div className={`px-4 lg:max-w-screen-lg md:mx-auto`}>
+        <h3 className={`text-4xl font-light mb-4`}>Partners</h3>
         <div className={`grid grid-cols-1 gap-12 sm:grid-cols-2`}>
-          <div className="flex flex-col gap-4">
-            <h3 className={`text-4xl font-light`}>Partners</h3>
-            <div
-              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+          <div
+            className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
                         dark:bg-gray-800 dark:shadow-none"
-            >
-              <div className="flex-1 bg-white flex items-center justify-center p-2">
-                <a
-                  href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img
-                    src={agGridImage}
-                    className="w-[250px] max-w-full"
-                    width="250"
-                    height="87"
-                  />
-                </a>
-              </div>
-              <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
-                <div>
-                  TanStack Table and AG Grid are respectfully the{' '}
-                  <strong>best table/datagrid libraries around</strong>. Instead
-                  of competing, we're working together to ensure the highest
-                  quality table/datagrid options are available for the entire
-                  JS/TS ecosystem and every use-case imaginable for UI/UX
-                  developers.
-                </div>
-                <Link
-                  to="/blog/ag-grid-partnership"
-                  className="text-blue-500 uppercase font-black text-sm"
-                  prefetch="intent"
-                >
-                  Learn More
-                </Link>
-              </div>
+          >
+            <div className="flex-1 bg-white flex items-center justify-center p-2">
+              <a
+                href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img
+                  src={agGridImage}
+                  alt="Enterprise Data Grid"
+                  className="w-[250px] max-w-full"
+                  width="250"
+                  height="87"
+                />
+              </a>
             </div>
-            <div
-              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-800 dark:shadow-none"
-            >
-              <div className="flex-1 bg-white flex items-center justify-center p-2">
-                <a
-                  href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img
-                    src={nozzleImage}
-                    alt="SEO keyword rank tracker"
-                    className="w-[230px] max-w-full my-2"
-                    width="230"
-                    height="80"
-                  />
-                </a>
+            <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+              <div>
+                TanStack Table and AG Grid are respectfully the{' '}
+                <strong>best table/datagrid libraries around</strong>. Instead
+                of competing, we're working together to ensure the highest
+                quality table/datagrid options are available for the entire
+                JS/TS ecosystem and every use-case imaginable for UI/UX
+                developers.
               </div>
-              <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
-                <div>
-                  For years, TanStack technologies have been used to power
-                  Nozzle's SEO platform. As one of the{' '}
-                  <strong>
-                    most technically advanced search engine monitoring platforms
-                  </strong>
-                  , its enterprise rank tracking and keyword research tools are
-                  setting a new bar for quality and scale. Nozzle uses the full
-                  gamut of TanStack tools on the front-end to deliver users with
-                  unmatched UI/UX.
-                </div>
-                <a
-                  href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-500 uppercase font-black text-sm"
-                >
-                  Learn More
-                </a>
-              </div>
+              <Link
+                to="/blog/ag-grid-partnership"
+                className="text-blue-500 uppercase font-black text-sm"
+                prefetch="intent"
+              >
+                Learn More
+              </Link>
             </div>
-            <div
-              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+          </div>
+          <div
+            className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
                         dark:bg-gray-800 dark:shadow-none"
-            >
-              <div className="flex-1 bg-white flex items-center justify-center p-2">
-                <a href="https://bytes.dev" target="_blank" rel="noreferrer">
-                  <img
-                    src={bytesUidotdevImage}
-                    className="w-[250px] max-w-full"
-                    width="250"
-                    height="87"
-                  />
-                </a>
-              </div>
-              <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
-                <div>
-                  TanStack's priority is to make its users productive, efficient
-                  and knowledgable about web dev. To help us on this quest,
-                  we've partnered with{' '}
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-500 underline"
-                    href="https://ui.dev/?utm_source=tanstack&utm_campaign=tanstack"
-                  >
-                    ui.dev
-                  </a>{' '}
-                  to provide best-in-class education about TanStack products. It
-                  doesn't stop at TanStack though, with their sister product{' '}
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-500 underline"
-                    href="https://bytes.dev/?utm_source=tanstack&utm_campaign=tanstack"
-                  >
-                    Bytes.dev
-                  </a>{' '}
-                  as our official newsletter partner, you'll be able to stay up
-                  to date with the latest and greatest in the web dev world
-                  regardless.
-                </div>
+          >
+            <div className="flex-1 bg-white flex items-center justify-center p-2">
+              <a href="https://bytes.dev" target="_blank" rel="noreferrer">
+                <img
+                  src={bytesUidotdevImage}
+                  alt="Bytes Logo"
+                  className="w-full max-w-[400px]"
+                  width="250"
+                  height="87"
+                />
+              </a>
+            </div>
+            <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+              <div>
+                TanStack's priority is to make its users productive, efficient
+                and knowledgeable about web dev. To help us on this quest, we've
+                partnered with{' '}
                 <a
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500 underline"
+                  href="https://ui.dev/?utm_source=tanstack&utm_campaign=tanstack"
+                >
+                  ui.dev
+                </a>{' '}
+                to <strong>provide best-in-class education</strong> about
+                TanStack products. It doesn't stop at TanStack though, with
+                their sister product{' '}
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500 underline"
                   href="https://bytes.dev/?utm_source=tanstack&utm_campaign=tanstack"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-500 uppercase font-black text-sm"
                 >
-                  Learn More
-                </a>
+                  Bytes.dev
+                </a>{' '}
+                as our official newsletter partner, you'll be able to{' '}
+                <strong>stay up to date with the latest and greatest</strong> in
+                the web dev world regardless.
               </div>
+              <a
+                href="https://bytes.dev/?utm_source=tanstack&utm_campaign=tanstack"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-500 uppercase font-black text-sm"
+              >
+                Learn More
+              </a>
             </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <h3 className={`text-4xl font-light`}>Affiliates </h3>
-            <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
-              <Carbon />
+          <div
+            className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-800 dark:shadow-none"
+          >
+            <div className="flex-1 bg-white flex items-center justify-center p-2">
+              <a
+                href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img
+                  src={nozzleImage}
+                  alt="SEO keyword rank tracker"
+                  className="w-[230px] max-w-full my-2"
+                  width="230"
+                  height="80"
+                />
+              </a>
             </div>
-            <span
-              className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
+            <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+              <div>
+                Since its founding, Nozzle's SEO platform has used TanStack
+                libraries to build one of the{' '}
+                <strong>
+                  most technically advanced search engine monitoring platforms
+                </strong>
+                , its enterprise rank tracking and keyword research tools are
+                setting a new bar for quality and scale. Nozzle uses the full
+                gamut of TanStack tools on the front-end to deliver users with
+                unmatched UI/UX.
+              </div>
+              <a
+                href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-500 uppercase font-black text-sm"
+              >
+                Learn More
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="h-20" />
+      <div className={`lg:max-w-[400px] px-4 mx-auto`}>
+        <div className="flex flex-col gap-4">
+          <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
+            <Carbon />
+          </div>
+          <span
+            className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20 self-center"
-            >
-              This ad helps us keep the lights on 😉
-            </span>
-          </div>
+          >
+            This ad helps us keep the lights on 😉
+          </span>
         </div>
       </div>
       <div className="h-12" />

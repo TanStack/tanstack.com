@@ -131,7 +131,7 @@ const courses = [
   {
     name: 'The Official TanStack React Query Course',
     getStyles: () => `border-t-4 border-red-500 hover:(border-green-500)`,
-    href: 'https://ui.dev/checkout/react-query?from=tanstack',
+    href: 'https://query.gg/?from=tanstack',
     description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
     // price: `$195`,
   },
@@ -391,6 +391,46 @@ export default function Index() {
                 </div>
                 <a
                   href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500 uppercase font-black text-sm"
+                >
+                  Learn More
+                </a>
+              </div>
+            </div>
+            <div
+              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-800 dark:shadow-none"
+            >
+              <div className="flex-1 bg-white flex items-center justify-center p-2">
+                <a href="https://bytes.dev" target="_blank" rel="noreferrer">
+                  <img
+                    src={bytesImage}
+                    className="w-[72px] max-w-full"
+                    width="72"
+                    height="72"
+                  />
+                </a>
+              </div>
+              <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+                <div>
+                  Bytes is a free newsletter for JavaScript nerds. "Well that
+                  sounds incredibly boring" - you, just now. It's not, pinky
+                  promise.{' '}
+                  <a
+                    className="text-blue-500 underline"
+                    target="_blank"
+                    rel="noreferrer"
+                    href="http://bytes.dev/proof"
+                  >
+                    Here's proof
+                  </a>
+                  . Join the 200,000+ developers (including myself) who get Bytes every Monday and Thursday.
+                </div>
+                <a
+                  href="https://bytes.dev/?utm_source=tanstack&utm_campaign=tanstack"
                   target="_blank"
                   rel="noreferrer"
                   className="text-blue-500 uppercase font-black text-sm"

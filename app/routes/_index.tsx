@@ -20,6 +20,7 @@ import discordImage from '~/images/discord-logo-white.svg'
 import agGridImage from '~/images/ag-grid.png'
 import nozzleImage from '~/images/nozzle.png'
 import bytesImage from '~/images/bytes.svg'
+import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
 
 const textColors = [
   `text-rose-500`,
@@ -131,7 +132,7 @@ const courses = [
   {
     name: 'The Official TanStack React Query Course',
     getStyles: () => `border-t-4 border-red-500 hover:(border-green-500)`,
-    href: 'https://ui.dev/checkout/react-query?from=tanstack',
+    href: 'https://query.gg/?from=tanstack',
     description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
     // price: `$195`,
   },
@@ -391,6 +392,58 @@ export default function Index() {
                 </div>
                 <a
                   href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500 uppercase font-black text-sm"
+                >
+                  Learn More
+                </a>
+              </div>
+            </div>
+            <div
+              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-800 dark:shadow-none"
+            >
+              <div className="flex-1 bg-white flex items-center justify-center p-2">
+                <a href="https://bytes.dev" target="_blank" rel="noreferrer">
+                  <img
+                    src={bytesUidotdevImage}
+                    className="w-[250px] max-w-full"
+                    width="250"
+                    height="87"
+                  />
+                </a>
+              </div>
+              <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+                <div>
+                  TanStack's priority is to make its users productive, efficient
+                  and knowledgable about web dev. To help us on this quest,
+                  we've partnered with{' '}
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-500 underline"
+                    href="https://ui.dev/?utm_source=tanstack&utm_campaign=tanstack"
+                  >
+                    ui.dev
+                  </a>{' '}
+                  to provide best-in-class education about TanStack products. It
+                  doesn't stop at TanStack though, with their sister product{' '}
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-500 underline"
+                    href="https://bytes.dev/?utm_source=tanstack&utm_campaign=tanstack"
+                  >
+                    Bytes.dev
+                  </a>{' '}
+                  as our official newsletter partner, you'll be able to stay up
+                  to date with the latest and greatest in the web dev world
+                  regardless.
+                </div>
+                <a
+                  href="https://bytes.dev/?utm_source=tanstack&utm_campaign=tanstack"
                   target="_blank"
                   rel="noreferrer"
                   className="text-blue-500 uppercase font-black text-sm"

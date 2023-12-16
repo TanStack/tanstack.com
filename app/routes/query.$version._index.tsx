@@ -17,7 +17,7 @@ import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { PPPBanner } from '~/components/PPPBanner'
+import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { getBranch, latestVersion, repo } from '~/routes/query'
 import { Logo } from '~/components/Logo'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
@@ -100,7 +100,7 @@ export default function RouteVersion() {
 
   return (
     <>
-      <PPPBanner />
+      <QueryGGBanner />
       <div className="flex flex-col gap-20 md:gap-32">
         <div
           className="flex flex-wrap py-2 px-4 items-center justify-center text-sm max-w-screen-xl mx-auto
@@ -173,16 +173,17 @@ export default function RouteVersion() {
             className={`py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
             prefetch="intent"
           >
-            Get Started
+            Read the Docs
           </Link>
           <p>
-            Want to skip the docs?{' '}
+            (or check out{' '}
             <a
-              href="https://ui.dev/react-query?from=tanstack"
+              href="https://query.gg?s=tanstack"
               className={`${gradientText} underline`}
             >
-              Check out the official React Query course
-            </a>
+              query.gg
+            </a>{' '}
+            – the official React Query course)
           </p>
         </div>
         <div
@@ -255,7 +256,14 @@ export default function RouteVersion() {
             <div className="flex flex-col items-center gap-8 p-4 sm:px-8 sm:pb-8 ">
               <div className="text-center">
                 <div className="text opacity-70 mt-2">
-                  Created by <strong>Dominik Dorfmeister</strong> and{' '}
+                  Created by{' '}
+                  <a
+                    className="font-bold underline"
+                    href="https://twitter.com/TkDodo"
+                  >
+                    Dominik Dorfmeister
+                  </a>{' '}
+                  and{' '}
                   <a className="font-bold underline" href="https://ui.dev/">
                     ui.dev
                   </a>
@@ -289,7 +297,7 @@ export default function RouteVersion() {
                 </div>
               </div>
               <a
-                href="https://query.gg?from=tanstack"
+                href="https://query.gg?s=tanstack"
                 target="_blank"
                 className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
                 rel="noreferrer"
@@ -550,7 +558,7 @@ export default function RouteVersion() {
               className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
               prefetch="intent"
             >
-              Get Started!
+              Read the Docs!
             </Link>
           </div>
         </div>

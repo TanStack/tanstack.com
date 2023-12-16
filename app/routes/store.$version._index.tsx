@@ -9,7 +9,7 @@ import { Footer } from '~/components/Footer'
 import { VscPreview } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { PPPBanner } from '~/components/PPPBanner'
+import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { getBranch, gradientText, latestVersion, repo } from '~/routes/store'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
@@ -87,7 +87,7 @@ export default function RouteVersion() {
 
   return (
     <>
-      <PPPBanner />
+      <QueryGGBanner />
       <div className="flex flex-col gap-20 md:gap-32">
         <div
           className="flex flex-wrap py-2 px-4 items-center justify-center text-sm max-w-screen-xl mx-auto

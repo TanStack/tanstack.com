@@ -132,9 +132,8 @@ const courses = [
   {
     name: 'The Official TanStack React Query Course',
     getStyles: () => `border-t-4 border-red-500 hover:(border-green-500)`,
-    href: 'https://query.gg/?from=tanstack',
+    href: 'https://query.gg/?s=tanstack',
     description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
-    // price: `$195`,
   },
 ]
 
@@ -500,15 +499,6 @@ export default function Index() {
                   Check it out →
                 </div>
               </div>
-              {/* Removing for now until course launches */}
-              {/* <div className={`flex-col text-center md:text-right`}>
-                <div className={`text-center text-3xl font-bold`}>
-                  {course.price}
-                </div>
-                <div className={`text-center text-sm opacity-70`}>
-                  per license
-                </div>
-              </div> */}
             </a>
           ))}
         </div>

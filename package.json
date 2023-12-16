@@ -26,7 +26,6 @@
     "@visx/responsive": "^2.10.0",
     "airtable": "^0.12.2",
     "axios": "^1.6.0",
-    "country-emoji": "^1.5.6",
     "date-fns": "^2.30.0",
     "gray-matter": "^4.0.3",
     "isbot": "^3.7.0",

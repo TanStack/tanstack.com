@@ -2,6 +2,7 @@ import { Outlet } from '@remix-run/react'
 import type { LoaderArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
+import { Scarf } from '~/components/Scarf'
 
 export const meta: MetaFunction = () => {
   return seo({
@@ -22,5 +23,10 @@ export const loader = async (context: LoaderArgs) => {
 }
 
 export default function RouteReactVirtual() {
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+      <Scarf id="32372eb1-91e0-48e7-8df1-4808a7be6b94" />
+    </>
+  )
 }

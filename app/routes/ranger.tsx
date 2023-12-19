@@ -1,6 +1,7 @@
 import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
+import { Scarf } from '~/components/Scarf'
 import { seo } from '~/utils/seo'
 
 export const meta: MetaFunction = () => {
@@ -20,5 +21,10 @@ export const loader: LoaderFunction = async (context) => {
 }
 
 export default function RouteReactTable() {
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+      <Scarf id="dd278e06-bb3f-420c-85c6-6e42d14d8f61" />
+    </>
+  )
 }

@@ -44,9 +44,6 @@ dependencies:
   axios:
     specifier: ^1.6.0
     version: 1.6.0
-  country-emoji:
-    specifier: ^1.5.6
-    version: 1.5.6
   date-fns:
     specifier: ^2.30.0
     version: 2.30.0
@@ -2919,10 +2916,6 @@ packages:
   /core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
     dev: true
-
-  /country-emoji@1.5.6:
-    resolution: {integrity: sha512-pSB8OOROfimFc2bcN+H41DuzXYIod/JQ6SgF4pYXkRCm9f8uF1JAJ0vXPhenug6xkpt3Gv33mdypMXB49CJWRA==}
-    dev: false
 
   /cross-spawn@6.0.5:
     resolution: {integrity: sha512-eTVLrBSt7fjbDygz805pMnstIs2VTBNkRm0qxZd+M7A5XDdxVRWO5MxGBXZhjY4cqLYLdtrGqRf8mBPmzwSpWQ==}

@@ -26,7 +26,6 @@ export default function RouteReactTable() {
   return (
     <>
       <Outlet />
-      return (
       <Scarf id="3d14fff2-f326-4929-b5e1-6ecf953d24f4" />
     </>
   )

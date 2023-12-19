@@ -3,6 +3,7 @@ import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { useMatchesData } from '~/utils/utils'
+import { Scarf } from '~/components/Scarf'
 
 export const repo = 'tanstack/query'
 
@@ -82,16 +83,10 @@ export const loader = async (context: LoaderFunctionArgs) => {
 }
 
 export default function RouteQuery() {
-  const location = useLocation()
   return (
     <>
       <Outlet />
-      <img
-        key={location.key}
-        alt="scarf analytics"
-        referrerPolicy="no-referrer-when-downgrade"
-        src={`https://static.scarf.sh/a.png?x-pxid=53afb586-3934-4624-a37a-e680c1528e17?key=${location.key}`}
-      />
+      <Scarf id="53afb586-3934-4624-a37a-e680c1528e17" />
     </>
   )
 }

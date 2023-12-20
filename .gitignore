@@ -1,4 +1,6 @@
 node_modules
+package-lock.json
+yarn.lock
 
 .DS_Store
 .cache
@@ -7,9 +9,6 @@ node_modules
 .output
 
 /build/
-/api/_assets/
+/api/
 /server/build
 /public/build
-/api/index.js
-/api/index.js.map
-/app/styles/app.generated.css

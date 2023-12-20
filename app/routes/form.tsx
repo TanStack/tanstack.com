@@ -6,7 +6,7 @@ import {
   useNavigate,
   useParams,
 } from '@remix-run/react'
-import type { LoaderArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { generatePath, useMatchesData } from '~/utils/utils'
@@ -17,6 +17,7 @@ import svelteLogo from '~/images/svelte-logo.svg'
 import angularLogo from '~/images/angular-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import type { AvailableOptions } from '~/components/Select'
+import { Scarf } from '~/components/Scarf'
 
 //
 
@@ -208,7 +209,7 @@ export const useReactFormDocsConfig = () => {
 
 //
 
-export let meta: MetaFunction = (meta) => {
+export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack Form | React Form, Solid Form, Svelte Form, Vue Form',
     description:
@@ -217,7 +218,7 @@ export let meta: MetaFunction = (meta) => {
   })
 }
 
-export const loader = async (context: LoaderArgs) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   if (
     !context.request.url.includes('/form/v') &&
     !context.request.url.includes('/form/latest')
@@ -229,5 +230,10 @@ export const loader = async (context: LoaderArgs) => {
 }
 
 export default function RouteForm() {
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+      <Scarf id="72ec4452-5d77-427c-b44a-57515d2d83aa" />
+    </>
+  )
 }

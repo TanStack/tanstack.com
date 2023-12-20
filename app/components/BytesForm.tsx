@@ -1,4 +1,5 @@
-import useBytesSubmit from './useBytesSubmit'
+import useBytesSubmit from '~/components/useBytesSubmit'
+import bytesImage from '~/images/bytes.svg'
 
 export default function BytesForm() {
   const { state, handleSubmit, error } = useBytesSubmit()
@@ -10,24 +11,18 @@ export default function BytesForm() {
   return (
     <form onSubmit={handleSubmit}>
       <div data-element="fields" className="grid relative">
-        <figure
-          className="absolute right-0"
-          style={{ bottom: '72px', right: '-10px' }}
-        >
-          <img
-            height={40}
-            width={40}
-            src={require('../images/bytes.svg')}
-            alt="Bytes"
+        <div className="relative">
+          <figure className="absolute right-[-8px] bottom-3 md:bottom-4">
+            <img height={38} width={38} src={bytesImage} alt="Bytes" />
+          </figure>
+          <input
+            className="text-xs md:text-base border border-black/50 dark:border-white/50 rounded p-2 mb-1 md:mb-2 w-full bg-transparent"
+            name="email_address"
+            placeholder="Your email address"
+            type="email"
+            required
           />
-        </figure>
-        <input
-          className="text-xs md:text-base border border-black/50 dark:border-white/50 rounded p-2 mb-1 md:mb-2 w-full bg-transparent"
-          name="email_address"
-          placeholder="Your email address"
-          type="email"
-          required
-        />
+        </div>
         <button
           type="submit"
           className="text-xs md:text-base mb-4 border rounded bg-rose-600 border-none text-white p-2"

@@ -145,9 +145,8 @@ export default function TanStackRouterRoute() {
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          A fully type-safe router designed for React suspense/transitions with
-          built-in data fetching, first-class search-param APIs and client-side
-          cache friendly design.
+          A fully type-safe React router with built-in data fetching,
+          stale-while revalidate caching and first-class search-param APIs.
         </p>
         <Link
           to="./docs/overview"
@@ -191,13 +190,14 @@ export default function TanStackRouterRoute() {
           </div>
           <div className="flex flex-col gap-4 text-center">
             <h3 className="uppercase text-xl font-black">
-              Built-in Data Fetching & Client-Cache Friendly
+              Built-in Data Fetching with Caching
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Hoist your data fetching and avoid waterfalls with TanStack
-              Router's{' '}
+              Router's loader API and get
               <span className="font-semibold text-teal-500 dark:text-teal-400">
-                built-in loader API
+                instant navigations with built-in caching and automatic
+                preloading
               </span>{' '}
               . Need something more custom? Router's API is{' '}
               <span className="font-semibold text-teal-500 dark:text-teal-400">

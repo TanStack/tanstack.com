@@ -127,13 +127,7 @@ export default function TanStackRouterRoute() {
             md:text-6xl
             lg:text-7xl`}
           >
-            <span className={gradientText}>TanStack Router</span>{' '}
-            <span
-              className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
-            >
-              BETA
-            </span>
+            <span className={gradientText}>TanStack Router</span>
           </h1>
         </div>
         <h2

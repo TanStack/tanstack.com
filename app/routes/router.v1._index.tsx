@@ -135,11 +135,10 @@ export default function TanStackRouterRoute() {
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
         >
-          Modern and{' '}
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-            scalable routing
-          </span>{' '}
-          for React applications
+            Modern and scalable
+          </span>
+          routing for React applications
         </h2>
         <p
           className="text opacity-90 max-w-sm

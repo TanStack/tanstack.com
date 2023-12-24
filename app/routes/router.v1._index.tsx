@@ -137,7 +137,7 @@ export default function TanStackRouterRoute() {
         >
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
             Modern and scalable
-          </span>
+          </span>{' '}
           routing for React applications
         </h2>
         <p

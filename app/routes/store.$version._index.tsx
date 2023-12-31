@@ -131,21 +131,24 @@ export default function RouteVersion() {
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
           >
-            <span className="underline decoration-dashed decoration-red-500 decoration-3 underline-offset-2">
+            <span className="underline decoration-dashed decoration-gray-500 decoration-3 underline-offset-2">
               Framework agnostic
             </span>{' '}
             type-safe store w/ reactive framework adapters
           </h2>
-          {/* <p
+          <p
             className="text opacity-90 max-w-[500px]
-            lg:text-xl lg:max-w-[600px]"
+            lg:text-xl lg:max-w-[800px]"
           >
-            A description <strong>may
-            </strong> go here in the future
-          </p> */}
+            Level up your state management with TanStack Store – the framework-agnostic, type-safe store. Enjoy{' '}
+            <strong>
+              minimal setup, granular APIs, and seamless adaptability across frameworks
+            </strong>
+            . Simplify your development and boost efficiency with TanStack Store.
+          </p>
           <Link
             to="./docs/"
-            className={`py-2 px-4 bg-red-400 text-black rounded uppercase font-extrabold`}
+            className={`py-2 px-4 bg-gray-200 text-black rounded uppercase font-extrabold`}
             prefetch="intent"
           >
             Get Started
@@ -156,7 +159,7 @@ export default function RouteVersion() {
                         md:flex-row"
         >
           <div className="flex-1 flex flex-col gap-8 items-center">
-            <VscWand className="text-red-400 text-6xl" />
+            <VscWand className="text-gray-400 text-6xl" />
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
                 First-Class TypeScript Support
@@ -165,7 +168,7 @@ export default function RouteVersion() {
                 TanStack Form touts first-class TypeScript support with
                 outstanding autocompletion, excellent generic throughput and
                 inferred types everywhere possible.{' '}
-                <span className="font-semibold text-red-600 dark:text-red-300">
+                <span className="font-semibold text-gray-600 dark:text-gray-300">
                   This results in fewer runtime errors, increased code
                   maintainability, and a smoother development experience
                 </span>{' '}
@@ -176,7 +179,7 @@ export default function RouteVersion() {
           </div>
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <FaBolt className="text-red-500 text-6xl" />
+              <FaBolt className="text-gray-500 text-6xl" />
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
@@ -188,7 +191,7 @@ export default function RouteVersion() {
                 frameworks, or no framework at all. By both supplying and
                 encouraging a headless approach to your forms, building custom
                 reusable form components tailored to your application's needs{' '}
-                <span className="font-semibold text-amber-600 dark:text-red-500">
+                <span className="font-semibold text-amber-600 dark:text-gray-500">
                   requires little abstraction and keeps your code modular,
                   simple and composable.
                 </span>
@@ -346,8 +349,8 @@ export default function RouteVersion() {
                   key={item.value}
                   className={`inline-block py-2 px-4 rounded text-black uppercase font-extrabold ${
                     item.value === framework
-                      ? 'bg-red-500'
-                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-red-400'
+                      ? 'bg-gray-500'
+                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-gray-400'
                   }`}
                   onClick={
                     () => setFramework(item.value)
@@ -411,7 +414,7 @@ export default function RouteVersion() {
           <div>
             <Link
               to="./docs/"
-              className={`inline-block py-2 px-4 bg-red-500 rounded text-black uppercase font-extrabold`}
+              className={`inline-block py-2 px-4 bg-gray-300 rounded text-black uppercase font-extrabold`}
               prefetch="intent"
             >
               Get Started!

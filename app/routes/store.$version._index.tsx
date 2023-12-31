@@ -9,7 +9,6 @@ import { Footer } from '~/components/Footer'
 import { VscPreview } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { getBranch, gradientText, latestVersion, repo } from '~/routes/store'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
@@ -87,7 +86,6 @@ export default function RouteVersion() {
 
   return (
     <>
-      <QueryGGBanner />
       <div className="flex flex-col gap-20 md:gap-32">
         <div
           className="flex flex-wrap py-2 px-4 items-center justify-center text-sm max-w-screen-xl mx-auto
@@ -269,16 +267,16 @@ export default function RouteVersion() {
                         dark:bg-gray-800 dark:shadow-none"
           >
             <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Form <TbHeartHandshake /> You?
+              Store <TbHeartHandshake /> You?
             </span>
             <div className="flex flex-col p-4 gap-4">
               <div>
-                We're looking for a TanStack Form OSS Partner to go above and
+                We're looking for a TanStack Store OSS Partner to go above and
                 beyond the call of sponsorship. Are you as invested in TanStack
-                Form as we are? Let's push the boundaries of Form together!
+                Store as we are? Let's push the boundaries of Store together!
               </div>
               <a
-                href="mailto:partners@tanstack.com?subject=TanStack Form Partnership"
+                href="mailto:partners@tanstack.com?subject=TanStack Store Partnership"
                 className="text-blue-500 uppercase font-black text-sm"
               >
                 Let's chat

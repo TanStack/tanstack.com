@@ -193,11 +193,11 @@ export default function TanStackRouterRoute() {
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Hoist your data fetching and avoid waterfalls with TanStack
-              Router's loader API and get
+              Router's loader API and get{' '}
               <span className="font-semibold text-teal-500 dark:text-teal-400">
                 instant navigations with built-in caching and automatic
                 preloading
-              </span>{' '}
+              </span>
               . Need something more custom? Router's API is{' '}
               <span className="font-semibold text-teal-500 dark:text-teal-400">
                 designed to work with your favorite client-side cache libraries!

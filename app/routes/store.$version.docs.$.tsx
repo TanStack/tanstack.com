@@ -1,42 +1,10 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/routes/store'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { seo } from '~/utils/seo'
-import { useLoaderData, useParams } from '@remix-run/react'
-import { loadDocs } from '~/utils/docs'
-import { Doc } from '~/components/Doc'
+import { redirect, type LoaderFunctionArgs } from '@remix-run/node'
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const { '*': docsPath, version } = context.params
+  const { '*': docsPath } = context.params
 
-  return loadDocs({
-    repo,
-    branch: getBranch(version),
-    docPath: `docs/${docsPath}`,
-    redirectPath: context.request.url.replace(/\/docs.*/, ``),
-  })
-}
-
-export const meta: MetaFunction = ({ data }) => {
-  return seo({
-    title: `${data?.title} | TanStack Store Docs`,
-    description: data?.description,
-  })
-}
-
-export const ErrorBoundary = DefaultErrorBoundary
-
-export default function RouteDocs() {
-  const { title, code, filePath } = useLoaderData<typeof loader>()
-  const { version } = useParams()
-  const branch = getBranch(version)
-  return (
-    <Doc
-      title={title}
-      code={code}
-      repo={repo}
-      branch={branch}
-      filePath={filePath}
-    />
+  throw redirect(
+    // By default we'll redirect to the React docs
+    context.request.url.replace(/\/docs.*/, `/docs/framework/react/${docsPath}`)
   )
 }

@@ -193,7 +193,11 @@ export const useReactFormDocsConfig = () => {
         return {
           label: d.label,
           children: [
-            ...d.children.map((d) => ({ ...d, badge: 'core' })),
+            ...d.children.map(({ to, ...d }) => ({
+              to: `framework/${framework}/${to}`,
+              ...d,
+              badge: 'core',
+            })),
             ...(match?.children ?? []).map((d) => ({ ...d, badge: framework })),
           ],
         }

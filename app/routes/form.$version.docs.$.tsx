@@ -4,7 +4,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath } = context.params
 
   throw redirect(
-    // By default we'll redirect to the react docs
+    // By default we'll redirect to the React docs
     context.request.url.replace(/\/docs.*/, `/docs/framework/react/${docsPath}`)
   )
 }

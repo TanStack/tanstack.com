@@ -10,9 +10,9 @@ export default function Component() {
       {...{
         v2: true,
         logo: createLogo(version),
-        colorFrom: 'from-red-500',
-        colorTo: 'to-red-700',
-        textColor: 'text-red-500',
+        colorFrom: 'from-gray-700',
+        colorTo: 'to-gray-900',
+        textColor: 'text-gray-700',
         config,
         framework: config.frameworkConfig,
         version: config.versionConfig,

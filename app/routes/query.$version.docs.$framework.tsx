@@ -6,7 +6,7 @@ import { gradientText } from '~/routes/query.$version._index'
 import { seo } from '~/utils/seo'
 import type { DocsConfig } from '~/components/Docs'
 import { Docs } from '~/components/Docs'
-import { PPPBanner } from '~/components/PPPBanner'
+import { QueryGGBanner } from '~/components/QueryGGBanner'
 import {
   availableVersions,
   latestVersion,
@@ -152,7 +152,7 @@ export default function RouteFrameworkParam() {
 
   return (
     <>
-      <PPPBanner />
+      <QueryGGBanner />
       <Docs
         {...{
           logo: logo(version),

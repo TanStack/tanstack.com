@@ -44,7 +44,7 @@ export type GithubDocsConfig = {
   frameworkMenus: FrameworkMenu[]
 }
 
-export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
+export type Framework = 'angular' | 'react' | 'svelte' | 'vue' | 'solid'
 
 //
 
@@ -55,7 +55,7 @@ export const latestVersion = 'v0'
 export const availableVersions = ['v0']
 
 export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700'
+  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-gray-500 to-gray-700'
 
 export const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },

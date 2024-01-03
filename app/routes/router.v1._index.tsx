@@ -129,13 +129,7 @@ export default function TanStackRouterRoute() {
             md:text-6xl
             lg:text-7xl`}
           >
-            <span className={gradientText}>TanStack Router</span>{' '}
-            <span
-              className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
-            >
-              BETA
-            </span>
+            <span className={gradientText}>TanStack Router</span>
           </h1>
         </div>
         <h2
@@ -143,19 +137,17 @@ export default function TanStackRouterRoute() {
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
         >
-          Modern and{' '}
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-            scalable routing
+            Modern and scalable
           </span>{' '}
-          for React applications
+          routing for React applications
         </h2>
         <p
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          A fully type-safe router for React with built-in data fetching,
-          caching, first-class search-param APIs and client-side cache friendly
-          design.
+          A fully type-safe React router with built-in data fetching,
+          stale-while revalidate caching and first-class search-param APIs.
         </p>
         <Link
           to="./docs/overview"
@@ -199,20 +191,21 @@ export default function TanStackRouterRoute() {
           </div>
           <div className="flex flex-col gap-4 text-center">
             <h3 className="uppercase text-xl font-black">
-              Built-in Data Fetching, Caching & Library-Friendly
+              Built-in Data Fetching with Caching
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Hoist your data fetching and avoid waterfalls with TanStack
-              Router's loader API that comes with{' '}
+              Router's loader API and get{' '}
               <span className="font-semibold text-teal-500 dark:text-teal-400">
-                built-in stale-while-revalidate
-              </span>{' '}
-              caching. Need something more custom? Router's API is{' '}
+                instant navigations with built-in caching and automatic
+                preloading
+              </span>
+              . Need something more custom? Router's API is{' '}
               <span className="font-semibold text-teal-500 dark:text-teal-400">
-                designed to work with client-side caching!
+                designed to work with your favorite client-side cache libraries!
               </span>{' '}
-              Your users will notice the difference when your pages load quickly
-              from the server AND stay up to date.
+              Your users will notice the difference when your pages not only
+              load in parallel but also stay up to date over time.
             </p>
           </div>
         </div>
@@ -225,8 +218,9 @@ export default function TanStackRouterRoute() {
               Search Param APIs to make your state-manager jealous
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Instead of throwing you to the wolves, TanStack Router outfits you
-              with state-manager-grade search param APIs. With{' '}
+              Instead of throwing you to the URLSearchParam wolves, TanStack
+              Router outfits you with state-manager-grade search param APIs.
+              With{' '}
               <span className="font-semibold text-emerald-500 dark:text-emerald-400">
                 schemas, validation, full type-safety and pre/post manipulation
               </span>{' '}
@@ -249,12 +243,11 @@ export default function TanStackRouterRoute() {
         <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
           {[
             '100% Typesafe',
-            'Built-in Caching',
+            'Parallel Route Loaders',
             '1st-class Search Param APIs',
             'Nested/Layout Routes',
-            'Lightweight (10kb)',
-            'Parallel Route Loaders',
-            'Route Actions',
+            'Lightweight (12kb)',
+            'Suspense + Transitions',
             'Strict Navigation',
             'Auto-completed Paths',
             'Search Param Schemas',
@@ -262,15 +255,10 @@ export default function TanStackRouterRoute() {
             'Search Param Parsing + Serialization',
             'Search Param Pre/Post Processing',
             'Structural Sharing',
-            'Stale-While-Revalidate / Max-Age',
-            'Auto Garbage Collection',
-            'Auto Invalidation',
             'Automatic Prefetching',
-            'Atomic Transitions',
             'Asynchronous Elements',
             'Pending Elements',
             'Error Boundaries',
-            'Code Splitting',
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">
@@ -355,7 +343,7 @@ export default function TanStackRouterRoute() {
         <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
-            src={`https://stackblitz.com/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-single-file?file=src%2Fmain.tsx&embed=1&theme=${
+            src={`https://stackblitz.com/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-file-based?file=src%2Fmain.tsx&embed=1&theme=${
               isDark ? 'dark' : 'light'
             }`}
             title="tannerlinsley/router: kitchen-sink"

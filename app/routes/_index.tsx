@@ -20,6 +20,7 @@ import discordImage from '~/images/discord-logo-white.svg'
 import agGridImage from '~/images/ag-grid.png'
 import nozzleImage from '~/images/nozzle.png'
 import bytesImage from '~/images/bytes.svg'
+import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
 
 const textColors = [
   `text-rose-500`,
@@ -65,22 +66,6 @@ const libraries = [
       </div>
     ),
   },
-  // {
-  //   name: 'TanStack Start',
-  //   getStyles: () =>
-  //     `
-  //     text-transparent bg-clip-text bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600,red)]
-  //     shadow-xl shadow-amber-700/20 dark:shadow-lg dark:shadow-amber-500/30 border-2 border-transparent hover:border-current
-  //     `,
-  //   // to: 'https://github.com/tannerlinsley/react-ranger',
-  //   tagline: `Type-safe, SSR-friendly meta-framework for React & Preact.`,
-  //   description: `A meta-framework for building modern React & Preact applications, powered by TanStack Router, Astro & Bling.`,
-  //   badge: (
-  //     <div className="flex items-center justify-center whitespace-nowrap uppercase text-white rounded-full px-2 py-1 text-xs font-black animate-pulse bg-[linear-gradient(to_right,#59b8ff,#e331d8,#ff9600)]">
-  //       Alpha
-  //     </div>
-  //   ),
-  // },
   {
     name: 'TanStack Virtual',
     getStyles: () =>
@@ -116,41 +101,15 @@ const libraries = [
     description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
   },
   {
-    name: 'React Ranger',
+    name: 'TanStack Ranger',
     getStyles: () =>
       `shadow-xl shadow-pink-700/20 dark:shadow-lg dark:shadow-pink-500/30 text-pink-500 border-2 border-transparent hover:border-current`,
-    to: 'https://github.com/tannerlinsley/react-ranger',
+    to: '/ranger',
     tagline: `Headless range and multi-range slider utilities.`,
     description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup for that perfect design.`,
     badge: (
       <div className="uppercase text-white bg-pink-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Beta
-      </div>
-    ),
-  },
-  {
-    name: 'TanStack Loaders',
-    getStyles: () =>
-      `shadow-xl shadow-amber-700/20 dark:shadow-lg dark:shadow-amber-500/30 text-amber-500 border-2 border-transparent hover:border-current`,
-    // to: 'https://github.com/tannerlinsley/react-ranger',
-    tagline: `Simple data loading and caching utilities for apps`,
-    description: `Simple and lightweight cached data loading designed for fetch-as-you-render patterns in React, Vue, Solid & Svelte. It's basically React Query lite!`,
-    badge: (
-      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-amber-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Alpha
-      </div>
-    ),
-  },
-  {
-    name: 'TanStack Actions',
-    getStyles: () =>
-      `shadow-xl shadow-lime-700/20 dark:shadow-lg dark:shadow-lime-500/30 text-lime-500 border-2 border-transparent hover:border-current`,
-    // to: 'https://github.com/tannerlinsley/react-ranger',
-    tagline: `Simple mutation management utilities for apps`,
-    description: `Simple and lightweight action/mutation management utility for frameworks like React, Vue, Solid & Svelte.`,
-    badge: (
-      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-lime-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Alpha
+        New
       </div>
     ),
   },
@@ -173,9 +132,8 @@ const courses = [
   {
     name: 'The Official TanStack React Query Course',
     getStyles: () => `border-t-4 border-red-500 hover:(border-green-500)`,
-    href: 'https://ui.dev/checkout/react-query?from=tanstack',
+    href: 'https://query.gg/?s=tanstack',
     description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
-    // price: `$195`,
   },
 ]
 
@@ -359,101 +317,156 @@ export default function Index() {
       </div>
       <div className="h-12" />
       <div className={`px-4 lg:max-w-screen-lg md:mx-auto`}>
+        <h3 className={`text-4xl font-light mb-4`}>Partners</h3>
         <div className={`grid grid-cols-1 gap-12 sm:grid-cols-2`}>
-          <div className="flex flex-col gap-4">
-            <h3 className={`text-4xl font-light`}>Partners</h3>
-            <div
-              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+          <div
+            className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
                         dark:bg-gray-800 dark:shadow-none"
-            >
-              <div className="flex-1 bg-white flex items-center justify-center p-2">
-                <a
-                  href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img
-                    src={agGridImage}
-                    className="w-[250px] max-w-full"
-                    width="250"
-                    height="87"
-                  />
-                </a>
-              </div>
-              <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
-                <div>
-                  TanStack Table and AG Grid are respectfully the{' '}
-                  <strong>best table/datagrid libraries around</strong>. Instead
-                  of competing, we're working together to ensure the highest
-                  quality table/datagrid options are available for the entire
-                  JS/TS ecosystem and every use-case imaginable for UI/UX
-                  developers.
-                </div>
-                <Link
-                  to="/blog/ag-grid-partnership"
-                  className="text-blue-500 uppercase font-black text-sm"
-                  prefetch="intent"
-                >
-                  Learn More
-                </Link>
-              </div>
+          >
+            <div className="flex-1 bg-white flex items-center justify-center p-2">
+              <a
+                href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img
+                  src={agGridImage}
+                  alt="Enterprise Data Grid"
+                  className="w-[250px] max-w-full"
+                  width="250"
+                  height="87"
+                />
+              </a>
             </div>
-            <div
-              className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-800 dark:shadow-none"
-            >
-              <div className="flex-1 bg-white flex items-center justify-center p-2">
-                <a
-                  href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img
-                    src={nozzleImage}
-                    alt="SEO keyword rank tracker"
-                    className="w-[230px] max-w-full my-2"
-                    width="230"
-                    height="80"
-                  />
-                </a>
+            <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+              <div>
+                TanStack Table and AG Grid are respectfully the{' '}
+                <strong>best table/datagrid libraries around</strong>. Instead
+                of competing, we're working together to ensure the highest
+                quality table/datagrid options are available for the entire
+                JS/TS ecosystem and every use-case imaginable for UI/UX
+                developers.
               </div>
-              <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
-                <div>
-                  For years, TanStack technologies have been used to power
-                  Nozzle's SEO platform. As one of the{' '}
-                  <strong>
-                    most technically advanced search engine monitoring platforms
-                  </strong>
-                  , its enterprise rank tracking and keyword research tools are
-                  setting a new bar for quality and scale. Nozzle uses the full
-                  gamut of TanStack tools on the front-end to deliver users with
-                  unmatched UI/UX.
-                </div>
-                <a
-                  href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-500 uppercase font-black text-sm"
-                >
-                  Learn More
-                </a>
-              </div>
+              <Link
+                to="/blog/ag-grid-partnership"
+                className="text-blue-500 uppercase font-black text-sm"
+                prefetch="intent"
+              >
+                Learn More
+              </Link>
             </div>
           </div>
-          <div className="flex flex-col gap-4">
-            <h3 className={`text-4xl font-light`}>Affiliates </h3>
-            <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
-              <Carbon />
+          <div
+            className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-800 dark:shadow-none"
+          >
+            <div className="flex-1 bg-white flex items-center justify-center p-2">
+              <a href="https://bytes.dev" target="_blank" rel="noreferrer">
+                <img
+                  src={bytesUidotdevImage}
+                  alt="Bytes Logo"
+                  className="w-full max-w-[400px]"
+                  width="250"
+                  height="87"
+                />
+              </a>
             </div>
-            <span
-              className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
+            <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+              <div>
+                TanStack's priority is to make its users productive, efficient
+                and knowledgeable about web dev. To help us on this quest, we've
+                partnered with{' '}
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500 underline"
+                  href="https://ui.dev/?utm_source=tanstack&utm_campaign=tanstack"
+                >
+                  ui.dev
+                </a>{' '}
+                to <strong>provide best-in-class education</strong> about
+                TanStack products. It doesn't stop at TanStack though, with
+                their sister product{' '}
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-500 underline"
+                  href="https://bytes.dev/?utm_source=tanstack&utm_campaign=tanstack"
+                >
+                  Bytes.dev
+                </a>{' '}
+                as our official newsletter partner, you'll be able to{' '}
+                <strong>stay up to date with the latest and greatest</strong> in
+                the web dev world regardless.
+              </div>
+              <a
+                href="https://bytes.dev/?utm_source=tanstack&utm_campaign=tanstack"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-500 uppercase font-black text-sm"
+              >
+                Learn More
+              </a>
+            </div>
+          </div>
+          <div
+            className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-800 dark:shadow-none"
+          >
+            <div className="flex-1 bg-white flex items-center justify-center p-2">
+              <a
+                href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img
+                  src={nozzleImage}
+                  alt="SEO keyword rank tracker"
+                  className="w-[230px] max-w-full my-2"
+                  width="230"
+                  height="80"
+                />
+              </a>
+            </div>
+            <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+              <div>
+                Since its founding, Nozzle's SEO platform has used TanStack
+                libraries to build one of the{' '}
+                <strong>
+                  most technically advanced search engine monitoring platforms
+                </strong>
+                , its enterprise rank tracking and keyword research tools are
+                setting a new bar for quality and scale. Nozzle uses the full
+                gamut of TanStack tools on the front-end to deliver users with
+                unmatched UI/UX.
+              </div>
+              <a
+                href="https://nozzle.io/?utm_source=tanstack&utm_campaign=tanstack"
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-500 uppercase font-black text-sm"
+              >
+                Learn More
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="h-20" />
+      <div className={`lg:max-w-[400px] px-4 mx-auto`}>
+        <div className="flex flex-col gap-4">
+          <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
+            <Carbon />
+          </div>
+          <span
+            className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20 self-center"
-            >
-              This ad helps us keep the lights on 😉
-            </span>
-          </div>
+          >
+            This ad helps us keep the lights on 😉
+          </span>
         </div>
       </div>
       <div className="h-12" />
@@ -486,15 +499,6 @@ export default function Index() {
                   Check it out →
                 </div>
               </div>
-              {/* Removing for now until course launches */}
-              {/* <div className={`flex-col text-center md:text-right`}>
-                <div className={`text-center text-3xl font-bold`}>
-                  {course.price}
-                </div>
-                <div className={`text-center text-sm opacity-70`}>
-                  per license
-                </div>
-              </div> */}
             </a>
           ))}
         </div>

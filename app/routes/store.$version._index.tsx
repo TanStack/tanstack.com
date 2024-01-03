@@ -132,11 +132,14 @@ export default function RouteVersion() {
             className="text opacity-90 max-w-[500px]
             lg:text-xl lg:max-w-[800px]"
           >
-            Level up your state management with TanStack Store – the framework-agnostic, type-safe store. Enjoy{' '}
+            Level up your state management with TanStack Store – the
+            framework-agnostic, type-safe store. Enjoy{' '}
             <strong>
-              minimal setup, granular APIs, and seamless adaptability across frameworks
+              minimal setup, granular APIs, and seamless adaptability across
+              frameworks
             </strong>
-            . Simplify your development and boost efficiency with TanStack Store.
+            . Simplify your development and boost efficiency with TanStack
+            Store.
           </p>
           <Link
             to="./docs/"

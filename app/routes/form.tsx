@@ -17,6 +17,7 @@ import svelteLogo from '~/images/svelte-logo.svg'
 import angularLogo from '~/images/angular-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import type { AvailableOptions } from '~/components/Select'
+import { Scarf } from '~/components/Scarf'
 
 //
 
@@ -229,5 +230,10 @@ export const loader = async (context: LoaderFunctionArgs) => {
 }
 
 export default function RouteForm() {
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+      <Scarf id="72ec4452-5d77-427c-b44a-57515d2d83aa" />
+    </>
+  )
 }

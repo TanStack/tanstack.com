@@ -1,8 +1,9 @@
-import { Outlet } from '@remix-run/react'
+import { Outlet, useLocation } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { useMatchesData } from '~/utils/utils'
+import { Scarf } from '~/components/Scarf'
 
 export const repo = 'tanstack/query'
 
@@ -82,5 +83,10 @@ export const loader = async (context: LoaderFunctionArgs) => {
 }
 
 export default function RouteQuery() {
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+      <Scarf id="53afb586-3934-4624-a37a-e680c1528e17" />
+    </>
+  )
 }

@@ -6,17 +6,15 @@ import { seo } from '~/utils/seo'
 
 export const meta: MetaFunction = () => {
   return seo({
-    title:
-      'TanStack Router | React Router, Solid Router, Svelte Router, Vue Router',
-    description:
-      'Powerful routing and first-class search-param APIs for JS/TS, React, Solid, Vue and Svelte',
-    image: 'https://github.com/tanstack/router/raw/main/media/header.png',
+    title: 'TanStack Ranger | React Ranger',
+    description: 'Headless range and multi-range slider utilities, React',
+    image: 'https://github.com/TanStack/ranger/raw/main/media/header.png',
   })
 }
 
 export const loader: LoaderFunction = async (context) => {
-  if (!context.request.url.includes('/router/v')) {
-    return redirect(`${new URL(context.request.url).origin}/router/v1`)
+  if (!context.request.url.includes('/ranger/v')) {
+    return redirect(`${new URL(context.request.url).origin}/ranger/v1`)
   }
 
   return new Response('OK')
@@ -26,7 +24,7 @@ export default function RouteReactTable() {
   return (
     <>
       <Outlet />
-      <Scarf id="3d14fff2-f326-4929-b5e1-6ecf953d24f4" />
+      <Scarf id="dd278e06-bb3f-420c-85c6-6e42d14d8f61" />
     </>
   )
 }

@@ -18,6 +18,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
 
   // When first path part after docs does not contain framework name, add `react`
   if (
+    !context.request.url.includes('/docs/angular') &&
     !context.request.url.includes('/docs/react') &&
     !context.request.url.includes('/docs/solid') &&
     !context.request.url.includes('/docs/vue') &&

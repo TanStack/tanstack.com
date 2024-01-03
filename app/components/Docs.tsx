@@ -53,6 +53,8 @@ export function Docs({
   const matches = useMatches()
   const lastMatch = last(matches)
 
+  const isExample = matches.some((d) => d.pathname.includes('/examples/'))
+
   const detailsRef = React.useRef<HTMLElement>(null!)
 
   const flatMenu = React.useMemo(
@@ -227,7 +229,11 @@ export function Docs({
   )
 
   return (
-    <div className="max-w-[1400px] min-h-screen mx-auto flex flex-col lg:flex-row w-full">
+    <div
+      className={`min-h-screen mx-auto flex flex-col lg:flex-row w-full transition-all duration-300 ${
+        isExample ? 'max-w-[2560px]' : 'max-w-[1400px]'
+      }`}
+    >
       {smallMenu}
       {largeMenu}
       <div className="flex w-full lg:w-[calc(100%-250px)] flex-1">

@@ -12,7 +12,7 @@ import { json } from '@remix-run/node'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { v1branch } from '~/routes/router.v1'
+import { v1branch } from '~/routes/ranger.v1'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
@@ -54,7 +54,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: 'https://github.com/tanstack/router',
+    to: 'https://github.com/tanstack/ranger',
   },
   {
     label: (
@@ -84,7 +84,7 @@ export const loader: LoaderFunction = async () => {
 
 export default function TanStackRouterRoute() {
   const { sponsors } = useLoaderData<typeof loader>()
-  const [framework] = React.useState<
+  const [framework, setFramework] = React.useState<
     'react' | 'preact' | 'svelte' | 'vue' | 'solid'
   >('react')
 
@@ -118,34 +118,37 @@ export default function TanStackRouterRoute() {
           )
         })}
       </div>
-      <div className="flex flex-col items-center gap-8 text-center px-4">
-        <div className="flex gap-2 lg:gap-4 items-center">
-          <Logo className="w-[40px] md:w-[60px] lg:w-[100px]" />
-          <h1
-            className={`inline-block
+      <div className="flex flex-col items-center gap-6 text-center px-4">
+        <h1
+          className={`inline-block
             font-black text-4xl
             md:text-6xl
             lg:text-7xl`}
+        >
+          <span className={gradientText}>TanStack Ranger</span>{' '}
+          <span
+            className="text-[.5em] align-super text-black animate-bounce
+              dark:text-white"
           >
-            <span className={gradientText}>TanStack Router</span>
-          </h1>
-        </div>
+            BETA
+          </span>
+        </h1>
         <h2
           className="font-bold text-2xl max-w-md
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
         >
+          Modern and{' '}
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-            Modern and scalable
+            headless
           </span>{' '}
-          routing for React applications
+          ranger ui library
         </h2>
         <p
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          A fully type-safe React router with built-in data fetching,
-          stale-while revalidate caching and first-class search-param APIs.
+          A fully typesafe ranger hooks for React.
         </p>
         <Link
           to="./docs/overview"
@@ -168,12 +171,11 @@ export default function TanStackRouterRoute() {
               Typesafe & powerful, yet familiarly simple
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              TanStack Router builds on modern routing patterns made popular by
-              other tools, but has been re-engineered from the ground up to be{' '}
+              Hooks for building range and multi-range sliders in React{' '}
               <span className="font-semibold text-lime-600 dark:text-lime-400">
                 100% typesafe without compromising on DX
               </span>
-              . You <em>can</em> have your cake and eat it too!
+              .
             </p>
           </div>
         </div>
@@ -189,21 +191,11 @@ export default function TanStackRouterRoute() {
           </div>
           <div className="flex flex-col gap-4 text-center">
             <h3 className="uppercase text-xl font-black">
-              Built-in Data Fetching with Caching
+              "Headless" UI library
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Hoist your data fetching and avoid waterfalls with TanStack
-              Router's loader API and get{' '}
-              <span className="font-semibold text-teal-500 dark:text-teal-400">
-                instant navigations with built-in caching and automatic
-                preloading
-              </span>
-              . Need something more custom? Router's API is{' '}
-              <span className="font-semibold text-teal-500 dark:text-teal-400">
-                designed to work with your favorite client-side cache libraries!
-              </span>{' '}
-              Your users will notice the difference when your pages not only
-              load in parallel but also stay up to date over time.
+              Headless utility, which means out of the box, it doesn't render or
+              supply any actual UI elements
             </p>
           </div>
         </div>
@@ -212,18 +204,13 @@ export default function TanStackRouterRoute() {
             <TbZoomQuestion className="text-emerald-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4 text-center">
-            <h3 className="uppercase text-xl font-black">
-              Search Param APIs to make your state-manager jealous
-            </h3>
+            <h3 className="uppercase text-xl font-black">Extensible</h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Instead of throwing you to the URLSearchParam wolves, TanStack
-              Router outfits you with state-manager-grade search param APIs.
-              With{' '}
-              <span className="font-semibold text-emerald-500 dark:text-emerald-400">
-                schemas, validation, full type-safety and pre/post manipulation
-              </span>{' '}
-              you'll wonder why you're not storing everything in the URL.
-              Goodbye in-memory state 👋!
+              UI presents countless edge cases for a library simply because it's
+              a creative medium, and one where every developer does things
+              differently. By not dictating UI concerns, Ranger empowers the
+              developer to design and extend the UI based on their unique
+              use-case.
             </p>
           </div>
         </div>
@@ -232,7 +219,8 @@ export default function TanStackRouterRoute() {
       <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
         <div className=" sm:text-center pb-16">
           <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-            Feature Rich and Lightweight
+            Feature Rich and Lightweight Headless utility, which means out of
+            the box, it doesn't render or supply any actual UI elements.
           </h3>
           <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
             Behold, the obligatory feature-list:
@@ -241,22 +229,10 @@ export default function TanStackRouterRoute() {
         <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
           {[
             '100% Typesafe',
-            'Parallel Route Loaders',
-            '1st-class Search Param APIs',
-            'Nested/Layout Routes',
-            'Lightweight (12kb)',
-            'Suspense + Transitions',
-            'Strict Navigation',
-            'Auto-completed Paths',
-            'Search Param Schemas',
-            'Search Param Validation',
-            'Search Param Parsing + Serialization',
-            'Search Param Pre/Post Processing',
-            'Structural Sharing',
-            'Automatic Prefetching',
-            'Asynchronous Elements',
-            'Pending Elements',
-            'Error Boundaries',
+            'Lightweight (306 kB)',
+            'Easy to maintain',
+            'Extensible',
+            'Not dictating UI',
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">
@@ -267,93 +243,33 @@ export default function TanStackRouterRoute() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
-        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
-          <Carbon />
-        </div>
-        <span
-          className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
-                dark:bg-opacity-20"
+      <div className="px-4 w-[500px] max-w-full mx-auto">
+        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
+          Partners
+        </h3>
+        <div className="h-8" />
+        <div
+          className="flex-1 flex flex-col items-center text-sm text-center
+                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-800 dark:shadow-none"
         >
-          This ad helps us keep the lights on 😉
-        </span>
-      </div>
-
-      <div>
-        <div className="flex flex-col gap-4">
-          <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
-            <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
-              Take it for a spin!
-            </h3>
-            <p className="my-4 text-xl leading-7  text-gray-600">
-              Create a route, pop in a Router, and start slingin' some code!
-            </p>
-            {/* <div className="flex flex-wrap gap-2 justify-center">
-            {(
-              [
-                { label: 'React', value: 'react' },
-                { label: 'Preact', value: 'preact' },
-                { label: 'Solid', value: 'solid' },
-                { label: 'Vue', value: 'vue' },
-                { label: 'Svelte', value: 'svelte' },
-              ] as const
-            ).map((item) => (
-              <button
-                key={item.value}
-                className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold ${
-                  item.value === framework
-                    ? 'bg-teal-500'
-                    : 'bg-gray-300 dark:bg-gray-700 hover:bg-teal-300'
-                }`}
-                onClick={
-                  () => setFramework(item.value)
-                  // setParams(new URLSearchParams({ framework: item.value }), {
-                  //   replace: true,
-                  //   state: {
-                  //     scroll: false,
-                  //   },
-                  // })
-                }
-              >
-                {item.label}
-              </button>
-            ))}
-          </div> */}
-          </div>
-        </div>
-
-        {/* {['preact', 'vue', 'solid', 'svelte'].includes(framework) ? (
-        <div className="px-2">
-          <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
-            Looking for the <strong>@tanstack/{framework}-router</strong>{' '}
-            example? The <strong>@tanstack/{framework}-router</strong> adapter
-            is currently under development! Join the{' '}
+          <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
+            Router <TbHeartHandshake /> You?
+          </span>
+          <div className="flex flex-col p-4 gap-4">
+            <div>
+              We're looking for a TanStack Ranger OSS Partner to go above and
+              beyond the call of sponsorship. Are you as invested in TanStack
+              Ranger as we are? Let's push the boundaries of Ranger together!
+            </div>
             <a
-              href="https://tlinz.com/discord"
-              className="text-teal-500 font-bold"
+              href="mailto:partners@tanstack.com?subject=TanStack Ranger Partnership"
+              className="text-blue-500 uppercase font-black text-sm"
             >
-              TanStack Discord Server
-            </a>{' '}
-            and help us make routing in {framework} a better place!
+              Let's chat
+            </a>
           </div>
-        </div>
-      ) : ( */}
-        <div className="bg-white dark:bg-black">
-          <iframe
-            key={framework}
-            src={`https://stackblitz.com/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-file-based?file=src%2Fmain.tsx&embed=1&theme=${
-              isDark ? 'dark' : 'light'
-            }`}
-            title="tannerlinsley/router: kitchen-sink"
-            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-            className="shadow-2xl"
-            loading="lazy"
-            style={{
-              width: '100%',
-              height: '80vh',
-              border: '0',
-            }}
-          ></iframe>
         </div>
       </div>
 
@@ -379,35 +295,47 @@ export default function TanStackRouterRoute() {
         </div>
       </div>
 
-      <div className="px-4 w-[500px] max-w-full mx-auto">
-        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-          Partners
-        </h3>
-        <div className="h-8" />
-        <div
-          className="flex-1 flex flex-col items-center text-sm text-center
-                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-800 dark:shadow-none"
+      <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
+        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
+          <Carbon />
+        </div>
+        <span
+          className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
+                dark:bg-opacity-20"
         >
-          <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-            Router <TbHeartHandshake /> You?
-          </span>
-          <div className="flex flex-col p-4 gap-4">
-            <div>
-              We're looking for a TanStack Router OSS Partner to go above and
-              beyond the call of sponsorship. Are you as invested in TanStack
-              Router as we are? Let's push the boundaries of Router together!
-            </div>
-            <a
-              href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
-              className="text-blue-500 uppercase font-black text-sm"
-            >
-              Let's chat
-            </a>
-          </div>
+          This ad helps us keep the lights on 😉
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
+          <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
+            Take it for a spin!
+          </h3>
+          <p className="my-4 text-xl leading-7  text-gray-600">
+            Let's see it in action!
+          </p>
         </div>
       </div>
+
+      <div className="bg-white dark:bg-black">
+        <iframe
+          key={framework}
+          src={`https://codesandbox.io/embed/github/tanstack/ranger/tree/${v1branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+            isDark ? 'dark' : 'light'
+          }`}
+          title="tannerlinsley/react-ranger: basic"
+          sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+          className="shadow-2xl"
+          loading="lazy"
+          style={{
+            width: '100%',
+            height: '80vh',
+            border: '0',
+          }}
+        ></iframe>
+      </div>
+      {/* )} */}
 
       <div className="flex flex-col gap-4 items-center">
         <div className="font-extrabold text-xl lg:text-2xl">

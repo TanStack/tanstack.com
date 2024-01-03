@@ -6,9 +6,9 @@
   "packageManager": "pnpm@8.10.2",
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build && vite build --ssr",
-    "start": "remix-serve ./build/index.js",
+    "dev": "remix vite:dev",
+    "build": "remix vite:build",
+    "start": "remix-serve ./build/server/index.js",
     "format": "prettier --plugin-search-dir . \"**/*.{js,jsx,cjs,ts,tsx,css,md,json}\" --write",
     "lint": "eslint --ext .ts,.tsx ./app"
   },

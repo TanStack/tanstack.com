@@ -17,7 +17,6 @@ import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { getBranch, gradientText, latestVersion, repo } from '~/routes/form'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
@@ -95,7 +94,6 @@ export default function RouteVersion() {
 
   return (
     <>
-      <QueryGGBanner />
       <div className="flex flex-col gap-20 md:gap-32">
         <div
           className="flex flex-wrap py-2 px-4 items-center justify-center text-sm max-w-screen-xl mx-auto
@@ -147,7 +145,7 @@ export default function RouteVersion() {
             <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
               Headless, performant, and type-safe
             </span>{' '}
-            form state management for TS/JS, React, Solid, Svelte and Vue
+            form state management for TS/JS, React, Solid, and Vue
           </h2>
           <p
             className="text opacity-90 max-w-[500px]
@@ -357,7 +355,6 @@ export default function RouteVersion() {
                 [
                   { label: 'React', value: 'react' },
                   { label: 'Solid', value: 'solid' },
-                  { label: 'Svelte', value: 'svelte' },
                   { label: 'Vue', value: 'vue' },
                 ] as const
               ).map((item) => (
@@ -385,7 +382,7 @@ export default function RouteVersion() {
           </div>
         </div>
 
-        {['solid', 'vue', 'svelte'].includes(framework) ? (
+        {[].includes(framework) ? (
           <div className="px-2">
             <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
               Looking for the <strong>@tanstack/{framework}-form</strong>{' '}

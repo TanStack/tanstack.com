@@ -5,7 +5,7 @@ import { Outlet } from '@remix-run/react'
 export const meta: MetaFunction = () => {
   return seo({
     title:
-      'TanStack Form Docs | React Form, Solid Form, Svelte Form, Vue Form',
+      'TanStack Form Docs | React Form, Solid Form, Vue Form',
   })
 }
 

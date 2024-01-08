@@ -9,7 +9,7 @@ import { Footer } from '~/components/Footer'
 import { VscPreview } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { getBranch, gradientText, latestVersion, repo } from '~/routes/store'
+import { gradientText, latestVersion, repo } from '~/routes/store'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 

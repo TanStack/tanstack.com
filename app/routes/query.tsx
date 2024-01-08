@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from '@remix-run/react'
+import { Outlet } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'

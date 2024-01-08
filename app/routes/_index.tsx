@@ -60,11 +60,6 @@ const libraries = [
     to: '/router',
     tagline: `Type-safe Routing for React applications.`,
     description: `Powerful routing for your React applications including a fully type-safe API and first-class search-param for managing state in the URL.`,
-    badge: (
-      <div className="uppercase text-white bg-emerald-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        Beta
-      </div>
-    ),
   },
   {
     name: 'TanStack Virtual',

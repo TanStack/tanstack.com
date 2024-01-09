@@ -42,3 +42,17 @@ export function slugToTitle(str: string) {
 export function last<T>(arr: T[]) {
   return arr[arr.length - 1]
 }
+
+// Generates path replacing tokens with params
+export function generatePath(
+  id: string,
+  params: Record<string, string | undefined>
+) {
+  let result = id.replace('routes', '').replaceAll('.', '/')
+  Object.entries(params).forEach(([key, value]) => {
+    result = result.replace(`$${key}`, value!)
+  })
+  result = result.replace('$', params['*']!)
+
+  return result
+}

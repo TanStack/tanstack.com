@@ -1,5 +1,6 @@
-import { HTMLProps } from 'react'
-import { LinkProps, Link } from '@remix-run/react'
+import type { HTMLProps } from 'react'
+import type { LinkProps } from '@remix-run/react'
+import { Link } from '@remix-run/react'
 
 export function LinkOrA(
   props: HTMLProps<HTMLAnchorElement> & LinkProps & { to?: string }
@@ -12,6 +13,7 @@ export function LinkOrA(
       {...props}
       to={props.to.startsWith('http') ? undefined! : props.to}
       href={props.to.startsWith('http') ? props.to : undefined}
+      target={props.to.startsWith('http') ? '_blank' : undefined}
       prefetch="intent"
     />
   )

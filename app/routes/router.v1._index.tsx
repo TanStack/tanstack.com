@@ -86,7 +86,7 @@ export const loader: LoaderFunction = async () => {
 
 export default function TanStackRouterRoute() {
   const { sponsors } = useLoaderData<typeof loader>()
-  const [framework, setFramework] = useState<
+  const [framework] = useState<
     'react' | 'preact' | 'svelte' | 'vue' | 'solid'
   >('react')
 
@@ -181,8 +181,8 @@ export default function TanStackRouterRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <GgTimelapse
-              className="text-teal-500 text-6xl animate-spin"
+            <CgTimelapse
+              className="text-teal-500 text-6xl motion-safe:animate-spin"
               style={{
                 animationDuration: '3s',
                 animationTimingFunction: 'ease-in-out',

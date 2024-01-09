@@ -5,16 +5,7 @@ import { bundleMDX } from 'mdx-bundler'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
 import remarkGfm from 'remark-gfm'
-import remarkTwoslash from 'remark-shiki-twoslash'
 import rehypeSlug from 'rehype-slug'
-import rehypeRaw from 'rehype-raw'
-import { nodeTypes } from '@mdx-js/mdx'
-
-// Hack for broken CJS/ESM export compatibility
-const remarkShikiTwoslash =
-  process.env.NODE_ENV === 'development'
-    ? remarkTwoslash
-    : remarkTwoslash.default
 
 type BundledMDX = Awaited<ReturnType<typeof bundleMDX>>
 
@@ -209,16 +200,8 @@ export async function markdownToMdx(content: string) {
   const mdx = await bundleMDX<{ title: string }>({
     source: content,
     mdxOptions: (options) => {
-      options.remarkPlugins = [
-        ...(options.remarkPlugins ?? []),
-        remarkGfm,
-        [remarkShikiTwoslash, { themes: ['github-light', 'github-dark'] }],
-      ]
-      options.rehypePlugins = [
-        ...(options.rehypePlugins ?? []),
-        rehypeSlug,
-        [rehypeRaw, { passThrough: nodeTypes }] as any, // TODO: remove when types are fixed
-      ]
+      options.remarkPlugins = [...(options.remarkPlugins ?? []), remarkGfm]
+      options.rehypePlugins = [...(options.rehypePlugins ?? []), rehypeSlug]
       return options
     },
   })

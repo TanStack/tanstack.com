@@ -442,13 +442,9 @@ pre .logger.log-log svg {
 }
 
 @media (prefers-color-scheme: light) {
-  .shiki.github-dark {
-    display: none;
-  }
+  @import './prismThemeLight.css';
 }
 
 @media (prefers-color-scheme: dark) {
-  .shiki.github-light {
-    display: none;
-  }
+  @import './prismThemeDark.css';
 }

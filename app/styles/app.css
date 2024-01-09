@@ -440,11 +440,3 @@ pre .logger.log-log svg {
   margin-left: 6px;
   margin-right: 9px;
 }
-
-@media (prefers-color-scheme: light) {
-  @import './prismThemeLight.css';
-}
-
-@media (prefers-color-scheme: dark) {
-  @import './prismThemeDark.css';
-}

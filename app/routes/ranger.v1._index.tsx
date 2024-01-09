@@ -255,7 +255,7 @@ export default function TanStackRouterRoute() {
                         dark:bg-gray-800 dark:shadow-none"
         >
           <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-            Router <TbHeartHandshake /> You?
+            Ranger <TbHeartHandshake /> You?
           </span>
           <div className="flex flex-col p-4 gap-4">
             <div>

@@ -57,6 +57,7 @@
     "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2",
     "vite": "^5.0.10",
+    "vite-plugin-cjs-interop": "^2.0.1",
     "vite-tsconfig-paths": "^4.2.3"
   },
   "engines": {

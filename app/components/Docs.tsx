@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react'
-import * as DocSearch from '@docsearch/react'
+import DocSearch from '@docsearch/react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg/index'
 import { FaArrowLeft, FaArrowRight, FaTimes } from 'react-icons/fa/index'
 import { NavLink, Outlet, useMatches } from '@remix-run/react'

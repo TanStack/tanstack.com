@@ -133,6 +133,9 @@ devDependencies:
   vite:
     specifier: ^5.0.10
     version: 5.0.10
+  vite-plugin-cjs-interop:
+    specifier: ^2.0.1
+    version: 2.0.1
   vite-tsconfig-paths:
     specifier: ^4.2.3
     version: 4.2.3(typescript@5.2.2)(vite@5.0.10)
@@ -2405,6 +2408,12 @@ packages:
     resolution: {integrity: sha512-nc0Axzp/0FILLEVsm4fNwLCwMttvhEI263QtVPQcbpfZZ3ts0hLsZGOpE6czNlid7CJ9MlyH8reXkpsf3YUY4w==}
     engines: {node: '>=0.4.0'}
     hasBin: true
+
+  /acorn@8.11.3:
+    resolution: {integrity: sha512-Y9rRfJG5jcKOE0CLisYbojUjIrIEE7AGMzA/Sm4BslANhbS+cDMpgBdcPT91oJ7OuJ9hYJBx59RjbhxVnrF8Xg==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+    dev: true
 
   /aggregate-error@3.1.0:
     resolution: {integrity: sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA==}
@@ -5093,6 +5102,13 @@ packages:
     hasBin: true
     dev: true
 
+  /magic-string@0.30.5:
+    resolution: {integrity: sha512-7xlpfBaQaP/T6Vh8MO/EqXSW5En6INHEvEXQiuff7Gku0PWjU3uf6w/j9o7O+SpB5fOAkrI5HeoNgwjEO0pFsA==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.4.15
+    dev: true
+
   /markdown-extensions@1.1.1:
     resolution: {integrity: sha512-WWC0ZuMzCyDHYCasEGs4IPvLyTGftYwh6wIEOULOF0HXcqZlhwRzrK0w2VUlxWA98xnvb/jszw4ZSkJ6ADpM6Q==}
     engines: {node: '>=0.10.0'}
@@ -7646,6 +7662,15 @@ packages:
       - sugarss
       - supports-color
       - terser
+    dev: true
+
+  /vite-plugin-cjs-interop@2.0.1:
+    resolution: {integrity: sha512-49A2oEgkM47V3TZvh9P3L295PMD7YMz/eJP17w4TNsG6XMwlqh/eRWYkoMgYRXF/DtaDNEqMEZTHda+lPRQv8w==}
+    dependencies:
+      acorn: 8.11.3
+      estree-walker: 3.0.3
+      magic-string: 0.30.5
+      minimatch: 9.0.3
     dev: true
 
   /vite-tsconfig-paths@4.2.3(typescript@5.2.2)(vite@5.0.10):

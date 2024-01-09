@@ -13,16 +13,14 @@ import {
 } from '~/components/icons'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { v8branch } from '~/routes/table.v8'
+import { v8branch } from '~/projects/table'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import agGridImage from '~/images/ag-grid.png'
-
-export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
+import { gradientText } from '~/projects/table'
 
 const menu = [
   {

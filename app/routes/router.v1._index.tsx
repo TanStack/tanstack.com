@@ -6,7 +6,6 @@ import {
   FaBrandsGithub,
   TablerZoomQuestion,
   TablerHeartHandshake,
-  GgTimelapse,
   RiLightbulbFlashLine,
   FaSolidCheckCircle,
   FaSolidBook,
@@ -14,16 +13,14 @@ import {
 } from '~/components/icons'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { v1branch } from '~/routes/router.v1'
+import { v1branch } from '~/projects/router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { LoaderFunction } from '@remix-run/node'
-
-export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-lime-500 to-emerald-500'
+import { CgTimelapse } from 'react-icons/cg'
 
 const menu = [
   {

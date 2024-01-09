@@ -17,10 +17,10 @@ import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { getBranch, gradientText, latestVersion, repo } from '~/routes/form'
+import { getBranch, gradientText, latestVersion, repo } from '~/projects/form'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import type { Framework } from '~/routes/form'
+import type { Framework } from '~/projects/form'
 
 const menu = [
   {

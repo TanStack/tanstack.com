@@ -18,15 +18,12 @@ import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
-import { getBranch, latestVersion, repo } from '~/routes/query'
+import { getBranch, latestVersion, repo, gradientText } from '~/projects/query'
 import { Logo } from '~/components/Logo'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 
 export type Framework = 'angular' | 'react' | 'svelte' | 'vue' | 'solid'
-
-export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500'
 
 const menu = [
   {

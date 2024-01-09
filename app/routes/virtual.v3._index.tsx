@@ -14,15 +14,12 @@ import {
 } from '~/components/icons'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { v3branch } from '~/routes/virtual.v3'
+import { gradientText, v3branch } from '~/projects/virtual'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-
-export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
 
 const menu = [
   {

@@ -143,5 +143,5 @@
 
 code[class*='language-'] {
   white-space: pre-wrap;
-  display: block;
+  word-break: break-all;
 }

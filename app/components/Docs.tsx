@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react'
-import DocSearch from '@docsearch/react'
+import { DocSearch } from '@docsearch/react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg/index'
 import { FaArrowLeft, FaArrowRight, FaTimes } from 'react-icons/fa/index'
 import { NavLink, Outlet, useMatches } from '@remix-run/react'
@@ -194,7 +194,7 @@ export function Docs({
     <div className="min-w-[250px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div>
-        <DocSearch.DocSearch
+        <DocSearch
           appId={config.docSearch.appId}
           indexName={config.docSearch.indexName}
           apiKey={config.docSearch.apiKey}

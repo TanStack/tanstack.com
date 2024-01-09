@@ -1,6 +1,6 @@
-import DocSearch from '@docsearch/react'
+import { DocSearch } from '@docsearch/react'
 import type { DocSearchProps } from '@docsearch/react'
 
 export function Search(props: DocSearchProps) {
-  return <DocSearch.DocSearch {...props} />
+  return <DocSearch {...props} />
 }

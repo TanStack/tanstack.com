@@ -7,11 +7,11 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa/index'
-import { RiLightbulbFlashLine } from 'react-icons/ri/index'
-import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb/index'
-import { VscPreview } from 'react-icons/vsc/index'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
+import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb/index'
+import { VscPreview } from 'react-icons/vsc/index'
+import { RiLightbulbFlashLine } from 'react-icons/ri/index'
 import { gradientText, v1branch } from '~/projects/router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'

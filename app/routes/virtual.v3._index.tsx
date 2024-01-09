@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { CgCornerUpLeft } from 'react-icons/cg/index'
 import {
-  FaBook,
   FaBolt,
-  FaCogs,
+  FaBook,
   FaCheckCircle,
+  FaCogs,
   FaDiscord,
   FaGithub,
   FaTshirt,
@@ -14,12 +14,12 @@ import { json } from '@remix-run/node'
 import { gradientText, v3branch } from '~/projects/virtual'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
+import { IoIosBody } from 'react-icons/io/index'
 import SponsorPack from '~/components/SponsorPack'
+import { TbHeartHandshake } from 'react-icons/tb/index'
+import { VscPreview } from 'react-icons/vsc/index'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { VscPreview } from 'react-icons/vsc/index'
-import { IoIosBody } from 'react-icons/io/index'
-import { TbHeartHandshake } from 'react-icons/tb/index'
 
 const menu = [
   {

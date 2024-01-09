@@ -1,15 +1,15 @@
+import { CgCornerUpLeft } from 'react-icons/cg/index'
 import { FaBook, FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa/index'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
+import { VscPreview } from 'react-icons/vsc/index'
+import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { gradientText, latestVersion, repo } from '~/projects/store'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { TbHeartHandshake } from 'react-icons/tb'
-import { VscPreview } from 'react-icons/vsc/index'
-import { CgCornerUpLeft } from 'react-icons/cg/index'
 
 const menu = [
   {

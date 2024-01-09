@@ -14,8 +14,7 @@ const logo = (
       TanStack
     </Link>
     <Link to=".." className={`font-bold`}>
-      <span className={`${gradientText}`}>Router</span>{' '}
-      <span className="text-sm align-super">BETA</span>
+      <span className={`${gradientText}`}>Router</span>
     </Link>
   </>
 )

@@ -27,6 +27,8 @@ export const action: ActionFunction = async (ctx) => {
 
     return { message }
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 400 })
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 400,
+    })
   }
 }

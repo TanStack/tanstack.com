@@ -84,7 +84,7 @@ export const loader: LoaderFunction = async () => {
 
 export default function TanStackRouterRoute() {
   const { sponsors } = useLoaderData<typeof loader>()
-  const [framework, setFramework] = React.useState<
+  const [framework] = React.useState<
     'react' | 'preact' | 'svelte' | 'vue' | 'solid'
   >('react')
 
@@ -127,13 +127,7 @@ export default function TanStackRouterRoute() {
             md:text-6xl
             lg:text-7xl`}
           >
-            <span className={gradientText}>TanStack Router</span>{' '}
-            <span
-              className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
-            >
-              BETA
-            </span>
+            <span className={gradientText}>TanStack Router</span>
           </h1>
         </div>
         <h2
@@ -141,19 +135,17 @@ export default function TanStackRouterRoute() {
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
         >
-          Modern and{' '}
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-            scalable routing
+            Modern and scalable
           </span>{' '}
-          for React applications
+          routing for React applications
         </h2>
         <p
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          A fully type-safe router designed for React suspense/transitions with
-          built-in data fetching, first-class search-param APIs and client-side
-          cache friendly design.
+          A fully type-safe React router with built-in data fetching,
+          stale-while revalidate caching and first-class search-param APIs.
         </p>
         <Link
           to="./docs/overview"
@@ -188,7 +180,7 @@ export default function TanStackRouterRoute() {
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
             <CgTimelapse
-              className="text-teal-500 text-6xl animate-spin"
+              className="text-teal-500 text-6xl motion-safe:animate-spin"
               style={{
                 animationDuration: '3s',
                 animationTimingFunction: 'ease-in-out',
@@ -197,14 +189,15 @@ export default function TanStackRouterRoute() {
           </div>
           <div className="flex flex-col gap-4 text-center">
             <h3 className="uppercase text-xl font-black">
-              Built-in Data Fetching & Client-Cache Friendly
+              Built-in Data Fetching with Caching
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Hoist your data fetching and avoid waterfalls with TanStack
-              Router's{' '}
+              Router's loader API and get{' '}
               <span className="font-semibold text-teal-500 dark:text-teal-400">
-                built-in loader API
-              </span>{' '}
+                instant navigations with built-in caching and automatic
+                preloading
+              </span>
               . Need something more custom? Router's API is{' '}
               <span className="font-semibold text-teal-500 dark:text-teal-400">
                 designed to work with your favorite client-side cache libraries!

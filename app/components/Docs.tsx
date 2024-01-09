@@ -65,7 +65,7 @@ export function Docs({
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
 
   const relativePathname = lastMatch.pathname.replace(
-    docsMatch?.pathname! + '/',
+    docsMatch!.pathname + '/',
     ''
   )
 

@@ -16,7 +16,6 @@ import { v1branch } from '~/routes/ranger.v1'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { LoaderFunction } from '@remix-run/node'
 
@@ -84,7 +83,7 @@ export const loader: LoaderFunction = async () => {
 
 export default function TanStackRouterRoute() {
   const { sponsors } = useLoaderData<typeof loader>()
-  const [framework, setFramework] = React.useState<
+  const [framework] = React.useState<
     'react' | 'preact' | 'svelte' | 'vue' | 'solid'
   >('react')
 
@@ -255,7 +254,7 @@ export default function TanStackRouterRoute() {
                         dark:bg-gray-800 dark:shadow-none"
         >
           <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-            Router <TbHeartHandshake /> You?
+            Ranger <TbHeartHandshake /> You?
           </span>
           <div className="flex flex-col p-4 gap-4">
             <div>

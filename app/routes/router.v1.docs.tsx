@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { FaBrandsDiscord, FaBrandsGithub } from '~/components/icons'
+import { FaDiscord, FaGithub } from 'react-icons/fa/index'
 import { Link } from '@remix-run/react'
 import type { MetaFunction } from '@remix-run/node'
 import { useRouterV1Config, gradientText } from '~/projects/router'
@@ -28,7 +28,7 @@ const localMenu = {
     {
       label: (
         <div className="flex items-center gap-2">
-          GitHub <FaBrandsGithub className="text-lg opacity-20" />
+          GitHub <FaGithub className="text-lg opacity-20" />
         </div>
       ),
       to: 'https://github.com/tanstack/router',
@@ -36,7 +36,7 @@ const localMenu = {
     {
       label: (
         <div className="flex items-center gap-2">
-          Discord <FaBrandsDiscord className="text-lg opacity-20" />
+          Discord <FaDiscord className="text-lg opacity-20" />
         </div>
       ),
       to: 'https://tlinz.com/discord',

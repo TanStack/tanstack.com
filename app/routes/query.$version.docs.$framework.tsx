@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { FaBrandsDiscord, FaBrandsGithub } from '~/components/icons'
+import { FaDiscord, FaGithub } from 'react-icons/fa/index'
 import type { MetaFunction } from '@remix-run/node'
 import { Link, useMatches, useNavigate, useParams } from '@remix-run/react'
 import { seo } from '~/utils/seo'
@@ -54,7 +54,7 @@ const localMenu: MenuItem = {
     {
       label: (
         <div className="flex items-center gap-2">
-          GitHub <FaBrandsGithub className="text-lg opacity-20" />
+          GitHub <FaGithub className="text-lg opacity-20" />
         </div>
       ),
       to: `https://github.com/${repo}`,
@@ -62,7 +62,7 @@ const localMenu: MenuItem = {
     {
       label: (
         <div className="flex items-center gap-2">
-          Discord <FaBrandsDiscord className="text-lg opacity-20" />
+          Discord <FaDiscord className="text-lg opacity-20" />
         </div>
       ),
       to: 'https://tlinz.com/discord',

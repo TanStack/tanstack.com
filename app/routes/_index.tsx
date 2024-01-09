@@ -9,12 +9,8 @@ import type { ActionFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
-import {
-  FaBrandsDiscord,
-  FaBrandsGithub,
-  FaSolidTshirt,
-  GgMusicSpeaker,
-} from '~/components/icons'
+import { FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa/index'
+import { CgMusicSpeaker } from 'react-icons/cg/index'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { LinkOrA } from '~/components/LinkOrA'
@@ -185,7 +181,7 @@ export default function Index() {
           {
             label: (
               <div className="flex items-center gap-1">
-                <FaSolidTshirt
+                <FaTshirt
                   className={twMerge('text-lg animate-bounce', textColor)}
                 />
                 Merch
@@ -196,7 +192,7 @@ export default function Index() {
           {
             label: (
               <div className="flex items-center gap-1">
-                <GgMusicSpeaker className="text-lg" /> Blog
+                <CgMusicSpeaker className="text-lg" /> Blog
               </div>
             ),
             to: '/blog',
@@ -204,7 +200,7 @@ export default function Index() {
           {
             label: (
               <div className="flex items-center gap-1">
-                <FaBrandsGithub className="text-lg" /> GitHub
+                <FaGithub className="text-lg" /> GitHub
               </div>
             ),
             to: 'https://github.com/tanstack',
@@ -212,7 +208,7 @@ export default function Index() {
           {
             label: (
               <div className="flex items-center gap-1">
-                <FaBrandsDiscord className="text-lg" /> Discord
+                <FaDiscord className="text-lg" /> Discord
               </div>
             ),
             to: 'https://tlinz.com/discord',

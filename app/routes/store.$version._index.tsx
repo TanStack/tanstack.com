@@ -1,13 +1,4 @@
-import { useEffect, useState } from 'react'
-import {
-  GgCornerUpLeft,
-  CodiconPreview,
-  FaBrandsGithub,
-  FaBrandsDiscord,
-  TablerHeartHandshake,
-  FaSolidBook,
-  FaSolidTshirt,
-} from '~/components/icons'
+import { FaBook, FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa/index'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
@@ -16,12 +7,15 @@ import SponsorPack from '~/components/SponsorPack'
 import { gradientText, latestVersion, repo } from '~/projects/store'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import { TbHeartHandshake } from 'react-icons/tb'
+import { VscPreview } from 'react-icons/vsc/index'
+import { CgCornerUpLeft } from 'react-icons/cg/index'
 
 const menu = [
   {
     label: (
       <div className="flex items-center gap-2">
-        <GgCornerUpLeft className="text-lg" /> TanStack
+        <CgCornerUpLeft className="text-lg" /> TanStack
       </div>
     ),
     to: '/',
@@ -29,7 +23,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <CodiconPreview className="text-lg" /> Examples
+        <VscPreview className="text-lg" /> Examples
       </div>
     ),
     to: './docs/framework/react/examples/simple',
@@ -37,7 +31,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaSolidBook className="text-lg" /> Docs
+        <FaBook className="text-lg" /> Docs
       </div>
     ),
     to: './docs/',
@@ -45,7 +39,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBrandsGithub className="text-lg" /> GitHub
+        <FaGithub className="text-lg" /> GitHub
       </div>
     ),
     to: `https://github.com/${repo}`,
@@ -53,7 +47,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBrandsDiscord className="text-lg" /> Discord
+        <FaDiscord className="text-lg" /> Discord
       </div>
     ),
     to: 'https://tlinz.com/discord',
@@ -61,7 +55,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaSolidTshirt className="text-lg" /> Merch
+        <FaTshirt className="text-lg" /> Merch
       </div>
     ),
     to: `https://cottonbureau.com/people/tanstack`,
@@ -269,7 +263,7 @@ export default function RouteVersion() {
                         dark:bg-gray-800 dark:shadow-none"
           >
             <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Store <TablerHeartHandshake /> You?
+              Store <TbHeartHandshake /> You?
             </span>
             <div className="flex flex-col p-4 gap-4">
               <div>

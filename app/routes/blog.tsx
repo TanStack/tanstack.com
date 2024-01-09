@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { GgClose, GgMenuLeft } from '~/components/icons'
+import { CgClose, CgMenuLeft } from 'react-icons/cg/index'
 import { Link, NavLink, Outlet } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { Carbon } from '~/components/Carbon'
@@ -93,8 +93,8 @@ export default function RouteBlog() {
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
           <div className="flex gap-2 items-center text-xl md:text-2xl">
-            <GgMenuLeft className="icon-open mr-2 cursor-pointer" />
-            <GgClose className="icon-close mr-2 cursor-pointer" />
+            <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
+            <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
         </summary>

@@ -7,7 +7,7 @@ import {
   useMatches,
   useNavigation,
 } from '@remix-run/react'
-import { GgSpinner } from '~/components/icons'
+import { CgSpinner } from 'react-icons/cg/index'
 import type { ReactNode } from 'react'
 
 export function RootDocument({
@@ -75,7 +75,7 @@ export function RootDocument({
               navigation.state !== 'idle' ? 'opacity-1' : 'opacity-0'
             }`}
         >
-          <GgSpinner className="text-2xl animate-spin" />
+          <CgSpinner className="text-2xl animate-spin" />
         </div>
       </body>
     </html>

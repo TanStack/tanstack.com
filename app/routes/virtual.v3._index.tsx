@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react'
+import { CgCornerUpLeft } from 'react-icons/cg/index'
 import {
-  GgCornerUpLeft,
-  CodiconPreview,
-  IonBody,
-  FaBrandsDiscord,
-  FaBrandsGithub,
-  TablerHeartHandshake,
-  FaSolidCheckCircle,
-  FaSolidBook,
-  FaSolidTshirt,
-  FaSolidBolt,
-  FaSolidCogs,
-} from '~/components/icons'
+  FaBook,
+  FaBolt,
+  FaCogs,
+  FaCheckCircle,
+  FaDiscord,
+  FaGithub,
+  FaTshirt,
+} from 'react-icons/fa/index'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { gradientText, v3branch } from '~/projects/virtual'
@@ -20,12 +17,15 @@ import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import { VscPreview } from 'react-icons/vsc/index'
+import { IoIosBody } from 'react-icons/io/index'
+import { TbHeartHandshake } from 'react-icons/tb/index'
 
 const menu = [
   {
     label: (
       <div className="flex items-center gap-2">
-        <GgCornerUpLeft className="text-lg" /> TanStack
+        <CgCornerUpLeft className="text-lg" /> TanStack
       </div>
     ),
     to: '/',
@@ -33,7 +33,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <CodiconPreview className="text-lg" /> Examples
+        <VscPreview className="text-lg" /> Examples
       </div>
     ),
     to: './docs/examples',
@@ -41,7 +41,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaSolidBook className="text-lg" /> Docs
+        <FaBook className="text-lg" /> Docs
       </div>
     ),
     to: './docs/guide/introduction',
@@ -49,7 +49,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBrandsGithub className="text-lg" /> GitHub
+        <FaGithub className="text-lg" /> GitHub
       </div>
     ),
     to: 'https://github.com/tanstack/virtual',
@@ -57,7 +57,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBrandsDiscord className="text-lg" /> Discord
+        <FaDiscord className="text-lg" /> Discord
       </div>
     ),
     to: 'https://tlinz.com/discord',
@@ -65,7 +65,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaSolidTshirt className="text-lg" /> Merch
+        <FaTshirt className="text-lg" /> Merch
       </div>
     ),
     to: `https://cottonbureau.com/people/tanstack`,
@@ -169,7 +169,7 @@ export default function ReactTableRoute() {
       >
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center overflow-hidden">
-            <IonBody className="text-rose-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
+            <IoIosBody className="text-rose-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -187,7 +187,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaSolidBolt className="text-pink-500 text-6xl" />
+            <FaBolt className="text-pink-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -207,7 +207,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaSolidCogs className="text-violet-500 text-6xl" />
+            <FaCogs className="text-violet-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -254,7 +254,7 @@ export default function ReactTableRoute() {
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">
-                <FaSolidCheckCircle className="text-green-500 " /> {d}
+                <FaCheckCircle className="text-green-500 " /> {d}
               </span>
             )
           })}
@@ -315,7 +315,7 @@ export default function ReactTableRoute() {
                         dark:bg-gray-800 dark:shadow-none"
         >
           <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-            Virtual <TablerHeartHandshake /> You?
+            Virtual <TbHeartHandshake /> You?
           </span>
           <div className="flex flex-col p-4 gap-4">
             <div>

@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react'
+import { CgCornerUpLeft } from 'react-icons/cg/index'
 import {
-  CodiconPreview,
-  CodiconWand,
-  FaBrandsDiscord,
-  FaBrandsGithub,
-  FaSolidBolt,
-  FaSolidBook,
-  FaSolidCheckCircle,
-  FaSolidCogs,
-  FaSolidTshirt,
-  GgCornerUpLeft,
-  TablerHeartHandshake,
-} from '~/components/icons'
+  FaBolt,
+  FaBook,
+  FaCheckCircle,
+  FaCogs,
+  FaDiscord,
+  FaGithub,
+  FaTshirt,
+} from 'react-icons/fa/index'
 import { json } from '@remix-run/node'
 import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
+import { VscPreview, VscWand } from 'react-icons/vsc/index'
+import { TbHeartHandshake } from 'react-icons/tb/index'
 import SponsorPack from '~/components/SponsorPack'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { getBranch, latestVersion, repo, gradientText } from '~/projects/query'
@@ -29,7 +28,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-2">
-        <GgCornerUpLeft className="text-lg" /> TanStack
+        <CgCornerUpLeft className="text-lg" /> TanStack
       </div>
     ),
     to: '/',
@@ -37,7 +36,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <CodiconPreview className="text-lg" /> Examples
+        <VscPreview className="text-lg" /> Examples
       </div>
     ),
     to: './docs/react/examples/react/basic',
@@ -45,7 +44,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaSolidBook className="text-lg" /> Docs
+        <FaBook className="text-lg" /> Docs
       </div>
     ),
     to: './docs/',
@@ -53,7 +52,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBrandsGithub className="text-lg" /> GitHub
+        <FaGithub className="text-lg" /> GitHub
       </div>
     ),
     to: `https://github.com/${repo}`,
@@ -61,7 +60,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBrandsDiscord className="text-lg" /> Discord
+        <FaDiscord className="text-lg" /> Discord
       </div>
     ),
     to: 'https://tlinz.com/discord',
@@ -69,7 +68,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaSolidTshirt className="text-lg" /> Merch
+        <FaTshirt className="text-lg" /> Merch
       </div>
     ),
     to: `https://cottonbureau.com/people/tanstack`,
@@ -188,7 +187,7 @@ export default function RouteVersion() {
                         md:flex-row"
         >
           <div className="flex-1 flex flex-col gap-8 items-center">
-            <CodiconWand className="text-red-500 text-6xl" />
+            <VscWand className="text-red-500 text-6xl" />
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
                 Declarative & Automatic
@@ -207,7 +206,7 @@ export default function RouteVersion() {
           </div>
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <FaSolidBolt className="text-orange-600 text-6xl" />
+              <FaBolt className="text-orange-600 text-6xl" />
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
@@ -227,7 +226,7 @@ export default function RouteVersion() {
           </div>
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <FaSolidCogs className="text-amber-500 text-6xl" />
+              <FaCogs className="text-amber-500 text-6xl" />
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
@@ -276,19 +275,19 @@ export default function RouteVersion() {
               <div className="grid max-w-screen-lg mx-auto text-lg gap-2">
                 <div className="flex items-start gap-2">
                   <span className="text-2xl text-green-500 mt-0.5">
-                    <FaSolidCheckCircle />
+                    <FaCheckCircle />
                   </span>
                   Save time by learning with a guided approach
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-2xl text-green-500 mt-0.5">
-                    <FaSolidCheckCircle />
+                    <FaCheckCircle />
                   </span>
                   Get hands-on experience building a real-world application
                 </div>
                 <div className="flex items-start gap-2 mt-0.5">
                   <span className="text-2xl text-green-500">
-                    <FaSolidCheckCircle />
+                    <FaCheckCircle />
                   </span>
                   Never worry about data fetching again
                 </div>
@@ -344,7 +343,7 @@ export default function RouteVersion() {
             ].map((d, i) => {
               return (
                 <span key={i} className="flex items-center gap-2">
-                  <FaSolidCheckCircle className="text-green-500 " /> {d}
+                  <FaCheckCircle className="text-green-500 " /> {d}
                 </span>
               )
             })}
@@ -408,7 +407,7 @@ export default function RouteVersion() {
                         dark:bg-gray-800 dark:shadow-none"
           >
             <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Query <TablerHeartHandshake /> You?
+              Query <TbHeartHandshake /> You?
             </span>
             <div className="flex flex-col p-4 gap-4">
               <div>

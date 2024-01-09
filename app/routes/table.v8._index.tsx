@@ -1,32 +1,31 @@
 import { useEffect, useState } from 'react'
+import { CgCornerUpLeft } from 'react-icons/cg/index'
 import {
-  GgCornerUpLeft,
-  CodiconPreview,
-  IonBody,
-  FaBrandsGithub,
-  FaBrandsDiscord,
-  FaSolidCheckCircle,
-  FaSolidBook,
-  FaSolidTshirt,
-  FaSolidBolt,
-  FaSolidCogs,
-} from '~/components/icons'
+  FaBook,
+  FaBolt,
+  FaCogs,
+  FaCheckCircle,
+  FaDiscord,
+  FaGithub,
+  FaTshirt,
+} from 'react-icons/fa/index'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { v8branch } from '~/projects/table'
+import { v8branch, gradientText } from '~/projects/table'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import agGridImage from '~/images/ag-grid.png'
-import { gradientText } from '~/projects/table'
+import { VscPreview } from 'react-icons/vsc/index'
+import { IoIosBody } from 'react-icons/io/index'
 
 const menu = [
   {
     label: (
       <div className="flex items-center gap-2">
-        <GgCornerUpLeft className="text-lg" /> TanStack
+        <CgCornerUpLeft className="text-lg" /> TanStack
       </div>
     ),
     to: '/',
@@ -34,7 +33,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <CodiconPreview className="text-lg" /> Examples
+        <VscPreview className="text-lg" /> Examples
       </div>
     ),
     to: './docs/examples',
@@ -42,7 +41,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaSolidBook className="text-lg" /> Docs
+        <FaBook className="text-lg" /> Docs
       </div>
     ),
     to: './docs/guide/introduction',
@@ -50,7 +49,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBrandsGithub className="text-lg" /> GitHub
+        <FaGithub className="text-lg" /> GitHub
       </div>
     ),
     to: 'https://github.com/tanstack/table',
@@ -58,7 +57,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaBrandsDiscord className="text-lg" /> Discord
+        <FaDiscord className="text-lg" /> Discord
       </div>
     ),
     to: 'https://tlinz.com/discord',
@@ -66,7 +65,7 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <FaSolidTshirt className="text-lg" /> Merch
+        <FaTshirt className="text-lg" /> Merch
       </div>
     ),
     to: `https://cottonbureau.com/people/tanstack`,
@@ -170,7 +169,7 @@ export default function ReactTableRoute() {
       >
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center overflow-hidden">
-            <IonBody className="text-teal-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
+            <IoIosBody className="text-teal-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -189,7 +188,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaSolidBolt className="text-blue-600 text-6xl" />
+            <FaBolt className="text-blue-600 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -209,7 +208,7 @@ export default function ReactTableRoute() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaSolidCogs className="text-indigo-500 text-6xl" />
+            <FaCogs className="text-indigo-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -266,7 +265,7 @@ export default function ReactTableRoute() {
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">
-                <FaSolidCheckCircle className="text-green-500 " /> {d}
+                <FaCheckCircle className="text-green-500 " /> {d}
               </span>
             )
           })}

@@ -1,7 +1,13 @@
-import type { FC, HTMLAttributes, ReactElement } from 'react'
+import {
+  useState,
+  type FC,
+  type HTMLAttributes,
+  type ReactElement,
+} from 'react'
 import invariant from 'tiny-invariant'
 import type { Language } from 'prism-react-renderer'
 import { Highlight, Prism } from 'prism-react-renderer'
+import { FaCopy } from 'react-icons/fa'
 import { svelteHighlighter } from '~/utils/svelteHighlighter'
 // Add back additional language support after `prism-react` upgrade
 ;(typeof global !== 'undefined' ? global : window).Prism = Prism
@@ -25,13 +31,29 @@ function isLanguageSupported(lang: string): lang is Language {
 
 export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
   invariant(!!children, 'children is required')
+  const [copied, setCopied] = useState(false)
   const child = children as ReactElement
   const className = child.props?.className || ''
   const userLang = getLanguageFromClassName(className)
   const lang = isLanguageSupported(userLang) ? userLang : 'bash'
   const code = child.props.children || ''
   return (
-    <div className="w-full max-w-full">
+    <div className="w-full max-w-full relative">
+      <button
+        className="absolute right-1 top-3 z-10 p-2 group flex items-center"
+        onClick={() => {
+          setCopied(true)
+          navigator.clipboard.writeText(code.trim())
+          setTimeout(() => setCopied(false), 2000)
+        }}
+        aria-label="Copy code to clipboard"
+      >
+        {copied ? (
+          <span className="text-xs">Copied!</span>
+        ) : (
+          <FaCopy className="text-gray-500 group-hover:text-gray-100 dark:group-hover:text-gray-200 transition duration-200" />
+        )}
+      </button>
       <Highlight code={code.trim()} language={lang}>
         {({ className, tokens, getLineProps, getTokenProps }) => (
           <div className="relative not-prose">

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { FaDiscord, FaGithub } from 'react-icons/fa/index'
 import { Link } from '@remix-run/react'
 import type { MetaFunction } from '@remix-run/node'
 import { useRangerV1Config, gradientText } from '~/projects/ranger'

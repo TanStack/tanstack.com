@@ -1,4 +1,4 @@
-import { IoIosClose } from 'react-icons/io'
+import { IoIosClose } from 'react-icons/io/index'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
 

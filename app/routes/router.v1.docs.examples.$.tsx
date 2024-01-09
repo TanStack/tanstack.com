@@ -6,7 +6,7 @@ import { DocTitle } from '~/components/DocTitle'
 import { v1branch } from '~/projects/router'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
-import { FaExternalLinkAlt } from 'react-icons/fa'
+import { FaExternalLinkAlt } from 'react-icons/fa/index'
 
 export const loader: LoaderFunction = async (context) => {
   const { '*': examplePath } = context.params

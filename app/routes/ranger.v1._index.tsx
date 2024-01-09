@@ -1,18 +1,18 @@
 import * as React from 'react'
-import { CgCornerUpLeft, CgTimelapse } from 'react-icons/cg'
+import { CgCornerUpLeft, CgTimelapse } from 'react-icons/cg/index'
 import {
   FaBook,
   FaCheckCircle,
   FaDiscord,
   FaGithub,
   FaTshirt,
-} from 'react-icons/fa'
+} from 'react-icons/fa/index'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
-import { VscPreview } from 'react-icons/vsc'
-import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { v1branch } from '~/projects/ranger'
+import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb/index'
+import { VscPreview } from 'react-icons/vsc/index'
+import { RiLightbulbFlashLine } from 'react-icons/ri/index'
+import { gradientText, v1branch } from '~/projects/ranger'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'

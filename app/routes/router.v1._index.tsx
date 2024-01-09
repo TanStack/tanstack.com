@@ -20,7 +20,7 @@ import SponsorPack from '~/components/SponsorPack'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { LoaderFunction } from '@remix-run/node'
-import { CgTimelapse } from 'react-icons/cg'
+import { CgTimelapse } from 'react-icons/cg/index'
 
 const menu = [
   {

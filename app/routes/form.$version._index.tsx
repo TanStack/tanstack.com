@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-  GgCornerUpLeft,
   CodiconPreview,
   FaBrandsGithub,
   FaBrandsDiscord,
@@ -21,12 +20,13 @@ import { getBranch, gradientText, latestVersion, repo } from '~/projects/form'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { Framework } from '~/projects/form'
+import { CgCornerUpLeft } from 'react-icons/cg/index'
 
 const menu = [
   {
     label: (
       <div className="flex items-center gap-2">
-        <GgCornerUpLeft className="text-lg" /> TanStack
+        <CgCornerUpLeft className="text-lg" /> TanStack
       </div>
     ),
     to: '/',

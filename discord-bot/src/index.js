@@ -2,7 +2,9 @@ import path from 'path'
 import Discord from 'discord.js'
 
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config({ path: path.resolve(process.cwd(), '../', '.env') })
+  require('dotenv').config({
+    path: path.resolve(process.cwd(), '../', '.env'),
+  })
 }
 
 const guildId = '719702312431386674'

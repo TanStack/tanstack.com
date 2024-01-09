@@ -9,10 +9,9 @@ import { Footer } from '~/components/Footer'
 import { VscPreview } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { getBranch, gradientText, latestVersion, repo } from '~/routes/store'
+import { gradientText, latestVersion, repo } from '~/routes/store'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import type { Framework } from '~/routes/store'
 
 const menu = [
   {
@@ -76,13 +75,6 @@ export const loader = async () => {
 export default function RouteVersion() {
   const { sponsors } = useLoaderData<typeof loader>()
   const { version } = useParams()
-  const branch = getBranch(version)
-  const [framework, setFramework] = React.useState<Framework>('react')
-  const [isDark, setIsDark] = React.useState(true)
-
-  React.useEffect(() => {
-    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
-  }, [])
 
   return (
     <>
@@ -140,11 +132,14 @@ export default function RouteVersion() {
             className="text opacity-90 max-w-[500px]
             lg:text-xl lg:max-w-[800px]"
           >
-            Level up your state management with TanStack Store – the framework-agnostic, type-safe store. Enjoy{' '}
+            Level up your state management with TanStack Store – the
+            framework-agnostic, type-safe store. Enjoy{' '}
             <strong>
-              minimal setup, granular APIs, and seamless adaptability across frameworks
+              minimal setup, granular APIs, and seamless adaptability across
+              frameworks
             </strong>
-            . Simplify your development and boost efficiency with TanStack Store.
+            . Simplify your development and boost efficiency with TanStack
+            Store.
           </p>
           <Link
             to="./docs/"

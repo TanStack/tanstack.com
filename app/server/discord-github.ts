@@ -1,6 +1,6 @@
 import { Octokit } from '@octokit/rest'
-import { linkSponsorToken } from './discord'
-import { getSponsorsAndTiers } from './sponsors'
+import { linkSponsorToken } from '~/server/discord'
+import { getSponsorsAndTiers } from '~/server/sponsors'
 
 export async function linkGithubAndDiscordUser({ githubToken, discordToken }) {
   let login

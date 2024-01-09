@@ -1,14 +1,16 @@
 import { Outlet } from '@remix-run/react'
-import { LoaderArgs, MetaFunction, redirect } from '@remix-run/node'
+import type { LoaderArgs, MetaFunction } from '@remix-run/node'
+import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
+import { Scarf } from '~/components/Scarf'
 
-export let meta: MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return seo({
     title:
       'TanStack Virtual | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',
     description:
       'Headless UI for virtualizing large element lists with TS/JS, React, Solid, Svelte and Vue',
-    image: 'https://github.com/tanstack/virtual/raw/beta/media/header.png',
+    image: 'https://github.com/tanstack/virtual/raw/main/media/header.png',
   })
 }
 
@@ -21,5 +23,10 @@ export const loader = async (context: LoaderArgs) => {
 }
 
 export default function RouteReactVirtual() {
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+      <Scarf id="32372eb1-91e0-48e7-8df1-4808a7be6b94" />
+    </>
+  )
 }

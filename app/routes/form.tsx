@@ -5,6 +5,7 @@ import {
   useMatches,
   useNavigate,
   useParams,
+  useSearchParams,
 } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
@@ -118,8 +119,13 @@ export const useReactFormDocsConfig = () => {
   const match = matches[matches.length - 1]
   const params = useParams()
   const version = params.version!
+  const [searchParams] = useSearchParams()
+
   const framework =
-    params.framework || localStorage.getItem('framework') || 'react'
+    params.framework ||
+    searchParams.get('framework') ||
+    localStorage.getItem('framework') ||
+    'react'
   const navigate = useNavigate()
 
   const config = useMatchesData(`/form/${version}`) as GithubDocsConfig
@@ -143,11 +149,13 @@ export const useReactFormDocsConfig = () => {
       selected: framework!,
       available: availableFrameworks,
       onSelect: (option: { label: string; value: string }) => {
-        const url = generatePath(match.id, {
-          ...match.params,
-          framework: option.value,
-        })
-        navigate(url)
+        const url =
+          generatePath(match.id, {
+            ...match.params,
+            framework: option.value,
+          }) + `?framework=${option.value}`
+
+        navigate(url, { state: { framework } })
       },
     }
   }, [config.frameworkMenus, framework, match, navigate])
@@ -194,7 +202,7 @@ export const useReactFormDocsConfig = () => {
           label: d.label,
           children: [
             ...d.children.map(({ to, ...d }) => ({
-              to: `framework/${framework}/${to}`,
+              to: `${to}?framework=${framework}`,
               ...d,
               badge: 'core',
             })),

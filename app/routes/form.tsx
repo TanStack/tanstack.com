@@ -149,11 +149,11 @@ export const useReactFormDocsConfig = () => {
       selected: framework!,
       available: availableFrameworks,
       onSelect: (option: { label: string; value: string }) => {
-        const url =
-          generatePath(match.id, {
-            ...match.params,
-            framework: option.value,
-          }) + `?framework=${option.value}`
+        const url = generatePath(match.id, {
+          ...match.params,
+          framework: option.value,
+        })
+        localStorage.setItem('framework', option.value)
 
         navigate(url, { state: { framework } })
       },
@@ -201,8 +201,7 @@ export const useReactFormDocsConfig = () => {
         return {
           label: d.label,
           children: [
-            ...d.children.map(({ to, ...d }) => ({
-              to: `${to}?framework=${framework}`,
+            ...d.children.map((d) => ({
               ...d,
               badge: 'core',
             })),

@@ -5,7 +5,6 @@ import {
   useMatches,
   useNavigate,
   useParams,
-  useSearchParams,
 } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
@@ -20,7 +19,7 @@ import { FaDiscord, FaGithub } from 'react-icons/fa'
 import type { AvailableOptions } from '~/components/Select'
 import { Scarf } from '~/components/Scarf'
 
-//
+const formLocalStorageKey = 'framework-form'
 
 export type FrameworkMenu = {
   framework: string
@@ -119,13 +118,9 @@ export const useReactFormDocsConfig = () => {
   const match = matches[matches.length - 1]
   const params = useParams()
   const version = params.version!
-  const [searchParams] = useSearchParams()
 
   const framework =
-    params.framework ||
-    searchParams.get('framework') ||
-    localStorage.getItem('framework') ||
-    'react'
+    params.framework || localStorage.getItem(formLocalStorageKey) || 'react'
   const navigate = useNavigate()
 
   const config = useMatchesData(`/form/${version}`) as GithubDocsConfig
@@ -153,7 +148,7 @@ export const useReactFormDocsConfig = () => {
           ...match.params,
           framework: option.value,
         })
-        localStorage.setItem('framework', option.value)
+        localStorage.setItem(formLocalStorageKey, option.value)
 
         navigate(url, { state: { framework } })
       },

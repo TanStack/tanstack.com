@@ -18,7 +18,7 @@ import angularLogo from '~/images/angular-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import type { AvailableOptions } from '~/components/Select'
 
-//
+const storeLocalStorageKey = 'framework-store'
 
 export type FrameworkMenu = {
   framework: string
@@ -118,7 +118,7 @@ export const useReactStoreDocsConfig = () => {
   const params = useParams()
   const version = params.version!
   const framework =
-    params.framework || localStorage.getItem('framework') || 'react'
+    params.framework || localStorage.getItem(storeLocalStorageKey) || 'react'
   const navigate = useNavigate()
 
   const config = useMatchesData(`/store/${version}`) as GithubDocsConfig
@@ -146,6 +146,8 @@ export const useReactStoreDocsConfig = () => {
           ...match.params,
           framework: option.value,
         })
+        localStorage.setItem(storeLocalStorageKey, option.value)
+
         navigate(url)
       },
     }
@@ -192,8 +194,7 @@ export const useReactStoreDocsConfig = () => {
         return {
           label: d.label,
           children: [
-            ...d.children.map(({ to, ...d }) => ({
-              to: `framework/${framework}/${to}`,
+            ...d.children.map(({ ...d }) => ({
               ...d,
               badge: 'core',
             })),

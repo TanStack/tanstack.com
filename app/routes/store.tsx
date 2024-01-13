@@ -18,8 +18,6 @@ import angularLogo from '~/images/angular-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import type { AvailableOptions } from '~/components/Select'
 
-const storeLocalStorageKey = 'framework-store'
-
 export type FrameworkMenu = {
   framework: string
   menuItems: MenuItem[]
@@ -118,7 +116,7 @@ export const useReactStoreDocsConfig = () => {
   const params = useParams()
   const version = params.version!
   const framework =
-    params.framework || localStorage.getItem(storeLocalStorageKey) || 'react'
+    params.framework || localStorage.getItem('framework') || 'react'
   const navigate = useNavigate()
 
   const config = useMatchesData(`/store/${version}`) as GithubDocsConfig

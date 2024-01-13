@@ -19,8 +19,6 @@ import { FaDiscord, FaGithub } from 'react-icons/fa'
 import type { AvailableOptions } from '~/components/Select'
 import { Scarf } from '~/components/Scarf'
 
-const formLocalStorageKey = 'framework-form'
-
 export type FrameworkMenu = {
   framework: string
   menuItems: MenuItem[]
@@ -120,7 +118,7 @@ export const useReactFormDocsConfig = () => {
   const version = params.version!
 
   const framework =
-    params.framework || localStorage.getItem(formLocalStorageKey) || 'react'
+    params.framework || localStorage.getItem('framework') || 'react'
   const navigate = useNavigate()
 
   const config = useMatchesData(`/form/${version}`) as GithubDocsConfig

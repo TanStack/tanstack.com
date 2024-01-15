@@ -19,8 +19,6 @@ import { FaDiscord, FaGithub } from 'react-icons/fa'
 import type { AvailableOptions } from '~/components/Select'
 import { Scarf } from '~/components/Scarf'
 
-//
-
 export type FrameworkMenu = {
   framework: string
   menuItems: MenuItem[]
@@ -118,6 +116,7 @@ export const useReactFormDocsConfig = () => {
   const match = matches[matches.length - 1]
   const params = useParams()
   const version = params.version!
+
   const framework =
     params.framework || localStorage.getItem('framework') || 'react'
   const navigate = useNavigate()
@@ -147,7 +146,9 @@ export const useReactFormDocsConfig = () => {
           ...match.params,
           framework: option.value,
         })
-        navigate(url)
+        localStorage.setItem('framework', option.value)
+
+        navigate(url, { state: { framework } })
       },
     }
   }, [config.frameworkMenus, framework, match, navigate])
@@ -193,7 +194,10 @@ export const useReactFormDocsConfig = () => {
         return {
           label: d.label,
           children: [
-            ...d.children.map((d) => ({ ...d, badge: 'core' })),
+            ...d.children.map((d) => ({
+              ...d,
+              badge: 'core',
+            })),
             ...(match?.children ?? []).map((d) => ({ ...d, badge: framework })),
           ],
         }

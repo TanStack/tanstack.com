@@ -18,8 +18,6 @@ import angularLogo from '~/images/angular-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import type { AvailableOptions } from '~/components/Select'
 
-//
-
 export type FrameworkMenu = {
   framework: string
   menuItems: MenuItem[]
@@ -146,6 +144,8 @@ export const useReactStoreDocsConfig = () => {
           ...match.params,
           framework: option.value,
         })
+        localStorage.setItem('framework', option.value)
+
         navigate(url)
       },
     }
@@ -192,7 +192,10 @@ export const useReactStoreDocsConfig = () => {
         return {
           label: d.label,
           children: [
-            ...d.children.map((d) => ({ ...d, badge: 'core' })),
+            ...d.children.map(({ ...d }) => ({
+              ...d,
+              badge: 'core',
+            })),
             ...(match?.children ?? []).map((d) => ({ ...d, badge: framework })),
           ],
         }

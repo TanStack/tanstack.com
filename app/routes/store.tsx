@@ -144,7 +144,7 @@ export const useReactStoreDocsConfig = () => {
           ...match.params,
           framework: option.value,
         })
-        localStorage.setItem(storeLocalStorageKey, option.value)
+        localStorage.setItem('framework', option.value)
 
         navigate(url)
       },

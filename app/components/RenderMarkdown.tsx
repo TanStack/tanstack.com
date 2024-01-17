@@ -36,7 +36,6 @@ const makeHeading =
 
 const defaultComponents: Record<string, FC> = {
   a: MarkdownLink,
-  pre: CodeBlock as any,
   h1: makeHeading('h1'),
   h2: makeHeading('h2'),
   h3: makeHeading('h3'),

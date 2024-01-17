@@ -1,14 +1,10 @@
 import * as React from 'react'
 import { useLoaderData, Link } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import {
-  extractFrontMatter,
-  fetchRepoFile,
-  markdownToMdx,
-} from '~/utils/documents.server'
+import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import { getPostList } from '~/utils/blog'
 import { DocTitle } from '~/components/DocTitle'
-import { Mdx } from '~/components/Mdx'
+import { RenderMarkdown } from '~/components/RenderMarkdown'
 import { format } from 'date-fns'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { Footer } from '~/components/Footer'
@@ -33,14 +29,12 @@ export const loader = async () => {
 
       const frontMatter = extractFrontMatter(file)
 
-      const mdx = await markdownToMdx(frontMatter.excerpt ?? '')
-
       return [
         info.id,
         {
           title: frontMatter.data.title,
           published: frontMatter.data.published,
-          exerptCode: mdx.code,
+          excerpt: frontMatter.excerpt,
         },
       ]
     })
@@ -54,7 +48,7 @@ export const ErrorBoundary = DefaultErrorBoundary
 export default function RouteReactTableDocs() {
   const frontMatters = useLoaderData<typeof loader>() as [
     string,
-    { title: string; published: string; exerptCode: string }
+    { title: string; published: string; excerpt: string }
   ][]
 
   return (
@@ -67,9 +61,10 @@ export default function RouteReactTableDocs() {
           <div className="h-4" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {frontMatters.map(([id, { title, published, exerptCode }]) => {
+          {frontMatters.map(([id, { title, published, excerpt }]) => {
             return (
               <Link
+                key={id}
                 to={`${id}`}
                 className={`flex flex-col gap-4 justify-between
                   border-2 border-transparent rounded-lg p-4 md:p-8
@@ -86,12 +81,13 @@ export default function RouteReactTableDocs() {
                     </div>
                   ) : null}
                   <div className={`text-sm mt-2 text-black dark:text-white`}>
-                    <Mdx
-                      code={exerptCode}
+                    <RenderMarkdown
                       components={{
                         a: (props) => <span {...props} />,
                       }}
-                    />
+                    >
+                      {excerpt}
+                    </RenderMarkdown>
                   </div>
                 </div>
                 <div>

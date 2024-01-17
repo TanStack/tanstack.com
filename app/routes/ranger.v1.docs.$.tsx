@@ -1,18 +1,14 @@
 import { useLoaderData } from '@remix-run/react'
-import type { LoaderFunction, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import {
-  extractFrontMatter,
-  fetchRepoFile,
-  markdownToMdx,
-} from '~/utils/documents.server'
+import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import { v1branch } from '~/routes/ranger.v1'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
 import { Doc } from '~/components/Doc'
 
-export const loader: LoaderFunction = async (context) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath } = context.params
 
   if (!docsPath) {
@@ -32,14 +28,12 @@ export const loader: LoaderFunction = async (context) => {
   const frontMatter = extractFrontMatter(file)
   const description = removeMarkdown(frontMatter.excerpt ?? '')
 
-  const mdx = await markdownToMdx(frontMatter.content)
-
   return json(
     {
       title: frontMatter.data.title,
       description,
       filePath,
-      code: mdx.code,
+      content: frontMatter.content,
     },
     {
       headers: {
@@ -59,12 +53,12 @@ export const meta: MetaFunction = ({ data }) => {
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactRangerDocs() {
-  const { title, code, filePath } = useLoaderData()
+  const { title, content, filePath } = useLoaderData<typeof loader>()
 
   return (
     <Doc
       title={title}
-      code={code}
+      content={content}
       repo={'tanstack/ranger'}
       branch={v1branch}
       filePath={filePath}

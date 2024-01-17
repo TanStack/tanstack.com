@@ -30,12 +30,14 @@ function isLanguageSupported(lang: string): lang is Language {
 }
 
 export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
+  console.log(children)
   invariant(!!children, 'children is required')
   const [copied, setCopied] = useState(false)
   const child = children as ReactElement
   const className = child.props?.className || ''
   const userLang = getLanguageFromClassName(className)
   const lang = isLanguageSupported(userLang) ? userLang : 'bash'
+  // TODO Problem here?
   const code = child.props.children || ''
   return (
     <div className="w-full max-w-full relative">

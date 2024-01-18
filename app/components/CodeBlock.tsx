@@ -1,9 +1,4 @@
-import {
-  useState,
-  type FC,
-  type HTMLAttributes,
-  type ReactElement,
-} from 'react'
+import { useState, type ReactNode } from 'react'
 import invariant from 'tiny-invariant'
 import type { Language } from 'prism-react-renderer'
 import { Highlight, Prism } from 'prism-react-renderer'
@@ -29,16 +24,20 @@ function isLanguageSupported(lang: string): lang is Language {
   return lang in Prism.languages
 }
 
-export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
-  console.log(children)
+type Props = {
+  children: ReactNode
+}
+
+export const CodeBlock = ({ children }: Props) => {
   invariant(!!children, 'children is required')
   const [copied, setCopied] = useState(false)
-  const child = children as ReactElement
-  const className = child.props?.className || ''
+  const child = Array.isArray(children) ? children[0] : children
+  const className = child.props.className || ''
   const userLang = getLanguageFromClassName(className)
   const lang = isLanguageSupported(userLang) ? userLang : 'bash'
-  // TODO Problem here?
-  const code = child.props.children || ''
+  const code = Array.isArray(child.props.children)
+    ? child.props.children[0]
+    : child.props.children
   return (
     <div className="w-full max-w-full relative">
       <button

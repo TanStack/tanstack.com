@@ -1,13 +1,15 @@
+import { ScrollRestoration, useRouter } from '@tanstack/react-router'
+import { DehydrateRouter } from '@tanstack/react-router-server/client'
 import * as React from 'react'
-import {
-  Links,
-  LiveReload,
-  Meta,
-  Scripts,
-  ScrollRestoration,
-  useMatches,
-  useNavigation,
-} from '@remix-run/react'
+// import {
+//   Links,
+//   LiveReload,
+//   Meta,
+//   Scripts,
+//   ScrollRestoration,
+//   useMatches,
+//   useNavigation,
+// } from '@remix-run/react'
 import { CgSpinner } from 'react-icons/cg'
 
 export function RootDocument({
@@ -17,23 +19,23 @@ export function RootDocument({
   children: React.ReactNode
   title?: string
 }) {
-  const navigation = useNavigation()
-  const matches = useMatches()
-  // const styles = useStylesLink()
+  const router = useRouter()
+  // const navigation = useNavigation()
+  // const matches = useMatches()
 
   return (
-    // <html lang="en" className={cx(getGlobalStyles())}>
     <html lang="en">
       <head>
-        {/* {styles} */}
-        {matches.find((d) => d.handle?.baseParent) ? (
+        {/* TODO:  */}
+        {/* {matches.find((d) => d.handle?.baseParent) ? (
           <base target="_parent" />
-        ) : null}
+        ) : null} */}
         {title ? <title>{title}</title> : null}
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
+        {router.options.context.assets}
+        {/* <Meta />
+        <Links /> */}
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS"
@@ -66,9 +68,9 @@ export function RootDocument({
       <body>
         {children}
         <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
-        <div
+        <DehydrateRouter />
+        {/*
+        {/* <div
           className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-800
             rounded-lg shadow-lg transition-opacity duration-300 hover:opacity-0 pointer-events-none
             z-30 delay-300 ${
@@ -76,7 +78,7 @@ export function RootDocument({
             }`}
         >
           <CgSpinner className="text-2xl animate-spin" />
-        </div>
+        </div> */}
       </body>
     </html>
   )

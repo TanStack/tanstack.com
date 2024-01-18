@@ -8,9 +8,8 @@ import {
   FaGithub,
   FaTimes,
 } from 'react-icons/fa'
-import { NavLink, useMatches, useNavigate, useParams } from '@remix-run/react'
+import { Link, NavLink, useMatches, useNavigate, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
-import { LinkOrA } from '~/components/LinkOrA'
 import { Search } from '~/components/Search'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
@@ -409,7 +408,7 @@ export function DocsLayout({
           >
             <div className="p-4 flex justify-center gap-4">
               {prevItem ? (
-                <LinkOrA
+                <Link
                   to={prevItem.to}
                   className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
                 bg-white text-gray-600 dark:bg-black dark:text-gray-400
@@ -417,10 +416,10 @@ export function DocsLayout({
                 lg:text-lg"
                 >
                   <FaArrowLeft /> {prevItem.label}
-                </LinkOrA>
+                </Link>
               ) : null}
               {nextItem ? (
-                <LinkOrA
+                <Link
                   to={nextItem.to}
                   className="py-1 px-2 text-sm self-end rounded-md
                   bg-white dark:bg-black
@@ -436,7 +435,7 @@ export function DocsLayout({
                     </span>{' '}
                     <FaArrowRight className={textColor} />
                   </div>
-                </LinkOrA>
+                </Link>
               ) : null}
             </div>
           </div>

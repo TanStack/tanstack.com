@@ -1,4 +1,4 @@
-import { Link } from '@remix-run/react'
+import { Link } from '@tanstack/react-router'
 
 const footerLinks = [
   { label: 'Blog', to: '/blog' },
@@ -39,7 +39,7 @@ export function Footer() {
         ))}
       </div>
       <div className={`text-center opacity-20`}>
-        &copy; {new Date().getFullYear()} Tanner Linsley
+        &copy; {new Date().getFullYear()} TanStack LLC
       </div>
     </div>
   )

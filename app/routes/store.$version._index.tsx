@@ -1,5 +1,3 @@
-import * as React from 'react'
-
 import { CgCornerUpLeft } from 'react-icons/cg'
 import { FaBook, FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
 import { json } from '@remix-run/node'

@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
 import { useReactTableV8Config } from '~/routes/table.v8'
@@ -61,7 +61,7 @@ export const ErrorBoundary = DefaultErrorBoundary
 export default function RouteReactTable() {
   let config = useReactTableV8Config()
 
-  config = React.useMemo(
+  config = useMemo(
     () =>
       ({
         ...config,

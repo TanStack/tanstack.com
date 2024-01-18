@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect, useState } from 'react'
 
 import { CgCornerUpLeft } from 'react-icons/cg'
 import {
@@ -91,10 +91,10 @@ export default function RouteVersion() {
   const { sponsors } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
-  const [framework, setFramework] = React.useState<Framework>('react')
-  const [isDark, setIsDark] = React.useState(true)
+  const [framework, setFramework] = useState<Framework>('react')
+  const [isDark, setIsDark] = useState(true)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 

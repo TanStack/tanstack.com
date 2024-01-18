@@ -1,5 +1,3 @@
-import * as React from 'react'
-
 import { CgCornerUpLeft } from 'react-icons/cg'
 import {
   FaBolt,
@@ -21,6 +19,7 @@ import { getBranch, gradientText, latestVersion, repo } from '~/routes/form'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { Framework } from '~/routes/form'
+import { useEffect, useState } from 'react'
 
 const menu = [
   {
@@ -85,10 +84,10 @@ export default function RouteVersion() {
   const { sponsors } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
-  const [framework, setFramework] = React.useState<Framework>('react')
-  const [isDark, setIsDark] = React.useState(true)
+  const [framework, setFramework] = useState<Framework>('react')
+  const [isDark, setIsDark] = useState(true)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 

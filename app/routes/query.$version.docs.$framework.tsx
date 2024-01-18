@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import type { MetaFunction } from '@remix-run/node'
 import { Link, useMatches, useNavigate, useParams } from '@remix-run/react'
@@ -86,7 +86,7 @@ export default function RouteFrameworkParam() {
   const version = params.version
   let config = useReactQueryDocsConfig(version)
 
-  const docsConfig = React.useMemo(() => {
+  const docsConfig = useMemo(() => {
     const frameworkMenu = config.menu.find((d) => d.framework === framework)
     if (!frameworkMenu) return null
     return {
@@ -95,7 +95,7 @@ export default function RouteFrameworkParam() {
     } as DocsConfig
   }, [framework, config])
 
-  const frameworkConfig = React.useMemo(() => {
+  const frameworkConfig = useMemo(() => {
     const availableFrameworks = config.menu.reduce(
       (acc: AvailableOptions, menuEntry) => {
         acc[menuEntry.framework as string] =
@@ -119,7 +119,7 @@ export default function RouteFrameworkParam() {
     }
   }, [config.menu, framework, match, navigate])
 
-  const versionConfig = React.useMemo(() => {
+  const versionConfig = useMemo(() => {
     const available = availableVersions.reduce(
       (acc: AvailableOptions, version) => {
         acc[version.name] = {

@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { useLoaderData, Link } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import {

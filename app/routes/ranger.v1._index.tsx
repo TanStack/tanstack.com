@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect, useState } from 'react'
 import { CgCornerUpLeft, CgTimelapse } from 'react-icons/cg'
 import {
   FaBook,
@@ -83,13 +83,13 @@ export const loader: LoaderFunction = async () => {
 
 export default function TanStackRouterRoute() {
   const { sponsors } = useLoaderData<typeof loader>()
-  const [framework] = React.useState<
-    'react' | 'preact' | 'svelte' | 'vue' | 'solid'
-  >('react')
+  const [framework] = useState<'react' | 'preact' | 'svelte' | 'vue' | 'solid'>(
+    'react'
+  )
 
-  const [isDark, setIsDark] = React.useState(true)
+  const [isDark, setIsDark] = useState(true)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 

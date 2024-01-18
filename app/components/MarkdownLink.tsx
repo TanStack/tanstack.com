@@ -1,5 +1,5 @@
-import { HTMLProps } from 'react'
 import { Link } from '@remix-run/react'
+import type { HTMLProps } from 'react'
 
 export function MarkdownLink(props: HTMLProps<HTMLAnchorElement>) {
   if ((props as { href: string }).href?.startsWith('http')) {

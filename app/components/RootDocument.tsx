@@ -1,4 +1,3 @@
-import * as React from 'react'
 import {
   Links,
   LiveReload,
@@ -9,12 +8,13 @@ import {
   useNavigation,
 } from '@remix-run/react'
 import { CgSpinner } from 'react-icons/cg'
+import type { ReactNode } from 'react'
 
 export function RootDocument({
   children,
   title,
 }: {
-  children: React.ReactNode
+  children: ReactNode
   title?: string
 }) {
   const navigation = useNavigation()

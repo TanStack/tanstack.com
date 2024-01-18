@@ -1,6 +1,7 @@
 import { LogoQueryGGSmall } from '~/components/LogoQueryGGSmall'
+import type { HTMLProps } from 'react'
 
-export function DocsCalloutQueryGG(props: React.HTMLProps<HTMLDivElement>) {
+export function DocsCalloutQueryGG(props: HTMLProps<HTMLDivElement>) {
   return (
     <div className="space-y-4" {...props}>
       <h6 className="text-[.7rem] md:text-[.9em] uppercase font-black">

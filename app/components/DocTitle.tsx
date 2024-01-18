@@ -1,4 +1,6 @@
-export function DocTitle(props: { children: React.ReactNode }) {
+import type { ReactNode } from 'react'
+
+export function DocTitle(props: { children: ReactNode }) {
   return (
     <>
       <h1

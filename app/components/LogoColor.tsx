@@ -1,4 +1,6 @@
-export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
+import type { HTMLProps } from 'react'
+
+export function LogoColor(props: HTMLProps<HTMLDivElement>) {
   return (
     <div {...props}>
       <svg

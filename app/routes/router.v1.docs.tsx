@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
 import type { MetaFunction } from '@remix-run/node'
@@ -55,7 +55,7 @@ export const meta: MetaFunction = () => {
 export default function DocsRoute() {
   let config = useRouterV1Config()
 
-  config = React.useMemo(
+  config = useMemo(
     () =>
       ({
         ...config,

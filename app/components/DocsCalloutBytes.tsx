@@ -1,6 +1,7 @@
 import BytesForm from '~/components/BytesForm'
+import type { HTMLProps } from 'react'
 
-export function DocsCalloutBytes(props: React.HTMLProps<HTMLDivElement>) {
+export function DocsCalloutBytes(props: HTMLProps<HTMLDivElement>) {
   return (
     <div className="space-y-4" {...props}>
       <div className="space-y-1 md:space-y-2">

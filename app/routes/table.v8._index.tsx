@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect, useState } from 'react'
 import { CgCornerUpLeft } from 'react-icons/cg'
 import {
   FaBolt,
@@ -88,13 +88,13 @@ export default function ReactTableRoute() {
   // const config = useReactTableV8Config()
   // const [params, setParams] = useSearchParams()
   // const framework = params.get('framework') ?? 'react'
-  const [framework, setFramework] = React.useState<
+  const [framework, setFramework] = useState<
     'react' | 'svelte' | 'vue' | 'solid'
   >('react')
 
-  const [isDark, setIsDark] = React.useState(true)
+  const [isDark, setIsDark] = useState(true)
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 

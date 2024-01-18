@@ -1,19 +1,10 @@
-import {
-  Form,
-  Link,
-  useActionData,
-  useLoaderData,
-  useNavigation,
-} from '@remix-run/react'
-import type { ActionFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
+import { FileRoute, Link } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
 import { CgMusicSpeaker } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { LinkOrA } from '~/components/LinkOrA'
 import { LogoColor } from '~/components/LogoColor'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import discordImage from '~/images/discord-logo-white.svg'
@@ -132,41 +123,46 @@ const courses = [
   },
 ]
 
-export const loader = async () => {
-  const sponsors = await getSponsorsForSponsorPack()
+// export const loader = async () => {
+//   const sponsors = await getSponsorsForSponsorPack()
 
-  return json({
-    sponsors,
-    randomNumber: Math.random(),
-  })
-}
+//   return json({
+//     sponsors,
+//     randomNumber: Math.random(),
+//   })
+// }
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-  return fetch(`https://bytes.dev/api/bytes-optin-cors`, {
-    method: 'POST',
-    body: JSON.stringify({
-      email: formData.get('email_address'),
-      influencer: 'tanstack',
-    }),
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-  })
-}
+// export const action: ActionFunction = async ({ request }) => {
+//   const formData = await request.formData()
+//   return fetch(`https://bytes.dev/api/bytes-optin-cors`, {
+//     method: 'POST',
+//     body: JSON.stringify({
+//       email: formData.get('email_address'),
+//       influencer: 'tanstack',
+//     }),
+//     headers: {
+//       Accept: 'application/json',
+//       'Content-Type': 'application/json',
+//     },
+//   })
+// }
 
 function sample(arr: any[], random = Math.random()) {
   return arr[Math.floor(random * arr.length)]
 }
 
-export default function Index() {
-  const data = useActionData<typeof action>()
-  const { sponsors, randomNumber } = useLoaderData<typeof loader>()
-  const navigation = useNavigation()
-  const isLoading = navigation.state === 'submitting'
-  const hasSubmitted = data?.status === 'success'
-  const hasError = data?.status === 'error'
+export const Route = new FileRoute('/').createRoute({
+  component: Index,
+})
+
+function Index() {
+  // const data = useActionData()
+  // const { sponsors, randomNumber } = useLoaderData<typeof loader>()
+  const randomNumber = 0
+  // const navigation = useNavigation()
+  // const isLoading = navigation.state === 'submitting'
+  // const hasSubmitted = data?.status === 'success'
+  // const hasError = data?.status === 'error'
 
   const gradient = sample(gradients, randomNumber)
   const textColor = sample(textColors, randomNumber)
@@ -225,9 +221,7 @@ export default function Index() {
                   {label}
                 </a>
               ) : (
-                <Link to={item.to} prefetch="intent">
-                  {label}
-                </Link>
+                <Link to={item.to}>{label}</Link>
               )}
             </div>
           )
@@ -281,7 +275,7 @@ export default function Index() {
         >
           {libraries.map((library, i) => {
             return (
-              <LinkOrA
+              <Link
                 key={library.name}
                 to={library.to ?? '#'}
                 className={twMerge(
@@ -291,7 +285,6 @@ export default function Index() {
                 style={{
                   zIndex: i,
                 }}
-                prefetch="intent"
               >
                 <div className="flex gap-2 justify-between items-center">
                   <div className={`text-2xl font-extrabold `}>
@@ -305,7 +298,7 @@ export default function Index() {
                 <div className={`text-sm mt-2 text-black dark:text-white`}>
                   {library.description}
                 </div>
-              </LinkOrA>
+              </Link>
             )
           })}
         </div>
@@ -346,7 +339,6 @@ export default function Index() {
               <Link
                 to="/blog/ag-grid-partnership"
                 className="text-blue-500 uppercase font-black text-sm"
-                prefetch="intent"
               >
                 Learn More
               </Link>
@@ -507,7 +499,7 @@ export default function Index() {
             aspectRatio: '1/1',
           }}
         >
-          <SponsorPack sponsors={sponsors} />
+          {/* <SponsorPack sponsors={sponsors} /> */}
           {/* return (
                  <iframe
                    src={
@@ -559,7 +551,7 @@ export default function Index() {
             right-0 top-0 -translate-y-1/3 translate-x-1/3
             sm:opacity-20`}
           >
-            <img alt="Discord" src={discordImage} width={300} height={300} />
+            <img src={discordImage} width={300} height={300} />
           </div>
           <div className={`sm:col-span-2`}>
             <h3 className={`text-3xl`}>TanStack on Discord</h3>
@@ -585,7 +577,7 @@ export default function Index() {
       <div className="h-4" />
       <div className="px-4 mx-auto max-w-screen-lg relative">
         <div className="rounded-md p-8 bg-white shadow-xl shadow-gray-900/10 md:p-14 dark:bg-gray-800">
-          {!hasSubmitted ? (
+          {/* {!hasSubmitted ? (
             <Form method="post">
               <div>
                 <div className={`relative inline-block`}>
@@ -632,7 +624,7 @@ export default function Index() {
             </Form>
           ) : (
             <p>🎉 Thank you! Please confirm your email</p>
-          )}
+          )} */}
         </div>
       </div>
       <div className={`h-20`} />

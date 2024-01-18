@@ -55,19 +55,16 @@ export const CodeBlock = ({ children }: Props) => {
           <FaCopy className="text-gray-500 group-hover:text-gray-100 dark:group-hover:text-gray-200 transition duration-200" />
         )}
       </button>
-      <Highlight code={code.trim()} language={lang}>
-        {({ className, tokens, getLineProps, getTokenProps }) => (
-          <div className="relative not-prose">
-            <div
-              className="absolute bg-white text-sm z-10 border border-gray-300 px-2 rounded-md -top-3 right-2
+      <div className="relative not-prose">
+        <div
+          className="absolute bg-white text-sm z-10 border border-gray-300 px-2 rounded-md -top-3 right-2
             dark:bg-gray-600 dark:border-0"
-            >
-              {lang}
-            </div>
-            <div
-              className="rounded-md font-normal w-full border border-gray-200
-              dark:border-0"
-            >
+        >
+          {lang}
+        </div>
+        <div className="rounded-md font-normal w-full border border-gray-200 dark:border-0">
+          <Highlight code={code.trim()} language={lang}>
+            {({ className, tokens, getLineProps, getTokenProps }) => (
               <pre className={`overflow-scroll ${className}`} style={{}}>
                 <code className={className} style={{}}>
                   {tokens.map((line, i) => (
@@ -83,10 +80,10 @@ export const CodeBlock = ({ children }: Props) => {
                   ))}
                 </code>
               </pre>
-            </div>
-          </div>
-        )}
-      </Highlight>
+            )}
+          </Highlight>
+        </div>
+      </div>
     </div>
   )
 }

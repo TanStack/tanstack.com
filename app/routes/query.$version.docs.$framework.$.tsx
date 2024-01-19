@@ -1,10 +1,6 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json, redirect } from '@remix-run/node'
-import {
-  extractFrontMatter,
-  fetchRepoFile,
-  markdownToMdx,
-} from '~/utils/documents.server'
+import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import { repo, getBranch } from '~/routes/query'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
@@ -58,14 +54,12 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const frontMatter = extractFrontMatter(file)
   const description = removeMarkdown(frontMatter.excerpt ?? '')
 
-  const mdx = await markdownToMdx(frontMatter.content)
-
   return json(
     {
       title: frontMatter.data?.title,
       description,
       filePath,
-      code: mdx.code,
+      content: frontMatter.content,
     },
     {
       headers: {
@@ -85,14 +79,14 @@ export const meta: MetaFunction = ({ data }) => {
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteDocs() {
-  const { title, code, filePath } = useLoaderData<typeof loader>()
+  const { title, content, filePath } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
 
   return (
     <Doc
       title={title}
-      code={code}
+      content={content}
       repo={repo}
       branch={branch}
       filePath={filePath}

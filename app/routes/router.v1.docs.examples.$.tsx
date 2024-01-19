@@ -1,5 +1,5 @@
 import * as React from 'react'
-import type { LoaderFunction, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
@@ -8,7 +8,7 @@ import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
-export const loader: LoaderFunction = async (context) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': examplePath } = context.params
   const [kind, _name] = (examplePath ?? '').split('/')
   const [name, search] = _name.split('?')
@@ -28,7 +28,7 @@ export const meta: MetaFunction = ({ data }) => {
 }
 
 export default function RouteReactTableDocs() {
-  const { kind, name, search } = useLoaderData()
+  const { kind, name, search } = useLoaderData<typeof loader>()
 
   const examplePath = [kind, name].join('/')
 

@@ -1,9 +1,5 @@
 import { json, redirect } from '@remix-run/node'
-import {
-  extractFrontMatter,
-  fetchRepoFile,
-  markdownToMdx,
-} from '~/utils/documents.server'
+import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import RemoveMarkdown from 'remove-markdown'
 
 export async function loadDocs({
@@ -35,14 +31,12 @@ export async function loadDocs({
   const frontMatter = extractFrontMatter(file)
   const description = RemoveMarkdown(frontMatter.excerpt ?? '')
 
-  const mdx = await markdownToMdx(frontMatter.content)
-
   return json(
     {
       title: frontMatter.data?.title,
       description,
       filePath,
-      code: mdx.code,
+      content: frontMatter.content,
     },
     {
       headers: {

@@ -1,11 +1,7 @@
 import { useLoaderData } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import {
-  extractFrontMatter,
-  fetchRepoFile,
-  markdownToMdx,
-} from '~/utils/documents.server'
+import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import removeMarkdown from 'remove-markdown'
 import { seo } from '~/utils/seo'
@@ -31,13 +27,11 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const frontMatter = extractFrontMatter(file)
   const description = removeMarkdown(frontMatter.excerpt ?? '')
 
-  const mdx = await markdownToMdx(frontMatter.content)
-
   return json({
     title: frontMatter.data.title,
     description,
     published: frontMatter.data.published,
-    code: mdx.code,
+    content: frontMatter.content,
     filePath,
   })
 }
@@ -52,12 +46,12 @@ export const meta: MetaFunction = ({ data }) => {
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactTableDocs() {
-  const { title, code, filePath } = useLoaderData<typeof loader>()
+  const { title, content, filePath } = useLoaderData<typeof loader>()
 
   return (
     <Doc
       title={title}
-      code={code}
+      content={content}
       repo={'tanstack/tanstack.com'}
       branch={'main'}
       filePath={filePath}

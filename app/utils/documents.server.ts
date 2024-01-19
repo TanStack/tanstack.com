@@ -2,6 +2,7 @@ import fsp from 'node:fs/promises'
 import path from 'node:path'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
+import { fileURLToPath } from 'node:url'
 
 export type DocFrontMatter = {
   title: string

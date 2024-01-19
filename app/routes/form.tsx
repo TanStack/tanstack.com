@@ -1,7 +1,22 @@
-import { Outlet } from '@remix-run/react'
+import * as React from 'react'
+import {
+  Link,
+  Outlet,
+  useMatches,
+  useNavigate,
+  useParams,
+} from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
+import { generatePath, useMatchesData } from '~/utils/utils'
+import reactLogo from '~/images/react-logo.svg'
+import solidLogo from '~/images/solid-logo.svg'
+import vueLogo from '~/images/vue-logo.svg'
+import svelteLogo from '~/images/svelte-logo.svg'
+import angularLogo from '~/images/angular-logo.svg'
+import { FaDiscord, FaGithub } from 'react-icons/fa'
+import type { AvailableOptions } from '~/components/Select'
 import { Scarf } from '~/components/Scarf'
 
 export type FrameworkMenu = {

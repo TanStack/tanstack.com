@@ -2,8 +2,6 @@ import fsp from 'node:fs/promises'
 import path from 'node:path'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
-import remarkGfm from 'remark-gfm'
-import rehypeSlug from 'rehype-slug'
 
 export type DocFrontMatter = {
   title: string

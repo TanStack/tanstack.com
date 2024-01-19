@@ -1,5 +1,3 @@
-import { useMemo } from 'react'
-import { getMDXComponent } from 'mdx-bundler/client'
 import { CodeBlock } from '~/components/CodeBlock'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { FC, HTMLProps } from 'react'

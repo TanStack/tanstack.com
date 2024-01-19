@@ -1,16 +1,16 @@
 import { FaEdit } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
-import { Mdx } from '~/components/Mdx'
+import { RenderMarkdown } from '~/components/RenderMarkdown'
 
 export function Doc({
   title,
-  code,
+  content,
   repo,
   branch,
   filePath,
 }: {
   title: string
-  code: string
+  content: string
   repo: string
   branch: string
   filePath: string
@@ -22,7 +22,7 @@ export function Doc({
       <div className="h-px bg-gray-500 opacity-20" />
       <div className="h-4" />
       <div className="prose prose-gray prose-md dark:prose-invert max-w-none">
-        <Mdx code={code} />
+        <RenderMarkdown>{content}</RenderMarkdown>
       </div>
       <div className="h-12" />
       <div className="w-full h-px bg-gray-500 opacity-30" />

@@ -1,4 +1,4 @@
-import type { LoaderFunction, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
 import { Scarf } from '~/components/Scarf'
@@ -12,7 +12,7 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export const loader: LoaderFunction = async (context) => {
+export const loader = async (context: LoaderFunctionArgs) => {
   if (!context.request.url.includes('/ranger/v')) {
     return redirect(`${new URL(context.request.url).origin}/ranger/v1`)
   }

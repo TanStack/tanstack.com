@@ -1,14 +1,16 @@
-import * as React from 'react'
-import { getMDXComponent } from 'mdx-bundler/client'
 import { CodeBlock } from '~/components/CodeBlock'
 import { MarkdownLink } from '~/components/MarkdownLink'
-import type { MDXComponents } from 'mdx/types'
+import type { FC, HTMLProps } from 'react'
+import ReactMarkdown from 'react-markdown'
+import rehypeSlug from 'rehype-slug'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
 
 const CustomHeading = ({
   Comp,
   id,
   ...props
-}: React.HTMLProps<HTMLHeadingElement> & {
+}: HTMLProps<HTMLHeadingElement> & {
   Comp: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 }) => {
   if (id) {
@@ -23,7 +25,7 @@ const CustomHeading = ({
 
 const makeHeading =
   (type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
-  (props: React.HTMLProps<HTMLHeadingElement>) =>
+  (props: HTMLProps<HTMLHeadingElement>) =>
     (
       <CustomHeading
         Comp={type}
@@ -32,7 +34,7 @@ const makeHeading =
       />
     )
 
-const markdownComponents = {
+const defaultComponents: Record<string, FC> = {
   a: MarkdownLink,
   pre: CodeBlock,
   h1: makeHeading('h1'),
@@ -53,14 +55,21 @@ const markdownComponents = {
   },
 }
 
-export function Mdx({
-  code,
-  components,
-}: {
-  code: string
-  components?: MDXComponents
-}) {
-  const Doc = React.useMemo(() => getMDXComponent(code), [code])
+type Props = {
+  children: string
+  components?: Record<string, FC>
+}
 
-  return <Doc components={{ ...markdownComponents, ...components }} />
+export const RenderMarkdown = (props: Props) => {
+  const { components, children } = props
+
+  return (
+    <ReactMarkdown
+      plugins={[remarkGfm]}
+      rehypePlugins={[rehypeSlug, rehypeRaw]}
+      components={{ ...defaultComponents, ...components }}
+    >
+      {children}
+    </ReactMarkdown>
+  )
 }

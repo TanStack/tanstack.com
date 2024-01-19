@@ -1,9 +1,4 @@
-import {
-  useState,
-  type FC,
-  type HTMLAttributes,
-  type ReactElement,
-} from 'react'
+import { useState, type ReactNode } from 'react'
 import invariant from 'tiny-invariant'
 import type { Language } from 'prism-react-renderer'
 import { Highlight, Prism } from 'prism-react-renderer'
@@ -29,14 +24,20 @@ function isLanguageSupported(lang: string): lang is Language {
   return lang in Prism.languages
 }
 
-export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
+type Props = {
+  children: ReactNode
+}
+
+export const CodeBlock = ({ children }: Props) => {
   invariant(!!children, 'children is required')
   const [copied, setCopied] = useState(false)
-  const child = children as ReactElement
-  const className = child.props?.className || ''
+  const child = Array.isArray(children) ? children[0] : children
+  const className = child.props.className || ''
   const userLang = getLanguageFromClassName(className)
   const lang = isLanguageSupported(userLang) ? userLang : 'bash'
-  const code = child.props.children || ''
+  const code = Array.isArray(child.props.children)
+    ? child.props.children[0]
+    : child.props.children
   return (
     <div className="w-full max-w-full relative">
       <button
@@ -54,19 +55,16 @@ export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
           <FaCopy className="text-gray-500 group-hover:text-gray-100 dark:group-hover:text-gray-200 transition duration-200" />
         )}
       </button>
-      <Highlight code={code.trim()} language={lang}>
-        {({ className, tokens, getLineProps, getTokenProps }) => (
-          <div className="relative not-prose">
-            <div
-              className="absolute bg-white text-sm z-10 border border-gray-300 px-2 rounded-md -top-3 right-2
+      <div className="relative not-prose">
+        <div
+          className="absolute bg-white text-sm z-10 border border-gray-300 px-2 rounded-md -top-3 right-2
             dark:bg-gray-600 dark:border-0"
-            >
-              {lang}
-            </div>
-            <div
-              className="rounded-md font-normal w-full border border-gray-200
-              dark:border-0"
-            >
+        >
+          {lang}
+        </div>
+        <div className="rounded-md font-normal w-full border border-gray-200 dark:border-0">
+          <Highlight code={code.trim()} language={lang}>
+            {({ className, tokens, getLineProps, getTokenProps }) => (
               <pre className={`overflow-scroll ${className}`} style={{}}>
                 <code className={className} style={{}}>
                   {tokens.map((line, i) => (
@@ -82,10 +80,10 @@ export const CodeBlock: FC<HTMLAttributes<HTMLPreElement>> = ({ children }) => {
                   ))}
                 </code>
               </pre>
-            </div>
-          </div>
-        )}
-      </Highlight>
+            )}
+          </Highlight>
+        </div>
+      </div>
     </div>
   )
 }

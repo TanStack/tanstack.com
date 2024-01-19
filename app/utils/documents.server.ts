@@ -1,20 +1,9 @@
 import fsp from 'node:fs/promises'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { bundleMDX } from 'mdx-bundler'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
 import remarkGfm from 'remark-gfm'
 import rehypeSlug from 'rehype-slug'
-
-type BundledMDX = Awaited<ReturnType<typeof bundleMDX>>
-
-export type Doc = {
-  filepath: string
-  mdx: Omit<BundledMDX, 'frontmatter'> & {
-    frontmatter: DocFrontMatter
-  }
-}
 
 export type DocFrontMatter = {
   title: string
@@ -194,19 +183,6 @@ export async function fetchRepoFile(
   })
 
   return file
-}
-
-export async function markdownToMdx(content: string) {
-  const mdx = await bundleMDX<{ title: string }>({
-    source: content,
-    mdxOptions: (options) => {
-      options.remarkPlugins = [...(options.remarkPlugins ?? []), remarkGfm]
-      options.rehypePlugins = [...(options.rehypePlugins ?? []), rehypeSlug]
-      return options
-    },
-  })
-
-  return mdx
 }
 
 export function extractFrontMatter(content: string) {

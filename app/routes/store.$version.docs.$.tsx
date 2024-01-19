@@ -17,7 +17,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   })
 }
 
-export const meta: MetaFunction = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
     title: `${data?.title} | TanStack Store Docs`,
     description: data?.description,
@@ -27,13 +27,13 @@ export const meta: MetaFunction = ({ data }) => {
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteDocs() {
-  const { title, code, filePath } = useLoaderData<typeof loader>()
+  const { title, content, filePath } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
   return (
     <Doc
       title={title}
-      code={code}
+      content={content}
       repo={repo}
       branch={branch}
       filePath={filePath}

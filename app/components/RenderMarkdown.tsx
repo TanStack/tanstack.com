@@ -43,6 +43,7 @@ const defaultComponents: Record<string, FC> = {
   h4: makeHeading('h4'),
   h5: makeHeading('h5'),
   h6: makeHeading('h6'),
+  iframe: (props) => <iframe {...props} className="w-full" />,
   code: ({ className = '', ...props }: React.HTMLProps<HTMLElement>) => {
     return (
       <code

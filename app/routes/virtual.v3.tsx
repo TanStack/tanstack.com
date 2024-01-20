@@ -5,6 +5,8 @@ import type { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { useMatchesData } from '~/utils/utils'
 
+export const repo = 'tanstack/virtual'
+
 export const v3branch = 'main'
 
 export const loader = async () => {

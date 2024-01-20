@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa/index'
 import { Link } from '@remix-run/react'
-import { useReactTableV8Config, gradientText } from '~/projects/table'
+import { gradientText, useReactTableV8Config } from '~/projects/table'
 import { seo } from '~/utils/seo'
 import { Docs } from '~/components/Docs'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'

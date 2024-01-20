@@ -1,5 +1,5 @@
 import { Outlet } from '@remix-run/react'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
 import { seo } from '~/utils/seo'
 import { Scarf } from '~/components/Scarf'

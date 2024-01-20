@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa/index'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { v8branch, gradientText } from '~/projects/table'
+import { gradientText, v8branch } from '~/projects/table'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io/index'

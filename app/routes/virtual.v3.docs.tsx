@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa/index'
 import { Link } from '@remix-run/react'
-import { useVirtualV3Config, gradientText } from '~/projects/virtual'
+import { gradientText, useVirtualV3Config } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { Docs } from '~/components/Docs'
 import type { MetaFunction } from '@remix-run/react'

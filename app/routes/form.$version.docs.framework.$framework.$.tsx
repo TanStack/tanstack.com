@@ -27,14 +27,14 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteDocs() {
-  const { title, code, filePath } = useLoaderData<typeof loader>()
+  const { title, content, filePath } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
 
   return (
     <Doc
       title={title}
-      code={code}
+      content={content}
       repo={repo}
       branch={branch}
       filePath={filePath}

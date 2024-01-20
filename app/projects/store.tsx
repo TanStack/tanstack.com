@@ -35,8 +35,6 @@ export type GithubDocsConfig = {
 
 export type Framework = 'angular' | 'react' | 'svelte' | 'vue' | 'solid'
 
-//
-
 export const repo = 'tanstack/store'
 
 export const latestBranch = 'main'
@@ -99,8 +97,6 @@ export function getBranch(argVersion?: string) {
 
   return ['latest', latestVersion].includes(version) ? latestBranch : version
 }
-
-//
 
 export const useReactStoreDocsConfig = () => {
   const matches = useMatches()
@@ -195,5 +191,3 @@ export const useReactStoreDocsConfig = () => {
     versionConfig,
   }
 }
-
-//

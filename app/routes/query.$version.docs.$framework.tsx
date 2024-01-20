@@ -8,10 +8,10 @@ import { Docs } from '~/components/Docs'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import {
   availableVersions,
+  gradientText,
   latestVersion,
   repo,
   useReactQueryDocsConfig,
-  gradientText,
 } from '~/projects/query'
 import type { MenuItem } from '~/projects/query'
 import reactLogo from '~/images/react-logo.svg'

@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json, redirect } from '@remix-run/node'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
-import { repo, getBranch } from '~/routes/query'
+import { repo, getBranch } from '~/projects/query'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
@@ -69,7 +69,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   )
 }
 
-export const meta: MetaFunction = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
     title: `${data?.title} | TanStack Query Docs`,
     description: data?.description,

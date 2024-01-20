@@ -12,7 +12,7 @@ import {
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { v3branch } from '~/routes/virtual.v3'
+import { gradientText, v3branch } from '~/projects/virtual'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
@@ -21,9 +21,6 @@ import { TbHeartHandshake } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-
-export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600'
 
 const menu = [
   {

@@ -2,7 +2,7 @@ import { useLoaderData } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
-import { v8branch } from '~/routes/table.v8'
+import { repo, v8branch } from '~/projects/table'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
@@ -43,7 +43,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   )
 }
 
-export const meta: MetaFunction = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
     title: `${data?.title ?? 'Docs'} | TanStack Table Docs`,
     description: data?.description,
@@ -59,7 +59,7 @@ export default function RouteReactTableDocs() {
     <Doc
       title={title}
       content={content}
-      repo={'tanstack/table'}
+      repo={repo}
       branch={v8branch}
       filePath={filePath}
     />

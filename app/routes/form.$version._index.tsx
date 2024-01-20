@@ -17,10 +17,10 @@ import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { getBranch, gradientText, latestVersion, repo } from '~/routes/form'
+import { getBranch, gradientText, latestVersion, repo } from '~/projects/form'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import type { Framework } from '~/routes/form'
+import type { Framework } from '~/projects/form'
 
 const menu = [
   {

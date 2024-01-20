@@ -12,16 +12,13 @@ import { json } from '@remix-run/node'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { v1branch } from '~/routes/router.v1'
+import { gradientText, v1branch } from '~/projects/router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { LoaderFunction } from '@remix-run/node'
-
-export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-lime-500 to-emerald-500'
 
 const menu = [
   {

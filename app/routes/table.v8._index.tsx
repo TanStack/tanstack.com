@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { v8branch } from '~/routes/table.v8'
+import { gradientText, v8branch } from '~/projects/table'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
@@ -20,9 +20,6 @@ import { VscPreview } from 'react-icons/vsc'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import agGridImage from '~/images/ag-grid.png'
-
-export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
 
 const menu = [
   {

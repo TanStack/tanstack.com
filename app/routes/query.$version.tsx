@@ -3,7 +3,7 @@ import { json } from '@remix-run/node'
 import type { LoaderFunctionArgs } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { fetchRepoFile } from '~/utils/documents.server'
-import { repo, getBranch, latestVersion } from '~/routes/query'
+import { repo, getBranch, latestVersion } from '~/projects/query'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 
 export const loader = async (context: LoaderFunctionArgs) => {

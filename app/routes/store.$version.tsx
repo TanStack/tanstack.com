@@ -5,7 +5,7 @@ import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
-import { repo, getBranch, latestVersion } from '~/routes/store'
+import { repo, getBranch, latestVersion } from '~/projects/store'
 
 export const loader = async (context: LoaderFunctionArgs) => {
   const branch = getBranch(context.params.version)

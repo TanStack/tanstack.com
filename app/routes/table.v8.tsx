@@ -2,14 +2,8 @@ import * as React from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import type { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
-import { useMatchesData } from '~/utils/utils'
-
-export const repo = 'tanstack/table'
-
-export const v8branch = 'main'
-
+import { v8branch } from '~/projects/table'
 export const loader = async () => {
   const config = await fetchRepoFile(
     'tanstack/table',
@@ -27,9 +21,6 @@ export const loader = async () => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-
-export const useReactTableV8Config = () =>
-  useMatchesData('/table/v8') as DocsConfig
 
 export default function RouteReactTable() {
   const [params] = useSearchParams()

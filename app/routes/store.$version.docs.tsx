@@ -1,6 +1,6 @@
 import { Outlet, useParams } from '@remix-run/react'
 import { Docs } from '~/components/Docs'
-import { createLogo, useReactStoreDocsConfig } from '~/routes/store'
+import { createLogo, useReactStoreDocsConfig } from '~/projects/store'
 
 export default function Component() {
   const { version } = useParams()

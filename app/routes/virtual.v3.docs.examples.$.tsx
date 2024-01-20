@@ -3,7 +3,7 @@ import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
-import { repo, v3branch } from '~/routes/virtual.v3'
+import { repo, v3branch } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
@@ -16,7 +16,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   return json({ kind, name, search: search ?? '' })
 }
 
-export const meta: MetaFunction = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
     title: `${capitalize(data.kind)} Virtual ${slugToTitle(
       data.name

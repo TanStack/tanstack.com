@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/routes/store'
+import { repo, getBranch } from '~/projects/store'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import { useLoaderData, useParams } from '@remix-run/react'

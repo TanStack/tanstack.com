@@ -7,7 +7,7 @@ export const loader = (context: LoaderFunctionArgs) => {
   return redirect(`/query/latest`, 301)
 }
 
-export function handleRedirectsFromV3(context: LoaderFunctionArgs) {
+function handleRedirectsFromV3(context: LoaderFunctionArgs) {
   const url = new URL(context.request.url)
 
   // Redirect old query v3 docs

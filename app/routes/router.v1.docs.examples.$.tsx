@@ -3,7 +3,7 @@ import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
-import { v1branch } from '~/routes/router.v1'
+import { repo, v1branch } from '~/routes/router.v1'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
@@ -38,11 +38,11 @@ export default function RouteReactTableDocs() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const githubUrl = `https://github.com/tanstack/router/tree/${v1branch}/examples/${examplePath}`
-  const stackBlitzUrl = `https://stackblitz.com/github/tanstack/router/tree/${v1branch}/examples/${examplePath}?${search}embed=1&theme=${
+  const githubUrl = `https://github.com/${repo}/tree/${v1branch}/examples/${examplePath}`
+  const stackBlitzUrl = `https://stackblitz.com/github/${repo}/tree/${v1branch}/examples/${examplePath}?${search}embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
-  const codesandboxUrl = `https://codesandbox.io/s/github/tanstack/router/tree/${v1branch}/examples/${examplePath}?${search}embed=1&theme=${
+  const codesandboxUrl = `https://codesandbox.io/s/github/${repo}/tree/${v1branch}/examples/${examplePath}?${search}embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
 

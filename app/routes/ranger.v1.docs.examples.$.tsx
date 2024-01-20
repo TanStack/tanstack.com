@@ -3,9 +3,10 @@ import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
-import { v1branch } from '~/routes/ranger.v1'
+import { repo, v1branch } from '~/routes/ranger.v1'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
+import { FaExternalLinkAlt } from 'react-icons/fa'
 
 export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': examplePath } = context.params
@@ -37,18 +38,52 @@ export default function RouteReactRangerDocs() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
+  const githubUrl = `https://github.com/${repo}/tree/${v1branch}/examples/${examplePath}`
+  const stackBlitzUrl = `https://stackblitz.com/github/${repo}/tree/${v1branch}/examples/${examplePath}?${search}embed=1&theme=${
+    isDark ? 'dark' : 'light'
+  }`
+  const codesandboxUrl = `https://codesandbox.io/s/github/${repo}/tree/${v1branch}/examples/${examplePath}?${search}embed=1&theme=${
+    isDark ? 'dark' : 'light'
+  }`
+
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto">
       <div className="p-4 lg:p-6">
         <DocTitle>
-          {capitalize(kind)} Example: {slugToTitle(name)}
+          <span>
+            {capitalize(kind)} Example: {slugToTitle(name)}
+          </span>
+          <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
+            <a
+              href={githubUrl}
+              target="_blank"
+              className="flex gap-1 items-center"
+              rel="noreferrer"
+            >
+              <FaExternalLinkAlt /> Github
+            </a>
+            <a
+              href={stackBlitzUrl}
+              target="_blank"
+              className="flex gap-1 items-center"
+              rel="noreferrer"
+            >
+              <FaExternalLinkAlt /> StackBlitz
+            </a>
+            <a
+              href={codesandboxUrl}
+              target="_blank"
+              className="flex gap-1 items-center"
+              rel="noreferrer"
+            >
+              <FaExternalLinkAlt /> CodeSandbox
+            </a>
+          </div>
         </DocTitle>
       </div>
       <div className="flex-1 lg:px-6 flex flex-col min-h-0">
         <iframe
-          src={`https://stackblitz.com/github/tanstack/ranger/tree/${v1branch}/examples/${examplePath}?${search}embed=1&theme=${
-            isDark ? 'dark' : 'light'
-          }`}
+          src={stackBlitzUrl}
           title={`tanstack/ranger: ${examplePath}`}
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
           className="flex-1 w-full overflow-hidden lg:rounded-lg shadow-xl shadow-gray-700/20 bg-white dark:bg-black"

@@ -7,7 +7,9 @@ export const gradientText =
 export const repo = 'tanstack/query'
 
 const latestBranch = 'main'
+
 export const latestVersion = 'v5'
+
 export const availableVersions = [
   {
     name: 'v5',

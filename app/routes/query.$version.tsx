@@ -2,20 +2,23 @@ import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import type { LoaderFunctionArgs } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { fetchRepoFile } from '~/utils/documents.server'
 import { repo, getBranch, latestVersion } from '~/projects/query'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
+import { getTanstackDocsConfig } from '~/utils/config'
 
 export const loader = async (context: LoaderFunctionArgs) => {
   const branch = getBranch(context.params.version)
-  const config = await fetchRepoFile(repo, branch, `docs/config.json`)
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
+  const { version, framework } = context.params
 
-  if (!config) {
-    throw new Error('Repo docs/config.json not found!')
-  }
-
-  return json(JSON.parse(config))
+  return json({
+    tanstackDocsConfig,
+    framework,
+    version,
+  })
 }
+
+export type QueryConfigLoader = typeof loader
 
 export const ErrorBoundary = DefaultErrorBoundary
 

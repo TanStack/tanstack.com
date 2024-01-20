@@ -1,24 +1,19 @@
-import * as React from 'react'
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { fetchRepoFile } from '~/utils/documents.server'
 import { v8branch } from '~/projects/table'
+import { getTanstackDocsConfig } from '~/utils/config'
+
 export const loader = async () => {
-  const config = await fetchRepoFile(
-    'tanstack/table',
-    v8branch,
-    `docs/config.json`
-  )
+  const repo = 'tanstack/table'
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v8branch)
 
-  const parsedConfig = JSON.parse(config ?? '')
-
-  if (!parsedConfig) {
-    throw new Error('Repo docs/config.json not found!')
-  }
-
-  return json(parsedConfig)
+  return json({
+    tanstackDocsConfig,
+  })
 }
+
+export type TableConfigLoaderData = typeof loader
 
 export const ErrorBoundary = DefaultErrorBoundary
 

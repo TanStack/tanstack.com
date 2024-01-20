@@ -11,9 +11,8 @@ import {
   gradientText,
   latestVersion,
   repo,
-  useReactQueryDocsConfig,
+  useQueryDocsConfig,
 } from '~/projects/query'
-import type { MenuItem } from '~/projects/query'
 import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
@@ -21,6 +20,7 @@ import svelteLogo from '~/images/svelte-logo.svg'
 import angularLogo from '~/images/angular-logo.svg'
 import type { AvailableOptions } from '~/components/Select'
 import { generatePath } from '~/utils/utils'
+import type { MenuItem } from '~/utils/config'
 
 const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
@@ -81,13 +81,15 @@ export default function RouteFrameworkParam() {
   const matches = useMatches()
   const match = matches[matches.length - 1]
   const navigate = useNavigate()
-  const params = useParams()
-  const framework = params.framework
-  const version = params.version
-  let config = useReactQueryDocsConfig(version)
+  const { version, framework } = useParams()
+  const { tanstackDocsConfig } = useQueryDocsConfig()
+
+  let config = tanstackDocsConfig
 
   const docsConfig = React.useMemo(() => {
-    const frameworkMenu = config.menu.find((d) => d.framework === framework)
+    const frameworkMenu = config.frameworkMenus?.find(
+      (d) => d.framework === framework
+    )
     if (!frameworkMenu) return null
     return {
       ...config,
@@ -96,7 +98,11 @@ export default function RouteFrameworkParam() {
   }, [framework, config])
 
   const frameworkConfig = React.useMemo(() => {
-    const availableFrameworks = config.menu.reduce(
+    if (!config.frameworkMenus) {
+      return undefined
+    }
+
+    const availableFrameworks = config.frameworkMenus.reduce(
       (acc: AvailableOptions, menuEntry) => {
         acc[menuEntry.framework as string] =
           frameworks[menuEntry.framework as keyof typeof frameworks]
@@ -117,7 +123,7 @@ export default function RouteFrameworkParam() {
         navigate(url)
       },
     }
-  }, [config.menu, framework, match, navigate])
+  }, [framework, match, navigate, config.frameworkMenus])
 
   const versionConfig = React.useMemo(() => {
     const available = availableVersions.reduce(

@@ -82,9 +82,6 @@ export const loader = async () => {
 
 export default function ReactTableRoute() {
   const { sponsors } = useLoaderData<typeof loader>()
-  // const config = useReactTableV8Config()
-  // const [params, setParams] = useSearchParams()
-  // const framework = params.get('framework') ?? 'react'
   const [framework, setFramework] = React.useState<
     'react' | 'svelte' | 'vue' | 'solid'
   >('react')

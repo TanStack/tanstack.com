@@ -2,23 +2,20 @@ import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { fetchRepoFile } from '~/utils/documents.server'
 import { v1branch } from '~/projects/ranger'
+import { getTanstackDocsConfig } from '~/utils/config'
+
 export const loader: LoaderFunction = async () => {
-  const config = await fetchRepoFile(
-    'tanstack/ranger',
-    v1branch,
-    `docs/config.json`
-  )
+  const repo = 'tanstack/ranger'
 
-  const parsedConfig = JSON.parse(config ?? '')
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v1branch)
 
-  if (!parsedConfig) {
-    throw new Error('Repo docs/config.json not found!')
-  }
-
-  return json(parsedConfig)
+  return json({
+    tanstackDocsConfig,
+  })
 }
+
+export type RangerConfigV1Loader = typeof loader
 
 export const ErrorBoundary = DefaultErrorBoundary
 

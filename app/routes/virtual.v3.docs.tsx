@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
 import { gradientText, useVirtualV3Config } from '~/projects/virtual'
@@ -54,16 +54,15 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export default function RouteReactTable() {
-  let config = useVirtualV3Config()
+export default function RouteVirtual() {
+  const tanstackConfig = useVirtualV3Config()
 
-  config = React.useMemo(
-    () =>
-      ({
-        ...config,
-        menu: [localMenu, ...config.menu],
-      } as DocsConfig),
-    [config]
+  const config: DocsConfig = useMemo(
+    () => ({
+      ...tanstackConfig,
+      menu: [localMenu, ...tanstackConfig.menu],
+    }),
+    [tanstackConfig]
   )
 
   return (

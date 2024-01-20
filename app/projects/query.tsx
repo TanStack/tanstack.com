@@ -1,5 +1,5 @@
-import { useMatchesData } from '~/utils/utils'
-import type { ReactNode } from 'react'
+import { useRouteLoaderData } from '@remix-run/react'
+import type { QueryConfigLoader } from '~/routes/query.$version'
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500'
@@ -37,30 +37,16 @@ export function getBranch(argVersion?: string) {
   )
 }
 
-export type Menu = {
-  framework: string
-  menuItems: MenuItem[]
-}
-
-export type MenuItem = {
-  label: string | ReactNode
-  children: {
-    label: string | ReactNode
-    to: string
-  }[]
-}
-
-export type GithubDocsConfig = {
-  docSearch: {
-    appId: string
-    apiKey: string
-    indexName: string
-  }
-  menu: Menu[]
-  users: string[]
-}
-
 export type Framework = 'angular' | 'react' | 'svelte' | 'vue' | 'solid'
 
-export const useReactQueryDocsConfig = (version?: string) =>
-  useMatchesData(`/query/${version}`) as GithubDocsConfig
+export const useQueryDocsConfig = () => {
+  const queryConfigLoaderData = useRouteLoaderData<QueryConfigLoader>(
+    'routes/query.$version'
+  )
+
+  if (!queryConfigLoaderData?.tanstackDocsConfig) {
+    throw new Error('Config could not be read for tanstack/query!')
+  }
+
+  return queryConfigLoaderData
+}

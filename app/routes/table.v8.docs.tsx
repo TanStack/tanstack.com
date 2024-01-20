@@ -1,12 +1,11 @@
-import * as React from 'react'
+import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link } from '@remix-run/react'
 import { gradientText, useReactTableV8Config } from '~/projects/table'
 import { seo } from '~/utils/seo'
-import { Docs } from '~/components/Docs'
+import { Docs, type DocsConfig } from '~/components/Docs'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import type { MetaFunction } from '@remix-run/node'
-import type { DocsConfig } from '~/components/Docs'
 
 const logo = (
   <>
@@ -58,14 +57,13 @@ export const meta: MetaFunction = () => {
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactTable() {
-  let config = useReactTableV8Config()
+  let config: DocsConfig = useReactTableV8Config()
 
-  config = React.useMemo(
-    () =>
-      ({
-        ...config,
-        menu: [localMenu, ...config.menu],
-      } as DocsConfig),
+  config = useMemo(
+    () => ({
+      ...config,
+      menu: [localMenu, ...config.menu],
+    }),
     [config]
   )
 

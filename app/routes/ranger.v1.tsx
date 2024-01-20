@@ -4,7 +4,6 @@ import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { v1branch } from '~/projects/ranger'
-
 export const loader: LoaderFunction = async () => {
   const config = await fetchRepoFile(
     'tanstack/ranger',

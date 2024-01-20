@@ -3,7 +3,6 @@ import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { fetchRepoFile } from '~/utils/documents.server'
 import { v3branch } from '~/projects/virtual'
-
 export const loader = async () => {
   const config = await fetchRepoFile(
     'tanstack/virtual',

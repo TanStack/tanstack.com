@@ -12,6 +12,18 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath, framework, version } = context.params
   const url = new URL(context.request.url)
 
+  /*
+    `v3` has only React docs. See:
+    https://github.com/TanStack/query/blob/v3/docs/config.json#L9
+
+    The redirect we throw here for all frameworks that do not have
+    docs for TanStack Query v3 fixes this bug:
+    https://github.com/TanStack/tanstack.com/issues/85
+  */
+  if (version === 'v3' && framework && framework !== 'react') {
+    throw redirect(`/query/v3/docs/react/${docsPath}`)
+  }
+
   // When first path part after docs does not contain framework name, add `react`
   if (
     !context.request.url.includes('/docs/angular') &&

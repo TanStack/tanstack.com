@@ -2,7 +2,7 @@ import { useLoaderData } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
-import { v1branch } from '~/projects/ranger'
+import { repo, v1branch } from '~/projects/ranger'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import removeMarkdown from 'remove-markdown'
@@ -59,7 +59,7 @@ export default function RouteReactRangerDocs() {
     <Doc
       title={title}
       content={content}
-      repo={'tanstack/ranger'}
+      repo={repo}
       branch={v1branch}
       filePath={filePath}
     />

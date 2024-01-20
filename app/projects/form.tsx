@@ -35,8 +35,6 @@ export type GithubDocsConfig = {
 
 export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
 
-//
-
 export const repo = 'tanstack/form'
 
 export const latestBranch = 'main'
@@ -99,8 +97,6 @@ export function getBranch(argVersion?: string) {
 
   return ['latest', latestVersion].includes(version) ? latestBranch : version
 }
-
-//
 
 export const useReactFormDocsConfig = () => {
   const matches = useMatches()

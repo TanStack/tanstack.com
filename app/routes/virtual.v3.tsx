@@ -1,11 +1,8 @@
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import type { DocsConfig } from '~/components/Docs'
 import { fetchRepoFile } from '~/utils/documents.server'
-import { useMatchesData } from '~/utils/utils'
-
-export const v3branch = 'main'
+import { v3branch } from '~/projects/virtual'
 
 export const loader = async () => {
   const config = await fetchRepoFile(
@@ -24,9 +21,6 @@ export const loader = async () => {
 }
 
 export const ErrorBoundary = DefaultErrorBoundary
-
-export const useVirtualV3Config = () =>
-  useMatchesData('/virtual/v3') as DocsConfig
 
 export default function RouteReactVirtual() {
   const [params] = useSearchParams()

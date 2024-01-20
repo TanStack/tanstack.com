@@ -2,7 +2,7 @@ import React from 'react'
 import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
-import { v8branch } from '~/routes/table.v8'
+import { v8branch } from '~/projects/table'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
@@ -17,7 +17,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   return json({ kind, name })
 }
 
-export const meta: MetaFunction = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
     title: `${capitalize(data.kind)} Table ${slugToTitle(
       data.name

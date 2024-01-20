@@ -12,9 +12,9 @@
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
+    "noEmit": true,
     "paths": {
       "~/*": ["./app/*"]
-    },
-    "noEmit": true
+    }
   }
 }

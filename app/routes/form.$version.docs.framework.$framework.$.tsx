@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/routes/form'
+import { repo, getBranch } from '~/projects/form'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import { useLoaderData, useParams } from '@remix-run/react'
@@ -27,14 +27,14 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteDocs() {
-  const { title, code, filePath } = useLoaderData<typeof loader>()
+  const { title, content, filePath } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
 
   return (
     <Doc
       title={title}
-      code={code}
+      content={content}
       repo={repo}
       branch={branch}
       filePath={filePath}

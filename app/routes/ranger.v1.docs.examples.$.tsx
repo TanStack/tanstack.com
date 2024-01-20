@@ -3,7 +3,7 @@ import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
-import { v1branch } from '~/routes/ranger.v1'
+import { v1branch } from '~/projects/ranger'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
@@ -15,7 +15,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   return json({ kind, name, search: search ?? '' })
 }
 
-export const meta: MetaFunction = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
     title: `${capitalize(data.kind)} Ranger ${slugToTitle(
       data.name

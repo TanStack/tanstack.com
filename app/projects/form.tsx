@@ -132,6 +132,9 @@ export const useReactFormDocsConfig = () => {
           ...match.params,
           framework: option.value,
         })
+
+        localStorage.setItem('framework', option.value)
+
         navigate(url)
       },
     }

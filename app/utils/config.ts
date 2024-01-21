@@ -57,14 +57,10 @@ export function getCurrentlySelectedFrameworkFromLocalStorage(
   Fetch the config file for the project and validate it.
   */
 export async function getTanstackDocsConfig(repo: string, branch: string) {
-  const config = await fetchRepoFile(
-    repo,
-    branch,
-    `docs/tanstack-docs-config.json`
-  )
+  const config = await fetchRepoFile(repo, branch, `docs/config.json`)
 
   if (!config) {
-    throw new Error('Repo docs/tanstack-docs-config.json not found!')
+    throw new Error('Repo docs/config.json not found!')
   }
 
   try {
@@ -79,6 +75,6 @@ export async function getTanstackDocsConfig(repo: string, branch: string) {
 
     return validationResult.data
   } catch (e) {
-    throw new Error('Invalid docs/tanstack-docs-config.json file')
+    throw new Error('Invalid docs/config.json file')
   }
 }

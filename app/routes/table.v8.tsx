@@ -1,19 +1,5 @@
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
-import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { v8branch } from '~/projects/table'
-import { getTanstackDocsConfig } from '~/utils/config'
-
-export const loader = async () => {
-  const repo = 'tanstack/table'
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v8branch)
-
-  return json({
-    tanstackDocsConfig,
-  })
-}
-
-export type TableConfigLoaderData = typeof loader
 
 export const ErrorBoundary = DefaultErrorBoundary
 

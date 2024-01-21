@@ -1,24 +1,7 @@
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
-import { json } from '@remix-run/node'
-import type { LoaderFunctionArgs } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { repo, getBranch, latestVersion } from '~/projects/query'
+import { latestVersion } from '~/projects/query'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
-import { getTanstackDocsConfig } from '~/utils/config'
-
-export const loader = async (context: LoaderFunctionArgs) => {
-  const branch = getBranch(context.params.version)
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
-  const { version, framework } = context.params
-
-  return json({
-    tanstackDocsConfig,
-    framework,
-    version,
-  })
-}
-
-export type QueryConfigLoader = typeof loader
 
 export const ErrorBoundary = DefaultErrorBoundary
 

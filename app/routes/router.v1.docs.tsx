@@ -1,11 +1,23 @@
-import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import { Link } from '@remix-run/react'
-import type { MetaFunction } from '@remix-run/node'
-import { gradientText, useRouterV1Config } from '~/projects/router'
+import {
+  type ClientLoaderFunctionArgs,
+  Link,
+  json,
+  useLoaderData,
+} from '@remix-run/react'
+import type { LoaderFunction, MetaFunction } from '@remix-run/node'
+import { gradientText, repo, v1branch } from '~/projects/router'
 import { seo } from '~/utils/seo'
-import type { DocsConfig } from '~/components/Docs'
 import { Docs } from '~/components/Docs'
+import { getTanstackDocsConfig } from '~/utils/config'
+
+export const loader: LoaderFunction = async () => {
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v1branch)
+
+  return json({
+    tanstackDocsConfig,
+  })
+}
 
 const logo = (
   <>
@@ -51,17 +63,21 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export default function DocsRoute() {
-  let config = useRouterV1Config()
+export const clientLoader = async ({
+  serverLoader,
+}: ClientLoaderFunctionArgs) => {
+  const { tanstackDocsConfig } = await serverLoader<typeof loader>()
 
-  config = React.useMemo(
-    () =>
-      ({
-        ...config,
-        menu: [localMenu, ...config.menu],
-      } as DocsConfig),
-    [config]
-  )
+  const config = {
+    ...tanstackDocsConfig,
+    menu: [localMenu, ...tanstackDocsConfig.menu],
+  }
+
+  return config
+}
+
+export default function DocsRoute() {
+  const config = useLoaderData<typeof clientLoader>()
 
   return (
     <Docs

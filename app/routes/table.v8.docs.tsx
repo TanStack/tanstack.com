@@ -1,11 +1,20 @@
-import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import { Link } from '@remix-run/react'
-import { gradientText, useReactTableV8Config } from '~/projects/table'
+import type { ClientLoaderFunctionArgs } from '@remix-run/react'
+import { Link, json, useLoaderData } from '@remix-run/react'
+import { gradientText, repo, v8branch } from '~/projects/table'
 import { seo } from '~/utils/seo'
-import { Docs, type DocsConfig } from '~/components/Docs'
+import { Docs } from '~/components/Docs'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import type { MetaFunction } from '@remix-run/node'
+import { getTanstackDocsConfig } from '~/utils/config'
+
+export const loader = async () => {
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v8branch)
+
+  return json({
+    tanstackDocsConfig,
+  })
+}
 
 const logo = (
   <>
@@ -54,18 +63,23 @@ export const meta: MetaFunction = () => {
   })
 }
 
+export const clientLoader = async ({
+  serverLoader,
+}: ClientLoaderFunctionArgs) => {
+  const { tanstackDocsConfig } = await serverLoader<typeof loader>()
+
+  const config = {
+    ...tanstackDocsConfig,
+    menu: [localMenu, ...tanstackDocsConfig.menu],
+  }
+
+  return config
+}
+
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactTable() {
-  let config: DocsConfig = useReactTableV8Config()
-
-  config = useMemo(
-    () => ({
-      ...config,
-      menu: [localMenu, ...config.menu],
-    }),
-    [config]
-  )
+  const config = useLoaderData<typeof clientLoader>()
 
   return (
     <Docs

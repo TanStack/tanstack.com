@@ -1,20 +1,5 @@
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
-import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { v3branch } from '~/projects/virtual'
-import { getTanstackDocsConfig } from '~/utils/config'
-
-export const loader = async () => {
-  const repo = 'tanstack/virtual'
-
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v3branch)
-
-  return json({
-    tanstackDocsConfig,
-  })
-}
-
-export type VirtualConfigLoaderData = typeof loader
 
 export const ErrorBoundary = DefaultErrorBoundary
 

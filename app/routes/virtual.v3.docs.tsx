@@ -1,11 +1,20 @@
-import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import { Link } from '@remix-run/react'
-import { gradientText, useVirtualV3Config } from '~/projects/virtual'
+import { Link, json, useLoaderData } from '@remix-run/react'
+import { gradientText, repo, v3branch } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { Docs } from '~/components/Docs'
-import type { MetaFunction } from '@remix-run/react'
-import type { DocsConfig } from '~/components/Docs'
+import type { ClientLoaderFunctionArgs, MetaFunction } from '@remix-run/react'
+import { getTanstackDocsConfig } from '~/utils/config'
+
+export const loader = async () => {
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v3branch)
+
+  return json({
+    tanstackDocsConfig,
+  })
+}
+
+export type VirtualConfigLoaderData = typeof loader
 
 const logo = (
   <>
@@ -53,17 +62,21 @@ export const meta: MetaFunction = () => {
       'Headless UI for virtualizing long scrollable lists with TS/JS, React, Solid, Svelte and Vue',
   })
 }
+export const clientLoader = async ({
+  serverLoader,
+}: ClientLoaderFunctionArgs) => {
+  const { tanstackDocsConfig } = await serverLoader<typeof loader>()
+
+  const config = {
+    ...tanstackDocsConfig,
+    menu: [localMenu, ...tanstackDocsConfig.menu],
+  }
+
+  return config
+}
 
 export default function RouteVirtual() {
-  const tanstackConfig = useVirtualV3Config()
-
-  const config: DocsConfig = useMemo(
-    () => ({
-      ...tanstackConfig,
-      menu: [localMenu, ...tanstackConfig.menu],
-    }),
-    [tanstackConfig]
-  )
+  const config = useLoaderData<typeof clientLoader>()
 
   return (
     <Docs

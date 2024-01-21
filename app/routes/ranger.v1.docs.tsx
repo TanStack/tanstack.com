@@ -1,11 +1,27 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import { Link } from '@remix-run/react'
+import { Link, json } from '@remix-run/react'
 import type { MetaFunction } from '@remix-run/node'
-import { gradientText, useRangerV1Config } from '~/projects/ranger'
+import {
+  gradientText,
+  repo,
+  useRangerV1Config,
+  v1branch,
+} from '~/projects/ranger'
 import { seo } from '~/utils/seo'
 import type { DocsConfig } from '~/components/Docs'
 import { Docs } from '~/components/Docs'
+import { getTanstackDocsConfig } from '~/utils/config'
+
+export const loader = async () => {
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v1branch)
+
+  return json({
+    tanstackDocsConfig,
+  })
+}
+
+export type RangerConfigV1Loader = typeof loader
 
 const logo = (
   <>

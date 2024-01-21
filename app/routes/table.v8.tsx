@@ -13,8 +13,6 @@ export const loader = async () => {
   })
 }
 
-export type TableConfigLoaderData = typeof loader
-
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactTable() {

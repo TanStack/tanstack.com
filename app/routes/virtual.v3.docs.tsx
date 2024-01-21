@@ -15,8 +15,6 @@ export const loader = async () => {
   })
 }
 
-export type VirtualConfigLoaderData = typeof loader
-
 const logo = (
   <>
     <Link to="/" className="font-light">

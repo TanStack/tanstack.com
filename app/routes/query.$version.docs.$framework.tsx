@@ -40,8 +40,6 @@ export const loader = async (context: LoaderFunctionArgs) => {
   })
 }
 
-export type QueryConfigLoader = typeof loader
-
 const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
   solid: { label: 'Solid', logo: solidLogo, value: 'solid' },

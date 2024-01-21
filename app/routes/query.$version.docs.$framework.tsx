@@ -1,17 +1,23 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import type { MetaFunction } from '@remix-run/node'
-import { Link, useMatches, useNavigate, useParams } from '@remix-run/react'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+import {
+  Link,
+  json,
+  useLoaderData,
+  useMatches,
+  useNavigate,
+} from '@remix-run/react'
 import { seo } from '~/utils/seo'
 import type { DocsConfig } from '~/components/Docs'
 import { Docs } from '~/components/Docs'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import {
   availableVersions,
+  getBranch,
   gradientText,
   latestVersion,
   repo,
-  useQueryDocsConfig,
 } from '~/projects/query'
 import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
@@ -20,7 +26,21 @@ import svelteLogo from '~/images/svelte-logo.svg'
 import angularLogo from '~/images/angular-logo.svg'
 import type { AvailableOptions } from '~/components/Select'
 import { generatePath } from '~/utils/utils'
-import type { MenuItem } from '~/utils/config'
+import { getTanstackDocsConfig, type MenuItem } from '~/utils/config'
+
+export const loader = async (context: LoaderFunctionArgs) => {
+  const branch = getBranch(context.params.version)
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
+  const { version, framework } = context.params
+
+  return json({
+    tanstackDocsConfig,
+    framework,
+    version,
+  })
+}
+
+export type QueryConfigLoader = typeof loader
 
 const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
@@ -81,8 +101,8 @@ export default function RouteFrameworkParam() {
   const matches = useMatches()
   const match = matches[matches.length - 1]
   const navigate = useNavigate()
-  const { version, framework } = useParams()
-  const { tanstackDocsConfig } = useQueryDocsConfig()
+  const { tanstackDocsConfig, version, framework } =
+    useLoaderData<typeof loader>()
 
   let config = tanstackDocsConfig
 

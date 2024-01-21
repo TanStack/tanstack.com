@@ -1,10 +1,29 @@
-import { Outlet, useParams } from '@remix-run/react'
+import { type LoaderFunctionArgs, json } from '@remix-run/node'
+import { Outlet, useLoaderData } from '@remix-run/react'
 import { Docs } from '~/components/Docs'
-import { createLogo, useReactStoreDocsConfig } from '~/projects/store'
+import {
+  createLogo,
+  getBranch,
+  repo,
+  useReactStoreDocsConfig,
+} from '~/projects/store'
+import { getTanstackDocsConfig } from '~/utils/config'
+
+export const loader = async (context: LoaderFunctionArgs) => {
+  const branch = getBranch(context.params.version)
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
+  const { version } = context.params
+
+  return json({
+    tanstackDocsConfig,
+    version,
+  })
+}
 
 export default function Component() {
-  const { version } = useParams()
-  let config = useReactStoreDocsConfig()
+  const { tanstackDocsConfig, version } = useLoaderData<typeof loader>()
+  let config = useReactStoreDocsConfig(tanstackDocsConfig)
+
   return (
     <Docs
       {...{

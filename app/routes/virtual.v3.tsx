@@ -1,23 +1,5 @@
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
-import { json } from '@remix-run/node'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { fetchRepoFile } from '~/utils/documents.server'
-import { v3branch } from '~/projects/virtual'
-export const loader = async () => {
-  const config = await fetchRepoFile(
-    'tanstack/virtual',
-    v3branch,
-    `docs/config.json`
-  )
-
-  const parsedConfig = JSON.parse(config ?? '')
-
-  if (!parsedConfig) {
-    throw new Error('Repo docs/config.json not found!')
-  }
-
-  return json(parsedConfig)
-}
 
 export const ErrorBoundary = DefaultErrorBoundary
 

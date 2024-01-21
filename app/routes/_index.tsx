@@ -161,7 +161,7 @@ function sample(arr: any[], random = Math.random()) {
 }
 
 export default function Index() {
-  const data = useActionData()
+  const data = useActionData<typeof action>()
   const { sponsors, randomNumber } = useLoaderData<typeof loader>()
   const navigation = useNavigation()
   const isLoading = navigation.state === 'submitting'

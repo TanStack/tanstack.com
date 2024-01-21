@@ -1,19 +1,24 @@
 import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import type { MetaFunction } from '@remix-run/node'
-import { Link, useMatches, useNavigate, useParams } from '@remix-run/react'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+import {
+  Link,
+  json,
+  useLoaderData,
+  useMatches,
+  useNavigate,
+} from '@remix-run/react'
 import { seo } from '~/utils/seo'
 import type { DocsConfig } from '~/components/Docs'
 import { Docs } from '~/components/Docs'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import {
   availableVersions,
+  getBranch,
   gradientText,
   latestVersion,
   repo,
-  useReactQueryDocsConfig,
 } from '~/projects/query'
-import type { MenuItem } from '~/projects/query'
 import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
@@ -21,6 +26,19 @@ import svelteLogo from '~/images/svelte-logo.svg'
 import angularLogo from '~/images/angular-logo.svg'
 import type { AvailableOptions } from '~/components/Select'
 import { generatePath } from '~/utils/utils'
+import { getTanstackDocsConfig, type MenuItem } from '~/utils/config'
+
+export const loader = async (context: LoaderFunctionArgs) => {
+  const branch = getBranch(context.params.version)
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
+  const { version, framework } = context.params
+
+  return json({
+    tanstackDocsConfig,
+    framework,
+    version,
+  })
+}
 
 const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
@@ -81,13 +99,15 @@ export default function RouteFrameworkParam() {
   const matches = useMatches()
   const match = matches[matches.length - 1]
   const navigate = useNavigate()
-  const params = useParams()
-  const framework = params.framework
-  const version = params.version
-  let config = useReactQueryDocsConfig(version)
+  const { tanstackDocsConfig, version, framework } =
+    useLoaderData<typeof loader>()
+
+  let config = tanstackDocsConfig
 
   const docsConfig = React.useMemo(() => {
-    const frameworkMenu = config.menu.find((d) => d.framework === framework)
+    const frameworkMenu = config.frameworkMenus?.find(
+      (d) => d.framework === framework
+    )
     if (!frameworkMenu) return null
     return {
       ...config,
@@ -96,7 +116,11 @@ export default function RouteFrameworkParam() {
   }, [framework, config])
 
   const frameworkConfig = React.useMemo(() => {
-    const availableFrameworks = config.menu.reduce(
+    if (!config.frameworkMenus) {
+      return undefined
+    }
+
+    const availableFrameworks = config.frameworkMenus.reduce(
       (acc: AvailableOptions, menuEntry) => {
         acc[menuEntry.framework as string] =
           frameworks[menuEntry.framework as keyof typeof frameworks]
@@ -117,7 +141,7 @@ export default function RouteFrameworkParam() {
         navigate(url)
       },
     }
-  }, [config.menu, framework, match, navigate])
+  }, [framework, match, navigate, config.frameworkMenus])
 
   const versionConfig = React.useMemo(() => {
     const available = availableVersions.reduce(

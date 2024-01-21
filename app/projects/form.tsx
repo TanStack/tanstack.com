@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { Link, useMatches, useNavigate, useParams } from '@remix-run/react'
-import { generatePath, useMatchesData } from '~/utils/utils'
+import { generatePath } from '~/utils/utils'
 import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
@@ -8,30 +8,7 @@ import svelteLogo from '~/images/svelte-logo.svg'
 import angularLogo from '~/images/angular-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa/index'
 import type { AvailableOptions } from '~/components/Select'
-import type { ReactNode } from 'react'
-
-export type FrameworkMenu = {
-  framework: string
-  menuItems: MenuItem[]
-}
-
-export type MenuItem = {
-  label: string | ReactNode
-  children: {
-    label: string | ReactNode
-    to: string
-  }[]
-}
-
-export type GithubDocsConfig = {
-  docSearch: {
-    appId: string
-    apiKey: string
-    indexName: string
-  }
-  menu: MenuItem[]
-  frameworkMenus: FrameworkMenu[]
-}
+import type { ConfigSchema, MenuItem } from '~/utils/config'
 
 export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
 
@@ -98,7 +75,7 @@ export function getBranch(argVersion?: string) {
   return ['latest', latestVersion].includes(version) ? latestBranch : version
 }
 
-export const useReactFormDocsConfig = () => {
+export const useReactFormDocsConfig = (config: ConfigSchema) => {
   const matches = useMatches()
   const match = matches[matches.length - 1]
   const params = useParams()
@@ -107,17 +84,21 @@ export const useReactFormDocsConfig = () => {
     params.framework || localStorage.getItem('framework') || 'react'
   const navigate = useNavigate()
 
-  const config = useMatchesData(`/form/${version}`) as GithubDocsConfig
-
   const frameworkMenuItems =
-    config.frameworkMenus.find((d) => d.framework === framework)?.menuItems ??
+    config.frameworkMenus?.find((d) => d.framework === framework)?.menuItems ??
     []
 
   const frameworkConfig = useMemo(() => {
-    const availableFrameworks = config.frameworkMenus.reduce(
+    if (!config.frameworkMenus) {
+      return undefined
+    }
+
+    const availableFrameworks = config.frameworkMenus?.reduce(
       (acc: AvailableOptions, menuEntry) => {
-        acc[menuEntry.framework as string] =
-          frameworks[menuEntry.framework as keyof typeof frameworks]
+        if (menuEntry.framework in frameworks) {
+          acc[menuEntry.framework] =
+            frameworks[menuEntry.framework as keyof typeof frameworks]
+        }
         return acc
       },
       { react: frameworks['react'] }
@@ -125,7 +106,7 @@ export const useReactFormDocsConfig = () => {
 
     return {
       label: 'Framework',
-      selected: framework!,
+      selected: framework,
       available: availableFrameworks,
       onSelect: (option: { label: string; value: string }) => {
         const url = generatePath(match.id, {
@@ -171,8 +152,16 @@ export const useReactFormDocsConfig = () => {
     }
   }, [version, match, navigate])
 
+  const docSearch: NonNullable<ConfigSchema['docSearch']> =
+    config.docSearch || {
+      appId: '',
+      apiKey: '',
+      indexName: '',
+    }
+
   return {
     ...config,
+    docSearch,
     menu: [
       localMenu,
       // Merge the two menus together based on their group labels

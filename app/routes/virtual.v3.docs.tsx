@@ -1,11 +1,19 @@
-import * as React from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import { Link } from '@remix-run/react'
-import { gradientText, useVirtualV3Config } from '~/projects/virtual'
+import { Link, json, useLoaderData } from '@remix-run/react'
+import { gradientText, repo, v3branch } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { Docs } from '~/components/Docs'
 import type { MetaFunction } from '@remix-run/react'
-import type { DocsConfig } from '~/components/Docs'
+import { getTanstackDocsConfig } from '~/utils/config'
+import { useMemo } from 'react'
+
+export const loader = async () => {
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v3branch)
+
+  return json({
+    tanstackDocsConfig,
+  })
+}
 
 const logo = (
   <>
@@ -54,16 +62,15 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export default function RouteReactTable() {
-  let config = useVirtualV3Config()
+export default function RouteVirtual() {
+  const { tanstackDocsConfig } = useLoaderData<typeof loader>()
 
-  config = React.useMemo(
-    () =>
-      ({
-        ...config,
-        menu: [localMenu, ...config.menu],
-      } as DocsConfig),
-    [config]
+  const config = useMemo(
+    () => ({
+      ...tanstackDocsConfig,
+      menu: [localMenu, ...tanstackDocsConfig.menu],
+    }),
+    [tanstackDocsConfig]
   )
 
   return (

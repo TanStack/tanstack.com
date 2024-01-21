@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { Outlet } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { redirect } from '@remix-run/node'

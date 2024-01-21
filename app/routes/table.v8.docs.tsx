@@ -1,5 +1,5 @@
+import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import type { ClientLoaderFunctionArgs } from '@remix-run/react'
 import { Link, json, useLoaderData } from '@remix-run/react'
 import { gradientText, repo, v8branch } from '~/projects/table'
 import { seo } from '~/utils/seo'
@@ -7,26 +7,6 @@ import { Docs } from '~/components/Docs'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import type { MetaFunction } from '@remix-run/node'
 import { getTanstackDocsConfig } from '~/utils/config'
-
-export const loader = async () => {
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v8branch)
-
-  return json({
-    tanstackDocsConfig,
-  })
-}
-
-const logo = (
-  <>
-    <Link to="/" className="font-light">
-      TanStack
-    </Link>
-    <Link to=".." className={`font-bold`}>
-      <span className={`${gradientText}`}>Table</span>{' '}
-      <span className="text-sm align-super">v8</span>
-    </Link>
-  </>
-)
 
 const localMenu = {
   label: 'Menu',
@@ -54,6 +34,26 @@ const localMenu = {
   ],
 }
 
+export const loader = async () => {
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, v8branch)
+
+  return json({
+    tanstackDocsConfig,
+  })
+}
+
+const logo = (
+  <>
+    <Link to="/" className="font-light">
+      TanStack
+    </Link>
+    <Link to=".." className={`font-bold`}>
+      <span className={`${gradientText}`}>Table</span>{' '}
+      <span className="text-sm align-super">v8</span>
+    </Link>
+  </>
+)
+
 export const meta: MetaFunction = () => {
   return seo({
     title:
@@ -63,23 +63,18 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export const clientLoader = async ({
-  serverLoader,
-}: ClientLoaderFunctionArgs) => {
-  const { tanstackDocsConfig } = await serverLoader<typeof loader>()
-
-  const config = {
-    ...tanstackDocsConfig,
-    menu: [localMenu, ...tanstackDocsConfig.menu],
-  }
-
-  return config
-}
-
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactTable() {
-  const config = useLoaderData<typeof clientLoader>()
+  const { tanstackDocsConfig } = useLoaderData<typeof loader>()
+
+  const config = useMemo(
+    () => ({
+      ...tanstackDocsConfig,
+      menu: [localMenu, ...tanstackDocsConfig.menu],
+    }),
+    [tanstackDocsConfig]
+  )
 
   return (
     <Docs

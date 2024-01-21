@@ -1,10 +1,5 @@
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import {
-  type ClientLoaderFunctionArgs,
-  Link,
-  json,
-  useLoaderData,
-} from '@remix-run/react'
+import { Link, json, useLoaderData } from '@remix-run/react'
 import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { gradientText, repo, v1branch } from '~/projects/router'
 import { seo } from '~/utils/seo'
@@ -63,21 +58,13 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export const clientLoader = async ({
-  serverLoader,
-}: ClientLoaderFunctionArgs) => {
-  const { tanstackDocsConfig } = await serverLoader<typeof loader>()
+export default function DocsRoute() {
+  const { tanstackDocsConfig } = useLoaderData<typeof loader>()
 
   const config = {
     ...tanstackDocsConfig,
     menu: [localMenu, ...tanstackDocsConfig.menu],
   }
-
-  return config
-}
-
-export default function DocsRoute() {
-  const config = useLoaderData<typeof clientLoader>()
 
   return (
     <Docs

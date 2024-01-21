@@ -3,8 +3,9 @@ import { Link, json, useLoaderData } from '@remix-run/react'
 import { gradientText, repo, v3branch } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { Docs } from '~/components/Docs'
-import type { ClientLoaderFunctionArgs, MetaFunction } from '@remix-run/react'
+import type { MetaFunction } from '@remix-run/react'
 import { getTanstackDocsConfig } from '~/utils/config'
+import { useMemo } from 'react'
 
 export const loader = async () => {
   const tanstackDocsConfig = await getTanstackDocsConfig(repo, v3branch)
@@ -62,21 +63,17 @@ export const meta: MetaFunction = () => {
       'Headless UI for virtualizing long scrollable lists with TS/JS, React, Solid, Svelte and Vue',
   })
 }
-export const clientLoader = async ({
-  serverLoader,
-}: ClientLoaderFunctionArgs) => {
-  const { tanstackDocsConfig } = await serverLoader<typeof loader>()
-
-  const config = {
-    ...tanstackDocsConfig,
-    menu: [localMenu, ...tanstackDocsConfig.menu],
-  }
-
-  return config
-}
 
 export default function RouteVirtual() {
-  const config = useLoaderData<typeof clientLoader>()
+  const { tanstackDocsConfig } = useLoaderData<typeof loader>()
+
+  const config = useMemo(
+    () => ({
+      ...tanstackDocsConfig,
+      menu: [localMenu, ...tanstackDocsConfig.menu],
+    }),
+    [tanstackDocsConfig]
+  )
 
   return (
     <Docs

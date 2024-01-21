@@ -41,9 +41,15 @@
               "required": ["label", "to"],
               "additionalProperties": false,
               "properties": {
-                "label": "string",
-                "to": "string",
-                "badge": "string"
+                "label": {
+                  "type": "string"
+                },
+                "to": {
+                  "type": "string"
+                },
+                "badge": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -76,11 +82,16 @@
                   "items": {
                     "type": "object",
                     "required": ["label", "to"],
-                    "additionalProperties": false,
                     "properties": {
-                      "label": "string",
-                      "to": "string",
-                      "badge": "string"
+                      "label": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      },
+                      "badge": {
+                        "type": "string"
+                      }
                     }
                   }
                 }

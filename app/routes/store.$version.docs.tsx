@@ -5,7 +5,7 @@ import {
   createLogo,
   getBranch,
   repo,
-  useReactStoreDocsConfig,
+  useStoreDocsConfig,
 } from '~/projects/store'
 import { getTanstackDocsConfig } from '~/utils/config'
 
@@ -22,7 +22,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
 
 export default function Component() {
   const { tanstackDocsConfig, version } = useLoaderData<typeof loader>()
-  let config = useReactStoreDocsConfig(tanstackDocsConfig)
+  let config = useStoreDocsConfig(tanstackDocsConfig)
 
   return (
     <Docs

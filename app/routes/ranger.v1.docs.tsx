@@ -73,13 +73,11 @@ export default function DocsRoute() {
 
   return (
     <Docs
-      {...{
-        logo,
-        colorFrom: 'from-lime-500',
-        colorTo: 'to-emerald-500',
-        textColor: 'text-emerald-500',
-        config,
-      }}
+      logo={logo}
+      colorFrom={'from-lime-500'}
+      colorTo={'to-emerald-500'}
+      textColor={'text-emerald-500'}
+      config={config}
     />
   )
 }

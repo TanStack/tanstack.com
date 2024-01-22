@@ -75,13 +75,11 @@ export default function RouteVirtual() {
 
   return (
     <Docs
-      {...{
-        logo,
-        colorFrom: 'from-rose-500',
-        colorTo: 'to-violet-500',
-        textColor: 'text-violet-500',
-        config,
-      }}
+      logo={logo}
+      colorFrom={'from-rose-500'}
+      colorTo={'to-violet-500'}
+      textColor={'text-violet-500'}
+      config={config}
     />
   )
 }

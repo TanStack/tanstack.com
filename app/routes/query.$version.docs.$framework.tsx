@@ -178,15 +178,13 @@ export default function RouteFrameworkParam() {
     <>
       <QueryGGBanner />
       <Docs
-        {...{
-          logo: logo(version),
-          colorFrom: 'from-rose-500',
-          colorTo: 'to-violet-500',
-          textColor: 'text-violet-500',
-          config: docsConfig!,
-          framework: frameworkConfig,
-          version: versionConfig,
-        }}
+        logo={logo(version)}
+        colorFrom={'from-rose-500'}
+        colorTo={'to-violet-500'}
+        textColor={'text-violet-500'}
+        config={docsConfig!}
+        framework={frameworkConfig}
+        version={versionConfig}
       />
     </>
   )

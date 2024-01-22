@@ -13,7 +13,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
     repo,
     branch: getBranch(version),
     docPath: `docs/framework/${framework}/${docsPath}`,
-    redirectPath: context.request.url.replace(/\/docs.*/, ``),
+    redirectPath: context.request.url.replace(/\/docs.*/, ''),
   })
 }
 

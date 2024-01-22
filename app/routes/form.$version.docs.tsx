@@ -26,16 +26,14 @@ export default function Component() {
   let config = useReactFormDocsConfig(tanstackDocsConfig)
   return (
     <Docs
-      {...{
-        v2: true,
-        logo: createLogo(version),
-        colorFrom: 'from-rose-500',
-        colorTo: 'to-violet-500',
-        textColor: 'text-violet-500',
-        config,
-        framework: config.frameworkConfig,
-        version: config.versionConfig,
-      }}
+      v2={true}
+      logo={createLogo(version)}
+      colorFrom={'from-rose-500'}
+      colorTo={'to-violet-500'}
+      textColor={'text-violet-500'}
+      config={config}
+      framework={config.frameworkConfig}
+      version={config.versionConfig}
     >
       <Outlet />
     </Docs>

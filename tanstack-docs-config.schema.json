@@ -7,6 +7,9 @@
   "required": ["docSearch", "menu"],
   "additionalProperties": false,
   "properties": {
+    "$schema": {
+      "type": "string"
+    },
     "docSearch": {
       "description": "Data for Algolia Search.",
       "type": "object",

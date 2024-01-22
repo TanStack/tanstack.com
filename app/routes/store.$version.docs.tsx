@@ -1,6 +1,6 @@
 import { type LoaderFunctionArgs, json } from '@remix-run/node'
 import { Outlet, useLoaderData } from '@remix-run/react'
-import { Docs } from '~/components/Docs'
+import { DocsLayout } from '~/components/DocsLayout'
 import {
   createLogo,
   getBranch,
@@ -25,7 +25,7 @@ export default function Component() {
   let config = useStoreDocsConfig(tanstackDocsConfig)
 
   return (
-    <Docs
+    <DocsLayout
       v2={true}
       logo={createLogo(version)}
       colorFrom={'from-gray-700'}
@@ -36,6 +36,6 @@ export default function Component() {
       version={config.versionConfig}
     >
       <Outlet />
-    </Docs>
+    </DocsLayout>
   )
 }

@@ -9,8 +9,8 @@ import {
   useNavigate,
 } from '@remix-run/react'
 import { seo } from '~/utils/seo'
-import type { DocsConfig } from '~/components/Docs'
-import { Docs } from '~/components/Docs'
+import type { DocsConfig } from '~/components/DocsLayout'
+import { DocsLayout } from '~/components/DocsLayout'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import {
   availableVersions,
@@ -177,7 +177,7 @@ export default function RouteFrameworkParam() {
   return (
     <>
       <QueryGGBanner />
-      <Docs
+      <DocsLayout
         logo={logo(version)}
         colorFrom={'from-rose-500'}
         colorTo={'to-violet-500'}

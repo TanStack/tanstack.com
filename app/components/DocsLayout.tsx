@@ -29,7 +29,7 @@ export type DocsConfig = {
   }[]
 }
 
-export function Docs({
+export function DocsLayout({
   colorFrom,
   colorTo,
   textColor,

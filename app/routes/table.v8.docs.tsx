@@ -3,7 +3,7 @@ import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link, json, useLoaderData } from '@remix-run/react'
 import { gradientText, repo, v8branch } from '~/projects/table'
 import { seo } from '~/utils/seo'
-import { Docs } from '~/components/Docs'
+import { DocsLayout } from '~/components/DocsLayout'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import type { MetaFunction } from '@remix-run/node'
 import { getTanstackDocsConfig } from '~/utils/config'
@@ -77,7 +77,7 @@ export default function RouteReactTable() {
   )
 
   return (
-    <Docs
+    <DocsLayout
       logo={logo}
       colorFrom={'from-teal-500'}
       colorTo={'to-blue-500'}

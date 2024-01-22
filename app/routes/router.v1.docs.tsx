@@ -3,7 +3,7 @@ import { Link, json, useLoaderData } from '@remix-run/react'
 import type { LoaderFunction, MetaFunction } from '@remix-run/node'
 import { gradientText, repo, v1branch } from '~/projects/router'
 import { seo } from '~/utils/seo'
-import { Docs } from '~/components/Docs'
+import { DocsLayout } from '~/components/DocsLayout'
 import { getTanstackDocsConfig } from '~/utils/config'
 
 export const loader: LoaderFunction = async () => {
@@ -67,7 +67,7 @@ export default function DocsRoute() {
   }
 
   return (
-    <Docs
+    <DocsLayout
       logo={logo}
       colorFrom={'from-lime-500'}
       colorTo={'to-emerald-500'}

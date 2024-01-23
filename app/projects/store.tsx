@@ -104,7 +104,7 @@ export const useStoreDocsConfig = (config: ConfigSchema) => {
 
     return {
       label: 'Framework',
-      selected: framework!,
+      selected: framework,
       available: availableFrameworks,
       onSelect: (option: { label: string; value: string }) => {
         const url = generatePath(match.id, {
@@ -138,7 +138,7 @@ export const useStoreDocsConfig = (config: ConfigSchema) => {
 
     return {
       label: 'Version',
-      selected: version!,
+      selected: version,
       available,
       onSelect: (option: { label: string; value: string }) => {
         const url = generatePath(match.id, {

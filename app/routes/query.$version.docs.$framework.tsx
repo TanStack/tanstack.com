@@ -29,9 +29,9 @@ import { generatePath } from '~/utils/utils'
 import { getTanstackDocsConfig, type MenuItem } from '~/utils/config'
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const branch = getBranch(context.params.version)
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
   const { version, framework } = context.params
+  const branch = getBranch(version)
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
 
   return json({
     tanstackDocsConfig,

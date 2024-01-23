@@ -6,9 +6,9 @@ import { createLogo, getBranch, repo, useFormDocsConfig } from '~/projects/form'
 import { getTanstackDocsConfig } from '~/utils/config'
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const branch = getBranch(context.params.version)
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
   const { version } = context.params
+  const branch = getBranch(version)
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
 
   return json({
     tanstackDocsConfig,

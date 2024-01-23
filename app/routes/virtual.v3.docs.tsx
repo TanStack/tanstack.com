@@ -2,7 +2,7 @@ import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link, json, useLoaderData } from '@remix-run/react'
 import { gradientText, repo, v3branch } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
-import { Docs } from '~/components/Docs'
+import { DocsLayout } from '~/components/DocsLayout'
 import type { MetaFunction } from '@remix-run/react'
 import { getTanstackDocsConfig } from '~/utils/config'
 import { useMemo } from 'react'
@@ -74,14 +74,12 @@ export default function RouteVirtual() {
   )
 
   return (
-    <Docs
-      {...{
-        logo,
-        colorFrom: 'from-rose-500',
-        colorTo: 'to-violet-500',
-        textColor: 'text-violet-500',
-        config,
-      }}
+    <DocsLayout
+      logo={logo}
+      colorFrom={'from-rose-500'}
+      colorTo={'to-violet-500'}
+      textColor={'text-violet-500'}
+      config={config}
     />
   )
 }

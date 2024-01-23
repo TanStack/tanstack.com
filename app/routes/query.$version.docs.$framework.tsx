@@ -9,8 +9,8 @@ import {
   useNavigate,
 } from '@remix-run/react'
 import { seo } from '~/utils/seo'
-import type { DocsConfig } from '~/components/Docs'
-import { Docs } from '~/components/Docs'
+import type { DocsConfig } from '~/components/DocsLayout'
+import { DocsLayout } from '~/components/DocsLayout'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import {
   availableVersions,
@@ -29,9 +29,9 @@ import { generatePath } from '~/utils/utils'
 import { getTanstackDocsConfig, type MenuItem } from '~/utils/config'
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const branch = getBranch(context.params.version)
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
   const { version, framework } = context.params
+  const branch = getBranch(version)
+  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
 
   return json({
     tanstackDocsConfig,
@@ -177,16 +177,14 @@ export default function RouteFrameworkParam() {
   return (
     <>
       <QueryGGBanner />
-      <Docs
-        {...{
-          logo: logo(version),
-          colorFrom: 'from-rose-500',
-          colorTo: 'to-violet-500',
-          textColor: 'text-violet-500',
-          config: docsConfig!,
-          framework: frameworkConfig,
-          version: versionConfig,
-        }}
+      <DocsLayout
+        logo={logo(version)}
+        colorFrom={'from-rose-500'}
+        colorTo={'to-violet-500'}
+        textColor={'text-violet-500'}
+        config={docsConfig!}
+        framework={frameworkConfig}
+        version={versionConfig}
       />
     </>
   )

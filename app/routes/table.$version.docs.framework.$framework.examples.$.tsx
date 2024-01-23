@@ -12,28 +12,28 @@ import { FaExternalLinkAlt } from 'react-icons/fa'
 export const ErrorBoundary = DefaultErrorBoundary
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const { framework: kind, '*': name } = context.params
+  const { framework, '*': name } = context.params
 
-  return json({ kind, name })
+  return json({ framework, name })
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
-    title: `${capitalize(data.kind)} Table ${slugToTitle(
+    title: `${capitalize(data.framework)} Table ${slugToTitle(
       data.name
     )} Example | TanStack Table Docs`,
     description: `An example showing how to implement ${slugToTitle(
       data.name
-    )} in ${capitalize(data.kind)} Table`,
+    )} in ${capitalize(data.framework)} Table`,
   })
 }
 
 export default function RouteReactTableDocs() {
-  const { kind, name } = useLoaderData<typeof loader>()
+  const { framework, name } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
 
-  const examplePath = [kind, name].join('/')
+  const examplePath = [framework, name].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
 
@@ -54,7 +54,7 @@ export default function RouteReactTableDocs() {
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
-            {capitalize(kind)} Example: {slugToTitle(name)}
+            {capitalize(framework)} Example: {slugToTitle(name)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             <a

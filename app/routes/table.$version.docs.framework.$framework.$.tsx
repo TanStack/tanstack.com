@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/projects/form'
+import { repo, getBranch } from '~/projects/table'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { seo } from '~/utils/seo'
 import { useLoaderData, useParams } from '@remix-run/react'
@@ -21,7 +21,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
-    title: `${data?.title} | TanStack Form Docs`,
+    title: `${data?.title} | TanStack Table Docs`,
     description: data?.description,
   })
 }

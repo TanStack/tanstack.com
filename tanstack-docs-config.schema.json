@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/TanStack/tanstack.com/blob/main/tanstack-docs.config.schema.json",
+  "$id": "https://github.com/TanStack/tanstack.com/blob/main/tanstack-docs-config.schema.json",
   "title": "TanStack Docs Config",
   "description": "Config file for the documentation of a TanStack project.",
   "type": "object",
   "required": ["docSearch", "menu"],
   "additionalProperties": false,
   "properties": {
+    "$schema": {
+      "type": "string"
+    },
     "docSearch": {
       "description": "Data for Algolia Search.",
       "type": "object",

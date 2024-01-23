@@ -8,12 +8,14 @@ import { loadDocs } from '~/utils/docs'
 
 export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath, framework, version } = context.params
+  const { url } = context.request
 
   return loadDocs({
     repo,
     branch: getBranch(version),
     docPath: `docs/framework/${framework}/${docsPath}`,
-    redirectPath: context.request.url.replace(/\/docs.*/, ``),
+    currentPath: url,
+    redirectPath: url.replace(/\/docs.*/, '/docs/overview'),
   })
 }
 

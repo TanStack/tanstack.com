@@ -9,28 +9,28 @@ import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const { framework: kind, '*': name } = context.params
+  const { framework, '*': name } = context.params
 
-  return json({ kind, name })
+  return json({ framework, name })
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
-    title: `${capitalize(data.kind)} Form ${slugToTitle(
+    title: `${capitalize(data.framework)} Form ${slugToTitle(
       data.name
     )} Example | TanStack Form Docs`,
     description: `An example showing how to implement ${slugToTitle(
       data.name
-    )} in ${capitalize(data.kind)} Form`,
+    )} in ${capitalize(data.framework)} Form`,
   })
 }
 
 export default function RouteExamples() {
-  const { kind, name } = useLoaderData<typeof loader>()
+  const { framework, name } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
 
-  const examplePath = branch === 'v3' ? name : [kind, name].join('/')
+  const examplePath = [framework, name].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
 
@@ -51,7 +51,7 @@ export default function RouteExamples() {
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
-            {capitalize(kind)} Example: {slugToTitle(name)}
+            {capitalize(framework)} Example: {slugToTitle(name)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             <a

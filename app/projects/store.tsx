@@ -75,7 +75,7 @@ export function getBranch(argVersion?: string) {
   return ['latest', latestVersion].includes(version) ? latestBranch : version
 }
 
-export const useReactStoreDocsConfig = (config: ConfigSchema) => {
+export const useStoreDocsConfig = (config: ConfigSchema) => {
   const matches = useMatches()
   const match = matches[matches.length - 1]
   const params = useParams()

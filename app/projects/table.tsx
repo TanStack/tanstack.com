@@ -9,9 +9,9 @@ import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { generatePath } from '~/utils/utils'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 
-export const repo = 'tanstack/table'
+export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
 
-export const v8branch = 'main'
+export const repo = 'tanstack/table'
 
 export const latestBranch = 'main'
 export const latestVersion = 'v8'

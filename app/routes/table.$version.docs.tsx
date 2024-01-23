@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { Outlet, json, useLoaderData } from '@remix-run/react'
 import {
   getBranch,
@@ -7,7 +6,7 @@ import {
   useTableDocsConfig,
 } from '~/projects/table'
 import { seo } from '~/utils/seo'
-import { Docs } from '~/components/Docs'
+import { DocsLayout } from '~/components/DocsLayout'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { getTanstackDocsConfig } from '~/utils/config'
@@ -39,19 +38,17 @@ export default function RouteReactTable() {
   let config = useTableDocsConfig(tanstackDocsConfig)
 
   return (
-    <Docs
-      {...{
-        v2: true,
-        logo: createLogo(version),
-        colorFrom: 'from-teal-500',
-        colorTo: 'to-blue-500',
-        textColor: 'text-blue-500',
-        config,
-        framework: config.frameworkConfig,
-        version: config.versionConfig,
-      }}
+    <DocsLayout
+      v2={true}
+      logo={createLogo(version)}
+      colorFrom={'from-teal-500'}
+      colorTo={'to-blue-500'}
+      textColor={'text-blue-500'}
+      config={config}
+      framework={config.frameworkConfig}
+      version={config.versionConfig}
     >
       <Outlet />
-    </Docs>
+    </DocsLayout>
   )
 }

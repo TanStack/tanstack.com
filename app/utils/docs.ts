@@ -6,11 +6,13 @@ export async function loadDocs({
   repo,
   branch,
   docPath,
+  currentPath,
   redirectPath,
 }: {
   repo: string
   branch: string
   docPath: string
+  currentPath: string
   redirectPath: string
 }) {
   if (!branch) {
@@ -25,7 +27,11 @@ export async function loadDocs({
   const file = await fetchRepoFile(repo, branch, filePath)
 
   if (!file) {
-    throw redirect(redirectPath)
+    if (currentPath === redirectPath) {
+      throw new Error('File does not exist')
+    } else {
+      throw redirect(redirectPath)
+    }
   }
 
   const frontMatter = extractFrontMatter(file)

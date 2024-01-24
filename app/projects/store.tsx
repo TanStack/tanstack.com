@@ -80,8 +80,7 @@ export const useStoreDocsConfig = (config: ConfigSchema) => {
   const match = matches[matches.length - 1]
   const params = useParams()
   const version = params.version!
-  const framework =
-    params.framework || localStorage.getItem('framework') || 'react'
+  const framework = localStorage.getItem('framework') || 'react'
   const navigate = useNavigate()
 
   const frameworkMenuItems =
@@ -95,8 +94,10 @@ export const useStoreDocsConfig = (config: ConfigSchema) => {
 
     const availableFrameworks = config.frameworkMenus?.reduce(
       (acc: AvailableOptions, menuEntry) => {
-        acc[menuEntry.framework as string] =
-          frameworks[menuEntry.framework as keyof typeof frameworks]
+        if (menuEntry.framework in frameworks) {
+          acc[menuEntry.framework] =
+            frameworks[menuEntry.framework as keyof typeof frameworks]
+        }
         return acc
       },
       { react: frameworks['react'] }

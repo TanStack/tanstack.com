@@ -80,8 +80,7 @@ export const useFormDocsConfig = (config: ConfigSchema) => {
   const match = matches[matches.length - 1]
   const params = useParams()
   const version = params.version!
-  const framework =
-    params.framework || localStorage.getItem('framework') || 'react'
+  const framework = localStorage.getItem('framework') || 'react'
   const navigate = useNavigate()
 
   const frameworkMenuItems =

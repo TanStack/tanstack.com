@@ -73,13 +73,12 @@ export const createLogo = (version?: string) => (
   </>
 )
 
-export const useTableDocsConfig = (config: ConfigSchema) => {
+export const useStoreDocsConfig = (config: ConfigSchema) => {
   const matches = useMatches()
   const match = matches[matches.length - 1]
   const params = useParams()
   const version = params.version!
-  const framework =
-    params.framework || localStorage.getItem('framework') || 'react'
+  const framework = localStorage.getItem('framework') || 'react'
   const navigate = useNavigate()
 
   const frameworkMenuItems =

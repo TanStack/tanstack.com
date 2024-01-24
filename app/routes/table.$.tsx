@@ -4,7 +4,7 @@ import { redirect } from '@remix-run/node'
 export const loader = (context: LoaderFunctionArgs) => {
   handleRedirects(context)
 
-  return redirect('/table/v8')
+  return redirect('/table/latest')
 }
 
 function handleRedirects(context: LoaderFunctionArgs) {
@@ -38,7 +38,7 @@ function handleRedirects(context: LoaderFunctionArgs) {
     {from: 'docs/examples/pagination-controlled',to: 'docs/examples/react/pagination-controlled',},
     {from: 'docs/examples/pagination-controlled',to: 'docs/examples/react/pagination-controlled',},
     {from: 'docs/installation',to: 'docs/guide/installation',},
-    {from: 'docs/overview',to: 'docs/guide/introduction',},
+    {from: 'docs/overview',to: 'docs/introduction',},
     {from: 'docs/quick-start',to: 'docs/guide/overview',},
     {from: '',to: '',},
   ]
@@ -50,8 +50,7 @@ function handleRedirects(context: LoaderFunctionArgs) {
           item.to
         }?from=reactTableV7&original=https://github.com/TanStack/table/tree/v7/docs/src/pages/${
           item.from
-        }${item.from ? '.md' : ''}`,
-        301
+        }${item.from ? '.md' : ''}`
       )
     }
   })

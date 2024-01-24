@@ -14,8 +14,11 @@ export const meta: MetaFunction = () => {
 }
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  if (!context.request.url.includes('/table/v')) {
-    return redirect(`${new URL(context.request.url).origin}/table/v8`)
+  if (
+    !context.request.url.includes('/table/v') &&
+    !context.request.url.includes('/table/latest')
+  ) {
+    return redirect(`${new URL(context.request.url).origin}/table/latest`)
   }
 
   return new Response('OK')

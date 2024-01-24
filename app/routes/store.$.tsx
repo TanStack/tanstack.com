@@ -1,5 +1,5 @@
 import { redirect } from '@remix-run/node'
 
 export const loader = () => {
-  return redirect(`/store/latest`, 301)
+  return redirect('/store/latest')
 }

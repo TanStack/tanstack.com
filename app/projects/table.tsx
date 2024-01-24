@@ -73,7 +73,7 @@ export const createLogo = (version?: string) => (
   </>
 )
 
-export const useStoreDocsConfig = (config: ConfigSchema) => {
+export const useTableDocsConfig = (config: ConfigSchema) => {
   const matches = useMatches()
   const match = matches[matches.length - 1]
   const params = useParams()

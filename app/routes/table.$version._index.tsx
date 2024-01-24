@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { gradientText, v8branch } from '~/projects/table'
+import { gradientText, getBranch } from '~/projects/table'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
@@ -20,6 +20,8 @@ import { VscPreview } from 'react-icons/vsc'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import agGridImage from '~/images/ag-grid.png'
+import type { LoaderFunctionArgs } from '@remix-run/node'
+import type { Framework } from '~/projects/table'
 
 const menu = [
   {
@@ -44,7 +46,7 @@ const menu = [
         <FaBook className="text-lg" /> Docs
       </div>
     ),
-    to: './docs/guide/introduction',
+    to: './docs/introduction',
   },
   {
     label: (
@@ -72,20 +74,20 @@ const menu = [
   },
 ]
 
-export const loader = async () => {
+export const loader = async (context: LoaderFunctionArgs) => {
   const sponsors = await getSponsorsForSponsorPack()
+  const { version } = context.params
 
   return json({
     sponsors,
+    version,
   })
 }
 
 export default function ReactTableRoute() {
-  const { sponsors } = useLoaderData<typeof loader>()
-  const [framework, setFramework] = React.useState<
-    'react' | 'svelte' | 'vue' | 'solid'
-  >('react')
-
+  const { sponsors, version } = useLoaderData<typeof loader>()
+  const [framework, setFramework] = React.useState<Framework>('react')
+  const branch = getBranch(version)
   const [isDark, setIsDark] = React.useState(true)
 
   React.useEffect(() => {
@@ -153,7 +155,7 @@ export default function ReactTableRoute() {
           and styles.
         </p>
         <Link
-          to="./docs/guide/introduction"
+          to="./docs/introduction"
           className={`py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
           prefetch="intent"
         >
@@ -435,7 +437,7 @@ export default function ReactTableRoute() {
       <div className="bg-white dark:bg-black">
         <iframe
           key={framework}
-          src={`https://codesandbox.io/embed/github/tanstack/table/tree/${v8branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+          src={`https://codesandbox.io/embed/github/tanstack/table/tree/${branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
             isDark ? 'dark' : 'light'
           }`}
           title="tannerlinsley/react-table: basic"
@@ -459,7 +461,7 @@ export default function ReactTableRoute() {
         </div>
         <div>
           <Link
-            to="./docs/guide/introduction"
+            to="./docs/introduction"
             className={`inline-block py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
             prefetch="intent"
           >

@@ -1,5 +1,9 @@
+import { useMemo } from 'react'
+import { useMatches, useNavigate, useParams } from '@remix-run/react'
 import { z } from 'zod'
 import { fetchRepoFile } from './documents.server'
+import { generatePath } from '~/utils/utils'
+import type { AvailableOptions } from '~/components/Select'
 
 export type FrameworkMenu = {
   framework: string
@@ -76,5 +80,123 @@ export async function getTanstackDocsConfig(repo: string, branch: string) {
     return validationResult.data
   } catch (e) {
     throw new Error('Invalid docs/config.json file')
+  }
+}
+
+export const useDocsConfig = ({
+  config,
+  frameworks,
+  availableVersions,
+  localMenu,
+}: {
+  config: ConfigSchema
+  frameworks: AvailableOptions
+  availableVersions: string[]
+  localMenu: MenuItem
+}) => {
+  const matches = useMatches()
+  const match = matches[matches.length - 1]
+  const params = useParams()
+  const version = params.version!
+  const framework = localStorage.getItem('framework') || 'react'
+  const navigate = useNavigate()
+
+  const frameworkMenuItems =
+    config.frameworkMenus?.find((d) => d.framework === framework)?.menuItems ??
+    []
+
+  const frameworkConfig = useMemo(() => {
+    if (!config.frameworkMenus) {
+      return undefined
+    }
+
+    const availableFrameworks = config.frameworkMenus?.reduce(
+      (acc: AvailableOptions, menuEntry) => {
+        if (menuEntry.framework in frameworks) {
+          acc[menuEntry.framework] =
+            frameworks[menuEntry.framework as keyof typeof frameworks]
+        }
+        return acc
+      },
+      { react: frameworks['react'] }
+    )
+
+    return {
+      label: 'Framework',
+      selected: frameworks[framework] ? framework : 'react',
+      available: availableFrameworks,
+      onSelect: (option: { label: string; value: string }) => {
+        const url = generatePath(match.id, {
+          ...match.params,
+          framework: option.value,
+        })
+
+        localStorage.setItem('framework', option.value)
+
+        navigate(url)
+      },
+    }
+  }, [config, frameworks, framework, match, navigate])
+
+  const versionConfig = useMemo(() => {
+    const available = availableVersions.reduce(
+      (acc: AvailableOptions, version) => {
+        acc[version] = {
+          label: version,
+          value: version,
+        }
+        return acc
+      },
+      {
+        latest: {
+          label: 'Latest',
+          value: 'latest',
+        },
+      }
+    )
+
+    return {
+      label: 'Version',
+      selected: version,
+      available,
+      onSelect: (option: { label: string; value: string }) => {
+        const url = generatePath(match.id, {
+          ...match.params,
+          version: option.value,
+        })
+        navigate(url)
+      },
+    }
+  }, [version, match, navigate, availableVersions])
+
+  const docSearch: NonNullable<ConfigSchema['docSearch']> =
+    config.docSearch || {
+      appId: '',
+      apiKey: '',
+      indexName: '',
+    }
+
+  return {
+    ...config,
+    docSearch,
+    menu: [
+      localMenu,
+      // Merge the two menus together based on their group labels
+      ...config.menu.map((d) => {
+        const match = frameworkMenuItems.find((d2) => d2.label === d.label)
+        return {
+          label: d.label,
+          children: [
+            ...d.children.map((d) => ({ ...d, badge: 'core' })),
+            ...(match?.children ?? []).map((d) => ({ ...d, badge: framework })),
+          ],
+        }
+      }),
+      ...frameworkMenuItems.filter(
+        (d) => !config.menu.find((dd) => dd.label === d.label)
+      ),
+    ].filter(Boolean),
+    frameworkConfig,
+    versionConfig,
   }
 }

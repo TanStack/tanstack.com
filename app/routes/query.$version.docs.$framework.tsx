@@ -131,7 +131,7 @@ export default function RouteFrameworkParam() {
 
     return {
       label: 'Framework',
-      selected: framework!,
+      selected: framework,
       available: availableFrameworks,
       onSelect: (option: { label: string; value: string }) => {
         const url = generatePath(match.id, {
@@ -162,7 +162,7 @@ export default function RouteFrameworkParam() {
 
     return {
       label: 'Version',
-      selected: version!,
+      selected: version,
       available,
       onSelect: (option: { label: string; value: string }) => {
         const url = generatePath(match.id, {

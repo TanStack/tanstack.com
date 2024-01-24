@@ -9,8 +9,6 @@ import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { generatePath } from '~/utils/utils'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 
-export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
-
 export const repo = 'tanstack/table'
 
 export const latestBranch = 'main'
@@ -20,12 +18,14 @@ export const availableVersions = ['v8']
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
 
-export const frameworks = {
+const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
   solid: { label: 'Solid', logo: solidLogo, value: 'solid' },
   svelte: { label: 'Svelte', logo: svelteLogo, value: 'svelte' },
   vue: { label: 'Vue', logo: vueLogo, value: 'vue' },
-}
+} as const
+
+export type Framework = keyof typeof frameworks
 
 export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion

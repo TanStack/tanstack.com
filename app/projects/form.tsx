@@ -4,13 +4,9 @@ import { generatePath } from '~/utils/utils'
 import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
-import svelteLogo from '~/images/svelte-logo.svg'
-import angularLogo from '~/images/angular-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa/index'
 import type { AvailableOptions } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
-
-export type Framework = 'react' | 'svelte' | 'vue' | 'solid'
 
 export const repo = 'tanstack/form'
 
@@ -21,13 +17,13 @@ export const availableVersions = ['v0']
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600'
 
-export const frameworks = {
+const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
   solid: { label: 'Solid', logo: solidLogo, value: 'solid' },
   vue: { label: 'Vue', logo: vueLogo, value: 'vue' },
-  svelte: { label: 'Svelte', logo: svelteLogo, value: 'svelte' },
-  angular: { label: 'Angular', logo: angularLogo, value: 'angular' },
-}
+} as const
+
+export type Framework = keyof typeof frameworks
 
 export const createLogo = (version?: string) => (
   <>

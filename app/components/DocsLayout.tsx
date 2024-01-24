@@ -118,11 +118,11 @@ export function DocsLayout({
                                 child.badge === 'react'
                                   ? 'text-sky-500'
                                   : child.badge === 'solid'
-                                  ? 'bg-blue-500'
+                                  ? 'text-blue-500'
                                   : child.badge === 'svelte'
-                                  ? 'bg-orange-500'
+                                  ? 'text-orange-500'
                                   : child.badge === 'vue'
-                                  ? 'bg-green-500'
+                                  ? 'text-green-500'
                                   : 'text-gray-500'
                               }`}
                             >

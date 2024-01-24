@@ -46,7 +46,7 @@ export const localMenu: MenuItem = {
           GitHub <FaGithub className="text-lg opacity-20" />
         </div>
       ),
-      to: 'https://github.com/tanstack/table',
+      to: `https://github.com/${repo}`,
     },
     {
       label: (

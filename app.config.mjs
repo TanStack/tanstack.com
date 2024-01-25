@@ -2,7 +2,23 @@ import { createApp } from 'vinxi'
 import reactRefresh from '@vitejs/plugin-react'
 import { serverFunctions } from '@vinxi/server-functions/plugin'
 import { TanStackRouterVite } from '@tanstack/router-vite-plugin'
+import { config } from 'vinxi/plugins/config'
 import tsconfigPaths from 'vite-tsconfig-paths'
+
+const devPlugin = config('dev', {
+  resolve: {
+    dedupe: [
+      'react',
+      'react-dom',
+      '@tanstack/store',
+      '@tanstack/react-store',
+      '@tanstack/react-router',
+      '@tanstack/react-router-server',
+      '@tanstack/react-router-server',
+      'use-sync-external-store',
+    ],
+  },
+})
 
 export default createApp({
   routers: [
@@ -18,7 +34,12 @@ export default createApp({
       // middleware: './app/middleware.tsx',
       handler: './app/server.tsx',
       target: 'server',
-      plugins: () => [tsconfigPaths(), reactRefresh(), TanStackRouterVite()],
+      plugins: () => [
+        devPlugin,
+        tsconfigPaths(),
+        reactRefresh(),
+        TanStackRouterVite(),
+      ],
     },
     {
       name: 'client',
@@ -26,6 +47,7 @@ export default createApp({
       handler: './app/client.tsx',
       target: 'browser',
       plugins: () => [
+        devPlugin,
         tsconfigPaths(),
         serverFunctions.client(),
         reactRefresh(),

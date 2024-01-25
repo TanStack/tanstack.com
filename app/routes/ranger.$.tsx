@@ -16,7 +16,7 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
 
   reactRangerV1List.forEach((item) => {
     if (url.pathname.startsWith(`/ranger/v1/${item.from}`)) {
-      throw redirect(`/ranger/v0/${item.to}`)
+      throw redirect(`/ranger/v1/${item.to}`)
     }
   })
 }

@@ -19,7 +19,6 @@ export function RootDocument({
   children: React.ReactNode
   title?: string
 }) {
-  const router = useRouter()
   // const navigation = useNavigation()
   // const matches = useMatches()
 
@@ -33,9 +32,7 @@ export function RootDocument({
         {title ? <title>{title}</title> : null}
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {router.options.context.assets}
-        {/* <Meta />
-        <Links /> */}
+        <Assets />
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS"

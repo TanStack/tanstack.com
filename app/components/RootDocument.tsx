@@ -1,15 +1,6 @@
-import { ScrollRestoration, useRouter } from '@tanstack/react-router'
-import { DehydrateRouter } from '@tanstack/react-router-server/client'
+import { useMatches } from '@tanstack/react-router'
+import { DehydrateRouter, Assets } from '@tanstack/react-router-server/client'
 import * as React from 'react'
-// import {
-//   Links,
-//   LiveReload,
-//   Meta,
-//   Scripts,
-//   ScrollRestoration,
-//   useMatches,
-//   useNavigation,
-// } from '@remix-run/react'
 import { CgSpinner } from 'react-icons/cg'
 
 export function RootDocument({
@@ -20,15 +11,14 @@ export function RootDocument({
   title?: string
 }) {
   // const navigation = useNavigation()
-  // const matches = useMatches()
+  const matches = useMatches()
 
   return (
     <html lang="en">
       <head>
-        {/* TODO:  */}
-        {/* {matches.find((d) => d.handle?.baseParent) ? (
+        {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
-        ) : null} */}
+        ) : null}
         {title ? <title>{title}</title> : null}
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -64,9 +54,8 @@ export function RootDocument({
       </head>
       <body>
         {children}
-        <ScrollRestoration />
         <DehydrateRouter />
-        {/*
+        {/* // TODO:
         {/* <div
           className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-800
             rounded-lg shadow-lg transition-opacity duration-300 hover:opacity-0 pointer-events-none

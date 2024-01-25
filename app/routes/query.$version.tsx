@@ -2,6 +2,7 @@ import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { latestVersion } from '~/projects/query'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
+import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
 
 export const ErrorBoundary = DefaultErrorBoundary
 
@@ -13,6 +14,10 @@ export default function RouteVersionParam() {
   const original = params.get('original')
 
   const version = location.pathname.match(/\/query\/v(\d)/)?.[1] || '999'
+
+  if (!useClientOnlyRender()) {
+    return null
+  }
 
   return (
     <>

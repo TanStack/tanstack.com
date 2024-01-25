@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
 
 export const ErrorBoundary = DefaultErrorBoundary
 
@@ -9,6 +10,10 @@ export default function RouteReactRouter() {
 
   const show = params.get('from') === 'reactLocationV2'
   const original = params.get('original')
+
+  if (!useClientOnlyRender()) {
+    return null
+  }
 
   return (
     <>

@@ -4,7 +4,7 @@ import { redirect } from '@remix-run/node'
 export const loader: LoaderFunction = (context) => {
   handleRedirects(context)
 
-  return redirect('/ranger/v1')
+  return redirect('/ranger/latest')
 }
 
 function handleRedirects(context: Parameters<LoaderFunction>[0]) {
@@ -24,8 +24,7 @@ function handleRedirects(context: Parameters<LoaderFunction>[0]) {
   reactRangerV1List.forEach((item) => {
     if (url.pathname.startsWith(`/ranger/v1/${item.from}`)) {
       throw redirect(
-        `/ranger/v1/${item.to}?from=reactRangerV1&original=https://react-ranger-v1.tanstack.com/${item.from}`,
-        301
+        `/ranger/v1/${item.to}?from=reactRangerV1&original=https://react-ranger-v1.tanstack.com/${item.from}`
       )
     }
   })

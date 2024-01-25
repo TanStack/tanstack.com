@@ -17,7 +17,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const branch = getBranch(version)
 
   if (!availableVersions.concat('latest').includes(version!)) {
-    throw redirect('/ranger/latest')
+    throw redirect(context.request.url.replace(version!, 'latest'))
   }
 
   const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)

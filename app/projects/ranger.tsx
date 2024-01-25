@@ -7,8 +7,8 @@ import type { ConfigSchema, MenuItem } from '~/utils/config'
 export const repo = 'tanstack/ranger'
 
 export const latestBranch = 'main'
-export const latestVersion = 'v1'
-export const availableVersions = ['v1']
+export const latestVersion = 'v0'
+export const availableVersions = ['v0']
 
 export const gradientText =
   'inline-block text-transparent bg-clip-text bg-gradient-to-r from-lime-500 to-emerald-500'

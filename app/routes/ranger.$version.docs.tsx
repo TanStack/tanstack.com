@@ -25,7 +25,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
 export const meta: MetaFunction = () => {
   return seo({
     title: 'TanStack Ranger Docs | React Ranger',
-    description: 'Modern and scalable routing for React applications',
+    description: 'Modern and headless ranger UI library',
   })
 }
 

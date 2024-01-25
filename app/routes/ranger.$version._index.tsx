@@ -17,7 +17,7 @@ import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import type { Framework } from '~/projects/form'
+import type { Framework } from '~/projects/ranger'
 
 const menu = [
   {

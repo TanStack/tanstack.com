@@ -4,7 +4,7 @@ import type { LoaderFunctionArgs } from '@remix-run/node'
 export const loader = (context: LoaderFunctionArgs) => {
   handleRedirectsFromV3(context)
 
-  return redirect(`/query/latest`, 301)
+  return redirect(`/query/latest`)
 }
 
 function handleRedirectsFromV3(context: LoaderFunctionArgs) {
@@ -105,8 +105,7 @@ function handleRedirectsFromV3(context: LoaderFunctionArgs) {
   reactQueryv3List.forEach((item) => {
     if (url.pathname.startsWith(`/query/v3/${item.from}`)) {
       throw redirect(
-        `/query/latest/${item.to}?from=reactQueryV3&original=https://tanstack.com/query/v3/${item.to}`,
-        301
+        `/query/latest/${item.to}?from=reactQueryV3&original=https://tanstack.com/query/v3/${item.to}`
       )
     }
   })

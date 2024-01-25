@@ -429,7 +429,7 @@ export default function ReactTableRoute() {
         <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
-            src={`https://codesandbox.io/embed/github/tanstack/virtual/tree/${v3branch}/examples/${framework}/dynamic?autoresize=1&fontsize=16&theme=${
+            src={`https://codesandbox.io/embed/github/tanstack/virtual/tree/${branch}/examples/${framework}/dynamic?autoresize=1&fontsize=16&theme=${
               isDark ? 'dark' : 'light'
             }`}
             title="tannerlinsley/react-table: dynamic"

@@ -7,18 +7,19 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { Link, useLoaderData } from '@remix-run/react'
+import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { gradientText, v1branch } from '~/projects/router'
+import { gradientText, getBranch } from '~/projects/router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { LoaderFunction } from '@remix-run/node'
+import type { Framework } from '~/projects/router'
 
 const menu = [
   {
@@ -81,10 +82,9 @@ export const loader: LoaderFunction = async () => {
 
 export default function TanStackRouterRoute() {
   const { sponsors } = useLoaderData<typeof loader>()
-  const [framework] = React.useState<
-    'react' | 'preact' | 'svelte' | 'vue' | 'solid'
-  >('react')
-
+  const { version } = useParams()
+  const branch = getBranch(version)
+  const [framework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
 
   React.useEffect(() => {
@@ -338,7 +338,7 @@ export default function TanStackRouterRoute() {
         <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
-            src={`https://stackblitz.com/github/tanstack/router/tree/${v1branch}/examples/${framework}/kitchen-sink-file-based?file=src%2Fmain.tsx&embed=1&theme=${
+            src={`https://stackblitz.com/github/tanstack/router/tree/${branch}/examples/${framework}/kitchen-sink-file-based?file=src%2Fmain.tsx&embed=1&theme=${
               isDark ? 'dark' : 'light'
             }`}
             title="tannerlinsley/router: kitchen-sink"

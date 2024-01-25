@@ -9,30 +9,28 @@ import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const { '*': examplePath } = context.params
-  const [kind, _name] = (examplePath ?? '').split('/')
-  const [name, search] = _name.split('?')
+  const { framework, '*': name } = context.params
 
-  return json({ kind, name, search: search ?? '' })
+  return json({ framework, name })
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
-    title: `${capitalize(data.kind)} Query ${slugToTitle(
+    title: `${capitalize(data.framework)} Query ${slugToTitle(
       data.name
     )} Example | TanStack Query Docs`,
     description: `An example showing how to implement ${slugToTitle(
       data.name
-    )} in ${capitalize(data.kind)} Query`,
+    )} in ${capitalize(data.framework)} Query`,
   })
 }
 
 export default function RouteExamples() {
-  const { kind, name, search } = useLoaderData<typeof loader>()
+  const { framework, name } = useLoaderData<typeof loader>()
   const { version } = useParams()
   const branch = getBranch(version)
 
-  const examplePath = branch === 'v3' ? name : [kind, name].join('/')
+  const examplePath = [framework, name].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
 
@@ -41,10 +39,10 @@ export default function RouteExamples() {
   }, [])
 
   const githubUrl = `https://github.com/${repo}/tree/${branch}/examples/${examplePath}`
-  const stackBlitzUrl = `https://stackblitz.com/github/${repo}/tree/${branch}/examples/${examplePath}?${search}embed=1&theme=${
+  const stackBlitzUrl = `https://stackblitz.com/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
-  const codesandboxUrl = `https://codesandbox.io/s/github/${repo}/tree/${branch}/examples/${examplePath}?${search}embed=1&theme=${
+  const codesandboxUrl = `https://codesandbox.io/s/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
 
@@ -53,7 +51,7 @@ export default function RouteExamples() {
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
-            {capitalize(kind)} Example: {slugToTitle(name)}
+            {capitalize(framework)} Example: {slugToTitle(name)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             <a

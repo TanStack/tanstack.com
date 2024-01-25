@@ -4,7 +4,7 @@ import { redirect } from '@remix-run/node'
 export const loader = (context: LoaderFunctionArgs) => {
   handleRedirects(context)
 
-  return redirect('/virtual/v3')
+  return redirect('/virtual/latest')
 }
 
 function handleRedirects(context: LoaderFunctionArgs) {
@@ -31,8 +31,7 @@ function handleRedirects(context: LoaderFunctionArgs) {
           item.to
         }?from=reactVirtualV2&original=https://github.com/TanStack/virtual/tree/v2/docs/src/pages/${
           item.from
-        }${item.from ? '.md' : ''}`,
-        301
+        }${item.from ? '.md' : ''}`
       )
     }
   })

@@ -1,36 +1,36 @@
 import * as React from 'react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData, useParams } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
-import { repo, v3branch } from '~/projects/virtual'
+import { getBranch, repo } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const { '*': examplePath } = context.params
-  const [kind, _name] = (examplePath ?? '').split('/')
-  const [name, search] = _name.split('?')
+  const { framework, '*': name } = context.params
 
-  return json({ kind, name, search: search ?? '' })
+  return json({ framework, name })
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return seo({
-    title: `${capitalize(data.kind)} Virtual ${slugToTitle(
+    title: `${capitalize(data.framework)} Virtual ${slugToTitle(
       data.name
     )} Example | TanStack Virtual Docs`,
     description: `An example showing how to implement ${slugToTitle(
       data.name
-    )} in ${capitalize(data.kind)} Virtual`,
+    )} in ${capitalize(data.framework)} Virtual`,
   })
 }
 
 export default function RouteReactTableDocs() {
-  const { kind, name, search } = useLoaderData<typeof loader>()
+  const { framework, name } = useLoaderData<typeof loader>()
+  const { version } = useParams()
+  const branch = getBranch(version)
 
-  const examplePath = [kind, name].join('/')
+  const examplePath = [framework, name].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
 
@@ -38,11 +38,11 @@ export default function RouteReactTableDocs() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const githubUrl = `https://github.com/${repo}/tree/${v3branch}/examples/${examplePath}`
-  const stackBlitzUrl = `https://stackblitz.com/github/${repo}/tree/${v3branch}/examples/${examplePath}?${search}embed=1&theme=${
+  const githubUrl = `https://github.com/${repo}/tree/${branch}/examples/${examplePath}`
+  const stackBlitzUrl = `https://stackblitz.com/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
-  const codesandboxUrl = `https://codesandbox.io/s/github/${repo}/tree/${v3branch}/examples/${examplePath}?${search}embed=1&theme=${
+  const codesandboxUrl = `https://codesandbox.io/s/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
 
@@ -51,7 +51,7 @@ export default function RouteReactTableDocs() {
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
-            {capitalize(kind)} Example: {slugToTitle(name)}
+            {capitalize(framework)} Example: {slugToTitle(name)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             <a

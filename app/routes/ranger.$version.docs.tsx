@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Outlet, json, useLoaderData } from '@remix-run/react'
+import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
 import {
   useRangerDocsConfig,
   repo,
@@ -10,10 +10,16 @@ import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getTanstackDocsConfig } from '~/utils/config'
 import type { MetaFunction, LoaderFunctionArgs } from '@remix-run/node'
+import { availableVersions } from '~/projects/form'
 
 export const loader = async (context: LoaderFunctionArgs) => {
   const { version } = context.params
   const branch = getBranch(version)
+
+  if (!availableVersions.concat('latest').includes(version!)) {
+    throw redirect('/ranger/latest')
+  }
+
   const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
 
   return json({

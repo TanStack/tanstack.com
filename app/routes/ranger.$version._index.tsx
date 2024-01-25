@@ -7,17 +7,17 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { Link, useLoaderData } from '@remix-run/react'
+import { Link, useLoaderData, useParams } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { gradientText, v1branch } from '~/projects/ranger'
+import { gradientText, getBranch } from '~/projects/ranger'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import type { LoaderFunction } from '@remix-run/node'
+import type { Framework } from '~/projects/ranger'
 
 const menu = [
   {
@@ -70,7 +70,7 @@ const menu = [
   },
 ]
 
-export const loader: LoaderFunction = async () => {
+export const loader = async () => {
   const sponsors = await getSponsorsForSponsorPack()
 
   return json({
@@ -80,10 +80,9 @@ export const loader: LoaderFunction = async () => {
 
 export default function TanStackRouterRoute() {
   const { sponsors } = useLoaderData<typeof loader>()
-  const [framework] = React.useState<
-    'react' | 'preact' | 'svelte' | 'vue' | 'solid'
-  >('react')
-
+  const { version } = useParams()
+  const branch = getBranch(version)
+  const [framework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
 
   React.useEffect(() => {
@@ -317,7 +316,7 @@ export default function TanStackRouterRoute() {
       <div className="bg-white dark:bg-black">
         <iframe
           key={framework}
-          src={`https://codesandbox.io/embed/github/tanstack/ranger/tree/${v1branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+          src={`https://codesandbox.io/embed/github/tanstack/ranger/tree/${branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
             isDark ? 'dark' : 'light'
           }`}
           title="tannerlinsley/react-ranger: basic"

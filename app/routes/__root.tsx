@@ -6,10 +6,10 @@ import {
 } from '@tanstack/react-router'
 // import { Outlet, isRouteErrorResponse, useRouteError } from '@remix-run/react'
 import '~/styles/app.css'
-import carbonStyles from '~/styles/carbon.css'
-import prismThemeLight from '~/styles/prismThemeLight.css'
-import prismThemeDark from '~/styles/prismThemeDark.css'
-import docSearchStyles from '@docsearch/css/dist/style.css'
+import carbonStyles from '~/styles/carbon.css?url'
+import prismThemeLight from '~/styles/prismThemeLight.css?url'
+import prismThemeDark from '~/styles/prismThemeDark.css?url'
+import docSearchStyles from '@docsearch/css/dist/style.css?url'
 import { seo } from '~/utils/seo'
 import { RootDocument } from '~/components/RootDocument'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
@@ -26,54 +26,51 @@ import ogImage from '~/images/og.png'
 //   })
 // }
 
-// export const links: LinksFunction = () => {
-//   return [
-//     { rel: 'stylesheet', href: styles },
-//     {
-//       rel: 'stylesheet',
-//       href: prismThemeLight,
-//       media: '(prefers-color-scheme: light)',
-//     },
-//     {
-//       rel: 'stylesheet',
-//       href: prismThemeDark,
-//       media: '(prefers-color-scheme: dark)',
-//     },
-//     {
-//       rel: 'stylesheet',
-//       href: docSearchStyles,
-//     },
-//     {
-//       rel: 'stylesheet',
-//       href: carbonStyles,
-//     },
-//     {
-//       rel: 'apple-touch-icon',
-//       sizes: '180x180',
-//       href: '/favicons/apple-touch-icon.png',
-//     },
-//     {
-//       rel: 'icon',
-//       type: 'image/png',
-//       sizes: '32x32',
-//       href: '/favicons/favicon-32x32.png',
-//     },
-//     {
-//       rel: 'icon',
-//       type: 'image/png',
-//       sizes: '16x16',
-//       href: '/favicons/favicon-16x16.png',
-//     },
-//     { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
-//     { rel: 'icon', href: '/favicon.ico' },
-//   ]
-// }
-
 export const Route = rootRouteWithContext<{
   assets: React.ReactNode
 }>()({
   component: RootComponent,
   errorComponent: ErrorBoundary,
+  links: () => [
+    // { rel: 'stylesheet', href: styles },
+    {
+      rel: 'stylesheet',
+      href: prismThemeLight,
+      media: '(prefers-color-scheme: light)',
+    },
+    {
+      rel: 'stylesheet',
+      href: prismThemeDark,
+      media: '(prefers-color-scheme: dark)',
+    },
+    {
+      rel: 'stylesheet',
+      href: docSearchStyles,
+    },
+    {
+      rel: 'stylesheet',
+      href: carbonStyles,
+    },
+    {
+      rel: 'apple-touch-icon',
+      sizes: '180x180',
+      href: '/favicons/apple-touch-icon.png',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      sizes: '32x32',
+      href: '/favicons/favicon-32x32.png',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      sizes: '16x16',
+      href: '/favicons/favicon-16x16.png',
+    },
+    { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
+    { rel: 'icon', href: '/favicon.ico' },
+  ],
 })
 
 export default function RootComponent() {

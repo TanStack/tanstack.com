@@ -15,8 +15,11 @@ export const meta: MetaFunction = () => {
 }
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  if (!context.request.url.includes('/virtual/v')) {
-    return redirect(`${new URL(context.request.url).origin}/virtual/v3`)
+  if (
+    !context.request.url.includes('/virtual/v') &&
+    !context.request.url.includes('/virtual/latest')
+  ) {
+    return redirect(`${new URL(context.request.url).origin}/virtual/latest`)
   }
 
   return new Response('OK')

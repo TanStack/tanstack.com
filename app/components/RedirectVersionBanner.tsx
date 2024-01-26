@@ -24,8 +24,7 @@ export function RedirectVersionBanner(props: {
     return (
       <div className="p-4 bg-blue-500 text-white flex items-center justify-center gap-4">
         <div>
-          You are currently reading <strong>v{version}</strong> docs. Redirect
-          to{' '}
+          You are currently reading <strong>{version}</strong> docs. Redirect to{' '}
           <a href={redirectUrl} className="font-bold underline">
             latest
           </a>{' '}

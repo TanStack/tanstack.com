@@ -1,9 +1,8 @@
 import type { LoaderFunctionArgs } from '@remix-run/node'
-import { json, redirect } from '@remix-run/node'
+import { json } from '@remix-run/node'
 import { Outlet, useLoaderData } from '@remix-run/react'
 import { DocsLayout } from '~/components/DocsLayout'
 import {
-  availableVersions,
   colorFrom,
   colorTo,
   getBranch,
@@ -17,10 +16,6 @@ import { getTanstackDocsConfig } from '~/utils/config'
 export const loader = async (context: LoaderFunctionArgs) => {
   const { version } = context.params
   const branch = getBranch(version)
-
-  if (!availableVersions.concat('latest').includes(version!)) {
-    throw redirect(context.request.url.replace(version!, 'latest'))
-  }
 
   const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
 

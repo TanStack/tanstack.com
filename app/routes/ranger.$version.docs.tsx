@@ -1,7 +1,5 @@
-import * as React from 'react'
-import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
+import { Outlet, json, useLoaderData } from '@remix-run/react'
 import {
-  availableVersions,
   useRangerDocsConfig,
   repo,
   getBranch,
@@ -18,10 +16,6 @@ import type { MetaFunction, LoaderFunctionArgs } from '@remix-run/node'
 export const loader = async (context: LoaderFunctionArgs) => {
   const { version } = context.params
   const branch = getBranch(version)
-
-  if (!availableVersions.concat('latest').includes(version!)) {
-    throw redirect(context.request.url.replace(version!, 'latest'))
-  }
 
   const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
 

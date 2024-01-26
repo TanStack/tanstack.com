@@ -15,7 +15,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
     branch: getBranch(version),
     docPath: `docs/framework/${framework}/${docsPath}`,
     currentPath: url,
-    redirectPath: url.replace(/\/docs.*/, '/docs/overview'),
+    redirectPath: url.replace(`/docs/framework/${framework}/`, '/docs/'),
   })
 }
 

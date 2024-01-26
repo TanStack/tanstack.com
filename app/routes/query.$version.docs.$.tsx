@@ -10,17 +10,6 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath, version } = context.params
   const { url } = context.request
 
-  const reactReferencePages = '/docs/react/reference'
-  const vueReferencePages = '/docs/vue/reference'
-
-  if (url.includes(reactReferencePages)) {
-    throw redirect(url.replace(reactReferencePages, '/docs/reference'))
-  }
-
-  if (url.includes(vueReferencePages)) {
-    throw redirect(url.replace(vueReferencePages, '/docs/reference'))
-  }
-
   // Temporary fix for old docs structure
   if (url.includes('/docs/react/')) {
     throw redirect(url.replace('/docs/react/', '/docs/framework/react/'))

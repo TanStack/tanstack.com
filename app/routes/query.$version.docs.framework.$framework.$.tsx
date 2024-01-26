@@ -10,12 +10,21 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath, framework, version } = context.params
   const { url } = context.request
 
+  let redirectPath = url.replace(/\/docs.*/, '/docs/framework/react/overview')
+
+  if (url.includes(`docs/framework/${framework}/reference`)) {
+    redirectPath = url.replace(
+      `docs/framework/${framework}/reference`,
+      'docs/reference'
+    )
+  }
+
   return loadDocs({
     repo,
     branch: getBranch(version),
     docPath: `docs/framework/${framework}/${docsPath}`,
     currentPath: url,
-    redirectPath: url.replace(/\/docs.*/, '/docs/framework/react/overview'),
+    redirectPath,
   })
 }
 

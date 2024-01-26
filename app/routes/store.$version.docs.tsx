@@ -3,7 +3,6 @@ import { Outlet, useLoaderData } from '@remix-run/react'
 import { DocsLayout } from '~/components/DocsLayout'
 import {
   availableVersions,
-  createLogo,
   getBranch,
   latestVersion,
   repo,

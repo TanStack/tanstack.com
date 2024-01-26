@@ -1,16 +1,17 @@
 import * as React from 'react'
 import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
 import {
+  availableVersions,
   useRangerDocsConfig,
   repo,
   getBranch,
   createLogo,
+  latestVersion,
 } from '~/projects/ranger'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getTanstackDocsConfig } from '~/utils/config'
 import type { MetaFunction, LoaderFunctionArgs } from '@remix-run/node'
-import { availableVersions } from '~/projects/form'
 
 export const loader = async (context: LoaderFunctionArgs) => {
   const { version } = context.params
@@ -40,6 +41,8 @@ export default function DocsRoute() {
   let config = useRangerDocsConfig(tanstackDocsConfig)
   return (
     <DocsLayout
+      name="Ranger"
+      version={version === 'latest' ? latestVersion : version!}
       logo={createLogo(version)}
       colorFrom={'from-lime-500'}
       colorTo={'to-emerald-500'}

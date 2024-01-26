@@ -3,6 +3,7 @@ import {
   availableVersions,
   createLogo,
   getBranch,
+  latestVersion,
   repo,
   useVirtualDocsConfig,
 } from '~/projects/virtual'
@@ -42,6 +43,8 @@ export default function RouteVirtual() {
 
   return (
     <DocsLayout
+      name="Virtual"
+      version={version === 'latest' ? latestVersion : version!}
       logo={createLogo(version)}
       colorFrom={'from-rose-500'}
       colorTo={'to-violet-500'}

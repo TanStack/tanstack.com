@@ -2,7 +2,7 @@ import { DocSearch } from '@docsearch/react'
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { FaArrowLeft, FaArrowRight, FaTimes } from 'react-icons/fa'
-import { NavLink, Outlet, useMatches } from '@remix-run/react'
+import { NavLink, useMatches } from '@remix-run/react'
 import { last } from '~/utils/utils'
 import { Carbon } from '~/components/Carbon'
 import { LinkOrA } from '~/components/LinkOrA'
@@ -14,6 +14,8 @@ import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import type { DocsConfig } from '~/utils/config'
 
 export function DocsLayout({
+  name,
+  version,
   colorFrom,
   colorTo,
   textColor,
@@ -21,12 +23,14 @@ export function DocsLayout({
   config,
   children,
 }: {
+  name: string
+  version: string
   colorFrom: string
   colorTo: string
   textColor: string
   logo: React.ReactNode
   config: DocsConfig
-  children?: any
+  children: React.ReactNode
 }) {
   const frameworkConfig = config.frameworkConfig
   const versionConfig = config.versionConfig
@@ -218,7 +222,7 @@ export function DocsLayout({
       {largeMenu}
       <div className="flex w-full lg:w-[calc(100%-250px)] flex-1">
         <div className="min-w-0 min-h-0 flex relative justify-center flex-1">
-          {children || <Outlet />}
+          {children}
           <div
             className="fixed bottom-0 left-0 right-0
                         lg:pl-[250px] z-10"

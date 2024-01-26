@@ -5,6 +5,7 @@ import {
   repo,
   useTableDocsConfig,
   availableVersions,
+  latestVersion,
 } from '~/projects/table'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
@@ -45,6 +46,8 @@ export default function RouteReactTable() {
 
   return (
     <DocsLayout
+      name="Table"
+      version={version === 'latest' ? latestVersion : version!}
       logo={createLogo(version)}
       colorFrom={'from-teal-500'}
       colorTo={'to-blue-500'}

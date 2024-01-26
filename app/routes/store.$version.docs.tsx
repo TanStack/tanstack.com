@@ -5,6 +5,7 @@ import {
   availableVersions,
   createLogo,
   getBranch,
+  latestVersion,
   repo,
   useStoreDocsConfig,
 } from '~/projects/store'
@@ -32,6 +33,8 @@ export default function Component() {
 
   return (
     <DocsLayout
+      name="Store"
+      version={version === 'latest' ? latestVersion : version!}
       logo={createLogo(version)}
       colorFrom={'from-gray-700'}
       colorTo={'to-gray-900'}

@@ -6,6 +6,7 @@ import {
   availableVersions,
   createLogo,
   getBranch,
+  latestVersion,
   repo,
   useFormDocsConfig,
 } from '~/projects/form'
@@ -32,6 +33,8 @@ export default function Component() {
   let config = useFormDocsConfig(tanstackDocsConfig)
   return (
     <DocsLayout
+      name="Form"
+      version={version === 'latest' ? latestVersion : version!}
       logo={createLogo(version)}
       colorFrom={'from-rose-500'}
       colorTo={'to-violet-500'}

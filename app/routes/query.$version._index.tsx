@@ -18,7 +18,13 @@ import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
-import { getBranch, gradientText, latestVersion, repo } from '~/projects/query'
+import {
+  colorFrom,
+  colorTo,
+  getBranch,
+  latestVersion,
+  repo,
+} from '~/projects/query'
 import { Logo } from '~/components/Logo'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
@@ -93,6 +99,8 @@ export default function RouteVersion() {
   React.useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
+
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
 
   return (
     <>

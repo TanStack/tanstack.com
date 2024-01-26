@@ -2,54 +2,37 @@ import { DocSearch } from '@docsearch/react'
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { FaArrowLeft, FaArrowRight, FaTimes } from 'react-icons/fa'
-import { NavLink, Outlet, useMatches } from '@remix-run/react'
+import { NavLink, useMatches } from '@remix-run/react'
 import { last } from '~/utils/utils'
 import { Carbon } from '~/components/Carbon'
 import { LinkOrA } from '~/components/LinkOrA'
 import { Search } from '~/components/Search'
-import type { SelectProps } from '~/components/Select'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
-
-export type DocsConfig = {
-  docSearch: {
-    appId: string
-    indexName: string
-    apiKey: string
-  }
-  menu: {
-    label: string | React.ReactNode
-    children: {
-      label: string | React.ReactNode
-      to: string
-      badge?: string
-    }[]
-  }[]
-}
+import { DocsLogo } from '~/components/DocsLogo'
+import type { DocsConfig } from '~/utils/config'
 
 export function DocsLayout({
+  name,
+  version,
   colorFrom,
   colorTo,
   textColor,
-  logo,
   config,
-  framework,
-  version,
   children,
-  v2,
 }: {
+  name: string
+  version: string
   colorFrom: string
   colorTo: string
   textColor: string
-  logo: React.ReactNode
   config: DocsConfig
-  framework?: SelectProps
-  version?: SelectProps
-  children?: any
-  v2?: boolean
+  children: React.ReactNode
 }) {
+  const frameworkConfig = config.frameworkConfig
+  const versionConfig = config.versionConfig
   const matches = useMatches()
   const lastMatch = last(matches)
 
@@ -92,7 +75,7 @@ export function DocsLayout({
                   </a>
                 ) : (
                   <NavLink
-                    to={v2 ? child.to : framework ? '../' + child.to : child.to}
+                    to={child.to}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
@@ -142,6 +125,15 @@ export function DocsLayout({
     )
   })
 
+  const logo = (
+    <DocsLogo
+      name={name}
+      version={version}
+      colorFrom={colorFrom}
+      colorTo={colorTo}
+    />
+  )
+
   const smallMenu = (
     <div
       className="lg:hidden bg-white sticky top-0 z-20
@@ -166,20 +158,20 @@ export function DocsLayout({
           dark:bg-gray-900"
         >
           <div className="flex gap-4">
-            {framework?.selected ? (
+            {frameworkConfig?.selected ? (
               <Select
-                label={framework.label}
-                selected={framework.selected}
-                available={framework.available}
-                onSelect={framework.onSelect}
+                label={frameworkConfig.label}
+                selected={frameworkConfig.selected}
+                available={frameworkConfig.available}
+                onSelect={frameworkConfig.onSelect}
               />
             ) : null}
-            {version?.selected ? (
+            {versionConfig?.selected ? (
               <Select
-                label={version.label}
-                selected={version.selected}
-                available={version.available}
-                onSelect={version.onSelect}
+                label={versionConfig.label}
+                selected={versionConfig.selected}
+                available={versionConfig.available}
+                onSelect={versionConfig.onSelect}
               />
             ) : null}
           </div>
@@ -200,22 +192,22 @@ export function DocsLayout({
         />
       </div>
       <div className="flex gap-2 px-4">
-        {framework?.selected ? (
+        {frameworkConfig?.selected ? (
           <Select
             className="flex-[3_1_0%]"
-            label={framework.label}
-            selected={framework.selected}
-            available={framework.available}
-            onSelect={framework.onSelect}
+            label={frameworkConfig.label}
+            selected={frameworkConfig.selected}
+            available={frameworkConfig.available}
+            onSelect={frameworkConfig.onSelect}
           />
         ) : null}
-        {version?.selected ? (
+        {versionConfig?.selected ? (
           <Select
             className="flex-[2_1_0%]"
-            label={version.label}
-            selected={version.selected}
-            available={version.available}
-            onSelect={version.onSelect}
+            label={versionConfig.label}
+            selected={versionConfig.selected}
+            available={versionConfig.available}
+            onSelect={versionConfig.onSelect}
           />
         ) : null}
       </div>
@@ -238,7 +230,7 @@ export function DocsLayout({
       {largeMenu}
       <div className="flex w-full lg:w-[calc(100%-250px)] flex-1">
         <div className="min-w-0 min-h-0 flex relative justify-center flex-1">
-          {children || <Outlet />}
+          {children}
           <div
             className="fixed bottom-0 left-0 right-0
                         lg:pl-[250px] z-10"
@@ -246,13 +238,7 @@ export function DocsLayout({
             <div className="p-4 flex justify-center gap-4">
               {prevItem ? (
                 <LinkOrA
-                  to={
-                    v2
-                      ? prevItem.to
-                      : framework
-                      ? `../${prevItem.to}`
-                      : prevItem.to
-                  }
+                  to={prevItem.to}
                   className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
                 bg-white text-gray-600 dark:bg-black dark:text-gray-400
                 shadow-lg dark:border dark:border-gray-800
@@ -263,13 +249,7 @@ export function DocsLayout({
               ) : null}
               {nextItem ? (
                 <LinkOrA
-                  to={
-                    v2
-                      ? nextItem.to
-                      : framework
-                      ? `../${nextItem.to}`
-                      : nextItem.to
-                  }
+                  to={nextItem.to}
                   className="py-1 px-2 text-sm self-end rounded-md
                   bg-white dark:bg-black
                   shadow-lg dark:border dark:border-gray-800

@@ -1,10 +1,13 @@
 import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
 import {
   availableVersions,
-  createLogo,
   getBranch,
+  latestVersion,
   repo,
   useVirtualDocsConfig,
+  colorFrom,
+  colorTo,
+  textColor,
 } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
@@ -42,14 +45,12 @@ export default function RouteVirtual() {
 
   return (
     <DocsLayout
-      v2={true}
-      logo={createLogo(version)}
-      colorFrom={'from-rose-500'}
-      colorTo={'to-violet-500'}
-      textColor={'text-violet-500'}
+      name="Virtual"
+      version={version === 'latest' ? latestVersion : version!}
+      colorFrom={colorFrom}
+      colorTo={colorTo}
+      textColor={textColor}
       config={config}
-      framework={config.frameworkConfig}
-      version={config.versionConfig}
     >
       <Outlet />
     </DocsLayout>

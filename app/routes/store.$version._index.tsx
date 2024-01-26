@@ -9,7 +9,7 @@ import { Footer } from '~/components/Footer'
 import { VscPreview } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { gradientText, latestVersion, repo } from '~/projects/store'
+import { colorFrom, colorTo, latestVersion, repo } from '~/projects/store'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 
@@ -75,6 +75,8 @@ export const loader = async () => {
 export default function RouteVersion() {
   const { sponsors } = useLoaderData<typeof loader>()
   const { version } = useParams()
+
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
 
   return (
     <>

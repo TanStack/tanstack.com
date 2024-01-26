@@ -12,7 +12,7 @@ import { json } from '@remix-run/node'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { gradientText, getBranch } from '~/projects/router'
+import { colorFrom, colorTo, getBranch } from '~/projects/router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
@@ -90,6 +90,8 @@ export default function TanStackRouterRoute() {
   React.useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
+
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
 
   return (
     <div className="flex flex-col gap-20 md:gap-32">

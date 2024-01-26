@@ -15,6 +15,7 @@ export type MenuItem = {
   children: {
     label: string | React.ReactNode
     to: string
+    badge?: string
   }[]
 }
 
@@ -24,7 +25,6 @@ const menuItemSchema = z.object({
     z.object({
       label: z.string(),
       to: z.string(),
-
       badge: z.string().optional(),
     })
   ),
@@ -42,7 +42,7 @@ const configSchema = z.object({
     indexName: z.string(),
   }),
   menu: z.array(menuItemSchema),
-  frameworkMenus: z.array(frameworkMenuSchema).optional(),
+  frameworkMenus: z.array(frameworkMenuSchema),
   users: z.array(z.string()).optional(),
 })
 
@@ -98,33 +98,23 @@ export const useDocsConfig = ({
   const match = matches[matches.length - 1]
   const params = useParams()
   const version = params.version!
-  const framework = localStorage.getItem('framework') || 'react'
+  const localStorageFramework = localStorage.getItem('framework')
+  const framework = localStorageFramework
+    ? frameworks[localStorageFramework]
+      ? localStorageFramework
+      : 'react'
+    : 'react'
   const navigate = useNavigate()
 
   const frameworkMenuItems =
-    config.frameworkMenus?.find((d) => d.framework === framework)?.menuItems ??
+    config.frameworkMenus.find((d) => d.framework === framework)?.menuItems ??
     []
 
   const frameworkConfig = useMemo(() => {
-    if (!config.frameworkMenus) {
-      return undefined
-    }
-
-    const availableFrameworks = config.frameworkMenus?.reduce(
-      (acc: AvailableOptions, menuEntry) => {
-        if (menuEntry.framework in frameworks) {
-          acc[menuEntry.framework] =
-            frameworks[menuEntry.framework as keyof typeof frameworks]
-        }
-        return acc
-      },
-      { react: frameworks['react'] }
-    )
-
     return {
       label: 'Framework',
       selected: frameworks[framework] ? framework : 'react',
-      available: availableFrameworks,
+      available: frameworks,
       onSelect: (option: { label: string; value: string }) => {
         const url = generatePath(match.id, {
           ...match.params,
@@ -136,7 +126,7 @@ export const useDocsConfig = ({
         navigate(url)
       },
     }
-  }, [config, frameworks, framework, match, navigate])
+  }, [frameworks, framework, match, navigate])
 
   const versionConfig = useMemo(() => {
     const available = availableVersions.reduce(
@@ -169,16 +159,8 @@ export const useDocsConfig = ({
     }
   }, [version, match, navigate, availableVersions])
 
-  const docSearch: NonNullable<ConfigSchema['docSearch']> =
-    config.docSearch || {
-      appId: '',
-      apiKey: '',
-      indexName: '',
-    }
-
   return {
     ...config,
-    docSearch,
     menu: [
       localMenu,
       // Merge the two menus together based on their group labels
@@ -200,3 +182,5 @@ export const useDocsConfig = ({
     versionConfig,
   }
 }
+
+export type DocsConfig = ReturnType<typeof useDocsConfig>

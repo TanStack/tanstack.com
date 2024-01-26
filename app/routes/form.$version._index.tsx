@@ -17,7 +17,13 @@ import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { getBranch, gradientText, latestVersion, repo } from '~/projects/form'
+import {
+  colorFrom,
+  colorTo,
+  getBranch,
+  latestVersion,
+  repo,
+} from '~/projects/form'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { Framework } from '~/projects/form'
@@ -91,6 +97,8 @@ export default function RouteVersion() {
   React.useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
+
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
 
   return (
     <>

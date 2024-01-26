@@ -4,8 +4,11 @@ import {
   repo,
   getBranch,
   useRouterDocsConfig,
-  createLogo,
   availableVersions,
+  latestVersion,
+  colorFrom,
+  colorTo,
+  textColor,
 } from '~/projects/router'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
@@ -40,14 +43,12 @@ export default function DocsRoute() {
 
   return (
     <DocsLayout
-      v2={true}
-      logo={createLogo(version)}
-      colorFrom={'from-lime-500'}
-      colorTo={'to-emerald-500'}
-      textColor={'text-emerald-500'}
+      name="Router"
+      version={version === 'latest' ? latestVersion : version!}
+      colorFrom={colorFrom}
+      colorTo={colorTo}
+      textColor={textColor}
       config={config}
-      framework={config.frameworkConfig}
-      version={config.versionConfig}
     >
       <Outlet />
     </DocsLayout>

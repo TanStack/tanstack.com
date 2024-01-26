@@ -45,8 +45,6 @@ export default function DocsRoute() {
       colorTo={'to-emerald-500'}
       textColor={'text-emerald-500'}
       config={config}
-      framework={config.frameworkConfig}
-      version={config.versionConfig}
     >
       <Outlet />
     </DocsLayout>

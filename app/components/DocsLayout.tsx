@@ -7,21 +7,11 @@ import { last } from '~/utils/utils'
 import { Carbon } from '~/components/Carbon'
 import { LinkOrA } from '~/components/LinkOrA'
 import { Search } from '~/components/Search'
-import type { SelectProps } from '~/components/Select'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
-import type { MenuItem } from '~/utils/config'
-
-export type DocsConfig = {
-  docSearch: {
-    appId: string
-    indexName: string
-    apiKey: string
-  }
-  menu: MenuItem[]
-}
+import type { DocsConfig } from '~/utils/config'
 
 export function DocsLayout({
   colorFrom,
@@ -29,8 +19,6 @@ export function DocsLayout({
   textColor,
   logo,
   config,
-  framework,
-  version,
   children,
 }: {
   colorFrom: string
@@ -38,10 +26,10 @@ export function DocsLayout({
   textColor: string
   logo: React.ReactNode
   config: DocsConfig
-  framework?: SelectProps
-  version?: SelectProps
   children?: any
 }) {
+  const frameworkConfig = config.frameworkConfig
+  const versionConfig = config.versionConfig
   const matches = useMatches()
   const lastMatch = last(matches)
 
@@ -158,20 +146,20 @@ export function DocsLayout({
           dark:bg-gray-900"
         >
           <div className="flex gap-4">
-            {framework?.selected ? (
+            {frameworkConfig?.selected ? (
               <Select
-                label={framework.label}
-                selected={framework.selected}
-                available={framework.available}
-                onSelect={framework.onSelect}
+                label={frameworkConfig.label}
+                selected={frameworkConfig.selected}
+                available={frameworkConfig.available}
+                onSelect={frameworkConfig.onSelect}
               />
             ) : null}
-            {version?.selected ? (
+            {versionConfig?.selected ? (
               <Select
-                label={version.label}
-                selected={version.selected}
-                available={version.available}
-                onSelect={version.onSelect}
+                label={versionConfig.label}
+                selected={versionConfig.selected}
+                available={versionConfig.available}
+                onSelect={versionConfig.onSelect}
               />
             ) : null}
           </div>
@@ -192,22 +180,22 @@ export function DocsLayout({
         />
       </div>
       <div className="flex gap-2 px-4">
-        {framework?.selected ? (
+        {frameworkConfig?.selected ? (
           <Select
             className="flex-[3_1_0%]"
-            label={framework.label}
-            selected={framework.selected}
-            available={framework.available}
-            onSelect={framework.onSelect}
+            label={frameworkConfig.label}
+            selected={frameworkConfig.selected}
+            available={frameworkConfig.available}
+            onSelect={frameworkConfig.onSelect}
           />
         ) : null}
-        {version?.selected ? (
+        {versionConfig?.selected ? (
           <Select
             className="flex-[2_1_0%]"
-            label={version.label}
-            selected={version.selected}
-            available={version.available}
-            onSelect={version.onSelect}
+            label={versionConfig.label}
+            selected={versionConfig.selected}
+            available={versionConfig.available}
+            onSelect={versionConfig.onSelect}
           />
         ) : null}
       </div>

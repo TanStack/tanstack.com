@@ -37,8 +37,6 @@ export default function Component() {
       colorTo={'to-gray-900'}
       textColor={'text-gray-700'}
       config={config}
-      framework={config.frameworkConfig}
-      version={config.versionConfig}
     >
       <Outlet />
     </DocsLayout>

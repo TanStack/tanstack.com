@@ -50,8 +50,6 @@ export default function RouteReactTable() {
       colorTo={'to-blue-500'}
       textColor={'text-blue-500'}
       config={config}
-      framework={config.frameworkConfig}
-      version={config.versionConfig}
     >
       <Outlet />
     </DocsLayout>

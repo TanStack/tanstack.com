@@ -49,8 +49,6 @@ export default function RouteFrameworkParam() {
         colorTo={'to-violet-500'}
         textColor={'text-violet-500'}
         config={config}
-        framework={config.frameworkConfig}
-        version={config.versionConfig}
       />
     </>
   )

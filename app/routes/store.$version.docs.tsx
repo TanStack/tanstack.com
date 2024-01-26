@@ -7,6 +7,9 @@ import {
   getBranch,
   latestVersion,
   repo,
+  textColor,
+  colorFrom,
+  colorTo,
   useStoreDocsConfig,
 } from '~/projects/store'
 import { getTanstackDocsConfig } from '~/utils/config'
@@ -35,10 +38,9 @@ export default function Component() {
     <DocsLayout
       name="Store"
       version={version === 'latest' ? latestVersion : version!}
-      logo={createLogo(version)}
-      colorFrom={'from-gray-700'}
-      colorTo={'to-gray-900'}
-      textColor={'text-gray-700'}
+      colorFrom={colorFrom}
+      colorTo={colorTo}
+      textColor={textColor}
       config={config}
     >
       <Outlet />

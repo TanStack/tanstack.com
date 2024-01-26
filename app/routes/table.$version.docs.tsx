@@ -1,11 +1,13 @@
 import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
 import {
   getBranch,
-  createLogo,
   repo,
   useTableDocsConfig,
   availableVersions,
   latestVersion,
+  colorFrom,
+  colorTo,
+  textColor,
 } from '~/projects/table'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
@@ -48,10 +50,9 @@ export default function RouteReactTable() {
     <DocsLayout
       name="Table"
       version={version === 'latest' ? latestVersion : version!}
-      logo={createLogo(version)}
-      colorFrom={'from-teal-500'}
-      colorTo={'to-blue-500'}
-      textColor={'text-blue-500'}
+      colorFrom={colorFrom}
+      colorTo={colorTo}
+      textColor={textColor}
       config={config}
     >
       <Outlet />

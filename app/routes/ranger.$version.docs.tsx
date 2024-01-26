@@ -5,8 +5,10 @@ import {
   useRangerDocsConfig,
   repo,
   getBranch,
-  createLogo,
+  colorTo,
   latestVersion,
+  colorFrom,
+  textColor,
 } from '~/projects/ranger'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
@@ -43,10 +45,9 @@ export default function DocsRoute() {
     <DocsLayout
       name="Ranger"
       version={version === 'latest' ? latestVersion : version!}
-      logo={createLogo(version)}
-      colorFrom={'from-lime-500'}
-      colorTo={'to-emerald-500'}
-      textColor={'text-emerald-500'}
+      colorFrom={colorFrom}
+      colorTo={colorTo}
+      textColor={textColor}
       config={config}
     >
       <Outlet />

@@ -98,6 +98,8 @@ export default function RouteVersion() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
+
   return (
     <>
       <div className="flex flex-col gap-20 md:gap-32">
@@ -134,11 +136,7 @@ export default function RouteVersion() {
             md:text-6xl
             lg:text-7xl`}
             >
-              <span
-                className={`inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`}
-              >
-                TanStack Form
-              </span>{' '}
+              <span className={gradientText}>TanStack Form</span>{' '}
               <span
                 className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"

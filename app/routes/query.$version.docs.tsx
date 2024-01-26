@@ -6,7 +6,9 @@ import { DocsLayout } from '~/components/DocsLayout'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import {
   getBranch,
-  createLogo,
+  colorFrom,
+  colorTo,
+  textColor,
   repo,
   useQueryDocsConfig,
   availableVersions,
@@ -47,10 +49,9 @@ export default function RouteFrameworkParam() {
       <DocsLayout
         name="Query"
         version={version === 'latest' ? latestVersion : version!}
-        logo={createLogo(version)}
-        colorFrom={'from-rose-500'}
-        colorTo={'to-violet-500'}
-        textColor={'text-violet-500'}
+        colorFrom={colorFrom}
+        colorTo={colorTo}
+        textColor={textColor}
         config={config}
       >
         <Outlet />

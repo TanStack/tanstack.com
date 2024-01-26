@@ -1,7 +1,7 @@
 import React from 'react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
 import { repo, getBranch } from '~/projects/query'
 import { seo } from '~/utils/seo'

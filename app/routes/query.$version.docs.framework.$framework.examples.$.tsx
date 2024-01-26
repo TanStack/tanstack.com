@@ -9,9 +9,9 @@ import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const { framework, '*': name } = context.params
+  const { version, framework, '*': name } = context.params
 
-  return json({ framework, name })
+  return json({ version, framework, name })
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -26,8 +26,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 }
 
 export default function RouteExamples() {
-  const { framework, name } = useLoaderData<typeof loader>()
-  const { version } = useParams()
+  const { version, framework, name } = useLoaderData<typeof loader>()
   const branch = getBranch(version)
 
   const examplePath = [framework, name].join('/')

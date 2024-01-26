@@ -15,6 +15,7 @@ export type MenuItem = {
   children: {
     label: string | React.ReactNode
     to: string
+    badge?: string
   }[]
 }
 
@@ -24,7 +25,6 @@ const menuItemSchema = z.object({
     z.object({
       label: z.string(),
       to: z.string(),
-
       badge: z.string().optional(),
     })
   ),
@@ -200,3 +200,5 @@ export const useDocsConfig = ({
     versionConfig,
   }
 }
+
+export type DocsConfig = ReturnType<typeof useDocsConfig>

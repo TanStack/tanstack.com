@@ -12,6 +12,7 @@ import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
+import type { MenuItem } from '~/utils/config'
 
 export type DocsConfig = {
   docSearch: {
@@ -19,14 +20,7 @@ export type DocsConfig = {
     indexName: string
     apiKey: string
   }
-  menu: {
-    label: string | React.ReactNode
-    children: {
-      label: string | React.ReactNode
-      to: string
-      badge?: string
-    }[]
-  }[]
+  menu: MenuItem[]
 }
 
 export function DocsLayout({

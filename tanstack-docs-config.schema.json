@@ -4,7 +4,7 @@
   "title": "TanStack Docs Config",
   "description": "Config file for the documentation of a TanStack project.",
   "type": "object",
-  "required": ["docSearch", "menu"],
+  "required": ["docSearch", "menu", "frameworkMenus"],
   "additionalProperties": false,
   "properties": {
     "$schema": {

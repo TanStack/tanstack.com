@@ -1,15 +1,18 @@
 import * as React from 'react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { json, redirect, useLoaderData } from '@remix-run/react'
+import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import {
   getBranch,
-  createLogo,
+  colorFrom,
+  colorTo,
+  textColor,
   repo,
   useQueryDocsConfig,
   availableVersions,
+  latestVersion,
 } from '~/projects/query'
 import { getTanstackDocsConfig } from '~/utils/config'
 
@@ -44,15 +47,15 @@ export default function RouteFrameworkParam() {
     <>
       <QueryGGBanner />
       <DocsLayout
-        v2={true}
-        logo={createLogo(version)}
-        colorFrom={'from-rose-500'}
-        colorTo={'to-violet-500'}
-        textColor={'text-violet-500'}
+        name="Query"
+        version={version === 'latest' ? latestVersion : version!}
+        colorFrom={colorFrom}
+        colorTo={colorTo}
+        textColor={textColor}
         config={config}
-        framework={config.frameworkConfig}
-        version={config.versionConfig}
-      />
+      >
+        <Outlet />
+      </DocsLayout>
     </>
   )
 }

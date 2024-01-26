@@ -3,9 +3,12 @@ import { Outlet, useLoaderData } from '@remix-run/react'
 import { DocsLayout } from '~/components/DocsLayout'
 import {
   availableVersions,
-  createLogo,
   getBranch,
+  latestVersion,
   repo,
+  textColor,
+  colorFrom,
+  colorTo,
   useStoreDocsConfig,
 } from '~/projects/store'
 import { getTanstackDocsConfig } from '~/utils/config'
@@ -32,14 +35,12 @@ export default function Component() {
 
   return (
     <DocsLayout
-      v2={true}
-      logo={createLogo(version)}
-      colorFrom={'from-gray-700'}
-      colorTo={'to-gray-900'}
-      textColor={'text-gray-700'}
+      name="Store"
+      version={version === 'latest' ? latestVersion : version!}
+      colorFrom={colorFrom}
+      colorTo={colorTo}
+      textColor={textColor}
       config={config}
-      framework={config.frameworkConfig}
-      version={config.versionConfig}
     >
       <Outlet />
     </DocsLayout>

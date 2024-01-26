@@ -1,4 +1,3 @@
-import { Link } from '@remix-run/react'
 import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
@@ -13,8 +12,9 @@ export const latestBranch = 'main'
 export const latestVersion = 'v8'
 export const availableVersions = ['v8']
 
-export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-600'
+export const colorFrom = 'from-teal-500'
+export const colorTo = 'to-blue-600'
+export const textColor = 'text-blue-600'
 
 const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
@@ -56,20 +56,6 @@ export const localMenu: MenuItem = {
     },
   ],
 }
-
-export const createLogo = (version?: string) => (
-  <>
-    <Link to="/" className="font-light">
-      TanStack
-    </Link>
-    <Link to="../../" className={`font-bold`}>
-      <span className={`${gradientText}`}>Table</span>{' '}
-      <span className="text-sm align-super">
-        {version === 'latest' ? latestVersion : version}
-      </span>
-    </Link>
-  </>
-)
 
 export const useTableDocsConfig = (config: ConfigSchema) => {
   return useDocsConfig({

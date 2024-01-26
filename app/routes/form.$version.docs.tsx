@@ -4,10 +4,12 @@ import { Outlet, useLoaderData } from '@remix-run/react'
 import { DocsLayout } from '~/components/DocsLayout'
 import {
   availableVersions,
-  createLogo,
+  colorFrom,
+  colorTo,
   getBranch,
   latestVersion,
   repo,
+  textColor,
   useFormDocsConfig,
 } from '~/projects/form'
 import { getTanstackDocsConfig } from '~/utils/config'
@@ -35,10 +37,9 @@ export default function Component() {
     <DocsLayout
       name="Form"
       version={version === 'latest' ? latestVersion : version!}
-      logo={createLogo(version)}
-      colorFrom={'from-rose-500'}
-      colorTo={'to-violet-500'}
-      textColor={'text-violet-500'}
+      colorFrom={colorFrom}
+      colorTo={colorTo}
+      textColor={textColor}
       config={config}
     >
       <Outlet />

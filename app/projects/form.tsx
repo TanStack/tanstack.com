@@ -1,4 +1,3 @@
-import { Link } from '@remix-run/react'
 import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
@@ -12,8 +11,9 @@ export const latestBranch = 'main'
 export const latestVersion = 'v0'
 export const availableVersions = ['v0']
 
-export const gradientText =
-  'inline-block text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600'
+export const colorFrom = 'from-yellow-500'
+export const colorTo = 'to-yellow-600'
+export const textColor = 'text-yellow-600'
 
 const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
@@ -22,20 +22,6 @@ const frameworks = {
 } as const
 
 export type Framework = keyof typeof frameworks
-
-export const createLogo = (version?: string) => (
-  <>
-    <Link to="/" className="font-light">
-      TanStack
-    </Link>
-    <Link to="../../" className={`font-bold`}>
-      <span className={`${gradientText}`}>Form</span>{' '}
-      <span className="text-sm align-super">
-        {version === 'latest' ? latestVersion : version}
-      </span>
-    </Link>
-  </>
-)
 
 export const localMenu: MenuItem = {
   label: 'Menu',

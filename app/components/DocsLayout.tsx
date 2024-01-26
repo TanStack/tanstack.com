@@ -11,6 +11,7 @@ import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
+import { DocsLogo } from '~/components/DocsLogo'
 import type { DocsConfig } from '~/utils/config'
 
 export function DocsLayout({
@@ -19,7 +20,6 @@ export function DocsLayout({
   colorFrom,
   colorTo,
   textColor,
-  logo,
   config,
   children,
 }: {
@@ -28,7 +28,6 @@ export function DocsLayout({
   colorFrom: string
   colorTo: string
   textColor: string
-  logo: React.ReactNode
   config: DocsConfig
   children: React.ReactNode
 }) {
@@ -125,6 +124,15 @@ export function DocsLayout({
       </div>
     )
   })
+
+  const logo = (
+    <DocsLogo
+      name={name}
+      version={version}
+      colorFrom={colorFrom}
+      colorTo={colorTo}
+    />
+  )
 
   const smallMenu = (
     <div

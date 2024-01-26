@@ -38,7 +38,6 @@ export function DocsLayout({
   framework,
   version,
   children,
-  v2,
 }: {
   colorFrom: string
   colorTo: string
@@ -48,7 +47,6 @@ export function DocsLayout({
   framework?: SelectProps
   version?: SelectProps
   children?: any
-  v2?: boolean
 }) {
   const matches = useMatches()
   const lastMatch = last(matches)
@@ -92,7 +90,7 @@ export function DocsLayout({
                   </a>
                 ) : (
                   <NavLink
-                    to={v2 ? child.to : framework ? '../' + child.to : child.to}
+                    to={child.to}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
@@ -246,13 +244,7 @@ export function DocsLayout({
             <div className="p-4 flex justify-center gap-4">
               {prevItem ? (
                 <LinkOrA
-                  to={
-                    v2
-                      ? prevItem.to
-                      : framework
-                      ? `../${prevItem.to}`
-                      : prevItem.to
-                  }
+                  to={prevItem.to}
                   className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
                 bg-white text-gray-600 dark:bg-black dark:text-gray-400
                 shadow-lg dark:border dark:border-gray-800
@@ -263,13 +255,7 @@ export function DocsLayout({
               ) : null}
               {nextItem ? (
                 <LinkOrA
-                  to={
-                    v2
-                      ? nextItem.to
-                      : framework
-                      ? `../${nextItem.to}`
-                      : nextItem.to
-                  }
+                  to={nextItem.to}
                   className="py-1 px-2 text-sm self-end rounded-md
                   bg-white dark:bg-black
                   shadow-lg dark:border dark:border-gray-800

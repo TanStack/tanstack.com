@@ -45,7 +45,6 @@ export default function RouteReactTable() {
 
   return (
     <DocsLayout
-      v2={true}
       logo={createLogo(version)}
       colorFrom={'from-teal-500'}
       colorTo={'to-blue-500'}

@@ -32,7 +32,6 @@ export default function Component() {
 
   return (
     <DocsLayout
-      v2={true}
       logo={createLogo(version)}
       colorFrom={'from-gray-700'}
       colorTo={'to-gray-900'}

@@ -44,7 +44,6 @@ export default function RouteFrameworkParam() {
     <>
       <QueryGGBanner />
       <DocsLayout
-        v2={true}
         logo={createLogo(version)}
         colorFrom={'from-rose-500'}
         colorTo={'to-violet-500'}

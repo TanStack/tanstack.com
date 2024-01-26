@@ -32,7 +32,6 @@ export default function Component() {
   let config = useFormDocsConfig(tanstackDocsConfig)
   return (
     <DocsLayout
-      v2={true}
       logo={createLogo(version)}
       colorFrom={'from-rose-500'}
       colorTo={'to-violet-500'}

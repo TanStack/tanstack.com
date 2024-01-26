@@ -40,7 +40,6 @@ export default function DocsRoute() {
   let config = useRangerDocsConfig(tanstackDocsConfig)
   return (
     <DocsLayout
-      v2={true}
       logo={createLogo(version)}
       colorFrom={'from-lime-500'}
       colorTo={'to-emerald-500'}

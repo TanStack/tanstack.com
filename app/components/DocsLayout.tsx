@@ -30,13 +30,12 @@ function useCurrentFramework(frameworks: AvailableOptions) {
   const { framework: paramsFramework } = useParams()
   const localStorageFramework = localStorage.getItem('framework')
 
-  return paramsFramework
-    ? paramsFramework
-    : localStorageFramework
-    ? frameworks[localStorageFramework]
+  return (
+    paramsFramework ||
+    (localStorageFramework && localStorageFramework in frameworks
       ? localStorageFramework
-      : 'react'
-    : 'react'
+      : 'react')
+  )
 }
 
 const useMenuConfig = ({

@@ -9,7 +9,6 @@ import {
   frameworks,
   getBranch,
   latestVersion,
-  localMenu,
   repo,
   textColor,
 } from '~/projects/form'
@@ -40,7 +39,7 @@ export default function Component() {
       config={config}
       frameworks={frameworks}
       availableVersions={availableVersions}
-      localMenu={localMenu}
+      repo={repo}
     >
       <Outlet />
     </DocsLayout>

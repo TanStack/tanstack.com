@@ -7,7 +7,6 @@ import {
   colorTo,
   textColor,
   availableVersions,
-  localMenu,
   frameworks,
 } from '~/projects/table'
 import { seo } from '~/utils/seo'
@@ -52,7 +51,7 @@ export default function RouteReactTable() {
       config={config}
       frameworks={frameworks}
       availableVersions={availableVersions}
-      localMenu={localMenu}
+      repo={repo}
     >
       <Outlet />
     </DocsLayout>

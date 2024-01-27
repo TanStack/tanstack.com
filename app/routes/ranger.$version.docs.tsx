@@ -7,7 +7,6 @@ import {
   colorFrom,
   textColor,
   availableVersions,
-  localMenu,
   frameworks,
 } from '~/projects/ranger'
 import { seo } from '~/utils/seo'
@@ -47,7 +46,7 @@ export default function DocsRoute() {
       config={config}
       frameworks={frameworks}
       availableVersions={availableVersions}
-      localMenu={localMenu}
+      repo={repo}
     >
       <Outlet />
     </DocsLayout>

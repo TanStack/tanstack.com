@@ -9,7 +9,6 @@ import {
   colorFrom,
   colorTo,
   availableVersions,
-  localMenu,
   frameworks,
 } from '~/projects/store'
 import { getTanstackDocsConfig } from '~/utils/config'
@@ -39,7 +38,7 @@ export default function Component() {
       config={config}
       frameworks={frameworks}
       availableVersions={availableVersions}
-      localMenu={localMenu}
+      repo={repo}
     >
       <Outlet />
     </DocsLayout>

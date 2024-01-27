@@ -12,7 +12,6 @@ import {
   latestVersion,
   availableVersions,
   frameworks,
-  localMenu,
 } from '~/projects/query'
 import { getTanstackDocsConfig } from '~/utils/config'
 
@@ -50,7 +49,7 @@ export default function RouteFrameworkParam() {
         config={config}
         frameworks={frameworks}
         availableVersions={availableVersions}
-        localMenu={localMenu}
+        repo={repo}
       >
         <Outlet />
       </DocsLayout>

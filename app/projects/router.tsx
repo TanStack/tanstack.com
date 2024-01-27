@@ -1,6 +1,4 @@
 import reactLogo from '~/images/react-logo.svg'
-import { FaDiscord, FaGithub } from 'react-icons/fa/index'
-import type { MenuItem } from '~/utils/config'
 
 export const repo = 'tanstack/router'
 
@@ -17,32 +15,6 @@ export const frameworks = {
 } as const
 
 export type Framework = keyof typeof frameworks
-
-export const localMenu: MenuItem = {
-  label: 'Menu',
-  children: [
-    {
-      label: 'Home',
-      to: '..',
-    },
-    {
-      label: (
-        <div className="flex items-center gap-2">
-          GitHub <FaGithub className="text-lg opacity-20" />
-        </div>
-      ),
-      to: 'https://github.com/tanstack/router',
-    },
-    {
-      label: (
-        <div className="flex items-center gap-2">
-          Discord <FaDiscord className="text-lg opacity-20" />
-        </div>
-      ),
-      to: 'https://tlinz.com/discord',
-    },
-  ],
-}
 
 export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion

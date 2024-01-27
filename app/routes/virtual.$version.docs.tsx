@@ -7,7 +7,6 @@ import {
   colorTo,
   textColor,
   availableVersions,
-  localMenu,
   frameworks,
 } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
@@ -49,7 +48,7 @@ export default function RouteVirtual() {
       config={config}
       frameworks={frameworks}
       availableVersions={availableVersions}
-      localMenu={localMenu}
+      repo={repo}
     >
       <Outlet />
     </DocsLayout>

@@ -1,7 +1,13 @@
 import { DocSearch } from '@docsearch/react'
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { FaArrowLeft, FaArrowRight, FaTimes } from 'react-icons/fa'
+import {
+  FaArrowLeft,
+  FaArrowRight,
+  FaDiscord,
+  FaGithub,
+  FaTimes,
+} from 'react-icons/fa'
 import { NavLink, useMatches, useNavigate, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
 import { LinkOrA } from '~/components/LinkOrA'
@@ -36,15 +42,41 @@ function useCurrentFramework(frameworks: AvailableOptions) {
 const useMenuConfig = ({
   config,
   framework,
-  localMenu,
+  repo,
 }: {
   config: ConfigSchema
   framework: string
-  localMenu: MenuItem
+  repo: string
 }) => {
   const frameworkMenuItems =
     config.frameworkMenus.find((d) => d.framework === framework)?.menuItems ??
     []
+
+  const localMenu: MenuItem = {
+    label: 'Menu',
+    children: [
+      {
+        label: 'Home',
+        to: '..',
+      },
+      {
+        label: (
+          <div className="flex items-center gap-2">
+            GitHub <FaGithub className="text-lg opacity-20" />
+          </div>
+        ),
+        to: `https://github.com/${repo}`,
+      },
+      {
+        label: (
+          <div className="flex items-center gap-2">
+            Discord <FaDiscord className="text-lg opacity-20" />
+          </div>
+        ),
+        to: 'https://tlinz.com/discord',
+      },
+    ],
+  }
 
   return [
     localMenu,
@@ -151,7 +183,7 @@ type DocsLayoutProps = {
   config: ConfigSchema
   frameworks: AvailableOptions
   availableVersions: string[]
-  localMenu: MenuItem
+  repo: string
   children: React.ReactNode
 }
 
@@ -164,17 +196,13 @@ export function DocsLayout({
   config,
   frameworks,
   availableVersions,
-  localMenu,
+  repo,
   children,
 }: DocsLayoutProps) {
   const framework = useCurrentFramework(frameworks)
   const frameworkConfig = useFrameworkConfig({ framework, frameworks })
   const versionConfig = useVersionConfig({ availableVersions })
-  const menuConfig = useMenuConfig({
-    config,
-    framework,
-    localMenu,
-  })
+  const menuConfig = useMenuConfig({ config, framework, repo })
 
   const matches = useMatches()
   const lastMatch = last(matches)

@@ -33,29 +33,49 @@ function useCurrentFramework(frameworks: AvailableOptions) {
     : 'react'
 }
 
-const useDocsConfig = ({
+const useMenuConfig = ({
   config,
   frameworks,
-  availableVersions,
   localMenu,
 }: {
   config: ConfigSchema
   frameworks: AvailableOptions
-  availableVersions: string[]
   localMenu: MenuItem
 }) => {
-  const matches = useMatches()
-  const match = matches[matches.length - 1]
-  const params = useParams()
-  const version = params.version!
   const framework = useCurrentFramework(frameworks)
-  const navigate = useNavigate()
 
   const frameworkMenuItems =
     config.frameworkMenus.find((d) => d.framework === framework)?.menuItems ??
     []
 
-  console.log(frameworkMenuItems)
+  return [
+    localMenu,
+    // Merge the two menus together based on their group labels
+    ...config.menu.map((d) => {
+      const match = frameworkMenuItems.find((d2) => d2.label === d.label)
+      return {
+        label: d.label,
+        children: [
+          ...d.children.map((d) => ({ ...d, badge: 'core' })),
+          ...(match?.children ?? []).map((d) => ({ ...d, badge: framework })),
+        ],
+      }
+    }),
+    ...frameworkMenuItems.filter(
+      (d) => !config.menu.find((dd) => dd.label === d.label)
+    ),
+  ].filter(Boolean)
+}
+
+const useFrameworkConfig = ({
+  frameworks,
+}: {
+  frameworks: AvailableOptions
+}) => {
+  const matches = useMatches()
+  const match = matches[matches.length - 1]
+  const framework = useCurrentFramework(frameworks)
+  const navigate = useNavigate()
 
   const frameworkConfig = React.useMemo(() => {
     return {
@@ -74,6 +94,20 @@ const useDocsConfig = ({
       },
     }
   }, [frameworks, framework, match, navigate])
+
+  return frameworkConfig
+}
+
+const useVersionConfig = ({
+  availableVersions,
+}: {
+  availableVersions: string[]
+}) => {
+  const matches = useMatches()
+  const match = matches[matches.length - 1]
+  const params = useParams()
+  const version = params.version!
+  const navigate = useNavigate()
 
   const versionConfig = React.useMemo(() => {
     const available = availableVersions.reduce(
@@ -106,29 +140,20 @@ const useDocsConfig = ({
     }
   }, [version, match, navigate, availableVersions])
 
-  return {
-    ...config,
-    menu: [
-      localMenu,
-      // Merge the two menus together based on their group labels
-      ...config.menu.map((d) => {
-        const match = frameworkMenuItems.find((d2) => d2.label === d.label)
-        console.log(match)
-        return {
-          label: d.label,
-          children: [
-            ...d.children.map((d) => ({ ...d, badge: 'core' })),
-            ...(match?.children ?? []).map((d) => ({ ...d, badge: framework })),
-          ],
-        }
-      }),
-      ...frameworkMenuItems.filter(
-        (d) => !config.menu.find((dd) => dd.label === d.label)
-      ),
-    ].filter(Boolean),
-    frameworkConfig,
-    versionConfig,
-  }
+  return versionConfig
+}
+
+type DocsLayoutProps = {
+  name: string
+  version: string
+  colorFrom: string
+  colorTo: string
+  textColor: string
+  config: ConfigSchema
+  frameworks: AvailableOptions
+  availableVersions: string[]
+  localMenu: MenuItem
+  children: React.ReactNode
 }
 
 export function DocsLayout({
@@ -142,24 +167,15 @@ export function DocsLayout({
   availableVersions,
   localMenu,
   children,
-}: {
-  name: string
-  version: string
-  colorFrom: string
-  colorTo: string
-  textColor: string
-  config: ConfigSchema
-  frameworks: AvailableOptions
-  availableVersions: string[]
-  localMenu: MenuItem
-  children: React.ReactNode
-}) {
-  const { frameworkConfig, versionConfig, menu } = useDocsConfig({
+}: DocsLayoutProps) {
+  const frameworkConfig = useFrameworkConfig({ frameworks })
+  const versionConfig = useVersionConfig({ availableVersions })
+  const menu = useMenuConfig({
     config,
     frameworks,
     localMenu,
-    availableVersions,
   })
+
   const matches = useMatches()
   const lastMatch = last(matches)
 

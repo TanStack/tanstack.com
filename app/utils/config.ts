@@ -48,15 +48,6 @@ const configSchema = z.object({
 
 export type ConfigSchema = z.infer<typeof configSchema>
 
-export function getCurrentlySelectedFrameworkFromLocalStorage(
-  selectedFramework?: string
-) {
-  const framework =
-    selectedFramework || localStorage.getItem('framework') || 'react'
-
-  return framework
-}
-
 /**
   Fetch the config file for the project and validate it.
   */
@@ -83,6 +74,24 @@ export async function getTanstackDocsConfig(repo: string, branch: string) {
   }
 }
 
+/**
+ * Use framework in URL path
+ * Otherwise use framework in localStorage if it exists for this project
+ * Otherwise fallback to react
+ */
+export function useCurrentFramework(frameworks: AvailableOptions) {
+  const { framework: paramsFramework } = useParams()
+  const localStorageFramework = localStorage.getItem('framework')
+
+  return paramsFramework
+    ? paramsFramework
+    : localStorageFramework
+    ? frameworks[localStorageFramework]
+      ? localStorageFramework
+      : 'react'
+    : 'react'
+}
+
 export const useDocsConfig = ({
   config,
   frameworks,
@@ -98,12 +107,7 @@ export const useDocsConfig = ({
   const match = matches[matches.length - 1]
   const params = useParams()
   const version = params.version!
-  const localStorageFramework = localStorage.getItem('framework')
-  const framework = localStorageFramework
-    ? frameworks[localStorageFramework]
-      ? localStorageFramework
-      : 'react'
-    : 'react'
+  const framework = useCurrentFramework(frameworks)
   const navigate = useNavigate()
 
   const frameworkMenuItems =

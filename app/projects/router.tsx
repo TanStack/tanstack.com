@@ -1,7 +1,6 @@
 import reactLogo from '~/images/react-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa/index'
-import { useDocsConfig } from '~/utils/config'
-import type { ConfigSchema, MenuItem } from '~/utils/config'
+import type { MenuItem } from '~/utils/config'
 
 export const repo = 'tanstack/router'
 
@@ -13,7 +12,7 @@ export const colorFrom = 'from-lime-500'
 export const colorTo = 'to-emerald-500'
 export const textColor = 'text-emerald-500'
 
-const frameworks = {
+export const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
 } as const
 
@@ -49,13 +48,4 @@ export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion
 
   return ['latest', latestVersion].includes(version) ? latestBranch : version
-}
-
-export const useRouterDocsConfig = (config: ConfigSchema) => {
-  return useDocsConfig({
-    config,
-    frameworks,
-    localMenu,
-    availableVersions,
-  })
 }

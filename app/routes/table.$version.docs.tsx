@@ -2,11 +2,13 @@ import { Outlet, json, useLoaderData } from '@remix-run/react'
 import {
   getBranch,
   repo,
-  useTableDocsConfig,
   latestVersion,
   colorFrom,
   colorTo,
   textColor,
+  availableVersions,
+  localMenu,
+  frameworks,
 } from '~/projects/table'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
@@ -18,10 +20,10 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const version = context.params.version
   const branch = getBranch(version)
 
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
+  const config = await getTanstackDocsConfig(repo, branch)
 
   return json({
-    tanstackDocsConfig,
+    config,
     version,
   })
 }
@@ -38,8 +40,7 @@ export const meta: MetaFunction = () => {
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactTable() {
-  const { version, tanstackDocsConfig } = useLoaderData<typeof loader>()
-  let config = useTableDocsConfig(tanstackDocsConfig)
+  const { version, config } = useLoaderData<typeof loader>()
 
   return (
     <DocsLayout
@@ -49,6 +50,9 @@ export default function RouteReactTable() {
       colorTo={colorTo}
       textColor={textColor}
       config={config}
+      frameworks={frameworks}
+      availableVersions={availableVersions}
+      localMenu={localMenu}
     >
       <Outlet />
     </DocsLayout>

@@ -2,8 +2,7 @@ import { DocSearch } from '@docsearch/react'
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { FaArrowLeft, FaArrowRight, FaTimes } from 'react-icons/fa'
-import { NavLink, useMatches } from '@remix-run/react'
-import { last } from '~/utils/utils'
+import { NavLink, useMatches, useNavigate, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
 import { LinkOrA } from '~/components/LinkOrA'
 import { Search } from '~/components/Search'
@@ -12,7 +11,125 @@ import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { DocsLogo } from '~/components/DocsLogo'
-import type { DocsConfig } from '~/utils/config'
+import { generatePath, last } from '~/utils/utils'
+import type { AvailableOptions } from '~/components/Select'
+import type { ConfigSchema, MenuItem } from '~/utils/config'
+
+/**
+ * Use framework in URL path
+ * Otherwise use framework in localStorage if it exists for this project
+ * Otherwise fallback to react
+ */
+function useCurrentFramework(frameworks: AvailableOptions) {
+  const { framework: paramsFramework } = useParams()
+  const localStorageFramework = localStorage.getItem('framework')
+
+  return paramsFramework
+    ? paramsFramework
+    : localStorageFramework
+    ? frameworks[localStorageFramework]
+      ? localStorageFramework
+      : 'react'
+    : 'react'
+}
+
+const useDocsConfig = ({
+  config,
+  frameworks,
+  availableVersions,
+  localMenu,
+}: {
+  config: ConfigSchema
+  frameworks: AvailableOptions
+  availableVersions: string[]
+  localMenu: MenuItem
+}) => {
+  const matches = useMatches()
+  const match = matches[matches.length - 1]
+  const params = useParams()
+  const version = params.version!
+  const framework = useCurrentFramework(frameworks)
+  const navigate = useNavigate()
+
+  const frameworkMenuItems =
+    config.frameworkMenus.find((d) => d.framework === framework)?.menuItems ??
+    []
+
+  console.log(frameworkMenuItems)
+
+  const frameworkConfig = React.useMemo(() => {
+    return {
+      label: 'Framework',
+      selected: frameworks[framework] ? framework : 'react',
+      available: frameworks,
+      onSelect: (option: { label: string; value: string }) => {
+        const url = generatePath(match.id, {
+          ...match.params,
+          framework: option.value,
+        })
+
+        localStorage.setItem('framework', option.value)
+
+        navigate(url)
+      },
+    }
+  }, [frameworks, framework, match, navigate])
+
+  const versionConfig = React.useMemo(() => {
+    const available = availableVersions.reduce(
+      (acc: AvailableOptions, version) => {
+        acc[version] = {
+          label: version,
+          value: version,
+        }
+        return acc
+      },
+      {
+        latest: {
+          label: 'Latest',
+          value: 'latest',
+        },
+      }
+    )
+
+    return {
+      label: 'Version',
+      selected: version,
+      available,
+      onSelect: (option: { label: string; value: string }) => {
+        const url = generatePath(match.id, {
+          ...match.params,
+          version: option.value,
+        })
+        navigate(url)
+      },
+    }
+  }, [version, match, navigate, availableVersions])
+
+  return {
+    ...config,
+    menu: [
+      localMenu,
+      // Merge the two menus together based on their group labels
+      ...config.menu.map((d) => {
+        const match = frameworkMenuItems.find((d2) => d2.label === d.label)
+        console.log(match)
+        return {
+          label: d.label,
+          children: [
+            ...d.children.map((d) => ({ ...d, badge: 'core' })),
+            ...(match?.children ?? []).map((d) => ({ ...d, badge: framework })),
+          ],
+        }
+      }),
+      ...frameworkMenuItems.filter(
+        (d) => !config.menu.find((dd) => dd.label === d.label)
+      ),
+    ].filter(Boolean),
+    frameworkConfig,
+    versionConfig,
+  }
+}
 
 export function DocsLayout({
   name,
@@ -21,6 +138,9 @@ export function DocsLayout({
   colorTo,
   textColor,
   config,
+  frameworks,
+  availableVersions,
+  localMenu,
   children,
 }: {
   name: string
@@ -28,11 +148,18 @@ export function DocsLayout({
   colorFrom: string
   colorTo: string
   textColor: string
-  config: DocsConfig
+  config: ConfigSchema
+  frameworks: AvailableOptions
+  availableVersions: string[]
+  localMenu: MenuItem
   children: React.ReactNode
 }) {
-  const frameworkConfig = config.frameworkConfig
-  const versionConfig = config.versionConfig
+  const { frameworkConfig, versionConfig, menu } = useDocsConfig({
+    config,
+    frameworks,
+    localMenu,
+    availableVersions,
+  })
   const matches = useMatches()
   const lastMatch = last(matches)
 
@@ -40,10 +167,7 @@ export function DocsLayout({
 
   const detailsRef = React.useRef<HTMLElement>(null!)
 
-  const flatMenu = React.useMemo(
-    () => config.menu.flatMap((d) => d.children),
-    [config.menu]
-  )
+  const flatMenu = React.useMemo(() => menu.flatMap((d) => d.children), [menu])
 
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
 
@@ -58,7 +182,7 @@ export function DocsLayout({
 
   const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
 
-  const menuItems = config.menu.map((group, i) => {
+  const menuItems = menu.map((group, i) => {
     return (
       <div key={i}>
         <div className="text-[.9em] uppercase font-black">{group.label}</div>

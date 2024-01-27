@@ -3,13 +3,15 @@ import { json } from '@remix-run/node'
 import { Outlet, useLoaderData } from '@remix-run/react'
 import { DocsLayout } from '~/components/DocsLayout'
 import {
+  availableVersions,
   colorFrom,
   colorTo,
+  frameworks,
   getBranch,
   latestVersion,
+  localMenu,
   repo,
   textColor,
-  useFormDocsConfig,
 } from '~/projects/form'
 import { getTanstackDocsConfig } from '~/utils/config'
 
@@ -17,17 +19,17 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const { version } = context.params
   const branch = getBranch(version)
 
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
+  const config = await getTanstackDocsConfig(repo, branch)
 
   return json({
-    tanstackDocsConfig,
+    config,
     version,
   })
 }
 
 export default function Component() {
-  const { version, tanstackDocsConfig } = useLoaderData<typeof loader>()
-  let config = useFormDocsConfig(tanstackDocsConfig)
+  const { version, config } = useLoaderData<typeof loader>()
+
   return (
     <DocsLayout
       name="Form"
@@ -36,6 +38,9 @@ export default function Component() {
       colorTo={colorTo}
       textColor={textColor}
       config={config}
+      frameworks={frameworks}
+      availableVersions={availableVersions}
+      localMenu={localMenu}
     >
       <Outlet />
     </DocsLayout>

@@ -4,8 +4,7 @@ import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
 import svelteLogo from '~/images/svelte-logo.svg'
 import angularLogo from '~/images/angular-logo.svg'
-import { useDocsConfig } from '~/utils/config'
-import type { ConfigSchema, MenuItem } from '~/utils/config'
+import type { MenuItem } from '~/utils/config'
 
 export const repo = 'tanstack/query'
 
@@ -57,13 +56,4 @@ export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion
 
   return ['latest', latestVersion].includes(version) ? latestBranch : version
-}
-
-export const useQueryDocsConfig = (config: ConfigSchema) => {
-  return useDocsConfig({
-    config,
-    frameworks,
-    localMenu,
-    availableVersions,
-  })
 }

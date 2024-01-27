@@ -3,8 +3,7 @@ import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
 import svelteLogo from '~/images/svelte-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
-import { useDocsConfig } from '~/utils/config'
-import type { ConfigSchema, MenuItem } from '~/utils/config'
+import type { MenuItem } from '~/utils/config'
 
 export const repo = 'tanstack/table'
 
@@ -16,7 +15,7 @@ export const colorFrom = 'from-teal-500'
 export const colorTo = 'to-blue-600'
 export const textColor = 'text-blue-600'
 
-const frameworks = {
+export const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
   solid: { label: 'Solid', logo: solidLogo, value: 'solid' },
   svelte: { label: 'Svelte', logo: svelteLogo, value: 'svelte' },
@@ -55,13 +54,4 @@ export const localMenu: MenuItem = {
       to: 'https://tlinz.com/discord',
     },
   ],
-}
-
-export const useTableDocsConfig = (config: ConfigSchema) => {
-  return useDocsConfig({
-    config,
-    frameworks,
-    localMenu,
-    availableVersions,
-  })
 }

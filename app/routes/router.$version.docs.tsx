@@ -3,11 +3,13 @@ import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import {
   repo,
   getBranch,
-  useRouterDocsConfig,
   latestVersion,
   colorFrom,
   colorTo,
   textColor,
+  availableVersions,
+  localMenu,
+  frameworks,
 } from '~/projects/router'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
@@ -17,10 +19,10 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const { version } = context.params
   const branch = getBranch(version)
 
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
+  const config = await getTanstackDocsConfig(repo, branch)
 
   return json({
-    tanstackDocsConfig,
+    config,
     version,
   })
 }
@@ -33,8 +35,7 @@ export const meta: MetaFunction = () => {
 }
 
 export default function DocsRoute() {
-  const { tanstackDocsConfig, version } = useLoaderData<typeof loader>()
-  let config = useRouterDocsConfig(tanstackDocsConfig)
+  const { config, version } = useLoaderData<typeof loader>()
 
   return (
     <DocsLayout
@@ -44,6 +45,9 @@ export default function DocsRoute() {
       colorTo={colorTo}
       textColor={textColor}
       config={config}
+      frameworks={frameworks}
+      availableVersions={availableVersions}
+      localMenu={localMenu}
     >
       <Outlet />
     </DocsLayout>

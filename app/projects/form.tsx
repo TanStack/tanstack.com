@@ -2,8 +2,7 @@ import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
 import { FaDiscord, FaGithub } from 'react-icons/fa/index'
-import { useDocsConfig } from '~/utils/config'
-import type { ConfigSchema, MenuItem } from '~/utils/config'
+import type { MenuItem } from '~/utils/config'
 
 export const repo = 'tanstack/form'
 
@@ -15,7 +14,7 @@ export const colorFrom = 'from-yellow-500'
 export const colorTo = 'to-yellow-600'
 export const textColor = 'text-yellow-600'
 
-const frameworks = {
+export const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
   solid: { label: 'Solid', logo: solidLogo, value: 'solid' },
   vue: { label: 'Vue', logo: vueLogo, value: 'vue' },
@@ -53,13 +52,4 @@ export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion
 
   return ['latest', latestVersion].includes(version) ? latestBranch : version
-}
-
-export const useFormDocsConfig = (config: ConfigSchema) => {
-  return useDocsConfig({
-    config,
-    frameworks,
-    localMenu,
-    availableVersions,
-  })
 }

@@ -8,7 +8,9 @@ import {
   textColor,
   colorFrom,
   colorTo,
-  useStoreDocsConfig,
+  availableVersions,
+  localMenu,
+  frameworks,
 } from '~/projects/store'
 import { getTanstackDocsConfig } from '~/utils/config'
 
@@ -16,17 +18,16 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const { version } = context.params
   const branch = getBranch(version)
 
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
+  const config = await getTanstackDocsConfig(repo, branch)
 
   return json({
-    tanstackDocsConfig,
+    config,
     version,
   })
 }
 
 export default function Component() {
-  const { tanstackDocsConfig, version } = useLoaderData<typeof loader>()
-  let config = useStoreDocsConfig(tanstackDocsConfig)
+  const { config, version } = useLoaderData<typeof loader>()
 
   return (
     <DocsLayout
@@ -36,6 +37,9 @@ export default function Component() {
       colorTo={colorTo}
       textColor={textColor}
       config={config}
+      frameworks={frameworks}
+      availableVersions={availableVersions}
+      localMenu={localMenu}
     >
       <Outlet />
     </DocsLayout>

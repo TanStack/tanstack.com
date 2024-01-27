@@ -3,10 +3,12 @@ import {
   getBranch,
   latestVersion,
   repo,
-  useVirtualDocsConfig,
   colorFrom,
   colorTo,
   textColor,
+  availableVersions,
+  localMenu,
+  frameworks,
 } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
@@ -17,10 +19,10 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const version = context.params.version
   const branch = getBranch(version)
 
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
+  const config = await getTanstackDocsConfig(repo, branch)
 
   return json({
-    tanstackDocsConfig,
+    config,
     version,
   })
 }
@@ -35,8 +37,7 @@ export const meta: MetaFunction = () => {
 }
 
 export default function RouteVirtual() {
-  const { version, tanstackDocsConfig } = useLoaderData<typeof loader>()
-  let config = useVirtualDocsConfig(tanstackDocsConfig)
+  const { version, config } = useLoaderData<typeof loader>()
 
   return (
     <DocsLayout
@@ -46,6 +47,9 @@ export default function RouteVirtual() {
       colorTo={colorTo}
       textColor={textColor}
       config={config}
+      frameworks={frameworks}
+      availableVersions={availableVersions}
+      localMenu={localMenu}
     >
       <Outlet />
     </DocsLayout>

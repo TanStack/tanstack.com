@@ -35,15 +35,13 @@ function useCurrentFramework(frameworks: AvailableOptions) {
 
 const useMenuConfig = ({
   config,
-  frameworks,
+  framework,
   localMenu,
 }: {
   config: ConfigSchema
-  frameworks: AvailableOptions
+  framework: string
   localMenu: MenuItem
 }) => {
-  const framework = useCurrentFramework(frameworks)
-
   const frameworkMenuItems =
     config.frameworkMenus.find((d) => d.framework === framework)?.menuItems ??
     []
@@ -68,13 +66,14 @@ const useMenuConfig = ({
 }
 
 const useFrameworkConfig = ({
+  framework,
   frameworks,
 }: {
+  framework: string
   frameworks: AvailableOptions
 }) => {
   const matches = useMatches()
   const match = matches[matches.length - 1]
-  const framework = useCurrentFramework(frameworks)
   const navigate = useNavigate()
 
   const frameworkConfig = React.useMemo(() => {
@@ -168,11 +167,12 @@ export function DocsLayout({
   localMenu,
   children,
 }: DocsLayoutProps) {
-  const frameworkConfig = useFrameworkConfig({ frameworks })
+  const framework = useCurrentFramework(frameworks)
+  const frameworkConfig = useFrameworkConfig({ framework, frameworks })
   const versionConfig = useVersionConfig({ availableVersions })
-  const menu = useMenuConfig({
+  const menuConfig = useMenuConfig({
     config,
-    frameworks,
+    framework,
     localMenu,
   })
 
@@ -183,7 +183,10 @@ export function DocsLayout({
 
   const detailsRef = React.useRef<HTMLElement>(null!)
 
-  const flatMenu = React.useMemo(() => menu.flatMap((d) => d.children), [menu])
+  const flatMenu = React.useMemo(
+    () => menuConfig.flatMap((d) => d.children),
+    [menuConfig]
+  )
 
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
 
@@ -198,7 +201,7 @@ export function DocsLayout({
 
   const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
 
-  const menuItems = menu.map((group, i) => {
+  const menuItems = menuConfig.map((group, i) => {
     return (
       <div key={i}>
         <div className="text-[.9em] uppercase font-black">{group.label}</div>

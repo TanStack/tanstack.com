@@ -1,23 +1,29 @@
-import { Link, Outlet, useLocation } from '@remix-run/react'
+import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
-import { latestVersion } from '~/projects/store'
+import { availableVersions, latestVersion } from '~/projects/store'
+import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
+import type { LoaderFunctionArgs } from '@remix-run/node'
+
+export const loader = async (context: LoaderFunctionArgs) => {
+  const { version } = context.params
+
+  const redirectUrl = context.request.url.replace(version!, 'latest')
+
+  if (!availableVersions.concat('latest').includes(version!)) {
+    throw redirect(redirectUrl)
+  }
+
+  return json({
+    version,
+    redirectUrl,
+  })
+}
 
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteVersionParam() {
-  // After user clicks hide, do not show modal for a month, and then remind users that there is a new version!
-  const [showModal, setShowModal] = useLocalStorage(
-    'showRedirectToLatestModal',
-    true,
-    1000 * 60 * 24 * 30
-  )
-  const location = useLocation()
-
-  const version = location.pathname.match(/\/store\/v(\d)/)?.[1] || '999'
-  const isLowerVersion = Number(version) < Number(latestVersion[1])
-  const redirectTarget = location.pathname.replace(`v${version}`, 'latest')
+  const { version, redirectUrl } = useLoaderData<typeof loader>()
 
   if (!useClientOnlyRender()) {
     return null
@@ -25,31 +31,11 @@ export default function RouteVersionParam() {
 
   return (
     <>
-      {isLowerVersion && showModal ? (
-        <div className="p-4 bg-blue-500 text-white flex items-center justify-center gap-4">
-          <div>
-            You are currently reading <strong>v{version}</strong> docs. Redirect
-            to{' '}
-            <a href={redirectTarget} className="font-bold underline">
-              latest
-            </a>{' '}
-            version?
-          </div>
-          <Link
-            to={redirectTarget}
-            replace
-            className="bg-white text-black py-1 px-2 rounded-md uppercase font-black text-xs"
-          >
-            Latest
-          </Link>
-          <button
-            onClick={() => setShowModal(false)}
-            className="bg-white text-black py-1 px-2 rounded-md uppercase font-black text-xs"
-          >
-            Hide
-          </button>
-        </div>
-      ) : null}
+      <RedirectVersionBanner
+        version={version!}
+        latestVersion={latestVersion}
+        redirectUrl={redirectUrl}
+      />
       <Outlet />
     </>
   )

@@ -7,17 +7,18 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { Link, useLoaderData, useParams } from '@remix-run/react'
+import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { colorFrom, colorTo, getBranch } from '~/projects/ranger'
+import { colorFrom, colorTo, getBranch, repo } from '~/projects/ranger'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { Framework } from '~/projects/ranger'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 
 const menu = [
   {
@@ -70,17 +71,15 @@ const menu = [
   },
 ]
 
-export const loader = async () => {
+export const loader = async (context: LoaderFunctionArgs) => {
+  const { version } = context.params
   const sponsors = await getSponsorsForSponsorPack()
 
-  return json({
-    sponsors,
-  })
+  return json({ sponsors, version })
 }
 
 export default function TanStackRouterRoute() {
-  const { sponsors } = useLoaderData<typeof loader>()
-  const { version } = useParams()
+  const { sponsors, version } = useLoaderData<typeof loader>()
   const branch = getBranch(version)
   const [framework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
@@ -318,7 +317,7 @@ export default function TanStackRouterRoute() {
       <div className="bg-white dark:bg-black">
         <iframe
           key={framework}
-          src={`https://codesandbox.io/embed/github/tanstack/ranger/tree/${branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+          src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
             isDark ? 'dark' : 'light'
           }`}
           title="tannerlinsley/react-ranger: basic"

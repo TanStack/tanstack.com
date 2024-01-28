@@ -1,19 +1,29 @@
-import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
+import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { latestVersion } from '~/projects/query'
+import { availableVersions, latestVersion } from '~/projects/query'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
+import type { LoaderFunctionArgs } from '@remix-run/node'
+
+export const loader = async (context: LoaderFunctionArgs) => {
+  const { version } = context.params
+
+  const redirectUrl = context.request.url.replace(version!, 'latest')
+
+  if (!availableVersions.concat('latest').includes(version!)) {
+    throw redirect(redirectUrl)
+  }
+
+  return json({
+    version,
+    redirectUrl,
+  })
+}
 
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteVersionParam() {
-  const location = useLocation()
-  const [params] = useSearchParams()
-
-  const showV3Redirect = params.get('from') === 'reactQueryV3'
-  const original = params.get('original')
-
-  const version = location.pathname.match(/\/query\/v(\d)/)?.[1] || '999'
+  const { version, redirectUrl } = useLoaderData<typeof loader>()
 
   if (!useClientOnlyRender()) {
     return null
@@ -21,30 +31,10 @@ export default function RouteVersionParam() {
 
   return (
     <>
-      {showV3Redirect ? (
-        <div className="p-4 bg-blue-500 text-white flex items-center justify-center gap-4">
-          <div>
-            Looking for the{' '}
-            <a
-              href={original || '/query/latest'}
-              className="font-bold underline"
-            >
-              React Query v3 documentation
-            </a>
-            ?
-          </div>
-          <Link
-            to={location.pathname}
-            replace
-            className="bg-white text-black py-1 px-2 rounded-md uppercase font-black text-xs"
-          >
-            Hide
-          </Link>
-        </div>
-      ) : null}
       <RedirectVersionBanner
-        currentVersion={version}
+        version={version!}
         latestVersion={latestVersion}
+        redirectUrl={redirectUrl}
       />
       <Outlet />
     </>

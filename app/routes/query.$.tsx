@@ -12,7 +12,7 @@ function handleRedirectsFromV3(context: LoaderFunctionArgs) {
 
   // Redirect old query v3 docs
   // prettier-ignore
-  const reactQueryv3List = [
+  const reactQueryV3List = [
     // {from: 'api/overview',to: 'docs/guide/overview',},
     {from: "overview", to: "docs/overview"},
     {from: "installation", to: "docs/installation"},
@@ -102,11 +102,9 @@ function handleRedirectsFromV3(context: LoaderFunctionArgs) {
     // {from: '',to: ''},
   ]
 
-  reactQueryv3List.forEach((item) => {
+  reactQueryV3List.forEach((item) => {
     if (url.pathname.startsWith(`/query/v3/${item.from}`)) {
-      throw redirect(
-        `/query/latest/${item.to}?from=reactQueryV3&original=https://tanstack.com/query/v3/${item.to}`
-      )
+      throw redirect(`/query/latest/${item.to}?from=reactQueryV3`)
     }
   })
 }

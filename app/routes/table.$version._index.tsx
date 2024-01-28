@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa'
 import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
-import { colorFrom, colorTo, getBranch } from '~/projects/table'
+import { colorFrom, colorTo, getBranch, repo } from '~/projects/table'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
@@ -335,6 +335,7 @@ export default function ReactTableRoute() {
             rel="noreferrer"
           >
             <img
+              alt="AG Grid"
               src={agGridImage}
               className="w-full mx-auto max-w-[300px]"
               width="300"
@@ -419,15 +420,7 @@ export default function ReactTableRoute() {
                     ? 'bg-rose-500'
                     : 'bg-gray-300 dark:bg-gray-700 hover:bg-rose-300'
                 }`}
-                onClick={
-                  () => setFramework(item.value)
-                  // setParams(new URLSearchParams({ framework: item.value }), {
-                  //   replace: true,
-                  //   state: {
-                  //     scroll: false,
-                  //   },
-                  // })
-                }
+                onClick={() => setFramework(item.value)}
               >
                 {item.label}
               </button>
@@ -439,7 +432,7 @@ export default function ReactTableRoute() {
       <div className="bg-white dark:bg-black">
         <iframe
           key={framework}
-          src={`https://codesandbox.io/embed/github/tanstack/table/tree/${branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+          src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
             isDark ? 'dark' : 'light'
           }`}
           title="tannerlinsley/react-table: basic"

@@ -1,7 +1,7 @@
 import React from 'react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { useLoaderData } from '@remix-run/react'
 import { DocTitle } from '~/components/DocTitle'
 import { repo, getBranch } from '~/projects/form'
 import { seo } from '~/utils/seo'
@@ -9,9 +9,9 @@ import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const { framework, '*': name } = context.params
+  const { version, framework, '*': name } = context.params
 
-  return json({ framework, name })
+  return json({ version, framework, name })
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -26,8 +26,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 }
 
 export default function RouteExamples() {
-  const { framework, name } = useLoaderData<typeof loader>()
-  const { version } = useParams()
+  const { version, framework, name } = useLoaderData<typeof loader>()
   const branch = getBranch(version)
 
   const examplePath = [framework, name].join('/')

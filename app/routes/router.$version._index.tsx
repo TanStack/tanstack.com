@@ -7,7 +7,7 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { Link, useLoaderData, useParams } from '@remix-run/react'
+import { Link, useLoaderData } from '@remix-run/react'
 import { json } from '@remix-run/node'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
@@ -18,7 +18,7 @@ import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 import type { Framework } from '~/projects/router'
 
 const menu = [
@@ -72,17 +72,18 @@ const menu = [
   },
 ]
 
-export const loader: LoaderFunction = async () => {
+export const loader = async (context: LoaderFunctionArgs) => {
+  const { version } = context.params
   const sponsors = await getSponsorsForSponsorPack()
 
   return json({
     sponsors,
+    version,
   })
 }
 
 export default function TanStackRouterRoute() {
-  const { sponsors } = useLoaderData<typeof loader>()
-  const { version } = useParams()
+  const { sponsors, version } = useLoaderData<typeof loader>()
   const branch = getBranch(version)
   const [framework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
@@ -304,15 +305,7 @@ export default function TanStackRouterRoute() {
                     ? 'bg-teal-500'
                     : 'bg-gray-300 dark:bg-gray-700 hover:bg-teal-300'
                 }`}
-                onClick={
-                  () => setFramework(item.value)
-                  // setParams(new URLSearchParams({ framework: item.value }), {
-                  //   replace: true,
-                  //   state: {
-                  //     scroll: false,
-                  //   },
-                  // })
-                }
+                onClick={() => setFramework(item.value)}
               >
                 {item.label}
               </button>

@@ -1,15 +1,29 @@
-import { Link, Outlet, useLocation, useSearchParams } from '@remix-run/react'
+import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
 import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
+import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
+import type { LoaderFunctionArgs } from '@remix-run/node'
+import { availableVersions, latestVersion } from '~/projects/virtual'
+
+export const loader = async (context: LoaderFunctionArgs) => {
+  const { version } = context.params
+
+  const redirectUrl = context.request.url.replace(version!, 'latest')
+
+  if (!availableVersions.concat('latest').includes(version!)) {
+    throw redirect(redirectUrl)
+  }
+
+  return json({
+    version,
+    redirectUrl,
+  })
+}
 
 export const ErrorBoundary = DefaultErrorBoundary
 
 export default function RouteReactVirtual() {
-  const [params] = useSearchParams()
-  const location = useLocation()
-
-  const show = params.get('from') === 'reactVirtualV2'
-  const original = params.get('original')
+  const { version, redirectUrl } = useLoaderData<typeof loader>()
 
   if (!useClientOnlyRender()) {
     return null
@@ -17,30 +31,11 @@ export default function RouteReactVirtual() {
 
   return (
     <>
-      {show ? (
-        <div className="p-4 bg-blue-500 text-white flex items-center justify-center gap-4">
-          <div>
-            Looking for the{' '}
-            <a
-              href={
-                original ||
-                'https://github.com/TanStack/virtual/tree/v2/docs/src/pages/docs'
-              }
-              className="font-bold underline"
-            >
-              React Virtual v2 documentation
-            </a>
-            ?
-          </div>
-          <Link
-            to={location.pathname}
-            replace
-            className="bg-white text-black py-1 px-2 rounded-md uppercase font-black text-xs"
-          >
-            Hide
-          </Link>
-        </div>
-      ) : null}
+      <RedirectVersionBanner
+        version={version!}
+        latestVersion={latestVersion}
+        redirectUrl={redirectUrl}
+      />
       <Outlet />
     </>
   )

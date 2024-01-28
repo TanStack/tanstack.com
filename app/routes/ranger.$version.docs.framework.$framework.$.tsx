@@ -7,7 +7,7 @@ import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 
 export const loader = async (context: LoaderFunctionArgs) => {
-  const { '*': docsPath, framework, version } = context.params
+  const { version, framework, '*': docsPath } = context.params
   const { url } = context.request
 
   return loadDocs({

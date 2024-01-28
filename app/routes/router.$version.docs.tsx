@@ -1,14 +1,14 @@
-import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
+import { Outlet, json, useLoaderData } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import {
   repo,
   getBranch,
-  useRouterDocsConfig,
-  availableVersions,
   latestVersion,
   colorFrom,
   colorTo,
   textColor,
+  availableVersions,
+  frameworks,
 } from '~/projects/router'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
@@ -18,14 +18,10 @@ export const loader = async (context: LoaderFunctionArgs) => {
   const { version } = context.params
   const branch = getBranch(version)
 
-  if (!availableVersions.concat('latest').includes(version!)) {
-    throw redirect(context.request.url.replace(version!, 'latest'))
-  }
-
-  const tanstackDocsConfig = await getTanstackDocsConfig(repo, branch)
+  const config = await getTanstackDocsConfig(repo, branch)
 
   return json({
-    tanstackDocsConfig,
+    config,
     version,
   })
 }
@@ -38,8 +34,7 @@ export const meta: MetaFunction = () => {
 }
 
 export default function DocsRoute() {
-  const { tanstackDocsConfig, version } = useLoaderData<typeof loader>()
-  let config = useRouterDocsConfig(tanstackDocsConfig)
+  const { config, version } = useLoaderData<typeof loader>()
 
   return (
     <DocsLayout
@@ -49,6 +44,9 @@ export default function DocsRoute() {
       colorTo={colorTo}
       textColor={textColor}
       config={config}
+      frameworks={frameworks}
+      availableVersions={availableVersions}
+      repo={repo}
     >
       <Outlet />
     </DocsLayout>

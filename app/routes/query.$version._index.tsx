@@ -11,7 +11,7 @@ import {
   FaTshirt,
 } from 'react-icons/fa'
 import { json } from '@remix-run/node'
-import { Link, useLoaderData, useParams } from '@remix-run/react'
+import { Link, useLoaderData } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
@@ -29,6 +29,7 @@ import { Logo } from '~/components/Logo'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { Framework } from '~/projects/query'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 
 const menu = [
   {
@@ -81,17 +82,18 @@ const menu = [
   },
 ]
 
-export const loader = async () => {
+export const loader = async (context: LoaderFunctionArgs) => {
+  const { version } = context.params
   const sponsors = await getSponsorsForSponsorPack()
 
   return json({
     sponsors,
+    version,
   })
 }
 
 export default function RouteVersion() {
-  const { sponsors } = useLoaderData<typeof loader>()
-  const { version } = useParams()
+  const { sponsors, version } = useLoaderData<typeof loader>()
   const branch = getBranch(version)
   const [framework, setFramework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
@@ -497,15 +499,7 @@ export default function RouteVersion() {
                       ? 'bg-red-500'
                       : 'bg-gray-300 dark:bg-gray-700 hover:bg-red-300'
                   }`}
-                  onClick={
-                    () => setFramework(item.value)
-                    // setParams(new URLSearchParams({ framework: item.value }), {
-                    //   replace: true,
-                    //   state: {
-                    //     scroll: false,
-                    //   },
-                    // })
-                  }
+                  onClick={() => setFramework(item.value)}
                 >
                   {item.label}
                 </button>
@@ -533,7 +527,7 @@ export default function RouteVersion() {
           <div className="bg-white dark:bg-black">
             <iframe
               key={framework}
-              src={`https://codesandbox.io/embed/github/${repo}/tree/${branch}/examples/${framework}/basic?autoresize=1&fontsize=16&theme=${
+              src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
                 isDark ? 'dark' : 'light'
               }`}
               title={`tannerlinsley/${framework}-query: basic`}

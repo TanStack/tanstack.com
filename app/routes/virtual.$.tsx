@@ -1,5 +1,5 @@
-import type { LoaderFunctionArgs } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 
 export const loader = (context: LoaderFunctionArgs) => {
   handleRedirects(context)
@@ -9,8 +9,9 @@ export const loader = (context: LoaderFunctionArgs) => {
 
 function handleRedirects(context: LoaderFunctionArgs) {
   const url = new URL(context.request.url)
+
   // prettier-ignore
-  const reactVirtualv2List = [
+  const reactVirtualV2List = [
     {from: 'docs/overview',to: 'docs/guide/introduction',},
     {from: 'docs/installation',to: 'docs/guide/installation',},
     {from: 'docs/api',to: 'docs/api/virtualizer',},
@@ -24,15 +25,9 @@ function handleRedirects(context: LoaderFunctionArgs) {
     {from: '',to: '',},
   ]
 
-  reactVirtualv2List.forEach((item) => {
+  reactVirtualV2List.forEach((item) => {
     if (url.pathname.startsWith(`/virtual/v2/${item.from}`)) {
-      throw redirect(
-        `/virtual/v3/${
-          item.to
-        }?from=reactVirtualV2&original=https://github.com/TanStack/virtual/tree/v2/docs/src/pages/${
-          item.from
-        }${item.from ? '.md' : ''}`
-      )
+      throw redirect(`/virtual/v3/${item.to}?from=reactVirtualV2`)
     }
   })
 }

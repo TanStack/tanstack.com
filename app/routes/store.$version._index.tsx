@@ -349,15 +349,7 @@ export default function RouteVersion() {
                       ? 'bg-gray-500'
                       : 'bg-gray-300 dark:bg-gray-700 hover:bg-gray-400'
                   }`}
-                  onClick={
-                    () => setFramework(item.value)
-                    // setParams(new URLSearchParams({ framework: item.value }), {
-                    //   replace: true,
-                    //   state: {
-                    //     scroll: false,
-                    //   },
-                    // })
-                  }
+                  onClick={() => setFramework(item.value)}
                 >
                   {item.label}
                 </button>
@@ -385,7 +377,7 @@ export default function RouteVersion() {
           <div className="bg-white dark:bg-black">
             <iframe
               key={framework}
-              src={`https://codesandbox.io/embed/github/${repo}/tree/${branch}/examples/${framework}/simple?autoresize=1&fontsize=16&theme=${
+              src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
                 isDark ? 'dark' : 'light'
               }`}
               title={`tanstack//${framework}-form: simple`}

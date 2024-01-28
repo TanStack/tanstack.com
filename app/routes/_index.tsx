@@ -559,7 +559,7 @@ export default function Index() {
             right-0 top-0 -translate-y-1/3 translate-x-1/3
             sm:opacity-20`}
           >
-            <img src={discordImage} width={300} height={300} />
+            <img alt="Discord" src={discordImage} width={300} height={300} />
           </div>
           <div className={`sm:col-span-2`}>
             <h3 className={`text-3xl`}>TanStack on Discord</h3>

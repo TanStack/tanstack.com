@@ -1,5 +1,5 @@
-import type { LoaderFunctionArgs } from '@remix-run/node'
 import { redirect } from '@remix-run/node'
+import type { LoaderFunctionArgs } from '@remix-run/node'
 
 export const loader = (context: LoaderFunctionArgs) => {
   handleRedirects(context)
@@ -10,7 +10,7 @@ export const loader = (context: LoaderFunctionArgs) => {
 function handleRedirects(context: LoaderFunctionArgs) {
   const url = new URL(context.request.url)
   // prettier-ignore
-  const reactTablev7List = [
+  const reactTableV7List = [
     {from: 'docs/api/overview',to: 'docs/guide/overview',},
     {from: 'docs/api/useColumnOrder',to: 'docs/api/features/column-ordering',},
     {from: 'docs/api/useExpanded',to: 'docs/api/features/expanding',},
@@ -43,15 +43,9 @@ function handleRedirects(context: LoaderFunctionArgs) {
     {from: '',to: '',},
   ]
 
-  reactTablev7List.forEach((item) => {
+  reactTableV7List.forEach((item) => {
     if (url.pathname.startsWith(`/table/v7/${item.from}`)) {
-      throw redirect(
-        `/table/v8/${
-          item.to
-        }?from=reactTableV7&original=https://github.com/TanStack/table/tree/v7/docs/src/pages/${
-          item.from
-        }${item.from ? '.md' : ''}`
-      )
+      throw redirect(`/table/v8/${item.to}?from=reactTableV7`)
     }
   })
 }

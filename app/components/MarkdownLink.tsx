@@ -1,4 +1,4 @@
-import { Link } from '@remix-run/react'
+import { Link } from '@tanstack/react-router'
 import type { HTMLProps } from 'react'
 
 export function MarkdownLink(props: HTMLProps<HTMLAnchorElement>) {
@@ -6,5 +6,13 @@ export function MarkdownLink(props: HTMLProps<HTMLAnchorElement>) {
     return <a {...props} />
   }
 
-  return <Link to={props.href!} {...props} ref={null} prefetch="intent" />
+  return (
+    <Link
+      to={props.href as any}
+      params={{}}
+      {...props}
+      preload={undefined}
+      ref={undefined}
+    />
+  )
 }

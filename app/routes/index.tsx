@@ -1,4 +1,4 @@
-import { FileRoute, Link } from '@tanstack/react-router'
+import { Await, FileRoute, Link, defer } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
@@ -12,6 +12,7 @@ import agGridImage from '~/images/ag-grid.png'
 import nozzleImage from '~/images/nozzle.png'
 import bytesImage from '~/images/bytes.svg'
 import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
+import { useMutation } from '~/hooks/useMutation'
 
 const textColors = [
   `text-rose-500`,
@@ -123,47 +124,46 @@ const courses = [
   },
 ]
 
-// export const loader = async () => {
-//   const sponsors = await getSponsorsForSponsorPack()
-
-//   return json({
-//     sponsors,
-//     randomNumber: Math.random(),
-//   })
-// }
-
-// export const action: ActionFunction = async ({ request }) => {
-//   const formData = await request.formData()
-//   return fetch(`https://bytes.dev/api/bytes-optin-cors`, {
-//     method: 'POST',
-//     body: JSON.stringify({
-//       email: formData.get('email_address'),
-//       influencer: 'tanstack',
-//     }),
-//     headers: {
-//       Accept: 'application/json',
-//       'Content-Type': 'application/json',
-//     },
-//   })
-// }
-
 function sample(arr: any[], random = Math.random()) {
   return arr[Math.floor(random * arr.length)]
 }
 
 export const Route = new FileRoute('/').createRoute({
+  loader: async () => {
+    'use server'
+
+    // const sponsorsPromise = defer(getSponsorsForSponsorPack())
+
+    return {
+      sponsorsPromise: await getSponsorsForSponsorPack(),
+      randomNumber: Math.random(),
+    }
+  },
   component: Index,
 })
 
-function Index() {
-  // const data = useActionData()
-  // const { sponsors, randomNumber } = useLoaderData<typeof loader>()
-  const randomNumber = 0
-  // const navigation = useNavigation()
-  // const isLoading = navigation.state === 'submitting'
-  // const hasSubmitted = data?.status === 'success'
-  // const hasError = data?.status === 'error'
+async function bytesSignupServerFn({ email }: { email: string }) {
+  'use server'
 
+  return fetch(`https://bytes.dev/api/bytes-optin-cors`, {
+    method: 'POST',
+    body: JSON.stringify({
+      email,
+      influencer: 'tanstack',
+    }),
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  })
+}
+
+function Index() {
+  const bytesSignupMutation = useMutation({
+    fn: bytesSignupServerFn,
+  })
+
+  const { sponsorsPromise, randomNumber } = Route.useLoaderData()
   const gradient = sample(gradients, randomNumber)
   const textColor = sample(textColors, randomNumber)
 
@@ -499,22 +499,13 @@ function Index() {
             aspectRatio: '1/1',
           }}
         >
-          {/* <SponsorPack sponsors={sponsors} /> */}
-          {/* return (
-                 <iframe
-                   src={
-                     process.env.NODE_ENV === 'production'
-                       ? 'https://tanstack.com/sponsors-embed'
-                       : 'http://localhost:3001/sponsors-embed'
-                   }
-                   loading="lazy"
-                   style={{
-                     width: width,
-                     height: width,
-                     overflow: 'hidden',
-                   }}
-                 />
-               ) */}
+          {/* <Await
+            promise={sponsorsPromise}
+            children={(sponsors) => { */}
+          {/* return  */}
+          <SponsorPack sponsors={sponsorsPromise} />
+          {/* }}
+          /> */}
         </div>
         <div className={`h-6`} />
         <div className={`text-center`}>
@@ -577,8 +568,17 @@ function Index() {
       <div className="h-4" />
       <div className="px-4 mx-auto max-w-screen-lg relative">
         <div className="rounded-md p-8 bg-white shadow-xl shadow-gray-900/10 md:p-14 dark:bg-gray-800">
-          {/* {!hasSubmitted ? (
-            <Form method="post">
+          {!bytesSignupMutation.submittedAt ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                const formData = new FormData(e.currentTarget)
+
+                bytesSignupMutation.mutate({
+                  email: formData.get('email_address')?.toString() || '',
+                })
+              }}
+            >
               <div>
                 <div className={`relative inline-block`}>
                   <h3 className={`text-3xl`}>Subscribe to Bytes</h3>
@@ -598,7 +598,7 @@ function Index() {
               </div>
               <div className={`grid grid-cols-3 mt-4 gap-2`}>
                 <input
-                  disabled={navigation.state === 'submitting'}
+                  disabled={bytesSignupMutation.status === 'pending'}
                   className={`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`}
                   name="email_address"
                   placeholder="Your email address"
@@ -609,10 +609,14 @@ function Index() {
                   type="submit"
                   className={`bg-[#ED203D] text-white rounded uppercase font-black`}
                 >
-                  <span>{isLoading ? 'Loading ...' : 'Subscribe'}</span>
+                  <span>
+                    {bytesSignupMutation.status === 'pending'
+                      ? 'Loading ...'
+                      : 'Subscribe'}
+                  </span>
                 </button>
               </div>
-              {hasError ? (
+              {bytesSignupMutation.error ? (
                 <p className={`text-sm text-red-500 font-semibold italic mt-2`}>
                   Looks like something went wrong. Please try again.
                 </p>
@@ -621,10 +625,10 @@ function Index() {
                   Join over 100,000 devs
                 </p>
               )}
-            </Form>
+            </form>
           ) : (
             <p>🎉 Thank you! Please confirm your email</p>
-          )} */}
+          )}
         </div>
       </div>
       <div className={`h-20`} />

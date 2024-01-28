@@ -187,9 +187,9 @@ export default function RouteVersion() {
                 tailoring them to meet the unique requirements of your project.{' '}
                 <span className="font-semibold text-gray-700 dark:text-gray-500">
                   Whether you need advanced optimizations, pre-processors, or
-                  other specialized tools
+                  other specialized tools,
                 </span>{' '}
-                , TanStack Config provides a robust foundation for crafting a
+                TanStack Config provides a robust foundation for crafting a
                 build pipeline that suits your specific needs.
               </p>
             </div>
@@ -200,20 +200,19 @@ export default function RouteVersion() {
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
-                Effortless Code Publication
+                Effortless Publication
               </h3>
 
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                Say goodbye to the complexities of code publishing with TanStack
-                Config. This JavaScript package provides a set of tools designed
-                to automate the publication of your projects. Developers can
-                effortlessly publish updates, manage versioning, and ensure that
-                their packages are consistently delivered to the npm registry.{' '}
+                Say goodbye to the complexities of code publishing. This package
+                provides tools designed to automate the publication of your
+                projects. Developers can effortlessly publish updates, manage
+                versioning, and release on npm and GitHub.{' '}
                 <span className="font-semibold text-gray-700 dark:text-gray-500">
                   TanStack Config takes care of the tedious aspects of package
-                  publishing
+                  publishing,
                 </span>{' '}
-                , empowering developers to share their work with the community
+                empowering developers to share their work with the community
                 efficiently.
               </p>
             </div>

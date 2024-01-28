@@ -159,18 +159,17 @@ export default function RouteVersion() {
             <VscWand className="text-gray-400 text-6xl" />
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
-                First-Class TypeScript Support
+                Intuitive Configuration
               </h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                TanStack Form touts first-class TypeScript support with
-                outstanding autocompletion, excellent generic throughput and
-                inferred types everywhere possible.{' '}
-                <span className="font-semibold text-gray-600 dark:text-gray-300">
-                  This results in fewer runtime errors, increased code
-                  maintainability, and a smoother development experience
+                TanStack Config offers a seamless and intuitive configuration
+                management system that simplifies the process of building and
+                publishing high-quality JavaScript packages. TanStack Config{' '}
+                <span className="font-semibold text-gray-700 dark:text-gray-500">
+                  streamlines the configuration process, allowing developers to
+                  focus on writing code
                 </span>{' '}
-                to help you confidently build robust and type-safe form
-                solutions that scale.
+                without the hassle of intricate setup procedures.
               </p>
             </div>
           </div>
@@ -180,18 +179,18 @@ export default function RouteVersion() {
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
-                Headless and Framework Agnostic
+                Vite-Powered Builds
               </h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                Form's headless and framework agnostic approach ensures maximum
-                flexibility and broad compatibility with many front-end
-                frameworks, or no framework at all. By both supplying and
-                encouraging a headless approach to your forms, building custom
-                reusable form components tailored to your application's needs{' '}
-                <span className="font-semibold text-gray-600 dark:text-gray-500">
-                  requires little abstraction and keeps your code modular,
-                  simple and composable.
-                </span>
+                TanStack Config's build configuration harnesses the Vite
+                ecosystem. Customize and extend your build workflows with ease,
+                tailoring them to meet the unique requirements of your project.{' '}
+                <span className="font-semibold text-gray-700 dark:text-gray-500">
+                  Whether you need advanced optimizations, pre-processors, or
+                  other specialized tools
+                </span>{' '}
+                , TanStack Config provides a robust foundation for crafting a
+                build pipeline that suits your specific needs.
               </p>
             </div>
           </div>
@@ -201,18 +200,21 @@ export default function RouteVersion() {
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
-                Granular Reactive Performance
+                Effortless Code Publication
               </h3>
+
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                When it comes to performance, TanStack Form delivers amazing
-                speed and control, but without the cruft, boilerplate, or
-                abstractions. With granularly reactive APIs at its core,{' '}
+                Say goodbye to the complexities of code publishing with TanStack
+                Config. This JavaScript package provides a set of tools designed
+                to automate the publication of your projects. Developers can
+                effortlessly publish updates, manage versioning, and ensure that
+                their packages are consistently delivered to the npm registry.{' '}
                 <span className="font-semibold text-gray-700 dark:text-gray-500">
-                  only relevant components are updated when the form state
-                  changes.
+                  TanStack Config takes care of the tedious aspects of package
+                  publishing
                 </span>{' '}
-                The end result? A faster UI, happy users, and zero worries about
-                performance.
+                , empowering developers to share their work with the community
+                efficiently.
               </p>
             </div>
           </div>

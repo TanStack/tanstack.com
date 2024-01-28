@@ -41,6 +41,9 @@ export default createApp({
         reactRefresh(),
         TanStackRouterVite(),
       ],
+      link: {
+        client: 'client',
+      },
     },
     {
       name: 'client',

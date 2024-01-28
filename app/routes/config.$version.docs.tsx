@@ -10,7 +10,6 @@ import {
   repo,
   textColor,
   availableVersions,
-  frameworks,
 } from '~/projects/config'
 import { getTanstackDocsConfig } from '~/utils/config'
 
@@ -37,7 +36,6 @@ export default function Component() {
       colorTo={colorTo}
       textColor={textColor}
       config={config}
-      frameworks={frameworks}
       availableVersions={availableVersions}
       repo={repo}
     >

@@ -17,16 +17,9 @@ import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import {
-  colorFrom,
-  colorTo,
-  getBranch,
-  latestVersion,
-  repo,
-} from '~/projects/config'
+import { colorFrom, colorTo, latestVersion, repo } from '~/projects/config'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import type { Framework } from '~/projects/config'
 import type { LoaderFunctionArgs } from '@remix-run/node'
 
 const menu = [
@@ -92,13 +85,6 @@ export const loader = async (context: LoaderFunctionArgs) => {
 
 export default function RouteVersion() {
   const { sponsors, version } = useLoaderData<typeof loader>()
-  const branch = getBranch(version)
-  const [framework, setFramework] = React.useState<Framework>('react')
-  const [isDark, setIsDark] = React.useState(true)
-
-  React.useEffect(() => {
-    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
-  }, [])
 
   const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
 

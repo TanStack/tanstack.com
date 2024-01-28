@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@docsearch/css':
     specifier: ^3.5.2
@@ -103,6 +107,9 @@ dependencies:
   vite-tsconfig-paths:
     specifier: ^4.3.1
     version: 4.3.1(typescript@5.2.2)(vite@5.0.12)
+  zod:
+    specifier: ^3.22.4
+    version: 3.22.4
 
 devDependencies:
   '@types/react':

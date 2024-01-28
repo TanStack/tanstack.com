@@ -222,30 +222,23 @@ export default function RouteVersion() {
         <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
           <div className=" sm:text-center pb-16">
             <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-              No dependencies. All the Features.
+              Hassle-Free Setup
             </h3>
             <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-              With zero dependencies, TanStack Form is extremely lean given the
-              dense feature set it provides. From weekend hobbies all the way to
-              enterprise TanStack Form has the tools to help you succeed at the
-              speed of your creativity.
+              Incorporate TanStack Config into your development toolkit and
+              experience a new level of efficiency, speed, and customization in
+              building and releasing high-quality JavaScript packages.
             </p>
           </div>
           <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
             {[
-              // A list of features that @tanstack/form provides for managing form state, validation, touched/dirty states, UI integration, etc.
-              'Framework agnostic design',
-              'First Class TypeScript Support',
-              'Headless',
-              'Tiny / Zero Deps',
-              'Granularly Reactive Components/Hooks',
-              'Extensibility and plugin architecture',
-              'Modular architecture',
-              'Form/Field validation',
-              'Async Validation',
-              'Built-in Async Validation Debouncing',
-              'Configurable Validation Events',
-              'Deeply Nested Object/Array Fields',
+              // A list of features that @tanstack/config provides
+              'Vite ecosystem',
+              'Opinionated defaults',
+              'Publint-compliant',
+              'Minimal configuration',
+              'Package versioning',
+              'Automated changelogs',
             ].map((d, i) => {
               return (
                 <span key={i} className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 import { Router } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
+import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 
 export function createRouter() {
   return new Router({
@@ -8,6 +9,7 @@ export function createRouter() {
     context: {
       assets: null as any, // We'll fulfill this later
     },
+    defaultErrorComponent: DefaultCatchBoundary,
   })
 }
 

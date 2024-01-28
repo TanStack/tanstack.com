@@ -1,15 +1,15 @@
-import * as React from 'react'
-import { useLoaderData, Link } from '@remix-run/react'
-import { json } from '@remix-run/node'
-import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
+import { Link, createFileRoute, notFound } from '@tanstack/react-router'
+
 import { getPostList } from '~/utils/blog'
 import { DocTitle } from '~/components/DocTitle'
 import { RenderMarkdown } from '~/components/RenderMarkdown'
 import { format } from 'date-fns'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { Footer } from '~/components/Footer'
+import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
+import { PostNotFound } from './blog'
 
-export const loader = async () => {
+const loader = async () => {
+  'use server'
   const postInfos = getPostList()
   const frontMatters = await Promise.all(
     postInfos.map(async (info) => {
@@ -22,9 +22,7 @@ export const loader = async () => {
       )
 
       if (!file) {
-        throw new Response('Not Found', {
-          status: 404,
-        })
+        throw notFound()
       }
 
       const frontMatter = extractFrontMatter(file)
@@ -36,20 +34,22 @@ export const loader = async () => {
           published: frontMatter.data.published,
           excerpt: frontMatter.excerpt,
         },
-      ]
+      ] as const
     })
   )
 
-  return json(frontMatters)
+  return frontMatters
 }
 
-export const ErrorBoundary = DefaultErrorBoundary
+export const Route = createFileRoute('/blog/')({
+  loader,
+  notFoundComponent: () => <PostNotFound />,
 
-export default function RouteReactTableDocs() {
-  const frontMatters = useLoaderData<typeof loader>() as [
-    string,
-    { title: string; published: string; excerpt: string }
-  ][]
+  component: BlogIndex,
+})
+
+function BlogIndex() {
+  const frontMatters = Route.useLoaderData()
 
   return (
     <div>
@@ -86,7 +86,7 @@ export default function RouteReactTableDocs() {
                         a: (props) => <span {...props} />,
                       }}
                     >
-                      {excerpt}
+                      {excerpt || ''}
                     </RenderMarkdown>
                   </div>
                 </div>

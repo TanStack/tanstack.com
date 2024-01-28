@@ -5,20 +5,21 @@ import { TanStackRouterVite } from '@tanstack/router-vite-plugin'
 import { config } from 'vinxi/plugins/config'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
-const devPlugin = config('dev', {
-  resolve: {
-    dedupe: [
-      'react',
-      'react-dom',
-      '@tanstack/store',
-      '@tanstack/react-store',
-      '@tanstack/react-router',
-      '@tanstack/react-router-server',
-      '@tanstack/react-router-server',
-      'use-sync-external-store',
-    ],
-  },
-})
+const customVite = () =>
+  config('dev', {
+    resolve: {
+      dedupe: [
+        'react',
+        'react-dom',
+        '@tanstack/store',
+        '@tanstack/react-store',
+        '@tanstack/react-router',
+        '@tanstack/react-router-server',
+        '@tanstack/react-router-server',
+        'use-sync-external-store',
+      ],
+    },
+  })
 
 export default createApp({
   routers: [
@@ -35,7 +36,7 @@ export default createApp({
       handler: './app/server.tsx',
       target: 'server',
       plugins: () => [
-        devPlugin,
+        customVite(),
         tsconfigPaths(),
         reactRefresh(),
         TanStackRouterVite(),
@@ -47,14 +48,16 @@ export default createApp({
       handler: './app/client.tsx',
       target: 'browser',
       plugins: () => [
-        devPlugin,
+        customVite(),
         tsconfigPaths(),
         serverFunctions.client(),
         reactRefresh(),
-        TanStackRouterVite(),
+        // TanStackRouterVite(),
       ],
       base: '/_build',
     },
-    serverFunctions.router(),
+    serverFunctions.router({
+      plugins: () => [tsconfigPaths()],
+    }),
   ],
 })

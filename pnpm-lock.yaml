@@ -24,20 +24,23 @@ dependencies:
     specifier: ^0.5.10
     version: 0.5.10(tailwindcss@3.3.5)
   '@tanstack/react-router':
-    specifier: 1.14.0
-    version: 1.14.0(react-dom@18.2.0)(react@18.2.0)
+    specifier: 1.15.2
+    version: 1.15.2(react-dom@18.2.0)(react@18.2.0)
   '@tanstack/react-router-server':
-    specifier: 1.14.1
-    version: 1.14.1(react-dom@18.2.0)(react@18.2.0)
+    specifier: 1.15.2
+    version: 1.15.2(react-dom@18.2.0)(react@18.2.0)
+  '@tanstack/router-devtools':
+    specifier: ^1.15.2
+    version: 1.15.2(react-dom@18.2.0)(react@18.2.0)
   '@tanstack/router-vite-plugin':
     specifier: 1.14.1
     version: 1.14.1
   '@vinxi/react':
-    specifier: 0.1.2
-    version: 0.1.2
+    specifier: 0.2.0
+    version: 0.2.0
   '@vinxi/server-functions':
-    specifier: ^0.1.4
-    version: 0.1.4(vinxi@0.1.10)
+    specifier: ^0.2.1
+    version: 0.2.1(vinxi@0.2.1)
   '@visx/hierarchy':
     specifier: ^2.10.0
     version: 2.17.0(react@18.2.0)
@@ -105,8 +108,8 @@ dependencies:
     specifier: ^1.3.1
     version: 1.3.1
   vinxi:
-    specifier: 0.1.10
-    version: 0.1.10(preact@10.19.3)
+    specifier: 0.2.1
+    version: 0.2.1(preact@10.19.3)
   vite-tsconfig-paths:
     specifier: ^4.3.1
     version: 4.3.1(typescript@5.2.2)(vite@5.0.12)
@@ -1569,6 +1572,17 @@ packages:
     bundledDependencies:
       - napi-wasm
 
+  /@parcel/watcher-wasm@2.4.0:
+    resolution: {integrity: sha512-MNgQ4WCbBybqQ97KwR/hqJGYTg3+s8qHpgIyFWB2qJOBvoJWbXuJGmm4ZkPLq2bMaANqCZqrXwmKYagZTkMKZA==}
+    engines: {node: '>= 10.0.0'}
+    dependencies:
+      is-glob: 4.0.3
+      micromatch: 4.0.5
+      napi-wasm: 1.1.0
+    dev: false
+    bundledDependencies:
+      - napi-wasm
+
   /@parcel/watcher-win32-arm64@2.4.0:
     resolution: {integrity: sha512-NOej2lqlq8bQNYhUMnOD0nwvNql8ToQF+1Zhi9ULZoG+XTtJ9hNnCFfyICxoZLXor4bBPTOnzs/aVVoefYnjIg==}
     engines: {node: '>= 10.0.0'}
@@ -1965,21 +1979,21 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-router-server@1.14.1(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-2ZgNifzOdCirsGRyAcoJWt1cvlpmtCdrXk+slZAf5RcEupgQUzD8LyhGf8qIwM948IDWcmwqL+zGUgX2xM0axg==}
+  /@tanstack/react-router-server@1.15.2(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-VWFdMz/JSrOZkKmvqgwmhB+smP8zDmxQ8LaUSsPoaqP/Ld2No3MQkd5AItDFoPM/5EvyVVS6a0OI/V4B2uxS0g==}
     engines: {node: '>=12'}
     peerDependencies:
       react: '>=18'
       react-dom: '>=18'
     dependencies:
       '@tanstack/react-cross-context': 1.12.16(react-dom@18.2.0)(react@18.2.0)
-      '@tanstack/react-router': 1.14.0(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-router': 1.15.2(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
-  /@tanstack/react-router@1.14.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-Dods/Ne9uxJSOgg3yfINIfjPs5cSxhkuw9EWj+sk/XI/CGZ+E2cwOJA8xmO1KoShXl04wpi6NRjsDuH6uohE+g==}
+  /@tanstack/react-router@1.15.2(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-wI+G6A2Eue8BwVC76xUSEhOrUfHLrYFzpNZIJT18Msfe+xX5xh1VnsjrAJGcOkmCuJPCdKQK+l9S97Z31YivfA==}
     engines: {node: '>=12'}
     peerDependencies:
       react: '>=16'
@@ -2003,6 +2017,19 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       use-sync-external-store: 1.2.0(react@18.2.0)
+    dev: false
+
+  /@tanstack/router-devtools@1.15.2(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-cfWOz0kg+3NXQJ2kmugUk7WkrezGHfKFcqM1Oqm5S3BCPvvPj0oCRncjAhi6dXZCVo5LokAEPvSW+hhpMTWuuA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
+    dependencies:
+      '@tanstack/react-router': 1.15.2(react-dom@18.2.0)(react@18.2.0)
+      date-fns: 2.30.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /@tanstack/router-generator@1.14.1:
@@ -2078,7 +2105,7 @@ packages:
   /@types/http-proxy@1.17.14:
     resolution: {integrity: sha512-SSrD0c1OQzlFX7pGu1eXxSEjemej64aaNPRhhVYUGqXh0BtldAAx37MG8btcumvpgKyZp1F5Gn3JkktdxiFv6w==}
     dependencies:
-      '@types/node': 20.11.9
+      '@types/node': 20.11.10
     dev: false
 
   /@types/lodash@4.14.200:
@@ -2105,8 +2132,8 @@ packages:
     resolution: {integrity: sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==}
     dev: false
 
-  /@types/node@20.11.9:
-    resolution: {integrity: sha512-CQXNuMoS/VcoAMISe5pm4JnEd1Br5jildbQEToEMQvutmv+EaQr90ry9raiudgpyDuqFiV9e4rnjSfLNq12M5w==}
+  /@types/node@20.11.10:
+    resolution: {integrity: sha512-rZEfe/hJSGYmdfX9tvcPMYeYPW2sNl50nsw4jZmRcaG0HIAb0WYEpsB05GOb53vjqpyE9GUhlDQ4jLSoB5q9kg==}
     dependencies:
       undici-types: 5.26.5
     dev: false
@@ -2155,7 +2182,7 @@ packages:
     dependencies:
       '@types/http-errors': 2.0.4
       '@types/mime': 3.0.4
-      '@types/node': 20.11.9
+      '@types/node': 20.11.10
     dev: false
 
   /@types/unist@2.0.9:
@@ -2165,7 +2192,7 @@ packages:
   /@types/ws@8.5.10:
     resolution: {integrity: sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==}
     dependencies:
-      '@types/node': 20.11.9
+      '@types/node': 20.11.10
     dev: false
 
   /@ungap/structured-clone@1.2.0:
@@ -2193,8 +2220,8 @@ packages:
       - supports-color
     dev: false
 
-  /@vinxi/devtools@0.1.1(@babel/core@7.23.9)(preact@10.19.3)(vite@4.5.0):
-    resolution: {integrity: sha512-/A7X1hoNBsgC2n7nKOWbIa4cTt9dJq9nehyLGdNxgjEcGzbsaJrofUDrFLt+0YJlyb7OOhFEPYHRCat3tsrytw==}
+  /@vinxi/devtools@0.2.0(@babel/core@7.23.9)(preact@10.19.3)(vite@4.5.0):
+    resolution: {integrity: sha512-LpQp5zbiBhV4eo2w6AiJFtpZZj4LaRBOnzggIPTeSJYvgrxRMAqe/34Har3vVo+b7sPOjxFbE1zHZhLzaAcidw==}
     dependencies:
       '@preact/preset-vite': 2.8.1(@babel/core@7.23.9)(preact@10.19.3)(vite@4.5.0)
       '@solidjs/router': 0.8.4(solid-js@1.8.12)
@@ -2238,10 +2265,10 @@ packages:
       uqr: 0.1.2
     dev: false
 
-  /@vinxi/plugin-directives@0.1.3(vinxi@0.1.10):
-    resolution: {integrity: sha512-gXCvemIQIxEjUlJRUyQUAoL9lT6iY39uEZXCFzONYRIelnI2PJ1DyAz44ieCdOdAVCWBYKwyYVG5jZRYaV26pQ==}
+  /@vinxi/plugin-directives@0.2.0(vinxi@0.2.1):
+    resolution: {integrity: sha512-DoYuIuvdylU+0XNOipvcbw08XDBBbEksc3euCsbApNVpmQ/mC+2CjoErHtjb4zX1RqNwe1sJ8awMK6fKUMLGRA==}
     peerDependencies:
-      vinxi: ^0.1.5
+      vinxi: ^0.2.0
     dependencies:
       '@babel/parser': 7.23.9
       acorn: 8.11.3
@@ -2252,26 +2279,26 @@ packages:
       magicast: 0.2.11
       recast: 0.23.4
       tslib: 2.6.2
-      vinxi: 0.1.10(preact@10.19.3)
+      vinxi: 0.2.1(preact@10.19.3)
     dev: false
 
-  /@vinxi/react@0.1.2:
-    resolution: {integrity: sha512-dR/gBDh6z2PA9PaOf80eaKGQgMzoUOZuJ9KM6xL0BIEOCHCeiXePhvdOTOOGwSc+QDm248/85xCN3z6Ik31pwg==}
+  /@vinxi/react@0.2.0:
+    resolution: {integrity: sha512-zBLTAeiw0+GlRomWxHQcWvgSgJV8z4Z+hNS2YuRDahQF++Y/6f73jOnpsQuedcL8ojFBIrPIWElm4ibIGjuAug==}
     dev: false
 
-  /@vinxi/server-functions@0.1.4(vinxi@0.1.10):
-    resolution: {integrity: sha512-ZysR6zlcZ4xYBKUm6Q/oNhjjwUZXaLFLbXwIy9Q2SgcXJ74cUWQ0/EDz/WePhHgQ32NMiv2fPURBvN+XDzBO8g==}
+  /@vinxi/server-functions@0.2.1(vinxi@0.2.1):
+    resolution: {integrity: sha512-ir06Q6nEpJFU1uXqHdKE2OXqZFjChAIgAHpCJzMunHiutRNyYTJ7ZhbFCUk5xOx+StMpWKtqOv72TDeP/xTLtA==}
     peerDependencies:
-      vinxi: ^0.1.9
+      vinxi: ^0.2.1
     dependencies:
-      '@vinxi/plugin-directives': 0.1.3(vinxi@0.1.10)
+      '@vinxi/plugin-directives': 0.2.0(vinxi@0.2.1)
       acorn: 8.11.3
       acorn-loose: 8.4.0
       acorn-typescript: 1.4.13(acorn@8.11.3)
       astring: 1.8.6
       magicast: 0.2.11
       recast: 0.23.4
-      vinxi: 0.1.10(preact@10.19.3)
+      vinxi: 0.2.1(preact@10.19.3)
     dev: false
 
   /@visx/group@2.17.0(react@18.2.0):
@@ -3035,6 +3062,10 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  /crossws@0.1.1:
+    resolution: {integrity: sha512-c9c/o7bS3OjsdpSkvexpka0JNlesBF2JU9B2V1yNsYGwRbAafxhJQ7VI9b48D5bpONz/oxbPGMzBojy9sXoQIQ==}
+    dev: false
 
   /css-select@5.1.0:
     resolution: {integrity: sha512-nwoRF1rvRRnnCqqY7updORDsuqKzqYJ28+oSMaJMMgOauh3fvwHqMS7EZpIPqK8GL+g9mKxF1vP/ZjSeNjEVHg==}
@@ -4720,15 +4751,16 @@ packages:
   /lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
-  /listhen@1.5.6:
-    resolution: {integrity: sha512-gTpEJhT5L85L0bFgmu+Boqu5rP4DwDtEb4Exq5gdQUxWRwx4jbzdInZkmyLONo5EwIcQB0k7ZpWlpCDPdL77EQ==}
+  /listhen@1.6.0:
+    resolution: {integrity: sha512-z0RcEXVX5oTpY1bO02SKoTU/kmZSrFSngNNzHRM6KICR17PTq7ANush6AE6ztGJwJD4RLpBrVHd9GnV51J7s3w==}
     hasBin: true
     dependencies:
       '@parcel/watcher': 2.4.0
-      '@parcel/watcher-wasm': 2.3.0
+      '@parcel/watcher-wasm': 2.4.0
       citty: 0.1.5
       clipboardy: 4.0.0
       consola: 3.2.3
+      crossws: 0.1.1
       defu: 6.1.4
       get-port-please: 3.1.2
       h3: 1.10.1
@@ -5231,7 +5263,7 @@ packages:
       jiti: 1.21.0
       klona: 2.0.6
       knitwork: 1.0.0
-      listhen: 1.5.6
+      listhen: 1.6.0
       magic-string: 0.30.5
       mime: 3.0.0
       mlly: 1.5.0
@@ -7098,7 +7130,7 @@ packages:
       destr: 2.0.2
       h3: 1.10.1
       ioredis: 5.3.2
-      listhen: 1.5.6
+      listhen: 1.6.0
       lru-cache: 10.2.0
       mri: 1.2.0
       node-fetch-native: 1.6.1
@@ -7210,8 +7242,8 @@ packages:
       vfile-message: 2.0.4
     dev: false
 
-  /vinxi@0.1.10(preact@10.19.3):
-    resolution: {integrity: sha512-MndPaR3fUx6FERfB2adWVkTw7qTAhSStM+A2KaqU2qUGMEk51krkKB28ouf+iG6IJGoAtuE+fANUs0hqOLMk2A==}
+  /vinxi@0.2.1(preact@10.19.3):
+    resolution: {integrity: sha512-zrgFO2XuKpdoW5VwlbieeQ0YhzMuuYCJyFWFyj41h9BnymHZ5dnKElALvFQn5JVzHhyrsdmlm8GU7tIuH786hw==}
     hasBin: true
     dependencies:
       '@babel/core': 7.23.9
@@ -7220,7 +7252,7 @@ packages:
       '@types/micromatch': 4.0.6
       '@types/serve-static': 1.15.5
       '@types/ws': 8.5.10
-      '@vinxi/devtools': 0.1.1(@babel/core@7.23.9)(preact@10.19.3)(vite@4.5.0)
+      '@vinxi/devtools': 0.2.0(@babel/core@7.23.9)(preact@10.19.3)(vite@4.5.0)
       '@vinxi/listhen': 1.5.6
       boxen: 7.1.1
       c12: 1.6.1

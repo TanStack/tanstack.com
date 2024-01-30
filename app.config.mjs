@@ -4,6 +4,8 @@ import { serverFunctions } from '@vinxi/server-functions/plugin'
 import { TanStackRouterVite } from '@tanstack/router-vite-plugin'
 import { config } from 'vinxi/plugins/config'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import { serverTransform } from '@vinxi/server-functions/server'
+import { normalize } from 'vinxi/lib/path'
 
 const customVite = () =>
   config('dev', {
@@ -15,7 +17,8 @@ const customVite = () =>
         '@tanstack/react-store',
         '@tanstack/react-router',
         '@tanstack/react-router-server',
-        '@tanstack/react-router-server',
+        '@tanstack/react-cross-context',
+        '@tanstack/history',
         'use-sync-external-store',
       ],
     },
@@ -25,19 +28,21 @@ export default createApp({
   routers: [
     {
       name: 'public',
-      mode: 'static',
+      type: 'static',
       dir: './public',
       base: '/',
     },
     {
       name: 'ssr',
-      mode: 'handler',
-      // middleware: './app/middleware.tsx',
+      type: 'http',
       handler: './app/server.tsx',
       target: 'server',
       plugins: () => [
         customVite(),
         tsconfigPaths(),
+        serverTransform({
+          runtime: `@tanstack/react-router-server/server-runtime`,
+        }),
         reactRefresh(),
         TanStackRouterVite(),
       ],
@@ -47,13 +52,15 @@ export default createApp({
     },
     {
       name: 'client',
-      mode: 'build',
+      type: 'client',
       handler: './app/client.tsx',
       target: 'browser',
       plugins: () => [
         customVite(),
         tsconfigPaths(),
-        serverFunctions.client(),
+        serverFunctions.client({
+          runtime: `@tanstack/react-router-server/client-runtime`,
+        }),
         reactRefresh(),
         // TanStackRouterVite(),
       ],
@@ -61,6 +68,8 @@ export default createApp({
     },
     serverFunctions.router({
       plugins: () => [tsconfigPaths()],
+      handler: `@tanstack/react-router-server/server-handler`,
+      runtime: `@tanstack/react-router-server/server-runtime`,
     }),
   ],
 })

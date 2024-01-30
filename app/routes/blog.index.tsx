@@ -1,4 +1,9 @@
-import { Link, createFileRoute, notFound } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  notFound,
+  createServerFn,
+} from '@tanstack/react-router'
 
 import { getPostList } from '~/utils/blog'
 import { DocTitle } from '~/components/DocTitle'
@@ -8,9 +13,11 @@ import { Footer } from '~/components/Footer'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import { PostNotFound } from './blog'
 
-const loader = async () => {
+const getFrontMatters = createServerFn('GET', async () => {
   'use server'
+
   const postInfos = getPostList()
+
   const frontMatters = await Promise.all(
     postInfos.map(async (info) => {
       const filePath = `app/blog/${info.id}.md`
@@ -39,10 +46,10 @@ const loader = async () => {
   )
 
   return frontMatters
-}
+})
 
 export const Route = createFileRoute('/blog/')({
-  loader,
+  loader: () => getFrontMatters(),
   notFoundComponent: () => <PostNotFound />,
 
   component: BlogIndex,

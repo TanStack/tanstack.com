@@ -13,12 +13,13 @@ import docSearchStyles from '@docsearch/css/dist/style.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
 import { Meta, Scripts } from '@tanstack/react-router-server/client'
+import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 
 export const Route = rootRouteWithContext<{
   assets: React.ReactNode
 }>()({
   component: RootComponent,
-  errorComponent: ErrorBoundary,
+  // errorComponent: ErrorBoundary,
   meta: () => [
     {
       charSet: 'utf-8',
@@ -92,8 +93,6 @@ export default function RootComponent() {
 }
 
 function ErrorBoundary({ error }: ErrorRouteProps) {
-  // const error = useRouteError()
-
   // when true, this is what used to go to `CatchBoundary`
   // if (isRouteErrorResponse(error)) {
   //   return (
@@ -129,6 +128,20 @@ function ErrorBoundary({ error }: ErrorRouteProps) {
   )
 }
 
+const googleTagManager = (
+  <script
+    dangerouslySetInnerHTML={{
+      __html: `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-JMT1Z50SPS');
+      `,
+    }}
+  ></script>
+)
+
 function RootDocument({
   children,
   title,
@@ -136,8 +149,28 @@ function RootDocument({
   children: React.ReactNode
   title?: string
 }) {
-  // const navigation = useNavigation()
   const matches = useMatches()
+
+  const prefersDarkMode =
+    typeof document !== 'undefined'
+      ? matchMedia('(prefers-color-scheme: dark)').matches
+      : false
+
+  // const darkModeScript = (
+  //   <script
+  //     dangerouslySetInnerHTML={{
+  //       __html: `
+  //               try {
+  //                 if (matchMedia("(prefers-color-scheme: dark)").matches) {
+  //                   document.body.setAttribute("data-theme", "dark");
+  //                 } else {
+  //                   document.body.removeAttribute('data-theme');
+  //                 }
+  //               } catch (error) {}
+  //             `,
+  //     }}
+  //   ></script>
+  // )
 
   return (
     <html lang="en">
@@ -147,33 +180,14 @@ function RootDocument({
         ) : null}
         {title ? <title>{title}</title> : null}
         <Meta />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-  
-                gtag('config', 'G-JMT1Z50SPS');
-              `,
-          }}
-        ></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-                try {
-                  if (matchMedia("(prefers-color-scheme: dark)").matches) {
-                    document.documentElement.setAttribute("data-theme", "dark");
-                  } else {
-                    document.documentElement.removeAttribute('data-theme');
-                  }
-                } catch (error) {}
-              `,
-          }}
-        ></script>
+        {googleTagManager}
       </head>
-      <body>
+      <body
+      // {...(prefersDarkMode ? { 'data-theme': 'dark' } : {})}
+      >
         {children}
+        {/* {darkModeScript} */}
+        <TanStackRouterDevtools />
         <Scripts />
         {/* // TODO:
         {/* <div

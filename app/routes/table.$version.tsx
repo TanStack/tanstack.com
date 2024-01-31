@@ -8,6 +8,10 @@ import type { LoaderFunctionArgs } from '@remix-run/node'
 export const loader = async (context: LoaderFunctionArgs) => {
   const { version } = context.params
 
+  if (version === 'v7') {
+    throw redirect('/table/v8?from=reactTableV7')
+  }
+
   const redirectUrl = context.request.url.replace(version!, 'latest')
 
   if (!availableVersions.concat('latest').includes(version!)) {

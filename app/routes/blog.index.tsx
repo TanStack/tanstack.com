@@ -13,7 +13,7 @@ import { Footer } from '~/components/Footer'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import { PostNotFound } from './blog'
 
-const getFrontMatters = createServerFn('GET', async () => {
+const fetchFrontMatters = createServerFn('GET', async () => {
   'use server'
 
   const postInfos = getPostList()
@@ -46,13 +46,23 @@ const getFrontMatters = createServerFn('GET', async () => {
   )
 
   return frontMatters
+
+  // return json(frontMatters, {
+  //   headers: {
+  //     'Cache-Control': 'public, max-age=300, s-maxage=3600',
+  //   },
+  // })
 })
 
 export const Route = createFileRoute('/blog/')({
-  loader: () => getFrontMatters(),
+  loader: () => fetchFrontMatters(),
   notFoundComponent: () => <PostNotFound />,
-
   component: BlogIndex,
+  meta: () => [
+    {
+      title: 'Blog',
+    },
+  ],
 })
 
 function BlogIndex() {

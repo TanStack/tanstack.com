@@ -248,9 +248,19 @@ async function getSponsorsMeta() {
 export async function getSponsorsForSponsorPack() {
   let { sponsors } = await fetchCached({
     key: 'sponsors',
-    ttl: 60 * 60 * 1000,
+    ttl: process.env.NODE_ENV === 'development' ? 1 : 60 * 60 * 1000,
     fn: getSponsorsAndTiers,
   })
 
-  return sponsors.filter((d) => d.privacyLevel === 'PUBLIC')
+  return sponsors
+    .filter((d) => d.privacyLevel === 'PUBLIC')
+    .map((d) => ({
+      linkUrl: d.linkUrl,
+      login: d.login,
+      imageUrl: d.imageUrl,
+      name: d.name,
+      tier: {
+        monthlyPriceInDollars: d.tier?.monthlyPriceInDollars,
+      },
+    }))
 }

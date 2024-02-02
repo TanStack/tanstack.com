@@ -2,6 +2,7 @@ import React from 'react'
 import { Pack, hierarchy } from '@visx/hierarchy'
 import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
+import { set } from 'date-fns'
 
 export default function SponsorPack({ sponsors }: { sponsors: any }) {
   const pack = React.useMemo(
@@ -25,6 +26,12 @@ export default function SponsorPack({ sponsors }: { sponsors: any }) {
         ),
     [pack]
   )
+
+  // const [show, setShow] = React.useState(false)
+
+  // React.useEffect(() => {
+  //   setShow(true)
+  // }, [])
 
   return (
     <ParentSize>

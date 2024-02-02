@@ -29,7 +29,10 @@ const customVite = () =>
     //   noExternal: [/react-router-server\/dist\/esm\/server-runtime/],
     // },
     optimizeDeps: {
-      include: ['node_modules@tanstack/react-router-server/**/*.js'],
+      include: [
+        'node_modules@tanstack/react-router-server/**/*.js',
+        'react-icons',
+      ],
     },
     resolve: {
       dedupe: [

@@ -20,8 +20,6 @@ export const loader = async (context: LoaderFunctionArgs) => {
   })
 }
 
-export const ErrorBoundary = DefaultErrorBoundary
-
 export default function RouteReactTable() {
   const { version, redirectUrl } = useLoaderData<typeof loader>()
 

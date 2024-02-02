@@ -30,8 +30,8 @@ const localMenu = [
     label: 'Blog',
     children: [
       {
-        label: 'Latest',
-        to: '',
+        label: 'Latest Posts',
+        to: '.',
       },
     ],
   },

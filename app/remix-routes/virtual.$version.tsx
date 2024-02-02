@@ -20,8 +20,6 @@ export const loader = async (context: LoaderFunctionArgs) => {
   })
 }
 
-export const ErrorBoundary = DefaultErrorBoundary
-
 export default function RouteReactVirtual() {
   const { version, redirectUrl } = useLoaderData<typeof loader>()
 

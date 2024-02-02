@@ -9,8 +9,6 @@ import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
-export const ErrorBoundary = DefaultErrorBoundary
-
 export const loader = async (context: LoaderFunctionArgs) => {
   const { framework, '*': name } = context.params
 

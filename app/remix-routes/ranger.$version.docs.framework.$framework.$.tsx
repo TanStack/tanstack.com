@@ -26,8 +26,6 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   })
 }
 
-export const ErrorBoundary = DefaultErrorBoundary
-
 export default function RouteDocs() {
   const { title, content, filePath } = useLoaderData<typeof loader>()
   const { version } = useParams()

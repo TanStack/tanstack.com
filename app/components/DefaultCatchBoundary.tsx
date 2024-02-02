@@ -14,14 +14,14 @@ import {
 //   isRoot?: boolean
 // }
 
-export function DefaultCatchBoundary({ error }: { error: any }) {
+export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
   const isRoot = useMatch({
     strict: false,
     select: (state) => state.id === rootRouteId,
   })
 
-  const message = error?.message || 'An unknown error occurred!'
+  console.error(error, JSON.stringify(error, null, 2))
 
   return (
     <div className="flex-1 p-4 flex flex-col items-center justify-center gap-6">

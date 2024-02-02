@@ -1,8 +1,16 @@
-import { Await, FileRoute, Link, defer } from '@tanstack/react-router'
+import * as React from 'react'
+import {
+  Await,
+  FileRoute,
+  Link,
+  createFileRoute,
+  createServerFn,
+  defer,
+} from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
-import { CgMusicSpeaker } from 'react-icons/cg'
+import { CgMusicSpeaker, CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { LogoColor } from '~/components/LogoColor'
@@ -128,15 +136,16 @@ function sample(arr: any[], random = Math.random()) {
   return arr[Math.floor(random * arr.length)]
 }
 
-export const Route = new FileRoute('/').createRoute({
-  loader: async () => {
-    'use server'
+const fetchSponsorsData = createServerFn('GET', async () => {
+  'use server'
+  return getSponsorsForSponsorPack()
+})
 
-    // const sponsorsPromise = defer(getSponsorsForSponsorPack())
-
+export const Route = createFileRoute('/')({
+  loader: () => {
     return {
-      sponsorsPromise: await getSponsorsForSponsorPack(),
       randomNumber: Math.random(),
+      sponsorsPromise: defer(fetchSponsorsData()),
     }
   },
   component: Index,
@@ -499,13 +508,13 @@ function Index() {
             aspectRatio: '1/1',
           }}
         >
-          {/* <Await
+          <Await
             promise={sponsorsPromise}
-            children={(sponsors) => { */}
-          {/* return  */}
-          <SponsorPack sponsors={sponsorsPromise} />
-          {/* }}
-          /> */}
+            fallback={<CgSpinner className="text-2xl animate-spin" />}
+            children={(sponsors) => {
+              return <SponsorPack sponsors={sponsors} />
+            }}
+          />
         </div>
         <div className={`h-6`} />
         <div className={`text-center`}>

@@ -1,5 +1,4 @@
 /// <reference types="vinxi/types/client" />
-import React, { Suspense } from 'react'
 import { Root, hydrateRoot } from 'react-dom/client'
 import 'vinxi/client'
 

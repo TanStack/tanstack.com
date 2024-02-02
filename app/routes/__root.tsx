@@ -1,22 +1,27 @@
 import {
   Outlet,
   ErrorRouteProps,
-  RootRoute,
   rootRouteWithContext,
   useMatches,
+  ErrorComponentProps,
 } from '@tanstack/react-router'
-import '~/styles/app.css'
+import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import prismThemeLight from '~/styles/prismThemeLight.css?url'
 import prismThemeDark from '~/styles/prismThemeDark.css?url'
 import docSearchStyles from '@docsearch/css/dist/style.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-import { Meta, Scripts } from '@tanstack/react-router-server/client'
+import {
+  Meta,
+  RouterManagedTag,
+  Scripts,
+} from '@tanstack/react-router-server/client'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
+import { HydrationOverlay } from '@builder.io/react-hydration-overlay'
 
 export const Route = rootRouteWithContext<{
-  assets: React.ReactNode
+  assets: RouterManagedTag[]
 }>()({
   component: RootComponent,
   // errorComponent: ErrorBoundary,
@@ -37,7 +42,7 @@ export const Route = rootRouteWithContext<{
     }),
   ],
   links: () => [
-    // { rel: 'stylesheet', href: styles },
+    { rel: 'stylesheet', href: appCss },
     {
       rel: 'stylesheet',
       href: prismThemeLight,
@@ -81,6 +86,15 @@ export const Route = rootRouteWithContext<{
       src: 'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS',
       async: true,
     },
+    {
+      children: `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-JMT1Z50SPS');
+      `,
+    },
   ],
 })
 
@@ -92,55 +106,41 @@ export default function RootComponent() {
   )
 }
 
-function ErrorBoundary({ error }: ErrorRouteProps) {
-  // when true, this is what used to go to `CatchBoundary`
-  // if (isRouteErrorResponse(error)) {
-  //   return (
-  //     <RootDocument title={`${error.status} ${error.statusText}`}>
-  //       <div className="h-[50vh] flex flex-col items-center justify-center gap-6">
-  //         <DefaultCatchBoundary
-  //           status={error.status}
-  //           statusText={error.statusText}
-  //           data={error.data}
-  //           isRoot={true}
-  //         />
-  //       </div>
-  //     </RootDocument>
-  //   )
-  // }
+// function ErrorBoundary({ error }: ErrorComponentProps) {
+//   // when true, this is what used to go to `CatchBoundary`
+//   // if (isRouteErrorResponse(error)) {
+//   //   return (
+//   //     <RootDocument title={`${error.status} ${error.statusText}`}>
+//   //       <div className="h-[50vh] flex flex-col items-center justify-center gap-6">
+//   //         <DefaultCatchBoundary
+//   //           status={error.status}
+//   //           statusText={error.statusText}
+//   //           data={error.data}
+//   //           isRoot={true}
+//   //         />
+//   //       </div>
+//   //     </RootDocument>
+//   //   )
+//   // }
 
-  console.error(error)
+//   console.error(error)
 
-  // Don't forget to typecheck with your own logic.
-  // Any value can be thrown, not just errors!
-  let errorMessage = 'Unknown error'
-  if (error instanceof Error) {
-    errorMessage = error.message
-  }
+//   // Don't forget to typecheck with your own logic.
+//   // Any value can be thrown, not just errors!
+//   let errorMessage = 'Unknown error'
+//   if (error instanceof Error) {
+//     errorMessage = error.message
+//   }
 
-  return (
-    <RootDocument title="Error!">
-      <div>
-        <h1>There was an error!</h1>
-        <p>{errorMessage}</p>
-      </div>
-    </RootDocument>
-  )
-}
-
-const googleTagManager = (
-  <script
-    dangerouslySetInnerHTML={{
-      __html: `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-JMT1Z50SPS');
-      `,
-    }}
-  ></script>
-)
+//   return (
+//     <RootDocument title="Error!">
+//       <div>
+//         <h1>There was an error!</h1>
+//         <p>{errorMessage}</p>
+//       </div>
+//     </RootDocument>
+//   )
+// }
 
 function RootDocument({
   children,
@@ -151,10 +151,10 @@ function RootDocument({
 }) {
   const matches = useMatches()
 
-  const prefersDarkMode =
-    typeof document !== 'undefined'
-      ? matchMedia('(prefers-color-scheme: dark)').matches
-      : false
+  // const prefersDarkMode =
+  //   typeof document !== 'undefined'
+  //     ? matchMedia('(prefers-color-scheme: dark)').matches
+  //     : false
 
   // const darkModeScript = (
   //   <script
@@ -180,25 +180,26 @@ function RootDocument({
         ) : null}
         {title ? <title>{title}</title> : null}
         <Meta />
-        {googleTagManager}
       </head>
       <body
       // {...(prefersDarkMode ? { 'data-theme': 'dark' } : {})}
       >
-        {children}
-        {/* {darkModeScript} */}
-        <TanStackRouterDevtools />
-        <Scripts />
-        {/* // TODO:
+        <HydrationOverlay>
+          {children}
+          {/* {darkModeScript} */}
+          <TanStackRouterDevtools />
+          {/* // TODO:
         {/* <div
-          className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-800
-            rounded-lg shadow-lg transition-opacity duration-300 hover:opacity-0 pointer-events-none
-            z-30 delay-300 ${
-              navigation.state !== 'idle' ? 'opacity-1' : 'opacity-0'
-            }`}
+        className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-800
+        rounded-lg shadow-lg transition-opacity duration-300 hover:opacity-0 pointer-events-none
+        z-30 delay-300 ${
+          navigation.state !== 'idle' ? 'opacity-1' : 'opacity-0'
+        }`}
         >
-          <CgSpinner className="text-2xl animate-spin" />
-        </div> */}
+        <CgSpinner className="text-2xl animate-spin" />
+      </div> */}
+        </HydrationOverlay>
+        <Scripts />
       </body>
     </html>
   )

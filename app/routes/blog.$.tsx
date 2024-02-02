@@ -1,38 +1,48 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  createServerFn,
+  notFound,
+} from '@tanstack/react-router'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import removeMarkdown from 'remove-markdown'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'
 
-const loader = async ({ docsPath }: { docsPath: string }) => {
-  'use server'
-  if (!docsPath) {
-    throw new Error('Invalid docs path')
+const fetchBlogPost = createServerFn(
+  'GET',
+  async ({ docsPath }: { docsPath: string }, req) => {
+    'use server'
+
+    console.log(docsPath, req)
+
+    if (!docsPath) {
+      throw new Error('Invalid docs path')
+    }
+
+    const filePath = `app/blog/${docsPath}.md`
+
+    const file = await fetchRepoFile('tanstack/tanstack.com', 'main', filePath)
+
+    if (!file) {
+      throw notFound()
+    }
+
+    const frontMatter = extractFrontMatter(file)
+    const description = removeMarkdown(frontMatter.excerpt ?? '')
+
+    return {
+      title: frontMatter.data.title,
+      description,
+      published: frontMatter.data.published,
+      content: frontMatter.content,
+      filePath,
+    }
   }
-
-  const filePath = `app/blog/${docsPath}.md`
-
-  const file = await fetchRepoFile('tanstack/tanstack.com', 'main', filePath)
-
-  if (!file) {
-    throw notFound()
-  }
-
-  const frontMatter = extractFrontMatter(file)
-  const description = removeMarkdown(frontMatter.excerpt ?? '')
-
-  return {
-    title: frontMatter.data.title,
-    description,
-    published: frontMatter.data.published,
-    content: frontMatter.content,
-    filePath,
-  }
-}
+)
 
 export const Route = createFileRoute('/blog/$')({
-  loader: ({ params }) => loader({ docsPath: params._splat }),
+  loader: ({ params }) => fetchBlogPost({ docsPath: params._splat }),
   meta: ({ loaderData }) =>
     seo({
       title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,

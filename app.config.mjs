@@ -6,9 +6,31 @@ import { config } from 'vinxi/plugins/config'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { serverTransform } from '@vinxi/server-functions/server'
 import { normalize } from 'vinxi/lib/path'
+import { resolve } from 'import-meta-resolve'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const resolveToRelative = (p) => {
+  const toAbsolute = (file) => file.split('://').at(-1)
+
+  const resolved = toAbsolute(resolve(p, import.meta.url))
+
+  const relative = path.relative(
+    path.resolve(toAbsolute(import.meta.url), '..'),
+    resolved
+  )
+
+  return relative
+}
 
 const customVite = () =>
   config('dev', {
+    // ssr: {
+    //   noExternal: [/react-router-server\/dist\/esm\/server-runtime/],
+    // },
+    optimizeDeps: {
+      include: ['node_modules@tanstack/react-router-server/**/*.js'],
+    },
     resolve: {
       dedupe: [
         'react',
@@ -22,6 +44,14 @@ const customVite = () =>
         'use-sync-external-store',
       ],
     },
+    // plugins: [
+    //   {
+    //     name: 'inline-env-vars-as-prefix',
+    //     // Write the env vars for some specific keys into the bundle at the very beginning of the file
+    //     // using a (globalThis || window).tsr_env object.
+    //     intro: `(globalThis || window).ROUTER_NAME = import.meta.env.ROUTER_NAME`,
+    //   },
+    // ],
   })
 
 export default createApp({
@@ -55,6 +85,7 @@ export default createApp({
       type: 'client',
       handler: './app/client.tsx',
       target: 'browser',
+      base: '/_build',
       plugins: () => [
         customVite(),
         tsconfigPaths(),
@@ -62,13 +93,14 @@ export default createApp({
           runtime: `@tanstack/react-router-server/client-runtime`,
         }),
         reactRefresh(),
-        // TanStackRouterVite(),
       ],
-      base: '/_build',
     },
     serverFunctions.router({
-      plugins: () => [tsconfigPaths()],
-      handler: `@tanstack/react-router-server/server-handler`,
+      name: 'server',
+      plugins: () => [customVite(), tsconfigPaths()],
+      handler: resolveToRelative(
+        '@tanstack/react-router-server/server-handler'
+      ),
       runtime: `@tanstack/react-router-server/server-runtime`,
     }),
   ],

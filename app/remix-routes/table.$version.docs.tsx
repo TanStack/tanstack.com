@@ -36,8 +36,6 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export const ErrorBoundary = DefaultErrorBoundary
-
 export default function RouteReactTable() {
   const { version, config } = useLoaderData<typeof loader>()
 

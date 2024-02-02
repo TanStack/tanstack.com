@@ -3,12 +3,18 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SponsorsEmbedImport } from './routes/sponsors-embed'
 import { Route as BlogImport } from './routes/blog'
 import { Route as IndexImport } from './routes/index'
 import { Route as BlogIndexImport } from './routes/blog.index'
 import { Route as BlogSplatImport } from './routes/blog.$'
 
 // Create/Update Routes
+
+const SponsorsEmbedRoute = SponsorsEmbedImport.update({
+  path: '/sponsors-embed',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const BlogRoute = BlogImport.update({
   path: '/blog',
@@ -42,6 +48,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogImport
       parentRoute: typeof rootRoute
     }
+    '/sponsors-embed': {
+      preLoaderRoute: typeof SponsorsEmbedImport
+      parentRoute: typeof rootRoute
+    }
     '/blog/$': {
       preLoaderRoute: typeof BlogSplatImport
       parentRoute: typeof BlogImport
@@ -58,4 +68,5 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
   BlogRoute.addChildren([BlogSplatRoute, BlogIndexRoute]),
+  SponsorsEmbedRoute,
 ])

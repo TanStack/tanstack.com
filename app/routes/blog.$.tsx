@@ -14,8 +14,6 @@ const fetchBlogPost = createServerFn(
   async ({ docsPath }: { docsPath: string }, req) => {
     'use server'
 
-    console.log(docsPath, req)
-
     if (!docsPath) {
       throw new Error('Invalid docs path')
     }

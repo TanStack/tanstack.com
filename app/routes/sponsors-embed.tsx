@@ -1,27 +1,34 @@
 import SponsorPack from '~/components/SponsorPack'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { createFileRoute, createServerFn } from '@tanstack/react-router'
+import { createFileRoute, createServerFn, json } from '@tanstack/react-router'
 
-export const handle = {
-  baseParent: true,
+const cacheHeaders = {
+  'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
 }
 
 export const fetchSponsors = createServerFn('GET', async () => {
   'use server'
-  return getSponsorsForSponsorPack()
+
+  // Cache the entire JSON response for 5 minutes
+  return json(await getSponsorsForSponsorPack(), {
+    headers: cacheHeaders,
+  })
 })
 
 export const Route = createFileRoute('/sponsors-embed')({
   loader: () => fetchSponsors(),
   headers: () => {
-    return {
-      'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
-    }
+    // Cache the entire HTML response for 5 minutes
+    return cacheHeaders
   },
+  staticData: {
+    baseParent: true,
+  },
+  component: SponsorsEmbed,
 })
 
-export default function Sponsors() {
-  const { sponsors } = Route.useLoaderData()
+function SponsorsEmbed() {
+  const sponsors = Route.useLoaderData()
 
   return (
     <>
@@ -31,10 +38,10 @@ export default function Sponsors() {
         <style
           dangerouslySetInnerHTML={{
             __html: `
-        html, body {
-          background: transparent !important;
-        }
-      `,
+  html, body {
+    background: transparent !important;
+  }
+`,
           }}
         />
         <SponsorPack sponsors={sponsors} />

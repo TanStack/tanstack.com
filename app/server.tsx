@@ -6,7 +6,7 @@ import {
   StartServer,
   transformStreamWithRouter,
 } from '@tanstack/react-router-server/server'
-import { Transform } from 'stream'
+import { Transform, PassThrough } from 'stream'
 
 import { createRouter } from './router'
 import { createMemoryHistory } from '@tanstack/react-router'
@@ -71,8 +71,6 @@ export default eventHandler(async (event) => {
     })
   })
 
-  setHeader(event, 'Content-Type', 'text/html')
-
   // Add our Router transform to the stream
   const transforms = [
     transformStreamWithRouter(router),
@@ -96,7 +94,27 @@ export default eventHandler(async (event) => {
     stream
   )
 
-  return transformedStream
+  const headers = router.state.matches.reduce((acc, match) => {
+    if (match.headers) {
+      Object.assign(acc, match.headers)
+    }
+    return acc
+  }, {})
+
+  const routerStatus = router.state.matches.some(
+    (match) => match.status === 'error'
+  )
+    ? 500
+    : 200
+
+  return new Response(transformedStream as any, {
+    status: routerStatus,
+    statusText: routerStatus === 200 ? 'OK' : 'Internal Server Error',
+    headers: {
+      'Content-Type': 'text/html',
+      ...headers,
+    },
+  })
 })
 
 function getHydrationOverlayScriptContext() {

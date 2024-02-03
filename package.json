@@ -19,9 +19,9 @@
     "@octokit/graphql": "^7.0.2",
     "@octokit/rest": "^20.0.2",
     "@tailwindcss/typography": "^0.5.10",
-    "@tanstack/react-router": "1.15.15",
-    "@tanstack/react-router-server": "1.15.15",
-    "@tanstack/router-devtools": "^1.15.15",
+    "@tanstack/react-router": "1.15.16",
+    "@tanstack/react-router-server": "1.15.16",
+    "@tanstack/router-devtools": "^1.15.16",
     "@tanstack/router-vite-plugin": "1.15.11",
     "@vinxi/react": "0.2.0",
     "@vinxi/server-functions": "^0.2.1",
@@ -69,7 +69,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "pnpm__remove_this_suffix_to_develop_locally__": {
+  "pnpm_": {
     "overrides": {
       "@tanstack/react-router": "file:../router/packages/react-router",
       "@tanstack/react-router-server": "file:../router/packages/react-router-server",

@@ -7,7 +7,22 @@ import {
   updateTiersMeta,
 } from '~/server/tiers'
 
-export type Sponsor = {}
+export type Sponsor = {
+  login: string
+  name: string
+  email: string
+  imageUrl: string
+  linkUrl: string
+  privacyLevel: string
+  tier: {
+    id: string
+    monthlyPriceInDollars: number
+    meta: {
+      githubTeamSlug: string
+    }
+  }
+  createdAt: string
+}
 
 // const teamsBySponsorType = {
 //   fan: 'Fan',
@@ -246,11 +261,11 @@ async function getSponsorsMeta() {
 }
 
 export async function getSponsorsForSponsorPack() {
-  let { sponsors } = await fetchCached({
+  let { sponsors } = (await fetchCached({
     key: 'sponsors',
     ttl: process.env.NODE_ENV === 'development' ? 1 : 60 * 60 * 1000,
     fn: getSponsorsAndTiers,
-  })
+  })) as { sponsors: Sponsor[] }
 
   return sponsors
     .filter((d) => d.privacyLevel === 'PUBLIC')

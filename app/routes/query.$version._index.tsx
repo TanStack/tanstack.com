@@ -159,7 +159,7 @@ export default function RouteVersion() {
             <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
               asynchronous state management
             </span>{' '}
-            for TS/JS, React, Solid, Vue and Svelte
+            for TS/JS, React, Solid, Vue, Svelte and Angular
           </h2>
           <p
             className="text opacity-90 max-w-[500px]

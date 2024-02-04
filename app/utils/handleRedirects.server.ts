@@ -12,13 +12,6 @@ export function handleRedirects(
   const url = new URL(urlFromRequest)
   redirectItems.forEach((item) => {
     if (url.pathname.startsWith(`${urlFromPathStart}/${item.from}`)) {
-      /* console.log({
-        urlTo: `${urlToPathStart}/${item.to}?${urlToQueryParams}`,
-        urlFromRequest,
-        itemFrom: item.from,
-        urlFromPathStart,
-        urlToPathStart,
-      }) */
       throw redirect(`${urlToPathStart}/${item.to}?${urlToQueryParams}`)
     }
   })

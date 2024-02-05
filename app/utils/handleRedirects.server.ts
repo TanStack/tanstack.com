@@ -12,14 +12,15 @@ export function handleRedirects(
   const url = new URL(urlFromRequest)
   redirectItems.forEach((item) => {
     if (url.pathname.startsWith(`${urlFromPathStart}/${item.from}`)) {
-      /* console.log({
-        urlTo: `${urlToPathStart}/${item.to}?${urlToQueryParams}`,
-        urlFromRequest,
-        itemFrom: item.from,
-        urlFromPathStart,
-        urlToPathStart,
-      }) */
-      throw redirect(`${urlToPathStart}/${item.to}?${urlToQueryParams}`)
+      /*
+        We create a URL object from the destination route before
+        adding the query params to make sure that the URL hash
+        (#this-part) is preserved.
+      */
+      const urlTo = new URL(`${url.origin}${urlToPathStart}/${item.to}`)
+      urlTo.search = urlToQueryParams
+
+      throw redirect(urlTo.href)
     }
   })
 }

@@ -4,6 +4,7 @@ import {
   rootRouteWithContext,
   useMatches,
   ErrorComponentProps,
+  createRootRoute,
 } from '@tanstack/react-router'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
@@ -20,9 +21,9 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { HydrationOverlay } from '@builder.io/react-hydration-overlay'
 
-export const Route = rootRouteWithContext<{
+export const Route = createRootRoute<{
   assets: RouterManagedTag[]
-}>()({
+}>({
   component: RootComponent,
   // errorComponent: ErrorBoundary,
   meta: () => [

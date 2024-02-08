@@ -432,7 +432,7 @@ export default function ReactTableRoute() {
       <div className="bg-white dark:bg-black">
         <iframe
           key={framework}
-          src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
+          src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/basic?embed=1&theme=${
             isDark ? 'dark' : 'light'
           }`}
           title="tannerlinsley/react-table: basic"

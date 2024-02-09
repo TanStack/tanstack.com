@@ -276,6 +276,8 @@ export function DocsLayout({
                                   ? 'text-orange-500'
                                   : child.badge === 'vue'
                                   ? 'text-green-500'
+                                  : child.badge === 'angular'
+                                  ? 'text-fuchsia-500'
                                   : 'text-gray-500'
                               }`}
                             >

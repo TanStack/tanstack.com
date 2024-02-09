@@ -1,6 +1,7 @@
 import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
+import angularLogo from '~/images/angular-logo.svg'
 
 export const repo = 'tanstack/store'
 
@@ -16,6 +17,7 @@ export const frameworks = {
   react: { label: 'React', logo: reactLogo, value: 'react' },
   solid: { label: 'Solid', logo: solidLogo, value: 'solid' },
   vue: { label: 'Vue', logo: vueLogo, value: 'vue' },
+  angular: { label: 'Angular', logo: angularLogo, value: 'angular' },
 } as const
 
 export type Framework = keyof typeof frameworks

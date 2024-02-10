@@ -216,33 +216,33 @@ async function getGithubSponsors() {
 }
 
 async function getSponsorsMeta() {
-  // try {
-  //   const sponsorsTable = await getSponsorsTable()
-  //
-  //   return new Promise((resolve, reject) => {
-  //     let allSponsors = []
-  //     sponsorsTable.select().eachPage(
-  //       function page(records, fetchNextPage) {
-  //         allSponsors = [...allSponsors, ...records]
-  //         fetchNextPage()
-  //       },
-  //       function done(err) {
-  //         if (err) {
-  //           reject(err)
-  //         } else {
-  //           resolve(allSponsors)
-  //         }
-  //       }
-  //     )
-  //   })
-  // } catch (err: any) {
-    // if (err.message === 'An API key is required to connect to Airtable') {
+  try {
+    const sponsorsTable = await getSponsorsTable()
+
+    return new Promise((resolve, reject) => {
+      let allSponsors = []
+      sponsorsTable.select().eachPage(
+        function page(records, fetchNextPage) {
+          allSponsors = [...allSponsors, ...records]
+          fetchNextPage()
+        },
+        function done(err) {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(allSponsors)
+          }
+        }
+      )
+    })
+  } catch (err: any) {
+    if (err.message === 'An API key is required to connect to Airtable') {
       console.error('Missing airtable credentials, returning mock data.')
 
       return []
-    // }
-    // throw err
-  // }
+    }
+    throw err
+  }
 }
 
 export async function getSponsorsForSponsorPack() {

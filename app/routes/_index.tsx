@@ -43,7 +43,7 @@ const libraries = [
       `shadow-xl shadow-red-700/20 dark:shadow-lg dark:shadow-red-500/30 text-red-500 border-2 border-transparent hover:border-current`,
     to: '/query',
     tagline: `Powerful asynchronous state management, server-state utilities and data fetching`,
-    description: `Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid & Svelte applications all without touching any "global state".`,
+    description: `Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte & Angular applications all without touching any "global state".`,
   },
   {
     name: 'TanStack Table',

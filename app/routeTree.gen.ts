@@ -10,6 +10,7 @@ import { Route as BlogIndexImport } from './routes/blog.index'
 import { Route as BlogSplatImport } from './routes/blog.$'
 import { Route as QueryVersionIndexImport } from './routes/query.$version.index'
 import { Route as QueryVersionDocsImport } from './routes/query.$version.docs'
+import { Route as QueryVersionDocsFrameworkFrameworkIndexImport } from './routes/query.$version.docs.framework.$framework.index'
 import { Route as QueryVersionDocsFrameworkFrameworkSplatImport } from './routes/query.$version.docs.framework.$framework.$'
 
 // Create/Update Routes
@@ -48,6 +49,12 @@ const QueryVersionDocsRoute = QueryVersionDocsImport.update({
   path: '/query/$version/docs',
   getParentRoute: () => rootRoute,
 } as any)
+
+const QueryVersionDocsFrameworkFrameworkIndexRoute =
+  QueryVersionDocsFrameworkFrameworkIndexImport.update({
+    path: '/framework/$framework/',
+    getParentRoute: () => QueryVersionDocsRoute,
+  } as any)
 
 const QueryVersionDocsFrameworkFrameworkSplatRoute =
   QueryVersionDocsFrameworkFrameworkSplatImport.update({
@@ -91,6 +98,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QueryVersionDocsFrameworkFrameworkSplatImport
       parentRoute: typeof QueryVersionDocsImport
     }
+    '/query/$version/docs/framework/$framework/': {
+      preLoaderRoute: typeof QueryVersionDocsFrameworkFrameworkIndexImport
+      parentRoute: typeof QueryVersionDocsImport
+    }
   }
 }
 
@@ -102,6 +113,7 @@ export const routeTree = rootRoute.addChildren([
   SponsorsEmbedRoute,
   QueryVersionDocsRoute.addChildren([
     QueryVersionDocsFrameworkFrameworkSplatRoute,
+    QueryVersionDocsFrameworkFrameworkIndexRoute,
   ]),
   QueryVersionIndexRoute,
 ])

@@ -1,4 +1,4 @@
-import { Link } from '@remix-run/react'
+import { Link } from "@tanstack/react-router"
 
 type Props = {
   name: string

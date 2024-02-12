@@ -1,6 +1,6 @@
-import { json, redirect } from '@remix-run/node'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import RemoveMarkdown from 'remove-markdown'
+import { redirect } from '@tanstack/react-router'
 
 export async function loadDocs({
   repo,
@@ -30,24 +30,17 @@ export async function loadDocs({
     if (currentPath === redirectPath) {
       throw new Error('File does not exist')
     } else {
-      throw redirect(redirectPath)
+      throw redirect({ to: redirectPath })
     }
   }
 
   const frontMatter = extractFrontMatter(file)
   const description = RemoveMarkdown(frontMatter.excerpt ?? '')
 
-  return json(
-    {
-      title: frontMatter.data?.title,
-      description,
-      filePath,
-      content: frontMatter.content,
-    },
-    {
-      headers: {
-        'Cache-Control': 's-maxage=1, stale-while-revalidate=300',
-      },
-    }
-  )
+  return {
+    title: frontMatter.data?.title,
+    description,
+    filePath,
+    content: frontMatter.content,
+  }
 }

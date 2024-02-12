@@ -8,8 +8,9 @@ import {
 } from '@tanstack/react-router-server/server'
 import { Transform, PassThrough } from 'stream'
 
-import { createRouter } from './router'
-import { createMemoryHistory } from '@tanstack/react-router'
+import { routeTree } from './routeTree.gen'
+import { createMemoryHistory, createRouter } from '@tanstack/react-router'
+import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 
 export default eventHandler(async (event) => {
   const req = toWebRequest(event)
@@ -45,7 +46,14 @@ export default eventHandler(async (event) => {
   )
 
   // Create a router
-  const router = createRouter()
+  const router = createRouter({
+    routeTree,
+    defaultPreload: 'intent',
+    defaultErrorComponent: DefaultCatchBoundary,
+    context: {
+      assets: [],
+    },
+  })
 
   // Create a history for the router
   const history = createMemoryHistory({

@@ -8,7 +8,7 @@ import {
   FaGithub,
   FaTimes,
 } from 'react-icons/fa'
-import { Link, NavLink, useMatches, useNavigate, useParams } from '@remix-run/react'
+// import { Link, NavLink, useMatches, useNavigate, useParams } from '@remix-run/react'
 import { Carbon } from '~/components/Carbon'
 import { Search } from '~/components/Search'
 import { Select } from '~/components/Select'
@@ -19,6 +19,9 @@ import { DocsLogo } from '~/components/DocsLogo'
 import { generatePath, last } from '~/utils/utils'
 import type { AvailableOptions } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
+import { Link, useMatches, useParams } from '@tanstack/react-router'
+import { Route } from '~/routes/query.$version.docs.framework.$framework.$'
+import { useNavigate } from '@tanstack/react-router'
 
 /**
  * Use framework in URL path
@@ -26,8 +29,8 @@ import type { ConfigSchema, MenuItem } from '~/utils/config'
  * Otherwise fallback to react
  */
 function useCurrentFramework(frameworks: AvailableOptions) {
-  const { framework: paramsFramework } = useParams()
-  const localStorageFramework = localStorage.getItem('framework')
+  const { framework: paramsFramework } = Route.useParams()
+  const localStorageFramework = globalThis.localStorage?.getItem('framework')
 
   return (
     paramsFramework ||
@@ -119,7 +122,7 @@ const useFrameworkConfig = ({
 
         localStorage.setItem('framework', option.value)
 
-        navigate(url)
+        navigate({ to: url })
       },
     }
   }, [frameworks, framework, match, navigate])
@@ -134,7 +137,7 @@ const useVersionConfig = ({
 }) => {
   const matches = useMatches()
   const match = matches[matches.length - 1]
-  const params = useParams()
+  const params = Route.useParams()
   const version = params.version!
   const navigate = useNavigate()
 
@@ -164,7 +167,7 @@ const useVersionConfig = ({
           ...match.params,
           version: option.value,
         })
-        navigate(url)
+        navigate({ to: url })
       },
     }
   }, [version, match, navigate, availableVersions])
@@ -242,8 +245,9 @@ export function DocsLayout({
                   <a href={child.to} className={linkClasses}>
                     {child.label}
                   </a>
-                ) : (
-                  <NavLink
+                ) : /*
+                    
+<NavLink
                     to={child.to}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
@@ -284,8 +288,8 @@ export function DocsLayout({
                         </div>
                       )
                     }}
-                  </NavLink>
-                )}
+                  </NavLink>                    
+                     */ null}
               </div>
             )
           })}

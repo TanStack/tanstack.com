@@ -13,7 +13,7 @@ export type AvailableOptions = Array<{
 export type SelectProps = {
   className?: string
   label: string
-  selected?: string
+  selected: string
   available: AvailableOptions
   onSelect: (selected: { label: string; value: string }) => void
 }
@@ -25,7 +25,7 @@ export function Select({
   available,
   onSelect,
 }: SelectProps) {
-  if (!selected) {
+  if (available.length === 0) {
     return null
   }
 

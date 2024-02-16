@@ -331,22 +331,18 @@ export function DocsLayout({
           dark:bg-gray-900"
         >
           <div className="flex gap-4">
-            {frameworkConfig?.selected ? (
-              <Select
-                label={frameworkConfig.label}
-                selected={frameworkConfig.selected}
-                available={frameworkConfig.available}
-                onSelect={frameworkConfig.onSelect}
-              />
-            ) : null}
-            {versionConfig?.selected ? (
-              <Select
-                label={versionConfig.label}
-                selected={versionConfig.selected}
-                available={versionConfig.available}
-                onSelect={versionConfig.onSelect}
-              />
-            ) : null}
+            <Select
+              label={frameworkConfig.label}
+              selected={frameworkConfig.selected}
+              available={frameworkConfig.available}
+              onSelect={frameworkConfig.onSelect}
+            />
+            <Select
+              label={versionConfig.label}
+              selected={versionConfig.selected}
+              available={versionConfig.available}
+              onSelect={versionConfig.onSelect}
+            />
           </div>
           {menuItems}
         </div>
@@ -365,24 +361,20 @@ export function DocsLayout({
         />
       </div>
       <div className="flex gap-2 px-4">
-        {frameworkConfig?.selected ? (
-          <Select
-            className="flex-[3_1_0%]"
-            label={frameworkConfig.label}
-            selected={frameworkConfig.selected}
-            available={frameworkConfig.available}
-            onSelect={frameworkConfig.onSelect}
-          />
-        ) : null}
-        {versionConfig?.selected ? (
-          <Select
-            className="flex-[2_1_0%]"
-            label={versionConfig.label}
-            selected={versionConfig.selected}
-            available={versionConfig.available}
-            onSelect={versionConfig.onSelect}
-          />
-        ) : null}
+        <Select
+          className="flex-[3_1_0%]"
+          label={frameworkConfig.label}
+          selected={frameworkConfig.selected}
+          available={frameworkConfig.available}
+          onSelect={frameworkConfig.onSelect}
+        />
+        <Select
+          className="flex-[2_1_0%]"
+          label={versionConfig.label}
+          selected={versionConfig.selected}
+          available={versionConfig.available}
+          onSelect={versionConfig.onSelect}
+        />
       </div>
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
         {menuItems}

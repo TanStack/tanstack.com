@@ -4,15 +4,16 @@ import { Listbox, Transition } from '@headlessui/react'
 import { HiCheck, HiChevronDown } from 'react-icons/hi'
 import { Form } from '@remix-run/react'
 
-export type AvailableOptions = Record<
-  string,
-  { label: string; value: string; logo?: string }
->
+export type AvailableOptions = Array<{
+  label: string
+  value: string
+  logo?: string
+}>
 
 export type SelectProps = {
   className?: string
   label: string
-  selected: string
+  selected?: string
   available: AvailableOptions
   onSelect: (selected: { label: string; value: string }) => void
 }
@@ -24,7 +25,15 @@ export function Select({
   available,
   onSelect,
 }: SelectProps) {
-  const selectedOption = available[selected]
+  if (!selected) {
+    return null
+  }
+
+  const selectedOption = available.find(({ value }) => selected === value)
+
+  if (!selectedOption) {
+    return null
+  }
 
   return (
     <div className={`top-16 w-full flex-1 ${className}`}>

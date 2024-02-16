@@ -1,6 +1,7 @@
 import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
+import type { AvailableOptions } from '~/components/Select'
 
 export const repo = 'tanstack/form'
 
@@ -12,11 +13,11 @@ export const colorFrom = 'from-yellow-500'
 export const colorTo = 'to-yellow-600'
 export const textColor = 'text-yellow-600'
 
-export const frameworks = {
-  react: { label: 'React', logo: reactLogo, value: 'react' },
-  solid: { label: 'Solid', logo: solidLogo, value: 'solid' },
-  vue: { label: 'Vue', logo: vueLogo, value: 'vue' },
-} as const
+export const frameworks: AvailableOptions = [
+  { label: 'React', value: 'react', logo: reactLogo },
+  { label: 'Solid', value: 'solid', logo: solidLogo },
+  { label: 'Vue', value: 'vue', logo: vueLogo },
+]
 
 export type Framework = keyof typeof frameworks
 

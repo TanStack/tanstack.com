@@ -32,7 +32,8 @@ function useCurrentFramework(frameworks: AvailableOptions) {
 
   return (
     paramsFramework ||
-    (localStorageFramework && localStorageFramework in frameworks
+    (localStorageFramework &&
+    frameworks.find(({ value }) => localStorageFramework === value)
       ? localStorageFramework
       : 'react')
   )
@@ -110,7 +111,7 @@ const useFrameworkConfig = ({
   const frameworkConfig = React.useMemo(() => {
     return {
       label: 'Framework',
-      selected: frameworks[framework] ? framework : 'react',
+      selected: framework,
       available: frameworks,
       onSelect: (option: { label: string; value: string }) => {
         const url = generatePath(match.id, {
@@ -142,18 +143,18 @@ const useVersionConfig = ({
   const versionConfig = React.useMemo(() => {
     const available = availableVersions.reduce(
       (acc: AvailableOptions, version) => {
-        acc[version] = {
+        acc.push({
           label: version,
           value: version,
-        }
+        })
         return acc
       },
-      {
-        latest: {
+      [
+        {
           label: 'Latest',
           value: 'latest',
         },
-      }
+      ]
     )
 
     return {

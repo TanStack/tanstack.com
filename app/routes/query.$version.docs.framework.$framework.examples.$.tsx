@@ -38,9 +38,11 @@ export default function RouteExamples() {
   }, [])
 
   const githubUrl = `https://github.com/${repo}/tree/${branch}/examples/${examplePath}`
+  // preset=node can be removed once Stackblitz runs Angular as webcontainer by default
+  // https://github.com/stackblitz/core/issues/2957
   const stackBlitzUrl = `https://stackblitz.com/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
-  }`
+  }&preset=node`
   const codesandboxUrl = `https://codesandbox.io/s/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`

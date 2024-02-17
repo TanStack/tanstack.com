@@ -46,6 +46,7 @@ async function createTiersMeta(tiersMeta) {
       }
     )
   })
+  // return Promise.resolve()
 }
 
 export async function getTierById(tierId) {

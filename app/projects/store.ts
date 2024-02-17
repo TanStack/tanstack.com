@@ -2,6 +2,7 @@ import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
 import angularLogo from '~/images/angular-logo.svg'
+import type { AvailableOptions } from '~/components/Select'
 
 export const repo = 'tanstack/store'
 
@@ -13,12 +14,12 @@ export const colorFrom = 'from-gray-500'
 export const colorTo = 'to-gray-700'
 export const textColor = 'text-gray-700'
 
-export const frameworks = {
-  react: { label: 'React', logo: reactLogo, value: 'react' },
-  solid: { label: 'Solid', logo: solidLogo, value: 'solid' },
-  vue: { label: 'Vue', logo: vueLogo, value: 'vue' },
-  angular: { label: 'Angular', logo: angularLogo, value: 'angular' },
-} as const
+export const frameworks: AvailableOptions = [
+  { label: 'React', value: 'react', logo: reactLogo },
+  { label: 'Solid', value: 'solid', logo: solidLogo },
+  { label: 'Vue', value: 'vue', logo: vueLogo },
+  { label: 'Angular', value: 'angular', logo: angularLogo },
+]
 
 export type Framework = keyof typeof frameworks
 

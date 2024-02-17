@@ -1,4 +1,5 @@
 import reactLogo from '~/images/react-logo.svg'
+import type { AvailableOptions } from '~/components/Select'
 
 export const repo = 'tanstack/ranger'
 
@@ -10,9 +11,9 @@ export const colorFrom = 'from-lime-500'
 export const colorTo = 'to-emerald-500'
 export const textColor = 'text-emerald-500'
 
-export const frameworks = {
-  react: { label: 'React', logo: reactLogo, value: 'react' },
-} as const
+export const frameworks: AvailableOptions = [
+  { label: 'React', value: 'react', logo: reactLogo },
+]
 
 export type Framework = keyof typeof frameworks
 

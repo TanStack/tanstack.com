@@ -121,6 +121,19 @@ const libraries = [
       </div>
     ),
   },
+  {
+    name: 'TanStack Config',
+    getStyles: () =>
+      `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-600 border-2 border-transparent hover:border-current`,
+    to: '/config',
+    tagline: `Configuration and tools for publishing and maintaining high-quality JavaScript packages`,
+    description: `The build and publish utilities used by our other projects. Use it if you dare.`,
+    badge: (
+      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-slate-700 rounded-full px-2 py-1 text-xs font-black animate-pulse">
+        New
+      </div>
+    ),
+  },
 ]
 
 const courses = [

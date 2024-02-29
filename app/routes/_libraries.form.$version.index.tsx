@@ -10,8 +10,7 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { json } from '@remix-run/node'
-import { Link, useLoaderData } from '@remix-run/react'
+import { Link, createFileRoute, useLoaderData } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
@@ -27,17 +26,8 @@ import {
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { Framework } from '~/projects/form'
-import type { LoaderFunctionArgs } from '@remix-run/node'
 
 const menu = [
-  {
-    label: (
-      <div className="flex items-center gap-2">
-        <CgCornerUpLeft className="text-lg" /> TanStack
-      </div>
-    ),
-    to: '/',
-  },
   {
     label: (
       <div className="flex items-center gap-1">
@@ -80,18 +70,20 @@ const menu = [
   },
 ]
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version } = context.params
-  const sponsors = await getSponsorsForSponsorPack()
+export const Route = createFileRoute('/_libraries/form/$version/')({
+  loader: async (ctx) => {
+    const sponsors = await getSponsorsForSponsorPack()
 
-  return json({
-    sponsors,
-    version,
-  })
-}
+    return {
+      sponsors,
+    }
+  },
+  component: FormVersionIndex,
+})
 
-export default function RouteVersion() {
-  const { sponsors, version } = useLoaderData<typeof loader>()
+export default function FormVersionIndex() {
+  const { sponsors } = Route.useLoaderData()
+  const { version } = Route.useParams()
   const branch = getBranch(version)
   const [framework, setFramework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
@@ -104,7 +96,7 @@ export default function RouteVersion() {
 
   return (
     <>
-      <div className="flex flex-col gap-20 md:gap-32">
+      <div className="flex flex-col gap-20 md:gap-32 max-w-full">
         <div
           className="flex flex-wrap py-2 px-4 items-center justify-center text-sm max-w-screen-xl mx-auto
           md:text-base md:self-end"
@@ -121,9 +113,7 @@ export default function RouteVersion() {
                 {item.to.startsWith('http') ? (
                   <a href={item.to}>{label}</a>
                 ) : (
-                  <Link to={item.to} prefetch="intent">
-                    {label}
-                  </Link>
+                  <Link to={item.to}>{label}</Link>
                 )}
               </div>
             )
@@ -131,7 +121,6 @@ export default function RouteVersion() {
         </div>
         <div className="flex flex-col items-center gap-8 text-center px-4">
           <div className="flex gap-2 lg:gap-4 items-center">
-            <Logo className="w-[40px] md:w-[60px] lg:w-[100px]" />
             <h1
               className={`inline-block
             font-black text-4xl
@@ -173,7 +162,6 @@ export default function RouteVersion() {
           <Link
             to="./docs/"
             className={`py-2 px-4 bg-yellow-400 text-black rounded uppercase font-extrabold`}
-            prefetch="intent"
           >
             Get Started
           </Link>
@@ -245,7 +233,7 @@ export default function RouteVersion() {
           </div>
         </div>
 
-        <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
+        <div className="px-4 sm:px-6 lg:px-8 mx-auto">
           <div className=" sm:text-center pb-16">
             <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
               No dependencies. All the Features.
@@ -257,7 +245,7 @@ export default function RouteVersion() {
               speed of your creativity.
             </p>
           </div>
-          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4  mx-auto">
             {[
               // A list of features that @tanstack/form provides for managing form state, validation, touched/dirty states, UI integration, etc.
               'Framework agnostic design',
@@ -413,7 +401,6 @@ export default function RouteVersion() {
             <Link
               to="./docs/"
               className={`inline-block py-2 px-4 bg-yellow-500 rounded text-black uppercase font-extrabold`}
-              prefetch="intent"
             >
               Get Started!
             </Link>

@@ -1,22 +1,13 @@
 import SponsorPack from '~/components/SponsorPack'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { createFileRoute, createServerFn, json } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 
 const cacheHeaders = {
   'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
 }
 
-export const fetchSponsors = createServerFn('GET', async () => {
-  'use server'
-
-  // Cache the entire JSON response for 5 minutes
-  return json(await getSponsorsForSponsorPack(), {
-    headers: cacheHeaders,
-  })
-})
-
 export const Route = createFileRoute('/sponsors-embed')({
-  loader: () => fetchSponsors(),
+  loader: () => getSponsorsForSponsorPack(),
   headers: () => {
     // Cache the entire HTML response for 5 minutes
     return cacheHeaders

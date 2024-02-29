@@ -1,4 +1,4 @@
-import { Outlet, json, useLoaderData } from '@remix-run/react'
+import { Outlet, json, useLoaderData } from '@tanstack/react-router'
 import {
   getBranch,
   repo,
@@ -11,11 +11,10 @@ import {
 } from '~/projects/table'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+
 import { getTanstackDocsConfig } from '~/utils/config'
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   const version = context.params.version
   const branch = getBranch(version)
 
@@ -27,7 +26,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   })
 }
 
-export const meta: MetaFunction = () => {
+export const meta = () => {
   return seo({
     title:
       'TanStack Table Docs | React Table, Solid Table, Svelte Table, Vue Table',

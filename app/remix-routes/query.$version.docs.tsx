@@ -1,5 +1,4 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { Outlet, json, useLoaderData } from '@remix-run/react'
+import { Outlet, json, useLoaderData } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
@@ -15,7 +14,7 @@ import {
 } from '~/projects/query'
 import { getTanstackDocsConfig } from '~/utils/config'
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   const { version } = context.params
   const branch = getBranch(version)
 
@@ -27,7 +26,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   })
 }
 
-export const meta: MetaFunction = () => {
+export const meta = () => {
   return seo({
     title:
       'TanStack Query Docs | React Query, Solid Query, Svelte Query, Vue Query',

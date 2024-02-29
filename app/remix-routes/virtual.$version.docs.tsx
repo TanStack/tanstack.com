@@ -1,4 +1,4 @@
-import { Outlet, json, useLoaderData } from '@remix-run/react'
+import { Outlet, json, useLoaderData } from '@tanstack/react-router'
 import {
   getBranch,
   latestVersion,
@@ -12,9 +12,8 @@ import {
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getTanstackDocsConfig } from '~/utils/config'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   const version = context.params.version
   const branch = getBranch(version)
 
@@ -26,7 +25,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   })
 }
 
-export const meta: MetaFunction = () => {
+export const meta = () => {
   return seo({
     title:
       'TanStack Virtual Docs | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',

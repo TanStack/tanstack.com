@@ -1,16 +1,15 @@
 import React from 'react'
 import { json } from '@remix-run/node'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { useLoaderData, useParams } from '@tanstack/react-router'
 import { DocTitle } from '~/components/DocTitle'
 import { getBranch, repo } from '~/projects/table'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { framework, '*': name } = context.params
+export const loader = async (context) => {
+  const { framework, _splat: name } = context.params
 
   return json({ framework, name })
 }

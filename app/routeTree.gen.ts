@@ -3,16 +3,62 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as VirtualImport } from './routes/virtual'
 import { Route as SponsorsEmbedImport } from './routes/sponsors-embed'
+import { Route as RouterImport } from './routes/router'
+import { Route as MerchImport } from './routes/merch'
+import { Route as FormImport } from './routes/form'
 import { Route as BlogImport } from './routes/blog'
+import { Route as LibrariesImport } from './routes/_libraries'
 import { Route as IndexImport } from './routes/index'
+import { Route as VirtualIndexImport } from './routes/virtual.index'
+import { Route as RouterIndexImport } from './routes/router.index'
+import { Route as FormIndexImport } from './routes/form.index'
 import { Route as BlogIndexImport } from './routes/blog.index'
+import { Route as RouterVersionImport } from './routes/router.$version'
+import { Route as FormVersionImport } from './routes/form.$version'
 import { Route as BlogSplatImport } from './routes/blog.$'
+import { Route as RouterVersionDocsImport } from './routes/router.$version.docs'
+import { Route as FormVersionDocsImport } from './routes/form.$version.docs'
+import { Route as RouterVersionDocsIndexImport } from './routes/router.$version.docs.index'
+import { Route as FormVersionDocsIndexImport } from './routes/form.$version.docs.index'
+import { Route as LibrariesRouterVersionIndexImport } from './routes/_libraries.router.$version.index'
+import { Route as LibrariesFormVersionIndexImport } from './routes/_libraries.form.$version.index'
+import { Route as RouterVersionDocsSplatImport } from './routes/router.$version.docs.$'
+import { Route as FormVersionDocsSplatImport } from './routes/form.$version.docs.$'
+import { Route as RouterVersionDocsFrameworkFrameworkIndexImport } from './routes/router.$version.docs.framework.$framework.index'
+import { Route as FormVersionDocsFrameworkFrameworkIndexImport } from './routes/form.$version.docs.framework.$framework.index'
+import { Route as RouterVersionDocsFrameworkFrameworkSplatImport } from './routes/router.$version.docs.framework.$framework.$'
+import { Route as FormVersionDocsFrameworkFrameworkSplatImport } from './routes/form.$version.docs.framework.$framework.$'
+import { Route as RouterVersionDocsFrameworkFrameworkExamplesIndexImport } from './routes/router.$version.docs.framework.$framework.examples.index'
+import { Route as FormVersionDocsFrameworkFrameworkExamplesIndexImport } from './routes/form.$version.docs.framework.$framework.examples.index'
+import { Route as RouterVersionDocsFrameworkFrameworkExamplesSplatImport } from './routes/router.$version.docs.framework.$framework.examples.$'
+import { Route as FormVersionDocsFrameworkFrameworkExamplesSplatImport } from './routes/form.$version.docs.framework.$framework.examples.$'
 
 // Create/Update Routes
 
+const VirtualRoute = VirtualImport.update({
+  path: '/virtual',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const SponsorsEmbedRoute = SponsorsEmbedImport.update({
   path: '/sponsors-embed',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const RouterRoute = RouterImport.update({
+  path: '/router',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const MerchRoute = MerchImport.update({
+  path: '/merch',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FormRoute = FormImport.update({
+  path: '/form',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -21,9 +67,29 @@ const BlogRoute = BlogImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const LibrariesRoute = LibrariesImport.update({
+  id: '/_libraries',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const VirtualIndexRoute = VirtualIndexImport.update({
+  path: '/',
+  getParentRoute: () => VirtualRoute,
+} as any)
+
+const RouterIndexRoute = RouterIndexImport.update({
+  path: '/',
+  getParentRoute: () => RouterRoute,
+} as any)
+
+const FormIndexRoute = FormIndexImport.update({
+  path: '/',
+  getParentRoute: () => FormRoute,
 } as any)
 
 const BlogIndexRoute = BlogIndexImport.update({
@@ -31,10 +97,109 @@ const BlogIndexRoute = BlogIndexImport.update({
   getParentRoute: () => BlogRoute,
 } as any)
 
+const RouterVersionRoute = RouterVersionImport.update({
+  path: '/$version',
+  getParentRoute: () => RouterRoute,
+} as any)
+
+const FormVersionRoute = FormVersionImport.update({
+  path: '/$version',
+  getParentRoute: () => FormRoute,
+} as any)
+
 const BlogSplatRoute = BlogSplatImport.update({
   path: '/$',
   getParentRoute: () => BlogRoute,
 } as any)
+
+const RouterVersionDocsRoute = RouterVersionDocsImport.update({
+  path: '/docs',
+  getParentRoute: () => RouterVersionRoute,
+} as any)
+
+const FormVersionDocsRoute = FormVersionDocsImport.update({
+  path: '/docs',
+  getParentRoute: () => FormVersionRoute,
+} as any)
+
+const RouterVersionDocsIndexRoute = RouterVersionDocsIndexImport.update({
+  path: '/',
+  getParentRoute: () => RouterVersionDocsRoute,
+} as any)
+
+const FormVersionDocsIndexRoute = FormVersionDocsIndexImport.update({
+  path: '/',
+  getParentRoute: () => FormVersionDocsRoute,
+} as any)
+
+const LibrariesRouterVersionIndexRoute =
+  LibrariesRouterVersionIndexImport.update({
+    path: '/router/$version/',
+    getParentRoute: () => LibrariesRoute,
+  } as any)
+
+const LibrariesFormVersionIndexRoute = LibrariesFormVersionIndexImport.update({
+  path: '/form/$version/',
+  getParentRoute: () => LibrariesRoute,
+} as any)
+
+const RouterVersionDocsSplatRoute = RouterVersionDocsSplatImport.update({
+  path: '/$',
+  getParentRoute: () => RouterVersionDocsRoute,
+} as any)
+
+const FormVersionDocsSplatRoute = FormVersionDocsSplatImport.update({
+  path: '/$',
+  getParentRoute: () => FormVersionDocsRoute,
+} as any)
+
+const RouterVersionDocsFrameworkFrameworkIndexRoute =
+  RouterVersionDocsFrameworkFrameworkIndexImport.update({
+    path: '/framework/$framework/',
+    getParentRoute: () => RouterVersionDocsRoute,
+  } as any)
+
+const FormVersionDocsFrameworkFrameworkIndexRoute =
+  FormVersionDocsFrameworkFrameworkIndexImport.update({
+    path: '/framework/$framework/',
+    getParentRoute: () => FormVersionDocsRoute,
+  } as any)
+
+const RouterVersionDocsFrameworkFrameworkSplatRoute =
+  RouterVersionDocsFrameworkFrameworkSplatImport.update({
+    path: '/framework/$framework/$',
+    getParentRoute: () => RouterVersionDocsRoute,
+  } as any)
+
+const FormVersionDocsFrameworkFrameworkSplatRoute =
+  FormVersionDocsFrameworkFrameworkSplatImport.update({
+    path: '/framework/$framework/$',
+    getParentRoute: () => FormVersionDocsRoute,
+  } as any)
+
+const RouterVersionDocsFrameworkFrameworkExamplesIndexRoute =
+  RouterVersionDocsFrameworkFrameworkExamplesIndexImport.update({
+    path: '/framework/$framework/examples/',
+    getParentRoute: () => RouterVersionDocsRoute,
+  } as any)
+
+const FormVersionDocsFrameworkFrameworkExamplesIndexRoute =
+  FormVersionDocsFrameworkFrameworkExamplesIndexImport.update({
+    path: '/framework/$framework/examples/',
+    getParentRoute: () => FormVersionDocsRoute,
+  } as any)
+
+const RouterVersionDocsFrameworkFrameworkExamplesSplatRoute =
+  RouterVersionDocsFrameworkFrameworkExamplesSplatImport.update({
+    path: '/framework/$framework/examples/$',
+    getParentRoute: () => RouterVersionDocsRoute,
+  } as any)
+
+const FormVersionDocsFrameworkFrameworkExamplesSplatRoute =
+  FormVersionDocsFrameworkFrameworkExamplesSplatImport.update({
+    path: '/framework/$framework/examples/$',
+    getParentRoute: () => FormVersionDocsRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -44,21 +209,125 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/_libraries': {
+      preLoaderRoute: typeof LibrariesImport
+      parentRoute: typeof rootRoute
+    }
     '/blog': {
       preLoaderRoute: typeof BlogImport
+      parentRoute: typeof rootRoute
+    }
+    '/form': {
+      preLoaderRoute: typeof FormImport
+      parentRoute: typeof rootRoute
+    }
+    '/merch': {
+      preLoaderRoute: typeof MerchImport
+      parentRoute: typeof rootRoute
+    }
+    '/router': {
+      preLoaderRoute: typeof RouterImport
       parentRoute: typeof rootRoute
     }
     '/sponsors-embed': {
       preLoaderRoute: typeof SponsorsEmbedImport
       parentRoute: typeof rootRoute
     }
+    '/virtual': {
+      preLoaderRoute: typeof VirtualImport
+      parentRoute: typeof rootRoute
+    }
     '/blog/$': {
       preLoaderRoute: typeof BlogSplatImport
       parentRoute: typeof BlogImport
     }
+    '/form/$version': {
+      preLoaderRoute: typeof FormVersionImport
+      parentRoute: typeof FormImport
+    }
+    '/router/$version': {
+      preLoaderRoute: typeof RouterVersionImport
+      parentRoute: typeof RouterImport
+    }
     '/blog/': {
       preLoaderRoute: typeof BlogIndexImport
       parentRoute: typeof BlogImport
+    }
+    '/form/': {
+      preLoaderRoute: typeof FormIndexImport
+      parentRoute: typeof FormImport
+    }
+    '/router/': {
+      preLoaderRoute: typeof RouterIndexImport
+      parentRoute: typeof RouterImport
+    }
+    '/virtual/': {
+      preLoaderRoute: typeof VirtualIndexImport
+      parentRoute: typeof VirtualImport
+    }
+    '/form/$version/docs': {
+      preLoaderRoute: typeof FormVersionDocsImport
+      parentRoute: typeof FormVersionImport
+    }
+    '/router/$version/docs': {
+      preLoaderRoute: typeof RouterVersionDocsImport
+      parentRoute: typeof RouterVersionImport
+    }
+    '/form/$version/docs/$': {
+      preLoaderRoute: typeof FormVersionDocsSplatImport
+      parentRoute: typeof FormVersionDocsImport
+    }
+    '/router/$version/docs/$': {
+      preLoaderRoute: typeof RouterVersionDocsSplatImport
+      parentRoute: typeof RouterVersionDocsImport
+    }
+    '/_libraries/form/$version/': {
+      preLoaderRoute: typeof LibrariesFormVersionIndexImport
+      parentRoute: typeof LibrariesImport
+    }
+    '/_libraries/router/$version/': {
+      preLoaderRoute: typeof LibrariesRouterVersionIndexImport
+      parentRoute: typeof LibrariesImport
+    }
+    '/form/$version/docs/': {
+      preLoaderRoute: typeof FormVersionDocsIndexImport
+      parentRoute: typeof FormVersionDocsImport
+    }
+    '/router/$version/docs/': {
+      preLoaderRoute: typeof RouterVersionDocsIndexImport
+      parentRoute: typeof RouterVersionDocsImport
+    }
+    '/form/$version/docs/framework/$framework/$': {
+      preLoaderRoute: typeof FormVersionDocsFrameworkFrameworkSplatImport
+      parentRoute: typeof FormVersionDocsImport
+    }
+    '/router/$version/docs/framework/$framework/$': {
+      preLoaderRoute: typeof RouterVersionDocsFrameworkFrameworkSplatImport
+      parentRoute: typeof RouterVersionDocsImport
+    }
+    '/form/$version/docs/framework/$framework/': {
+      preLoaderRoute: typeof FormVersionDocsFrameworkFrameworkIndexImport
+      parentRoute: typeof FormVersionDocsImport
+    }
+    '/router/$version/docs/framework/$framework/': {
+      preLoaderRoute: typeof RouterVersionDocsFrameworkFrameworkIndexImport
+      parentRoute: typeof RouterVersionDocsImport
+    }
+    '/form/$version/docs/framework/$framework/examples/$': {
+      preLoaderRoute: typeof FormVersionDocsFrameworkFrameworkExamplesSplatImport
+      parentRoute: typeof FormVersionDocsImport
+    }
+    '/router/$version/docs/framework/$framework/examples/$': {
+      preLoaderRoute: typeof RouterVersionDocsFrameworkFrameworkExamplesSplatImport
+      parentRoute: typeof RouterVersionDocsImport
+    }
+    '/form/$version/docs/framework/$framework/examples/': {
+      preLoaderRoute: typeof FormVersionDocsFrameworkFrameworkExamplesIndexImport
+      parentRoute: typeof FormVersionDocsImport
+    }
+    '/router/$version/docs/framework/$framework/examples/': {
+      preLoaderRoute: typeof RouterVersionDocsFrameworkFrameworkExamplesIndexImport
+      parentRoute: typeof RouterVersionDocsImport
     }
   }
 }
@@ -67,6 +336,38 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
+  LibrariesRoute.addChildren([
+    LibrariesFormVersionIndexRoute,
+    LibrariesRouterVersionIndexRoute,
+  ]),
   BlogRoute.addChildren([BlogSplatRoute, BlogIndexRoute]),
+  FormRoute.addChildren([
+    FormVersionRoute.addChildren([
+      FormVersionDocsRoute.addChildren([
+        FormVersionDocsSplatRoute,
+        FormVersionDocsIndexRoute,
+        FormVersionDocsFrameworkFrameworkSplatRoute,
+        FormVersionDocsFrameworkFrameworkIndexRoute,
+        FormVersionDocsFrameworkFrameworkExamplesSplatRoute,
+        FormVersionDocsFrameworkFrameworkExamplesIndexRoute,
+      ]),
+    ]),
+    FormIndexRoute,
+  ]),
+  MerchRoute,
+  RouterRoute.addChildren([
+    RouterVersionRoute.addChildren([
+      RouterVersionDocsRoute.addChildren([
+        RouterVersionDocsSplatRoute,
+        RouterVersionDocsIndexRoute,
+        RouterVersionDocsFrameworkFrameworkSplatRoute,
+        RouterVersionDocsFrameworkFrameworkIndexRoute,
+        RouterVersionDocsFrameworkFrameworkExamplesSplatRoute,
+        RouterVersionDocsFrameworkFrameworkExamplesIndexRoute,
+      ]),
+    ]),
+    RouterIndexRoute,
+  ]),
   SponsorsEmbedRoute,
+  VirtualRoute.addChildren([VirtualIndexRoute]),
 ])

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CgCornerUpLeft, CgTimelapse } from 'react-icons/cg'
+import { CgTimelapse } from 'react-icons/cg'
 import {
   FaBook,
   FaCheckCircle,
@@ -7,8 +7,7 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { Link, useLoaderData } from '@remix-run/react'
-import { json } from '@remix-run/node'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
@@ -16,20 +15,10 @@ import { colorFrom, colorTo, getBranch } from '~/projects/router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import type { LoaderFunctionArgs } from '@remix-run/node'
 import type { Framework } from '~/projects/router'
 
 const menu = [
-  {
-    label: (
-      <div className="flex items-center gap-2">
-        <CgCornerUpLeft className="text-lg" /> TanStack
-      </div>
-    ),
-    to: '/',
-  },
   {
     label: (
       <div className="flex items-center gap-1">
@@ -72,18 +61,20 @@ const menu = [
   },
 ]
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version } = context.params
-  const sponsors = await getSponsorsForSponsorPack()
+export const Route = createFileRoute('/_libraries/router/$version/')({
+  loader: async (ctx) => {
+    const sponsors = await getSponsorsForSponsorPack()
 
-  return json({
-    sponsors,
-    version,
-  })
-}
+    return {
+      sponsors,
+    }
+  },
+  component: RouterVersionIndex,
+})
 
-export default function TanStackRouterRoute() {
-  const { sponsors, version } = useLoaderData<typeof loader>()
+function RouterVersionIndex() {
+  const { sponsors } = Route.useLoaderData()
+  const { version } = Route.useParams()
   const branch = getBranch(version)
   const [framework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
@@ -95,7 +86,7 @@ export default function TanStackRouterRoute() {
   const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
 
   return (
-    <div className="flex flex-col gap-20 md:gap-32">
+    <div className="flex flex-col gap-20 md:gap-32 max-w-full">
       <div
         className="flex flex-wrap py-2 px-4 items-center justify-center text-sm max-w-screen-xl mx-auto
           md:text-base md:self-end"
@@ -110,9 +101,7 @@ export default function TanStackRouterRoute() {
               {item.to.startsWith('http') ? (
                 <a href={item.to}>{label}</a>
               ) : (
-                <Link to={item.to} prefetch="intent">
-                  {label}
-                </Link>
+                <Link to={item.to}>{label}</Link>
               )}
             </div>
           )
@@ -120,7 +109,6 @@ export default function TanStackRouterRoute() {
       </div>
       <div className="flex flex-col items-center gap-8 text-center px-4">
         <div className="flex gap-2 lg:gap-4 items-center">
-          <Logo className="w-[40px] md:w-[60px] lg:w-[100px]" />
           <h1
             className={`inline-block
             font-black text-4xl
@@ -150,7 +138,6 @@ export default function TanStackRouterRoute() {
         <Link
           to="./docs/overview"
           className={`py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
-          prefetch="intent"
         >
           Get Started
         </Link>
@@ -229,16 +216,16 @@ export default function TanStackRouterRoute() {
         </div>
       </div>
 
-      <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
+      <div className="px-4 sm:px-6 lg:px-8 mx-auto">
         <div className=" sm:text-center pb-16">
           <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
             Feature Rich and Lightweight
           </h3>
-          <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
+          <p className="mt-4 text-xl w-3xl mx-auto leading-7 opacity-60">
             Behold, the obligatory feature-list:
           </p>
         </div>
-        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
+        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4  mx-auto">
           {[
             '100% Typesafe',
             'Parallel Route Loaders',
@@ -281,7 +268,7 @@ export default function TanStackRouterRoute() {
 
       <div>
         <div className="flex flex-col gap-4">
-          <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
+          <div className="px-4 sm:px-6 lg:px-8 mx-auto max-w-3xl sm:text-center">
             <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
               Take it for a spin!
             </h3>
@@ -354,7 +341,7 @@ export default function TanStackRouterRoute() {
           Sponsors
         </h3>
         <div
-          className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
+          className="my-4 flex flex-wrap mx-auto max-w-screen-lg w-full"
           style={{
             aspectRatio: '1/1',
           }}
@@ -412,7 +399,6 @@ export default function TanStackRouterRoute() {
           <Link
             to="./docs/overview"
             className={`inline-block py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
-            prefetch="intent"
           >
             Get Started!
           </Link>

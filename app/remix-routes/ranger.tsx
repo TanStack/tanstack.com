@@ -1,10 +1,8 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
-import { Outlet } from '@remix-run/react'
+import { Outlet } from '@tanstack/react-router'
 import { Scarf } from '~/components/Scarf'
 import { seo } from '~/utils/seo'
 
-export const meta: MetaFunction = () => {
+export const meta = () => {
   return seo({
     title: 'TanStack Ranger | React Ranger',
     description: 'Headless range and multi-range slider utilities, React',
@@ -12,7 +10,7 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   if (
     !context.request.url.includes('/ranger/v') &&
     !context.request.url.includes('/ranger/latest')

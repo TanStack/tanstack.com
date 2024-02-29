@@ -1,8 +1,7 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { repo, getBranch, reactTableV7List } from '~/projects/table'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+
 import { seo } from '~/utils/seo'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { useLoaderData, useParams } from '@tanstack/react-router'
 import { loadDocs } from '~/utils/docs'
 import { Doc } from '~/components/Doc'
 import { handleRedirects } from '~/utils/handleRedirects.server'
@@ -16,7 +15,7 @@ export const loader = (context: LoaderFunctionArgs) => {
     'from=reactTableV7'
   )
 
-  const { '*': docsPath, version } = context.params
+  const { _splat: docsPath, version } = context.params
   const { url } = context.request
 
   return loadDocs({

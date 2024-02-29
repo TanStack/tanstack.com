@@ -21,131 +21,115 @@ import nozzleImage from '~/images/nozzle.png'
 import bytesImage from '~/images/bytes.svg'
 import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
 import { useMutation } from '~/hooks/useMutation'
+import { sample } from '~/utils/utils'
+import { bg } from 'date-fns/locale'
 
-const textColors = [
+export const textColors = [
   `text-rose-500`,
   `text-yellow-500`,
   `text-teal-500`,
   `text-blue-500`,
 ]
 
-const gradients = [
+export const gradients = [
   `from-rose-500 to-yellow-500`,
   `from-yellow-500 to-teal-500`,
   `from-teal-500 to-violet-500`,
   `from-blue-500 to-pink-500`,
 ]
 
-const libraries = [
+export const libraries = [
   {
     name: 'TanStack Query',
-    getStyles: () =>
-      `shadow-xl shadow-red-700/20 dark:shadow-lg dark:shadow-red-500/30 text-red-500 border-2 border-transparent hover:border-current`,
+    cardStyles: `shadow-xl shadow-red-700/20 dark:shadow-lg dark:shadow-red-500/30 text-red-500 border-2 border-transparent hover:border-current`,
     to: '/query',
     tagline: `Powerful asynchronous state management, server-state utilities and data fetching`,
     description: `Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte & Angular applications all without touching any "global state".`,
+    bgStyle: 'bg-red-500',
+    textStyle: 'text-red-500',
   },
   {
     name: 'TanStack Table',
-    getStyles: () =>
-      `shadow-xl shadow-blue-700/20 dark:shadow-lg dark:shadow-blue-500/30 text-blue-500 border-2 border-transparent hover:border-current`,
+    cardStyles: `shadow-xl shadow-blue-700/20 dark:shadow-lg dark:shadow-blue-500/30 text-blue-500 border-2 border-transparent hover:border-current`,
     to: '/table',
     tagline: `Headless UI for building powerful tables & datagrids`,
     description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid & Svelte while retaining 100% control over markup and styles.`,
+    bgStyle: 'bg-blue-500',
+    textStyle: 'text-blue-500',
   },
   {
     name: 'TanStack Router',
-    getStyles: () =>
-      `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 text-emerald-500 dark:text-emerald-400 border-2 border-transparent hover:border-current`,
+    cardStyles: `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 text-emerald-500 dark:text-emerald-400 border-2 border-transparent hover:border-current`,
     to: '/router',
     tagline: `Type-safe Routing for React applications.`,
     description: `Powerful routing for your React applications including a fully type-safe API and first-class search-param for managing state in the URL.`,
-  },
-  {
-    name: 'TanStack Virtual',
-    getStyles: () =>
-      `shadow-xl shadow-purple-700/20 dark:shadow-lg dark:shadow-purple-500/30 text-purple-500 border-2 border-transparent hover:border-current`,
-    to: '/virtual',
-    tagline: `Headless UI for Virtualizing Large Element Lists`,
-    description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid & Svelte while retaining 100% control over markup and styles.`,
-    // badge: (
-    //   <div className="uppercase text-white bg-purple-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-    //     New
-    //   </div>
-    // ),
+    bgStyle: 'bg-emerald-500',
+    textStyle: 'text-emerald-500',
   },
   {
     name: 'TanStack Form',
-    getStyles: () =>
-      `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
+    cardStyles: `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
     to: '/form',
     tagline: `Headless UI for building performant and type-safe forms`,
     description: `Headless, performant, and type-safe form state management for TS/JS, React, Solid, Svelte and Vue`,
-    badge: (
-      <div className="uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        New
-      </div>
-    ),
+    badge: 'new',
+    bgStyle: 'bg-yellow-500',
+    textStyle: 'text-yellow-500',
   },
   {
-    name: 'React Charts',
-    getStyles: () =>
-      `shadow-xl shadow-orange-700/20 dark:shadow-lg dark:shadow-orange-500/30 text-orange-500 border-2 border-transparent hover:border-current`,
-    to: 'https://react-charts.tanstack.com',
-    tagline: `Simple, immersive & interactive charts for React`,
-    description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
+    name: 'TanStack Virtual',
+    cardStyles: `shadow-xl shadow-purple-700/20 dark:shadow-lg dark:shadow-purple-500/30 text-purple-500 border-2 border-transparent hover:border-current`,
+    to: '/virtual',
+    tagline: `Headless UI for Virtualizing Large Element Lists`,
+    description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid & Svelte while retaining 100% control over markup and styles.`,
+    bgStyle: 'bg-purple-500',
+    textStyle: 'text-purple-500',
   },
   {
     name: 'TanStack Ranger',
-    getStyles: () =>
-      `shadow-xl shadow-pink-700/20 dark:shadow-lg dark:shadow-pink-500/30 text-pink-500 border-2 border-transparent hover:border-current`,
+    cardStyles: `shadow-xl shadow-pink-700/20 dark:shadow-lg dark:shadow-pink-500/30 text-pink-500 border-2 border-transparent hover:border-current`,
     to: '/ranger',
     tagline: `Headless range and multi-range slider utilities.`,
     description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup for that perfect design.`,
-    badge: (
-      <div className="uppercase text-white bg-pink-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        New
-      </div>
-    ),
+    badge: 'new',
+    bgStyle: 'bg-pink-500',
+    textStyle: 'text-pink-500',
   },
   {
     name: 'TanStack Store',
-    getStyles: () =>
-      `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-600 border-2 border-transparent hover:border-current`,
+    cardStyles: `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-600 border-2 border-transparent hover:border-current`,
     to: '/store',
     tagline: `Framework agnostic data store with reactive framework adapters`,
     description: `The core data store that powers TanStack libraries and their framework adapters. Use it if you dare.`,
-    badge: (
-      <div className="flex items-center justify-center whitespace-nowrap uppercase text-white bg-slate-700 rounded-full px-2 py-1 text-xs font-black animate-pulse">
-        New
-      </div>
-    ),
+    badge: 'new',
+    bgStyle: 'bg-slate-700',
+    textStyle: 'text-slate-500',
+  },
+  {
+    name: 'React Charts',
+    cardStyles: `shadow-xl shadow-orange-700/20 dark:shadow-lg dark:shadow-orange-500/30 text-orange-500 border-2 border-transparent hover:border-current`,
+    to: 'https://react-charts.tanstack.com',
+    tagline: `Simple, immersive & interactive charts for React`,
+    description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
+    bgStyle: 'bg-orange-500',
+    textStyle: 'text-orange-500',
   },
 ]
 
 const courses = [
   {
     name: 'The Official TanStack React Query Course',
-    getStyles: () => `border-t-4 border-red-500 hover:(border-green-500)`,
+    cardStyles: `border-t-4 border-red-500 hover:(border-green-500)`,
     href: 'https://query.gg/?s=tanstack',
     description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
   },
 ]
 
-function sample(arr: any[], random = Math.random()) {
-  return arr[Math.floor(random * arr.length)]
-}
-
-const fetchSponsorsData = createServerFn('GET', async () => {
-  'use server'
-  return getSponsorsForSponsorPack()
-})
-
 export const Route = createFileRoute('/')({
   loader: () => {
     return {
       randomNumber: Math.random(),
-      sponsorsPromise: defer(fetchSponsorsData()),
+      sponsorsPromise: defer(getSponsorsForSponsorPack()),
     }
   },
   component: Index,
@@ -230,7 +214,9 @@ function Index() {
                   {label}
                 </a>
               ) : (
-                <Link to={item.to}>{label}</Link>
+                <Link to={item.to} params>
+                  {label}
+                </Link>
               )}
             </div>
           )
@@ -287,9 +273,10 @@ function Index() {
               <Link
                 key={library.name}
                 to={library.to ?? '#'}
+                params
                 className={twMerge(
-                  `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white dark:bg-gray-800`,
-                  library.getStyles()
+                  `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white dark:bg-gray-900 dark:border dark:border-gray-800`,
+                  library.cardStyles
                 )}
                 style={{
                   zIndex: i,
@@ -299,7 +286,16 @@ function Index() {
                   <div className={`text-2xl font-extrabold `}>
                     {library.name}
                   </div>
-                  {library.badge ?? null}
+                  {library.badge ? (
+                    <div
+                      className={twMerge(
+                        `uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse`,
+                        library.bgStyle
+                      )}
+                    >
+                      {library.badge}
+                    </div>
+                  ) : null}
                 </div>
                 <div className={`text-lg italic font-light mt-2`}>
                   {library.tagline}
@@ -346,7 +342,10 @@ function Index() {
                 developers.
               </div>
               <Link
-                to="/blog/ag-grid-partnership"
+                to="/blog/$"
+                params={{
+                  _splat: 'ag-grid-partnership',
+                }}
                 className="text-blue-500 uppercase font-black text-sm"
               >
                 Learn More

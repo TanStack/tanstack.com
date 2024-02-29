@@ -1,4 +1,4 @@
-import { Outlet, json, useLoaderData } from '@remix-run/react'
+import { Outlet, json, useLoaderData } from '@tanstack/react-router'
 import {
   repo,
   getBranch,
@@ -14,7 +14,7 @@ import { DocsLayout } from '~/components/DocsLayout'
 import { getTanstackDocsConfig } from '~/utils/config'
 import type { MetaFunction, LoaderFunctionArgs } from '@remix-run/node'
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   const { version } = context.params
   const branch = getBranch(version)
 
@@ -26,7 +26,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   })
 }
 
-export const meta: MetaFunction = () => {
+export const meta = () => {
   return seo({
     title: 'TanStack Ranger Docs | React Ranger',
     description: 'Modern and headless ranger UI library',

@@ -1,4 +1,3 @@
-import { redirect } from '@remix-run/node'
 import type { LoaderFunctionArgs } from '@remix-run/node'
 import { reactQueryV3List, reactQueryV3RemovedInV5List } from '~/projects/query'
 import { handleRedirects } from '~/utils/handleRedirects.server'

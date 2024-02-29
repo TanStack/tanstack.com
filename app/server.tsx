@@ -1,15 +1,16 @@
 /// <reference types="vinxi/types/server" />
-import { PipeableStream, renderToPipeableStream } from 'react-dom/server'
-import { eventHandler, setHeader, toWebRequest } from 'vinxi/server'
+import type { PipeableStream } from 'react-dom/server'
+import { renderToPipeableStream } from 'react-dom/server'
+import { eventHandler, toWebRequest } from 'vinxi/server'
 import { getManifest } from 'vinxi/manifest'
 import {
   StartServer,
   transformStreamWithRouter,
 } from '@tanstack/react-router-server/server'
-import { Transform, PassThrough } from 'stream'
+// import { Transform, PassThrough } from 'node:stream'
 
 import { createRouter } from './router'
-import { createMemoryHistory } from '@tanstack/react-router'
+import { createMemoryHistory, isRedirect } from '@tanstack/react-router'
 
 export default eventHandler(async (event) => {
   const req = toWebRequest(event)
@@ -60,8 +61,21 @@ export default eventHandler(async (event) => {
     },
   })
 
-  // Load critical data for the router
-  await router.load()
+  try {
+    // Load critical data for the router
+    await router.load()
+  } catch (err) {
+    if (isRedirect(err)) {
+      return new Response(null, {
+        status: err.code || 302,
+        headers: {
+          Location: err.href!,
+        },
+      })
+    }
+
+    throw err
+  }
 
   const stream = await new Promise<PipeableStream>(async (resolve) => {
     const stream = renderToPipeableStream(<StartServer router={router} />, {

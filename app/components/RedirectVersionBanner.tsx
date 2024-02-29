@@ -1,13 +1,12 @@
-import { Link } from '@remix-run/react'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
+import { Link } from '@tanstack/react-router'
 
 export function RedirectVersionBanner(props: {
   version: string
   latestVersion: string
-  redirectUrl: string
 }) {
-  const { version, latestVersion, redirectUrl } = props
+  const { version, latestVersion } = props
 
   // After user clicks hide, do not show modal for a month, and then remind users that there is a new version!
   const [showModal, setShowModal] = useLocalStorage(
@@ -25,13 +24,20 @@ export function RedirectVersionBanner(props: {
       <div className="p-4 bg-blue-500 text-white flex items-center justify-center gap-4">
         <div>
           You are currently reading <strong>{version}</strong> docs. Redirect to{' '}
-          <a href={redirectUrl} className="font-bold underline">
+          <Link
+            params={{
+              version: 'latest',
+            }}
+            className="font-bold underline"
+          >
             latest
-          </a>{' '}
+          </Link>{' '}
           version?
         </div>
         <Link
-          to={redirectUrl}
+          params={{
+            version: 'latest',
+          }}
           replace
           className="bg-white text-black py-1 px-2 rounded-md uppercase font-black text-xs"
         >

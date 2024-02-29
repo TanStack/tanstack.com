@@ -1,5 +1,5 @@
 import { type LoaderFunctionArgs, json } from '@remix-run/node'
-import { Outlet, useLoaderData } from '@remix-run/react'
+import { Outlet, useLoaderData } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
 import {
   getBranch,
@@ -13,7 +13,7 @@ import {
 } from '~/projects/store'
 import { getTanstackDocsConfig } from '~/utils/config'
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   const { version } = context.params
   const branch = getBranch(version)
 

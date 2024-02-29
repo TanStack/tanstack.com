@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
+
 import { reactVirtualV2List } from '~/projects/virtual'
 import { handleRedirects } from '~/utils/handleRedirects.server'
 

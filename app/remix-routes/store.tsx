@@ -1,9 +1,8 @@
-import { Outlet } from '@remix-run/react'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
+import { Outlet } from '@tanstack/react-router'
+
 import { seo } from '~/utils/seo'
 
-export const meta: MetaFunction = () => {
+export const meta = () => {
   return seo({
     title: 'TanStack Store | React Store, Solid Store, Svelte Store, Vue Store',
     description:
@@ -12,7 +11,7 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   if (
     !context.request.url.includes('/store/v') &&
     !context.request.url.includes('/store/latest')

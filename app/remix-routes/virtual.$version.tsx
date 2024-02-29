@@ -1,5 +1,5 @@
-import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { Outlet, json, redirect, useLoaderData } from '@tanstack/react-router'
+
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 import type { LoaderFunctionArgs } from '@remix-run/node'
@@ -10,7 +10,7 @@ import {
 } from '~/projects/virtual'
 import { handleRedirects } from '~/utils/handleRedirects.server'
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   const { version } = context.params
 
   const redirectUrl = context.request.url.replace(version!, 'latest')

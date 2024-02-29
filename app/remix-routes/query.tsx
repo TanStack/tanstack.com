@@ -1,9 +1,9 @@
-import { Outlet } from '@remix-run/react'
+import { Outlet } from '@tanstack/react-router'
 import type { LoaderFunctionArgs } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
+
 import { Scarf } from '~/components/Scarf'
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   if (
     !context.request.url.includes('/query/v') &&
     !context.request.url.includes('/query/latest')

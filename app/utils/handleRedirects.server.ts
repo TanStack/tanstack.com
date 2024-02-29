@@ -1,5 +1,3 @@
-import { redirect } from '@remix-run/node'
-
 type RedirectItem = { from: string; to: string }
 
 export function handleRedirects(

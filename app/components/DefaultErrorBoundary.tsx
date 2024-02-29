@@ -1,4 +1,8 @@
-import { Link, isRouteErrorResponse, useRouteError } from '@remix-run/react'
+import {
+  Link,
+  isRouteErrorResponse,
+  useRouteError,
+} from '@tanstack/react-router'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 
 export const DefaultErrorBoundary = () => {

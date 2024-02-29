@@ -7,7 +7,7 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { Link, useLoaderData } from '@remix-run/react'
+import { Link, useLoaderData } from '@tanstack/react-router'
 import { json } from '@remix-run/node'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
@@ -71,7 +71,7 @@ const menu = [
   },
 ]
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   const { version } = context.params
   const sponsors = await getSponsorsForSponsorPack()
 
@@ -91,7 +91,7 @@ export default function TanStackRouterRoute() {
   const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
 
   return (
-    <div className="flex flex-col gap-20 md:gap-32">
+    <div className="flex flex-col gap-20 md:gap-32 max-w-full">
       <div
         className="flex flex-wrap py-2 px-4 items-center justify-center text-sm max-w-screen-xl mx-auto
           md:text-base md:self-end"
@@ -212,7 +212,7 @@ export default function TanStackRouterRoute() {
         </div>
       </div>
 
-      <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
+      <div className="px-4 sm:px-6 lg:px-8 mx-auto">
         <div className=" sm:text-center pb-16">
           <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
             Feature Rich and Lightweight Headless utility, which means out of
@@ -222,7 +222,7 @@ export default function TanStackRouterRoute() {
             Behold, the obligatory feature-list:
           </p>
         </div>
-        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
+        <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4  mx-auto">
           {[
             '100% Typesafe',
             'Lightweight (306 kB)',

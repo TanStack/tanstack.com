@@ -1,13 +1,12 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { repo, getBranch } from '~/projects/ranger'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+
 import { seo } from '~/utils/seo'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { useLoaderData, useParams } from '@tanstack/react-router'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version, framework, '*': docsPath } = context.params
+export const loader = async (context) => {
+  const { version, framework, _splat: docsPath } = context.params
   const { url } = context.request
 
   return loadDocs({

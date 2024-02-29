@@ -8,7 +8,12 @@ import {
   FaGithub,
   FaTimes,
 } from 'react-icons/fa'
-import { Link, NavLink, useMatches, useNavigate, useParams } from '@remix-run/react'
+import {
+  Link,
+  useMatches,
+  useNavigate,
+  useParams,
+} from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Search } from '~/components/Search'
 import { Select } from '~/components/Select'
@@ -16,7 +21,7 @@ import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { DocsLogo } from '~/components/DocsLogo'
-import { generatePath, last } from '~/utils/utils'
+import { last } from '~/utils/utils'
 import type { AvailableOptions } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 
@@ -26,8 +31,15 @@ import type { ConfigSchema, MenuItem } from '~/utils/config'
  * Otherwise fallback to react
  */
 function useCurrentFramework(frameworks: AvailableOptions) {
-  const { framework: paramsFramework } = useParams()
-  const localStorageFramework = localStorage.getItem('framework')
+  const { framework: paramsFramework } = useParams({
+    strict: false,
+  })
+
+  const localStorageFramework = (() => {
+    if (typeof document !== 'undefined') {
+      return localStorage.getItem('framework')
+    }
+  })()
 
   return (
     paramsFramework ||
@@ -103,8 +115,6 @@ const useFrameworkConfig = ({
   framework: string
   frameworks: AvailableOptions
 }) => {
-  const matches = useMatches()
-  const match = matches[matches.length - 1]
   const navigate = useNavigate()
 
   const frameworkConfig = React.useMemo(() => {
@@ -113,17 +123,17 @@ const useFrameworkConfig = ({
       selected: framework,
       available: frameworks,
       onSelect: (option: { label: string; value: string }) => {
-        const url = generatePath(match.id, {
-          ...match.params,
-          framework: option.value,
-        })
-
         localStorage.setItem('framework', option.value)
 
-        navigate(url)
+        navigate({
+          params: (prev: Record<string, string>) => ({
+            ...prev,
+            framework: option.value,
+          }),
+        })
       },
     }
-  }, [frameworks, framework, match, navigate])
+  }, [frameworks, framework, navigate])
 
   return frameworkConfig
 }
@@ -133,10 +143,9 @@ const useVersionConfig = ({
 }: {
   availableVersions: string[]
 }) => {
-  const matches = useMatches()
-  const match = matches[matches.length - 1]
-  const params = useParams()
-  const version = params.version!
+  const { version } = useParams({
+    strict: false,
+  })
   const navigate = useNavigate()
 
   const versionConfig = React.useMemo(() => {
@@ -161,14 +170,15 @@ const useVersionConfig = ({
       selected: version,
       available,
       onSelect: (option: { label: string; value: string }) => {
-        const url = generatePath(match.id, {
-          ...match.params,
-          version: option.value,
+        navigate({
+          params: (prev: Record<string, string>) => ({
+            ...prev,
+            version: option.value,
+          }),
         })
-        navigate(url)
       },
     }
-  }, [version, match, navigate, availableVersions])
+  }, [version, navigate, availableVersions])
 
   return versionConfig
 }
@@ -244,12 +254,14 @@ export function DocsLayout({
                     {child.label}
                   </a>
                 ) : (
-                  <NavLink
+                  <Link
                     to={child.to}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
-                    end
+                    activeOptions={{
+                      exact: true,
+                    }}
                   >
                     {(props) => {
                       return (
@@ -287,7 +299,7 @@ export function DocsLayout({
                         </div>
                       )
                     }}
-                  </NavLink>
+                  </Link>
                 )}
               </div>
             )
@@ -300,6 +312,7 @@ export function DocsLayout({
   const logo = (
     <DocsLogo
       name={name}
+      linkTo="/router"
       version={version}
       colorFrom={colorFrom}
       colorTo={colorTo}

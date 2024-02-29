@@ -1,6 +1,4 @@
-import type { LoaderFunctionArgs } from '@remix-run/node'
-import { json } from '@remix-run/node'
-import { Outlet, useLoaderData } from '@remix-run/react'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
 import {
   availableVersions,
@@ -13,21 +11,27 @@ import {
   textColor,
 } from '~/projects/form'
 import { getTanstackDocsConfig } from '~/utils/config'
+import { seo } from '~/utils/seo'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version } = context.params
-  const branch = getBranch(version)
+export const Route = createFileRoute('/form/$version/docs')({
+  loader: async (ctx) => {
+    const branch = getBranch(ctx.params.version)
+    const config = await getTanstackDocsConfig({ repo, branch })
 
-  const config = await getTanstackDocsConfig(repo, branch)
+    return {
+      config,
+    }
+  },
+  meta: () =>
+    seo({
+      title: 'TanStack Form Docs | TanStack Form',
+    }),
+  component: DocsRoute,
+})
 
-  return json({
-    config,
-    version,
-  })
-}
-
-export default function Component() {
-  const { version, config } = useLoaderData<typeof loader>()
+function DocsRoute() {
+  const { config } = Route.useLoaderData()
+  const { version } = Route.useParams()
 
   return (
     <DocsLayout

@@ -1,10 +1,9 @@
-import { redirect } from '@remix-run/node'
-import { Outlet } from '@remix-run/react'
+import { Outlet } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+
 import { Scarf } from '~/components/Scarf'
 
-export const meta: MetaFunction = () => {
+export const meta = () => {
   return seo({
     title: 'TanStack Table | React Table, Solid Table, Svelte Table, Vue Table',
     description:
@@ -13,7 +12,7 @@ export const meta: MetaFunction = () => {
   })
 }
 
-export const loader = async (context: LoaderFunctionArgs) => {
+export const loader = async (context) => {
   if (
     !context.request.url.includes('/table/v') &&
     !context.request.url.includes('/table/latest')

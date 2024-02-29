@@ -1,53 +1,90 @@
-import { json, redirect } from '@remix-run/node'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import RemoveMarkdown from 'remove-markdown'
+import {
+  RegisteredRouter,
+  RouteIds,
+  createServerFn,
+  json,
+  notFound,
+  redirect,
+} from '@tanstack/react-router'
 
-export async function loadDocs({
+export const loadDocs = async ({
   repo,
   branch,
-  docPath,
+  docsPath,
   currentPath,
   redirectPath,
 }: {
   repo: string
   branch: string
-  docPath: string
+  docsPath: string
   currentPath: string
   redirectPath: string
-}) {
+}) => {
   if (!branch) {
     throw new Error('Invalid branch')
   }
 
-  if (!docPath) {
+  if (!docsPath) {
     throw new Error('Invalid docPath')
   }
 
-  const filePath = `${docPath}.md`
-  const file = await fetchRepoFile(repo, branch, filePath)
+  const filePath = `${docsPath}.md`
+
+  const file = await fetchDocs({
+    repo,
+    branch,
+    filePath,
+  })
 
   if (!file) {
     if (currentPath === redirectPath) {
-      throw new Error('File does not exist')
+      throw notFound()
     } else {
-      throw redirect(redirectPath)
+      throw redirect({
+        to: redirectPath,
+      })
     }
   }
 
-  const frontMatter = extractFrontMatter(file)
-  const description = RemoveMarkdown(frontMatter.excerpt ?? '')
-
-  return json(
-    {
-      title: frontMatter.data?.title,
-      description,
-      filePath,
-      content: frontMatter.content,
-    },
-    {
-      headers: {
-        'Cache-Control': 's-maxage=1, stale-while-revalidate=300',
-      },
-    }
-  )
+  return file
 }
+
+export const fetchDocs = createServerFn(
+  'GET',
+  async ({
+    repo,
+    branch,
+    filePath,
+  }: {
+    repo: string
+    branch: string
+    filePath: string
+  }) => {
+    'use server'
+
+    const file = await fetchRepoFile(repo, branch, filePath)
+
+    if (!file) {
+      return undefined
+    }
+
+    const frontMatter = extractFrontMatter(file)
+    const description = RemoveMarkdown(frontMatter.excerpt ?? '')
+
+    return json(
+      {
+        title: frontMatter.data?.title,
+        description,
+        filePath,
+        content: frontMatter.content,
+      },
+      {
+        headers: {
+          'Cache-Control': 's-maxage=1, stale-while-revalidate=300',
+        },
+      }
+    )
+  }
+)

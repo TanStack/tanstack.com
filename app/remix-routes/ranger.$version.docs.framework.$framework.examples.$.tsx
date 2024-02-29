@@ -1,15 +1,15 @@
 import * as React from 'react'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+
 import { json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData } from '@tanstack/react-router'
 import { DocTitle } from '~/components/DocTitle'
 import { repo, getBranch } from '~/projects/ranger'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version, framework, '*': name } = context.params
+export const loader = async (context) => {
+  const { version, framework, _splat: name } = context.params
 
   return json({ version, framework, name })
 }

@@ -2,7 +2,6 @@ import { Fragment } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 
 import { HiCheck, HiChevronDown } from 'react-icons/hi'
-import { Form } from '@remix-run/react'
 
 export type AvailableOptions = Array<{
   label: string
@@ -38,7 +37,11 @@ export function Select({
   return (
     <div className={`top-16 w-full flex-1 ${className}`}>
       <div className="text-[.9em] uppercase font-black">{label}</div>
-      <Form>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+        }}
+      >
         <Listbox name="framework" value={selectedOption} onChange={onSelect}>
           <div className="relative mt-1">
             <Listbox.Button className="relative items-center  w-full gap-2 flex hover:bg-gray-100/70 dark:hover:bg-gray-800 cursor-default border-2 dark:border-gray-700/80 rounded-md py-2 pl-2 pr-10 text-left focus:outline-none focus-visible:border-indigo-500  sm:text-sm">
@@ -111,7 +114,7 @@ export function Select({
             </Transition>
           </div>
         </Listbox>
-      </Form>
+      </form>
     </div>
   )
 }

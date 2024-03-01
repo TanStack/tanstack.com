@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
+import { Link, Outlet, createFileRoute, defer } from '@tanstack/react-router'
 import { gradients, libraries } from '.'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { Carbon } from '~/components/Carbon'
@@ -8,8 +8,14 @@ import { sample, sortBy } from '~/utils/utils'
 import { LogoColor } from '~/components/LogoColor'
 import logoColor100w from '~/images/logo-color-100w.png'
 import { FaInstagram, FaTshirt, FaTwitter } from 'react-icons/fa'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
 
 export const Route = createFileRoute('/_libraries')({
+  loader: async (ctx) => {
+    return {
+      sponsorsPromise: defer(getSponsorsForSponsorPack()),
+    }
+  },
   component: LibrariesLayout,
 })
 
@@ -161,7 +167,7 @@ function LibrariesLayout() {
 
   const largeMenu = (
     <>
-      <div className="min-w-[250px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-white dark:bg-gray-900 shadow-xl">
+      <div className="min-w-[250px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-white dark:bg-gray-900 shadow-xl dark:border-r border-gray-500/20">
         <div className="p-4 flex gap-2 items-center text-2xl border-b border-gray-500/10 dark:border-gray-500/20">
           {logo}
         </div>

@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { repo, getBranch } from '~/projects/router'
+import { repo, getBranch } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 
-export const Route = createFileRoute('/router/$version/docs/$')({
+export const Route = createFileRoute('/virtual/$version/docs/$')({
   loader: (ctx) => {
     const { _splat: docsPath, version } = ctx.params
 
@@ -13,12 +13,12 @@ export const Route = createFileRoute('/router/$version/docs/$')({
       branch: getBranch(version),
       docsPath: `docs/${docsPath}`,
       currentPath: ctx.location.pathname,
-      redirectPath: '/router/latest/docs/framework/react/overview',
+      redirectPath: '/virtual/latest/docs/introduction',
     })
   },
   meta: ({ loaderData }) =>
     seo({
-      title: `${loaderData?.title ?? 'Docs'} | TanStack Router Docs`,
+      title: `${loaderData?.title ?? 'Docs'} | TanStack Virtual Docs`,
       description: loaderData?.description,
     }),
   component: Docs,

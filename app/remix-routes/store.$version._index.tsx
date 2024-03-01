@@ -73,7 +73,7 @@ export const loader = async () => {
 }
 
 export default function RouteVersion() {
-  const { sponsors } = useLoaderData<typeof loader>()
+  const { sponsors } = Route.useLoaderData()
   const { version } = useParams()
 
   const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
@@ -97,7 +97,7 @@ export default function RouteVersion() {
                 {item.to.startsWith('http') ? (
                   <a href={item.to}>{label}</a>
                 ) : (
-                  <Link to={item.to} prefetch="intent">
+                  <Link to={item.to} params>
                     {label}
                   </Link>
                 )}
@@ -146,7 +146,6 @@ export default function RouteVersion() {
           <Link
             to="./docs/"
             className={`py-2 px-4 bg-gray-200 text-black rounded uppercase font-extrabold`}
-            prefetch="intent"
           >
             Get Started
           </Link>
@@ -315,7 +314,8 @@ export default function RouteVersion() {
             className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20"
           >
-            This ad helps us keep the lights on 😉
+            This ad helps us be happy about our invested time and not burn out
+            and rage-quit OSS. Yay money! 😉
           </span>
         </div>
 
@@ -404,7 +404,6 @@ export default function RouteVersion() {
             <Link
               to="./docs/"
               className={`inline-block py-2 px-4 bg-gray-300 rounded text-black uppercase font-extrabold`}
-              prefetch="intent"
             >
               Get Started!
             </Link>

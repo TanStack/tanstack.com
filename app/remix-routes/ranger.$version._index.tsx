@@ -79,7 +79,7 @@ export const loader = async (context) => {
 }
 
 export default function TanStackRouterRoute() {
-  const { sponsors, version } = useLoaderData<typeof loader>()
+  const { sponsors, version } = Route.useLoaderData()
   const branch = getBranch(version)
   const [framework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
@@ -106,7 +106,7 @@ export default function TanStackRouterRoute() {
               {item.to.startsWith('http') ? (
                 <a href={item.to}>{label}</a>
               ) : (
-                <Link to={item.to} prefetch="intent">
+                <Link to={item.to} params>
                   {label}
                 </Link>
               )}
@@ -149,7 +149,6 @@ export default function TanStackRouterRoute() {
         <Link
           to="./docs/overview"
           className={`py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
-          prefetch="intent"
         >
           Get Started
         </Link>
@@ -299,7 +298,8 @@ export default function TanStackRouterRoute() {
           className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20"
         >
-          This ad helps us keep the lights on 😉
+          This ad helps us be happy about our invested time and not burn out and
+          rage-quit OSS. Yay money! 😉
         </span>
       </div>
 
@@ -344,7 +344,6 @@ export default function TanStackRouterRoute() {
           <Link
             to="./docs/overview"
             className={`inline-block py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
-            prefetch="intent"
           >
             Get Started!
           </Link>

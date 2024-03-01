@@ -36,7 +36,7 @@ export const meta = () => {
 }
 
 export default function RouteReactTable() {
-  const { version, config } = useLoaderData<typeof loader>()
+  const { version, config } = Route.useLoaderData()
 
   return (
     <DocsLayout

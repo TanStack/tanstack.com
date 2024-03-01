@@ -1,6 +1,4 @@
-import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
-import { Scarf } from '~/components/Scarf'
-import { seo } from '~/utils/seo'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/form/')({
   loader: () => {

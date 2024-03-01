@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { CgCornerUpLeft } from 'react-icons/cg'
+import { CgCornerUpLeft, CgSpinner } from 'react-icons/cg'
 import {
   FaBolt,
   FaBook,
@@ -10,8 +10,12 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { Link, useLoaderData } from '@tanstack/react-router'
-import { json } from '@remix-run/node'
+import {
+  Await,
+  Link,
+  createFileRoute,
+  getRouteApi,
+} from '@tanstack/react-router'
 import { colorFrom, colorTo, getBranch, repo } from '~/projects/virtual'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
@@ -21,7 +25,6 @@ import { TbHeartHandshake } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import type { LoaderFunctionArgs } from '@remix-run/node'
 import type { Framework } from '~/projects/virtual'
 
 const menu = [
@@ -75,18 +78,15 @@ const menu = [
   },
 ]
 
-export const loader = async (context) => {
-  const sponsors = await getSponsorsForSponsorPack()
-  const { version } = context.params
+export const Route = createFileRoute('/_libraries/virtual/$version/')({
+  component: RouteComp,
+})
 
-  return json({
-    sponsors,
-    version,
-  })
-}
+const librariesRouteApi = getRouteApi('/_libraries')
 
-export default function ReactTableRoute() {
-  const { sponsors, version } = useLoaderData<typeof loader>()
+export default function RouteComp() {
+  const { sponsorsPromise } = librariesRouteApi.useLoaderData({ strict: false })
+  const { version } = Route.useParams()
   const [framework, setFramework] = React.useState<Framework>('react')
   const branch = getBranch(version)
   const [isDark, setIsDark] = React.useState(true)
@@ -113,7 +113,7 @@ export default function ReactTableRoute() {
               {item.to.startsWith('http') ? (
                 <a href={item.to}>{label}</a>
               ) : (
-                <Link to={item.to} prefetch="intent">
+                <Link to={item.to} params>
                   {label}
                 </Link>
               )}
@@ -123,7 +123,6 @@ export default function ReactTableRoute() {
       </div>
       <div className="flex flex-col items-center gap-8 text-center px-4">
         <div className="flex gap-2 lg:gap-4 items-center">
-          <Logo className="w-[40px] md:w-[60px] lg:w-[100px]" />
           <h1
             className={`inline-block
             font-black text-4xl
@@ -160,7 +159,6 @@ export default function ReactTableRoute() {
         <Link
           to="./docs/guide/introduction"
           className={`py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
-          prefetch="intent"
         >
           Get Started
         </Link>
@@ -345,7 +343,13 @@ export default function ReactTableRoute() {
             aspectRatio: '1/1',
           }}
         >
-          <SponsorPack sponsors={sponsors} />
+          <Await
+            promise={sponsorsPromise}
+            fallback={<CgSpinner className="text-2xl animate-spin" />}
+            children={(sponsors) => {
+              return <SponsorPack sponsors={sponsors} />
+            }}
+          />
         </div>
         <div className="text-center">
           <a
@@ -365,7 +369,8 @@ export default function ReactTableRoute() {
           className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20"
         >
-          This ad helps us keep the lights on 😉
+          This ad helps us be happy about our invested time and not burn out and
+          rage-quit OSS. Yay money! 😉
         </span>
       </div>
 
@@ -450,7 +455,6 @@ export default function ReactTableRoute() {
           <Link
             to="./docs/guide/introduction"
             className={`inline-block py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
-            prefetch="intent"
           >
             Get Started!
           </Link>

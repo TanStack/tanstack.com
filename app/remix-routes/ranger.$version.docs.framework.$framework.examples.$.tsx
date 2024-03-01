@@ -26,7 +26,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 }
 
 export default function RouteReactRangerDocs() {
-  const { version, framework, name } = useLoaderData<typeof loader>()
+  const { version, framework, name } = Route.useLoaderData()
   const branch = getBranch(version)
 
   const examplePath = [framework, name].join('/')

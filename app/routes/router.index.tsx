@@ -9,9 +9,4 @@ export const Route = createFileRoute('/router/')({
       },
     })
   },
-  // meta: ({
-  //   loaderData
-  // }) => {
-  //   return [{}]
-  // }
 })

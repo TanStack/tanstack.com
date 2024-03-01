@@ -1,3 +1,5 @@
+import { redirect } from '@tanstack/react-router'
+
 type RedirectItem = { from: string; to: string }
 
 export function handleRedirects(
@@ -7,7 +9,8 @@ export function handleRedirects(
   urlToPathStart: string,
   urlToQueryParams: string
 ) {
-  const url = new URL(urlFromRequest)
+  const url = new URL(urlFromRequest, 'https://tanstack.com')
+
   redirectItems.forEach((item) => {
     if (url.pathname.startsWith(`${urlFromPathStart}/${item.from}`)) {
       /*
@@ -18,7 +21,9 @@ export function handleRedirects(
       const urlTo = new URL(`${url.origin}${urlToPathStart}/${item.to}`)
       urlTo.search = urlToQueryParams
 
-      throw redirect(urlTo.href)
+      throw redirect({
+        href: urlTo.href,
+      })
     }
   })
 }

@@ -1,16 +1,17 @@
 /// <reference types="vinxi/types/server" />
 import type { PipeableStream } from 'react-dom/server'
-import { renderToPipeableStream } from 'react-dom/server'
+import { renderToPipeableStream, renderToString } from 'react-dom/server'
 import { eventHandler, toWebRequest } from 'vinxi/server'
 import { getManifest } from 'vinxi/manifest'
 import {
   StartServer,
   transformStreamWithRouter,
 } from '@tanstack/react-router-server/server'
-// import { Transform, PassThrough } from 'node:stream'
+import { Transform, PassThrough } from 'node:stream'
 
 import { createRouter } from './router'
 import { createMemoryHistory, isRedirect } from '@tanstack/react-router'
+import React from 'react'
 
 export default eventHandler(async (event) => {
   const req = toWebRequest(event)
@@ -61,21 +62,7 @@ export default eventHandler(async (event) => {
     },
   })
 
-  try {
-    // Load critical data for the router
-    await router.load()
-  } catch (err) {
-    if (isRedirect(err)) {
-      return new Response(null, {
-        status: err.code || 302,
-        headers: {
-          Location: err.href!,
-        },
-      })
-    }
-
-    throw err
-  }
+  await router.load()
 
   const stream = await new Promise<PipeableStream>(async (resolve) => {
     const stream = renderToPipeableStream(<StartServer router={router} />, {
@@ -115,15 +102,10 @@ export default eventHandler(async (event) => {
     return acc
   }, {})
 
-  const routerStatus = router.state.matches.some(
-    (match) => match.status === 'error'
-  )
-    ? 500
-    : 200
-
   return new Response(transformedStream as any, {
-    status: routerStatus,
-    statusText: routerStatus === 200 ? 'OK' : 'Internal Server Error',
+    status: router.state.statusCode,
+    statusText:
+      router.state.statusCode === 200 ? 'OK' : 'Internal Server Error',
     headers: {
       'Content-Type': 'text/html',
       ...headers,

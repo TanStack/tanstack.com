@@ -1,7 +1,6 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 import { availableVersions, latestVersion } from '~/projects/router'
-import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
 
 export const Route = createFileRoute('/router/$version')({
   loader: (ctx) => {
@@ -23,7 +22,7 @@ export const Route = createFileRoute('/router/$version')({
 })
 
 function RouteReactRouter() {
-  const { version } = Route.useLoaderData()
+  const { version } = Route.useParams()
 
   return (
     <>

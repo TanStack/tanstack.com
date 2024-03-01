@@ -93,7 +93,7 @@ export const loader = async (context) => {
 }
 
 export default function RouteVersion() {
-  const { sponsors, version } = useLoaderData<typeof loader>()
+  const { sponsors, version } = Route.useLoaderData()
   const branch = getBranch(version)
   const [framework, setFramework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
@@ -124,7 +124,7 @@ export default function RouteVersion() {
                 {item.to.startsWith('http') ? (
                   <a href={item.to}>{label}</a>
                 ) : (
-                  <Link to={item.to} prefetch="intent">
+                  <Link to={item.to} params>
                     {label}
                   </Link>
                 )}
@@ -177,7 +177,6 @@ export default function RouteVersion() {
           <Link
             to="./docs/"
             className={`py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
-            prefetch="intent"
           >
             Read the Docs
           </Link>
@@ -465,7 +464,8 @@ export default function RouteVersion() {
             className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20"
           >
-            This ad helps us keep the lights on 😉
+            This ad helps us be happy about our invested time and not burn out
+            and rage-quit OSS. Yay money! 😉
           </span>
         </div>
 
@@ -554,7 +554,6 @@ export default function RouteVersion() {
             <Link
               to="./docs/"
               className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
-              prefetch="intent"
             >
               Read the Docs!
             </Link>

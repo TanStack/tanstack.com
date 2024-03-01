@@ -7,10 +7,10 @@ import {
 
 type test = RouteIds<RegisteredRouter['routeTree']>
 
-export const Route = createFileRoute('/router/$version/docs/')({
+export const Route = createFileRoute('/virtual/$version/docs/')({
   loader: (ctx) => {
     throw redirect({
-      to: '/router/$version/docs/framework/$framework',
+      to: '/virtual/$version/docs/framework/$framework',
       params: {
         version: 'latest',
         framework: 'react',

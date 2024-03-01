@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { CgCornerUpLeft } from 'react-icons/cg'
+import { CgCornerUpLeft, CgSpinner } from 'react-icons/cg'
 import {
   FaBolt,
   FaBook,
@@ -10,7 +10,13 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { Link, createFileRoute, useLoaderData } from '@tanstack/react-router'
+import {
+  Await,
+  Link,
+  createFileRoute,
+  getRouteApi,
+  useLoaderData,
+} from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
@@ -71,18 +77,13 @@ const menu = [
 ]
 
 export const Route = createFileRoute('/_libraries/form/$version/')({
-  loader: async (ctx) => {
-    const sponsors = await getSponsorsForSponsorPack()
-
-    return {
-      sponsors,
-    }
-  },
   component: FormVersionIndex,
 })
 
+const librariesRouteApi = getRouteApi('/_libraries')
+
 export default function FormVersionIndex() {
-  const { sponsors } = Route.useLoaderData()
+  const { sponsorsPromise } = librariesRouteApi.useLoaderData({ strict: false })
   const { version } = Route.useParams()
   const branch = getBranch(version)
   const [framework, setFramework] = React.useState<Framework>('react')
@@ -113,7 +114,9 @@ export default function FormVersionIndex() {
                 {item.to.startsWith('http') ? (
                   <a href={item.to}>{label}</a>
                 ) : (
-                  <Link to={item.to}>{label}</Link>
+                  <Link to={item.to} params>
+                    {label}
+                  </Link>
                 )}
               </div>
             )
@@ -310,7 +313,13 @@ export default function FormVersionIndex() {
               aspectRatio: '1/1',
             }}
           >
-            <SponsorPack sponsors={sponsors} />
+            <Await
+              promise={sponsorsPromise}
+              fallback={<CgSpinner className="text-2xl animate-spin" />}
+              children={(sponsors) => {
+                return <SponsorPack sponsors={sponsors} />
+              }}
+            />
           </div>
           <div className="text-center">
             <a
@@ -330,7 +339,8 @@ export default function FormVersionIndex() {
             className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20"
           >
-            This ad helps us keep the lights on 😉
+            This ad helps us be happy about our invested time and not burn out
+            and rage-quit OSS. Yay money! 😉
           </span>
         </div>
 

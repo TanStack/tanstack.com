@@ -65,6 +65,7 @@ export const libraries = [
     description: `Powerful routing for your React applications including a fully type-safe API and first-class search-param for managing state in the URL.`,
     bgStyle: 'bg-emerald-500',
     textStyle: 'text-emerald-500',
+    badge: 'new',
   },
   {
     name: 'TanStack Form',
@@ -91,7 +92,7 @@ export const libraries = [
     to: '/ranger',
     tagline: `Headless range and multi-range slider utilities.`,
     description: `React ranger supplies the primitive range and multi-range slider logic as a headless API that can be attached to any styles or markup for that perfect design.`,
-    badge: 'new',
+    // badge: 'new',
     bgStyle: 'bg-pink-500',
     textStyle: 'text-pink-500',
   },
@@ -460,7 +461,8 @@ function Index() {
             className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20 self-center"
           >
-            This ad helps us keep the lights on 😉
+            This ad helps us be happy about our invested time and not burn out
+            and rage-quit OSS. Yay money! 😉
           </span>
         </div>
       </div>

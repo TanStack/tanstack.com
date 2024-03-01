@@ -1,8 +1,6 @@
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import RemoveMarkdown from 'remove-markdown'
 import {
-  RegisteredRouter,
-  RouteIds,
   createServerFn,
   json,
   notFound,

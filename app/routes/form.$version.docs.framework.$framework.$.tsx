@@ -1,8 +1,8 @@
-import { repo, getBranch } from '~/projects/router'
 import { seo } from '~/utils/seo'
 import { createFileRoute } from '@tanstack/react-router'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
+import { repo, getBranch } from '~/projects/form'
 
 export const Route = createFileRoute(
   '/form/$version/docs/framework/$framework/$'
@@ -15,18 +15,18 @@ export const Route = createFileRoute(
       branch: getBranch(version),
       docsPath: `docs/framework/${framework}/${docsPath}`,
       currentPath: ctx.location.pathname,
-      redirectPath: `/form/${version}/docs/framework/${framework}/overview`,
+      redirectPath: `/form/${version}/docs/overview`,
     })
   },
   meta: ({ loaderData }) =>
     seo({
-      title: `${loaderData?.title} | TanStack Router Docs`,
+      title: `${loaderData?.title} | TanStack Form Docs`,
       description: loaderData?.description,
     }),
-  component: RouteDocs,
+  component: Docs,
 })
 
-function RouteDocs() {
+function Docs() {
   const { title, content, filePath } = Route.useLoaderData()
   const { version } = Route.useParams()
   const branch = getBranch(version)

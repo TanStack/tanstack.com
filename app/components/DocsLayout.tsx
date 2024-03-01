@@ -24,6 +24,24 @@ import { DocsLogo } from '~/components/DocsLogo'
 import { last } from '~/utils/utils'
 import type { AvailableOptions } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
+import { create } from 'zustand'
+
+// Let's use zustand to wrap the local storage logic. This way
+// we'll get subscriptions for free and we can use it in other
+// components if we need to.
+const useLocalCurrentFramework = create<{
+  currentFramework?: string
+  setCurrentFramework: (framework: string) => void
+}>((set) => ({
+  currentFramework:
+    typeof document !== 'undefined'
+      ? localStorage.getItem('framework') || undefined
+      : undefined,
+  setCurrentFramework: (framework: string) => {
+    localStorage.setItem('framework', framework)
+    set({ currentFramework: framework })
+  },
+}))
 
 /**
  * Use framework in URL path
@@ -31,37 +49,63 @@ import type { ConfigSchema, MenuItem } from '~/utils/config'
  * Otherwise fallback to react
  */
 function useCurrentFramework(frameworks: AvailableOptions) {
+  const navigate = useNavigate()
+
   const { framework: paramsFramework } = useParams({
     strict: false,
+    experimental_returnIntersection: true,
   })
 
-  const localStorageFramework = (() => {
-    if (typeof document !== 'undefined') {
-      return localStorage.getItem('framework')
-    }
-  })()
+  const localCurrentFramework = useLocalCurrentFramework()
 
-  return (
-    paramsFramework ||
-    (localStorageFramework &&
-    frameworks.find(({ value }) => localStorageFramework === value)
-      ? localStorageFramework
-      : 'react')
-  )
+  let framework =
+    paramsFramework || localCurrentFramework.currentFramework || 'react'
+
+  framework = framework in frameworks ? framework : 'react'
+
+  const setFramework = React.useCallback((framework: string) => {
+    navigate({
+      params: (prev: Record<string, string>) => ({
+        ...prev,
+        framework,
+      }),
+    })
+    localCurrentFramework.setCurrentFramework(framework)
+  }, [])
+
+  React.useEffect(() => {
+    // Set the framework in localStorage if it doesn't exist
+    if (!localCurrentFramework.currentFramework) {
+      localCurrentFramework.setCurrentFramework(framework)
+    }
+
+    // Set the framework in localStorage if it doesn't match the URL
+    if (paramsFramework && paramsFramework !== framework) {
+      localCurrentFramework.setCurrentFramework(paramsFramework)
+    }
+  })
+
+  return {
+    framework,
+    setFramework,
+  }
 }
 
 const useMenuConfig = ({
   config,
-  framework,
   repo,
+  frameworks,
 }: {
   config: ConfigSchema
-  framework: string
   repo: string
+  frameworks: AvailableOptions
 }) => {
+  const currentFramework = useCurrentFramework(frameworks)
+
   const frameworkMenuItems =
-    config.frameworkMenus.find((d) => d.framework === framework)?.menuItems ??
-    []
+    config.frameworkMenus.find(
+      (d) => d.framework === currentFramework.framework
+    )?.menuItems ?? []
 
   const localMenu: MenuItem = {
     label: 'Menu',
@@ -98,7 +142,10 @@ const useMenuConfig = ({
         label: d.label,
         children: [
           ...d.children.map((d) => ({ ...d, badge: 'core' })),
-          ...(match?.children ?? []).map((d) => ({ ...d, badge: framework })),
+          ...(match?.children ?? []).map((d) => ({
+            ...d,
+            badge: currentFramework.framework,
+          })),
         ],
       }
     }),
@@ -109,31 +156,25 @@ const useMenuConfig = ({
 }
 
 const useFrameworkConfig = ({
-  framework,
   frameworks,
 }: {
-  framework: string
   frameworks: AvailableOptions
 }) => {
   const navigate = useNavigate()
+  const currentFramework = useCurrentFramework(frameworks)
 
   const frameworkConfig = React.useMemo(() => {
     return {
       label: 'Framework',
-      selected: framework,
+      selected: frameworks[currentFramework.framework]
+        ? currentFramework.framework
+        : 'react',
       available: frameworks,
       onSelect: (option: { label: string; value: string }) => {
-        localStorage.setItem('framework', option.value)
-
-        navigate({
-          params: (prev: Record<string, string>) => ({
-            ...prev,
-            framework: option.value,
-          }),
-        })
+        currentFramework.setFramework(option.value)
       },
     }
-  }, [frameworks, framework, navigate])
+  }, [frameworks, currentFramework.framework, navigate])
 
   return frameworkConfig
 }
@@ -145,7 +186,9 @@ const useVersionConfig = ({
 }) => {
   const { version } = useParams({
     strict: false,
+    experimental_returnIntersection: true,
   })
+
   const navigate = useNavigate()
 
   const versionConfig = React.useMemo(() => {
@@ -208,10 +251,9 @@ export function DocsLayout({
   repo,
   children,
 }: DocsLayoutProps) {
-  const framework = useCurrentFramework(frameworks)
-  const frameworkConfig = useFrameworkConfig({ framework, frameworks })
+  const frameworkConfig = useFrameworkConfig({ frameworks })
   const versionConfig = useVersionConfig({ availableVersions })
-  const menuConfig = useMenuConfig({ config, framework, repo })
+  const menuConfig = useMenuConfig({ config, frameworks, repo })
 
   const matches = useMatches()
   const lastMatch = last(matches)
@@ -256,6 +298,7 @@ export function DocsLayout({
                 ) : (
                   <Link
                     to={child.to}
+                    params
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
@@ -312,7 +355,7 @@ export function DocsLayout({
   const logo = (
     <DocsLogo
       name={name}
-      linkTo="/router"
+      linkTo={repo.replace('tanstack/', '')}
       version={version}
       colorFrom={colorFrom}
       colorTo={colorTo}
@@ -416,6 +459,7 @@ export function DocsLayout({
               {prevItem ? (
                 <Link
                   to={prevItem.to}
+                  params
                   className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
                 bg-white text-gray-600 dark:bg-black dark:text-gray-400
                 shadow-lg dark:border dark:border-gray-800
@@ -427,6 +471,7 @@ export function DocsLayout({
               {nextItem ? (
                 <Link
                   to={nextItem.to}
+                  params
                   className="py-1 px-2 text-sm self-end rounded-md
                   bg-white dark:bg-black
                   shadow-lg dark:border dark:border-gray-800

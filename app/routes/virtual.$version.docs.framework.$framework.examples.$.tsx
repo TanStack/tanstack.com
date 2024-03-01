@@ -1,36 +1,31 @@
 import * as React from 'react'
-
-import { json } from '@remix-run/node'
-import { useLoaderData, useParams } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { DocTitle } from '~/components/DocTitle'
-import { getBranch, repo } from '~/projects/virtual'
+import { repo, getBranch } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
-export const loader = async (context) => {
-  const { framework, _splat: name } = context.params
+export const Route = createFileRoute(
+  '/virtual/$version/docs/framework/$framework/examples/$'
+)({
+  meta: ({ params }) =>
+    seo({
+      title: `${capitalize(params.framework)} Virtual ${slugToTitle(
+        params._splat
+      )} Example | TanStack Virtual Docs`,
+      description: `An example showing how to implement ${slugToTitle(
+        params._splat
+      )} in ${capitalize(params.framework)} Virtual`,
+    }),
+  component: Example,
+})
 
-  return json({ framework, name })
-}
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return seo({
-    title: `${capitalize(data.framework)} Virtual ${slugToTitle(
-      data.name
-    )} Example | TanStack Virtual Docs`,
-    description: `An example showing how to implement ${slugToTitle(
-      data.name
-    )} in ${capitalize(data.framework)} Virtual`,
-  })
-}
-
-export default function RouteReactTableDocs() {
-  const { framework, name } = useLoaderData<typeof loader>()
-  const { version } = useParams()
+function Example() {
+  const { version, framework, _splat } = Route.useParams()
   const branch = getBranch(version)
 
-  const examplePath = [framework, name].join('/')
+  const examplePath = [framework, _splat].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
 
@@ -51,7 +46,7 @@ export default function RouteReactTableDocs() {
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
-            {capitalize(framework)} Example: {slugToTitle(name)}
+            {capitalize(framework)} Example: {slugToTitle(_splat)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             <a

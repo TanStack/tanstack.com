@@ -26,7 +26,7 @@ export const loader = async (context) => {
 }
 
 export default function Component() {
-  const { config, version } = useLoaderData<typeof loader>()
+  const { config, version } = Route.useLoaderData()
 
   return (
     <DocsLayout

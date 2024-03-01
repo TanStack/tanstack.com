@@ -18,14 +18,13 @@ export const loader = async (context) => {
     throw redirect(redirectUrl)
   }
 
-  return json({
+  return {
     version,
-    redirectUrl,
-  })
+  }
 }
 
 export default function RouteReactTable() {
-  const { version, redirectUrl } = useLoaderData<typeof loader>()
+  const { version, redirectUrl } = Route.useLoaderData()
 
   if (!useClientOnlyRender()) {
     return null

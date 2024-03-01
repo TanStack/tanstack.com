@@ -34,7 +34,7 @@ export const meta = () => {
 }
 
 export default function DocsRoute() {
-  const { version, config } = useLoaderData<typeof loader>()
+  const { version, config } = Route.useLoaderData()
 
   return (
     <DocsLayout

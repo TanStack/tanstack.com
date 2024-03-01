@@ -51,7 +51,8 @@
     "vinxi": "0.2.1",
     "vite": "^5.0.12",
     "vite-tsconfig-paths": "^4.3.1",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "zustand": "^4.5.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.34",

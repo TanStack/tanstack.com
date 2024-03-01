@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CgTimelapse } from 'react-icons/cg'
+import { CgSpinner, CgTimelapse } from 'react-icons/cg'
 import {
   FaBook,
   FaCheckCircle,
@@ -7,7 +7,12 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import {
+  Await,
+  Link,
+  createFileRoute,
+  getRouteApi,
+} from '@tanstack/react-router'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
@@ -15,7 +20,6 @@ import { colorFrom, colorTo, getBranch } from '~/projects/router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import type { Framework } from '~/projects/router'
 
 const menu = [
@@ -62,18 +66,13 @@ const menu = [
 ]
 
 export const Route = createFileRoute('/_libraries/router/$version/')({
-  loader: async (ctx) => {
-    const sponsors = await getSponsorsForSponsorPack()
-
-    return {
-      sponsors,
-    }
-  },
   component: RouterVersionIndex,
 })
 
+const librariesRouteApi = getRouteApi('/_libraries')
+
 function RouterVersionIndex() {
-  const { sponsors } = Route.useLoaderData()
+  const { sponsorsPromise } = librariesRouteApi.useLoaderData({ strict: false })
   const { version } = Route.useParams()
   const branch = getBranch(version)
   const [framework] = React.useState<Framework>('react')
@@ -101,7 +100,9 @@ function RouterVersionIndex() {
               {item.to.startsWith('http') ? (
                 <a href={item.to}>{label}</a>
               ) : (
-                <Link to={item.to}>{label}</Link>
+                <Link to={item.to} params>
+                  {label}
+                </Link>
               )}
             </div>
           )
@@ -262,7 +263,8 @@ function RouterVersionIndex() {
           className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
                 dark:bg-opacity-20"
         >
-          This ad helps us keep the lights on 😉
+          This ad helps us be happy about our invested time and not burn out and
+          rage-quit OSS. Yay money! 😉
         </span>
       </div>
 
@@ -346,7 +348,13 @@ function RouterVersionIndex() {
             aspectRatio: '1/1',
           }}
         >
-          <SponsorPack sponsors={sponsors} />
+          <Await
+            promise={sponsorsPromise}
+            fallback={<CgSpinner className="text-2xl animate-spin" />}
+            children={(sponsors) => {
+              return <SponsorPack sponsors={sponsors} />
+            }}
+          />
         </div>
         <div className="text-center">
           <a

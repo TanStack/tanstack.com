@@ -26,7 +26,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 }
 
 export default function RouteExamples() {
-  const { framework, name } = useLoaderData<typeof loader>()
+  const { framework, name } = Route.useLoaderData()
   const { version } = useParams()
   const branch = getBranch(version)
 

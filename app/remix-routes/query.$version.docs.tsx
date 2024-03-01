@@ -34,7 +34,7 @@ export const meta = () => {
 }
 
 export default function RouteFrameworkParam() {
-  const { config, version } = useLoaderData<typeof loader>()
+  const { config, version } = Route.useLoaderData()
 
   return (
     <>

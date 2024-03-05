@@ -1,8 +1,8 @@
 # Welcome to TanStack.com!
 
-This site is built with Remix!
+This site is built with TanStack Router!
 
-- [Remix Docs](https://remix.run/docs)
+- [TanStack Router Docs](https://tanstack.com/router)
 
 It's deployed automagically with Vercel!
 
@@ -21,7 +21,7 @@ This starts your app in development mode, rebuilding assets on file changes.
 
 ## Editing and previewing the docs of TanStack projects locally
 
-The documentations for all TanStack projects except for `React Charts` are hosted on [https://tanstack.com](https://tanstack.com), powered by this Remix app.
+The documentations for all TanStack projects except for `React Charts` are hosted on [https://tanstack.com](https://tanstack.com), powered by this TanStack Router app.
 In production, the markdown doc pages are fetched from the GitHub repos of the projects, but in development they are read from the local file system.
 
 Follow these steps if you want to edit the doc pages of a project (in these steps we'll assume it's [`TanStack/form`](https://github.com/tanstack/form)) and preview them locally :

@@ -24,7 +24,7 @@ const resolveToRelative = (p) => {
 }
 
 const customVite = () =>
-  config('dev', {
+  config('dev', (router, app, env) => ({
     // ssr: {
     //   noExternal: [/react-router-server\/dist\/esm\/server-runtime/],
     // },
@@ -34,19 +34,22 @@ const customVite = () =>
         'react-icons',
       ],
     },
-    // resolve: {
-    //   dedupe: [
-    //     'react',
-    //     'react-dom',
-    //     '@tanstack/store',
-    //     '@tanstack/react-store',
-    //     '@tanstack/react-router',
-    //     '@tanstack/react-router-server',
-    //     '@tanstack/react-cross-context',
-    //     '@tanstack/history',
-    //     'use-sync-external-store',
-    //   ],
-    // },
+    resolve:
+      env.command !== 'build'
+        ? {
+            dedupe: [
+              'react',
+              'react-dom',
+              '@tanstack/store',
+              '@tanstack/react-store',
+              '@tanstack/react-router',
+              '@tanstack/react-router-server',
+              '@tanstack/react-cross-context',
+              '@tanstack/history',
+              'use-sync-external-store',
+            ],
+          }
+        : {},
     // plugins: [
     //   {
     //     name: 'inline-env-vars-as-prefix',
@@ -55,7 +58,7 @@ const customVite = () =>
     //     intro: `(globalThis || window).ROUTER_NAME = import.meta.env.ROUTER_NAME`,
     //   },
     // ],
-  })
+  }))
 
 export default createApp({
   routers: [

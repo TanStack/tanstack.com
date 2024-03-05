@@ -78,7 +78,12 @@ function LibrariesLayout() {
                           <span
                             className={twMerge(
                               `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
-                              library.badge === 'new' ? 'text-green-500' : ''
+                              // library.badge === 'new'
+                              //   ? 'text-green-500'
+                              //   : library.badge === 'soon'
+                              //   ? 'text-cyan-500'
+                              //   : '',
+                              library.textStyle
                             )}
                           >
                             {library.badge}

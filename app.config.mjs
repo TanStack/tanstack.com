@@ -34,19 +34,19 @@ const customVite = () =>
         'react-icons',
       ],
     },
-    resolve: {
-      dedupe: [
-        'react',
-        'react-dom',
-        '@tanstack/store',
-        '@tanstack/react-store',
-        '@tanstack/react-router',
-        '@tanstack/react-router-server',
-        '@tanstack/react-cross-context',
-        '@tanstack/history',
-        'use-sync-external-store',
-      ],
-    },
+    // resolve: {
+    //   dedupe: [
+    //     'react',
+    //     'react-dom',
+    //     '@tanstack/store',
+    //     '@tanstack/react-store',
+    //     '@tanstack/react-router',
+    //     '@tanstack/react-router-server',
+    //     '@tanstack/react-cross-context',
+    //     '@tanstack/history',
+    //     'use-sync-external-store',
+    //   ],
+    // },
     // plugins: [
     //   {
     //     name: 'inline-env-vars-as-prefix',

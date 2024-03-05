@@ -1,9 +1,9 @@
+import * as React from 'react'
 import {
   Outlet,
-  ErrorRouteProps,
-  rootRouteWithContext,
+  createRootRouteWithContext,
   useMatches,
-  ErrorComponentProps,
+  useRouterState,
 } from '@tanstack/react-router'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
@@ -19,12 +19,13 @@ import {
 } from '@tanstack/react-router-server/client'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { HydrationOverlay } from '@builder.io/react-hydration-overlay'
+import { NotFound } from '~/components/NotFound'
+import { CgSpinner } from 'react-icons/cg'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 
-export const Route = rootRouteWithContext<{
+export const Route = createRootRouteWithContext<{
   assets: RouterManagedTag[]
 }>()({
-  component: RootComponent,
-  // errorComponent: ErrorBoundary,
   meta: () => [
     {
       charSet: 'utf-8',
@@ -96,9 +97,29 @@ export const Route = rootRouteWithContext<{
       `,
     },
   ],
+  errorComponent: ({ error }) => {
+    return (
+      <RootDocument title="Error!">
+        <DefaultCatchBoundary
+          error={error}
+          info={{
+            componentStack: '',
+          }}
+        />
+      </RootDocument>
+    )
+  },
+  notFoundComponent: () => {
+    return (
+      <RootDocument title="404 Not Found">
+        <NotFound />
+      </RootDocument>
+    )
+  },
+  component: RootComponent,
 })
 
-export default function RootComponent() {
+function RootComponent() {
   return (
     <RootDocument>
       <Outlet />
@@ -172,6 +193,10 @@ function RootDocument({
   //   ></script>
   // )
 
+  const isLoading = useRouterState({
+    select: (s) => s.isLoading || s.isTransitioning,
+  })
+
   return (
     <html lang="en">
       <head>
@@ -187,17 +212,26 @@ function RootDocument({
         <HydrationOverlay>
           {children}
           {/* {darkModeScript} */}
-          <TanStackRouterDevtools />
-          {/* // TODO:
-        {/* <div
-        className={`absolute top-2 left-1/2 -translate-1/2 p-2 bg-white dark:bg-gray-800
-        rounded-lg shadow-lg transition-opacity duration-300 hover:opacity-0 pointer-events-none
-        z-30 delay-300 ${
-          navigation.state !== 'idle' ? 'opacity-1' : 'opacity-0'
+          <TanStackRouterDevtools position="bottom-right" />
+          <div
+            className={`fixed top-0 left-0 h-[300px] w-full
+        transition-all duration-300 pointer-events-none
+        z-30 dark:h-[200px] dark:!bg-white/10 dark:rounded-[100%] ${
+          isLoading
+            ? 'delay-0 opacity-1 -translate-y-1/2'
+            : 'delay-300 opacity-0 -translate-y-full'
         }`}
-        >
-        <CgSpinner className="text-2xl animate-spin" />
-      </div> */}
+            style={{
+              background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
+            }}
+          >
+            <div
+              className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
+        rounded-lg shadow-lg`}
+            >
+              <CgSpinner className="text-3xl animate-spin" />
+            </div>
+          </div>
         </HydrationOverlay>
         <Scripts />
       </body>

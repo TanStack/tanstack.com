@@ -21,7 +21,7 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
     select: (state) => state.id === rootRouteId,
   })
 
-  console.error(error, JSON.stringify(error, null, 2))
+  console.log(error)
 
   return (
     <div className="flex-1 p-4 flex flex-col items-center justify-center gap-6">

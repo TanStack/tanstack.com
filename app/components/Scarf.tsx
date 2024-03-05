@@ -1,14 +1,14 @@
-import { useLocation } from '@remix-run/react'
+import { useRouterState } from '@tanstack/react-router'
 
 export function Scarf({ id }: { id: string }) {
-  const location = useLocation()
+  const locationKey = useRouterState({ select: (s) => s.location.state.key })
 
   return (
     <img
-      key={location.key}
+      key={locationKey}
       alt="scarf analytics"
       referrerPolicy="no-referrer-when-downgrade"
-      src={`https://static.scarf.sh/a.png?x-pxid=${id}&key=${location.key}`}
+      src={`https://static.scarf.sh/a.png?x-pxid=${id}&key=${locationKey}`}
     />
   )
 }

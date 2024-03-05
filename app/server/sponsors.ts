@@ -6,6 +6,7 @@ import {
   getTierById,
   updateTiersMeta,
 } from '~/server/tiers'
+import { createServerFn, json } from '@tanstack/react-router'
 
 export type Sponsor = {
   login: string
@@ -260,22 +261,32 @@ async function getSponsorsMeta() {
   }
 }
 
-export async function getSponsorsForSponsorPack() {
+export const getSponsorsForSponsorPack = createServerFn('GET', async () => {
+  'use server'
+
   let { sponsors } = (await fetchCached({
     key: 'sponsors',
-    ttl: process.env.NODE_ENV === 'development' ? 1 : 60 * 60 * 1000,
+    // ttl: process.env.NODE_ENV === 'development' ? 1 : 60 * 60 * 1000,
+    ttl: 60 * 1000,
     fn: getSponsorsAndTiers,
   })) as { sponsors: Sponsor[] }
 
-  return sponsors
-    .filter((d) => d.privacyLevel === 'PUBLIC')
-    .map((d) => ({
-      linkUrl: d.linkUrl,
-      login: d.login,
-      imageUrl: d.imageUrl,
-      name: d.name,
-      tier: {
-        monthlyPriceInDollars: d.tier?.monthlyPriceInDollars,
+  return json(
+    sponsors
+      .filter((d) => d.privacyLevel === 'PUBLIC')
+      .map((d) => ({
+        linkUrl: d.linkUrl,
+        login: d.login,
+        imageUrl: d.imageUrl,
+        name: d.name,
+        tier: {
+          monthlyPriceInDollars: d.tier?.monthlyPriceInDollars,
+        },
+      })),
+    {
+      headers: {
+        'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
       },
-    }))
-}
+    }
+  )
+})

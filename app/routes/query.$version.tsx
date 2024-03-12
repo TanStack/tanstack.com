@@ -3,7 +3,7 @@ import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { availableVersions, latestVersion } from '~/projects/query'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
-import type { LoaderFunctionArgs } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 
 export const loader = async (context: LoaderFunctionArgs) => {
   const { version } = context.params
@@ -19,6 +19,14 @@ export const loader = async (context: LoaderFunctionArgs) => {
     redirectUrl,
   })
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [{
+    tagName: "link",
+    rel: "canonical",
+    href: data?.redirectUrl,
+  }]
+}  
 
 export const ErrorBoundary = DefaultErrorBoundary
 

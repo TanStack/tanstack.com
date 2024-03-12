@@ -1,24 +1,10 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
-
+import { availableVersions, latestVersion } from '~/projects/ranger'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
-import {
-  availableVersions,
-  latestVersion,
-  reactVirtualV2List,
-} from '~/projects/virtual'
-import { handleRedirects } from '~/utils/handleRedirects.server'
 
-export const Route = createFileRoute('/virtual/$version')({
+export const Route = createFileRoute('/ranger/$version')({
   loader: (ctx) => {
     const { version } = ctx.params
-
-    handleRedirects(
-      reactVirtualV2List,
-      ctx.location.href,
-      '/virtual/v2',
-      '/virtual/v3',
-      'from=reactVirtualV2'
-    )
 
     if (!availableVersions.concat('latest').includes(version!)) {
       throw redirect({
@@ -27,11 +13,15 @@ export const Route = createFileRoute('/virtual/$version')({
         },
       })
     }
+
+    return {
+      version,
+    }
   },
-  component: RouteReactVirtual,
+  component: RouteForm,
 })
 
-export default function RouteReactVirtual() {
+function RouteForm() {
   const { version } = Route.useParams()
 
   return (

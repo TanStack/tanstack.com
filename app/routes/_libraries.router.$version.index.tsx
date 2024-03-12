@@ -72,7 +72,7 @@ export const Route = createFileRoute('/_libraries/router/$version/')({
 const librariesRouteApi = getRouteApi('/_libraries')
 
 function RouterVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData({ strict: false })
+  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
   const branch = getBranch(version)
   const [framework] = React.useState<Framework>('react')

@@ -1,36 +1,40 @@
 import * as React from 'react'
 
-import { CgSpinner } from 'react-icons/cg'
+import { CgCornerUpLeft, CgSpinner } from 'react-icons/cg'
+import { FaBook, FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
 import {
-  FaBolt,
-  FaBook,
-  FaCheckCircle,
-  FaCogs,
-  FaDiscord,
-  FaGithub,
-  FaTshirt,
-} from 'react-icons/fa'
-import {
-  Await,
   Link,
   createFileRoute,
   getRouteApi,
+  useLoaderData,
+  useParams,
 } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { VscPreview, VscWand } from 'react-icons/vsc'
+import { VscPreview } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import {
+  Framework,
   colorFrom,
   colorTo,
   getBranch,
   latestVersion,
   repo,
-} from '~/projects/form'
-import type { Framework } from '~/projects/form'
+} from '~/projects/store'
+import { Logo } from '~/components/Logo'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import { Await } from '@tanstack/react-router'
 
 const menu = [
+  {
+    label: (
+      <div className="flex items-center gap-2">
+        <CgCornerUpLeft className="text-lg" /> TanStack
+      </div>
+    ),
+    to: '/',
+  },
   {
     label: (
       <div className="flex items-center gap-1">
@@ -73,22 +77,18 @@ const menu = [
   },
 ]
 
-export const Route = createFileRoute('/_libraries/form/$version/')({
-  component: FormVersionIndex,
+export const Route = createFileRoute('/_libraries/store/$version/')({
+  component: StoreVersionIndex,
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
 
-export default function FormVersionIndex() {
+export default function StoreVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
-  const branch = getBranch(version)
-  const [framework, setFramework] = React.useState<Framework>('react')
-  const [isDark, setIsDark] = React.useState(true)
-
-  React.useEffect(() => {
-    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
-  }, [])
+  // const branch = getBranch(version)
+  // const [framework, setFramework] = React.useState<Framework>('react')
+  // const [isDark, setIsDark] = React.useState(true)
 
   const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
 
@@ -119,15 +119,12 @@ export default function FormVersionIndex() {
             )
           })}
         </div>
-        <div className="flex flex-col items-center gap-8 text-center px-4">
+        <div className="flex flex-col items-center gap-6 text-center px-4">
           <div className="flex gap-2 lg:gap-4 items-center">
             <h1
-              className={`inline-block
-            font-black text-4xl
-            md:text-6xl
-            lg:text-7xl`}
+              className={`inline-block font-black text-4xl md:text-6xl lg:text-7xl`}
             >
-              <span className={gradientText}>TanStack Form</span>{' '}
+              <span className={gradientText}>TanStack Store</span>{' '}
               <span
                 className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
@@ -137,41 +134,41 @@ export default function FormVersionIndex() {
             </h1>
           </div>
           <h2
-            className="font-bold text-2xl max-w-[600px]
+            className="font-bold text-2xl max-w-md
             md:text-3xl
-            lg:text-5xl lg:max-w-[800px]"
+            lg:text-5xl lg:max-w-2xl"
           >
-            <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-              Headless, performant, and type-safe
+            <span className="underline decoration-dashed decoration-gray-500 decoration-3 underline-offset-2">
+              Framework agnostic
             </span>{' '}
-            form state management for TS/JS, React, Solid, and Vue
+            type-safe store w/ reactive framework adapters
           </h2>
           <p
             className="text opacity-90 max-w-[500px]
             lg:text-xl lg:max-w-[800px]"
           >
-            Stop crying over your forms with a return to simplicity,
-            composability and type-safety with TanStack Form. Sporting a{' '}
+            Level up your state management with TanStack Store – the
+            framework-agnostic, type-safe store. Enjoy{' '}
             <strong>
-              tiny footprint, zero dependencies, framework agnostic core and
-              granular type-safe APIs
+              minimal setup, granular APIs, and seamless adaptability across
+              frameworks
             </strong>
-            , TanStack Form is the perfect combination of simplicity and power
-            you need to build forms fast with peace of mind.
+            . Simplify your development and boost efficiency with TanStack
+            Store.
           </p>
           <Link
             to="./docs/"
-            className={`py-2 px-4 bg-yellow-400 text-black rounded uppercase font-extrabold`}
+            className={`py-2 px-4 bg-gray-200 text-black rounded uppercase font-extrabold`}
           >
             Get Started
           </Link>
         </div>
-        <div
+        {/* <div
           className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
                         md:flex-row"
         >
           <div className="flex-1 flex flex-col gap-8 items-center">
-            <VscWand className="text-yellow-400 text-6xl" />
+            <VscWand className="text-gray-400 text-6xl" />
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
                 First-Class TypeScript Support
@@ -180,7 +177,7 @@ export default function FormVersionIndex() {
                 TanStack Form touts first-class TypeScript support with
                 outstanding autocompletion, excellent generic throughput and
                 inferred types everywhere possible.{' '}
-                <span className="font-semibold text-yellow-600 dark:text-yellow-300">
+                <span className="font-semibold text-gray-600 dark:text-gray-300">
                   This results in fewer runtime errors, increased code
                   maintainability, and a smoother development experience
                 </span>{' '}
@@ -191,7 +188,7 @@ export default function FormVersionIndex() {
           </div>
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <FaBolt className="text-yellow-500 text-6xl" />
+              <FaBolt className="text-gray-500 text-6xl" />
             </div>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-center text-xl font-black">
@@ -203,7 +200,7 @@ export default function FormVersionIndex() {
                 frameworks, or no framework at all. By both supplying and
                 encouraging a headless approach to your forms, building custom
                 reusable form components tailored to your application's needs{' '}
-                <span className="font-semibold text-amber-600 dark:text-yellow-500">
+                <span className="font-semibold text-amber-600 dark:text-gray-500">
                   requires little abstraction and keeps your code modular,
                   simple and composable.
                 </span>
@@ -231,9 +228,9 @@ export default function FormVersionIndex() {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
 
-        <div className="px-4 sm:px-6 lg:px-8 mx-auto">
+        {/* <div className="px-4 sm:px-6 lg:px-8 mx-auto">
           <div className=" sm:text-center pb-16">
             <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
               No dependencies. All the Features.
@@ -268,7 +265,7 @@ export default function FormVersionIndex() {
               )
             })}
           </div>
-        </div>
+        </div> */}
 
         <div className="px-4 w-[500px] max-w-full mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
@@ -282,16 +279,16 @@ export default function FormVersionIndex() {
                         dark:bg-gray-800 dark:shadow-none"
           >
             <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Form <TbHeartHandshake /> You?
+              Store <TbHeartHandshake /> You?
             </span>
             <div className="flex flex-col p-4 gap-4">
               <div>
-                We're looking for a TanStack Form OSS Partner to go above and
+                We're looking for a TanStack Store OSS Partner to go above and
                 beyond the call of sponsorship. Are you as invested in TanStack
-                Form as we are? Let's push the boundaries of Form together!
+                Store as we are? Let's push the boundaries of Store together!
               </div>
               <a
-                href="mailto:partners@tanstack.com?subject=TanStack Form Partnership"
+                href="mailto:partners@tanstack.com?subject=TanStack Store Partnership"
                 className="text-blue-500 uppercase font-black text-sm"
               >
                 Let's chat
@@ -341,7 +338,7 @@ export default function FormVersionIndex() {
           </span>
         </div>
 
-        <div className="flex flex-col gap-4">
+        {/* <div className="flex flex-col gap-4">
           <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
             <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
               Less code, fewer edge cases.
@@ -360,6 +357,7 @@ export default function FormVersionIndex() {
                 [
                   { label: 'React', value: 'react' },
                   { label: 'Solid', value: 'solid' },
+                  { label: 'Svelte', value: 'svelte' },
                   { label: 'Vue', value: 'vue' },
                 ] as const
               ).map((item) => (
@@ -367,8 +365,8 @@ export default function FormVersionIndex() {
                   key={item.value}
                   className={`inline-block py-2 px-4 rounded text-black uppercase font-extrabold ${
                     item.value === framework
-                      ? 'bg-yellow-500'
-                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-yellow-400'
+                      ? 'bg-gray-500'
+                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-gray-400'
                   }`}
                   onClick={() => setFramework(item.value)}
                 >
@@ -379,23 +377,40 @@ export default function FormVersionIndex() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-black">
-          <iframe
-            key={framework}
-            src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
-              isDark ? 'dark' : 'light'
-            }`}
-            title={`tanstack//${framework}-form: simple`}
-            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-            className="shadow-2xl max-h-[800px]"
-            loading="lazy"
-            style={{
-              width: '100%',
-              height: '80vh',
-              border: '0',
-            }}
-          ></iframe>
-        </div>
+        {['solid', 'vue', 'svelte'].includes(framework) ? (
+          <div className="px-2">
+            <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
+              Looking for the <strong>@tanstack/{framework}-form</strong>{' '}
+              example? We could use your help to build the{' '}
+              <strong>@tanstack/{framework}-form</strong> adapter! Join the{' '}
+              <a
+                href="https://tlinz.com/discord"
+                className="text-teal-500 font-bold"
+              >
+                TanStack Discord Server
+              </a>{' '}
+              and let's get to work!
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-black">
+            <iframe
+              key={framework}
+              src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
+                isDark ? 'dark' : 'light'
+              }`}
+              title={`tanstack//${framework}-form: simple`}
+              sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+              className="shadow-2xl max-h-[800px]"
+              loading="lazy"
+              style={{
+                width: '100%',
+                height: '80vh',
+                border: '0',
+              }}
+            ></iframe>
+          </div>
+        )} */}
 
         <div className="flex flex-col gap-4 items-center">
           <div className="font-extrabold text-xl lg:text-2xl">
@@ -407,7 +422,7 @@ export default function FormVersionIndex() {
           <div>
             <Link
               to="./docs/"
-              className={`inline-block py-2 px-4 bg-yellow-500 rounded text-black uppercase font-extrabold`}
+              className={`inline-block py-2 px-4 bg-gray-300 rounded text-black uppercase font-extrabold`}
             >
               Get Started!
             </Link>

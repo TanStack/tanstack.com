@@ -1,11 +1,4 @@
-import {
-  createFileRoute,
-  redirect,
-  RegisteredRouter,
-  RouteIds,
-} from '@tanstack/react-router'
-
-type test = RouteIds<RegisteredRouter['routeTree']>
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/virtual/$version/docs/')({
   loader: (ctx) => {

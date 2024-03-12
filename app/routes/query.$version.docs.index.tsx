@@ -1,12 +1,12 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/router/$version/docs/')({
+export const Route = createFileRoute('/query/$version/docs/')({
   loader: (ctx) => {
     throw redirect({
-      to: '/router/$version/docs/framework/$framework',
+      to: '/form/$version/docs/$',
       params: {
+        _splat: 'overview',
         version: 'latest',
-        framework: 'react',
       },
     })
   },

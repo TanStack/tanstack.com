@@ -1,19 +1,19 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 import {
-  getBranch,
-  latestVersion,
   repo,
-  colorFrom,
+  getBranch,
   colorTo,
+  latestVersion,
+  colorFrom,
   textColor,
   availableVersions,
   frameworks,
-} from '~/projects/virtual'
+} from '~/projects/query'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getTanstackDocsConfig } from '~/utils/config'
 
-export const Route = createFileRoute('/virtual/$version/docs')({
+export const Route = createFileRoute('/query/$version/docs')({
   loader: async (ctx) => {
     const branch = getBranch(ctx.params.version)
     const config = await getTanstackDocsConfig({ repo, branch })
@@ -24,7 +24,8 @@ export const Route = createFileRoute('/virtual/$version/docs')({
   },
   meta: () =>
     seo({
-      title: 'TanStack Virtual Docs | TanStack Virtual',
+      title:
+        'TanStack Query Docs | React Query, Solid Query, Svelte Query, Vue Query',
     }),
   component: DocsRoute,
 })
@@ -35,7 +36,7 @@ function DocsRoute() {
 
   return (
     <DocsLayout
-      name="Virtual"
+      name="Ranger"
       version={version === 'latest' ? latestVersion : version!}
       colorFrom={colorFrom}
       colorTo={colorTo}

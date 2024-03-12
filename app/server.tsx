@@ -64,7 +64,21 @@ export default eventHandler(async (event) => {
 
   await router.load()
 
+  // Handle Redirects
+  const { redirect } = router.state
+
+  if (redirect) {
+    console.log('Redirecting...', redirect.statusCode, redirect.href)
+    return new Response(null, {
+      status: redirect.statusCode,
+      headers: {
+        Location: redirect.href,
+      },
+    })
+  }
+
   const stream = await new Promise<PipeableStream>(async (resolve) => {
+    // Yes, I'm shadowing "stream" again, keep your shirt on!
     const stream = renderToPipeableStream(<StartServer router={router} />, {
       onShellReady() {
         resolve(stream)

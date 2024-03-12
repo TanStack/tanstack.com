@@ -1,23 +1,23 @@
-import React from 'react'
+import * as React from 'react'
 
 import { createFileRoute } from '@tanstack/react-router'
 import { DocTitle } from '~/components/DocTitle'
-import { repo, getBranch } from '~/projects/form'
+import { repo, getBranch } from '~/projects/ranger'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 
 export const Route = createFileRoute(
-  '/form/$version/docs/framework/$framework/examples/$'
+  '/ranger/$version/docs/framework/$framework/examples/$'
 )({
   meta: ({ params }) =>
     seo({
-      title: `${capitalize(params.framework)} Form ${slugToTitle(
+      title: `${capitalize(params.framework)} Ranger ${slugToTitle(
         params._splat
-      )} Example | TanStack Form Docs`,
+      )} Example | TanStack Ranger Docs`,
       description: `An example showing how to implement ${slugToTitle(
         params._splat
-      )} in ${capitalize(params.framework)} Form`,
+      )} in ${capitalize(params.framework)} Ranger`,
     }),
   component: Example,
 })
@@ -80,7 +80,7 @@ export default function Example() {
       <div className="flex-1 lg:px-6 flex flex-col min-h-0">
         <iframe
           src={stackBlitzUrl}
-          title={`tanstack/form: ${examplePath}`}
+          title={`tanstack/ranger: ${examplePath}`}
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
           className="flex-1 w-full overflow-hidden lg:rounded-lg shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
         />

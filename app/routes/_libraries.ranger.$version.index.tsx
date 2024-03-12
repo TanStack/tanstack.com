@@ -1,43 +1,40 @@
 import * as React from 'react'
-
-import { CgSpinner } from 'react-icons/cg'
+import { CgCornerUpLeft, CgSpinner, CgTimelapse } from 'react-icons/cg'
 import {
-  FaBolt,
   FaBook,
   FaCheckCircle,
-  FaCogs,
   FaDiscord,
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import {
-  Await,
-  Link,
-  createFileRoute,
-  getRouteApi,
-} from '@tanstack/react-router'
+import { Await, Link } from '@tanstack/react-router'
+import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
+import { VscPreview } from 'react-icons/vsc'
+import { RiLightbulbFlashLine } from 'react-icons/ri'
+import { colorFrom, colorTo, getBranch, repo } from '~/projects/ranger'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import {
-  colorFrom,
-  colorTo,
-  getBranch,
-  latestVersion,
-  repo,
-} from '~/projects/form'
-import type { Framework } from '~/projects/form'
+import type { Framework } from '~/projects/ranger'
+import { createFileRoute } from '@tanstack/react-router'
+import { getRouteApi } from '@tanstack/react-router'
 
 const menu = [
+  {
+    label: (
+      <div className="flex items-center gap-2">
+        <CgCornerUpLeft className="text-lg" /> TanStack
+      </div>
+    ),
+    to: '/',
+  },
   {
     label: (
       <div className="flex items-center gap-1">
         <VscPreview className="text-lg" /> Examples
       </div>
     ),
-    to: './docs/framework/react/examples/simple',
+    to: './docs/examples',
   },
   {
     label: (
@@ -45,7 +42,7 @@ const menu = [
         <FaBook className="text-lg" /> Docs
       </div>
     ),
-    to: './docs/',
+    to: './docs/overview',
   },
   {
     label: (
@@ -53,7 +50,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: `https://github.com/${repo}`,
+    to: 'https://github.com/tanstack/ranger',
   },
   {
     label: (
@@ -73,17 +70,17 @@ const menu = [
   },
 ]
 
-export const Route = createFileRoute('/_libraries/form/$version/')({
-  component: FormVersionIndex,
+export const Route = createFileRoute('/_libraries/ranger/$version/')({
+  component: VersionIndex,
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
 
-export default function FormVersionIndex() {
+export default function VersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
   const branch = getBranch(version)
-  const [framework, setFramework] = React.useState<Framework>('react')
+  const [framework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
 
   React.useEffect(() => {
@@ -119,49 +116,41 @@ export default function FormVersionIndex() {
             )
           })}
         </div>
-        <div className="flex flex-col items-center gap-8 text-center px-4">
-          <div className="flex gap-2 lg:gap-4 items-center">
-            <h1
-              className={`inline-block
+        <div className="flex flex-col items-center gap-6 text-center px-4">
+          <h1
+            className={`inline-block
             font-black text-4xl
             md:text-6xl
             lg:text-7xl`}
-            >
-              <span className={gradientText}>TanStack Form</span>{' '}
-              <span
-                className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
-              >
-                {version === 'latest' ? latestVersion : version}
-              </span>
-            </h1>
-          </div>
-          <h2
-            className="font-bold text-2xl max-w-[600px]
-            md:text-3xl
-            lg:text-5xl lg:max-w-[800px]"
           >
+            <span className={gradientText}>TanStack Ranger</span>{' '}
+            <span
+              className="text-[.5em] align-super text-black animate-bounce
+              dark:text-white"
+            >
+              BETA
+            </span>
+          </h1>
+          <h2
+            className="font-bold text-2xl max-w-md
+            md:text-3xl
+            lg:text-5xl lg:max-w-2xl"
+          >
+            Modern and{' '}
             <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-              Headless, performant, and type-safe
+              headless
             </span>{' '}
-            form state management for TS/JS, React, Solid, and Vue
+            ranger ui library
           </h2>
           <p
-            className="text opacity-90 max-w-[500px]
-            lg:text-xl lg:max-w-[800px]"
+            className="text opacity-90 max-w-sm
+            lg:text-xl lg:max-w-2xl"
           >
-            Stop crying over your forms with a return to simplicity,
-            composability and type-safety with TanStack Form. Sporting a{' '}
-            <strong>
-              tiny footprint, zero dependencies, framework agnostic core and
-              granular type-safe APIs
-            </strong>
-            , TanStack Form is the perfect combination of simplicity and power
-            you need to build forms fast with peace of mind.
+            A fully typesafe ranger hooks for React.
           </p>
           <Link
-            to="./docs/"
-            className={`py-2 px-4 bg-yellow-400 text-black rounded uppercase font-extrabold`}
+            to="./docs/overview"
+            className={`py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started
           </Link>
@@ -171,63 +160,54 @@ export default function FormVersionIndex() {
                         md:flex-row"
         >
           <div className="flex-1 flex flex-col gap-8 items-center">
-            <VscWand className="text-yellow-400 text-6xl" />
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                First-Class TypeScript Support
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                TanStack Form touts first-class TypeScript support with
-                outstanding autocompletion, excellent generic throughput and
-                inferred types everywhere possible.{' '}
-                <span className="font-semibold text-yellow-600 dark:text-yellow-300">
-                  This results in fewer runtime errors, increased code
-                  maintainability, and a smoother development experience
-                </span>{' '}
-                to help you confidently build robust and type-safe form
-                solutions that scale.
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <FaBolt className="text-yellow-500 text-6xl" />
+              <RiLightbulbFlashLine className="text-lime-500 text-6xl scale-125 animate-pulse" />
             </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                Headless and Framework Agnostic
+            <div className="flex flex-col gap-4 text-center">
+              <h3 className="uppercase text-xl font-black">
+                Typesafe & powerful, yet familiarly simple
               </h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                Form's headless and framework agnostic approach ensures maximum
-                flexibility and broad compatibility with many front-end
-                frameworks, or no framework at all. By both supplying and
-                encouraging a headless approach to your forms, building custom
-                reusable form components tailored to your application's needs{' '}
-                <span className="font-semibold text-amber-600 dark:text-yellow-500">
-                  requires little abstraction and keeps your code modular,
-                  simple and composable.
+                Hooks for building range and multi-range sliders in React{' '}
+                <span className="font-semibold text-lime-600 dark:text-lime-400">
+                  100% typesafe without compromising on DX
                 </span>
+                .
               </p>
             </div>
           </div>
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <FaCogs className="text-amber-500 text-6xl" />
+              <CgTimelapse
+                className="text-teal-500 text-6xl animate-spin"
+                style={{
+                  animationDuration: '3s',
+                  animationTimingFunction: 'ease-in-out',
+                }}
+              />
             </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                Granular Reactive Performance
+            <div className="flex flex-col gap-4 text-center">
+              <h3 className="uppercase text-xl font-black">
+                "Headless" UI library
               </h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                When it comes to performance, TanStack Form delivers amazing
-                speed and control, but without the cruft, boilerplate, or
-                abstractions. With granularly reactive APIs at its core,{' '}
-                <span className="font-semibold text-amber-700 dark:text-amber-500">
-                  only relevant components are updated when the form state
-                  changes.
-                </span>{' '}
-                The end result? A faster UI, happy users, and zero worries about
-                performance.
+                Headless utility, which means out of the box, it doesn't render
+                or supply any actual UI elements
+              </p>
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col gap-8 items-center">
+            <div className="text-center">
+              <TbZoomQuestion className="text-emerald-500 text-6xl" />
+            </div>
+            <div className="flex flex-col gap-4 text-center">
+              <h3 className="uppercase text-xl font-black">Extensible</h3>
+              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
+                UI presents countless edge cases for a library simply because
+                it's a creative medium, and one where every developer does
+                things differently. By not dictating UI concerns, Ranger
+                empowers the developer to design and extend the UI based on
+                their unique use-case.
               </p>
             </div>
           </div>
@@ -236,30 +216,20 @@ export default function FormVersionIndex() {
         <div className="px-4 sm:px-6 lg:px-8 mx-auto">
           <div className=" sm:text-center pb-16">
             <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-              No dependencies. All the Features.
+              Feature Rich and Lightweight Headless utility, which means out of
+              the box, it doesn't render or supply any actual UI elements.
             </h3>
             <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-              With zero dependencies, TanStack Form is extremely lean given the
-              dense feature set it provides. From weekend hobbies all the way to
-              enterprise TanStack Form has the tools to help you succeed at the
-              speed of your creativity.
+              Behold, the obligatory feature-list:
             </p>
           </div>
           <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4  mx-auto">
             {[
-              // A list of features that @tanstack/form provides for managing form state, validation, touched/dirty states, UI integration, etc.
-              'Framework agnostic design',
-              'First Class TypeScript Support',
-              'Headless',
-              'Tiny / Zero Deps',
-              'Granularly Reactive Components/Hooks',
-              'Extensibility and plugin architecture',
-              'Modular architecture',
-              'Form/Field validation',
-              'Async Validation',
-              'Built-in Async Validation Debouncing',
-              'Configurable Validation Events',
-              'Deeply Nested Object/Array Fields',
+              '100% Typesafe',
+              'Lightweight (306 kB)',
+              'Easy to maintain',
+              'Extensible',
+              'Not dictating UI',
             ].map((d, i) => {
               return (
                 <span key={i} className="flex items-center gap-2">
@@ -282,16 +252,16 @@ export default function FormVersionIndex() {
                         dark:bg-gray-800 dark:shadow-none"
           >
             <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Form <TbHeartHandshake /> You?
+              Ranger <TbHeartHandshake /> You?
             </span>
             <div className="flex flex-col p-4 gap-4">
               <div>
-                We're looking for a TanStack Form OSS Partner to go above and
+                We're looking for a TanStack Ranger OSS Partner to go above and
                 beyond the call of sponsorship. Are you as invested in TanStack
-                Form as we are? Let's push the boundaries of Form together!
+                Ranger as we are? Let's push the boundaries of Ranger together!
               </div>
               <a
-                href="mailto:partners@tanstack.com?subject=TanStack Form Partnership"
+                href="mailto:partners@tanstack.com?subject=TanStack Ranger Partnership"
                 className="text-blue-500 uppercase font-black text-sm"
               >
                 Let's chat
@@ -344,50 +314,23 @@ export default function FormVersionIndex() {
         <div className="flex flex-col gap-4">
           <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
             <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
-              Less code, fewer edge cases.
+              Take it for a spin!
             </h3>
             <p className="my-4 text-xl leading-7  text-gray-600">
-              Instead of encouraging hasty abstractions and hook-focused APIs,
-              TanStack Form embraces composition where it counts by giving you
-              headless APIs via components (and hooks if you want them of
-              course). TanStack Form is designed to be used directly in your
-              components and UI. This means less code, fewer edge cases, and
-              deeper control over your UI. Try it out with one of the examples
-              below!
+              Let's see it in action!
             </p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {(
-                [
-                  { label: 'React', value: 'react' },
-                  { label: 'Solid', value: 'solid' },
-                  { label: 'Vue', value: 'vue' },
-                ] as const
-              ).map((item) => (
-                <button
-                  key={item.value}
-                  className={`inline-block py-2 px-4 rounded text-black uppercase font-extrabold ${
-                    item.value === framework
-                      ? 'bg-yellow-500'
-                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-yellow-400'
-                  }`}
-                  onClick={() => setFramework(item.value)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 
         <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
-            src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
+            src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/basic?embed=1&theme=${
               isDark ? 'dark' : 'light'
             }`}
-            title={`tanstack//${framework}-form: simple`}
+            title="tannerlinsley/react-ranger: basic"
             sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-            className="shadow-2xl max-h-[800px]"
+            className="shadow-2xl"
             loading="lazy"
             style={{
               width: '100%',
@@ -396,6 +339,7 @@ export default function FormVersionIndex() {
             }}
           ></iframe>
         </div>
+        {/* )} */}
 
         <div className="flex flex-col gap-4 items-center">
           <div className="font-extrabold text-xl lg:text-2xl">
@@ -406,8 +350,8 @@ export default function FormVersionIndex() {
           </div>
           <div>
             <Link
-              to="./docs/"
-              className={`inline-block py-2 px-4 bg-yellow-500 rounded text-black uppercase font-extrabold`}
+              to="./docs/overview"
+              className={`inline-block py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
             >
               Get Started!
             </Link>

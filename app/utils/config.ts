@@ -7,28 +7,18 @@ export type FrameworkMenu = {
 }
 
 export type MenuItem = {
-  label: string | React.ReactNode
-  children: {
+  name: string | React.ReactNode
+  items: {
     label: string | React.ReactNode
     to: string
     badge?: string
   }[]
 }
 
-const menuItemSchema = z.object({
+const itemSchema = z.object({
   label: z.string(),
-  children: z.array(
-    z.object({
-      label: z.string(),
-      to: z.string(),
-      badge: z.string().optional(),
-    })
-  ),
-})
-
-const frameworkMenuSchema = z.object({
-  framework: z.string(),
-  menuItems: z.array(menuItemSchema),
+  to: z.string(),
+  badge: z.string().optional(),
 })
 
 const configSchema = z.object({
@@ -37,8 +27,18 @@ const configSchema = z.object({
     apiKey: z.string(),
     indexName: z.string(),
   }),
-  menu: z.array(menuItemSchema),
-  frameworkMenus: z.array(frameworkMenuSchema),
+  sections: z.array(
+    z.object({
+      name: z.string(),
+      items: z.array(itemSchema),
+      frameworks: z.array(
+        z.object({
+          name: z.string(),
+          items: z.array(itemSchema),
+        })
+      ),
+    })
+  ),
   users: z.array(z.string()).optional(),
 })
 

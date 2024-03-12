@@ -4,14 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@tanstack/react-router': file:../router/packages/react-router
-  '@tanstack/router-devtools': file:../router/packages/router-devtools
-  '@tanstack/react-router-server': file:../router/packages/react-router-server
-  '@tanstack/react-cross-context': file:../router/packages/react-cross-context
-  '@tanstack/history': file:../router/packages/history
-  '@tanstack/react-store': file:../router/packages/react-router/node_modules/@tanstack/react-store
-
 dependencies:
   '@builder.io/react-hydration-overlay':
     specifier: ^0.0.8
@@ -35,14 +27,14 @@ dependencies:
     specifier: ^0.5.10
     version: 0.5.10(tailwindcss@3.4.1)
   '@tanstack/react-router':
-    specifier: file:/Users/tannerlinsley/GitHub/router/packages/react-router
-    version: file:../router/packages/react-router(react-dom@18.2.0)(react@18.2.0)
+    specifier: 1.19.1
+    version: 1.19.1(react-dom@18.2.0)(react@18.2.0)
   '@tanstack/react-router-server':
-    specifier: file:/Users/tannerlinsley/GitHub/router/packages/react-router-server
-    version: file:../router/packages/react-router-server(preact@10.19.6)(react-dom@18.2.0)(react@18.2.0)
+    specifier: 1.19.1
+    version: 1.19.1(preact@10.19.6)(react-dom@18.2.0)(react@18.2.0)
   '@tanstack/router-devtools':
-    specifier: file:/Users/tannerlinsley/GitHub/router/packages/router-devtools
-    version: file:../router/packages/router-devtools(csstype@3.1.3)(react-dom@18.2.0)(react@18.2.0)
+    specifier: 1.19.1
+    version: 1.19.1(csstype@3.1.3)(react-dom@18.2.0)(react@18.2.0)
   '@tanstack/router-vite-plugin':
     specifier: 1.19.0
     version: 1.19.0
@@ -2356,6 +2348,93 @@ packages:
       tailwindcss: 3.4.1
     dev: false
 
+  /@tanstack/history@1.15.13:
+    resolution: {integrity: sha512-ToaeMtK5S4YaxCywAlYexc7KPFN0esjyTZ4vXzJhXEWAkro9iHgh7m/4ozPJb7oTo65WkHWX0W9GjcZbInSD8w==}
+    engines: {node: '>=12'}
+    dev: false
+
+  /@tanstack/react-cross-context@1.15.10(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-rKH0S3+QOzwh/xn1q+kk/9YsnBRyw+FTdP3NbkRBH2kNar7BIfyR49vX16uNvN5uUajHNGX063IwjzBWzYCUhg==}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@tanstack/react-router-server@1.19.1(preact@10.19.6)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-nvSXq8UVDgmCWphWGL1ZzLMcXrY7RnB9ZPuqzuDVmyfwhj3imG76N9zQZAEC5DmEX7Nj4YtO0lZi2wTh+tH8NA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+    dependencies:
+      '@tanstack/react-cross-context': 1.15.10(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-router': 1.19.1(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      vinxi: 0.2.1(preact@10.19.6)
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@netlify/blobs'
+      - '@nuxt/kit'
+      - '@planetscale/database'
+      - '@testing-library/jest-dom'
+      - '@types/node'
+      - '@upstash/redis'
+      - '@vercel/kv'
+      - bufferutil
+      - debug
+      - encoding
+      - idb-keyval
+      - less
+      - lightningcss
+      - preact
+      - rollup
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - uWebSockets.js
+      - utf-8-validate
+      - xml2js
+    dev: false
+
+  /@tanstack/react-router@1.19.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-a4Xf074qo2fQLmSi8PTncEFn8XakaH3+DT7Dted4OPClzQFS+c6yU3HONVNAsuYWZ7lDK1HMKoHPDFbnHPEWvA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
+    dependencies:
+      '@tanstack/history': 1.15.13
+      '@tanstack/react-store': 0.2.1(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      tiny-invariant: 1.3.3
+      tiny-warning: 1.0.3
+    dev: false
+
+  /@tanstack/react-store@0.2.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-tEbMCQjbeVw9KOP/202LfqZMSNAVi6zYkkp1kBom8nFuMx/965Hzes3+6G6b/comCwVxoJU8Gg9IrcF8yRPthw==}
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
+    dependencies:
+      '@tanstack/store': 0.1.3
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      use-sync-external-store: 1.2.0(react@18.2.0)
+    dev: false
+
   /@tanstack/react-virtual@3.1.3(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-YCzcbF/Ws/uZ0q3Z6fagH+JVhx4JLvbSflgldMgLsuvB8aXjZLLb3HvrEVxY480F9wFlBiXlvQxOyXb5ENPrNA==}
     peerDependencies:
@@ -2365,6 +2444,23 @@ packages:
       '@tanstack/virtual-core': 3.1.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
+  /@tanstack/router-devtools@1.19.1(csstype@3.1.3)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-l560JHnffcDccSTo/sOtB+gKvtgaWYpOKOu9MyvswN9XB2pt752UFFIN1Yt/Gsp2Iooq/FcYlYnEPHb4GFzalg==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
+    dependencies:
+      '@tanstack/react-router': 1.19.1(react-dom@18.2.0)(react@18.2.0)
+      clsx: 2.1.0
+      date-fns: 2.30.0
+      goober: 2.1.14(csstype@3.1.3)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    transitivePeerDependencies:
+      - csstype
     dev: false
 
   /@tanstack/router-generator@1.19.0:
@@ -8824,119 +8920,4 @@ packages:
 
   /zwitch@1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
-    dev: false
-
-  file:../router/packages/history:
-    resolution: {directory: ../router/packages/history, type: directory}
-    name: '@tanstack/history'
-    engines: {node: '>=12'}
-    dev: false
-
-  file:../router/packages/react-cross-context(react-dom@18.2.0)(react@18.2.0):
-    resolution: {directory: ../router/packages/react-cross-context, type: directory}
-    id: file:../router/packages/react-cross-context
-    name: '@tanstack/react-cross-context'
-    peerDependencies:
-      react: '>=18'
-      react-dom: '>=18'
-    dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
-  file:../router/packages/react-router(react-dom@18.2.0)(react@18.2.0):
-    resolution: {directory: ../router/packages/react-router, type: directory}
-    id: file:../router/packages/react-router
-    name: '@tanstack/react-router'
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: '>=16'
-      react-dom: '>=16'
-    dependencies:
-      '@tanstack/history': file:../router/packages/history
-      '@tanstack/react-store': file:../router/packages/react-router/node_modules/@tanstack/react-store(react-dom@18.2.0)(react@18.2.0)
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      tiny-invariant: 1.3.3
-      tiny-warning: 1.0.3
-    dev: false
-
-  file:../router/packages/react-router-server(preact@10.19.6)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {directory: ../router/packages/react-router-server, type: directory}
-    id: file:../router/packages/react-router-server
-    name: '@tanstack/react-router-server'
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: '>=18'
-      react-dom: '>=18'
-    dependencies:
-      '@tanstack/react-cross-context': file:../router/packages/react-cross-context(react-dom@18.2.0)(react@18.2.0)
-      '@tanstack/react-router': file:../router/packages/react-router(react-dom@18.2.0)(react@18.2.0)
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      vinxi: 0.2.1(preact@10.19.6)
-    transitivePeerDependencies:
-      - '@azure/app-configuration'
-      - '@azure/cosmos'
-      - '@azure/data-tables'
-      - '@azure/identity'
-      - '@azure/keyvault-secrets'
-      - '@azure/storage-blob'
-      - '@capacitor/preferences'
-      - '@netlify/blobs'
-      - '@nuxt/kit'
-      - '@planetscale/database'
-      - '@testing-library/jest-dom'
-      - '@types/node'
-      - '@upstash/redis'
-      - '@vercel/kv'
-      - bufferutil
-      - debug
-      - encoding
-      - idb-keyval
-      - less
-      - lightningcss
-      - preact
-      - rollup
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - uWebSockets.js
-      - utf-8-validate
-      - xml2js
-    dev: false
-
-  file:../router/packages/react-router/node_modules/@tanstack/react-store(react-dom@18.2.0)(react@18.2.0):
-    resolution: {directory: ../router/packages/react-router/node_modules/@tanstack/react-store, type: directory}
-    id: file:../router/packages/react-router/node_modules/@tanstack/react-store
-    name: '@tanstack/react-store'
-    peerDependencies:
-      react: '>=16'
-      react-dom: '>=16'
-    dependencies:
-      '@tanstack/store': 0.1.3
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      use-sync-external-store: 1.2.0(react@18.2.0)
-    dev: false
-
-  file:../router/packages/router-devtools(csstype@3.1.3)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {directory: ../router/packages/router-devtools, type: directory}
-    id: file:../router/packages/router-devtools
-    name: '@tanstack/router-devtools'
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: '>=16'
-      react-dom: '>=16'
-    dependencies:
-      '@tanstack/react-router': file:../router/packages/react-router(react-dom@18.2.0)(react@18.2.0)
-      clsx: 2.1.0
-      date-fns: 2.30.0
-      goober: 2.1.14(csstype@3.1.3)
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    transitivePeerDependencies:
-      - csstype
     dev: false

@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as VirtualImport } from './routes/virtual'
 import { Route as TableImport } from './routes/table'
 import { Route as StoreImport } from './routes/store'
+import { Route as StartImport } from './routes/start'
 import { Route as SponsorsEmbedImport } from './routes/sponsors-embed'
 import { Route as RouterImport } from './routes/router'
 import { Route as RangerImport } from './routes/ranger'
@@ -26,6 +27,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as VirtualIndexImport } from './routes/virtual.index'
 import { Route as TableIndexImport } from './routes/table.index'
 import { Route as StoreIndexImport } from './routes/store.index'
+import { Route as StartIndexImport } from './routes/start.index'
 import { Route as RouterIndexImport } from './routes/router.index'
 import { Route as RangerIndexImport } from './routes/ranger.index'
 import { Route as QueryIndexImport } from './routes/query.index'
@@ -34,6 +36,7 @@ import { Route as BlogIndexImport } from './routes/blog.index'
 import { Route as VirtualVersionImport } from './routes/virtual.$version'
 import { Route as TableVersionImport } from './routes/table.$version'
 import { Route as StoreVersionImport } from './routes/store.$version'
+import { Route as StartVersionImport } from './routes/start.$version'
 import { Route as RouterVersionImport } from './routes/router.$version'
 import { Route as RangerVersionImport } from './routes/ranger.$version'
 import { Route as QueryVersionImport } from './routes/query.$version'
@@ -56,6 +59,7 @@ import { Route as FormVersionDocsIndexImport } from './routes/form.$version.docs
 import { Route as LibrariesVirtualVersionIndexImport } from './routes/_libraries.virtual.$version.index'
 import { Route as LibrariesTableVersionIndexImport } from './routes/_libraries.table.$version.index'
 import { Route as LibrariesStoreVersionIndexImport } from './routes/_libraries.store.$version.index'
+import { Route as LibrariesStartVersionIndexImport } from './routes/_libraries.start.$version.index'
 import { Route as LibrariesRouterVersionIndexImport } from './routes/_libraries.router.$version.index'
 import { Route as LibrariesRangerVersionIndexImport } from './routes/_libraries.ranger.$version.index'
 import { Route as LibrariesQueryVersionIndexImport } from './routes/_libraries.query.$version.index'
@@ -110,6 +114,11 @@ const TableRoute = TableImport.update({
 
 const StoreRoute = StoreImport.update({
   path: '/store',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const StartRoute = StartImport.update({
+  path: '/start',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -173,6 +182,11 @@ const StoreIndexRoute = StoreIndexImport.update({
   getParentRoute: () => StoreRoute,
 } as any)
 
+const StartIndexRoute = StartIndexImport.update({
+  path: '/',
+  getParentRoute: () => StartRoute,
+} as any)
+
 const RouterIndexRoute = RouterIndexImport.update({
   path: '/',
   getParentRoute: () => RouterRoute,
@@ -211,6 +225,11 @@ const TableVersionRoute = TableVersionImport.update({
 const StoreVersionRoute = StoreVersionImport.update({
   path: '/$version',
   getParentRoute: () => StoreRoute,
+} as any)
+
+const StartVersionRoute = StartVersionImport.update({
+  path: '/$version',
+  getParentRoute: () => StartRoute,
 } as any)
 
 const RouterVersionRoute = RouterVersionImport.update({
@@ -324,6 +343,13 @@ const LibrariesTableVersionIndexRoute = LibrariesTableVersionIndexImport.update(
 const LibrariesStoreVersionIndexRoute = LibrariesStoreVersionIndexImport.update(
   {
     path: '/store/$version/',
+    getParentRoute: () => LibrariesRoute,
+  } as any,
+)
+
+const LibrariesStartVersionIndexRoute = LibrariesStartVersionIndexImport.update(
+  {
+    path: '/start/$version/',
     getParentRoute: () => LibrariesRoute,
   } as any,
 )
@@ -595,6 +621,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SponsorsEmbedImport
       parentRoute: typeof rootRoute
     }
+    '/start': {
+      preLoaderRoute: typeof StartImport
+      parentRoute: typeof rootRoute
+    }
     '/store': {
       preLoaderRoute: typeof StoreImport
       parentRoute: typeof rootRoute
@@ -627,6 +657,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RouterVersionImport
       parentRoute: typeof RouterImport
     }
+    '/start/$version': {
+      preLoaderRoute: typeof StartVersionImport
+      parentRoute: typeof StartImport
+    }
     '/store/$version': {
       preLoaderRoute: typeof StoreVersionImport
       parentRoute: typeof StoreImport
@@ -658,6 +692,10 @@ declare module '@tanstack/react-router' {
     '/router/': {
       preLoaderRoute: typeof RouterIndexImport
       parentRoute: typeof RouterImport
+    }
+    '/start/': {
+      preLoaderRoute: typeof StartIndexImport
+      parentRoute: typeof StartImport
     }
     '/store/': {
       preLoaderRoute: typeof StoreIndexImport
@@ -741,6 +779,10 @@ declare module '@tanstack/react-router' {
     }
     '/_libraries/router/$version/': {
       preLoaderRoute: typeof LibrariesRouterVersionIndexImport
+      parentRoute: typeof LibrariesImport
+    }
+    '/_libraries/start/$version/': {
+      preLoaderRoute: typeof LibrariesStartVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/store/$version/': {
@@ -907,6 +949,7 @@ export const routeTree = rootRoute.addChildren([
     LibrariesQueryVersionIndexRoute,
     LibrariesRangerVersionIndexRoute,
     LibrariesRouterVersionIndexRoute,
+    LibrariesStartVersionIndexRoute,
     LibrariesStoreVersionIndexRoute,
     LibrariesTableVersionIndexRoute,
     LibrariesVirtualVersionIndexRoute,
@@ -966,6 +1009,7 @@ export const routeTree = rootRoute.addChildren([
     RouterIndexRoute,
   ]),
   SponsorsEmbedRoute,
+  StartRoute.addChildren([StartVersionRoute, StartIndexRoute]),
   StoreRoute.addChildren([
     StoreVersionRoute.addChildren([
       StoreVersionDocsRoute.addChildren([

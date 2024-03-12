@@ -61,7 +61,7 @@ export const libraries = [
   {
     name: 'TanStack Start',
     cardStyles: `shadow-xl shadow-cyan-500/20 dark:shadow-lg dark:shadow-cyan-500/30 text-cyan-500 dark:text-white-400 border-2 border-transparent hover:border-current`,
-    to: '',
+    to: '/start',
     tagline: `Full-stack React Framework powered by TanStack Router`,
     description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router, Vinxi, and Nitro and ready to deploy to your favorite hosting provider.`,
     bgStyle: 'bg-cyan-500',

@@ -49,8 +49,8 @@ const useMenuConfig = ({
   repo: string
 }) => {
   const localMenu: MenuItem = {
-    name: 'Menu',
-    items: [
+    label: 'Menu',
+    children: [
       {
         label: 'Home',
         to: '..',
@@ -78,12 +78,14 @@ const useMenuConfig = ({
     localMenu,
     // Merge the two menus together based on their group labels
     ...config.sections.map((section) => {
-      const frameworkDocs = section.frameworks.find((f) => f.name === framework)
-      const frameworkItems = frameworkDocs?.items ?? []
+      const frameworkDocs = section.frameworks?.find(
+        (f) => f.label === framework
+      )
+      const frameworkItems = frameworkDocs?.children ?? []
       return {
-        name: section.name,
-        items: [
-          ...section.items.map((d) => ({ ...d, badge: 'core' })),
+        label: section.label,
+        children: [
+          ...section.children.map((d) => ({ ...d, badge: 'core' })),
           ...frameworkItems.map((d) => ({ ...d, badge: framework })),
         ],
       }
@@ -206,7 +208,7 @@ export function DocsLayout({
   const detailsRef = React.useRef<HTMLElement>(null!)
 
   const flatMenu = React.useMemo(
-    () => menuConfig.flatMap((d) => d.items),
+    () => menuConfig.flatMap((d) => d.children),
     [menuConfig]
   )
 
@@ -226,10 +228,10 @@ export function DocsLayout({
   const menuItems = menuConfig.map((group, i) => {
     return (
       <div key={i}>
-        <div className="text-[.9em] uppercase font-black">{group.name}</div>
+        <div className="text-[.9em] uppercase font-black">{group.label}</div>
         <div className="h-2" />
         <div className="ml-2 space-y-px text-[.9em]">
-          {group.items?.map((child, i) => {
+          {group.children?.map((child, i) => {
             const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
 
             return (

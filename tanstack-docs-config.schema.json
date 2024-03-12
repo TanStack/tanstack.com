@@ -4,7 +4,7 @@
   "title": "TanStack Docs Config",
   "description": "Config file for the documentation of a TanStack project.",
   "type": "object",
-  "required": ["docSearch", "menu", "frameworkMenus"],
+  "required": ["docSearch", "sections"],
   "additionalProperties": false,
   "properties": {
     "$schema": {
@@ -26,8 +26,8 @@
         }
       }
     },
-    "menu": {
-      "description": "Doc pages that are NOT framework-specific.",
+    "sections": {
+      "description": "Section groups for the sidebar.",
       "type": "array",
       "items": {
         "type": "object",
@@ -38,6 +38,7 @@
             "type": "string"
           },
           "children": {
+            "description": "Framework-agnostic docs go here.",
             "type": "array",
             "items": {
               "type": "object",
@@ -55,36 +56,20 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "frameworkMenus": {
-      "description": "Doc pages that are framework-specific.",
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["framework", "menuItems"],
-        "additionalProperties": false,
-        "properties": {
-          "framework": {
-            "type": "string"
           },
-          "menuItems": {
+          "frameworks": {
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["label", "children"],
-              "additionalProperties": false,
               "properties": {
-                "label": {
-                  "type": "string"
-                },
+                "label": { "type": "string" },
                 "children": {
+                  "description": "Framework-specific docs go here.",
                   "type": "array",
                   "items": {
                     "type": "object",
                     "required": ["label", "to"],
+                    "additionalProperties": false,
                     "properties": {
                       "label": {
                         "type": "string"
@@ -98,7 +83,9 @@
                     }
                   }
                 }
-              }
+              },
+              "required": ["label", "children"],
+              "additionalProperties": false
             }
           }
         }

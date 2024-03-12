@@ -48,10 +48,6 @@ const useMenuConfig = ({
   framework: string
   repo: string
 }) => {
-  const frameworkMenuItems =
-    config.frameworkMenus.find((d) => d.framework === framework)?.menuItems ??
-    []
-
   const localMenu: MenuItem = {
     label: 'Menu',
     children: [
@@ -81,19 +77,26 @@ const useMenuConfig = ({
   return [
     localMenu,
     // Merge the two menus together based on their group labels
-    ...config.menu.map((d) => {
-      const match = frameworkMenuItems.find((d2) => d2.label === d.label)
+    ...config.sections.map((section) => {
+      const frameworkDocs = section.frameworks?.find(
+        (f) => f.label === framework
+      )
+      const frameworkItems = frameworkDocs?.children ?? []
+
+      const children = [
+        ...section.children.map((d) => ({ ...d, badge: 'core' })),
+        ...frameworkItems.map((d) => ({ ...d, badge: framework })),
+      ]
+
+      if (children.length === 0) {
+        return undefined
+      }
+
       return {
-        label: d.label,
-        children: [
-          ...d.children.map((d) => ({ ...d, badge: 'core' })),
-          ...(match?.children ?? []).map((d) => ({ ...d, badge: framework })),
-        ],
+        label: section.label,
+        children,
       }
     }),
-    ...frameworkMenuItems.filter(
-      (d) => !config.menu.find((dd) => dd.label === d.label)
-    ),
   ].filter(Boolean)
 }
 
@@ -212,7 +215,7 @@ export function DocsLayout({
   const detailsRef = React.useRef<HTMLElement>(null!)
 
   const flatMenu = React.useMemo(
-    () => menuConfig.flatMap((d) => d.children),
+    () => menuConfig.flatMap((d) => d?.children),
     [menuConfig]
   )
 
@@ -223,7 +226,7 @@ export function DocsLayout({
     ''
   )
 
-  const index = flatMenu.findIndex((d) => d.to === relativePathname)
+  const index = flatMenu.findIndex((d) => d?.to === relativePathname)
   const prevItem = flatMenu[index - 1]
   const nextItem = flatMenu[index + 1]
 
@@ -232,10 +235,10 @@ export function DocsLayout({
   const menuItems = menuConfig.map((group, i) => {
     return (
       <div key={i}>
-        <div className="text-[.9em] uppercase font-black">{group.label}</div>
+        <div className="text-[.9em] uppercase font-black">{group?.label}</div>
         <div className="h-2" />
         <div className="ml-2 space-y-px text-[.9em]">
-          {group.children?.map((child, i) => {
+          {group?.children?.map((child, i) => {
             const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
 
             return (

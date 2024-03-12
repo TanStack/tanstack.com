@@ -1,11 +1,6 @@
 import { z } from 'zod'
 import { fetchRepoFile } from './documents.server'
 
-export type FrameworkMenu = {
-  framework: string
-  menuItems: MenuItem[]
-}
-
 export type MenuItem = {
   label: string | React.ReactNode
   children: {
@@ -15,30 +10,38 @@ export type MenuItem = {
   }[]
 }
 
-const menuItemSchema = z.object({
-  label: z.string(),
-  children: z.array(
-    z.object({
-      label: z.string(),
-      to: z.string(),
-      badge: z.string().optional(),
-    })
-  ),
-})
-
-const frameworkMenuSchema = z.object({
-  framework: z.string(),
-  menuItems: z.array(menuItemSchema),
-})
-
 const configSchema = z.object({
   docSearch: z.object({
     appId: z.string(),
     apiKey: z.string(),
     indexName: z.string(),
   }),
-  menu: z.array(menuItemSchema),
-  frameworkMenus: z.array(frameworkMenuSchema),
+  sections: z.array(
+    z.object({
+      label: z.string(),
+      children: z.array(
+        z.object({
+          label: z.string(),
+          to: z.string(),
+          badge: z.string().optional(),
+        })
+      ),
+      frameworks: z
+        .array(
+          z.object({
+            label: z.string(),
+            children: z.array(
+              z.object({
+                label: z.string(),
+                to: z.string(),
+                badge: z.string().optional(),
+              })
+            ),
+          })
+        )
+        .optional(),
+    })
+  ),
   users: z.array(z.string()).optional(),
 })
 

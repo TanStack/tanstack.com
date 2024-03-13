@@ -44,6 +44,7 @@ export default function SponsorPack({ sponsors }: { sponsors: any }) {
               .spon-link {
                 transition: all .2s ease;
                 transform: translate(-50%, -50%);
+                will-change: transform;
               }
 
               .spon-link:hover {

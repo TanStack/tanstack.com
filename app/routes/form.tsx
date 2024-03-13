@@ -6,9 +6,9 @@ import { Scarf } from '~/components/Scarf'
 
 export const meta: MetaFunction = () => {
   return seo({
-    title: 'TanStack Form | React Form, Solid Form, Svelte Form, Vue Form',
+    title: 'TanStack Form | React Form, Solid Form, Vue Form, Lit Form',
     description:
-      'Simple, performant, type-safe forms for TS/JS, React, Solid, Svelte and Vue',
+      'Simple, performant, type-safe forms for TS/JS, React, Solid, Vue, and Lit',
     image: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
   })
 }

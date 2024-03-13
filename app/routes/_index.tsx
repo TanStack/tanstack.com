@@ -80,7 +80,7 @@ const libraries = [
       `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
     to: '/form',
     tagline: `Headless UI for building performant and type-safe forms`,
-    description: `Headless, performant, and type-safe form state management for TS/JS, React, Solid, Svelte and Vue`,
+    description: `Headless, performant, and type-safe form state management for TS/JS, React, Solid, Vue, and Lit`,
     badge: (
       <div className="uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse">
         New

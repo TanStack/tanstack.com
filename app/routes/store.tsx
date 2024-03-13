@@ -5,7 +5,7 @@ import { seo } from '~/utils/seo'
 
 export const meta: MetaFunction = () => {
   return seo({
-    title: 'TanStack Store | React Store, Solid Store, Svelte Store, Vue Store',
+    title: 'TanStack Store | React Store, Solid Store, Vue Store',
     description:
       'Framework agnostic, type-safe store w/ reactive framework adapters',
     image: 'https://github.com/tanstack/store/raw/main/media/repo-header.png',

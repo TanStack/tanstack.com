@@ -276,6 +276,8 @@ export function DocsLayout({
                                   ? 'text-sky-500'
                                   : child.badge === 'solid'
                                   ? 'text-blue-500'
+                                  : child.badge === 'lit'
+                                  ? 'text-blue-500'
                                   : child.badge === 'svelte'
                                   ? 'text-orange-500'
                                   : child.badge === 'vue'

@@ -6,7 +6,7 @@ import * as pkg from '@docsearch/react'
 let DocSearch: typeof pkg.DocSearch
 
 if (import.meta.env.SSR) {
-  DocSearch = pkg.default.DocSearch
+  DocSearch = (pkg as unknown as { default: any }).default.DocSearch
 } else {
   DocSearch = pkg.DocSearch
 }

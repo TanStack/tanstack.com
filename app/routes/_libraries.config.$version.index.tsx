@@ -109,9 +109,7 @@ export default function FormVersionIndex() {
                 {item.to.startsWith('http') ? (
                   <a href={item.to}>{label}</a>
                 ) : (
-                  <Link to={item.to} prefetch="intent">
-                    {label}
-                  </Link>
+                  <Link to={item.to}>{label}</Link>
                 )}
               </div>
             )
@@ -147,7 +145,6 @@ export default function FormVersionIndex() {
           <Link
             to="./docs/"
             className={`py-2 px-4 bg-gray-500 text-white rounded uppercase font-extrabold`}
-            prefetch="intent"
           >
             Get Started
           </Link>
@@ -331,7 +328,6 @@ export default function FormVersionIndex() {
             <Link
               to="./docs/"
               className={`inline-block py-2 px-4 bg-gray-500 text-white rounded uppercase font-extrabold`}
-              prefetch="intent"
             >
               Get Started!
             </Link>

@@ -26,7 +26,7 @@ export default function Example() {
   const { version, framework, _splat } = Route.useParams()
   const branch = getBranch(version)
 
-  const examplePath = [framework, name].join('/')
+  const examplePath = [framework, _splat].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
 

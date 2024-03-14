@@ -15,7 +15,7 @@ export const frameworks: AvailableOptions = [
   { label: 'React', value: 'react', logo: reactLogo },
 ]
 
-export type Framework = keyof typeof frameworks
+export type Framework = (typeof frameworks)[number]['value']
 
 export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion

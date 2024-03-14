@@ -21,7 +21,7 @@ export const frameworks: AvailableOptions = [
   { label: 'Lit', value: 'lit', logo: litLogo },
 ]
 
-export type Framework = keyof typeof frameworks
+export type Framework = (typeof frameworks)[number]['value']
 
 export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion

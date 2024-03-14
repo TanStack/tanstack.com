@@ -3,13 +3,18 @@ import { Listbox, Transition } from '@headlessui/react'
 
 import { HiCheck, HiChevronDown } from 'react-icons/hi'
 
+export type SelectOption = {
+  label: string
+  value: string
+}
+
 export type AvailableOptions = Array<{
   label: string
   value: string
   logo?: string
 }>
 
-export type SelectProps<T> = {
+export type SelectProps<T extends SelectOption> = {
   className?: string
   label: string
   selected: string
@@ -17,13 +22,13 @@ export type SelectProps<T> = {
   onSelect: (selected: T) => void
 }
 
-export function Select({
+export function Select<T extends SelectOption>({
   className = '',
   label,
   selected,
   available,
   onSelect,
-}: SelectProps) {
+}: SelectProps<T>) {
   if (available.length === 0) {
     return null
   }

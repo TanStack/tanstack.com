@@ -18,7 +18,7 @@ export const frameworks = {
   // vue: { label: 'Vue', logo: vueLogo, value: 'vue' },
 } as const
 
-export type Framework = keyof typeof frameworks
+export type Framework = (typeof frameworks)[number]['value']
 
 export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion

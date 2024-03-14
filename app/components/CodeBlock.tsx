@@ -6,7 +6,9 @@ import { FaCopy } from 'react-icons/fa'
 import { svelteHighlighter } from '~/utils/svelteHighlighter'
 // Add back additional language support after `prism-react` upgrade
 ;(typeof global !== 'undefined' ? global : window).Prism = Prism
+// @ts-expect-error
 import('prismjs/components/prism-diff')
+// @ts-expect-error
 import('prismjs/components/prism-bash')
 
 // @ts-ignore Alias markup as vue highlight

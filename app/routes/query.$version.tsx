@@ -1,7 +1,11 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
-import { availableVersions, latestVersion } from '~/projects/ranger'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
-import { reactQueryV3List, reactQueryV3RemovedInV5List } from '~/projects/query'
+import {
+  availableVersions,
+  latestVersion,
+  reactQueryV3List,
+  reactQueryV3RemovedInV5List,
+} from '~/projects/query'
 import { handleRedirects } from '~/utils/handleRedirects.server'
 
 export const Route = createFileRoute('/query/$version')({
@@ -25,6 +29,7 @@ export const Route = createFileRoute('/query/$version')({
     )
 
     if (!availableVersions.concat('latest').includes(version!)) {
+      console.log('hello')
       throw redirect({
         params: {
           version: 'latest',

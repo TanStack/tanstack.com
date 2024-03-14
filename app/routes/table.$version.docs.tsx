@@ -43,7 +43,7 @@ function DocsRoute() {
       textColor={textColor}
       config={config}
       frameworks={frameworks}
-      availableVersions={availableVersions}
+      versions={availableVersions}
       repo={repo}
     >
       <Outlet />

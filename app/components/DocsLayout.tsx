@@ -60,17 +60,22 @@ function useCurrentFramework(frameworks: AvailableOptions) {
   let framework =
     paramsFramework || localCurrentFramework.currentFramework || 'react'
 
-  framework = framework in frameworks ? framework : 'react'
+  framework = frameworks.find((d) => d.value === framework)
+    ? framework
+    : 'react'
 
-  const setFramework = React.useCallback((framework: string) => {
-    navigate({
-      params: (prev: Record<string, string>) => ({
-        ...prev,
-        framework,
-      }),
-    })
-    localCurrentFramework.setCurrentFramework(framework)
-  }, [])
+  const setFramework = React.useCallback(
+    (framework: string) => {
+      navigate({
+        params: (prev: Record<string, string>) => ({
+          ...prev,
+          framework,
+        }),
+      })
+      localCurrentFramework.setCurrentFramework(framework)
+    },
+    [localCurrentFramework, navigate]
+  )
 
   React.useEffect(() => {
     // Set the framework in localStorage if it doesn't exist
@@ -79,7 +84,10 @@ function useCurrentFramework(frameworks: AvailableOptions) {
     }
 
     // Set the framework in localStorage if it doesn't match the URL
-    if (paramsFramework && paramsFramework !== framework) {
+    if (
+      paramsFramework &&
+      paramsFramework !== localCurrentFramework.currentFramework
+    ) {
       localCurrentFramework.setCurrentFramework(paramsFramework)
     }
   })
@@ -87,6 +95,73 @@ function useCurrentFramework(frameworks: AvailableOptions) {
   return {
     framework,
     setFramework,
+  }
+}
+
+// Let's use zustand to wrap the local storage logic. This way
+// we'll get subscriptions for free and we can use it in other
+// components if we need to.
+const useLocalCurrentVersion = create<{
+  currentVersion?: string
+  setCurrentVersion: (version: string) => void
+}>((set) => ({
+  currentVersion:
+    typeof document !== 'undefined'
+      ? localStorage.getItem('version') || undefined
+      : undefined,
+  setCurrentVersion: (version: string) => {
+    localStorage.setItem('version', version)
+    set({ currentVersion: version })
+  },
+}))
+
+/**
+ * Use framework in URL path
+ * Otherwise use framework in localStorage if it exists for this project
+ * Otherwise fallback to react
+ */
+function useCurrentVersion(versions: string[]) {
+  const navigate = useNavigate()
+
+  const { version: paramsVersion } = useParams({
+    strict: false,
+    experimental_returnIntersection: true,
+  })
+
+  const localCurrentVersion = useLocalCurrentVersion()
+
+  let version = paramsVersion || localCurrentVersion.currentVersion || 'latest'
+
+  version = versions.includes(version) ? version : 'latest'
+
+  const setVersion = React.useCallback(
+    (version: string) => {
+      navigate({
+        params: (prev: Record<string, string>) => ({
+          ...prev,
+          version,
+        }),
+      })
+      localCurrentVersion.setCurrentVersion(version)
+    },
+    [localCurrentVersion, navigate]
+  )
+
+  React.useEffect(() => {
+    // Set the version in localStorage if it doesn't exist
+    if (!localCurrentVersion.currentVersion) {
+      localCurrentVersion.setCurrentVersion(version)
+    }
+
+    // Set the version in localStorage if it doesn't match the URL
+    if (paramsVersion && paramsVersion !== localCurrentVersion.currentVersion) {
+      localCurrentVersion.setCurrentVersion(paramsVersion)
+    }
+  })
+
+  return {
+    version,
+    setVersion,
   }
 }
 
@@ -161,7 +236,6 @@ const useFrameworkConfig = ({
 }: {
   frameworks: AvailableOptions
 }) => {
-  const navigate = useNavigate()
   const currentFramework = useCurrentFramework(frameworks)
 
   const frameworkConfig = React.useMemo(() => {
@@ -175,25 +249,16 @@ const useFrameworkConfig = ({
         currentFramework.setFramework(option.value)
       },
     }
-  }, [frameworks, currentFramework.framework, navigate])
+  }, [frameworks, currentFramework])
 
   return frameworkConfig
 }
 
-const useVersionConfig = ({
-  availableVersions,
-}: {
-  availableVersions: string[]
-}) => {
-  const { version } = useParams({
-    strict: false,
-    experimental_returnIntersection: true,
-  })
-
-  const navigate = useNavigate()
+const useVersionConfig = ({ versions }: { versions: string[] }) => {
+  const currentVersion = useCurrentVersion(versions)
 
   const versionConfig = React.useMemo(() => {
-    const available = availableVersions.reduce(
+    const available = versions.reduce(
       (acc: AvailableOptions, version) => {
         acc.push({
           label: version,
@@ -211,18 +276,15 @@ const useVersionConfig = ({
 
     return {
       label: 'Version',
-      selected: version,
+      selected: versions.includes(currentVersion.version)
+        ? currentVersion.version
+        : 'latest',
       available,
       onSelect: (option: { label: string; value: string }) => {
-        navigate({
-          params: (prev: Record<string, string>) => ({
-            ...prev,
-            version: option.value,
-          }),
-        })
+        currentVersion.setVersion(option.value)
       },
     }
-  }, [version, navigate, availableVersions])
+  }, [currentVersion, versions])
 
   return versionConfig
 }
@@ -235,7 +297,7 @@ type DocsLayoutProps = {
   textColor: string
   config: ConfigSchema
   frameworks: AvailableOptions
-  availableVersions: string[]
+  versions: string[]
   repo: string
   children: React.ReactNode
 }
@@ -248,12 +310,12 @@ export function DocsLayout({
   textColor,
   config,
   frameworks,
-  availableVersions,
+  versions,
   repo,
   children,
 }: DocsLayoutProps) {
   const frameworkConfig = useFrameworkConfig({ frameworks })
-  const versionConfig = useVersionConfig({ availableVersions })
+  const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
 
   const matches = useMatches()

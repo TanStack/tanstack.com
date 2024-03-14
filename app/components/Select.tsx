@@ -9,12 +9,12 @@ export type AvailableOptions = Array<{
   logo?: string
 }>
 
-export type SelectProps = {
+export type SelectProps<T> = {
   className?: string
   label: string
   selected: string
-  available: AvailableOptions
-  onSelect: (selected: { label: string; value: string }) => void
+  available: T[]
+  onSelect: (selected: T) => void
 }
 
 export function Select({

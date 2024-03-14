@@ -145,3 +145,7 @@ code[class*='language-'] {
   white-space: pre-wrap;
   word-break: break-all;
 }
+
+.prism-code {
+  @apply mb-4;
+}

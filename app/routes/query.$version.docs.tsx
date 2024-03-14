@@ -36,7 +36,7 @@ function DocsRoute() {
 
   return (
     <DocsLayout
-      name="Ranger"
+      name="Query"
       version={version === 'latest' ? latestVersion : version!}
       colorFrom={colorFrom}
       colorTo={colorTo}

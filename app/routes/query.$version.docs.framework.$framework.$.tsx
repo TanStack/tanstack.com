@@ -20,7 +20,7 @@ export const Route = createFileRoute(
   },
   meta: ({ loaderData }) =>
     seo({
-      title: `${loaderData?.title} | TanStack Ranger Docs`,
+      title: `${loaderData?.title} | TanStack Query Docs`,
       description: loaderData?.description,
     }),
   component: Docs,

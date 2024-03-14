@@ -117,6 +117,16 @@ export const libraries = [
     textStyle: 'text-stone-500',
   },
   {
+    name: 'TanStack Config',
+    cardStyles: `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-500 border-2 border-transparent hover:border-current`,
+    to: '/config',
+    tagline: `Configuration and tools for publishing and maintaining high-quality JavaScript packages`,
+    description: `The build and publish utilities used by all of our projects. Use it if you dare!`,
+    badge: 'new',
+    bgStyle: 'bg-slate-500',
+    textStyle: 'text-slate-500',
+  },
+  {
     name: 'React Charts',
     cardStyles: `shadow-xl shadow-orange-700/20 dark:shadow-lg dark:shadow-orange-500/30 text-orange-500 border-2 border-transparent hover:border-current`,
     to: 'https://react-charts.tanstack.com',
@@ -246,7 +256,7 @@ function Index() {
               className={`
             inline-block text-transparent bg-clip-text bg-gradient-to-r ${gradient}
             underline decoration-4 md:decoration-8 underline-offset-[.5rem] md:underline-offset-[1rem] decoration-gray-200 dark:decoration-gray-800
-            mb-2
+            mb-2 uppercase [letter-spacing:-.05em]
             `}
             >
               TanStack

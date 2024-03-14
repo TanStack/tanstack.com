@@ -15,14 +15,14 @@ export function createRouter() {
     defaultNotFoundComponent: () => {
       return <NotFound />
     },
-    // dehydrate: (() => {
-    //   return {
-    //     assets: router.options.context.assets,
-    //   }
-    // }) as any,
-    // hydrate: (data) => {
-    //   router.options.context.assets = data.assets
-    // },
+    dehydrate: (() => {
+      return {
+        assets: router.options.context.assets,
+      }
+    }) as any,
+    hydrate: (data) => {
+      router.options.context.assets = data.assets
+    },
   })
 
   return router

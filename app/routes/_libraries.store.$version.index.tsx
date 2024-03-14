@@ -1,29 +1,12 @@
-import * as React from 'react'
-
 import { CgCornerUpLeft, CgSpinner } from 'react-icons/cg'
 import { FaBook, FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
-import {
-  Link,
-  createFileRoute,
-  getRouteApi,
-  useLoaderData,
-  useParams,
-} from '@tanstack/react-router'
+import { Link, createFileRoute, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { VscPreview } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import {
-  Framework,
-  colorFrom,
-  colorTo,
-  getBranch,
-  latestVersion,
-  repo,
-} from '~/projects/store'
-import { Logo } from '~/components/Logo'
-import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import { colorFrom, colorTo, latestVersion, repo } from '~/projects/store'
 import { Await } from '@tanstack/react-router'
 
 const menu = [
@@ -158,7 +141,7 @@ export default function StoreVersionIndex() {
           </p>
           <Link
             to="./docs/"
-            className={`py-2 px-4 bg-gray-200 text-black rounded uppercase font-extrabold`}
+            className={`py-2 px-4 bg-stone-600 text-white rounded uppercase font-extrabold`}
           >
             Get Started
           </Link>
@@ -422,7 +405,7 @@ export default function StoreVersionIndex() {
           <div>
             <Link
               to="./docs/"
-              className={`inline-block py-2 px-4 bg-gray-300 rounded text-black uppercase font-extrabold`}
+              className={`inline-block py-2 px-4 bg-stone-700 rounded text-white uppercase font-extrabold`}
             >
               Get Started!
             </Link>

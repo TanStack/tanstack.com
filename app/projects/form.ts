@@ -1,6 +1,7 @@
 import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
+import litLogo from '~/images/lit-logo.svg'
 import type { AvailableOptions } from '~/components/Select'
 
 export const repo = 'tanstack/form'
@@ -17,6 +18,7 @@ export const frameworks: AvailableOptions = [
   { label: 'React', value: 'react', logo: reactLogo },
   { label: 'Solid', value: 'solid', logo: solidLogo },
   { label: 'Vue', value: 'vue', logo: vueLogo },
+  { label: 'Lit', value: 'lit', logo: litLogo },
 ]
 
 export type Framework = keyof typeof frameworks

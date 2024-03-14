@@ -21,6 +21,7 @@ import { Route as RangerImport } from './routes/ranger'
 import { Route as QueryImport } from './routes/query'
 import { Route as MerchImport } from './routes/merch'
 import { Route as FormImport } from './routes/form'
+import { Route as ConfigImport } from './routes/config'
 import { Route as BlogImport } from './routes/blog'
 import { Route as LibrariesImport } from './routes/_libraries'
 import { Route as IndexImport } from './routes/index'
@@ -32,6 +33,7 @@ import { Route as RouterIndexImport } from './routes/router.index'
 import { Route as RangerIndexImport } from './routes/ranger.index'
 import { Route as QueryIndexImport } from './routes/query.index'
 import { Route as FormIndexImport } from './routes/form.index'
+import { Route as ConfigIndexImport } from './routes/config.index'
 import { Route as BlogIndexImport } from './routes/blog.index'
 import { Route as VirtualVersionImport } from './routes/virtual.$version'
 import { Route as TableVersionImport } from './routes/table.$version'
@@ -41,6 +43,7 @@ import { Route as RouterVersionImport } from './routes/router.$version'
 import { Route as RangerVersionImport } from './routes/ranger.$version'
 import { Route as QueryVersionImport } from './routes/query.$version'
 import { Route as FormVersionImport } from './routes/form.$version'
+import { Route as ConfigVersionImport } from './routes/config.$version'
 import { Route as BlogSplatImport } from './routes/blog.$'
 import { Route as VirtualVersionDocsImport } from './routes/virtual.$version.docs'
 import { Route as TableVersionDocsImport } from './routes/table.$version.docs'
@@ -49,6 +52,7 @@ import { Route as RouterVersionDocsImport } from './routes/router.$version.docs'
 import { Route as RangerVersionDocsImport } from './routes/ranger.$version.docs'
 import { Route as QueryVersionDocsImport } from './routes/query.$version.docs'
 import { Route as FormVersionDocsImport } from './routes/form.$version.docs'
+import { Route as ConfigVersionDocsImport } from './routes/config.$version.docs'
 import { Route as VirtualVersionDocsIndexImport } from './routes/virtual.$version.docs.index'
 import { Route as TableVersionDocsIndexImport } from './routes/table.$version.docs.index'
 import { Route as StoreVersionDocsIndexImport } from './routes/store.$version.docs.index'
@@ -56,6 +60,7 @@ import { Route as RouterVersionDocsIndexImport } from './routes/router.$version.
 import { Route as RangerVersionDocsIndexImport } from './routes/ranger.$version.docs.index'
 import { Route as QueryVersionDocsIndexImport } from './routes/query.$version.docs.index'
 import { Route as FormVersionDocsIndexImport } from './routes/form.$version.docs.index'
+import { Route as ConfigVersionDocsIndexImport } from './routes/config.$version.docs.index'
 import { Route as LibrariesVirtualVersionIndexImport } from './routes/_libraries.virtual.$version.index'
 import { Route as LibrariesTableVersionIndexImport } from './routes/_libraries.table.$version.index'
 import { Route as LibrariesStoreVersionIndexImport } from './routes/_libraries.store.$version.index'
@@ -64,6 +69,7 @@ import { Route as LibrariesRouterVersionIndexImport } from './routes/_libraries.
 import { Route as LibrariesRangerVersionIndexImport } from './routes/_libraries.ranger.$version.index'
 import { Route as LibrariesQueryVersionIndexImport } from './routes/_libraries.query.$version.index'
 import { Route as LibrariesFormVersionIndexImport } from './routes/_libraries.form.$version.index'
+import { Route as LibrariesConfigVersionIndexImport } from './routes/_libraries.config.$version.index'
 import { Route as VirtualVersionDocsSplatImport } from './routes/virtual.$version.docs.$'
 import { Route as TableVersionDocsSplatImport } from './routes/table.$version.docs.$'
 import { Route as StoreVersionDocsSplatImport } from './routes/store.$version.docs.$'
@@ -71,6 +77,7 @@ import { Route as RouterVersionDocsSplatImport } from './routes/router.$version.
 import { Route as RangerVersionDocsSplatImport } from './routes/ranger.$version.docs.$'
 import { Route as QueryVersionDocsSplatImport } from './routes/query.$version.docs.$'
 import { Route as FormVersionDocsSplatImport } from './routes/form.$version.docs.$'
+import { Route as ConfigVersionDocsSplatImport } from './routes/config.$version.docs.$'
 import { Route as VirtualVersionDocsFrameworkFrameworkIndexImport } from './routes/virtual.$version.docs.framework.$framework.index'
 import { Route as TableVersionDocsFrameworkFrameworkIndexImport } from './routes/table.$version.docs.framework.$framework.index'
 import { Route as StoreVersionDocsFrameworkFrameworkIndexImport } from './routes/store.$version.docs.framework.$framework.index'
@@ -152,6 +159,11 @@ const FormRoute = FormImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ConfigRoute = ConfigImport.update({
+  path: '/config',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const BlogRoute = BlogImport.update({
   path: '/blog',
   getParentRoute: () => rootRoute,
@@ -207,6 +219,11 @@ const FormIndexRoute = FormIndexImport.update({
   getParentRoute: () => FormRoute,
 } as any)
 
+const ConfigIndexRoute = ConfigIndexImport.update({
+  path: '/',
+  getParentRoute: () => ConfigRoute,
+} as any)
+
 const BlogIndexRoute = BlogIndexImport.update({
   path: '/',
   getParentRoute: () => BlogRoute,
@@ -252,6 +269,11 @@ const FormVersionRoute = FormVersionImport.update({
   getParentRoute: () => FormRoute,
 } as any)
 
+const ConfigVersionRoute = ConfigVersionImport.update({
+  path: '/$version',
+  getParentRoute: () => ConfigRoute,
+} as any)
+
 const BlogSplatRoute = BlogSplatImport.update({
   path: '/$',
   getParentRoute: () => BlogRoute,
@@ -292,6 +314,11 @@ const FormVersionDocsRoute = FormVersionDocsImport.update({
   getParentRoute: () => FormVersionRoute,
 } as any)
 
+const ConfigVersionDocsRoute = ConfigVersionDocsImport.update({
+  path: '/docs',
+  getParentRoute: () => ConfigVersionRoute,
+} as any)
+
 const VirtualVersionDocsIndexRoute = VirtualVersionDocsIndexImport.update({
   path: '/',
   getParentRoute: () => VirtualVersionDocsRoute,
@@ -325,6 +352,11 @@ const QueryVersionDocsIndexRoute = QueryVersionDocsIndexImport.update({
 const FormVersionDocsIndexRoute = FormVersionDocsIndexImport.update({
   path: '/',
   getParentRoute: () => FormVersionDocsRoute,
+} as any)
+
+const ConfigVersionDocsIndexRoute = ConfigVersionDocsIndexImport.update({
+  path: '/',
+  getParentRoute: () => ConfigVersionDocsRoute,
 } as any)
 
 const LibrariesVirtualVersionIndexRoute =
@@ -378,6 +410,12 @@ const LibrariesFormVersionIndexRoute = LibrariesFormVersionIndexImport.update({
   getParentRoute: () => LibrariesRoute,
 } as any)
 
+const LibrariesConfigVersionIndexRoute =
+  LibrariesConfigVersionIndexImport.update({
+    path: '/config/$version/',
+    getParentRoute: () => LibrariesRoute,
+  } as any)
+
 const VirtualVersionDocsSplatRoute = VirtualVersionDocsSplatImport.update({
   path: '/$',
   getParentRoute: () => VirtualVersionDocsRoute,
@@ -411,6 +449,11 @@ const QueryVersionDocsSplatRoute = QueryVersionDocsSplatImport.update({
 const FormVersionDocsSplatRoute = FormVersionDocsSplatImport.update({
   path: '/$',
   getParentRoute: () => FormVersionDocsRoute,
+} as any)
+
+const ConfigVersionDocsSplatRoute = ConfigVersionDocsSplatImport.update({
+  path: '/$',
+  getParentRoute: () => ConfigVersionDocsRoute,
 } as any)
 
 const VirtualVersionDocsFrameworkFrameworkIndexRoute =
@@ -597,6 +640,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogImport
       parentRoute: typeof rootRoute
     }
+    '/config': {
+      preLoaderRoute: typeof ConfigImport
+      parentRoute: typeof rootRoute
+    }
     '/form': {
       preLoaderRoute: typeof FormImport
       parentRoute: typeof rootRoute
@@ -641,6 +688,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSplatImport
       parentRoute: typeof BlogImport
     }
+    '/config/$version': {
+      preLoaderRoute: typeof ConfigVersionImport
+      parentRoute: typeof ConfigImport
+    }
     '/form/$version': {
       preLoaderRoute: typeof FormVersionImport
       parentRoute: typeof FormImport
@@ -677,6 +728,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogIndexImport
       parentRoute: typeof BlogImport
     }
+    '/config/': {
+      preLoaderRoute: typeof ConfigIndexImport
+      parentRoute: typeof ConfigImport
+    }
     '/form/': {
       preLoaderRoute: typeof FormIndexImport
       parentRoute: typeof FormImport
@@ -709,6 +764,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VirtualIndexImport
       parentRoute: typeof VirtualImport
     }
+    '/config/$version/docs': {
+      preLoaderRoute: typeof ConfigVersionDocsImport
+      parentRoute: typeof ConfigVersionImport
+    }
     '/form/$version/docs': {
       preLoaderRoute: typeof FormVersionDocsImport
       parentRoute: typeof FormVersionImport
@@ -737,6 +796,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VirtualVersionDocsImport
       parentRoute: typeof VirtualVersionImport
     }
+    '/config/$version/docs/$': {
+      preLoaderRoute: typeof ConfigVersionDocsSplatImport
+      parentRoute: typeof ConfigVersionDocsImport
+    }
     '/form/$version/docs/$': {
       preLoaderRoute: typeof FormVersionDocsSplatImport
       parentRoute: typeof FormVersionDocsImport
@@ -764,6 +827,10 @@ declare module '@tanstack/react-router' {
     '/virtual/$version/docs/$': {
       preLoaderRoute: typeof VirtualVersionDocsSplatImport
       parentRoute: typeof VirtualVersionDocsImport
+    }
+    '/_libraries/config/$version/': {
+      preLoaderRoute: typeof LibrariesConfigVersionIndexImport
+      parentRoute: typeof LibrariesImport
     }
     '/_libraries/form/$version/': {
       preLoaderRoute: typeof LibrariesFormVersionIndexImport
@@ -796,6 +863,10 @@ declare module '@tanstack/react-router' {
     '/_libraries/virtual/$version/': {
       preLoaderRoute: typeof LibrariesVirtualVersionIndexImport
       parentRoute: typeof LibrariesImport
+    }
+    '/config/$version/docs/': {
+      preLoaderRoute: typeof ConfigVersionDocsIndexImport
+      parentRoute: typeof ConfigVersionDocsImport
     }
     '/form/$version/docs/': {
       preLoaderRoute: typeof FormVersionDocsIndexImport
@@ -945,6 +1016,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
   LibrariesRoute.addChildren([
+    LibrariesConfigVersionIndexRoute,
     LibrariesFormVersionIndexRoute,
     LibrariesQueryVersionIndexRoute,
     LibrariesRangerVersionIndexRoute,
@@ -955,6 +1027,15 @@ export const routeTree = rootRoute.addChildren([
     LibrariesVirtualVersionIndexRoute,
   ]),
   BlogRoute.addChildren([BlogSplatRoute, BlogIndexRoute]),
+  ConfigRoute.addChildren([
+    ConfigVersionRoute.addChildren([
+      ConfigVersionDocsRoute.addChildren([
+        ConfigVersionDocsSplatRoute,
+        ConfigVersionDocsIndexRoute,
+      ]),
+    ]),
+    ConfigIndexRoute,
+  ]),
   FormRoute.addChildren([
     FormVersionRoute.addChildren([
       FormVersionDocsRoute.addChildren([

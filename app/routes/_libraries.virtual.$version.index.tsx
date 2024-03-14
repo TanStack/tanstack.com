@@ -158,7 +158,7 @@ export default function RouteComp() {
         </p>
         <Link
           to="./docs/guide/introduction"
-          className={`py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
+          className={`py-2 px-4 bg-purple-500 rounded text-white uppercase font-extrabold`}
         >
           Get Started
         </Link>
@@ -169,7 +169,7 @@ export default function RouteComp() {
       >
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center overflow-hidden">
-            <IoIosBody className="text-rose-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
+            <IoIosBody className="text-purple-400 text-6xl -mt-5 mb-5 scale-125 origin-top" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -177,7 +177,7 @@ export default function RouteComp() {
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Headless Virtualization means you're always in control of your{' '}
-              <span className="font-semibold text-rose-600 dark:text-rose-400">
+              <span className="font-semibold text-violet-600 dark:text-violet-400">
                 markup, styles and components
               </span>
               . Go design and implement the most beautiful UI you can dream up
@@ -187,7 +187,7 @@ export default function RouteComp() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaBolt className="text-pink-500 text-6xl" />
+            <FaBolt className="text-purple-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -196,7 +196,7 @@ export default function RouteComp() {
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
               Don't be fooled by the small bundle size. TanStack Virtual uses
               every byte to deliver powerful performance. After all,{' '}
-              <span className="font-semibold text-pink-700 dark:text-pink-400">
+              <span className="font-semibold text-violet-700 dark:text-violet-400">
                 {' '}
                 60FPS is table stakes
               </span>{' '}
@@ -207,7 +207,7 @@ export default function RouteComp() {
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaCogs className="text-violet-500 text-6xl" />
+            <FaCogs className="text-purple-600 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
@@ -397,7 +397,7 @@ export default function RouteComp() {
                 key={item.value}
                 className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold ${
                   item.value === framework
-                    ? 'bg-teal-500'
+                    ? 'bg-purple-500'
                     : 'bg-gray-300 dark:bg-gray-700 hover:bg-teal-300'
                 }`}
                 onClick={() => setFramework(item.value)}
@@ -454,7 +454,7 @@ export default function RouteComp() {
         <div>
           <Link
             to="./docs/guide/introduction"
-            className={`inline-block py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
+            className={`inline-block py-2 px-4 bg-purple-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started!
           </Link>

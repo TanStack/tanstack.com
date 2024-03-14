@@ -150,7 +150,7 @@ export default function VersionIndex() {
           </p>
           <Link
             to="./docs/overview"
-            className={`py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
+            className={`py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started
           </Link>
@@ -161,7 +161,7 @@ export default function VersionIndex() {
         >
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <RiLightbulbFlashLine className="text-lime-500 text-6xl scale-125 animate-pulse" />
+              <RiLightbulbFlashLine className="text-pink-400 text-6xl scale-125 animate-pulse" />
             </div>
             <div className="flex flex-col gap-4 text-center">
               <h3 className="uppercase text-xl font-black">
@@ -169,7 +169,7 @@ export default function VersionIndex() {
               </h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
                 Hooks for building range and multi-range sliders in React{' '}
-                <span className="font-semibold text-lime-600 dark:text-lime-400">
+                <span className="font-semibold text-pink-600 dark:text-pink-400">
                   100% typesafe without compromising on DX
                 </span>
                 .
@@ -179,7 +179,7 @@ export default function VersionIndex() {
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
               <CgTimelapse
-                className="text-teal-500 text-6xl animate-spin"
+                className="text-pink-500 text-6xl animate-spin"
                 style={{
                   animationDuration: '3s',
                   animationTimingFunction: 'ease-in-out',
@@ -191,23 +191,28 @@ export default function VersionIndex() {
                 "Headless" UI library
               </h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                Headless utility, which means out of the box, it doesn't render
-                or supply any actual UI elements
+                Headless and extensible. Ranger doesn't render or supply any
+                actual UI elements. It's a{' '}
+                <span className="font-semibold text-pink-600 dark:text-pink-400">
+                  utility for building your own custom-designed UI components
+                </span>
+                .
               </p>
             </div>
           </div>
           <div className="flex-1 flex flex-col gap-8 items-center">
             <div className="text-center">
-              <TbZoomQuestion className="text-emerald-500 text-6xl" />
+              <TbZoomQuestion className="text-pink-600 text-6xl" />
             </div>
             <div className="flex flex-col gap-4 text-center">
               <h3 className="uppercase text-xl font-black">Extensible</h3>
               <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                UI presents countless edge cases for a library simply because
-                it's a creative medium, and one where every developer does
-                things differently. By not dictating UI concerns, Ranger
-                empowers the developer to design and extend the UI based on
-                their unique use-case.
+                Designed with maximum inversion of control in mind, Ranger is
+                built to be{' '}
+                <span className="font-semibold text-pink-600 dark:text-pink-400">
+                  easily extended and customized
+                </span>{' '}
+                to fit your needs.
               </p>
             </div>
           </div>
@@ -351,7 +356,7 @@ export default function VersionIndex() {
           <div>
             <Link
               to="./docs/overview"
-              className={`inline-block py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
+              className={`inline-block py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
             >
               Get Started!
             </Link>

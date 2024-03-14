@@ -1,6 +1,7 @@
 import * as React from 'react'
 import {
   Outlet,
+  ScrollRestoration,
   createRootRouteWithContext,
   useMatches,
   useRouterState,
@@ -236,6 +237,7 @@ function RootDocument({
             </div>
           </div>
         </HydrationOverlay>
+        <ScrollRestoration />
         <Scripts />
       </body>
     </html>

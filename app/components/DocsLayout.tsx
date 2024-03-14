@@ -1,5 +1,3 @@
-import { default as pkg } from '@docsearch/react'
-const { DocSearch } = pkg
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import {
@@ -16,7 +14,6 @@ import {
   useParams,
 } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
-import { Search } from '~/components/Search'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
@@ -26,6 +23,7 @@ import { last } from '~/utils/utils'
 import type { AvailableOptions } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
+import { DocSearch } from './DocSearch'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -381,7 +379,7 @@ export function DocsLayout({
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
-          <Search {...config.docSearch} />
+          <DocSearch {...config.docSearch} />
         </summary>
         <div
           className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto

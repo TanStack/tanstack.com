@@ -7,9 +7,9 @@ export const latestBranch = 'main'
 export const latestVersion = 'v0'
 export const availableVersions = ['v0']
 
-export const colorFrom = 'from-lime-500'
-export const colorTo = 'to-emerald-500'
-export const textColor = 'text-emerald-500'
+export const colorFrom = 'from-pink-400'
+export const colorTo = 'to-pink-500'
+export const textColor = 'text-pink-500'
 
 export const frameworks: AvailableOptions = [
   { label: 'React', value: 'react', logo: reactLogo },

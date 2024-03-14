@@ -10,19 +10,6 @@ import { resolve } from 'import-meta-resolve'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-const resolveToRelative = (p) => {
-  const toAbsolute = (file) => file.split('://').at(-1)
-
-  const resolved = toAbsolute(resolve(p, import.meta.url))
-
-  const relative = path.relative(
-    path.resolve(toAbsolute(import.meta.url), '..'),
-    resolved
-  )
-
-  return relative
-}
-
 const customVite = () =>
   config('dev', (router, app, env) => ({
     // ssr: {
@@ -114,3 +101,16 @@ export default createApp({
     }),
   ],
 })
+
+function resolveToRelative(p) {
+  const toAbsolute = (file) => file.split('://').at(-1)
+
+  const resolved = toAbsolute(resolve(p, import.meta.url))
+
+  const relative = path.relative(
+    path.resolve(toAbsolute(import.meta.url), '..'),
+    resolved
+  )
+
+  return relative
+}

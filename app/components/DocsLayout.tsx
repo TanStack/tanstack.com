@@ -1,4 +1,4 @@
-import * as pkg from '@docsearch/react'
+import { default as pkg } from '@docsearch/react'
 const { DocSearch } = pkg
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'

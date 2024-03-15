@@ -131,42 +131,6 @@ function RootComponent() {
   )
 }
 
-// function ErrorBoundary({ error }: ErrorComponentProps) {
-//   // when true, this is what used to go to `CatchBoundary`
-//   // if (isRouteErrorResponse(error)) {
-//   //   return (
-//   //     <RootDocument title={`${error.status} ${error.statusText}`}>
-//   //       <div className="h-[50vh] flex flex-col items-center justify-center gap-6">
-//   //         <DefaultCatchBoundary
-//   //           status={error.status}
-//   //           statusText={error.statusText}
-//   //           data={error.data}
-//   //           isRoot={true}
-//   //         />
-//   //       </div>
-//   //     </RootDocument>
-//   //   )
-//   // }
-
-//   console.error(error)
-
-//   // Don't forget to typecheck with your own logic.
-//   // Any value can be thrown, not just errors!
-//   let errorMessage = 'Unknown error'
-//   if (error instanceof Error) {
-//     errorMessage = error.message
-//   }
-
-//   return (
-//     <RootDocument title="Error!">
-//       <div>
-//         <h1>There was an error!</h1>
-//         <p>{errorMessage}</p>
-//       </div>
-//     </RootDocument>
-//   )
-// }
-
 function RootDocument({
   children,
   title,

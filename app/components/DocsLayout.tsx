@@ -284,6 +284,10 @@ export function DocsLayout({
                                   ? 'text-green-500'
                                   : child.badge === 'angular'
                                   ? 'text-fuchsia-500'
+                                  : child.badge === 'qwik'
+                                  ? 'text-indigo-500'
+                                  : child.badge === 'vanilla'
+                                  ? 'text-gray-300'
                                   : 'text-gray-500'
                               }`}
                             >

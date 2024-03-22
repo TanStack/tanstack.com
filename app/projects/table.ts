@@ -2,7 +2,10 @@ import reactLogo from '~/images/react-logo.svg'
 import solidLogo from '~/images/solid-logo.svg'
 import vueLogo from '~/images/vue-logo.svg'
 import svelteLogo from '~/images/svelte-logo.svg'
-import type { AvailableOptions } from '~/components/Select'
+import angularLogo from '~/images/angular-logo.svg'
+import qwikLogo from '~/images/qwik-logo.svg'
+import vanillaLogo from '~/images/js-logo.svg'
+import { AvailableOptions } from '~/components/Select'
 
 export const repo = 'tanstack/table'
 
@@ -15,13 +18,16 @@ export const colorTo = 'to-blue-600'
 export const textColor = 'text-blue-600'
 
 export const frameworks: AvailableOptions = [
+  { label: 'Angular', value: 'angular', logo: angularLogo },
+  { label: 'Qwik', value: 'qwik', logo: qwikLogo },
   { label: 'React', value: 'react', logo: reactLogo },
   { label: 'Solid', value: 'solid', logo: solidLogo },
   { label: 'Svelte', value: 'svelte', logo: svelteLogo },
   { label: 'Vue', value: 'vue', logo: vueLogo },
+  { label: 'Vanilla', value: 'vanilla', logo: vanillaLogo },
 ]
 
-export type Framework = keyof typeof frameworks
+export type Framework = (typeof frameworks)[number]['value']
 
 export function getBranch(argVersion?: string) {
   const version = argVersion || latestVersion

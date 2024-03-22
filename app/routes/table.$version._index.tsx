@@ -407,10 +407,13 @@ export default function ReactTableRoute() {
           <div className="flex flex-wrap gap-2 justify-center">
             {(
               [
+                { label: 'Angular', value: 'angular' },
+                { label: 'Qwik', value: 'qwik' },
                 { label: 'React', value: 'react' },
                 { label: 'Solid', value: 'solid' },
                 { label: 'Svelte', value: 'svelte' },
                 { label: 'Vue', value: 'vue' },
+                { label: 'Vanilla', value: 'vanilla' },
               ] as const
             ).map((item) => (
               <button

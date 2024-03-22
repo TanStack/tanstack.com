@@ -114,6 +114,8 @@ export default eventHandler(async (event) => {
     stream
   )
 
+  ;(event as any).__tsrHeadersSent = true
+
   let headers = {
     ...getResponseHeaders(event),
     'Content-Type': 'text/html',

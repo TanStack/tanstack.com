@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { fetchRepoFile } from './documents.server'
-import { createServerFn } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-router-server'
 
 export type MenuItem = {
   label: string | React.ReactNode

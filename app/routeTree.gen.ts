@@ -20,7 +20,9 @@ import { Route as RouterImport } from './routes/router'
 import { Route as RangerImport } from './routes/ranger'
 import { Route as QueryImport } from './routes/query'
 import { Route as MerchImport } from './routes/merch'
+import { Route as LoginImport } from './routes/login'
 import { Route as FormImport } from './routes/form'
+import { Route as DashboardImport } from './routes/dashboard'
 import { Route as ConfigImport } from './routes/config'
 import { Route as BlogImport } from './routes/blog'
 import { Route as LibrariesImport } from './routes/_libraries'
@@ -154,8 +156,18 @@ const MerchRoute = MerchImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const LoginRoute = LoginImport.update({
+  path: '/login',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const FormRoute = FormImport.update({
   path: '/form',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DashboardRoute = DashboardImport.update({
+  path: '/dashboard',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -644,8 +656,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfigImport
       parentRoute: typeof rootRoute
     }
+    '/dashboard': {
+      preLoaderRoute: typeof DashboardImport
+      parentRoute: typeof rootRoute
+    }
     '/form': {
       preLoaderRoute: typeof FormImport
+      parentRoute: typeof rootRoute
+    }
+    '/login': {
+      preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
     '/merch': {
@@ -1036,6 +1056,7 @@ export const routeTree = rootRoute.addChildren([
     ]),
     ConfigIndexRoute,
   ]),
+  DashboardRoute,
   FormRoute.addChildren([
     FormVersionRoute.addChildren([
       FormVersionDocsRoute.addChildren([
@@ -1049,6 +1070,7 @@ export const routeTree = rootRoute.addChildren([
     ]),
     FormIndexRoute,
   ]),
+  LoginRoute,
   MerchRoute,
   QueryRoute.addChildren([
     QueryVersionRoute.addChildren([

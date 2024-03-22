@@ -1,9 +1,4 @@
-import {
-  Link,
-  createFileRoute,
-  notFound,
-  createServerFn,
-} from '@tanstack/react-router'
+import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 
 import { getPostList } from '~/utils/blog'
 import { DocTitle } from '~/components/DocTitle'
@@ -12,6 +7,7 @@ import { format } from 'date-fns'
 import { Footer } from '~/components/Footer'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import { PostNotFound } from './blog'
+import { createServerFn } from '@tanstack/react-router-server'
 
 const fetchFrontMatters = createServerFn('GET', async () => {
   'use server'

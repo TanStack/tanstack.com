@@ -1,7 +1,7 @@
 /// <reference types="vinxi/types/server" />
 import type { PipeableStream } from 'react-dom/server'
-import { renderToPipeableStream, renderToString } from 'react-dom/server'
-import { eventHandler, toWebRequest } from 'vinxi/server'
+import { renderToPipeableStream } from 'react-dom/server'
+import { eventHandler, getResponseHeaders, toWebRequest } from 'vinxi/server'
 import { getManifest } from 'vinxi/manifest'
 import {
   StartServer,
@@ -10,8 +10,12 @@ import {
 import { Transform, PassThrough } from 'node:stream'
 
 import { createRouter } from './router'
-import { createMemoryHistory, isRedirect } from '@tanstack/react-router'
+import { createMemoryHistory } from '@tanstack/react-router'
 import React from 'react'
+import {
+  serverFnPayloadTypeHeader,
+  serverFnReturnTypeHeader,
+} from '@tanstack/react-router-server'
 
 export default eventHandler(async (event) => {
   const req = toWebRequest(event)
@@ -68,10 +72,11 @@ export default eventHandler(async (event) => {
   const { redirect } = router.state
 
   if (redirect) {
-    console.log('Redirecting...', redirect.statusCode, redirect.href)
+    console.info('Redirecting...', redirect.statusCode, redirect.href)
     return new Response(null, {
       status: redirect.statusCode,
       headers: {
+        ...redirect.headers,
         Location: redirect.href,
       },
     })
@@ -89,14 +94,14 @@ export default eventHandler(async (event) => {
   // Add our Router transform to the stream
   const transforms = [
     transformStreamWithRouter(router),
-    // A transform that logs chunks
+    // // A transform that logs chunks
     // new Transform({
     //   transform(chunk, encoding, callback) {
     //     const str = chunk.toString()
-    //     console.log('')
-    //     console.log('CHUNK')
-    //     console.log('')
-    //     console.log(str)
+    //     console.info('')
+    //     console.info('CHUNK')
+    //     console.info('')
+    //     console.info(str)
     //     this.push(str)
     //     return callback()
     //   },
@@ -109,23 +114,50 @@ export default eventHandler(async (event) => {
     stream
   )
 
-  const headers = router.state.matches.reduce((acc, match) => {
-    if (match.headers) {
-      Object.assign(acc, match.headers)
-    }
-    return acc
-  }, {})
+  let headers = {
+    ...getResponseHeaders(event),
+    'Content-Type': 'text/html',
+    ...router.state.matches.reduce((acc, match) => {
+      if (match.headers) {
+        Object.assign(acc, match.headers)
+      }
+      return acc
+    }, {}),
+  }
+
+  // Remove server function headers
+  ;[serverFnReturnTypeHeader, serverFnPayloadTypeHeader].forEach((header) => {
+    delete headers[header]
+  })
+
+  // Dedupe headers
+  headers = dedupeHeaders(Object.entries(headers))
 
   return new Response(transformedStream as any, {
     status: router.state.statusCode,
     statusText:
       router.state.statusCode === 200 ? 'OK' : 'Internal Server Error',
-    headers: {
-      'Content-Type': 'text/html',
-      ...headers,
-    },
+    headers,
   })
 })
+
+function dedupeHeaders(headerList: [string, string][]): [string, string][] {
+  // Object to store the deduplicated headers
+  const seen = new Set()
+
+  // Reverse, filter with seen, then reverse again
+  return [...headerList]
+    .reverse()
+    .filter(([name]) => {
+      const key = name.toLowerCase()
+      if (seen.has(key)) {
+        return false
+      }
+      seen.add(key)
+      return true
+    })
+    .reverse()
+}
 
 function getHydrationOverlayScriptContext() {
   return `
@@ -154,8 +186,8 @@ const proxyConsole = (method) => {
   }
 }
 
-const methods = ['log', 'error', 'warn']
-methods.forEach(proxyConsole)
+// const methods = ['log', 'error', 'warn']
+// methods.forEach(proxyConsole)
 
 window.addEventListener('error', (event) => {
   const msg = event.message.toLowerCase()

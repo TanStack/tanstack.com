@@ -13,11 +13,7 @@ import prismThemeDark from '~/styles/prismThemeDark.css?url'
 import docSearchStyles from '@docsearch/css/dist/style.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-import {
-  Meta,
-  RouterManagedTag,
-  Scripts,
-} from '@tanstack/react-router-server/client'
+import { Meta, RouterManagedTag, Scripts } from '@tanstack/react-router-server'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { HydrationOverlay } from '@builder.io/react-hydration-overlay'
 import { NotFound } from '~/components/NotFound'

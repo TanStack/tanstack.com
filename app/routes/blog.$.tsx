@@ -1,13 +1,10 @@
-import {
-  createFileRoute,
-  createServerFn,
-  notFound,
-} from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import removeMarkdown from 'remove-markdown'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'
+import { createServerFn } from '@tanstack/react-router-server'
 
 const fetchBlogPost = createServerFn(
   'GET',

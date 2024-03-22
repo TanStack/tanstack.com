@@ -29,7 +29,6 @@ export const Route = createFileRoute('/query/$version')({
     )
 
     if (!availableVersions.concat('latest').includes(version!)) {
-      console.log('hello')
       throw redirect({
         params: {
           version: 'latest',

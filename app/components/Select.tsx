@@ -51,7 +51,7 @@ export function Select<T extends SelectOption>({
           <div className="relative mt-1">
             <Listbox.Button className="relative items-center  w-full gap-2 flex hover:bg-gray-100/70 dark:hover:bg-gray-800 cursor-default border-2 dark:border-gray-700/80 rounded-md py-2 pl-2 pr-10 text-left focus:outline-none focus-visible:border-indigo-500  sm:text-sm">
               {selectedOption.logo ? (
-                <figure className="flex ">
+                <figure className="flex">
                   <img
                     height={18}
                     width={18}

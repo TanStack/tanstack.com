@@ -1,12 +1,4 @@
-import * as React from 'react'
-import {
-  Await,
-  FileRoute,
-  Link,
-  createFileRoute,
-  createServerFn,
-  defer,
-} from '@tanstack/react-router'
+import { Await, Link, createFileRoute, defer } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
@@ -22,7 +14,6 @@ import bytesImage from '~/images/bytes.svg'
 import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
 import { useMutation } from '~/hooks/useMutation'
 import { sample } from '~/utils/utils'
-import { bg } from 'date-fns/locale'
 
 export const textColors = [
   `text-rose-500`,

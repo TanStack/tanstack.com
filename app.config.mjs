@@ -50,6 +50,10 @@ const customVite = () =>
 export default createApp({
   server: {
     preset: 'vercel',
+    experimental: {
+      asyncStorage: true,
+      asyncContext: true,
+    },
   },
   routers: [
     {

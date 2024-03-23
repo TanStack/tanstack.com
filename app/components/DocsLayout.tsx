@@ -350,7 +350,7 @@ export function DocsLayout({
         <div className="h-2" />
         <div className="ml-2 space-y-px text-[.9em]">
           {group?.children?.map((child, i) => {
-            const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
+            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
 
             return (
               <div key={i}>

@@ -469,7 +469,7 @@ export function DocsLayout({
   )
 
   const largeMenu = (
-    <div className="min-w-[250px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
+    <div className="max-w-max w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div>
         <DocSearch

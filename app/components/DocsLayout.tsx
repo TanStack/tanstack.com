@@ -350,7 +350,7 @@ export function DocsLayout({
         <div className="h-2" />
         <div className="ml-2 space-y-px text-[.9em]">
           {group?.children?.map((child, i) => {
-            const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
+            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
 
             return (
               <div key={i}>
@@ -469,7 +469,7 @@ export function DocsLayout({
   )
 
   const largeMenu = (
-    <div className="min-w-[250px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
+    <div className="max-w-max w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div>
         <DocSearch

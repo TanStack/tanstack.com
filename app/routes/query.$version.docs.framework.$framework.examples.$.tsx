@@ -7,6 +7,7 @@ import { repo, getBranch } from '~/projects/query'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
+import { mergeMeta } from '~/utils/mergeMeta'
 
 export const loader = async (context: LoaderFunctionArgs) => {
   const { version, framework, '*': name } = context.params
@@ -14,7 +15,7 @@ export const loader = async (context: LoaderFunctionArgs) => {
   return json({ version, framework, name })
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = mergeMeta(({ data }) => {
   return seo({
     title: `${capitalize(data.framework)} Query ${slugToTitle(
       data.name
@@ -23,7 +24,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
       data.name
     )} in ${capitalize(data.framework)} Query`,
   })
-}
+})
 
 export default function RouteExamples() {
   const { version, framework, name } = useLoaderData<typeof loader>()

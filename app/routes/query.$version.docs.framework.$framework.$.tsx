@@ -5,6 +5,7 @@ import { seo } from '~/utils/seo'
 import { useLoaderData, useParams } from '@remix-run/react'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
+import { mergeMeta } from '~/utils/mergeMeta'
 
 export const loader = async (context: LoaderFunctionArgs) => {
   const { '*': docsPath, framework, version } = context.params
@@ -19,12 +20,12 @@ export const loader = async (context: LoaderFunctionArgs) => {
   })
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = mergeMeta(({ data }) => {
   return seo({
     title: `${data?.title} | TanStack Query Docs`,
     description: data?.description,
   })
-}
+})
 
 export const ErrorBoundary = DefaultErrorBoundary
 

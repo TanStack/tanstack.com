@@ -73,7 +73,7 @@ export const libraries = [
     cardStyles: `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
     to: '/form',
     tagline: `Headless UI for building performant and type-safe forms`,
-    description: `Headless, performant, and type-safe form state management for TS/JS, React, Solid, Svelte and Vue`,
+    description: `Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid and Lit`,
     badge: 'new',
     bgStyle: 'bg-yellow-500',
     textStyle: 'text-yellow-500',

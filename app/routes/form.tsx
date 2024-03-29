@@ -7,9 +7,9 @@ export const Route = createFileRoute('/form')({
   component: RouteForm,
   meta: () =>
     seo({
-      title: 'TanStack Form | React Form, Solid Form, Svelte Form, Vue Form',
+      title: 'TanStack Form | React Form, Vue Form, Angular Form, Solid Form, Lit Form',
       description:
-        'Simple, performant, type-safe forms for TS/JS, React, Solid, Svelte and Vue',
+        'Simple, performant, type-safe forms for TS/JS, React, Angular, Vue, Solid, and Lit',
       image: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
     }),
 })

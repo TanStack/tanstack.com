@@ -144,7 +144,7 @@ export default function FormVersionIndex() {
             <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
               Headless, performant, and type-safe
             </span>{' '}
-            form state management for TS/JS, React, Solid, Vue, and Lit
+            form state management for TS/JS, React, Vue, Angular, Solid, and Lit
           </h2>
           <p
             className="text opacity-90 max-w-[500px]
@@ -359,8 +359,9 @@ export default function FormVersionIndex() {
               {(
                 [
                   { label: 'React', value: 'react' },
-                  { label: 'Solid', value: 'solid' },
                   { label: 'Vue', value: 'vue' },
+                  { label: 'Angular', value: 'angular' },
+                  { label: 'Solid', value: 'solid' },
                   { label: 'Lit', value: 'lit' },
                 ] as const
               ).map((item) => (

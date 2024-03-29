@@ -68,13 +68,17 @@ export default createApp({
       handler: './app/server.tsx',
       target: 'server',
       plugins: () => [
+        TanStackRouterVite({
+          experimental: {
+            enableCodeSplitting: true,
+          },
+        }),
         customVite(),
         tsconfigPaths(),
         serverTransform({
           runtime: `@tanstack/react-router-server/server-runtime`,
         }),
         reactRefresh(),
-        TanStackRouterVite(),
       ],
       link: {
         client: 'client',
@@ -87,6 +91,11 @@ export default createApp({
       target: 'browser',
       base: '/_build',
       plugins: () => [
+        TanStackRouterVite({
+          experimental: {
+            enableCodeSplitting: true,
+          },
+        }),
         customVite(),
         tsconfigPaths(),
         serverFunctions.client({

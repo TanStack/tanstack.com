@@ -20,10 +20,10 @@
     "@octokit/rest": "^20.0.2",
     "@remix-run/node": "^2.8.1",
     "@tailwindcss/typography": "^0.5.10",
-    "@tanstack/react-router": "1.22.2",
-    "@tanstack/react-router-server": "1.22.2",
-    "@tanstack/router-devtools": "1.22.2",
-    "@tanstack/router-vite-plugin": "1.20.5",
+    "@tanstack/react-router": "1.24.0",
+    "@tanstack/react-router-server": "1.25.0",
+    "@tanstack/router-devtools": "1.24.0",
+    "@tanstack/router-vite-plugin": "1.25.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vinxi/react": "0.2.2",
     "@vinxi/server-functions": "^0.3.2",
@@ -51,7 +51,7 @@
     "remove-markdown": "^0.5.0",
     "tailwind-merge": "^1.14.0",
     "tiny-invariant": "^1.3.3",
-    "vinxi": "0.3.10",
+    "vinxi": "0.3.11",
     "vite": "^5.1.4",
     "vite-tsconfig-paths": "^4.3.1",
     "zod": "^3.22.4",
@@ -80,7 +80,9 @@
       "@tanstack/react-router-server": "file:../router/packages/react-router-server",
       "@tanstack/react-cross-context": "file:../router/packages/react-cross-context",
       "@tanstack/history": "file:../router/packages/history",
-      "@tanstack/react-store": "file:../router/packages/react-router/node_modules/@tanstack/react-store"
+      "@tanstack/react-store": "file:../router/packages/react-router/node_modules/@tanstack/react-store",
+      "@tanstack/router-vite-plugin": "file:../router/packages/router-vite-plugin",
+      "@tanstack/router-generator": "file:../router/packages/router-generator"
     }
   }
 }

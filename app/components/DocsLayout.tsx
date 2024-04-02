@@ -505,7 +505,7 @@ export function DocsLayout({
 
   return (
     <div
-      className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300 ${
+      className={`min-h-screen mx-auto flex flex-col lg:flex-row w-full transition-all duration-300 ${
         isExample ? 'max-w-[2560px]' : 'max-w-[1400px]'
       }`}
     >

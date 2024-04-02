@@ -1,42 +1,40 @@
-import { useLoaderData, useParams } from '@remix-run/react'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/projects/ranger'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { createFileRoute } from '@tanstack/react-router'
+import { rangerProject } from '~/projects/ranger'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { '*': docsPath, version } = context.params
-  const { url } = context.request
+export const Route = createFileRoute('/ranger/$version/docs/$')({
+  loader: (ctx) => {
+    const { _splat: docsPath, version } = ctx.params
 
-  return loadDocs({
-    repo,
-    branch: getBranch(version),
-    docPath: `docs/${docsPath}`,
-    currentPath: url,
-    redirectPath: url.replace(/\/docs.*/, '/docs/overview'),
-  })
-}
+    return loadDocs({
+      repo: rangerProject.repo,
+      branch: getBranch(rangerProject, version),
+      docsPath: `docs/${docsPath}`,
+      currentPath: ctx.location.pathname,
+      redirectPath: `/ranger/${version}/docs/overview`,
+    })
+  },
+  meta: ({ loaderData }) =>
+    seo({
+      title: `${loaderData?.title} | TanStack Ranger Docs`,
+      description: loaderData?.description,
+    }),
+  component: Docs,
+})
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return seo({
-    title: `${data?.title ?? 'Docs'} | TanStack Ranger Docs`,
-    description: data?.description,
-  })
-}
+function Docs() {
+  const { title, content, filePath } = Route.useLoaderData()
+  const { version } = Route.useParams()
+  const branch = getBranch(rangerProject, version)
 
-export const ErrorBoundary = DefaultErrorBoundary
-
-export default function RouteReactRangerDocs() {
-  const { title, content, filePath } = useLoaderData<typeof loader>()
-  const { version } = useParams()
-  const branch = getBranch(version)
   return (
     <Doc
       title={title}
       content={content}
-      repo={repo}
+      repo={rangerProject.repo}
       branch={branch}
       filePath={filePath}
     />

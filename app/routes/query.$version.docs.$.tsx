@@ -1,52 +1,40 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/projects/query'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { createFileRoute } from '@tanstack/react-router'
+import { queryProject } from '~/projects/query'
 import { seo } from '~/utils/seo'
-import { redirect, useLoaderData, useParams } from '@remix-run/react'
-import { loadDocs } from '~/utils/docs'
 import { Doc } from '~/components/Doc'
+import { loadDocs } from '~/utils/docs'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { '*': docsPath, version } = context.params
-  const { url } = context.request
+export const Route = createFileRoute('/query/$version/docs/$')({
+  loader: (ctx) => {
+    const { _splat: docsPath, version } = ctx.params
 
-  // Temporary fix for old react docs structure
-  if (url.includes('/docs/react/')) {
-    throw redirect(url.replace('/docs/react/', '/docs/framework/react/'))
-  }
+    return loadDocs({
+      repo: queryProject.repo,
+      branch: getBranch(queryProject, version),
+      docsPath: `docs/${docsPath}`,
+      currentPath: ctx.location.pathname,
+      redirectPath: `/query/${version}/docs/framework/react/overview`,
+    })
+  },
+  meta: ({ loaderData }) =>
+    seo({
+      title: `${loaderData?.title} | TanStack Query Docs`,
+      description: loaderData?.description,
+    }),
+  component: Docs,
+})
 
-  // Temporary fix for old vue docs structure
-  if (url.includes('/docs/vue/')) {
-    throw redirect(url.replace('/docs/vue/', '/docs/framework/vue/'))
-  }
+function Docs() {
+  const { title, content, filePath } = Route.useLoaderData()
+  const { version } = Route.useParams()
+  const branch = getBranch(queryProject, version)
 
-  return loadDocs({
-    repo,
-    branch: getBranch(version),
-    docPath: `docs/${docsPath}`,
-    currentPath: url,
-    redirectPath: url.replace(/\/docs.*/, '/docs/framework/react/overview'),
-  })
-}
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return seo({
-    title: `${data?.title} | TanStack Query Docs`,
-    description: data?.description,
-  })
-}
-
-export const ErrorBoundary = DefaultErrorBoundary
-
-export default function RouteDocs() {
-  const { title, content, filePath } = useLoaderData<typeof loader>()
-  const { version } = useParams()
-  const branch = getBranch(version)
   return (
     <Doc
       title={title}
       content={content}
-      repo={repo}
+      repo={queryProject.repo}
       branch={branch}
       filePath={filePath}
     />

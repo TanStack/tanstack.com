@@ -1,20 +1,21 @@
-import { Outlet } from '@remix-run/react'
-import type { LoaderFunctionArgs } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
+
+import { seo } from '~/utils/seo'
 import { Scarf } from '~/components/Scarf'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  if (
-    !context.request.url.includes('/query/v') &&
-    !context.request.url.includes('/query/latest')
-  ) {
-    return redirect(`${new URL(context.request.url).origin}/query/latest`)
-  }
+export const Route = createFileRoute('/query')({
+  meta: () =>
+    seo({
+      title:
+        'TanStack Query | React Query | Vue Query | Svelte Query | Solid Query | Angular Query',
+      description:
+        'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte & Angular applications all without touching any "global state"',
+      image: 'https://github.com/TanStack/ranger/raw/main/media/header.png',
+    }),
+  component: RouteComp,
+})
 
-  return new Response('OK')
-}
-
-export default function RouteQuery() {
+export default function RouteComp() {
   return (
     <>
       <Outlet />

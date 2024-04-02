@@ -1,42 +1,40 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/projects/form'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { createFileRoute } from '@tanstack/react-router'
+import { formProject } from '~/projects/form'
 import { seo } from '~/utils/seo'
-import { useLoaderData, useParams } from '@remix-run/react'
-import { loadDocs } from '~/utils/docs'
 import { Doc } from '~/components/Doc'
+import { loadDocs } from '~/utils/docs'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { '*': docsPath, version } = context.params
-  const { url } = context.request
+export const Route = createFileRoute('/form/$version/docs/$')({
+  loader: (ctx) => {
+    const { _splat: docsPath, version } = ctx.params
 
-  return loadDocs({
-    repo,
-    branch: getBranch(version),
-    docPath: `docs/${docsPath}`,
-    currentPath: url,
-    redirectPath: url.replace(/\/docs.*/, '/docs/overview'),
-  })
-}
+    return loadDocs({
+      repo: formProject.repo,
+      branch: getBranch(formProject, version),
+      docsPath: `docs/${docsPath}`,
+      currentPath: ctx.location.pathname,
+      redirectPath: `/form/${version}/docs/overview`,
+    })
+  },
+  meta: ({ loaderData }) =>
+    seo({
+      title: `${loaderData?.title} | TanStack Form Docs`,
+      description: loaderData?.description,
+    }),
+  component: Docs,
+})
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return seo({
-    title: `${data?.title} | TanStack Form Docs`,
-    description: data?.description,
-  })
-}
+function Docs() {
+  const { title, content, filePath } = Route.useLoaderData()
+  const { version } = Route.useParams()
+  const branch = getBranch(formProject, version)
 
-export const ErrorBoundary = DefaultErrorBoundary
-
-export default function RouteDocs() {
-  const { title, content, filePath } = useLoaderData<typeof loader>()
-  const { version } = useParams()
-  const branch = getBranch(version)
   return (
     <Doc
       title={title}
       content={content}
-      repo={repo}
+      repo={formProject.repo}
       branch={branch}
       filePath={filePath}
     />

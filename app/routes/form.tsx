@@ -1,29 +1,18 @@
-import { Outlet } from '@remix-run/react'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
+
 import { seo } from '~/utils/seo'
 import { Scarf } from '~/components/Scarf'
 
-export const meta: MetaFunction = () => {
-  return seo({
-    title:
-      'TanStack Form | React Form, Vue Form, Angular Form, Solid Form, Lit Form',
-    description:
-      'Simple, performant, type-safe forms for TS/JS, React, Angular, Vue, Solid, and Lit',
-    image: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
-  })
-}
-
-export const loader = async (context: LoaderFunctionArgs) => {
-  if (
-    !context.request.url.includes('/form/v') &&
-    !context.request.url.includes('/form/latest')
-  ) {
-    return redirect(`${new URL(context.request.url).origin}/form/latest`)
-  }
-
-  return new Response('OK')
-}
+export const Route = createFileRoute('/form')({
+  component: RouteForm,
+  meta: () =>
+    seo({
+      title: 'TanStack Form | React Form, Vue Form, Angular Form, Solid Form, Lit Form',
+      description:
+        'Simple, performant, type-safe forms for TS/JS, React, Angular, Vue, Solid, and Lit',
+      image: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
+    }),
+})
 
 export default function RouteForm() {
   return (

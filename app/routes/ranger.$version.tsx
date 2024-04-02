@@ -1,40 +1,34 @@
-import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { availableVersions, latestVersion } from '~/projects/ranger'
-import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
+import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
+import { rangerProject } from '~/projects/ranger'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
-import type { LoaderFunctionArgs } from '@remix-run/node'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version } = context.params
+export const Route = createFileRoute('/ranger/$version')({
+  loader: (ctx) => {
+    const { version } = ctx.params
 
-  const redirectUrl = context.request.url.replace(version!, 'latest')
+    if (!rangerProject.availableVersions.concat('latest').includes(version!)) {
+      throw redirect({
+        params: {
+          version: 'latest',
+        },
+      })
+    }
 
-  if (!availableVersions.concat('latest').includes(version!)) {
-    throw redirect(redirectUrl)
-  }
+    return {
+      version,
+    }
+  },
+  component: RouteForm,
+})
 
-  return json({
-    version,
-    redirectUrl,
-  })
-}
-
-export const ErrorBoundary = DefaultErrorBoundary
-
-export default function RouteReactRouter() {
-  const { version, redirectUrl } = useLoaderData<typeof loader>()
-
-  if (!useClientOnlyRender()) {
-    return null
-  }
+function RouteForm() {
+  const { version } = Route.useParams()
 
   return (
     <>
       <RedirectVersionBanner
         version={version!}
-        latestVersion={latestVersion}
-        redirectUrl={redirectUrl}
+        latestVersion={rangerProject.latestVersion}
       />
       <Outlet />
     </>

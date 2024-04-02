@@ -1,42 +1,40 @@
-import { useLoaderData, useParams } from '@remix-run/react'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/projects/router'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { createFileRoute } from '@tanstack/react-router'
+import { routerProject } from '~/projects/router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { '*': docsPath, version } = context.params
-  const { url } = context.request
+export const Route = createFileRoute('/router/$version/docs/$')({
+  loader: (ctx) => {
+    const { _splat: docsPath, version } = ctx.params
 
-  return loadDocs({
-    repo,
-    branch: getBranch(version),
-    docPath: `docs/${docsPath}`,
-    currentPath: url,
-    redirectPath: url.replace(/\/docs.*/, '/docs/framework/react/overview'),
-  })
-}
+    return loadDocs({
+      repo: routerProject.repo,
+      branch: getBranch(routerProject, version),
+      docsPath: `docs/${docsPath}`,
+      currentPath: ctx.location.pathname,
+      redirectPath: '/router/latest/docs/framework/react/overview',
+    })
+  },
+  meta: ({ loaderData }) =>
+    seo({
+      title: `${loaderData?.title ?? 'Docs'} | TanStack Router Docs`,
+      description: loaderData?.description,
+    }),
+  component: Docs,
+})
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return seo({
-    title: `${data?.title ?? 'Docs'} | TanStack Router Docs`,
-    description: data?.description,
-  })
-}
+function Docs() {
+  const { title, content, filePath } = Route.useLoaderData()
+  const { version } = Route.useParams()
+  const branch = getBranch(routerProject, version)
 
-export const ErrorBoundary = DefaultErrorBoundary
-
-export default function RouteReactTableDocs() {
-  const { title, content, filePath } = useLoaderData<typeof loader>()
-  const { version } = useParams()
-  const branch = getBranch(version)
   return (
     <Doc
       title={title}
       content={content}
-      repo={repo}
+      repo={routerProject.repo}
       branch={branch}
       filePath={filePath}
     />

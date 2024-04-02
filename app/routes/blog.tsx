@@ -1,19 +1,20 @@
 import * as React from 'react'
-import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { Link, NavLink, Outlet } from '@remix-run/react'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import {
+  DefaultGlobalNotFound,
+  Link,
+  Outlet,
+  createFileRoute,
+} from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { seo } from '~/utils/seo'
-import type { MetaFunction } from '@remix-run/node'
-
-export const ErrorBoundary = DefaultErrorBoundary
+import { CgClose, CgMenuLeft } from 'react-icons/cg'
 
 const logo = (
   <>
     <Link to="/" className="font-light">
       TanStack
     </Link>
-    <Link to="" className={`font-bold`}>
+    <Link to="." className={`font-bold`}>
       <span
         className="inline-block text-transparent bg-clip-text
             bg-gradient-to-r from-rose-500 via-purple-500 to-yellow-500"
@@ -29,22 +30,42 @@ const localMenu = [
     label: 'Blog',
     children: [
       {
-        label: 'Latest',
-        to: '',
+        label: 'Latest Posts',
+        to: '.',
       },
     ],
   },
 ] as const
 
-export const meta: MetaFunction = () => {
-  return seo({
-    title: 'Blog | TanStack',
-    description: 'The latest news and blog posts from TanStack!',
-  })
+export const Route = createFileRoute('/blog')({
+  meta: () =>
+    seo({
+      title: 'Blog | TanStack',
+      description: 'The latest news and blog posts from TanStack!',
+    }),
+  component: Blog,
+})
+
+export function PostNotFound() {
+  return (
+    <div className="flex-1 p-4 flex flex-col items-center justify-center gap-6">
+      <h1 className="opacity-10 flex flex-col text-center font-black">
+        <div className="text-7xl leading-none">404</div>
+        <div className="text-3xl leading-none">Not Found</div>
+      </h1>
+      <div className="text-lg">Post not found.</div>
+      <Link
+        to="/blog"
+        className={`py-2 px-4 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+      >
+        Blog Home
+      </Link>
+    </div>
+  )
 }
 
-export default function RouteBlog() {
-  const detailsRef = React.useRef<HTMLElement>(null!)
+function Blog() {
+  const detailsRef = React.useRef<HTMLDetailsElement>(null!)
 
   const menuItems = localMenu.map((group) => {
     return (
@@ -58,20 +79,20 @@ export default function RouteBlog() {
                 {child.to.startsWith('http') ? (
                   <a href={child.to}>{child.label}</a>
                 ) : (
-                  <NavLink
+                  <Link
                     to={child.to}
-                    className={(props) =>
-                      props.isActive
-                        ? `font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600`
-                        : ''
-                    }
+                    activeProps={{
+                      className: `font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-violet-600`,
+                    }}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
-                    end
+                    activeOptions={{
+                      exact: true,
+                    }}
                   >
                     {child.label}
-                  </NavLink>
+                  </Link>
                 )}
               </div>
             )

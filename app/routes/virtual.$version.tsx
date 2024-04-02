@@ -1,55 +1,57 @@
-import { Outlet, json, redirect, useLoaderData } from '@remix-run/react'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
+import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
+
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
-import type { LoaderFunctionArgs } from '@remix-run/node'
-import {
-  availableVersions,
-  latestVersion,
-  reactVirtualV2List,
-} from '~/projects/virtual'
+import { virtualProject } from '~/projects/virtual'
 import { handleRedirects } from '~/utils/handleRedirects.server'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version } = context.params
+export const Route = createFileRoute('/virtual/$version')({
+  loader: (ctx) => {
+    const { version } = ctx.params
 
-  const redirectUrl = context.request.url.replace(version!, 'latest')
+    handleRedirects(
+      reactVirtualV2List,
+      ctx.location.href,
+      '/virtual/v2',
+      '/virtual/v3',
+      'from=reactVirtualV2'
+    )
 
-  handleRedirects(
-    reactVirtualV2List,
-    context.request.url,
-    '/virtual/v2',
-    '/virtual/v3',
-    'from=reactVirtualV2'
-  )
-
-  if (!availableVersions.concat('latest').includes(version!)) {
-    throw redirect(redirectUrl)
-  }
-
-  return json({
-    version,
-    redirectUrl,
-  })
-}
-
-export const ErrorBoundary = DefaultErrorBoundary
+    if (!virtualProject.availableVersions.concat('latest').includes(version!)) {
+      throw redirect({
+        params: {
+          version: 'latest',
+        },
+      })
+    }
+  },
+  component: RouteReactVirtual,
+})
 
 export default function RouteReactVirtual() {
-  const { version, redirectUrl } = useLoaderData<typeof loader>()
-
-  if (!useClientOnlyRender()) {
-    return null
-  }
+  const { version } = Route.useParams()
 
   return (
     <>
       <RedirectVersionBanner
         version={version!}
-        latestVersion={latestVersion}
-        redirectUrl={redirectUrl}
+        latestVersion={virtualProject.latestVersion}
       />
       <Outlet />
     </>
   )
 }
+
+// prettier-ignore
+export const reactVirtualV2List = [
+    {from: 'docs/overview',to: 'docs/introduction',},
+    {from: 'docs/installation',to: 'docs/installation',},
+    {from: 'docs/api',to: 'docs/api/virtualizer',},
+    {from: 'examples/fixed',to: 'docs/framework/react/examples/fixed',},
+    {from: 'examples/variable',to: 'docs/framework/react/examples/variable',},
+    {from: 'examples/dynamic',to: 'docs/framework/react/examples/dynamic',},
+    {from: 'examples/infinite-scroll',to: 'docs/framework/react/examples/infinite-scroll',},
+    {from: 'examples/padding',to: 'docs/framework/react/examples/padding',},
+    {from: 'examples/smooth-scroll',to: 'docs/framework/react/examples/smooth-scroll',},
+    {from: 'examples/sticky',to: 'docs/framework/react/examples/sticky',},
+    {from: '',to: '',},
+  ]

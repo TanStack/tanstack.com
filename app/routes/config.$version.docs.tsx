@@ -1,45 +1,48 @@
-import type { LoaderFunctionArgs } from '@remix-run/node'
-import { json } from '@remix-run/node'
-import { Outlet, useLoaderData } from '@remix-run/react'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
-import {
-  colorFrom,
-  colorTo,
-  getBranch,
-  latestVersion,
-  repo,
-  textColor,
-  availableVersions,
-  frameworks,
-} from '~/projects/config'
+import { getBranch } from '~/projects'
+import { configProject } from '~/projects/config'
 import { getTanstackDocsConfig } from '~/utils/config'
+import { seo } from '~/utils/seo'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version } = context.params
-  const branch = getBranch(version)
+export const Route = createFileRoute('/config/$version/docs')({
+  loader: async (ctx) => {
+    const branch = getBranch(configProject, ctx.params.version)
+    const config = await getTanstackDocsConfig({
+      repo: configProject.repo,
+      branch,
+    })
 
-  const config = await getTanstackDocsConfig(repo, branch)
+    return {
+      config,
+    }
+  },
+  meta: () =>
+    seo({
+      title: 'TanStack Config Docs | TanStack Config',
+    }),
+  component: DocsRoute,
+})
 
-  return json({
-    config,
-    version,
-  })
-}
-
-export default function Component() {
-  const { version, config } = useLoaderData<typeof loader>()
+function DocsRoute() {
+  const { config } = Route.useLoaderData()
+  const { version } = Route.useParams()
 
   return (
     <DocsLayout
       name="Config"
-      version={version === 'latest' ? latestVersion : version!}
-      colorFrom={colorFrom}
-      colorTo={colorTo}
-      textColor={textColor}
+      version={
+        configProject.version === 'latest'
+          ? configProject.latestVersion
+          : version!
+      }
+      colorFrom={configProject.colorFrom}
+      colorTo={configProject.colorTo}
+      textColor={configProject.textColor}
       config={config}
-      frameworks={frameworks}
-      availableVersions={availableVersions}
-      repo={repo}
+      frameworks={configProject.frameworks}
+      versions={configProject.availableVersions}
+      repo={configProject.repo}
     >
       <Outlet />
     </DocsLayout>

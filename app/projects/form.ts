@@ -1,32 +1,20 @@
-import reactLogo from '~/images/react-logo.svg'
-import solidLogo from '~/images/solid-logo.svg'
-import vueLogo from '~/images/vue-logo.svg'
-import angularLogo from '~/images/angular-logo.svg'
-import litLogo from '~/images/lit-logo.svg'
-import type { AvailableOptions } from '~/components/Select'
+import { Library } from '.'
 
-export const repo = 'tanstack/form'
-
-export const latestBranch = 'main'
-export const latestVersion = 'v0'
-export const availableVersions = ['v0']
-
-export const colorFrom = 'from-yellow-500'
-export const colorTo = 'to-yellow-600'
-export const textColor = 'text-yellow-600'
-
-export const frameworks: AvailableOptions = [
-  { label: 'React', value: 'react', logo: reactLogo },
-  { label: 'Vue', value: 'vue', logo: vueLogo },
-  { label: 'Angular', value: 'angular', logo: angularLogo },
-  { label: 'Solid', value: 'solid', logo: solidLogo },
-  { label: 'Lit', value: 'lit', logo: litLogo },
-]
-
-export type Framework = keyof typeof frameworks
-
-export function getBranch(argVersion?: string) {
-  const version = argVersion || latestVersion
-
-  return ['latest', latestVersion].includes(version) ? latestBranch : version
+export const formProject: Library = {
+  name: 'TanStack Form',
+  cardStyles: `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
+  to: '/form',
+  tagline: `Headless UI for building performant and type-safe forms`,
+  description: `Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid and Lit`,
+  badge: 'new',
+  bgStyle: 'bg-yellow-500',
+  textStyle: 'text-yellow-500',
+  repo: 'tanstack/form',
+  latestBranch: 'main',
+  latestVersion: 'v0',
+  availableVersions: ['v0'],
+  colorFrom: 'from-yellow-500',
+  colorTo: 'to-yellow-600',
+  textColor: 'text-yellow-600',
+  frameworks: ['react', 'vue', 'angular', 'solid', 'lit'],
 }

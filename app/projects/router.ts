@@ -1,24 +1,20 @@
-import reactLogo from '~/images/react-logo.svg'
-import type { AvailableOptions } from '~/components/Select'
+import { Library } from '.'
 
-export const repo = 'tanstack/router'
-
-export const latestBranch = 'main'
-export const latestVersion = 'v1'
-export const availableVersions = ['v1']
-
-export const colorFrom = 'from-lime-500'
-export const colorTo = 'to-emerald-500'
-export const textColor = 'text-emerald-500'
-
-export const frameworks: AvailableOptions = [
-  { label: 'React', value: 'react', logo: reactLogo },
-]
-
-export type Framework = keyof typeof frameworks
-
-export function getBranch(argVersion?: string) {
-  const version = argVersion || latestVersion
-
-  return ['latest', latestVersion].includes(version) ? latestBranch : version
+export const routerProject: Library = {
+  name: 'TanStack Router',
+  cardStyles: `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 text-emerald-500 dark:text-emerald-400 border-2 border-transparent hover:border-current`,
+  to: '/router',
+  tagline: `Type-safe Routing for React applications.`,
+  description: `Powerful routing for your React applications including a fully type-safe API and first-class search-param for managing state in the URL.`,
+  bgStyle: 'bg-emerald-500',
+  textStyle: 'text-emerald-500',
+  badge: 'new',
+  repo: 'tanstack/router',
+  latestBranch: 'main',
+  latestVersion: 'v1',
+  availableVersions: ['v1'],
+  colorFrom: 'from-lime-500',
+  colorTo: 'to-emerald-500',
+  textColor: 'text-emerald-500',
+  frameworks: ['react'],
 }

@@ -1,21 +1,20 @@
-import type { AvailableOptions } from '~/components/Select'
+import { Library } from '.'
 
-export const repo = 'tanstack/config'
-
-export const latestBranch = 'main'
-export const latestVersion = 'v0'
-export const availableVersions = ['v0']
-
-export const colorFrom = 'from-gray-500'
-export const colorTo = 'to-gray-700'
-export const textColor = 'text-gray-700'
-
-export const frameworks: AvailableOptions = []
-
-export type Framework = keyof typeof frameworks
-
-export function getBranch(argVersion?: string) {
-  const version = argVersion || latestVersion
-
-  return ['latest', latestVersion].includes(version) ? latestBranch : version
+export const configProject: Library = {
+  name: 'TanStack Config',
+  cardStyles: `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-500 border-2 border-transparent hover:border-current`,
+  to: '/config',
+  tagline: `Configuration and tools for publishing and maintaining high-quality JavaScript packages`,
+  description: `The build and publish utilities used by all of our projects. Use it if you dare!`,
+  badge: 'new',
+  bgStyle: 'bg-slate-500',
+  textStyle: 'text-slate-500',
+  repo: 'tanstack/config',
+  latestBranch: 'main',
+  latestVersion: 'v0',
+  availableVersions: ['v0'],
+  colorFrom: 'from-gray-500',
+  colorTo: 'to-gray-700',
+  textColor: 'text-gray-700',
+  frameworks: [],
 }

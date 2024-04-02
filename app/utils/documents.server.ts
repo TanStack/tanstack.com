@@ -39,7 +39,8 @@ async function fetchRemote(
  */
 async function fetchFs(repo: string, filepath: string) {
   // const __dirname = fileURLToPath(new URL('.', import.meta.url))
-  const localFilePath = path.resolve(__dirname, `../../${repo}`, filepath)
+  const dirname = import.meta.url.split('://').at(-1)!
+  const localFilePath = path.resolve(dirname, `../../../../${repo}`, filepath)
   const file = await fsp.readFile(localFilePath)
   return file.toString()
 }
@@ -150,7 +151,8 @@ export async function fetchRepoFile(
           } else {
             text = await fetchRemote(owner, repo, ref, filepath)
           }
-        } catch {
+        } catch (err) {
+          console.error(err)
           return null
         }
 

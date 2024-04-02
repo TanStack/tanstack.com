@@ -5,7 +5,7 @@
 @layer base {
   html,
   body {
-    @apply text-gray-900 bg-gray-50 dark:bg-gray-900 dark:text-gray-200;
+    @apply text-gray-900 bg-gray-50 dark:bg-gray-950 dark:text-gray-200;
   }
 
   .using-mouse * {
@@ -144,4 +144,8 @@
 code[class*='language-'] {
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+.prism-code {
+  @apply mb-4;
 }

@@ -1,55 +1,66 @@
-import { Link } from '@remix-run/react'
+import {
+  ErrorComponent,
+  ErrorComponentProps,
+  Link,
+  rootRouteId,
+  useMatch,
+  useRouter,
+} from '@tanstack/react-router'
 
-type DefaultCatchBoundaryType = {
-  status: number
-  statusText: string
-  data: string
-  isRoot?: boolean
-}
+// type DefaultCatchBoundaryType = {
+//   status: number
+//   statusText: string
+//   data: string
+//   isRoot?: boolean
+// }
 
-export function DefaultCatchBoundary({
-  status,
-  statusText,
-  data,
-  isRoot,
-}: DefaultCatchBoundaryType) {
-  let message
-  switch (status) {
-    case 401:
-      message = (
-        <p>
-          Oops! Looks like you tried to visit a page that you do not have access
-          to.
-        </p>
-      )
-      break
-    case 404:
-      message = (
-        <p>Oops! Looks like you tried to visit a page that does not exist.</p>
-      )
-      break
+export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
+  const router = useRouter()
+  const isRoot = useMatch({
+    strict: false,
+    select: (state) => state.id === rootRouteId,
+  })
 
-    default:
-      throw new Error(data || statusText)
-  }
+  console.error(error)
 
   return (
     <div className="flex-1 p-4 flex flex-col items-center justify-center gap-6">
       <h1 className="opacity-10 flex flex-col text-center font-black">
-        <div className="text-7xl leading-none">{status}</div>
+        {/* <div className="text-7xl leading-none">{status}</div>
         {statusText ? (
           <div className="text-3xl leading-none">{statusText}</div>
-        ) : null}
+        ) : null} */}
       </h1>
-      {message ? <div className="text-lg">{message}</div> : null}
-      {isRoot ? (
-        <Link
-          to="/"
-          className={`py-2 px-4 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+      <ErrorComponent error={error} />
+      <div className="flex gap-2 items-center flex-wrap">
+        <button
+          onClick={() => {
+            router.invalidate()
+          }}
+          className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
         >
-          TanStack Home
-        </Link>
-      ) : null}
+          Try Again
+        </button>
+        {isRoot ? (
+          <Link
+            to="/"
+            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+          >
+            TanStack Home
+          </Link>
+        ) : (
+          <Link
+            to="/"
+            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+            onClick={(e) => {
+              e.preventDefault()
+              window.history.back()
+            }}
+          >
+            Go Back
+          </Link>
+        )}
+      </div>
     </div>
   )
 }

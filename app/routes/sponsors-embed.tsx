@@ -1,38 +1,25 @@
 import SponsorPack from '~/components/SponsorPack'
-import { json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import { createFileRoute } from '@tanstack/react-router'
 
-export const handle = {
-  baseParent: true,
+const cacheHeaders = {
+  'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
 }
 
-export const loader = async () => {
-  const sponsors = await getSponsorsForSponsorPack()
+export const Route = createFileRoute('/sponsors-embed')({
+  loader: () => getSponsorsForSponsorPack(),
+  headers: () => {
+    // Cache the entire HTML response for 5 minutes
+    return cacheHeaders
+  },
+  staticData: {
+    baseParent: true,
+  },
+  component: SponsorsEmbed,
+})
 
-  return json(
-    {
-      sponsors,
-    },
-    {
-      headers: {
-        'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
-      },
-    }
-  )
-}
-
-export const ErrorBoundary = DefaultErrorBoundary
-
-export const headers = ({ loaderHeaders }: { loaderHeaders: Headers }) => {
-  return {
-    'Cache-Control': loaderHeaders.get('Cache-Control') ?? '',
-  }
-}
-
-export default function Sponsors() {
-  const { sponsors } = useLoaderData<typeof loader>()
+function SponsorsEmbed() {
+  const sponsors = Route.useLoaderData()
 
   return (
     <>
@@ -42,10 +29,10 @@ export default function Sponsors() {
         <style
           dangerouslySetInnerHTML={{
             __html: `
-        html, body {
-          background: transparent !important;
-        }
-      `,
+  html, body {
+    background: transparent !important;
+  }
+`,
           }}
         />
         <SponsorPack sponsors={sponsors} />

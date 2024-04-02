@@ -381,21 +381,21 @@ const LibrariesTableVersionIndexRoute = LibrariesTableVersionIndexImport.update(
   {
     path: '/table/$version/',
     getParentRoute: () => LibrariesRoute,
-  } as any,
+  } as any
 )
 
 const LibrariesStoreVersionIndexRoute = LibrariesStoreVersionIndexImport.update(
   {
     path: '/store/$version/',
     getParentRoute: () => LibrariesRoute,
-  } as any,
+  } as any
 )
 
 const LibrariesStartVersionIndexRoute = LibrariesStartVersionIndexImport.update(
   {
     path: '/start/$version/',
     getParentRoute: () => LibrariesRoute,
-  } as any,
+  } as any
 )
 
 const LibrariesRouterVersionIndexRoute =
@@ -414,7 +414,7 @@ const LibrariesQueryVersionIndexRoute = LibrariesQueryVersionIndexImport.update(
   {
     path: '/query/$version/',
     getParentRoute: () => LibrariesRoute,
-  } as any,
+  } as any
 )
 
 const LibrariesFormVersionIndexRoute = LibrariesFormVersionIndexImport.update({

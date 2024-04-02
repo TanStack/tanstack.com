@@ -16,11 +16,12 @@ import {
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { colorFrom, colorTo, getBranch } from '~/projects/router'
+import { routerProject } from '~/projects/router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import type { Framework } from '~/projects/router'
+import { Framework, getBranch } from '~/projects'
+import { seo } from '~/utils/seo'
 
 const menu = [
   {
@@ -45,7 +46,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: 'https://github.com/tanstack/router',
+    to: `https://github.com/${routerProject.repo}`,
   },
   {
     label: (
@@ -67,6 +68,11 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/router/$version/')({
   component: RouterVersionIndex,
+  meta: () =>
+    seo({
+      title: routerProject.name,
+      description: routerProject.description,
+    }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
@@ -74,7 +80,7 @@ const librariesRouteApi = getRouteApi('/_libraries')
 function RouterVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
-  const branch = getBranch(version)
+  const branch = getBranch(routerProject, version)
   const [framework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
 
@@ -82,7 +88,7 @@ function RouterVersionIndex() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${routerProject.colorFrom} ${routerProject.colorTo}`
 
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full">
@@ -322,7 +328,9 @@ function RouterVersionIndex() {
         <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
-            src={`https://stackblitz.com/github/tanstack/router/tree/${branch}/examples/${framework}/kitchen-sink-file-based?file=src%2Fmain.tsx&embed=1&theme=${
+            src={`https://stackblitz.com/github/${
+              routerProject.repo
+            }/tree/${branch}/examples/${framework}/kitchen-sink-file-based?file=src%2Fmain.tsx&embed=1&theme=${
               isDark ? 'dark' : 'light'
             }`}
             title="tannerlinsley/router: kitchen-sink"

@@ -6,13 +6,8 @@ import { HiCheck, HiChevronDown } from 'react-icons/hi'
 export type SelectOption = {
   label: string
   value: string
-}
-
-export type AvailableOptions = Array<{
-  label: string
-  value: string
   logo?: string
-}>
+}
 
 export type SelectProps<T extends SelectOption> = {
   className?: string

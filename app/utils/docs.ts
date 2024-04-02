@@ -26,23 +26,13 @@ export const loadDocs = async ({
 
   const filePath = `${docsPath}.md`
 
-  const file = await fetchDocs({
+  return await fetchDocs({
     repo,
     branch,
     filePath,
+    currentPath,
+    redirectPath,
   })
-
-  if (!file) {
-    if (currentPath === redirectPath) {
-      throw notFound()
-    } else {
-      throw redirect({
-        to: redirectPath,
-      })
-    }
-  }
-
-  return file
 }
 
 export const fetchDocs = createServerFn(
@@ -51,17 +41,35 @@ export const fetchDocs = createServerFn(
     repo,
     branch,
     filePath,
+    currentPath,
+    redirectPath,
   }: {
     repo: string
     branch: string
     filePath: string
+    currentPath: string
+    redirectPath: string
   }) => {
     'use server'
 
     const file = await fetchRepoFile(repo, branch, filePath)
 
+    console.log({
+      currentPath,
+      redirectPath,
+    })
+
     if (!file) {
-      return undefined
+      throw notFound()
+      // if (currentPath === redirectPath) {
+      //   console.log('not found')
+      //   throw notFound()
+      // } else {
+      //   console.log('redirect')
+      //   throw redirect({
+      //     to: redirectPath,
+      //   })
+      // }
     }
 
     const frontMatter = extractFrontMatter(file)

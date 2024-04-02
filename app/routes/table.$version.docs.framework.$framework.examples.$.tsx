@@ -1,11 +1,12 @@
 import React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { DocTitle } from '~/components/DocTitle'
-import { getBranch, repo } from '~/projects/table'
+import { tableProject } from '~/projects/table'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
 import { FaExternalLinkAlt } from 'react-icons/fa'
+import { getBranch } from '~/projects'
 
 export const Route = createFileRoute(
   '/table/$version/docs/framework/$framework/examples/$'
@@ -24,7 +25,7 @@ export const Route = createFileRoute(
 
 function Example() {
   const { version, framework, _splat } = Route.useParams()
-  const branch = getBranch(version)
+  const branch = getBranch(tableProject, version)
 
   const examplePath = [framework, _splat].join('/')
 
@@ -34,11 +35,15 @@ function Example() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const githubUrl = `https://github.com/${repo}/tree/${branch}/examples/${examplePath}`
-  const stackBlitzUrl = `https://stackblitz.com/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
+  const githubUrl = `https://github.com/${tableProject.repo}/tree/${branch}/examples/${examplePath}`
+  const stackBlitzUrl = `https://stackblitz.com/github/${
+    tableProject.repo
+  }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
-  const codesandboxUrl = `https://codesandbox.io/s/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
+  const codesandboxUrl = `https://codesandbox.io/s/github/${
+    tableProject.repo
+  }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
 

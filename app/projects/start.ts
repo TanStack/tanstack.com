@@ -1,27 +1,20 @@
-import reactLogo from '~/images/react-logo.svg'
-// import solidLogo from '~/images/solid-logo.svg'
-// import vueLogo from '~/images/vue-logo.svg'
+import { Library } from '.'
 
-export const repo = 'tanstack/start'
-
-export const latestBranch = 'main'
-export const latestVersion = 'v0'
-export const availableVersions = ['v0']
-
-export const colorFrom = 'from-cyan-500'
-export const colorTo = 'to-cyan-600'
-export const textColor = 'text-cyan-600'
-
-export const frameworks = {
-  react: { label: 'React', logo: reactLogo, value: 'react' },
-  // solid: { label: 'Solid', logo: solidLogo, value: 'solid' },
-  // vue: { label: 'Vue', logo: vueLogo, value: 'vue' },
-} as const
-
-export type Framework = (typeof frameworks)[number]['value']
-
-export function getBranch(argVersion?: string) {
-  const version = argVersion || latestVersion
-
-  return ['latest', latestVersion].includes(version) ? latestBranch : version
+export const startProject: Library = {
+  name: 'TanStack Start',
+  cardStyles: `shadow-xl shadow-cyan-500/20 dark:shadow-lg dark:shadow-cyan-500/30 text-cyan-500 dark:text-white-400 border-2 border-transparent hover:border-current`,
+  to: '/start',
+  tagline: `Full-stack React Framework powered by TanStack Router`,
+  description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router, Vinxi, and Nitro and ready to deploy to your favorite hosting provider.`,
+  bgStyle: 'bg-cyan-500',
+  textStyle: 'text-cyan-500',
+  badge: 'soon',
+  repo: 'tanstack/start',
+  latestBranch: 'main',
+  latestVersion: 'v0',
+  availableVersions: ['v0'],
+  colorFrom: 'from-cyan-500',
+  colorTo: 'to-cyan-600',
+  textColor: 'text-cyan-600',
+  frameworks: ['react'],
 }

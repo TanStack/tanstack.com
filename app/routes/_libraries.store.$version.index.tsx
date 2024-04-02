@@ -6,8 +6,9 @@ import { Footer } from '~/components/Footer'
 import { VscPreview } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { colorFrom, colorTo, latestVersion, repo } from '~/projects/store'
+import { storeProject } from '~/projects/store'
 import { Await } from '@tanstack/react-router'
+import { seo } from '~/utils/seo'
 
 const menu = [
   {
@@ -40,7 +41,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: `https://github.com/${repo}`,
+    to: `https://github.com/${storeProject.repo}`,
   },
   {
     label: (
@@ -62,6 +63,11 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/store/$version/')({
   component: StoreVersionIndex,
+  meta: () =>
+    seo({
+      title: storeProject.name,
+      description: storeProject.description,
+    }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
@@ -73,7 +79,7 @@ export default function StoreVersionIndex() {
   // const [framework, setFramework] = React.useState<Framework>('react')
   // const [isDark, setIsDark] = React.useState(true)
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${storeProject.colorFrom} ${storeProject.colorTo}`
 
   return (
     <>
@@ -112,7 +118,7 @@ export default function StoreVersionIndex() {
                 className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
               >
-                {version === 'latest' ? latestVersion : version}
+                {version === 'latest' ? storeProject.latestVersion : version}
               </span>
             </h1>
           </div>

@@ -20,10 +20,11 @@ import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { DocsLogo } from '~/components/DocsLogo'
 import { last } from '~/utils/utils'
-import type { AvailableOptions } from '~/components/Select'
+import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { DocSearch } from './DocSearch'
+import { Framework, getFrameworkOptions } from '~/projects'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -47,7 +48,7 @@ const useLocalCurrentFramework = create<{
  * Otherwise use framework in localStorage if it exists for this project
  * Otherwise fallback to react
  */
-function useCurrentFramework(frameworks: AvailableOptions) {
+function useCurrentFramework(frameworks: Framework[]) {
   const navigate = useNavigate()
 
   const { framework: paramsFramework } = useParams({
@@ -57,12 +58,11 @@ function useCurrentFramework(frameworks: AvailableOptions) {
 
   const localCurrentFramework = useLocalCurrentFramework()
 
-  let framework =
-    paramsFramework || localCurrentFramework.currentFramework || 'react'
+  let framework = (paramsFramework ||
+    localCurrentFramework.currentFramework ||
+    'react') as Framework
 
-  framework = frameworks.find((d) => d.value === framework)
-    ? framework
-    : 'react'
+  framework = frameworks.includes(framework) ? framework : 'react'
 
   const setFramework = React.useCallback(
     (framework: string) => {
@@ -172,7 +172,7 @@ const useMenuConfig = ({
 }: {
   config: ConfigSchema
   repo: string
-  frameworks: AvailableOptions
+  frameworks: Framework[]
 }) => {
   const currentFramework = useCurrentFramework(frameworks)
 
@@ -231,20 +231,16 @@ const useMenuConfig = ({
   ].filter(Boolean)
 }
 
-const useFrameworkConfig = ({
-  frameworks,
-}: {
-  frameworks: AvailableOptions
-}) => {
+const useFrameworkConfig = ({ frameworks }: { frameworks: Framework[] }) => {
   const currentFramework = useCurrentFramework(frameworks)
 
   const frameworkConfig = React.useMemo(() => {
     return {
       label: 'Framework',
-      selected: frameworks.find((d) => d.value === currentFramework.framework)
+      selected: frameworks.includes(currentFramework.framework)
         ? currentFramework.framework
         : 'react',
-      available: frameworks,
+      available: getFrameworkOptions(frameworks),
       onSelect: (option: { label: string; value: string }) => {
         currentFramework.setFramework(option.value)
       },
@@ -259,7 +255,7 @@ const useVersionConfig = ({ versions }: { versions: string[] }) => {
 
   const versionConfig = React.useMemo(() => {
     const available = versions.reduce(
-      (acc: AvailableOptions, version) => {
+      (acc: SelectOption[], version) => {
         acc.push({
           label: version,
           value: version,
@@ -296,7 +292,7 @@ type DocsLayoutProps = {
   colorTo: string
   textColor: string
   config: ConfigSchema
-  frameworks: AvailableOptions
+  frameworks: Framework[]
   versions: string[]
   repo: string
   children: React.ReactNode
@@ -509,7 +505,7 @@ export function DocsLayout({
 
   return (
     <div
-      className={`min-h-screen mx-auto flex flex-col lg:flex-row w-full transition-all duration-300 ${
+      className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300 ${
         isExample ? 'max-w-[2560px]' : 'max-w-[1400px]'
       }`}
     >

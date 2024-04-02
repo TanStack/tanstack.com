@@ -1,12 +1,12 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
-import { availableVersions, latestVersion } from '~/projects/form'
+import { formProject } from '~/projects/form'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 
 export const Route = createFileRoute('/form/$version')({
   loader: (ctx) => {
     const { version } = ctx.params
 
-    if (!availableVersions.concat('latest').includes(version!)) {
+    if (!formProject.availableVersions.concat('latest').includes(version!)) {
       throw redirect({
         params: {
           version: 'latest',
@@ -26,7 +26,10 @@ function RouteForm() {
 
   return (
     <>
-      <RedirectVersionBanner version={version!} latestVersion={latestVersion} />
+      <RedirectVersionBanner
+        version={version!}
+        latestVersion={formProject.latestVersion}
+      />
       <Outlet />
     </>
   )

@@ -2,7 +2,8 @@ import { seo } from '~/utils/seo'
 import { createFileRoute } from '@tanstack/react-router'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
-import { repo, getBranch } from '~/projects/form'
+import { formProject } from '~/projects/form'
+import { getBranch } from '~/projects'
 
 export const Route = createFileRoute(
   '/form/$version/docs/framework/$framework/$'
@@ -11,8 +12,8 @@ export const Route = createFileRoute(
     const { _splat: docsPath, framework, version } = ctx.params
 
     return loadDocs({
-      repo,
-      branch: getBranch(version),
+      repo: formProject.repo,
+      branch: getBranch(formProject, version),
       docsPath: `docs/framework/${framework}/${docsPath}`,
       currentPath: ctx.location.pathname,
       redirectPath: `/form/${version}/docs/overview`,
@@ -29,13 +30,13 @@ export const Route = createFileRoute(
 function Docs() {
   const { title, content, filePath } = Route.useLoaderData()
   const { version } = Route.useParams()
-  const branch = getBranch(version)
+  const branch = getBranch(formProject, version)
 
   return (
     <Doc
       title={title}
       content={content}
-      repo={repo}
+      repo={formProject.repo}
       branch={branch}
       filePath={filePath}
     />

@@ -17,15 +17,10 @@ import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import {
-  colorFrom,
-  colorTo,
-  getBranch,
-  latestVersion,
-  repo,
-} from '~/projects/start'
-import type { Framework } from '~/projects/start'
+import { startProject } from '~/projects/start'
 import { createFileRoute } from '@tanstack/react-router'
+import { Framework, getBranch } from '~/projects'
+import { seo } from '~/utils/seo'
 
 const menu = [
   {
@@ -58,7 +53,7 @@ const menu = [
   //       <FaGithub className="text-lg" /> GitHub
   //     </div>
   //   ),
-  //   to: `https://github.com/${repo}`,
+  //   to: `https://github.com/${startProject.repo}`,
   // },
   {
     label: (
@@ -80,6 +75,11 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/start/$version/')({
   component: VersionIndex,
+  meta: () =>
+    seo({
+      title: startProject.name,
+      description: startProject.description,
+    }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
@@ -87,7 +87,7 @@ const librariesRouteApi = getRouteApi('/_libraries')
 export default function VersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
-  const branch = getBranch(version)
+  const branch = getBranch(startProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
 
@@ -95,7 +95,7 @@ export default function VersionIndex() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${startProject.colorFrom} ${startProject.colorTo}`
 
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full">

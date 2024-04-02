@@ -16,7 +16,7 @@ import {
   createFileRoute,
   getRouteApi,
 } from '@tanstack/react-router'
-import { colorFrom, colorTo, getBranch, repo } from '~/projects/virtual'
+import { virtualProject } from '~/projects/virtual'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
@@ -25,7 +25,8 @@ import { TbHeartHandshake } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import type { Framework } from '~/projects/virtual'
+import { Framework, getBranch } from '~/projects'
+import { seo } from '~/utils/seo'
 
 const menu = [
   {
@@ -58,7 +59,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: 'https://github.com/tanstack/virtual',
+    to: `https://github.com/${virtualProject.repo}`,
   },
   {
     label: (
@@ -80,6 +81,11 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/virtual/$version/')({
   component: RouteComp,
+  meta: () =>
+    seo({
+      title: virtualProject.name,
+      description: virtualProject.description,
+    }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
@@ -88,14 +94,14 @@ export default function RouteComp() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
   const [framework, setFramework] = React.useState<Framework>('react')
-  const branch = getBranch(version)
+  const branch = getBranch(virtualProject, version)
   const [isDark, setIsDark] = React.useState(true)
 
   React.useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${virtualProject.colorFrom} ${virtualProject.colorTo}`
 
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full">
@@ -428,7 +434,9 @@ export default function RouteComp() {
         <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
-            src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/fixed?embed=1&theme=${
+            src={`https://stackblitz.com/github/${
+              virtualProject.repo
+            }/tree/${branch}/examples/${framework}/fixed?embed=1&theme=${
               isDark ? 'dark' : 'light'
             }`}
             title="tannerlinsley/react-table: dynamic"

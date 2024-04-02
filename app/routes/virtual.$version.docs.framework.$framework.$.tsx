@@ -1,8 +1,9 @@
-import { repo, getBranch } from '~/projects/virtual'
+import { virtualProject } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { createFileRoute } from '@tanstack/react-router'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
+import { getBranch } from '~/projects'
 
 export const Route = createFileRoute(
   '/virtual/$version/docs/framework/$framework/$'
@@ -11,8 +12,8 @@ export const Route = createFileRoute(
     const { _splat: docsPath, framework, version } = ctx.params
 
     return loadDocs({
-      repo,
-      branch: getBranch(version),
+      repo: virtualProject.repo,
+      branch: getBranch(virtualProject, version),
       docsPath: `docs/framework/${framework}/${docsPath}`,
       currentPath: ctx.location.pathname,
       redirectPath: `/virtual/${version}/docs/framework/${framework}/overview`,
@@ -29,13 +30,13 @@ export const Route = createFileRoute(
 function RouteDocs() {
   const { title, content, filePath } = Route.useLoaderData()
   const { version } = Route.useParams()
-  const branch = getBranch(version)
+  const branch = getBranch(virtualProject, version)
 
   return (
     <Doc
       title={title}
       content={content}
-      repo={repo}
+      repo={virtualProject.repo}
       branch={branch}
       filePath={filePath}
     />

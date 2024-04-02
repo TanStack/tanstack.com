@@ -11,13 +11,14 @@ import { Await, Link } from '@tanstack/react-router'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { colorFrom, colorTo, getBranch, repo } from '~/projects/ranger'
+import { rangerProject } from '~/projects/ranger'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import type { Framework } from '~/projects/ranger'
 import { createFileRoute } from '@tanstack/react-router'
 import { getRouteApi } from '@tanstack/react-router'
+import { Framework, getBranch } from '~/projects'
+import { seo } from '~/utils/seo'
 
 const menu = [
   {
@@ -50,7 +51,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: 'https://github.com/tanstack/ranger',
+    to: `https://github.com/${rangerProject.repo}`,
   },
   {
     label: (
@@ -72,6 +73,11 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/ranger/$version/')({
   component: VersionIndex,
+  meta: () =>
+    seo({
+      title: rangerProject.name,
+      description: rangerProject.description,
+    }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
@@ -79,7 +85,7 @@ const librariesRouteApi = getRouteApi('/_libraries')
 export default function VersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
-  const branch = getBranch(version)
+  const branch = getBranch(rangerProject, version)
   const [framework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
 
@@ -87,7 +93,7 @@ export default function VersionIndex() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${rangerProject.colorFrom} ${rangerProject.colorTo}`
 
   return (
     <>
@@ -330,7 +336,9 @@ export default function VersionIndex() {
         <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
-            src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/basic?embed=1&theme=${
+            src={`https://stackblitz.com/github/${
+              rangerProject.repo
+            }/tree/${branch}/examples/${framework}/basic?embed=1&theme=${
               isDark ? 'dark' : 'light'
             }`}
             title="tannerlinsley/react-ranger: basic"

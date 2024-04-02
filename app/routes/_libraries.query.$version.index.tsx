@@ -17,16 +17,11 @@ import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
-import {
-  colorFrom,
-  colorTo,
-  getBranch,
-  latestVersion,
-  repo,
-} from '~/projects/query'
+import { queryProject } from '~/projects/query'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
-import type { Framework } from '~/projects/query'
 import { createFileRoute } from '@tanstack/react-router'
+import { Framework, getBranch } from '~/projects'
+import { seo } from '~/utils/seo'
 
 const menu = [
   {
@@ -59,7 +54,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: `https://github.com/${repo}`,
+    to: `https://github.com/${queryProject.repo}`,
   },
   {
     label: (
@@ -81,6 +76,11 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/query/$version/')({
   component: VersionIndex,
+  meta: () =>
+    seo({
+      title: queryProject.name,
+      description: queryProject.description,
+    }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
@@ -88,7 +88,7 @@ const librariesRouteApi = getRouteApi('/_libraries')
 export default function VersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
-  const branch = getBranch(version)
+  const branch = getBranch(queryProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
 
@@ -96,7 +96,7 @@ export default function VersionIndex() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${queryProject.colorFrom} ${queryProject.colorTo}`
 
   return (
     <div className="flex flex-1 flex-col min-h-0 relative overflow-x-hidden">
@@ -140,7 +140,7 @@ export default function VersionIndex() {
                   className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
                 >
-                  {version === 'latest' ? latestVersion : version}
+                  {version === 'latest' ? queryProject.latestVersion : version}
                 </span>
               </h1>
             </div>
@@ -529,7 +529,9 @@ export default function VersionIndex() {
             <div className="bg-white dark:bg-black">
               <iframe
                 key={framework}
-                src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
+                src={`https://stackblitz.com/github/${
+                  queryProject.repo
+                }/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
                   isDark ? 'dark' : 'light'
                 }`}
                 title={`tannerlinsley/${framework}-query: basic`}

@@ -21,14 +21,9 @@ import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import {
-  colorFrom,
-  colorTo,
-  getBranch,
-  latestVersion,
-  repo,
-} from '~/projects/form'
-import type { Framework } from '~/projects/form'
+import { formProject } from '~/projects/form'
+import { Framework, getBranch } from '~/projects'
+import { seo } from '~/utils/seo'
 
 const menu = [
   {
@@ -53,7 +48,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: `https://github.com/${repo}`,
+    to: `https://github.com/${formProject.repo}`,
   },
   {
     label: (
@@ -75,6 +70,11 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/form/$version/')({
   component: FormVersionIndex,
+  meta: () =>
+    seo({
+      title: formProject.name,
+      description: formProject.description,
+    }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
@@ -82,7 +82,7 @@ const librariesRouteApi = getRouteApi('/_libraries')
 export default function FormVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
-  const branch = getBranch(version)
+  const branch = getBranch(formProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
 
@@ -90,7 +90,7 @@ export default function FormVersionIndex() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${formProject.colorFrom} ${formProject.colorTo}`
 
   return (
     <>
@@ -132,7 +132,7 @@ export default function FormVersionIndex() {
                 className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
               >
-                {version === 'latest' ? latestVersion : version}
+                {version === 'latest' ? formProject.latestVersion : version}
               </span>
             </h1>
           </div>
@@ -384,7 +384,9 @@ export default function FormVersionIndex() {
         <div className="bg-white dark:bg-black">
           <iframe
             key={framework}
-            src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
+            src={`https://stackblitz.com/github/${
+              formProject.repo
+            }/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
               isDark ? 'dark' : 'light'
             }`}
             title={`tanstack//${framework}-form: simple`}

@@ -1,22 +1,17 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
-import {
-  repo,
-  getBranch,
-  latestVersion,
-  colorFrom,
-  colorTo,
-  textColor,
-  availableVersions,
-  frameworks,
-} from '~/projects/router'
+import { routerProject } from '~/projects/router'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getTanstackDocsConfig } from '~/utils/config'
+import { getBranch } from '~/projects'
 
 export const Route = createFileRoute('/router/$version/docs')({
   loader: async (ctx) => {
-    const branch = getBranch(ctx.params.version)
-    const config = await getTanstackDocsConfig({ repo, branch })
+    const branch = getBranch(routerProject, ctx.params.version)
+    const config = await getTanstackDocsConfig({
+      repo: routerProject.repo,
+      branch,
+    })
 
     return {
       config,
@@ -36,14 +31,14 @@ function DocsRoute() {
   return (
     <DocsLayout
       name="Router"
-      version={version === 'latest' ? latestVersion : version!}
-      colorFrom={colorFrom}
-      colorTo={colorTo}
-      textColor={textColor}
+      version={version === 'latest' ? routerProject.latestVersion : version!}
+      colorFrom={routerProject.colorFrom}
+      colorTo={routerProject.colorTo}
+      textColor={routerProject.textColor}
       config={config}
-      frameworks={frameworks}
-      versions={availableVersions}
-      repo={repo}
+      frameworks={routerProject.frameworks}
+      versions={routerProject.availableVersions}
+      repo={routerProject.repo}
     >
       <Outlet />
     </DocsLayout>

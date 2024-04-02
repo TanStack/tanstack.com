@@ -1,16 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { repo, getBranch } from '~/projects/config'
+import { configProject } from '~/projects/config'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
+import { getBranch } from '~/projects'
 
 export const Route = createFileRoute('/config/$version/docs/$')({
   loader: (ctx) => {
     const { _splat: docsPath, version } = ctx.params
 
     return loadDocs({
-      repo,
-      branch: getBranch(version),
+      repo: configProject.repo,
+      branch: getBranch(configProject, version),
       docsPath: `docs/${docsPath}`,
       currentPath: ctx.location.pathname,
       redirectPath: `/config/${version}/docs/overview`,
@@ -27,13 +28,13 @@ export const Route = createFileRoute('/config/$version/docs/$')({
 function Docs() {
   const { title, content, filePath } = Route.useLoaderData()
   const { version } = Route.useParams()
-  const branch = getBranch(version)
+  const branch = getBranch(configProject, version)
 
   return (
     <Doc
       title={title}
       content={content}
-      repo={repo}
+      repo={configProject.repo}
       branch={branch}
       filePath={filePath}
     />

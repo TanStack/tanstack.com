@@ -73,7 +73,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "pnpm": {
+  "_pnpm": {
     "overrides": {
       "@tanstack/react-router": "file:../router/packages/react-router",
       "@tanstack/router-devtools": "file:../router/packages/router-devtools",

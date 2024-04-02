@@ -23,9 +23,6 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 export const Route = createRootRouteWithContext<{
   assets: RouterManagedTag[]
 }>()({
-  headers: () => ({
-    'X-Robots-Tag': 'noindex, nofollow',
-  }),
   meta: () => [
     {
       charSet: 'utf-8',

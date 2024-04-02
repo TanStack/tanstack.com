@@ -60,16 +60,16 @@ export const fetchDocs = createServerFn(
     })
 
     if (!file) {
-      throw notFound()
-      // if (currentPath === redirectPath) {
-      //   console.log('not found')
-      //   throw notFound()
-      // } else {
-      //   console.log('redirect')
-      //   throw redirect({
-      //     to: redirectPath,
-      //   })
-      // }
+      // throw notFound()
+      if (currentPath === redirectPath) {
+        // console.log('not found')
+        throw notFound()
+      } else {
+        // console.log('redirect')
+        throw redirect({
+          to: redirectPath,
+        })
+      }
     }
 
     const frontMatter = extractFrontMatter(file)

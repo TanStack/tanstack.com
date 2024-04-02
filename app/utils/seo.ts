@@ -10,7 +10,7 @@ export const seo = ({
   keywords?: string
 }) => {
   const tags = [
-    { title: title },
+    { title },
     { name: 'description', content: description },
     { name: 'keywords', content: keywords },
     { name: 'twitter:title', content: title },

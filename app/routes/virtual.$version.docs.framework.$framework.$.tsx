@@ -1,43 +1,42 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/projects/virtual'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { virtualProject } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { createFileRoute } from '@tanstack/react-router'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { '*': docsPath, framework, version } = context.params
-  const { url } = context.request
+export const Route = createFileRoute(
+  '/virtual/$version/docs/framework/$framework/$'
+)({
+  loader: (ctx) => {
+    const { _splat: docsPath, framework, version } = ctx.params
 
-  return loadDocs({
-    repo,
-    branch: getBranch(version),
-    docPath: `docs/framework/${framework}/${docsPath}`,
-    currentPath: url,
-    redirectPath: url.replace(`/docs/framework/${framework}/`, '/docs/'),
-  })
-}
+    return loadDocs({
+      repo: virtualProject.repo,
+      branch: getBranch(virtualProject, version),
+      docsPath: `docs/framework/${framework}/${docsPath}`,
+      currentPath: ctx.location.pathname,
+      redirectPath: `/virtual/${version}/docs/framework/${framework}/overview`,
+    })
+  },
+  meta: ({ loaderData }) =>
+    seo({
+      title: `${loaderData?.title} | TanStack Virtual Docs`,
+      description: loaderData?.description,
+    }),
+  component: RouteDocs,
+})
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return seo({
-    title: `${data?.title} | TanStack Virtual Docs`,
-    description: data?.description,
-  })
-}
-
-export const ErrorBoundary = DefaultErrorBoundary
-
-export default function RouteDocs() {
-  const { title, content, filePath } = useLoaderData<typeof loader>()
-  const { version } = useParams()
-  const branch = getBranch(version)
+function RouteDocs() {
+  const { title, content, filePath } = Route.useLoaderData()
+  const { version } = Route.useParams()
+  const branch = getBranch(virtualProject, version)
 
   return (
     <Doc
       title={title}
       content={content}
-      repo={repo}
+      repo={virtualProject.repo}
       branch={branch}
       filePath={filePath}
     />

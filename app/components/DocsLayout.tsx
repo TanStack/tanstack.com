@@ -1,4 +1,3 @@
-import { DocSearch } from '@docsearch/react'
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import {
@@ -8,46 +7,175 @@ import {
   FaGithub,
   FaTimes,
 } from 'react-icons/fa'
-import { NavLink, useMatches, useNavigate, useParams } from '@remix-run/react'
+import {
+  Link,
+  useMatches,
+  useNavigate,
+  useParams,
+} from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
-import { LinkOrA } from '~/components/LinkOrA'
-import { Search } from '~/components/Search'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { DocsLogo } from '~/components/DocsLogo'
-import { generatePath, last } from '~/utils/utils'
-import type { AvailableOptions } from '~/components/Select'
+import { last } from '~/utils/utils'
+import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
+import { create } from 'zustand'
+import { DocSearch } from './DocSearch'
+import { Framework, getFrameworkOptions } from '~/projects'
+
+// Let's use zustand to wrap the local storage logic. This way
+// we'll get subscriptions for free and we can use it in other
+// components if we need to.
+const useLocalCurrentFramework = create<{
+  currentFramework?: string
+  setCurrentFramework: (framework: string) => void
+}>((set) => ({
+  currentFramework:
+    typeof document !== 'undefined'
+      ? localStorage.getItem('framework') || undefined
+      : undefined,
+  setCurrentFramework: (framework: string) => {
+    localStorage.setItem('framework', framework)
+    set({ currentFramework: framework })
+  },
+}))
 
 /**
  * Use framework in URL path
  * Otherwise use framework in localStorage if it exists for this project
  * Otherwise fallback to react
  */
-function useCurrentFramework(frameworks: AvailableOptions) {
-  const { framework: paramsFramework } = useParams()
-  const localStorageFramework = localStorage.getItem('framework')
+function useCurrentFramework(frameworks: Framework[]) {
+  const navigate = useNavigate()
 
-  return (
-    paramsFramework ||
-    (localStorageFramework &&
-    frameworks.find(({ value }) => localStorageFramework === value)
-      ? localStorageFramework
-      : 'react')
+  const { framework: paramsFramework } = useParams({
+    strict: false,
+    experimental_returnIntersection: true,
+  })
+
+  const localCurrentFramework = useLocalCurrentFramework()
+
+  let framework = (paramsFramework ||
+    localCurrentFramework.currentFramework ||
+    'react') as Framework
+
+  framework = frameworks.includes(framework) ? framework : 'react'
+
+  const setFramework = React.useCallback(
+    (framework: string) => {
+      navigate({
+        params: (prev: Record<string, string>) => ({
+          ...prev,
+          framework,
+        }),
+      })
+      localCurrentFramework.setCurrentFramework(framework)
+    },
+    [localCurrentFramework, navigate]
   )
+
+  React.useEffect(() => {
+    // Set the framework in localStorage if it doesn't exist
+    if (!localCurrentFramework.currentFramework) {
+      localCurrentFramework.setCurrentFramework(framework)
+    }
+
+    // Set the framework in localStorage if it doesn't match the URL
+    if (
+      paramsFramework &&
+      paramsFramework !== localCurrentFramework.currentFramework
+    ) {
+      localCurrentFramework.setCurrentFramework(paramsFramework)
+    }
+  })
+
+  return {
+    framework,
+    setFramework,
+  }
+}
+
+// Let's use zustand to wrap the local storage logic. This way
+// we'll get subscriptions for free and we can use it in other
+// components if we need to.
+const useLocalCurrentVersion = create<{
+  currentVersion?: string
+  setCurrentVersion: (version: string) => void
+}>((set) => ({
+  currentVersion:
+    typeof document !== 'undefined'
+      ? localStorage.getItem('version') || undefined
+      : undefined,
+  setCurrentVersion: (version: string) => {
+    localStorage.setItem('version', version)
+    set({ currentVersion: version })
+  },
+}))
+
+/**
+ * Use framework in URL path
+ * Otherwise use framework in localStorage if it exists for this project
+ * Otherwise fallback to react
+ */
+function useCurrentVersion(versions: string[]) {
+  const navigate = useNavigate()
+
+  const { version: paramsVersion } = useParams({
+    strict: false,
+    experimental_returnIntersection: true,
+  })
+
+  const localCurrentVersion = useLocalCurrentVersion()
+
+  let version = paramsVersion || localCurrentVersion.currentVersion || 'latest'
+
+  version = versions.includes(version) ? version : 'latest'
+
+  const setVersion = React.useCallback(
+    (version: string) => {
+      navigate({
+        params: (prev: Record<string, string>) => ({
+          ...prev,
+          version,
+        }),
+      })
+      localCurrentVersion.setCurrentVersion(version)
+    },
+    [localCurrentVersion, navigate]
+  )
+
+  React.useEffect(() => {
+    // Set the version in localStorage if it doesn't exist
+    if (!localCurrentVersion.currentVersion) {
+      localCurrentVersion.setCurrentVersion(version)
+    }
+
+    // Set the version in localStorage if it doesn't match the URL
+    if (paramsVersion && paramsVersion !== localCurrentVersion.currentVersion) {
+      localCurrentVersion.setCurrentVersion(paramsVersion)
+    }
+  })
+
+  return {
+    version,
+    setVersion,
+  }
 }
 
 const useMenuConfig = ({
   config,
-  framework,
   repo,
+  frameworks,
 }: {
   config: ConfigSchema
-  framework: string
   repo: string
+  frameworks: Framework[]
 }) => {
+  const currentFramework = useCurrentFramework(frameworks)
+
   const localMenu: MenuItem = {
     label: 'Menu',
     children: [
@@ -79,13 +207,16 @@ const useMenuConfig = ({
     // Merge the two menus together based on their group labels
     ...config.sections.map((section) => {
       const frameworkDocs = section.frameworks?.find(
-        (f) => f.label === framework
+        (f) => f.label === currentFramework.framework
       )
       const frameworkItems = frameworkDocs?.children ?? []
 
       const children = [
         ...section.children.map((d) => ({ ...d, badge: 'core' })),
-        ...frameworkItems.map((d) => ({ ...d, badge: framework })),
+        ...frameworkItems.map((d) => ({
+          ...d,
+          badge: currentFramework.framework,
+        })),
       ]
 
       if (children.length === 0) {
@@ -100,52 +231,31 @@ const useMenuConfig = ({
   ].filter(Boolean)
 }
 
-const useFrameworkConfig = ({
-  framework,
-  frameworks,
-}: {
-  framework: string
-  frameworks: AvailableOptions
-}) => {
-  const matches = useMatches()
-  const match = matches[matches.length - 1]
-  const navigate = useNavigate()
+const useFrameworkConfig = ({ frameworks }: { frameworks: Framework[] }) => {
+  const currentFramework = useCurrentFramework(frameworks)
 
   const frameworkConfig = React.useMemo(() => {
     return {
       label: 'Framework',
-      selected: framework,
-      available: frameworks,
+      selected: frameworks.includes(currentFramework.framework)
+        ? currentFramework.framework
+        : 'react',
+      available: getFrameworkOptions(frameworks),
       onSelect: (option: { label: string; value: string }) => {
-        const url = generatePath(match.id, {
-          ...match.params,
-          framework: option.value,
-        })
-
-        localStorage.setItem('framework', option.value)
-
-        navigate(url)
+        currentFramework.setFramework(option.value)
       },
     }
-  }, [frameworks, framework, match, navigate])
+  }, [frameworks, currentFramework])
 
   return frameworkConfig
 }
 
-const useVersionConfig = ({
-  availableVersions,
-}: {
-  availableVersions: string[]
-}) => {
-  const matches = useMatches()
-  const match = matches[matches.length - 1]
-  const params = useParams()
-  const version = params.version!
-  const navigate = useNavigate()
+const useVersionConfig = ({ versions }: { versions: string[] }) => {
+  const currentVersion = useCurrentVersion(versions)
 
   const versionConfig = React.useMemo(() => {
-    const available = availableVersions.reduce(
-      (acc: AvailableOptions, version) => {
+    const available = versions.reduce(
+      (acc: SelectOption[], version) => {
         acc.push({
           label: version,
           value: version,
@@ -162,17 +272,15 @@ const useVersionConfig = ({
 
     return {
       label: 'Version',
-      selected: version,
+      selected: versions.includes(currentVersion.version)
+        ? currentVersion.version
+        : 'latest',
       available,
       onSelect: (option: { label: string; value: string }) => {
-        const url = generatePath(match.id, {
-          ...match.params,
-          version: option.value,
-        })
-        navigate(url)
+        currentVersion.setVersion(option.value)
       },
     }
-  }, [version, match, navigate, availableVersions])
+  }, [currentVersion, versions])
 
   return versionConfig
 }
@@ -184,8 +292,8 @@ type DocsLayoutProps = {
   colorTo: string
   textColor: string
   config: ConfigSchema
-  frameworks: AvailableOptions
-  availableVersions: string[]
+  frameworks: Framework[]
+  versions: string[]
   repo: string
   children: React.ReactNode
 }
@@ -198,14 +306,13 @@ export function DocsLayout({
   textColor,
   config,
   frameworks,
-  availableVersions,
+  versions,
   repo,
   children,
 }: DocsLayoutProps) {
-  const framework = useCurrentFramework(frameworks)
-  const frameworkConfig = useFrameworkConfig({ framework, frameworks })
-  const versionConfig = useVersionConfig({ availableVersions })
-  const menuConfig = useMenuConfig({ config, framework, repo })
+  const frameworkConfig = useFrameworkConfig({ frameworks })
+  const versionConfig = useVersionConfig({ versions })
+  const menuConfig = useMenuConfig({ config, frameworks, repo })
 
   const matches = useMatches()
   const lastMatch = last(matches)
@@ -239,7 +346,7 @@ export function DocsLayout({
         <div className="h-2" />
         <div className="ml-2 space-y-px text-[.9em]">
           {group?.children?.map((child, i) => {
-            const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
+            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
 
             return (
               <div key={i}>
@@ -248,12 +355,15 @@ export function DocsLayout({
                     {child.label}
                   </a>
                 ) : (
-                  <NavLink
+                  <Link
                     to={child.to}
+                    params
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
-                    end
+                    activeOptions={{
+                      exact: true,
+                    }}
                   >
                     {(props) => {
                       return (
@@ -276,8 +386,6 @@ export function DocsLayout({
                                   ? 'text-sky-500'
                                   : child.badge === 'solid'
                                   ? 'text-blue-500'
-                                  : child.badge === 'lit'
-                                  ? 'text-blue-500'
                                   : child.badge === 'svelte'
                                   ? 'text-orange-500'
                                   : child.badge === 'vue'
@@ -297,7 +405,7 @@ export function DocsLayout({
                         </div>
                       )
                     }}
-                  </NavLink>
+                  </Link>
                 )}
               </div>
             )
@@ -310,6 +418,7 @@ export function DocsLayout({
   const logo = (
     <DocsLogo
       name={name}
+      linkTo={repo.replace('tanstack/', '')}
       version={version}
       colorFrom={colorFrom}
       colorTo={colorTo}
@@ -332,7 +441,7 @@ export function DocsLayout({
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
-          <Search {...config.docSearch} />
+          <DocSearch {...config.docSearch} />
         </summary>
         <div
           className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto
@@ -348,7 +457,7 @@ export function DocsLayout({
             />
             <Select
               label={versionConfig.label}
-              selected={versionConfig.selected}
+              selected={versionConfig.selected!}
               available={versionConfig.available}
               onSelect={versionConfig.onSelect}
             />
@@ -360,7 +469,7 @@ export function DocsLayout({
   )
 
   const largeMenu = (
-    <div className="min-w-[250px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
+    <div className="max-w-max w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div>
         <DocSearch
@@ -380,7 +489,7 @@ export function DocsLayout({
         <Select
           className="flex-[2_1_0%]"
           label={versionConfig.label}
-          selected={versionConfig.selected}
+          selected={versionConfig.selected!}
           available={versionConfig.available}
           onSelect={versionConfig.onSelect}
         />
@@ -396,7 +505,7 @@ export function DocsLayout({
 
   return (
     <div
-      className={`min-h-screen mx-auto flex flex-col lg:flex-row w-full transition-all duration-300 ${
+      className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300 ${
         isExample ? 'max-w-[2560px]' : 'max-w-[1400px]'
       }`}
     >
@@ -411,19 +520,21 @@ export function DocsLayout({
           >
             <div className="p-4 flex justify-center gap-4">
               {prevItem ? (
-                <LinkOrA
+                <Link
                   to={prevItem.to}
+                  params
                   className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
                 bg-white text-gray-600 dark:bg-black dark:text-gray-400
                 shadow-lg dark:border dark:border-gray-800
                 lg:text-lg"
                 >
                   <FaArrowLeft /> {prevItem.label}
-                </LinkOrA>
+                </Link>
               ) : null}
               {nextItem ? (
-                <LinkOrA
+                <Link
                   to={nextItem.to}
+                  params
                   className="py-1 px-2 text-sm self-end rounded-md
                   bg-white dark:bg-black
                   shadow-lg dark:border dark:border-gray-800
@@ -438,7 +549,7 @@ export function DocsLayout({
                     </span>{' '}
                     <FaArrowRight className={textColor} />
                   </div>
-                </LinkOrA>
+                </Link>
               ) : null}
             </div>
           </div>

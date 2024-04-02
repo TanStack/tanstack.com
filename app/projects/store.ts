@@ -1,30 +1,20 @@
-import reactLogo from '~/images/react-logo.svg'
-import solidLogo from '~/images/solid-logo.svg'
-import vueLogo from '~/images/vue-logo.svg'
-import angularLogo from '~/images/angular-logo.svg'
-import type { AvailableOptions } from '~/components/Select'
+import { Library } from '.'
 
-export const repo = 'tanstack/store'
-
-export const latestBranch = 'main'
-export const latestVersion = 'v0'
-export const availableVersions = ['v0']
-
-export const colorFrom = 'from-gray-500'
-export const colorTo = 'to-gray-700'
-export const textColor = 'text-gray-700'
-
-export const frameworks: AvailableOptions = [
-  { label: 'React', value: 'react', logo: reactLogo },
-  { label: 'Solid', value: 'solid', logo: solidLogo },
-  { label: 'Vue', value: 'vue', logo: vueLogo },
-  { label: 'Angular', value: 'angular', logo: angularLogo },
-]
-
-export type Framework = keyof typeof frameworks
-
-export function getBranch(argVersion?: string) {
-  const version = argVersion || latestVersion
-
-  return ['latest', latestVersion].includes(version) ? latestBranch : version
+export const storeProject: Library = {
+  name: 'TanStack Store',
+  cardStyles: `shadow-xl shadow-stone-700/20 dark:shadow-lg dark:shadow-stone-500/20 text-stone-500 dark:text-stone-400 border-2 border-transparent hover:border-current`,
+  to: '/store',
+  tagline: `Framework agnostic data store with reactive framework adapters`,
+  description: `The core data store that powers TanStack libraries and their framework adapters. Use it if you dare.`,
+  badge: 'new',
+  bgStyle: 'bg-stone-700',
+  textStyle: 'text-stone-500',
+  repo: 'tanstack/store',
+  latestBranch: 'main',
+  latestVersion: 'v0',
+  availableVersions: ['v0'],
+  colorFrom: 'from-stone-500',
+  colorTo: 'to-stone-700',
+  textColor: 'text-stone-700',
+  frameworks: ['react', 'solid', 'vue', 'angular'],
 }

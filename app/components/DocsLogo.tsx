@@ -1,7 +1,8 @@
-import { Link } from '@remix-run/react'
+import { Link } from '@tanstack/react-router'
 
 type Props = {
   name: string
+  linkTo: string
   version: string
   colorFrom: string
   colorTo: string
@@ -17,7 +18,7 @@ export const DocsLogo = (props: Props) => {
       <Link to="/" className="font-light">
         TanStack
       </Link>
-      <Link to="../../" className={`font-bold`}>
+      <Link to={`/${props.linkTo}`} className={`font-bold`} params>
         <span className={`${gradientText}`}>{name}</span>{' '}
         <span className="text-sm align-super">{version}</span>
       </Link>

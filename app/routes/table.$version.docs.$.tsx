@@ -1,51 +1,41 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch, reactTableV7List } from '~/projects/table'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { tableProject } from '~/projects/table'
+
 import { seo } from '~/utils/seo'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { createFileRoute } from '@tanstack/react-router'
 import { loadDocs } from '~/utils/docs'
 import { Doc } from '~/components/Doc'
-import { handleRedirects } from '~/utils/handleRedirects.server'
+import { getBranch } from '~/projects'
 
-export const loader = (context: LoaderFunctionArgs) => {
-  handleRedirects(
-    reactTableV7List,
-    context.request.url,
-    '/table/v7',
-    '/table/v8',
-    'from=reactTableV7'
-  )
+export const Route = createFileRoute('/table/$version/docs/$')({
+  loader: (ctx) => {
+    const { _splat: docsPath, version } = ctx.params
 
-  const { '*': docsPath, version } = context.params
-  const { url } = context.request
+    return loadDocs({
+      repo: tableProject.repo,
+      branch: getBranch(tableProject, version),
+      docsPath: `docs/${docsPath}`,
+      currentPath: ctx.location.pathname,
+      redirectPath: '/table/latest/docs/introduction',
+    })
+  },
+  meta: ({ loaderData }) =>
+    seo({
+      title: `${loaderData?.title ?? 'Docs'} | TanStack Table Docs`,
+      description: loaderData?.description,
+    }),
+  component: Docs,
+})
 
-  return loadDocs({
-    repo,
-    branch: getBranch(version),
-    docPath: `docs/${docsPath}`,
-    currentPath: url,
-    redirectPath: url.replace(/\/docs.*/, '/docs/introduction'),
-  })
-}
+function Docs() {
+  const { title, content, filePath } = Route.useLoaderData()
+  const { version } = Route.useParams()
+  const branch = getBranch(tableProject, version)
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return seo({
-    title: `${data?.title} | TanStack Table Docs`,
-    description: data?.description,
-  })
-}
-
-export const ErrorBoundary = DefaultErrorBoundary
-
-export default function RouteReactTableDocs() {
-  const { title, content, filePath } = useLoaderData<typeof loader>()
-  const { version } = useParams()
-  const branch = getBranch(version)
   return (
     <Doc
       title={title}
       content={content}
-      repo={repo}
+      repo={tableProject.repo}
       branch={branch}
       filePath={filePath}
     />

@@ -1,57 +1,45 @@
-import { Outlet, json, useLoaderData } from '@remix-run/react'
-import {
-  getBranch,
-  repo,
-  latestVersion,
-  colorFrom,
-  colorTo,
-  textColor,
-  availableVersions,
-  frameworks,
-} from '~/projects/table'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { tableProject } from '~/projects/table'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+
 import { getTanstackDocsConfig } from '~/utils/config'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const version = context.params.version
-  const branch = getBranch(version)
+export const Route = createFileRoute('/table/$version/docs')({
+  loader: async (ctx) => {
+    const branch = getBranch(tableProject, ctx.params.version)
+    const config = await getTanstackDocsConfig({
+      repo: tableProject.repo,
+      branch,
+    })
 
-  const config = await getTanstackDocsConfig(repo, branch)
+    return {
+      config,
+    }
+  },
+  meta: () =>
+    seo({
+      title: 'TanStack Table Docs | TanStack Table',
+    }),
+  component: DocsRoute,
+})
 
-  return json({
-    config,
-    version,
-  })
-}
-
-export const meta: MetaFunction = () => {
-  return seo({
-    title:
-      'TanStack Table Docs | React Table, Solid Table, Svelte Table, Vue Table',
-    description:
-      'Headless UI for building powerful tables & datagrids with TS/JS, React, Solid, Svelte and Vue',
-  })
-}
-
-export const ErrorBoundary = DefaultErrorBoundary
-
-export default function RouteReactTable() {
-  const { version, config } = useLoaderData<typeof loader>()
+function DocsRoute() {
+  const { config } = Route.useLoaderData()
+  const { version } = Route.useParams()
 
   return (
     <DocsLayout
       name="Table"
-      version={version === 'latest' ? latestVersion : version!}
-      colorFrom={colorFrom}
-      colorTo={colorTo}
-      textColor={textColor}
+      version={version === 'latest' ? tableProject.latestVersion : version!}
+      colorFrom={tableProject.colorFrom}
+      colorTo={tableProject.colorTo}
+      textColor={tableProject.textColor}
       config={config}
-      frameworks={frameworks}
-      availableVersions={availableVersions}
-      repo={repo}
+      frameworks={tableProject.frameworks}
+      versions={tableProject.availableVersions}
+      repo={tableProject.repo}
     >
       <Outlet />
     </DocsLayout>

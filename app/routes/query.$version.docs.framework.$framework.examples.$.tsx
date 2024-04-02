@@ -1,35 +1,33 @@
-import React from 'react'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import * as React from 'react'
+
+import { createFileRoute } from '@tanstack/react-router'
 import { DocTitle } from '~/components/DocTitle'
-import { repo, getBranch } from '~/projects/query'
+import { queryProject } from '~/projects/query'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import { FaExternalLinkAlt } from 'react-icons/fa'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version, framework, '*': name } = context.params
+export const Route = createFileRoute(
+  '/query/$version/docs/framework/$framework/examples/$'
+)({
+  meta: ({ params }) =>
+    seo({
+      title: `${capitalize(params.framework)} Query ${slugToTitle(
+        params._splat
+      )} Example | TanStack Query Docs`,
+      description: `An example showing how to implement ${slugToTitle(
+        params._splat
+      )} in ${capitalize(params.framework)} Query`,
+    }),
+  component: Example,
+})
 
-  return json({ version, framework, name })
-}
+export default function Example() {
+  const { version, framework, _splat } = Route.useParams()
+  const branch = getBranch(queryProject, version)
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return seo({
-    title: `${capitalize(data.framework)} Query ${slugToTitle(
-      data.name
-    )} Example | TanStack Query Docs`,
-    description: `An example showing how to implement ${slugToTitle(
-      data.name
-    )} in ${capitalize(data.framework)} Query`,
-  })
-}
-
-export default function RouteExamples() {
-  const { version, framework, name } = useLoaderData<typeof loader>()
-  const branch = getBranch(version)
-
-  const examplePath = [framework, name].join('/')
+  const examplePath = [framework, _splat].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
 
@@ -37,13 +35,15 @@ export default function RouteExamples() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const githubUrl = `https://github.com/${repo}/tree/${branch}/examples/${examplePath}`
-  // preset=node can be removed once Stackblitz runs Angular as webcontainer by default
-  // https://github.com/stackblitz/core/issues/2957
-  const stackBlitzUrl = `https://stackblitz.com/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
+  const githubUrl = `https://github.com/${queryProject.repo}/tree/${branch}/examples/${examplePath}`
+  const stackBlitzUrl = `https://stackblitz.com/github/${
+    queryProject.repo
+  }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
-  }&preset=node`
-  const codesandboxUrl = `https://codesandbox.io/s/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
+  }`
+  const codesandboxUrl = `https://codesandbox.io/s/github/${
+    queryProject.repo
+  }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
 
@@ -52,7 +52,7 @@ export default function RouteExamples() {
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
-            {capitalize(framework)} Example: {slugToTitle(name)}
+            {capitalize(framework)} Example: {slugToTitle(_splat)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             <a

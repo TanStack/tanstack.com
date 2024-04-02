@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { fetchRepoFile } from './documents.server'
+import { createServerFn } from '@tanstack/react-router-server'
 
 export type MenuItem = {
   label: string | React.ReactNode
@@ -50,25 +51,32 @@ export type ConfigSchema = z.infer<typeof configSchema>
 /**
   Fetch the config file for the project and validate it.
   */
-export async function getTanstackDocsConfig(repo: string, branch: string) {
-  const config = await fetchRepoFile(repo, branch, `docs/config.json`)
+export const getTanstackDocsConfig = createServerFn(
+  'GET',
+  async ({ repo, branch }: { repo: string; branch: string }) => {
+    'use server'
 
-  if (!config) {
-    throw new Error('Repo docs/config.json not found!')
-  }
+    const config = await fetchRepoFile(repo, branch, `docs/config.json`)
 
-  try {
-    const tanstackDocsConfigFromJson = JSON.parse(config)
-    const validationResult = configSchema.safeParse(tanstackDocsConfigFromJson)
-
-    if (!validationResult.success) {
-      // Log the issues that come up during validation
-      console.error(JSON.stringify(validationResult.error, null, 2))
-      throw new Error('Zod validation failed')
+    if (!config) {
+      throw new Error('Repo docs/config.json not found!')
     }
 
-    return validationResult.data
-  } catch (e) {
-    throw new Error('Invalid docs/config.json file')
+    try {
+      const tanstackDocsConfigFromJson = JSON.parse(config)
+      const validationResult = configSchema.safeParse(
+        tanstackDocsConfigFromJson
+      )
+
+      if (!validationResult.success) {
+        // Log the issues that come up during validation
+        console.error(JSON.stringify(validationResult.error, null, 2))
+        throw new Error('Zod validation failed')
+      }
+
+      return validationResult.data
+    } catch (e) {
+      throw new Error('Invalid docs/config.json file')
+    }
   }
-}
+)

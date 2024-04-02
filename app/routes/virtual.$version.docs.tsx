@@ -1,54 +1,44 @@
-import { Outlet, json, useLoaderData } from '@remix-run/react'
-import {
-  getBranch,
-  latestVersion,
-  repo,
-  colorFrom,
-  colorTo,
-  textColor,
-  availableVersions,
-  frameworks,
-} from '~/projects/virtual'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { virtualProject } from '~/projects/virtual'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getTanstackDocsConfig } from '~/utils/config'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const version = context.params.version
-  const branch = getBranch(version)
+export const Route = createFileRoute('/virtual/$version/docs')({
+  loader: async (ctx) => {
+    const branch = getBranch(virtualProject, ctx.params.version)
+    const config = await getTanstackDocsConfig({
+      repo: virtualProject.repo,
+      branch,
+    })
 
-  const config = await getTanstackDocsConfig(repo, branch)
+    return {
+      config,
+    }
+  },
+  meta: () =>
+    seo({
+      title: 'TanStack Virtual Docs | TanStack Virtual',
+    }),
+  component: DocsRoute,
+})
 
-  return json({
-    config,
-    version,
-  })
-}
-
-export const meta: MetaFunction = () => {
-  return seo({
-    title:
-      'TanStack Virtual Docs | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',
-    description:
-      'Headless UI for virtualizing long scrollable lists with TS/JS, React, Solid, Svelte and Vue',
-  })
-}
-
-export default function RouteVirtual() {
-  const { version, config } = useLoaderData<typeof loader>()
+function DocsRoute() {
+  const { config } = Route.useLoaderData()
+  const { version } = Route.useParams()
 
   return (
     <DocsLayout
       name="Virtual"
-      version={version === 'latest' ? latestVersion : version!}
-      colorFrom={colorFrom}
-      colorTo={colorTo}
-      textColor={textColor}
+      version={version === 'latest' ? virtualProject.latestVersion : version!}
+      colorFrom={virtualProject.colorFrom}
+      colorTo={virtualProject.colorTo}
+      textColor={virtualProject.textColor}
       config={config}
-      frameworks={frameworks}
-      availableVersions={availableVersions}
-      repo={repo}
+      frameworks={virtualProject.frameworks}
+      versions={virtualProject.availableVersions}
+      repo={virtualProject.repo}
     >
       <Outlet />
     </DocsLayout>

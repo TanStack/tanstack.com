@@ -1,44 +1,45 @@
-import { type LoaderFunctionArgs, json } from '@remix-run/node'
-import { Outlet, useLoaderData } from '@remix-run/react'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { storeProject } from '~/projects/store'
+import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
-import {
-  getBranch,
-  latestVersion,
-  repo,
-  textColor,
-  colorFrom,
-  colorTo,
-  availableVersions,
-  frameworks,
-} from '~/projects/store'
+
 import { getTanstackDocsConfig } from '~/utils/config'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version } = context.params
-  const branch = getBranch(version)
+export const Route = createFileRoute('/store/$version/docs')({
+  loader: async (ctx) => {
+    const branch = getBranch(storeProject, ctx.params.version)
+    const config = await getTanstackDocsConfig({
+      repo: storeProject.repo,
+      branch,
+    })
 
-  const config = await getTanstackDocsConfig(repo, branch)
+    return {
+      config,
+    }
+  },
+  meta: () =>
+    seo({
+      title: 'TanStack Store Docs | TanStack Store',
+    }),
+  component: DocsRoute,
+})
 
-  return json({
-    config,
-    version,
-  })
-}
-
-export default function Component() {
-  const { config, version } = useLoaderData<typeof loader>()
+function DocsRoute() {
+  const { config } = Route.useLoaderData()
+  const { version } = Route.useParams()
 
   return (
     <DocsLayout
       name="Store"
-      version={version === 'latest' ? latestVersion : version!}
-      colorFrom={colorFrom}
-      colorTo={colorTo}
-      textColor={textColor}
+      version={version === 'latest' ? storeProject.latestVersion : version!}
+      colorFrom={storeProject.colorFrom}
+      colorTo={storeProject.colorTo}
+      textColor={storeProject.textColor}
       config={config}
-      frameworks={frameworks}
-      availableVersions={availableVersions}
-      repo={repo}
+      frameworks={storeProject.frameworks}
+      versions={storeProject.availableVersions}
+      repo={storeProject.repo}
     >
       <Outlet />
     </DocsLayout>

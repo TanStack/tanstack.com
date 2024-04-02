@@ -1,52 +1,44 @@
-import { Outlet, json, useLoaderData } from '@remix-run/react'
-import {
-  repo,
-  getBranch,
-  colorTo,
-  latestVersion,
-  colorFrom,
-  textColor,
-  availableVersions,
-  frameworks,
-} from '~/projects/ranger'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { rangerProject } from '~/projects/ranger'
 import { seo } from '~/utils/seo'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getTanstackDocsConfig } from '~/utils/config'
-import type { MetaFunction, LoaderFunctionArgs } from '@remix-run/node'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { version } = context.params
-  const branch = getBranch(version)
+export const Route = createFileRoute('/ranger/$version/docs')({
+  loader: async (ctx) => {
+    const branch = getBranch(rangerProject, ctx.params.version)
+    const config = await getTanstackDocsConfig({
+      repo: rangerProject.repo,
+      branch,
+    })
 
-  const config = await getTanstackDocsConfig(repo, branch)
+    return {
+      config,
+    }
+  },
+  meta: () =>
+    seo({
+      title: 'TanStack Ranger Docs | TanStack Ranger',
+    }),
+  component: DocsRoute,
+})
 
-  return json({
-    config,
-    version,
-  })
-}
-
-export const meta: MetaFunction = () => {
-  return seo({
-    title: 'TanStack Ranger Docs | React Ranger',
-    description: 'Modern and headless ranger UI library',
-  })
-}
-
-export default function DocsRoute() {
-  const { version, config } = useLoaderData<typeof loader>()
+function DocsRoute() {
+  const { config } = Route.useLoaderData()
+  const { version } = Route.useParams()
 
   return (
     <DocsLayout
       name="Ranger"
-      version={version === 'latest' ? latestVersion : version!}
-      colorFrom={colorFrom}
-      colorTo={colorTo}
-      textColor={textColor}
+      version={version === 'latest' ? rangerProject.latestVersion : version!}
+      colorFrom={rangerProject.colorFrom}
+      colorTo={rangerProject.colorTo}
+      textColor={rangerProject.textColor}
       config={config}
-      frameworks={frameworks}
-      availableVersions={availableVersions}
-      repo={repo}
+      frameworks={rangerProject.frameworks}
+      versions={rangerProject.availableVersions}
+      repo={rangerProject.repo}
     >
       <Outlet />
     </DocsLayout>

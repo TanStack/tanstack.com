@@ -1,29 +1,19 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
-import { Outlet } from '@remix-run/react'
-import { Scarf } from '~/components/Scarf'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
+
 import { seo } from '~/utils/seo'
+import { Scarf } from '~/components/Scarf'
 
-export const meta: MetaFunction = () => {
-  return seo({
-    title: 'TanStack Ranger | React Ranger',
-    description: 'Headless range and multi-range slider utilities, React',
-    image: 'https://github.com/TanStack/ranger/raw/main/media/header.png',
-  })
-}
+export const Route = createFileRoute('/ranger')({
+  meta: () =>
+    seo({
+      title: 'TanStack Ranger | React Ranger',
+      description: 'Headless range and multi-range slider utilities, React',
+      image: 'https://github.com/TanStack/ranger/raw/main/media/header.png',
+    }),
+  component: RouteComp,
+})
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  if (
-    !context.request.url.includes('/ranger/v') &&
-    !context.request.url.includes('/ranger/latest')
-  ) {
-    return redirect(`${new URL(context.request.url).origin}/ranger/latest`)
-  }
-
-  return new Response('OK')
-}
-
-export default function RouteReactTable() {
+export default function RouteComp() {
   return (
     <>
       <Outlet />

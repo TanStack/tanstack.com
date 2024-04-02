@@ -1,31 +1,20 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
-import { Outlet } from '@remix-run/react'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { Scarf } from '~/components/Scarf'
 import { seo } from '~/utils/seo'
 
-export const meta: MetaFunction = () => {
-  return seo({
-    title:
-      'TanStack Router | React Router, Solid Router, Svelte Router, Vue Router',
-    description:
-      'Powerful routing and first-class search-param APIs for JS/TS, React, Solid, Vue and Svelte',
-    image: 'https://github.com/tanstack/router/raw/main/media/header.png',
-  })
-}
+export const Route = createFileRoute('/router')({
+  component: RouteReactTable,
+  meta: () =>
+    seo({
+      title:
+        'TanStack Router | React Router, Solid Router, Svelte Router, Vue Router',
+      description:
+        'Powerful routing and first-class search-param APIs for JS/TS, React, Solid, Vue and Svelte',
+      image: 'https://github.com/tanstack/router/raw/main/media/header.png',
+    }),
+})
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  if (
-    !context.request.url.includes('/router/v') &&
-    !context.request.url.includes('/router/latest')
-  ) {
-    return redirect(`${new URL(context.request.url).origin}/router/latest`)
-  }
-
-  return new Response('OK')
-}
-
-export default function RouteReactTable() {
+function RouteReactTable() {
   return (
     <>
       <Outlet />

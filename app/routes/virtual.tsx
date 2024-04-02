@@ -1,31 +1,21 @@
-import { Outlet } from '@remix-run/react'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { redirect } from '@remix-run/node'
+import { Outlet, createFileRoute } from '@tanstack/react-router'
+
 import { seo } from '~/utils/seo'
 import { Scarf } from '~/components/Scarf'
 
-export const meta: MetaFunction = () => {
-  return seo({
-    title:
-      'TanStack Virtual | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',
-    description:
-      'Headless UI for virtualizing large element lists with TS/JS, React, Solid, Svelte and Vue',
-    image: 'https://github.com/tanstack/virtual/raw/main/media/header.png',
-  })
-}
+export const Route = createFileRoute('/virtual')({
+  meta: () =>
+    seo({
+      title:
+        'TanStack Virtual | React Virtual, Solid Virtual, Svelte Virtual, Vue Virtual',
+      description:
+        'Headless UI for virtualizing large element lists with TS/JS, React, Solid, Svelte and Vue',
+      image: 'https://github.com/tanstack/virtual/raw/main/media/header.png',
+    }),
+  component: Virtual,
+})
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  if (
-    !context.request.url.includes('/virtual/v') &&
-    !context.request.url.includes('/virtual/latest')
-  ) {
-    return redirect(`${new URL(context.request.url).origin}/virtual/latest`)
-  }
-
-  return new Response('OK')
-}
-
-export default function RouteReactVirtual() {
+function Virtual() {
   return (
     <>
       <Outlet />

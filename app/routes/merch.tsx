@@ -1,5 +1,10 @@
-import { redirect } from '@remix-run/node'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
-export const loader = async () => {
-  return redirect(`https://cottonbureau.com/people/tanstack`, 301)
-}
+export const Route = createFileRoute('/merch')({
+  loader: () => {
+    throw redirect({
+      href: `https://cottonbureau.com/people/tanstack`,
+      code: 301,
+    })
+  },
+})

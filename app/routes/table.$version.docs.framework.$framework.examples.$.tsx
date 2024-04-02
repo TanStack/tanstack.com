@@ -1,39 +1,33 @@
 import React from 'react'
-import { json } from '@remix-run/node'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { createFileRoute } from '@tanstack/react-router'
 import { DocTitle } from '~/components/DocTitle'
-import { getBranch, repo } from '~/projects/table'
+import { tableProject } from '~/projects/table'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+
 import { FaExternalLinkAlt } from 'react-icons/fa'
+import { getBranch } from '~/projects'
 
-export const ErrorBoundary = DefaultErrorBoundary
+export const Route = createFileRoute(
+  '/table/$version/docs/framework/$framework/examples/$'
+)({
+  meta: ({ params }) =>
+    seo({
+      title: `${capitalize(params.framework)} Table ${slugToTitle(
+        params._splat
+      )} Example | TanStack Table Docs`,
+      description: `An example showing how to implement ${slugToTitle(
+        params._splat
+      )} in ${capitalize(params.framework)} Table`,
+    }),
+  component: Example,
+})
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { framework, '*': name } = context.params
+function Example() {
+  const { version, framework, _splat } = Route.useParams()
+  const branch = getBranch(tableProject, version)
 
-  return json({ framework, name })
-}
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return seo({
-    title: `${capitalize(data.framework)} Table ${slugToTitle(
-      data.name
-    )} Example | TanStack Table Docs`,
-    description: `An example showing how to implement ${slugToTitle(
-      data.name
-    )} in ${capitalize(data.framework)} Table`,
-  })
-}
-
-export default function RouteReactTableDocs() {
-  const { framework, name } = useLoaderData<typeof loader>()
-  const { version } = useParams()
-  const branch = getBranch(version)
-
-  const examplePath = [framework, name].join('/')
+  const examplePath = [framework, _splat].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
 
@@ -41,11 +35,15 @@ export default function RouteReactTableDocs() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const githubUrl = `https://github.com/${repo}/tree/${branch}/examples/${examplePath}`
-  const stackBlitzUrl = `https://stackblitz.com/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
+  const githubUrl = `https://github.com/${tableProject.repo}/tree/${branch}/examples/${examplePath}`
+  const stackBlitzUrl = `https://stackblitz.com/github/${
+    tableProject.repo
+  }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
-  const codesandboxUrl = `https://codesandbox.io/s/github/${repo}/tree/${branch}/examples/${examplePath}?embed=1&theme=${
+  const codesandboxUrl = `https://codesandbox.io/s/github/${
+    tableProject.repo
+  }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }`
 
@@ -54,7 +52,7 @@ export default function RouteReactTableDocs() {
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
-            {capitalize(framework)} Example: {slugToTitle(name)}
+            {capitalize(framework)} Example: {slugToTitle(_splat)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             <a

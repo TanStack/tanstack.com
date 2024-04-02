@@ -1,42 +1,41 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
-import { repo, getBranch } from '~/projects/store'
-import { DefaultErrorBoundary } from '~/components/DefaultErrorBoundary'
+import { storeProject } from '~/projects/store'
+
 import { seo } from '~/utils/seo'
-import { useLoaderData, useParams } from '@remix-run/react'
+import { createFileRoute } from '@tanstack/react-router'
 import { loadDocs } from '~/utils/docs'
 import { Doc } from '~/components/Doc'
+import { getBranch } from '~/projects'
 
-export const loader = async (context: LoaderFunctionArgs) => {
-  const { '*': docsPath, version } = context.params
-  const { url } = context.request
+export const Route = createFileRoute('/store/$version/docs/$')({
+  loader: (ctx) => {
+    const { _splat: docsPath, version } = ctx.params
 
-  return loadDocs({
-    repo,
-    branch: getBranch(version),
-    docPath: `docs/${docsPath}`,
-    currentPath: url,
-    redirectPath: url.replace(/\/docs.*/, '/docs/overview'),
-  })
-}
+    return loadDocs({
+      repo: storeProject.repo,
+      branch: getBranch(storeProject, version),
+      docsPath: `docs/${docsPath}`,
+      currentPath: ctx.location.pathname,
+      redirectPath: '/store/latest/docs/introduction',
+    })
+  },
+  meta: ({ loaderData }) =>
+    seo({
+      title: `${loaderData?.title ?? 'Docs'} | TanStack Store Docs`,
+      description: loaderData?.description,
+    }),
+  component: Docs,
+})
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return seo({
-    title: `${data?.title} | TanStack Store Docs`,
-    description: data?.description,
-  })
-}
+function Docs() {
+  const { title, content, filePath } = Route.useLoaderData()
+  const { version } = Route.useParams()
+  const branch = getBranch(storeProject, version)
 
-export const ErrorBoundary = DefaultErrorBoundary
-
-export default function RouteDocs() {
-  const { title, content, filePath } = useLoaderData<typeof loader>()
-  const { version } = useParams()
-  const branch = getBranch(version)
   return (
     <Doc
       title={title}
       content={content}
-      repo={repo}
+      repo={storeProject.repo}
       branch={branch}
       filePath={filePath}
     />

@@ -78,7 +78,6 @@ export default createApp({
         serverTransform({
           runtime: `@tanstack/react-router-server/server-runtime`,
         }),
-        reactRefresh(),
       ],
       link: {
         client: 'client',

@@ -16,6 +16,7 @@ import {
   serverFnPayloadTypeHeader,
   serverFnReturnTypeHeader,
 } from '@tanstack/react-router-server'
+import isbot from 'isbot'
 
 export default eventHandler(async (event) => {
   const req = toWebRequest(event)
@@ -85,12 +86,22 @@ export default eventHandler(async (event) => {
     })
   }
 
+  const isRobot = isbot(req.headers.get('User-Agent'))
+
   const stream = await new Promise<PipeableStream>(async (resolve) => {
     // Yes, I'm shadowing "stream" again, keep your shirt on!
     const stream = renderToPipeableStream(<StartServer router={router} />, {
-      onShellReady() {
-        resolve(stream)
-      },
+      ...(isRobot
+        ? {
+            onAllReady() {
+              resolve(stream)
+            },
+          }
+        : {
+            onShellReady() {
+              resolve(stream)
+            },
+          }),
     })
   })
 

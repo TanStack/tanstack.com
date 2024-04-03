@@ -92,6 +92,9 @@ export default function VersionIndex() {
   const [isDark, setIsDark] = React.useState(true)
 
   React.useEffect(() => {
+    if (isDark) {
+      //
+    }
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 

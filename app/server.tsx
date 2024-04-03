@@ -30,25 +30,28 @@ export default eventHandler(async (event) => {
     return !d.children?.includes('nuxt-devtools')
   }) as any
 
-  assets.push(
-    {
-      tag: 'script',
-      attrs: {},
-      children: getHydrationOverlayScriptContext(),
-    },
-    {
-      tag: 'script',
-      children: `window.__vite_plugin_react_preamble_installed__ = true`,
-    },
-    {
-      tag: 'script',
-      attrs: {
-        src: clientManifest.inputs[clientManifest.handler].output.path,
-        type: 'module',
-        async: true,
+  if (import.meta.env.DEV) {
+    assets.push(
+      {
+        tag: 'script',
+        attrs: {},
+        children: getHydrationOverlayScriptContext(),
       },
-    }
-  )
+      {
+        tag: 'script',
+        children: `window.__vite_plugin_react_preamble_installed__ = true`,
+      }
+    )
+  }
+
+  assets.push({
+    tag: 'script',
+    attrs: {
+      src: clientManifest.inputs[clientManifest.handler].output.path,
+      type: 'module',
+      async: true,
+    },
+  })
 
   // Create a router
   const router = createRouter()

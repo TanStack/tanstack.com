@@ -36,11 +36,13 @@ export default function Example() {
   }, [])
 
   const githubUrl = `https://github.com/${formProject.repo}/tree/${branch}/examples/${examplePath}`
+  // preset=node can be removed once Stackblitz runs Angular as webcontainer by default
+  // See https://github.com/stackblitz/core/issues/2957
   const stackBlitzUrl = `https://stackblitz.com/github/${
     formProject.repo
   }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
-  }`
+  }&preset=node`
   const codesandboxUrl = `https://codesandbox.io/s/github/${
     formProject.repo
   }/tree/${branch}/examples/${examplePath}?embed=1&theme=${

@@ -43,7 +43,7 @@ const menu = [
         <VscPreview className="text-lg" /> Examples
       </div>
     ),
-    to: './docs/examples',
+    to: './docs/framework/react/examples/dynamic',
   },
   {
     label: (
@@ -51,7 +51,7 @@ const menu = [
         <FaBook className="text-lg" /> Docs
       </div>
     ),
-    to: './docs/guide/introduction',
+    to: './docs/introduction',
   },
   {
     label: (
@@ -163,7 +163,7 @@ export default function RouteComp() {
           100% control over markup and styles.
         </p>
         <Link
-          to="./docs/guide/introduction"
+          to="./docs/introduction"
           className={`py-2 px-4 bg-purple-500 rounded text-white uppercase font-extrabold`}
         >
           Get Started
@@ -461,7 +461,7 @@ export default function RouteComp() {
         </div>
         <div>
           <Link
-            to="./docs/guide/introduction"
+            to="./docs/introduction"
             className={`inline-block py-2 px-4 bg-purple-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started!

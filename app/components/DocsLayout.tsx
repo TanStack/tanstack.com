@@ -441,7 +441,18 @@ export function DocsLayout({
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
-          <DocSearch {...config.docSearch} />
+          <DocSearch
+            // {...config.docSearch}
+            appId="FQ0DQ6MA3C"
+            apiKey="10c34d6a5c89f6048cf644d601e65172"
+            indexName="tanstack"
+            searchParameters={
+              {
+                // only include urls that start with https://tanstack.com/query
+                // filters: 'url_without_anchor:https://tanstack.com/query',
+              }
+            }
+          />
         </summary>
         <div
           className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto

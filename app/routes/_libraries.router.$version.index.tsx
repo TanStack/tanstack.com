@@ -30,7 +30,7 @@ const menu = [
         <VscPreview className="text-lg" /> Examples
       </div>
     ),
-    to: './docs/examples',
+    to: './docs/framework/react/examples/kitchen-sink-file-based',
   },
   {
     label: (
@@ -38,7 +38,7 @@ const menu = [
         <FaBook className="text-lg" /> Docs
       </div>
     ),
-    to: './docs/overview',
+    to: './docs/framework/react/overview',
   },
   {
     label: (
@@ -143,7 +143,7 @@ function RouterVersionIndex() {
           stale-while revalidate caching and first-class search-param APIs.
         </p>
         <Link
-          to="./docs/overview"
+          to="./docs/framework/react/overview"
           className={`py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
         >
           Get Started
@@ -413,7 +413,7 @@ function RouterVersionIndex() {
         </div>
         <div>
           <Link
-            to="./docs/overview"
+            to="./docs/framework/react/overview"
             className={`inline-block py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started!

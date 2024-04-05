@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { routerProject } from '~/projects/router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'

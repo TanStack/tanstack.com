@@ -34,14 +34,6 @@ const menu = [
   {
     label: (
       <div className="flex items-center gap-1">
-        <VscPreview className="text-lg" /> Examples
-      </div>
-    ),
-    to: './docs/framework/react/examples/simple',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
         <FaBook className="text-lg" /> Docs
       </div>
     ),

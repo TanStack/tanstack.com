@@ -109,7 +109,7 @@ export const Route = createRootRouteWithContext<{
         setDocumentDarkMode(isDark)
       } catch (e) {}
 
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
         setDocumentDarkMode(event.matches)
       });
       `,

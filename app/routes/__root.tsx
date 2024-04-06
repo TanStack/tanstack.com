@@ -94,6 +94,26 @@ export const Route = createRootRouteWithContext<{
         gtag('config', 'G-JMT1Z50SPS');
       `,
     },
+    {
+      children: `
+      function setDocumentDarkMode(isDark) {
+        if (isDark) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+      }
+
+      try {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)')?.matches;
+        setDocumentDarkMode(isDark)
+      } catch (e) {}
+
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+        setDocumentDarkMode(event.matches)
+      });
+      `,
+    },
   ],
   loader: async (ctx) => {
     if (
@@ -146,33 +166,12 @@ function RootDocument({
 }) {
   const matches = useMatches()
 
-  // const prefersDarkMode =
-  //   typeof document !== 'undefined'
-  //     ? matchMedia('(prefers-color-scheme: dark)').matches
-  //     : false
-
-  // const darkModeScript = (
-  //   <script
-  //     dangerouslySetInnerHTML={{
-  //       __html: `
-  //               try {
-  //                 if (matchMedia("(prefers-color-scheme: dark)").matches) {
-  //                   document.body.setAttribute("data-theme", "dark");
-  //                 } else {
-  //                   document.body.removeAttribute('data-theme');
-  //                 }
-  //               } catch (error) {}
-  //             `,
-  //     }}
-  //   ></script>
-  // )
-
   const isLoading = useRouterState({
     select: (s) => s.isLoading || s.isTransitioning,
   })
 
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark">
       <head>
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
@@ -180,12 +179,9 @@ function RootDocument({
         {title ? <title>{title}</title> : null}
         <Meta />
       </head>
-      <body
-      // {...(prefersDarkMode ? { 'data-theme': 'dark' } : {})}
-      >
+      <body>
         <HydrationOverlay>
           {children}
-          {/* {darkModeScript} */}
           <TanStackRouterDevtools position="bottom-right" />
           <div
             className={`fixed top-0 left-0 h-[300px] w-full

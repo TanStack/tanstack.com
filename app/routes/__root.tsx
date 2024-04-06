@@ -3,6 +3,7 @@ import {
   Outlet,
   ScrollRestoration,
   createRootRouteWithContext,
+  redirect,
   useMatches,
   useRouterState,
 } from '@tanstack/react-router'
@@ -94,6 +95,18 @@ export const Route = createRootRouteWithContext<{
       `,
     },
   ],
+  loader: async (ctx) => {
+    if (
+      ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)
+    ) {
+      throw redirect({
+        href: ctx.location.href.replace(
+          /\/docs\/(react|vue|angular|svelte|solid)\//gm,
+          '/docs/framework/$1/'
+        ),
+      })
+    }
+  },
   errorComponent: ({ error }) => {
     return (
       <RootDocument title="Error!">

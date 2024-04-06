@@ -238,7 +238,7 @@ function RouterVersionIndex() {
             'Parallel Route Loaders',
             '1st-class Search Param APIs',
             'Nested/Layout Routes',
-            'Lightweight (12kb)',
+            'Lightweight (19kb)',
             'Suspense + Transitions',
             'Strict Navigation',
             'Auto-completed Paths',

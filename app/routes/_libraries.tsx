@@ -1,12 +1,19 @@
 import * as React from 'react'
-import { Link, Outlet, createFileRoute, defer } from '@tanstack/react-router'
+import {
+  Link,
+  Outlet,
+  createFileRoute,
+  defer,
+  useParams,
+} from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { twMerge } from 'tailwind-merge'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
 import { FaInstagram, FaTshirt, FaTwitter } from 'react-icons/fa'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { projects } from '~/projects'
+import { getLibrary, libraries } from '~/libraries'
+import { Scarf } from '~/components/Scarf'
 
 export const Route = createFileRoute('/_libraries')({
   loader: async (ctx) => {
@@ -18,11 +25,16 @@ export const Route = createFileRoute('/_libraries')({
 })
 
 function LibrariesLayout() {
+  const { libraryId } = useParams({
+    strict: false,
+    experimental_returnIntersection: true,
+  })
+  const library = libraryId ? getLibrary(libraryId) : undefined
   const detailsRef = React.useRef<HTMLElement>(null!)
 
   const items = (
     <>
-      {sortBy(projects, (d) => !d.name.includes('TanStack')).map(
+      {sortBy(libraries, (d) => !d.name.includes('TanStack')).map(
         (project, i) => {
           const linkClasses = twMerge(
             `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
@@ -190,6 +202,7 @@ function LibrariesLayout() {
       {smallMenu}
       {largeMenu}
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
+        {library?.scarfId ? <Scarf id={library.scarfId} /> : null}
         <Outlet />
       </div>
     </div>

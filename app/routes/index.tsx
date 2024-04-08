@@ -14,7 +14,7 @@ import bytesImage from '~/images/bytes.svg'
 import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
 import { useMutation } from '~/hooks/useMutation'
 import { sample } from '~/utils/utils'
-import { projects } from '~/projects'
+import { libraries } from '~/libraries'
 
 export const textColors = [
   `text-rose-500`,
@@ -182,7 +182,7 @@ function Index() {
             sm:grid-cols-2 sm:gap-4
             lg:grid-cols-3`}
         >
-          {projects.map((project, i) => {
+          {libraries.map((project, i) => {
             return (
               <Link
                 key={project.name}

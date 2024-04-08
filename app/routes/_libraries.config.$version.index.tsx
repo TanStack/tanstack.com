@@ -10,10 +10,10 @@ import {
 } from 'react-icons/fa'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { VscPreview, VscWand } from 'react-icons/vsc'
+import { VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { configProject } from '~/projects/config'
+import { configProject } from '~/libraries/config'
 import {
   Await,
   Link,

@@ -25,6 +25,7 @@ import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { DocSearch } from './DocSearch'
 import { Framework, getFrameworkOptions } from '~/projects'
+import './Orama'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -342,6 +343,9 @@ export function DocsLayout({
   const menuItems = menuConfig.map((group, i) => {
     return (
       <div key={i}>
+        <div className='flex'>
+          <orama-searchbox />
+        </div>
         <div className="text-[.9em] uppercase font-black">{group?.label}</div>
         <div className="h-2" />
         <div className="ml-2 space-y-px text-[.9em]">
@@ -441,18 +445,7 @@ export function DocsLayout({
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
-          <DocSearch
-            // {...config.docSearch}
-            appId="FQ0DQ6MA3C"
-            apiKey="10c34d6a5c89f6048cf644d601e65172"
-            indexName="tanstack"
-            searchParameters={
-              {
-                // only include urls that start with https://tanstack.com/query
-                // filters: 'url_without_anchor:https://tanstack.com/query',
-              }
-            }
-          />
+          <orama-search-button />
         </summary>
         <div
           className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto
@@ -483,11 +476,7 @@ export function DocsLayout({
     <div className="max-w-max w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div>
-        <DocSearch
-          appId={config.docSearch.appId}
-          indexName={config.docSearch.indexName}
-          apiKey={config.docSearch.apiKey}
-        />
+      <orama-search-button />
       </div>
       <div className="flex gap-2 px-4">
         <Select

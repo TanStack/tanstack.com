@@ -23,7 +23,6 @@ import { last } from '~/utils/utils'
 import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
-import { DocSearch } from './DocSearch'
 import { Framework, getFrameworkOptions } from '~/projects'
 import './Orama'
 
@@ -343,7 +342,7 @@ export function DocsLayout({
   const menuItems = menuConfig.map((group, i) => {
     return (
       <div key={i}>
-        <div className='flex'>
+        <div className="flex">
           <orama-searchbox />
         </div>
         <div className="text-[.9em] uppercase font-black">{group?.label}</div>
@@ -476,7 +475,7 @@ export function DocsLayout({
     <div className="max-w-max w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div>
-      <orama-search-button />
+        <orama-search-button />
       </div>
       <div className="flex gap-2 px-4">
         <Select
@@ -554,21 +553,9 @@ export function DocsLayout({
             </div>
           </div>
         </div>
-        <div className="p-4 max-w-[240px] shrink-0 border-l border-gray-200 dark:border-white/10 hidden md:block">
-          {config?.docSearch?.indexName?.includes('query') ? (
-            <DocsCalloutQueryGG />
-          ) : (
-            <DocsCalloutBytes />
-          )}
-        </div>
         {showBytes ? (
           <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
             <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
-              {config?.docSearch?.indexName?.includes('query') ? (
-                <DocsCalloutQueryGG />
-              ) : (
-                <DocsCalloutBytes />
-              )}
               <button
                 className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
                 onClick={() => {
@@ -590,20 +577,9 @@ export function DocsLayout({
               className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
             hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
             >
-              {config?.docSearch?.indexName?.includes('query') ? (
-                <>
-                  <strong>
-                    <span role="img" aria-label="crystal ball">
-                      &#128302;
-                    </span>{' '}
-                    Skip the docs?
-                  </strong>
-                </>
-              ) : (
-                <>
-                  Subscribe to <strong>Bytes</strong>
-                </>
-              )}
+              <>
+                Subscribe to <strong>Bytes</strong>
+              </>
             </div>
           </button>
         )}

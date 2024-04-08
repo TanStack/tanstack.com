@@ -21,8 +21,8 @@ import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { formProject } from '~/projects/form'
-import { Framework, getBranch } from '~/projects'
+import { formProject } from '~/libraries/form'
+import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 
 const menu = [

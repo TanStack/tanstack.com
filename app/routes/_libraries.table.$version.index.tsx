@@ -10,7 +10,7 @@ import {
   FaTshirt,
 } from 'react-icons/fa'
 import { Link, createFileRoute, getRouteApi } from '@tanstack/react-router'
-import { tableProject } from '~/projects/table'
+import { tableProject } from '~/libraries/table'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
@@ -18,7 +18,7 @@ import SponsorPack from '~/components/SponsorPack'
 import { VscPreview } from 'react-icons/vsc'
 import agGridImage from '~/images/ag-grid.png'
 import { Await } from '@tanstack/react-router'
-import { Framework, getBranch } from '~/projects'
+import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 
 const menu = [

@@ -24,7 +24,7 @@ import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { DocSearch } from './DocSearch'
-import { Framework, getFrameworkOptions } from '~/projects'
+import { Framework, getFrameworkOptions } from '~/libraries'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other

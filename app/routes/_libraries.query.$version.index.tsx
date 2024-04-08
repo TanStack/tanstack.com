@@ -17,10 +17,10 @@ import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
-import { queryProject } from '~/projects/query'
+import { queryProject } from '~/libraries/query'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 import { createFileRoute } from '@tanstack/react-router'
-import { Framework, getBranch } from '~/projects'
+import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 
 const menu = [

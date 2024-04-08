@@ -16,7 +16,7 @@ import {
   createFileRoute,
   getRouteApi,
 } from '@tanstack/react-router'
-import { virtualProject } from '~/projects/virtual'
+import { virtualProject } from '~/libraries/virtual'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
@@ -25,7 +25,7 @@ import { TbHeartHandshake } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { Logo } from '~/components/Logo'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { Framework, getBranch } from '~/projects'
+import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 
 const menu = [

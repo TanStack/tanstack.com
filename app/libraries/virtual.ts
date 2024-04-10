@@ -7,6 +7,7 @@ export const virtualProject: Library = {
   to: '/virtual',
   tagline: `Headless UI for Virtualizing Large Element Lists`,
   description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid & Svelte while retaining 100% control over markup and styles.`,
+  ogImage: 'https://github.com/tanstack/query/raw/main/media/header.png',
   bgStyle: 'bg-purple-500',
   textStyle: 'text-purple-500',
   repo: 'tanstack/virtual',

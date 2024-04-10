@@ -38,6 +38,7 @@ export type Library = {
   to: string
   tagline: string
   description: string
+  ogImage?: string
   bgStyle: string
   textStyle: string
   badge?: 'new' | 'soon'

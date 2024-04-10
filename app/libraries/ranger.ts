@@ -7,6 +7,7 @@ export const rangerProject: Library = {
   to: '/ranger',
   tagline: `Headless range and multi-range slider utilities.`,
   description: `Headless, lightweight, and extensible primitives for building range and multi-range sliders.`,
+  ogImage: 'https://github.com/tanstack/ranger/raw/main/media/headerv1.png',
   // badge: 'new',
   bgStyle: 'bg-pink-500',
   textStyle: 'text-pink-500',

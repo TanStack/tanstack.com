@@ -7,6 +7,7 @@ export const routerProject: Library = {
   to: '/router',
   tagline: `Type-safe Routing for React applications.`,
   description: `A powerful React router for client-side and full-stack react applications. Fully type-safe APIs, first-class search-params for managing state in the URL and seamless integration with the existing React ecosystem.`,
+  ogImage: 'https://github.com/tanstack/router/raw/main/media/header.png',
   bgStyle: 'bg-emerald-500',
   textStyle: 'text-emerald-500',
   badge: 'new',

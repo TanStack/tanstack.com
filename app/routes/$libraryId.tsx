@@ -20,7 +20,7 @@ export const Route = createFileRoute('/$libraryId')({
             .join(', ')}`
         : '',
       description: library?.description,
-      image: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
+      image: library?.ogImage,
     })
   },
 })

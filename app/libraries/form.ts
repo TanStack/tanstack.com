@@ -7,6 +7,7 @@ export const formProject: Library = {
   to: '/form',
   tagline: `Headless UI for building performant and type-safe forms`,
   description: `Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid and Lit`,
+  ogImage: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
   badge: 'new',
   bgStyle: 'bg-yellow-500',
   textStyle: 'text-yellow-500',

@@ -16,10 +16,10 @@ export const Route = createFileRoute(
     return seo({
       title: `${capitalize(params.framework)} ${library.name} ${slugToTitle(
         params._splat
-      )} Example | TanStack Form Docs`,
+      )} Example | ${library.name} Docs`,
       description: `An example showing how to implement ${slugToTitle(
         params._splat
-      )} in ${capitalize(params.framework)} Form`,
+      )} in ${capitalize(params.framework)} using ${library.name}.`,
     })
   },
   component: Example,

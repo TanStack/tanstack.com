@@ -343,9 +343,6 @@ export function DocsLayout({
   const menuItems = menuConfig.map((group, i) => {
     return (
       <div key={i}>
-        <div className="fixed">
-          <SearchBox {...searchBoxParams} />
-        </div>
         <div className="text-[.9em] uppercase font-black">{group?.label}</div>
         <div className="h-2" />
         <div className="ml-2 space-y-px text-[.9em]">
@@ -420,13 +417,18 @@ export function DocsLayout({
   })
 
   const logo = (
-    <DocsLogo
-      name={name}
-      linkTo={repo.replace('tanstack/', '')}
-      version={version}
-      colorFrom={colorFrom}
-      colorTo={colorTo}
-    />
+    <>
+      <DocsLogo
+        name={name}
+        linkTo={repo.replace('tanstack/', '')}
+        version={version}
+        colorFrom={colorFrom}
+        colorTo={colorTo}
+      />
+      <div className="fixed">
+        <SearchBox {...searchBoxParams} />
+      </div>
+    </>
   )
 
   const smallMenu = (

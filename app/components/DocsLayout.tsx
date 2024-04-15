@@ -417,15 +417,13 @@ export function DocsLayout({
   })
 
   const logo = (
-    <>
-      <DocsLogo
-        name={name}
-        linkTo={repo.replace('tanstack/', '')}
-        version={version}
-        colorFrom={colorFrom}
-        colorTo={colorTo}
-      />
-    </>
+    <DocsLogo
+      name={name}
+      linkTo={repo.replace('tanstack/', '')}
+      version={version}
+      colorFrom={colorFrom}
+      colorTo={colorTo}
+    />
   )
 
   const smallMenu = (

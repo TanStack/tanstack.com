@@ -6,7 +6,7 @@ import { Footer } from '~/components/Footer'
 import { VscPreview } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { storeProject } from '~/projects/store'
+import { storeProject } from '~/libraries/store'
 import { Await } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 

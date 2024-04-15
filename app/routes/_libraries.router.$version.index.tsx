@@ -16,11 +16,11 @@ import {
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { routerProject } from '~/projects/router'
+import { routerProject } from '~/libraries/router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { Framework, getBranch } from '~/projects'
+import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 
 const menu = [

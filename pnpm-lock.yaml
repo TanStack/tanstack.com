@@ -3023,6 +3023,19 @@ packages:
     resolution: {integrity: sha512-6Va8paStIoVy5algYDQu1hU0NUCkcrBx7FSt+0Lllp4d2VA1aVi6ACQ7xoINYls8sDZqg6vXf2lj4YDlVamBtw==}
     dependencies:
       '@orama/orama': 2.0.15
+<<<<<<< HEAD
+=======
+    dev: false
+
+  /@orama/orama@2.0.13:
+    resolution: {integrity: sha512-FpdCZTz5MEjXDmB5cupIcI6wsyrhexVvaBi3RW5JXyfjYIpSUc8UUUJHFebegZZgkbZUutgF9sPl3a8KpqIQSA==}
+    engines: {node: '>= 16.0.0'}
+    dev: false
+
+  /@orama/orama@2.0.14:
+    resolution: {integrity: sha512-ibTX8/F5weax+BS1UzuHS8zmhB10i5TKZrEFrRiDDN8xeTww3rSIxb/nxW4YQFLRaTa7hIKlw7jb5ZBHtHBlCw==}
+    engines: {node: '>= 16.0.0'}
+>>>>>>> c396b06d085ab56bed7307c9020e2129ced436b5
     dev: false
 
   /@orama/orama@2.0.15:
@@ -3043,8 +3056,13 @@ packages:
       - typescript
     dev: false
 
+<<<<<<< HEAD
   /@orama/searchbox@1.0.0-rc19(@orama/highlight@0.1.6)(@orama/orama@2.0.15)(@oramacloud/client@1.0.14)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.2.0)(react-markdown@6.0.3)(react@18.2.0)(typescript@5.3.3):
     resolution: {integrity: sha512-X2BMMBFCXo8p1FeLTi3ms6aGrohXvflxraWWZ3ctex+TADo40R7WJm/0MCpLV4u/61Wyqv7NrReGYUM5v8u6Pw==}
+=======
+  /@orama/searchbox@1.0.0-rc20(@orama/highlight@0.1.6)(@orama/orama@2.0.14)(@oramacloud/client@1.0.14)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.2.0)(react-markdown@6.0.3)(react@18.2.0)(typescript@5.3.3):
+    resolution: {integrity: sha512-3JRSlolw8/63DPTbre7dBhaxIu1lKI7/q4eFC8rzwPt4kj/MWPU80P8tbzNBomCQ4iRRY8wHEpsly4cePq/UKg==}
+>>>>>>> c396b06d085ab56bed7307c9020e2129ced436b5
     peerDependencies:
       '@orama/highlight': ^0.1.6
       '@orama/orama': 2.0.14

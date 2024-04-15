@@ -35,5 +35,5 @@ export const searchBoxParams: RegisterSearchBoxProps = {
 
 export const searchButtonParams: RegisterSearchButtonProps = {
   colorScheme: 'system',
-  fullWidth: true,
+  fullWidth: true 
 }

@@ -19,16 +19,13 @@ import { SearchBox, SearchButton } from '@orama/searchbox'
 import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
-import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
-import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { DocsLogo } from '~/components/DocsLogo'
 import { last } from '~/utils/utils'
 import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
-import { Framework, getFrameworkOptions } from '~/projects'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
-import { getLibrary } from '~/libraries'
+import { Framework, getFrameworkOptions } from '~/libraries'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other

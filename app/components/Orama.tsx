@@ -14,7 +14,7 @@ const oramaInstance = new OramaClient({
 
 export const searchBoxParams: RegisterSearchBoxProps = {
   oramaInstance,
-  colorScheme: 'dark',
+  colorScheme: 'system',
   backdrop: true,
   facetProperty: 'category',
   resultsMap: {
@@ -23,6 +23,7 @@ export const searchBoxParams: RegisterSearchBoxProps = {
   // The public API key for summary generation. This is commit-safe.
   summaryGeneration: 'i75cz4r3-gNgyzkFb5xafcnFPWbxGMhW',
   themeConfig: {
+    light: {},
     dark: {
       '--backdrop-bg-color': '#0d103591',
     },
@@ -30,6 +31,6 @@ export const searchBoxParams: RegisterSearchBoxProps = {
 }
 
 export const searchButtonParams: RegisterSearchButtonProps = {
-  colorScheme: 'dark',
+  colorScheme: 'system',
   fullWidth: true,
 }

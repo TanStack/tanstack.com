@@ -58,6 +58,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
+    "@orama/orama": "^2.0.15",
     "@types/react": "^18.2.65",
     "@types/react-dom": "^18.2.21",
     "@types/remove-markdown": "^0.3.4",

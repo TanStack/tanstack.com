@@ -12,7 +12,9 @@ import {
   useMatches,
   useNavigate,
   useParams,
+  useRouterState,
 } from '@tanstack/react-router'
+import type { AnyOrama, SearchParamsFullText, AnyDocument } from '@orama/orama'
 import { SearchBox, SearchButton } from '@orama/searchbox'
 import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
@@ -26,6 +28,7 @@ import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { Framework, getFrameworkOptions } from '~/projects'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
+import { getLibrary } from '~/libraries'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -416,6 +419,22 @@ export function DocsLayout({
     )
   })
 
+  const currentLibrary = useRouterState({
+    select: (state) => {
+      const library = state.location.pathname.split('/').at(1)
+      return library ? library.charAt(0).toUpperCase() + library.slice(1) : ''
+    },
+  })
+
+  const oramaSearchParams: SearchParamsFullText<AnyOrama, AnyDocument> = {
+    threshold: 0,
+    where: {
+      category: {
+        eq: currentLibrary,
+      },
+    },
+  }
+
   const logo = (
     <DocsLogo
       name={name}
@@ -507,7 +526,7 @@ export function DocsLayout({
       }`}
     >
       <div className="fixed z-50">
-        <SearchBox {...searchBoxParams} />
+        <SearchBox {...searchBoxParams} searchParams={oramaSearchParams} />
       </div>
       {smallMenu}
       {largeMenu}
@@ -554,9 +573,21 @@ export function DocsLayout({
             </div>
           </div>
         </div>
+        <div className="p-4 max-w-[240px] shrink-0 border-l border-gray-200 dark:border-white/10 hidden md:block">
+          {currentLibrary === 'Query' ? (
+            <DocsCalloutQueryGG />
+          ) : (
+            <DocsCalloutBytes />
+          )}
+        </div>
         {showBytes ? (
           <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
             <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
+              {currentLibrary === 'Query' ? (
+                <DocsCalloutQueryGG />
+              ) : (
+                <DocsCalloutBytes />
+              )}
               <button
                 className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
                 onClick={() => {
@@ -578,9 +609,20 @@ export function DocsLayout({
               className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
             hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
             >
-              <>
-                Subscribe to <strong>Bytes</strong>
-              </>
+              {currentLibrary === 'Query' ? (
+                <>
+                  <strong>
+                    <span role="img" aria-label="crystal ball">
+                      &#128302;
+                    </span>{' '}
+                    Skip the docs?
+                  </strong>
+                </>
+              ) : (
+                <>
+                  Subscribe to <strong>Bytes</strong>
+                </>
+              )}
             </div>
           </button>
         )}

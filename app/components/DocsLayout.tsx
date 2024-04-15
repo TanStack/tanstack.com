@@ -444,7 +444,6 @@ export function DocsLayout({
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
-          <SearchButton {...searchButtonParams} />
         </summary>
         <div
           className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto
@@ -465,6 +464,7 @@ export function DocsLayout({
               onSelect={versionConfig.onSelect}
             />
           </div>
+          <SearchButton {...searchButtonParams} />
           {menuItems}
         </div>
       </details>

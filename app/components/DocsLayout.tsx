@@ -13,7 +13,7 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import { SearchBox, SearchButton } from "@orama/searchbox";
+import { SearchBox, SearchButton } from '@orama/searchbox'
 import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
@@ -425,9 +425,6 @@ export function DocsLayout({
         colorFrom={colorFrom}
         colorTo={colorTo}
       />
-      <div className="fixed">
-        <SearchBox {...searchBoxParams} />
-      </div>
     </>
   )
 
@@ -477,7 +474,7 @@ export function DocsLayout({
   const largeMenu = (
     <div className="max-w-max w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
-      <div className='px-4'>
+      <div className="px-4">
         <SearchButton {...searchButtonParams} />
       </div>
       <div className="flex gap-2 px-4">
@@ -511,6 +508,9 @@ export function DocsLayout({
         isExample ? 'max-w-[2560px]' : 'max-w-[1400px]'
       }`}
     >
+      <div className="fixed z-50">
+        <SearchBox {...searchBoxParams} />
+      </div>
       {smallMenu}
       {largeMenu}
       <div className="flex w-full lg:w-[calc(100%-250px)] flex-1">

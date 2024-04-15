@@ -22,6 +22,11 @@ export const searchBoxParams: RegisterSearchBoxProps = {
   },
   // The public API key for summary generation. This is commit-safe.
   summaryGeneration: 'i75cz4r3-gNgyzkFb5xafcnFPWbxGMhW',
+  themeConfig: {
+    dark: {
+      '--backdrop-bg-color': '#0d103591',
+    },
+  },
 }
 
 export const searchButtonParams: RegisterSearchButtonProps = {

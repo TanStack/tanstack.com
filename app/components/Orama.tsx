@@ -35,11 +35,5 @@ export const searchBoxParams: RegisterSearchBoxProps = {
 
 export const searchButtonParams: RegisterSearchButtonProps = {
   colorScheme: 'system',
-  fullWidth: true,
-  themeConfig: {
-    light: {},
-    dark: {
-      '--backdrop-bg-color': '#0d103591',
-    },
-  },
+  fullWidth: true 
 }

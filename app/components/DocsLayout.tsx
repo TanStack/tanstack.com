@@ -27,6 +27,7 @@ import { create } from 'zustand'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { Framework, getFrameworkOptions } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
+import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other

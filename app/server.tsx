@@ -36,7 +36,14 @@ export default eventHandler(async (event) => {
       {
         tag: 'script',
         attrs: {},
-        children: getHydrationOverlayScriptContext(),
+        children: `
+        // remove all script tags with src containing chrome-extension
+        document.querySelectorAll('script').forEach((script) => {
+          if (script.src.includes('chrome-extension')) {
+            script.remove()
+          }
+        })
+        `,
       },
       {
         tag: 'script',
@@ -51,8 +58,17 @@ export default eventHandler(async (event) => {
       src: clientManifest.inputs[clientManifest.handler].output.path,
       type: 'module',
       async: true,
+      suppressHydrationWarning: true,
     },
   })
+
+  if (import.meta.env.DEV) {
+    assets.push({
+      tag: 'script',
+      attrs: {},
+      children: getHydrationOverlayScriptContext(),
+    })
+  }
 
   // Create a router
   const router = createRouter()
@@ -216,8 +232,8 @@ window.addEventListener('error', (event) => {
 
 let BUILDER_HYDRATION_OVERLAY_ELEMENT = document.querySelector(selector)
 if (BUILDER_HYDRATION_OVERLAY_ELEMENT) {
-window.BUILDER_HYDRATION_OVERLAY.SSR_HTML =
-BUILDER_HYDRATION_OVERLAY_ELEMENT.innerHTML
+  window.BUILDER_HYDRATION_OVERLAY.SSR_HTML =
+  BUILDER_HYDRATION_OVERLAY_ELEMENT.innerHTML
 }
 `
 }

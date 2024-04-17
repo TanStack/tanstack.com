@@ -8,12 +8,14 @@ import {
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { twMerge } from 'tailwind-merge'
+import { SearchBox, SearchButton } from '@orama/searchbox'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
 import { FaInstagram, FaTshirt, FaTwitter } from 'react-icons/fa'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { getLibrary, libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
+import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 
 export const Route = createFileRoute('/_libraries')({
   loader: async (ctx) => {
@@ -171,6 +173,9 @@ function LibrariesLayout() {
           border-t border-gray-500 border-opacity-20 bg-gray-100 text-lg
           dark:bg-gray-900"
         >
+          <div className="p-2 pb-0">
+            <SearchButton {...searchButtonParams} />
+          </div>
           <div className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
             {items}
           </div>
@@ -185,7 +190,9 @@ function LibrariesLayout() {
         <div className="p-4 flex gap-2 items-center text-2xl border-b border-gray-500/10 dark:border-gray-500/20">
           {logo}
         </div>
-
+        <div className="p-2">
+          <SearchButton {...searchButtonParams} />
+        </div>
         <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
           <div className="space-y-1 text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
             {items}
@@ -204,6 +211,9 @@ function LibrariesLayout() {
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
         {library?.scarfId ? <Scarf id={library.scarfId} /> : null}
         <Outlet />
+      </div>
+      <div className="fixed z-50">
+        <SearchBox {...searchBoxParams} />
       </div>
     </div>
   )

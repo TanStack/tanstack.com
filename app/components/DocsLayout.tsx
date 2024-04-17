@@ -12,19 +12,22 @@ import {
   useMatches,
   useNavigate,
   useParams,
+  useRouterState,
 } from '@tanstack/react-router'
+import type { AnyOrama, SearchParamsFullText, AnyDocument } from '@orama/orama'
+import { SearchBox, SearchButton } from '@orama/searchbox'
 import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
-import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
-import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { DocsLogo } from '~/components/DocsLogo'
 import { last } from '~/utils/utils'
 import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
-import { DocSearch } from './DocSearch'
+import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { Framework, getFrameworkOptions } from '~/libraries'
+import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
+import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -415,6 +418,22 @@ export function DocsLayout({
     )
   })
 
+  const currentLibrary = useRouterState({
+    select: (state) => {
+      const library = state.location.pathname.split('/').at(1)
+      return library ? library.charAt(0).toUpperCase() + library.slice(1) : ''
+    },
+  })
+
+  const oramaSearchParams: SearchParamsFullText<AnyOrama, AnyDocument> = {
+    threshold: 0,
+    where: {
+      category: {
+        eq: currentLibrary,
+      },
+    },
+  }
+
   const logo = (
     <DocsLogo
       name={name}
@@ -441,18 +460,6 @@ export function DocsLayout({
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
-          <DocSearch
-            // {...config.docSearch}
-            appId="FQ0DQ6MA3C"
-            apiKey="10c34d6a5c89f6048cf644d601e65172"
-            indexName="tanstack"
-            searchParameters={
-              {
-                // only include urls that start with https://tanstack.com/query
-                // filters: 'url_without_anchor:https://tanstack.com/query',
-              }
-            }
-          />
         </summary>
         <div
           className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto
@@ -473,6 +480,7 @@ export function DocsLayout({
               onSelect={versionConfig.onSelect}
             />
           </div>
+          <SearchButton {...searchButtonParams} />
           {menuItems}
         </div>
       </details>
@@ -482,12 +490,8 @@ export function DocsLayout({
   const largeMenu = (
     <div className="max-w-max w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
-      <div>
-        <DocSearch
-          appId={config.docSearch.appId}
-          indexName={config.docSearch.indexName}
-          apiKey={config.docSearch.apiKey}
-        />
+      <div className="px-4">
+        <SearchButton {...searchButtonParams} />
       </div>
       <div className="flex gap-2 px-4">
         <Select
@@ -520,6 +524,9 @@ export function DocsLayout({
         isExample ? 'max-w-[2560px]' : 'max-w-[1400px]'
       }`}
     >
+      <div className="fixed z-50">
+        <SearchBox {...searchBoxParams} searchParams={oramaSearchParams} />
+      </div>
       {smallMenu}
       {largeMenu}
       <div className="flex w-full lg:w-[calc(100%-250px)] flex-1">
@@ -566,7 +573,7 @@ export function DocsLayout({
           </div>
         </div>
         <div className="p-4 max-w-[240px] shrink-0 border-l border-gray-200 dark:border-white/10 hidden md:block">
-          {config?.docSearch?.indexName?.includes('query') ? (
+          {currentLibrary === 'Query' ? (
             <DocsCalloutQueryGG />
           ) : (
             <DocsCalloutBytes />
@@ -575,7 +582,7 @@ export function DocsLayout({
         {showBytes ? (
           <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
             <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
-              {config?.docSearch?.indexName?.includes('query') ? (
+              {currentLibrary === 'Query' ? (
                 <DocsCalloutQueryGG />
               ) : (
                 <DocsCalloutBytes />
@@ -601,7 +608,7 @@ export function DocsLayout({
               className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
             hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
             >
-              {config?.docSearch?.indexName?.includes('query') ? (
+              {currentLibrary === 'Query' ? (
                 <>
                   <strong>
                     <span role="img" aria-label="crystal ball">

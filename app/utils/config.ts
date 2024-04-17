@@ -12,11 +12,6 @@ export type MenuItem = {
 }
 
 const configSchema = z.object({
-  docSearch: z.object({
-    appId: z.string(),
-    apiKey: z.string(),
-    indexName: z.string(),
-  }),
   sections: z.array(
     z.object({
       label: z.string(),

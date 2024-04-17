@@ -28,6 +28,7 @@ import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { Framework, getFrameworkOptions } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
+import { ClientOnlySearchButton } from './ClientOnlySearchButton'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -480,7 +481,7 @@ export function DocsLayout({
               onSelect={versionConfig.onSelect}
             />
           </div>
-          <SearchButton {...searchButtonParams} />
+          <ClientOnlySearchButton {...searchButtonParams} />
           {menuItems}
         </div>
       </details>
@@ -491,7 +492,7 @@ export function DocsLayout({
     <div className="max-w-max w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
       <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div className="px-4">
-        <SearchButton {...searchButtonParams} />
+        <ClientOnlySearchButton {...searchButtonParams} />
       </div>
       <div className="flex gap-2 px-4">
         <Select

@@ -8,7 +8,8 @@ import {
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { twMerge } from 'tailwind-merge'
-import { SearchBox, SearchButton } from '@orama/searchbox'
+// @ts-expect-error
+import { SearchBox } from '@orama/searchbox'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
 import { FaInstagram, FaTshirt, FaTwitter } from 'react-icons/fa'
@@ -16,6 +17,7 @@ import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { getLibrary, libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
+import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
 
 export const Route = createFileRoute('/_libraries')({
   loader: async (ctx) => {
@@ -61,9 +63,6 @@ function LibrariesLayout() {
                   onClick={() => {
                     detailsRef.current.removeAttribute('open')
                   }}
-                  // activeOptions={{
-                  //   exact: true,
-                  // }}
                 >
                   {(props) => {
                     return (
@@ -133,6 +132,7 @@ function LibrariesLayout() {
       <Link to="/" className={twMerge(`flex items-center gap-1.5`)}>
         <img
           src={logoColor100w}
+          alt=""
           className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
         />
         <div className="font-black">TanStack</div>
@@ -174,7 +174,7 @@ function LibrariesLayout() {
           dark:bg-gray-900"
         >
           <div className="p-2 pb-0">
-            <SearchButton {...searchButtonParams} />
+            <ClientOnlySearchButton {...searchButtonParams} />
           </div>
           <div className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
             {items}
@@ -191,7 +191,7 @@ function LibrariesLayout() {
           {logo}
         </div>
         <div className="p-2">
-          <SearchButton {...searchButtonParams} />
+          <ClientOnlySearchButton {...searchButtonParams} />
         </div>
         <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
           <div className="space-y-1 text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">

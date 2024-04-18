@@ -1,3 +1,5 @@
 {
-  "framework": null
+  "framework": null,
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev"
 }

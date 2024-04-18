@@ -54,11 +54,6 @@ export const fetchDocs = createServerFn(
 
     const file = await fetchRepoFile(repo, branch, filePath)
 
-    console.log({
-      currentPath,
-      redirectPath,
-    })
-
     if (!file) {
       throw notFound()
       // if (currentPath === redirectPath) {

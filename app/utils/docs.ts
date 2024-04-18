@@ -73,7 +73,6 @@ export const fetchDocs = createServerFn(
 
     const frontMatter = extractFrontMatter(file)
     const description = removeMarkdown(frontMatter.excerpt ?? '')
-
     const mdx = await markdownToMdx(frontMatter.content)
 
     return json(

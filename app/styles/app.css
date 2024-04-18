@@ -160,30 +160,30 @@ pre {
   overflow-x: auto;
   position: relative;
 }
-pre.shiki {
+.shiki > pre {
   overflow-x: auto;
 }
-pre.shiki:hover .dim {
+.shiki > pre:hover .dim {
   opacity: 1;
 }
-pre.shiki div.dim {
+.shiki > pre div.dim {
   opacity: 0.5;
 }
-pre.shiki div.dim,
-pre.shiki div.highlight {
+.shiki > pre div.dim,
+.shiki > pre div.highlight {
   margin: 0;
   padding: 0;
 }
-pre.shiki div.highlight {
+.shiki > pre div.highlight {
   opacity: 1;
   background-color: #f1f8ff;
 }
-pre.shiki div.line {
+.shiki > pre div.line {
   min-height: 1rem;
 }
 
 /** Don't show the language identifiers */
-pre.shiki .language-id {
+.shiki > pre .language-id {
   display: none;
 }
 

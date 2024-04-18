@@ -1,52 +1,25 @@
-import { useState, type ReactNode } from 'react'
-import invariant from 'tiny-invariant'
-import type { Language } from 'prism-react-renderer'
-import { Highlight, Prism } from 'prism-react-renderer'
+import * as React from 'react'
 import { FaCopy } from 'react-icons/fa'
-import { svelteHighlighter } from '~/utils/svelteHighlighter'
-// Add back additional language support after `prism-react` upgrade
-;(typeof global !== 'undefined' ? global : window).Prism = Prism
-// @ts-expect-error
-import('prismjs/components/prism-diff')
-// @ts-expect-error
-import('prismjs/components/prism-bash')
+import invariant from 'tiny-invariant'
 
-// @ts-ignore Alias markup as vue highlight
-Prism.languages.vue = Prism.languages.markup
-
-// Enable svelte syntax highlighter
-svelteHighlighter()
-
-function getLanguageFromClassName(className: string) {
-  const match = className.match(/language-(\w+)/)
-  return match ? match[1] : ''
+function getLanguageFromChildren(children: any): string | undefined {
+  const language = children[0]?.props?.children
+  return language ? language : undefined
 }
 
-function isLanguageSupported(lang: string): lang is Language {
-  return lang in Prism.languages
-}
+export const CodeBlock = (props: React.HTMLProps<HTMLPreElement>) => {
+  invariant(!!props.children, 'children is required')
+  const lang = getLanguageFromChildren(props.children)
+  const [copied, setCopied] = React.useState(false)
+  const ref = React.useRef<HTMLPreElement>(null)
 
-type Props = {
-  children: ReactNode
-}
-
-export const CodeBlock = ({ children }: Props) => {
-  invariant(!!children, 'children is required')
-  const [copied, setCopied] = useState(false)
-  const child = Array.isArray(children) ? children[0] : children
-  const className = child.props.className || ''
-  const userLang = getLanguageFromClassName(className)
-  const lang = isLanguageSupported(userLang) ? userLang : 'bash'
-  const code = Array.isArray(child.props.children)
-    ? child.props.children[0]
-    : child.props.children
   return (
     <div className="w-full max-w-full relative">
       <button
         className="absolute right-1 top-3 z-10 p-2 group flex items-center"
         onClick={() => {
+          navigator.clipboard.writeText(ref.current?.innerText || '')
           setCopied(true)
-          navigator.clipboard.writeText(code.trim())
           setTimeout(() => setCopied(false), 2000)
         }}
         aria-label="Copy code to clipboard"
@@ -57,34 +30,19 @@ export const CodeBlock = ({ children }: Props) => {
           <FaCopy className="text-gray-500 group-hover:text-gray-100 dark:group-hover:text-gray-200 transition duration-200" />
         )}
       </button>
-      <div className="relative not-prose">
-        <div
-          className="absolute bg-white text-sm z-10 border border-gray-300 px-2 rounded-md -top-3 right-2
-            dark:bg-gray-600 dark:border-0"
+      <div className="relative not-prose w-full max-w-full">
+        {lang ? (
+          <div className="absolute bg-white text-sm z-10 border border-gray-500/20 px-2 rounded-md -top-3 right-2 dark:bg-gray-600">
+            {lang}
+          </div>
+        ) : null}
+        <pre
+          className={`${props.className} m-0 rounded-md w-full border border-gray-500/20 dark:border-gray-500/30`}
+          style={props.style}
+          ref={ref}
         >
-          {lang}
-        </div>
-        <div className="rounded-md font-normal w-full border border-gray-200 dark:border-0">
-          <Highlight code={code.trim()} language={lang}>
-            {({ className, tokens, getLineProps, getTokenProps }) => (
-              <pre className={`overflow-scroll ${className}`} style={{}}>
-                <code className={className} style={{}}>
-                  {tokens.map((line, i) => (
-                    <div key={i} {...getLineProps({ line, key: i })} style={{}}>
-                      {line.map((token, key) => (
-                        <span
-                          key={key}
-                          {...getTokenProps({ token, key })}
-                          style={{}}
-                        />
-                      ))}
-                    </div>
-                  ))}
-                </code>
-              </pre>
-            )}
-          </Highlight>
-        </div>
+          {props.children}
+        </pre>
       </div>
     </div>
   )

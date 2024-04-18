@@ -1,10 +1,8 @@
+import { useMemo } from 'react'
+import { getMDXComponent } from 'mdx-bundler/client'
 import { CodeBlock } from '~/components/CodeBlock'
 import { MarkdownLink } from '~/components/MarkdownLink'
-import type { FC, HTMLProps } from 'react'
-import ReactMarkdown from 'react-markdown'
-import rehypeSlug from 'rehype-slug'
-import remarkGfm from 'remark-gfm'
-import rehypeRaw from 'rehype-raw'
+import type { HTMLProps } from 'react'
 
 const CustomHeading = ({
   Comp,
@@ -34,7 +32,7 @@ const makeHeading =
       />
     )
 
-const defaultComponents: Record<string, FC> = {
+const markdownComponents: Record<string, React.FC> = {
   a: MarkdownLink,
   pre: CodeBlock,
   h1: makeHeading('h1'),
@@ -43,34 +41,36 @@ const defaultComponents: Record<string, FC> = {
   h4: makeHeading('h4'),
   h5: makeHeading('h5'),
   h6: makeHeading('h6'),
-  iframe: (props) => <iframe {...props} className="w-full" />,
-  code: ({ className = '', ...props }: React.HTMLProps<HTMLElement>) => {
-    return (
-      <code
-        {...props}
-        className={`border border-gray-500 border-opacity-20 bg-gray-500 bg-opacity-10 rounded p-1${
-          className ?? ` ${className}`
-        }`}
-      />
-    )
+  code: (props: HTMLProps<HTMLElement>) => {
+    const { className, children } = props
+    if (typeof children === 'string') {
+      // For inline code, this adds a background and outline
+      return (
+        <code
+          {...props}
+          className={`border border-gray-500 border-opacity-20 bg-gray-500 bg-opacity-10 rounded p-1${
+            className ?? ` ${className}`
+          }`}
+        />
+      )
+    } else {
+      // For Shiki code blocks, this does nothing
+      return <code {...props} />
+    }
   },
+  iframe: (props) => (
+    <iframe {...props} className="w-full" title="Embedded Content" />
+  ),
 }
 
-type Props = {
-  children: string
-  components?: Record<string, FC>
-}
+export function Mdx({
+  code,
+  components,
+}: {
+  code: string
+  components?: Record<string, React.FC>
+}) {
+  const Doc = useMemo(() => getMDXComponent(code), [code])
 
-export const RenderMarkdown = (props: Props) => {
-  const { components, children } = props
-
-  return (
-    <ReactMarkdown
-      plugins={[remarkGfm]}
-      rehypePlugins={[rehypeSlug, rehypeRaw]}
-      components={{ ...defaultComponents, ...components }}
-    >
-      {children}
-    </ReactMarkdown>
-  )
+  return <Doc components={{ ...markdownComponents, ...components }} />
 }

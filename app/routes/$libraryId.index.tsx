@@ -4,10 +4,11 @@ export const Route = createFileRoute('/$libraryId/')({
   loader: ({ params }) => {
     throw redirect({
       to: '/$libraryId/$version',
-      params: {
+      params: (prev) => ({
+        ...prev,
         libraryId: params.libraryId,
         version: 'latest',
-      },
+      }),
     })
   },
 })

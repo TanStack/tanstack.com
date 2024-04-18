@@ -134,6 +134,9 @@ export default function VersionIndex() {
             font-black text-4xl
             md:text-6xl
             lg:text-7xl`}
+                style={{
+                  viewTransitionName: `library-name`,
+                }}
               >
                 <span className={gradientText}>TanStack Query</span>{' '}
                 <span

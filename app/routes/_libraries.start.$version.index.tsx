@@ -131,6 +131,9 @@ export default function VersionIndex() {
             font-black text-4xl
             md:text-6xl
             lg:text-7xl relative`}
+            style={{
+              viewTransitionName: `library-name`,
+            }}
           >
             <span className={gradientText}>TanStack Start</span>
           </h1>
@@ -204,6 +207,7 @@ Check it out at https://tanstack.com/start/`
             )}`}
             target="_blank"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
+            rel="noreferrer"
           >
             <FaTwitter /> Tweet about it!
           </a>{' '}

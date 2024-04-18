@@ -25,7 +25,7 @@ import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
-import { Framework, getFrameworkOptions } from '~/libraries'
+import { Framework, getFrameworkOptions, getLibrary } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { ClientOnlySearchButton } from './ClientOnlySearchButton'
@@ -314,6 +314,10 @@ export function DocsLayout({
   repo,
   children,
 }: DocsLayoutProps) {
+  const { libraryId } = useParams({
+    strict: false,
+    experimental_returnIntersection: true,
+  })
   const frameworkConfig = useFrameworkConfig({ frameworks })
   const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
@@ -419,18 +423,13 @@ export function DocsLayout({
     )
   })
 
-  const currentLibrary = useRouterState({
-    select: (state) => {
-      const library = state.location.pathname.split('/').at(1)
-      return library ? library.charAt(0).toUpperCase() + library.slice(1) : ''
-    },
-  })
+  const library = getLibrary(libraryId!)
 
   const oramaSearchParams: SearchParamsFullText<AnyOrama, AnyDocument> = {
     threshold: 0,
     where: {
       category: {
-        eq: currentLibrary,
+        eq: libraryId,
       },
     },
   }
@@ -490,7 +489,14 @@ export function DocsLayout({
 
   const largeMenu = (
     <div className="max-w-max w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
-      <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
+      <div
+        className="px-4 pt-4 flex gap-2 items-center text-2xl"
+        style={{
+          viewTransitionName: `library-name`,
+        }}
+      >
+        {logo}
+      </div>
       <div className="px-4">
         <ClientOnlySearchButton {...searchButtonParams} />
       </div>
@@ -574,7 +580,7 @@ export function DocsLayout({
           </div>
         </div>
         <div className="p-4 max-w-[240px] shrink-0 border-l border-gray-200 dark:border-white/10 hidden md:block">
-          {currentLibrary === 'Query' ? (
+          {libraryId === 'query' ? (
             <DocsCalloutQueryGG />
           ) : (
             <DocsCalloutBytes />
@@ -583,7 +589,7 @@ export function DocsLayout({
         {showBytes ? (
           <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
             <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
-              {currentLibrary === 'Query' ? (
+              {libraryId === 'query' ? (
                 <DocsCalloutQueryGG />
               ) : (
                 <DocsCalloutBytes />
@@ -609,7 +615,7 @@ export function DocsLayout({
               className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
             hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
             >
-              {currentLibrary === 'Query' ? (
+              {libraryId === 'query' ? (
                 <>
                   <strong>
                     <span role="img" aria-label="crystal ball">

@@ -1,4 +1,10 @@
-import { Await, Link, createFileRoute, defer } from '@tanstack/react-router'
+import {
+  Await,
+  Link,
+  MatchRoute,
+  createFileRoute,
+  defer,
+} from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
@@ -182,40 +188,59 @@ function Index() {
             sm:grid-cols-2 sm:gap-4
             lg:grid-cols-3`}
         >
-          {libraries.map((project, i) => {
+          {libraries.map((library, i) => {
             return (
               <Link
-                key={project.name}
-                to={project.to ?? '#'}
+                key={library.name}
+                to={library.to ?? '#'}
                 params
                 className={twMerge(
                   `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white dark:bg-gray-900 dark:border dark:border-gray-800`,
-                  project.cardStyles
+                  library.cardStyles
                 )}
                 style={{
                   zIndex: i,
                 }}
               >
                 <div className="flex gap-2 justify-between items-center">
-                  <div className={`text-2xl font-extrabold `}>
-                    {project.name}
-                  </div>
-                  {project.badge ? (
+                  <MatchRoute
+                    pending
+                    to={library.to}
+                    children={(isPending) => {
+                      if (isPending) {
+                        console.log('pending', library.name)
+                      }
+                      return (
+                        <div
+                          className={twMerge(
+                            `text-2xl font-extrabold`
+                            // isPending && `[view-transition-name:library-name]`
+                          )}
+                          style={{
+                            viewTransitionName: `library-name-${library.id}`,
+                          }}
+                        >
+                          {library.name}
+                        </div>
+                      )
+                    }}
+                  />
+                  {library.badge ? (
                     <div
                       className={twMerge(
                         `uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse`,
-                        project.bgStyle
+                        library.bgStyle
                       )}
                     >
-                      {project.badge}
+                      {library.badge}
                     </div>
                   ) : null}
                 </div>
                 <div className={`text-lg italic font-light mt-2`}>
-                  {project.tagline}
+                  {library.tagline}
                 </div>
                 <div className={`text-sm mt-2 text-black dark:text-white`}>
-                  {project.description}
+                  {library.description}
                 </div>
               </Link>
             )

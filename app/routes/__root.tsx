@@ -9,8 +9,6 @@ import {
 } from '@tanstack/react-router'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
-import prismThemeLight from '~/styles/prismThemeLight.css?url'
-import prismThemeDark from '~/styles/prismThemeDark.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
 import { Meta, RouterManagedTag, Scripts } from '@tanstack/react-router-server'
@@ -41,16 +39,6 @@ export const Route = createRootRouteWithContext<{
   ],
   links: () => [
     { rel: 'stylesheet', href: appCss },
-    {
-      rel: 'stylesheet',
-      href: prismThemeLight,
-      media: '(prefers-color-scheme: light)',
-    },
-    {
-      rel: 'stylesheet',
-      href: prismThemeDark,
-      media: '(prefers-color-scheme: dark)',
-    },
     {
       rel: 'stylesheet',
       href: carbonStyles,

@@ -127,8 +127,11 @@ export default function TableVersionIndex() {
             font-black text-4xl
             md:text-6xl
             lg:text-7xl`}
+            style={{
+              viewTransitionName: `library-name`,
+            }}
           >
-            <span className={gradientText}>TanStack Table</span>{' '}
+            <span className={`${gradientText}`}>TanStack Table</span>{' '}
             <span
               className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"

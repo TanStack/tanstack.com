@@ -130,6 +130,7 @@ export const Route = createRootRouteWithContext<{
           info={{
             componentStack: '',
           }}
+          reset={() => {}}
         />
       </RootDocument>
     )

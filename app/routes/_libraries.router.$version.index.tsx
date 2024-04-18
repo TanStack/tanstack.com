@@ -121,6 +121,9 @@ function RouterVersionIndex() {
             font-black text-4xl
             md:text-6xl
             lg:text-7xl`}
+            style={{
+              viewTransitionName: `library-name`,
+            }}
           >
             <span className={gradientText}>TanStack Router</span>
           </h1>

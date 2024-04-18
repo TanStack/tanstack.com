@@ -11,9 +11,10 @@ export const Route = createFileRoute('/$libraryId/$version')({
 
     if (!library.availableVersions.concat('latest').includes(version!)) {
       throw redirect({
-        params: {
+        params: (prev) => ({
+          ...prev,
           version: 'latest',
-        },
+        }),
       })
     }
   },

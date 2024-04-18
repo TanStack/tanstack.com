@@ -1,10 +1,5 @@
 import * as React from 'react'
-import {
-  DefaultGlobalNotFound,
-  Link,
-  Outlet,
-  createFileRoute,
-} from '@tanstack/react-router'
+import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { seo } from '~/utils/seo'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'

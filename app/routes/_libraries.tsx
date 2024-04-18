@@ -8,7 +8,6 @@ import {
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { twMerge } from 'tailwind-merge'
-// @ts-expect-error
 import { SearchBox } from '@orama/searchbox'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
@@ -39,27 +38,27 @@ function LibrariesLayout() {
   const items = (
     <>
       {sortBy(libraries, (d) => !d.name.includes('TanStack')).map(
-        (project, i) => {
+        (library, i) => {
           const linkClasses = twMerge(
             `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
           )
 
-          const [prefix, name] = project.name.split(' ')
+          const [prefix, name] = library.name.split(' ')
 
           return (
             <div key={i}>
-              {project.to.startsWith('http') ? (
-                <a href={project.to} className={linkClasses}>
+              {library.to.startsWith('http') ? (
+                <a href={library.to} className={linkClasses}>
                   <span>
                     <span className="font-light dark:font-bold dark:opacity-40">
                       {prefix}
                     </span>{' '}
-                    <span className={project.textStyle}>{name}</span>
+                    <span className={library.textStyle}>{name}</span>
                   </span>
                 </a>
               ) : (
                 <Link
-                  to={project.to}
+                  to={library.to}
                   onClick={() => {
                     detailsRef.current.removeAttribute('open')
                   }}
@@ -74,7 +73,11 @@ function LibrariesLayout() {
                             : ''
                         )}
                       >
-                        <span>
+                        <span
+                          style={{
+                            viewTransitionName: `library-name-${library.id}`,
+                          }}
+                        >
                           <span
                             className={twMerge(
                               'font-light dark:font-bold dark:opacity-40',
@@ -83,9 +86,17 @@ function LibrariesLayout() {
                           >
                             {prefix}
                           </span>{' '}
-                          <span className={project.textStyle}>{name}</span>
+                          <span
+                            className={twMerge(
+                              library.textStyle
+                              // isPending &&
+                              //   `[view-transition-name:library-name]`
+                            )}
+                          >
+                            {name}
+                          </span>
                         </span>
-                        {project.badge ? (
+                        {library.badge ? (
                           <span
                             className={twMerge(
                               `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
@@ -94,10 +105,10 @@ function LibrariesLayout() {
                               //   : library.badge === 'soon'
                               //   ? 'text-cyan-500'
                               //   : '',
-                              project.textStyle
+                              library.textStyle
                             )}
                           >
-                            {project.badge}
+                            {library.badge}
                           </span>
                         ) : null}
                       </div>

@@ -20,7 +20,7 @@
     "@mdx-js/mdx": "^2.3.0",
     "@octokit/graphql": "^7.0.2",
     "@octokit/rest": "^20.0.2",
-    "@orama/searchbox": "1.0.0-rc20",
+    "@orama/searchbox": "1.0.0-rc25",
     "@oramacloud/client": "^1.0.14",
     "@remix-run/node": "^2.8.1",
     "@tailwindcss/typography": "^0.5.10",

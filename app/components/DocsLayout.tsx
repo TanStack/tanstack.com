@@ -20,7 +20,7 @@ import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsLogo } from '~/components/DocsLogo'
-import { last } from '~/utils/utils'
+import { last, capitalize } from '~/utils/utils'
 import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
@@ -429,7 +429,7 @@ export function DocsLayout({
     threshold: 0,
     where: {
       category: {
-        eq: libraryId,
+        eq: capitalize(libraryId),
       },
     },
   }

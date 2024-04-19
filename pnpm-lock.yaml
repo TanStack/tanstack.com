@@ -27,8 +27,8 @@ dependencies:
     specifier: ^20.0.2
     version: 20.0.2
   '@orama/searchbox':
-    specifier: 1.0.0-rc20
-    version: 1.0.0-rc20(@orama/highlight@0.1.6)(@orama/orama@2.0.15)(@oramacloud/client@1.0.14)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.2.0)(react-markdown@6.0.3)(react@18.2.0)(typescript@5.3.3)
+    specifier: 1.0.0-rc21
+    version: 1.0.0-rc21(@orama/highlight@0.1.6)(@orama/orama@2.0.15)(@oramacloud/client@1.0.14)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.2.0)(react-markdown@6.0.3)(react@18.2.0)(typescript@5.3.3)
   '@oramacloud/client':
     specifier: ^1.0.14
     version: 1.0.14(typescript@5.3.3)
@@ -3216,8 +3216,8 @@ packages:
       - typescript
     dev: false
 
-  /@orama/searchbox@1.0.0-rc20(@orama/highlight@0.1.6)(@orama/orama@2.0.15)(@oramacloud/client@1.0.14)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.2.0)(react-markdown@6.0.3)(react@18.2.0)(typescript@5.3.3):
-    resolution: {integrity: sha512-3JRSlolw8/63DPTbre7dBhaxIu1lKI7/q4eFC8rzwPt4kj/MWPU80P8tbzNBomCQ4iRRY8wHEpsly4cePq/UKg==}
+  /@orama/searchbox@1.0.0-rc21(@orama/highlight@0.1.6)(@orama/orama@2.0.15)(@oramacloud/client@1.0.14)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.2.0)(react-markdown@6.0.3)(react@18.2.0)(typescript@5.3.3):
+    resolution: {integrity: sha512-WB+SElGV7RUkeMkzKfLYUKAzN3AoXcglrWd9U5xC5s6xSQnlTbzfGPwiX3+eCKTLHGqK2UCPNH4KVKLbUpbVfg==}
     peerDependencies:
       '@orama/highlight': ^0.1.6
       '@orama/orama': 2.0.14
@@ -4486,12 +4486,12 @@ packages:
   /@types/eslint-scope@3.7.7:
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
     dependencies:
-      '@types/eslint': 8.56.9
+      '@types/eslint': 8.56.10
       '@types/estree': 1.0.5
     dev: false
 
-  /@types/eslint@8.56.9:
-    resolution: {integrity: sha512-W4W3KcqzjJ0sHg2vAq9vfml6OhsJ53TcUjUqfzzZf/EChUtwspszj/S0pzMxnfRcO55/iGq47dscXw71Fxc4Zg==}
+  /@types/eslint@8.56.10:
+    resolution: {integrity: sha512-Shavhk87gCtY2fhXDctcfS3e6FdxWkCx1iUZ9eEUbh7rTqlZT0/IzOkCOVt0fCjcFuZ9FPYfuezTBImfHCDBGQ==}
     dependencies:
       '@types/estree': 1.0.5
       '@types/json-schema': 7.0.15

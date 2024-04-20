@@ -24,13 +24,11 @@ export const Route = createFileRoute(
   component: Docs,
   meta: (ctx) => {
     const library = getLibrary(ctx.params.libraryId)
+    const tail = `${library.name} ${capitalize(ctx.params.framework)} Docs`
 
     return seo({
-      title: ctx.loaderData?.title
-        ? `${ctx.loaderData.title} | ${library.name} ${capitalize(
-            ctx.params.framework
-          )} Docs`
-        : `${library.name} ${capitalize(ctx.params.framework)} Docs`,
+      title: ctx.loaderData?.title ? `${ctx.loaderData.title} | ${tail}` : tail,
+      description: ctx.loaderData?.description,
     })
   },
 })

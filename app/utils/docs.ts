@@ -1,8 +1,4 @@
-import {
-  extractFrontMatter,
-  fetchRepoFile,
-  markdownToMdx,
-} from '~/utils/documents.server'
+import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import removeMarkdown from 'remove-markdown'
 import { notFound, redirect } from '@tanstack/react-router'
 import { createServerFn, json } from '@tanstack/react-router-server'
@@ -73,14 +69,13 @@ export const fetchDocs = createServerFn(
 
     const frontMatter = extractFrontMatter(file)
     const description = removeMarkdown(frontMatter.excerpt ?? '')
-    const mdx = await markdownToMdx(frontMatter.content)
 
     return json(
       {
         title: frontMatter.data?.title,
         description,
         filePath,
-        content: mdx.code,
+        content: frontMatter.content,
       },
       {
         headers: {

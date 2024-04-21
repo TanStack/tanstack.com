@@ -143,47 +143,34 @@
 
 /* https://github.com/shikijs/twoslash/tree/main/packages/remark-shiki-twoslash#plugin-setup */
 pre {
-  /* In theory shiki will overwrite these, but this is to make sure there are defaults regardless */
-  background-color: white;
-  color: black;
-
-  /* Give it some space to breathe */
-  padding: 12px;
-
   /* All code samples get a grey border, twoslash ones get a different color */
-  border-left: 1px solid #999;
-  border-bottom: 1px solid #999;
-
-  margin-bottom: 3rem;
-
-  /* Important to allow the code to move horizontally; */
-  overflow-x: auto;
-  position: relative;
+  @apply bg-white text-black p-2 border border-gray-500/30 mb-4 rounded-md;
+  @apply overflow-x-auto relative leading-tight;
 }
-.shiki > pre {
+pre.shiki {
   overflow-x: auto;
 }
-.shiki > pre:hover .dim {
+pre.shiki:hover .dim {
   opacity: 1;
 }
-.shiki > pre div.dim {
+pre.shiki div.dim {
   opacity: 0.5;
 }
-.shiki > pre div.dim,
-.shiki > pre div.highlight {
+pre.shiki div.dim,
+pre.shiki div.highlight {
   margin: 0;
   padding: 0;
 }
-.shiki > pre div.highlight {
+pre.shiki div.highlight {
   opacity: 1;
   background-color: #f1f8ff;
 }
-.shiki > pre div.line {
+pre.shiki div.line {
   min-height: 1rem;
 }
 
 /** Don't show the language identifiers */
-.shiki > pre .language-id {
+pre.shiki .language-id {
   display: none;
 }
 
@@ -442,7 +429,7 @@ pre .logger.log-log svg {
 }
 
 @media (prefers-color-scheme: light) {
-  .shiki.github-dark {
+  .shiki.tokyo-night {
     display: none;
   }
 }

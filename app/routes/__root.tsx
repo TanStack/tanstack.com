@@ -13,10 +13,19 @@ import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
 import { Meta, RouterManagedTag, Scripts } from '@tanstack/react-router-server'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import { HydrationOverlay } from '@builder.io/react-hydration-overlay'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
+
+let HydrationOverlay = ({ children }: { children: React.ReactNode }) => children
+
+if (import.meta.env.NODE_ENV === 'development') {
+  HydrationOverlay = React.lazy(() =>
+    import('@builder.io/react-hydration-overlay').then((d) => ({
+      default: d.HydrationOverlay,
+    }))
+  )
+}
 
 export const Route = createRootRouteWithContext<{
   assets: RouterManagedTag[]

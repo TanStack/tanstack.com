@@ -1,6 +1,6 @@
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import removeMarkdown from 'remove-markdown'
-import { notFound, redirect } from '@tanstack/react-router'
+import { notFound } from '@tanstack/react-router'
 import { createServerFn, json } from '@tanstack/react-router-server'
 
 export const loadDocs = async ({

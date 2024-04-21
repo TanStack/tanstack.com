@@ -24,10 +24,10 @@
     "@oramacloud/client": "^1.0.14",
     "@remix-run/node": "^2.8.1",
     "@tailwindcss/typography": "^0.5.10",
-    "@tanstack/react-router": "1.28.7",
-    "@tanstack/react-router-server": "1.28.7",
-    "@tanstack/router-devtools": "1.28.7",
-    "@tanstack/router-vite-plugin": "1.28.2",
+    "@tanstack/react-router": "1.29.2",
+    "@tanstack/react-router-server": "1.29.2",
+    "@tanstack/router-devtools": "1.29.2",
+    "@tanstack/router-vite-plugin": "1.30.0",
     "@typescript-eslint/parser": "^7.2.0",
     "@vinxi/react": "0.2.2",
     "@vinxi/server-functions": "^0.3.2",
@@ -63,7 +63,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@orama/orama": "^2.0.15",
+    "@orama/orama": "^2.0.16",
     "@types/react": "^18.2.65",
     "@types/react-dom": "^18.2.21",
     "@types/remove-markdown": "^0.3.4",

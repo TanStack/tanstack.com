@@ -32,24 +32,10 @@ export default eventHandler(async (event) => {
   }) as any
 
   if (import.meta.env.DEV) {
-    assets.push(
-      {
-        tag: 'script',
-        attrs: {},
-        children: `
-        // remove all script tags with src containing chrome-extension
-        document.querySelectorAll('script').forEach((script) => {
-          if (script.src.includes('chrome-extension')) {
-            script.remove()
-          }
-        })
-        `,
-      },
-      {
-        tag: 'script',
-        children: `window.__vite_plugin_react_preamble_installed__ = true`,
-      }
-    )
+    assets.push({
+      tag: 'script',
+      children: `window.__vite_plugin_react_preamble_installed__ = true`,
+    })
   }
 
   assets.push({
@@ -60,6 +46,27 @@ export default eventHandler(async (event) => {
       async: true,
       suppressHydrationWarning: true,
     },
+  })
+
+  assets.push({
+    tag: 'script',
+    children: `
+let htmlElement = document.documentElement;
+let childNodes = Array.from(htmlElement.childNodes);
+let removedElements = [];
+childNodes.forEach(node => {
+    if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'HEAD' && node.tagName !== 'BODY') {
+        // Remove the node
+        removedElements.push(node);
+        htmlElement.removeChild(node);
+    }
+});
+if (removedElements.length > 0) {
+    console.warn(
+        'Removed elements from <html> to prevent hydration mismatches with React.',
+        removedElements
+    );
+}`,
   })
 
   if (import.meta.env.DEV) {

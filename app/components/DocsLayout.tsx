@@ -29,6 +29,7 @@ import { Framework, getFrameworkOptions, getLibrary } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { ClientOnlySearchButton } from './ClientOnlySearchButton'
+import { twMerge } from 'tailwind-merge'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -350,14 +351,14 @@ export function DocsLayout({
   const menuItems = menuConfig.map((group, i) => {
     return (
       <div key={i}>
-        <div className="text-[.9em] uppercase font-black">{group?.label}</div>
+        <div className="text-[.8em] uppercase font-black">{group?.label}</div>
         <div className="h-2" />
-        <div className="ml-2 space-y-px text-[.9em]">
+        <div className="ml-2 text-[.85em]">
           {group?.children?.map((child, i) => {
-            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
+            const linkClasses = `cursor-pointer flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
 
             return (
-              <div key={i}>
+              <React.Fragment key={i}>
                 {child.to.startsWith('http') ? (
                   <a href={child.to} className={linkClasses}>
                     {child.label}
@@ -372,21 +373,25 @@ export function DocsLayout({
                     activeOptions={{
                       exact: true,
                     }}
+                    className="!cursor-pointer relative"
                   >
                     {(props) => {
                       return (
-                        <div className={linkClasses}>
-                          <span
-                            className={
+                        <div className={twMerge(linkClasses)}>
+                          <div
+                            className={twMerge(
+                              'overflow-auto w-full',
                               props.isActive
                                 ? `font-bold text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
                                 : ''
-                            }
+                            )}
                           >
+                            {/* <div className="transition group-hover:delay-700 duration-300 group-hover:duration-[2s] group-hover:translate-x-[-50%]"> */}
                             {child.label}
-                          </span>
+                            {/* </div> */}
+                          </div>
                           {child.badge ? (
-                            <span
+                            <div
                               className={`text-xs ${
                                 props.isActive ? 'opacity-100' : 'opacity-40'
                               } group-hover:opacity-100 font-bold transition-opacity ${
@@ -408,14 +413,14 @@ export function DocsLayout({
                               }`}
                             >
                               {child.badge}
-                            </span>
+                            </div>
                           ) : null}
                         </div>
                       )
                     }}
                   </Link>
                 )}
-              </div>
+              </React.Fragment>
             )
           })}
         </div>
@@ -488,7 +493,7 @@ export function DocsLayout({
   )
 
   const largeMenu = (
-    <div className="max-w-max w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20">
+    <div className="bg-white dark:bg-gray-900 shadow-xl max-w-[300px] w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20">
       <div
         className="px-4 pt-4 flex gap-2 items-center text-2xl"
         style={{
@@ -527,17 +532,20 @@ export function DocsLayout({
 
   return (
     <div
-      className={`min-h-screen mx-auto flex flex-col lg:flex-row w-full transition-all duration-300 ${
-        isExample ? 'max-w-[2560px]' : 'max-w-[1400px]'
-      }`}
+      className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300`}
     >
       <div className="fixed z-50">
         <SearchBox {...searchBoxParams} searchParams={oramaSearchParams} />
       </div>
       {smallMenu}
       {largeMenu}
-      <div className="flex w-full lg:w-[calc(100%-250px)] flex-1">
-        <div className="min-w-0 min-h-0 flex relative justify-center flex-1">
+      <div className="flex flex-1">
+        <div
+          className={twMerge(
+            `min-w-0 min-h-0 flex relative justify-center flex-1`,
+            !isExample && 'mx-auto max-w-[900px]'
+          )}
+        >
           {children}
           <div
             className="fixed bottom-0 left-0 right-0
@@ -579,7 +587,7 @@ export function DocsLayout({
             </div>
           </div>
         </div>
-        <div className="p-4 max-w-[240px] shrink-0 border-l border-gray-200 dark:border-white/10 hidden md:block">
+        <div className="bg-white dark:bg-gray-900 dark:border-l border-gray-500/20 shadow-xl p-4 max-w-[240px] hidden md:block sticky top-0 max-h-screen overflow-auto">
           {libraryId === 'query' ? (
             <DocsCalloutQueryGG />
           ) : (

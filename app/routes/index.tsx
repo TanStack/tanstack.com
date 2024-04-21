@@ -21,6 +21,8 @@ import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
 import { useMutation } from '~/hooks/useMutation'
 import { sample } from '~/utils/utils'
 import { libraries } from '~/libraries'
+import { SearchBox } from '@orama/searchbox'
+import { searchBoxParams } from '~/components/Orama'
 
 export const textColors = [
   `text-rose-500`,
@@ -581,6 +583,9 @@ function Index() {
       </div>
       <div className={`h-20`} />
       <Footer />
+      <div className="fixed z-50">
+        <SearchBox {...searchBoxParams} />
+      </div>
     </>
   )
 }

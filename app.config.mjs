@@ -21,10 +21,10 @@ const customVite = () =>
         'react-icons',
       ],
     },
-    resolve:
-      env.command !== 'build'
-        ? {
-            dedupe: [
+    resolve: {
+      dedupe: [
+        ...(env.command !== 'build'
+          ? [
               'react',
               'react-dom',
               '@tanstack/store',
@@ -34,9 +34,10 @@ const customVite = () =>
               '@tanstack/react-cross-context',
               '@tanstack/history',
               'use-sync-external-store',
-            ],
-          }
-        : {},
+            ]
+          : []),
+      ],
+    },
     // plugins: [
     //   {
     //     name: 'inline-env-vars-as-prefix',

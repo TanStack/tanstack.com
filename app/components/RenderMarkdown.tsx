@@ -4,6 +4,7 @@ import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
 import Markdown from 'markdown-to-jsx'
 import { getHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
+import { transformerNotationDiff } from '@shikijs/transformers'
 
 const CustomHeading = ({
   Comp,
@@ -86,6 +87,7 @@ function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
           highlighter.codeToHtml(code, {
             lang,
             theme,
+            transformers: [transformerNotationDiff()],
           })
         )
       )

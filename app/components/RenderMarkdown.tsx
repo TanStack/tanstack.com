@@ -87,9 +87,7 @@ function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
           highlighter.codeToHtml(code, {
             lang,
             theme,
-            transformers: [
-              transformerNotationDiff()
-            ]
+            transformers: [transformerNotationDiff()],
           })
         )
       )

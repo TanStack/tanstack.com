@@ -99,34 +99,35 @@ function replaceSections(
     substitutes.set(match[1], match)
   }
 
-  if (substitutes.size > 0) {
-    // Find all sections in target file
-    const sections = new Map<string, RegExpMatchArray>()
-    for (const match of result.matchAll(sectionRegex)) {
-      if (match[1] !== match[2]) {
-        console.error(
-          `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`
-        )
-      }
-
-      sections.set(match[1], match)
+  // Find all sections in target file
+  const sections = new Map<string, RegExpMatchArray>()
+  for (const match of result.matchAll(sectionRegex)) {
+    if (match[1] !== match[2]) {
+      console.error(
+        `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`
+      )
     }
 
-    Array.from(substitutes.entries())
-      .reverse()
-      .forEach(([key, value]) => {
-        const sectionMatch = sections.get(key)
-        if (sectionMatch) {
-          result =
-            result.slice(0, sectionMatch.index!) +
-            value[0] +
-            result.slice(
-              sectionMatch.index! + sectionMatch[0].length,
-              result.length
-            )
-        }
-      })
+    sections.set(match[1], match)
   }
+
+  Array.from(substitutes.entries())
+    .reverse()
+    .forEach(([key, value]) => {
+      const sectionMatch = sections.get(key)
+      if (sectionMatch) {
+        result =
+          result.slice(0, sectionMatch.index!) +
+          value[0] +
+          result.slice(
+            sectionMatch.index! + sectionMatch[0].length,
+            result.length
+          )
+      }
+    })
+
+  // Remove all section markers from the result
+  result = result.replaceAll(sectionRegex, '')
 
   return result
 }

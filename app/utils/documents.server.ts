@@ -84,6 +84,7 @@ function replaceSections(
   let result = text
   // RegExp defining token pair to dicover sections in the document
   // [//]: # (<Section Token>)
+  const sectionMarkerRegex = /\[\/\/\]: # '([a-zA-Z\d]*)'/g
   const sectionRegex =
     /\[\/\/\]: # '([a-zA-Z\d]*)'[\S\s]*?\[\/\/\]: # '([a-zA-Z\d]*)'/g
 
@@ -127,7 +128,7 @@ function replaceSections(
     })
 
   // Remove all section markers from the result
-  result = result.replaceAll(sectionRegex, '')
+  result = result.replaceAll(sectionMarkerRegex, '')
 
   return result
 }

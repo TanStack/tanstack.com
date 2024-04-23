@@ -493,7 +493,7 @@ export function DocsLayout({
   )
 
   const largeMenu = (
-    <div className="bg-white dark:bg-gray-900 shadow-xl max-w-[300px] w-full hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20">
+    <div className="bg-white dark:bg-gray-900 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20 transition-all duration-500">
       <div
         className="px-4 pt-4 flex gap-2 items-center text-2xl"
         style={{
@@ -539,108 +539,102 @@ export function DocsLayout({
       </div>
       {smallMenu}
       {largeMenu}
-      <div className="flex flex-1">
+      <div
+        className={twMerge(
+          `min-w-0 min-h-0 flex relative justify-center flex-1`,
+          !isExample && 'mx-auto max-w-[900px]'
+        )}
+      >
+        {children}
         <div
-          className={twMerge(
-            `min-w-0 min-h-0 flex relative justify-center flex-1`,
-            !isExample && 'mx-auto max-w-[900px]'
-          )}
-        >
-          {children}
-          <div
-            className="fixed bottom-0 left-0 right-0
+          className="fixed bottom-0 left-0 right-0
                         lg:pl-[250px] z-10"
-          >
-            <div className="p-4 flex justify-center gap-4">
-              {prevItem ? (
-                <Link
-                  to={prevItem.to}
-                  params
-                  className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
+        >
+          <div className="p-4 flex justify-center gap-4">
+            {prevItem ? (
+              <Link
+                to={prevItem.to}
+                params
+                className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
                 bg-white text-gray-600 dark:bg-black dark:text-gray-400
                 shadow-lg dark:border dark:border-gray-800
                 lg:text-lg"
-                >
-                  <FaArrowLeft /> {prevItem.label}
-                </Link>
-              ) : null}
-              {nextItem ? (
-                <Link
-                  to={nextItem.to}
-                  params
-                  className="py-1 px-2 text-sm self-end rounded-md
+              >
+                <FaArrowLeft /> {prevItem.label}
+              </Link>
+            ) : null}
+            {nextItem ? (
+              <Link
+                to={nextItem.to}
+                params
+                className="py-1 px-2 text-sm self-end rounded-md
                   bg-white dark:bg-black
                   shadow-lg dark:border dark:border-gray-800
                   lg:text-lg
                   "
-                >
-                  <div className="flex gap-2 items-center font-bold">
-                    <span
-                      className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
-                    >
-                      {nextItem.label}
-                    </span>{' '}
-                    <FaArrowRight className={textColor} />
-                  </div>
-                </Link>
-              ) : null}
-            </div>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-gray-900 dark:border-l border-gray-500/20 shadow-xl p-4 max-w-[240px] hidden md:block sticky top-0 max-h-screen overflow-auto">
-          {libraryId === 'query' ? (
-            <DocsCalloutQueryGG />
-          ) : (
-            <DocsCalloutBytes />
-          )}
-        </div>
-        {showBytes ? (
-          <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
-            <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
-              {libraryId === 'query' ? (
-                <DocsCalloutQueryGG />
-              ) : (
-                <DocsCalloutBytes />
-              )}
-              <button
-                className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
-                onClick={() => {
-                  setShowBytes(false)
-                }}
               >
-                <FaTimes />
-              </button>
-            </div>
+                <div className="flex gap-2 items-center font-bold">
+                  <span
+                    className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
+                  >
+                    {nextItem.label}
+                  </span>{' '}
+                  <FaArrowRight className={textColor} />
+                </div>
+              </Link>
+            ) : null}
           </div>
-        ) : (
-          <button
-            className="right-0 top-1/2 -translate-y-[50px] fixed md:hidden"
-            onClick={() => {
-              setShowBytes(true)
-            }}
-          >
-            <div
-              className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
-            hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
-            >
-              {libraryId === 'query' ? (
-                <>
-                  <strong>
-                    <span role="img" aria-label="crystal ball">
-                      &#128302;
-                    </span>{' '}
-                    Skip the docs?
-                  </strong>
-                </>
-              ) : (
-                <>
-                  Subscribe to <strong>Bytes</strong>
-                </>
-              )}
-            </div>
-          </button>
-        )}
+        </div>
       </div>
+      <div className="bg-white dark:bg-gray-900 dark:border-l border-gray-500/20 shadow-xl p-4 max-w-[240px] hidden md:block sticky top-0 max-h-screen overflow-auto">
+        {libraryId === 'query' ? <DocsCalloutQueryGG /> : <DocsCalloutBytes />}
+      </div>
+      {showBytes ? (
+        <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
+          <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
+            {libraryId === 'query' ? (
+              <DocsCalloutQueryGG />
+            ) : (
+              <DocsCalloutBytes />
+            )}
+            <button
+              className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
+              onClick={() => {
+                setShowBytes(false)
+              }}
+            >
+              <FaTimes />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          className="right-0 top-1/2 -translate-y-[50px] fixed md:hidden"
+          onClick={() => {
+            setShowBytes(true)
+          }}
+        >
+          <div
+            className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
+            hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
+          >
+            {libraryId === 'query' ? (
+              <>
+                <strong>
+                  <span role="img" aria-label="crystal ball">
+                    &#128302;
+                  </span>{' '}
+                  Skip the docs?
+                </strong>
+              </>
+            ) : (
+              <>
+                Subscribe to <strong>Bytes</strong>
+              </>
+            )}
+          </div>
+        </button>
+      )}
     </div>
   )
 }

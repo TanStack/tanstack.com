@@ -11,6 +11,7 @@ import parse, {
   HTMLReactParserOptions,
 } from 'html-react-parser'
 import { marked } from 'marked'
+import { gfmHeadingId } from 'marked-gfm-heading-id'
 
 const CustomHeading = ({
   Comp,
@@ -178,7 +179,7 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
 
 export function Mdx({ code }: { code: string }) {
   const jsx = React.useMemo(() => {
-    const markup = marked(code) as string
+    const markup = marked.use(gfmHeadingId())(code) as string
 
     const options: HTMLReactParserOptions = {
       replace: (domNode) => {

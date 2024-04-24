@@ -98,6 +98,9 @@ dependencies:
   marked:
     specifier: ^12.0.2
     version: 12.0.2
+  marked-gfm-heading-id:
+    specifier: ^3.1.3
+    version: 3.1.3(marked@12.0.2)
   qss:
     specifier: ^3.0.0
     version: 3.0.0
@@ -7707,6 +7710,10 @@ packages:
       tar: 6.2.1
     dev: false
 
+  /github-slugger@2.0.0:
+    resolution: {integrity: sha512-IaOQ9puYtjrkq7Y0Ygl9KDZnrf/aiUJYUpVf89y8kyaxbRG7Y1SrX/jaumrv81vc61+kiMempujsM3Yw7w5qcw==}
+    dev: false
+
   /glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
@@ -8865,6 +8872,15 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       semver: 6.3.1
+    dev: false
+
+  /marked-gfm-heading-id@3.1.3(marked@12.0.2):
+    resolution: {integrity: sha512-A0cRU4PCueX/5m8VE4mT8uTQ36l3xMYRojz3Eqnk4BmUFZ0T+9Xhn2KvHcANP4qbhfOeuMrWJCTQbASIBR5xeg==}
+    peerDependencies:
+      marked: '>=4 <13'
+    dependencies:
+      github-slugger: 2.0.0
+      marked: 12.0.2
     dev: false
 
   /marked@12.0.2:

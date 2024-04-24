@@ -47,6 +47,9 @@ dependencies:
   '@tanstack/router-vite-plugin':
     specifier: 1.30.0
     version: 1.30.0(vite@5.1.4)
+  '@types/marked':
+    specifier: ^6.0.0
+    version: 6.0.0
   '@typescript-eslint/parser':
     specifier: ^7.2.0
     version: 7.2.0(eslint@8.57.0)(typescript@5.3.3)
@@ -80,6 +83,9 @@ dependencies:
   gray-matter:
     specifier: ^4.0.3
     version: 4.0.3
+  html-react-parser:
+    specifier: ^5.1.10
+    version: 5.1.10(@types/react@18.2.65)(react@18.2.0)
   import-meta-resolve:
     specifier: ^4.0.0
     version: 4.0.0
@@ -89,9 +95,9 @@ dependencies:
   lru-cache:
     specifier: ^7.13.1
     version: 7.18.3
-  markdown-to-jsx:
-    specifier: ^7.4.7
-    version: 7.4.7(react@18.2.0)
+  marked:
+    specifier: ^12.0.2
+    version: 12.0.2
   qss:
     specifier: ^3.0.0
     version: 3.0.0
@@ -4465,6 +4471,13 @@ packages:
     resolution: {integrity: sha512-YI/M/4HRImtNf3pJgbF+W6FrXovqj+T+/HpENLTooK9PnkacBsDpeP3IpHab40CClUfhNmdM2WTNP2sa2dni5Q==}
     dev: false
 
+  /@types/marked@6.0.0:
+    resolution: {integrity: sha512-jmjpa4BwUsmhxcfsgUit/7A9KbrC48Q0q8KvnY107ogcjGgTFDlIL3RpihNpx2Mu1hM4mdFQjoVc4O6JoGKHsA==}
+    deprecated: This is a stub types definition. marked provides its own type definitions, so you do not need this installed.
+    dependencies:
+      marked: 12.0.2
+    dev: false
+
   /@types/mdast@3.0.15:
     resolution: {integrity: sha512-LnwD+mUEfxWMa1QpDraczIn6k0Ee3SMicuYSSzS6ZYl2gKS09EClnJYGd8Du6rfc5r/GZEk5o1mRb8TaTj03sQ==}
     dependencies:
@@ -7973,8 +7986,32 @@ packages:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
     dev: true
 
+  /html-dom-parser@5.0.8:
+    resolution: {integrity: sha512-vuWiX9EXgu8CJ5m9EP5c7bvBmNSuQVnrY8tl0z0ZX96Uth1IPlYH/8W8VZ/hBajFf18EN+j2pukbCNd01HEd1w==}
+    dependencies:
+      domhandler: 5.0.3
+      htmlparser2: 9.1.0
+    dev: false
+
   /html-entities@2.3.3:
     resolution: {integrity: sha512-DV5Ln36z34NNTDgnz0EWGBLZENelNAtkiFA4kyNOG2tDI6Mz1uSWiq1wAKdyjnJwyDiDO7Fa2SO1CTxPXL8VxA==}
+    dev: false
+
+  /html-react-parser@5.1.10(@types/react@18.2.65)(react@18.2.0):
+    resolution: {integrity: sha512-gV22PvLij4wdEdtrZbGVC7Zy2OVWnQ0bYhX63S196ZRSx4+K0TuutCreHSXr+saUia8KeKB+2TYziVfijpH4Tw==}
+    peerDependencies:
+      '@types/react': 17 || 18
+      react: 0.14 || 15 || 16 || 17 || 18
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@types/react': 18.2.65
+      domhandler: 5.0.3
+      html-dom-parser: 5.0.8
+      react: 18.2.0
+      react-property: 2.0.2
+      style-to-js: 1.1.12
     dev: false
 
   /html@1.0.0:
@@ -7982,6 +8019,15 @@ packages:
     hasBin: true
     dependencies:
       concat-stream: 1.6.2
+    dev: false
+
+  /htmlparser2@9.1.0:
+    resolution: {integrity: sha512-5zfg6mHUoaer/97TxnGpxmbR7zJtPwIYFMZ/H5ucTlPZhKvtum05yiPK3Mgai3a0DyVxv7qYqoweaEd2nrYQzQ==}
+    dependencies:
+      domelementtype: 2.3.0
+      domhandler: 5.0.3
+      domutils: 3.1.0
+      entities: 4.5.0
     dev: false
 
   /http-errors@2.0.0:
@@ -8083,6 +8129,10 @@ packages:
 
   /inline-style-parser@0.1.1:
     resolution: {integrity: sha512-7NXolsK4CAS5+xvdj5OMMbI962hU/wvwoxk+LWR9Ek9bVtyuuYScDN6eS0rUm6TxApFpw7CX1o4uJzcd4AyD3Q==}
+    dev: false
+
+  /inline-style-parser@0.2.3:
+    resolution: {integrity: sha512-qlD8YNDqyTKTyuITrDOffsl6Tdhv+UC4hcdAVuQsK4IMQ99nSgd1MIA/Q+jQYoh9r3hVUXhYh7urSRmXPkW04g==}
     dev: false
 
   /internal-slot@1.0.6:
@@ -8817,13 +8867,10 @@ packages:
       semver: 6.3.1
     dev: false
 
-  /markdown-to-jsx@7.4.7(react@18.2.0):
-    resolution: {integrity: sha512-0+ls1IQZdU6cwM1yu0ZjjiVWYtkbExSyUIFU2ZeDIFuZM1W42Mh4OlJ4nb4apX4H8smxDHRdFaoIVJGwfv5hkg==}
-    engines: {node: '>= 10'}
-    peerDependencies:
-      react: '>= 0.14.0'
-    dependencies:
-      react: 18.2.0
+  /marked@12.0.2:
+    resolution: {integrity: sha512-qXUm7e/YKFoqFPYPa3Ukg9xlI5cyAtGmyEIzMfW//m6kXwCy2Ps9DYf5ioijFKQ8qyuscrHoY04iJGctu2Kg0Q==}
+    engines: {node: '>= 18'}
+    hasBin: true
     dev: false
 
   /mdast-util-definitions@4.0.0:
@@ -10036,6 +10083,10 @@ packages:
       - supports-color
     dev: false
 
+  /react-property@2.0.2:
+    resolution: {integrity: sha512-+PbtI3VuDV0l6CleQMsx2gtK0JZbZKbpdu5ynr+lbsuvtmgbNcS3VM0tuY2QjFNOcWxvXeHjDpy42RO+4U2rug==}
+    dev: false
+
   /react-refresh@0.14.0:
     resolution: {integrity: sha512-wViHqhAd8OHeLS/IRMJjTSDHF3U9eWi62F/MledQGPdJGDhodXJ9PBLNGr6WWL7qlH12Mt3TyTpbS+hGXMjCzQ==}
     engines: {node: '>=0.10.0'}
@@ -10974,10 +11025,22 @@ packages:
       acorn: 8.11.3
     dev: false
 
+  /style-to-js@1.1.12:
+    resolution: {integrity: sha512-tv+/FkgNYHI2fvCoBMsqPHh5xovwiw+C3X0Gfnss/Syau0Nr3IqGOJ9XiOYXoPnToHVbllKFf5qCNFJGwFg5mg==}
+    dependencies:
+      style-to-object: 1.0.6
+    dev: false
+
   /style-to-object@0.3.0:
     resolution: {integrity: sha512-CzFnRRXhzWIdItT3OmF8SQfWyahHhjq3HwcMNCNLn+N7klOOqPjMeG/4JSu77D7ypZdGvSzvkrbyeTMizz2VrA==}
     dependencies:
       inline-style-parser: 0.1.1
+    dev: false
+
+  /style-to-object@1.0.6:
+    resolution: {integrity: sha512-khxq+Qm3xEyZfKd/y9L3oIWQimxuc4STrQKtQn8aSDRHb8mFgpukgX1hdzfrMEW6JCjyJ8p89x+IUMVnCBI1PA==}
+    dependencies:
+      inline-style-parser: 0.2.3
     dev: false
 
   /sucrase@3.35.0:

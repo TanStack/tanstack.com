@@ -2,9 +2,15 @@ import * as React from 'react'
 import { FaRegCopy } from 'react-icons/fa'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
-import Markdown from 'markdown-to-jsx'
 import { getHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
 import { transformerNotationDiff } from '@shikijs/transformers'
+import parse, {
+  attributesToProps,
+  domToReact,
+  Element,
+  HTMLReactParserOptions,
+} from 'html-react-parser'
+import { marked } from 'marked'
 
 const CustomHeading = ({
   Comp,
@@ -58,13 +64,8 @@ const markdownComponents: Record<string, React.FC> = {
   ),
 }
 
-function getLanguageFromChildren(children: any): string | undefined {
-  const language = children?.props?.className?.replace('lang-', '')
-  return language ? language : undefined
-}
-
 function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
-  const lang = getLanguageFromChildren(props.children) || ''
+  const lang = props?.children?.props?.className?.replace('language-', '')
 
   const children = props.children as
     | undefined
@@ -175,22 +176,29 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
   return highlighter
 })
 
-export function Mdx({
-  code,
-  components,
-}: {
-  code: string
-  components?: Record<string, React.FC>
-}) {
-  return (
-    <Markdown
-      options={{
-        overrides: {
-          ...markdownComponents,
-          ...components,
-        },
-      }}
-      children={code}
-    />
-  )
+export function Mdx({ code }: { code: string }) {
+  const jsx = React.useMemo(() => {
+    const markup = marked(code) as string
+
+    const options: HTMLReactParserOptions = {
+      replace: (domNode) => {
+        if (domNode instanceof Element && domNode.attribs) {
+          const replacer = markdownComponents[domNode.name]
+          if (replacer) {
+            return React.createElement(
+              replacer,
+              attributesToProps(domNode.attribs),
+              domToReact(domNode.children, options)
+            )
+          }
+        }
+
+        return
+      },
+    }
+
+    return parse(markup, options)
+  }, [code])
+
+  return jsx
 }

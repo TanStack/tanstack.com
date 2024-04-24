@@ -428,8 +428,6 @@ export function DocsLayout({
     )
   })
 
-  const library = getLibrary(libraryId!)
-
   const oramaSearchParams: SearchParamsFullText<AnyOrama, AnyDocument> = {
     threshold: 0,
     where: {

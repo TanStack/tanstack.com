@@ -15,10 +15,11 @@ const handler = (error?: any) => {
   const errStr = String(error?.message || error)
   if (
     errStr.includes('Minified React error #418') ||
-    errStr.includes('Did not expect server HTML to contain')
+    errStr.includes('Did not expect server HTML to contain') ||
+    errStr.includes('Expected server HTML to contain')
   ) {
     console.error(
-      'The following error occurred while hydrating the app. Falling back to client-side rendering.'
+      'The following errors occurred while hydrating the app, likely due to browser extensions mutating the dom before hydration. Falling back to client-side rendering.'
     )
     createRoot(document as any).render(app)
   }

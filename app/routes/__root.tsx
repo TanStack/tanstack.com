@@ -16,6 +16,7 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
+import { useScript } from '~/hooks/useScript'
 
 let HydrationOverlay = ({ children }: { children: React.ReactNode }) => children
 
@@ -85,12 +86,6 @@ export const Route = createRootRouteWithContext<{
 
         gtag('config', 'G-JMT1Z50SPS');
       `,
-    },
-    {
-      id: 'hs-script-loader',
-      async: true,
-      defer: true,
-      src: '//js-na1.hs-scripts.com/45982155.js',
     },
     {
       children: `
@@ -169,6 +164,13 @@ function RootDocument({
     select: (s) => s.isLoading || s.isTransitioning,
   })
 
+  useScript({
+    id: 'hs-script-loader',
+    async: true,
+    defer: true,
+    src: '//js-na1.hs-scripts.com/45982155.js',
+  })
+
   return (
     <html lang="en" data-theme="dark">
       <head>
@@ -181,7 +183,15 @@ function RootDocument({
       <body>
         <HydrationOverlay>
           {children}
-          <TanStackRouterDevtools position="bottom-right" />
+          <TanStackRouterDevtools
+            position="bottom-right"
+            toggleButtonProps={{
+              style: {
+                transform: 'scale(2)',
+              },
+              // className: 'transform rotate-90 tanner',
+            }}
+          />
           <div
             className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none

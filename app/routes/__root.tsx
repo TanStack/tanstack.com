@@ -87,6 +87,12 @@ export const Route = createRootRouteWithContext<{
       `,
     },
     {
+      id: 'hs-script-loader',
+      async: true,
+      defer: true,
+      src: '//js-na1.hs-scripts.com/45982155.js',
+    },
+    {
       children: `
       function setDocumentDarkMode(isDark) {
         if (isDark) {

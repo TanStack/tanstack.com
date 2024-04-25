@@ -183,15 +183,7 @@ function RootDocument({
       <body>
         <HydrationOverlay>
           {children}
-          <TanStackRouterDevtools
-            position="bottom-right"
-            toggleButtonProps={{
-              style: {
-                transform: 'scale(2)',
-              },
-              // className: 'transform rotate-90 tanner',
-            }}
-          />
+          <TanStackRouterDevtools position="bottom-right" />
           <div
             className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none

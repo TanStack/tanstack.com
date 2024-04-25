@@ -545,7 +545,7 @@ export function DocsLayout({
       >
         {children}
         <div
-          className="fixed bottom-0 left-0 right-0
+          className="fixed bottom-0 left-0 right-[70px]
                         lg:pl-[250px] z-10"
         >
           <div className="p-4 flex justify-center gap-4">

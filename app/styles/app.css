@@ -453,3 +453,9 @@ pre .logger.log-log svg {
   @apply rotate-90 origin-top-right -translate-y-[50px] translate-x-2 rounded-t-none bg-white;
   @apply border-t-0 border-gray-500/10 shadow-xl text-gray-800;
 }
+
+/* Hubspot */
+
+#hubspot-messages-iframe-container {
+  @apply translate-x-[10px] translate-y-[10px];
+}

@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
+import { capitalize } from '~/utils/utils'
 
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/$'
@@ -21,6 +22,15 @@ export const Route = createFileRoute(
     })
   },
   component: Docs,
+  meta: (ctx) => {
+    const library = getLibrary(ctx.params.libraryId)
+    const tail = `${library.name} ${capitalize(ctx.params.framework)} Docs`
+
+    return seo({
+      title: ctx.loaderData?.title ? `${ctx.loaderData.title} | ${tail}` : tail,
+      description: ctx.loaderData?.description,
+    })
+  },
 })
 
 function Docs() {

@@ -36,6 +36,19 @@ export function generatePath(
   return result
 }
 
+export function shuffle<T>(arr: T[], random = Math.random()) {
+  const result = arr.slice()
+
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(random * (i + 1))
+    const temp = result[i]
+    result[i] = result[j]
+    result[j] = temp
+  }
+
+  return result
+}
+
 export function sample(arr: any[], random = Math.random()) {
   return arr[Math.floor(random * arr.length)]
 }

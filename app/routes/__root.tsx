@@ -128,7 +128,7 @@ export const Route = createRootRouteWithContext<{
           info={{
             componentStack: '',
           }}
-          reset={() => {}}
+          reset={undefined as any}
         />
       </RootDocument>
     )

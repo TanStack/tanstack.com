@@ -11,12 +11,19 @@ const app = <StartClient router={router} />
 
 router.hydrate()
 
-const handler = (error?: any) => {
-  const errStr = String(error?.message || error)
+const handler = (errorArgs: string[]) => {
+  const err =
+    typeof errorArgs[0] === 'string'
+      ? interpolate(errorArgs[0], errorArgs.slice(1))
+      : errorArgs[0]
+
   if (
-    errStr.includes('Minified React error #418') ||
-    errStr.includes('Did not expect server HTML to contain') ||
-    errStr.includes('Expected server HTML to contain')
+    err.includes('Minified React error #418') ||
+    err.includes('Minified React error #422') ||
+    err.includes('did not match. Server:') ||
+    err.includes('Did not expect server HTML to contain') ||
+    err.includes('Failed to execute') ||
+    err.includes('Expected server HTML to contain')
   ) {
     console.error(
       'The following errors occurred while hydrating the app, likely due to browser extensions mutating the dom before hydration. Falling back to client-side rendering.'
@@ -29,11 +36,11 @@ const handler = (error?: any) => {
 const originalError = console.error
 const originalWarn = console.warn
 console.error = function (...args: any[]) {
-  handler(args[0])
+  handler(args)
   originalError(...args)
 }
 console.warn = function (...args: any[]) {
-  handler(args[0])
+  handler(args)
   originalWarn(...args)
 }
 
@@ -42,4 +49,9 @@ try {
 } catch (e) {
   console.error(e)
   createRoot(document as any).render(app)
+}
+
+function interpolate(template: string, values: string[] = []) {
+  let index = 0
+  return template.replace(/%s/g, () => values[index++] || '')
 }

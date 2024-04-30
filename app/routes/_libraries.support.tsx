@@ -50,7 +50,7 @@ const teamMembers = [
   },
   {
     name: 'Corbin Crutchley',
-    twitter: '@CrutchCorn',
+    twitter: '@Crutchcorn',
     specialties: ['Forms', 'Validation', 'State Management'],
     img: imgCorbin,
   },

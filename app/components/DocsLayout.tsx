@@ -450,7 +450,7 @@ export function DocsLayout({
   const smallMenu = (
     <div
       className="lg:hidden bg-white sticky top-0 z-20
-              dark:bg-black"
+              dark:bg-gray-900"
     >
       <details
         ref={detailsRef as any}
@@ -539,8 +539,8 @@ export function DocsLayout({
       {largeMenu}
       <div
         className={twMerge(
-          `min-w-0 min-h-0 flex relative justify-center flex-1`,
-          !isExample && 'mx-auto max-w-[900px]'
+          `min-w-0 min-h-0 flex relative justify-center w-full`,
+          !isExample && 'mx-auto w-[900px]'
         )}
       >
         {children}

@@ -6,12 +6,19 @@ import {
   defer,
   useParams,
 } from '@tanstack/react-router'
-import { CgClose, CgMenuLeft } from 'react-icons/cg'
+import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
+import { MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { SearchBox } from '@orama/searchbox'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
-import { FaInstagram, FaTshirt, FaTwitter } from 'react-icons/fa'
+import {
+  FaDiscord,
+  FaGithub,
+  FaInstagram,
+  FaTshirt,
+  FaTwitter,
+} from 'react-icons/fa'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { getLibrary, libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
@@ -35,14 +42,12 @@ function LibrariesLayout() {
   const library = libraryId ? getLibrary(libraryId) : undefined
   const detailsRef = React.useRef<HTMLElement>(null!)
 
+  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
+
   const items = (
     <>
       {sortBy(libraries, (d) => !d.name.includes('TanStack')).map(
         (library, i) => {
-          const linkClasses = twMerge(
-            `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
-          )
-
           const [prefix, name] = library.name.split(' ')
 
           return (
@@ -120,21 +125,51 @@ function LibrariesLayout() {
           )
         }
       )}
-      <a
-        href="https://cottonbureau.com/people/tanstack"
-        className="flex items-center gap-2 p-2"
-        key="merch"
-      >
-        <FaTshirt className="text-2xl" />
-        <span className="font-black text-lg">Merch!</span>
-        <span
-          className={twMerge(
-            `ml-auto px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity animate-pulse text-green-500`
-          )}
-        >
-          New
-        </span>
-      </a>
+      <div className="py-2">
+        <div className="bg-gray-500/10 h-px" />
+      </div>
+      {[
+        // {
+        //   label: 'Support',
+        //   icon: <MdSupport />,
+        //   to: '/support',
+        // },
+        {
+          label: 'Discord',
+          icon: <FaDiscord />,
+          to: 'https://tlinz.com/discord',
+        },
+        {
+          label: 'Merch',
+          icon: <FaTshirt />,
+          to: 'https://cottonbureau.com/people/tanstack',
+        },
+        {
+          label: 'Blog',
+          icon: <CgMusicSpeaker />,
+          to: '/blog',
+        },
+        {
+          label: 'Github',
+          icon: <FaGithub />,
+          to: 'https://github.com/tanstack',
+        },
+      ].map((item, i) => {
+        return (
+          <Link
+            to={item.to}
+            key={i}
+            className={twMerge(linkClasses, 'font-normal')}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4 justify-between">
+                {item.icon}
+              </div>
+              <div>{item.label}</div>
+            </div>
+          </Link>
+        )
+      })}
     </>
   )
 

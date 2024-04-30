@@ -18,10 +18,11 @@ import { Route as DashboardImport } from './routes/dashboard'
 import { Route as BlogImport } from './routes/blog'
 import { Route as LibrariesImport } from './routes/_libraries'
 import { Route as LibraryIdImport } from './routes/$libraryId'
-import { Route as IndexImport } from './routes/index'
 import { Route as BlogIndexImport } from './routes/blog.index'
+import { Route as LibrariesIndexImport } from './routes/_libraries.index'
 import { Route as LibraryIdIndexImport } from './routes/$libraryId.index'
 import { Route as BlogSplatImport } from './routes/blog.$'
+import { Route as LibrariesSupportImport } from './routes/_libraries.support'
 import { Route as LibraryIdVersionImport } from './routes/$libraryId.$version'
 import { Route as LibraryIdVersionDocsImport } from './routes/$libraryId.$version.docs'
 import { Route as LibrariesVirtualVersionIndexImport } from './routes/_libraries.virtual.$version.index'
@@ -75,14 +76,14 @@ const LibraryIdRoute = LibraryIdImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexRoute = IndexImport.update({
-  path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const BlogIndexRoute = BlogIndexImport.update({
   path: '/',
   getParentRoute: () => BlogRoute,
+} as any)
+
+const LibrariesIndexRoute = LibrariesIndexImport.update({
+  path: '/',
+  getParentRoute: () => LibrariesRoute,
 } as any)
 
 const LibraryIdIndexRoute = LibraryIdIndexImport.update({
@@ -93,6 +94,11 @@ const LibraryIdIndexRoute = LibraryIdIndexImport.update({
 const BlogSplatRoute = BlogSplatImport.update({
   path: '/$',
   getParentRoute: () => BlogRoute,
+} as any)
+
+const LibrariesSupportRoute = LibrariesSupportImport.update({
+  path: '/support',
+  getParentRoute: () => LibrariesRoute,
 } as any)
 
 const LibraryIdVersionRoute = LibraryIdVersionImport.update({
@@ -188,10 +194,6 @@ const LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
     '/$libraryId': {
       preLoaderRoute: typeof LibraryIdImport
       parentRoute: typeof rootRoute
@@ -224,6 +226,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionImport
       parentRoute: typeof LibraryIdImport
     }
+    '/_libraries/support': {
+      preLoaderRoute: typeof LibrariesSupportImport
+      parentRoute: typeof LibrariesImport
+    }
     '/blog/$': {
       preLoaderRoute: typeof BlogSplatImport
       parentRoute: typeof BlogImport
@@ -231,6 +237,10 @@ declare module '@tanstack/react-router' {
     '/$libraryId/': {
       preLoaderRoute: typeof LibraryIdIndexImport
       parentRoute: typeof LibraryIdImport
+    }
+    '/_libraries/': {
+      preLoaderRoute: typeof LibrariesIndexImport
+      parentRoute: typeof LibrariesImport
     }
     '/blog/': {
       preLoaderRoute: typeof BlogIndexImport
@@ -298,7 +308,6 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export const routeTree = rootRoute.addChildren([
-  IndexRoute,
   LibraryIdRoute.addChildren([
     LibraryIdVersionRoute.addChildren([
       LibraryIdVersionDocsRoute.addChildren([
@@ -311,6 +320,8 @@ export const routeTree = rootRoute.addChildren([
     LibraryIdIndexRoute,
   ]),
   LibrariesRoute.addChildren([
+    LibrariesSupportRoute,
+    LibrariesIndexRoute,
     LibrariesConfigVersionIndexRoute,
     LibrariesFormVersionIndexRoute,
     LibrariesQueryVersionIndexRoute,

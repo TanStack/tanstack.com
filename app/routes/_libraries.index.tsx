@@ -47,7 +47,7 @@ const courses = [
   },
 ]
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_libraries/')({
   loader: () => {
     return {
       randomNumber: Math.random(),
@@ -83,67 +83,7 @@ function Index() {
   const textColor = sample(textColors, randomNumber)
 
   return (
-    <>
-      <div
-        className="flex flex-wrap py-2 px-4 items-center justify-center text-sm
-          md:text-base md:justify-end"
-      >
-        {[
-          {
-            label: (
-              <div className="flex items-center gap-1">
-                <FaTshirt
-                  className={twMerge('text-lg animate-bounce', textColor)}
-                />
-                Merch
-              </div>
-            ),
-            to: 'https://cottonbureau.com/people/tanstack',
-          },
-          {
-            label: (
-              <div className="flex items-center gap-1">
-                <CgMusicSpeaker className="text-lg" /> Blog
-              </div>
-            ),
-            to: '/blog',
-          },
-          {
-            label: (
-              <div className="flex items-center gap-1">
-                <FaGithub className="text-lg" /> GitHub
-              </div>
-            ),
-            to: 'https://github.com/tanstack',
-          },
-          {
-            label: (
-              <div className="flex items-center gap-1">
-                <FaDiscord className="text-lg" /> Discord
-              </div>
-            ),
-            to: 'https://tlinz.com/discord',
-          },
-        ]?.map((item, i) => {
-          const label = (
-            <div className="p-2 opacity-90 hover:opacity-100">{item.label}</div>
-          )
-
-          return (
-            <div key={i} className="hover:underline">
-              {item.to.startsWith('http') ? (
-                <a href={item.to} target="_blank" rel="noreferrer">
-                  {label}
-                </a>
-              ) : (
-                <Link to={item.to} params>
-                  {label}
-                </Link>
-              )}
-            </div>
-          )
-        })}
-      </div>
+    <div className="max-w-full">
       <div className="flex flex-col items-center gap-6 text-center px-4 py-12 lg:py-24">
         <div className="flex gap-2 lg:gap-4 items-center">
           <LogoColor className="w-[40px] md:w-[60px] lg:w-[100px]" />
@@ -586,6 +526,6 @@ function Index() {
       <div className="fixed z-50">
         <SearchBox {...searchBoxParams} />
       </div>
-    </>
+    </div>
   )
 }

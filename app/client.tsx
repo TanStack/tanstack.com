@@ -15,7 +15,7 @@ const handler = (errorArgs: string[]) => {
   const err =
     typeof errorArgs[0] === 'string'
       ? interpolate(errorArgs[0], errorArgs.slice(1))
-      : errorArgs[0]
+      : errorArgs[0]?.message || String(errorArgs[0])
 
   if (
     err.includes('Minified React error #418') ||

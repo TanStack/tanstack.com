@@ -129,11 +129,11 @@ function LibrariesLayout() {
         <div className="bg-gray-500/10 h-px" />
       </div>
       {[
-        // {
-        //   label: 'Support',
-        //   icon: <MdSupport />,
-        //   to: '/support',
-        // },
+        {
+          label: 'Support',
+          icon: <MdSupport />,
+          to: '/support',
+        },
         {
           label: 'Discord',
           icon: <FaDiscord />,
@@ -160,6 +160,11 @@ function LibrariesLayout() {
             to={item.to}
             key={i}
             className={twMerge(linkClasses, 'font-normal')}
+            activeProps={{
+              className: twMerge(
+                '!font-bold bg-gray-500/10 dark:bg-gray-500/30'
+              ),
+            }}
           >
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-4 justify-between">

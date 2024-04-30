@@ -3,9 +3,21 @@ import { FaCode, FaRocket, FaShieldAlt, FaWrench } from 'react-icons/fa'
 import imgTanner from '~/images/people/tannerlinsley.jpeg'
 import imgKevin from '~/images/people/kevinvancott.jpeg'
 import imgDominik from '~/images/people/dominikdorfmeister.jpg'
+import imgCorbin from '~/images/people/corbincrutchley.jpeg'
+import { seo } from '~/utils/seo'
+import { shuffle } from '~/utils/utils'
+import { CiTurnL1 } from 'react-icons/ci'
 
 export const Route = createFileRoute('/_libraries/support')({
   component: LoginComp,
+  meta: () =>
+    seo({
+      title: 'Support | TanStack',
+      description: `Private consultation and enterprise support contracts for projects of any size.`,
+      // Keywords to target support for all sizes of companies, including consulting and enterprise support contracts
+      keywords:
+        'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software,consulting,enterprise support,dedicated support,enterprise contracts',
+    }),
 })
 
 const teamMembers = [
@@ -15,24 +27,26 @@ const teamMembers = [
     specialties: ['TypeScript', 'Routing', 'Ecosystem'],
     img: imgTanner,
   },
-  {
-    name: 'Dominik Dorfmeister',
-    twitter: '@TkDodo',
-    specialties: ['Data Management', 'SSR', 'TypeScript'],
-    img: imgDominik,
-  },
-  {
-    name: 'Kevin Van Cott',
-    twitter: '@KevinVanCott',
-    specialties: ['Tables', 'Data Grids', 'Dashboards'],
-    img: imgKevin,
-  },
-  {
-    name: 'Corbin Crutchley',
-    twitter: '@CrutchCorn',
-    specialties: ['Forms', 'Validation', 'State Management'],
-    // img: imgTanner,
-  },
+  ...shuffle([
+    {
+      name: 'Dominik Dorfmeister',
+      twitter: '@TkDodo',
+      specialties: ['Data Management', 'SSR', 'TypeScript'],
+      img: imgDominik,
+    },
+    {
+      name: 'Kevin Van Cott',
+      twitter: '@KevinVanCott',
+      specialties: ['Tables', 'Data Grids', 'Dashboards'],
+      img: imgKevin,
+    },
+    {
+      name: 'Corbin Crutchley',
+      twitter: '@CrutchCorn',
+      specialties: ['Forms', 'Validation', 'State Management'],
+      img: imgCorbin,
+    },
+  ]),
 ]
 
 function LoginComp() {
@@ -66,14 +80,16 @@ function LoginComp() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto px-4 md:px-6">
             {teamMembers.map((member) => (
-              <div
-                className="bg-white dark:bg-gray-950 rounded-lg overflow-hidden shadow-lg"
+              <Link
+                to={`https://twitter.com/${member.twitter}`}
+                className="group bg-white dark:bg-gray-950 rounded-lg overflow-hidden shadow-lg"
                 key={member.name}
+                target="_blank"
               >
-                <div className="relative h-40 sm:h-48 md:h-52 lg:h-60">
+                <div className="relative h-40 sm:h-48 md:h-52 lg:h-60 overflow-hidden">
                   <img
                     alt="User Avatar"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 origin-top"
                     height={400}
                     src={member.img}
                     style={{
@@ -104,9 +120,19 @@ function LoginComp() {
                       : null}
                   </ul>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
+        </div>
+        <div className="flex items-center flex-col py-12 space-y-2">
+          <div className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extralight italic">
+            Let's chat!
+          </div>
+          <div className="opacity-30 text-xs max-w-[300px] text-center hover:opacity-100 focus:opacity-100 transition duration-300">
+            (Use the chat icon in the bottom right corner of the screen to get
+            started)
+          </div>
+          <CiTurnL1 className="text-[5rem] rotate-180 translate-x-1/3" />
         </div>
       </section>
       {/* <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">

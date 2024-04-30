@@ -458,4 +458,5 @@ pre .logger.log-log svg {
 
 #hubspot-messages-iframe-container {
   @apply translate-x-[10px] translate-y-[10px];
+  @apply dark:[color-scheme:dark];
 }

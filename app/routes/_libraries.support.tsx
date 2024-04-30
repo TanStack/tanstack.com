@@ -10,6 +10,15 @@ import { CiTurnL1 } from 'react-icons/ci'
 
 export const Route = createFileRoute('/_libraries/support')({
   component: LoginComp,
+  loader: () => {
+    let indices = shuffle(
+      Array.from({ length: teamMembers.length - 1 })
+        .fill(0)
+        .map((_, i) => i + 1)
+    )
+
+    return indices
+  },
   meta: () =>
     seo({
       title: 'Support | TanStack',
@@ -27,29 +36,28 @@ const teamMembers = [
     specialties: ['TypeScript', 'Routing', 'Ecosystem'],
     img: imgTanner,
   },
-  ...shuffle([
-    {
-      name: 'Dominik Dorfmeister',
-      twitter: '@TkDodo',
-      specialties: ['Data Management', 'SSR', 'TypeScript'],
-      img: imgDominik,
-    },
-    {
-      name: 'Kevin Van Cott',
-      twitter: '@KevinVanCott',
-      specialties: ['Tables', 'Data Grids', 'Dashboards'],
-      img: imgKevin,
-    },
-    {
-      name: 'Corbin Crutchley',
-      twitter: '@CrutchCorn',
-      specialties: ['Forms', 'Validation', 'State Management'],
-      img: imgCorbin,
-    },
-  ]),
+  {
+    name: 'Dominik Dorfmeister',
+    twitter: '@TkDodo',
+    specialties: ['Data Management', 'SSR', 'TypeScript'],
+    img: imgDominik,
+  },
+  {
+    name: 'Kevin Van Cott',
+    twitter: '@KevinVanCott',
+    specialties: ['Tables', 'Data Grids', 'Dashboards'],
+    img: imgKevin,
+  },
+  {
+    name: 'Corbin Crutchley',
+    twitter: '@CrutchCorn',
+    specialties: ['Forms', 'Validation', 'State Management'],
+    img: imgCorbin,
+  },
 ]
 
 function LoginComp() {
+  const randomIndices = Route.useLoaderData()
   return (
     <div className="flex flex-col min-h-[100dvh]">
       <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
@@ -79,49 +87,51 @@ function LoginComp() {
             </div> */}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto px-4 md:px-6">
-            {teamMembers.map((member) => (
-              <Link
-                to={`https://twitter.com/${member.twitter}`}
-                className="group bg-white dark:bg-gray-950 rounded-lg overflow-hidden shadow-lg"
-                key={member.name}
-                target="_blank"
-              >
-                <div className="relative h-40 sm:h-48 md:h-52 lg:h-60 overflow-hidden">
-                  <img
-                    alt="User Avatar"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 origin-top"
-                    height={400}
-                    src={member.img}
-                    style={{
-                      aspectRatio: '400/400',
-                      objectFit: 'cover',
-                    }}
-                    width={400}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-                </div>
-                <div className="p-2 sm:p-4 space-y-4">
-                  <div className="">
-                    <h3 className="text-xl font-bold">{member.name}</h3>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      {member.twitter}
-                    </p>
+            {[teamMembers[0], ...randomIndices.map((i) => teamMembers[i])].map(
+              (member) => (
+                <Link
+                  to={`https://twitter.com/${member.twitter}`}
+                  className="group bg-white dark:bg-gray-950 rounded-lg overflow-hidden shadow-lg"
+                  key={member.name}
+                  target="_blank"
+                >
+                  <div className="relative h-40 sm:h-48 md:h-52 lg:h-60 overflow-hidden">
+                    <img
+                      alt="User Avatar"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 origin-top"
+                      height={400}
+                      src={member.img}
+                      style={{
+                        aspectRatio: '400/400',
+                        objectFit: 'cover',
+                      }}
+                      width={400}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
                   </div>
-                  <ul className="flex flex-wrap">
-                    {member.specialties.length > 0
-                      ? member.specialties.map((specialty) => (
-                          <li
-                            className="bg-gray-500/10 text-xs text-gray-500 dark:text-white rounded-full px-2 py-1 mr-2 mb-2"
-                            key={specialty}
-                          >
-                            {specialty}
-                          </li>
-                        ))
-                      : null}
-                  </ul>
-                </div>
-              </Link>
-            ))}
+                  <div className="p-2 sm:p-4 space-y-4">
+                    <div className="">
+                      <h3 className="text-xl font-bold">{member.name}</h3>
+                      <p className="text-gray-500 dark:text-gray-400">
+                        {member.twitter}
+                      </p>
+                    </div>
+                    <ul className="flex flex-wrap">
+                      {member.specialties.length > 0
+                        ? member.specialties.map((specialty) => (
+                            <li
+                              className="bg-gray-500/10 text-xs text-gray-500 dark:text-white rounded-full px-2 py-1 mr-2 mb-2"
+                              key={specialty}
+                            >
+                              {specialty}
+                            </li>
+                          ))
+                        : null}
+                    </ul>
+                  </div>
+                </Link>
+              )
+            )}
           </div>
         </div>
         <div className="flex items-center flex-col py-12 space-y-2">

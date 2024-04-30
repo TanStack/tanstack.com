@@ -87,26 +87,6 @@ export const Route = createRootRouteWithContext<{
         gtag('config', 'G-JMT1Z50SPS');
       `,
     },
-    {
-      children: `
-      function setDocumentDarkMode(isDark) {
-        if (isDark) {
-          document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-          document.documentElement.removeAttribute('data-theme');
-        }
-      }
-
-      try {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)')?.matches;
-        setDocumentDarkMode(isDark)
-      } catch (e) {}
-
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
-        setDocumentDarkMode(event.matches)
-      });
-      `,
-    },
   ],
   loader: async (ctx) => {
     if (
@@ -164,16 +144,9 @@ function RootDocument({
     select: (s) => s.isLoading || s.isTransitioning,
   })
 
-  useScript({
-    id: 'hs-script-loader',
-    async: true,
-    defer: true,
-    src: '//js-na1.hs-scripts.com/45982155.js',
-  })
-
   return (
-    <html lang="en" data-theme="dark">
-      <head>
+    <html lang="en" suppressHydrationWarning>
+      <head suppressHydrationWarning>
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
         ) : null}

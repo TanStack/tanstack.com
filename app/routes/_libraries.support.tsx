@@ -7,6 +7,7 @@ import imgCorbin from '~/images/people/corbincrutchley.jpeg'
 import { seo } from '~/utils/seo'
 import { shuffle } from '~/utils/utils'
 import { CiTurnL1 } from 'react-icons/ci'
+import { useScript } from '~/hooks/useScript'
 
 export const Route = createFileRoute('/_libraries/support')({
   component: LoginComp,
@@ -58,6 +59,14 @@ const teamMembers = [
 
 function LoginComp() {
   const randomIndices = Route.useLoaderData()
+
+  useScript({
+    id: 'hs-script-loader',
+    async: true,
+    defer: true,
+    src: '//js-na1.hs-scripts.com/45982155.js',
+  })
+
   return (
     <div className="flex flex-col min-h-[100dvh]">
       <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">

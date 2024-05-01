@@ -23,6 +23,7 @@ import { Route as LibrariesIndexImport } from './routes/_libraries.index'
 import { Route as LibraryIdIndexImport } from './routes/$libraryId.index'
 import { Route as BlogSplatImport } from './routes/blog.$'
 import { Route as LibrariesSupportImport } from './routes/_libraries.support'
+import { Route as LibrariesDedicatedSupportImport } from './routes/_libraries.dedicated-support'
 import { Route as LibraryIdVersionImport } from './routes/$libraryId.$version'
 import { Route as LibraryIdVersionDocsImport } from './routes/$libraryId.$version.docs'
 import { Route as LibrariesVirtualVersionIndexImport } from './routes/_libraries.virtual.$version.index'
@@ -98,6 +99,11 @@ const BlogSplatRoute = BlogSplatImport.update({
 
 const LibrariesSupportRoute = LibrariesSupportImport.update({
   path: '/support',
+  getParentRoute: () => LibrariesRoute,
+} as any)
+
+const LibrariesDedicatedSupportRoute = LibrariesDedicatedSupportImport.update({
+  path: '/dedicated-support',
   getParentRoute: () => LibrariesRoute,
 } as any)
 
@@ -226,6 +232,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionImport
       parentRoute: typeof LibraryIdImport
     }
+    '/_libraries/dedicated-support': {
+      preLoaderRoute: typeof LibrariesDedicatedSupportImport
+      parentRoute: typeof LibrariesImport
+    }
     '/_libraries/support': {
       preLoaderRoute: typeof LibrariesSupportImport
       parentRoute: typeof LibrariesImport
@@ -320,6 +330,7 @@ export const routeTree = rootRoute.addChildren([
     LibraryIdIndexRoute,
   ]),
   LibrariesRoute.addChildren([
+    LibrariesDedicatedSupportRoute,
     LibrariesSupportRoute,
     LibrariesIndexRoute,
     LibrariesConfigVersionIndexRoute,

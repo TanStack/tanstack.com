@@ -143,6 +143,7 @@ function LibrariesLayout() {
           label: 'Discord',
           icon: <FaDiscord />,
           to: 'https://tlinz.com/discord',
+          target: '_blank',
         },
         {
           label: 'Merch',
@@ -170,6 +171,7 @@ function LibrariesLayout() {
                 '!font-bold bg-gray-500/10 dark:bg-gray-500/30'
               ),
             }}
+            target={item.to.startsWith('http') ? '_blank' : undefined}
           >
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-4 justify-between">

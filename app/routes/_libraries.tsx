@@ -7,7 +7,7 @@ import {
   useParams,
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
-import { MdSupport } from 'react-icons/md'
+import { MdBook, MdBookOnline, MdLibraryBooks, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { SearchBox } from '@orama/searchbox'
 import { sortBy } from '~/utils/utils'
@@ -133,6 +133,11 @@ function LibrariesLayout() {
           label: 'Support',
           icon: <MdSupport />,
           to: '/support',
+        },
+        {
+          label: 'Learn',
+          icon: <MdLibraryBooks />,
+          to: '/learn',
         },
         {
           label: 'Discord',

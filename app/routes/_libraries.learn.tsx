@@ -43,30 +43,22 @@ function LoginComp() {
             <Link
               href="https://query.gg?s=tanstack"
               target="_blank"
-              className="max-w-[300px] rounded-lg bg-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 overflow-hidden"
+              className="max-w-[300px] rounded-lg bg-white dark:bg-gray-800 shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 overflow-hidden block"
             >
               <LogoQueryGG className="w-full" />
-              <div className="flex flex-col gap-4 p-4 sm:px-8 sm:pb-8 ">
+              <div className="flex flex-col gap-6 pt-2 p-4 lg:p-8 ">
                 <div className="text-center">
                   <div className="text-sm opacity-70 mt-2">
                     Created by{' '}
-                    <a
-                      className="font-bold underline"
-                      href="https://twitter.com/TkDodo"
-                    >
-                      Dominik Dorfmeister
-                    </a>{' '}
-                    and{' '}
-                    <a className="font-bold underline" href="https://ui.dev/">
-                      ui.dev
-                    </a>
+                    <span className="font-bold">Dominik Dorfmeister</span> and{' '}
+                    <span className="font-bold">ui.dev</span>
                   </div>
                 </div>
 
-                <div className="text-sm max-w-full text-center">
+                <div className="text-sm max-w-full text-center font-bold">
                   “This is the best way to learn how to use React Query in
                   real-world applications.”
-                  <div className="mt-2 text-base italic">—Tanner Linsley</div>
+                  <div className="mt-2 text-xs italic">—Tanner Linsley</div>
                 </div>
 
                 <div className="grid max-w-screen-lg mx-auto text-xs gap-2 text-left">

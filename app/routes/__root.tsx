@@ -17,6 +17,7 @@ import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { useScript } from '~/hooks/useScript'
+import { useMounted } from '~/hooks/useMounted'
 
 let HydrationOverlay = ({ children }: { children: React.ReactNode }) => children
 
@@ -141,7 +142,11 @@ function RootDocument({
   const matches = useMatches()
 
   const isLoading = useRouterState({
-    select: (s) => s.isLoading || s.isTransitioning,
+    select: (s) => s.status === 'pending',
+  })
+
+  const showLoading = useRouterState({
+    select: (s) => s.matches[0]?.fetchCount > 1,
   })
 
   return (
@@ -157,25 +162,27 @@ function RootDocument({
         <HydrationOverlay>
           {children}
           <TanStackRouterDevtools position="bottom-right" />
-          <div
-            className={`fixed top-0 left-0 h-[300px] w-full
+          {showLoading ? (
+            <div
+              className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none
         z-30 dark:h-[200px] dark:!bg-white/10 dark:rounded-[100%] ${
           isLoading
             ? 'delay-0 opacity-1 -translate-y-1/2'
             : 'delay-300 opacity-0 -translate-y-full'
         }`}
-            style={{
-              background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
-            }}
-          >
-            <div
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
-        rounded-lg shadow-lg`}
+              style={{
+                background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
+              }}
             >
-              <CgSpinner className="text-3xl animate-spin" />
+              <div
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
+        rounded-lg shadow-lg`}
+              >
+                <CgSpinner className="text-3xl animate-spin" />
+              </div>
             </div>
-          </div>
+          ) : null}
         </HydrationOverlay>
         <ScrollRestoration />
         <Scripts />

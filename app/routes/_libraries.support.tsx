@@ -41,7 +41,7 @@ function LoginComp() {
             <Link
               to={'https://tlinz.com/discord' as string}
               target="_blank"
-              className="max-w-[300px] rounded-lg bg-gradient-to-br from-discord/60 to-discord text-white shadow-xl divide-y divide-white/30 transition-all duration-200 hover:scale-105"
+              className="max-w-[300px] rounded-lg bg-gradient-to-br from-discord/60 to-discord text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
             >
               <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
                 Discord
@@ -62,7 +62,7 @@ function LoginComp() {
             <Link
               to={'https://github.com/tanstack' as string}
               target="_blank"
-              className="max-w-[300px] rounded-lg bg-gradient-to-br from-gray-500 to-gray-900 text-white shadow-xl divide-y divide-white/30 transition-all duration-200 hover:scale-105"
+              className="max-w-[300px] rounded-lg bg-gradient-to-br from-gray-500 to-gray-900 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
             >
               <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
                 GitHub
@@ -80,7 +80,7 @@ function LoginComp() {
             </Link>
             <Link
               to="/dedicated-support"
-              className="max-w-[300px] rounded-lg bg-gradient-to-br from-green-500 to-sky-500 text-white shadow-xl divide-y divide-white/30 transition-all duration-200 hover:scale-105"
+              className="max-w-[300px] rounded-lg bg-gradient-to-br from-green-500 to-sky-500 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
             >
               <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
                 Dedicated Support

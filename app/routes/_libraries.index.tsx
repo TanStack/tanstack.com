@@ -7,11 +7,9 @@ import {
 } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
-import { FaDiscord, FaGithub, FaTshirt } from 'react-icons/fa'
-import { CgMusicSpeaker, CgSpinner } from 'react-icons/cg'
+import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { LogoColor } from '~/components/LogoColor'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import discordImage from '~/images/discord-logo-white.svg'
 import agGridImage from '~/images/ag-grid.png'
@@ -23,6 +21,7 @@ import { sample } from '~/utils/utils'
 import { libraries } from '~/libraries'
 import { SearchBox } from '@orama/searchbox'
 import { searchBoxParams } from '~/components/Orama'
+import logoColor from '~/images/logo-color-600w.png'
 
 export const textColors = [
   `text-rose-500`,
@@ -80,13 +79,17 @@ function Index() {
 
   const { sponsorsPromise, randomNumber } = Route.useLoaderData()
   const gradient = sample(gradients, randomNumber)
-  const textColor = sample(textColors, randomNumber)
+  // const textColor = sample(textColors, randomNumber)
 
   return (
     <div className="max-w-full">
       <div className="flex flex-col items-center gap-6 text-center px-4 py-12 lg:py-24">
         <div className="flex gap-2 lg:gap-4 items-center">
-          <LogoColor className="w-[40px] md:w-[60px] lg:w-[100px]" />
+          <img
+            src={logoColor}
+            alt="TanStack Logo"
+            className="w-[40px] md:w-[60px] lg:w-[100px]"
+          />
           <h1
             className={`inline-block
             font-black text-5xl
@@ -432,7 +435,12 @@ function Index() {
             right-0 top-0 -translate-y-1/3 translate-x-1/3
             sm:opacity-20`}
           >
-            <img src={discordImage} width={300} height={300} />
+            <img
+              src={discordImage}
+              alt="Discord Logo"
+              width={300}
+              height={300}
+            />
           </div>
           <div className={`sm:col-span-2`}>
             <h3 className={`text-3xl`}>TanStack on Discord</h3>

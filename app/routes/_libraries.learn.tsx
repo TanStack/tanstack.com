@@ -39,11 +39,11 @@ function LoginComp() {
               individual or team, we have resources that will help you succeed.
             </p>
           </div>
-          <div className="flex items-center flex-wrap gap-4 max-w-full w-[900px] justify-center">
+          <div className="flex items-stretch flex-wrap gap-4 max-w-full w-[900px] justify-center">
             <Link
-              href="https://query.gg?s=tanstack"
+              to={'https://query.gg?s=tanstack' as string}
               target="_blank"
-              className="max-w-[300px] rounded-lg bg-white dark:bg-gray-800 shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 overflow-hidden block"
+              className="min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800 shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 overflow-hidden block"
             >
               <LogoQueryGG className="w-full" />
               <div className="flex flex-col gap-6 pt-2 p-4 lg:p-8 ">
@@ -85,6 +85,11 @@ function LoginComp() {
                 </div>
               </div>
             </Link>
+            <div className="flex items-center min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800/60 shadow-lg divide-y divide-white/30 overflow-hidden justify-center p-4">
+              <div className="opacity-20 font-black text-3xl rotate-[-5deg]">
+                More Coming Soon!
+              </div>
+            </div>
             {/* <Link
               to={'https://github.com/tanstack' as string}
               target="_blank"

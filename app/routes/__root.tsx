@@ -145,9 +145,23 @@ function RootDocument({
     select: (s) => s.status === 'pending',
   })
 
-  const showLoading = useRouterState({
-    select: (s) => s.matches[0]?.fetchCount > 1,
+  const [showLoading, setShowLoading] = React.useState(false)
+
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      setShowLoading(true)
+    }, 2000)
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [])
+
+  const isRouterPage = useRouterState({
+    select: (s) => s.resolvedLocation.pathname.startsWith('/router'),
   })
+
+  const showDevtools = showLoading && isRouterPage
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -161,7 +175,9 @@ function RootDocument({
       <body>
         <HydrationOverlay>
           {children}
-          <TanStackRouterDevtools position="bottom-right" />
+          {showDevtools ? (
+            <TanStackRouterDevtools position="bottom-right" />
+          ) : null}
           {showLoading ? (
             <div
               className={`fixed top-0 left-0 h-[300px] w-full

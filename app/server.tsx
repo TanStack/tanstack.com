@@ -47,35 +47,6 @@ export default eventHandler(async (event) => {
     },
   })
 
-  //   assets.push({
-  //     tag: 'script',
-  //     children: `
-  // let htmlElement = document.documentElement;
-  // let childNodes = Array.from(htmlElement.childNodes);
-  // let removedElements = [];
-  // childNodes.forEach(node => {
-  //     if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'HEAD' && node.tagName !== 'BODY') {
-  //         // Remove the node
-  //         removedElements.push(node);
-  //         htmlElement.removeChild(node);
-  //     }
-  // });
-  // if (removedElements.length > 0) {
-  //     console.warn(
-  //         'Removed elements from <html> to prevent hydration mismatches with React.',
-  //         removedElements
-  //     );
-  // }`,
-  //   })
-
-  if (import.meta.env.DEV) {
-    assets.push({
-      tag: 'script',
-      attrs: {},
-      children: getHydrationOverlayScriptContext(),
-    })
-  }
-
   // Create a router
   const router = createRouter()
 
@@ -195,51 +166,4 @@ function dedupeHeaders(headerList: [string, string][]): [string, string][] {
       return true
     })
     .reverse()
-}
-
-function getHydrationOverlayScriptContext() {
-  return `
-window.BUILDER_HYDRATION_OVERLAY = {}
-
-const selector = 'html'
-
-const handleError = () => {
-  window.BUILDER_HYDRATION_OVERLAY.ERROR = true
-  let appRootEl = document.querySelector(selector)
-
-  if (appRootEl && !window.BUILDER_HYDRATION_OVERLAY.CSR_HTML) {
-    window.BUILDER_HYDRATION_OVERLAY.CSR_HTML = appRootEl.innerHTML
-  }
-}
-
-const proxyConsole = (method) => {
-  const original = console[method]
-
-  console[method] = function () {
-    const msg = arguments[0]?.message?.toLowerCase()
-    if (msg && (msg.includes('hydration') || msg.includes('hydrating'))) {
-      handleError()
-    }
-    original.apply(console, arguments)
-  }
-}
-
-// const methods = ['log', 'error', 'warn']
-// methods.forEach(proxyConsole)
-
-window.addEventListener('error', (event) => {
-  const msg = event.message.toLowerCase()
-  const isHydrationMsg = msg.includes('hydration') || msg.includes('hydrating')
-
-  if (isHydrationMsg) {
-    handleError()
-  }
-})
-
-let BUILDER_HYDRATION_OVERLAY_ELEMENT = document.querySelector(selector)
-if (BUILDER_HYDRATION_OVERLAY_ELEMENT) {
-  window.BUILDER_HYDRATION_OVERLAY.SSR_HTML =
-  BUILDER_HYDRATION_OVERLAY_ELEMENT.innerHTML
-}
-`
 }

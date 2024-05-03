@@ -17,44 +17,26 @@ import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 
-declare module '@tanstack/react-router' {
-  interface StaticDataRouteOption {
-    Shell: React.ComponentType<{ children: React.ReactNode }>
-  }
-}
-
-let HydrationOverlay = ({ children }: { children: React.ReactNode }) => children
-
-if (import.meta.env.NODE_ENV === 'development') {
-  HydrationOverlay = React.lazy(() =>
-    import('@builder.io/react-hydration-overlay').then((d) => ({
-      default: d.HydrationOverlay,
-    }))
-  )
-}
-
 export const Route = createRootRouteWithContext<{
   assets: RouterManagedTag[]
 }>()({
-  staticData: {
-    Shell: function ({ children }: { children: React.ReactNode }) {
-      // const matches = useMatches()
+  shellComponent: function Shell({ children }) {
+    const matches = useMatches()
 
-      return (
-        <html lang="en">
-          <head>
-            {/* {matches.find((d) => d.staticData?.baseParent) ? (
-              <base target="_parent" />
-            ) : null} */}
-            <Meta />
-          </head>
-          <body>
-            {children}
-            <Scripts />
-          </body>
-        </html>
-      )
-    },
+    return (
+      <html lang="en">
+        <head>
+          {matches.find((d) => d.staticData?.baseParent) ? (
+            <base target="_parent" />
+          ) : null}
+          <Meta />
+        </head>
+        <body>
+          {children}
+          <Scripts />
+        </body>
+      </html>
+    )
   },
   meta: () => [
     {
@@ -181,33 +163,29 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <HydrationOverlay>
-        {children}
-        {showDevtools ? (
-          <TanStackRouterDevtools position="bottom-right" />
-        ) : null}
-        {showLoading ? (
-          <div
-            className={`fixed top-0 left-0 h-[300px] w-full
+      {children}
+      {showDevtools ? <TanStackRouterDevtools position="bottom-right" /> : null}
+      {showLoading ? (
+        <div
+          className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none
         z-30 dark:h-[200px] dark:!bg-white/10 dark:rounded-[100%] ${
           isLoading
             ? 'delay-0 opacity-1 -translate-y-1/2'
             : 'delay-300 opacity-0 -translate-y-full'
         }`}
-            style={{
-              background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
-            }}
-          >
-            <div
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
+          style={{
+            background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
+          }}
+        >
+          <div
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
         rounded-lg shadow-lg`}
-            >
-              <CgSpinner className="text-3xl animate-spin" />
-            </div>
+          >
+            <CgSpinner className="text-3xl animate-spin" />
           </div>
-        ) : null}
-      </HydrationOverlay>
+        </div>
+      ) : null}
       <ScrollRestoration />
     </>
   )

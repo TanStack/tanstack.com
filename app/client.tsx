@@ -26,9 +26,9 @@ const checker = setInterval(() => {
     )
     clearInterval(checker)
     clearTimeout(checkedOut)
-    const htmlEl = document.createElement('html')
-    htmlEl.innerHTML = '<head></head><body></body>'
-    document.replaceChildren(htmlEl)
+    // const htmlEl = document.createElement('html')
+    // htmlEl.innerHTML = '<head></head><body></body>'
+    // document.replaceChildren(htmlEl)
     createRoot(document as any).render(app)
   }
 }, 1)

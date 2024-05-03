@@ -48,26 +48,26 @@ export default eventHandler(async (event) => {
     },
   })
 
-  assets.push({
-    tag: 'script',
-    children: `
-let htmlElement = document.documentElement;
-let childNodes = Array.from(htmlElement.childNodes);
-let removedElements = [];
-childNodes.forEach(node => {
-    if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'HEAD' && node.tagName !== 'BODY') {
-        // Remove the node
-        removedElements.push(node);
-        htmlElement.removeChild(node);
-    }
-});
-if (removedElements.length > 0) {
-    console.warn(
-        'Removed elements from <html> to prevent hydration mismatches with React.',
-        removedElements
-    );
-}`,
-  })
+  //   assets.push({
+  //     tag: 'script',
+  //     children: `
+  // let htmlElement = document.documentElement;
+  // let childNodes = Array.from(htmlElement.childNodes);
+  // let removedElements = [];
+  // childNodes.forEach(node => {
+  //     if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== 'HEAD' && node.tagName !== 'BODY') {
+  //         // Remove the node
+  //         removedElements.push(node);
+  //         htmlElement.removeChild(node);
+  //     }
+  // });
+  // if (removedElements.length > 0) {
+  //     console.warn(
+  //         'Removed elements from <html> to prevent hydration mismatches with React.',
+  //         removedElements
+  //     );
+  // }`,
+  //   })
 
   if (import.meta.env.DEV) {
     assets.push({

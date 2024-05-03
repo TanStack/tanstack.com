@@ -29,12 +29,8 @@ export const Route = createRootRouteWithContext<{
           {matches.find((d) => d.staticData?.baseParent) ? (
             <base target="_parent" />
           ) : null}
-          <Meta />
         </head>
-        <body>
-          {children}
-          <Scripts />
-        </body>
+        <body>{children}</body>
       </html>
     )
   },
@@ -163,6 +159,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <Meta />
       {children}
       {showDevtools ? <TanStackRouterDevtools position="bottom-right" /> : null}
       {showLoading ? (
@@ -187,6 +184,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         </div>
       ) : null}
       <ScrollRestoration />
+      <Scripts />
     </>
   )
 }

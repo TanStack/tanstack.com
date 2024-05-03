@@ -12,8 +12,10 @@ const app = <StartClient router={router} />
 
 router.hydrate()
 
+let root: ReturnType<typeof createRoot>
+
 React.startTransition(() => {
-  hydrateRoot(document, app)
+  root = hydrateRoot(document, app)
 })
 
 // This is a workaround for react hydration completely barfing when
@@ -29,7 +31,7 @@ const checker = setInterval(() => {
     // const htmlEl = document.createElement('html')
     // htmlEl.innerHTML = '<head></head><body></body>'
     // document.replaceChildren(htmlEl)
-    createRoot(document as any).render(app)
+    root.render(app)
   }
 }, 1)
 

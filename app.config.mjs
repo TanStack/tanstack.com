@@ -19,6 +19,7 @@ const customVite = () =>
       include: [
         'node_modules@tanstack/react-router-server/**/*.js',
         'react-icons',
+        'shiki',
       ],
     },
     resolve: {

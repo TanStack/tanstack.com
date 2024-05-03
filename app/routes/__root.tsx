@@ -16,8 +16,12 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { useScript } from '~/hooks/useScript'
-import { useMounted } from '~/hooks/useMounted'
+
+declare module '@tanstack/react-router' {
+  interface StaticDataRouteOption {
+    Shell: React.ComponentType<{ children: React.ReactNode }>
+  }
+}
 
 let HydrationOverlay = ({ children }: { children: React.ReactNode }) => children
 
@@ -32,6 +36,26 @@ if (import.meta.env.NODE_ENV === 'development') {
 export const Route = createRootRouteWithContext<{
   assets: RouterManagedTag[]
 }>()({
+  staticData: {
+    Shell: function ({ children }: { children: React.ReactNode }) {
+      // const matches = useMatches()
+
+      return (
+        <html lang="en">
+          <head>
+            {/* {matches.find((d) => d.staticData?.baseParent) ? (
+              <base target="_parent" />
+            ) : null} */}
+            <Meta />
+          </head>
+          <body>
+            {children}
+            <Scripts />
+          </body>
+        </html>
+      )
+    },
+  },
   meta: () => [
     {
       charSet: 'utf-8',
@@ -103,7 +127,7 @@ export const Route = createRootRouteWithContext<{
   },
   errorComponent: ({ error }) => {
     return (
-      <RootDocument title="Error!">
+      <RootDocument>
         <DefaultCatchBoundary
           error={error}
           info={{
@@ -116,7 +140,7 @@ export const Route = createRootRouteWithContext<{
   },
   notFoundComponent: () => {
     return (
-      <RootDocument title="404 Not Found">
+      <RootDocument>
         <NotFound />
       </RootDocument>
     )
@@ -132,15 +156,7 @@ function RootComponent() {
   )
 }
 
-function RootDocument({
-  children,
-  title,
-}: {
-  children: React.ReactNode
-  title?: string
-}) {
-  const matches = useMatches()
-
+function RootDocument({ children }: { children: React.ReactNode }) {
   const isLoading = useRouterState({
     select: (s) => s.status === 'pending',
   })
@@ -164,45 +180,35 @@ function RootDocument({
   const showDevtools = showLoading && isRouterPage
 
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head suppressHydrationWarning>
-        {matches.find((d) => d.staticData?.baseParent) ? (
-          <base target="_parent" />
+    <>
+      <HydrationOverlay>
+        {children}
+        {showDevtools ? (
+          <TanStackRouterDevtools position="bottom-right" />
         ) : null}
-        {title ? <title>{title}</title> : null}
-        <Meta />
-      </head>
-      <body>
-        <HydrationOverlay>
-          {children}
-          {showDevtools ? (
-            <TanStackRouterDevtools position="bottom-right" />
-          ) : null}
-          {showLoading ? (
-            <div
-              className={`fixed top-0 left-0 h-[300px] w-full
+        {showLoading ? (
+          <div
+            className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none
         z-30 dark:h-[200px] dark:!bg-white/10 dark:rounded-[100%] ${
           isLoading
             ? 'delay-0 opacity-1 -translate-y-1/2'
             : 'delay-300 opacity-0 -translate-y-full'
         }`}
-              style={{
-                background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
-              }}
-            >
-              <div
-                className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
+            style={{
+              background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
+            }}
+          >
+            <div
+              className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
         rounded-lg shadow-lg`}
-              >
-                <CgSpinner className="text-3xl animate-spin" />
-              </div>
+            >
+              <CgSpinner className="text-3xl animate-spin" />
             </div>
-          ) : null}
-        </HydrationOverlay>
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+          </div>
+        ) : null}
+      </HydrationOverlay>
+      <ScrollRestoration />
+    </>
   )
 }

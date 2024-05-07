@@ -14,14 +14,15 @@ const customVite = () =>
   config('dev', (router, app, env) => ({
     // ssr: {
     //   noExternal: [/react-router-server\/dist\/esm\/server-runtime/],
+    //   external: ['react', 'react-dom'],
     // },
-    optimizeDeps: {
-      include: [
-        'node_modules@tanstack/react-router-server/**/*.js',
-        'react-icons',
-        'shiki',
-      ],
-    },
+    // optimizeDeps: {
+    //   include: [
+    //     'node_modules@tanstack/react-router-server/**/*.js',
+    //     'react-icons',
+    //     'shiki',
+    //   ],
+    // },
     resolve: {
       dedupe: [
         ...(env.command !== 'build'
@@ -70,12 +71,12 @@ export default createApp({
       handler: './app/server.tsx',
       target: 'server',
       plugins: () => [
+        customVite(),
         TanStackRouterVite({
           experimental: {
             enableCodeSplitting: true,
           },
         }),
-        customVite(),
         tsconfigPaths(),
         serverTransform({
           runtime: `@tanstack/react-router-server/server-runtime`,

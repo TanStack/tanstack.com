@@ -8,10 +8,6 @@ import { StartClient } from '@tanstack/react-router-server'
 
 const router = createRouter()
 
-const app = <StartClient router={router} />
-
-router.hydrate()
-
 React.startTransition(() => {
-  hydrateRoot(document.getElementById('root')!, app)
+  hydrateRoot(document.getElementById('root')!, <StartClient router={router} />)
 })

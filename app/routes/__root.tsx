@@ -20,18 +20,26 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 export const Route = createRootRouteWithContext<{
   assets: RouterManagedTag[]
 }>()({
-  shellComponent: function Shell({ children }) {
-    const matches = useMatches()
-
+  shellComponent: ({ children }) => {
     return (
       <html lang="en">
         <head>
-          {matches.find((d) => d.staticData?.baseParent) ? (
-            <base target="_parent" />
-          ) : null}
+          <Meta />
         </head>
         <body>{children}</body>
       </html>
+    )
+  },
+  metaComponent: function Meta({ children }) {
+    const matches = useMatches()
+
+    return (
+      <>
+        {children}
+        {matches.find((d) => d.staticData?.baseParent) ? (
+          <base target="_parent" />
+        ) : null}
+      </>
     )
   },
   meta: () => [
@@ -159,7 +167,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <Meta />
       {children}
       {showDevtools ? <TanStackRouterDevtools position="bottom-right" /> : null}
       {showLoading ? (

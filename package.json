@@ -10,7 +10,8 @@
     "build": "vinxi build",
     "start": "vinxi start",
     "lint": "prettier --check '**/*' --ignore-unknown && eslint --ext .ts,.tsx ./app",
-    "format": "prettier --write '**/*' --ignore-unknown"
+    "format": "prettier --write '**/*' --ignore-unknown",
+    "linkAll": "node scripts/link.js"
   },
   "dependencies": {
     "@builder.io/react-hydration-overlay": "^0.0.8",
@@ -23,10 +24,10 @@
     "@oramacloud/client": "^1.1.5",
     "@remix-run/node": "^2.8.1",
     "@tailwindcss/typography": "^0.5.13",
-    "@tanstack/react-router": "1.31.13",
-    "@tanstack/react-router-server": "1.31.13",
-    "@tanstack/router-devtools": "1.31.13",
-    "@tanstack/router-vite-plugin": "1.30.0",
+    "@tanstack/react-router": "1.31.22",
+    "@tanstack/react-router-server": "1.31.22",
+    "@tanstack/router-devtools": "1.31.22",
+    "@tanstack/router-vite-plugin": "1.31.18",
     "@typescript-eslint/parser": "^7.2.0",
     "@vinxi/react": "0.2.2",
     "@vinxi/server-functions": "^0.3.2",

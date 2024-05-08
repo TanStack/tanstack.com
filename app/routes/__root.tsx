@@ -8,6 +8,7 @@ import {
   useRouterState,
 } from '@tanstack/react-router'
 import { SpeedInsights } from '@vercel/speed-insights/react'
+import { Analytics } from '@vercel/analytics/react'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
@@ -169,6 +170,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <>
       <SpeedInsights />
+      <Analytics />
       {children}
       {showDevtools ? <TanStackRouterDevtools position="bottom-right" /> : null}
       {showLoading ? (

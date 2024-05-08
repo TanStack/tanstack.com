@@ -66,7 +66,11 @@ const markdownComponents: Record<string, React.FC> = {
 }
 
 function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
-  const lang = props?.children?.props?.className?.replace('language-', '')
+  let lang = props?.children?.props?.className?.replace('language-', '')
+
+  if (lang === 'diff') {
+    lang = 'plaintext'
+  }
 
   const children = props.children as
     | undefined

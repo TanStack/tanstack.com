@@ -29,6 +29,7 @@
     "@tanstack/router-devtools": "1.31.23",
     "@tanstack/router-vite-plugin": "1.31.18",
     "@typescript-eslint/parser": "^7.2.0",
+    "@vercel/analytics": "^1.2.2",
     "@vercel/speed-insights": "^1.0.10",
     "@vinxi/react": "0.2.2",
     "@vinxi/server-functions": "^0.3.2",

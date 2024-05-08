@@ -20,5 +20,5 @@ export const storeProject: Library = {
   textColor: 'text-stone-700',
   frameworks: ['react', 'solid', 'vue', 'angular'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
-  defaultDocs: 'framework/react/overview',
+  defaultDocs: 'overview',
 }

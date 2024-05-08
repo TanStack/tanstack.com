@@ -27,11 +27,11 @@ function RouteForm() {
 
   return (
     <>
+      <Outlet />
       <RedirectVersionBanner
         version={version!}
         latestVersion={library.latestVersion}
       />
-      <Outlet />
     </>
   )
 }

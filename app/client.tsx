@@ -4,7 +4,7 @@ import { hydrateRoot } from 'react-dom/client'
 import 'vinxi/client'
 
 import { createRouter } from './router'
-import { StartClient } from '@tanstack/react-router-server'
+import { StartClient } from '@tanstack/start'
 
 const router = createRouter()
 

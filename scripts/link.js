@@ -4,7 +4,7 @@ import path from 'path'
 const packages = {
   //   '@tanstack/react-router': 'router/packages/react-router',
   //   '@tanstack/router-devtools': 'router/packages/router-devtools',
-  '@tanstack/react-router-server': 'router/packages/react-router-server',
+  '@tanstack/start': 'router/packages/start',
   //   '@tanstack/react-cross-context': 'router/packages/react-cross-context',
   //   '@tanstack/history': 'router/packages/history',
   //   '@tanstack/react-store':

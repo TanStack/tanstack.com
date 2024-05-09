@@ -13,12 +13,12 @@ import { fileURLToPath } from 'url'
 const customVite = () =>
   config('dev', (router, app, env) => ({
     // ssr: {
-    //   noExternal: [/react-router-server\/dist\/esm\/server-runtime/],
+    //   noExternal: [/start\/dist\/esm\/server-runtime/],
     //   external: ['react', 'react-dom'],
     // },
     // optimizeDeps: {
     //   include: [
-    //     'node_modules@tanstack/react-router-server/**/*.js',
+    //     'node_modules@tanstack/start/**/*.js',
     //     'react-icons',
     //     'shiki',
     //   ],
@@ -32,7 +32,7 @@ const customVite = () =>
               '@tanstack/store',
               '@tanstack/react-store',
               '@tanstack/react-router',
-              '@tanstack/react-router-server',
+              '@tanstack/start',
               '@tanstack/react-cross-context',
               '@tanstack/history',
               'use-sync-external-store',
@@ -79,7 +79,7 @@ export default createApp({
         }),
         tsconfigPaths(),
         serverTransform({
-          runtime: `@tanstack/react-router-server/server-runtime`,
+          runtime: `@tanstack/start/server-runtime`,
         }),
       ],
       link: {
@@ -101,7 +101,7 @@ export default createApp({
         customVite(),
         tsconfigPaths(),
         serverFunctions.client({
-          runtime: `@tanstack/react-router-server/client-runtime`,
+          runtime: `@tanstack/start/client-runtime`,
         }),
         reactRefresh(),
       ],
@@ -109,10 +109,8 @@ export default createApp({
     serverFunctions.router({
       name: 'server',
       plugins: () => [customVite(), tsconfigPaths()],
-      handler: resolveToRelative(
-        '@tanstack/react-router-server/server-handler'
-      ),
-      runtime: `@tanstack/react-router-server/server-runtime`,
+      handler: resolveToRelative('@tanstack/start/server-handler'),
+      runtime: `@tanstack/start/server-runtime`,
     }),
   ],
 })

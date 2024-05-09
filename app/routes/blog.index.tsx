@@ -7,7 +7,7 @@ import { format } from 'date-fns'
 import { Footer } from '~/components/Footer'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import { PostNotFound } from './blog'
-import { createServerFn } from '@tanstack/react-router-server'
+import { createServerFn } from '@tanstack/start'
 
 const fetchFrontMatters = createServerFn('GET', async () => {
   'use server'

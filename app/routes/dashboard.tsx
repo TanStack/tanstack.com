@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-router-server'
+import { createServerFn } from '@tanstack/start'
 import { redirectWithClearedCookie, requireAuthCookie } from '~/auth/auth'
 import { useMutation } from '~/hooks/useMutation'
 

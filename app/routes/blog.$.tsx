@@ -4,7 +4,7 @@ import removeMarkdown from 'remove-markdown'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'
-import { createServerFn } from '@tanstack/react-router-server'
+import { createServerFn } from '@tanstack/start'
 
 const fetchBlogPost = createServerFn(
   'GET',

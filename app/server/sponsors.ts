@@ -6,7 +6,7 @@ import {
   getTierById,
   updateTiersMeta,
 } from '~/server/tiers'
-import { createServerFn, json } from '@tanstack/react-router-server'
+import { createServerFn, json } from '@tanstack/start'
 
 export type Sponsor = {
   login: string

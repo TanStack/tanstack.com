@@ -3,10 +3,7 @@ import type { PipeableStream } from 'react-dom/server'
 import { renderToPipeableStream } from 'react-dom/server'
 import { eventHandler, getResponseHeaders, toWebRequest } from 'vinxi/server'
 import { getManifest } from 'vinxi/manifest'
-import {
-  StartServer,
-  transformStreamWithRouter,
-} from '@tanstack/react-router-server/server'
+import { StartServer, transformStreamWithRouter } from '@tanstack/start/server'
 // import { Transform, PassThrough } from 'node:stream'
 
 import { createRouter } from './router'
@@ -14,7 +11,7 @@ import { createMemoryHistory } from '@tanstack/react-router'
 import {
   serverFnPayloadTypeHeader,
   serverFnReturnTypeHeader,
-} from '@tanstack/react-router-server'
+} from '@tanstack/start'
 import isbot from 'isbot'
 
 export default eventHandler(async (event) => {

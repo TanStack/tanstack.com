@@ -355,8 +355,6 @@ export default function VersionIndex() {
             }}
           ></iframe>
         </div>
-        {/* )} */}
-
         <div className="flex flex-col gap-4 items-center">
           <div className="font-extrabold text-xl lg:text-2xl">
             Wow, you've come a long way!

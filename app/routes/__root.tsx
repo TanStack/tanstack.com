@@ -22,28 +22,6 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 export const Route = createRootRouteWithContext<{
   assets: RouterManagedTag[]
 }>()({
-  shellComponent: ({ children }) => {
-    return (
-      <html lang="en">
-        <head>
-          <Meta />
-        </head>
-        <body>{children}</body>
-      </html>
-    )
-  },
-  metaComponent: function Meta({ children }) {
-    const matches = useMatches()
-
-    return (
-      <>
-        {children}
-        {matches.find((d) => d.staticData?.baseParent) ? (
-          <base target="_parent" />
-        ) : null}
-      </>
-    )
-  },
   meta: () => [
     {
       charSet: 'utf-8',
@@ -113,16 +91,10 @@ export const Route = createRootRouteWithContext<{
       })
     }
   },
-  errorComponent: ({ error }) => {
+  errorComponent: (props) => {
     return (
       <RootDocument>
-        <DefaultCatchBoundary
-          error={error}
-          info={{
-            componentStack: '',
-          }}
-          reset={undefined as any}
-        />
+        <DefaultCatchBoundary {...props} />
       </RootDocument>
     )
   },
@@ -145,6 +117,8 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const matches = useMatches()
+
   const isLoading = useRouterState({
     select: (s) => s.status === 'pending',
   })
@@ -168,34 +142,44 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const showDevtools = showLoading && isRouterPage
 
   return (
-    <>
-      <SpeedInsights />
-      <Analytics />
-      {children}
-      {showDevtools ? <TanStackRouterDevtools position="bottom-right" /> : null}
-      {showLoading ? (
-        <div
-          className={`fixed top-0 left-0 h-[300px] w-full
+    <html lang="en">
+      <head>
+        <Meta />
+        {matches.find((d) => d.staticData?.baseParent) ? (
+          <base target="_parent" />
+        ) : null}
+      </head>
+      <body>
+        <SpeedInsights />
+        <Analytics />
+        <React.Suspense fallback={null}>{children}</React.Suspense>
+        {showDevtools ? (
+          <TanStackRouterDevtools position="bottom-right" />
+        ) : null}
+        {showLoading ? (
+          <div
+            className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none
         z-30 dark:h-[200px] dark:!bg-white/10 dark:rounded-[100%] ${
           isLoading
             ? 'delay-0 opacity-1 -translate-y-1/2'
             : 'delay-300 opacity-0 -translate-y-full'
         }`}
-          style={{
-            background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
-          }}
-        >
-          <div
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
-        rounded-lg shadow-lg`}
+            style={{
+              background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
+            }}
           >
-            <CgSpinner className="text-3xl animate-spin" />
+            <div
+              className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
+        rounded-lg shadow-lg`}
+            >
+              <CgSpinner className="text-3xl animate-spin" />
+            </div>
           </div>
-        </div>
-      ) : null}
-      <ScrollRestoration />
-      <Scripts />
-    </>
+        ) : null}
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
   )
 }

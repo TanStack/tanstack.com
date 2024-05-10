@@ -24,7 +24,7 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   console.error(error)
 
   return (
-    <div className="flex-1 p-4 flex flex-col items-center justify-center gap-6">
+    <div className="min-w-0 flex-1 p-4 flex flex-col items-center justify-center gap-6">
       <h1 className="opacity-10 flex flex-col text-center font-black">
         {/* <div className="text-7xl leading-none">{status}</div>
         {statusText ? (

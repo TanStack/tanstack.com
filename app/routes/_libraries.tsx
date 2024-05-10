@@ -7,7 +7,7 @@ import {
   useParams,
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
-import { MdBook, MdBookOnline, MdLibraryBooks, MdSupport } from 'react-icons/md'
+import { MdLibraryBooks, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { SearchBox } from '@orama/searchbox'
 import { sortBy } from '~/utils/utils'
@@ -43,6 +43,12 @@ function LibrariesLayout() {
   const detailsRef = React.useRef<HTMLElement>(null!)
 
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
+
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const items = (
     <>
@@ -270,9 +276,11 @@ function LibrariesLayout() {
         {library?.scarfId ? <Scarf id={library.scarfId} /> : null}
         <Outlet />
       </div>
-      <div className="fixed z-50">
-        <SearchBox {...searchBoxParams} />
-      </div>
+      {mounted ? (
+        <div className="fixed z-50">
+          <SearchBox {...searchBoxParams} />
+        </div>
+      ) : null}
     </div>
   )
 }

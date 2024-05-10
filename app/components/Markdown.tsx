@@ -96,7 +96,9 @@ function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
     </>
   )
 
-  React.useLayoutEffect(() => {
+  React[
+    typeof document !== 'undefined' ? 'useLayoutEffect' : 'useEffect'
+  ](() => {
     ;(async () => {
       const themes = ['github-light', 'tokyo-night']
 
@@ -182,7 +184,7 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
   return highlighter
 })
 
-export function Mdx({ code }: { code: string }) {
+export function Markdown({ code }: { code: string }) {
   const jsx = React.useMemo(() => {
     const markup = marked.use(gfmHeadingId())(code) as string
 

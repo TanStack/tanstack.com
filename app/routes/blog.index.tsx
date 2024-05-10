@@ -2,7 +2,7 @@ import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 
 import { getPostList } from '~/utils/blog'
 import { DocTitle } from '~/components/DocTitle'
-import { Mdx } from '~/components/RenderMarkdown'
+import { Markdown } from '~/components/Markdown'
 import { format } from 'date-fns'
 import { Footer } from '~/components/Footer'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
@@ -94,7 +94,7 @@ function BlogIndex() {
                     </div>
                   ) : null}
                   <div className={`text-sm mt-2 text-black dark:text-white`}>
-                    <Mdx
+                    <Markdown
                       components={{
                         a: (props) => <span {...props} />,
                       }}

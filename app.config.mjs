@@ -23,23 +23,23 @@ const customVite = () =>
     //     'shiki',
     //   ],
     // },
-    resolve: {
-      dedupe: [
-        ...(env.command !== 'build'
-          ? [
-              'react',
-              'react-dom',
-              '@tanstack/store',
-              '@tanstack/react-store',
-              '@tanstack/react-router',
-              '@tanstack/start',
-              '@tanstack/react-cross-context',
-              '@tanstack/history',
-              'use-sync-external-store',
-            ]
-          : []),
-      ],
-    },
+    // resolve: {
+    //   dedupe: [
+    //     ...(env.command !== 'build'
+    //       ? [
+    //           'react',
+    //           'react-dom',
+    //           '@tanstack/store',
+    //           '@tanstack/react-store',
+    //           '@tanstack/react-router',
+    //           '@tanstack/start',
+    //           '@tanstack/react-cross-context',
+    //           '@tanstack/history',
+    //           'use-sync-external-store',
+    //         ]
+    //       : []),
+    //   ],
+    // },
     // plugins: [
     //   {
     //     name: 'inline-env-vars-as-prefix',

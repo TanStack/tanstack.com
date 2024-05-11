@@ -8,4 +8,5 @@ import { StartClient } from '@tanstack/start'
 
 const router = createRouter()
 
-hydrateRoot(document, <StartClient router={router} />)
+// hydrateRoot(document, <StartClient router={router} />)
+hydrateRoot(document.getElementById('root')!, <StartClient router={router} />)

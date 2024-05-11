@@ -23,6 +23,8 @@
     "@orama/searchbox": "1.0.0-rc27",
     "@oramacloud/client": "^1.1.5",
     "@remix-run/node": "^2.8.1",
+    "@sentry/react": "^7.114.0",
+    "@sentry/vite-plugin": "^2.16.1",
     "@tailwindcss/typography": "^0.5.13",
     "@tanstack/react-router": "1.32.0",
     "@tanstack/router-devtools": "1.32.0",

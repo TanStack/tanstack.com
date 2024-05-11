@@ -5,6 +5,7 @@ import 'vinxi/client'
 
 import { createRouter } from './router'
 import { StartClient } from '@tanstack/start'
+import './utils/sentry'
 
 const router = createRouter()
 

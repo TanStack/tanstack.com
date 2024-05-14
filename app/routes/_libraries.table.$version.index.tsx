@@ -20,6 +20,7 @@ import agGridImage from '~/images/ag-grid.png'
 import { Await } from '@tanstack/react-router'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
+import { getInitialSandboxFileName } from '~/utils/sandbox'
 
 const menu = [
   {
@@ -89,6 +90,8 @@ export default function TableVersionIndex() {
   const branch = getBranch(tableProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
+
+  const sandboxFirstFileName = getInitialSandboxFileName(framework)
 
   React.useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
@@ -449,7 +452,7 @@ export default function TableVersionIndex() {
             tableProject.repo
           }/tree/${branch}/examples/${framework}/basic?embed=1&theme=${
             isDark ? 'dark' : 'light'
-          }`}
+          }&file=${sandboxFirstFileName}`}
           title="tannerlinsley/react-table: basic"
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
           className="shadow-2xl"

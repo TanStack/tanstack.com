@@ -1,5 +1,5 @@
-import { defineConfig } from "vite";
-import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { defineConfig } from 'vite'
+import { sentryVitePlugin } from '@sentry/vite-plugin'
 
 export default defineConfig({
   build: {
@@ -9,8 +9,8 @@ export default defineConfig({
     // Put the Sentry vite plugin after all other plugins
     sentryVitePlugin({
       authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: "tanstack",
-      project: "tanstack-com",
+      org: 'tanstack',
+      project: 'tanstack-com',
     }),
   ],
-});
+})

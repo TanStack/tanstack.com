@@ -13,7 +13,14 @@ import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-import { RouterManagedTag, Scripts, Meta } from '@tanstack/start'
+import {
+  RouterManagedTag,
+  Scripts,
+  Meta,
+  Html,
+  Head,
+  Body,
+} from '@tanstack/start'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
@@ -142,14 +149,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const showDevtools = showLoading && isRouterPage
 
   return (
-    <html lang="en">
-      <head>
+    <Html lang="en">
+      <Head>
         <Meta />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
         ) : null}
-      </head>
-      <body>
+      </Head>
+      <Body>
         <SpeedInsights />
         <Analytics />
         <React.Suspense fallback={null}>{children}</React.Suspense>
@@ -179,7 +186,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         ) : null}
         <ScrollRestoration />
         <Scripts />
-      </body>
-    </html>
+      </Body>
+    </Html>
   )
 }

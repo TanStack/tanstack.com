@@ -56,9 +56,9 @@ export type Library = {
 }
 
 export const libraries = [
-  queryProject,
-  routerProject,
   startProject,
+  routerProject,
+  queryProject,
   tableProject,
   formProject,
   virtualProject,

@@ -207,118 +207,205 @@ const LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/$libraryId': {
+      id: '/$libraryId'
+      path: '/$libraryId'
+      fullPath: '/$libraryId'
       preLoaderRoute: typeof LibraryIdImport
       parentRoute: typeof rootRoute
     }
     '/_libraries': {
+      id: '/_libraries'
+      path: ''
+      fullPath: ''
       preLoaderRoute: typeof LibrariesImport
       parentRoute: typeof rootRoute
     }
     '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
       preLoaderRoute: typeof BlogImport
       parentRoute: typeof rootRoute
     }
     '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardImport
       parentRoute: typeof rootRoute
     }
     '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
     '/merch': {
+      id: '/merch'
+      path: '/merch'
+      fullPath: '/merch'
       preLoaderRoute: typeof MerchImport
       parentRoute: typeof rootRoute
     }
     '/sponsors-embed': {
+      id: '/sponsors-embed'
+      path: '/sponsors-embed'
+      fullPath: '/sponsors-embed'
       preLoaderRoute: typeof SponsorsEmbedImport
       parentRoute: typeof rootRoute
     }
     '/$libraryId/$version': {
+      id: '/$libraryId/$version'
+      path: '/$version'
+      fullPath: '/$libraryId/$version'
       preLoaderRoute: typeof LibraryIdVersionImport
       parentRoute: typeof LibraryIdImport
     }
     '/_libraries/dedicated-support': {
+      id: '/_libraries/dedicated-support'
+      path: '/dedicated-support'
+      fullPath: '/dedicated-support'
       preLoaderRoute: typeof LibrariesDedicatedSupportImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/learn': {
+      id: '/_libraries/learn'
+      path: '/learn'
+      fullPath: '/learn'
       preLoaderRoute: typeof LibrariesLearnImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/support': {
+      id: '/_libraries/support'
+      path: '/support'
+      fullPath: '/support'
       preLoaderRoute: typeof LibrariesSupportImport
       parentRoute: typeof LibrariesImport
     }
     '/blog/$': {
+      id: '/blog/$'
+      path: '/$'
+      fullPath: '/blog/$'
       preLoaderRoute: typeof BlogSplatImport
       parentRoute: typeof BlogImport
     }
     '/$libraryId/': {
+      id: '/$libraryId/'
+      path: '/'
+      fullPath: '/$libraryId/'
       preLoaderRoute: typeof LibraryIdIndexImport
       parentRoute: typeof LibraryIdImport
     }
     '/_libraries/': {
+      id: '/_libraries/'
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof LibrariesIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
       preLoaderRoute: typeof BlogIndexImport
       parentRoute: typeof BlogImport
     }
     '/$libraryId/$version/docs': {
+      id: '/$libraryId/$version/docs'
+      path: '/docs'
+      fullPath: '/$libraryId/$version/docs'
       preLoaderRoute: typeof LibraryIdVersionDocsImport
       parentRoute: typeof LibraryIdVersionImport
     }
     '/$libraryId/$version/docs/$': {
+      id: '/$libraryId/$version/docs/$'
+      path: '/$'
+      fullPath: '/$libraryId/$version/docs/$'
       preLoaderRoute: typeof LibraryIdVersionDocsSplatImport
       parentRoute: typeof LibraryIdVersionDocsImport
     }
     '/$libraryId/$version/docs/': {
+      id: '/$libraryId/$version/docs/'
+      path: '/'
+      fullPath: '/$libraryId/$version/docs/'
       preLoaderRoute: typeof LibraryIdVersionDocsIndexImport
       parentRoute: typeof LibraryIdVersionDocsImport
     }
     '/_libraries/config/$version/': {
+      id: '/_libraries/config/$version/'
+      path: '/config/$version/'
+      fullPath: '/config/$version/'
       preLoaderRoute: typeof LibrariesConfigVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/form/$version/': {
+      id: '/_libraries/form/$version/'
+      path: '/form/$version/'
+      fullPath: '/form/$version/'
       preLoaderRoute: typeof LibrariesFormVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/query/$version/': {
+      id: '/_libraries/query/$version/'
+      path: '/query/$version/'
+      fullPath: '/query/$version/'
       preLoaderRoute: typeof LibrariesQueryVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/ranger/$version/': {
+      id: '/_libraries/ranger/$version/'
+      path: '/ranger/$version/'
+      fullPath: '/ranger/$version/'
       preLoaderRoute: typeof LibrariesRangerVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/router/$version/': {
+      id: '/_libraries/router/$version/'
+      path: '/router/$version/'
+      fullPath: '/router/$version/'
       preLoaderRoute: typeof LibrariesRouterVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/start/$version/': {
+      id: '/_libraries/start/$version/'
+      path: '/start/$version/'
+      fullPath: '/start/$version/'
       preLoaderRoute: typeof LibrariesStartVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/store/$version/': {
+      id: '/_libraries/store/$version/'
+      path: '/store/$version/'
+      fullPath: '/store/$version/'
       preLoaderRoute: typeof LibrariesStoreVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/table/$version/': {
+      id: '/_libraries/table/$version/'
+      path: '/table/$version/'
+      fullPath: '/table/$version/'
       preLoaderRoute: typeof LibrariesTableVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/virtual/$version/': {
+      id: '/_libraries/virtual/$version/'
+      path: '/virtual/$version/'
+      fullPath: '/virtual/$version/'
       preLoaderRoute: typeof LibrariesVirtualVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/$libraryId/$version/docs/framework/$framework/$': {
+      id: '/$libraryId/$version/docs/framework/$framework/$'
+      path: '/framework/$framework/$'
+      fullPath: '/$libraryId/$version/docs/framework/$framework/$'
       preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkSplatImport
       parentRoute: typeof LibraryIdVersionDocsImport
     }
     '/$libraryId/$version/docs/framework/$framework/examples/$': {
+      id: '/$libraryId/$version/docs/framework/$framework/examples/$'
+      path: '/framework/$framework/examples/$'
+      fullPath: '/$libraryId/$version/docs/framework/$framework/examples/$'
       preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatImport
       parentRoute: typeof LibraryIdVersionDocsImport
     }
@@ -327,19 +414,19 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren([
-  LibraryIdRoute.addChildren([
-    LibraryIdVersionRoute.addChildren([
-      LibraryIdVersionDocsRoute.addChildren([
+export const routeTree = rootRoute.addChildren({
+  LibraryIdRoute: LibraryIdRoute.addChildren({
+    LibraryIdVersionRoute: LibraryIdVersionRoute.addChildren({
+      LibraryIdVersionDocsRoute: LibraryIdVersionDocsRoute.addChildren({
         LibraryIdVersionDocsSplatRoute,
         LibraryIdVersionDocsIndexRoute,
         LibraryIdVersionDocsFrameworkFrameworkSplatRoute,
         LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute,
-      ]),
-    ]),
+      }),
+    }),
     LibraryIdIndexRoute,
-  ]),
-  LibrariesRoute.addChildren([
+  }),
+  LibrariesRoute: LibrariesRoute.addChildren({
     LibrariesDedicatedSupportRoute,
     LibrariesLearnRoute,
     LibrariesSupportRoute,
@@ -353,12 +440,12 @@ export const routeTree = rootRoute.addChildren([
     LibrariesStoreVersionIndexRoute,
     LibrariesTableVersionIndexRoute,
     LibrariesVirtualVersionIndexRoute,
-  ]),
-  BlogRoute.addChildren([BlogSplatRoute, BlogIndexRoute]),
+  }),
+  BlogRoute: BlogRoute.addChildren({ BlogSplatRoute, BlogIndexRoute }),
   DashboardRoute,
   LoginRoute,
   MerchRoute,
   SponsorsEmbedRoute,
-])
+})
 
 /* prettier-ignore-end */

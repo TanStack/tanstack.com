@@ -13,7 +13,7 @@ import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-import { RouterManagedTag, Scripts, Html, Head, Body } from '@tanstack/start'
+import { RouterManagedTag, Scripts, Meta } from '@tanstack/start'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
@@ -47,19 +47,19 @@ export const Route = createRootRouteWithContext<{
     {
       rel: 'apple-touch-icon',
       sizes: '180x180',
-      href: '/favicons/apple-touch-icon.png',
+      href: '/apple-touch-icon.png',
     },
     {
       rel: 'icon',
       type: 'image/png',
       sizes: '32x32',
-      href: '/favicons/favicon-32x32.png',
+      href: '/favicon-32x32.png',
     },
     {
       rel: 'icon',
       type: 'image/png',
       sizes: '16x16',
-      href: '/favicons/favicon-16x16.png',
+      href: '/favicon-16x16.png',
     },
     { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
     { rel: 'icon', href: '/favicon.ico' },
@@ -142,13 +142,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const showDevtools = showLoading && isRouterPage
 
   return (
-    <Html lang="en">
-      <Head>
+    <html lang="en">
+      <head>
+        <Meta />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
         ) : null}
-      </Head>
-      <Body>
+      </head>
+      <body>
         <SpeedInsights />
         <Analytics />
         <React.Suspense fallback={null}>{children}</React.Suspense>
@@ -178,7 +179,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         ) : null}
         <ScrollRestoration />
         <Scripts />
-      </Body>
-    </Html>
+      </body>
+    </html>
   )
 }

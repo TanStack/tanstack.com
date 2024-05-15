@@ -3,18 +3,16 @@ import {
   Link,
   MatchRoute,
   createFileRoute,
-  defer,
+  getRouteApi,
 } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import discordImage from '~/images/discord-logo-white.svg'
 import agGridImage from '~/images/ag-grid.png'
 import nozzleImage from '~/images/nozzle.png'
-import bytesImage from '~/images/bytes.svg'
 import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
 import { useMutation } from '~/hooks/useMutation'
 import { sample } from '~/utils/utils'
@@ -22,6 +20,7 @@ import { libraries } from '~/libraries'
 import { SearchBox } from '@orama/searchbox'
 import { searchBoxParams } from '~/components/Orama'
 import logoColor from '~/images/logo-color-600w.png'
+import bytesImage from '~/images/bytes.svg'
 
 export const textColors = [
   `text-rose-500`,
@@ -50,7 +49,6 @@ export const Route = createFileRoute('/_libraries/')({
   loader: () => {
     return {
       randomNumber: Math.random(),
-      sponsorsPromise: defer(getSponsorsForSponsorPack()),
     }
   },
   component: Index,
@@ -72,14 +70,16 @@ async function bytesSignupServerFn({ email }: { email: string }) {
   })
 }
 
+const librariesRouteApi = getRouteApi('/_libraries')
+
 function Index() {
   const bytesSignupMutation = useMutation({
     fn: bytesSignupServerFn,
   })
 
-  const { sponsorsPromise, randomNumber } = Route.useLoaderData()
+  const { randomNumber } = Route.useLoaderData()
+  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const gradient = sample(gradients, randomNumber)
-  // const textColor = sample(textColors, randomNumber)
 
   return (
     <div className="max-w-full">

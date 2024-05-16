@@ -52,6 +52,9 @@ export default function Example() {
     isDark ? 'dark' : 'light'
   }`
 
+  const hideCodesandbox = library.hideCodesandboxUrl
+  const hideStackblitz = library.hideStackblitzUrl
+
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto">
       <div className="p-4 lg:p-6">
@@ -68,22 +71,26 @@ export default function Example() {
             >
               <FaExternalLinkAlt /> Github
             </a>
-            <a
-              href={stackBlitzUrl}
-              target="_blank"
-              className="flex gap-1 items-center"
-              rel="noreferrer"
-            >
-              <FaExternalLinkAlt /> StackBlitz
-            </a>
-            <a
-              href={codesandboxUrl}
-              target="_blank"
-              className="flex gap-1 items-center"
-              rel="noreferrer"
-            >
-              <FaExternalLinkAlt /> CodeSandbox
-            </a>
+            {!hideStackblitz ? (
+              <a
+                href={stackBlitzUrl}
+                target="_blank"
+                className="flex gap-1 items-center"
+                rel="noreferrer"
+              >
+                <FaExternalLinkAlt /> StackBlitz
+              </a>
+            ) : null}
+            {!hideCodesandbox ? (
+              <a
+                href={codesandboxUrl}
+                target="_blank"
+                className="flex gap-1 items-center"
+                rel="noreferrer"
+              >
+                <FaExternalLinkAlt /> CodeSandbox
+              </a>
+            ) : null}
           </div>
         </DocTitle>
       </div>

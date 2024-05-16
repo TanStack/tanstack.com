@@ -53,6 +53,8 @@ export type Library = {
   scarfId?: string
   defaultDocs?: string
   handleRedirects?: (href: string) => void
+  hideCodesandboxUrl?: true
+  hideStackblitzUrl?: true
 }
 
 export const libraries = [

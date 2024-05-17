@@ -421,6 +421,7 @@ export default function TableVersionIndex() {
             {(
               [
                 { label: 'Angular', value: 'angular' },
+                { label: 'Lit', value: 'lit' },
                 { label: 'Qwik', value: 'qwik' },
                 { label: 'React', value: 'react' },
                 { label: 'Solid', value: 'solid' },

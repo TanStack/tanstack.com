@@ -18,7 +18,16 @@ export const tableProject: Library = {
   colorFrom: 'from-teal-500',
   colorTo: 'to-blue-600',
   textColor: 'text-blue-600',
-  frameworks: ['angular', 'lit', 'qwik', 'react', 'solid', 'svelte', 'vue', 'vanilla'],
+  frameworks: [
+    'angular',
+    'lit',
+    'qwik',
+    'react',
+    'solid',
+    'svelte',
+    'vue',
+    'vanilla',
+  ],
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
   defaultDocs: 'framework/react/overview',
   handleRedirects: (href) => {

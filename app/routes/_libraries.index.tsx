@@ -531,9 +531,6 @@ function Index() {
       </div>
       <div className={`h-20`} />
       <Footer />
-      <div className="fixed z-50">
-        <SearchBox {...searchBoxParams} />
-      </div>
     </div>
   )
 }

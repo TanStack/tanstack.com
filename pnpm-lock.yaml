@@ -24,8 +24,8 @@ dependencies:
     specifier: ^20.0.2
     version: 20.0.2
   '@orama/searchbox':
-    specifier: 1.0.0-rc27
-    version: 1.0.0-rc27(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.1.5)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.3.1)(react-markdown@6.0.3)(react@18.3.1)(typescript@5.3.3)
+    specifier: 1.0.0-rc28
+    version: 1.0.0-rc28(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.1.5)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.3.1)(react-markdown@6.0.3)(react@18.3.1)(typescript@5.3.3)
   '@oramacloud/client':
     specifier: ^1.1.5
     version: 1.1.5(typescript@5.3.3)
@@ -3221,32 +3221,27 @@ packages:
     resolution: {integrity: sha512-sGjqMkRbxBeGsiUDKOazLy1BeI12XbP1oe8iszWH6Xg4Y+EWR1QjyvAhZTFwMQWEtq+9up/GxJoDJagVckk3eQ==}
     engines: {node: '>= 16.0.0'}
 
-  /@orama/orama@2.0.17:
-    resolution: {integrity: sha512-RU0oGnV/ieaiLnMhCsVZcJTOT0bo5ne0KndEK7xMHsvA2RDAt8za2XFW57JaMWgBXLDKNX+Q5CHKje72PS6uzw==}
-    engines: {node: '>= 16.0.0'}
-    dev: false
-
   /@orama/orama@2.0.18:
     resolution: {integrity: sha512-KSty7+r8JxXv3iCuhLqQfwMvUiSWnXPaTPQPPoVPpwdvynEKcp1JNWKzTMB2tISDggf8jKhQXHEP3QXlGkvvtA==}
     engines: {node: '>= 16.0.0'}
     dev: false
 
-  /@orama/plugin-analytics@2.0.17:
-    resolution: {integrity: sha512-qJ0vx+5VqoqUsHHg0SJjYB8OmOhlwttAf/xj7ME/o/pNVnRTfojOLvP7mUf+zGWcwULB9KNdOfxHwOcFwvFl4g==}
+  /@orama/plugin-analytics@2.0.18:
+    resolution: {integrity: sha512-E6C1kLjf7Db3QTeww3L5Iooa2lFL/jp+uNgaGSNBfHR+kUi/pnifmtFAItIQ12ZIa6bv07UvbhWhDMELQcz//A==}
     dependencies:
-      '@orama/orama': 2.0.17
+      '@orama/orama': 2.0.18
     dev: false
 
-  /@orama/plugin-secure-proxy@2.0.17(typescript@5.3.3):
-    resolution: {integrity: sha512-ctvvZgm5FU8CEmV/nn7ulqjBxaQJ7lr7eN7H0dpDq+B/6vmGdcsnIFuHoHZqw2Yku9WFslhbcZLK6L225ntvKA==}
+  /@orama/plugin-secure-proxy@2.0.18(typescript@5.3.3):
+    resolution: {integrity: sha512-jGmRuybg03SESMExhdbhuRMUJUrZGpcssOGR0/LpsOqjhmLvB3VheODztodjJzsPSj98LO36pmGB9NtkSelsmg==}
     dependencies:
       '@oramacloud/client': 1.1.5(typescript@5.3.3)
     transitivePeerDependencies:
       - typescript
     dev: false
 
-  /@orama/searchbox@1.0.0-rc27(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.1.5)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.3.1)(react-markdown@6.0.3)(react@18.3.1)(typescript@5.3.3):
-    resolution: {integrity: sha512-qMHVbQKVLG6pDT8vDu6ctaoAG7NkjzdvpHDUFD+nuxoMXOGPd6A+8em1tkU4YCgZ/l+zZafaQNfsGl+ONO9eHg==}
+  /@orama/searchbox@1.0.0-rc28(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.1.5)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.3.1)(react-markdown@6.0.3)(react@18.3.1)(typescript@5.3.3):
+    resolution: {integrity: sha512-vkE7KMKkyzpBIwQkoYvY8KShQCTYTwSqkSKsmLcKrKNtyli15Fg6/6nSueduyqhy1YZQW8nie1sK3qsKJe4q1Q==}
     peerDependencies:
       '@orama/highlight': ^0.1.6
       '@orama/orama': 2.0.14
@@ -3260,23 +3255,22 @@ packages:
     dependencies:
       '@orama/highlight': 0.1.6
       '@orama/orama': 2.0.16
-      '@orama/plugin-analytics': 2.0.17
-      '@orama/plugin-secure-proxy': 2.0.17(typescript@5.3.3)
+      '@orama/plugin-analytics': 2.0.18
+      '@orama/plugin-secure-proxy': 2.0.18(typescript@5.3.3)
       '@oramacloud/client': 1.1.5(typescript@5.3.3)
       '@phosphor-icons/react': 2.1.5(react-dom@18.3.1)(react@18.3.1)
       '@preact/signals-core': 1.6.0
       '@preact/signals-react': 2.0.1(react@18.3.1)
       '@r2wc/react-to-web-component': 2.0.3(react-dom@18.3.1)(react@18.3.1)
       classnames: 2.5.1
-      dedent: 1.5.3
       lodash.debounce: 4.0.8
+      lodash.omit: 4.5.0
       object-to-css-variables: 0.2.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-markdown: 6.0.3(@types/react@18.2.65)(react@18.3.1)
       react-syntax-highlighter: 15.5.0(react@18.3.1)
     transitivePeerDependencies:
-      - babel-plugin-macros
       - typescript
     dev: false
 
@@ -6240,15 +6234,6 @@ packages:
     dependencies:
       ms: 2.1.2
 
-  /dedent@1.5.3:
-    resolution: {integrity: sha512-NHQtfOOW68WD8lgypbLA5oT+Bt0xXJhiYvoR6SmmNXZfpzOGXwdKWmcwG8N7PwVVWV3eF/68nmD9BaJSsTBhyQ==}
-    peerDependencies:
-      babel-plugin-macros: ^3.1.0
-    peerDependenciesMeta:
-      babel-plugin-macros:
-        optional: true
-    dev: false
-
   /deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
@@ -8459,6 +8444,10 @@ packages:
 
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
+
+  /lodash.omit@4.5.0:
+    resolution: {integrity: sha512-XeqSp49hNGmlkj2EJlfrQFIzQ6lXdNro9sddtQzcJY8QaoC2GO0DT7xaIokHeyM+mIT0mPMlPvkYzg2xCuHdZg==}
+    dev: false
 
   /lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}

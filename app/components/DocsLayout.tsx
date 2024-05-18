@@ -407,8 +407,10 @@ export function DocsLayout({
                                   ? 'text-fuchsia-500'
                                   : child.badge === 'qwik'
                                   ? 'text-indigo-500'
+                                  : child.badge === 'lit'
+                                  ? 'text-emerald-500'
                                   : child.badge === 'vanilla'
-                                  ? 'text-gray-300'
+                                  ? 'text-yellow-500'
                                   : 'text-gray-500'
                               }`}
                             >

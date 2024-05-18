@@ -9,4 +9,6 @@ export const getInitialSandboxFileName = (framework: Framework) =>
     ? 'src/App.tsx'
     : framework === 'angular'
     ? 'src/app/app.component.ts'
+    : framework === 'lit'
+    ? 'src/main.ts'
     : 'src/main.tsx'

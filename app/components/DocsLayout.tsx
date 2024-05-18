@@ -544,32 +544,27 @@ export function DocsLayout({
         )}
       >
         {children}
-        <div
-          className="fixed bottom-0 left-0 right-[70px]
-                        lg:pl-[250px] z-10"
-        >
-          <div className="p-4 flex justify-center gap-4">
+        <div className="fixed flex items-center flex-wrap bottom-2 left-0 lg:left-[250px] z-10 right-0 text-xs md:text-sm px-1">
+          <div className="w-1/2 px-1 flex justify-end flex-wrap">
             {prevItem ? (
               <Link
                 to={prevItem.to}
                 params
-                className="flex gap-2 items-center py-1 px-2 text-sm self-start rounded-md
-                bg-white text-gray-600 dark:bg-black dark:text-gray-400
-                shadow-lg dark:border dark:border-gray-800
-                lg:text-lg"
+                className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
               >
-                <FaArrowLeft /> {prevItem.label}
+                <div className="flex gap-2 items-center font-bold">
+                  <FaArrowLeft />
+                  {prevItem.label}
+                </div>
               </Link>
             ) : null}
+          </div>
+          <div className="w-1/2 px-1 flex justify-start flex-wrap">
             {nextItem ? (
               <Link
                 to={nextItem.to}
                 params
-                className="py-1 px-2 text-sm self-end rounded-md
-                  bg-white dark:bg-black
-                  shadow-lg dark:border dark:border-gray-800
-                  lg:text-lg
-                  "
+                className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
               >
                 <div className="flex gap-2 items-center font-bold">
                   <span

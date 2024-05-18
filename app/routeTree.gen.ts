@@ -334,64 +334,64 @@ declare module '@tanstack/react-router' {
     }
     '/_libraries/config/$version/': {
       id: '/_libraries/config/$version/'
-      path: '/config/$version/'
-      fullPath: '/config/$version/'
+      path: '/config/$version'
+      fullPath: '/config/$version'
       preLoaderRoute: typeof LibrariesConfigVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/form/$version/': {
       id: '/_libraries/form/$version/'
-      path: '/form/$version/'
-      fullPath: '/form/$version/'
+      path: '/form/$version'
+      fullPath: '/form/$version'
       preLoaderRoute: typeof LibrariesFormVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/query/$version/': {
       id: '/_libraries/query/$version/'
-      path: '/query/$version/'
-      fullPath: '/query/$version/'
+      path: '/query/$version'
+      fullPath: '/query/$version'
       preLoaderRoute: typeof LibrariesQueryVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/ranger/$version/': {
       id: '/_libraries/ranger/$version/'
-      path: '/ranger/$version/'
-      fullPath: '/ranger/$version/'
+      path: '/ranger/$version'
+      fullPath: '/ranger/$version'
       preLoaderRoute: typeof LibrariesRangerVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/router/$version/': {
       id: '/_libraries/router/$version/'
-      path: '/router/$version/'
-      fullPath: '/router/$version/'
+      path: '/router/$version'
+      fullPath: '/router/$version'
       preLoaderRoute: typeof LibrariesRouterVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/start/$version/': {
       id: '/_libraries/start/$version/'
-      path: '/start/$version/'
-      fullPath: '/start/$version/'
+      path: '/start/$version'
+      fullPath: '/start/$version'
       preLoaderRoute: typeof LibrariesStartVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/store/$version/': {
       id: '/_libraries/store/$version/'
-      path: '/store/$version/'
-      fullPath: '/store/$version/'
+      path: '/store/$version'
+      fullPath: '/store/$version'
       preLoaderRoute: typeof LibrariesStoreVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/table/$version/': {
       id: '/_libraries/table/$version/'
-      path: '/table/$version/'
-      fullPath: '/table/$version/'
+      path: '/table/$version'
+      fullPath: '/table/$version'
       preLoaderRoute: typeof LibrariesTableVersionIndexImport
       parentRoute: typeof LibrariesImport
     }
     '/_libraries/virtual/$version/': {
       id: '/_libraries/virtual/$version/'
-      path: '/virtual/$version/'
-      fullPath: '/virtual/$version/'
+      path: '/virtual/$version'
+      fullPath: '/virtual/$version'
       preLoaderRoute: typeof LibrariesVirtualVersionIndexImport
       parentRoute: typeof LibrariesImport
     }

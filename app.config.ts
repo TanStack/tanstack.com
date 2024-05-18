@@ -1,20 +1,22 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { defineConfig } from '@tanstack/start/config'
-import { TanStackRouterVite } from '@tanstack/router-vite-plugin'
+import tsConfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   vite: {
-    plugins: () => [
-      TanStackRouterVite({
-        experimental: {
-          enableCodeSplitting: true,
-        },
-      }),
-      sentryVitePlugin({
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        org: 'tanstack',
-        project: 'tanstack-com',
-      }),
-    ],
+    plugins: () => [tsConfigPaths()],
+  },
+  routers: {
+    client: {
+      vite: {
+        plugins: () => [
+          sentryVitePlugin({
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            org: 'tanstack',
+            project: 'tanstack-com',
+          }),
+        ],
+      },
+    },
   },
 })

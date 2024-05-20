@@ -4,6 +4,7 @@ import React from 'react'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { getBranch, getLibrary } from '~/libraries'
+import { getInitialSandboxFileName } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
@@ -38,6 +39,8 @@ export default function Example() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
+  const sandboxFirstFileName = getInitialSandboxFileName(framework, libraryId)
+
   const githubUrl = `https://github.com/${library.repo}/tree/${branch}/examples/${examplePath}`
   // preset=node can be removed once Stackblitz runs Angular as webcontainer by default
   // See https://github.com/stackblitz/core/issues/2957
@@ -45,12 +48,12 @@ export default function Example() {
     library.repo
   }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
-  }&preset=node`
+  }&preset=node&file=${sandboxFirstFileName}`
   const codesandboxUrl = `https://codesandbox.io/s/github/${
     library.repo
   }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
-  }`
+  }&file=${sandboxFirstFileName}`
 
   const hideCodesandbox = library.hideCodesandboxUrl
   const hideStackblitz = library.hideStackblitzUrl

@@ -7,7 +7,7 @@ export function QueryGGBannerSale(props: React.HTMLProps<HTMLDivElement>) {
   return (
     <aside {...props} className="mx-auto w-full max-w-[1200px] p-8 flex justify-between items-center">
       <div className="w-full xl:flex xl:gap-6 bg-[#f9f4da] border-4 border-[#231f20]">
-        <a href="https://query.gg" className="xl:w-7/12 pb-4 grid grid-cols-[70px_1fr_70px] sm:grid-cols-[100px_1fr_100px] md:grid-cols-[140px_1fr_140px] xl:grid-cols-[110px_1fr] 2xl:grid-cols-[150px_1fr]">
+        <a href="https://query.gg?s=tanstack" className="xl:w-7/12 pb-4 grid grid-cols-[70px_1fr_70px] sm:grid-cols-[100px_1fr_100px] md:grid-cols-[140px_1fr_140px] xl:grid-cols-[110px_1fr] 2xl:grid-cols-[150px_1fr]">
           <img
             src={cornerTopLeft}
             alt="sun"

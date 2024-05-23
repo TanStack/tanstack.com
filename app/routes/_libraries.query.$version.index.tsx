@@ -16,7 +16,8 @@ import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-import { QueryGGBanner } from '~/components/QueryGGBanner'
+// import { QueryGGBanner } from '~/components/QueryGGBanner'
+import { QueryGGBannerSale } from '~/components/QueryGGBannerSale'
 import { queryProject } from '~/libraries/query'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 import { createFileRoute } from '@tanstack/react-router'
@@ -100,7 +101,8 @@ export default function VersionIndex() {
 
   return (
     <div className="flex flex-1 flex-col min-h-0 relative overflow-x-hidden">
-      <QueryGGBanner />
+      {/* <QueryGGBanner /> */}
+      <QueryGGBannerSale />
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
         <div className="flex flex-col gap-20 md:gap-32 max-w-full">
           <div

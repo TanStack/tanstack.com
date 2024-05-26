@@ -9,19 +9,8 @@ export function createRouter() {
     defaultPreload: 'intent',
     defaultErrorComponent: DefaultCatchBoundary,
     defaultStaleTime: 1,
-    context: {
-      assets: [],
-    },
     defaultNotFoundComponent: () => {
       return <NotFound />
-    },
-    dehydrate: (() => {
-      return {
-        assets: router.options.context.assets,
-      }
-    }) as any,
-    hydrate: (data) => {
-      router.options.context.assets = data.assets
     },
   })
 

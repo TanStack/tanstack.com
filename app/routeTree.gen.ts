@@ -449,3 +449,163 @@ export const routeTree = rootRoute.addChildren({
 })
 
 /* prettier-ignore-end */
+
+/* ROUTE_MANIFEST_START
+{
+  "routes": {
+    "__root__": {
+      "filePath": "__root.tsx",
+      "children": [
+        "/$libraryId",
+        "/_libraries",
+        "/blog",
+        "/dashboard",
+        "/login",
+        "/merch",
+        "/sponsors-embed"
+      ]
+    },
+    "/$libraryId": {
+      "filePath": "$libraryId.tsx",
+      "children": [
+        "/$libraryId/$version",
+        "/$libraryId/"
+      ]
+    },
+    "/_libraries": {
+      "filePath": "_libraries.tsx",
+      "children": [
+        "/_libraries/dedicated-support",
+        "/_libraries/learn",
+        "/_libraries/support",
+        "/_libraries/",
+        "/_libraries/config/$version/",
+        "/_libraries/form/$version/",
+        "/_libraries/query/$version/",
+        "/_libraries/ranger/$version/",
+        "/_libraries/router/$version/",
+        "/_libraries/start/$version/",
+        "/_libraries/store/$version/",
+        "/_libraries/table/$version/",
+        "/_libraries/virtual/$version/"
+      ]
+    },
+    "/blog": {
+      "filePath": "blog.tsx",
+      "children": [
+        "/blog/$",
+        "/blog/"
+      ]
+    },
+    "/dashboard": {
+      "filePath": "dashboard.tsx"
+    },
+    "/login": {
+      "filePath": "login.tsx"
+    },
+    "/merch": {
+      "filePath": "merch.tsx"
+    },
+    "/sponsors-embed": {
+      "filePath": "sponsors-embed.tsx"
+    },
+    "/$libraryId/$version": {
+      "filePath": "$libraryId.$version.tsx",
+      "parent": "/$libraryId",
+      "children": [
+        "/$libraryId/$version/docs"
+      ]
+    },
+    "/_libraries/dedicated-support": {
+      "filePath": "_libraries.dedicated-support.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/learn": {
+      "filePath": "_libraries.learn.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/support": {
+      "filePath": "_libraries.support.tsx",
+      "parent": "/_libraries"
+    },
+    "/blog/$": {
+      "filePath": "blog.$.tsx",
+      "parent": "/blog"
+    },
+    "/$libraryId/": {
+      "filePath": "$libraryId.index.tsx",
+      "parent": "/$libraryId"
+    },
+    "/_libraries/": {
+      "filePath": "_libraries.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/blog/": {
+      "filePath": "blog.index.tsx",
+      "parent": "/blog"
+    },
+    "/$libraryId/$version/docs": {
+      "filePath": "$libraryId.$version.docs.tsx",
+      "parent": "/$libraryId/$version",
+      "children": [
+        "/$libraryId/$version/docs/$",
+        "/$libraryId/$version/docs/",
+        "/$libraryId/$version/docs/framework/$framework/$",
+        "/$libraryId/$version/docs/framework/$framework/examples/$"
+      ]
+    },
+    "/$libraryId/$version/docs/$": {
+      "filePath": "$libraryId.$version.docs.$.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/$libraryId/$version/docs/": {
+      "filePath": "$libraryId.$version.docs.index.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/_libraries/config/$version/": {
+      "filePath": "_libraries.config.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/form/$version/": {
+      "filePath": "_libraries.form.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/query/$version/": {
+      "filePath": "_libraries.query.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/ranger/$version/": {
+      "filePath": "_libraries.ranger.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/router/$version/": {
+      "filePath": "_libraries.router.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/start/$version/": {
+      "filePath": "_libraries.start.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/store/$version/": {
+      "filePath": "_libraries.store.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/table/$version/": {
+      "filePath": "_libraries.table.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/virtual/$version/": {
+      "filePath": "_libraries.virtual.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/$libraryId/$version/docs/framework/$framework/$": {
+      "filePath": "$libraryId.$version.docs.framework.$framework.$.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/$libraryId/$version/docs/framework/$framework/examples/$": {
+      "filePath": "$libraryId.$version.docs.framework.$framework.examples.$.tsx",
+      "parent": "/$libraryId/$version/docs"
+    }
+  }
+}
+ROUTE_MANIFEST_END */

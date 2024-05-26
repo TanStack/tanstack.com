@@ -162,7 +162,7 @@ function LibrariesLayout() {
           to: '/blog',
         },
         {
-          label: 'Github',
+          label: 'GitHub',
           icon: <FaGithub />,
           to: 'https://github.com/tanstack',
         },

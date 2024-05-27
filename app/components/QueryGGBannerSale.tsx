@@ -2,6 +2,7 @@ import headerCourse from '~/images/query-header-course.svg';
 import cornerTopLeft from '~/images/query-corner-top-left.svg';
 import cornerTopRight from '~/images/query-corner-top-right.svg';
 import cornerFishBottomRight from '~/images/query-corner-fish-bottom-right.svg';
+import CountdownTimer from '~/components/CountdownTimer'
 
 export function QueryGGBannerSale(props: React.HTMLProps<HTMLDivElement>) {
   return (
@@ -27,26 +28,8 @@ export function QueryGGBannerSale(props: React.HTMLProps<HTMLDivElement>) {
         <div className="hidden xl:block w-[80px] mr-[-55px] bg-[#231f20] border-4 border-r-0 border-[#f9f4da] border-s-[#f9f4da] shadow-[-4px_0_0_#231f20] -skew-x-[15deg] z-0"></div>
         <div className="xl:w-5/12 py-2 xl:pb-0 grid xl:grid-cols-[1fr_90px] 2xl:grid-cols-[1fr_120px] justify-center bg-[#231f20] border-2 xl:border-4 xl:border-l-0 border-[#f9f4da] text-[#f9f4da] z-10">
           <div className="my-2 uppercase text-center place-self-center">
-            <h2 className="mb-3 text-md font-semibold">Launch sale happening now</h2>
-            <div className="countdown flex gap-2 justify-center">
-              <div className="days grid grid-cols-2 gap-x-1 gap-y-1.5">
-                <span className="h-[2.3rem] aspect-square grid place-content-center rounded-sm bg-[#f9f4da] bg-opacity-10 font-semibold">0</span>
-                <span className="h-[2.3rem] aspect-square grid place-content-center rounded-sm bg-[#f9f4da] bg-opacity-10 font-semibold">3</span>
-                <p className="col-span-full text-xs">days</p>
-              </div>
-              <span className="h-[2rem] grid place-content-center">:</span>
-              <div className="hours grid grid-cols-2 gap-x-1 gap-y-1.5">
-                <span className="h-[2.3rem] aspect-square grid place-content-center rounded-sm bg-[#f9f4da] bg-opacity-10 font-semibold">2</span>
-                <span className="h-[2.3rem] aspect-square grid place-content-center rounded-sm bg-[#f9f4da] bg-opacity-10 font-semibold">1</span>
-                <p className="col-span-full text-xs">hours</p>
-              </div>
-              <span className="h-[2rem] grid place-content-center">:</span>
-              <div className="minutes grid grid-cols-2 gap-x-1 gap-y-1.5">
-                <span className="h-[2.3rem] aspect-square grid place-content-center rounded-sm bg-[#f9f4da] bg-opacity-10 font-semibold">1</span>
-                <span className="h-[2.3rem] aspect-square grid place-content-center rounded-sm bg-[#f9f4da] bg-opacity-10 font-semibold">4</span>
-                <p className="col-span-full text-xs">minutes</p>
-              </div>
-            </div>
+            <h2 className="mt-1 mb-3 px-2 text-sm font-semibold">Launch sale happening now</h2>
+            <CountdownTimer targetDate="2024-06-05" />
             <a href="https://query.gg?s=tanstack" className="mt-4 mb-1 xl:mb-2 px-6 py-2 inline-block bg-[#fcba28] text-[#231f20] rounded-full uppercase border border-black cursor-pointer font-black">Join now</a>
           </div>
           <img

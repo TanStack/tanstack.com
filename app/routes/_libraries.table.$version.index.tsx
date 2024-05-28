@@ -158,7 +158,7 @@ export default function TableVersionIndex() {
             lg:text-xl lg:max-w-2xl"
         >
           Supercharge your tables or build a datagrid from scratch for TS/JS,
-          React, Vue, Solid & Svelte while retaining 100% control over markup
+          React, Vue, Solid, Svelte & Lit while retaining 100% control over markup
           and styles.
         </p>
         <Link

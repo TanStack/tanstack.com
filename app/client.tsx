@@ -5,5 +5,4 @@ import './utils/sentry'
 
 const router = createRouter()
 
-// hydrateRoot(document, <StartClient router={router} />)
 hydrateRoot(document.getElementById('root')!, <StartClient router={router} />)

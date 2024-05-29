@@ -17,7 +17,7 @@ export function QueryGGBannerSale(props: React.HTMLProps<HTMLDivElement>) {
           <img
             src={headerCourse}
             alt="Query.gg - The Official React Query Course"
-            className="-mt-[1px] w-10/12 max-w-[350px] justify-self-center"
+            className="-mt-[1px] w-10/12 max-w-[400px] justify-self-center"
           />
           <img
             src={cornerTopRight}
@@ -28,7 +28,11 @@ export function QueryGGBannerSale(props: React.HTMLProps<HTMLDivElement>) {
         <div className="hidden xl:block w-[80px] mr-[-55px] bg-[#231f20] border-4 border-r-0 border-[#f9f4da] border-s-[#f9f4da] shadow-[-4px_0_0_#231f20] -skew-x-[15deg] z-0"></div>
         <div className="xl:w-[45%] py-2 xl:pb-0 grid xl:grid-cols-[1fr_90px] 2xl:grid-cols-[1fr_120px] justify-center bg-[#231f20] border-2 xl:border-4 xl:border-l-0 border-[#f9f4da] text-[#f9f4da] z-10">
           <div className="my-2 uppercase text-center place-self-center">
-            <h2 className="mt-1 mb-3 px-2 text-sm font-semibold">Launch sale happening now</h2>
+            {/* <h2 className="mt-1 mb-3 px-2 text-sm font-semibold">Launch sale happening now</h2> */}
+            <h2 className="mb-1 text-xl lg:text-2xl xl:text-3xl font-semibold">
+                Launch week sale
+            </h2>
+            <p className="normal-case mb-4">Up to 30% off through June 5th</p>
             <CountdownTimer targetDate="2024-06-05" />
             <a href="https://query.gg?s=tanstack" className="mt-4 mb-1 xl:mb-2 px-6 py-2 inline-block bg-[#fcba28] text-[#231f20] rounded-full uppercase border border-black cursor-pointer font-black">Join now</a>
           </div>

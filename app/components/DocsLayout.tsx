@@ -581,7 +581,7 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="bg-white dark:bg-gray-900 dark:border-l border-gray-500/20 shadow-xl p-4 max-w-[240px] hidden md:block sticky top-0 max-h-screen overflow-auto">
+      <div className="bg-white dark:bg-gray-900 dark:border-l border-gray-500/20 shadow-xl p-4 max-w-[240px] min-w-[240px] hidden md:block sticky top-0 max-h-screen overflow-auto">
         {libraryId === 'query' ? <DocsCalloutQueryGG /> : <DocsCalloutBytes />}
       </div>
       {showBytes ? (
@@ -604,7 +604,7 @@ export function DocsLayout({
         </div>
       ) : (
         <button
-          className="right-0 top-1/2 -translate-y-[50px] fixed md:hidden"
+          className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden"
           onClick={() => {
             setShowBytes(true)
           }}

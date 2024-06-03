@@ -22,7 +22,7 @@ export function DocsCalloutQueryGG(props: React.HTMLProps<HTMLDivElement>) {
             Launch week sale
           </h2>
           <p className="normal-case mb-4 text-sm text-balance">Up to 30% off through June 5th</p>
-          <CountdownTimerSmall targetDate="2024-06-05" />
+          <CountdownTimerSmall targetDate="2024-06-06" />
           <a
             className="block m-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-violet-500 text-white rounded uppercase font-bold text-sm text-center"
             href="https://query.gg?s=tanstack"

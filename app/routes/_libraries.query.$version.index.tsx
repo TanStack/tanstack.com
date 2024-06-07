@@ -16,8 +16,7 @@ import { Footer } from '~/components/Footer'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-// import { QueryGGBanner } from '~/components/QueryGGBanner'
-import { QueryGGBannerSale } from '~/components/QueryGGBannerSale'
+import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { queryProject } from '~/libraries/query'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 import { createFileRoute } from '@tanstack/react-router'
@@ -101,8 +100,7 @@ export default function VersionIndex() {
 
   return (
     <div className="flex flex-1 flex-col min-h-0 relative overflow-x-hidden">
-      {/* <QueryGGBanner /> */}
-      <QueryGGBannerSale />
+      <QueryGGBanner />
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
         <div className="flex flex-col gap-20 md:gap-32 max-w-full">
           <div
@@ -307,7 +305,7 @@ export default function VersionIndex() {
                   className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
                   rel="noreferrer"
                 >
-                  Check it out
+                  Get the course
                 </a>
               </div>
             </div>

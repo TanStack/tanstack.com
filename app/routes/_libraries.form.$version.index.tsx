@@ -391,7 +391,7 @@ export default function FormVersionIndex() {
               formProject.repo
             }/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
               isDark ? 'dark' : 'light'
-            }`}
+            }&preset=node`}
             title={`tanstack//${framework}-form: simple`}
             sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
             className="shadow-2xl max-h-[800px]"

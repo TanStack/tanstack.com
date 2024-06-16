@@ -453,7 +453,7 @@ export default function TableVersionIndex() {
             tableProject.repo
           }/tree/${branch}/examples/${framework}/basic?embed=1&theme=${
             isDark ? 'dark' : 'light'
-          }&file=${sandboxFirstFileName}`}
+          }&preset=node&file=${sandboxFirstFileName}`}
           title="tannerlinsley/react-table: basic"
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
           className="shadow-2xl"

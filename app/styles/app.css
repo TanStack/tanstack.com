@@ -89,6 +89,7 @@
 
   .anchor-heading {
     text-decoration: none !important;
+    display: block;
   }
 
   .anchor-heading > *:after {

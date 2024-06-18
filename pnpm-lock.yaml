@@ -24,11 +24,11 @@ dependencies:
     specifier: ^20.0.2
     version: 20.0.2
   '@orama/searchbox':
-    specifier: 1.0.0-rc28
-    version: 1.0.0-rc28(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.1.5)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.3.1)(react-markdown@6.0.3)(react@18.3.1)(typescript@5.3.3)
+    specifier: 1.0.0-rc40
+    version: 1.0.0-rc40(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.2.2)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.3.1)(react-markdown@6.0.3)(react-syntax-highlighter@15.5.0)(react@18.3.1)(typescript@5.3.3)
   '@oramacloud/client':
-    specifier: ^1.1.5
-    version: 1.1.5(typescript@5.3.3)
+    specifier: ^1.2.2
+    version: 1.2.2(typescript@5.3.3)
   '@remix-run/node':
     specifier: ^2.8.1
     version: 2.8.1(typescript@5.3.3)
@@ -3546,38 +3546,45 @@ packages:
     engines: {node: '>= 16.0.0'}
     dev: false
 
-  /@orama/plugin-analytics@2.0.18:
-    resolution: {integrity: sha512-E6C1kLjf7Db3QTeww3L5Iooa2lFL/jp+uNgaGSNBfHR+kUi/pnifmtFAItIQ12ZIa6bv07UvbhWhDMELQcz//A==}
-    dependencies:
-      '@orama/orama': 2.0.18
+  /@orama/orama@2.0.20:
+    resolution: {integrity: sha512-7TNNhl5cRbBbGTH2pvw3D4LtA3C2cbM3nas+HMFtl0qvMkuECPtzJElJs7xq8aGCB3rI2KOSb8GwCT9cW9M7ow==}
+    engines: {node: '>= 16.0.0'}
     dev: false
 
-  /@orama/plugin-secure-proxy@2.0.18(typescript@5.3.3):
-    resolution: {integrity: sha512-jGmRuybg03SESMExhdbhuRMUJUrZGpcssOGR0/LpsOqjhmLvB3VheODztodjJzsPSj98LO36pmGB9NtkSelsmg==}
+  /@orama/plugin-analytics@2.0.20:
+    resolution: {integrity: sha512-pkvN8vf/rEgLwBQhp410toL504aWsvjlECRU0SsAqi3rWX+cf8rq/WnOQhxUR5MEsokK9PISOy1qDmyrcxLu5w==}
     dependencies:
-      '@oramacloud/client': 1.1.5(typescript@5.3.3)
+      '@orama/orama': 2.0.20
+    dev: false
+
+  /@orama/plugin-secure-proxy@2.0.20(typescript@5.3.3):
+    resolution: {integrity: sha512-i90sBn2PPASx0S8aEbDasaFuj9uc0U/Ui1fQX2iTg/9VUAmYPt0DZCfhszQXOr84nCSCEKMd8BkeQmzuj/RmIg==}
+    dependencies:
+      '@oramacloud/client': 1.2.2(typescript@5.3.3)
     transitivePeerDependencies:
+      - encoding
       - typescript
     dev: false
 
-  /@orama/searchbox@1.0.0-rc28(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.1.5)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.3.1)(react-markdown@6.0.3)(react@18.3.1)(typescript@5.3.3):
-    resolution: {integrity: sha512-vkE7KMKkyzpBIwQkoYvY8KShQCTYTwSqkSKsmLcKrKNtyli15Fg6/6nSueduyqhy1YZQW8nie1sK3qsKJe4q1Q==}
+  /@orama/searchbox@1.0.0-rc40(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.2.2)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.3.1)(react-markdown@6.0.3)(react-syntax-highlighter@15.5.0)(react@18.3.1)(typescript@5.3.3):
+    resolution: {integrity: sha512-0anmkNXOPrddofguKEzDBLiH1td2w1Hp7cmXlRlh7DtQcZmSmJbCz75V2SD3eVw+XO65jk+UiM13+rr425OCbw==}
     peerDependencies:
       '@orama/highlight': ^0.1.6
-      '@orama/orama': 2.0.14
-      '@oramacloud/client': 1.0.14
+      '@orama/orama': 2.0.19
+      '@oramacloud/client': 1.1.6
       '@preact/signals-core': ^1.6.0
       '@preact/signals-react': ^2.0.1
       '@r2wc/react-to-web-component': ^2.0.3
-      react: ^18.2.0
-      react-dom: ^18.2.0
+      react: ^18.3.1
+      react-dom: ^18.3.1
       react-markdown: ^9.0.1
+      react-syntax-highlighter: ^15.5.0
     dependencies:
       '@orama/highlight': 0.1.6
       '@orama/orama': 2.0.16
-      '@orama/plugin-analytics': 2.0.18
-      '@orama/plugin-secure-proxy': 2.0.18(typescript@5.3.3)
-      '@oramacloud/client': 1.1.5(typescript@5.3.3)
+      '@orama/plugin-analytics': 2.0.20
+      '@orama/plugin-secure-proxy': 2.0.20(typescript@5.3.3)
+      '@oramacloud/client': 1.2.2(typescript@5.3.3)
       '@phosphor-icons/react': 2.1.5(react-dom@18.3.1)(react@18.3.1)
       '@preact/signals-core': 1.6.0
       '@preact/signals-react': 2.0.1(react@18.3.1)
@@ -3585,24 +3592,28 @@ packages:
       classnames: 2.5.1
       lodash.debounce: 4.0.8
       lodash.omit: 4.5.0
+      markdown-to-jsx: 7.4.7(react@18.3.1)
       object-to-css-variables: 0.2.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-markdown: 6.0.3(@types/react@18.2.65)(react@18.3.1)
       react-syntax-highlighter: 15.5.0(react@18.3.1)
     transitivePeerDependencies:
+      - encoding
       - typescript
     dev: false
 
-  /@oramacloud/client@1.1.5(typescript@5.3.3):
-    resolution: {integrity: sha512-cOFy6Fp4ZPDY4zCfCf/MD14b+sEispvxxCjknw1MLH2qejyTAv2rX3l85l/5VM+wOUK/Xa83/1+MkyLTqzCSGw==}
+  /@oramacloud/client@1.2.2(typescript@5.3.3):
+    resolution: {integrity: sha512-f3LJpaNiYIFVt/jcN8Zujv8b3Oy+l2NZ3sSUahx+H/m586eU66VODf/at3/8Z+sjKN1JeTcaRik1pcLF9OvCqQ==}
     dependencies:
-      '@orama/orama': 2.0.16
+      '@orama/orama': 2.0.18
       '@paralleldrive/cuid2': 2.2.2
       lodash: 4.17.21
+      openai: 4.51.0
       react: 18.3.1
       vue: 3.4.26(typescript@5.3.3)
     transitivePeerDependencies:
+      - encoding
       - typescript
     dev: false
 
@@ -4761,8 +4772,21 @@ packages:
       '@types/braces': 3.0.4
     dev: false
 
+  /@types/node-fetch@2.6.11:
+    resolution: {integrity: sha512-24xFj9R5+rfQJLRyM56qh+wnVSYhyXC2tkoBndtY0U+vubqNsYXGjufB2nn8Q6gt0LrARwL6UBtMCSVCwl4B1g==}
+    dependencies:
+      '@types/node': 20.12.12
+      form-data: 4.0.0
+    dev: false
+
   /@types/node@14.18.63:
     resolution: {integrity: sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==}
+    dev: false
+
+  /@types/node@18.19.36:
+    resolution: {integrity: sha512-tX1BNmYSWEvViftB26VLNxT6mEr37M7+ldUtq7rlKnv4/2fKYsJIOmqJAjT6h1DNuwQjIKgw3VJ/Dtw3yiTIQw==}
+    dependencies:
+      undici-types: 5.26.5
     dev: false
 
   /@types/node@20.12.11:
@@ -5228,7 +5252,7 @@ packages:
   /@vue/compiler-core@3.4.26:
     resolution: {integrity: sha512-N9Vil6Hvw7NaiyFUFBPXrAyETIGlQ8KcFMkyk6hW1Cl6NvoqvP+Y8p1Eqvx+UdqsnrnI9+HMUEJegzia3mhXmQ==}
     dependencies:
-      '@babel/parser': 7.24.5
+      '@babel/parser': 7.24.6
       '@vue/shared': 3.4.26
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -5245,7 +5269,7 @@ packages:
   /@vue/compiler-sfc@3.4.26:
     resolution: {integrity: sha512-It1dp+FAOCgluYSVYlDn5DtZBxk1NCiJJfu2mlQqa/b+k8GL6NG/3/zRbJnHdhV2VhxFghaDq5L4K+1dakW6cw==}
     dependencies:
-      '@babel/parser': 7.24.5
+      '@babel/parser': 7.24.6
       '@vue/compiler-core': 3.4.26
       '@vue/compiler-dom': 3.4.26
       '@vue/compiler-ssr': 3.4.26
@@ -5492,6 +5516,13 @@ packages:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /agentkeepalive@4.5.0:
+    resolution: {integrity: sha512-5GG/5IbQQpC9FpkRGsSvZI5QYeSCzlJHdpBQntCsuTOxhKD8lqKhrleg2Yi7yvMIf82Ycmmqln9U8V9qwEiJew==}
+    engines: {node: '>= 8.0.0'}
+    dependencies:
+      humanize-ms: 1.2.1
     dev: false
 
   /airtable@0.12.2:
@@ -7604,6 +7635,10 @@ packages:
       cross-spawn: 7.0.3
       signal-exit: 4.1.0
 
+  /form-data-encoder@1.7.2:
+    resolution: {integrity: sha512-qfqtYan3rxrnCk1VYaA4H+Ms9xdpPqvLZa6xmMgFvhO32x7/3J/ExcTd6qpxM0vH2GdMI+poehyBZvqfMTto8A==}
+    dev: false
+
   /form-data@4.0.0:
     resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==}
     engines: {node: '>= 6'}
@@ -7616,6 +7651,14 @@ packages:
   /format@0.2.2:
     resolution: {integrity: sha512-wzsgA6WOq+09wrU1tsJ09udeR/YZRaeArL9e1wPbFg3GG2yDnC2ldKpxs4xunpFF9DgqCqOIra3bc1HWrJ37Ww==}
     engines: {node: '>=0.4.x'}
+    dev: false
+
+  /formdata-node@4.4.1:
+    resolution: {integrity: sha512-0iirZp3uVDjVGt9p49aTaqjk84TrglENEDuqfdlZQ1roC9CWlPk6Avf8EEnZNcAqPonwkG35x4n3ww/1THYAeQ==}
+    engines: {node: '>= 12.20'}
+    dependencies:
+      node-domexception: 1.0.0
+      web-streams-polyfill: 4.0.0-beta.3
     dev: false
 
   /fraction.js@4.3.7:
@@ -8111,6 +8154,12 @@ packages:
   /human-signals@5.0.0:
     resolution: {integrity: sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==}
     engines: {node: '>=16.17.0'}
+    dev: false
+
+  /humanize-ms@1.2.1:
+    resolution: {integrity: sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ==}
+    dependencies:
+      ms: 2.1.3
     dev: false
 
   /ieee754@1.2.1:
@@ -8861,6 +8910,15 @@ packages:
       semver: 6.3.1
     dev: false
 
+  /markdown-to-jsx@7.4.7(react@18.3.1):
+    resolution: {integrity: sha512-0+ls1IQZdU6cwM1yu0ZjjiVWYtkbExSyUIFU2ZeDIFuZM1W42Mh4OlJ4nb4apX4H8smxDHRdFaoIVJGwfv5hkg==}
+    engines: {node: '>= 10'}
+    peerDependencies:
+      react: '>= 0.14.0'
+    dependencies:
+      react: 18.3.1
+    dev: false
+
   /marked-gfm-heading-id@3.1.3(marked@12.0.2):
     resolution: {integrity: sha512-A0cRU4PCueX/5m8VE4mT8uTQ36l3xMYRojz3Eqnk4BmUFZ0T+9Xhn2KvHcANP4qbhfOeuMrWJCTQbASIBR5xeg==}
     peerDependencies:
@@ -9238,6 +9296,11 @@ packages:
     engines: {node: ^16 || ^18 || >= 20}
     dev: false
 
+  /node-domexception@1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
+    dev: false
+
   /node-fetch-native@1.6.4:
     resolution: {integrity: sha512-IhOigYzAKHd244OC0JIMIUrjzctirCmPkaIfhDeGcEETWof5zKYUW7e7MYvChGWh/4CJeXEgsRyGzuF334rOOQ==}
     dev: false
@@ -9468,6 +9531,22 @@ packages:
       define-lazy-prop: 2.0.0
       is-docker: 2.2.1
       is-wsl: 2.2.0
+    dev: false
+
+  /openai@4.51.0:
+    resolution: {integrity: sha512-UKuWc3/qQyklqhHM8CbdXCv0Z0obap6T0ECdcO5oATQxAbKE5Ky3YCXFQY207z+eGG6ez4U9wvAcuMygxhmStg==}
+    hasBin: true
+    dependencies:
+      '@types/node': 18.19.36
+      '@types/node-fetch': 2.6.11
+      abort-controller: 3.0.0
+      agentkeepalive: 4.5.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
+      web-streams-polyfill: 3.3.3
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /openapi-typescript@6.7.5:
@@ -9781,7 +9860,7 @@ packages:
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
       nanoid: 3.3.7
-      picocolors: 1.0.0
+      picocolors: 1.0.1
       source-map-js: 1.2.0
     dev: false
 
@@ -11681,6 +11760,11 @@ packages:
   /web-streams-polyfill@3.3.3:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
+    dev: false
+
+  /web-streams-polyfill@4.0.0-beta.3:
+    resolution: {integrity: sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==}
+    engines: {node: '>= 14'}
     dev: false
 
   /webidl-conversions@3.0.1:

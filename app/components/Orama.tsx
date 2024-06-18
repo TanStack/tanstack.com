@@ -20,14 +20,13 @@ export const searchBoxParams: RegisterSearchBoxProps = {
   resultsMap: {
     description: 'content',
   },
-  // The public API key for summary generation. This is commit-safe.
-  summaryGeneration: 'mjz9do5r-oscq3oJkHx1Wu3waeeJgvWs',
   themeConfig: {
     light: {},
     dark: {
       '--backdrop-bg-color': '#0d103591',
     },
   },
+  searchMode: 'hybrid',
   searchParams: {
     threshold: 0,
   },

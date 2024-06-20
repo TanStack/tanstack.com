@@ -18,7 +18,7 @@ export const storeProject: Library = {
   colorFrom: 'from-stone-500',
   colorTo: 'to-stone-700',
   textColor: 'text-stone-700',
-  frameworks: ['react', 'solid', 'vue', 'angular'],
+  frameworks: ['react', 'solid', 'svelte', 'vue', 'angular'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
 }

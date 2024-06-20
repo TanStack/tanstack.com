@@ -137,7 +137,7 @@ export default function VersionIndex() {
               className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
             >
-              BETA
+              {version === 'latest' ? rangerProject.latestVersion : version}
             </span>
           </h1>
           <h2

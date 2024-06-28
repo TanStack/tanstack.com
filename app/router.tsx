@@ -17,8 +17,15 @@ export function createRouter() {
     },
   })
 
-  router.subscribe('onLoad', () => {
-    ;(window as any)._carbonads?.refresh()
+  router.subscribe('onResolved', () => {
+    try {
+      ;(window as any)._carbonads?.refresh?.()
+      document.querySelectorAll('[id^="carbonads_"]').forEach((el, i) => {
+        if (i > 0) {
+          el.remove()
+        }
+      })
+    } catch {}
   })
 
   return router

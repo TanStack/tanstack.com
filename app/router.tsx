@@ -1,10 +1,10 @@
-import { Router } from '@tanstack/react-router'
+import { createRouter as TanStackCreateRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 
 export function createRouter() {
-  const router = new Router({
+  const router = TanStackCreateRouter({
     routeTree,
     defaultPreload: 'intent',
     defaultErrorComponent: DefaultCatchBoundary,
@@ -12,6 +12,13 @@ export function createRouter() {
     defaultNotFoundComponent: () => {
       return <NotFound />
     },
+    context: {
+      assets: [],
+    },
+  })
+
+  router.subscribe('onLoad', () => {
+    ;(window as any)._carbonads?.refresh()
   })
 
   return router

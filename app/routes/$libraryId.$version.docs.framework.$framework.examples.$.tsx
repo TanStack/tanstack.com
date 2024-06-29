@@ -49,7 +49,7 @@ export default function Example() {
   }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'
   }&preset=node&file=${sandboxFirstFileName}`
-  const codesandboxUrl = `https://codesandbox.io/s/github/${
+  const codesandboxUrl = `https://codesandbox.io/p/devbox/github/${
     library.repo
   }/tree/${branch}/examples/${examplePath}?embed=1&theme=${
     isDark ? 'dark' : 'light'

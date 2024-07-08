@@ -12,6 +12,7 @@ import parse, {
 } from 'html-react-parser'
 import { marked } from 'marked'
 import { gfmHeadingId } from 'marked-gfm-heading-id'
+import markedAlert from 'marked-alert'
 
 const CustomHeading = ({
   Comp,
@@ -186,7 +187,11 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
 
 export function Markdown({ code }: { code: string }) {
   const jsx = React.useMemo(() => {
-    const markup = marked.use(gfmHeadingId())(code) as string
+    const markup = marked.use(
+      { gfm: true },
+      gfmHeadingId(),
+      markedAlert()
+    )(code) as string
 
     const options: HTMLReactParserOptions = {
       replace: (domNode) => {

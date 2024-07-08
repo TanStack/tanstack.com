@@ -10,16 +10,16 @@ importers:
     dependencies:
       '@builder.io/react-hydration-overlay':
         specifier: ^0.0.8
-        version: 0.0.8(react-dom@18.3.1)(react@18.3.1)(webpack@5.91.0)
+        version: 0.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.91.0)
       '@docsearch/css':
         specifier: ^3.5.2
         version: 3.6.0
       '@docsearch/react':
         specifier: ^3.5.2
-        version: 3.6.0(@algolia/client-search@4.23.3)(@types/react@18.2.65)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.14.0)
+        version: 3.6.0(@algolia/client-search@4.23.3)(@types/react@18.2.65)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.14.0)
       '@headlessui/react':
         specifier: 1.7.18
-        version: 1.7.18(react-dom@18.3.1)(react@18.3.1)
+        version: 1.7.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@octokit/graphql':
         specifier: ^7.0.2
         version: 7.0.2
@@ -28,7 +28,7 @@ importers:
         version: 20.0.2
       '@orama/searchbox':
         specifier: 1.0.0-rc42
-        version: 1.0.0-rc42(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.2.2)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.3.1)(react-markdown@6.0.3)(react-syntax-highlighter@15.5.0)(react@18.3.1)(typescript@5.3.3)
+        version: 1.0.0-rc42(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.2.2(typescript@5.3.3))(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1(react@18.3.1))(@r2wc/react-to-web-component@2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-markdown@6.0.3(@types/react@18.2.65)(react@18.3.1))(react-syntax-highlighter@15.5.0(react@18.3.1))(react@18.3.1)(typescript@5.3.3)
       '@oramacloud/client':
         specifier: ^1.2.2
         version: 1.2.2(typescript@5.3.3)
@@ -46,16 +46,16 @@ importers:
         version: 0.5.13(tailwindcss@3.4.1)
       '@tanstack/react-router':
         specifier: 1.34.2
-        version: 1.34.2(react-dom@18.3.1)(react@18.3.1)
+        version: 1.34.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/router-devtools':
         specifier: 1.34.2
-        version: 1.34.2(csstype@3.1.3)(react-dom@18.3.1)(react@18.3.1)
+        version: 1.34.2(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/router-vite-plugin':
         specifier: 1.34.1
-        version: 1.34.1(vite@5.1.4)
+        version: 1.34.1(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0))
       '@tanstack/start':
         specifier: 1.34.2
-        version: 1.34.2(@opentelemetry/api@1.8.0)(react-dom@18.3.1)(react@18.3.1)(typescript@5.3.3)(vite@5.1.4)
+        version: 1.34.2(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(terser@5.31.0)(typescript@5.3.3)(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0))
       '@typescript-eslint/parser':
         specifier: ^7.2.0
         version: 7.2.0(eslint@8.57.0)(typescript@5.3.3)
@@ -64,7 +64,7 @@ importers:
         version: 1.2.2(react@18.3.1)
       '@vercel/speed-insights':
         specifier: ^1.0.10
-        version: 1.0.10(react@18.3.1)(vue@3.4.26)
+        version: 1.0.10(react@18.3.1)(vue@3.4.26(typescript@5.3.3))
       '@visx/hierarchy':
         specifier: ^2.10.0
         version: 2.17.0(react@18.3.1)
@@ -73,7 +73,7 @@ importers:
         version: 2.17.0(react@18.3.1)
       '@vitejs/plugin-react':
         specifier: ^4
-        version: 4.2.1(vite@5.1.4)
+        version: 4.2.1(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0))
       airtable:
         specifier: ^0.12.2
         version: 0.12.2
@@ -85,7 +85,7 @@ importers:
         version: 2.30.0
       eslint-config-react-app:
         specifier: ^7.0.1
-        version: 7.0.1(@babel/plugin-syntax-flow@7.24.6)(@babel/plugin-transform-react-jsx@7.24.6)(eslint@8.57.0)(typescript@5.3.3)
+        version: 7.0.1(@babel/plugin-syntax-flow@7.24.6(@babel/core@7.24.5))(@babel/plugin-transform-react-jsx@7.24.6(@babel/core@7.24.5))(eslint@8.57.0)(typescript@5.3.3)
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
@@ -99,11 +99,14 @@ importers:
         specifier: ^7.13.1
         version: 7.18.3
       marked:
-        specifier: ^12.0.2
-        version: 12.0.2
+        specifier: ^13.0.2
+        version: 13.0.2
+      marked-alert:
+        specifier: ^2.0.1
+        version: 2.0.1(marked@13.0.2)
       marked-gfm-heading-id:
-        specifier: ^3.1.3
-        version: 3.1.3(marked@12.0.2)
+        specifier: ^4.0.0
+        version: 4.0.0(marked@13.0.2)
       qss:
         specifier: ^3.0.0
         version: 3.0.0
@@ -133,13 +136,13 @@ importers:
         version: 1.3.3
       vinxi:
         specifier: ^0.3.11
-        version: 0.3.11(@opentelemetry/api@1.8.0)
+        version: 0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0)
       vite:
         specifier: ^5.1.4
-        version: 5.1.4
+        version: 5.1.4(@types/node@20.12.12)(terser@5.31.0)
       vite-tsconfig-paths:
         specifier: ^4.3.1
-        version: 4.3.1(typescript@5.3.3)(vite@5.1.4)
+        version: 4.3.1(typescript@5.3.3)(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0))
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -151,8 +154,8 @@ importers:
         specifier: ^2.0.16
         version: 2.0.16
       '@shikijs/transformers':
-        specifier: ^1.3.0
-        version: 1.3.0
+        specifier: ^1.10.3
+        version: 1.10.3
       '@types/react':
         specifier: ^18.2.65
         version: 18.2.65
@@ -2439,14 +2442,14 @@ packages:
     resolution: {integrity: sha512-RSIyeqFG3PR5iJsZnagQxzOhM22z1Kh9DG+HQQsfVrxokzrWKRu/G17O2MIDh2I5iYEaL0Fkd/9RAXE4/b0aVg==}
     engines: {node: '>= 14'}
 
-  '@shikijs/core@1.3.0':
-    resolution: {integrity: sha512-7fedsBfuILDTBmrYZNFI8B6ATTxhQAasUHllHmjvSZPnoq4bULWoTpHwmuQvZ8Aq03/tAa2IGo6RXqWtHdWaCA==}
+  '@shikijs/core@1.10.3':
+    resolution: {integrity: sha512-D45PMaBaeDHxww+EkcDQtDAtzv00Gcsp72ukBtaLSmqRvh0WgGMq3Al0rl1QQBZfuneO75NXMIzEZGFitThWbg==}
 
   '@shikijs/core@1.4.0':
     resolution: {integrity: sha512-CxpKLntAi64h3j+TwWqVIQObPTED0FyXLHTTh3MKXtqiQNn2JGcMQQ362LftDbc9kYbDtrksNMNoVmVXzKFYUQ==}
 
-  '@shikijs/transformers@1.3.0':
-    resolution: {integrity: sha512-3mlpg2I9CjhjE96dEWQOGeCWoPcyTov3s4aAsHmgvnTHa8MBknEnCQy8/xivJPSpD+olqOqIEoHnLfbNJK29AA==}
+  '@shikijs/transformers@1.10.3':
+    resolution: {integrity: sha512-MNjsyye2WHVdxfZUSr5frS97sLGe6G1T+1P41QjyBFJehZphMcr4aBlRLmq6OSPBslYe9byQPVvt/LJCOfxw8Q==}
 
   '@sindresorhus/merge-streams@2.3.0':
     resolution: {integrity: sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg==}
@@ -2546,6 +2549,9 @@ packages:
 
   '@types/hast@2.3.10':
     resolution: {integrity: sha512-McWspRw8xx8J9HurkVBfYj0xKoE25tOFlHGdx4MJ5xORQrMGZNqJhVQWaIbm6Oyla5kYOXtDiopzKRJzEOkwJw==}
+
+  '@types/hast@3.0.4':
+    resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
 
   '@types/http-proxy@1.17.14':
     resolution: {integrity: sha512-SSrD0c1OQzlFX7pGu1eXxSEjemej64aaNPRhhVYUGqXh0BtldAAx37MG8btcumvpgKyZp1F5Gn3JkktdxiFv6w==}
@@ -4763,13 +4769,18 @@ packages:
     peerDependencies:
       react: '>= 0.14.0'
 
-  marked-gfm-heading-id@3.1.3:
-    resolution: {integrity: sha512-A0cRU4PCueX/5m8VE4mT8uTQ36l3xMYRojz3Eqnk4BmUFZ0T+9Xhn2KvHcANP4qbhfOeuMrWJCTQbASIBR5xeg==}
+  marked-alert@2.0.1:
+    resolution: {integrity: sha512-dREhBjpPEN87b5AdlpETVoEpYiROQJ2M01sqjvQetKqpfi92BQRfSFKPIEkm90RnMpv5CFLNpWfGO6bx+tnayQ==}
     peerDependencies:
-      marked: '>=4 <13'
+      marked: '>=7.0.0'
 
-  marked@12.0.2:
-    resolution: {integrity: sha512-qXUm7e/YKFoqFPYPa3Ukg9xlI5cyAtGmyEIzMfW//m6kXwCy2Ps9DYf5ioijFKQ8qyuscrHoY04iJGctu2Kg0Q==}
+  marked-gfm-heading-id@4.0.0:
+    resolution: {integrity: sha512-p53gp+nBIGeryucXzUFP8w67wtpin68+jOFBPw5m9FUfqx2ngAunO/I6KU6J3Xm3fyuv2JsSDxz0Z+pYVrHrwg==}
+    peerDependencies:
+      marked: '>=13 <14'
+
+  marked@13.0.2:
+    resolution: {integrity: sha512-J6CPjP8pS5sgrRqxVRvkCIkZ6MFdRIjDkwUwgJ9nL2fbmM6qGQeB2C16hi8Cc9BOzj6xXzy0jyi0iPIfnMHYzA==}
     engines: {node: '>= 18'}
     hasBin: true
 
@@ -4918,9 +4929,6 @@ packages:
     resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
-
-  napi-wasm@1.1.0:
-    resolution: {integrity: sha512-lHwIAJbmLSjF9VDRm9GoVOy9AGp3aIvkjv+Kvz9h16QR3uSVYH78PNQUnT2U4X53mhlnV2M7wrhibQ3GHicDmg==}
 
   natural-compare-lite@1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}
@@ -5680,8 +5688,8 @@ packages:
   shell-quote@1.8.1:
     resolution: {integrity: sha512-6j1W9l1iAs/4xYBI1SYOVZyFcCis9b4KCLQ8fgAGG07QvzaRLVVRQvAy85yNmmZSjYjg4MWh4gNvlPujU/5LpA==}
 
-  shiki@1.3.0:
-    resolution: {integrity: sha512-9aNdQy/etMXctnPzsje1h1XIGm9YfRcSksKOGqZWXA/qP9G18/8fpz5Bjpma8bOgz3tqIpjERAd6/lLjFyzoww==}
+  shiki@1.10.3:
+    resolution: {integrity: sha512-eneCLncGuvPdTutJuLyUGS8QNPAVFO5Trvld2wgEq1e002mwctAhJKeMGWtWVXOIEzmlcLRqcgPSorR6AVzOmQ==}
 
   shiki@1.4.0:
     resolution: {integrity: sha512-5WIn0OL8PWm7JhnTwRWXniy6eEDY234mRrERVlFa646V2ErQqwIFd2UML7e0Pq9eqSKLoMa3Ke+xbsF+DAuy+Q==}
@@ -7762,11 +7770,11 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.6
       to-fast-properties: 2.0.0
 
-  '@builder.io/react-hydration-overlay@0.0.8(react-dom@18.3.1)(react@18.3.1)(webpack@5.91.0)':
+  '@builder.io/react-hydration-overlay@0.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(webpack@5.91.0)':
     dependencies:
       beautify: 0.0.8
       react: 18.3.1
-      react-diff-viewer: 3.1.1(react-dom@18.3.1)(react@18.3.1)
+      react-diff-viewer: 3.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       webpack: 5.91.0
 
@@ -7783,13 +7791,14 @@ snapshots:
 
   '@docsearch/css@3.6.0': {}
 
-  '@docsearch/react@3.6.0(@algolia/client-search@4.23.3)(@types/react@18.2.65)(react-dom@18.3.1)(react@18.3.1)(search-insights@2.14.0)':
+  '@docsearch/react@3.6.0(@algolia/client-search@4.23.3)(@types/react@18.2.65)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.14.0)':
     dependencies:
       '@algolia/autocomplete-core': 1.9.3(@algolia/client-search@4.23.3)(algoliasearch@4.23.3)(search-insights@2.14.0)
       '@algolia/autocomplete-preset-algolia': 1.9.3(@algolia/client-search@4.23.3)(algoliasearch@4.23.3)
       '@docsearch/css': 3.6.0
-      '@types/react': 18.2.65
       algoliasearch: 4.23.3
+    optionalDependencies:
+      '@types/react': 18.2.65
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       search-insights: 2.14.0
@@ -8054,9 +8063,9 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@headlessui/react@1.7.18(react-dom@18.3.1)(react@18.3.1)':
+  '@headlessui/react@1.7.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/react-virtual': 3.1.3(react-dom@18.3.1)(react@18.3.1)
+      '@tanstack/react-virtual': 3.1.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       client-only: 0.0.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -8336,17 +8345,17 @@ snapshots:
       - encoding
       - typescript
 
-  '@orama/searchbox@1.0.0-rc42(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.2.2)(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1)(@r2wc/react-to-web-component@2.0.3)(react-dom@18.3.1)(react-markdown@6.0.3)(react-syntax-highlighter@15.5.0)(react@18.3.1)(typescript@5.3.3)':
+  '@orama/searchbox@1.0.0-rc42(@orama/highlight@0.1.6)(@orama/orama@2.0.16)(@oramacloud/client@1.2.2(typescript@5.3.3))(@preact/signals-core@1.6.0)(@preact/signals-react@2.0.1(react@18.3.1))(@r2wc/react-to-web-component@2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-markdown@6.0.3(@types/react@18.2.65)(react@18.3.1))(react-syntax-highlighter@15.5.0(react@18.3.1))(react@18.3.1)(typescript@5.3.3)':
     dependencies:
       '@orama/highlight': 0.1.6
       '@orama/orama': 2.0.16
       '@orama/plugin-analytics': 2.0.20
       '@orama/plugin-secure-proxy': 2.0.20(typescript@5.3.3)
       '@oramacloud/client': 1.2.2(typescript@5.3.3)
-      '@phosphor-icons/react': 2.1.5(react-dom@18.3.1)(react@18.3.1)
+      '@phosphor-icons/react': 2.1.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@preact/signals-core': 1.6.0
       '@preact/signals-react': 2.0.1(react@18.3.1)
-      '@r2wc/react-to-web-component': 2.0.3(react-dom@18.3.1)(react@18.3.1)
+      '@r2wc/react-to-web-component': 2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
       lodash.debounce: 4.0.8
       lodash.omit: 4.5.0
@@ -8407,13 +8416,11 @@ snapshots:
     dependencies:
       is-glob: 4.0.3
       micromatch: 4.0.5
-      napi-wasm: 1.1.0
 
   '@parcel/watcher-wasm@2.4.1':
     dependencies:
       is-glob: 4.0.3
       micromatch: 4.0.5
-      napi-wasm: 1.1.0
 
   '@parcel/watcher-win32-arm64@2.4.1':
     optional: true
@@ -8444,7 +8451,7 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.4.1
       '@parcel/watcher-win32-x64': 2.4.1
 
-  '@phosphor-icons/react@2.1.5(react-dom@18.3.1)(react@18.3.1)':
+  '@phosphor-icons/react@2.1.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -8462,7 +8469,7 @@ snapshots:
 
   '@r2wc/core@1.1.0': {}
 
-  '@r2wc/react-to-web-component@2.0.3(react-dom@18.3.1)(react@18.3.1)':
+  '@r2wc/react-to-web-component@2.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@r2wc/core': 1.1.0
       react: 18.3.1
@@ -8478,6 +8485,7 @@ snapshots:
       cookie-signature: 1.2.1
       source-map-support: 0.5.21
       stream-slice: 0.1.2
+    optionalDependencies:
       typescript: 5.3.3
 
   '@remix-run/router@1.15.3': {}
@@ -8490,6 +8498,7 @@ snapshots:
       cookie: 0.6.0
       set-cookie-parser: 2.6.0
       source-map: 0.7.4
+    optionalDependencies:
       typescript: 5.3.3
 
   '@remix-run/web-blob@3.1.0':
@@ -8522,8 +8531,9 @@ snapshots:
 
   '@rollup/plugin-alias@5.1.0(rollup@4.17.2)':
     dependencies:
-      rollup: 4.17.2
       slash: 4.0.0
+    optionalDependencies:
+      rollup: 4.17.2
 
   '@rollup/plugin-commonjs@25.0.7(rollup@4.17.2)':
     dependencies:
@@ -8533,6 +8543,7 @@ snapshots:
       glob: 8.1.0
       is-reference: 1.2.1
       magic-string: 0.30.10
+    optionalDependencies:
       rollup: 4.17.2
 
   '@rollup/plugin-inject@5.0.5(rollup@4.17.2)':
@@ -8540,11 +8551,13 @@ snapshots:
       '@rollup/pluginutils': 5.1.0(rollup@4.17.2)
       estree-walker: 2.0.2
       magic-string: 0.30.10
+    optionalDependencies:
       rollup: 4.17.2
 
   '@rollup/plugin-json@6.1.0(rollup@4.17.2)':
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.17.2)
+    optionalDependencies:
       rollup: 4.17.2
 
   '@rollup/plugin-node-resolve@15.2.3(rollup@4.17.2)':
@@ -8555,20 +8568,23 @@ snapshots:
       is-builtin-module: 3.2.1
       is-module: 1.0.0
       resolve: 1.22.8
+    optionalDependencies:
       rollup: 4.17.2
 
   '@rollup/plugin-replace@5.0.5(rollup@4.17.2)':
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.17.2)
       magic-string: 0.30.10
+    optionalDependencies:
       rollup: 4.17.2
 
   '@rollup/plugin-terser@0.4.4(rollup@4.17.2)':
     dependencies:
-      rollup: 4.17.2
       serialize-javascript: 6.0.2
       smob: 1.5.0
       terser: 5.31.0
+    optionalDependencies:
+      rollup: 4.17.2
 
   '@rollup/pluginutils@4.2.1':
     dependencies:
@@ -8580,6 +8596,7 @@ snapshots:
       '@types/estree': 1.0.5
       estree-walker: 2.0.2
       picomatch: 2.3.1
+    optionalDependencies:
       rollup: 4.17.2
 
   '@rollup/rollup-android-arm-eabi@4.12.0':
@@ -8791,13 +8808,15 @@ snapshots:
       - encoding
       - supports-color
 
-  '@shikijs/core@1.3.0': {}
+  '@shikijs/core@1.10.3':
+    dependencies:
+      '@types/hast': 3.0.4
 
   '@shikijs/core@1.4.0': {}
 
-  '@shikijs/transformers@1.3.0':
+  '@shikijs/transformers@1.10.3':
     dependencies:
-      shiki: 1.3.0
+      shiki: 1.10.3
 
   '@sindresorhus/merge-streams@2.3.0': {}
 
@@ -8811,36 +8830,36 @@ snapshots:
 
   '@tanstack/history@1.31.16': {}
 
-  '@tanstack/react-cross-context@1.26.10(react-dom@18.3.1)(react@18.3.1)':
+  '@tanstack/react-cross-context@1.26.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@tanstack/react-router@1.34.2(react-dom@18.3.1)(react@18.3.1)':
+  '@tanstack/react-router@1.34.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/history': 1.31.16
-      '@tanstack/react-store': 0.2.1(react-dom@18.3.1)(react@18.3.1)
+      '@tanstack/react-store': 0.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  '@tanstack/react-store@0.2.1(react-dom@18.3.1)(react@18.3.1)':
+  '@tanstack/react-store@0.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/store': 0.1.3
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       use-sync-external-store: 1.2.2(react@18.3.1)
 
-  '@tanstack/react-virtual@3.1.3(react-dom@18.3.1)(react@18.3.1)':
+  '@tanstack/react-virtual@3.1.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@tanstack/virtual-core': 3.1.3
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@tanstack/router-devtools@1.34.2(csstype@3.1.3)(react-dom@18.3.1)(react@18.3.1)':
+  '@tanstack/router-devtools@1.34.2(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/react-router': 1.34.2(react-dom@18.3.1)(react@18.3.1)
+      '@tanstack/react-router': 1.34.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       clsx: 2.1.1
       date-fns: 2.30.0
       goober: 2.1.14(csstype@3.1.3)
@@ -8854,7 +8873,7 @@ snapshots:
       prettier: 3.2.5
       zod: 3.22.4
 
-  '@tanstack/router-vite-plugin@1.34.1(vite@5.1.4)':
+  '@tanstack/router-vite-plugin@1.34.1(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0))':
     dependencies:
       '@babel/core': 7.24.6
       '@babel/generator': 7.24.6
@@ -8870,30 +8889,30 @@ snapshots:
       '@types/babel__generator': 7.6.8
       '@types/babel__template': 7.4.4
       '@types/babel__traverse': 7.20.6
-      '@vitejs/plugin-react': 4.2.1(vite@5.1.4)
+      '@vitejs/plugin-react': 4.2.1(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0))
       zod: 3.22.4
     transitivePeerDependencies:
       - supports-color
       - vite
 
-  '@tanstack/start@1.34.2(@opentelemetry/api@1.8.0)(react-dom@18.3.1)(react@18.3.1)(typescript@5.3.3)(vite@5.1.4)':
+  '@tanstack/start@1.34.2(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(terser@5.31.0)(typescript@5.3.3)(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0))':
     dependencies:
-      '@tanstack/react-cross-context': 1.26.10(react-dom@18.3.1)(react@18.3.1)
-      '@tanstack/react-router': 1.34.2(react-dom@18.3.1)(react@18.3.1)
+      '@tanstack/react-cross-context': 1.26.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-router': 1.34.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/router-generator': 1.33.12
-      '@tanstack/router-vite-plugin': 1.34.1(vite@5.1.4)
+      '@tanstack/router-vite-plugin': 1.34.1(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0))
       '@types/jsesc': 3.0.3
       '@vinxi/react': 0.2.2
-      '@vinxi/server-components': 0.3.3(vinxi@0.3.11)
-      '@vinxi/server-functions': 0.3.2(vinxi@0.3.11)
+      '@vinxi/server-components': 0.3.3(vinxi@0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0))
+      '@vinxi/server-functions': 0.3.2(vinxi@0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0))
       import-meta-resolve: 4.0.0
       isbot: 5.1.7
       jsesc: 3.0.2
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       tiny-invariant: 1.3.3
-      vinxi: 0.3.11(@opentelemetry/api@1.8.0)
-      vite-tsconfig-paths: 4.3.1(typescript@5.3.3)(vite@5.1.4)
+      vinxi: 0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0)
+      vite-tsconfig-paths: 4.3.1(typescript@5.3.3)(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0))
       zod: 3.22.4
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -8975,6 +8994,10 @@ snapshots:
     dependencies:
       '@types/unist': 2.0.10
 
+  '@types/hast@3.0.4':
+    dependencies:
+      '@types/unist': 2.0.10
+
   '@types/http-proxy@1.17.14':
     dependencies:
       '@types/node': 20.12.11
@@ -9040,7 +9063,7 @@ snapshots:
 
   '@types/unist@2.0.10': {}
 
-  '@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@5.62.0)(eslint@8.57.0)(typescript@5.3.3)':
+  '@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.3.3))(eslint@8.57.0)(typescript@5.3.3)':
     dependencies:
       '@eslint-community/regexpp': 4.10.0
       '@typescript-eslint/parser': 5.62.0(eslint@8.57.0)(typescript@5.3.3)
@@ -9054,6 +9077,7 @@ snapshots:
       natural-compare-lite: 1.4.0
       semver: 7.6.0
       tsutils: 3.21.0(typescript@5.3.3)
+    optionalDependencies:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
@@ -9073,6 +9097,7 @@ snapshots:
       '@typescript-eslint/typescript-estree': 5.62.0(typescript@5.3.3)
       debug: 4.3.4
       eslint: 8.57.0
+    optionalDependencies:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
@@ -9085,6 +9110,7 @@ snapshots:
       '@typescript-eslint/visitor-keys': 7.2.0
       debug: 4.3.4
       eslint: 8.57.0
+    optionalDependencies:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
@@ -9106,6 +9132,7 @@ snapshots:
       debug: 4.3.4
       eslint: 8.57.0
       tsutils: 3.21.0(typescript@5.3.3)
+    optionalDependencies:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
@@ -9123,6 +9150,7 @@ snapshots:
       is-glob: 4.0.3
       semver: 7.6.2
       tsutils: 3.21.0(typescript@5.3.3)
+    optionalDependencies:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
@@ -9137,6 +9165,7 @@ snapshots:
       minimatch: 9.0.3
       semver: 7.6.0
       ts-api-utils: 1.3.0(typescript@5.3.3)
+    optionalDependencies:
       typescript: 5.3.3
     transitivePeerDependencies:
       - supports-color
@@ -9170,8 +9199,9 @@ snapshots:
 
   '@vercel/analytics@1.2.2(react@18.3.1)':
     dependencies:
-      react: 18.3.1
       server-only: 0.0.1
+    optionalDependencies:
+      react: 18.3.1
 
   '@vercel/nft@0.26.4':
     dependencies:
@@ -9191,8 +9221,8 @@ snapshots:
       - encoding
       - supports-color
 
-  '@vercel/speed-insights@1.0.10(react@18.3.1)(vue@3.4.26)':
-    dependencies:
+  '@vercel/speed-insights@1.0.10(react@18.3.1)(vue@3.4.26(typescript@5.3.3))':
+    optionalDependencies:
       react: 18.3.1
       vue: 3.4.26(typescript@5.3.3)
 
@@ -9218,7 +9248,7 @@ snapshots:
     transitivePeerDependencies:
       - uWebSockets.js
 
-  '@vinxi/plugin-directives@0.3.1(vinxi@0.3.11)':
+  '@vinxi/plugin-directives@0.3.1(vinxi@0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0))':
     dependencies:
       '@babel/parser': 7.24.6
       acorn: 8.11.3
@@ -9229,31 +9259,31 @@ snapshots:
       magicast: 0.2.11
       recast: 0.23.7
       tslib: 2.6.2
-      vinxi: 0.3.11(@opentelemetry/api@1.8.0)
+      vinxi: 0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0)
 
   '@vinxi/react@0.2.2': {}
 
-  '@vinxi/server-components@0.3.3(vinxi@0.3.11)':
+  '@vinxi/server-components@0.3.3(vinxi@0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0))':
     dependencies:
-      '@vinxi/plugin-directives': 0.3.1(vinxi@0.3.11)
+      '@vinxi/plugin-directives': 0.3.1(vinxi@0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0))
       acorn: 8.11.3
       acorn-loose: 8.4.0
       acorn-typescript: 1.4.13(acorn@8.11.3)
       astring: 1.8.6
       magicast: 0.2.11
       recast: 0.23.7
-      vinxi: 0.3.11(@opentelemetry/api@1.8.0)
+      vinxi: 0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0)
 
-  '@vinxi/server-functions@0.3.2(vinxi@0.3.11)':
+  '@vinxi/server-functions@0.3.2(vinxi@0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0))':
     dependencies:
-      '@vinxi/plugin-directives': 0.3.1(vinxi@0.3.11)
+      '@vinxi/plugin-directives': 0.3.1(vinxi@0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0))
       acorn: 8.11.3
       acorn-loose: 8.4.0
       acorn-typescript: 1.4.13(acorn@8.11.3)
       astring: 1.8.6
       magicast: 0.2.11
       recast: 0.23.7
-      vinxi: 0.3.11(@opentelemetry/api@1.8.0)
+      vinxi: 0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0)
 
   '@visx/group@2.17.0(react@18.3.1)':
     dependencies:
@@ -9281,14 +9311,14 @@ snapshots:
       prop-types: 15.8.1
       react: 18.3.1
 
-  '@vitejs/plugin-react@4.2.1(vite@5.1.4)':
+  '@vitejs/plugin-react@4.2.1(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0))':
     dependencies:
       '@babel/core': 7.23.7
       '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.23.7)
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.7)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 5.1.4
+      vite: 5.1.4(@types/node@20.12.12)(terser@5.31.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -9337,7 +9367,7 @@ snapshots:
       '@vue/shared': 3.4.26
       csstype: 3.1.3
 
-  '@vue/server-renderer@3.4.26(vue@3.4.26)':
+  '@vue/server-renderer@3.4.26(vue@3.4.26(typescript@5.3.3))':
     dependencies:
       '@vue/compiler-ssr': 3.4.26
       '@vue/shared': 3.4.26
@@ -10517,23 +10547,24 @@ snapshots:
 
   escape-string-regexp@5.0.0: {}
 
-  eslint-config-react-app@7.0.1(@babel/plugin-syntax-flow@7.24.6)(@babel/plugin-transform-react-jsx@7.24.6)(eslint@8.57.0)(typescript@5.3.3):
+  eslint-config-react-app@7.0.1(@babel/plugin-syntax-flow@7.24.6(@babel/core@7.24.5))(@babel/plugin-transform-react-jsx@7.24.6(@babel/core@7.24.5))(eslint@8.57.0)(typescript@5.3.3):
     dependencies:
       '@babel/core': 7.24.0
       '@babel/eslint-parser': 7.23.10(@babel/core@7.24.0)(eslint@8.57.0)
       '@rushstack/eslint-patch': 1.7.2
-      '@typescript-eslint/eslint-plugin': 5.62.0(@typescript-eslint/parser@5.62.0)(eslint@8.57.0)(typescript@5.3.3)
+      '@typescript-eslint/eslint-plugin': 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.3.3))(eslint@8.57.0)(typescript@5.3.3)
       '@typescript-eslint/parser': 5.62.0(eslint@8.57.0)(typescript@5.3.3)
       babel-preset-react-app: 10.0.1
       confusing-browser-globals: 1.0.11
       eslint: 8.57.0
-      eslint-plugin-flowtype: 8.0.3(@babel/plugin-syntax-flow@7.24.6)(@babel/plugin-transform-react-jsx@7.24.6)(eslint@8.57.0)
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@5.62.0)(eslint@8.57.0)
-      eslint-plugin-jest: 25.7.0(@typescript-eslint/eslint-plugin@5.62.0)(eslint@8.57.0)(typescript@5.3.3)
+      eslint-plugin-flowtype: 8.0.3(@babel/plugin-syntax-flow@7.24.6(@babel/core@7.24.5))(@babel/plugin-transform-react-jsx@7.24.6(@babel/core@7.24.5))(eslint@8.57.0)
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.3.3))(eslint@8.57.0)
+      eslint-plugin-jest: 25.7.0(@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.3.3))(eslint@8.57.0)(typescript@5.3.3))(eslint@8.57.0)(typescript@5.3.3)
       eslint-plugin-jsx-a11y: 6.8.0(eslint@8.57.0)
       eslint-plugin-react: 7.34.0(eslint@8.57.0)
       eslint-plugin-react-hooks: 4.6.0(eslint@8.57.0)
       eslint-plugin-testing-library: 5.11.1(eslint@8.57.0)(typescript@5.3.3)
+    optionalDependencies:
       typescript: 5.3.3
     transitivePeerDependencies:
       - '@babel/plugin-syntax-flow'
@@ -10551,16 +10582,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.8.1(@typescript-eslint/parser@5.62.0)(eslint-import-resolver-node@0.3.9)(eslint@8.57.0):
+  eslint-module-utils@2.8.1(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.3.3))(eslint-import-resolver-node@0.3.9)(eslint@8.57.0):
     dependencies:
-      '@typescript-eslint/parser': 5.62.0(eslint@8.57.0)(typescript@5.3.3)
       debug: 3.2.7
+    optionalDependencies:
+      '@typescript-eslint/parser': 5.62.0(eslint@8.57.0)(typescript@5.3.3)
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-flowtype@8.0.3(@babel/plugin-syntax-flow@7.24.6)(@babel/plugin-transform-react-jsx@7.24.6)(eslint@8.57.0):
+  eslint-plugin-flowtype@8.0.3(@babel/plugin-syntax-flow@7.24.6(@babel/core@7.24.5))(@babel/plugin-transform-react-jsx@7.24.6(@babel/core@7.24.5))(eslint@8.57.0):
     dependencies:
       '@babel/plugin-syntax-flow': 7.24.6(@babel/core@7.24.5)
       '@babel/plugin-transform-react-jsx': 7.24.6(@babel/core@7.24.5)
@@ -10568,9 +10600,8 @@ snapshots:
       lodash: 4.17.21
       string-natural-compare: 3.0.1
 
-  eslint-plugin-import@2.29.1(@typescript-eslint/parser@5.62.0)(eslint@8.57.0):
+  eslint-plugin-import@2.29.1(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.3.3))(eslint@8.57.0):
     dependencies:
-      '@typescript-eslint/parser': 5.62.0(eslint@8.57.0)(typescript@5.3.3)
       array-includes: 3.1.7
       array.prototype.findlastindex: 1.2.4
       array.prototype.flat: 1.3.2
@@ -10579,7 +10610,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.8.1(@typescript-eslint/parser@5.62.0)(eslint-import-resolver-node@0.3.9)(eslint@8.57.0)
+      eslint-module-utils: 2.8.1(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.3.3))(eslint-import-resolver-node@0.3.9)(eslint@8.57.0)
       hasown: 2.0.0
       is-core-module: 2.13.1
       is-glob: 4.0.3
@@ -10589,16 +10620,19 @@ snapshots:
       object.values: 1.1.7
       semver: 6.3.1
       tsconfig-paths: 3.15.0
+    optionalDependencies:
+      '@typescript-eslint/parser': 5.62.0(eslint@8.57.0)(typescript@5.3.3)
     transitivePeerDependencies:
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-jest@25.7.0(@typescript-eslint/eslint-plugin@5.62.0)(eslint@8.57.0)(typescript@5.3.3):
+  eslint-plugin-jest@25.7.0(@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.3.3))(eslint@8.57.0)(typescript@5.3.3))(eslint@8.57.0)(typescript@5.3.3):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 5.62.0(@typescript-eslint/parser@5.62.0)(eslint@8.57.0)(typescript@5.3.3)
       '@typescript-eslint/experimental-utils': 5.62.0(eslint@8.57.0)(typescript@5.3.3)
       eslint: 8.57.0
+    optionalDependencies:
+      '@typescript-eslint/eslint-plugin': 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.3.3))(eslint@8.57.0)(typescript@5.3.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -11145,12 +11179,13 @@ snapshots:
 
   html-react-parser@5.1.10(@types/react@18.2.65)(react@18.3.1):
     dependencies:
-      '@types/react': 18.2.65
       domhandler: 5.0.3
       html-dom-parser: 5.0.8
       react: 18.3.1
       react-property: 2.0.2
       style-to-js: 1.1.12
+    optionalDependencies:
+      '@types/react': 18.2.65
 
   html@1.0.0:
     dependencies:
@@ -11650,12 +11685,16 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  marked-gfm-heading-id@3.1.3(marked@12.0.2):
+  marked-alert@2.0.1(marked@13.0.2):
+    dependencies:
+      marked: 13.0.2
+
+  marked-gfm-heading-id@4.0.0(marked@13.0.2):
     dependencies:
       github-slugger: 2.0.0
-      marked: 12.0.2
+      marked: 13.0.2
 
-  marked@12.0.2: {}
+  marked@13.0.2: {}
 
   mdast-util-definitions@4.0.0:
     dependencies:
@@ -11789,8 +11828,6 @@ snapshots:
       thenify-all: 1.6.0
 
   nanoid@3.3.7: {}
-
-  napi-wasm@1.1.0: {}
 
   natural-compare-lite@1.4.0: {}
 
@@ -12213,8 +12250,9 @@ snapshots:
   postcss-load-config@4.0.2(postcss@8.4.35):
     dependencies:
       lilconfig: 3.1.1
-      postcss: 8.4.35
       yaml: 2.4.0
+    optionalDependencies:
+      postcss: 8.4.35
 
   postcss-nested@6.0.1(postcss@8.4.35):
     dependencies:
@@ -12298,7 +12336,7 @@ snapshots:
       defu: 6.1.4
       destr: 2.0.3
 
-  react-diff-viewer@3.1.1(react-dom@18.3.1)(react@18.3.1):
+  react-diff-viewer@3.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       classnames: 2.3.2
       create-emotion: 10.0.27
@@ -12533,9 +12571,10 @@ snapshots:
     dependencies:
       open: 8.4.2
       picomatch: 2.3.1
-      rollup: 4.17.2
       source-map: 0.7.4
       yargs: 17.7.2
+    optionalDependencies:
+      rollup: 4.17.2
 
   rollup@4.12.0:
     dependencies:
@@ -12730,9 +12769,10 @@ snapshots:
 
   shell-quote@1.8.1: {}
 
-  shiki@1.3.0:
+  shiki@1.10.3:
     dependencies:
-      '@shikijs/core': 1.3.0
+      '@shikijs/core': 1.10.3
+      '@types/hast': 3.0.4
 
   shiki@1.4.0:
     dependencies:
@@ -13028,7 +13068,7 @@ snapshots:
   ts-interface-checker@0.1.13: {}
 
   tsconfck@3.0.1(typescript@5.3.3):
-    dependencies:
+    optionalDependencies:
       typescript: 5.3.3
 
   tsconfig-paths@3.15.0:
@@ -13246,13 +13286,14 @@ snapshots:
       chokidar: 3.6.0
       destr: 2.0.3
       h3: 1.11.1
-      ioredis: 5.3.2
       listhen: 1.7.2
       lru-cache: 10.2.0
       mri: 1.2.0
       node-fetch-native: 1.6.4
       ofetch: 1.3.4
       ufo: 1.5.3
+    optionalDependencies:
+      ioredis: 5.3.2
     transitivePeerDependencies:
       - uWebSockets.js
 
@@ -13328,7 +13369,7 @@ snapshots:
       unist-util-stringify-position: 2.0.3
       vfile-message: 2.0.4
 
-  vinxi@0.3.11(@opentelemetry/api@1.8.0):
+  vinxi@0.3.11(@opentelemetry/api@1.8.0)(@types/node@20.12.12)(ioredis@5.3.2)(terser@5.31.0):
     dependencies:
       '@babel/core': 7.24.5
       '@babel/plugin-syntax-jsx': 7.24.1(@babel/core@7.24.5)
@@ -13362,7 +13403,7 @@ snapshots:
       unctx: 2.3.1
       unenv: 1.9.0
       unstorage: 1.10.2(ioredis@5.3.2)
-      vite: 5.1.4
+      vite: 5.1.4(@types/node@20.12.12)(terser@5.31.0)
       zod: 3.22.4
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -13395,31 +13436,35 @@ snapshots:
       - uWebSockets.js
       - xml2js
 
-  vite-tsconfig-paths@4.3.1(typescript@5.3.3)(vite@5.1.4):
+  vite-tsconfig-paths@4.3.1(typescript@5.3.3)(vite@5.1.4(@types/node@20.12.12)(terser@5.31.0)):
     dependencies:
       debug: 4.3.4
       globrex: 0.1.2
       tsconfck: 3.0.1(typescript@5.3.3)
-      vite: 5.1.4
+    optionalDependencies:
+      vite: 5.1.4(@types/node@20.12.12)(terser@5.31.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@5.1.4:
+  vite@5.1.4(@types/node@20.12.12)(terser@5.31.0):
     dependencies:
       esbuild: 0.19.12
       postcss: 8.4.35
       rollup: 4.12.0
     optionalDependencies:
+      '@types/node': 20.12.12
       fsevents: 2.3.3
+      terser: 5.31.0
 
   vue@3.4.26(typescript@5.3.3):
     dependencies:
       '@vue/compiler-dom': 3.4.26
       '@vue/compiler-sfc': 3.4.26
       '@vue/runtime-dom': 3.4.26
-      '@vue/server-renderer': 3.4.26(vue@3.4.26)
+      '@vue/server-renderer': 3.4.26(vue@3.4.26(typescript@5.3.3))
       '@vue/shared': 3.4.26
+    optionalDependencies:
       typescript: 5.3.3
 
   watchpack@2.4.1:
@@ -13597,6 +13642,7 @@ snapshots:
 
   zustand@4.5.2(@types/react@18.2.65)(react@18.3.1):
     dependencies:
+      use-sync-external-store: 1.2.0(react@18.3.1)
+    optionalDependencies:
       '@types/react': 18.2.65
       react: 18.3.1
-      use-sync-external-store: 1.2.0(react@18.3.1)

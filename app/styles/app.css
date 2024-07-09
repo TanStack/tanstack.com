@@ -512,5 +512,5 @@ pre .logger.log-log svg {
 }
 
 .markdown-alert .markdown-alert-title {
-  @apply flex justify-start items-center font-medium;
+  @apply flex justify-start items-center font-medium mb-1.5;
 }

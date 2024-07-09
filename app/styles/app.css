@@ -461,3 +461,56 @@ pre .logger.log-log svg {
   @apply translate-x-[10px] translate-y-[10px];
   @apply dark:[color-scheme:dark];
 }
+
+/* Markdown Alerts */
+.markdown-alert {
+  @apply border-l-4 pl-4 py-1.5 my-2 dark:bg-gray-900 rounded-r-sm;
+}
+
+.markdown-alert > * {
+  @apply m-0;
+}
+
+.markdown-alert.markdown-alert-note {
+  @apply border-blue-500/90;
+}
+
+.markdown-alert.markdown-alert-note svg {
+  @apply fill-blue-500/90;
+}
+
+.markdown-alert.markdown-alert-warning {
+  @apply border-yellow-500/90;
+}
+
+.markdown-alert.markdown-alert-warning svg {
+  @apply fill-yellow-500/90;
+}
+
+.markdown-alert.markdown-alert-caution {
+  @apply border-red-500/90;
+}
+
+.markdown-alert.markdown-alert-caution svg {
+  @apply fill-red-500/90;
+}
+
+.markdown-alert.markdown-alert-tip {
+  @apply border-green-500/90;
+}
+
+.markdown-alert.markdown-alert-tip svg {
+  @apply fill-green-500/90;
+}
+
+.markdown-alert.markdown-alert-important {
+  @apply border-purple-500/90;
+}
+
+.markdown-alert.markdown-alert-important svg {
+  @apply fill-purple-500/90;
+}
+
+.markdown-alert .markdown-alert-title {
+  @apply flex justify-start items-center font-medium mb-1.5;
+}

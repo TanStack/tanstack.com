@@ -396,6 +396,7 @@ export default function RouteComp() {
           <div className="flex flex-wrap gap-2 justify-center">
             {(
               [
+                { label: 'Lit', value: 'lit' },
                 { label: 'React', value: 'react' },
                 { label: 'Solid', value: 'solid' },
                 { label: 'Svelte', value: 'svelte' },

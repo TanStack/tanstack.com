@@ -398,6 +398,7 @@ export default function RouteComp() {
               [
                 { label: 'React', value: 'react' },
                 { label: 'Solid', value: 'solid' },
+                { label: 'Lit', value: 'lit' },
                 { label: 'Svelte', value: 'svelte' },
                 { label: 'Vue', value: 'vue' },
               ] as const

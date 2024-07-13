@@ -169,7 +169,8 @@ function replaceImageBranchRef(text: string, repoPair: string, ref: string) {
 
     // Only replace the branch ref if it is present and only immediately after the repo pair
     // It should NOT be replaced if it is further down the path.
-    // If the ref is "main" and the src is "https://github.com/TanStack/router/beta/docs/assets/beta.png"
+
+    // Example: If the ref is "main" and the src is "https://github.com/TanStack/router/beta/docs/assets/beta.png"
     // then the replaced src should be "https://github.com/TanStack/router/main/docs/assets/beta.png"
 
     const branchIndex = repoIndex + repoPair.length + 1

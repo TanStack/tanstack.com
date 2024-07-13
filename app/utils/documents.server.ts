@@ -166,7 +166,13 @@ function replaceProjectImageBranch(
       return src
     }
 
-    // Only replace the branch ref if it is present and only immediately after the repo pair
+    // If the branch ref is the same as the target ref, return the src as is
+    const refIndex = srcLowered.indexOf(ref.toLowerCase())
+    if (refIndex !== -1 && refIndex === repoIndex + repoPair.length + 1) {
+      return src
+    }
+
+    // We should only replace the branch ref if it is present and only immediately after the repo pair
     // It should NOT be replaced if it is further down the path.
 
     // Example: If the ref is "main" and the src is "https://github.com/TanStack/router/beta/docs/assets/beta.png"

@@ -133,6 +133,90 @@ function replaceSections(
   return result
 }
 
+function replaceImageBranchRef(
+  text: string,
+  owner: string,
+  repo: string,
+  ref: string
+) {
+  const repoPair = `${owner}/${repo}`
+  const possibleOrigins = [
+    // HTTPS versions
+    'https://raw.githubusercontent.com/',
+    // HTTP versions
+    'http://raw.githubusercontent.com/',
+  ]
+
+  const handleReplaceImageSrc = (src: string): string => {
+    const srcLowered = src.toLowerCase()
+
+    let possibleOrigin
+
+    for (const origin of possibleOrigins) {
+      if (srcLowered.startsWith(origin)) {
+        possibleOrigin = origin
+        break
+      }
+    }
+
+    // If the image src does not start with a known origin, return the src as is
+    if (!possibleOrigin) {
+      return src
+    }
+
+    // If the image src does not contain the repo pair after the origin, return the src as is
+    const repoIndex = srcLowered.indexOf(repoPair.toLowerCase())
+    if (
+      repoIndex === -1 ||
+      src.indexOf(possibleOrigin) + possibleOrigin.length !== repoIndex
+    ) {
+      return src
+    }
+
+    // Only replace the branch ref if it is present and only immediately after the repo pair
+    // It should NOT be replaced if it is further down the path.
+    // If the ref is "main" and the src is "https://github.com/TanStack/router/beta/docs/assets/beta.png"
+    // then the replaced src should be "https://github.com/TanStack/router/main/docs/assets/beta.png"
+
+    const branchIndex = repoIndex + repoPair.length + 1
+    const nextSlashIndex = src.indexOf('/', branchIndex)
+    const oldRef = src.slice(branchIndex, nextSlashIndex)
+    const newSrc = src.replace(oldRef, ref)
+    return newSrc
+  }
+
+  // find all instances of markdown image syntax
+  const markdownInlineImageRegex = /\!(\[([^\]]+)\]\(([^)]+)\))/g
+  const inlineMarkdownImageMatches = text.matchAll(markdownInlineImageRegex)
+  for (const match of inlineMarkdownImageMatches) {
+    const [fullInlineMatch, _, alt, src] = match
+    const newSrc = handleReplaceImageSrc(src)
+    const replacement = `![${alt}](${newSrc})`
+    text = text.replace(fullInlineMatch, replacement)
+  }
+
+  // find all instances of markdown image html tag
+  const markdownImageHtmlTagRegex = /<img[^>]+>/g
+  const htmlImageTagMatches = text.matchAll(markdownImageHtmlTagRegex)
+  for (const match of htmlImageTagMatches) {
+    const [fullImageTagMatch] = match
+
+    // can have single or double quotes
+    const src =
+      fullImageTagMatch.match(/src='([^']+)'/)?.[1] ||
+      fullImageTagMatch.match(/src="([^"]+)"/)?.[1]
+    if (!src) {
+      continue
+    }
+
+    const newSrc = handleReplaceImageSrc(src)
+    const replacement = fullImageTagMatch.replace(src, newSrc)
+    text = text.replace(fullImageTagMatch, replacement)
+  }
+
+  return text
+}
+
 export async function fetchRepoFile(
   repoPair: string,
   ref: string,
@@ -174,6 +258,7 @@ export async function fetchRepoFile(
               text = replaceContent(text, originFrontmatter)
               text = replaceSections(text, originFrontmatter)
             }
+            text = replaceImageBranchRef(text, owner, repo, ref)
             return Promise.resolve(text)
           }
           // If file has a ref to another file, cache current front-matter and load referenced file

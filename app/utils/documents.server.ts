@@ -133,6 +133,16 @@ function replaceSections(
   return result
 }
 
+/**
+ * Perform image src replacement in text for given repo pair and ref.
+ * - Find all instances of markdown inline images
+ * - Find all instances of markdown html images
+ * - Replace image src's for given repo pair and ref if matched
+ * @param text Markdown file content
+ * @param repoPair Repo pair e.g. "TanStack/router"
+ * @param ref Branch ref e.g. "main"
+ * @returns Markdown file content with replaced image src's for given repo pair and ref
+ */
 function replaceProjectImageBranch(
   text: string,
   repoPair: string,

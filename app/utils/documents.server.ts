@@ -185,7 +185,7 @@ function replaceProjectImageBranch(
     return newSrc
   }
 
-  // find all instances of markdown image syntax
+  // find all instances of markdown inline images
   const markdownInlineImageRegex = /\!(\[([^\]]+)\]\(([^)]+)\))/g
   const inlineMarkdownImageMatches = text.matchAll(markdownInlineImageRegex)
   for (const match of inlineMarkdownImageMatches) {
@@ -195,7 +195,7 @@ function replaceProjectImageBranch(
     text = text.replace(fullInlineMatch, replacement)
   }
 
-  // find all instances of markdown image html tag
+  // find all instances of markdown html images
   const markdownImageHtmlTagRegex = /<img[^>]+>/g
   const htmlImageTagMatches = text.matchAll(markdownImageHtmlTagRegex)
   for (const match of htmlImageTagMatches) {

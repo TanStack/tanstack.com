@@ -133,13 +133,7 @@ function replaceSections(
   return result
 }
 
-function replaceImageBranchRef(
-  text: string,
-  owner: string,
-  repo: string,
-  ref: string
-) {
-  const repoPair = `${owner}/${repo}`
+function replaceImageBranchRef(text: string, repoPair: string, ref: string) {
   const possibleOrigins = [
     // HTTPS versions
     'https://raw.githubusercontent.com/',
@@ -258,7 +252,7 @@ export async function fetchRepoFile(
               text = replaceContent(text, originFrontmatter)
               text = replaceSections(text, originFrontmatter)
             }
-            text = replaceImageBranchRef(text, owner, repo, ref)
+            text = replaceImageBranchRef(text, repoPair, ref)
             return Promise.resolve(text)
           }
           // If file has a ref to another file, cache current front-matter and load referenced file

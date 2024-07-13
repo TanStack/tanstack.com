@@ -133,28 +133,27 @@ function replaceSections(
   return result
 }
 
-function replaceImageBranchRef(text: string, repoPair: string, ref: string) {
-  const possibleOrigins = [
-    // HTTPS versions
-    'https://raw.githubusercontent.com/',
-    // HTTP versions
-    'http://raw.githubusercontent.com/',
-  ]
-
+function replaceProjectImageBranch(
+  text: string,
+  repoPair: string,
+  ref: string
+) {
   const handleReplaceImageSrc = (src: string): string => {
     const srcLowered = src.toLowerCase()
+    const isHttps = srcLowered.startsWith('https://')
 
-    let possibleOrigin
+    const testOrigin = isHttps
+      ? 'https://raw.githubusercontent.com/'
+      : 'http://raw.githubusercontent.com/'
 
-    for (const origin of possibleOrigins) {
-      if (srcLowered.startsWith(origin)) {
-        possibleOrigin = origin
-        break
-      }
+    let validSrcOrigin: string | undefined
+
+    if (srcLowered.startsWith(testOrigin)) {
+      validSrcOrigin = testOrigin
     }
 
     // If the image src does not start with a known origin, return the src as is
-    if (!possibleOrigin) {
+    if (!validSrcOrigin) {
       return src
     }
 
@@ -162,7 +161,7 @@ function replaceImageBranchRef(text: string, repoPair: string, ref: string) {
     const repoIndex = srcLowered.indexOf(repoPair.toLowerCase())
     if (
       repoIndex === -1 ||
-      src.indexOf(possibleOrigin) + possibleOrigin.length !== repoIndex
+      src.indexOf(validSrcOrigin) + validSrcOrigin.length !== repoIndex
     ) {
       return src
     }
@@ -253,7 +252,7 @@ export async function fetchRepoFile(
               text = replaceContent(text, originFrontmatter)
               text = replaceSections(text, originFrontmatter)
             }
-            text = replaceImageBranchRef(text, repoPair, ref)
+            text = replaceProjectImageBranch(text, repoPair, ref)
             return Promise.resolve(text)
           }
           // If file has a ref to another file, cache current front-matter and load referenced file

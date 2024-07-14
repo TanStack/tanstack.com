@@ -199,29 +199,43 @@ function replaceProjectImageBranch(
   const markdownInlineImageRegex = /\!(\[([^\]]+)\]\(([^)]+)\))/g
   const inlineMarkdownImageMatches = text.matchAll(markdownInlineImageRegex)
   for (const match of inlineMarkdownImageMatches) {
-    const [fullInlineMatch, _, alt, src] = match
+    const [fullMatch, _, __, src] = match
     const newSrc = handleReplaceImageSrc(src)
-    const replacement = `![${alt}](${newSrc})`
-    text = text.replace(fullInlineMatch, replacement)
+
+    // No need to replace the src if it is the same as the original
+    if (newSrc === src) {
+      continue
+    }
+
+    const replacement = fullMatch.replace(src, newSrc)
+    text = text.replace(fullMatch, replacement)
   }
 
   // find all instances of markdown html images
   const markdownImageHtmlTagRegex = /<img[^>]+>/g
   const htmlImageTagMatches = text.matchAll(markdownImageHtmlTagRegex)
   for (const match of htmlImageTagMatches) {
-    const [fullImageTagMatch] = match
+    const [fullMatch] = match
 
-    // can have single or double quotes
+    // Match the src attribute on the img tag
+    // The src could be wrapped with single or double quotes
     const src =
-      fullImageTagMatch.match(/src='([^']+)'/)?.[1] ||
-      fullImageTagMatch.match(/src="([^"]+)"/)?.[1]
+      fullMatch.match(/src='([^']+)'/)?.[1] ||
+      fullMatch.match(/src="([^"]+)"/)?.[1]
+
     if (!src) {
       continue
     }
 
     const newSrc = handleReplaceImageSrc(src)
-    const replacement = fullImageTagMatch.replace(src, newSrc)
-    text = text.replace(fullImageTagMatch, replacement)
+
+    // No need to replace the src if it is the same as the original
+    if (newSrc === src) {
+      continue
+    }
+
+    const replacement = fullMatch.replace(src, newSrc)
+    text = text.replace(fullMatch, replacement)
   }
 
   return text

@@ -18,7 +18,6 @@ export function DocsCalloutQueryGG(props: React.HTMLProps<HTMLDivElement>) {
           className="block m-1 px-4 py-2 bg-gradient-to-r from-rose-500 to-violet-500 text-white rounded uppercase font-bold text-sm text-center"
           href="https://query.gg?s=tanstack"
           target="_blank"
-          rel="noreferrer"
         >
           Get the course
         </a>

@@ -133,6 +133,114 @@ function replaceSections(
   return result
 }
 
+/**
+ * Perform image src replacement in text for given repo pair and ref.
+ * - Find all instances of markdown inline images
+ * - Find all instances of markdown html images
+ * - Replace image src's for given repo pair and ref if matched
+ * @param text Markdown file content
+ * @param repoPair Repo pair e.g. "TanStack/router"
+ * @param ref Branch ref e.g. "main"
+ * @returns Markdown file content with replaced image src's for given repo pair and ref
+ */
+function replaceProjectImageBranch(
+  text: string,
+  repoPair: string,
+  ref: string
+) {
+  const handleReplaceImageSrc = (src: string): string => {
+    const srcLowered = src.toLowerCase()
+    const isHttps = srcLowered.startsWith('https://')
+
+    const testOrigin = isHttps
+      ? 'https://raw.githubusercontent.com/'
+      : 'http://raw.githubusercontent.com/'
+
+    let validSrcOrigin: string | undefined
+
+    if (srcLowered.startsWith(testOrigin)) {
+      validSrcOrigin = testOrigin
+    }
+
+    // If the image src does not start with a known origin, return the src as is
+    if (!validSrcOrigin) {
+      return src
+    }
+
+    // If the image src does not contain the repo pair after the origin, return the src as is
+    const repoIndex = srcLowered.indexOf(repoPair.toLowerCase())
+    if (
+      repoIndex === -1 ||
+      src.indexOf(validSrcOrigin) + validSrcOrigin.length !== repoIndex
+    ) {
+      return src
+    }
+
+    // If the branch ref is the same as the target ref, return the src as is
+    const refIndex = srcLowered.indexOf(ref.toLowerCase())
+    if (refIndex !== -1 && refIndex === repoIndex + repoPair.length + 1) {
+      return src
+    }
+
+    // We should only replace the branch ref if it is present and only immediately after the repo pair
+    // It should NOT be replaced if it is further down the path.
+
+    // Example: If the ref is "main" and the src is "https://github.com/TanStack/router/beta/docs/assets/beta.png"
+    // then the replaced src should be "https://github.com/TanStack/router/main/docs/assets/beta.png"
+
+    const branchIndex = repoIndex + repoPair.length + 1
+    const nextSlashIndex = src.indexOf('/', branchIndex)
+    const oldRef = src.slice(branchIndex, nextSlashIndex)
+    const newSrc = src.replace(oldRef, ref)
+    return newSrc
+  }
+
+  // find all instances of markdown inline images
+  const markdownInlineImageRegex = /\!(\[([^\]]+)\]\(([^)]+)\))/g
+  const inlineMarkdownImageMatches = text.matchAll(markdownInlineImageRegex)
+  for (const match of inlineMarkdownImageMatches) {
+    const [fullMatch, _, __, src] = match
+    const newSrc = handleReplaceImageSrc(src)
+
+    // No need to replace the src if it is the same as the original
+    if (newSrc === src) {
+      continue
+    }
+
+    const replacement = fullMatch.replace(src, newSrc)
+    text = text.replace(fullMatch, replacement)
+  }
+
+  // find all instances of markdown html images
+  const markdownImageHtmlTagRegex = /<img[^>]+>/g
+  const htmlImageTagMatches = text.matchAll(markdownImageHtmlTagRegex)
+  for (const match of htmlImageTagMatches) {
+    const [fullMatch] = match
+
+    // Match the src attribute on the img tag
+    // The src could be wrapped with single or double quotes
+    const src =
+      fullMatch.match(/src='([^']+)'/)?.[1] ||
+      fullMatch.match(/src="([^"]+)"/)?.[1]
+
+    if (!src) {
+      continue
+    }
+
+    const newSrc = handleReplaceImageSrc(src)
+
+    // No need to replace the src if it is the same as the original
+    if (newSrc === src) {
+      continue
+    }
+
+    const replacement = fullMatch.replace(src, newSrc)
+    text = text.replace(fullMatch, replacement)
+  }
+
+  return text
+}
+
 export async function fetchRepoFile(
   repoPair: string,
   ref: string,
@@ -174,6 +282,7 @@ export async function fetchRepoFile(
               text = replaceContent(text, originFrontmatter)
               text = replaceSections(text, originFrontmatter)
             }
+            text = replaceProjectImageBranch(text, repoPair, ref)
             return Promise.resolve(text)
           }
           // If file has a ref to another file, cache current front-matter and load referenced file

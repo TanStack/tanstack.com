@@ -453,7 +453,7 @@ function Index() {
       <div className="h-20" />
       <div className={`lg:max-w-[400px] px-4 mx-auto`}>
         <div className="flex flex-col gap-4">
-          <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
+          <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white max-w-[250px] mx-auto">
             <Carbon />
           </div>
           <span

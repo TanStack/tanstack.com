@@ -524,9 +524,6 @@ export function DocsLayout({
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
         {menuItems}
       </div>
-      <div className="carbon-small absolute bottom-0 w-full">
-        <Carbon />
-      </div>
     </div>
   )
 
@@ -581,8 +578,24 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="bg-white dark:bg-gray-900 dark:border-l border-gray-500/20 shadow-xl p-4 max-w-[240px] min-w-[240px] hidden md:block sticky top-0 max-h-screen overflow-auto">
-        {libraryId === 'query' ? <DocsCalloutQueryGG /> : <DocsCalloutBytes />}
+      <div className="bg-white dark:bg-gray-900 dark:border-l border-gray-500/20 shadow-xl max-w-[240px] min-w-[240px] hidden md:flex sticky top-0 max-h-screen overflow-auto flex-col space-between">
+        <div className="flex-1 p-4">
+          {libraryId === 'query' ? (
+            <DocsCalloutQueryGG />
+          ) : (
+            <DocsCalloutBytes />
+          )}
+        </div>
+        <div className="border-t border-500/10 p-4 space-y-2">
+          <Carbon />
+          <div
+            className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic
+                dark:bg-opacity-20 self-center"
+          >
+            Guess what? This ad helps to keep us from burning out and
+            rage-quitting OSS just *that* much more. 😉
+          </div>
+        </div>
       </div>
       {showBytes ? (
         <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">

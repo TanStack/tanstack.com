@@ -424,7 +424,7 @@ Check it out at https://tanstack.com/start/`
       </div>
 
       <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
-        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
+        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white max-w-[250px] mx-auto">
           <Carbon />
         </div>
         <span

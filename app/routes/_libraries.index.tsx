@@ -202,46 +202,6 @@ function Index() {
           {(
             [
               {
-                name: 'AG Grid',
-                img: (
-                  <a
-                    href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
-                    target="_blank"
-                    className="px-8 py-6"
-                  >
-                    <img
-                      src={agGridImage}
-                      alt="Enterprise Data Grid"
-                      className="w-[270px] max-w-full"
-                      width="270"
-                      height="95"
-                    />
-                  </a>
-                ),
-                content: (
-                  <>
-                    <div>
-                      TanStack Table and AG Grid are respectfully the{' '}
-                      <strong>best table/datagrid libraries around</strong>, so
-                      we've teamed up to ensure the highest quality
-                      table/datagrid options are available for the entire JS/TS
-                      ecosystem and every use-case imaginable for UI/UX
-                      developers. If it's a table/datagrid, we've got you
-                      covered.
-                    </div>
-                    <Link
-                      to="/blog/$"
-                      params={{
-                        _splat: 'ag-grid-partnership',
-                      }}
-                      className="text-blue-500 uppercase font-black text-sm"
-                    >
-                      Learn More
-                    </Link>
-                  </>
-                ),
-              },
-              {
                 name: 'Vercel',
                 img: (
                   <a
@@ -282,6 +242,46 @@ function Index() {
                     >
                       Learn More
                     </a>
+                  </>
+                ),
+              },
+              {
+                name: 'AG Grid',
+                img: (
+                  <a
+                    href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
+                    target="_blank"
+                    className="px-8 py-6"
+                  >
+                    <img
+                      src={agGridImage}
+                      alt="Enterprise Data Grid"
+                      className="w-[270px] max-w-full"
+                      width="270"
+                      height="95"
+                    />
+                  </a>
+                ),
+                content: (
+                  <>
+                    <div>
+                      TanStack Table and AG Grid are respectfully the{' '}
+                      <strong>best table/datagrid libraries around</strong>, so
+                      we've teamed up to ensure the highest quality
+                      table/datagrid options are available for the entire JS/TS
+                      ecosystem and every use-case imaginable for UI/UX
+                      developers. If it's a table/datagrid, we've got you
+                      covered.
+                    </div>
+                    <Link
+                      to="/blog/$"
+                      params={{
+                        _splat: 'ag-grid-partnership',
+                      }}
+                      className="text-blue-500 uppercase font-black text-sm"
+                    >
+                      Learn More
+                    </Link>
                   </>
                 ),
               },

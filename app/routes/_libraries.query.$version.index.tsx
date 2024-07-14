@@ -303,7 +303,6 @@ export default function VersionIndex() {
                   href="https://query.gg?s=tanstack"
                   target="_blank"
                   className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
-                  rel="noreferrer"
                 >
                   Get the course
                 </a>

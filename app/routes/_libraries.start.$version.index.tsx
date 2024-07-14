@@ -207,7 +207,6 @@ Check it out at https://tanstack.com/start/`
             )}`}
             target="_blank"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
-            rel="noreferrer"
           >
             <FaTwitter /> Tweet about it!
           </a>{' '}

@@ -336,7 +336,6 @@ export default function TableVersionIndex() {
             href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
             target="_blank"
             className="p-2 bg-white w-full"
-            rel="noreferrer"
           >
             <img
               alt="AG Grid"

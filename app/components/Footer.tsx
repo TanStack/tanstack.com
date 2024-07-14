@@ -29,7 +29,7 @@ export function Footer() {
         {footerLinks.map((item) => (
           <div key={item.to}>
             {item.to.startsWith('http') ? (
-              <a href={item.to} target="_blank" rel="noreferrer">
+              <a href={item.to} target="_blank">
                 {item.label}
               </a>
             ) : (

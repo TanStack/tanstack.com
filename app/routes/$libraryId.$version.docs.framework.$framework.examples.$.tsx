@@ -70,7 +70,6 @@ export default function Example() {
               href={githubUrl}
               target="_blank"
               className="flex gap-1 items-center"
-              rel="noreferrer"
             >
               <FaExternalLinkAlt /> Github
             </a>
@@ -79,7 +78,6 @@ export default function Example() {
                 href={stackBlitzUrl}
                 target="_blank"
                 className="flex gap-1 items-center"
-                rel="noreferrer"
               >
                 <FaExternalLinkAlt /> StackBlitz
               </a>
@@ -89,7 +87,6 @@ export default function Example() {
                 href={codesandboxUrl}
                 target="_blank"
                 className="flex gap-1 items-center"
-                rel="noreferrer"
               >
                 <FaExternalLinkAlt /> CodeSandbox
               </a>

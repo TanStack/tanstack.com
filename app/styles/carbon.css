@@ -24,9 +24,11 @@
   position: relative;
   display: block;
   overflow: hidden;
+  width: 100%;
 }
 #carbonads .carbon-wrap {
   display: flex;
+  flex-direction: column;
 }
 #carbonads .carbon-img {
   display: block;
@@ -35,9 +37,12 @@
 }
 #carbonads .carbon-img img {
   display: block;
+  max-width: 100% !important;
+  width: 100%;
+  border-radius: 4px;
 }
 #carbonads .carbon-text {
-  font-size: 13px;
+  font-size: 11px;
   padding: 10px;
   margin-bottom: 16px;
   line-height: 1.5;

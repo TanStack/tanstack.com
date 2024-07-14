@@ -229,7 +229,7 @@ function Index() {
                       <strong>
                         cutting-edge deployment and serverless capabilities
                       </strong>{' '}
-                      continue to deliver on the TanStack promise for apps to be
+                      continue to deliver on the TanStack promise for apps to be{' '}
                       <strong>high-performant and scalable</strong>. We're
                       working closely with Vercel to not only ensure a flawless
                       deployment experience, but also push the boundaries of

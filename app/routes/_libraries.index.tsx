@@ -413,7 +413,7 @@ function Index() {
                       <strong>
                         most technically advanced search engine monitoring
                         platform
-                      </strong>
+                      </strong>{' '}
                       of its kind. Its enterprise rank tracking and keyword
                       research tools continue to set a new bar for quality and
                       scale. Nozzle continues to prove the value of the full

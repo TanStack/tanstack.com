@@ -21,6 +21,7 @@ import { startProject } from '~/libraries/start'
 import { createFileRoute } from '@tanstack/react-router'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
+import { partners } from '~/utils/partners'
 
 const menu = [
   {
@@ -212,6 +213,7 @@ Check it out at https://tanstack.com/start/`
           </a>{' '}
         </div>
       </div>
+
       {/* <div
         className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
                         md:flex-row"
@@ -365,34 +367,58 @@ Check it out at https://tanstack.com/start/`
         </marquee>
       </div> */}
 
-      <div className="px-4 w-[500px] max-w-full mx-auto">
+      <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Partners
         </h3>
         <div className="h-8" />
-        <div
-          className="flex-1 flex flex-col items-center text-sm text-center
+        {partners.find((d) => d.libraries?.includes('start')) ? (
+          <div className={`grid grid-cols-1 gap-12 sm:grid-cols-2`}>
+            {partners
+              .filter((d) => d.libraries?.includes('start'))
+              .map((partner) => {
+                return (
+                  <div
+                    key={partner.name}
+                    className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden dark:border border-gray-500/20
+                        dark:bg-gray-800 dark:shadow-none"
+                  >
+                    <div className="flex-1 bg-white flex items-center justify-center">
+                      {partner.homepageImg}
+                    </div>
+                    <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+                      {partner.content}
+                    </div>
+                  </div>
+                )
+              })}
+          </div>
+        ) : (
+          <div
+            className="flex-1 flex flex-col items-center text-sm text-center
                       bg-white shadow-xl shadow-gray-500/20 rounded-lg
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
                         dark:bg-gray-800 dark:shadow-none"
-        >
-          <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-            Start <TbHeartHandshake /> You?
-          </span>
-          <div className="flex flex-col p-4 gap-4">
-            <div>
-              We're looking for a TanStack Start OSS Partner to go above and
-              beyond the call of sponsorship. Are you as invested in TanStack
-              Start as we are? Let's push the boundaries of Start together!
+          >
+            <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
+              Start <TbHeartHandshake /> You?
+            </span>
+            <div className="flex flex-col p-4 gap-4">
+              <div>
+                We're looking for a TanStack OSS Partner to go above and beyond
+                the call of sponsorship. Are you as invested in TanStack as we
+                are? Let's push boundaries together!
+              </div>
+              <a
+                href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
+                className="text-blue-500 uppercase font-black text-sm"
+              >
+                Let's chat
+              </a>
             </div>
-            <a
-              href="mailto:partners@tanstack.com?subject=TanStack Start Partnership"
-              className="text-blue-500 uppercase font-black text-sm"
-            >
-              Let's chat
-            </a>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="relative text-lg overflow-hidden">

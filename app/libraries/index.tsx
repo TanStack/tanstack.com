@@ -32,7 +32,17 @@ export const frameworkOptions = [
 export type Framework = (typeof frameworkOptions)[number]['value']
 
 export type Library = {
-  id: string
+  id:
+    | 'start'
+    | 'router'
+    | 'query'
+    | 'table'
+    | 'form'
+    | 'virtual'
+    | 'ranger'
+    | 'store'
+    | 'config'
+    | 'react-charts'
   name: string
   cardStyles: string
   to: string

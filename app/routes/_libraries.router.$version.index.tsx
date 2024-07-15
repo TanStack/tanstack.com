@@ -22,6 +22,7 @@ import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
+import { partners } from '~/utils/partners'
 
 const menu = [
   {
@@ -152,6 +153,7 @@ function RouterVersionIndex() {
           Get Started
         </Link>
       </div>
+
       <div
         className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
                         md:flex-row"
@@ -226,6 +228,60 @@ function RouterVersionIndex() {
         </div>
       </div>
 
+      <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
+          Partners
+        </h3>
+        <div className="h-8" />
+        {partners.find((d) => d.libraries?.includes('router')) ? (
+          <div className={`grid grid-cols-1 gap-12 sm:grid-cols-2`}>
+            {partners
+              .filter((d) => d.libraries?.includes('router'))
+              .map((partner) => {
+                return (
+                  <div
+                    key={partner.name}
+                    className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden dark:border border-gray-500/20
+                        dark:bg-gray-800 dark:shadow-none"
+                  >
+                    <div className="flex-1 bg-white flex items-center justify-center">
+                      {partner.homepageImg}
+                    </div>
+                    <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+                      {partner.content}
+                    </div>
+                  </div>
+                )
+              })}
+          </div>
+        ) : (
+          <div
+            className="flex-1 flex flex-col items-center text-sm text-center
+                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
+                        dark:bg-gray-800 dark:shadow-none"
+          >
+            <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
+              Router <TbHeartHandshake /> You?
+            </span>
+            <div className="flex flex-col p-4 gap-4">
+              <div>
+                We're looking for a TanStack OSS Partner to go above and beyond
+                the call of sponsorship. Are you as invested in TanStack as we
+                are? Let's push boundaries together!
+              </div>
+              <a
+                href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
+                className="text-blue-500 uppercase font-black text-sm"
+              >
+                Let's chat
+              </a>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="px-4 sm:px-6 lg:px-8 mx-auto">
         <div className=" sm:text-center pb-16">
           <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
@@ -264,7 +320,7 @@ function RouterVersionIndex() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
+      {/* <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
         <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white max-w-[250px] mx-auto">
           <Carbon />
         </div>
@@ -275,6 +331,34 @@ function RouterVersionIndex() {
           This ad helps us be happy about our invested time and not burn out and
           rage-quit OSS. Yay money! 😉
         </span>
+      </div> */}
+
+      <div className="relative text-lg overflow-hidden">
+        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
+          Sponsors
+        </h3>
+        <div
+          className="my-4 flex flex-wrap mx-auto max-w-screen-lg w-full"
+          style={{
+            aspectRatio: '1/1',
+          }}
+        >
+          <Await
+            promise={sponsorsPromise}
+            fallback={<CgSpinner className="text-2xl animate-spin" />}
+            children={(sponsors) => {
+              return <SponsorPack sponsors={sponsors} />
+            }}
+          />
+        </div>
+        <div className="text-center">
+          <a
+            href="https://github.com/sponsors/tannerlinsley"
+            className="inline-block bg-green-500 px-4 py-2 text-xl mx-auto leading-tight font-extrabold tracking-tight text-white rounded-full"
+          >
+            Become a Sponsor!
+          </a>
+        </div>
       </div>
 
       <div>
@@ -346,64 +430,6 @@ function RouterVersionIndex() {
               border: '0',
             }}
           ></iframe>
-        </div>
-      </div>
-
-      <div className="relative text-lg overflow-hidden">
-        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-          Sponsors
-        </h3>
-        <div
-          className="my-4 flex flex-wrap mx-auto max-w-screen-lg w-full"
-          style={{
-            aspectRatio: '1/1',
-          }}
-        >
-          <Await
-            promise={sponsorsPromise}
-            fallback={<CgSpinner className="text-2xl animate-spin" />}
-            children={(sponsors) => {
-              return <SponsorPack sponsors={sponsors} />
-            }}
-          />
-        </div>
-        <div className="text-center">
-          <a
-            href="https://github.com/sponsors/tannerlinsley"
-            className="inline-block bg-green-500 px-4 py-2 text-xl mx-auto leading-tight font-extrabold tracking-tight text-white rounded-full"
-          >
-            Become a Sponsor!
-          </a>
-        </div>
-      </div>
-
-      <div className="px-4 w-[500px] max-w-full mx-auto">
-        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-          Partners
-        </h3>
-        <div className="h-8" />
-        <div
-          className="flex-1 flex flex-col items-center text-sm text-center
-                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-800 dark:shadow-none"
-        >
-          <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-            Router <TbHeartHandshake /> You?
-          </span>
-          <div className="flex flex-col p-4 gap-4">
-            <div>
-              We're looking for a TanStack Router OSS Partner to go above and
-              beyond the call of sponsorship. Are you as invested in TanStack
-              Router as we are? Let's push the boundaries of Router together!
-            </div>
-            <a
-              href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
-              className="text-blue-500 uppercase font-black text-sm"
-            >
-              Let's chat
-            </a>
-          </div>
         </div>
       </div>
 

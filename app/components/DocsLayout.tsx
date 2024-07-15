@@ -30,6 +30,7 @@ import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { ClientOnlySearchButton } from './ClientOnlySearchButton'
 import { twMerge } from 'tailwind-merge'
+import { partners } from '~/utils/partners'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -578,15 +579,51 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="bg-white dark:bg-gray-900 dark:border-l border-gray-500/20 shadow-xl max-w-[240px] min-w-[240px] hidden md:flex sticky top-0 max-h-screen overflow-auto flex-col space-between">
-        <div className="flex-1 p-4">
+      <div className="bg-white dark:bg-gray-900 dark:border-l border-gray-500/20 shadow-xl max-w-[240px] min-w-[240px] hidden md:flex sticky top-0 max-h-screen overflow-auto flex-col justify-between">
+        <div className="divide-y divide-gray-500/20 flex flex-col border-b border-gray-500/20">
+          <div className="uppercase font-black text-center p-3 opacity-50">
+            Our Partners
+          </div>
+          {partners
+            .filter((d) => d.sidebarImgLight)
+            .map((partner) => {
+              return (
+                <div
+                  key={partner.name}
+                  className="overflow-hidden hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors"
+                >
+                  <a href={partner.href} target="_blank" className="block">
+                    <img
+                      src={partner.sidebarImgLight}
+                      alt={partner.name}
+                      className={twMerge(
+                        'mx-auto',
+                        partner.sidebarImgClass,
+                        'dark:hidden'
+                      )}
+                    />
+                    <img
+                      src={partner.sidebarImgDark || partner.sidebarImgLight}
+                      alt={partner.name}
+                      className={twMerge(
+                        'mx-auto',
+                        partner.sidebarImgClass,
+                        'hidden dark:block'
+                      )}
+                    />
+                  </a>
+                </div>
+              )
+            })}
+        </div>
+        <div className="p-4 border-y border-gray-500/20">
           {libraryId === 'query' ? (
             <DocsCalloutQueryGG />
           ) : (
             <DocsCalloutBytes />
           )}
         </div>
-        <div className="border-t border-500/10 p-4 space-y-2">
+        <div className="border-t border-gray-500/20 p-4 space-y-2">
           <Carbon />
           <div
             className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic

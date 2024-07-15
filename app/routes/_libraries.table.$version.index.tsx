@@ -21,6 +21,8 @@ import { Await } from '@tanstack/react-router'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { getInitialSandboxFileName } from '~/utils/sandbox'
+import { partners } from '~/utils/partners'
+import { TbHeartHandshake } from 'react-icons/tb'
 
 const menu = [
   {
@@ -321,49 +323,58 @@ export default function TableVersionIndex() {
         </marquee>
       </div>
 
-      <div className="px-4 w-[450px] max-w-full mx-auto">
+      <div className="px-4 lg:max-w-[500px] md:mx-auto mx-auto">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Partners
         </h3>
         <div className="h-8" />
-        <div
-          className="flex-1 flex flex-col items-center text-sm text-center
+        {partners.find((d) => d.libraries?.includes('table')) ? (
+          <div className={`grid grid-cols-1 gap-12 sm:grid-cols-1`}>
+            {partners
+              .filter((d) => d.libraries?.includes('table'))
+              .map((partner) => {
+                return (
+                  <div
+                    key={partner.name}
+                    className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
+                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden dark:border border-gray-500/20
+                        dark:bg-gray-800 dark:shadow-none"
+                  >
+                    <div className="flex-1 bg-white flex items-center justify-center">
+                      {partner.homepageImg}
+                    </div>
+                    <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+                      {partner.content}
+                    </div>
+                  </div>
+                )
+              })}
+          </div>
+        ) : (
+          <div
+            className="flex-1 flex flex-col items-center text-sm text-center
                       bg-white shadow-xl shadow-gray-500/20 rounded-lg
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
                         dark:bg-gray-800 dark:shadow-none"
-        >
-          <a
-            href="https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable"
-            target="_blank"
-            className="p-2 bg-white w-full"
           >
-            <img
-              alt="AG Grid"
-              src={agGridImage}
-              className="w-full mx-auto max-w-[300px]"
-              width="300"
-              height="104"
-            />
-          </a>
-          <div className="flex flex-col p-4 gap-4">
-            <div>
-              TanStack Table and AG Grid are respectfully the{' '}
-              <strong>best table/datagrid libraries around</strong>. Instead of
-              competing, we're working together to ensure the highest quality
-              table/datagrid options are available for the entire JS/TS
-              ecosystem and every use-case.
+            <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
+              Router <TbHeartHandshake /> You?
+            </span>
+            <div className="flex flex-col p-4 gap-4">
+              <div>
+                We're looking for a TanStack OSS Partner to go above and beyond
+                the call of sponsorship. Are you as invested in TanStack as we
+                are? Let's push boundaries together!
+              </div>
+              <a
+                href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
+                className="text-blue-500 uppercase font-black text-sm"
+              >
+                Let's chat
+              </a>
             </div>
-            <Link
-              to="/blog/$"
-              params={{
-                _splat: 'ag-grid-partnership',
-              }}
-              className="text-blue-500 uppercase font-black text-sm"
-            >
-              Read More
-            </Link>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="relative text-lg overflow-hidden">

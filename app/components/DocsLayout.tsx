@@ -584,37 +584,53 @@ export function DocsLayout({
           <div className="uppercase font-black text-center p-3 opacity-50">
             Our Partners
           </div>
-          {partners
-            .filter((d) => d.sidebarImgLight)
-            .map((partner) => {
-              return (
-                <div
-                  key={partner.name}
-                  className="overflow-hidden hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors"
-                >
-                  <a href={partner.href} target="_blank" className="block">
-                    <img
-                      src={partner.sidebarImgLight}
-                      alt={partner.name}
-                      className={twMerge(
-                        'mx-auto',
-                        partner.sidebarImgClass,
-                        'dark:hidden'
-                      )}
-                    />
-                    <img
-                      src={partner.sidebarImgDark || partner.sidebarImgLight}
-                      alt={partner.name}
-                      className={twMerge(
-                        'mx-auto',
-                        partner.sidebarImgClass,
-                        'hidden dark:block'
-                      )}
-                    />
-                  </a>
-                </div>
-              )
-            })}
+          {!partners.some((d) => d.libraries?.includes(libraryId as any)) ? (
+            <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
+              <a
+                href="mailto:partners@tanstack.com?subject=TanStack Config Partnership"
+                className="p-2 block text-xs"
+              >
+                <span className="opacity-50 italic">
+                  Wow, it looks like you could be our first partner for this
+                  library!
+                </span>{' '}
+                <span className="text-blue-500 font-black">Chat with us!</span>
+              </a>
+            </div>
+          ) : (
+            partners
+              .filter((d) => d.sidebarImgLight)
+              .filter((d) => d.libraries?.includes(libraryId as any))
+              .map((partner) => {
+                return (
+                  <div
+                    key={partner.name}
+                    className="overflow-hidden hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors"
+                  >
+                    <a href={partner.href} target="_blank" className="block">
+                      <img
+                        src={partner.sidebarImgLight}
+                        alt={partner.name}
+                        className={twMerge(
+                          'mx-auto',
+                          partner.sidebarImgClass,
+                          'dark:hidden'
+                        )}
+                      />
+                      <img
+                        src={partner.sidebarImgDark || partner.sidebarImgLight}
+                        alt={partner.name}
+                        className={twMerge(
+                          'mx-auto',
+                          partner.sidebarImgClass,
+                          'hidden dark:block'
+                        )}
+                      />
+                    </a>
+                  </div>
+                )
+              })
+          )}
         </div>
         <div className="p-4 border-y border-gray-500/20">
           {libraryId === 'query' ? (

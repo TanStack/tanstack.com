@@ -308,13 +308,13 @@ function Index() {
                 content: (
                   <>
                     <div>
-                      Convex has teamed up with TanStack to not only deliver a
+                      Convex has teamed up with TanStack to not only deliver a{' '}
                       <strong>
                         first-class end-to-end type-safe experience
                       </strong>{' '}
                       to TanStack developers, but to also ensure TanStack is
                       ready for the real-time database arena. Convex's
-                      all-in-one platform delivers end-to-end type-safety via a
+                      all-in-one platform delivers end-to-end type-safety via a{' '}
                       <strong>
                         revolutionary relational, real-time database
                       </strong>{' '}

@@ -18,7 +18,11 @@ export const DocsLogo = (props: Props) => {
       <Link to="/" className="font-light">
         TanStack
       </Link>
-      <Link to={`/${props.linkTo}`} className={`font-bold`} params>
+      <Link
+        to={`/${props.linkTo}`}
+        className="font-bold whitespace-nowrap"
+        params
+      >
         <span className={`${gradientText}`}>{name}</span>{' '}
         <span className="text-sm align-super">{version}</span>
       </Link>

@@ -34,7 +34,7 @@ export const partners: Partner[] = [
       libraries: ['start', 'router'],
       sidebarImgLight: vercelLightSvg,
       sidebarImgDark: vercelDarkSvg,
-      sidebarImgClass: 'w-[160px] py-5',
+      sidebarImgClass: 'py-4',
       homepageImg: (
         <a
           href={href}
@@ -85,7 +85,7 @@ export const partners: Partner[] = [
       libraries: ['table'],
       sidebarImgLight: agGridDarkSvg,
       sidebarImgDark: agGridLightSvg,
-      sidebarImgClass: 'w-[190px] py-5',
+      sidebarImgClass: 'py-5 scale-[1.1]',
       href,
       homepageImg: (
         <a href={href} target="_blank" className="px-8 py-6">
@@ -129,7 +129,7 @@ export const partners: Partner[] = [
       libraries: ['start', 'router'],
       sidebarImgLight: convexColorSvg,
       sidebarImgDark: convexWhiteSvg,
-      sidebarImgClass: 'w-[220px] -mt-1 -mb-1',
+      sidebarImgClass: 'py-1.5 scale-[1.3]',
       href,
       homepageImg: (
         <a

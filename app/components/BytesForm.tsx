@@ -34,7 +34,7 @@ export default function BytesForm() {
           )}
         </button>
       </div>
-      <p className="text-xs md:text-sm text-gray-400">
+      <p className="text-xs text-gray-400">
         No spam. Unsubscribe at <em>any</em> time.
       </p>
       {error && <p className="text-red-600">{error}</p>}

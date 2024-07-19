@@ -11,6 +11,8 @@ import vercelLightSvg from '~/images/vercel-light.svg'
 import vercelDarkSvg from '~/images/vercel-dark.svg'
 import convexWhiteSvg from '~/images/convex-white.svg'
 import convexColorSvg from '~/images/convex-color.svg'
+import sentryWordMarkLightSvg from '~/images/sentry-wordmark-light.svg'
+import sentryWordMarkDarkSvg from '~/images/sentry-wordmark-dark.svg'
 import { Library } from '~/libraries'
 
 type Partner = {
@@ -160,6 +162,55 @@ export const partners: Partner[] = [
             <strong>revolutionary relational, real-time database</strong> and
             together, we're elevating what's possible with real-time React
             applications.
+          </div>
+          <a
+            href={href}
+            target="_blank"
+            className="text-blue-500 uppercase font-black text-sm"
+          >
+            Learn More
+          </a>
+        </>
+      ),
+    }
+  })(),
+  (() => {
+    const href = 'https://sentry.io?utm_source=tanstack'
+
+    return {
+      name: 'Sentry',
+      libraries: ['start', 'router'],
+      sidebarImgLight: sentryWordMarkDarkSvg,
+      sidebarImgDark: sentryWordMarkLightSvg,
+      sidebarImgClass: 'py-2 scale-[1.1]',
+      href,
+      homepageImg: (
+        <a
+          href={href}
+          target="_blank"
+          className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-6"
+        >
+          <img
+            src={sentryWordMarkDarkSvg}
+            alt="Sentry"
+            className="w-[275px] max-w-full dark:hidden"
+          />
+          <img
+            src={sentryWordMarkLightSvg}
+            alt="Sentry"
+            className="w-[275px] max-w-full hidden dark:block"
+          />
+        </a>
+      ),
+      content: (
+        <>
+          <div>
+            Sentry and TanStack are on a mission to make sure your apps are
+            <strong> error-free and high-performers</strong>. Sentry's
+            best-in-class error monitoring and performance insights combined
+            with TanStack's cutting-edge libraries ensure that you can deliver
+            the best possible experience to your users. Together, we're
+            committed to making sure that you can build with confidence.
           </div>
           <a
             href={href}

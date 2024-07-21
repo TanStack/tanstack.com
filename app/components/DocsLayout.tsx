@@ -522,7 +522,7 @@ export function DocsLayout({
           onSelect={versionConfig.onSelect}
         />
       </div>
-      <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
+      <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-8">
         {menuItems}
       </div>
     </div>

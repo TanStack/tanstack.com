@@ -162,7 +162,7 @@ export default function RouteComp() {
             lg:text-xl lg:max-w-2xl"
         >
           Virtualize only the visible DOM nodes within massive scrollable
-          elements at 60FPS in TS/JS, React, Vue, Solid & Svelte while retaining
+          elements at 60FPS in TS/JS, React, Vue, Solid, Svelte & Lit while retaining
           100% control over markup and styles.
         </p>
         <Link

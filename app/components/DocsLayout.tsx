@@ -178,7 +178,7 @@ const useMenuConfig = ({
   config: ConfigSchema
   repo: string
   frameworks: Framework[]
-}) => {
+}): MenuItem[] => {
   const currentFramework = useCurrentFramework(frameworks)
 
   const localMenu: MenuItem = {
@@ -205,12 +205,13 @@ const useMenuConfig = ({
         to: 'https://tlinz.com/discord',
       },
     ],
+    collapsible: false,
   }
 
   return [
     localMenu,
     // Merge the two menus together based on their group labels
-    ...config.sections.map((section) => {
+    ...config.sections.map((section): MenuItem | undefined => {
       const frameworkDocs = section.frameworks?.find(
         (f) => f.label === currentFramework.framework
       )
@@ -231,9 +232,10 @@ const useMenuConfig = ({
       return {
         label: section.label,
         children,
+        collapsible: section?.collapsible ?? false,
       }
     }),
-  ].filter(Boolean)
+  ].filter((item) => item !== undefined)
 }
 
 const useFrameworkConfig = ({ frameworks }: { frameworks: Framework[] }) => {
@@ -348,9 +350,18 @@ export function DocsLayout({
   const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
 
   const menuItems = menuConfig.map((group, i) => {
+    const WrapperComp = group.collapsible ? 'details' : 'div'
+    const LabelComp = group.collapsible ? 'summary' : 'div'
+
     return (
-      <div key={i}>
-        <div className="text-[.8em] uppercase font-black">{group?.label}</div>
+      <WrapperComp
+        key={i}
+        className="[&>summary]:before:mr-[0.4rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:leading-4 [&>div.ts-sidebar-label]:ml-[1rem] relative select-none"
+        open
+      >
+        <LabelComp className="text-[.8em] uppercase font-black leading-4 ts-sidebar-label">
+          {group?.label}
+        </LabelComp>
         <div className="h-2" />
         <div className="ml-2 text-[.85em]">
           {group?.children?.map((child, i) => {
@@ -425,7 +436,7 @@ export function DocsLayout({
             )
           })}
         </div>
-      </div>
+      </WrapperComp>
     )
   })
 

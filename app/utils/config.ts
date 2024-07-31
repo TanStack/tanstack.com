@@ -9,6 +9,7 @@ export type MenuItem = {
     to: string
     badge?: string
   }[]
+  collapsible: boolean
 }
 
 const configSchema = z.object({
@@ -36,6 +37,7 @@ const configSchema = z.object({
           })
         )
         .optional(),
+      collapsible: z.boolean().optional(),
     })
   ),
   users: z.array(z.string()).optional(),

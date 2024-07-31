@@ -12,10 +12,9 @@ import {
   useMatches,
   useNavigate,
   useParams,
-  useRouterState,
 } from '@tanstack/react-router'
 import type { AnyOrama, SearchParamsFullText, AnyDocument } from '@orama/orama'
-import { SearchBox, SearchButton } from '@orama/searchbox'
+import { SearchBox } from '@orama/searchbox'
 import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
@@ -25,7 +24,7 @@ import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
-import { Framework, getFrameworkOptions, getLibrary } from '~/libraries'
+import { Framework, getFrameworkOptions } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { ClientOnlySearchButton } from './ClientOnlySearchButton'
@@ -317,8 +316,7 @@ export function DocsLayout({
   children,
 }: DocsLayoutProps) {
   const { libraryId } = useParams({
-    strict: false,
-    experimental_returnIntersection: true,
+    from: '/$libraryId/$version/docs',
   })
   const frameworkConfig = useFrameworkConfig({ frameworks })
   const versionConfig = useVersionConfig({ versions })

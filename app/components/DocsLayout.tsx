@@ -363,12 +363,12 @@ export function DocsLayout({
           {group?.label}
         </LabelComp>
         <div className="h-2" />
-        <div className="ml-2 text-[.85em]">
+        <ul className="ml-2 text-[.85em] list-none">
           {group?.children?.map((child, i) => {
             const linkClasses = `cursor-pointer flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
 
             return (
-              <React.Fragment key={i}>
+              <li key={i}>
                 {child.to.startsWith('http') ? (
                   <a href={child.to} className={linkClasses}>
                     {child.label}
@@ -432,10 +432,10 @@ export function DocsLayout({
                     }}
                   </Link>
                 )}
-              </React.Fragment>
+              </li>
             )
           })}
-        </div>
+        </ul>
       </WrapperComp>
     )
   })

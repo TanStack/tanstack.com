@@ -21,8 +21,8 @@ export function RedirectVersionBanner(props: {
 
   if (![latestVersion, 'latest'].includes(version) && showModal) {
     return (
-      <div className="p-4 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-xl shadow-black/20 flex items-center justify-center gap-4 fixed top-4 left-1/2 bottom-auto backdrop-blur-sm z-20 -translate-x-1/2 rounded-full overflow-hidden">
-        <div>
+      <div className="p-4 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-xl shadow-black/20 flex items-center justify-center gap-2.5 lg:gap-4 fixed top-4 left-1/2 bottom-auto backdrop-blur-sm z-20 -translate-x-1/2 rounded-3xl lg:rounded-full overflow-hidden w-[80%] lg:w-auto">
+        <p className="block">
           You are currently reading <strong>{version}</strong> docs. Redirect to{' '}
           <Link
             params={{
@@ -33,23 +33,27 @@ export function RedirectVersionBanner(props: {
             latest
           </Link>{' '}
           version?
+        </p>
+        <div className="flex gap-2 flex-col lg:flex-row items-center">
+          <Link
+            params={{
+              version: 'latest',
+            }}
+            replace
+            className="bg-black dark:bg-white dark:text-black text-white w-full lg:w-auto py-1 px-2 rounded-md uppercase font-black text-xs"
+          >
+            Latest
+          </Link>
+          <button
+            onClick={() => setShowModal(false)}
+            className="bg-black dark:bg-white dark:text-black text-white w-full lg:w-auto py-1 px-2 rounded-md uppercase font-black text-xs"
+          >
+            Hide
+          </button>
         </div>
-        <Link
-          params={{
-            version: 'latest',
-          }}
-          replace
-          className="bg-black dark:bg-white dark:text-black text-white py-1 px-2 rounded-md uppercase font-black text-xs"
-        >
-          Latest
-        </Link>
-        <button
-          onClick={() => setShowModal(false)}
-          className="bg-black dark:bg-white dark:text-black text-white py-1 px-2 rounded-md uppercase font-black text-xs"
-        >
-          Hide
-        </button>
       </div>
     )
   }
+
+  return null
 }

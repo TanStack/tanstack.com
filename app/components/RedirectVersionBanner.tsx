@@ -54,4 +54,6 @@ export function RedirectVersionBanner(props: {
       </div>
     )
   }
+
+  return null
 }

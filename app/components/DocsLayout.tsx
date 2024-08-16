@@ -613,7 +613,7 @@ export function DocsLayout({
                       <a
                         href={partner.href}
                         target="_blank"
-                        className="px-4 flex items-center justify-center"
+                        className="px-4 flex items-center justify-center cursor-pointer"
                       >
                         <div className="mx-auto max-w-[150px]">
                           <img
@@ -650,20 +650,17 @@ export function DocsLayout({
               <DocsCalloutBytes />
             )}
           </div>
-          {partners.some((d) => d.libraries?.includes(libraryId as any)) ? (
-            <div className="h-[200px]" />
-          ) : (
-            <div className="bg-white dark:bg-gray-900 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
-              <Carbon />
-              <div
-                className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic
-                dark:bg-opacity-20 self-center"
-              >
-                Guess what? This ad helps to keep us from burning out and
-                rage-quitting OSS just *that* much more. 😉
-              </div>
+
+          <div className="bg-white dark:bg-gray-900 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+            <Carbon />
+            <div
+              className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic
+                dark:bg-opacity-20 self-center opacity-50 hover:opacity-100 transition-opacity"
+            >
+              This ad helps to keep us from burning out and rage-quitting OSS
+              just *that* much more, so chill. 😉
             </div>
-          )}
+          </div>
         </div>
       </div>
       {showBytes ? (

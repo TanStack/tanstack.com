@@ -11,6 +11,8 @@ import vercelLightSvg from '~/images/vercel-light.svg'
 import vercelDarkSvg from '~/images/vercel-dark.svg'
 import convexWhiteSvg from '~/images/convex-white.svg'
 import convexColorSvg from '~/images/convex-color.svg'
+import clerkLightSvg from '~/images/clerk-logo-light.svg'
+import clerkDarkSvg from '~/images/clerk-logo-dark.svg'
 import sentryWordMarkLightSvg from '~/images/sentry-wordmark-light.svg'
 import sentryWordMarkDarkSvg from '~/images/sentry-wordmark-dark.svg'
 import { Library } from '~/libraries'
@@ -66,6 +68,55 @@ export const partners: Partner[] = [
             with Vercel to not only ensure a flawless deployment experience, but
             also push the boundaries of what's possible with TanStack on the
             web.
+          </div>
+          <a
+            href={href}
+            target="_blank"
+            className="text-blue-500 uppercase font-black text-sm"
+          >
+            Learn More
+          </a>
+        </>
+      ),
+    }
+  })(),
+  (() => {
+    const href = 'https://go.clerk.com/wOwHtuJ'
+
+    return {
+      name: 'Clerk',
+      href,
+      libraries: ['start', 'router'],
+      sidebarImgLight: clerkLightSvg,
+      sidebarImgDark: clerkDarkSvg,
+      sidebarImgClass: 'py-4',
+      homepageImg: (
+        <a
+          href={href}
+          target="_blank"
+          className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-12"
+        >
+          <img
+            src={clerkLightSvg}
+            alt="Clerk"
+            className="w-[200px] max-w-full dark:hidden"
+          />
+          <img
+            src={clerkDarkSvg}
+            alt="Clerk"
+            className="w-[200px] max-w-full hidden dark:block"
+          />
+        </a>
+      ),
+      content: (
+        <>
+          <div>
+            Clerk and TanStack are partnering to elevate your application's
+            <strong>security and user experience</strong> with industry-leading{' '}
+            <strong>authentication and identity solutions</strong>. Paired with
+            TanStack's non-nonsense routing and tooling, you'll be equipped to
+            effortlessly deliver top-notch experiences that are your users can
+            trust and your developers can rely on.
           </div>
           <a
             href={href}

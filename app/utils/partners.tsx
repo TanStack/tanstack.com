@@ -114,12 +114,12 @@ export const partners: Partner[] = [
       content: (
         <>
           <div className="text-xs">
-            Clerk and TanStack are partnering to elevate your application's
+            Clerk and TanStack are partnering to elevate your application's{' '}
             <strong>security and user experience</strong> with industry-leading{' '}
             <strong>authentication and user management</strong>. Paired with
-            TanStack's non-nonsense routing and tooling, you'll be equipped to
-            effortlessly deliver top-notch experiences that are your users can
-            trust and your developers can rely on.
+            TanStack's no-nonsense routing and tooling, you'll be equipped to
+            effortlessly deliver top-notch experiences that your users can trust
+            and your developers can rely on.
           </div>
           <a
             href={href}

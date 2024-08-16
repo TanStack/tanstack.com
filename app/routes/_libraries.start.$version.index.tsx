@@ -1,21 +1,19 @@
 import * as React from 'react'
 
 import { CgCornerUpLeft, CgSpinner } from 'react-icons/cg'
+import { PiTreeStructureBold, PiRocketLaunchDuotone } from 'react-icons/pi'
+import { TbServerBolt } from 'react-icons/tb'
 import {
-  FaBolt,
-  FaBook,
-  FaCheckCircle,
-  FaCogs,
   FaDiscord,
   FaGithub,
   FaTshirt,
   FaTwitter,
+  FaYinYang,
 } from 'react-icons/fa'
 import { Await, Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { TbHeartHandshake } from 'react-icons/tb'
+import { TbZoomQuestion } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { startProject } from '~/libraries/start'
 import { createFileRoute } from '@tanstack/react-router'
@@ -147,7 +145,7 @@ export default function VersionIndex() {
               dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md
               leading-none whitespace-nowrap"
         >
-          Coming Soon!
+          It's Almost ready!
           {/* {version === 'latest' ? latestVersion : version} */}
         </div>
         {/* </div> */}
@@ -166,22 +164,133 @@ export default function VersionIndex() {
             lg:text-xl lg:max-w-[600px]"
         >
           Full-document SSR, Streaming, Server Functions, bundling and more,
-          powered by <strong>TanStack Router</strong>, <strong>Vinxi</strong>,{' '}
-          <strong>Nitro</strong> and <strong>Vite</strong>. Ready to deploy to
-          your favorite hosting provider.
+          powered by <strong>TanStack Router</strong>, <strong>Vinxi</strong>,
+          and <strong>Vite</strong>. Ready to deploy to your favorite hosting
+          provider.
         </p>
+      </div>
+      <div className="text-lg grid gap-12 p-8 max-w-[1200px] mx-auto md:grid-cols-2 xl:grid-cols-4">
+        <div className="flex-1 flex flex-col gap-8 items-center">
+          <div className="text-center">
+            <PiTreeStructureBold
+              className="text-cyan-700 dark:text-cyan-500 text-6xl motion-safe:animate-pulse"
+              style={{
+                animationDuration: '5s',
+                animationTimingFunction: 'ease-in-out',
+              }}
+            />
+          </div>
+          <div className="flex flex-col gap-4 text-center">
+            <h3 className="uppercase text-xl font-black">
+              Enterprise-Grade Routing
+            </h3>
+            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
+              Built on TanStack Router, Start comes pre-packed with a{' '}
+              <span className="font-semibold text-cyan-700 dark:text-cyan-500">
+                fully type-safe and powerfully-unmatched routing system
+              </span>{' '}
+              that is designed to handle the beefiest of full-stack routing
+              requirements with ease. Start builds on top of Router's type- to
+              also provide type-safe full-stack APIs that keep you in the fast
+              lane.
+            </p>
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col gap-8 items-center">
+          <div className="text-center grid grid-cols-1 grid-rows-1">
+            <TbServerBolt className="text-cyan-700 dark:text-cyan-500 text-6xl row-start-1 col-start-1" />
+            <div className="opacity-50 row-start-1 col-start-1">
+              <TbServerBolt
+                className="text-cyan-700 dark:text-cyan-500 text-6xl animate-ping"
+                style={{
+                  animationDuration: '2s',
+                  animationTimingFunction: 'ease-out',
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-4 text-center">
+            <h3 className="uppercase text-xl font-black">
+              SSR, Streaming and Server RPCs
+            </h3>
+            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
+              Who said rich and interactive applications can't have it all?
+              TanStack Start includes powerful capabilities for{' '}
+              <span className="font-semibold text-cyan-700 dark:text-cyan-500">
+                full-document SSR, streaming, server functions and RPCs
+              </span>
+              . No more choosing between server-side rendering and top-class
+              client-side interactivity. Command the server as you see fit.
+            </p>
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col gap-8 items-center">
+          <div className="text-center">
+            <FaYinYang
+              className="text-cyan-700 dark:text-cyan-500 text-6xl motion-safe:animate-spin"
+              style={{
+                animationDuration: '10s',
+                animationTimingFunction: 'ease-in-out',
+              }}
+            />
+          </div>
+          <div className="flex flex-col gap-4 text-center">
+            <h3 className="uppercase text-xl font-black">
+              Client-Side First, 100% Server Capable
+            </h3>
+            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
+              While other frameworks continue to compromise on the client-side
+              application experience we've cultivated as a front-end community
+              over the years, TanStack Start stays true to the{' '}
+              <span className="font-semibold text-cyan-700 dark:text-cyan-500">
+                client-side first developer experience,
+              </span>{' '}
+              while providing a{' '}
+              <span className="font-semibold text-cyan-700 dark:text-cyan-500">
+                full-featured server-side capable system
+              </span>{' '}
+              that won't make you compromise on user experience.
+            </p>
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col gap-8 items-center">
+          <div className="text-center">
+            <PiRocketLaunchDuotone
+              className="text-cyan-700 dark:text-cyan-500 text-6xl motion-safe:animate-bounce"
+              style={{
+                animationDuration: '2.5s',
+                animationTimingFunction: 'ease-in-out',
+              }}
+            />
+          </div>
+          <div className="flex flex-col gap-4 text-center">
+            <h3 className="uppercase text-xl font-black">
+              Deploy Anywhere with Vinxi & Vite
+            </h3>
+            <p className="text-sm text-gray-700 dark:text-gray-200 leading-6">
+              With Vinxi and Vite under the hood, TanStack Start is designed to
+              be{' '}
+              <span className="font-semibold text-cyan-700 dark:text-cyan-500">
+                deployable anywhere JS can run
+              </span>
+              . Whether you're hosting on a traditional server, a serverless
+              platform, or even a CDN, Start seamless builds, bundles and
+              deploys your application with ease.
+            </p>
+          </div>
+        </div>
       </div>
       <div className="space-y-8 px-4">
         <div className="font-black text-3xl mr-1 text-center">
-          So when can I use it?
+          When can I use it?
         </div>
         <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-gray-700 rounded-xl shadow-xl shadow-black/10">
           <div>
             <strong>TanStack Start </strong> is currently in development and is
-            not yet available for public use. We are working hard to bring you
-            the best possible experience and will be releasing more details
-            soon. In the meantime, you can follow along with the development
-            process by watching the commits on this very website!
+            almost ready for public use! We are working hard to bring you the
+            best possible experience and will be releasing more details soon. In
+            the meantime, you can follow along with the development process by
+            watching the commits on this very website!
           </div>
           <div>
             Yes, you heard that right!{' '}
@@ -194,6 +303,12 @@ export default function VersionIndex() {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-center">
+          <a
+            href={`https://github.com/tanstack/tanstack.com`}
+            className={`flex items-center gap-2 py-2 px-4 bg-cyan-700 rounded text-white uppercase font-extrabold`}
+          >
+            <FaGithub /> View TanStack.com Source
+          </a>
           <a
             href={`https://github.com/tanstack/tanstack.com`}
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-700 rounded text-white uppercase font-extrabold`}

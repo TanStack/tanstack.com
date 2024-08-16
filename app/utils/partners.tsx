@@ -19,6 +19,7 @@ import { Library } from '~/libraries'
 
 type Partner = {
   name: string
+  id: string
   libraries?: Library['id'][]
   sidebarImgLight?: string
   sidebarImgDark?: string
@@ -34,6 +35,7 @@ export const partners: Partner[] = [
 
     return {
       name: 'Vercel',
+      id: 'vercel',
       href,
       libraries: ['start', 'router'],
       sidebarImgLight: vercelLightSvg,
@@ -59,7 +61,7 @@ export const partners: Partner[] = [
       ),
       content: (
         <>
-          <div>
+          <div className="text-xs">
             TanStack Router/Start and Vercel are a match made in heaven.
             Vercel's{' '}
             <strong>cutting-edge deployment and serverless capabilities</strong>{' '}
@@ -85,6 +87,7 @@ export const partners: Partner[] = [
 
     return {
       name: 'Clerk',
+      id: 'clerk',
       href,
       libraries: ['start', 'router'],
       sidebarImgLight: clerkLightSvg,
@@ -110,7 +113,7 @@ export const partners: Partner[] = [
       ),
       content: (
         <>
-          <div>
+          <div className="text-xs">
             Clerk and TanStack are partnering to elevate your application's
             <strong>security and user experience</strong> with industry-leading{' '}
             <strong>authentication and identity solutions</strong>. Paired with
@@ -135,13 +138,14 @@ export const partners: Partner[] = [
 
     return {
       name: 'AG Grid',
+      id: 'ag-grid',
       libraries: ['table'],
       sidebarImgLight: agGridDarkSvg,
       sidebarImgDark: agGridLightSvg,
       sidebarImgClass: 'py-5 scale-[1.1]',
       href,
       homepageImg: (
-        <a href={href} target="_blank" className="px-8 py-6">
+        <a href={href} target="_blank" className="px-8 py-8">
           <img
             src={agGridImage}
             alt="Enterprise Data Grid"
@@ -153,13 +157,13 @@ export const partners: Partner[] = [
       ),
       content: (
         <>
-          <div>
+          <div className="text-xs">
             TanStack Table and AG Grid are respectfully the{' '}
-            <strong>best table/datagrid libraries around</strong>, so we've
-            teamed up to ensure the highest quality table/datagrid options are
-            available for the entire JS/TS ecosystem and every use-case
-            imaginable for UI/UX developers. If it's a table/datagrid, we've got
-            you covered.
+            <strong>best table/datagrid libraries around</strong> and together
+            are working hard to ensure the highest quality table/datagrid
+            experience for the entire JS/TS ecosystem. Whether it's a
+            lightweight table or a complex datagrid, we've we've got you
+            covered.
           </div>
           <Link
             to="/blog/$"
@@ -179,6 +183,7 @@ export const partners: Partner[] = [
 
     return {
       name: 'Convex',
+      id: 'convex',
       libraries: ['start', 'router'],
       sidebarImgLight: convexColorSvg,
       sidebarImgDark: convexWhiteSvg,
@@ -204,10 +209,12 @@ export const partners: Partner[] = [
       ),
       content: (
         <>
-          <div>
+          <div className="text-xs">
             Convex has teamed up with TanStack to not only deliver a{' '}
-            <strong>first-class end-to-end type-safe experience</strong> to
-            TanStack developers, but to also ensure TanStack is ready for the
+            <strong>
+              first-class end-to-end type-safe database experience
+            </strong>{' '}
+            to TanStack developers, but to also ensure TanStack is ready for the
             real-time database arena. Convex's all-in-one platform delivers
             end-to-end type-safety via a{' '}
             <strong>revolutionary relational, real-time database</strong> and
@@ -230,10 +237,11 @@ export const partners: Partner[] = [
 
     return {
       name: 'Sentry',
+      id: 'sentry',
       libraries: ['start', 'router'],
       sidebarImgLight: sentryWordMarkDarkSvg,
       sidebarImgDark: sentryWordMarkLightSvg,
-      sidebarImgClass: 'py-2 scale-[1.1]',
+      sidebarImgClass: 'py-6 scale-[1.1]',
       href,
       homepageImg: (
         <a
@@ -255,7 +263,7 @@ export const partners: Partner[] = [
       ),
       content: (
         <>
-          <div>
+          <div className="text-xs">
             Sentry and TanStack are on a mission to make sure your apps are
             <strong> error-free and high-performers</strong>. Sentry's
             best-in-class error monitoring and performance insights combined
@@ -279,10 +287,11 @@ export const partners: Partner[] = [
 
     return {
       name: 'UI.dev',
+      id: 'ui-dev',
       libraries: [],
       href,
       homepageImg: (
-        <a href={href} target="_blank" className="py-6">
+        <a href={href} target="_blank" className="py-4">
           <img
             src={bytesUidotdevImage}
             alt="Bytes Logo"
@@ -294,7 +303,7 @@ export const partners: Partner[] = [
       ),
       content: (
         <>
-          <div>
+          <div className="text-xs">
             TanStack's priority is to make its users productive, efficient and
             knowledgeable about web dev. To help us on this quest, we've
             partnered with{' '}
@@ -331,6 +340,7 @@ export const partners: Partner[] = [
 
     return {
       name: 'Nozzle.io',
+      id: 'nozzle',
       href,
       sidebarImgLight: nozzleDarkSvg,
       sidebarImgDark: nozzleLightSvg,
@@ -348,7 +358,7 @@ export const partners: Partner[] = [
       ),
       content: (
         <>
-          <div>
+          <div className="text-xs">
             Since its founding, Nozzle's SEO platform was the original home for
             almost all TanStack libraries. They were used to build the{' '}
             <strong>
@@ -371,3 +381,14 @@ export const partners: Partner[] = [
     }
   })(),
 ] as const
+
+if (typeof window !== 'undefined') {
+  ;(window as any).githubPartnersSnippet = partners
+    .filter((d) => d.href && (d.sidebarImgLight || d.sidebarImgDark))
+    .map((partner) => {
+      return `<div><a href="${partner.href}">
+  <img alt="${partner.name}" src="https://raw.githubusercontent.com/tannerlinsley/files/master/partners/${partner.id}.svg" height="40"
+</a></div><br />`
+    })
+    .join('\n')
+}

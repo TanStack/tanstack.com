@@ -205,7 +205,6 @@ const useMenuConfig = ({
         to: 'https://tlinz.com/discord',
       },
     ],
-    collapsible: false,
   }
 
   return [
@@ -232,7 +231,8 @@ const useMenuConfig = ({
       return {
         label: section.label,
         children,
-        collapsible: section?.collapsible ?? false,
+        collapsible: section.collapsible ?? false,
+        defaultCollapsed: section.defaultCollapsed ?? false,
       }
     }),
   ].filter((item) => item !== undefined)
@@ -353,11 +353,15 @@ export function DocsLayout({
     const WrapperComp = group.collapsible ? 'details' : 'div'
     const LabelComp = group.collapsible ? 'summary' : 'div'
 
+    const isCollapsed = group.defaultCollapsed ?? false
+
+    const detailsProps = group.collapsible ? { open: !isCollapsed } : {}
+
     return (
       <WrapperComp
-        key={i}
+        key={`group-${i}`}
         className="[&>summary]:before:mr-[0.4rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:leading-4 [&>div.ts-sidebar-label]:ml-[1rem] relative select-none"
-        open
+        {...detailsProps}
       >
         <LabelComp className="text-[.8em] uppercase font-black leading-4 ts-sidebar-label">
           {group?.label}

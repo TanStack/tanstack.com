@@ -12,10 +12,9 @@ import {
   useMatches,
   useNavigate,
   useParams,
-  useRouterState,
 } from '@tanstack/react-router'
 import type { AnyOrama, SearchParamsFullText, AnyDocument } from '@orama/orama'
-import { SearchBox, SearchButton } from '@orama/searchbox'
+import { SearchBox } from '@orama/searchbox'
 import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
@@ -25,7 +24,7 @@ import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
-import { Framework, getFrameworkOptions, getLibrary } from '~/libraries'
+import { Framework, getFrameworkOptions } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { ClientOnlySearchButton } from './ClientOnlySearchButton'
@@ -179,7 +178,7 @@ const useMenuConfig = ({
   config: ConfigSchema
   repo: string
   frameworks: Framework[]
-}) => {
+}): MenuItem[] => {
   const currentFramework = useCurrentFramework(frameworks)
 
   const localMenu: MenuItem = {
@@ -211,7 +210,7 @@ const useMenuConfig = ({
   return [
     localMenu,
     // Merge the two menus together based on their group labels
-    ...config.sections.map((section) => {
+    ...config.sections.map((section): MenuItem | undefined => {
       const frameworkDocs = section.frameworks?.find(
         (f) => f.label === currentFramework.framework
       )
@@ -232,9 +231,11 @@ const useMenuConfig = ({
       return {
         label: section.label,
         children,
+        collapsible: section.collapsible ?? false,
+        defaultCollapsed: section.defaultCollapsed ?? false,
       }
     }),
-  ].filter(Boolean)
+  ].filter((item) => item !== undefined)
 }
 
 const useFrameworkConfig = ({ frameworks }: { frameworks: Framework[] }) => {
@@ -317,8 +318,7 @@ export function DocsLayout({
   children,
 }: DocsLayoutProps) {
   const { libraryId } = useParams({
-    strict: false,
-    experimental_returnIntersection: true,
+    from: '/$libraryId/$version/docs',
   })
   const frameworkConfig = useFrameworkConfig({ frameworks })
   const versionConfig = useVersionConfig({ versions })
@@ -350,16 +350,29 @@ export function DocsLayout({
   const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
 
   const menuItems = menuConfig.map((group, i) => {
+    const WrapperComp = group.collapsible ? 'details' : 'div'
+    const LabelComp = group.collapsible ? 'summary' : 'div'
+
+    const isCollapsed = group.defaultCollapsed ?? false
+
+    const detailsProps = group.collapsible ? { open: !isCollapsed } : {}
+
     return (
-      <div key={i}>
-        <div className="text-[.8em] uppercase font-black">{group?.label}</div>
+      <WrapperComp
+        key={`group-${i}`}
+        className="[&>summary]:before:mr-[0.4rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:leading-4 [&>div.ts-sidebar-label]:ml-[1rem] relative select-none"
+        {...detailsProps}
+      >
+        <LabelComp className="text-[.8em] uppercase font-black leading-4 ts-sidebar-label">
+          {group?.label}
+        </LabelComp>
         <div className="h-2" />
-        <div className="ml-2 text-[.85em]">
+        <ul className="ml-2 text-[.85em] list-none">
           {group?.children?.map((child, i) => {
             const linkClasses = `cursor-pointer flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
 
             return (
-              <React.Fragment key={i}>
+              <li key={i}>
                 {child.to.startsWith('http') ? (
                   <a href={child.to} className={linkClasses}>
                     {child.label}
@@ -423,11 +436,11 @@ export function DocsLayout({
                     }}
                   </Link>
                 )}
-              </React.Fragment>
+              </li>
             )
           })}
-        </div>
-      </div>
+        </ul>
+      </WrapperComp>
     )
   })
 

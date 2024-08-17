@@ -87,6 +87,16 @@
               "required": ["label", "children"],
               "additionalProperties": false
             }
+          },
+          "collapsible": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether the section should be collapsible."
+          },
+          "defaultCollapsed": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether the section should be collapsed by default."
           }
         }
       }

@@ -539,7 +539,7 @@ export function DocsLayout({
       {largeMenu}
       <div
         className={twMerge(
-          `max-w-full min-w-0 min-h-0 flex relative justify-center w-full`,
+          `max-w-full min-w-0 flex relative justify-center w-full min-h-[88dvh] lg:min-h-0`,
           !isExample && 'mx-auto w-[900px]'
         )}
       >

@@ -192,19 +192,17 @@ function Index() {
       <div className="h-12" />
       <div className={`px-4 lg:max-w-screen-lg md:mx-auto`}>
         <h3 className={`text-4xl font-light mb-4`}>Partners</h3>
-        <div className={`grid grid-cols-1 gap-12 sm:grid-cols-2`}>
+        <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
           {partners.map((partner) => {
             return (
               <div
                 key={partner.name}
-                className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden dark:border border-gray-500/20
-                        dark:bg-gray-800 dark:shadow-none"
+                className="bg-white shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-gray-800 dark:shadow-none group overflow-hidden grid"
               >
-                <div className="flex-1 bg-white flex items-center justify-center">
+                <div className="z-0 row-start-1 col-start-1 bg-white flex items-center justify-center group-hover:blur-sm transition-all duration-200">
                   {partner.homepageImg}
                 </div>
-                <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
+                <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/70">
                   {partner.content}
                 </div>
               </div>

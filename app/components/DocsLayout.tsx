@@ -12,10 +12,9 @@ import {
   useMatches,
   useNavigate,
   useParams,
-  useRouterState,
 } from '@tanstack/react-router'
 import type { AnyOrama, SearchParamsFullText, AnyDocument } from '@orama/orama'
-import { SearchBox, SearchButton } from '@orama/searchbox'
+import { SearchBox } from '@orama/searchbox'
 import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
@@ -25,11 +24,12 @@ import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
-import { Framework, getFrameworkOptions, getLibrary } from '~/libraries'
+import { Framework, getFrameworkOptions } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { ClientOnlySearchButton } from './ClientOnlySearchButton'
 import { twMerge } from 'tailwind-merge'
+import { partners } from '~/utils/partners'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -178,7 +178,7 @@ const useMenuConfig = ({
   config: ConfigSchema
   repo: string
   frameworks: Framework[]
-}) => {
+}): MenuItem[] => {
   const currentFramework = useCurrentFramework(frameworks)
 
   const localMenu: MenuItem = {
@@ -210,7 +210,7 @@ const useMenuConfig = ({
   return [
     localMenu,
     // Merge the two menus together based on their group labels
-    ...config.sections.map((section) => {
+    ...config.sections.map((section): MenuItem | undefined => {
       const frameworkDocs = section.frameworks?.find(
         (f) => f.label === currentFramework.framework
       )
@@ -231,9 +231,11 @@ const useMenuConfig = ({
       return {
         label: section.label,
         children,
+        collapsible: section.collapsible ?? false,
+        defaultCollapsed: section.defaultCollapsed ?? false,
       }
     }),
-  ].filter(Boolean)
+  ].filter((item) => item !== undefined)
 }
 
 const useFrameworkConfig = ({ frameworks }: { frameworks: Framework[] }) => {
@@ -316,8 +318,7 @@ export function DocsLayout({
   children,
 }: DocsLayoutProps) {
   const { libraryId } = useParams({
-    strict: false,
-    experimental_returnIntersection: true,
+    from: '/$libraryId/$version/docs',
   })
   const frameworkConfig = useFrameworkConfig({ frameworks })
   const versionConfig = useVersionConfig({ versions })
@@ -349,16 +350,29 @@ export function DocsLayout({
   const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
 
   const menuItems = menuConfig.map((group, i) => {
+    const WrapperComp = group.collapsible ? 'details' : 'div'
+    const LabelComp = group.collapsible ? 'summary' : 'div'
+
+    const isCollapsed = group.defaultCollapsed ?? false
+
+    const detailsProps = group.collapsible ? { open: !isCollapsed } : {}
+
     return (
-      <div key={i}>
-        <div className="text-[.8em] uppercase font-black">{group?.label}</div>
+      <WrapperComp
+        key={`group-${i}`}
+        className="[&>summary]:before:mr-[0.4rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:leading-4 [&>div.ts-sidebar-label]:ml-[1rem] relative select-none"
+        {...detailsProps}
+      >
+        <LabelComp className="text-[.8em] uppercase font-black leading-4 ts-sidebar-label">
+          {group?.label}
+        </LabelComp>
         <div className="h-2" />
-        <div className="ml-2 text-[.85em]">
+        <ul className="ml-2 text-[.85em] list-none">
           {group?.children?.map((child, i) => {
             const linkClasses = `cursor-pointer flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
 
             return (
-              <React.Fragment key={i}>
+              <li key={i}>
                 {child.to.startsWith('http') ? (
                   <a href={child.to} className={linkClasses}>
                     {child.label}
@@ -422,11 +436,11 @@ export function DocsLayout({
                     }}
                   </Link>
                 )}
-              </React.Fragment>
+              </li>
             )
           })}
-        </div>
-      </div>
+        </ul>
+      </WrapperComp>
     )
   })
 
@@ -521,7 +535,7 @@ export function DocsLayout({
           onSelect={versionConfig.onSelect}
         />
       </div>
-      <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
+      <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-8">
         {menuItems}
       </div>
     </div>
@@ -538,7 +552,7 @@ export function DocsLayout({
       {largeMenu}
       <div
         className={twMerge(
-          `max-w-full min-w-0 min-h-0 flex relative justify-center w-full`,
+          `max-w-full min-w-0 flex relative justify-center w-full min-h-[88dvh] lg:min-h-0`,
           !isExample && 'mx-auto w-[900px]'
         )}
       >
@@ -578,22 +592,89 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="bg-white dark:bg-gray-900 dark:border-l border-gray-500/20 shadow-xl max-w-[240px] min-w-[240px] hidden md:flex sticky top-0 max-h-screen overflow-auto flex-col space-between">
-        <div className="flex-1 p-4">
-          {libraryId === 'query' ? (
-            <DocsCalloutQueryGG />
-          ) : (
-            <DocsCalloutBytes />
-          )}
-        </div>
-        <div className="border-t border-500/10 p-4 space-y-2">
-          <Carbon />
-          <div
-            className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic
-                dark:bg-opacity-20 self-center"
-          >
-            Guess what? This ad helps to keep us from burning out and
-            rage-quitting OSS just *that* much more. 😉
+      <div className="-ml-2 pl-2 w-64 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
+        <div className="ml-auto flex flex-col space-y-4">
+          <div className="bg-white dark:bg-gray-900 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
+            <div className="uppercase font-black text-center p-3 opacity-50">
+              Our Partners
+            </div>
+            {!partners.some((d) => d.libraries?.includes(libraryId as any)) ? (
+              <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
+                <a
+                  href={`mailto:partners@tanstack.com?subject=TanStack ${
+                    repo.split('/')[1]
+                  } Partnership`}
+                  className="p-2 block text-xs"
+                >
+                  <span className="opacity-50 italic">
+                    Wow, it looks like you could be our first partner for this
+                    library!
+                  </span>{' '}
+                  <span className="text-blue-500 font-black">
+                    Chat with us!
+                  </span>
+                </a>
+              </div>
+            ) : (
+              partners
+                .filter((d) => d.sidebarImgLight)
+                .filter((d) => d.libraries?.includes(libraryId as any))
+                .map((partner) => {
+                  return (
+                    <div
+                      key={partner.name}
+                      className="overflow-hidden hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors"
+                    >
+                      <a
+                        href={partner.href}
+                        target="_blank"
+                        className="px-4 flex items-center justify-center cursor-pointer"
+                      >
+                        <div className="mx-auto max-w-[150px]">
+                          <img
+                            src={partner.sidebarImgLight}
+                            alt={partner.name}
+                            className={twMerge(
+                              'w-full',
+                              partner.sidebarImgClass,
+                              'dark:hidden'
+                            )}
+                          />
+                          <img
+                            src={
+                              partner.sidebarImgDark || partner.sidebarImgLight
+                            }
+                            alt={partner.name}
+                            className={twMerge(
+                              'w-full',
+                              partner.sidebarImgClass,
+                              'hidden dark:block'
+                            )}
+                          />
+                        </div>
+                      </a>
+                    </div>
+                  )
+                })
+            )}
+          </div>
+          <div className="p-4 bg-white dark:bg-gray-900 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+            {libraryId === 'query' ? (
+              <DocsCalloutQueryGG />
+            ) : (
+              <DocsCalloutBytes />
+            )}
+          </div>
+
+          <div className="bg-white dark:bg-gray-900 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+            <Carbon />
+            <div
+              className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic
+                dark:bg-opacity-20 self-center opacity-50 hover:opacity-100 transition-opacity"
+            >
+              This ad helps to keep us from burning out and rage-quitting OSS
+              just *that* much more, so chill. 😉
+            </div>
           </div>
         </div>
       </div>

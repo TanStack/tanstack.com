@@ -4,12 +4,12 @@ export function DocsCalloutQueryGG(props: React.HTMLProps<HTMLDivElement>) {
   return (
     <div {...props}>
       <div className="space-y-3">
-        <h6 className="text-[.7rem] md:text-[.9em] uppercase font-black">
+        <h6 className="text-[.7rem] uppercase font-black opacity-50">
           Want to Skip the Docs?
         </h6>
         <LogoQueryGGSmall className="w-full" />
 
-        <blockquote className="text-sm -indent-[.45em] pl-2">
+        <blockquote className="text-xs -indent-[.45em] pl-2">
           “This course is the best way to learn how to use React Query in
           real-world applications.”
           <cite className="italic block text-right">—Tanner Linsley</cite>

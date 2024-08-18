@@ -601,7 +601,9 @@ export function DocsLayout({
             {!partners.some((d) => d.libraries?.includes(libraryId as any)) ? (
               <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
                 <a
-                  href="mailto:partners@tanstack.com?subject=TanStack Config Partnership"
+                  href={`mailto:partners@tanstack.com?subject=TanStack ${
+                    repo.split('/')[1]
+                  } Partnership`}
                   className="p-2 block text-xs"
                 >
                   <span className="opacity-50 italic">

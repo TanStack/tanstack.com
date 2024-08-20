@@ -334,8 +334,10 @@ export default function TableVersionIndex() {
               .filter((d) => d.libraries?.includes('table'))
               .map((partner) => {
                 return (
-                  <div
+                  <a
                     key={partner.name}
+                    href={partner.href}
+                    target="_blank"
                     className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden dark:border border-gray-500/20
                         dark:bg-gray-800 dark:shadow-none"
@@ -346,7 +348,7 @@ export default function TableVersionIndex() {
                     <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
                       {partner.content}
                     </div>
-                  </div>
+                  </a>
                 )
               })}
           </div>

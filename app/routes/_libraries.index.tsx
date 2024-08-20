@@ -195,8 +195,10 @@ function Index() {
         <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
           {partners.map((partner) => {
             return (
-              <div
+              <a
                 key={partner.name}
+                href={partner.href}
+                target="_blank"
                 className="bg-white shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-gray-800 dark:shadow-none group overflow-hidden grid"
               >
                 <div className="z-0 row-start-1 col-start-1 bg-white flex items-center justify-center group-hover:blur-sm transition-all duration-200">
@@ -205,7 +207,7 @@ function Index() {
                 <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/70">
                   {partner.content}
                 </div>
-              </div>
+              </a>
             )
           })}
         </div>
@@ -224,6 +226,7 @@ function Index() {
               hover:border-green-500
               `}
               target="_blank"
+              rel="noreferrer"
             >
               <div
                 className={`col-span-2
@@ -331,6 +334,7 @@ function Index() {
               target="_blank"
               className={`block w-full mt-4 px-4 py-2 bg-white text-discord
                 text-center rounded shadow-lg z-10 uppercase font-black`}
+              rel="noreferrer"
             >
               Join TanStack Discord
             </a>

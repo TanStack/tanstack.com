@@ -42,11 +42,7 @@ export const partners: Partner[] = [
       sidebarImgDark: vercelDarkSvg,
       sidebarImgClass: 'py-4',
       homepageImg: (
-        <a
-          href={href}
-          target="_blank"
-          className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-12"
-        >
+        <div className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-12">
           <img
             src={vercelLightSvg}
             alt="Vercel"
@@ -57,7 +53,7 @@ export const partners: Partner[] = [
             alt="Vercel"
             className="w-[220px] max-w-full hidden dark:block"
           />
-        </a>
+        </div>
       ),
       content: (
         <>
@@ -71,13 +67,9 @@ export const partners: Partner[] = [
             also push the boundaries of what's possible with TanStack on the
             web.
           </div>
-          <a
-            href={href}
-            target="_blank"
-            className="text-blue-500 uppercase font-black text-sm"
-          >
+          <span className="text-blue-500 uppercase font-black text-sm">
             Learn More
-          </a>
+          </span>
         </>
       ),
     }
@@ -94,11 +86,7 @@ export const partners: Partner[] = [
       sidebarImgDark: clerkDarkSvg,
       sidebarImgClass: 'py-4',
       homepageImg: (
-        <a
-          href={href}
-          target="_blank"
-          className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-12"
-        >
+        <div className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-12">
           <img
             src={clerkLightSvg}
             alt="Clerk"
@@ -109,7 +97,7 @@ export const partners: Partner[] = [
             alt="Clerk"
             className="w-[200px] max-w-full hidden dark:block"
           />
-        </a>
+        </div>
       ),
       content: (
         <>
@@ -121,13 +109,9 @@ export const partners: Partner[] = [
             effortlessly deliver top-notch experiences that your users can trust
             and your developers can rely on.
           </div>
-          <a
-            href={href}
-            target="_blank"
-            className="text-blue-500 uppercase font-black text-sm"
-          >
+          <span className="text-blue-500 uppercase font-black text-sm">
             Learn More
-          </a>
+          </span>
         </>
       ),
     }
@@ -145,7 +129,7 @@ export const partners: Partner[] = [
       sidebarImgClass: 'py-5 scale-[1.1]',
       href,
       homepageImg: (
-        <a href={href} target="_blank" className="px-8 py-8">
+        <div className="px-8 py-8">
           <img
             src={agGridImage}
             alt="Enterprise Data Grid"
@@ -153,7 +137,7 @@ export const partners: Partner[] = [
             width="270"
             height="95"
           />
-        </a>
+        </div>
       ),
       content: (
         <>
@@ -190,11 +174,7 @@ export const partners: Partner[] = [
       sidebarImgClass: 'py-1.5 scale-[1.3]',
       href,
       homepageImg: (
-        <a
-          href={href}
-          target="_blank"
-          className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-6"
-        >
+        <div className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-6">
           <img
             src={convexColorSvg}
             alt="Convex"
@@ -205,7 +185,7 @@ export const partners: Partner[] = [
             alt="Convex"
             className="w-[300px] max-w-full hidden dark:block"
           />
-        </a>
+        </div>
       ),
       content: (
         <>
@@ -221,13 +201,9 @@ export const partners: Partner[] = [
             together, we're elevating what's possible with real-time React
             applications.
           </div>
-          <a
-            href={href}
-            target="_blank"
-            className="text-blue-500 uppercase font-black text-sm"
-          >
+          <span className="text-blue-500 uppercase font-black text-sm">
             Learn More
-          </a>
+          </span>
         </>
       ),
     }
@@ -244,11 +220,7 @@ export const partners: Partner[] = [
       sidebarImgClass: 'py-6 scale-[1.1]',
       href,
       homepageImg: (
-        <a
-          href={href}
-          target="_blank"
-          className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-6"
-        >
+        <div className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-6">
           <img
             src={sentryWordMarkDarkSvg}
             alt="Sentry"
@@ -259,7 +231,7 @@ export const partners: Partner[] = [
             alt="Sentry"
             className="w-[275px] max-w-full hidden dark:block"
           />
-        </a>
+        </div>
       ),
       content: (
         <>
@@ -271,13 +243,9 @@ export const partners: Partner[] = [
             the best possible experience to your users. Together, we're
             committed to making sure that you can build with confidence.
           </div>
-          <a
-            href={href}
-            target="_blank"
-            className="text-blue-500 uppercase font-black text-sm"
-          >
+          <span className="text-blue-500 uppercase font-black text-sm">
             Learn More
-          </a>
+          </span>
         </>
       ),
     }
@@ -291,7 +259,7 @@ export const partners: Partner[] = [
       libraries: [],
       href,
       homepageImg: (
-        <a href={href} target="_blank" className="py-4">
+        <div className="py-4">
           <img
             src={bytesUidotdevImage}
             alt="Bytes Logo"
@@ -299,7 +267,7 @@ export const partners: Partner[] = [
             width="250"
             height="87"
           />
-        </a>
+        </div>
       ),
       content: (
         <>
@@ -311,26 +279,28 @@ export const partners: Partner[] = [
               target="_blank"
               className="text-blue-500 underline"
               href="https://ui.dev/?utm_source=tanstack&utm_campaign=tanstack"
+              rel="noreferrer"
             >
               ui.dev
             </a>{' '}
             to <strong>provide best-in-class education</strong> about TanStack
             products. It doesn't stop at TanStack though, with their sister
             product{' '}
-            <a target="_blank" className="text-blue-500 underline" href={href}>
+            <a
+              target="_blank"
+              className="text-blue-500 underline"
+              href={href}
+              rel="noreferrer"
+            >
               Bytes.dev
             </a>{' '}
             as our official newsletter partner, you'll be able to{' '}
             <strong>stay up to date with the latest and greatest</strong> in the
             web dev world regardless.
           </div>
-          <a
-            href={href}
-            target="_blank"
-            className="text-blue-500 uppercase font-black text-sm"
-          >
+          <span className="text-blue-500 uppercase font-black text-sm">
             Learn More
-          </a>
+          </span>
         </>
       ),
     }
@@ -346,7 +316,7 @@ export const partners: Partner[] = [
       sidebarImgDark: nozzleLightSvg,
       sidebarImgClass: 'w-[150px] py-4',
       homepageImg: (
-        <a href={href} target="_blank" className="py-6">
+        <div className="py-6">
           <img
             src={nozzleImage}
             alt="SEO keyword rank tracker"
@@ -354,7 +324,7 @@ export const partners: Partner[] = [
             width="230"
             height="80"
           />
-        </a>
+        </div>
       ),
       content: (
         <>
@@ -369,13 +339,9 @@ export const partners: Partner[] = [
             prove the value of the full gamut of TanStack tools on the front-end
             with unmatched UI/UX.
           </div>
-          <a
-            href={href}
-            target="_blank"
-            className="text-blue-500 uppercase font-black text-sm"
-          >
+          <span className="text-blue-500 uppercase font-black text-sm">
             Learn More
-          </a>
+          </span>
         </>
       ),
     }

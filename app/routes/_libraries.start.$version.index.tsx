@@ -4,6 +4,7 @@ import { CgCornerUpLeft, CgSpinner } from 'react-icons/cg'
 import { PiTreeStructureBold, PiRocketLaunchDuotone } from 'react-icons/pi'
 import { TbServerBolt } from 'react-icons/tb'
 import {
+  FaBook,
   FaDiscord,
   FaGithub,
   FaTshirt,
@@ -20,6 +21,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { partners } from '~/utils/partners'
+import { VscPreview } from 'react-icons/vsc'
 
 const menu = [
   {
@@ -30,22 +32,22 @@ const menu = [
     ),
     to: '/',
   },
-  // {
-  //   label: (
-  //     <div className="flex items-center gap-1">
-  //       <VscPreview className="text-lg" /> Examples
-  //     </div>
-  //   ),
-  //   to: './docs/react/examples/basic',
-  // },
-  // {
-  //   label: (
-  //     <div className="flex items-center gap-1">
-  //       <FaBook className="text-lg" /> Docs
-  //     </div>
-  //   ),
-  //   to: './docs/',
-  // },
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <VscPreview className="text-lg" /> Examples
+      </div>
+    ),
+    to: '../../router/latest/docs/framework/react/examples/start-basic',
+  },
+  {
+    label: (
+      <div className="flex items-center gap-1">
+        <FaBook className="text-lg" /> Docs
+      </div>
+    ),
+    to: '../../router/latest/docs/framework/react/start/overview',
+  },
   // {
   //   label: (
   //     <div className="flex items-center gap-1">

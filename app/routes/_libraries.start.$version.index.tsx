@@ -190,9 +190,9 @@ export default function VersionIndex() {
                 fully type-safe and powerfully-unmatched routing system
               </span>{' '}
               that is designed to handle the beefiest of full-stack routing
-              requirements with ease. Start builds on top of Router's type- to
-              also provide type-safe full-stack APIs that keep you in the fast
-              lane.
+              requirements with ease. Start builds on top of Router's fully
+              inferred type safety to also provide type-safe full-stack APIs
+              that keep you in the fast lane.
             </p>
           </div>
         </div>
@@ -323,6 +323,7 @@ Check it out at https://tanstack.com/start/`
             )}`}
             target="_blank"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
+            rel="noreferrer"
           >
             <FaTwitter /> Tweet about it!
           </a>{' '}
@@ -497,6 +498,7 @@ Check it out at https://tanstack.com/start/`
                   href={partner.href}
                   target="_blank"
                   className="bg-white shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-gray-800 dark:shadow-none group overflow-hidden grid"
+                  rel="noreferrer"
                 >
                   <div className="z-0 row-start-1 col-start-1 bg-white flex items-center justify-center group-hover:blur-sm transition-all duration-200">
                     {partner.homepageImg}

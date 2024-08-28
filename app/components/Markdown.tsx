@@ -23,7 +23,10 @@ const CustomHeading = ({
 }) => {
   if (id) {
     return (
-      <a href={`#${id}`} className={`anchor-heading`}>
+      <a
+        href={`#${id}`}
+        className={`anchor-heading [&>*]:scroll-my-[5rem] [&>*]:lg:scroll-my-4`}
+      >
         <Comp id={id} {...props} />
       </a>
     )

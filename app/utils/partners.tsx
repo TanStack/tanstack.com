@@ -217,7 +217,7 @@ export const partners: Partner[] = [
       libraries: ['start', 'router'],
       sidebarImgLight: sentryWordMarkDarkSvg,
       sidebarImgDark: sentryWordMarkLightSvg,
-      sidebarImgClass: 'py-6 scale-[1.1]',
+      sidebarImgClass: 'py-4 scale-[1.1]',
       href,
       homepageImg: (
         <div className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-6">

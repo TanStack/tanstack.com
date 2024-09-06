@@ -9,7 +9,7 @@ import {
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { MdLibraryBooks, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
-import { SearchBox } from '@orama/searchbox'
+import { OramaSearchBox } from '@orama/react-components'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
 import {
@@ -45,6 +45,8 @@ function LibrariesLayout() {
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
 
   const [mounted, setMounted] = React.useState(false)
+
+  const [onSearchboxOpen, setOnSearchboxOpen] = React.useState(false)
 
   React.useEffect(() => {
     setMounted(true)
@@ -255,7 +257,12 @@ function LibrariesLayout() {
           {logo}
         </div>
         <div className="p-2">
-          <ClientOnlySearchButton {...searchButtonParams} />
+          <ClientOnlySearchButton
+            {...searchButtonParams}
+            onClick={() => setOnSearchboxOpen(true)}
+          >
+            Search
+          </ClientOnlySearchButton>
         </div>
         <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
           <div className="space-y-1 text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
@@ -278,7 +285,11 @@ function LibrariesLayout() {
       </div>
       {mounted ? (
         <div className="fixed z-50">
-          <SearchBox {...searchBoxParams} />
+          <OramaSearchBox
+            {...searchBoxParams}
+            open={onSearchboxOpen}
+            onSearchboxClosed={() => setOnSearchboxOpen(false)}
+          />
         </div>
       ) : null}
     </div>

@@ -3,7 +3,9 @@ import { Suspense } from 'react'
 import { ImSpinner2 } from 'react-icons/im'
 
 const LazySearchButton = React.lazy(() =>
-  import('@orama/searchbox').then((mod) => ({ default: mod.SearchButton }))
+  import('@orama/react-components').then((mod) => ({
+    default: mod.OramaSearchButton,
+  }))
 )
 
 let defaultMounted = false

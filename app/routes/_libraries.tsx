@@ -46,8 +46,6 @@ function LibrariesLayout() {
 
   const [mounted, setMounted] = React.useState(false)
 
-  const [onSearchboxOpen, setOnSearchboxOpen] = React.useState(false)
-
   React.useEffect(() => {
     setMounted(true)
   }, [])
@@ -257,10 +255,7 @@ function LibrariesLayout() {
           {logo}
         </div>
         <div className="p-2">
-          <ClientOnlySearchButton
-            {...searchButtonParams}
-            onClick={() => setOnSearchboxOpen(true)}
-          >
+          <ClientOnlySearchButton {...searchButtonParams}>
             Search
           </ClientOnlySearchButton>
         </div>
@@ -285,11 +280,7 @@ function LibrariesLayout() {
       </div>
       {mounted ? (
         <div className="fixed z-50">
-          <OramaSearchBox
-            {...searchBoxParams}
-            open={onSearchboxOpen}
-            onSearchboxClosed={() => setOnSearchboxOpen(false)}
-          />
+          <OramaSearchBox {...searchBoxParams} />
         </div>
       ) : null}
     </div>

@@ -13,8 +13,7 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import type { AnyOrama, SearchParamsFullText, AnyDocument } from '@orama/orama'
-import { SearchBox } from '@orama/searchbox'
+import { OramaSearchBox } from '@orama/react-components'
 import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
@@ -336,6 +335,8 @@ export function DocsLayout({
     [menuConfig]
   )
 
+  const [isSearchboxOpen, setIsSearchboxOpen] = React.useState(false)
+
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
 
   const relativePathname = lastMatch.pathname.replace(
@@ -444,15 +445,6 @@ export function DocsLayout({
     )
   })
 
-  const oramaSearchParams: SearchParamsFullText<AnyOrama, AnyDocument> = {
-    threshold: 0,
-    where: {
-      category: {
-        eq: capitalize(libraryId),
-      },
-    },
-  }
-
   const logo = (
     <DocsLogo
       name={name}
@@ -499,7 +491,12 @@ export function DocsLayout({
               onSelect={versionConfig.onSelect}
             />
           </div>
-          <ClientOnlySearchButton {...searchButtonParams} />
+          <ClientOnlySearchButton
+            {...searchButtonParams}
+            onClick={() => setIsSearchboxOpen(true)}
+          >
+            Search
+          </ClientOnlySearchButton>
           {menuItems}
         </div>
       </details>
@@ -546,7 +543,20 @@ export function DocsLayout({
       className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300`}
     >
       <div className="fixed z-50">
-        <SearchBox {...searchBoxParams} searchParams={oramaSearchParams} />
+        <OramaSearchBox
+          {...searchBoxParams}
+          searchParams={{
+            threshold: 0,
+            where: {
+              category: {
+                eq: capitalize(libraryId!) as string,
+              },
+            } as any,
+          }}
+          facetProperty={undefined}
+          open={isSearchboxOpen}
+          onSearchboxClosed={() => setIsSearchboxOpen(false)}
+        />
       </div>
       {smallMenu}
       {largeMenu}

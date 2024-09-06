@@ -335,8 +335,6 @@ export function DocsLayout({
     [menuConfig]
   )
 
-  const [isSearchboxOpen, setIsSearchboxOpen] = React.useState(false)
-
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
 
   const relativePathname = lastMatch.pathname.replace(
@@ -491,10 +489,7 @@ export function DocsLayout({
               onSelect={versionConfig.onSelect}
             />
           </div>
-          <ClientOnlySearchButton
-            {...searchButtonParams}
-            onClick={() => setIsSearchboxOpen(true)}
-          >
+          <ClientOnlySearchButton {...searchButtonParams}>
             Search
           </ClientOnlySearchButton>
           {menuItems}
@@ -554,8 +549,6 @@ export function DocsLayout({
             } as any,
           }}
           facetProperty={undefined}
-          open={isSearchboxOpen}
-          onSearchboxClosed={() => setIsSearchboxOpen(false)}
         />
       </div>
       {smallMenu}

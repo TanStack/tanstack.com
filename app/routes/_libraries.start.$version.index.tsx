@@ -312,12 +312,6 @@ export default function VersionIndex() {
             <FaGithub /> View TanStack.com Source
           </a>
           <a
-            href={`https://github.com/tanstack/tanstack.com`}
-            className={`flex items-center gap-2 py-2 px-4 bg-cyan-700 rounded text-white uppercase font-extrabold`}
-          >
-            <FaGithub /> View TanStack.com Source
-          </a>
-          <a
             href={`https://twitter.com/intent/post?text=${encodeURIComponent(
               `I'm excited for TanStack Start, new full-stack React framework coming soon from team @Tan_Stack!
               

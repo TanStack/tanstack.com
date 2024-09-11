@@ -40,7 +40,7 @@ export const Route = createRootRouteWithContext<{
     ...seo({
       title: 'TanStack | High Quality Open-Source Software for Web Developers',
       description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
-      image: `https://tanstack.com${ogImage}`,
+      image: `https://${(import.meta as any).env.VITE_VERCEL_URL}${ogImage}`,
       keywords:
         'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
     }),

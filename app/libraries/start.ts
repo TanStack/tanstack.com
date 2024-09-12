@@ -9,7 +9,7 @@ export const startProject: Library = {
   description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router, Vinxi, and Nitro and ready to deploy to your favorite hosting provider.`,
   bgStyle: 'bg-cyan-500',
   textStyle: 'text-cyan-500',
-  badge: 'soon',
+  badge: 'alpha',
   repo: 'tanstack/start',
   latestBranch: 'main',
   latestVersion: 'v0',

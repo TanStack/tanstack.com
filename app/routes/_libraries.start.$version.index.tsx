@@ -147,7 +147,7 @@ export default function VersionIndex() {
               dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md
               leading-none whitespace-nowrap"
         >
-          It's Almost ready!
+          STATUS: ALPHA
           {/* {version === 'latest' ? latestVersion : version} */}
         </div>
         {/* </div> */}
@@ -288,34 +288,35 @@ export default function VersionIndex() {
         </div>
         <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-gray-700 rounded-xl shadow-xl shadow-black/10">
           <div>
-            <strong>TanStack Start </strong> is currently in development and is
-            almost ready for public use! We are working hard to bring you the
-            best possible experience and will be releasing more details soon. In
-            the meantime, you can follow along with the development process by
-            watching the commits on this very website!
-          </div>
-          <div>
-            Yes, you heard that right!{' '}
-            <strong>
-              TanStack.com is already being built and deployed using TanStack
-              Start
-            </strong>
-            ! We are eating our own dog food and are excited to share the
-            results with you soon!
+            You can try <strong>TanStack Start ALPHA</strong> today! While
+            usable, it is still currently in development and is will still
+            undergo some breaking changes as we near BETA and gather feedback.
+            We invite at to try it out and provide feedback to help shape the
+            final product!
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-wrap justify-center">
+        <div className="grid items-center gap-2 justify-center grid-cols-2 w-[600px] max-w-full mx-auto">
+          <Link
+            to="../../router/latest/docs/framework/react/examples/start-basic"
+            className={`flex items-center gap-2 py-2 px-4 bg-cyan-900 rounded text-white uppercase font-extrabold`}
+          >
+            <VscPreview /> See an Example
+          </Link>
+          <Link
+            to="../../router/latest/docs/framework/react/start/overview"
+            className={`flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded text-white uppercase font-extrabold`}
+          >
+            <FaBook /> Try the ALPHA
+          </Link>
           <a
             href={`https://github.com/tanstack/tanstack.com`}
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-700 rounded text-white uppercase font-extrabold`}
           >
-            <FaGithub /> View TanStack.com Source
+            <FaGithub /> TanStack.com Source
           </a>
           <a
             href={`https://twitter.com/intent/post?text=${encodeURIComponent(
-              `I'm excited for TanStack Start, new full-stack React framework coming soon from team @Tan_Stack!
-              
-Check it out at https://tanstack.com/start/`
+              `TanStack Start is in ALPHA! It's a new full-stack React framework from @Tan_Stack and you can check it out at https://tanstack.com/start/`
             )}`}
             target="_blank"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}

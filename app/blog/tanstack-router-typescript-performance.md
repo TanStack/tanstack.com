@@ -183,7 +183,7 @@ You maybe thinking that this is cheating, we are indeed making use of a generati
 
 ## The ground rules
 
-This change has made a lot of the surface of TanStack Router's exports performant for the language service but there are existing areas which will still fallback to forcing inference on the whole route tree. These areas are a kind of loose or non strict modes.
+This change involved a lot of TanStack Router's exports being improved to make it more performant to consume these generated types whilst still being able to fall back on the whole route tree inference when using code-based routing. We've also still got areas of the codebase that still rely on the full route tree inference. These areas are our version of a loose/non-strict mode.
 
 ```tsx
 <Link to="." search={{ page: 0 }} />

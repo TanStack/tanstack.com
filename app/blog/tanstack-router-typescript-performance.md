@@ -191,7 +191,11 @@ This change involved a lot of TanStack Router's exports being improved to make i
 <Link to="/dashboard" search={prev => ({..prev, page: 0 })} />
 ```
 
-All three usages of `Link` require inference of the whole route tree and are therefore falling back to a worse editor experience when interacting with them. The first two, TanStack Router does not know what route you want to navigate to and therefore tries its best to guess a very loose type from all routes. The third uses `prev` but TanStack Router does not know what `Route` you are navigating `from` and again tries to guess `prev` with a loose type from all routes. The most performant for your editor is the following:
+All three above usages of `<Link>`, require the inference of the whole route tree and therefore result in a worse editor experience when interacting with them.
+
+In the first two instances, TanStack Router does not know what route you want to navigate to, therefore it tries its best to guess at a very loose type inferred from all the routes in your route tree. The third instance of `<Link>` from above, uses the `prev` argument in the `search` updater function, but in this instance, TanStack Router does not know which `Route` you are navigating `from`, whereby it needs to once again try to guess the loose type of `prev` by scanning the whole route tree.
+
+The most performant usage of `<Link>` in your editor would be the following:
 
 ```tsx
 <Link from="/dashboard" search={{ page: 0 }} />

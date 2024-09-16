@@ -12,7 +12,7 @@ Despite all these past efforts (which certainly helped), we had to address the e
 
 <img src="/blog-tracing-slow.png">
 
-For those who don't know, you can generate a trace from typescript with the following
+For those who don't know, you can generate a trace from TypeScript with the following:
 
 ```
 tsc --generatetrace trace

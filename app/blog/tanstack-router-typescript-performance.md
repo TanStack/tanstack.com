@@ -215,7 +215,7 @@ const loaderData = useLoaderData({ strict: false })
 const match = useMatch({ strict: false })
 ```
 
-In which case for better editor performance and type safety, using `from` is recommended
+In this case, better editor performance and type safety can be achieved by using the recommended `from` property.
 
 ```tsx
 const search = useSearch({ from: '/dashboard' })

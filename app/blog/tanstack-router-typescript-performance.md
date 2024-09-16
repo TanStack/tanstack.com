@@ -2,7 +2,11 @@
 title: A milestone for TypeScript Performance in TanStack Router
 ---
 
-TanStack Router pushes the boundaries on type safe routing. Components such as `Link` and hooks such as `useSearch`, `useParams`, `useRouteContext` and `useLoaderData` infer from route definitions to offer great type safety. It's common for applications using TanStack Router to use external dependencies with complex types for `validateSearch`, `context`, `beforeLoad` and `loader` in route definitions. While the DX is great, when route definitions accumulate into a route tree and the route tree becomes large, the editor experience can start to appear slow. We've made many TypeScript performance improvements to TanStack Router so that issues only start to happen when inference complexity becomes very large. We closely watch diagnostics such as instantiations and try to reduce as much as possible the time TypeScript takes to type check an individual route definition.
+TanStack Router pushes the boundaries on type-safe routing.
+
+The router's components such as `<Link>` and its hooks such as `useSearch`, `useParams`, `useRouteContext` and `useLoaderData`, infer from the route definitions to offer great type-safety. It's common for applications using TanStack Router to use external dependencies with complex types for `validateSearch`, `context`, `beforeLoad` and `loader` in their route definitions.
+
+While the DX is great, when route definitions accumulate into a route tree and it becomes large, the editor experience can start to appear slow. We've made many TypeScript performance improvements to TanStack Router so that issues only start to appear when the inference complexity becomes very large. We closely watch diagnostics such as instantiations and try to reduce the time TypeScript takes to type-check each individual route definition.
 
 Despite all these past efforts (which certainly helped), we had to address the elephant in the room. The fundamental problem to solve for a great editor experience in TanStack Router was not necessarily related to overall typescript check time. The problem we have been working to resolve is the accumulated route tree being a type checking bottleneck for the language service. For those familiar with tracing TypeScript, a trace for a large TanStack Router applications could look something similar to the following.
 

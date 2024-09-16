@@ -8,7 +8,7 @@ The router's components such as `<Link>` and its hooks such as `useSearch`, `use
 
 While the DX is great, when route definitions accumulate into a route tree and it becomes large, the editor experience can start to appear slow. We've made many TypeScript performance improvements to TanStack Router so that issues only start to appear when the inference complexity becomes very large. We closely watch diagnostics such as instantiations and try to reduce the time TypeScript takes to type-check each individual route definition.
 
-Despite all these past efforts (which certainly helped), we had to address the elephant in the room. The fundamental problem to solve for a great editor experience in TanStack Router was not necessarily related to overall typescript check time. The problem we have been working to resolve is the accumulated route tree being a type checking bottleneck for the language service. For those familiar with tracing TypeScript, a trace for a large TanStack Router applications could look something similar to the following.
+Despite all these past efforts (which certainly helped), we had to address the elephant in the room. The fundamental problem to solve for a great editor experience in TanStack Router was not necessarily related to the overall typescript check time. The problem we've been working to resolve is the bottleneck in the TypeScript language service when it comes to type-checking the accumulated route tree. For those familiar with tracing TypeScript, a trace for a large TanStack Router application could look something similar to the following:
 
 <img src="/blog-tracing-slow.png">
 

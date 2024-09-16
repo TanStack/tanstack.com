@@ -142,7 +142,7 @@ function Blog() {
     <div className="min-h-screen flex flex-col lg:flex-row">
       {smallMenu}
       {largeMenu}
-      <div className="flex-1 min-h-0 flex flex-col">
+      <div className="flex-1 min-h-0 flex flex-col xl:pl-44 xl:pr-56">
         <Outlet />
       </div>
     </div>

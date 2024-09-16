@@ -51,7 +51,7 @@ export type Library = {
   ogImage?: string
   bgStyle: string
   textStyle: string
-  badge?: 'new' | 'soon'
+  badge?: 'new' | 'soon' | 'alpha' | 'beta'
   repo: string
   latestBranch: string
   latestVersion: string

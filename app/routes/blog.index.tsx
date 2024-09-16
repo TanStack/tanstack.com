@@ -94,12 +94,7 @@ function BlogIndex() {
                     </div>
                   ) : null}
                   <div className={`text-sm mt-2 text-black dark:text-white`}>
-                    <Markdown
-                      components={{
-                        a: (props) => <span {...props} />,
-                      }}
-                      code={excerpt || ''}
-                    />
+                    <Markdown code={excerpt || ''} />
                   </div>
                 </div>
                 <div>

@@ -26,7 +26,11 @@ It became quite apparent early on that this was quite clearly going to slow down
 
 ## Breaking down work for the language service
 
-Ideally the language service should only need to infer from a route definition a `Link` is navigating to and not the whole route tree. This way the language service only needs to do work necessary to infer types from a single route definition a `Link` navigates to. Unfortunately code based route trees rely on inference to build the route tree which triggers the wall shown above. However with file based, the route tree is generated when a file is created or modified. Previously route trees were created like the following, even for file based.
+Ideally, the language service should only need to infer from a route definition, based on where a `<Link>` is navigating `to`, instead of having to crawl the whole route tree. This way the language service would not need to busy itself with inferring the types of route definitions that are not the navigation target.
+
+Unfortunately, code-based route trees rely on inference to build the route tree which triggers the wall shown in the trace above. However, TanStack Router's file-based routing, has the route tree being automatically generated whenever a route is created or modified. This meant that there was some exploration to be done here to see if we could eke out some better performance.
+
+Previously route trees were created like the following, even for file-based routing:
 
 ```tsx
 export const routeTree = rootRoute.addChildren({

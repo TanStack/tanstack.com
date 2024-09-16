@@ -203,7 +203,7 @@ The most performant usage of `<Link>` in your editor would be the following:
 <Link from="/users" to="/dashboard" search={prev => ({...prev, page: 0 })} />
 ```
 
-TanStack Router can narrow the types to specific routes in these cases. This means that you get better type safety and also better editor performance as your application scales. Therefore we encourage the use of `from` or `to` in these cases. To be clear `from` is only necessary if `prev` is used, otherwise TanStack Router does not infer the whole route tree
+TanStack Router can narrow the types to specific routes in these cases. This means that you get better type safety and better editor performance as your application scales. Therefore, we encourage the use of `from` and/or `to` in these cases. To be clear, in the third example, the usage of `from` is only necessary if the `prev` argument is used, otherwise, TanStack Router does not need to infer the whole route tree.
 
 These looser types also occur in `strict: false` modes.
 

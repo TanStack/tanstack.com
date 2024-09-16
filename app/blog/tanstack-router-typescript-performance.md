@@ -18,7 +18,11 @@ For those who don't know, you can generate a trace from TypeScript with the foll
 tsc --generatetrace trace
 ```
 
-This example has 400 route definitions all with `validateSearch` using `zod` and query integration through `context` and `loader`'s - it is an extreme example. The large wall at the beginning of the trace is what TypeScript was type checking when it first hits `Link`. The language service type checks a file or region of a file from the beginning but only that region or file. This meant the language service also had to do this work whenever you interact with `Link`. It turns out this wall is TypeScript inferring all the types in all the route definitions of the whole route tree. As mentioned, route definitions can in turn contain complex types from external validation libraries which are also inferred. This is quite clearly going to slow down the editing experience.
+This example has 400 route definitions all with `validateSearch` using `zod` and TanStack Query integration through the routes `context` and `loader`'s - it is an extreme example. The large wall at the beginning of the trace is what TypeScript was type-checking when it first hit an instance of the `<Link>` component.
+
+The language server works by type-checking a file (or a region of a file) from the beginning, but only for that file/region. So this meant that the language service had to do this work whenever you interacted with an instance of a `<Link>` component. It turns out, that this was the bottleneck that we were hitting when inferring all the necessary types from the accumulated route tree. As mentioned, route definitions themselves can contain complex types from external validation libraries which then also need inference.
+
+It became quite apparent early on that this was quite clearly going to slow down the editor experience.
 
 ## Breaking down work for the language service
 

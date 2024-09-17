@@ -9,5 +9,8 @@ export function getPostList() {
     {
       id: 'ag-grid-partnership',
     },
+    {
+      id: 'tanstack-router-typescript-performance',
+    },
   ]
 }

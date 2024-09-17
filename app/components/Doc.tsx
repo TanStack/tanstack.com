@@ -21,7 +21,7 @@ export function Doc({
       <div className="h-4" />
       <div className="h-px bg-gray-500 opacity-20" />
       <div className="h-4" />
-      <div className="prose prose-gray prose-sm dark:prose-invert max-w-none">
+      <div className="prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none">
         <Markdown code={content} />
       </div>
       <div className="h-12" />

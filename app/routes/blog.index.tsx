@@ -41,7 +41,16 @@ const fetchFrontMatters = createServerFn('GET', async () => {
     })
   )
 
-  return frontMatters
+  return frontMatters.sort((a, b) => {
+    if (!a[1].published) {
+      return 1
+    }
+
+    return (
+      new Date(b[1].published || 0).getTime() -
+      new Date(a[1].published || 0).getTime()
+    )
+  })
 
   // return json(frontMatters, {
   //   headers: {
@@ -93,7 +102,9 @@ function BlogIndex() {
                       {format(new Date(published), 'MMM dd, yyyy')}
                     </div>
                   ) : null}
-                  <div className={`text-sm mt-2 text-black dark:text-white`}>
+                  <div
+                    className={`text-sm mt-2 text-black dark:text-white leading-7`}
+                  >
                     <Markdown code={excerpt || ''} />
                   </div>
                 </div>

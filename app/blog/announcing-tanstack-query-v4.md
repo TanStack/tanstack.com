@@ -1,6 +1,8 @@
 ---
 title: Announcing TanStack Query v4
 published: 7/14/2022
+authors:
+  - Dominik Dorfmeister
 ---
 
 We're excited to announce the next version of [TanStack Query](/query/v4), previously known as `react-query` 🎉.

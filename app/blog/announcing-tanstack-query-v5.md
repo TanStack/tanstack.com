@@ -1,6 +1,8 @@
 ---
 title: Announcing TanStack Query v5
 published: 10/17/2023
+authors:
+  - Dominik Dorfmeister
 ---
 
 About one year ago, we announced the [TanStack Query v5 roadmap](https://github.com/TanStack/query/discussions/4252), and the whole team has been working hard on that version ever since. So we're super happy to announce that today is the day: After 91 alpha releases, 35 betas and 16 release candidates, TanStack Query [v5.0.0](https://github.com/TanStack/query/releases/tag/v5.0.0) is finally here! 🎉

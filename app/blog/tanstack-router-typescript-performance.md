@@ -1,5 +1,6 @@
 ---
 title: A milestone for TypeScript Performance in TanStack Router
+published: 09/17/2024
 ---
 
 TanStack Router pushes the boundaries on type-safe routing.

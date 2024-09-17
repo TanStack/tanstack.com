@@ -10,7 +10,7 @@ While the DX is great, when route definitions accumulate into a route tree and i
 
 Despite all these past efforts (which certainly helped), we had to address the elephant in the room. The fundamental problem to solve for a great editor experience in TanStack Router was not necessarily related to the overall typescript check time. The problem we've been working to resolve is the bottleneck in the TypeScript language service when it comes to type-checking the accumulated route tree. For those familiar with tracing TypeScript, a trace for a large TanStack Router application could look something similar to the following:
 
-<img src="/blog-tracing-slow.png">
+![Tracing showing the route tree being inferred](/blog-tracing-slow.png)
 
 For those who don't know, you can generate a trace from TypeScript with the following:
 
@@ -65,7 +65,7 @@ export const routeTree = rootRoute._addFileChildren(rootRouteChildren)
 
 Note the use of an `interface` to declare the children to compose the route tree. This process is repeated for all routes and their children when generating the route tree. With this change, running a trace gave us a much better idea of what was happening inside the language-service.
 
-<img src="/blog-tracing-declare-route-tree.png" />
+![Tracing showing the route tree being declared](/blog-tracing-declare-route-tree.png)
 
 This is still slow and we're not quite there yet but there is something - _the trace is different_. The type inference for the entire route tree was still happening, but it was now being done _somewhere else_. After working through our types, it turned out to be happening in a type named `ParseRoute`.
 
@@ -166,7 +166,7 @@ In addition to declaring children, we also declare interfaces which map paths to
 
 This change along with other type level changes to conditionally use `ParseRoute` only if these types are not registered resulted in a trace which was our aim all along 🥳
 
-<img src="/blog-tracing-faster.png">
+![Tracing route tree declaration being inferred faster](/blog-tracing-faster.png)
 
 The first file to reference a `<Link>` no longer triggers inference from the whole route tree which increases perceived language service speed. significantly
 
@@ -174,9 +174,9 @@ By doing this, TypeScript will infer the types required for a specific route whe
 
 The difference between the two is striking, as seen in these large route trees with complex inference (400 in this example below):
 
-<div style="display: flex">
-  <video src="/language-service-slow.mp4" width="640" height="480" autoplay muted loop></video>
-  <video src="/language-service-fast.mp4" width="640" height="480" autoplay muted loop></video>
+<div style="display: flex;">
+  <video src="/language-service-slow.mp4" width="50%" height="480" autoplay muted loop></video>
+  <video src="/language-service-fast.mp4" width="50%" height="480" autoplay muted loop></video>
 </div>
 
 You may be thinking that this is _cheating_ since we are doing a lot of the heavy lifting here in the route tree generation phase. Our response to that is that this generation step for file-based routing (and now virtual file-based routing) was already there and was always a necessary step whenever you modified or created a new route.

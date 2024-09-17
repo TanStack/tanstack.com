@@ -6,6 +6,7 @@ import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/start'
 import { formatAuthors } from '~/utils/blog'
+import { format } from 'date-fns'
 
 const fetchBlogPost = createServerFn(
   'GET',
@@ -59,9 +60,10 @@ export const Route = createFileRoute('/blog/$')({
 export default function BlogPost() {
   const { title, content, filePath, authors, published } = Route.useLoaderData()
 
-  const blogContent = `_by ${formatAuthors(authors)} on ${new Date(
-    published
-  ).toLocaleDateString()}_
+  const blogContent = `_by ${formatAuthors(authors)} on ${format(
+    new Date(published || 0),
+    'MMM dd, yyyy'
+  )}._
 ${content}`
 
   return (

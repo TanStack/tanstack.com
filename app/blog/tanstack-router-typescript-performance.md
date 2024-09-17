@@ -45,7 +45,7 @@ export const routeTree = rootRoute.addChildren({
 })
 ```
 
-Generating the route tree came as a consequence of reducing tedious configuration of a route tree but keeping inference where it matters. This is where the first important change is introduced leading to better editor performance. Instead of inferring the route tree, we can take advantage of this generation step to _declare the route tree_.
+Generating the route tree came as a consequence of reducing the tedious configuration of a route tree but keeping inference where it matters. This is where the first important change is introduced leading to better editor performance. Instead of inferring the route tree, we can take advantage of this generation step to _declare the route tree_.
 
 ```tsx
 export interface RootRouteChildren {
@@ -63,11 +63,11 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRoute._addFileChildren(rootRouteChildren)
 ```
 
-Note the use of an `interface` to declare the children to compose the route tree. This process is repeated for all routes and children to create the route tree. After this change, the trace also changed that gave us more insight into what the compiler is now doing.
+Note the use of an `interface` to declare the children to compose the route tree. This process is repeated for all routes and their children when generating the route tree. With this change, running a trace gave us a much better idea of what was happening inside the language-service.
 
 <img src="/blog-tracing-declare-route-tree.png" />
 
-This is still slow and we're not quite there yet but there is something - _the trace is different_. The inference for the whole route tree is still happening but somewhere else. After working through the types, it turned out to be a type called `ParseRoute`
+This is still slow and we're not quite there yet but there is something - _the trace is different_. The type inference for the entire route tree was still happening, but it was now being done _somewhere else_. After working through our types, it turned out to be happening in a type named `ParseRoute`.
 
 ```tsx
 export type ParseRoute<TRouteTree, TAcc = TRouteTree> = TRouteTree extends {
@@ -81,7 +81,7 @@ export type ParseRoute<TRouteTree, TAcc = TRouteTree> = TRouteTree extends {
   : TAcc
 ```
 
-This type walks down the route tree to create a union of all routes. The union in turn is used to create a type mapping from `id` -> `Route`, `from` -> `Route` and also `to` -> `Route`. An example of this mapping exists as a mapped type
+This type walks down the route tree to create a union of all routes. The union in turn is used to create a type mapping from `id` -> `Route`, `from` -> `Route` and also `to` -> `Route`. An example of this mapping exists as a mapped type.
 
 ```tsx
 export type RoutesByPath<TRouteTree extends AnyRoute> = {
@@ -89,7 +89,7 @@ export type RoutesByPath<TRouteTree extends AnyRoute> = {
 }
 ```
 
-The important realization here is for file based routing we generate the route tree and therefore we don't need to use `ParseRoute` and we can skip this work by generating the mapping type when generating the route tree. Instead we can generate the following:
+The important realization here was that when using file-based routing, we were able to skip the `ParseRoute` type entirely by outputting that mapping type ourselves whenever the route tree was generated. Instead, we'd be able to generate the following:
 
 ```tsx
 export interface FileRoutesByFullPath {
@@ -168,18 +168,22 @@ This change along with other type level changes to conditionally use `ParseRoute
 
 <img src="/blog-tracing-faster.png">
 
-The first file to reference a `Link` no longer triggers inference from the whole route tree which increases perceived language service speed significantly
+The first file to reference a `<Link>` no longer triggers inference from the whole route tree which increases perceived language service speed. significantly
 
-By doing this TypeScript will only infer the types required for a specific route when it is referenced by a `Link`. This may not translate to overall better typescript check time if all routes are used but is significant for the language service
+By doing this, TypeScript will infer the types required for a specific route when it is referenced by a `<Link>`. This may not translate to overall better TypeScript type-checking time when all routes are being linked to, but it is a significant speed increase for the language service when in a file/region.
 
-The difference between the two is striking with large route trees with complex inference (400 in this example)
+The difference between the two is striking, as seen in these large route trees with complex inference (400 in this example below):
 
 <div style="display: flex">
   <video src="/language-service-slow.mp4" width="640" height="480" autoplay muted loop></video>
   <video src="/language-service-fast.mp4" width="640" height="480" autoplay muted loop></video>
 </div>
 
-You maybe thinking that this is cheating, we are indeed making use of a generation step. However this generation step for file-based (and now virtual file based routing) was always there and a necessary step whenever you modify or create a new route. However once the route is created and the route tree is generated, inference remains throughout anything in a route definition. That means if you make any changes to `validateSearch`, `beforeLoad`, `loader` and others the type is inferred and reflected instantly. The DX in this regard has not changed but the performance in the editor can feel awesome for large route trees
+You may be thinking that this is _cheating_ since we are doing a lot of the heavy lifting here in the route tree generation phase. Our response to that is that this generation step for file-based routing (and now virtual file-based routing) was already there and was always a necessary step whenever you modified or created a new route.
+
+So, once a route has been created and the route tree is generated, the inference remains the same throughout everything within the route definition. This means that you can make changes to `validateSearch`, `beforeLoad`, `loader`, and others, with the inferred types always being reflected instantly.
+
+The DX has not changed, but the performance in your editor feels awesome (especially when you are working with large route trees).
 
 ## The ground rules
 

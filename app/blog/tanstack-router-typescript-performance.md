@@ -1,6 +1,8 @@
 ---
 title: A milestone for TypeScript Performance in TanStack Router
 published: 09/17/2024
+authors:
+  - Christopher Horobin
 ---
 
 TanStack Router pushes the boundaries on type-safe routing.

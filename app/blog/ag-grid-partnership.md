@@ -1,6 +1,9 @@
 ---
 title: TanStack Table + Ag-Grid Partnership
 published: 6/17/2022
+authors:
+  - Tanner Linsley
+  - Niall Crosby
 ---
 
 We're excited to announce that [AG Grid](https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable) is now the official **TanStack Table** open-source partner! Together we will strive to achieve the following goals:

@@ -5,10 +5,12 @@ import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/start'
+import { formatAuthors } from '~/utils/blog'
+import { format } from 'date-fns'
 
 const fetchBlogPost = createServerFn(
   'GET',
-  async ({ docsPath }: { docsPath: string }, req) => {
+  async ({ docsPath }: { docsPath: string }) => {
     'use server'
 
     if (!docsPath) {
@@ -31,6 +33,7 @@ const fetchBlogPost = createServerFn(
       description,
       published: frontMatter.data.published,
       content: frontMatter.content,
+      authors: (frontMatter.data.authors ?? []) as Array<string>,
       filePath,
     }
   }
@@ -38,22 +41,35 @@ const fetchBlogPost = createServerFn(
 
 export const Route = createFileRoute('/blog/$')({
   loader: ({ params }) => fetchBlogPost({ docsPath: params._splat }),
-  meta: ({ loaderData }) =>
-    seo({
+  meta: ({ loaderData }) => [
+    ...seo({
       title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
       description: loaderData?.description,
     }),
+    {
+      name: 'author',
+      content: `${
+        loaderData.authors.length > 1 ? 'co-authored by ' : ''
+      }${formatAuthors(loaderData.authors)}`,
+    },
+  ],
   notFoundComponent: () => <PostNotFound />,
   component: BlogPost,
 })
 
 export default function BlogPost() {
-  const { title, content, filePath } = Route.useLoaderData()
+  const { title, content, filePath, authors, published } = Route.useLoaderData()
+
+  const blogContent = `_by ${formatAuthors(authors)} on ${format(
+    new Date(published || 0),
+    'MMM dd, yyyy'
+  )}._
+${content}`
 
   return (
     <Doc
       title={title}
-      content={content}
+      content={blogContent}
       repo={'tanstack/tanstack.com'}
       branch={'main'}
       filePath={filePath}

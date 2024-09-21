@@ -138,7 +138,16 @@ function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
         <button
           className="px-2 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
           onClick={() => {
-            navigator.clipboard.writeText(ref.current?.innerText || '')
+            let copyContent =
+              typeof ref.current?.innerText === 'string'
+                ? ref.current.innerText
+                : ''
+
+            if (copyContent.endsWith('\n')) {
+              copyContent = copyContent.slice(0, -1)
+            }
+
+            navigator.clipboard.writeText(copyContent)
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
           }}

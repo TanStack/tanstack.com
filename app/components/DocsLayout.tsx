@@ -348,6 +348,12 @@ export function DocsLayout({
 
   const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
 
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const menuItems = menuConfig.map((group, i) => {
     const WrapperComp = group.collapsible ? 'details' : 'div'
     const LabelComp = group.collapsible ? 'summary' : 'div'
@@ -538,18 +544,20 @@ export function DocsLayout({
       className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300`}
     >
       <div className="fixed z-50">
-        <OramaSearchBox
-          {...searchBoxParams}
-          searchParams={{
-            threshold: 0,
-            where: {
-              category: {
-                eq: capitalize(libraryId!) as string,
-              },
-            } as any,
-          }}
-          facetProperty={undefined}
-        />
+        {mounted && (
+          <OramaSearchBox
+            {...searchBoxParams}
+            searchParams={{
+              threshold: 0,
+              where: {
+                category: {
+                  eq: capitalize(libraryId!) as string,
+                },
+              } as any,
+            }}
+            facetProperty={undefined}
+          />
+        )}
       </div>
       {smallMenu}
       {largeMenu}
@@ -632,6 +640,7 @@ export function DocsLayout({
                         href={partner.href}
                         target="_blank"
                         className="px-4 flex items-center justify-center cursor-pointer"
+                        rel="noreferrer"
                       >
                         <div className="mx-auto max-w-[150px]">
                           <img

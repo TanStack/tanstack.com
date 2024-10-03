@@ -289,7 +289,7 @@ export default function VersionIndex() {
         <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-gray-700 rounded-xl shadow-xl shadow-black/10">
           <div>
             You can try <strong>TanStack Start ALPHA</strong> today! While
-            usable, it is still currently in development and is will still
+            usable, it is still currently in development and it will still
             undergo some breaking changes as we near BETA and gather feedback.
             We invite at to try it out and provide feedback to help shape the
             final product!

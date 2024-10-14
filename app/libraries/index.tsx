@@ -65,6 +65,7 @@ export type Library = {
   handleRedirects?: (href: string) => void
   hideCodesandboxUrl?: true
   hideStackblitzUrl?: true
+  showVercelUrl?: true
 }
 
 export const libraries = [

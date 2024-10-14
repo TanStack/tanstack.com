@@ -57,6 +57,7 @@ export default function Example() {
 
   const hideCodesandbox = library.hideCodesandboxUrl
   const hideStackblitz = library.hideStackblitzUrl
+  const showVercel = library.showVercelUrl
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto">
@@ -66,10 +67,18 @@ export default function Example() {
             {capitalize(framework)} Example: {slugToTitle(_splat)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
+            {showVercel ? (
+              <a
+                href={`https://vercel.com/new/clone?repository-url=${githubUrl}`}
+              >
+                <img src="https://vercel.com/button" alt="Deploy with Vercel" />
+              </a>
+            ) : null}
             <a
               href={githubUrl}
               target="_blank"
               className="flex gap-1 items-center"
+              rel="noreferrer"
             >
               <FaExternalLinkAlt /> Github
             </a>
@@ -78,6 +87,7 @@ export default function Example() {
                 href={stackBlitzUrl}
                 target="_blank"
                 className="flex gap-1 items-center"
+                rel="noreferrer"
               >
                 <FaExternalLinkAlt /> StackBlitz
               </a>
@@ -87,6 +97,7 @@ export default function Example() {
                 href={codesandboxUrl}
                 target="_blank"
                 className="flex gap-1 items-center"
+                rel="noreferrer"
               >
                 <FaExternalLinkAlt /> CodeSandbox
               </a>

@@ -86,7 +86,7 @@ export default function FormVersionIndex() {
   //   setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   // }, [])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${configProject.colorFrom} ${configProject.colorTo}`
+  const gradientText = `inline-block leading-snug text-transparent bg-clip-text bg-gradient-to-r ${configProject.colorFrom} ${configProject.colorTo}`
 
   return (
     <>

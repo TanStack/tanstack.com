@@ -12,13 +12,8 @@ import { twMerge } from 'tailwind-merge'
 import { OramaSearchBox } from '@orama/react-components'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
-import {
-  FaDiscord,
-  FaGithub,
-  FaInstagram,
-  FaTshirt,
-  FaTwitter,
-} from 'react-icons/fa'
+import { FaDiscord, FaGithub, FaInstagram, FaTshirt } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { getLibrary, libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
@@ -206,7 +201,7 @@ function LibrariesLayout() {
           href="https://x.com/tan_stack"
           className="opacity-70 hover:opacity-100"
         >
-          <FaTwitter className="text-xl" />
+          <FaXTwitter className="text-xl" />
         </a>
         <a
           href="https://instagram.com/tan_stack"

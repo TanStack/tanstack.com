@@ -262,7 +262,7 @@ export default function VersionIndex() {
                     Created by{' '}
                     <a
                       className="font-bold underline"
-                      href="https://twitter.com/TkDodo"
+                      href="https://x.com/TkDodo"
                     >
                       Dominik Dorfmeister
                     </a>{' '}

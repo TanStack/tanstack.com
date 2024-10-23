@@ -8,9 +8,9 @@ import {
   FaDiscord,
   FaGithub,
   FaTshirt,
-  FaTwitter,
   FaYinYang,
 } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6'
 import { Await, Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
@@ -315,14 +315,14 @@ export default function VersionIndex() {
             <FaGithub /> TanStack.com Source
           </a>
           <a
-            href={`https://twitter.com/intent/post?text=${encodeURIComponent(
+            href={`https://x.com/intent/post?text=${encodeURIComponent(
               `TanStack Start is in ALPHA! It's a new full-stack React framework from @Tan_Stack and you can check it out at https://tanstack.com/start/`
             )}`}
             target="_blank"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
             rel="noreferrer"
           >
-            <FaTwitter /> Tweet about it!
+            <FaXTwitter /> Tweet about it!
           </a>{' '}
         </div>
       </div>

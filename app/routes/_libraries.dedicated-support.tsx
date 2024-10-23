@@ -98,7 +98,7 @@ function LoginComp() {
             {[teamMembers[0], ...randomIndices.map((i) => teamMembers[i])].map(
               (member) => (
                 <Link
-                  to={`https://twitter.com/${member.twitter}`}
+                  to={`https://x.com/${member.twitter}`}
                   className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg"
                   key={member.name}
                   target="_blank"

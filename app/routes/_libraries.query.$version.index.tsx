@@ -96,7 +96,7 @@ export default function VersionIndex() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${queryProject.colorFrom} ${queryProject.colorTo}`
+  const gradientText = `inline-block leading-snug text-transparent bg-clip-text bg-gradient-to-r ${queryProject.colorFrom} ${queryProject.colorTo}`
 
   return (
     <div className="flex flex-1 flex-col min-h-0 relative overflow-x-hidden">
@@ -303,6 +303,7 @@ export default function VersionIndex() {
                   href="https://query.gg?s=tanstack"
                   target="_blank"
                   className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
+                  rel="noreferrer"
                 >
                   Get the course
                 </a>

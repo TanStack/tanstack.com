@@ -253,64 +253,6 @@ export default function VersionIndex() {
             </div>
           </div>
 
-          <div className="px-4">
-            <div className="bg-white w-[600px] max-w-full mx-auto dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
-              <LogoQueryGG className="w-full" />
-              <div className="flex flex-col items-center gap-8 p-4 sm:px-8 sm:pb-8 ">
-                <div className="text-center">
-                  <div className="text opacity-70 mt-2">
-                    Created by{' '}
-                    <a
-                      className="font-bold underline"
-                      href="https://twitter.com/TkDodo"
-                    >
-                      Dominik Dorfmeister
-                    </a>{' '}
-                    and{' '}
-                    <a className="font-bold underline" href="https://ui.dev/">
-                      ui.dev
-                    </a>
-                  </div>
-                </div>
-
-                <div className="text-xl w-[34ch] max-w-full leading-7 text-center">
-                  “This is the best way to learn how to use React Query in
-                  real-world applications.”
-                  <div className="mt-2 text-base italic">—Tanner Linsley</div>
-                </div>
-
-                <div className="grid max-w-screen-lg mx-auto text-lg gap-2">
-                  <div className="flex items-start gap-2">
-                    <span className="text-2xl text-green-500 mt-0.5">
-                      <FaCheckCircle />
-                    </span>
-                    Save time by learning with a guided approach
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-2xl text-green-500 mt-0.5">
-                      <FaCheckCircle />
-                    </span>
-                    Get hands-on experience building a real-world application
-                  </div>
-                  <div className="flex items-start gap-2 mt-0.5">
-                    <span className="text-2xl text-green-500">
-                      <FaCheckCircle />
-                    </span>
-                    Never worry about data fetching again
-                  </div>
-                </div>
-                <a
-                  href="https://query.gg?s=tanstack"
-                  target="_blank"
-                  className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
-                  rel="noreferrer"
-                >
-                  Get the course
-                </a>
-              </div>
-            </div>
-          </div>
-
           <div className="px-4 sm:px-6 lg:px-8 mx-auto">
             <div className=" sm:text-center pb-16">
               <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">

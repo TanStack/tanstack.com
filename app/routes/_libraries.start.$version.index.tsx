@@ -291,7 +291,7 @@ export default function VersionIndex() {
             You can try <strong>TanStack Start ALPHA</strong> today! While
             usable, it is still currently in development and it will still
             undergo some breaking changes as we near BETA and gather feedback.
-            We invite at to try it out and provide feedback to help shape the
+            We invite all to try it out and provide feedback to help shape the
             final product!
           </div>
         </div>

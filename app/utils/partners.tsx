@@ -171,7 +171,7 @@ export const partners: Partner[] = [
       libraries: ['start', 'router'],
       sidebarImgLight: convexColorSvg,
       sidebarImgDark: convexWhiteSvg,
-      sidebarImgClass: 'py-1.5 scale-[1.3]',
+      sidebarImgClass: 'py-5 scale-[1.1]',
       href,
       homepageImg: (
         <div className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-6">

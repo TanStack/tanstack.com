@@ -4,8 +4,6 @@ import { redirectWithClearedCookie, requireAuthCookie } from '~/auth/auth'
 import { useMutation } from '~/hooks/useMutation'
 
 const loadDashboard = createServerFn('GET', async (_, { request }) => {
-  'use server'
-
   const userId = await requireAuthCookie(request)
 
   return {
@@ -14,8 +12,6 @@ const loadDashboard = createServerFn('GET', async (_, { request }) => {
 })
 
 const logoutFn = createServerFn('POST', async () => {
-  'use server'
-
   return redirectWithClearedCookie()
 })
 

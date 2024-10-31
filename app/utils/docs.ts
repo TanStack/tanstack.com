@@ -50,8 +50,6 @@ export const fetchDocs = createServerFn(
     currentPath: string
     redirectPath: string
   }) => {
-    'use server'
-
     const file = await fetchRepoFile(repo, branch, filePath)
 
     if (!file) {
@@ -69,6 +67,13 @@ export const fetchDocs = createServerFn(
 
     const frontMatter = extractFrontMatter(file)
     const description = removeMarkdown(frontMatter.excerpt ?? '')
+
+    console.log({
+      title: frontMatter.data?.title,
+      description,
+      filePath,
+      // content: frontMatter.content,
+    })
 
     return json(
       {

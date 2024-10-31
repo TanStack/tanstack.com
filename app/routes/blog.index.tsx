@@ -10,8 +10,6 @@ import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/start'
 
 const fetchFrontMatters = createServerFn('GET', async () => {
-  'use server'
-
   const postInfos = getPostList()
 
   const frontMatters = await Promise.all(

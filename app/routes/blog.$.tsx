@@ -11,8 +11,6 @@ import { format } from 'date-fns'
 const fetchBlogPost = createServerFn(
   'GET',
   async ({ docsPath }: { docsPath: string }) => {
-    'use server'
-
     if (!docsPath) {
       throw new Error('Invalid docs path')
     }

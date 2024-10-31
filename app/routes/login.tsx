@@ -11,8 +11,6 @@ const loginFn = createServerFn(
       password: string
     }>
   ) => {
-    'use server'
-
     const username = formData.get('username') as string
     const password = formData.get('password') as string
 

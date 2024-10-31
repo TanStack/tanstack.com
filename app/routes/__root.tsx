@@ -7,28 +7,17 @@ import {
   useMatches,
   useRouterState,
 } from '@tanstack/react-router'
-// import { SpeedInsights } from '@vercel/speed-insights/react'
-// import { Analytics } from '@vercel/analytics/react'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-import {
-  RouterManagedTag,
-  Scripts,
-  Meta,
-  Html,
-  Head,
-  Body,
-} from '@tanstack/start'
+import { Scripts, Meta } from '@tanstack/start'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 
-export const Route = createRootRouteWithContext<{
-  assets: RouterManagedTag[]
-}>()({
+export const Route = createRootRouteWithContext()({
   meta: () => [
     {
       charSet: 'utf-8',
@@ -149,14 +138,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const showDevtools = showLoading && isRouterPage
 
   return (
-    <Html lang="en">
-      <Head>
+    <html lang="en">
+      <head>
         <Meta />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
         ) : null}
-      </Head>
-      <Body>
+      </head>
+      <body>
         {/* <SpeedInsights /> */}
         {/* <Analytics /> */}
         <React.Suspense fallback={null}>{children}</React.Suspense>
@@ -186,7 +175,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         ) : null}
         <ScrollRestoration />
         <Scripts />
-      </Body>
-    </Html>
+      </body>
+    </html>
   )
 }

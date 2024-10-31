@@ -51,8 +51,6 @@ export const Route = createFileRoute('/_libraries/')({
 })
 
 async function bytesSignupServerFn({ email }: { email: string }) {
-  'use server'
-
   return fetch(`https://bytes.dev/api/bytes-optin-cors`, {
     method: 'POST',
     body: JSON.stringify({

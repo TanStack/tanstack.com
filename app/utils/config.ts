@@ -53,8 +53,6 @@ export type ConfigSchema = z.infer<typeof configSchema>
 export const getTanstackDocsConfig = createServerFn(
   'GET',
   async ({ repo, branch }: { repo: string; branch: string }) => {
-    'use server'
-
     const config = await fetchRepoFile(repo, branch, `docs/config.json`)
 
     if (!config) {

@@ -262,8 +262,6 @@ async function getSponsorsMeta() {
 }
 
 export const getSponsorsForSponsorPack = createServerFn('GET', async () => {
-  'use server'
-
   let { sponsors } = (await fetchCached({
     key: 'sponsors',
     // ttl: process.env.NODE_ENV === 'development' ? 1 : 60 * 60 * 1000,

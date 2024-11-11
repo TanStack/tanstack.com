@@ -8,6 +8,14 @@ import { shuffle } from '~/utils/utils'
 import { CiTurnL1 } from 'react-icons/ci'
 import { useScript } from '~/hooks/useScript'
 
+interface TeamMember {
+  name: string
+  twitter: string
+  website: string
+  specialties: string[]
+  img: string
+}
+
 export const Route = createFileRoute('/_libraries/dedicated-support')({
   component: LoginComp,
   loader: () => {
@@ -29,28 +37,32 @@ export const Route = createFileRoute('/_libraries/dedicated-support')({
     }),
 })
 
-const teamMembers = [
+const teamMembers: Array<TeamMember> = [
   {
     name: 'Tanner Linsley',
     twitter: '@TannerLinsley',
+    website: 'tannerlinsley.com',
     specialties: ['TypeScript', 'Routing', 'Ecosystem'],
     img: imgTanner,
   },
   {
     name: 'Dominik Dorfmeister',
     twitter: '@TkDodo',
+    website: 'tkdodo.eu',
     specialties: ['Data Management', 'SSR', 'TypeScript'],
     img: imgDominik,
   },
   {
     name: 'Kevin Van Cott',
     twitter: '@KevinVanCott',
+    website: 'kevinvancott.dev',
     specialties: ['Tables', 'Data Grids', 'Dashboards'],
     img: imgKevin,
   },
   {
     name: 'Corbin Crutchley',
     twitter: '@Crutchcorn',
+    website: 'crutchcorn.dev',
     specialties: ['Forms', 'Validation', 'State Management'],
     img: imgCorbin,
   },
@@ -94,53 +106,88 @@ function LoginComp() {
               </Link>
             </div> */}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl mx-auto px-4 md:px-6">
-            {[teamMembers[0], ...randomIndices.map((i) => teamMembers[i])].map(
-              (member) => (
-                <Link
-                  to={`https://twitter.com/${member.twitter}`}
-                  className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg"
-                  key={member.name}
-                  target="_blank"
-                >
-                  <div className="relative h-40 sm:h-48 md:h-52 lg:h-60 overflow-hidden">
-                    <img
-                      alt="User Avatar"
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 origin-top"
-                      height={400}
-                      src={member.img}
-                      style={{
-                        aspectRatio: '400/400',
-                        objectFit: 'cover',
-                      }}
-                      width={400}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-6xl mx-auto px-4 md:px-6">
+            {[
+              teamMembers[0],
+              ...randomIndices.map((i: number) => teamMembers[i]),
+            ].map((member: TeamMember) => (
+              <Link
+                to={`https://twitter.com/${member.twitter}`}
+                className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg"
+                key={member.name}
+                target="_blank"
+              >
+                <div className="relative h-40 sm:h-48 md:h-52 lg:h-60 overflow-hidden">
+                  <img
+                    alt="User Avatar"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 origin-top"
+                    height={400}
+                    src={member.img}
+                    style={{
+                      aspectRatio: '400/400',
+                      objectFit: 'cover',
+                    }}
+                    width={400}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+                </div>
+                <div className="p-2 sm:p-4 space-y-4">
+                  <div className="">
+                    <h3 className="text-xl font-bold">{member.name}</h3>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      <span className="inline-block w-5 text-center">𝕏</span>
+                      {member.twitter}
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      <a
+                        href={`https://bsky.app/profile/${member.website}`}
+                        target="_blank"
+                      >
+                        <span className="inline-block w-5 text-center">🦋</span>
+                        @{member.website}
+                      </a>
+                    </p>
                   </div>
-                  <div className="p-2 sm:p-4 space-y-4">
-                    <div className="">
-                      <h3 className="text-xl font-bold">{member.name}</h3>
-                      <p className="text-gray-500 dark:text-gray-400">
-                        {member.twitter}
-                      </p>
-                    </div>
-                    <ul className="flex flex-wrap">
-                      {member.specialties.length > 0
-                        ? member.specialties.map((specialty) => (
-                            <li
-                              className="bg-gray-500/10 text-xs text-gray-500 dark:text-white rounded-full px-2 py-1 mr-2 mb-2"
-                              key={specialty}
-                            >
-                              {specialty}
-                            </li>
-                          ))
-                        : null}
-                    </ul>
-                  </div>
-                </Link>
-              )
-            )}
+                  <ul className="flex flex-wrap">
+                    {member.specialties.length > 0
+                      ? member.specialties.map((specialty) => (
+                          <li
+                            className="bg-gray-500/10 text-xs text-gray-500 dark:text-white rounded-full px-2 py-1 mr-2 mb-2"
+                            key={specialty}
+                          >
+                            {specialty}
+                          </li>
+                        ))
+                      : null}
+                  </ul>
+                </div>
+              </Link>
+            ))}
           </div>
+        </div>
+        <div className="text-center max-w-xl mt-12 mx-auto px-4 text-gray-500 dark:text-gray-400 text-sm border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800/50">
+          <p>
+            Note: This page is specifically for inquiring about dedicated paid
+            support contracts. For general support questions, please ask
+            questions in the{' '}
+            <a
+              className="text-[#5865F2] hover:text-[#4752C4] dark:text-[#7289DA] dark:hover:text-[#5B6EAE]"
+              href="https://tlinz.com/discord"
+              target="_blank"
+            >
+              Discord
+            </a>{' '}
+            or{' '}
+            <a
+              className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+              href="https://github.com/tanstack"
+              target="_blank"
+            >
+              GitHub&nbsp;Discussions
+            </a>{' '}
+            of the individual libraries where we offer free help and support for
+            clearly described and scoped questions.
+          </p>
         </div>
         <div className="flex items-center flex-col py-12 space-y-2">
           <div className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extralight italic">

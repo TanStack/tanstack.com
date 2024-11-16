@@ -149,9 +149,6 @@ function Index() {
                     pending
                     to={library.to}
                     children={(isPending) => {
-                      if (isPending) {
-                        console.log('pending', library.name)
-                      }
                       return (
                         <div
                           className={twMerge(
@@ -200,6 +197,7 @@ function Index() {
                 href={partner.href}
                 target="_blank"
                 className="bg-white shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-gray-800 dark:shadow-none group overflow-hidden grid"
+                rel="noreferrer"
               >
                 <div className="z-0 row-start-1 col-start-1 bg-white flex items-center justify-center group-hover:blur-sm transition-all duration-200">
                   {partner.homepageImg}

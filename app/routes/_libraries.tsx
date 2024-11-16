@@ -28,7 +28,7 @@ import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
 export const Route = createFileRoute('/_libraries')({
   loader: async (ctx) => {
     return {
-      sponsorsPromise: defer(getSponsorsForSponsorPack()),
+      sponsorsPromise: getSponsorsForSponsorPack(),
     }
   },
   component: LibrariesLayout,
@@ -37,7 +37,6 @@ export const Route = createFileRoute('/_libraries')({
 function LibrariesLayout() {
   const { libraryId } = useParams({
     strict: false,
-    experimental_returnIntersection: true,
   })
   const library = libraryId ? getLibrary(libraryId) : undefined
   const detailsRef = React.useRef<HTMLElement>(null!)

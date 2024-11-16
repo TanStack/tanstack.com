@@ -4,12 +4,12 @@ import tsConfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   vite: {
-    plugins: () => [tsConfigPaths()],
+    plugins: [tsConfigPaths()],
   },
   routers: {
     client: {
       vite: {
-        plugins: () => [
+        plugins: [
           sentryVitePlugin({
             authToken: process.env.SENTRY_AUTH_TOKEN,
             org: 'tanstack',

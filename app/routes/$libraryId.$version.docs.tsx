@@ -10,8 +10,10 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
     const library = getLibrary(libraryId)
     const branch = getBranch(library, version)
     const config = await getTanstackDocsConfig({
-      repo: library.repo,
-      branch,
+      data: {
+        repo: library.repo,
+        branch,
+      },
     })
 
     return {

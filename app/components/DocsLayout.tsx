@@ -57,7 +57,6 @@ function useCurrentFramework(frameworks: Framework[]) {
 
   const { framework: paramsFramework } = useParams({
     strict: false,
-    experimental_returnIntersection: true,
   })
 
   const localCurrentFramework = useLocalCurrentFramework()
@@ -71,7 +70,7 @@ function useCurrentFramework(frameworks: Framework[]) {
   const setFramework = React.useCallback(
     (framework: string) => {
       navigate({
-        params: (prev: Record<string, string>) => ({
+        params: (prev) => ({
           ...prev,
           framework,
         }),
@@ -129,7 +128,6 @@ function useCurrentVersion(versions: string[]) {
 
   const { version: paramsVersion } = useParams({
     strict: false,
-    experimental_returnIntersection: true,
   })
 
   const localCurrentVersion = useLocalCurrentVersion()

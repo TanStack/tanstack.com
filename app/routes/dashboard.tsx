@@ -2,20 +2,18 @@ import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/start'
 import { redirectWithClearedCookie, requireAuthCookie } from '~/auth/auth'
 import { useMutation } from '~/hooks/useMutation'
+import { getWebRequest } from 'vinxi/http'
+import { z } from 'zod'
 
-const loadDashboard = createServerFn('GET', async (_, { request }) => {
-  'use server'
-
-  const userId = await requireAuthCookie(request)
+const loadDashboard = createServerFn({ method: 'GET' }).handler(async () => {
+  const userId = await requireAuthCookie(getWebRequest())
 
   return {
     userId,
   }
 })
 
-const logoutFn = createServerFn('POST', async () => {
-  'use server'
-
+const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
   return redirectWithClearedCookie()
 })
 
@@ -48,7 +46,7 @@ function LoginComp() {
       </ul>
       <div>
         <button
-          onClick={() => mutation.mutate()}
+          onClick={() => mutation.mutate(undefined as never)}
           className="bg-red-500 text-white px-4 py-2 rounded"
         >
           Logout

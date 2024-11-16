@@ -5,6 +5,7 @@ import {
   createRootRouteWithContext,
   redirect,
   useMatches,
+  useRouter,
   useRouterState,
 } from '@tanstack/react-router'
 import appCss from '~/styles/app.css?url'
@@ -75,7 +76,7 @@ export const Route = createRootRouteWithContext()({
       `,
     },
   ],
-  loader: async (ctx) => {
+  beforeLoad: async (ctx) => {
     if (
       ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)
     ) {
@@ -179,3 +180,48 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     </html>
   )
 }
+
+// export function Html({ children, ...props }: React.HTMLProps<HTMLHtmlElement>) {
+//   const router = useRouter()
+
+//   // warning(
+//   //   !Object.keys(props).length,
+//   //   'Passing props other than children to the Html component will be supported very soon in React 19.',
+//   // )
+
+//   if (!router.isServer) {
+//     return <>{children}</>
+//   }
+
+//   return <html>{children}</html>
+// }
+
+// export function Head({ children, ...props }: React.HTMLProps<HTMLHeadElement>) {
+//   const router = useRouter()
+
+//   // warning(
+//   //   !Object.keys(props).length,
+//   //   'Passing props other than children to the Head component will be supported very soon in React 19.',
+//   // )
+
+//   if (!router.isServer) {
+//     return children
+//   }
+
+//   return <head>{children}</head>
+// }
+
+// export function Body({ children, ...props }: React.HTMLProps<HTMLBodyElement>) {
+//   const router = useRouter()
+
+//   // warning(
+//   //   !Object.keys(props).length,
+//   //   'Passing props other than children to the Body component will be supported very soon in React 19.',
+//   // )
+
+//   if (!router.isServer) {
+//     return children
+//   }
+
+//   return <body>{children}</body>
+// }

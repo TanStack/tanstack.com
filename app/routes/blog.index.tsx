@@ -9,54 +9,56 @@ import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/start'
 
-const fetchFrontMatters = createServerFn('GET', async () => {
-  const postInfos = getPostList()
+const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const postInfos = getPostList()
 
-  const frontMatters = await Promise.all(
-    postInfos.map(async (info) => {
-      const filePath = `app/blog/${info.id}.md`
+    const frontMatters = await Promise.all(
+      postInfos.map(async (info) => {
+        const filePath = `app/blog/${info.id}.md`
 
-      const file = await fetchRepoFile(
-        'tanstack/tanstack.com',
-        'main',
-        filePath
-      )
+        const file = await fetchRepoFile(
+          'tanstack/tanstack.com',
+          'main',
+          filePath
+        )
 
-      if (!file) {
-        throw notFound()
+        if (!file) {
+          throw notFound()
+        }
+
+        const frontMatter = extractFrontMatter(file)
+
+        return [
+          info.id,
+          {
+            title: frontMatter.data.title,
+            published: frontMatter.data.published,
+            excerpt: frontMatter.excerpt,
+            authors: frontMatter.data.authors as Array<string> | undefined,
+          },
+        ] as const
+      })
+    )
+
+    return frontMatters.sort((a, b) => {
+      if (!a[1].published) {
+        return 1
       }
 
-      const frontMatter = extractFrontMatter(file)
-
-      return [
-        info.id,
-        {
-          title: frontMatter.data.title,
-          published: frontMatter.data.published,
-          excerpt: frontMatter.excerpt,
-          authors: frontMatter.data.authors as Array<string> | undefined,
-        },
-      ] as const
+      return (
+        new Date(b[1].published || 0).getTime() -
+        new Date(a[1].published || 0).getTime()
+      )
     })
-  )
 
-  return frontMatters.sort((a, b) => {
-    if (!a[1].published) {
-      return 1
-    }
-
-    return (
-      new Date(b[1].published || 0).getTime() -
-      new Date(a[1].published || 0).getTime()
-    )
-  })
-
-  // return json(frontMatters, {
-  //   headers: {
-  //     'Cache-Control': 'public, max-age=300, s-maxage=3600',
-  //   },
-  // })
-})
+    // return json(frontMatters, {
+    //   headers: {
+    //     'Cache-Control': 'public, max-age=300, s-maxage=3600',
+    //   },
+    // })
+  }
+)
 
 export const Route = createFileRoute('/blog/')({
   loader: () => fetchFrontMatters(),

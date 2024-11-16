@@ -50,9 +50,9 @@ export type ConfigSchema = z.infer<typeof configSchema>
 /**
   Fetch the config file for the project and validate it.
   */
-export const getTanstackDocsConfig = createServerFn(
-  'GET',
-  async ({ repo, branch }: { repo: string; branch: string }) => {
+export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
+  .validator(z.object({ repo: z.string(), branch: z.string() }))
+  .handler(async ({ data: { repo, branch } }) => {
     const config = await fetchRepoFile(repo, branch, `docs/config.json`)
 
     if (!config) {
@@ -75,5 +75,4 @@ export const getTanstackDocsConfig = createServerFn(
     } catch (e) {
       throw new Error('Invalid docs/config.json file')
     }
-  }
-)
+  })

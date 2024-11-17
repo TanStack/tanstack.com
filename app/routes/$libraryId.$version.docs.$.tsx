@@ -17,14 +17,16 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
       redirectPath: `/${library.id}/${version}/docs/overview`,
     })
   },
-  meta: ({ loaderData, params }) => {
+  head: ({ loaderData, params }) => {
     const { libraryId } = params
     const library = getLibrary(libraryId)
 
-    return seo({
-      title: `${loaderData?.title} | ${library.name} Docs`,
-      description: loaderData?.description,
-    })
+    return {
+      meta: seo({
+        title: `${loaderData?.title} | ${library.name} Docs`,
+        description: loaderData?.description,
+      }),
+    }
   },
   component: Docs,
 })

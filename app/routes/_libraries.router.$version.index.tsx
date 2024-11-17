@@ -69,11 +69,12 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/router/$version/')({
   component: RouterVersionIndex,
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: routerProject.name,
       description: routerProject.description,
     }),
+  }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
@@ -243,6 +244,7 @@ function RouterVersionIndex() {
                   href={partner.href}
                   target="_blank"
                   className="bg-white shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-gray-800 dark:shadow-none group overflow-hidden grid"
+                  rel="noreferrer"
                 >
                   <div className="z-0 row-start-1 col-start-1 bg-white flex items-center justify-center group-hover:blur-sm transition-all duration-200">
                     {partner.homepageImg}

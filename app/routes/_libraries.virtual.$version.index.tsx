@@ -81,11 +81,12 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/virtual/$version/')({
   component: RouteComp,
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: virtualProject.name,
       description: virtualProject.description,
     }),
+  }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')

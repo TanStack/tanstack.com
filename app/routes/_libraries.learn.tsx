@@ -12,12 +12,13 @@ import { LogoQueryGG } from '~/components/LogoQueryGG'
 
 export const Route = createFileRoute('/_libraries/learn')({
   component: LoginComp,
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: 'Learn | TanStack',
       description: `Education and learning resources for TanStack libraries and projects`,
       keywords: `learn,course,education,learning,resources,training`,
     }),
+  }),
 })
 
 function LoginComp() {

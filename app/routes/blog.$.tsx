@@ -39,18 +39,24 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
 
 export const Route = createFileRoute('/blog/$')({
   loader: ({ params }) => fetchBlogPost({ data: params._splat }),
-  meta: ({ loaderData }) => [
-    ...seo({
-      title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
-      description: loaderData?.description,
-    }),
-    {
-      name: 'author',
-      content: `${
-        loaderData.authors.length > 1 ? 'co-authored by ' : ''
-      }${formatAuthors(loaderData.authors)}`,
-    },
-  ],
+  head: ({ loaderData }) => {
+    return {
+      meta: loaderData
+        ? [
+            ...seo({
+              title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
+              description: loaderData?.description,
+            }),
+            {
+              name: 'author',
+              content: `${
+                loaderData.authors.length > 1 ? 'co-authored by ' : ''
+              }${formatAuthors(loaderData.authors)}`,
+            },
+          ]
+        : [],
+    }
+  },
   notFoundComponent: () => <PostNotFound />,
   component: BlogPost,
 })

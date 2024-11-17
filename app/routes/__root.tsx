@@ -19,63 +19,66 @@ import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 
 export const Route = createRootRouteWithContext()({
-  meta: () => [
-    {
-      charSet: 'utf-8',
-    },
-    {
-      name: 'viewport',
-      content: 'width=device-width, initial-scale=1',
-    },
-    ...seo({
-      title: 'TanStack | High Quality Open-Source Software for Web Developers',
-      description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
-      image: `https://tanstack.com${ogImage}`,
-      keywords:
-        'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
-    }),
-  ],
-  links: () => [
-    { rel: 'stylesheet', href: appCss },
-    {
-      rel: 'stylesheet',
-      href: carbonStyles,
-    },
-    {
-      rel: 'apple-touch-icon',
-      sizes: '180x180',
-      href: '/apple-touch-icon.png',
-    },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '32x32',
-      href: '/favicon-32x32.png',
-    },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '16x16',
-      href: '/favicon-16x16.png',
-    },
-    { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
-    { rel: 'icon', href: '/favicon.ico' },
-  ],
-  scripts: () => [
-    {
-      src: 'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS',
-      async: true,
-    },
-    {
-      children: `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-JMT1Z50SPS');
-      `,
-    },
-  ],
+  head: () => ({
+    meta: [
+      {
+        charSet: 'utf-8',
+      },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
+      },
+      ...seo({
+        title:
+          'TanStack | High Quality Open-Source Software for Web Developers',
+        description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
+        image: `https://tanstack.com${ogImage}`,
+        keywords:
+          'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
+      }),
+    ],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      {
+        rel: 'stylesheet',
+        href: carbonStyles,
+      },
+      {
+        rel: 'apple-touch-icon',
+        sizes: '180x180',
+        href: '/apple-touch-icon.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        href: '/favicon-32x32.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '16x16',
+        href: '/favicon-16x16.png',
+      },
+      { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
+      { rel: 'icon', href: '/favicon.ico' },
+    ],
+    scripts: [
+      {
+        src: 'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS',
+        async: true,
+      },
+      {
+        children: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+  
+          gtag('config', 'G-JMT1Z50SPS');
+        `,
+      },
+    ],
+  }),
   beforeLoad: async (ctx) => {
     if (
       ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)

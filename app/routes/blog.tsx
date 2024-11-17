@@ -33,11 +33,12 @@ const localMenu = [
 ] as const
 
 export const Route = createFileRoute('/blog')({
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: 'Blog | TanStack',
       description: 'The latest news and blog posts from TanStack!',
     }),
+  }),
   component: Blog,
 })
 

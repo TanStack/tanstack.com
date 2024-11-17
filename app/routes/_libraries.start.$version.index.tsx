@@ -76,11 +76,12 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/start/$version/')({
   component: VersionIndex,
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: startProject.name,
       description: startProject.description,
     }),
+  }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')

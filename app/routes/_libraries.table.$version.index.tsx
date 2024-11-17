@@ -77,11 +77,12 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/table/$version/')({
   component: TableVersionIndex,
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: tableProject.name,
       description: tableProject.description,
     }),
+  }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
@@ -341,6 +342,7 @@ export default function TableVersionIndex() {
                     className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden dark:border border-gray-500/20
                         dark:bg-gray-800 dark:shadow-none"
+                    rel="noreferrer"
                   >
                     <div className="flex-1 bg-white flex items-center justify-center">
                       {partner.homepageImg}

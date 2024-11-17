@@ -64,11 +64,13 @@ export const Route = createFileRoute('/blog/')({
   loader: () => fetchFrontMatters(),
   notFoundComponent: () => <PostNotFound />,
   component: BlogIndex,
-  meta: () => [
-    {
-      title: 'Blog',
-    },
-  ],
+  head: () => ({
+    meta: [
+      {
+        title: 'Blog',
+      },
+    ],
+  }),
 })
 
 function BlogIndex() {

@@ -5,23 +5,25 @@ import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/$libraryId')({
   component: RouteForm,
-  meta: (ctx) => {
+  head: (ctx) => {
     const library = getLibrary(ctx.params.libraryId)
 
-    return seo({
-      title: library.name
-        ? `${library.name} | ${library.frameworks
-            .map(
-              (framework) =>
-                `${framework.charAt(0).toUpperCase()}${framework.slice(
-                  1
-                )} ${library.name.replace('TanStack ', '')}`
-            )
-            .join(', ')}`
-        : '',
-      description: library?.description,
-      image: library?.ogImage,
-    })
+    return {
+      meta: seo({
+        title: library.name
+          ? `${library.name} | ${library.frameworks
+              .map(
+                (framework) =>
+                  `${framework.charAt(0).toUpperCase()}${framework.slice(
+                    1
+                  )} ${library.name.replace('TanStack ', '')}`
+              )
+              .join(', ')}`
+          : '',
+        description: library?.description,
+        image: library?.ogImage,
+      }),
+    }
   },
 })
 

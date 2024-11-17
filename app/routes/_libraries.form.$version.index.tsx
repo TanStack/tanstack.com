@@ -70,11 +70,12 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/form/$version/')({
   component: FormVersionIndex,
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: formProject.name,
       description: formProject.description,
     }),
+  }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')

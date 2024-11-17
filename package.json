@@ -28,7 +28,7 @@
     "@tanstack/react-router": "1.81.14",
     "@tanstack/router-devtools": "1.81.14",
     "@tanstack/router-vite-plugin": "1.81.9",
-    "@tanstack/start": "1.81.15",
+    "@tanstack/start": "1.81.17",
     "@typescript-eslint/parser": "^7.2.0",
     "@vercel/analytics": "^1.2.2",
     "@vercel/speed-insights": "^1.0.10",

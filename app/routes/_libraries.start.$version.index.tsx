@@ -148,7 +148,7 @@ export default function VersionIndex() {
               dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md
               leading-none whitespace-nowrap"
         >
-          STATUS: ALPHA
+          STATUS: BETA
           {/* {version === 'latest' ? latestVersion : version} */}
         </div>
         {/* </div> */}
@@ -289,7 +289,7 @@ export default function VersionIndex() {
         </div>
         <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-gray-700 rounded-xl shadow-xl shadow-black/10">
           <div>
-            You can try <strong>TanStack Start ALPHA</strong> today! While
+            You can try <strong>TanStack Start BETA</strong> today! While
             usable, it is still currently in development and it will still
             undergo some breaking changes as we near BETA and gather feedback.
             We invite all to try it out and provide feedback to help shape the
@@ -307,7 +307,7 @@ export default function VersionIndex() {
             to="../../router/latest/docs/framework/react/start/overview"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded text-white uppercase font-extrabold`}
           >
-            <FaBook /> Try the ALPHA
+            <FaBook /> Try the BETA
           </Link>
           <a
             href={`https://github.com/tanstack/tanstack.com`}
@@ -317,7 +317,7 @@ export default function VersionIndex() {
           </a>
           <a
             href={`https://twitter.com/intent/post?text=${encodeURIComponent(
-              `TanStack Start is in ALPHA! It's a new full-stack React framework from @Tan_Stack and you can check it out at https://tanstack.com/start/`
+              `TanStack Start is in BETA! It's a new full-stack React framework from @Tan_Stack and you can check it out at https://tanstack.com/start/`
             )}`}
             target="_blank"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}

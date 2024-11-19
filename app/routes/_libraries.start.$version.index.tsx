@@ -289,11 +289,12 @@ export default function VersionIndex() {
         </div>
         <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-gray-700 rounded-xl shadow-xl shadow-black/10">
           <div>
-            You can try <strong>TanStack Start BETA</strong> today! While
-            usable, it is still currently in development and it will still
-            undergo some breaking changes as we near BETA and gather feedback.
-            We invite all to try it out and provide feedback to help shape the
-            final product!
+            You can use <strong>TanStack Start BETA</strong> today! Although
+            currently in active development we do not expect any more breaking
+            changes. We invite you provide feedback to help help us on the
+            journey to 1.0! If you choose to ship a BETA Start app to
+            production, we recommend locking your dependencies to a specific
+            version and keeping up with the latest releases.
           </div>
         </div>
         <div className="grid items-center gap-2 justify-center grid-cols-2 w-[600px] max-w-full mx-auto">

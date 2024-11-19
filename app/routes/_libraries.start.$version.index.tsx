@@ -171,6 +171,12 @@ export default function VersionIndex() {
           and <strong>Vite</strong>. Ready to deploy to your favorite hosting
           provider.
         </p>
+        <Link
+          to="./docs/framework/react/start/overview"
+          className={`py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
+        >
+          Get Started
+        </Link>
       </div>
       <div className="text-lg grid gap-12 p-8 max-w-[1200px] mx-auto md:grid-cols-2 xl:grid-cols-4">
         <div className="flex-1 flex flex-col gap-8 items-center">
@@ -625,7 +631,7 @@ export default function VersionIndex() {
         </div>
       )} */}
 
-      {/* <div className="flex flex-col gap-4 items-center">
+      <div className="flex flex-col gap-4 items-center">
         <div className="font-extrabold text-xl lg:text-2xl">
           Wow, you've come a long way!
         </div>
@@ -634,13 +640,13 @@ export default function VersionIndex() {
         </div>
         <div>
           <Link
-            to="./docs/"
+            to="./docs/framework/react/start/overview"
             className={`inline-block py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
           >
-            Read the Docs!
+            Get Started!
           </Link>
         </div>
-      </div> */}
+      </div>
       <Footer />
     </div>
   )

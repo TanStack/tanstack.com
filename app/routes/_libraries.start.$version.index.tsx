@@ -641,7 +641,7 @@ export default function VersionIndex() {
         </div>
         <div>
           <Link
-            to="./docs/framework/react/start/overview"
+            to="../../router/latest/docs/framework/react/start/overview"
             className={`inline-block py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started!

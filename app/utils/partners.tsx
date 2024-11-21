@@ -42,7 +42,7 @@ export const partners: Partner[] = [
       sidebarImgDark: vercelDarkSvg,
       sidebarImgClass: 'py-4',
       homepageImg: (
-        <div className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-12">
+        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-12">
           <img
             src={vercelLightSvg}
             alt="Vercel"
@@ -86,7 +86,7 @@ export const partners: Partner[] = [
       sidebarImgDark: clerkDarkSvg,
       sidebarImgClass: 'py-4',
       homepageImg: (
-        <div className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-12">
+        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-12">
           <img
             src={clerkLightSvg}
             alt="Clerk"
@@ -174,7 +174,7 @@ export const partners: Partner[] = [
       sidebarImgClass: 'py-5 scale-[1.1]',
       href,
       homepageImg: (
-        <div className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-6">
+        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-6">
           <img
             src={convexColorSvg}
             alt="Convex"
@@ -220,7 +220,7 @@ export const partners: Partner[] = [
       sidebarImgClass: 'py-4 scale-[1.1]',
       href,
       homepageImg: (
-        <div className="dark:bg-black w-full h-full flex items-center justify-center px-4 py-6">
+        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-6">
           <img
             src={sentryWordMarkDarkSvg}
             alt="Sentry"

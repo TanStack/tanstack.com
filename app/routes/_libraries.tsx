@@ -276,7 +276,7 @@ function LibrariesLayout() {
       {largeMenu}
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
         <div
-          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none"
+          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none blur-sm"
           style={{
             backgroundImage: `url(${background})`,
             backgroundSize: 'cover',

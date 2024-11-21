@@ -324,61 +324,33 @@ export default function TableVersionIndex() {
         </marquee>
       </div>
 
-      <div className="px-4 lg:max-w-[500px] md:mx-auto mx-auto">
+      <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Partners
         </h3>
         <div className="h-8" />
-        {partners.find((d) => d.libraries?.includes('table')) ? (
-          <div className={`grid grid-cols-1 gap-12 sm:grid-cols-1`}>
-            {partners
-              .filter((d) => d.libraries?.includes('table'))
-              .map((partner) => {
-                return (
-                  <a
-                    key={partner.name}
-                    href={partner.href}
-                    target="_blank"
-                    className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden dark:border border-gray-500/20
-                        dark:bg-gray-800 dark:shadow-none"
-                    rel="noreferrer"
-                  >
-                    <div className="flex-1 bg-white flex items-center justify-center">
-                      {partner.homepageImg}
-                    </div>
-                    <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
-                      {partner.content}
-                    </div>
-                  </a>
-                )
-              })}
-          </div>
-        ) : (
-          <div
-            className="flex-1 flex flex-col items-center text-sm text-center
-                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-800 dark:shadow-none"
-          >
-            <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Router <TbHeartHandshake /> You?
-            </span>
-            <div className="flex flex-col p-4 gap-4">
-              <div>
-                We're looking for a TanStack OSS Partner to go above and beyond
-                the call of sponsorship. Are you as invested in TanStack as we
-                are? Let's push boundaries together!
-              </div>
-              <a
-                href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
-                className="text-blue-500 uppercase font-black text-sm"
-              >
-                Let's chat
-              </a>
-            </div>
-          </div>
-        )}
+        <div className={`grid grid-cols-1 gap-6 max-w-[400px]`}>
+          {partners
+            .filter((d) => d.libraries?.includes('table'))
+            .map((partner) => {
+              return (
+                <a
+                  key={partner.name}
+                  href={partner.href}
+                  target="_blank"
+                  className="bg-white shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-gray-800 dark:shadow-none group overflow-hidden grid"
+                  rel="noreferrer"
+                >
+                  <div className="z-0 row-start-1 col-start-1 bg-white flex items-center justify-center group-hover:blur-sm transition-all duration-200">
+                    {partner.homepageImg}
+                  </div>
+                  <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/70">
+                    {partner.content}
+                  </div>
+                </a>
+              )
+            })}
+        </div>
       </div>
 
       <div className="relative text-lg overflow-hidden">

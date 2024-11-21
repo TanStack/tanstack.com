@@ -283,7 +283,7 @@ export default function VersionIndex() {
                 deployable anywhere JS can run
               </span>
               . Whether you're hosting on a traditional server, a serverless
-              platform, or even a CDN, Start seamless builds, bundles and
+              platform, or even a CDN, Start seamlessly builds, bundles and
               deploys your application with ease.
             </p>
           </div>

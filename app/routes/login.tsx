@@ -3,18 +3,18 @@ import { createServerFn, json } from '@tanstack/start'
 import { setAuthOnResponse } from '~/auth/auth'
 import { useMutation } from '~/hooks/useMutation'
 
-const loginFn = createServerFn(
-  'POST',
-  async (
-    formData: TypedFormData<{
-      username: string
-      password: string
-    }>
-  ) => {
-    'use server'
-
-    const username = formData.get('username') as string
-    const password = formData.get('password') as string
+const loginFn = createServerFn({ method: 'POST' })
+  .validator(
+    (
+      d: TypedFormData<{
+        username: string
+        password: string
+      }>
+    ) => d
+  )
+  .handler(async ({ data }) => {
+    const username = data.get('username') as string
+    const password = data.get('password') as string
 
     if (username !== 'admin') {
       return { errors: { username: 'Invalid username. Try "admin"' } }
@@ -25,8 +25,7 @@ const loginFn = createServerFn(
     }
 
     throw await setAuthOnResponse(json(redirect({ to: '/dashboard' })), '1234')
-  }
-)
+  })
 
 export const Route = createFileRoute('/login')({
   component: LoginComp,

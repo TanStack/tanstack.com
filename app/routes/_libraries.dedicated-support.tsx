@@ -27,14 +27,15 @@ export const Route = createFileRoute('/_libraries/dedicated-support')({
 
     return indices
   },
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: 'Dedicated Support | TanStack',
       description: `Private consultation and enterprise support contracts for projects of any size.`,
       // Keywords to target support for all sizes of companies, including consulting and enterprise support contracts
       keywords:
         'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software,consulting,enterprise support,dedicated support,enterprise contracts',
     }),
+  }),
 })
 
 const teamMembers: Array<TeamMember> = [
@@ -142,6 +143,7 @@ function LoginComp() {
                       <a
                         href={`https://bsky.app/profile/${member.website}`}
                         target="_blank"
+                        rel="noreferrer"
                       >
                         <span className="inline-block w-5 text-center">🦋</span>
                         @{member.website}
@@ -174,6 +176,7 @@ function LoginComp() {
               className="text-[#5865F2] hover:text-[#4752C4] dark:text-[#7289DA] dark:hover:text-[#5B6EAE]"
               href="https://tlinz.com/discord"
               target="_blank"
+              rel="noreferrer"
             >
               Discord
             </a>{' '}
@@ -182,6 +185,7 @@ function LoginComp() {
               className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
               href="https://github.com/tanstack"
               target="_blank"
+              rel="noreferrer"
             >
               GitHub&nbsp;Discussions
             </a>{' '}

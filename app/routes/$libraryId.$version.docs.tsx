@@ -3,6 +3,7 @@ import { DocsLayout } from '~/components/DocsLayout'
 import { getBranch, getLibrary } from '~/libraries'
 import { getTanstackDocsConfig } from '~/utils/config'
 import { seo } from '~/utils/seo'
+import background from '~/images/background.jpg'
 
 export const Route = createFileRoute('/$libraryId/$version/docs')({
   loader: async (ctx) => {
@@ -10,21 +11,25 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
     const library = getLibrary(libraryId)
     const branch = getBranch(library, version)
     const config = await getTanstackDocsConfig({
-      repo: library.repo,
-      branch,
+      data: {
+        repo: library.repo,
+        branch,
+      },
     })
 
     return {
       config,
     }
   },
-  meta: (ctx) => {
+  head: (ctx) => {
     const { libraryId } = ctx.params
     const library = getLibrary(libraryId)
 
-    return seo({
-      title: `${library.name} Docs`,
-    })
+    return {
+      meta: seo({
+        title: `${library.name} Docs`,
+      }),
+    }
   },
   component: DocsRoute,
 })
@@ -46,6 +51,15 @@ function DocsRoute() {
       versions={library.availableVersions}
       repo={library.repo}
     >
+      <div
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none blur-md"
+        style={{
+          backgroundImage: `url(${background})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'bottom',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
       <Outlet />
     </DocsLayout>
   )

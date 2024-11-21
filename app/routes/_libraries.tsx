@@ -24,11 +24,12 @@ import { getLibrary, libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
+import background from '~/images/background.jpg'
 
 export const Route = createFileRoute('/_libraries')({
   loader: async (ctx) => {
     return {
-      sponsorsPromise: defer(getSponsorsForSponsorPack()),
+      sponsorsPromise: getSponsorsForSponsorPack(),
     }
   },
   component: LibrariesLayout,
@@ -37,7 +38,6 @@ export const Route = createFileRoute('/_libraries')({
 function LibrariesLayout() {
   const { libraryId } = useParams({
     strict: false,
-    experimental_returnIntersection: true,
   })
   const library = libraryId ? getLibrary(libraryId) : undefined
   const detailsRef = React.useRef<HTMLElement>(null!)
@@ -275,6 +275,16 @@ function LibrariesLayout() {
       {smallMenu}
       {largeMenu}
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
+        <div
+          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none blur-sm"
+          style={{
+            backgroundImage: `url(${background})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'bottom',
+            backgroundRepeat: 'no-repeat',
+          }}
+        />
+
         {library?.scarfId ? <Scarf id={library.scarfId} /> : null}
         <Outlet />
       </div>

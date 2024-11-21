@@ -1,14 +1,16 @@
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import removeMarkdown from 'remove-markdown'
 import { notFound } from '@tanstack/react-router'
-import { createServerFn, json } from '@tanstack/start'
+import { createServerFn } from '@tanstack/start'
+import { z } from 'zod'
+import { setHeader } from 'vinxi/http'
 
 export const loadDocs = async ({
   repo,
   branch,
+  // currentPath,
+  // redirectPath,
   docsPath,
-  currentPath,
-  redirectPath,
 }: {
   repo: string
   branch: string
@@ -27,31 +29,21 @@ export const loadDocs = async ({
   const filePath = `${docsPath}.md`
 
   return await fetchDocs({
-    repo,
-    branch,
-    filePath,
-    currentPath,
-    redirectPath,
+    data: {
+      repo,
+      branch,
+      filePath,
+      // currentPath,
+      // redirectPath,
+    },
   })
 }
 
-export const fetchDocs = createServerFn(
-  'GET',
-  async ({
-    repo,
-    branch,
-    filePath,
-    currentPath,
-    redirectPath,
-  }: {
-    repo: string
-    branch: string
-    filePath: string
-    currentPath: string
-    redirectPath: string
-  }) => {
-    'use server'
-
+export const fetchDocs = createServerFn({ method: 'GET' })
+  .validator(
+    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() })
+  )
+  .handler(async ({ data: { repo, branch, filePath } }) => {
     const file = await fetchRepoFile(repo, branch, filePath)
 
     if (!file) {
@@ -70,18 +62,19 @@ export const fetchDocs = createServerFn(
     const frontMatter = extractFrontMatter(file)
     const description = removeMarkdown(frontMatter.excerpt ?? '')
 
-    return json(
-      {
-        title: frontMatter.data?.title,
-        description,
-        filePath,
-        content: frontMatter.content,
-      },
-      {
-        headers: {
-          'Cache-Control': 's-maxage=1, stale-while-revalidate=300',
-        },
-      }
-    )
-  }
-)
+    console.log({
+      title: frontMatter.data?.title,
+      description,
+      filePath,
+      // content: frontMatter.content,
+    })
+
+    setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=300')
+
+    return {
+      title: frontMatter.data?.title,
+      description,
+      filePath,
+      content: frontMatter.content,
+    }
+  })

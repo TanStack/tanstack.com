@@ -3,7 +3,7 @@ import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 import { getLibrary } from '~/libraries'
 
 export const Route = createFileRoute('/$libraryId/$version')({
-  loader: (ctx) => {
+  beforeLoad: (ctx) => {
     const { libraryId, version } = ctx.params
     const library = getLibrary(libraryId)
 

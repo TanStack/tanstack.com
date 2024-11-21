@@ -57,7 +57,6 @@ function useCurrentFramework(frameworks: Framework[]) {
 
   const { framework: paramsFramework } = useParams({
     strict: false,
-    experimental_returnIntersection: true,
   })
 
   const localCurrentFramework = useLocalCurrentFramework()
@@ -71,7 +70,7 @@ function useCurrentFramework(frameworks: Framework[]) {
   const setFramework = React.useCallback(
     (framework: string) => {
       navigate({
-        params: (prev: Record<string, string>) => ({
+        params: (prev) => ({
           ...prev,
           framework,
         }),
@@ -129,7 +128,6 @@ function useCurrentVersion(versions: string[]) {
 
   const { version: paramsVersion } = useParams({
     strict: false,
-    experimental_returnIntersection: true,
   })
 
   const localCurrentVersion = useLocalCurrentVersion()
@@ -505,7 +503,7 @@ export function DocsLayout({
   )
 
   const largeMenu = (
-    <div className="bg-white dark:bg-gray-900 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20 transition-all duration-500">
+    <div className="bg-white dark:bg-gray-900/50 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20 transition-all duration-500">
       <div
         className="px-4 pt-4 flex gap-2 items-center text-2xl"
         style={{
@@ -605,7 +603,7 @@ export function DocsLayout({
       </div>
       <div className="-ml-2 pl-2 w-64 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
         <div className="ml-auto flex flex-col space-y-4">
-          <div className="bg-white dark:bg-gray-900 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
+          <div className="bg-white dark:bg-gray-900/30 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
             <div className="uppercase font-black text-center p-3 opacity-50">
               Our Partners
             </div>
@@ -670,7 +668,7 @@ export function DocsLayout({
                 })
             )}
           </div>
-          <div className="p-4 bg-white dark:bg-gray-900 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+          <div className="p-4 bg-white dark:bg-gray-900/30 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
             {libraryId === 'query' ? (
               <DocsCalloutQueryGG />
             ) : (
@@ -678,7 +676,7 @@ export function DocsLayout({
             )}
           </div>
 
-          <div className="bg-white dark:bg-gray-900 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+          <div className="bg-white dark:bg-gray-900/20 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
             <Carbon />
             <div
               className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic
@@ -692,7 +690,7 @@ export function DocsLayout({
       </div>
       {showBytes ? (
         <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
-          <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
+          <div className="bg-white dark:bg-gray-900/30 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
             {libraryId === 'query' ? (
               <DocsCalloutQueryGG />
             ) : (

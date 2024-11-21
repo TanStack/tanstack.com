@@ -22,14 +22,18 @@ export const Route = createFileRoute(
     })
   },
   component: Docs,
-  meta: (ctx) => {
+  head: (ctx) => {
     const library = getLibrary(ctx.params.libraryId)
     const tail = `${library.name} ${capitalize(ctx.params.framework)} Docs`
 
-    return seo({
-      title: ctx.loaderData?.title ? `${ctx.loaderData.title} | ${tail}` : tail,
-      description: ctx.loaderData?.description,
-    })
+    return {
+      meta: seo({
+        title: ctx.loaderData?.title
+          ? `${ctx.loaderData.title} | ${tail}`
+          : tail,
+        description: ctx.loaderData?.description,
+      }),
+    }
   },
 })
 

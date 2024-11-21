@@ -5,88 +5,81 @@ import {
   createRootRouteWithContext,
   redirect,
   useMatches,
+  useRouter,
   useRouterState,
 } from '@tanstack/react-router'
-import { SpeedInsights } from '@vercel/speed-insights/react'
-import { Analytics } from '@vercel/analytics/react'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-import {
-  RouterManagedTag,
-  Scripts,
-  Meta,
-  Html,
-  Head,
-  Body,
-} from '@tanstack/start'
+import { Scripts, Meta } from '@tanstack/start'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 
-export const Route = createRootRouteWithContext<{
-  assets: RouterManagedTag[]
-}>()({
-  meta: () => [
-    {
-      charSet: 'utf-8',
-    },
-    {
-      name: 'viewport',
-      content: 'width=device-width, initial-scale=1',
-    },
-    ...seo({
-      title: 'TanStack | High Quality Open-Source Software for Web Developers',
-      description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
-      image: `https://tanstack.com${ogImage}`,
-      keywords:
-        'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
-    }),
-  ],
-  links: () => [
-    { rel: 'stylesheet', href: appCss },
-    {
-      rel: 'stylesheet',
-      href: carbonStyles,
-    },
-    {
-      rel: 'apple-touch-icon',
-      sizes: '180x180',
-      href: '/apple-touch-icon.png',
-    },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '32x32',
-      href: '/favicon-32x32.png',
-    },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '16x16',
-      href: '/favicon-16x16.png',
-    },
-    { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
-    { rel: 'icon', href: '/favicon.ico' },
-  ],
-  scripts: () => [
-    {
-      src: 'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS',
-      async: true,
-    },
-    {
-      children: `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-JMT1Z50SPS');
-      `,
-    },
-  ],
-  loader: async (ctx) => {
+export const Route = createRootRouteWithContext()({
+  head: () => ({
+    meta: [
+      {
+        charSet: 'utf-8',
+      },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
+      },
+      ...seo({
+        title:
+          'TanStack | High Quality Open-Source Software for Web Developers',
+        description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
+        image: `https://tanstack.com${ogImage}`,
+        keywords:
+          'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
+      }),
+    ],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      {
+        rel: 'stylesheet',
+        href: carbonStyles,
+      },
+      {
+        rel: 'apple-touch-icon',
+        sizes: '180x180',
+        href: '/apple-touch-icon.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        href: '/favicon-32x32.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '16x16',
+        href: '/favicon-16x16.png',
+      },
+      { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
+      { rel: 'icon', href: '/favicon.ico' },
+    ],
+    scripts: [
+      {
+        src: 'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS',
+        async: true,
+      },
+      {
+        children: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+  
+          gtag('config', 'G-JMT1Z50SPS');
+        `,
+      },
+    ],
+  }),
+  beforeLoad: async (ctx) => {
     if (
       ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)
     ) {
@@ -149,16 +142,16 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const showDevtools = showLoading && isRouterPage
 
   return (
-    <Html lang="en">
-      <Head>
+    <html lang="en">
+      <head>
         <Meta />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
         ) : null}
-      </Head>
-      <Body>
-        <SpeedInsights />
-        <Analytics />
+      </head>
+      <body>
+        {/* <SpeedInsights /> */}
+        {/* <Analytics /> */}
         <React.Suspense fallback={null}>{children}</React.Suspense>
         {showDevtools ? (
           <TanStackRouterDevtools position="bottom-right" />
@@ -186,7 +179,52 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         ) : null}
         <ScrollRestoration />
         <Scripts />
-      </Body>
-    </Html>
+      </body>
+    </html>
   )
 }
+
+// export function Html({ children, ...props }: React.HTMLProps<HTMLHtmlElement>) {
+//   const router = useRouter()
+
+//   // warning(
+//   //   !Object.keys(props).length,
+//   //   'Passing props other than children to the Html component will be supported very soon in React 19.',
+//   // )
+
+//   if (!router.isServer) {
+//     return <>{children}</>
+//   }
+
+//   return <html>{children}</html>
+// }
+
+// export function Head({ children, ...props }: React.HTMLProps<HTMLHeadElement>) {
+//   const router = useRouter()
+
+//   // warning(
+//   //   !Object.keys(props).length,
+//   //   'Passing props other than children to the Head component will be supported very soon in React 19.',
+//   // )
+
+//   if (!router.isServer) {
+//     return children
+//   }
+
+//   return <head>{children}</head>
+// }
+
+// export function Body({ children, ...props }: React.HTMLProps<HTMLBodyElement>) {
+//   const router = useRouter()
+
+//   // warning(
+//   //   !Object.keys(props).length,
+//   //   'Passing props other than children to the Body component will be supported very soon in React 19.',
+//   // )
+
+//   if (!router.isServer) {
+//     return children
+//   }
+
+//   return <body>{children}</body>
+// }

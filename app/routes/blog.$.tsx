@@ -7,12 +7,11 @@ import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/start'
 import { formatAuthors } from '~/utils/blog'
 import { format } from 'date-fns'
+import { z } from 'zod'
 
-const fetchBlogPost = createServerFn(
-  'GET',
-  async ({ docsPath }: { docsPath: string }) => {
-    'use server'
-
+const fetchBlogPost = createServerFn({ method: 'GET' })
+  .validator(z.string().optional())
+  .handler(async ({ data: docsPath }) => {
     if (!docsPath) {
       throw new Error('Invalid docs path')
     }
@@ -36,23 +35,28 @@ const fetchBlogPost = createServerFn(
       authors: (frontMatter.data.authors ?? []) as Array<string>,
       filePath,
     }
-  }
-)
+  })
 
 export const Route = createFileRoute('/blog/$')({
-  loader: ({ params }) => fetchBlogPost({ docsPath: params._splat }),
-  meta: ({ loaderData }) => [
-    ...seo({
-      title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
-      description: loaderData?.description,
-    }),
-    {
-      name: 'author',
-      content: `${
-        loaderData.authors.length > 1 ? 'co-authored by ' : ''
-      }${formatAuthors(loaderData.authors)}`,
-    },
-  ],
+  loader: ({ params }) => fetchBlogPost({ data: params._splat }),
+  head: ({ loaderData }) => {
+    return {
+      meta: loaderData
+        ? [
+            ...seo({
+              title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
+              description: loaderData?.description,
+            }),
+            {
+              name: 'author',
+              content: `${
+                loaderData.authors.length > 1 ? 'co-authored by ' : ''
+              }${formatAuthors(loaderData.authors)}`,
+            },
+          ]
+        : [],
+    }
+  },
   notFoundComponent: () => <PostNotFound />,
   component: BlogPost,
 })

@@ -92,7 +92,7 @@ function Index() {
         className="-bottom-[50px] -right-[100px] z-0 fixed opacity-20"
       /> */}
       <div className="max-w-full z-10">
-        <div className="flex flex-col items-center gap-6 text-center px-4 py-12 lg:py-24">
+        <div className="flex flex-col items-center gap-6 text-center px-4 pt-12 lg:pt-24">
           <div className="flex gap-2 lg:gap-4 items-center">
             <img
               src={logoColor}
@@ -118,8 +118,8 @@ function Index() {
           </div>
           <h2
             className="font-bold text-2xl max-w-md
-            md:text-3xl
-            lg:text-5xl lg:max-w-2xl"
+            md:text-4xl
+            lg:text-5xl lg:max-w-2xl text-balance"
           >
             High-quality open-source software for{' '}
             <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
@@ -128,7 +128,7 @@ function Index() {
           </h2>
           <p
             className="text opacity-90 max-w-sm
-            lg:text-xl lg:max-w-2xl"
+            lg:text-xl lg:max-w-2xl text-balance"
           >
             Headless, type-safe, & powerful utilities for Web Applications,
             Routing, State Management, Data Visualization, Datagrids/Tables, and

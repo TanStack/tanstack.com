@@ -12,6 +12,9 @@ export function getPostList() {
     {
       id: 'tanstack-router-typescript-performance',
     },
+    {
+      id: 'building-tanstack-start-to-support-vercel',
+    },
   ]
 }
 

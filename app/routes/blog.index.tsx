@@ -85,7 +85,7 @@ function BlogIndex() {
           <div className="h-px bg-gray-500 opacity-20" />
           <div className="h-4" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
           {frontMatters.map(
             ([id, { title, published, excerpt, authors = [] }]) => {
               return (

@@ -12,7 +12,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/')({
       params: {
         libraryId,
         version: ctx.params.version,
-        _splat: library.defaultDocs || 'overview',
+        _splat: 'defaultDocs' in library ? library.defaultDocs : 'overview',
       },
     })
   },

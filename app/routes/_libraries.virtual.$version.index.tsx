@@ -242,7 +242,7 @@ export default function RouteComp() {
             Framework Agnostic & Feature Rich
           </h3>
           <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-            TanStack Table's API and engine are highly modular and
+            TanStack Virtual's API and engine are highly modular and
             framework-independent while still prioritizing ergonomics. Behold,
             the obligatory feature-list:
           </p>

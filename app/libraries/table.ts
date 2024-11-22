@@ -1,7 +1,7 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
 import { Library } from '.'
 
-export const tableProject: Library = {
+export const tableProject = {
   id: 'table',
   name: 'TanStack Table',
   cardStyles: `shadow-xl shadow-blue-700/20 dark:shadow-lg dark:shadow-blue-500/30 text-blue-500 border-2 border-transparent hover:border-current`,
@@ -29,7 +29,7 @@ export const tableProject: Library = {
     'vanilla',
   ],
   scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
-  defaultDocs: 'framework/react/overview',
+  defaultDocs: 'introduction',
   handleRedirects: (href) => {
     handleRedirects(
       reactTableV7List,
@@ -39,7 +39,7 @@ export const tableProject: Library = {
       'from=reactTableV7'
     )
   },
-}
+} satisfies Library
 
 // prettier-ignore
 export const reactTableV7List = [

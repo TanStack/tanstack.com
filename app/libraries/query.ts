@@ -1,7 +1,7 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
 import { Library } from '.'
 
-export const queryProject: Library = {
+export const queryProject = {
   id: 'query',
   name: 'TanStack Query',
   cardStyles: `shadow-xl shadow-red-700/20 dark:shadow-lg dark:shadow-red-500/30 text-red-500 border-2 border-transparent hover:border-current`,
@@ -39,7 +39,7 @@ export const queryProject: Library = {
       'from=reactQueryV3'
     )
   },
-}
+} satisfies Library
 
 // Redirect old query v3 docs
 // prettier-ignore

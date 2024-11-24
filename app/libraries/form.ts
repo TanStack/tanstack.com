@@ -1,6 +1,6 @@
 import { Library } from '.'
 
-export const formProject = {
+export const formProject: Library = {
   id: 'form',
   name: 'TanStack Form',
   cardStyles: `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
@@ -20,4 +20,4 @@ export const formProject = {
   textColor: 'text-yellow-600',
   frameworks: ['react', 'vue', 'angular', 'solid', 'lit'],
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
-} satisfies Library
+}

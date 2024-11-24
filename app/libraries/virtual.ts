@@ -1,6 +1,6 @@
 import { Library } from '.'
 
-export const virtualProject = {
+export const virtualProject: Library = {
   id: 'virtual',
   name: 'TanStack Virtual',
   cardStyles: `shadow-xl shadow-purple-700/20 dark:shadow-lg dark:shadow-purple-500/30 text-purple-500 border-2 border-transparent hover:border-current`,
@@ -20,4 +20,4 @@ export const virtualProject = {
   frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular'],
   defaultDocs: 'introduction',
   scarfId: '32372eb1-91e0-48e7-8df1-4808a7be6b94',
-} satisfies Library
+}

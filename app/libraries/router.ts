@@ -1,6 +1,6 @@
 import { Library } from '.'
 
-export const routerProject = {
+export const routerProject: Library = {
   id: 'router',
   name: 'TanStack Router',
   cardStyles: `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 text-emerald-500 dark:text-emerald-400 border-2 border-transparent hover:border-current`,
@@ -23,4 +23,4 @@ export const routerProject = {
   defaultDocs: 'framework/react/overview',
   hideCodesandboxUrl: true,
   showVercelUrl: true,
-} satisfies Library
+}

@@ -1,21 +1,50 @@
 import { createRouter as TanStackCreateRouter } from '@tanstack/react-router'
+import { routerWithQueryClient } from '@tanstack/react-router-with-query'
+import { ConvexQueryClient } from '@convex-dev/react-query'
+import { ConvexProvider } from 'convex/react'
 import { routeTree } from './routeTree.gen'
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
+import { QueryClient } from '@tanstack/react-query'
 
 export function createRouter() {
-  const router = TanStackCreateRouter({
-    routeTree,
-    defaultPreload: 'intent',
-    defaultErrorComponent: DefaultCatchBoundary,
-    defaultStaleTime: 1,
-    defaultNotFoundComponent: () => {
-      return <NotFound />
-    },
-    context: {
-      assets: [],
+  const CONVEX_URL = (import.meta as any).env.VITE_CONVEX_URL!
+  if (!CONVEX_URL) {
+    console.error('missing env var VITE_CONVEX_URL')
+  }
+  const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
+
+  const queryClient: QueryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        queryKeyHashFn: convexQueryClient.hashFn(),
+        queryFn: convexQueryClient.queryFn(),
+      },
     },
   })
+
+  convexQueryClient.connect(queryClient)
+
+  const router = routerWithQueryClient(
+    TanStackCreateRouter({
+      routeTree,
+      defaultPreload: 'intent',
+      defaultErrorComponent: DefaultCatchBoundary,
+      defaultStaleTime: 1,
+      defaultNotFoundComponent: () => {
+        return <NotFound />
+      },
+      context: {
+        queryClient,
+      },
+      Wrap: ({ children }) => (
+        <ConvexProvider client={convexQueryClient.convexClient}>
+          {children}
+        </ConvexProvider>
+      ),
+    }),
+    queryClient
+  )
 
   router.subscribe('onResolved', () => {
     try {

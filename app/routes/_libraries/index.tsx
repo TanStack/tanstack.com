@@ -20,7 +20,7 @@ import bytesImage from '~/images/bytes.svg'
 // import waves from '~/images/waves.png'
 // import background from '~/images/background.jpg'
 import { partners } from '../../utils/partners'
-import { FaBox, FaCube, FaDownload, FaStar, FaUsers } from 'react-icons/fa'
+import { FaCube, FaDownload, FaStar, FaUsers } from 'react-icons/fa'
 
 export const textColors = [
   `text-rose-500`,

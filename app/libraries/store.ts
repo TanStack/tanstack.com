@@ -1,6 +1,6 @@
 import { Library } from '.'
 
-export const storeProject = {
+export const storeProject: Library = {
   id: 'store',
   name: 'TanStack Store',
   cardStyles: `shadow-xl shadow-stone-700/20 dark:shadow-lg dark:shadow-stone-500/20 text-stone-500 dark:text-stone-400 border-2 border-transparent hover:border-current`,
@@ -21,4 +21,4 @@ export const storeProject = {
   frameworks: ['react', 'solid', 'svelte', 'vue', 'angular'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
-} satisfies Library
+}

@@ -17,3 +17,4 @@ yarn.lock
 # Sentry Config File
 .env.sentry-build-plugin
 dist
+.vscode/

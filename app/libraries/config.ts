@@ -1,6 +1,6 @@
 import { Library } from '.'
 
-export const configProject = {
+export const configProject: Library = {
   id: 'config',
   name: 'TanStack Config',
   cardStyles: `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-500 border-2 border-transparent hover:border-current`,
@@ -19,4 +19,4 @@ export const configProject = {
   colorTo: 'to-gray-700',
   textColor: 'text-gray-700',
   frameworks: [],
-} satisfies Library
+}

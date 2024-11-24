@@ -5,6 +5,9 @@ import {
   createFileRoute,
   getRouteApi,
 } from '@tanstack/react-router'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { convexQuery } from '@convex-dev/react-query'
+import { api } from '../../convex/_generated/api'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { CgSpinner } from 'react-icons/cg'
@@ -81,6 +84,12 @@ function Index() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const gradient = sample(gradients, randomNumber)
 
+  const { data: stars } = useSuspenseQuery(
+    convexQuery(api.stats.getGithubOwnerStars, {
+      owner: 'tanstack',
+    })
+  )
+
   return (
     <>
       {/* <img
@@ -149,7 +158,7 @@ function Index() {
           <div className="flex gap-4 items-center">
             <FaStar className="text-2xl" />
             <div className="">
-              <div className="text-2xl font-bold opacity-80">91,478</div>
+              <div className="text-2xl font-bold opacity-80">{stars}</div>
               <div className="text-sm opacity-50 font-medium italic">
                 Stars on Github
               </div>

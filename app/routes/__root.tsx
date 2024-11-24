@@ -8,6 +8,7 @@ import {
   useMatches,
   useRouterState,
 } from '@tanstack/react-router'
+import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
@@ -21,7 +22,9 @@ import background from '~/images/background.jpg'
 import { twMerge } from 'tailwind-merge'
 import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
 
-export const Route = createRootRouteWithContext()({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient
+}>()({
   head: () => ({
     meta: [
       {

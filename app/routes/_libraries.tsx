@@ -24,7 +24,6 @@ import { getLibrary, libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
-import background from '~/images/background.jpg'
 
 export const Route = createFileRoute('/_libraries')({
   loader: async (ctx) => {
@@ -275,16 +274,6 @@ function LibrariesLayout() {
       {smallMenu}
       {largeMenu}
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
-        <div
-          className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none blur-sm"
-          style={{
-            backgroundImage: `url(${background})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'bottom',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
-
         {library?.scarfId ? <Scarf id={library.scarfId} /> : null}
         <Outlet />
       </div>

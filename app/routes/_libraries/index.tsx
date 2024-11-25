@@ -84,9 +84,14 @@ function Index() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const gradient = sample(gradients, randomNumber)
 
-  const { data: stars } = useSuspenseQuery(
-    convexQuery(api.stats.getGithubOwnerStars, {
+  const { data: githubOwner } = useSuspenseQuery(
+    convexQuery(api.stats.getGithubOwner, {
       owner: 'tanstack',
+    })
+  )
+  const { data: npmOrg } = useSuspenseQuery(
+    convexQuery(api.stats.getNpmOrg, {
+      org: 'tanstack',
     })
   )
 
@@ -149,7 +154,9 @@ function Index() {
           <div className="flex gap-4 items-center">
             <FaDownload className="text-2xl" />
             <div className="">
-              <div className="text-2xl font-bold opacity-80">352,749,203</div>
+              <div className="text-2xl font-bold opacity-80">
+                {npmOrg?.downloadCount.toLocaleString()}
+              </div>
               <div className="text-sm opacity-50 font-medium italic">
                 NPM Downloads
               </div>
@@ -158,7 +165,9 @@ function Index() {
           <div className="flex gap-4 items-center">
             <FaStar className="text-2xl" />
             <div className="">
-              <div className="text-2xl font-bold opacity-80">{stars}</div>
+              <div className="text-2xl font-bold opacity-80">
+                {githubOwner?.starCount.toLocaleString()}
+              </div>
               <div className="text-sm opacity-50 font-medium italic">
                 Stars on Github
               </div>
@@ -167,7 +176,9 @@ function Index() {
           <div className="flex gap-4 items-center">
             <FaUsers className="text-2xl" />
             <div className="">
-              <div className="text-2xl font-bold opacity-80">1,959</div>
+              <div className="text-2xl font-bold opacity-80">
+                {githubOwner?.contributorCount.toLocaleString()}
+              </div>
               <div className="text-sm opacity-50 font-medium italic">
                 Contributors on GitHub
               </div>

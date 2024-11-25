@@ -40,40 +40,63 @@ export declare const internal: FilterApi<
 export declare const components: {
   ossStats: {
     lib: {
-      getGithubOwnerStars: FunctionReference<
+      getGithubOwner: FunctionReference<
         "query",
         "internal",
         { owner: string },
         any
       >;
-      initGithubOwner: FunctionReference<
-        "mutation",
-        "internal",
-        { owner: string },
-        any
-      >;
+      getNpmOrg: FunctionReference<"query", "internal", { name: string }, any>;
       sync: FunctionReference<
         "action",
         "internal",
-        { githubOwners: Array<string>; personalAccessToken: string },
+        {
+          githubAccessToken: string;
+          githubOwners: Array<string>;
+          npmOrgs: Array<string>;
+        },
         any
       >;
       updateGithubOwner: FunctionReference<
         "mutation",
         "internal",
-        { owner: string; stars: number },
+        { contributorCount?: number; owner: string; starCount?: number },
         any
       >;
       updateGithubRepoStars: FunctionReference<
         "mutation",
         "internal",
-        { name: string; owner: string; stars: number },
+        {
+          githubAccessToken: string;
+          name: string;
+          owner: string;
+          starCount?: number;
+        },
         any
       >;
-      updateGithubStars: FunctionReference<
+      updateGithubRepos: FunctionReference<
         "mutation",
         "internal",
-        { repos: Array<{ name: string; owner: string; stars: number }> },
+        {
+          repos: Array<{
+            contributorCount: number;
+            name: string;
+            owner: string;
+            starCount: number;
+          }>;
+        },
+        any
+      >;
+      updateNpmOrg: FunctionReference<
+        "mutation",
+        "internal",
+        { downloadCount: number; name: string },
+        any
+      >;
+      updateNpmPackages: FunctionReference<
+        "mutation",
+        "internal",
+        { packages: Array<{ downloadCount: number; name: string }> },
         any
       >;
     };

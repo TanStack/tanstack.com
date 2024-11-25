@@ -40,27 +40,30 @@ function DocsRoute() {
   const { config } = Route.useLoaderData()
 
   return (
-    <DocsLayout
-      name={library.name.replace('TanStack ', '')}
-      version={version === 'latest' ? library.latestVersion : version!}
-      colorFrom={library.colorFrom}
-      colorTo={library.colorTo}
-      textColor={library.textColor}
-      config={config}
-      frameworks={library.frameworks}
-      versions={library.availableVersions}
-      repo={library.repo}
-    >
+    <>
       <div
-        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none blur-md"
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-[.07] pointer-events-none blur-[50px] dark:opacity-20"
         style={{
           backgroundImage: `url(${background})`,
           backgroundSize: 'cover',
           backgroundPosition: 'bottom',
           backgroundRepeat: 'no-repeat',
+          filter: 'blur(50px) saturate(300%)',
         }}
       />
-      <Outlet />
-    </DocsLayout>
+      <DocsLayout
+        name={library.name.replace('TanStack ', '')}
+        version={version === 'latest' ? library.latestVersion : version!}
+        colorFrom={library.colorFrom}
+        colorTo={library.colorTo}
+        textColor={library.textColor}
+        config={config}
+        frameworks={library.frameworks}
+        versions={library.availableVersions}
+        repo={library.repo}
+      >
+        <Outlet />
+      </DocsLayout>
+    </>
   )
 }

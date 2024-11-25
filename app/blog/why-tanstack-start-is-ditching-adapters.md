@@ -5,6 +5,8 @@ authors:
   - Tanner Linsley
 ---
 
+![Nitro Header](/blog-assets/why-tanstack-start-is-ditching-adapters/nitro.jpg)
+
 ## To “adapter” or not?
 
 Building a new front-end Javascript framework is a daunting task, as I’ve been learning with building TanStack Start, my new TanStack-powered full stack framework. There’s so many moving pieces:

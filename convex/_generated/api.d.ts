@@ -53,6 +53,7 @@ export declare const components: {
         {
           githubAccessToken: string;
           githubOwners: Array<string>;
+          minStars: number;
           npmOrgs: Array<string>;
         },
         any
@@ -60,7 +61,12 @@ export declare const components: {
       updateGithubOwner: FunctionReference<
         "mutation",
         "internal",
-        { contributorCount?: number; owner: string; starCount?: number },
+        {
+          contributorCount?: number;
+          dependentCount?: number;
+          owner: string;
+          starCount?: number;
+        },
         any
       >;
       updateGithubRepoStars: FunctionReference<
@@ -80,6 +86,7 @@ export declare const components: {
         {
           repos: Array<{
             contributorCount: number;
+            dependentCount: number;
             name: string;
             owner: string;
             starCount: number;

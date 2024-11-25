@@ -67,6 +67,15 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
+  img: ({ children, ...props }) => (
+    // eslint-disable-next-line jsx-a11y/alt-text
+    <img
+      {...props}
+      className="max-w-full h-auto rounded-lg"
+      // loading="lazy"
+      // decoding="async"
+    />
+  ),
 }
 
 function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {

@@ -1,26 +1,31 @@
 import { OssStats } from '@convex-dev/oss-stats'
-import { query } from './_generated/server'
 import { components } from './_generated/api'
 import { v } from 'convex/values'
+import { action, query } from './_generated/server'
 
 const ossStats = new OssStats(components.ossStats, {
   githubOwners: ['tanstack'],
+  npmOrgs: ['tanstack'],
 })
 
-export const { getGithubOwnerStars, sync } = ossStats.api()
+// export const { getGithubOwner, getNpmOrg, sync } = ossStats.api()
 
-/*
-export const getGithubOwnerStars = query({
+export const getGithubOwner = query({
   args: { owner: v.string() },
   handler: async (ctx, args) => {
-    return ossStats.getGithubOwnerStars(ctx, args.owner)
+    return ossStats.getGithubOwner(ctx, args.owner)
   },
 })
 
-export const testing = query({
-  args: {},
-  handler: async () => {
-    return 'testing'
+export const getNpmOrg = query({
+  args: { org: v.string() },
+  handler: async (ctx, args) => {
+    return ossStats.getNpmOrg(ctx, args.org)
   },
 })
-*/
+
+export const sync = action({
+  handler: async (ctx) => {
+    return ossStats.sync(ctx)
+  },
+})

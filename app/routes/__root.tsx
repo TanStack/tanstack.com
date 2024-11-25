@@ -4,6 +4,8 @@ import {
   ScrollRestoration,
   createRootRouteWithContext,
   redirect,
+  useChildMatches,
+  useMatch,
   useMatches,
   useRouter,
   useRouterState,
@@ -17,6 +19,8 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
+import background from '~/images/background.jpg'
+import { twMerge } from 'tailwind-merge'
 
 export const Route = createRootRouteWithContext()({
   head: () => ({
@@ -141,6 +145,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
   const showDevtools = showLoading && isRouterPage
 
+  const isDocs = !!useChildMatches({
+    select: (s) => s.some((d) => d.routeId.includes('/docs/')),
+  })
+
+  console.log({ isDocs })
+
   return (
     <html lang="en">
       <head>
@@ -152,6 +162,20 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         {/* <SpeedInsights /> */}
         {/* <Analytics /> */}
+        <div className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none blur-sm" />
+        <div
+          className={twMerge(
+            'fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 blur-sm pointer-events-none dark:opacity-20 transition-all duration-1000',
+            isDocs && `opacity-[.07] blur-[50px] saturate-[300%]`
+          )}
+          style={{
+            backgroundImage: `url(${background})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'bottom',
+            backgroundRepeat: 'no-repeat',
+            filter: isDocs ? 'blur(50px) saturate(300%)' : '',
+          }}
+        />
         <React.Suspense fallback={null}>{children}</React.Suspense>
         {showDevtools ? (
           <TanStackRouterDevtools position="bottom-right" />

@@ -3,7 +3,6 @@ import { DocsLayout } from '~/components/DocsLayout'
 import { getBranch, getLibrary } from '~/libraries'
 import { getTanstackDocsConfig } from '~/utils/config'
 import { seo } from '~/utils/seo'
-import background from '~/images/background.jpg'
 
 export const Route = createFileRoute('/$libraryId/$version/docs')({
   loader: async (ctx) => {
@@ -40,30 +39,18 @@ function DocsRoute() {
   const { config } = Route.useLoaderData()
 
   return (
-    <>
-      <div
-        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-[.07] pointer-events-none blur-[50px] dark:opacity-20"
-        style={{
-          backgroundImage: `url(${background})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'bottom',
-          backgroundRepeat: 'no-repeat',
-          filter: 'blur(50px) saturate(300%)',
-        }}
-      />
-      <DocsLayout
-        name={library.name.replace('TanStack ', '')}
-        version={version === 'latest' ? library.latestVersion : version!}
-        colorFrom={library.colorFrom}
-        colorTo={library.colorTo}
-        textColor={library.textColor}
-        config={config}
-        frameworks={library.frameworks}
-        versions={library.availableVersions}
-        repo={library.repo}
-      >
-        <Outlet />
-      </DocsLayout>
-    </>
+    <DocsLayout
+      name={library.name.replace('TanStack ', '')}
+      version={version === 'latest' ? library.latestVersion : version!}
+      colorFrom={library.colorFrom}
+      colorTo={library.colorTo}
+      textColor={library.textColor}
+      config={config}
+      frameworks={library.frameworks}
+      versions={library.availableVersions}
+      repo={library.repo}
+    >
+      <Outlet />
+    </DocsLayout>
   )
 }

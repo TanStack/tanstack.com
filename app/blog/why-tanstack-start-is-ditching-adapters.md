@@ -1,5 +1,5 @@
 ---
-title: Building TanStack Start to Support Vercel
+title: Why TanStack Start is Ditching Adapters
 published: 11/22/2024
 authors:
   - Tanner Linsley

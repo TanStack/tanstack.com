@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
+import NumberFlow from '@number-flow/react'
 import { api } from '../../convex/_generated/api'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
@@ -155,7 +156,7 @@ function Index() {
             <FaDownload className="text-2xl" />
             <div className="">
               <div className="text-2xl font-bold opacity-80">
-                {npmOrg?.downloadCount.toLocaleString()}
+                <NumberFlow value={npmOrg?.downloadCount} />
               </div>
               <div className="text-sm opacity-50 font-medium italic">
                 NPM Downloads
@@ -166,7 +167,7 @@ function Index() {
             <FaStar className="text-2xl" />
             <div className="">
               <div className="text-2xl font-bold opacity-80">
-                {githubOwner?.starCount.toLocaleString()}
+                <NumberFlow value={githubOwner?.starCount} />
               </div>
               <div className="text-sm opacity-50 font-medium italic">
                 Stars on Github
@@ -177,7 +178,7 @@ function Index() {
             <FaUsers className="text-2xl" />
             <div className="">
               <div className="text-2xl font-bold opacity-80">
-                {githubOwner?.contributorCount.toLocaleString()}
+                <NumberFlow value={githubOwner?.contributorCount} />
               </div>
               <div className="text-sm opacity-50 font-medium italic">
                 Contributors on GitHub
@@ -188,7 +189,7 @@ function Index() {
             <FaCube className="text-2xl" />
             <div className="">
               <div className="text-2xl font-bold opacity-80">
-                {githubOwner?.dependentCount.toLocaleString()}
+                <NumberFlow value={githubOwner?.dependentCount} />
               </div>
               <div className="text-sm opacity-50 font-medium italic">
                 Dependents on GitHub

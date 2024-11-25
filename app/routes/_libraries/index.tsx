@@ -187,7 +187,9 @@ function Index() {
           <div className="flex gap-4 items-center">
             <FaCube className="text-2xl" />
             <div className="">
-              <div className="text-2xl font-bold opacity-80">1,126,523</div>
+              <div className="text-2xl font-bold opacity-80">
+                {githubOwner?.dependentCount.toLocaleString()}
+              </div>
               <div className="text-sm opacity-50 font-medium italic">
                 Dependents on GitHub
               </div>

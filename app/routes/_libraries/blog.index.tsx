@@ -60,7 +60,7 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   }
 )
 
-export const Route = createFileRoute('/blog/')({
+export const Route = createFileRoute('/_libraries/blog/')({
   loader: () => fetchFrontMatters(),
   notFoundComponent: () => <PostNotFound />,
   component: BlogIndex,
@@ -80,10 +80,8 @@ function BlogIndex() {
     <div>
       <div className="p-4 lg:p-6 min-h-screen">
         <div>
-          <DocTitle>Latest Posts</DocTitle>
-          <div className="h-4" />
-          <div className="h-px bg-gray-500 opacity-20" />
-          <div className="h-4" />
+          <DocTitle>Blog</DocTitle>
+          <div className="h-6" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
           {frontMatters.map(
@@ -94,14 +92,14 @@ function BlogIndex() {
                   to={`${id}`}
                   className={`flex flex-col gap-4 justify-between
                   border-2 border-transparent rounded-lg p-4 md:p-8
-                  transition-all bg-white dark:bg-gray-800
+                  transition-all bg-white/100 dark:bg-gray-800
                   shadow-xl dark:shadow-lg dark:shadow-blue-500/30
                   hover:border-blue-500
               `}
                 >
                   <div>
                     <div className={`text-lg font-extrabold`}>{title}</div>
-                    <div className={`italic font-light mt-2`}>
+                    <div className={`text-xs italic font-light mt-1`}>
                       <p>
                         by {formatAuthors(authors)}
                         {published ? (
@@ -116,7 +114,7 @@ function BlogIndex() {
                       </p>
                     </div>
                     <div
-                      className={`text-sm mt-2 text-black dark:text-white leading-7`}
+                      className={`text-sm mt-4 text-black dark:text-white leading-7`}
                     >
                       <Markdown code={excerpt || ''} />
                     </div>

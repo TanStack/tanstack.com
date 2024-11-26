@@ -312,7 +312,7 @@ export default function TableVersionIndex() {
                   'TicketMaster',
                   'Comcast Business',
                   'Nozzle.io',
-                ]
+                ],
               )
               .map((d, i) => (
                 <span key={i} className="opacity-70 even:opacity-40">

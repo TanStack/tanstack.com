@@ -73,7 +73,7 @@ ${content}`
   return (
     <Doc
       title={title}
-      content={blogContent}
+      code={blogContent}
       repo={'tanstack/tanstack.com'}
       branch={'main'}
       filePath={filePath}

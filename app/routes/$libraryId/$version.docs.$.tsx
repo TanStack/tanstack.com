@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { Doc } from '~/components/Doc'
+import { DocContent } from '~/components/DocContent'
 import { loadDocs } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 
@@ -38,10 +38,10 @@ function Docs() {
   const branch = getBranch(library, version)
 
   return (
-    <Doc
+    <DocContent
       title={title}
       content={content}
-      repo={library.repo}
+      library={library}
       branch={branch}
       filePath={filePath}
     />

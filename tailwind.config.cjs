@@ -20,6 +20,9 @@ module.exports = {
         inner: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.04)',
         none: 'none',
       },
+      aria: {
+        current: 'current="location"',
+      },
       colors: {
         // red: {
         //   default: '#FF4255',

@@ -1,34 +1,18 @@
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import {
-  FaArrowLeft,
-  FaArrowRight,
-  FaDiscord,
-  FaGithub,
-  FaTimes,
-} from 'react-icons/fa'
-import {
-  Link,
-  useMatches,
-  useNavigate,
-  useParams,
-} from '@tanstack/react-router'
+import { FaDiscord, FaGithub } from 'react-icons/fa'
+import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { OramaSearchBox } from '@orama/react-components'
-import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
-import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsLogo } from '~/components/DocsLogo'
-import { last, capitalize } from '~/utils/utils'
+import { capitalize } from '~/utils/utils'
 import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { Framework, getFrameworkOptions } from '~/libraries'
-import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
-import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { ClientOnlySearchButton } from './ClientOnlySearchButton'
 import { twMerge } from 'tailwind-merge'
-import { partners } from '~/utils/partners'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -167,7 +151,7 @@ function useCurrentVersion(versions: string[]) {
   }
 }
 
-const useMenuConfig = ({
+export const useMenuConfig = ({
   config,
   repo,
   frameworks,
@@ -294,7 +278,6 @@ type DocsLayoutProps = {
   version: string
   colorFrom: string
   colorTo: string
-  textColor: string
   config: ConfigSchema
   frameworks: Framework[]
   versions: string[]
@@ -307,7 +290,6 @@ export function DocsLayout({
   version,
   colorFrom,
   colorTo,
-  textColor,
   config,
   frameworks,
   versions,
@@ -321,30 +303,7 @@ export function DocsLayout({
   const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
 
-  const matches = useMatches()
-  const lastMatch = last(matches)
-
-  const isExample = matches.some((d) => d.pathname.includes('/examples/'))
-
   const detailsRef = React.useRef<HTMLElement>(null!)
-
-  const flatMenu = React.useMemo(
-    () => menuConfig.flatMap((d) => d?.children),
-    [menuConfig]
-  )
-
-  const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
-
-  const relativePathname = lastMatch.pathname.replace(
-    docsMatch!.pathname + '/',
-    ''
-  )
-
-  const index = flatMenu.findIndex((d) => d?.to === relativePathname)
-  const prevItem = flatMenu[index - 1]
-  const nextItem = flatMenu[index + 1]
-
-  const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
 
   const [mounted, setMounted] = React.useState(false)
 
@@ -559,181 +518,7 @@ export function DocsLayout({
       </div>
       {smallMenu}
       {largeMenu}
-      <div
-        className={twMerge(
-          `max-w-full min-w-0 flex relative justify-center w-full min-h-[88dvh] lg:min-h-0`,
-          !isExample && 'mx-auto w-[1000px]'
-        )}
-      >
-        {children}
-        <div className="fixed flex items-center flex-wrap bottom-2 left-0 lg:left-[250px] z-10 right-0 text-xs md:text-sm px-1">
-          <div className="w-1/2 px-1 flex justify-end flex-wrap">
-            {prevItem ? (
-              <Link
-                to={prevItem.to}
-                params
-                className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
-              >
-                <div className="flex gap-2 items-center font-bold">
-                  <FaArrowLeft />
-                  {prevItem.label}
-                </div>
-              </Link>
-            ) : null}
-          </div>
-          <div className="w-1/2 px-1 flex justify-start flex-wrap">
-            {nextItem ? (
-              <Link
-                to={nextItem.to}
-                params
-                className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
-              >
-                <div className="flex gap-2 items-center font-bold">
-                  <span
-                    className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
-                  >
-                    {nextItem.label}
-                  </span>{' '}
-                  <FaArrowRight className={textColor} />
-                </div>
-              </Link>
-            ) : null}
-          </div>
-        </div>
-      </div>
-      <div className="-ml-2 pl-2 w-64 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
-        <div className="ml-auto flex flex-col space-y-4">
-          <div className="bg-white dark:bg-gray-900/30 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
-            <div className="uppercase font-black text-center p-3 opacity-50">
-              Our Partners
-            </div>
-            {!partners.some((d) => d.libraries?.includes(libraryId as any)) ? (
-              <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
-                <a
-                  href={`mailto:partners@tanstack.com?subject=TanStack ${
-                    repo.split('/')[1]
-                  } Partnership`}
-                  className="p-2 block text-xs"
-                >
-                  <span className="opacity-50 italic">
-                    Wow, it looks like you could be our first partner for this
-                    library!
-                  </span>{' '}
-                  <span className="text-blue-500 font-black">
-                    Chat with us!
-                  </span>
-                </a>
-              </div>
-            ) : (
-              partners
-                .filter((d) => d.sidebarImgLight)
-                .filter((d) => d.libraries?.includes(libraryId as any))
-                .map((partner) => {
-                  return (
-                    <div
-                      key={partner.name}
-                      className="overflow-hidden hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors"
-                    >
-                      <a
-                        href={partner.href}
-                        target="_blank"
-                        className="px-4 flex items-center justify-center cursor-pointer"
-                        rel="noreferrer"
-                      >
-                        <div className="mx-auto max-w-[150px]">
-                          <img
-                            src={partner.sidebarImgLight}
-                            alt={partner.name}
-                            className={twMerge(
-                              'w-full',
-                              partner.sidebarImgClass,
-                              'dark:hidden'
-                            )}
-                          />
-                          <img
-                            src={
-                              partner.sidebarImgDark || partner.sidebarImgLight
-                            }
-                            alt={partner.name}
-                            className={twMerge(
-                              'w-full',
-                              partner.sidebarImgClass,
-                              'hidden dark:block'
-                            )}
-                          />
-                        </div>
-                      </a>
-                    </div>
-                  )
-                })
-            )}
-          </div>
-          <div className="p-4 bg-white dark:bg-gray-900/30 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
-            {libraryId === 'query' ? (
-              <DocsCalloutQueryGG />
-            ) : (
-              <DocsCalloutBytes />
-            )}
-          </div>
-
-          <div className="bg-white dark:bg-gray-900/20 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
-            <Carbon />
-            <div
-              className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic
-                dark:bg-opacity-20 self-center opacity-50 hover:opacity-100 transition-opacity"
-            >
-              This ad helps to keep us from burning out and rage-quitting OSS
-              just *that* much more, so chill. 😉
-            </div>
-          </div>
-        </div>
-      </div>
-      {showBytes ? (
-        <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
-          <div className="bg-white dark:bg-gray-900/30 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
-            {libraryId === 'query' ? (
-              <DocsCalloutQueryGG />
-            ) : (
-              <DocsCalloutBytes />
-            )}
-            <button
-              className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
-              onClick={() => {
-                setShowBytes(false)
-              }}
-            >
-              <FaTimes />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <button
-          className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden"
-          onClick={() => {
-            setShowBytes(true)
-          }}
-        >
-          <div
-            className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
-            hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
-          >
-            {libraryId === 'query' ? (
-              <>
-                <strong>
-                  <span role="img" aria-label="crystal ball">
-                    &#128302;
-                  </span>{' '}
-                  Skip the docs?
-                </strong>
-              </>
-            ) : (
-              <>
-                Subscribe to <strong>Bytes</strong>
-              </>
-            )}
-          </div>
-        </button>
-      )}
+      {children}
     </div>
   )
 }

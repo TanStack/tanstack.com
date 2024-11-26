@@ -136,7 +136,7 @@ function Index() {
           </p>
         </div>
         <div className="h-8" />
-        <div className="p-8 w-fit mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center place-items-center bg-white/50 dark:bg-gray-700/30 dark:shadow-none rounded-xl shadow-xl">
+        <div className="p-8 w-fit mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center place-items-center bg-white/30 dark:bg-gray-600/30 rounded-xl shadow-xl backdrop-blur-lg">
           <div className="flex gap-4 items-center">
             <FaDownload className="text-2xl" />
             <div className="">

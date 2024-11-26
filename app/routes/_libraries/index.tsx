@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
-import { useNpmDownloadCounter } from '@convex-dev/oss-stats/react'
+import { useNpmDownloadCounter } from '@erquhart/convex-oss-stats/react'
 import NumberFlow from '@number-flow/react'
 import { api } from '../../convex/_generated/api'
 import { Carbon } from '~/components/Carbon'
@@ -16,6 +16,7 @@ import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import discordImage from '~/images/discord-logo-white.svg'
+import convexImage from '~/images/convex-white.svg'
 import { useMutation } from '~/hooks/useMutation'
 import { sample } from '~/utils/utils'
 import { libraries } from '~/libraries'
@@ -88,7 +89,7 @@ const NpmDownloadCounter = ({
 }) => {
   const liveNpmDownloadCount = useNpmDownloadCounter(npmPackageOrOrg)
   const npmDownloadCountDummyString = Number(
-    Array(liveNpmDownloadCount?.toString().length ?? 0 + 1)
+    Array(liveNpmDownloadCount?.toString().length ?? 1)
       .fill('8')
       .join('')
   ).toLocaleString()
@@ -96,7 +97,7 @@ const NpmDownloadCounter = ({
   return (
     <>
       <span className="opacity-0">{npmDownloadCountDummyString}</span>
-      <span className="absolute top-0 left-0">
+      <span className="absolute -top-0.5 left-0">
         <NumberFlow
           transformTiming={{
             duration: 1000,
@@ -120,58 +121,73 @@ const OssStats = () => {
   )
   const { data: npmOrg } = useSuspenseQuery(
     convexQuery(api.stats.getNpmOrg, {
-      org: 'tanstack',
+      name: 'tanstack',
     })
   )
 
   return (
-    <div className="p-8 w-fit mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center place-items-center bg-white/50 dark:bg-gray-700/30 dark:shadow-none rounded-xl shadow-xl">
-      <div className="flex gap-4 items-center">
-        <FaDownload className="text-2xl" />
-        <div>
-          <div className="text-2xl font-bold opacity-80 relative">
-            <NpmDownloadCounter npmPackageOrOrg={npmOrg} />
-          </div>
-          <div className="text-sm opacity-50 font-medium italic">
-            NPM Downloads
+    <div>
+      <div className="p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center place-items-center bg-white/50 dark:bg-gray-700/30 dark:shadow-none rounded-xl shadow-xl">
+        <div className="flex gap-4 items-center">
+          <FaDownload className="text-2xl" />
+          <div>
+            <div className="text-2xl font-bold opacity-80 relative">
+              <NpmDownloadCounter npmPackageOrOrg={npmOrg} />
+            </div>
+            <div className="text-sm opacity-50 font-medium italic">
+              NPM Downloads
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex gap-4 items-center">
-        <FaStar className="text-2xl" />
-        <div>
-          <div className="text-2xl font-bold opacity-80 relative">
-            <span className="opacity-0">{githubOwner?.starCount}</span>
-            <span className="absolute inset-0">
+        <div className="flex gap-4 items-center">
+          <FaStar className="text-2xl" />
+          <div>
+            <div className="text-2xl font-bold opacity-80 leading-none">
               <NumberFlow value={githubOwner?.starCount} />
+            </div>
+            <div className="text-sm opacity-50 font-medium italic -mt-1">
+              Stars on Github
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-4 items-center">
+          <FaUsers className="text-2xl" />
+          <div className="">
+            <div className="text-2xl font-bold opacity-80">
+              <NumberFlow value={githubOwner?.contributorCount} />
+            </div>
+            <div className="text-sm opacity-50 font-medium italic -mt-1">
+              Contributors on GitHub
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-4 items-center">
+          <FaCube className="text-2xl" />
+          <div className="">
+            <div className="text-2xl font-bold opacity-80">
+              <NumberFlow value={githubOwner?.dependentCount} />
+            </div>
+            <div className="text-sm opacity-50 font-medium italic -mt-1">
+              Dependents on GitHub
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="px-4 py-2 flex justify-end">
+        <a href="https://convex.dev" className="group flex items-center gap-2">
+          <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
+          <div className="flex items-center gap-1">
+            <span className="text-[.75rem] opacity-30 relative -top-px">
+              Powered by
             </span>
+            <img
+              className="opacity-30 group-hover:opacity-50"
+              src={convexImage}
+              alt="Convex Logo"
+              width={80}
+            />
           </div>
-          <div className="text-sm opacity-50 font-medium italic">
-            Stars on Github
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-4 items-center">
-        <FaUsers className="text-2xl" />
-        <div className="">
-          <div className="text-2xl font-bold opacity-80">
-            <NumberFlow value={githubOwner?.contributorCount} />
-          </div>
-          <div className="text-sm opacity-50 font-medium italic">
-            Contributors on GitHub
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-4 items-center">
-        <FaCube className="text-2xl" />
-        <div className="">
-          <div className="text-2xl font-bold opacity-80">
-            <NumberFlow value={githubOwner?.dependentCount} />
-          </div>
-          <div className="text-sm opacity-50 font-medium italic">
-            Dependents on GitHub
-          </div>
-        </div>
+        </a>
       </div>
     </div>
   )
@@ -241,7 +257,9 @@ function Index() {
           </p>
         </div>
         <div className="h-8" />
-        <OssStats />
+        <div className="w-fit mx-auto">
+          <OssStats />
+        </div>
         <div className="h-24" />
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">
           <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>

@@ -309,7 +309,8 @@ export function extractFrontMatter(content: string) {
 
 function createExcerpt(text: string, maxLength = 200) {
   // Remove Markdown formatting using a basic regex
-  const cleanText = text
+
+  let cleanText = text
     .replace(/!\[.*?\]\(.*?\)/g, '') // Remove images
     .replace(/\[.*?\]\(.*?\)/g, '') // Remove links
     .replace(/[`*_~>]/g, '') // Remove Markdown special characters
@@ -321,8 +322,21 @@ function createExcerpt(text: string, maxLength = 200) {
 
   // Truncate the text to the desired length, preserving whole words
   if (cleanText.length > maxLength) {
-    return cleanText.slice(0, maxLength).trim() + '...'
+    cleanText = cleanText.slice(0, maxLength).trim() + '...'
+  }
+
+  const imageText = extractFirstImage(text)
+
+  if (imageText) {
+    cleanText = `${imageText}<div style="height:1rem;"></div>${cleanText}`
   }
 
   return cleanText
+}
+
+function extractFirstImage(markdown: string) {
+  // Regex to match Markdown image syntax: ![alt text](url)
+  const imageRegex = /!\[(.*?)\]\((.*?)\)/
+  const match = markdown.match(imageRegex)
+  return match?.[0]
 }

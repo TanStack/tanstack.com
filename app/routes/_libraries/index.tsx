@@ -77,6 +77,41 @@ async function bytesSignupServerFn({ email }: { email: string }) {
 
 const librariesRouteApi = getRouteApi('/_libraries')
 
+const NpmDownloadCounter = ({
+  npmPackageOrOrg,
+}: {
+  npmPackageOrOrg: {
+    downloadCount: number
+    dayOfWeekAverages: number[]
+    updatedAt: number
+  } | null
+}) => {
+  const liveNpmDownloadCount = useNpmDownloadCounter(npmPackageOrOrg)
+  const npmDownloadCountDummyString = Number(
+    Array(liveNpmDownloadCount?.toString().length ?? 0 + 1)
+      .fill('8')
+      .join('')
+  ).toLocaleString()
+
+  return (
+    <>
+      <span className="opacity-0">{npmDownloadCountDummyString}</span>
+      <span className="absolute top-0 left-0">
+        <NumberFlow
+          transformTiming={{
+            duration: 1000,
+          }}
+          value={liveNpmDownloadCount}
+          trend={1}
+          continuous
+          isolate
+          willChange
+        />
+      </span>
+    </>
+  )
+}
+
 const OssStats = () => {
   const { data: githubOwner } = useSuspenseQuery(
     convexQuery(api.stats.getGithubOwner, {
@@ -89,15 +124,13 @@ const OssStats = () => {
     })
   )
 
-  const npmDownloadCount = useNpmDownloadCounter(npmOrg)
-
   return (
     <div className="p-8 w-fit mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center place-items-center bg-white/50 dark:bg-gray-700/30 dark:shadow-none rounded-xl shadow-xl">
       <div className="flex gap-4 items-center">
         <FaDownload className="text-2xl" />
-        <div className="">
-          <div className="text-2xl font-bold opacity-80 font-mono">
-            <NumberFlow value={npmDownloadCount} />
+        <div>
+          <div className="text-2xl font-bold opacity-80 relative">
+            <NpmDownloadCounter npmPackageOrOrg={npmOrg} />
           </div>
           <div className="text-sm opacity-50 font-medium italic">
             NPM Downloads
@@ -106,9 +139,12 @@ const OssStats = () => {
       </div>
       <div className="flex gap-4 items-center">
         <FaStar className="text-2xl" />
-        <div className="">
-          <div className="text-2xl font-bold opacity-80 font-mono">
-            <NumberFlow value={githubOwner?.starCount} />
+        <div>
+          <div className="text-2xl font-bold opacity-80 relative">
+            <span className="opacity-0">{githubOwner?.starCount}</span>
+            <span className="absolute inset-0">
+              <NumberFlow value={githubOwner?.starCount} />
+            </span>
           </div>
           <div className="text-sm opacity-50 font-medium italic">
             Stars on Github
@@ -118,7 +154,7 @@ const OssStats = () => {
       <div className="flex gap-4 items-center">
         <FaUsers className="text-2xl" />
         <div className="">
-          <div className="text-2xl font-bold opacity-80 font-mono">
+          <div className="text-2xl font-bold opacity-80">
             <NumberFlow value={githubOwner?.contributorCount} />
           </div>
           <div className="text-sm opacity-50 font-medium italic">
@@ -129,7 +165,7 @@ const OssStats = () => {
       <div className="flex gap-4 items-center">
         <FaCube className="text-2xl" />
         <div className="">
-          <div className="text-2xl font-bold opacity-80 font-mono">
+          <div className="text-2xl font-bold opacity-80">
             <NumberFlow value={githubOwner?.dependentCount} />
           </div>
           <div className="text-sm opacity-50 font-medium italic">

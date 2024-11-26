@@ -149,8 +149,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     select: (s) => s.some((d) => d.routeId.includes('/docs/')),
   })
 
-  console.log({ isDocs })
-
   return (
     <html lang="en">
       <head>

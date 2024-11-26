@@ -8,7 +8,9 @@ import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 
 export function createRouter() {
-  const CONVEX_URL = (import.meta as any).env.VITE_CONVEX_URL!
+  const CONVEX_URL =
+    (import.meta as any).env.VITE_CONVEX_URL ||
+    'https://intent-pigeon-358.convex.cloud'
   if (!CONVEX_URL) {
     console.error('missing env var VITE_CONVEX_URL')
   }

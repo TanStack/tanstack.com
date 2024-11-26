@@ -97,13 +97,23 @@ export declare const components: {
       updateNpmOrg: FunctionReference<
         "mutation",
         "internal",
-        { downloadCount: number; name: string },
+        {
+          dayOfWeekAverages: Array<number>;
+          downloadCount: number;
+          name: string;
+        },
         any
       >;
       updateNpmPackages: FunctionReference<
         "mutation",
         "internal",
-        { packages: Array<{ downloadCount: number; name: string }> },
+        {
+          packages: Array<{
+            dayOfWeekAverages: Array<number>;
+            downloadCount: number;
+            name: string;
+          }>;
+        },
         any
       >;
     };

@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
+import { useNpmDownloadCounter } from '@convex-dev/oss-stats/react'
 import NumberFlow from '@number-flow/react'
 import { api } from '../../convex/_generated/api'
 import { Carbon } from '~/components/Carbon'
@@ -76,15 +77,7 @@ async function bytesSignupServerFn({ email }: { email: string }) {
 
 const librariesRouteApi = getRouteApi('/_libraries')
 
-function Index() {
-  const bytesSignupMutation = useMutation({
-    fn: bytesSignupServerFn,
-  })
-
-  const { randomNumber } = Route.useLoaderData()
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
-  const gradient = sample(gradients, randomNumber)
-
+const OssStats = () => {
   const { data: githubOwner } = useSuspenseQuery(
     convexQuery(api.stats.getGithubOwner, {
       owner: 'tanstack',
@@ -95,6 +88,67 @@ function Index() {
       org: 'tanstack',
     })
   )
+
+  const npmDownloadCount = useNpmDownloadCounter(npmOrg)
+
+  return (
+    <div className="p-8 w-fit mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center place-items-center bg-white/50 dark:bg-gray-700/30 dark:shadow-none rounded-xl shadow-xl">
+      <div className="flex gap-4 items-center">
+        <FaDownload className="text-2xl" />
+        <div className="">
+          <div className="text-2xl font-bold opacity-80 font-mono">
+            <NumberFlow value={npmDownloadCount} />
+          </div>
+          <div className="text-sm opacity-50 font-medium italic">
+            NPM Downloads
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-4 items-center">
+        <FaStar className="text-2xl" />
+        <div className="">
+          <div className="text-2xl font-bold opacity-80 font-mono">
+            <NumberFlow value={githubOwner?.starCount} />
+          </div>
+          <div className="text-sm opacity-50 font-medium italic">
+            Stars on Github
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-4 items-center">
+        <FaUsers className="text-2xl" />
+        <div className="">
+          <div className="text-2xl font-bold opacity-80 font-mono">
+            <NumberFlow value={githubOwner?.contributorCount} />
+          </div>
+          <div className="text-sm opacity-50 font-medium italic">
+            Contributors on GitHub
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-4 items-center">
+        <FaCube className="text-2xl" />
+        <div className="">
+          <div className="text-2xl font-bold opacity-80 font-mono">
+            <NumberFlow value={githubOwner?.dependentCount} />
+          </div>
+          <div className="text-sm opacity-50 font-medium italic">
+            Dependents on GitHub
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Index() {
+  const bytesSignupMutation = useMutation({
+    fn: bytesSignupServerFn,
+  })
+
+  const { randomNumber } = Route.useLoaderData()
+  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  const gradient = sample(gradients, randomNumber)
 
   return (
     <>
@@ -151,52 +205,7 @@ function Index() {
           </p>
         </div>
         <div className="h-8" />
-        <div className="p-8 w-fit mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center place-items-center bg-white/30 dark:bg-gray-600/30 rounded-xl shadow-xl backdrop-blur-lg">
-          <div className="flex gap-4 items-center">
-            <FaDownload className="text-2xl" />
-            <div className="">
-              <div className="text-2xl font-bold opacity-80">
-                <NumberFlow value={npmOrg?.downloadCount} />
-              </div>
-              <div className="text-sm opacity-50 font-medium italic">
-                NPM Downloads
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-4 items-center">
-            <FaStar className="text-2xl" />
-            <div className="">
-              <div className="text-2xl font-bold opacity-80">
-                <NumberFlow value={githubOwner?.starCount} />
-              </div>
-              <div className="text-sm opacity-50 font-medium italic">
-                Stars on Github
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-4 items-center">
-            <FaUsers className="text-2xl" />
-            <div className="">
-              <div className="text-2xl font-bold opacity-80">
-                <NumberFlow value={githubOwner?.contributorCount} />
-              </div>
-              <div className="text-sm opacity-50 font-medium italic">
-                Contributors on GitHub
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-4 items-center">
-            <FaCube className="text-2xl" />
-            <div className="">
-              <div className="text-2xl font-bold opacity-80">
-                <NumberFlow value={githubOwner?.dependentCount} />
-              </div>
-              <div className="text-sm opacity-50 font-medium italic">
-                Dependents on GitHub
-              </div>
-            </div>
-          </div>
-        </div>
+        <OssStats />
         <div className="h-24" />
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">
           <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>

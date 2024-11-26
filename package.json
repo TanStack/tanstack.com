@@ -6,9 +6,8 @@
   "packageManager": "pnpm@9.4.0",
   "type": "module",
   "scripts": {
-    "dev": "npm-run-all --parallel dev:convex dev:start",
+    "dev": "vinxi dev",
     "dev:convex": "convex dev",
-    "dev:start": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start",
     "lint": "prettier --check '**/*' --ignore-unknown && eslint --ext .ts,.tsx ./app",

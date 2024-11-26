@@ -333,7 +333,7 @@ export default function VersionIndex() {
                       'ReactBricks',
                       'Nozzle.io',
                       'Uber',
-                    ]
+                    ],
                   )
                   .map((d, i) => (
                     <span key={i} className="opacity-70 even:opacity-40">

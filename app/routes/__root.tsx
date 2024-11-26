@@ -168,7 +168,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <div className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none blur-sm" />
         <div
           className={twMerge(
-            'fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none dark:opacity-20 transition-all duration-[2.5s] ease-in-out'
+            'fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none dark:opacity-20 transition-all duration-[2.5s] ease-in-out',
+            `[&+*]:relative`
           )}
           style={{
             backgroundImage: `url(${background})`,

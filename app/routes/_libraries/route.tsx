@@ -80,7 +80,7 @@ function LibrariesLayout() {
                           linkClasses,
                           props.isActive
                             ? 'bg-gray-500/10 dark:bg-gray-500/30'
-                            : ''
+                            : '',
                         )}
                       >
                         <span
@@ -91,14 +91,16 @@ function LibrariesLayout() {
                           <span
                             className={twMerge(
                               'font-light dark:font-bold dark:opacity-40',
-                              props.isActive ? `font-bold dark:opacity-100` : ''
+                              props.isActive
+                                ? `font-bold dark:opacity-100`
+                                : '',
                             )}
                           >
                             {prefix}
                           </span>{' '}
                           <span
                             className={twMerge(
-                              library.textStyle
+                              library.textStyle,
                               // isPending &&
                               //   `[view-transition-name:library-name]`
                             )}
@@ -115,7 +117,7 @@ function LibrariesLayout() {
                               //   : library.badge === 'soon'
                               //   ? 'text-cyan-500'
                               //   : '',
-                              library.textStyle
+                              library.textStyle,
                             )}
                           >
                             {library.badge}
@@ -128,7 +130,7 @@ function LibrariesLayout() {
               )}
             </div>
           )
-        }
+        },
       )}
       <div className="py-2">
         <div className="bg-gray-500/10 h-px" />
@@ -173,7 +175,7 @@ function LibrariesLayout() {
             className={twMerge(linkClasses, 'font-normal')}
             activeProps={{
               className: twMerge(
-                '!font-bold bg-gray-500/10 dark:bg-gray-500/30'
+                '!font-bold bg-gray-500/10 dark:bg-gray-500/30',
               ),
             }}
             target={item.to.startsWith('http') ? '_blank' : undefined}

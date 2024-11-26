@@ -22,7 +22,7 @@ export const Route = createFileRoute('/_libraries/dedicated-support')({
     let indices = shuffle(
       Array.from({ length: teamMembers.length - 1 })
         .fill(0)
-        .map((_, i) => i + 1)
+        .map((_, i) => i + 1),
     )
 
     return indices

@@ -10,10 +10,10 @@ import { QueryClient } from '@tanstack/react-query'
 export function createRouter() {
   const CONVEX_URL =
     (import.meta as any).env.VITE_CONVEX_URL ||
+    // Hardcoded production URL as fallback for local development
+    // Currently set to an instance owned by Convex Devx
+    // TODO: Replace with URL to an instance owned by the TanStack team
     'https://intent-pigeon-358.convex.cloud'
-  if (!CONVEX_URL) {
-    console.error('missing env var VITE_CONVEX_URL')
-  }
   const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
 
   const queryClient: QueryClient = new QueryClient({

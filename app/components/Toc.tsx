@@ -37,7 +37,7 @@ export function Toc({
   return (
     <nav className="bg-white dark:bg-gray-900/30 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
       <button
-        className="uppercase p-3 font-black text-center opacity-50 hover:text-white"
+        className="uppercase p-3 font-black text-center opacity-50 hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors hover:opacity-100"
         onClick={toggleCollapse}
       >
         On this page

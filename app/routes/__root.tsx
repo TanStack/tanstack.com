@@ -1,13 +1,11 @@
 import * as React from 'react'
 import {
   Outlet,
+  ScriptOnce,
   ScrollRestoration,
   createRootRouteWithContext,
   redirect,
-  useChildMatches,
-  useMatch,
   useMatches,
-  useRouter,
   useRouterState,
 } from '@tanstack/react-router'
 import appCss from '~/styles/app.css?url'
@@ -21,7 +19,7 @@ import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import background from '~/images/background.jpg'
 import { twMerge } from 'tailwind-merge'
-import { last } from '~/utils/utils'
+import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
 
 export const Route = createRootRouteWithContext()({
   head: () => ({
@@ -96,6 +94,12 @@ export const Route = createRootRouteWithContext()({
       })
     }
   },
+  staleTime: Infinity,
+  loader: async () => {
+    return {
+      themeCookie: await getThemeCookie(),
+    }
+  },
   errorComponent: (props) => {
     return (
       <RootDocument>
@@ -122,6 +126,13 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { themeCookie } = Route.useLoaderData()
+
+  React.useEffect(() => {
+    useThemeStore.setState({ theme: themeCookie })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const matches = useMatches()
 
   const isLoading = useRouterState({
@@ -154,8 +165,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       ),
   })
 
+  const themeClass =
+    themeCookie.mode === 'dark'
+      ? 'dark'
+      : themeCookie.mode === 'auto'
+      ? themeCookie.prefers
+      : 'light'
+
   return (
-    <html lang="en">
+    <html lang="en" className={themeClass}>
       <head>
         <Meta />
         {matches.find((d) => d.staticData?.baseParent) ? (
@@ -163,8 +181,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         ) : null}
       </head>
       <body>
-        {/* <SpeedInsights /> */}
-        {/* <Analytics /> */}
         <div className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none blur-sm" />
         <div
           className={twMerge(

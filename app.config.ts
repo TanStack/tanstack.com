@@ -26,7 +26,6 @@ export default defineConfig({
           transform(code, id) {
             replacements.forEach(([search, replacement]) => {
               if (code.includes(search)) {
-                console.log('found a match', id, search)
                 code = code.replaceAll(search, replacement)
               }
             })

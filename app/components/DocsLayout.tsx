@@ -468,7 +468,7 @@ export function DocsLayout({
         className="border-b border-gray-500 border-opacity-20"
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
-          <div className="flex gap-2 items-center text-xl md:text-2xl">
+          <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
             <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}

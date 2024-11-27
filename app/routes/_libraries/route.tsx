@@ -24,6 +24,7 @@ import { getLibrary, libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
+import { ThemeToggle } from '~/components/ThemeToggle'
 
 export const Route = createFileRoute('/_libraries')({
   loader: async (ctx) => {
@@ -80,7 +81,7 @@ function LibrariesLayout() {
                           linkClasses,
                           props.isActive
                             ? 'bg-gray-500/10 dark:bg-gray-500/30'
-                            : '',
+                            : ''
                         )}
                       >
                         <span
@@ -91,16 +92,14 @@ function LibrariesLayout() {
                           <span
                             className={twMerge(
                               'font-light dark:font-bold dark:opacity-40',
-                              props.isActive
-                                ? `font-bold dark:opacity-100`
-                                : '',
+                              props.isActive ? `font-bold dark:opacity-100` : ''
                             )}
                           >
                             {prefix}
                           </span>{' '}
                           <span
                             className={twMerge(
-                              library.textStyle,
+                              library.textStyle
                               // isPending &&
                               //   `[view-transition-name:library-name]`
                             )}
@@ -117,7 +116,7 @@ function LibrariesLayout() {
                               //   : library.badge === 'soon'
                               //   ? 'text-cyan-500'
                               //   : '',
-                              library.textStyle,
+                              library.textStyle
                             )}
                           >
                             {library.badge}
@@ -130,7 +129,7 @@ function LibrariesLayout() {
               )}
             </div>
           )
-        },
+        }
       )}
       <div className="py-2">
         <div className="bg-gray-500/10 h-px" />
@@ -175,7 +174,7 @@ function LibrariesLayout() {
             className={twMerge(linkClasses, 'font-normal')}
             activeProps={{
               className: twMerge(
-                '!font-bold bg-gray-500/10 dark:bg-gray-500/30',
+                '!font-bold bg-gray-500/10 dark:bg-gray-500/30'
               ),
             }}
             target={item.to.startsWith('http') ? '_blank' : undefined}
@@ -216,6 +215,9 @@ function LibrariesLayout() {
           <FaInstagram className="text-xl" />
         </a>
       </div>
+      <div className="ml-auto">
+        <ThemeToggle />
+      </div>
     </div>
   )
 
@@ -227,7 +229,7 @@ function LibrariesLayout() {
         className="border-b border-gray-500 border-opacity-20"
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
-          <div className="flex gap-2 items-center text-xl md:text-2xl">
+          <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
             <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}

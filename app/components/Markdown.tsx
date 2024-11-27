@@ -223,24 +223,24 @@ const options: HTMLReactParserOptions = {
   },
 }
 
-type MarkdownProps = { code?: string; markup?: string }
+type MarkdownProps = { rawContent?: string; htmlMarkup?: string }
 
-export function Markdown({ code, markup }: MarkdownProps) {
+export function Markdown({ rawContent, htmlMarkup }: MarkdownProps) {
   return React.useMemo(() => {
-    if (code) {
+    if (rawContent) {
       const markup = marked.use(
         { gfm: true },
         gfmHeadingId(),
         markedAlert()
-      )(code) as string
+      )(rawContent) as string
 
       return parse(markup, options)
     }
 
-    if (markup) {
-      return parse(markup, options)
+    if (htmlMarkup) {
+      return parse(htmlMarkup, options)
     }
 
     return null
-  }, [code, markup])
+  }, [rawContent, htmlMarkup])
 }

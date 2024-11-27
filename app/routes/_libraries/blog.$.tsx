@@ -66,14 +66,14 @@ export default function BlogPost() {
 
   const blogContent = `_by ${formatAuthors(authors)} on ${format(
     new Date(published || 0),
-    'MMM dd, yyyy',
+    'MMM dd, yyyy'
   )}._
 ${content}`
 
   return (
     <Doc
       title={title}
-      code={blogContent}
+      content={blogContent}
       repo={'tanstack/tanstack.com'}
       branch={'main'}
       filePath={filePath}

@@ -25,6 +25,7 @@ import { Scarf } from '~/components/Scarf'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
 import { ThemeToggle } from '~/components/ThemeToggle'
+import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
 
 export const Route = createFileRoute('/_libraries')({
   loader: async (ctx) => {
@@ -206,7 +207,13 @@ function LibrariesLayout() {
           href="https://x.com/tan_stack"
           className="opacity-70 hover:opacity-100"
         >
-          <FaTwitter className="text-xl" />
+          <TbBrandTwitter className="text-xl" />
+        </a>
+        <a
+          href="https://bsky.app/profile/tanstack.com"
+          className="opacity-70 hover:opacity-100"
+        >
+          <TbBrandBluesky className="text-xl" />
         </a>
         <a
           href="https://instagram.com/tan_stack"

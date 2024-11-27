@@ -6,25 +6,23 @@ import { getCookie, setCookie } from 'vinxi/http'
 import { z } from 'zod'
 import { create } from 'zustand'
 
-const themeSchema = z.object({
-  mode: z.enum(['light', 'dark', 'auto']),
-  prefers: z.enum(['light', 'dark']),
-})
+const themeModeSchema = z.enum(['light', 'dark', 'auto'])
+const prefersModeSchema = z.enum(['light', 'dark'])
 
-type ThemeSchema = z.infer<typeof themeSchema>
+type ThemeMode = z.infer<typeof themeModeSchema>
+type PrefersMode = z.infer<typeof prefersModeSchema>
 
 interface ThemeStore {
-  theme: ThemeSchema
-  setPrefers: (prefers: ThemeSchema['prefers']) => void
+  mode: ThemeMode
+  prefers: PrefersMode
   toggleMode: () => void
+  setPrefers: (prefers: PrefersMode) => void
 }
 
-export type ThemeMode = z.infer<typeof themeSchema>['mode']
-
 const updateThemeCookie = createServerFn({ method: 'POST' })
-  .validator(themeSchema)
+  .validator(themeModeSchema)
   .handler((ctx) => {
-    setCookie('theme', JSON.stringify(ctx.data), {
+    setCookie('theme', ctx.data, {
       httpOnly: false,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
@@ -34,82 +32,62 @@ const updateThemeCookie = createServerFn({ method: 'POST' })
   })
 
 export const getThemeCookie = createServerFn().handler(() => {
-  return themeSchema.parse(
-    JSON.parse(getCookie('theme') ?? 'null') || {
-      mode: 'auto',
-      prefers: 'light',
-    }
+  return (
+    themeModeSchema.catch('auto').parse(getCookie('theme') ?? 'null') || 'auto'
   )
 })
 
-export const useThemeStore = create<ThemeStore>((set) => ({
-  theme: {
-    mode: 'auto',
-    prefers: 'light',
-  },
-  setPrefers: (prefers) => {
-    set((s) => {
-      const newTheme = { ...s.theme, prefers }
+export const useThemeStore = create<ThemeStore>((set, get) => ({
+  mode: 'auto',
+  prefers: (() => {
+    if (typeof document !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+    }
 
-      updateThemeCookie({
-        data: newTheme,
-      })
-
-      updateThemeClass(newTheme)
-
-      return {
-        theme: newTheme,
-      }
-    })
-  },
+    return 'light'
+  })(),
   toggleMode: () =>
     set((s) => {
       const newMode =
-        s.theme.mode === 'auto'
-          ? 'light'
-          : s.theme.mode === 'light'
-          ? 'dark'
-          : 'auto'
+        s.mode === 'auto' ? 'light' : s.mode === 'light' ? 'dark' : 'auto'
 
-      const newTheme: ThemeSchema = {
-        mode: newMode,
-        prefers: window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? ('dark' as const)
-          : ('light' as const),
-      }
-
-      updateThemeClass(newTheme)
+      updateThemeClass(newMode, s.prefers)
       updateThemeCookie({
-        data: newTheme,
+        data: newMode,
       })
 
       return {
-        theme: newTheme,
+        mode: newMode,
       }
     }),
+  setPrefers: (prefers) => {
+    set({ prefers })
+    updateThemeClass(get().mode, prefers)
+  },
 }))
 
 if (typeof document !== 'undefined') {
   window
     .matchMedia('(prefers-color-scheme: dark)')
     .addEventListener('change', (event) => {
+      if (useThemeStore.getState().mode === 'auto') {
+      }
       useThemeStore.getState().setPrefers(event.matches ? 'dark' : 'light')
     })
 }
 
 // Helper to update <body> class
-function updateThemeClass(theme: ThemeSchema) {
+function updateThemeClass(mode: ThemeMode, prefers: PrefersMode) {
   document.documentElement.classList.remove('dark')
-  if (
-    theme.mode === 'dark' ||
-    (theme.mode === 'auto' && theme.prefers === 'dark')
-  ) {
+  if (mode === 'dark' || (mode === 'auto' && prefers === 'dark')) {
     document.documentElement.classList.add('dark')
   }
 }
 
 export function ThemeToggle() {
-  const mode = useThemeStore((s) => s.theme.mode)
+  const mode = useThemeStore((s) => s.mode)
   const toggleMode = useThemeStore((s) => s.toggleMode)
 
   const handleToggleMode = (

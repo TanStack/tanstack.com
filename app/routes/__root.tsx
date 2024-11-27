@@ -129,7 +129,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const { themeCookie } = Route.useLoaderData()
 
   React.useEffect(() => {
-    useThemeStore.setState({ theme: themeCookie })
+    useThemeStore.setState({ mode: themeCookie })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -165,16 +165,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       ),
   })
 
-  const themeClass =
-    themeCookie.mode === 'dark'
-      ? 'dark'
-      : themeCookie.mode === 'auto'
-      ? themeCookie.prefers
-      : 'light'
+  const themeClass = themeCookie === 'dark' ? 'dark' : ''
 
   return (
     <html lang="en" className={themeClass}>
       <head>
+        {/* If the theme is set to auto, inject a tiny script to set the proper class on html based on the user preference */}
+        {themeCookie === 'auto' ? (
+          <ScriptOnce
+            children={`window.matchMedia('(prefers-color-scheme: dark)').matches ? document.documentElement.classList.add('dark') : null`}
+          />
+        ) : null}
         <Meta />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />

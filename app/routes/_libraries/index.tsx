@@ -7,12 +7,9 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
-import {
-  useNpmDownloadCounter,
-  useGithubDependentCounter,
-} from '@erquhart/convex-oss-stats/react'
+import { useNpmDownloadCounter } from '@erquhart/convex-oss-stats/react'
 import NumberFlow from '@number-flow/react'
-import { api } from '../../convex/_generated/api'
+import { api } from '../../../convex/_generated/api'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { CgSpinner } from 'react-icons/cg'
@@ -30,7 +27,6 @@ import bytesImage from '~/images/bytes.svg'
 // import background from '~/images/background.jpg'
 import { partners } from '../../utils/partners'
 import { FaCube, FaDownload, FaStar, FaUsers } from 'react-icons/fa'
-import { PropsWithChildren } from 'react'
 
 export const textColors = [
   `text-rose-500`,
@@ -82,6 +78,8 @@ async function bytesSignupServerFn({ email }: { email: string }) {
 
 const librariesRouteApi = getRouteApi('/_libraries')
 
+// Will also be used for GitHub dependent count once
+// useGithubDependentCounter is fixed upstream
 const StableCounter = ({ value }: { value?: number }) => {
   const dummyString = Number(
     Array(value?.toString().length ?? 1)
@@ -117,17 +115,6 @@ const NpmDownloadCounter = ({
 }) => {
   const liveNpmDownloadCount = useNpmDownloadCounter(npmData)
   return <StableCounter value={liveNpmDownloadCount} />
-}
-
-// TODO: Use this once useGithubDependentCounter is fixed upstream
-const GitHubDependentCounter = ({
-  githubData,
-}: {
-  githubData: Parameters<typeof useGithubDependentCounter>[0]
-}) => {
-  const liveGitHubDependentCount = useGithubDependentCounter(githubData)
-  console.log('liveGitHubDependentCount', liveGitHubDependentCount)
-  return <StableCounter value={liveGitHubDependentCount} />
 }
 
 const OssStats = () => {

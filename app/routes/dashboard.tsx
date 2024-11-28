@@ -3,7 +3,6 @@ import { createServerFn } from '@tanstack/start'
 import { redirectWithClearedCookie, requireAuthCookie } from '~/auth/auth'
 import { useMutation } from '~/hooks/useMutation'
 import { getWebRequest } from 'vinxi/http'
-import { z } from 'zod'
 
 const loadDashboard = createServerFn({ method: 'GET' }).handler(async () => {
   const userId = await requireAuthCookie(getWebRequest())

@@ -15,18 +15,18 @@ import { Route as SponsorsEmbedImport } from './routes/sponsors-embed'
 import { Route as MerchImport } from './routes/merch'
 import { Route as LoginImport } from './routes/login'
 import { Route as DashboardImport } from './routes/dashboard'
-import { Route as LibraryIdImport } from './routes/$libraryId'
 import { Route as LibrariesRouteImport } from './routes/_libraries/route'
+import { Route as LibraryIdRouteImport } from './routes/$libraryId/route'
 import { Route as LibrariesIndexImport } from './routes/_libraries/index'
-import { Route as LibraryIdIndexImport } from './routes/$libraryId.index'
+import { Route as LibraryIdIndexImport } from './routes/$libraryId/index'
 import { Route as LibrariesSupportImport } from './routes/_libraries/support'
 import { Route as LibrariesLearnImport } from './routes/_libraries/learn'
 import { Route as LibrariesDedicatedSupportImport } from './routes/_libraries/dedicated-support'
 import { Route as LibrariesBlogImport } from './routes/_libraries/blog'
-import { Route as LibraryIdVersionImport } from './routes/$libraryId.$version'
+import { Route as LibraryIdVersionImport } from './routes/$libraryId/$version'
 import { Route as LibrariesBlogIndexImport } from './routes/_libraries/blog.index'
 import { Route as LibrariesBlogSplatImport } from './routes/_libraries/blog.$'
-import { Route as LibraryIdVersionDocsImport } from './routes/$libraryId.$version.docs'
+import { Route as LibraryIdVersionDocsImport } from './routes/$libraryId/$version.docs'
 import { Route as LibrariesVirtualVersionIndexImport } from './routes/_libraries/virtual.$version.index'
 import { Route as LibrariesTableVersionIndexImport } from './routes/_libraries/table.$version.index'
 import { Route as LibrariesStoreVersionIndexImport } from './routes/_libraries/store.$version.index'
@@ -36,10 +36,10 @@ import { Route as LibrariesRangerVersionIndexImport } from './routes/_libraries/
 import { Route as LibrariesQueryVersionIndexImport } from './routes/_libraries/query.$version.index'
 import { Route as LibrariesFormVersionIndexImport } from './routes/_libraries/form.$version.index'
 import { Route as LibrariesConfigVersionIndexImport } from './routes/_libraries/config.$version.index'
-import { Route as LibraryIdVersionDocsIndexImport } from './routes/$libraryId.$version.docs.index'
-import { Route as LibraryIdVersionDocsSplatImport } from './routes/$libraryId.$version.docs.$'
-import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatImport } from './routes/$libraryId.$version.docs.framework.$framework.$'
-import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatImport } from './routes/$libraryId.$version.docs.framework.$framework.examples.$'
+import { Route as LibraryIdVersionDocsIndexImport } from './routes/$libraryId/$version.docs.index'
+import { Route as LibraryIdVersionDocsSplatImport } from './routes/$libraryId/$version.docs.$'
+import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatImport } from './routes/$libraryId/$version.docs.framework.$framework.$'
+import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatImport } from './routes/$libraryId/$version.docs.framework.$framework.examples.$'
 
 // Create/Update Routes
 
@@ -67,14 +67,14 @@ const DashboardRoute = DashboardImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LibraryIdRoute = LibraryIdImport.update({
-  id: '/$libraryId',
-  path: '/$libraryId',
+const LibrariesRouteRoute = LibrariesRouteImport.update({
+  id: '/_libraries',
   getParentRoute: () => rootRoute,
 } as any)
 
-const LibrariesRouteRoute = LibrariesRouteImport.update({
-  id: '/_libraries',
+const LibraryIdRouteRoute = LibraryIdRouteImport.update({
+  id: '/$libraryId',
+  path: '/$libraryId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -87,7 +87,7 @@ const LibrariesIndexRoute = LibrariesIndexImport.update({
 const LibraryIdIndexRoute = LibraryIdIndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => LibraryIdRoute,
+  getParentRoute: () => LibraryIdRouteRoute,
 } as any)
 
 const LibrariesSupportRoute = LibrariesSupportImport.update({
@@ -117,7 +117,7 @@ const LibrariesBlogRoute = LibrariesBlogImport.update({
 const LibraryIdVersionRoute = LibraryIdVersionImport.update({
   id: '/$version',
   path: '/$version',
-  getParentRoute: () => LibraryIdRoute,
+  getParentRoute: () => LibraryIdRouteRoute,
 } as any)
 
 const LibrariesBlogIndexRoute = LibrariesBlogIndexImport.update({
@@ -234,18 +234,18 @@ const LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/$libraryId': {
+      id: '/$libraryId'
+      path: '/$libraryId'
+      fullPath: '/$libraryId'
+      preLoaderRoute: typeof LibraryIdRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/_libraries': {
       id: '/_libraries'
       path: ''
       fullPath: ''
       preLoaderRoute: typeof LibrariesRouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/$libraryId': {
-      id: '/$libraryId'
-      path: '/$libraryId'
-      fullPath: '/$libraryId'
-      preLoaderRoute: typeof LibraryIdImport
       parentRoute: typeof rootRoute
     }
     '/dashboard': {
@@ -281,7 +281,7 @@ declare module '@tanstack/react-router' {
       path: '/$version'
       fullPath: '/$libraryId/$version'
       preLoaderRoute: typeof LibraryIdVersionImport
-      parentRoute: typeof LibraryIdImport
+      parentRoute: typeof LibraryIdRouteImport
     }
     '/_libraries/blog': {
       id: '/_libraries/blog'
@@ -316,7 +316,7 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/$libraryId/'
       preLoaderRoute: typeof LibraryIdIndexImport
-      parentRoute: typeof LibraryIdImport
+      parentRoute: typeof LibraryIdRouteImport
     }
     '/_libraries/': {
       id: '/_libraries/'
@@ -442,6 +442,50 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
+interface LibraryIdVersionDocsRouteChildren {
+  LibraryIdVersionDocsSplatRoute: typeof LibraryIdVersionDocsSplatRoute
+  LibraryIdVersionDocsIndexRoute: typeof LibraryIdVersionDocsIndexRoute
+  LibraryIdVersionDocsFrameworkFrameworkSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
+  LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
+}
+
+const LibraryIdVersionDocsRouteChildren: LibraryIdVersionDocsRouteChildren = {
+  LibraryIdVersionDocsSplatRoute: LibraryIdVersionDocsSplatRoute,
+  LibraryIdVersionDocsIndexRoute: LibraryIdVersionDocsIndexRoute,
+  LibraryIdVersionDocsFrameworkFrameworkSplatRoute:
+    LibraryIdVersionDocsFrameworkFrameworkSplatRoute,
+  LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute:
+    LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute,
+}
+
+const LibraryIdVersionDocsRouteWithChildren =
+  LibraryIdVersionDocsRoute._addFileChildren(LibraryIdVersionDocsRouteChildren)
+
+interface LibraryIdVersionRouteChildren {
+  LibraryIdVersionDocsRoute: typeof LibraryIdVersionDocsRouteWithChildren
+}
+
+const LibraryIdVersionRouteChildren: LibraryIdVersionRouteChildren = {
+  LibraryIdVersionDocsRoute: LibraryIdVersionDocsRouteWithChildren,
+}
+
+const LibraryIdVersionRouteWithChildren =
+  LibraryIdVersionRoute._addFileChildren(LibraryIdVersionRouteChildren)
+
+interface LibraryIdRouteRouteChildren {
+  LibraryIdVersionRoute: typeof LibraryIdVersionRouteWithChildren
+  LibraryIdIndexRoute: typeof LibraryIdIndexRoute
+}
+
+const LibraryIdRouteRouteChildren: LibraryIdRouteRouteChildren = {
+  LibraryIdVersionRoute: LibraryIdVersionRouteWithChildren,
+  LibraryIdIndexRoute: LibraryIdIndexRoute,
+}
+
+const LibraryIdRouteRouteWithChildren = LibraryIdRouteRoute._addFileChildren(
+  LibraryIdRouteRouteChildren,
+)
+
 interface LibrariesBlogRouteChildren {
   LibrariesBlogSplatRoute: typeof LibrariesBlogSplatRoute
   LibrariesBlogIndexRoute: typeof LibrariesBlogIndexRoute
@@ -494,53 +538,9 @@ const LibrariesRouteRouteWithChildren = LibrariesRouteRoute._addFileChildren(
   LibrariesRouteRouteChildren,
 )
 
-interface LibraryIdVersionDocsRouteChildren {
-  LibraryIdVersionDocsSplatRoute: typeof LibraryIdVersionDocsSplatRoute
-  LibraryIdVersionDocsIndexRoute: typeof LibraryIdVersionDocsIndexRoute
-  LibraryIdVersionDocsFrameworkFrameworkSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
-  LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
-}
-
-const LibraryIdVersionDocsRouteChildren: LibraryIdVersionDocsRouteChildren = {
-  LibraryIdVersionDocsSplatRoute: LibraryIdVersionDocsSplatRoute,
-  LibraryIdVersionDocsIndexRoute: LibraryIdVersionDocsIndexRoute,
-  LibraryIdVersionDocsFrameworkFrameworkSplatRoute:
-    LibraryIdVersionDocsFrameworkFrameworkSplatRoute,
-  LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute:
-    LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute,
-}
-
-const LibraryIdVersionDocsRouteWithChildren =
-  LibraryIdVersionDocsRoute._addFileChildren(LibraryIdVersionDocsRouteChildren)
-
-interface LibraryIdVersionRouteChildren {
-  LibraryIdVersionDocsRoute: typeof LibraryIdVersionDocsRouteWithChildren
-}
-
-const LibraryIdVersionRouteChildren: LibraryIdVersionRouteChildren = {
-  LibraryIdVersionDocsRoute: LibraryIdVersionDocsRouteWithChildren,
-}
-
-const LibraryIdVersionRouteWithChildren =
-  LibraryIdVersionRoute._addFileChildren(LibraryIdVersionRouteChildren)
-
-interface LibraryIdRouteChildren {
-  LibraryIdVersionRoute: typeof LibraryIdVersionRouteWithChildren
-  LibraryIdIndexRoute: typeof LibraryIdIndexRoute
-}
-
-const LibraryIdRouteChildren: LibraryIdRouteChildren = {
-  LibraryIdVersionRoute: LibraryIdVersionRouteWithChildren,
-  LibraryIdIndexRoute: LibraryIdIndexRoute,
-}
-
-const LibraryIdRouteWithChildren = LibraryIdRoute._addFileChildren(
-  LibraryIdRouteChildren,
-)
-
 export interface FileRoutesByFullPath {
+  '/$libraryId': typeof LibraryIdRouteRouteWithChildren
   '': typeof LibrariesRouteRouteWithChildren
-  '/$libraryId': typeof LibraryIdRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/merch': typeof MerchRoute
@@ -600,8 +600,8 @@ export interface FileRoutesByTo {
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/$libraryId': typeof LibraryIdRouteRouteWithChildren
   '/_libraries': typeof LibrariesRouteRouteWithChildren
-  '/$libraryId': typeof LibraryIdRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/merch': typeof MerchRoute
@@ -634,8 +634,8 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | ''
     | '/$libraryId'
+    | ''
     | '/dashboard'
     | '/login'
     | '/merch'
@@ -692,8 +692,8 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   id:
     | '__root__'
-    | '/_libraries'
     | '/$libraryId'
+    | '/_libraries'
     | '/dashboard'
     | '/login'
     | '/merch'
@@ -725,8 +725,8 @@ export interface FileRouteTypes {
 }
 
 export interface RootRouteChildren {
+  LibraryIdRouteRoute: typeof LibraryIdRouteRouteWithChildren
   LibrariesRouteRoute: typeof LibrariesRouteRouteWithChildren
-  LibraryIdRoute: typeof LibraryIdRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   MerchRoute: typeof MerchRoute
@@ -734,8 +734,8 @@ export interface RootRouteChildren {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  LibraryIdRouteRoute: LibraryIdRouteRouteWithChildren,
   LibrariesRouteRoute: LibrariesRouteRouteWithChildren,
-  LibraryIdRoute: LibraryIdRouteWithChildren,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   MerchRoute: MerchRoute,
@@ -752,12 +752,19 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/_libraries",
         "/$libraryId",
+        "/_libraries",
         "/dashboard",
         "/login",
         "/merch",
         "/sponsors-embed"
+      ]
+    },
+    "/$libraryId": {
+      "filePath": "$libraryId/route.tsx",
+      "children": [
+        "/$libraryId/$version",
+        "/$libraryId/"
       ]
     },
     "/_libraries": {
@@ -779,13 +786,6 @@ export const routeTree = rootRoute
         "/_libraries/virtual/$version/"
       ]
     },
-    "/$libraryId": {
-      "filePath": "$libraryId.tsx",
-      "children": [
-        "/$libraryId/$version",
-        "/$libraryId/"
-      ]
-    },
     "/dashboard": {
       "filePath": "dashboard.tsx"
     },
@@ -799,7 +799,7 @@ export const routeTree = rootRoute
       "filePath": "sponsors-embed.tsx"
     },
     "/$libraryId/$version": {
-      "filePath": "$libraryId.$version.tsx",
+      "filePath": "$libraryId/$version.tsx",
       "parent": "/$libraryId",
       "children": [
         "/$libraryId/$version/docs"
@@ -826,7 +826,7 @@ export const routeTree = rootRoute
       "parent": "/_libraries"
     },
     "/$libraryId/": {
-      "filePath": "$libraryId.index.tsx",
+      "filePath": "$libraryId/index.tsx",
       "parent": "/$libraryId"
     },
     "/_libraries/": {
@@ -834,7 +834,7 @@ export const routeTree = rootRoute
       "parent": "/_libraries"
     },
     "/$libraryId/$version/docs": {
-      "filePath": "$libraryId.$version.docs.tsx",
+      "filePath": "$libraryId/$version.docs.tsx",
       "parent": "/$libraryId/$version",
       "children": [
         "/$libraryId/$version/docs/$",
@@ -852,11 +852,11 @@ export const routeTree = rootRoute
       "parent": "/_libraries/blog"
     },
     "/$libraryId/$version/docs/$": {
-      "filePath": "$libraryId.$version.docs.$.tsx",
+      "filePath": "$libraryId/$version.docs.$.tsx",
       "parent": "/$libraryId/$version/docs"
     },
     "/$libraryId/$version/docs/": {
-      "filePath": "$libraryId.$version.docs.index.tsx",
+      "filePath": "$libraryId/$version.docs.index.tsx",
       "parent": "/$libraryId/$version/docs"
     },
     "/_libraries/config/$version/": {
@@ -896,11 +896,11 @@ export const routeTree = rootRoute
       "parent": "/_libraries"
     },
     "/$libraryId/$version/docs/framework/$framework/$": {
-      "filePath": "$libraryId.$version.docs.framework.$framework.$.tsx",
+      "filePath": "$libraryId/$version.docs.framework.$framework.$.tsx",
       "parent": "/$libraryId/$version/docs"
     },
     "/$libraryId/$version/docs/framework/$framework/examples/$": {
-      "filePath": "$libraryId.$version.docs.framework.$framework.examples.$.tsx",
+      "filePath": "$libraryId/$version.docs.framework.$framework.examples.$.tsx",
       "parent": "/$libraryId/$version/docs"
     }
   }

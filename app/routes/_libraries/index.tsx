@@ -7,7 +7,10 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
-import { useNpmDownloadCounter } from '@erquhart/convex-oss-stats/react'
+import {
+  useNpmDownloadCounter,
+  useGithubDependentCounter,
+} from '@erquhart/convex-oss-stats/react'
 import NumberFlow from '@number-flow/react'
 import { api } from '../../convex/_generated/api'
 import { Carbon } from '~/components/Carbon'
@@ -27,6 +30,7 @@ import bytesImage from '~/images/bytes.svg'
 // import background from '~/images/background.jpg'
 import { partners } from '../../utils/partners'
 import { FaCube, FaDownload, FaStar, FaUsers } from 'react-icons/fa'
+import { PropsWithChildren } from 'react'
 
 export const textColors = [
   `text-rose-500`,
@@ -78,31 +82,24 @@ async function bytesSignupServerFn({ email }: { email: string }) {
 
 const librariesRouteApi = getRouteApi('/_libraries')
 
-const NpmDownloadCounter = ({
-  npmPackageOrOrg,
-}: {
-  npmPackageOrOrg: {
-    downloadCount: number
-    dayOfWeekAverages: number[]
-    updatedAt: number
-  } | null
-}) => {
-  const liveNpmDownloadCount = useNpmDownloadCounter(npmPackageOrOrg)
-  const npmDownloadCountDummyString = Number(
-    Array(liveNpmDownloadCount?.toString().length ?? 1)
+const StableCounter = ({ value }: { value?: number }) => {
+  const dummyString = Number(
+    Array(value?.toString().length ?? 1)
       .fill('8')
       .join('')
   ).toLocaleString()
 
   return (
     <>
-      <span className="opacity-0">{npmDownloadCountDummyString}</span>
+      {/* Dummy span to prevent layout shift */}
+      <span className="opacity-0">{dummyString}</span>
       <span className="absolute -top-0.5 left-0">
         <NumberFlow
           transformTiming={{
             duration: 1000,
+            easing: 'linear',
           }}
-          value={liveNpmDownloadCount}
+          value={value}
           trend={1}
           continuous
           isolate
@@ -113,13 +110,34 @@ const NpmDownloadCounter = ({
   )
 }
 
+const NpmDownloadCounter = ({
+  npmData,
+}: {
+  npmData: Parameters<typeof useNpmDownloadCounter>[0]
+}) => {
+  const liveNpmDownloadCount = useNpmDownloadCounter(npmData)
+  return <StableCounter value={liveNpmDownloadCount} />
+}
+
+// TODO: Use this once useGithubDependentCounter is fixed upstream
+const GitHubDependentCounter = ({
+  githubData,
+}: {
+  githubData: Parameters<typeof useGithubDependentCounter>[0]
+}) => {
+  const liveGitHubDependentCount = useGithubDependentCounter(githubData)
+  console.log('liveGitHubDependentCount', liveGitHubDependentCount)
+  return <StableCounter value={liveGitHubDependentCount} />
+}
+
 const OssStats = () => {
-  const { data: githubOwner } = useSuspenseQuery(
+  const { data: github } = useSuspenseQuery(
     convexQuery(api.stats.getGithubOwner, {
       owner: 'tanstack',
     })
   )
-  const { data: npmOrg } = useSuspenseQuery(
+  console.log('github', github)
+  const { data: npm } = useSuspenseQuery(
     convexQuery(api.stats.getNpmOrg, {
       name: 'tanstack',
     })
@@ -132,7 +150,7 @@ const OssStats = () => {
           <FaDownload className="text-2xl" />
           <div>
             <div className="text-2xl font-bold opacity-80 relative">
-              <NpmDownloadCounter npmPackageOrOrg={npmOrg} />
+              <NpmDownloadCounter npmData={npm} />
             </div>
             <div className="text-sm opacity-50 font-medium italic">
               NPM Downloads
@@ -143,7 +161,7 @@ const OssStats = () => {
           <FaStar className="text-2xl" />
           <div>
             <div className="text-2xl font-bold opacity-80 leading-none">
-              <NumberFlow value={githubOwner?.starCount} />
+              <NumberFlow value={github?.starCount} />
             </div>
             <div className="text-sm opacity-50 font-medium italic -mt-1">
               Stars on Github
@@ -154,7 +172,7 @@ const OssStats = () => {
           <FaUsers className="text-2xl" />
           <div className="">
             <div className="text-2xl font-bold opacity-80">
-              <NumberFlow value={githubOwner?.contributorCount} />
+              <NumberFlow value={github?.contributorCount} />
             </div>
             <div className="text-sm opacity-50 font-medium italic -mt-1">
               Contributors on GitHub
@@ -164,8 +182,8 @@ const OssStats = () => {
         <div className="flex gap-4 items-center">
           <FaCube className="text-2xl" />
           <div className="">
-            <div className="text-2xl font-bold opacity-80">
-              <NumberFlow value={githubOwner?.dependentCount} />
+            <div className="text-2xl font-bold opacity-80 relative">
+              <NumberFlow value={github?.dependentCount} />
             </div>
             <div className="text-sm opacity-50 font-medium italic -mt-1">
               Dependents on GitHub

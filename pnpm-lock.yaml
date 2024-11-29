@@ -21,8 +21,8 @@ importers:
         specifier: ^3.5.2
         version: 3.6.0(@algolia/client-search@5.14.2)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)
       '@erquhart/convex-oss-stats':
-        specifier: ^0.3.1
-        version: 0.3.1(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^0.3.2
+        version: 0.3.2(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@headlessui/react':
         specifier: 1.7.18
         version: 1.7.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1096,8 +1096,8 @@ packages:
   '@emotion/weak-memoize@0.2.5':
     resolution: {integrity: sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==}
 
-  '@erquhart/convex-oss-stats@0.3.1':
-    resolution: {integrity: sha512-o8cn90niqm0b9LTDd5i244IO9cA6Li7B2HKIRktdoyWYvAVm+RUPC+AwcyCD3cAtm5jV4ViSwYvwgY7hWOYPow==}
+  '@erquhart/convex-oss-stats@0.3.2':
+    resolution: {integrity: sha512-DvyofZ+v2SpvIzRn8vzsqi0lVoEev6+yelGstv2mxM1+wK5SHwAvmAj6qt4t4qi8Vf+nJEpKwkSB2lRmmTysCQ==}
     peerDependencies:
       convex: ~1.16.5 || ~1.17.0
       react: ^17.0.2 || ^18.0.0 || ^19.0.0-0
@@ -7959,7 +7959,7 @@ snapshots:
 
   '@emotion/weak-memoize@0.2.5': {}
 
-  '@erquhart/convex-oss-stats@0.3.1(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@erquhart/convex-oss-stats@0.3.2(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@convex-dev/crons': 0.1.5(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@octokit/graphql': 8.1.1
@@ -11076,7 +11076,7 @@ snapshots:
       eslint: 8.57.0
       eslint-plugin-flowtype: 8.0.3(@babel/plugin-syntax-flow@7.26.0(@babel/core@7.26.0))(@babel/plugin-transform-react-jsx@7.25.9(@babel/core@7.26.0))(eslint@8.57.0)
       eslint-plugin-import: 2.29.1(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)
-      eslint-plugin-jest: 25.7.0(@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3)
+      eslint-plugin-jest: 25.7.0(@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3)
       eslint-plugin-jsx-a11y: 6.8.0(eslint@8.57.0)
       eslint-plugin-react: 7.34.0(eslint@8.57.0)
       eslint-plugin-react-hooks: 4.6.0(eslint@8.57.0)
@@ -11144,7 +11144,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-jest@25.7.0(@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3):
+  eslint-plugin-jest@25.7.0(@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3):
     dependencies:
       '@typescript-eslint/experimental-utils': 5.62.0(eslint@8.57.0)(typescript@5.6.3)
       eslint: 8.57.0

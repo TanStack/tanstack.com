@@ -24,7 +24,7 @@
     "@number-flow/react": "^0.4.1",
     "@octokit/graphql": "^7.0.2",
     "@octokit/rest": "^20.0.2",
-    "@orama/react-components": "^0.0.25",
+    "@orama/react-components": "^0.1.23",
     "@remix-run/node": "^2.8.1",
     "@sentry/react": "^8.35.0",
     "@sentry/vite-plugin": "^2.22.6",

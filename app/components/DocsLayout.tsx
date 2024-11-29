@@ -566,7 +566,7 @@ export function DocsLayout({
         )}
       >
         {children}
-        <div className="fixed flex items-center flex-wrap bottom-2 left-0 lg:left-[250px] z-10 right-0 text-xs md:text-sm px-1">
+        <div className="fixed flex items-center flex-wrap bottom-2 left-0 lg:left-[250px] z-10 right-0 text-xs md:text-sm px-1 print:hidden">
           <div className="w-1/2 px-1 flex justify-end flex-wrap">
             {prevItem ? (
               <Link
@@ -689,7 +689,7 @@ export function DocsLayout({
         </div>
       </div>
       {showBytes ? (
-        <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
+        <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg print:hidden">
           <div className="bg-white dark:bg-gray-900/30 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
             {libraryId === 'query' ? (
               <DocsCalloutQueryGG />
@@ -708,7 +708,7 @@ export function DocsLayout({
         </div>
       ) : (
         <button
-          className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden"
+          className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden print:hidden"
           onClick={() => {
             setShowBytes(true)
           }}

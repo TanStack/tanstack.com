@@ -17,7 +17,7 @@ import { getLibrary, libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
-import { ThemeToggle } from '~/components/ThemeToggle'
+import { ThemeToggle, useThemeStore } from '~/components/ThemeToggle'
 import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
 
 export const Route = createFileRoute('/_libraries')({
@@ -40,6 +40,10 @@ function LibrariesLayout() {
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
 
   const [mounted, setMounted] = React.useState(false)
+
+  const { mode: themeMode } = useThemeStore()
+
+  const oramaThemeMode = themeMode === 'auto' ? 'system' : themeMode
 
   React.useEffect(() => {
     setMounted(true)
@@ -242,7 +246,10 @@ function LibrariesLayout() {
           dark:bg-gray-900"
         >
           <div className="p-2 pb-0">
-            <ClientOnlySearchButton {...searchButtonParams} />
+            <ClientOnlySearchButton
+              {...searchButtonParams}
+              colorScheme={oramaThemeMode}
+            />
           </div>
           <div className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
             {items}
@@ -259,7 +266,10 @@ function LibrariesLayout() {
           {logo}
         </div>
         <div className="p-2">
-          <ClientOnlySearchButton {...searchButtonParams}>
+          <ClientOnlySearchButton
+            {...searchButtonParams}
+            colorScheme={oramaThemeMode}
+          >
             Search
           </ClientOnlySearchButton>
         </div>
@@ -284,7 +294,7 @@ function LibrariesLayout() {
       </div>
       {mounted ? (
         <div className="fixed z-50">
-          <OramaSearchBox {...searchBoxParams} />
+          <OramaSearchBox {...searchBoxParams} colorScheme={oramaThemeMode} />
         </div>
       ) : null}
     </div>

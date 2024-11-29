@@ -4,6 +4,14 @@ export const searchBoxParams = {
     endpoint: 'https://cloud.orama.run/v1/indexes/tanstack-dev-ur0ppd',
   },
   colorScheme: 'system' as 'light' | 'dark' | 'system',
+  suggestions: [
+    'What is TanStack?',
+    'Why should I use TanStack query?',
+    'Show me an example integration of useQuery hook',
+    'How is TanStack router different than other routers?',
+    'What is TanStack Table for?',
+    'Code example using TanStack Store',
+  ],
   facetProperty: 'category',
   resultMap: {
     description: 'content',

@@ -7,7 +7,10 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
-import { useNpmDownloadCounter } from '@erquhart/convex-oss-stats/react'
+import {
+  useNpmDownloadCounter,
+  useGithubDependentCounter,
+} from '@erquhart/convex-oss-stats/react'
 import NumberFlow from '@number-flow/react'
 import { api } from '../../../convex/_generated/api'
 import { Carbon } from '~/components/Carbon'
@@ -78,8 +81,6 @@ async function bytesSignupServerFn({ email }: { email: string }) {
 
 const librariesRouteApi = getRouteApi('/_libraries')
 
-// Will also be used for GitHub dependent count once
-// useGithubDependentCounter is fixed upstream
 const StableCounter = ({ value }: { value?: number }) => {
   const dummyString = Number(
     Array(value?.toString().length ?? 1)
@@ -115,6 +116,17 @@ const NpmDownloadCounter = ({
 }) => {
   const liveNpmDownloadCount = useNpmDownloadCounter(npmData)
   return <StableCounter value={liveNpmDownloadCount} />
+}
+
+// TODO: Use this once useGithubDependentCounter is fixed upstream
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const GitHubDependentCounter = ({
+  githubData,
+}: {
+  githubData: Parameters<typeof useGithubDependentCounter>[0]
+}) => {
+  const liveGitHubDependentCount = useGithubDependentCounter(githubData)
+  return <StableCounter value={liveGitHubDependentCount} />
 }
 
 const OssStats = () => {
@@ -170,7 +182,7 @@ const OssStats = () => {
           <FaCube className="text-2xl" />
           <div className="">
             <div className="text-2xl font-bold opacity-80 relative">
-              <NumberFlow value={github?.dependentCount} />
+              <GitHubDependentCounter githubData={github} />
             </div>
             <div className="text-sm opacity-50 font-medium italic -mt-1">
               Dependents on GitHub

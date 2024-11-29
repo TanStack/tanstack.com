@@ -190,7 +190,7 @@ function Index() {
                   params
                   className={twMerge(
                     `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white dark:bg-gray-900 dark:border dark:border-gray-800`,
-                    library.cardStyles,
+                    library.cardStyles
                   )}
                   style={{
                     zIndex: i,
@@ -204,7 +204,7 @@ function Index() {
                         return (
                           <div
                             className={twMerge(
-                              `text-2xl font-extrabold`,
+                              `text-2xl font-extrabold`
                               // isPending && `[view-transition-name:library-name]`
                             )}
                             style={{
@@ -220,7 +220,7 @@ function Index() {
                       <div
                         className={twMerge(
                           `uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse`,
-                          library.bgStyle,
+                          library.bgStyle
                         )}
                       >
                         {library.badge}

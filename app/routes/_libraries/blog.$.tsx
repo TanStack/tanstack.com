@@ -66,7 +66,7 @@ export default function BlogPost() {
 
   const blogContent = `_by ${formatAuthors(authors)} on ${format(
     new Date(published || 0),
-    'MMM dd, yyyy',
+    'MMM dd, yyyy'
   )}._
 ${content}`
 

@@ -15,6 +15,9 @@ export function getPostList() {
     {
       id: 'why-tanstack-start-is-ditching-adapters',
     },
+    {
+      id: 'why-tanstack-start-and-router',
+    },
   ]
 }
 

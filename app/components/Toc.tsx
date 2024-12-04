@@ -28,17 +28,20 @@ export function Toc({ headings, colorFrom, colorTo }: TocProps) {
   }, [location])
 
   return (
-    <nav className="flex flex-col p-2 gap-1 sticky top-2 max-h-screen">
-      <h3 className="text-[.9em] font-medium px-2">On this page</h3>
-
+    <nav className="flex flex-col gap-1 sticky top-2 max-h-screen divide-y divide-gray-500/20">
+      <div className="p-2">
+        <h3 className="text-[.9em] font-bold px-2">On this page</h3>
+      </div>
       <ul
-        className={twMerge('flex flex-col overflow-y-auto gap-0.5 text-[.8em]')}
+        className={twMerge(
+          'p-2 flex flex-col overflow-y-auto gap-0.5 text-[.8em]'
+        )}
       >
         {headings?.map((heading) => (
           <li
             key={heading.id}
             className={twMerge(
-              'cursor-pointer py-[.1rem] w-full rounded-lg hover:bg-gray-500 hover:bg-opacity-10',
+              'cursor-pointer py-[.1rem] w-full rounded hover:bg-gray-500 hover:bg-opacity-10',
               headingLevels[heading.level]
             )}
           >

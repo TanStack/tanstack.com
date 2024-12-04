@@ -9,6 +9,7 @@ import { formatAuthors } from '~/utils/blog'
 import { format } from 'date-fns'
 import { z } from 'zod'
 import { FaArrowLeft } from 'react-icons/fa'
+import { DocContainer } from '~/components/DocContainer'
 
 const fetchBlogPost = createServerFn({ method: 'GET' })
   .validator(z.string().optional())
@@ -72,10 +73,14 @@ export default function BlogPost() {
 ${content}`
 
   return (
-    <div className="w-[1000px] max-w-full">
-      <div className="flex items-center gap-2 m-4 md:m-6 lg:m-8">
-        <FaArrowLeft />
-        <Link from="/blog/$" to="/blog" className="font-bold text-sm">
+    <DocContainer>
+      <div>
+        <Link
+          from="/blog/$"
+          to="/blog"
+          className="font-bold flex items-center gap-2 p-1"
+        >
+          <FaArrowLeft />
           Back
         </Link>
       </div>
@@ -86,6 +91,6 @@ ${content}`
         branch={'main'}
         filePath={filePath}
       />
-    </div>
+    </DocContainer>
   )
 }

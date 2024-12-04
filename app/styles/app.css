@@ -518,3 +518,7 @@ pre .logger.log-log svg {
 .markdown-alert .markdown-alert-title {
   @apply flex justify-start items-center font-medium mb-1.5;
 }
+
+.bg-clip-text {
+  @apply print:text-gray-800;
+}

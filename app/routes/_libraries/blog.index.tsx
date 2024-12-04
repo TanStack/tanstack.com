@@ -116,7 +116,7 @@ function BlogIndex() {
                     <div
                       className={`text-sm mt-4 text-black dark:text-white leading-7`}
                     >
-                      <Markdown code={excerpt || ''} />
+                      <Markdown rawContent={excerpt || ''} />
                     </div>
                   </div>
                   <div>

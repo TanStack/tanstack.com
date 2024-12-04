@@ -20,13 +20,15 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
       config,
     }
   },
-  meta: (ctx) => {
+  head: (ctx) => {
     const { libraryId } = ctx.params
     const library = getLibrary(libraryId)
 
-    return seo({
-      title: `${library.name} Docs`,
-    })
+    return {
+      meta: seo({
+        title: `${library.name} Docs`,
+      }),
+    }
   },
   component: DocsRoute,
 })

@@ -1,4 +1,5 @@
 import * as React from 'react'
+
 import { CgCornerUpLeft, CgSpinner } from 'react-icons/cg'
 import {
   FaBolt,
@@ -9,20 +10,23 @@ import {
   FaGithub,
   FaTshirt,
 } from 'react-icons/fa'
-import { Link, createFileRoute, getRouteApi } from '@tanstack/react-router'
-import { tableProject } from '~/libraries/table'
+import {
+  Await,
+  Link,
+  createFileRoute,
+  getRouteApi,
+} from '@tanstack/react-router'
+import { virtualProject } from '~/libraries/virtual'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
+import { TbHeartHandshake } from 'react-icons/tb'
 import { VscPreview } from 'react-icons/vsc'
-import agGridImage from '~/images/ag-grid.png'
-import { Await } from '@tanstack/react-router'
+import { Logo } from '~/components/Logo'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
-import { getInitialSandboxFileName } from '~/utils/sandbox'
-import { partners } from '~/utils/partners'
-import { TbHeartHandshake } from 'react-icons/tb'
 
 const menu = [
   {
@@ -39,7 +43,7 @@ const menu = [
         <VscPreview className="text-lg" /> Examples
       </div>
     ),
-    to: './docs/framework/react/examples/basic',
+    to: './docs/framework/react/examples/dynamic',
   },
   {
     label: (
@@ -55,7 +59,7 @@ const menu = [
         <FaGithub className="text-lg" /> GitHub
       </div>
     ),
-    to: `https://github.com/${tableProject.repo}`,
+    to: `https://github.com/${virtualProject.repo}`,
   },
   {
     label: (
@@ -75,31 +79,30 @@ const menu = [
   },
 ]
 
-export const Route = createFileRoute('/_libraries/table/$version/')({
-  component: TableVersionIndex,
-  meta: () =>
-    seo({
-      title: tableProject.name,
-      description: tableProject.description,
+export const Route = createFileRoute('/_libraries/virtual/$version/')({
+  component: RouteComp,
+  head: () => ({
+    meta: seo({
+      title: virtualProject.name,
+      description: virtualProject.description,
     }),
+  }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
 
-export default function TableVersionIndex() {
+export default function RouteComp() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
-  const branch = getBranch(tableProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
+  const branch = getBranch(virtualProject, version)
   const [isDark, setIsDark] = React.useState(true)
-
-  const sandboxFirstFileName = getInitialSandboxFileName(framework)
 
   React.useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${tableProject.colorFrom} ${tableProject.colorTo}`
+  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${virtualProject.colorFrom} ${virtualProject.colorTo}`
 
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full">
@@ -136,12 +139,12 @@ export default function TableVersionIndex() {
               viewTransitionName: `library-name`,
             }}
           >
-            <span className={`${gradientText}`}>TanStack Table</span>{' '}
+            <span className={gradientText}>TanStack Virtual</span>{' '}
             <span
               className="text-[.5em] align-super text-black animate-bounce
               dark:text-white"
             >
-              v8
+              v3
             </span>
           </h1>
         </div>
@@ -153,19 +156,19 @@ export default function TableVersionIndex() {
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
             Headless
           </span>{' '}
-          UI for building powerful tables & datagrids
+          UI for Virtualizing Large Element Lists
         </h2>
         <p
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          Supercharge your tables or build a datagrid from scratch for TS/JS,
-          React, Vue, Solid, Svelte & Lit while retaining 100% control over
-          markup and styles.
+          Virtualize only the visible DOM nodes within massive scrollable
+          elements at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit & Angular
+          while retaining 100% control over markup and styles.
         </p>
         <Link
           to="./docs/introduction"
-          className={`py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
+          className={`py-2 px-4 bg-purple-500 rounded text-white uppercase font-extrabold`}
         >
           Get Started
         </Link>
@@ -176,59 +179,58 @@ export default function TableVersionIndex() {
       >
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center overflow-hidden">
-            <IoIosBody className="text-teal-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
+            <IoIosBody className="text-purple-400 text-6xl -mt-5 mb-5 scale-125 origin-top" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
               Designed for zero design
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              What good is a powerful table if that super hip designer you just
-              hired can't work their UI magic on it?{' '}
-              <span className="font-semibold text-teal-700 dark:text-teal-400">
-                TanStack Table is headless by design
+              Headless Virtualization means you're always in control of your{' '}
+              <span className="font-semibold text-violet-600 dark:text-violet-400">
+                markup, styles and components
               </span>
-              , which means 100% control down to the very smallest HTML tag,
-              component, class and style. Pixel Perfection? Go for it!
+              . Go design and implement the most beautiful UI you can dream up
+              and let us take care of the hard parts.
             </p>
           </div>
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaBolt className="text-blue-600 text-6xl" />
+            <FaBolt className="text-purple-500 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
               Big Power, Small Package
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Don't be fooled by the small bundle size. TanStack Table is a
-              workhorse. It's built to materialize, filter, sort, group,
-              aggregate, paginate and display massive data sets using a very
-              small API surface. Wire up your new or existing tables and{' '}
-              <span className="font-semibold text-blue-700 dark:text-blue-400">
-                watch your users become instantly more productive
-              </span>
-              .
+              Don't be fooled by the small bundle size. TanStack Virtual uses
+              every byte to deliver powerful performance. After all,{' '}
+              <span className="font-semibold text-violet-700 dark:text-violet-400">
+                {' '}
+                60FPS is table stakes
+              </span>{' '}
+              these days and we refuse to sacrifice anything for that 🧈-y
+              smooth UX.
             </p>
           </div>
         </div>
         <div className="flex-1 flex flex-col gap-8 items-center">
           <div className="text-center">
-            <FaCogs className="text-indigo-500 text-6xl" />
+            <FaCogs className="text-purple-600 text-6xl" />
           </div>
           <div className="flex flex-col gap-4">
             <h3 className="uppercase text-center text-xl font-black">
-              Extensible
+              Maximum Composability
             </h3>
             <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              TanStack table ships with excellent defaults to get you off the
-              ground as fast as possible, but nothing is stopping you from{' '}
-              <span className="font-semibold text-indigo-700 dark:text-indigo-400">
-                customizing and overriding literally everything to your liking
+              With a single function/hook, you'll get limitless virtualization
+              for{' '}
+              <span className="font-semibold text-violet-700 dark:text-violet-400">
+                vertical, horizontal, and grid-style{' '}
               </span>
-              . Feeling tenacious enough to build your own Sheets/Excel/AirTable
-              clone? Be our guest 😉
+              layouts. The API is tiny (literally 1 function), but its
+              composability is not.
             </p>
           </div>
         </div>
@@ -240,7 +242,7 @@ export default function TableVersionIndex() {
             Framework Agnostic & Feature Rich
           </h3>
           <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-            TanStack Table's API and engine are highly modular and
+            TanStack Virtual's API and engine are highly modular and
             framework-independent while still prioritizing ergonomics. Behold,
             the obligatory feature-list:
           </p>
@@ -250,25 +252,15 @@ export default function TableVersionIndex() {
             'Lightweight (10 - 15kb)',
             'Tree-Shaking',
             'Headless',
-            'Cell Formatters',
-            'Auto-managed internal state',
-            'Opt-in fully controlled state',
-            'Sorting',
-            'Multi Sort',
-            'Global Filters',
-            'Columns Filters',
-            'Pagination',
-            'Row Grouping',
-            'Aggregation',
-            'Row Selection',
-            'Row Expansion',
-            'Column Ordering',
-            'Column Visibility',
-            'Column Resizing',
-            'Virtualizable',
-            'Server-side/external Data',
-            'Nested/Grouped Headers',
-            'Footers',
+            'Vertical/Column Virtualization',
+            'Horizontal/Row Virtualization',
+            'Grid Virtualization',
+            'Window-Scrolling',
+            'Fixed Sizing',
+            'Variable Sizing',
+            'Dynamic/Measured Sizing',
+            'Scrolling Utilities',
+            'Sticky Items',
           ].map((d, i) => {
             return (
               <span key={i} className="flex items-center gap-2">
@@ -279,11 +271,10 @@ export default function TableVersionIndex() {
         </div>
       </div>
 
-      <div>
+      {/* <div>
         <div className="uppercase tracking-wider text-sm font-semibold text-center text-gray-400 mb-3">
           Trusted in Production by
         </div>
-        {/* @ts-ignore */}
         <marquee scrollamount="2">
           <div className="flex gap-2 items-center text-3xl font-bold ml-[-100%]">
             {(new Array(4) as string[])
@@ -319,64 +310,37 @@ export default function TableVersionIndex() {
                 </span>
               ))}
           </div>
-          {/* @ts-ignore */}
         </marquee>
-      </div>
+      </div> */}
 
-      <div className="px-4 lg:max-w-[500px] md:mx-auto mx-auto">
+      <div className="px-4 w-[500px] max-w-full mx-auto">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Partners
         </h3>
         <div className="h-8" />
-        {partners.find((d) => d.libraries?.includes('table')) ? (
-          <div className={`grid grid-cols-1 gap-12 sm:grid-cols-1`}>
-            {partners
-              .filter((d) => d.libraries?.includes('table'))
-              .map((partner) => {
-                return (
-                  <a
-                    key={partner.name}
-                    href={partner.href}
-                    target="_blank"
-                    className="bg-white shadow-xl shadow-gray-500/20 rounded-lg flex flex-col
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden dark:border border-gray-500/20
-                        dark:bg-gray-800 dark:shadow-none"
-                  >
-                    <div className="flex-1 bg-white flex items-center justify-center">
-                      {partner.homepageImg}
-                    </div>
-                    <div className="flex-1 p-4 text-sm flex flex-col gap-4 items-start">
-                      {partner.content}
-                    </div>
-                  </a>
-                )
-              })}
-          </div>
-        ) : (
-          <div
-            className="flex-1 flex flex-col items-center text-sm text-center
+        <div
+          className="flex-1 flex flex-col items-center text-sm text-center
                       bg-white shadow-xl shadow-gray-500/20 rounded-lg
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
                         dark:bg-gray-800 dark:shadow-none"
-          >
-            <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Router <TbHeartHandshake /> You?
-            </span>
-            <div className="flex flex-col p-4 gap-4">
-              <div>
-                We're looking for a TanStack OSS Partner to go above and beyond
-                the call of sponsorship. Are you as invested in TanStack as we
-                are? Let's push boundaries together!
-              </div>
-              <a
-                href="mailto:partners@tanstack.com?subject=TanStack Router Partnership"
-                className="text-blue-500 uppercase font-black text-sm"
-              >
-                Let's chat
-              </a>
+        >
+          <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
+            Virtual <TbHeartHandshake /> You?
+          </span>
+          <div className="flex flex-col p-4 gap-4">
+            <div>
+              We're looking for a TanStack Virtual OSS Partner to go above and
+              beyond the call of sponsorship. Are you as invested in TanStack
+              Virtual as we are? Let's push the boundaries of Virtual together!
             </div>
+            <a
+              href="mailto:partners@tanstack.com?subject=TanStack Virtual Partnership"
+              className="text-blue-500 uppercase font-black text-sm"
+            >
+              Let's chat
+            </a>
           </div>
-        )}
+        </div>
       </div>
 
       <div className="relative text-lg overflow-hidden">
@@ -426,28 +390,27 @@ export default function TableVersionIndex() {
             Take it for a spin!
           </h3>
           <p className="my-4 text-xl leading-7  text-gray-600">
-            With some basic styles, some table markup and few columns, you're
-            already well on your way to creating a drop-dead powerful table.
+            With just a few divs and some inline styles, you're already well on
+            your way to creating an extremely powerful virtualization
+            experience.
           </p>
           <div className="flex flex-wrap gap-2 justify-center">
             {(
               [
-                { label: 'Angular', value: 'angular' },
-                { label: 'Lit', value: 'lit' },
-                { label: 'Qwik', value: 'qwik' },
                 { label: 'React', value: 'react' },
                 { label: 'Solid', value: 'solid' },
+                { label: 'Lit', value: 'lit' },
                 { label: 'Svelte', value: 'svelte' },
                 { label: 'Vue', value: 'vue' },
-                { label: 'Vanilla', value: 'vanilla' },
+                { label: 'Angular', value: 'angular' },
               ] as const
             ).map((item) => (
               <button
                 key={item.value}
                 className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold ${
                   item.value === framework
-                    ? 'bg-rose-500'
-                    : 'bg-gray-300 dark:bg-gray-700 hover:bg-rose-300'
+                    ? 'bg-purple-500'
+                    : 'bg-gray-300 dark:bg-gray-700 hover:bg-teal-300'
                 }`}
                 onClick={() => setFramework(item.value)}
               >
@@ -458,25 +421,42 @@ export default function TableVersionIndex() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-black">
-        <iframe
-          key={framework}
-          src={`https://stackblitz.com/github/${
-            tableProject.repo
-          }/tree/${branch}/examples/${framework}/basic?embed=1&theme=${
-            isDark ? 'dark' : 'light'
-          }&preset=node&file=${sandboxFirstFileName}`}
-          title="tannerlinsley/react-table: basic"
-          sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-          className="shadow-2xl"
-          loading="lazy"
-          style={{
-            width: '100%',
-            height: '80vh',
-            border: '0',
-          }}
-        ></iframe>
-      </div>
+      {['vue', 'solid', 'svelte'].includes(framework) ? (
+        <div className="px-2">
+          <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
+            Looking for the <strong>@tanstack/{framework}-virtual</strong>{' '}
+            example? We could use your help to build the{' '}
+            <strong>@tanstack/{framework}-virtual</strong> adapter! Join the{' '}
+            <a
+              href="https://tlinz.com/discord"
+              className="text-teal-500 font-bold"
+            >
+              TanStack Discord Server
+            </a>{' '}
+            and let's get to work!
+          </div>
+        </div>
+      ) : (
+        <div className="bg-white dark:bg-black">
+          <iframe
+            key={framework}
+            src={`https://stackblitz.com/github/${
+              virtualProject.repo
+            }/tree/${branch}/examples/${framework}/fixed?embed=1&theme=${
+              isDark ? 'dark' : 'light'
+            }`}
+            title="tannerlinsley/react-table: dynamic"
+            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+            className="shadow-2xl"
+            loading="lazy"
+            style={{
+              width: '100%',
+              height: '80vh',
+              border: '0',
+            }}
+          ></iframe>
+        </div>
+      )}
 
       <div className="flex flex-col gap-4 items-center">
         <div className="font-extrabold text-xl lg:text-2xl">
@@ -488,7 +468,7 @@ export default function TableVersionIndex() {
         <div>
           <Link
             to="./docs/introduction"
-            className={`inline-block py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
+            className={`inline-block py-2 px-4 bg-purple-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started!
           </Link>

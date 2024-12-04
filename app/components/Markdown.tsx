@@ -67,6 +67,15 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
+  img: ({ children, ...props }) => (
+    // eslint-disable-next-line jsx-a11y/alt-text
+    <img
+      {...props}
+      className="max-w-full h-auto rounded-lg shadow-md"
+      // loading="lazy"
+      // decoding="async"
+    />
+  ),
 }
 
 function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
@@ -197,33 +206,41 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
   return highlighter
 })
 
-export function Markdown({ code }: { code: string }) {
-  const jsx = React.useMemo(() => {
-    const markup = marked.use(
-      { gfm: true },
-      gfmHeadingId(),
-      markedAlert()
-    )(code) as string
-
-    const options: HTMLReactParserOptions = {
-      replace: (domNode) => {
-        if (domNode instanceof Element && domNode.attribs) {
-          const replacer = markdownComponents[domNode.name]
-          if (replacer) {
-            return React.createElement(
-              replacer,
-              attributesToProps(domNode.attribs),
-              domToReact(domNode.children, options)
-            )
-          }
-        }
-
-        return
-      },
+const options: HTMLReactParserOptions = {
+  replace: (domNode) => {
+    if (domNode instanceof Element && domNode.attribs) {
+      const replacer = markdownComponents[domNode.name]
+      if (replacer) {
+        return React.createElement(
+          replacer,
+          attributesToProps(domNode.attribs),
+          domToReact(domNode.children, options)
+        )
+      }
     }
 
-    return parse(markup, options)
-  }, [code])
+    return
+  },
+}
 
-  return jsx
+type MarkdownProps = { rawContent?: string; htmlMarkup?: string }
+
+export function Markdown({ rawContent, htmlMarkup }: MarkdownProps) {
+  return React.useMemo(() => {
+    if (rawContent) {
+      const markup = marked.use(
+        { gfm: true },
+        gfmHeadingId(),
+        markedAlert()
+      )(rawContent) as string
+
+      return parse(markup, options)
+    }
+
+    if (htmlMarkup) {
+      return parse(htmlMarkup, options)
+    }
+
+    return null
+  }, [rawContent, htmlMarkup])
 }

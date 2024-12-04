@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute, Link, notFound } from '@tanstack/react-router'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import removeMarkdown from 'remove-markdown'
 import { seo } from '~/utils/seo'
@@ -8,6 +8,8 @@ import { createServerFn } from '@tanstack/start'
 import { formatAuthors } from '~/utils/blog'
 import { format } from 'date-fns'
 import { z } from 'zod'
+import { FaArrowLeft } from 'react-icons/fa'
+import { DocContainer } from '~/components/DocContainer'
 
 const fetchBlogPost = createServerFn({ method: 'GET' })
   .validator(z.string().optional())
@@ -37,20 +39,26 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
     }
   })
 
-export const Route = createFileRoute('/blog/$')({
+export const Route = createFileRoute('/_libraries/blog/$')({
   loader: ({ params }) => fetchBlogPost({ data: params._splat }),
-  meta: ({ loaderData }) => [
-    ...seo({
-      title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
-      description: loaderData?.description,
-    }),
-    {
-      name: 'author',
-      content: `${
-        loaderData.authors.length > 1 ? 'co-authored by ' : ''
-      }${formatAuthors(loaderData.authors)}`,
-    },
-  ],
+  head: ({ loaderData }) => {
+    return {
+      meta: loaderData
+        ? [
+            ...seo({
+              title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
+              description: loaderData?.description,
+            }),
+            {
+              name: 'author',
+              content: `${
+                loaderData.authors.length > 1 ? 'co-authored by ' : ''
+              }${formatAuthors(loaderData.authors)}`,
+            },
+          ]
+        : [],
+    }
+  },
   notFoundComponent: () => <PostNotFound />,
   component: BlogPost,
 })
@@ -65,12 +73,24 @@ export default function BlogPost() {
 ${content}`
 
   return (
-    <Doc
-      title={title}
-      content={blogContent}
-      repo={'tanstack/tanstack.com'}
-      branch={'main'}
-      filePath={filePath}
-    />
+    <DocContainer>
+      <div>
+        <Link
+          from="/blog/$"
+          to="/blog"
+          className="font-bold flex items-center gap-2 p-1"
+        >
+          <FaArrowLeft />
+          Back
+        </Link>
+      </div>
+      <Doc
+        title={title}
+        content={blogContent}
+        repo={'tanstack/tanstack.com'}
+        branch={'main'}
+        filePath={filePath}
+      />
+    </DocContainer>
   )
 }

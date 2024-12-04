@@ -76,11 +76,12 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/start/$version/')({
   component: VersionIndex,
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: startProject.name,
       description: startProject.description,
     }),
+  }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
@@ -147,7 +148,7 @@ export default function VersionIndex() {
               dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md
               leading-none whitespace-nowrap"
         >
-          STATUS: ALPHA
+          STATUS: BETA
           {/* {version === 'latest' ? latestVersion : version} */}
         </div>
         {/* </div> */}
@@ -170,6 +171,12 @@ export default function VersionIndex() {
           and <strong>Vite</strong>. Ready to deploy to your favorite hosting
           provider.
         </p>
+        <Link
+          to="../../router/latest/docs/framework/react/start/overview"
+          className={`py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
+        >
+          Get Started
+        </Link>
       </div>
       <div className="text-lg grid gap-12 p-8 max-w-[1200px] mx-auto md:grid-cols-2 xl:grid-cols-4">
         <div className="flex-1 flex flex-col gap-8 items-center">
@@ -276,7 +283,7 @@ export default function VersionIndex() {
                 deployable anywhere JS can run
               </span>
               . Whether you're hosting on a traditional server, a serverless
-              platform, or even a CDN, Start seamless builds, bundles and
+              platform, or even a CDN, Start seamlessly builds, bundles and
               deploys your application with ease.
             </p>
           </div>
@@ -288,11 +295,12 @@ export default function VersionIndex() {
         </div>
         <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-gray-700 rounded-xl shadow-xl shadow-black/10">
           <div>
-            You can try <strong>TanStack Start ALPHA</strong> today! While
-            usable, it is still currently in development and it will still
-            undergo some breaking changes as we near BETA and gather feedback.
-            We invite all to try it out and provide feedback to help shape the
-            final product!
+            You can use <strong>TanStack Start BETA</strong> today! Although
+            currently in active development we do not expect any more breaking
+            changes. We invite you provide feedback to help help us on the
+            journey to 1.0! If you choose to ship a BETA Start app to
+            production, we recommend locking your dependencies to a specific
+            version and keeping up with the latest releases.
           </div>
         </div>
         <div className="grid items-center gap-2 justify-center grid-cols-2 w-[600px] max-w-full mx-auto">
@@ -306,7 +314,7 @@ export default function VersionIndex() {
             to="../../router/latest/docs/framework/react/start/overview"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded text-white uppercase font-extrabold`}
           >
-            <FaBook /> Try the ALPHA
+            <FaBook /> Try the BETA
           </Link>
           <a
             href={`https://github.com/tanstack/tanstack.com`}
@@ -316,7 +324,7 @@ export default function VersionIndex() {
           </a>
           <a
             href={`https://twitter.com/intent/post?text=${encodeURIComponent(
-              `TanStack Start is in ALPHA! It's a new full-stack React framework from @Tan_Stack and you can check it out at https://tanstack.com/start/`
+              `TanStack Start is in BETA! It's a new full-stack React framework from @Tan_Stack and you can check it out at https://tanstack.com/start/`
             )}`}
             target="_blank"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
@@ -624,7 +632,7 @@ export default function VersionIndex() {
         </div>
       )} */}
 
-      {/* <div className="flex flex-col gap-4 items-center">
+      <div className="flex flex-col gap-4 items-center">
         <div className="font-extrabold text-xl lg:text-2xl">
           Wow, you've come a long way!
         </div>
@@ -633,13 +641,13 @@ export default function VersionIndex() {
         </div>
         <div>
           <Link
-            to="./docs/"
+            to="../../router/latest/docs/framework/react/start/overview"
             className={`inline-block py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
           >
-            Read the Docs!
+            Get Started!
           </Link>
         </div>
-      </div> */}
+      </div>
       <Footer />
     </div>
   )

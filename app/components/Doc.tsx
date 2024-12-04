@@ -16,7 +16,7 @@ export function Doc({
   filePath: string
 }) {
   return (
-    <div className="p-4 lg:p-6 overflow-auto w-full bg-white/70 dark:bg-black/30 m-2 md:m-4 xl:m-8 rounded-xl">
+    <div className="p-4 lg:p-6 overflow-auto w-full bg-white/70 dark:bg-black/50 m-2 md:m-4 xl:m-8 rounded-xl">
       {title ? <DocTitle>{title}</DocTitle> : null}
       <div className="h-4" />
       <div className="h-px bg-gray-500 opacity-20" />

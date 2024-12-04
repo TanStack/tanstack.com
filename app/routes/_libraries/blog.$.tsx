@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from '@tanstack/react-router'
+import { createFileRoute, Link, notFound } from '@tanstack/react-router'
 import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import removeMarkdown from 'remove-markdown'
 import { seo } from '~/utils/seo'
@@ -8,6 +8,7 @@ import { createServerFn } from '@tanstack/start'
 import { formatAuthors } from '~/utils/blog'
 import { format } from 'date-fns'
 import { z } from 'zod'
+import { FaArrowLeft } from 'react-icons/fa'
 
 const fetchBlogPost = createServerFn({ method: 'GET' })
   .validator(z.string().optional())
@@ -66,17 +67,25 @@ export default function BlogPost() {
 
   const blogContent = `_by ${formatAuthors(authors)} on ${format(
     new Date(published || 0),
-    'MMM dd, yyyy',
+    'MMM dd, yyyy'
   )}._
 ${content}`
 
   return (
-    <Doc
-      title={title}
-      content={blogContent}
-      repo={'tanstack/tanstack.com'}
-      branch={'main'}
-      filePath={filePath}
-    />
+    <div className="w-[1000px] max-w-full">
+      <div className="flex items-center gap-2 m-4 md:m-6 lg:m-8">
+        <FaArrowLeft />
+        <Link from="/blog/$" to="/blog" className="font-bold text-sm">
+          Back
+        </Link>
+      </div>
+      <Doc
+        title={title}
+        content={blogContent}
+        repo={'tanstack/tanstack.com'}
+        branch={'main'}
+        filePath={filePath}
+      />
+    </div>
   )
 }

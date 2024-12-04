@@ -56,7 +56,7 @@ function LoginComp() {
                     >
                       {d}
                     </div>
-                  ),
+                  )
                 )}
               </div>
             </Link>

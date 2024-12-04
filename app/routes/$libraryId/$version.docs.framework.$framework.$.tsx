@@ -50,6 +50,9 @@ function Docs() {
       repo={library.repo}
       branch={branch}
       filePath={filePath}
+      colorFrom={library.colorFrom}
+      colorTo={library.colorTo}
+      shouldRenderToc
     />
   )
 }

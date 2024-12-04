@@ -9,7 +9,7 @@ import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 
 export const Route = createFileRoute(
-  '/$libraryId/$version/docs/framework/$framework/examples/$',
+  '/$libraryId/$version/docs/framework/$framework/examples/$'
 )({
   head: ({ params }) => {
     const library = getLibrary(params.libraryId)
@@ -17,10 +17,10 @@ export const Route = createFileRoute(
     return {
       meta: seo({
         title: `${capitalize(params.framework)} ${library.name} ${slugToTitle(
-          params._splat || '',
+          params._splat || ''
         )} Example | ${library.name} Docs`,
         description: `An example showing how to implement ${slugToTitle(
-          params._splat || '',
+          params._splat || ''
         )} in ${capitalize(params.framework)} using ${library.name}.`,
       }),
     }

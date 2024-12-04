@@ -562,11 +562,11 @@ export function DocsLayout({
       <div
         className={twMerge(
           `max-w-full min-w-0 flex relative justify-center w-full min-h-[88dvh] lg:min-h-0`,
-          !isExample && 'mx-auto w-[1000px]'
+          !isExample && 'mx-auto w-[1208px]'
         )}
       >
         {children}
-        <div className="fixed flex items-center flex-wrap bottom-2 left-0 lg:left-[250px] z-10 right-0 text-xs md:text-sm px-1">
+        <div className="fixed flex items-center flex-wrap bottom-2 left-0 lg:left-[250px] z-10 right-0 text-xs md:text-sm px-1 print:hidden">
           <div className="w-1/2 px-1 flex justify-end flex-wrap">
             {prevItem ? (
               <Link
@@ -601,7 +601,7 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="-ml-2 pl-2 w-64 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
+      <div className="-ml-2 pl-2 w-64 shrink-0 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
         <div className="ml-auto flex flex-col space-y-4">
           <div className="bg-white dark:bg-gray-900/30 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
             <div className="uppercase font-black text-center p-3 opacity-50">
@@ -689,7 +689,7 @@ export function DocsLayout({
         </div>
       </div>
       {showBytes ? (
-        <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
+        <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg print:hidden">
           <div className="bg-white dark:bg-gray-900/30 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
             {libraryId === 'query' ? (
               <DocsCalloutQueryGG />
@@ -708,7 +708,7 @@ export function DocsLayout({
         </div>
       ) : (
         <button
-          className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden"
+          className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden print:hidden"
           onClick={() => {
             setShowBytes(true)
           }}

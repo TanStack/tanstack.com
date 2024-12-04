@@ -1,6 +1,6 @@
 import { Library } from '.'
 
-export const rangerProject: Library = {
+export const rangerProject = {
   id: 'ranger',
   name: 'TanStack Ranger',
   cardStyles: `shadow-xl shadow-pink-700/20 dark:shadow-lg dark:shadow-pink-500/30 text-pink-500 border-2 border-transparent hover:border-current`,
@@ -19,6 +19,5 @@ export const rangerProject: Library = {
   colorTo: 'to-pink-500',
   textColor: 'text-pink-500',
   frameworks: ['react'],
-  defaultDocs: 'framework/react/overview',
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
-}
+} satisfies Library

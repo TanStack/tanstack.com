@@ -1,11 +1,11 @@
-import reactLogo from '~/images/react-logo.svg'
-import solidLogo from '~/images/solid-logo.svg'
-import vueLogo from '~/images/vue-logo.svg'
-import angularLogo from '~/images/angular-logo.svg'
-import svelteLogo from '~/images/svelte-logo.svg'
-import litLogo from '~/images/lit-logo.svg'
-import qwikLogo from '~/images/qwik-logo.svg'
-import jsLogo from '~/images/js-logo.svg'
+import reactLogo from '../images/react-logo.svg'
+import solidLogo from '../images/solid-logo.svg'
+import vueLogo from '../images/vue-logo.svg'
+import angularLogo from '../images/angular-logo.svg'
+import svelteLogo from '../images/svelte-logo.svg'
+import litLogo from '../images/lit-logo.svg'
+import qwikLogo from '../images/qwik-logo.svg'
+import jsLogo from '../images/js-logo.svg'
 import { queryProject } from './query'
 import { formProject } from './form'
 import { configProject } from './config'
@@ -15,8 +15,6 @@ import { tableProject } from './table'
 import { virtualProject } from './virtual'
 import { rangerProject } from './ranger'
 import { storeProject } from './store'
-import invariant from 'tiny-invariant'
-import { notFound } from '@tanstack/react-router'
 
 export const frameworkOptions = [
   { label: 'React', value: 'react', logo: reactLogo },
@@ -84,24 +82,33 @@ export function getLibrary(id: string) {
   const library = libraries.find((d) => d.id === id)
 
   if (!library) {
-    throw notFound()
+    throw new Error(`Library with id "${id}" not found`)
   }
 
   return library
 }
 
 export function getFrameworkOptions(frameworkStrs: Framework[]) {
+  if (!frameworkOptions) {
+    throw new Error('frameworkOptions is not defined')
+  }
   return frameworkOptions.filter((d) => frameworkStrs.includes(d.value))
 }
 
 export function getBranch(library: Library, argVersion?: string) {
+  if (!library) {
+    throw new Error('Library is required')
+  }
+
   const version = argVersion || library.latestVersion
 
   const resolvedVersion = ['latest', library.latestVersion].includes(version)
     ? library.latestBranch
     : version
 
-  invariant(resolvedVersion, `Could not resolve version for ${library.name}`)
+  if (!resolvedVersion) {
+    throw new Error(`Could not resolve version for ${library.name}`)
+  }
 
   return resolvedVersion
 }

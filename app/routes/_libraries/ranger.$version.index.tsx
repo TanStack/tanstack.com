@@ -73,11 +73,12 @@ const menu = [
 
 export const Route = createFileRoute('/_libraries/ranger/$version/')({
   component: VersionIndex,
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: rangerProject.name,
       description: rangerProject.description,
     }),
+  }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')

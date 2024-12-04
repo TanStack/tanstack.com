@@ -10,12 +10,13 @@ import { useScript } from '~/hooks/useScript'
 
 export const Route = createFileRoute('/_libraries/support')({
   component: LoginComp,
-  meta: () =>
-    seo({
+  head: () => ({
+    meta: seo({
       title: 'Support | TanStack',
       description: `Help and support for TanStack libraries and projects`,
       keywords: `tanstack,react,reactjs,react query,react table,open source,open source software,oss,software,help,support`,
     }),
+  }),
 })
 
 function LoginComp() {

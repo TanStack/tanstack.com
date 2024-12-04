@@ -1,13 +1,1 @@
-<svg width="160" height="200" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_1_2)">
-<path d="M40 120L60 60L150 150L120 200L80 160H60" fill="#00E8FF"/>
-<path d="M80 160V80L120 40V120M0 160L40 200L60 160L40 120H20" fill="#283198"/>
-<path d="M40 120V40L80 0V80M120 200V120L160 80V160M0 160V80L40 120" fill="#324FFF"/>
-<path d="M40 200V120L80 160" fill="#00FFFF"/>
-</g>
-<defs>
-<clipPath id="clip0_1_2">
-<rect width="160" height="200" fill="white"/>
-</clipPath>
-</defs>
-</svg>
+<svg fill="none" height="200" viewBox="0 0 160 200" width="160" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><clipPath id="a"><path d="m0 0h160v200h-160z"/></clipPath><g clip-path="url(#a)"><path d="m40 120 20-60 90 90-30 50-40-40h-20" fill="#00e8ff"/><path d="m80 160v-80l40-40v80m-120 40 40 40 20-40-20-40h-20" fill="#283198"/><path d="m40 120v-80l40-40v80m40 120v-80l40-40v80m-160 0v-80l40 40" fill="#324fff"/><path d="m40 200v-80l40 40" fill="#0ff"/></g></svg>

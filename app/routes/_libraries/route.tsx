@@ -24,6 +24,8 @@ import { getLibrary, libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
+import { ThemeToggle } from '~/components/ThemeToggle'
+import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
 
 export const Route = createFileRoute('/_libraries')({
   loader: async (ctx) => {
@@ -205,7 +207,13 @@ function LibrariesLayout() {
           href="https://x.com/tan_stack"
           className="opacity-70 hover:opacity-100"
         >
-          <FaTwitter className="text-xl" />
+          <TbBrandTwitter className="text-xl" />
+        </a>
+        <a
+          href="https://bsky.app/profile/tanstack.com"
+          className="opacity-70 hover:opacity-100"
+        >
+          <TbBrandBluesky className="text-xl" />
         </a>
         <a
           href="https://instagram.com/tan_stack"
@@ -213,6 +221,9 @@ function LibrariesLayout() {
         >
           <FaInstagram className="text-xl" />
         </a>
+      </div>
+      <div className="ml-auto">
+        <ThemeToggle />
       </div>
     </div>
   )
@@ -225,7 +236,7 @@ function LibrariesLayout() {
         className="border-b border-gray-500 border-opacity-20"
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
-          <div className="flex gap-2 items-center text-xl md:text-2xl">
+          <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
             <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
@@ -258,7 +269,7 @@ function LibrariesLayout() {
             Search
           </ClientOnlySearchButton>
         </div>
-        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[300px]">
+        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[50px]">
           <div className="space-y-1 text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
             {items}
           </div>

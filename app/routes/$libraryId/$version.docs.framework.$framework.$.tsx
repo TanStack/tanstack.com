@@ -4,6 +4,7 @@ import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
+import { DocContainer } from '~/components/DocContainer'
 
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/$'
@@ -22,14 +23,18 @@ export const Route = createFileRoute(
     })
   },
   component: Docs,
-  meta: (ctx) => {
+  head: (ctx) => {
     const library = getLibrary(ctx.params.libraryId)
     const tail = `${library.name} ${capitalize(ctx.params.framework)} Docs`
 
-    return seo({
-      title: ctx.loaderData?.title ? `${ctx.loaderData.title} | ${tail}` : tail,
-      description: ctx.loaderData?.description,
-    })
+    return {
+      meta: seo({
+        title: ctx.loaderData?.title
+          ? `${ctx.loaderData.title} | ${tail}`
+          : tail,
+        description: ctx.loaderData?.description,
+      }),
+    }
   },
 })
 
@@ -40,12 +45,17 @@ function Docs() {
   const branch = getBranch(library, version)
 
   return (
-    <Doc
-      title={title}
-      content={content}
-      repo={library.repo}
-      branch={branch}
-      filePath={filePath}
-    />
+    <DocContainer>
+      <Doc
+        title={title}
+        content={content}
+        repo={library.repo}
+        branch={branch}
+        filePath={filePath}
+        colorFrom={library.colorFrom}
+        colorTo={library.colorTo}
+        shouldRenderToc
+      />
+    </DocContainer>
   )
 }

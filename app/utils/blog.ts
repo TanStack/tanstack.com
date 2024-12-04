@@ -12,6 +12,12 @@ export function getPostList() {
     {
       id: 'tanstack-router-typescript-performance',
     },
+    {
+      id: 'why-tanstack-start-is-ditching-adapters',
+    },
+    {
+      id: 'why-tanstack-start-and-router',
+    },
   ]
 }
 

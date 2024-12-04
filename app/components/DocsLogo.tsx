@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { ThemeToggle } from './ThemeToggle'
 
 type Props = {
   name: string
@@ -26,6 +27,9 @@ export const DocsLogo = (props: Props) => {
         <span className={`${gradientText}`}>{name}</span>{' '}
         <span className="text-sm align-super">{version}</span>
       </Link>
+      <div className="ml-auto">
+        <ThemeToggle />
+      </div>
     </>
   )
 }

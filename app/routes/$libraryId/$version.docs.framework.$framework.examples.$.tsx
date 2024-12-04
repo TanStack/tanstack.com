@@ -11,17 +11,19 @@ import { capitalize, slugToTitle } from '~/utils/utils'
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/examples/$'
 )({
-  meta: ({ params }) => {
+  head: ({ params }) => {
     const library = getLibrary(params.libraryId)
 
-    return seo({
-      title: `${capitalize(params.framework)} ${library.name} ${slugToTitle(
-        params._splat
-      )} Example | ${library.name} Docs`,
-      description: `An example showing how to implement ${slugToTitle(
-        params._splat
-      )} in ${capitalize(params.framework)} using ${library.name}.`,
-    })
+    return {
+      meta: seo({
+        title: `${capitalize(params.framework)} ${library.name} ${slugToTitle(
+          params._splat || ''
+        )} Example | ${library.name} Docs`,
+        description: `An example showing how to implement ${slugToTitle(
+          params._splat || ''
+        )} in ${capitalize(params.framework)} using ${library.name}.`,
+      }),
+    }
   },
   component: Example,
 })

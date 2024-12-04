@@ -468,7 +468,7 @@ export function DocsLayout({
         className="border-b border-gray-500 border-opacity-20"
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
-          <div className="flex gap-2 items-center text-xl md:text-2xl">
+          <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
             <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
@@ -503,7 +503,7 @@ export function DocsLayout({
   )
 
   const largeMenu = (
-    <div className="bg-white dark:bg-gray-900 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20 transition-all duration-500">
+    <div className="bg-white dark:bg-gray-900/50 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20 transition-all duration-500">
       <div
         className="px-4 pt-4 flex gap-2 items-center text-2xl"
         style={{
@@ -562,11 +562,11 @@ export function DocsLayout({
       <div
         className={twMerge(
           `max-w-full min-w-0 flex relative justify-center w-full min-h-[88dvh] lg:min-h-0`,
-          !isExample && 'mx-auto w-[900px]'
+          !isExample && 'mx-auto w-[1208px]'
         )}
       >
         {children}
-        <div className="fixed flex items-center flex-wrap bottom-2 left-0 lg:left-[250px] z-10 right-0 text-xs md:text-sm px-1">
+        <div className="fixed flex items-center flex-wrap bottom-2 left-0 lg:left-[250px] z-10 right-0 text-xs md:text-sm px-1 print:hidden">
           <div className="w-1/2 px-1 flex justify-end flex-wrap">
             {prevItem ? (
               <Link
@@ -601,9 +601,9 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="-ml-2 pl-2 w-64 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
+      <div className="-ml-2 pl-2 w-64 shrink-0 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
         <div className="ml-auto flex flex-col space-y-4">
-          <div className="bg-white dark:bg-gray-900 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
+          <div className="bg-white dark:bg-gray-900/30 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
             <div className="uppercase font-black text-center p-3 opacity-50">
               Our Partners
             </div>
@@ -668,7 +668,7 @@ export function DocsLayout({
                 })
             )}
           </div>
-          <div className="p-4 bg-white dark:bg-gray-900 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+          <div className="p-4 bg-white dark:bg-gray-900/30 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
             {libraryId === 'query' ? (
               <DocsCalloutQueryGG />
             ) : (
@@ -676,7 +676,7 @@ export function DocsLayout({
             )}
           </div>
 
-          <div className="bg-white dark:bg-gray-900 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+          <div className="bg-white dark:bg-gray-900/20 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
             <Carbon />
             <div
               className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic
@@ -689,8 +689,8 @@ export function DocsLayout({
         </div>
       </div>
       {showBytes ? (
-        <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg">
-          <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
+        <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg print:hidden">
+          <div className="bg-white dark:bg-gray-900/30 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
             {libraryId === 'query' ? (
               <DocsCalloutQueryGG />
             ) : (
@@ -708,7 +708,7 @@ export function DocsLayout({
         </div>
       ) : (
         <button
-          className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden"
+          className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden print:hidden"
           onClick={() => {
             setShowBytes(true)
           }}

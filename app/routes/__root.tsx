@@ -1,11 +1,11 @@
 import * as React from 'react'
 import {
   Outlet,
+  ScriptOnce,
   ScrollRestoration,
   createRootRouteWithContext,
   redirect,
   useMatches,
-  useRouter,
   useRouterState,
 } from '@tanstack/react-router'
 import appCss from '~/styles/app.css?url'
@@ -17,65 +17,71 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
+import background from '~/images/background.jpg'
+import { twMerge } from 'tailwind-merge'
+import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
 
 export const Route = createRootRouteWithContext()({
-  meta: () => [
-    {
-      charSet: 'utf-8',
-    },
-    {
-      name: 'viewport',
-      content: 'width=device-width, initial-scale=1',
-    },
-    ...seo({
-      title: 'TanStack | High Quality Open-Source Software for Web Developers',
-      description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
-      image: `https://tanstack.com${ogImage}`,
-      keywords:
-        'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
-    }),
-  ],
-  links: () => [
-    { rel: 'stylesheet', href: appCss },
-    {
-      rel: 'stylesheet',
-      href: carbonStyles,
-    },
-    {
-      rel: 'apple-touch-icon',
-      sizes: '180x180',
-      href: '/apple-touch-icon.png',
-    },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '32x32',
-      href: '/favicon-32x32.png',
-    },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '16x16',
-      href: '/favicon-16x16.png',
-    },
-    { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
-    { rel: 'icon', href: '/favicon.ico' },
-  ],
-  scripts: () => [
-    {
-      src: 'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS',
-      async: true,
-    },
-    {
-      children: `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-JMT1Z50SPS');
-      `,
-    },
-  ],
+  head: () => ({
+    meta: [
+      {
+        charSet: 'utf-8',
+      },
+      {
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1',
+      },
+      ...seo({
+        title:
+          'TanStack | High Quality Open-Source Software for Web Developers',
+        description: `Headless, type-safe, powerful utilities for complex workflows like Data Management, Data Visualization, Charts, Tables, and UI Components.`,
+        image: `https://tanstack.com${ogImage}`,
+        keywords:
+          'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
+      }),
+    ],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      {
+        rel: 'stylesheet',
+        href: carbonStyles,
+      },
+      {
+        rel: 'apple-touch-icon',
+        sizes: '180x180',
+        href: '/apple-touch-icon.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        href: '/favicon-32x32.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '16x16',
+        href: '/favicon-16x16.png',
+      },
+      { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
+      { rel: 'icon', href: '/favicon.ico' },
+    ],
+    scripts: [
+      {
+        src: 'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS',
+        async: true,
+      },
+      {
+        children: `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+  
+          gtag('config', 'G-JMT1Z50SPS');
+        `,
+      },
+    ],
+  }),
   beforeLoad: async (ctx) => {
     if (
       ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)
@@ -86,6 +92,12 @@ export const Route = createRootRouteWithContext()({
           '/docs/framework/$1/'
         ),
       })
+    }
+  },
+  staleTime: Infinity,
+  loader: async () => {
+    return {
+      themeCookie: await getThemeCookie(),
     }
   },
   errorComponent: (props) => {
@@ -114,6 +126,13 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { themeCookie } = Route.useLoaderData()
+
+  React.useEffect(() => {
+    useThemeStore.setState({ mode: themeCookie })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const matches = useMatches()
 
   const isLoading = useRouterState({
@@ -138,17 +157,46 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
   const showDevtools = showLoading && isRouterPage
 
+  const pathLength = useRouterState({
+    select: (s) =>
+      Math.max(
+        0,
+        s.location.pathname.replace('/docs/framework', '').split('/').length - 2
+      ),
+  })
+
+  const themeClass = themeCookie === 'dark' ? 'dark' : ''
+
   return (
-    <html lang="en">
+    <html lang="en" className={themeClass}>
       <head>
+        {/* If the theme is set to auto, inject a tiny script to set the proper class on html based on the user preference */}
+        {themeCookie === 'auto' ? (
+          <ScriptOnce
+            children={`window.matchMedia('(prefers-color-scheme: dark)').matches ? document.documentElement.classList.add('dark') : null`}
+          />
+        ) : null}
         <Meta />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
         ) : null}
       </head>
       <body>
-        {/* <SpeedInsights /> */}
-        {/* <Analytics /> */}
+        <div className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none blur-sm" />
+        <div
+          className={twMerge(
+            'fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none dark:opacity-20 transition-all duration-[2.5s] ease-in-out',
+            `[&+*]:relative`
+          )}
+          style={{
+            backgroundImage: `url(${background})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'bottom',
+            backgroundRepeat: 'no-repeat',
+            filter: `blur(${pathLength * 2}px)`,
+            transform: `scale(${1 + pathLength * 0.05})`,
+          }}
+        />
         <React.Suspense fallback={null}>{children}</React.Suspense>
         {showDevtools ? (
           <TanStackRouterDevtools position="bottom-right" />

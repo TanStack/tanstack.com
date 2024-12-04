@@ -44,50 +44,48 @@ export function Doc({
   const isTocVisible = shouldRenderToc && headings && headings.length > 1
 
   return (
-    <div className="w-full p-2 md:p-4 xl:p-8">
+    <div
+      className={twMerge(
+        'w-full flex bg-white/70 dark:bg-black/50 mx-auto rounded-xl max-w-[936px]',
+        isTocVisible && 'max-w-full'
+      )}
+    >
       <div
         className={twMerge(
-          'flex bg-white/70 dark:bg-black/50 mx-auto rounded-xl max-w-[936px]',
-          isTocVisible && 'max-w-full'
+          'flex overflow-auto flex-col w-full p-4 lg:p-6',
+          isTocVisible && 'border-r border-gray-500/20 !pr-0'
         )}
       >
+        {title ? <DocTitle>{title}</DocTitle> : null}
+        <div className="h-4" />
+        <div className="h-px bg-gray-500 opacity-20" />
+        <div className="h-4" />
         <div
           className={twMerge(
-            'flex overflow-auto flex-col w-full p-4 lg:p-6',
-            isTocVisible && 'border-r border-gray-500/20 !pr-0'
+            'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
+            isTocVisible && 'pr-4 lg:pr-6'
           )}
         >
-          {title ? <DocTitle>{title}</DocTitle> : null}
-          <div className="h-4" />
-          <div className="h-px bg-gray-500 opacity-20" />
-          <div className="h-4" />
-          <div
-            className={twMerge(
-              'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
-              isTocVisible && 'pr-4 lg:pr-6'
-            )}
-          >
-            <Markdown htmlMarkup={markup} />
-          </div>
-          <div className="h-12" />
-          <div className="w-full h-px bg-gray-500 opacity-30" />
-          <div className="py-4 opacity-70">
-            <a
-              href={`https://github.com/${repo}/tree/${branch}/${filePath}`}
-              className="flex items-center gap-2"
-            >
-              <FaEdit /> Edit on GitHub
-            </a>
-          </div>
-          <div className="h-24" />
+          <Markdown htmlMarkup={markup} />
         </div>
-
-        {isTocVisible && (
-          <div className="max-w-52 w-full hidden 2xl:block transition-all">
-            <Toc headings={headings} colorFrom={colorFrom} colorTo={colorTo} />
-          </div>
-        )}
+        <div className="h-12" />
+        <div className="w-full h-px bg-gray-500 opacity-30" />
+        <div className="py-4 opacity-70">
+          <a
+            href={`https://github.com/${repo}/tree/${branch}/${filePath}`}
+            className="flex items-center gap-2"
+          >
+            <FaEdit /> Edit on GitHub
+          </a>
+        </div>
+        <div className="h-24" />
       </div>
+
+      {isTocVisible && (
+        <div className="max-w-52 w-full hidden 2xl:block transition-all">
+          <Toc headings={headings} colorFrom={colorFrom} colorTo={colorTo} />
+        </div>
+      )}
     </div>
   )
 }

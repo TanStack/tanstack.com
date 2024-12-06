@@ -10,6 +10,7 @@ import { format } from 'date-fns'
 import { z } from 'zod'
 import { FaArrowLeft } from 'react-icons/fa'
 import { DocContainer } from '~/components/DocContainer'
+import { setHeaders } from 'vinxi/http'
 
 const fetchBlogPost = createServerFn({ method: 'GET' })
   .validator(z.string().optional())
@@ -29,6 +30,11 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
     const frontMatter = extractFrontMatter(file)
     const description = removeMarkdown(frontMatter.excerpt ?? '')
 
+    setHeaders({
+      'cache-control': 'public, max-age=0, must-revalidate',
+      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+    })
+
     return {
       title: frontMatter.data.title,
       description,
@@ -40,6 +46,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
   })
 
 export const Route = createFileRoute('/_libraries/blog/$')({
+  staleTime: Infinity,
   loader: ({ params }) => fetchBlogPost({ data: params._splat }),
   head: ({ loaderData }) => {
     return {

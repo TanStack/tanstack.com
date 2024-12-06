@@ -7,6 +7,7 @@ const cacheHeaders = {
 }
 
 export const Route = createFileRoute('/sponsors-embed')({
+  staleTime: Infinity,
   loader: () => getSponsorsForSponsorPack(),
   headers: () => {
     // Cache the entire HTML response for 5 minutes

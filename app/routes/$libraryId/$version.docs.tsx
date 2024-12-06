@@ -5,7 +5,7 @@ import { getTanstackDocsConfig } from '~/utils/config'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/$libraryId/$version/docs')({
-  staleTime: 1000 * 60,
+  staleTime: 1000 * 60 * 5,
   loader: async (ctx) => {
     const { libraryId, version } = ctx.params
     const library = getLibrary(libraryId)

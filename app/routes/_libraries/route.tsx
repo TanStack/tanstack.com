@@ -3,7 +3,6 @@ import {
   Link,
   Outlet,
   createFileRoute,
-  defer,
   useParams,
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
@@ -12,13 +11,7 @@ import { twMerge } from 'tailwind-merge'
 import { OramaSearchBox } from '@orama/react-components'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
-import {
-  FaDiscord,
-  FaGithub,
-  FaInstagram,
-  FaTshirt,
-  FaTwitter,
-} from 'react-icons/fa'
+import { FaDiscord, FaGithub, FaInstagram, FaTshirt } from 'react-icons/fa'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { getLibrary, libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
@@ -28,6 +21,7 @@ import { ThemeToggle } from '~/components/ThemeToggle'
 import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
 
 export const Route = createFileRoute('/_libraries')({
+  staleTime: Infinity,
   loader: async (ctx) => {
     return {
       sponsorsPromise: getSponsorsForSponsorPack(),

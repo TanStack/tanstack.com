@@ -18,6 +18,7 @@ interface TeamMember {
 
 export const Route = createFileRoute('/_libraries/dedicated-support')({
   component: LoginComp,
+  staleTime: Infinity,
   loader: () => {
     let indices = shuffle(
       Array.from({ length: teamMembers.length - 1 })

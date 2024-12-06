@@ -6,7 +6,7 @@ import { getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 
 export const Route = createFileRoute('/$libraryId/$version/docs/$')({
-  staleTime: 1000 * 60,
+  staleTime: 1000 * 60 * 5,
   loader: (ctx) => {
     const { _splat: docsPath, version, libraryId } = ctx.params
     const library = getLibrary(libraryId)

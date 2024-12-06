@@ -6,6 +6,7 @@ import { getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 
 export const Route = createFileRoute('/$libraryId/$version/docs/$')({
+  staleTime: 1000 * 60,
   loader: (ctx) => {
     const { _splat: docsPath, version, libraryId } = ctx.params
     const library = getLibrary(libraryId)
@@ -30,6 +31,12 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
     }
   },
   component: Docs,
+  headers: (ctx) => {
+    return {
+      'cache-control': 'public, max-age=0, must-revalidate',
+      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300',
+    }
+  },
 })
 
 function Docs() {

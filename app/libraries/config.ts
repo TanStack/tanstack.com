@@ -8,7 +8,7 @@ export const configProject = {
   tagline: `Configuration and tools for publishing and maintaining high-quality JavaScript packages`,
   description: `The build and publish utilities used by all of our projects. Use it if you dare!`,
   ogImage: 'https://github.com/tanstack/config/raw/main/media/repo-header.png',
-  // badge: 'new',
+  badge: undefined,
   bgStyle: 'bg-slate-500',
   textStyle: 'text-slate-500',
   repo: 'tanstack/config',

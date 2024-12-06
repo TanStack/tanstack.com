@@ -9,6 +9,7 @@ export const tableProject = {
   tagline: `Headless UI for building powerful tables & datagrids`,
   description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.`,
   ogImage: 'https://github.com/tanstack/table/raw/main/media/repo-header.png',
+  badge: undefined,
   bgStyle: 'bg-blue-500',
   textStyle: 'text-blue-500',
   repo: 'tanstack/table',

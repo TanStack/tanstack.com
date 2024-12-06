@@ -69,7 +69,10 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       // content: frontMatter.content,
     })
 
-    setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=300')
+    // Cache for 5 minutes on shared cache
+    // Revalidate in the background
+    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setHeader('CDN-Cache-Control', 'max-age=300, stale-while-revalidate=300')
 
     return {
       title: frontMatter.data?.title,

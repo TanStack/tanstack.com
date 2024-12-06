@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { fetchRepoFile } from './documents.server'
 import { createServerFn } from '@tanstack/start'
+import { setHeaders } from 'vinxi/http'
 
 export type MenuItem = {
   label: string | React.ReactNode
@@ -70,6 +71,11 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
         console.error(JSON.stringify(validationResult.error, null, 2))
         throw new Error('Zod validation failed')
       }
+
+      setHeaders({
+        'cache-control': 'public, max-age=0, must-revalidate',
+        'cdn-cache-control': 'max-age=300, stale-while-revalidate=300',
+      })
 
       return validationResult.data
     } catch (e) {

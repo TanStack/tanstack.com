@@ -5,6 +5,7 @@ import { getTanstackDocsConfig } from '~/utils/config'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/$libraryId/$version/docs')({
+  staleTime: 1000 * 60,
   loader: async (ctx) => {
     const { libraryId, version } = ctx.params
     const library = getLibrary(libraryId)
@@ -16,9 +17,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
       },
     })
 
-    return {
-      config,
-    }
+    return { config }
   },
   head: (ctx) => {
     const { libraryId } = ctx.params
@@ -31,6 +30,12 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
     }
   },
   component: DocsRoute,
+  headers: (ctx) => {
+    return {
+      'cache-control': 'public, max-age=0, must-revalidate',
+      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300',
+    }
+  },
 })
 
 function DocsRoute() {

@@ -7,10 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
-import {
-  useNpmDownloadCounter,
-  useGithubDependentCounter,
-} from '@erquhart/convex-oss-stats/react'
+import { useNpmDownloadCounter } from '@erquhart/convex-oss-stats/react'
 import NumberFlow from '@number-flow/react'
 import { api } from '../../../convex/_generated/api'
 import { Carbon } from '~/components/Carbon'
@@ -19,7 +16,8 @@ import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import discordImage from '~/images/discord-logo-white.svg'
-import convexImage from '~/images/convex-white.svg'
+import convexImageWhite from '~/images/convex-white.svg'
+import convexImageDark from '~/images/convex-dark.svg'
 import { useMutation } from '~/hooks/useMutation'
 import { sample } from '~/utils/utils'
 import { libraries } from '~/libraries'
@@ -118,17 +116,6 @@ const NpmDownloadCounter = ({
   return <StableCounter value={liveNpmDownloadCount} />
 }
 
-// TODO: Use this once useGithubDependentCounter is fixed upstream
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const GitHubDependentCounter = ({
-  githubData,
-}: {
-  githubData: Parameters<typeof useGithubDependentCounter>[0]
-}) => {
-  const liveGitHubDependentCount = useGithubDependentCounter(githubData)
-  return <StableCounter value={liveGitHubDependentCount} />
-}
-
 const OssStats = () => {
   const { data: github } = useSuspenseQuery(
     convexQuery(api.stats.getGithubOwner, {
@@ -182,7 +169,7 @@ const OssStats = () => {
           <FaCube className="text-2xl" />
           <div className="">
             <div className="text-2xl font-bold opacity-80 relative">
-              <GitHubDependentCounter githubData={github} />
+              <NumberFlow value={github?.dependentCount} />
             </div>
             <div className="text-sm opacity-50 font-medium italic -mt-1">
               Dependents on GitHub
@@ -198,8 +185,14 @@ const OssStats = () => {
               Powered by
             </span>
             <img
-              className="opacity-30 group-hover:opacity-50"
-              src={convexImage}
+              className="dark:hidden opacity-30 group-hover:opacity-50"
+              src={convexImageDark}
+              alt="Convex Logo"
+              width={80}
+            />
+            <img
+              className="hidden dark:block opacity-30 group-hover:opacity-50"
+              src={convexImageWhite}
               alt="Convex Logo"
               width={80}
             />

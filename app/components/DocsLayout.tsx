@@ -690,7 +690,7 @@ export function DocsLayout({
       </div>
       {showBytes ? (
         <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg print:hidden">
-          <div className="bg-white dark:bg-gray-900/30 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
+          <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
             {libraryId === 'query' ? (
               <DocsCalloutQueryGG />
             ) : (

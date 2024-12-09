@@ -7,7 +7,7 @@ import {
   updateTiersMeta,
 } from '~/server/tiers'
 import { createServerFn, json } from '@tanstack/start'
-import { setHeader, setHeaders } from 'vinxi/http'
+import { getEvent, setHeader, setHeaders } from 'vinxi/http'
 
 export type Sponsor = {
   login: string
@@ -272,10 +272,12 @@ export const getSponsorsForSponsorPack = createServerFn({
     fn: getSponsorsAndTiers,
   })) as { sponsors: Sponsor[] }
 
-  setHeaders({
-    'cache-control': 'public, max-age=0, must-revalidate',
-    'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-  })
+  if (!getEvent().handled) {
+    setHeaders({
+      'cache-control': 'public, max-age=0, must-revalidate',
+      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+    })
+  }
 
   return sponsors
     .filter((d) => d.privacyLevel === 'PUBLIC')

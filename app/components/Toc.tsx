@@ -28,7 +28,7 @@ export function Toc({ headings, colorFrom, colorTo }: TocProps) {
   }, [location])
 
   return (
-    <nav className="flex flex-col gap-1 sticky top-2 max-h-screen divide-y divide-gray-500/20">
+    <nav className="flex flex-col sticky top-2 max-h-screen divide-y divide-gray-500/20">
       <div className="p-2">
         <h3 className="text-[.9em] font-bold px-2">On this page</h3>
       </div>

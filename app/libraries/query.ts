@@ -10,6 +10,7 @@ export const queryProject = {
   description:
     'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte & Angular applications all without touching any "global state"',
   ogImage: 'https://github.com/tanstack/query/raw/main/media/repo-header.png',
+  badge: undefined,
   bgStyle: 'bg-red-500',
   textStyle: 'text-red-500',
   repo: 'tanstack/query',

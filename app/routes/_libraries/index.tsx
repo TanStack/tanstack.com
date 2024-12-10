@@ -132,28 +132,38 @@ const OssStats = () => {
   return (
     <div>
       <div className="p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center place-items-center bg-white/50 dark:bg-gray-700/30 dark:shadow-none rounded-xl shadow-xl">
-        <div className="flex gap-4 items-center">
-          <FaDownload className="text-2xl" />
+        <a
+          href="https://www.npmjs.com/org/tanstack"
+          target="_blank"
+          rel="noreferrer"
+          className="group flex gap-4 items-center"
+        >
+          <FaDownload className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
           <div>
-            <div className="text-2xl font-bold opacity-80 relative">
+            <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
               <NpmDownloadCounter npmData={npm} />
             </div>
-            <div className="text-sm opacity-50 font-medium italic">
+            <div className="text-sm opacity-50 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
               NPM Downloads
             </div>
           </div>
-        </div>
-        <div className="flex gap-4 items-center">
-          <FaStar className="text-2xl" />
+        </a>
+        <a
+          href="https://github.com/orgs/TanStack/repositories?q=sort:stars"
+          target="_blank"
+          rel="noreferrer"
+          className="group flex gap-4 items-center"
+        >
+          <FaStar className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
           <div>
-            <div className="text-2xl font-bold opacity-80 leading-none">
+            <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200">
               <NumberFlow value={github?.starCount} />
             </div>
-            <div className="text-sm opacity-50 font-medium italic -mt-1">
+            <div className="text-sm opacity-50 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
               Stars on Github
             </div>
           </div>
-        </div>
+        </a>
         <div className="flex gap-4 items-center">
           <FaUsers className="text-2xl" />
           <div className="">

@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as http from "../http.js";
 import type * as stats from "../stats.js";
 
 import type {
@@ -24,6 +25,7 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  http: typeof http;
   stats: typeof stats;
 }>;
 declare const fullApiWithMounts: typeof fullApi;

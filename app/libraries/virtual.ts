@@ -8,6 +8,7 @@ export const virtualProject = {
   tagline: `Headless UI for Virtualizing Large Element Lists`,
   description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit & Angular while retaining 100% control over markup and styles.`,
   ogImage: 'https://github.com/tanstack/query/raw/main/media/header.png',
+  badge: undefined,
   bgStyle: 'bg-purple-500',
   textStyle: 'text-purple-500',
   repo: 'tanstack/virtual',

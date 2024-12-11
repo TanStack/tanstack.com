@@ -1,7 +1,7 @@
 import { OssStats } from '@erquhart/convex-oss-stats'
 import { components } from './_generated/api'
 
-const ossStats = new OssStats(components.ossStats, {
+export const ossStats = new OssStats(components.ossStats, {
   githubOwners: ['tanstack'],
   npmOrgs: ['tanstack'],
 })

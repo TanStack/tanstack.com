@@ -13,7 +13,7 @@ export function createRouter() {
     // Hardcoded production URL as fallback for local development
     // Currently set to an instance owned by Convex Devx
     // TODO: Replace with URL to an instance owned by the TanStack team
-    'https://intent-pigeon-358.convex.cloud'
+    'https://befitting-badger-629.convex.cloud'
   const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
 
   const queryClient: QueryClient = new QueryClient({

@@ -188,7 +188,10 @@ const OssStats = () => {
         </div>
       </div>
       <div className="px-4 py-2 flex justify-end">
-        <a href="https://convex.dev" className="group flex items-center gap-2">
+        <a
+          href="https://www.convex.dev/?utm_source=tanstack"
+          className="group flex items-center gap-2"
+        >
           <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
           <div className="flex items-center gap-1">
             <span className="text-[.75rem] opacity-30 relative -top-px">

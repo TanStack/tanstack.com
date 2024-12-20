@@ -29,6 +29,7 @@ import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { ClientOnlySearchButton } from './ClientOnlySearchButton'
 import { twMerge } from 'tailwind-merge'
 import { partners } from '~/utils/partners'
+import { useThemeStore } from './ThemeToggle'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -321,6 +322,10 @@ export function DocsLayout({
   const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
 
+  const { mode: themeMode } = useThemeStore()
+
+  const oramaThemeMode = themeMode === 'auto' ? 'system' : themeMode
+
   const matches = useMatches()
   const lastMatch = last(matches)
 
@@ -493,7 +498,10 @@ export function DocsLayout({
               onSelect={versionConfig.onSelect}
             />
           </div>
-          <ClientOnlySearchButton {...searchButtonParams}>
+          <ClientOnlySearchButton
+            {...searchButtonParams}
+            colorScheme={oramaThemeMode}
+          >
             Search
           </ClientOnlySearchButton>
           {menuItems}
@@ -554,6 +562,7 @@ export function DocsLayout({
               } as any,
             }}
             facetProperty={undefined}
+            colorScheme={oramaThemeMode}
           />
         )}
       </div>

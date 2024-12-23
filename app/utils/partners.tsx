@@ -31,41 +31,43 @@ type Partner = {
 
 export const partners: Partner[] = [
   (() => {
-    const href = 'https://vercel.com?utm_source=tanstack'
+    const href = 'https://convex.dev?utm_source=tanstack'
 
     return {
-      name: 'Vercel',
-      id: 'vercel',
-      href,
+      name: 'Convex',
+      id: 'convex',
       libraries: ['start', 'router'],
-      sidebarImgLight: vercelLightSvg,
-      sidebarImgDark: vercelDarkSvg,
-      sidebarImgClass: 'py-4',
+      sidebarImgLight: convexColorSvg,
+      sidebarImgDark: convexWhiteSvg,
+      sidebarImgClass: 'py-5 scale-[1.1]',
+      href,
       homepageImg: (
-        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-12">
+        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-6">
           <img
-            src={vercelLightSvg}
-            alt="Vercel"
-            className="w-[220px] max-w-full dark:hidden"
+            src={convexColorSvg}
+            alt="Convex"
+            className="w-[300px] max-w-full dark:hidden"
           />
           <img
-            src={vercelDarkSvg}
-            alt="Vercel"
-            className="w-[220px] max-w-full hidden dark:block"
+            src={convexWhiteSvg}
+            alt="Convex"
+            className="w-[300px] max-w-full hidden dark:block"
           />
         </div>
       ),
       content: (
         <>
           <div className="text-xs">
-            TanStack Router/Start and Vercel are a match made in heaven.
-            Vercel's{' '}
-            <strong>cutting-edge deployment and serverless capabilities</strong>{' '}
-            continue to deliver on the TanStack promise for apps to be{' '}
-            <strong>high-performant and scalable</strong>. We're working closely
-            with Vercel to not only ensure a flawless deployment experience, but
-            also push the boundaries of what's possible with TanStack on the
-            web.
+            Convex has teamed up with TanStack to not only deliver a{' '}
+            <strong>
+              first-class end-to-end type-safe database experience
+            </strong>{' '}
+            to TanStack developers, but to also ensure TanStack is ready for the
+            real-time database arena. Convex's all-in-one platform delivers
+            end-to-end type-safety via a{' '}
+            <strong>revolutionary relational, real-time database</strong> and
+            together, we're elevating what's possible with real-time React
+            applications.
           </div>
           <span className="text-blue-500 uppercase font-black text-sm">
             Learn More
@@ -116,6 +118,7 @@ export const partners: Partner[] = [
       ),
     }
   })(),
+
   (() => {
     const href =
       'https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable'
@@ -158,52 +161,6 @@ export const partners: Partner[] = [
           >
             Learn More
           </Link>
-        </>
-      ),
-    }
-  })(),
-  (() => {
-    const href = 'https://convex.dev?utm_source=tanstack'
-
-    return {
-      name: 'Convex',
-      id: 'convex',
-      libraries: ['start', 'router'],
-      sidebarImgLight: convexColorSvg,
-      sidebarImgDark: convexWhiteSvg,
-      sidebarImgClass: 'py-5 scale-[1.1]',
-      href,
-      homepageImg: (
-        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-6">
-          <img
-            src={convexColorSvg}
-            alt="Convex"
-            className="w-[300px] max-w-full dark:hidden"
-          />
-          <img
-            src={convexWhiteSvg}
-            alt="Convex"
-            className="w-[300px] max-w-full hidden dark:block"
-          />
-        </div>
-      ),
-      content: (
-        <>
-          <div className="text-xs">
-            Convex has teamed up with TanStack to not only deliver a{' '}
-            <strong>
-              first-class end-to-end type-safe database experience
-            </strong>{' '}
-            to TanStack developers, but to also ensure TanStack is ready for the
-            real-time database arena. Convex's all-in-one platform delivers
-            end-to-end type-safety via a{' '}
-            <strong>revolutionary relational, real-time database</strong> and
-            together, we're elevating what's possible with real-time React
-            applications.
-          </div>
-          <span className="text-blue-500 uppercase font-black text-sm">
-            Learn More
-          </span>
         </>
       ),
     }
@@ -346,6 +303,50 @@ export const partners: Partner[] = [
       ),
     }
   })(),
+  // (() => {
+  //   const href = 'https://vercel.com?utm_source=tanstack'
+
+  //   return {
+  //     name: 'Vercel',
+  //     id: 'vercel',
+  //     href,
+  //     libraries: ['start', 'router'],
+  //     sidebarImgLight: vercelLightSvg,
+  //     sidebarImgDark: vercelDarkSvg,
+  //     sidebarImgClass: 'py-4',
+  //     homepageImg: (
+  //       <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-12">
+  //         <img
+  //           src={vercelLightSvg}
+  //           alt="Vercel"
+  //           className="w-[220px] max-w-full dark:hidden"
+  //         />
+  //         <img
+  //           src={vercelDarkSvg}
+  //           alt="Vercel"
+  //           className="w-[220px] max-w-full hidden dark:block"
+  //         />
+  //       </div>
+  //     ),
+  //     content: (
+  //       <>
+  //         <div className="text-xs">
+  //           TanStack Router/Start and Vercel are a match made in heaven.
+  //           Vercel's{' '}
+  //           <strong>cutting-edge deployment and serverless capabilities</strong>{' '}
+  //           continue to deliver on the TanStack promise for apps to be{' '}
+  //           <strong>high-performant and scalable</strong>. We're working closely
+  //           with Vercel to not only ensure a flawless deployment experience, but
+  //           also push the boundaries of what's possible with TanStack on the
+  //           web.
+  //         </div>
+  //         <span className="text-blue-500 uppercase font-black text-sm">
+  //           Learn More
+  //         </span>
+  //       </>
+  //     ),
+  //   }
+  // })(),
 ] as const
 
 if (typeof window !== 'undefined') {

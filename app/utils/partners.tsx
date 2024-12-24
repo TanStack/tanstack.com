@@ -7,8 +7,10 @@ import nozzleImage from '~/images/nozzle.png'
 import nozzleDarkSvg from '~/images/nozzle-dark.svg'
 import nozzleLightSvg from '~/images/nozzle-light.svg'
 import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
-import vercelLightSvg from '~/images/vercel-light.svg'
-import vercelDarkSvg from '~/images/vercel-dark.svg'
+// import vercelLightSvg from '~/images/vercel-light.svg'
+// import vercelDarkSvg from '~/images/vercel-dark.svg'
+import netlifyLightSvg from '~/images/netlify-light.svg'
+import netlifyDarkSvg from '~/images/netlify-dark.svg'
 import convexWhiteSvg from '~/images/convex-white.svg'
 import convexColorSvg from '~/images/convex-color.svg'
 import clerkLightSvg from '~/images/clerk-logo-light.svg'
@@ -161,6 +163,63 @@ export const partners: Partner[] = [
           >
             Learn More
           </Link>
+        </>
+      ),
+    }
+  })(),
+  (() => {
+    const href = 'https://netlify.com?utm_source=tanstack'
+
+    return {
+      name: 'Netlify',
+      id: 'netlify',
+      libraries: ['start', 'router'],
+      sidebarImgLight: netlifyLightSvg,
+      sidebarImgDark: netlifyDarkSvg,
+      sidebarImgClass: 'pt-2 scale-[.9]',
+      sidebarAfterImg: (
+        <div className="text-[10px] text-center py-1 px-2 w-full bg-gradient-to-b from-transparent to-gray-500/10 uppercase font-bold">
+          Official Deployment Partner
+        </div>
+      ),
+      href,
+      homepageImg: (
+        <div className="flex flex-col justify-center items-center pb-4 gap-2 dark:bg-gray-900 w-full">
+          <div className="w-full h-full flex items-center justify-center px-4 pt-6 pb-2">
+            <img
+              src={netlifyLightSvg}
+              alt="Convex"
+              className="w-[280px] max-w-full dark:hidden"
+            />
+            <img
+              src={netlifyDarkSvg}
+              alt="Convex"
+              className="w-[280px] max-w-full hidden dark:block"
+            />
+          </div>
+          <div className="w-auto text-xs text-center py-1 px-3 rounded-full uppercase font-bold m-2 bg-[#03bdba] text-white ">
+            Official Deployment Partner
+          </div>
+        </div>
+      ),
+      content: (
+        <>
+          <div className="text-xs">
+            Netlify and TanStack have joined forces to provide developers with{' '}
+            <strong>world-class deployment and hosting capabilities</strong> for
+            modern web applications. Together we're focused on delivering an
+            exceptional developer experience through{' '}
+            <strong>
+              seamless deployment workflows, edge functions, and serverless
+              capabilities
+            </strong>{' '}
+            that help teams build and ship faster. Our partnership ensures
+            TanStack applications can take full advantage of Netlify's powerful
+            platform features.
+          </div>
+          <span className="text-blue-500 uppercase font-black text-sm">
+            Learn More
+          </span>
         </>
       ),
     }

@@ -3,7 +3,7 @@ import React from 'react'
 
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
-import { getBranch, getLibrary } from '~/libraries'
+import { Framework, getBranch, getLibrary } from '~/libraries'
 import { getInitialSandboxFileName } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
@@ -41,7 +41,10 @@ export default function Example() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const sandboxFirstFileName = getInitialSandboxFileName(framework, libraryId)
+  const sandboxFirstFileName = getInitialSandboxFileName(
+    framework as Framework,
+    libraryId
+  )
 
   const githubUrl = `https://github.com/${library.repo}/tree/${branch}/examples/${examplePath}`
   // preset=node can be removed once Stackblitz runs Angular as webcontainer by default
@@ -60,15 +63,26 @@ export default function Example() {
   const hideCodesandbox = library.hideCodesandboxUrl
   const hideStackblitz = library.hideStackblitzUrl
   const showVercel = library.showVercelUrl
+  const showNetlify = library.showNetlifyUrl
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto">
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
-            {capitalize(framework)} Example: {slugToTitle(_splat)}
+            {capitalize(framework)} Example: {slugToTitle(_splat!)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
+            {showNetlify ? (
+              <a
+                href={`https://app.netlify.com/start/deploy?repository-url=${githubUrl}`}
+              >
+                <img
+                  src="https://www.netlify.com/img/deploy/button.svg"
+                  alt="Deploy with Netlify"
+                />
+              </a>
+            ) : null}
             {showVercel ? (
               <a
                 href={`https://vercel.com/new/clone?repository-url=${githubUrl}`}

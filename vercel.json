@@ -1,5 +1,0 @@
-{
-  "framework": null,
-  "buildCommand": "if [ \"$VERCEL_ENV\" = \"preview\" ]; then npm run build; else npx convex deploy --cmd 'npm run build'; fi",
-  "devCommand": "pnpm dev"
-}

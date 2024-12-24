@@ -63,7 +63,8 @@ export type Library = {
   handleRedirects?: (href: string) => void
   hideCodesandboxUrl?: true
   hideStackblitzUrl?: true
-  showVercelUrl?: true
+  showVercelUrl?: boolean
+  showNetlifyUrl?: boolean
 }
 
 export const libraries = [
@@ -85,7 +86,7 @@ export function getLibrary(id: string) {
     throw new Error(`Library with id "${id}" not found`)
   }
 
-  return library
+  return library as Library
 }
 
 export function getFrameworkOptions(frameworkStrs: Framework[]) {

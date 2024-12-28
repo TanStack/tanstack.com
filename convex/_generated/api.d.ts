@@ -41,15 +41,56 @@ export declare const internal: FilterApi<
 
 export declare const components: {
   ossStats: {
-    lib: {
-      getGithubOwner: FunctionReference<
+    github: {
+      getGithubOwners: FunctionReference<
         "query",
         "internal",
-        { owner: string },
+        { owners: Array<string> },
+        Array<null | {
+          contributorCount: number;
+          dependentCount: number;
+          dependentCountPrevious?: any;
+          name: string;
+          nameNormalized: string;
+          starCount: number;
+          updatedAt: number;
+        }>
+      >;
+      updateGithubOwner: FunctionReference<
+        "mutation",
+        "internal",
+        { name: string },
         any
       >;
-      getNpmOrg: FunctionReference<"query", "internal", { name: string }, any>;
-      sync: FunctionReference<
+      updateGithubOwnerStats: FunctionReference<
+        "action",
+        "internal",
+        { githubAccessToken: string; owner: string; page?: number },
+        any
+      >;
+      updateGithubRepoStars: FunctionReference<
+        "mutation",
+        "internal",
+        { name: string; owner: string; starCount: number },
+        any
+      >;
+      updateGithubRepos: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          repos: Array<{
+            contributorCount: number;
+            dependentCount: number;
+            name: string;
+            owner: string;
+            starCount: number;
+          }>;
+        },
+        any
+      >;
+    };
+    lib: {
+      clearAndSync: FunctionReference<
         "action",
         "internal",
         {
@@ -60,57 +101,60 @@ export declare const components: {
         },
         any
       >;
-      updateGithubOwner: FunctionReference<
+      clearPage: FunctionReference<
         "mutation",
         "internal",
-        {
-          contributorCount?: number;
-          dependentCount?: number;
-          owner: string;
-          starCount?: number;
-        },
-        any
+        { tableName: "githubRepos" | "npmPackages" },
+        { isDone: boolean }
       >;
-      updateGithubRepoStars: FunctionReference<
-        "mutation",
+      clearTable: FunctionReference<
+        "action",
+        "internal",
+        { tableName: "githubRepos" | "npmPackages" },
+        null
+      >;
+      sync: FunctionReference<
+        "action",
         "internal",
         {
           githubAccessToken: string;
-          name: string;
-          owner: string;
-          starCount?: number;
+          githubOwners: Array<string>;
+          minStars: number;
+          npmOrgs: Array<string>;
         },
-        any
+        null
       >;
-      updateGithubRepos: FunctionReference<
-        "mutation",
+    };
+    npm: {
+      getNpmOrgs: FunctionReference<
+        "query",
         "internal",
-        {
-          repos: Array<{
-            contributorCount: number;
-            dependentCount: number;
-            dependentCountPrevious?: { count: number; updatedAt: number };
-            name: string;
-            owner: string;
-            starCount: number;
-          }>;
-        },
-        any
+        { names: Array<string> },
+        Array<null | {
+          dayOfWeekAverages: Array<number>;
+          downloadCount: number;
+          downloadCountUpdatedAt: number;
+          name: string;
+          updatedAt: number;
+        }>
       >;
       updateNpmOrg: FunctionReference<
         "mutation",
         "internal",
-        {
-          dayOfWeekAverages: Array<number>;
-          downloadCount: number;
-          name: string;
-        },
+        { name: string },
         any
       >;
-      updateNpmPackages: FunctionReference<
+      updateNpmOrgStats: FunctionReference<
+        "action",
+        "internal",
+        { org: string; page?: number },
+        any
+      >;
+      updateNpmPackagesForOrg: FunctionReference<
         "mutation",
         "internal",
         {
+          org: string;
           packages: Array<{
             dayOfWeekAverages: Array<number>;
             downloadCount: number;

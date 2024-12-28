@@ -21,8 +21,8 @@ importers:
         specifier: ^3.5.2
         version: 3.6.0(@algolia/client-search@5.17.0)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)
       '@erquhart/convex-oss-stats':
-        specifier: ^0.3.3
-        version: 0.3.3(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 0.3.5
+        version: 0.3.5(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(zod@3.23.8)
       '@headlessui/react':
         specifier: 1.7.18
         version: 1.7.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1096,8 +1096,8 @@ packages:
   '@emotion/weak-memoize@0.2.5':
     resolution: {integrity: sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==}
 
-  '@erquhart/convex-oss-stats@0.3.3':
-    resolution: {integrity: sha512-pE7rBaVEyfhKmTaueFGe1rdGeA76WNMguXnjquqc11uwfiKofP3ZUKthgpIdcwb2cS27vQniEdIpd87qiU+DOA==}
+  '@erquhart/convex-oss-stats@0.3.5':
+    resolution: {integrity: sha512-30ptwWfbgMDwmBIYWV/FmhvVepJpgCU445tONaoc7qf5DtEkbIvh0q8q34VWU+InISk0ryhJDHDmBfLC+rtqZg==}
     peerDependencies:
       convex: ~1.16.5 || ~1.17.0
       react: ^17.0.2 || ^18.0.0 || ^19.0.0-0
@@ -3532,6 +3532,22 @@ packages:
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
+
+  convex-helpers@0.1.67:
+    resolution: {integrity: sha512-nnb0W2FYKbqJt00UH6raZ/J0A1+CbcFdqmFJTDvvSR1P4RhwBj1TBzS3/B1G1nMYebX3gguSwOWfO0s2rcB/wg==}
+    hasBin: true
+    peerDependencies:
+      convex: ^1.13.0
+      hono: ^4.0.5
+      react: ^17.0.2 || ^18.0.0 || ^19.0.0
+      zod: ^3.22.4
+    peerDependenciesMeta:
+      hono:
+        optional: true
+      react:
+        optional: true
+      zod:
+        optional: true
 
   convex@1.17.2:
     resolution: {integrity: sha512-h12LChRZLGSGTIiqtBMyM7BT+zHxpUjtA1YI2vhFza7x+9E1CYzP8c2En6wKnZ9Dr2PYE4vWqUg8EHkBr0hI5A==}
@@ -7776,13 +7792,14 @@ snapshots:
 
   '@emotion/weak-memoize@0.2.5': {}
 
-  '@erquhart/convex-oss-stats@0.3.3(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@erquhart/convex-oss-stats@0.3.5(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(zod@3.23.8)':
     dependencies:
       '@convex-dev/crons': 0.1.5(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@octokit/graphql': 8.1.1
       '@octokit/graphql-schema': 15.25.0
       cheerio: 1.0.0
       convex: 1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      convex-helpers: 0.1.67(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(zod@3.23.8)
       date-fns: 4.1.0
       framer-motion: 11.15.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       nano: 10.1.4
@@ -7795,7 +7812,9 @@ snapshots:
       - '@emotion/is-prop-valid'
       - debug
       - encoding
+      - hono
       - react-dom
+      - zod
 
   '@esbuild/aix-ppc64@0.20.2':
     optional: true
@@ -10280,6 +10299,13 @@ snapshots:
   convert-source-map@1.9.0: {}
 
   convert-source-map@2.0.0: {}
+
+  convex-helpers@0.1.67(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(zod@3.23.8):
+    dependencies:
+      convex: 1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    optionalDependencies:
+      react: 18.3.1
+      zod: 3.23.8
 
   convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

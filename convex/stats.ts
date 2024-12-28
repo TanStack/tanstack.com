@@ -6,4 +6,4 @@ export const ossStats = new OssStats(components.ossStats, {
   npmOrgs: ['tanstack'],
 })
 
-export const { getGithubOwner, getNpmOrg, sync } = ossStats.api()
+export const { getGithubOwner, getNpmOrg, sync, clearAndSync } = ossStats.api()

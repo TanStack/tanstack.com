@@ -6,8 +6,9 @@
   "packageManager": "pnpm@9.4.0",
   "type": "module",
   "scripts": {
-    "dev": "vinxi dev & pnpm dev:convex",
-    "dev:convex": "convex dev --tail-logs",
+    "dev": "npm-run-all --parallel dev:frontend dev:backend",
+    "dev:frontend": "vinxi dev",
+    "dev:backend": "convex dev --tail-logs",
     "build": "vinxi build",
     "start": "vinxi start",
     "lint": "prettier --check '**/*' --ignore-unknown && eslint --ext .ts,.tsx ./app",

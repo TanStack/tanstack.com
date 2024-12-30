@@ -21,8 +21,8 @@ importers:
         specifier: ^3.5.2
         version: 3.6.0(@algolia/client-search@5.17.0)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)
       '@erquhart/convex-oss-stats':
-        specifier: 0.3.6
-        version: 0.3.6(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(zod@3.23.8)
+        specifier: 0.4.2
+        version: 0.4.2(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(zod@3.23.8)
       '@headlessui/react':
         specifier: 1.7.18
         version: 1.7.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1096,8 +1096,8 @@ packages:
   '@emotion/weak-memoize@0.2.5':
     resolution: {integrity: sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==}
 
-  '@erquhart/convex-oss-stats@0.3.6':
-    resolution: {integrity: sha512-K+Q5PxYZURQrNHdTIqaZk3hFwGY5f98BHTGWvP09ujR1EOlmdejhtw5jo/6pZI3Ck7I1AyblkQ2nGshgBlA+7A==}
+  '@erquhart/convex-oss-stats@0.4.2':
+    resolution: {integrity: sha512-lOnwQS5CjBOa0LkbhJNkEzPP+Rr/ryccyR8rf4MN2oCb0LKPp67pqx62sVzTbq1Fv4KtvHkE4BnKT53gx4bdcg==}
     peerDependencies:
       convex: ~1.16.5 || ~1.17.0
       react: ^17.0.2 || ^18.0.0 || ^19.0.0-0
@@ -7792,7 +7792,7 @@ snapshots:
 
   '@emotion/weak-memoize@0.2.5': {}
 
-  '@erquhart/convex-oss-stats@0.3.6(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(zod@3.23.8)':
+  '@erquhart/convex-oss-stats@0.4.2(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(zod@3.23.8)':
     dependencies:
       '@convex-dev/crons': 0.1.5(convex@1.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@octokit/graphql': 8.1.1
@@ -9262,10 +9262,10 @@ snapshots:
 
   '@types/unist@2.0.10': {}
 
-  '@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3)':
+  '@typescript-eslint/eslint-plugin@5.62.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3)':
     dependencies:
       '@eslint-community/regexpp': 4.10.0
-      '@typescript-eslint/parser': 5.62.0(eslint@8.57.0)(typescript@5.6.3)
+      '@typescript-eslint/parser': 7.2.0(eslint@8.57.0)(typescript@5.6.3)
       '@typescript-eslint/scope-manager': 5.62.0
       '@typescript-eslint/type-utils': 5.62.0(eslint@8.57.0)(typescript@5.6.3)
       '@typescript-eslint/utils': 5.62.0(eslint@8.57.0)(typescript@5.6.3)
@@ -10805,7 +10805,7 @@ snapshots:
       '@babel/core': 7.26.0
       '@babel/eslint-parser': 7.23.10(@babel/core@7.26.0)(eslint@8.57.0)
       '@rushstack/eslint-patch': 1.7.2
-      '@typescript-eslint/eslint-plugin': 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3)
+      '@typescript-eslint/eslint-plugin': 5.62.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3)
       '@typescript-eslint/parser': 5.62.0(eslint@8.57.0)(typescript@5.6.3)
       babel-preset-react-app: 10.0.1
       confusing-browser-globals: 1.0.11
@@ -10885,7 +10885,7 @@ snapshots:
       '@typescript-eslint/experimental-utils': 5.62.0(eslint@8.57.0)(typescript@5.6.3)
       eslint: 8.57.0
     optionalDependencies:
-      '@typescript-eslint/eslint-plugin': 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3)
+      '@typescript-eslint/eslint-plugin': 5.62.0(@typescript-eslint/parser@7.2.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3)
     transitivePeerDependencies:
       - supports-color
       - typescript

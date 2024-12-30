@@ -49,7 +49,8 @@ export declare const components: {
         Array<null | {
           contributorCount: number;
           dependentCount: number;
-          dependentCountPrevious?: any;
+          dependentCountPrevious?: { count: number; updatedAt: number };
+          dependentCountUpdatedAt?: number;
           name: string;
           nameNormalized: string;
           starCount: number;

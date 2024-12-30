@@ -20,7 +20,7 @@
     "@convex-dev/react-query": "0.0.0-alpha.8",
     "@docsearch/css": "^3.5.2",
     "@docsearch/react": "^3.5.2",
-    "@erquhart/convex-oss-stats": "0.3.6",
+    "@erquhart/convex-oss-stats": "0.4.2",
     "@headlessui/react": "1.7.18",
     "@number-flow/react": "^0.4.1",
     "@octokit/graphql": "^7.0.2",

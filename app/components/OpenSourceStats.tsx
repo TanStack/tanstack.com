@@ -8,9 +8,13 @@ import { FaDownload } from 'react-icons/fa'
 import convexImageWhite from '~/images/convex-white.svg'
 import convexImageDark from '~/images/convex-dark.svg'
 
-const counterIntervalMs = 500
-
-const StableCounter = ({ value }: { value?: number }) => {
+const StableCounter = ({
+  value,
+  intervalMs,
+}: {
+  value?: number
+  intervalMs?: number
+}) => {
   const dummyString = Number(
     Array(value?.toString().length ?? 1)
       .fill('8')
@@ -23,14 +27,19 @@ const StableCounter = ({ value }: { value?: number }) => {
       <span className="opacity-0">{dummyString}</span>
       <span className="absolute -top-0.5 left-0">
         <NumberFlow
+          // Defer to counter hook calculated interval
+          spinTiming={{
+            duration: intervalMs,
+            easing: 'linear',
+          }}
+          // Slow horizontal shift animation (due to differing number widths)
           transformTiming={{
-            duration: counterIntervalMs,
+            duration: 1000,
             easing: 'linear',
           }}
           value={value}
           trend={1}
           continuous
-          isolate
           willChange
         />
       </span>
@@ -43,10 +52,8 @@ const NpmDownloadCounter = ({
 }: {
   npmData: Parameters<typeof useNpmDownloadCounter>[0]
 }) => {
-  const liveNpmDownloadCount = useNpmDownloadCounter(npmData, {
-    intervalMs: counterIntervalMs,
-  })
-  return <StableCounter value={liveNpmDownloadCount} />
+  const { count, intervalMs } = useNpmDownloadCounter(npmData)
+  return <StableCounter value={count} intervalMs={intervalMs} />
 }
 
 export default function OssStats() {

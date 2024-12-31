@@ -646,7 +646,7 @@ export function DocsLayout({
                       <a
                         href={partner.href}
                         target="_blank"
-                        className="px-4 flex items-center justify-center cursor-pointer"
+                        className="px-4 flex flex-col items-center justify-center cursor-pointer gap-1"
                         rel="noreferrer"
                       >
                         <div className="mx-auto max-w-[150px]">
@@ -672,6 +672,7 @@ export function DocsLayout({
                           />
                         </div>
                       </a>
+                      {partner.sidebarAfterImg || null}
                     </div>
                   )
                 })

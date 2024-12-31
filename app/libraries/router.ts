@@ -22,5 +22,6 @@ export const routerProject = {
   scarfId: '3d14fff2-f326-4929-b5e1-6ecf953d24f4',
   defaultDocs: 'framework/react/overview',
   hideCodesandboxUrl: true,
-  showVercelUrl: true,
+  showVercelUrl: false,
+  showNetlifyUrl: true,
 } satisfies Library

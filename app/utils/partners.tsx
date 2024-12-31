@@ -7,8 +7,10 @@ import nozzleImage from '~/images/nozzle.png'
 import nozzleDarkSvg from '~/images/nozzle-dark.svg'
 import nozzleLightSvg from '~/images/nozzle-light.svg'
 import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
-import vercelLightSvg from '~/images/vercel-light.svg'
-import vercelDarkSvg from '~/images/vercel-dark.svg'
+// import vercelLightSvg from '~/images/vercel-light.svg'
+// import vercelDarkSvg from '~/images/vercel-dark.svg'
+import netlifyLightSvg from '~/images/netlify-light.svg'
+import netlifyDarkSvg from '~/images/netlify-dark.svg'
 import convexWhiteSvg from '~/images/convex-white.svg'
 import convexColorSvg from '~/images/convex-color.svg'
 import clerkLightSvg from '~/images/clerk-logo-light.svg'
@@ -31,41 +33,43 @@ type Partner = {
 
 export const partners: Partner[] = [
   (() => {
-    const href = 'https://vercel.com?utm_source=tanstack'
+    const href = 'https://convex.dev?utm_source=tanstack'
 
     return {
-      name: 'Vercel',
-      id: 'vercel',
-      href,
+      name: 'Convex',
+      id: 'convex',
       libraries: ['start', 'router'],
-      sidebarImgLight: vercelLightSvg,
-      sidebarImgDark: vercelDarkSvg,
-      sidebarImgClass: 'py-4',
+      sidebarImgLight: convexColorSvg,
+      sidebarImgDark: convexWhiteSvg,
+      sidebarImgClass: 'py-5 scale-[1.1]',
+      href,
       homepageImg: (
-        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-12">
+        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-6">
           <img
-            src={vercelLightSvg}
-            alt="Vercel"
-            className="w-[220px] max-w-full dark:hidden"
+            src={convexColorSvg}
+            alt="Convex"
+            className="w-[300px] max-w-full dark:hidden"
           />
           <img
-            src={vercelDarkSvg}
-            alt="Vercel"
-            className="w-[220px] max-w-full hidden dark:block"
+            src={convexWhiteSvg}
+            alt="Convex"
+            className="w-[300px] max-w-full hidden dark:block"
           />
         </div>
       ),
       content: (
         <>
           <div className="text-xs">
-            TanStack Router/Start and Vercel are a match made in heaven.
-            Vercel's{' '}
-            <strong>cutting-edge deployment and serverless capabilities</strong>{' '}
-            continue to deliver on the TanStack promise for apps to be{' '}
-            <strong>high-performant and scalable</strong>. We're working closely
-            with Vercel to not only ensure a flawless deployment experience, but
-            also push the boundaries of what's possible with TanStack on the
-            web.
+            Convex has teamed up with TanStack to not only deliver a{' '}
+            <strong>
+              first-class end-to-end type-safe database experience
+            </strong>{' '}
+            to TanStack developers, but to also ensure TanStack is ready for the
+            real-time database arena. Convex's all-in-one platform delivers
+            end-to-end type-safety via a{' '}
+            <strong>revolutionary relational, real-time database</strong> and
+            together, we're elevating what's possible with real-time React
+            applications.
           </div>
           <span className="text-blue-500 uppercase font-black text-sm">
             Learn More
@@ -116,6 +120,7 @@ export const partners: Partner[] = [
       ),
     }
   })(),
+
   (() => {
     const href =
       'https://ag-grid.com/react-data-grid/?utm_source=reacttable&utm_campaign=githubreacttable'
@@ -163,43 +168,54 @@ export const partners: Partner[] = [
     }
   })(),
   (() => {
-    const href = 'https://convex.dev?utm_source=tanstack'
+    const href = 'https://netlify.com?utm_source=tanstack'
 
     return {
-      name: 'Convex',
-      id: 'convex',
+      name: 'Netlify',
+      id: 'netlify',
       libraries: ['start', 'router'],
-      sidebarImgLight: convexColorSvg,
-      sidebarImgDark: convexWhiteSvg,
-      sidebarImgClass: 'py-5 scale-[1.1]',
+      sidebarImgLight: netlifyLightSvg,
+      sidebarImgDark: netlifyDarkSvg,
+      sidebarImgClass: 'pt-2 scale-[.9]',
+      sidebarAfterImg: (
+        <div className="text-[10px] text-center py-1 px-2 w-full bg-gradient-to-b from-transparent to-gray-500/10 uppercase font-bold">
+          Official Deployment Partner
+        </div>
+      ),
       href,
       homepageImg: (
-        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-6">
-          <img
-            src={convexColorSvg}
-            alt="Convex"
-            className="w-[300px] max-w-full dark:hidden"
-          />
-          <img
-            src={convexWhiteSvg}
-            alt="Convex"
-            className="w-[300px] max-w-full hidden dark:block"
-          />
+        <div className="flex flex-col justify-center items-center pb-4 gap-2 dark:bg-gray-900 w-full">
+          <div className="w-full h-full flex items-center justify-center px-4 pt-6 pb-2">
+            <img
+              src={netlifyLightSvg}
+              alt="Convex"
+              className="w-[280px] max-w-full dark:hidden"
+            />
+            <img
+              src={netlifyDarkSvg}
+              alt="Convex"
+              className="w-[280px] max-w-full hidden dark:block"
+            />
+          </div>
+          <div className="w-auto text-xs text-center py-1 px-3 rounded-full uppercase font-bold m-2 bg-[#03bdba] text-white ">
+            Official Deployment Partner
+          </div>
         </div>
       ),
       content: (
         <>
           <div className="text-xs">
-            Convex has teamed up with TanStack to not only deliver a{' '}
+            Netlify and TanStack have joined forces to provide developers with{' '}
+            <strong>world-class deployment and hosting capabilities</strong> for
+            modern web applications. Together we're focused on delivering an
+            exceptional developer experience through{' '}
             <strong>
-              first-class end-to-end type-safe database experience
+              seamless deployment workflows, edge functions, and serverless
+              capabilities
             </strong>{' '}
-            to TanStack developers, but to also ensure TanStack is ready for the
-            real-time database arena. Convex's all-in-one platform delivers
-            end-to-end type-safety via a{' '}
-            <strong>revolutionary relational, real-time database</strong> and
-            together, we're elevating what's possible with real-time React
-            applications.
+            that help teams build and ship faster. Our partnership ensures
+            TanStack applications can take full advantage of Netlify's powerful
+            platform features.
           </div>
           <span className="text-blue-500 uppercase font-black text-sm">
             Learn More
@@ -346,6 +362,50 @@ export const partners: Partner[] = [
       ),
     }
   })(),
+  // (() => {
+  //   const href = 'https://vercel.com?utm_source=tanstack'
+
+  //   return {
+  //     name: 'Vercel',
+  //     id: 'vercel',
+  //     href,
+  //     libraries: ['start', 'router'],
+  //     sidebarImgLight: vercelLightSvg,
+  //     sidebarImgDark: vercelDarkSvg,
+  //     sidebarImgClass: 'py-4',
+  //     homepageImg: (
+  //       <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-12">
+  //         <img
+  //           src={vercelLightSvg}
+  //           alt="Vercel"
+  //           className="w-[220px] max-w-full dark:hidden"
+  //         />
+  //         <img
+  //           src={vercelDarkSvg}
+  //           alt="Vercel"
+  //           className="w-[220px] max-w-full hidden dark:block"
+  //         />
+  //       </div>
+  //     ),
+  //     content: (
+  //       <>
+  //         <div className="text-xs">
+  //           TanStack Router/Start and Vercel are a match made in heaven.
+  //           Vercel's{' '}
+  //           <strong>cutting-edge deployment and serverless capabilities</strong>{' '}
+  //           continue to deliver on the TanStack promise for apps to be{' '}
+  //           <strong>high-performant and scalable</strong>. We're working closely
+  //           with Vercel to not only ensure a flawless deployment experience, but
+  //           also push the boundaries of what's possible with TanStack on the
+  //           web.
+  //         </div>
+  //         <span className="text-blue-500 uppercase font-black text-sm">
+  //           Learn More
+  //         </span>
+  //       </>
+  //     ),
+  //   }
+  // })(),
 ] as const
 
 if (typeof window !== 'undefined') {

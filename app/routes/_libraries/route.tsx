@@ -18,7 +18,7 @@ import { Scarf } from '~/components/Scarf'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
 import { ThemeToggle, useThemeStore } from '~/components/ThemeToggle'
-import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
+import { TbBrandBluesky, TbBrandX } from 'react-icons/tb'
 
 export const Route = createFileRoute('/_libraries')({
   staleTime: Infinity,
@@ -205,7 +205,7 @@ function LibrariesLayout() {
           href="https://x.com/tan_stack"
           className="opacity-70 hover:opacity-100"
         >
-          <TbBrandTwitter className="text-xl" />
+          <TbBrandX className="text-xl" />
         </a>
         <a
           href="https://bsky.app/profile/tanstack.com"

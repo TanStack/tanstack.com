@@ -19,3 +19,4 @@ yarn.lock
 dist
 .vscode/
 .env.local
+convex/_generated

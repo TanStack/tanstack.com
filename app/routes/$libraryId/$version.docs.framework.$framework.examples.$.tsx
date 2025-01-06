@@ -46,7 +46,9 @@ export default function Example() {
     libraryId
   )
 
+  const repoUrl = `https://github.com/${library.repo}`
   const githubUrl = `https://github.com/${library.repo}/tree/${branch}/examples/${examplePath}`
+  const githubExamplePath = `examples/${examplePath}`
   // preset=node can be removed once Stackblitz runs Angular as webcontainer by default
   // See https://github.com/stackblitz/core/issues/2957
   const stackBlitzUrl = `https://stackblitz.com/github/${
@@ -75,7 +77,7 @@ export default function Example() {
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
             {showNetlify ? (
               <a
-                href={`https://app.netlify.com/start/deploy?repository-url=${githubUrl}`}
+                href={`https://app.netlify.com/start/deploy?repository=${repoUrl}&create_from_path=${githubExamplePath}`}
               >
                 <img
                   src="https://www.netlify.com/img/deploy/button.svg"

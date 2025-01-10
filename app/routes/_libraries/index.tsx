@@ -109,7 +109,7 @@ function Index() {
                 className={`
             inline-block text-transparent bg-clip-text bg-gradient-to-r ${gradient}
             underline decoration-4 md:decoration-8 underline-offset-[.5rem] md:underline-offset-[1rem] decoration-gray-200 dark:decoration-gray-800
-            mb-2 uppercase [letter-spacing:-.05em]
+            mb-2 uppercase [letter-spacing:-.05em] pr-1.5
             `}
               >
                 TanStack

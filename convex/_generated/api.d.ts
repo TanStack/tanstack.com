@@ -41,79 +41,14 @@ export declare const internal: FilterApi<
 
 export declare const components: {
   ossStats: {
-    github: {
-      getGithubOwners: FunctionReference<
+    lib: {
+      getGithubOwner: FunctionReference<
         "query",
         "internal",
-        { owners: Array<string> },
-        Array<null | {
-          contributorCount: number;
-          dependentCount: number;
-          dependentCountPrevious?: { count: number; updatedAt: number };
-          dependentCountUpdatedAt?: number;
-          name: string;
-          nameNormalized: string;
-          starCount: number;
-          updatedAt: number;
-        }>
-      >;
-      updateGithubOwner: FunctionReference<
-        "mutation",
-        "internal",
-        { name: string },
+        { owner: string },
         any
       >;
-      updateGithubOwnerStats: FunctionReference<
-        "action",
-        "internal",
-        { githubAccessToken: string; owner: string; page?: number },
-        any
-      >;
-      updateGithubRepoStars: FunctionReference<
-        "mutation",
-        "internal",
-        { name: string; owner: string; starCount: number },
-        any
-      >;
-      updateGithubRepos: FunctionReference<
-        "mutation",
-        "internal",
-        {
-          repos: Array<{
-            contributorCount: number;
-            dependentCount: number;
-            name: string;
-            owner: string;
-            starCount: number;
-          }>;
-        },
-        any
-      >;
-    };
-    lib: {
-      clearAndSync: FunctionReference<
-        "action",
-        "internal",
-        {
-          githubAccessToken: string;
-          githubOwners: Array<string>;
-          minStars: number;
-          npmOrgs: Array<string>;
-        },
-        any
-      >;
-      clearPage: FunctionReference<
-        "mutation",
-        "internal",
-        { tableName: "githubRepos" | "npmPackages" },
-        { isDone: boolean }
-      >;
-      clearTable: FunctionReference<
-        "action",
-        "internal",
-        { tableName: "githubRepos" | "npmPackages" },
-        null
-      >;
+      getNpmOrg: FunctionReference<"query", "internal", { name: string }, any>;
       sync: FunctionReference<
         "action",
         "internal",
@@ -123,39 +58,59 @@ export declare const components: {
           minStars: number;
           npmOrgs: Array<string>;
         },
-        null
+        any
       >;
-    };
-    npm: {
-      getNpmOrgs: FunctionReference<
-        "query",
+      updateGithubOwner: FunctionReference<
+        "mutation",
         "internal",
-        { names: Array<string> },
-        Array<null | {
-          dayOfWeekAverages: Array<number>;
-          downloadCount: number;
-          downloadCountUpdatedAt: number;
+        {
+          contributorCount?: number;
+          dependentCount?: number;
+          owner: string;
+          starCount?: number;
+        },
+        any
+      >;
+      updateGithubRepoStars: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          githubAccessToken: string;
           name: string;
-          updatedAt: number;
-        }>
+          owner: string;
+          starCount?: number;
+        },
+        any
+      >;
+      updateGithubRepos: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          repos: Array<{
+            contributorCount: number;
+            dependentCount: number;
+            dependentCountPrevious?: { count: number; updatedAt: number };
+            name: string;
+            owner: string;
+            starCount: number;
+          }>;
+        },
+        any
       >;
       updateNpmOrg: FunctionReference<
         "mutation",
         "internal",
-        { name: string },
+        {
+          dayOfWeekAverages: Array<number>;
+          downloadCount: number;
+          name: string;
+        },
         any
       >;
-      updateNpmOrgStats: FunctionReference<
-        "action",
-        "internal",
-        { org: string; page?: number },
-        any
-      >;
-      updateNpmPackagesForOrg: FunctionReference<
+      updateNpmPackages: FunctionReference<
         "mutation",
         "internal",
         {
-          org: string;
           packages: Array<{
             dayOfWeekAverages: Array<number>;
             downloadCount: number;

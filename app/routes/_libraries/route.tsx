@@ -227,7 +227,7 @@ function LibrariesLayout() {
   )
 
   const smallMenu = (
-    <div className="lg:hidden bg-white dark:bg-gray-900 sticky top-0 z-20">
+    <div className="lg:hidden bg-white/50 dark:bg-black/60 sticky top-0 z-20 backdrop-blur-[20px]">
       <details
         ref={detailsRef as any}
         id="docs-details"
@@ -242,8 +242,7 @@ function LibrariesLayout() {
         </summary>
         <div
           className="flex flex-col gap-4 whitespace-nowrap h-[0vh] overflow-y-auto
-          border-t border-gray-500 border-opacity-20 bg-gray-100 text-lg
-          dark:bg-gray-900"
+          border-t border-gray-500 border-opacity-20 text-lg bg-white/80 dark:bg-black/20"
         >
           <div className="p-2 pb-0">
             <ClientOnlySearchButton
@@ -261,7 +260,7 @@ function LibrariesLayout() {
 
   const largeMenu = (
     <>
-      <div className="min-w-[250px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-white dark:bg-gray-900 shadow-xl dark:border-r border-gray-500/20">
+      <div className="min-w-[250px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-white/30 dark:bg-black/20 shadow-xl dark:border-r border-gray-500/20">
         <div className="p-4 flex gap-2 items-center text-2xl border-b border-gray-500/10 dark:border-gray-500/20">
           {logo}
         </div>

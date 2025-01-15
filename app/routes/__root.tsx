@@ -20,6 +20,7 @@ import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { twMerge } from 'tailwind-merge'
 import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
+import { useMounted } from '~/hooks/useMounted'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -164,8 +165,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
 
   React.useEffect(() => {
-    let timeout: NodeJS.Timeout
-
     const canvas = canvasRef.current
 
     if (canvas) {
@@ -212,7 +211,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         colorA: 1,
       }))
 
-      const movementSpeed = 2
+      const movementSpeed = 1
 
       // Animate the blobs
       function animate() {
@@ -272,8 +271,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   }, [])
 
   const isHomePage = useRouterState({
-    select: (s) => s.resolvedLocation.pathname === '/',
+    select: (s) => s.location.pathname === '/',
   })
+
+  const mounted = useMounted()
 
   return (
     <html lang="en" className={themeClass}>
@@ -292,9 +293,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <div
           className={twMerge(
-            'fixed inset-0 z-0 opacity-20 pointer-events-none dark:opacity-20',
+            'fixed inset-0 z-0 opacity-20 pointer-events-none',
+            'transition-opacity duration-[2s] ease-linear',
             `[&+*]:relative`,
-            isHomePage ? 'opacity-10' : 'opacity-5'
+            mounted
+              ? isHomePage
+                ? 'opacity-10 dark:opacity-20'
+                : 'opacity-10 dark:opacity-20'
+              : 'opacity-0'
           )}
         >
           <canvas ref={canvasRef} />

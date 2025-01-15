@@ -68,7 +68,7 @@ export default function Example() {
   const showNetlify = library.showNetlifyUrl
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-auto">
+    <div className="flex-1 flex flex-col min-h-0 overflow-auto h-[95dvh]">
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>

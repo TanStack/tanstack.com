@@ -568,7 +568,7 @@ export function DocsLayout({
       <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative">
         <div
           className={twMerge(
-            `flex-1 max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0`,
+            `max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0`,
             !isExample && 'mx-auto w-[1208px]'
           )}
         >

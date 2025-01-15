@@ -18,7 +18,6 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import background from '~/images/background.jpg'
 import { twMerge } from 'tailwind-merge'
 import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
 
@@ -160,15 +159,121 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
   const showDevtools = showLoading && isRouterPage
 
-  const pathLength = useRouterState({
-    select: (s) =>
-      Math.max(
-        0,
-        s.location.pathname.replace('/docs/framework', '').split('/').length - 2
-      ),
-  })
-
   const themeClass = themeCookie === 'dark' ? 'dark' : ''
+
+  const canvasRef = React.useRef<HTMLCanvasElement>(null)
+
+  React.useEffect(() => {
+    let timeout: NodeJS.Timeout
+
+    const canvas = canvasRef.current
+
+    if (canvas) {
+      const ctx = canvas.getContext('2d')!
+
+      // Resize canvas to fill the window
+      function resizeCanvas() {
+        const parent = canvas!.parentElement
+        canvas!.width = parent!.clientWidth
+        canvas!.height = parent!.clientHeight
+      }
+
+      resizeCanvas()
+
+      window.addEventListener('resize', resizeCanvas)
+
+      // Configuration for gradient blobs
+      const blobs = [
+        // Do Red, Orange, Yellow, Green, Blue, Turquoise
+        {
+          direction: [Math.random() * 1, Math.random() * 1],
+          color: { h: 10, s: 100, l: 50 },
+        }, // Red
+        {
+          direction: [Math.random() * 1, Math.random() * 1],
+          color: { h: 40, s: 100, l: 50 },
+        }, // Yellow
+        {
+          direction: [Math.random() * 1, Math.random() * 1],
+          color: { h: 150, s: 100, l: 50 },
+        }, // Green
+        {
+          direction: [Math.random() * 1, Math.random() * 1],
+          color: { h: 200, s: 100, l: 50 },
+        }, // Blue
+      ].map((blob, i) => ({
+        ...blob,
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 500 + 700,
+        colorH: blob.color.h,
+        colorS: blob.color.s,
+        colorL: blob.color.l,
+        colorA: 1,
+      }))
+
+      const movementSpeed = 2
+
+      // Animate the blobs
+      function animate() {
+        ctx.clearRect(0, 0, canvas!.width, canvas!.height)
+
+        // Manage blob existing
+        ;[...blobs].forEach((blob, i) => {
+          // If the blob is going to be outside the canvas, bounce it's direction
+          if (blob.x < 0 || blob.x > canvas!.width) {
+            blob.direction[0] = -blob.direction[0]
+          }
+          if (blob.y < 0 || blob.y > canvas!.height) {
+            blob.direction[1] = -blob.direction[1]
+          }
+        })
+
+        blobs.forEach((blob, i) => {
+          // Create a radial gradient for each blob[...blobs].forEach((blob, i) => {
+          blob.x += blob.direction[0] * movementSpeed
+          blob.y += blob.direction[1] * movementSpeed
+
+          // Create radial gradient
+          const gradient = ctx.createRadialGradient(
+            blob.x,
+            blob.y,
+            0,
+            blob.x,
+            blob.y,
+            blob.r
+          )
+
+          gradient.addColorStop(
+            0,
+            `hsla(${blob.colorH}, ${blob.colorS}%, ${blob.colorL}%, ${blob.colorA})`
+          )
+          gradient.addColorStop(
+            1,
+            `hsla(${blob.colorH}, ${blob.colorS}%, ${blob.colorL}%, 0)`
+          )
+
+          // Draw gradient
+          ctx.fillStyle = gradient
+          ctx.beginPath()
+          ctx.arc(blob.x, blob.y, blob.r, 0, Math.PI * 2)
+          ctx.fill()
+        })
+
+        const id = requestAnimationFrame(animate)
+
+        return () => {
+          cancelAnimationFrame(id)
+        }
+      }
+
+      return animate()
+    }
+  }, [])
+
+  const isHomePage = useRouterState({
+    select: (s) => s.resolvedLocation.pathname === '/',
+  })
 
   return (
     <html lang="en" className={themeClass}>
@@ -185,21 +290,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         ) : null}
       </head>
       <body>
-        <div className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none blur-sm" />
         <div
           className={twMerge(
-            'fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 pointer-events-none dark:opacity-20 transition-all duration-[2.5s] ease-in-out',
-            `[&+*]:relative`
+            'fixed inset-0 z-0 opacity-20 pointer-events-none dark:opacity-20',
+            `[&+*]:relative`,
+            isHomePage ? 'opacity-10' : 'opacity-5'
           )}
-          style={{
-            backgroundImage: `url(${background})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'bottom',
-            backgroundRepeat: 'no-repeat',
-            filter: `blur(${pathLength * 2}px)`,
-            transform: `scale(${1 + pathLength * 0.05})`,
-          }}
-        />
+        >
+          <canvas ref={canvasRef} />
+        </div>
         <React.Suspense fallback={null}>{children}</React.Suspense>
         {showDevtools ? (
           <TanStackRouterDevtools position="bottom-right" />

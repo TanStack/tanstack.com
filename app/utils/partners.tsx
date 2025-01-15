@@ -44,7 +44,7 @@ export const partners: Partner[] = [
       sidebarImgClass: 'py-5 scale-[1.1]',
       href,
       homepageImg: (
-        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-6">
+        <div className="w-full h-full flex items-center justify-center px-4 py-6">
           <img
             src={convexColorSvg}
             alt="Convex"
@@ -90,7 +90,7 @@ export const partners: Partner[] = [
       sidebarImgDark: clerkDarkSvg,
       sidebarImgClass: 'py-4',
       homepageImg: (
-        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-12">
+        <div className="w-full h-full flex items-center justify-center px-4 py-12">
           <img
             src={clerkLightSvg}
             alt="Clerk"
@@ -136,9 +136,16 @@ export const partners: Partner[] = [
       homepageImg: (
         <div className="px-8 py-8">
           <img
-            src={agGridImage}
+            src={agGridDarkSvg}
             alt="Enterprise Data Grid"
-            className="w-[270px] max-w-full"
+            className="w-[270px] max-w-full dark:hidden"
+            width="270"
+            height="95"
+          />
+          <img
+            src={agGridLightSvg}
+            alt="Enterprise Data Grid"
+            className="w-[270px] max-w-full hidden dark:block"
             width="270"
             height="95"
           />
@@ -184,7 +191,7 @@ export const partners: Partner[] = [
       ),
       href,
       homepageImg: (
-        <div className="flex flex-col justify-center items-center pb-4 gap-2 dark:bg-gray-900 w-full">
+        <div className="flex flex-col justify-center items-center pb-4 gap-2  w-full">
           <div className="w-full h-full flex items-center justify-center px-4 pt-6 pb-2">
             <img
               src={netlifyLightSvg}
@@ -236,7 +243,7 @@ export const partners: Partner[] = [
       sidebarImgClass: 'py-4 scale-[1.1]',
       href,
       homepageImg: (
-        <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-6">
+        <div className="w-full h-full flex items-center justify-center px-4 py-6">
           <img
             src={sentryWordMarkDarkSvg}
             alt="Sentry"
@@ -374,7 +381,7 @@ export const partners: Partner[] = [
   //     sidebarImgDark: vercelDarkSvg,
   //     sidebarImgClass: 'py-4',
   //     homepageImg: (
-  //       <div className="dark:bg-gray-900 w-full h-full flex items-center justify-center px-4 py-12">
+  //       <div className="w-full h-full flex items-center justify-center px-4 py-12">
   //         <img
   //           src={vercelLightSvg}
   //           alt="Vercel"

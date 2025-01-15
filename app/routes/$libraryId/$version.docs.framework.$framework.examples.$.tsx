@@ -131,7 +131,7 @@ export default function Example() {
           className="flex-1 w-full overflow-hidden lg:rounded-lg shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
         />
       </div>
-      <div className="lg:h-16 lg:mt-2" />
+      <div className="h-8" />
     </div>
   )
 }

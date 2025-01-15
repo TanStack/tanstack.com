@@ -1,5 +1,10 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
 import { Library } from '.'
+import { FaGithub } from 'react-icons/fa'
+import { VscPreview } from 'react-icons/vsc'
+import { BiBookAlt } from 'react-icons/bi'
+
+const repo = 'tanstack/query'
 
 export const queryProject = {
   id: 'query',
@@ -13,7 +18,7 @@ export const queryProject = {
   badge: undefined,
   bgStyle: 'bg-red-500',
   textStyle: 'text-red-500',
-  repo: 'tanstack/query',
+  repo,
   latestBranch: 'main',
   latestVersion: 'v5',
   availableVersions: ['v5', 'v4', 'v3'],
@@ -40,6 +45,23 @@ export const queryProject = {
       'from=reactQueryV3'
     )
   },
+  menu: [
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/query/latest/docs/framework/react/examples/basic',
+    },
+    {
+      icon: <BiBookAlt />,
+      label: 'Docs',
+      to: '/query/latest/docs/framework/react/overview',
+    },
+    {
+      icon: <FaGithub />,
+      label: 'GitHub',
+      to: `https://github.com/${repo}`,
+    },
+  ],
 } satisfies Library
 
 // Redirect old query v3 docs

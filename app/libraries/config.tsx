@@ -1,4 +1,8 @@
+import { FaGithub } from 'react-icons/fa'
 import { Library } from '.'
+import { BiBookAlt } from 'react-icons/bi'
+
+const repo = 'tanstack/config'
 
 export const configProject = {
   id: 'config',
@@ -11,7 +15,7 @@ export const configProject = {
   badge: undefined,
   bgStyle: 'bg-slate-500',
   textStyle: 'text-slate-500',
-  repo: 'tanstack/config',
+  repo,
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
@@ -19,4 +23,16 @@ export const configProject = {
   colorTo: 'to-gray-700',
   textColor: 'text-gray-700',
   frameworks: [],
+  menu: [
+    {
+      icon: <BiBookAlt />,
+      label: 'Docs',
+      to: '/config/docs',
+    },
+    {
+      icon: <FaGithub />,
+      label: 'Github',
+      to: `https://github.com/${repo}`,
+    },
+  ],
 } satisfies Library

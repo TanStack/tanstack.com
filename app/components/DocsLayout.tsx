@@ -565,14 +565,16 @@ export function DocsLayout({
       </div>
       {smallMenu}
       {largeMenu}
-      <div
-        className={twMerge(
-          `max-w-full min-w-0 flex relative justify-center w-full min-h-[88dvh] lg:min-h-0`,
-          !isExample && 'mx-auto w-[1208px]'
-        )}
-      >
-        {children}
-        <div className="fixed flex items-center flex-wrap bottom-2 left-0 lg:left-[250px] z-10 right-0 text-xs md:text-sm px-1 print:hidden">
+      <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative">
+        <div
+          className={twMerge(
+            `flex-1 max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0`,
+            !isExample && 'mx-auto w-[1208px]'
+          )}
+        >
+          {children}
+        </div>
+        <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
           <div className="w-1/2 px-1 flex justify-end flex-wrap">
             {prevItem ? (
               <Link

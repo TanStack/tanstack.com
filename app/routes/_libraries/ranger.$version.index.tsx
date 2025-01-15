@@ -1,15 +1,8 @@
 import * as React from 'react'
-import { CgCornerUpLeft, CgSpinner, CgTimelapse } from 'react-icons/cg'
-import {
-  FaBook,
-  FaCheckCircle,
-  FaDiscord,
-  FaGithub,
-  FaTshirt,
-} from 'react-icons/fa'
+import { CgSpinner, CgTimelapse } from 'react-icons/cg'
+import { FaCheckCircle } from 'react-icons/fa'
 import { Await, Link } from '@tanstack/react-router'
 import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
-import { VscPreview } from 'react-icons/vsc'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { rangerProject } from '~/libraries/ranger'
 import { Carbon } from '~/components/Carbon'
@@ -19,57 +12,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getRouteApi } from '@tanstack/react-router'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
-
-const menu = [
-  {
-    label: (
-      <div className="flex items-center gap-2">
-        <CgCornerUpLeft className="text-lg" /> TanStack
-      </div>
-    ),
-    to: '/',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <VscPreview className="text-lg" /> Examples
-      </div>
-    ),
-    to: './docs/framework/react/examples/basic',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaBook className="text-lg" /> Docs
-      </div>
-    ),
-    to: './docs/overview',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaGithub className="text-lg" /> GitHub
-      </div>
-    ),
-    to: `https://github.com/${rangerProject.repo}`,
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaDiscord className="text-lg" /> Discord
-      </div>
-    ),
-    to: 'https://tlinz.com/discord',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaTshirt className="text-lg" /> Merch
-      </div>
-    ),
-    to: `https://cottonbureau.com/people/tanstack`,
-  },
-]
 
 export const Route = createFileRoute('/_libraries/ranger/$version/')({
   component: VersionIndex,
@@ -98,31 +40,7 @@ export default function VersionIndex() {
 
   return (
     <>
-      <div className="flex flex-col gap-20 md:gap-32 max-w-full">
-        <div
-          className="flex flex-wrap py-2 px-4 items-center justify-center text-sm max-w-screen-xl mx-auto
-          md:text-base md:self-end"
-        >
-          {menu?.map((item, i) => {
-            const label = (
-              <div className="p-2 opacity-90 hover:opacity-100">
-                {item.label}
-              </div>
-            )
-
-            return (
-              <div key={i} className="hover:underline">
-                {item.to.startsWith('http') ? (
-                  <a href={item.to}>{label}</a>
-                ) : (
-                  <Link to={item.to} params>
-                    {label}
-                  </Link>
-                )}
-              </div>
-            )
-          })}
-        </div>
+      <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
         <div className="flex flex-col items-center gap-6 text-center px-4">
           <h1
             className={`inline-block
@@ -144,22 +62,23 @@ export default function VersionIndex() {
           <h2
             className="font-bold text-2xl max-w-md
             md:text-3xl
-            lg:text-5xl lg:max-w-2xl"
+            lg:text-5xl lg:max-w-2xl text-balance"
           >
             Modern and{' '}
             <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
               headless
             </span>{' '}
-            ranger ui library
+            Range Selector UI Library
           </h2>
           <p
             className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
           >
-            A fully typesafe ranger hooks for React.
+            A fully typesafe hooks for building range and multi-range sliders in
+            React.
           </p>
           <Link
-            to="./docs/overview"
+            to="/ranger/latest/docs/overview"
             className={`py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started

@@ -1,5 +1,11 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
 import { Library } from '.'
+import { VscPreview } from 'react-icons/vsc'
+import { ImBook } from 'react-icons/im'
+import { FaGithub } from 'react-icons/fa'
+import { BiBookAlt } from 'react-icons/bi'
+
+const repo = 'tanstack/table'
 
 export const tableProject = {
   id: 'table',
@@ -12,7 +18,7 @@ export const tableProject = {
   badge: undefined,
   bgStyle: 'bg-blue-500',
   textStyle: 'text-blue-500',
-  repo: 'tanstack/table',
+  repo,
   latestBranch: 'main',
   latestVersion: 'v8',
   availableVersions: ['v8'],
@@ -40,6 +46,23 @@ export const tableProject = {
       'from=reactTableV7'
     )
   },
+  menu: [
+    {
+      icon: <VscPreview className="text-lg" />,
+      label: 'Examples',
+      to: '/table/latest/docs/framework/react/examples/basic',
+    },
+    {
+      icon: <BiBookAlt />,
+      label: 'Docs',
+      to: '/table/latest/docs/introduction',
+    },
+    {
+      icon: <FaGithub />,
+      label: 'Github',
+      to: `https://github.com/${repo}`,
+    },
+  ],
 } satisfies Library
 
 // prettier-ignore

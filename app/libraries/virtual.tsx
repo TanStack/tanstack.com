@@ -1,4 +1,10 @@
+import { VscPreview } from 'react-icons/vsc'
 import { Library } from '.'
+import { ImBook } from 'react-icons/im'
+import { FaGithub } from 'react-icons/fa'
+import { BiBookAlt } from 'react-icons/bi'
+
+const repo = 'tanstack/virtual'
 
 export const virtualProject = {
   id: 'virtual',
@@ -11,7 +17,7 @@ export const virtualProject = {
   badge: undefined,
   bgStyle: 'bg-purple-500',
   textStyle: 'text-purple-500',
-  repo: 'tanstack/virtual',
+  repo,
   latestBranch: 'main',
   latestVersion: 'v3',
   availableVersions: ['v3'],
@@ -21,4 +27,21 @@ export const virtualProject = {
   frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular'],
   defaultDocs: 'introduction',
   scarfId: '32372eb1-91e0-48e7-8df1-4808a7be6b94',
+  menu: [
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/virtual/latest/docs/framework/react/examples/dynamic',
+    },
+    {
+      icon: <BiBookAlt />,
+      label: 'Docs',
+      to: '/virtual/latest/docs/introduction',
+    },
+    {
+      icon: <FaGithub />,
+      label: 'Github',
+      to: `https://github.com/${repo}`,
+    },
+  ],
 } satisfies Library

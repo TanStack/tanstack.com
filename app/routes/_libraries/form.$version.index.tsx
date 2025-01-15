@@ -1,15 +1,7 @@
 import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
-import {
-  FaBolt,
-  FaBook,
-  FaCheckCircle,
-  FaCogs,
-  FaDiscord,
-  FaGithub,
-  FaTshirt,
-} from 'react-icons/fa'
+import { FaBolt, FaCheckCircle, FaCogs } from 'react-icons/fa'
 import {
   Await,
   Link,
@@ -18,55 +10,12 @@ import {
 } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { VscPreview, VscWand } from 'react-icons/vsc'
+import { VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { formProject } from '~/libraries/form'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
-
-const menu = [
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <VscPreview className="text-lg" /> Examples
-      </div>
-    ),
-    to: './docs/framework/react/examples/simple',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaBook className="text-lg" /> Docs
-      </div>
-    ),
-    to: './docs/',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaGithub className="text-lg" /> GitHub
-      </div>
-    ),
-    to: `https://github.com/${formProject.repo}`,
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaDiscord className="text-lg" /> Discord
-      </div>
-    ),
-    to: 'https://tlinz.com/discord',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaTshirt className="text-lg" /> Merch
-      </div>
-    ),
-    to: `https://cottonbureau.com/people/tanstack`,
-  },
-]
 
 export const Route = createFileRoute('/_libraries/form/$version/')({
   component: FormVersionIndex,
@@ -95,31 +44,7 @@ export default function FormVersionIndex() {
 
   return (
     <>
-      <div className="flex flex-col gap-20 md:gap-32 max-w-full">
-        <div
-          className="flex flex-wrap py-2 px-4 items-center justify-center text-sm max-w-screen-xl mx-auto
-          md:text-base md:self-end"
-        >
-          {menu?.map((item, i) => {
-            const label = (
-              <div className="p-2 opacity-90 hover:opacity-100">
-                {item.label}
-              </div>
-            )
-
-            return (
-              <div key={i} className="hover:underline">
-                {item.to.startsWith('http') ? (
-                  <a href={item.to}>{label}</a>
-                ) : (
-                  <Link to={item.to} params>
-                    {label}
-                  </Link>
-                )}
-              </div>
-            )
-          })}
-        </div>
+      <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
         <div className="flex flex-col items-center gap-8 text-center px-4">
           <div className="flex gap-2 lg:gap-4 items-center">
             <h1

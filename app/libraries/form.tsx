@@ -1,4 +1,9 @@
+import { VscPreview } from 'react-icons/vsc'
 import { Library } from '.'
+import { FaGithub } from 'react-icons/fa'
+import { BiBookAlt } from 'react-icons/bi'
+
+const repo = 'tanstack/form'
 
 export const formProject = {
   id: 'form',
@@ -11,7 +16,7 @@ export const formProject = {
   badge: 'new',
   bgStyle: 'bg-yellow-500',
   textStyle: 'text-yellow-500',
-  repo: 'tanstack/form',
+  repo,
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
@@ -20,4 +25,21 @@ export const formProject = {
   textColor: 'text-yellow-600',
   frameworks: ['react', 'vue', 'angular', 'solid', 'lit'],
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
+  menu: [
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/form/latest/docs/framework/react/examples/simple',
+    },
+    {
+      icon: <BiBookAlt />,
+      label: 'Docs',
+      to: '/form/latest/docs',
+    },
+    {
+      icon: <FaGithub />,
+      label: 'Github',
+      to: `https://github.com/${repo}`,
+    },
+  ],
 } satisfies Library

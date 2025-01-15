@@ -151,7 +151,8 @@ function Index() {
                   to={library.to ?? '#'}
                   params
                   className={twMerge(
-                    `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white dark:bg-gray-900 dark:border dark:border-gray-800`,
+                    `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white/80 dark:bg-black/40 dark:border dark:border-gray-800`,
+                    'hover:bg-white dark:hover:bg-black/60',
                     library.cardStyles
                   )}
                   style={{
@@ -210,10 +211,10 @@ function Index() {
                   key={partner.name}
                   href={partner.href}
                   target="_blank"
-                  className="bg-white shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-gray-800 dark:shadow-none group overflow-hidden grid"
+                  className="bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none group overflow-hidden grid"
                   rel="noreferrer"
                 >
-                  <div className="z-0 row-start-1 col-start-1 bg-white flex items-center justify-center group-hover:blur-sm transition-all duration-200">
+                  <div className="z-0 row-start-1 col-start-1 flex items-center justify-center group-hover:blur-sm transition-all duration-200">
                     {partner.homepageImg}
                   </div>
                   <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/70">
@@ -233,7 +234,7 @@ function Index() {
                 key={course.name}
                 href={course.href}
                 className={`flex gap-2 justify-between border-2 border-transparent rounded-lg p-4 md:p-8
-              transition-all bg-white/90 dark:bg-gray-800/90
+              transition-all bg-white/90 dark:bg-black/40
               shadow-xl shadow-green-700/10 dark:shadow-green-500/30
               hover:border-green-500
               `}
@@ -355,7 +356,7 @@ function Index() {
         </div>
         <div className="h-4" />
         <div className="px-4 mx-auto max-w-screen-lg relative">
-          <div className="rounded-md p-8 bg-white shadow-xl shadow-gray-900/10 md:p-14 dark:bg-gray-800">
+          <div className="rounded-md p-8 bg-white shadow-xl shadow-gray-900/10 md:p-14 dark:bg-black/40">
             {!bytesSignupMutation.submittedAt ? (
               <form
                 onSubmit={(e) => {

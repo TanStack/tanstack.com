@@ -260,7 +260,7 @@ function LibrariesLayout() {
 
   const largeMenu = (
     <>
-      <div className="min-w-[250px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-white/30 dark:bg-black/20 shadow-xl dark:border-r border-gray-500/20">
+      <div className="min-w-[250px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-white/50 dark:bg-black/30 shadow-xl dark:border-r border-gray-500/20">
         <div className="p-4 flex gap-2 items-center text-2xl border-b border-gray-500/10 dark:border-gray-500/20">
           {logo}
         </div>

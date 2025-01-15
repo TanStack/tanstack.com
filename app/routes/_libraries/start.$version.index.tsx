@@ -1,78 +1,18 @@
 import * as React from 'react'
 
-import { CgCornerUpLeft, CgSpinner } from 'react-icons/cg'
+import { CgSpinner } from 'react-icons/cg'
 import { PiTreeStructureBold, PiRocketLaunchDuotone } from 'react-icons/pi'
 import { TbServerBolt } from 'react-icons/tb'
-import {
-  FaBook,
-  FaDiscord,
-  FaGithub,
-  FaTshirt,
-  FaTwitter,
-  FaYinYang,
-} from 'react-icons/fa'
+import { FaBook, FaGithub, FaTwitter, FaYinYang } from 'react-icons/fa'
 import { Await, Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { TbZoomQuestion } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { startProject } from '~/libraries/start'
 import { createFileRoute } from '@tanstack/react-router'
-import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { partners } from '~/utils/partners'
 import { VscPreview } from 'react-icons/vsc'
-
-const menu = [
-  {
-    label: (
-      <div className="flex items-center gap-2">
-        <CgCornerUpLeft className="text-lg" /> TanStack
-      </div>
-    ),
-    to: '/',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <VscPreview className="text-lg" /> Examples
-      </div>
-    ),
-    to: '../../router/latest/docs/framework/react/examples/start-basic',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaBook className="text-lg" /> Docs
-      </div>
-    ),
-    to: '../../router/latest/docs/framework/react/start/overview',
-  },
-  // {
-  //   label: (
-  //     <div className="flex items-center gap-1">
-  //       <FaGithub className="text-lg" /> GitHub
-  //     </div>
-  //   ),
-  //   to: `https://github.com/${startProject.repo}`,
-  // },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaDiscord className="text-lg" /> Discord
-      </div>
-    ),
-    to: 'https://tlinz.com/discord',
-  },
-  {
-    label: (
-      <div className="flex items-center gap-1">
-        <FaTshirt className="text-lg" /> Merch
-      </div>
-    ),
-    to: `https://cottonbureau.com/people/tanstack`,
-  },
-]
 
 export const Route = createFileRoute('/_libraries/start/$version/')({
   component: VersionIndex,
@@ -88,9 +28,6 @@ const librariesRouteApi = getRouteApi('/_libraries')
 
 export default function VersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
-  const { version } = Route.useParams()
-  const branch = getBranch(startProject, version)
-  const [framework, setFramework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
 
   React.useEffect(() => {
@@ -98,34 +35,12 @@ export default function VersionIndex() {
       //
     }
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
-  }, [])
+  }, [isDark])
 
   const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${startProject.colorFrom} ${startProject.colorTo}`
 
   return (
-    <div className="flex flex-col gap-20 md:gap-32 max-w-full">
-      <div
-        className="flex flex-wrap py-2 px-4 items-center justify-center text-sm max-w-screen-xl mx-auto
-          md:text-base md:self-end"
-      >
-        {menu?.map((item, i) => {
-          const label = (
-            <div className="p-2 opacity-90 hover:opacity-100">{item.label}</div>
-          )
-
-          return (
-            <div key={i} className="hover:underline">
-              {item.to.startsWith('http') ? (
-                <a href={item.to}>{label}</a>
-              ) : (
-                <Link to={item.to} params>
-                  {label}
-                </Link>
-              )}
-            </div>
-          )
-        })}
-      </div>
+    <div className="flex flex-col gap-20 md:gap-32 max-w-full py-32">
       <div className="flex flex-col items-center gap-8 text-center px-4">
         <div className="flex gap-2 lg:gap-4 items-center">
           <h1

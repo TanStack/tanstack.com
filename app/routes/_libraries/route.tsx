@@ -3,7 +3,8 @@ import {
   Link,
   Outlet,
   createFileRoute,
-  useParams,
+  useChildMatches,
+  useLocation,
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { MdLibraryBooks, MdSupport } from 'react-icons/md'
@@ -13,7 +14,7 @@ import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
 import { FaDiscord, FaGithub, FaInstagram, FaTshirt } from 'react-icons/fa'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { getLibrary, libraries } from '~/libraries'
+import { libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
 import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
@@ -31,18 +32,18 @@ export const Route = createFileRoute('/_libraries')({
 })
 
 function LibrariesLayout() {
-  const { libraryId } = useParams({
-    strict: false,
+  const activeLibrary = useLocation({
+    select: (location) => {
+      return libraries.find((library) => {
+        return location.pathname.startsWith(library.to)
+      })
+    },
   })
-  const library = libraryId ? getLibrary(libraryId) : undefined
+
   const detailsRef = React.useRef<HTMLElement>(null!)
-
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
-
   const [mounted, setMounted] = React.useState(false)
-
   const { mode: themeMode } = useThemeStore()
-
   const oramaThemeMode = themeMode === 'auto' ? 'system' : themeMode
 
   React.useEffect(() => {
@@ -67,64 +68,89 @@ function LibrariesLayout() {
                   </span>
                 </a>
               ) : (
-                <Link
-                  to={library.to}
-                  onClick={() => {
-                    detailsRef.current.removeAttribute('open')
-                  }}
-                >
-                  {(props) => {
-                    return (
-                      <div
-                        className={twMerge(
-                          linkClasses,
-                          props.isActive
-                            ? 'bg-gray-500/10 dark:bg-gray-500/30'
-                            : ''
-                        )}
-                      >
-                        <span
-                          style={{
-                            viewTransitionName: `library-name-${library.id}`,
-                          }}
+                <div>
+                  <Link
+                    to={library.to}
+                    onClick={() => {
+                      detailsRef.current.removeAttribute('open')
+                    }}
+                  >
+                    {(props) => {
+                      return (
+                        <div
+                          className={twMerge(
+                            linkClasses,
+                            props.isActive
+                              ? 'bg-gray-500/10 dark:bg-gray-500/30'
+                              : ''
+                          )}
                         >
                           <span
-                            className={twMerge(
-                              'font-light dark:font-bold dark:opacity-40',
-                              props.isActive ? `font-bold dark:opacity-100` : ''
-                            )}
+                            style={{
+                              viewTransitionName: `library-name-${library.id}`,
+                            }}
                           >
-                            {prefix}
-                          </span>{' '}
-                          <span
-                            className={twMerge(
-                              library.textStyle
-                              // isPending &&
-                              //   `[view-transition-name:library-name]`
-                            )}
-                          >
-                            {name}
+                            <span
+                              className={twMerge(
+                                'font-light dark:font-bold dark:opacity-40',
+                                props.isActive
+                                  ? `font-bold dark:opacity-100`
+                                  : ''
+                              )}
+                            >
+                              {prefix}
+                            </span>{' '}
+                            <span
+                              className={twMerge(
+                                library.textStyle
+                                // isPending &&
+                                //   `[view-transition-name:library-name]`
+                              )}
+                            >
+                              {name}
+                            </span>
                           </span>
-                        </span>
-                        {library.badge ? (
-                          <span
-                            className={twMerge(
-                              `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
-                              // library.badge === 'new'
-                              //   ? 'text-green-500'
-                              //   : library.badge === 'soon'
-                              //   ? 'text-cyan-500'
-                              //   : '',
-                              library.textStyle
-                            )}
-                          >
-                            {library.badge}
-                          </span>
-                        ) : null}
-                      </div>
-                    )
-                  }}
-                </Link>
+                          {library.badge ? (
+                            <span
+                              className={twMerge(
+                                `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
+                                // library.badge === 'new'
+                                //   ? 'text-green-500'
+                                //   : library.badge === 'soon'
+                                //   ? 'text-cyan-500'
+                                //   : '',
+                                library.textStyle
+                              )}
+                            >
+                              {library.badge}
+                            </span>
+                          ) : null}
+                        </div>
+                      )
+                    }}
+                  </Link>
+                  <div
+                    className={twMerge(
+                      library.to === activeLibrary?.to ? 'block' : 'hidden'
+                    )}
+                  >
+                    {library.menu?.map((item, i) => {
+                      return (
+                        <Link
+                          to={item.to}
+                          key={i}
+                          className={twMerge(
+                            'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
+                            'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                          )}
+                        >
+                          {item.icon}
+                          {item.label}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
               )}
             </div>
           )
@@ -288,7 +314,6 @@ function LibrariesLayout() {
       {smallMenu}
       {largeMenu}
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
-        {library?.scarfId ? <Scarf id={library.scarfId} /> : null}
         <Outlet />
       </div>
       {mounted ? (
@@ -296,6 +321,7 @@ function LibrariesLayout() {
           <OramaSearchBox {...searchBoxParams} colorScheme={oramaThemeMode} />
         </div>
       ) : null}
+      {activeLibrary?.scarfId ? <Scarf id={activeLibrary.scarfId} /> : null}
     </div>
   )
 }

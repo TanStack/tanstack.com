@@ -65,6 +65,13 @@ export type Library = {
   hideStackblitzUrl?: true
   showVercelUrl?: boolean
   showNetlifyUrl?: boolean
+  menu: LibraryMenuItem[]
+}
+
+export type LibraryMenuItem = {
+  icon: React.ReactNode
+  label: React.ReactNode
+  to: string
 }
 
 export const libraries = [
@@ -77,7 +84,7 @@ export const libraries = [
   rangerProject,
   storeProject,
   configProject,
-]
+] satisfies Library[]
 
 export function getLibrary(id: string) {
   const library = libraries.find((d) => d.id === id)

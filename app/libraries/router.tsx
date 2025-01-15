@@ -1,4 +1,9 @@
+import { FaGithub } from 'react-icons/fa'
 import { Library } from '.'
+import { VscPreview } from 'react-icons/vsc'
+import { BiBookAlt } from 'react-icons/bi'
+
+const repo = 'tanstack/router'
 
 export const routerProject = {
   id: 'router',
@@ -11,7 +16,7 @@ export const routerProject = {
   bgStyle: 'bg-emerald-500',
   textStyle: 'text-emerald-500',
   badge: 'new',
-  repo: 'tanstack/router',
+  repo,
   latestBranch: 'main',
   latestVersion: 'v1',
   availableVersions: ['v1'],
@@ -24,4 +29,21 @@ export const routerProject = {
   hideCodesandboxUrl: true,
   showVercelUrl: false,
   showNetlifyUrl: true,
+  menu: [
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/router/latest/docs/framework/react/examples/kitchen-sink-file-based',
+    },
+    {
+      icon: <BiBookAlt />,
+      label: 'Docs',
+      to: '/router/latest/docs/framework/react/overview',
+    },
+    {
+      icon: <FaGithub />,
+      label: 'GitHub',
+      to: `https://github.com/${repo}`,
+    },
+  ],
 } satisfies Library

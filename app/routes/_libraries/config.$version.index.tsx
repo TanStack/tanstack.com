@@ -185,9 +185,9 @@ export default function FormVersionIndex() {
           <div className="h-8" />
           <div
             className="flex-1 flex flex-col items-center text-sm text-center
-                      bg-white shadow-xl shadow-gray-500/20 rounded-lg
+                      bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg
                         divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-gray-800 dark:shadow-none"
+                        dark:bg-black/40 dark:shadow-none"
           >
             <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
               Config <TbHeartHandshake /> You?

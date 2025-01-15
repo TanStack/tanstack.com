@@ -88,7 +88,8 @@
   }
 
   #docs-details[open] > summary + * {
-    height: 80vh;
+    height: auto;
+    max-height: calc(100vh - 62px);
   }
 
   .anchor-heading {

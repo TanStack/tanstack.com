@@ -463,10 +463,7 @@ export function DocsLayout({
   )
 
   const smallMenu = (
-    <div
-      className="lg:hidden bg-white sticky top-0 z-20
-              dark:bg-gray-900"
-    >
+    <div className="lg:hidden bg-white/50 sticky top-0 z-20 dark:bg-black/60 backdrop-blur-lg">
       <details
         ref={detailsRef as any}
         id="docs-details"
@@ -481,8 +478,8 @@ export function DocsLayout({
         </summary>
         <div
           className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto
-          border-t border-gray-500 border-opacity-20 bg-gray-100 text-lg
-          dark:bg-gray-900"
+          border-t border-gray-500 border-opacity-20 bg-white/20 text-lg
+          dark:bg-black/20"
         >
           <div className="flex gap-4">
             <Select
@@ -511,7 +508,7 @@ export function DocsLayout({
   )
 
   const largeMenu = (
-    <div className="bg-white dark:bg-gray-900/50 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20 transition-all duration-500">
+    <div className="bg-white/50 dark:bg-black/30 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20 transition-all duration-500">
       <div
         className="px-4 pt-4 flex gap-2 items-center text-2xl"
         style={{

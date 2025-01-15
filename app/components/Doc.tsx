@@ -46,14 +46,14 @@ export function Doc({
   return (
     <div
       className={twMerge(
-        'w-full flex bg-white/70 dark:bg-black/50 mx-auto rounded-xl max-w-[936px]',
+        'w-full flex bg-white/70 dark:bg-black/20 mx-auto rounded-xl max-w-[936px]',
         isTocVisible && 'max-w-full'
       )}
     >
       <div
         className={twMerge(
           'flex overflow-auto flex-col w-full p-4 lg:p-6',
-          isTocVisible && 'border-r border-gray-500/20 !pr-0'
+          isTocVisible && '!pr-0'
         )}
       >
         {title ? <DocTitle>{title}</DocTitle> : null}
@@ -82,7 +82,7 @@ export function Doc({
       </div>
 
       {isTocVisible && (
-        <div className="max-w-52 w-full hidden 2xl:block transition-all">
+        <div className="border-l border-gray-500/20 max-w-52 w-full hidden 2xl:block transition-all">
           <Toc headings={headings} colorFrom={colorFrom} colorTo={colorTo} />
         </div>
       )}

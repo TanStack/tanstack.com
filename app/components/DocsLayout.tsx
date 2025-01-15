@@ -609,7 +609,7 @@ export function DocsLayout({
       </div>
       <div className="-ml-2 pl-2 w-64 shrink-0 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
         <div className="ml-auto flex flex-col space-y-4">
-          <div className="bg-white dark:bg-gray-900/30 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
+          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
             <div className="uppercase font-black text-center p-3 opacity-50">
               Our Partners
             </div>
@@ -675,7 +675,7 @@ export function DocsLayout({
                 })
             )}
           </div>
-          <div className="p-4 bg-white dark:bg-gray-900/30 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+          <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
             {libraryId === 'query' ? (
               <DocsCalloutQueryGG />
             ) : (
@@ -683,7 +683,7 @@ export function DocsLayout({
             )}
           </div>
 
-          <div className="bg-white dark:bg-gray-900/20 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
             <Carbon />
             <div
               className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic

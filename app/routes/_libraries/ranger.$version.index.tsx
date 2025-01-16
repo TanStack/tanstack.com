@@ -12,6 +12,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getRouteApi } from '@tanstack/react-router'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
+import { twMerge } from 'tailwind-merge'
 
 export const Route = createFileRoute('/_libraries/ranger/$version/')({
   component: VersionIndex,
@@ -41,34 +42,20 @@ export default function VersionIndex() {
   return (
     <>
       <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
-        <div className="flex flex-col items-center gap-6 text-center px-4">
-          <h1
-            className={`inline-block
-            font-black text-4xl
-            md:text-6xl
-            lg:text-7xl`}
-            style={{
-              viewTransitionName: `library-name`,
-            }}
-          >
-            <span className={gradientText}>TanStack Ranger</span>{' '}
-            <span
-              className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
-            >
-              {version === 'latest' ? rangerProject.latestVersion : version}
-            </span>
+        <div className="flex flex-col items-center gap-8 text-center px-4">
+          <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
+            <span>TanStack</span>
+            <span className={twMerge(gradientText)}>Ranger</span>
           </h1>
           <h2
             className="font-bold text-2xl max-w-md
             md:text-3xl
-            lg:text-5xl lg:max-w-2xl text-balance"
+            lg:text-5xl lg:max-w-2xl"
           >
-            Modern and{' '}
             <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-              headless
+              Headless
             </span>{' '}
-            Range Selector UI Library
+            Modern and headless Range Selector UI Library
           </h2>
           <p
             className="text opacity-90 max-w-sm
@@ -78,7 +65,7 @@ export default function VersionIndex() {
             React.
           </p>
           <Link
-            to="/ranger/latest/docs/overview"
+            to="./docs/overview"
             className={`py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started
@@ -143,63 +130,6 @@ export default function VersionIndex() {
                 </span>{' '}
                 to fit your needs.
               </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-4 sm:px-6 lg:px-8 mx-auto">
-          <div className=" sm:text-center pb-16">
-            <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-              Feature Rich and Lightweight Headless utility, which means out of
-              the box, it doesn't render or supply any actual UI elements.
-            </h3>
-            <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-              Behold, the obligatory feature-list:
-            </p>
-          </div>
-          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4  mx-auto">
-            {[
-              '100% Typesafe',
-              'Lightweight (306 kB)',
-              'Easy to maintain',
-              'Extensible',
-              'Not dictating UI',
-            ].map((d, i) => {
-              return (
-                <span key={i} className="flex items-center gap-2">
-                  <FaCheckCircle className="text-green-500 " /> {d}
-                </span>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="px-4 w-[500px] max-w-full mx-auto">
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-            Partners
-          </h3>
-          <div className="h-8" />
-          <div
-            className="flex-1 flex flex-col items-center text-sm text-center
-                      bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-black/40 dark:shadow-none"
-          >
-            <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Ranger <TbHeartHandshake /> You?
-            </span>
-            <div className="flex flex-col p-4 gap-4">
-              <div>
-                We're looking for a TanStack Ranger OSS Partner to go above and
-                beyond the call of sponsorship. Are you as invested in TanStack
-                Ranger as we are? Let's push the boundaries of Ranger together!
-              </div>
-              <a
-                href="mailto:partners@tanstack.com?subject=TanStack Ranger Partnership"
-                className="text-blue-500 uppercase font-black text-sm"
-              >
-                Let's chat
-              </a>
             </div>
           </div>
         </div>

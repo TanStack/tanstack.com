@@ -33,7 +33,7 @@ export function QueryGGBanner() {
   }
 
   return (
-    <aside className="mx-auto w-full max-w-[1200px] p-8 flex justify-between items-center">
+    <aside className="mx-auto w-full max-w-[1200px] px-8 flex justify-between items-center">
       <div className="w-full xl:flex xl:gap-6 bg-[#f9f4da] border-4 border-[#231f20] relative">
         <a
           href="https://query.gg?s=tanstack"

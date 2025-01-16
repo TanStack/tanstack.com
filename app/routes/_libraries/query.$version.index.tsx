@@ -21,6 +21,7 @@ import { queryProject } from '~/libraries/query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
+import { twMerge } from 'tailwind-merge'
 
 export const Route = createFileRoute('/_libraries/query/$version/')({
   component: VersionIndex,
@@ -49,29 +50,13 @@ export default function VersionIndex() {
 
   return (
     <div className="flex flex-1 flex-col min-h-0 relative overflow-x-hidden">
-      <QueryGGBanner />
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
-        <div className="flex flex-col gap-20 md:gap-32 max-w-full">
+        <div className="flex flex-col gap-20 md:gap-32 max-w-full py-32">
           <div className="flex flex-col items-center gap-8 text-center px-4">
-            <div className="flex gap-2 lg:gap-4 items-center">
-              <h1
-                className={`inline-block
-            font-black text-4xl
-            md:text-6xl
-            lg:text-7xl`}
-                style={{
-                  viewTransitionName: `library-name`,
-                }}
-              >
-                <span className={gradientText}>TanStack Query</span>{' '}
-                <span
-                  className="text-[.5em] align-super text-black animate-bounce
-              dark:text-white"
-                >
-                  {version === 'latest' ? queryProject.latestVersion : version}
-                </span>
-              </h1>
-            </div>
+            <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
+              <span>TanStack</span>
+              <span className={twMerge(gradientText)}>Query</span>
+            </h1>
             <h2
               className="font-bold text-2xl max-w-md
             md:text-3xl
@@ -96,26 +81,20 @@ export default function VersionIndex() {
               </strong>
               .
             </p>
-            <Link
-              to="./docs/"
-              className={`py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
-            >
-              Read the Docs
-            </Link>
-            <p>
-              (or check out{' '}
-              <a
-                href="https://query.gg?s=tanstack"
-                className={`${gradientText} underline`}
+            <div className="space-y-4">
+              <Link
+                to="./docs/"
+                className={`py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
               >
-                query.gg
-              </a>{' '}
-              – the official React Query course)
-            </p>
+                Read the Docs
+              </Link>
+              <p>(or check out our official course 👇)</p>
+            </div>
+            <QueryGGBanner />
           </div>
           <div
             className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
-                        md:flex-row"
+            md:flex-row"
           >
             <div className="flex-1 flex flex-col gap-8 items-center">
               <VscWand className="text-red-500 text-6xl" />

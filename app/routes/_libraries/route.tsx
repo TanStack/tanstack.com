@@ -224,7 +224,7 @@ function LibrariesLayout() {
           alt=""
           className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
         />
-        <div className="font-black">TanStack</div>
+        <div className="font-black text-xl uppercase">TanStack</div>
       </Link>
       <div className="flex items-center gap-1">
         <a

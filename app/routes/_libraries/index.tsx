@@ -152,6 +152,7 @@ function Index() {
                   className={twMerge(
                     `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white/80 dark:bg-black/40 dark:border dark:border-gray-800`,
                     'hover:bg-white dark:hover:bg-black/60',
+                    'relative overflow-hidden',
                     library.cardStyles
                   )}
                   style={{
@@ -183,16 +184,19 @@ function Index() {
                         )
                       }}
                     />
-                    {library.badge ? (
-                      <div
-                        className={twMerge(
-                          `uppercase text-white bg-yellow-500 rounded-full px-2 py-1 text-xs font-black animate-pulse`,
-                          library.bgStyle
-                        )}
-                      >
-                        {library.badge}
+                    {/* {library.badge ? (
+                      <div className={twMerge(`absolute top-0 right-0`)}>
+                        <div
+                          className={twMerge(
+                            `w-24 h-24 rounded-full translate-x-1/2 -translate-y-1/2`,
+                            library.bgStyle
+                          )}
+                        />
+                        <span className="inline-block transform rotate-45 uppercase text-white text-xs font-black italic animate-pulse absolute top-4 right-4">
+                          {library.badge}
+                        </span>
                       </div>
-                    ) : null}
+                    ) : null} */}
                   </div>
                   <div className={`text-base italic font-normal mt-2`}>
                     {library.tagline}

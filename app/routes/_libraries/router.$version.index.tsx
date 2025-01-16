@@ -12,10 +12,11 @@ import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { routerProject } from '~/libraries/router'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { Framework, getBranch } from '~/libraries'
+import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 
 export const Route = createFileRoute('/_libraries/router/$version/')({
   component: RouterVersionIndex,
@@ -28,6 +29,8 @@ export const Route = createFileRoute('/_libraries/router/$version/')({
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
+
+const library = getLibrary('router')
 
 function RouterVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
@@ -73,81 +76,7 @@ function RouterVersionIndex() {
           Get Started
         </Link>
       </div>
-
-      <div
-        className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
-                        md:flex-row"
-      >
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
-            <RiLightbulbFlashLine className="text-lime-500 text-6xl scale-125 animate-pulse" />
-          </div>
-          <div className="flex flex-col gap-4 text-center">
-            <h3 className="uppercase text-xl font-black">
-              Typesafe & powerful, yet familiarly simple
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              TanStack Router builds on modern routing patterns made popular by
-              other tools, but has been re-engineered from the ground up to be{' '}
-              <span className="font-semibold text-lime-600 dark:text-lime-400">
-                100% typesafe without compromising on DX
-              </span>
-              . You <em>can</em> have your cake and eat it too!
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
-            <CgTimelapse
-              className="text-teal-500 text-6xl motion-safe:animate-spin"
-              style={{
-                animationDuration: '3s',
-                animationTimingFunction: 'ease-in-out',
-              }}
-            />
-          </div>
-          <div className="flex flex-col gap-4 text-center">
-            <h3 className="uppercase text-xl font-black">
-              Built-in Data Fetching with Caching
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Hoist your data fetching and avoid waterfalls with TanStack
-              Router's loader API and get{' '}
-              <span className="font-semibold text-teal-500 dark:text-teal-400">
-                instant navigations with built-in caching and automatic
-                preloading
-              </span>
-              . Need something more custom? Router's API is{' '}
-              <span className="font-semibold text-teal-500 dark:text-teal-400">
-                designed to work with your favorite client-side cache libraries!
-              </span>{' '}
-              Your users will notice the difference when your pages not only
-              load in parallel but also stay up to date over time.
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
-            <TbZoomQuestion className="text-emerald-500 text-6xl" />
-          </div>
-          <div className="flex flex-col gap-4 text-center">
-            <h3 className="uppercase text-xl font-black">
-              Search Param APIs to make your state-manager jealous
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Instead of throwing you to the URLSearchParam wolves, TanStack
-              Router outfits you with state-manager-grade search param APIs.
-              With{' '}
-              <span className="font-semibold text-emerald-500 dark:text-emerald-400">
-                schemas, validation, full type-safety and pre/post manipulation
-              </span>{' '}
-              you'll wonder why you're not storing everything in the URL.
-              Goodbye in-memory state 👋!
-            </p>
-          </div>
-        </div>
-      </div>
-
+      <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
       <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Partners

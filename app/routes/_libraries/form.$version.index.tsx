@@ -14,9 +14,10 @@ import { VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { formProject } from '~/libraries/form'
-import { Framework, getBranch } from '~/libraries'
+import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 
 export const Route = createFileRoute('/_libraries/form/$version/')({
   component: FormVersionIndex,
@@ -29,6 +30,8 @@ export const Route = createFileRoute('/_libraries/form/$version/')({
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
+
+const library = getLibrary('form')
 
 export default function FormVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
@@ -81,72 +84,9 @@ export default function FormVersionIndex() {
             Get Started
           </Link>
         </div>
-        <div
-          className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
-                        md:flex-row"
-        >
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <VscWand className="text-yellow-400 text-6xl" />
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                First-Class TypeScript Support
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                TanStack Form touts first-class TypeScript support with
-                outstanding autocompletion, excellent generic throughput and
-                inferred types everywhere possible.{' '}
-                <span className="font-semibold text-yellow-600 dark:text-yellow-300">
-                  This results in fewer runtime errors, increased code
-                  maintainability, and a smoother development experience
-                </span>{' '}
-                to help you confidently build robust and type-safe form
-                solutions that scale.
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <FaBolt className="text-yellow-500 text-6xl" />
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                Headless and Framework Agnostic
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                Form's headless and framework agnostic approach ensures maximum
-                flexibility and broad compatibility with many front-end
-                frameworks, or no framework at all. By both supplying and
-                encouraging a headless approach to your forms, building custom
-                reusable form components tailored to your application's needs{' '}
-                <span className="font-semibold text-amber-600 dark:text-yellow-500">
-                  requires little abstraction and keeps your code modular,
-                  simple and composable.
-                </span>
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <FaCogs className="text-amber-500 text-6xl" />
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                Granular Reactive Performance
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                When it comes to performance, TanStack Form delivers amazing
-                speed and control, but without the cruft, boilerplate, or
-                abstractions. With granularly reactive APIs at its core,{' '}
-                <span className="font-semibold text-amber-700 dark:text-amber-500">
-                  only relevant components are updated when the form state
-                  changes.
-                </span>{' '}
-                The end result? A faster UI, happy users, and zero worries about
-                performance.
-              </p>
-            </div>
-          </div>
-        </div>
+        <LibraryFeatureHighlights
+          featureHighlights={library.featureHighlights}
+        />
 
         <div className="px-4 sm:px-6 lg:px-8 mx-auto">
           <div className=" sm:text-center pb-16">

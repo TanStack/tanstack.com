@@ -1,10 +1,13 @@
 import { VscPreview } from 'react-icons/vsc'
 import { Library } from '.'
-import { ImBook } from 'react-icons/im'
-import { FaGithub } from 'react-icons/fa'
+import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { IoIosBody } from 'react-icons/io'
+import { twMerge } from 'tailwind-merge'
 
 const repo = 'tanstack/virtual'
+
+const textStyles = 'text-violet-700 dark:text-violet-400'
 
 export const virtualProject = {
   id: 'virtual',
@@ -42,6 +45,55 @@ export const virtualProject = {
       icon: <FaGithub />,
       label: 'Github',
       to: `https://github.com/${repo}`,
+    },
+  ],
+  featureHighlights: [
+    {
+      title: 'Designed for zero design',
+      icon: (
+        <div className="text-center overflow-hidden">
+          <IoIosBody className="text-purple-400 text-6xl -mt-5 mb-5 scale-125 origin-top" />
+        </div>
+      ),
+      description: (
+        <div>
+          Headless Virtualization means you're always in control of your{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            markup, styles and components
+          </span>
+          . Go design and implement the most beautiful UI you can dream up and
+          let us take care of the hard parts.
+        </div>
+      ),
+    },
+    {
+      title: 'Big Power, Small Package',
+      icon: <FaBolt className="text-purple-500 text-6xl" />,
+      description: (
+        <div>
+          Don't be fooled by the small bundle size. TanStack Virtual uses every
+          byte to deliver powerful performance. After all,{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            60FPS is table stakes
+          </span>{' '}
+          these days and we refuse to sacrifice anything for that 🧈-y smooth
+          UX.
+        </div>
+      ),
+    },
+    {
+      title: 'Maximum Composability',
+      icon: <FaCogs className="text-purple-600 text-6xl" />,
+      description: (
+        <div>
+          With a single function/hook, you'll get limitless virtualization for{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            vertical, horizontal, and grid-style{' '}
+          </span>
+          layouts. The API is tiny (literally 1 function), but its composability
+          is not.
+        </div>
+      ),
     },
   ],
 } satisfies Library

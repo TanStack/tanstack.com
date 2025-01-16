@@ -166,14 +166,19 @@ function Index() {
                         return (
                           <div
                             className={twMerge(
-                              `text-2xl font-extrabold`
+                              `flex items-center gap-1.5 text-[1.3rem] font-extrabold uppercase [letter-spacing:-.04em]`
                               // isPending && `[view-transition-name:library-name]`
                             )}
                             style={{
                               viewTransitionName: `library-name-${library.id}`,
                             }}
                           >
-                            {library.name}
+                            <span className="bg-current rounded-md leading-none flex items-center">
+                              <span className="font-black text-white dark:text-black text-xs leading-none p-1 px-1.5 uppercase">
+                                TanStack
+                              </span>
+                            </span>
+                            {library.name.replace('TanStack ', '')}
                           </div>
                         )
                       }}
@@ -189,7 +194,7 @@ function Index() {
                       </div>
                     ) : null}
                   </div>
-                  <div className={`text-lg italic font-light mt-2`}>
+                  <div className={`text-base italic font-normal mt-2`}>
                     {library.tagline}
                   </div>
                   <div className={`text-sm mt-2 text-black dark:text-white`}>

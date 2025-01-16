@@ -14,6 +14,8 @@ import { VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { configProject } from '~/libraries/config'
+import { getLibrary } from '~/libraries'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import {
   Await,
   Link,
@@ -38,6 +40,7 @@ const librariesRouteApi = getRouteApi('/_libraries')
 export default function FormVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
+  const library = getLibrary('config')
 
   const gradientText = `inline-block leading-snug text-transparent bg-clip-text bg-gradient-to-r ${configProject.colorFrom} ${configProject.colorTo}`
 
@@ -66,73 +69,10 @@ export default function FormVersionIndex() {
             Get Started
           </Link>
         </div>
-        <div
-          className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
-                        md:flex-row"
-        >
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <VscWand className="text-gray-400 text-6xl" />
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                Intuitive Configuration
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                TanStack Config offers a seamless and intuitive configuration
-                management system that simplifies the process of building and
-                publishing high-quality JavaScript packages. TanStack Config{' '}
-                <span className="font-semibold text-gray-700 dark:text-gray-500">
-                  streamlines the configuration process, allowing developers to
-                  focus on writing code
-                </span>{' '}
-                without the hassle of intricate setup procedures.
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <FaBolt className="text-gray-500 text-6xl" />
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                Vite-Powered Builds
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                TanStack Config's build configuration harnesses the Vite
-                ecosystem. Customize and extend your build workflows with ease,
-                tailoring them to meet the unique requirements of your project.{' '}
-                <span className="font-semibold text-gray-700 dark:text-gray-500">
-                  Whether you need advanced optimizations, pre-processors, or
-                  other specialized tools,
-                </span>{' '}
-                TanStack Config provides a robust foundation for crafting a
-                build pipeline that suits your specific needs.
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <FaCogs className="text-gray-700 text-6xl" />
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                Effortless Publication
-              </h3>
 
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                Say goodbye to the complexities of code publishing. This package
-                provides tools designed to automate the publication of your
-                projects. Developers can effortlessly publish updates, manage
-                versioning, and release on npm and GitHub.{' '}
-                <span className="font-semibold text-gray-700 dark:text-gray-500">
-                  TanStack Config takes care of the tedious aspects of package
-                  publishing,
-                </span>{' '}
-                empowering developers to share their work with the community
-                efficiently.
-              </p>
-            </div>
-          </div>
-        </div>
+        <LibraryFeatureHighlights
+          featureHighlights={library.featureHighlights}
+        />
 
         <div className="px-4 sm:px-6 lg:px-8 mx-auto container">
           <div className=" sm:text-center pb-16">

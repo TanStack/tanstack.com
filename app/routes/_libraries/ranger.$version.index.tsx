@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { CgSpinner, CgTimelapse } from 'react-icons/cg'
-import { FaCheckCircle } from 'react-icons/fa'
 import { Await, Link } from '@tanstack/react-router'
-import { TbHeartHandshake, TbZoomQuestion } from 'react-icons/tb'
+import { TbZoomQuestion } from 'react-icons/tb'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { rangerProject } from '~/libraries/ranger'
 import { Carbon } from '~/components/Carbon'
@@ -10,9 +9,10 @@ import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { createFileRoute } from '@tanstack/react-router'
 import { getRouteApi } from '@tanstack/react-router'
-import { Framework, getBranch } from '~/libraries'
+import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 
 export const Route = createFileRoute('/_libraries/ranger/$version/')({
   component: VersionIndex,
@@ -25,6 +25,7 @@ export const Route = createFileRoute('/_libraries/ranger/$version/')({
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('ranger')
 
 export default function VersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
@@ -71,68 +72,9 @@ export default function VersionIndex() {
             Get Started
           </Link>
         </div>
-        <div
-          className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
-                        md:flex-row"
-        >
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <RiLightbulbFlashLine className="text-pink-400 text-6xl scale-125 animate-pulse" />
-            </div>
-            <div className="flex flex-col gap-4 text-center">
-              <h3 className="uppercase text-xl font-black">
-                Typesafe & powerful, yet familiarly simple
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                Hooks for building range and multi-range sliders in React{' '}
-                <span className="font-semibold text-pink-600 dark:text-pink-400">
-                  100% typesafe without compromising on DX
-                </span>
-                .
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <CgTimelapse
-                className="text-pink-500 text-6xl animate-spin"
-                style={{
-                  animationDuration: '3s',
-                  animationTimingFunction: 'ease-in-out',
-                }}
-              />
-            </div>
-            <div className="flex flex-col gap-4 text-center">
-              <h3 className="uppercase text-xl font-black">
-                "Headless" UI library
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                Headless and extensible. Ranger doesn't render or supply any
-                actual UI elements. It's a{' '}
-                <span className="font-semibold text-pink-600 dark:text-pink-400">
-                  utility for building your own custom-designed UI components
-                </span>
-                .
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <TbZoomQuestion className="text-pink-600 text-6xl" />
-            </div>
-            <div className="flex flex-col gap-4 text-center">
-              <h3 className="uppercase text-xl font-black">Extensible</h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                Designed with maximum inversion of control in mind, Ranger is
-                built to be{' '}
-                <span className="font-semibold text-pink-600 dark:text-pink-400">
-                  easily extended and customized
-                </span>{' '}
-                to fit your needs.
-              </p>
-            </div>
-          </div>
-        </div>
+        <LibraryFeatureHighlights
+          featureHighlights={library.featureHighlights}
+        />
 
         <div className="relative text-lg overflow-hidden">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">

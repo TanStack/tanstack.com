@@ -1,9 +1,12 @@
-import { VscPreview } from 'react-icons/vsc'
+import { VscPreview, VscWand } from 'react-icons/vsc'
 import { Library } from '.'
-import { FaGithub } from 'react-icons/fa'
+import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { twMerge } from 'tailwind-merge'
 
 const repo = 'tanstack/form'
+
+const textStyles = 'text-yellow-600 dark:text-yellow-300'
 
 export const formProject = {
   id: 'form',
@@ -40,6 +43,58 @@ export const formProject = {
       icon: <FaGithub />,
       label: 'Github',
       to: `https://github.com/${repo}`,
+    },
+  ],
+  featureHighlights: [
+    {
+      title: 'First-Class TypeScript Support',
+      icon: <VscWand className="text-yellow-400 text-6xl" />,
+      description: (
+        <div>
+          TanStack Form touts first-class TypeScript support with outstanding
+          autocompletion, excellent generic throughput and inferred types
+          everywhere possible.{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            This results in fewer runtime errors, increased code
+            maintainability, and a smoother development experience
+          </span>{' '}
+          to help you confidently build robust and type-safe form solutions that
+          scale.
+        </div>
+      ),
+    },
+    {
+      title: 'Headless and Framework Agnostic',
+      icon: <FaBolt className="text-yellow-500 text-6xl" />,
+      description: (
+        <div>
+          Form's headless and framework agnostic approach ensures maximum
+          flexibility and broad compatibility with many front-end frameworks, or
+          no framework at all. By both supplying and encouraging a headless
+          approach to your forms, building custom reusable form components
+          tailored to your application's needs{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            requires little abstraction and keeps your code modular, simple and
+            composable.
+          </span>
+        </div>
+      ),
+    },
+    {
+      title: 'Granular Reactive Performance',
+      icon: <FaCogs className="text-amber-500 text-6xl" />,
+      description: (
+        <div>
+          When it comes to performance, TanStack Form delivers amazing speed and
+          control, but without the cruft, boilerplate, or abstractions. With
+          granularly reactive APIs at its core,{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            only relevant components are updated when the form state changes.
+          </span>{' '}
+          The end result? A faster UI, happy users, and zero worries about
+          performance.
+        </div>
+      ),
     },
   ],
 } satisfies Library

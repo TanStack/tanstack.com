@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
-import { FaBolt, FaCheckCircle, FaCogs } from 'react-icons/fa'
+import { FaCheckCircle } from 'react-icons/fa'
 import {
   Await,
   Link,
@@ -9,9 +9,10 @@ import {
   getRouteApi,
 } from '@tanstack/react-router'
 import { virtualProject } from '~/libraries/virtual'
+import { getLibrary } from '~/libraries'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
 import { TbHeartHandshake } from 'react-icons/tb'
 import { Framework, getBranch } from '~/libraries'
@@ -29,6 +30,8 @@ export const Route = createFileRoute('/_libraries/virtual/$version/')({
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
+
+const library = getLibrary('virtual')
 
 export default function RouteComp() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
@@ -75,68 +78,8 @@ export default function RouteComp() {
           Get Started
         </Link>
       </div>
-      <div
-        className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
-                        md:flex-row"
-      >
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center overflow-hidden">
-            <IoIosBody className="text-purple-400 text-6xl -mt-5 mb-5 scale-125 origin-top" />
-          </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
-              Designed for zero design
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Headless Virtualization means you're always in control of your{' '}
-              <span className="font-semibold text-violet-600 dark:text-violet-400">
-                markup, styles and components
-              </span>
-              . Go design and implement the most beautiful UI you can dream up
-              and let us take care of the hard parts.
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
-            <FaBolt className="text-purple-500 text-6xl" />
-          </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
-              Big Power, Small Package
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Don't be fooled by the small bundle size. TanStack Virtual uses
-              every byte to deliver powerful performance. After all,{' '}
-              <span className="font-semibold text-violet-700 dark:text-violet-400">
-                {' '}
-                60FPS is table stakes
-              </span>{' '}
-              these days and we refuse to sacrifice anything for that 🧈-y
-              smooth UX.
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
-            <FaCogs className="text-purple-600 text-6xl" />
-          </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
-              Maximum Composability
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              With a single function/hook, you'll get limitless virtualization
-              for{' '}
-              <span className="font-semibold text-violet-700 dark:text-violet-400">
-                vertical, horizontal, and grid-style{' '}
-              </span>
-              layouts. The API is tiny (literally 1 function), but its
-              composability is not.
-            </p>
-          </div>
-        </div>
-      </div>
+
+      <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
 
       <div className="px-4 sm:px-6 lg:px-8 mx-auto">
         <div className=" sm:text-center pb-16">

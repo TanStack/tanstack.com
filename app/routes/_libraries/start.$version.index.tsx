@@ -14,6 +14,8 @@ import { seo } from '~/utils/seo'
 import { partners } from '~/utils/partners'
 import { VscPreview } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { getLibrary } from '~/libraries'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 
 export const Route = createFileRoute('/_libraries/start/$version/')({
   component: VersionIndex,
@@ -26,6 +28,8 @@ export const Route = createFileRoute('/_libraries/start/$version/')({
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
+
+const library = getLibrary('start')
 
 export default function VersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
@@ -85,117 +89,7 @@ export default function VersionIndex() {
           Get Started
         </Link>
       </div>
-      <div className="text-lg grid gap-12 p-8 max-w-[1200px] mx-auto md:grid-cols-2 xl:grid-cols-4">
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
-            <PiTreeStructureBold
-              className="text-cyan-700 dark:text-cyan-500 text-6xl motion-safe:animate-pulse"
-              style={{
-                animationDuration: '5s',
-                animationTimingFunction: 'ease-in-out',
-              }}
-            />
-          </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-xl font-black">
-              Enterprise-Grade Routing
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Built on TanStack Router, Start comes pre-packed with a{' '}
-              <span className="font-semibold text-cyan-700 dark:text-cyan-500">
-                fully type-safe and powerfully-unmatched routing system
-              </span>{' '}
-              that is designed to handle the beefiest of full-stack routing
-              requirements with ease. Start builds on top of Router's fully
-              inferred type safety to also provide type-safe full-stack APIs
-              that keep you in the fast lane.
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center grid grid-cols-1 grid-rows-1">
-            <TbServerBolt className="text-cyan-700 dark:text-cyan-500 text-6xl row-start-1 col-start-1" />
-            <div className="opacity-50 row-start-1 col-start-1">
-              <TbServerBolt
-                className="text-cyan-700 dark:text-cyan-500 text-6xl animate-ping"
-                style={{
-                  animationDuration: '2s',
-                  animationTimingFunction: 'ease-out',
-                }}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-xl font-black">
-              SSR, Streaming and Server RPCs
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Who said rich and interactive applications can't have it all?
-              TanStack Start includes powerful capabilities for{' '}
-              <span className="font-semibold text-cyan-700 dark:text-cyan-500">
-                full-document SSR, streaming, server functions and RPCs
-              </span>
-              . No more choosing between server-side rendering and top-class
-              client-side interactivity. Command the server as you see fit.
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
-            <FaYinYang
-              className="text-cyan-700 dark:text-cyan-500 text-6xl motion-safe:animate-spin"
-              style={{
-                animationDuration: '10s',
-                animationTimingFunction: 'ease-in-out',
-              }}
-            />
-          </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-xl font-black">
-              Client-Side First, 100% Server Capable
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              While other frameworks continue to compromise on the client-side
-              application experience we've cultivated as a front-end community
-              over the years, TanStack Start stays true to the{' '}
-              <span className="font-semibold text-cyan-700 dark:text-cyan-500">
-                client-side first developer experience,
-              </span>{' '}
-              while providing a{' '}
-              <span className="font-semibold text-cyan-700 dark:text-cyan-500">
-                full-featured server-side capable system
-              </span>{' '}
-              that won't make you compromise on user experience.
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
-            <PiRocketLaunchDuotone
-              className="text-cyan-700 dark:text-cyan-500 text-6xl motion-safe:animate-bounce"
-              style={{
-                animationDuration: '2.5s',
-                animationTimingFunction: 'ease-in-out',
-              }}
-            />
-          </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-xl font-black">
-              Deploy Anywhere with Vinxi & Vite
-            </h3>
-            <p className="text-sm text-gray-700 dark:text-gray-200 leading-6">
-              With Vinxi and Vite under the hood, TanStack Start is designed to
-              be{' '}
-              <span className="font-semibold text-cyan-700 dark:text-cyan-500">
-                deployable anywhere JS can run
-              </span>
-              . Whether you're hosting on a traditional server, a serverless
-              platform, or even a CDN, Start seamlessly builds, bundles and
-              deploys your application with ease.
-            </p>
-          </div>
-        </div>
-      </div>
+      <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
       <div className="space-y-8 px-4">
         <div className="font-black text-3xl mr-1 text-center">
           When can I use it?

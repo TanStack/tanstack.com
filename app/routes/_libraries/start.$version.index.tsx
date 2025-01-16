@@ -13,6 +13,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { partners } from '~/utils/partners'
 import { VscPreview } from 'react-icons/vsc'
+import { twMerge } from 'tailwind-merge'
 
 export const Route = createFileRoute('/_libraries/start/$version/')({
   component: VersionIndex,
@@ -37,24 +38,15 @@ export default function VersionIndex() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [isDark])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${startProject.colorFrom} ${startProject.colorTo}`
+  const gradientText = `text-transparent bg-clip-text bg-gradient-to-r ${startProject.colorFrom} ${startProject.colorTo}`
 
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full py-32">
       <div className="flex flex-col items-center gap-8 text-center px-4">
-        <div className="flex gap-2 lg:gap-4 items-center">
-          <h1
-            className={`inline-block
-            font-black text-4xl
-            md:text-6xl
-            lg:text-7xl relative`}
-            style={{
-              viewTransitionName: `library-name`,
-            }}
-          >
-            <span className={gradientText}>TanStack Start</span>
-          </h1>
-        </div>
+        <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
+          <span>TanStack</span>
+          <span className={twMerge(gradientText)}>Start</span>
+        </h1>
         {/* <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-[150%]"> */}
         <div
           className="text-sm

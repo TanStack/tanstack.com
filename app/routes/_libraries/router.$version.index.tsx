@@ -15,6 +15,7 @@ import SponsorPack from '~/components/SponsorPack'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { partners } from '~/utils/partners'
+import { twMerge } from 'tailwind-merge'
 
 export const Route = createFileRoute('/_libraries/router/$version/')({
   component: RouterVersionIndex,
@@ -44,19 +45,10 @@ function RouterVersionIndex() {
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
       <div className="flex flex-col items-center gap-8 text-center px-4">
-        <div className="flex gap-2 lg:gap-4 items-center">
-          <h1
-            className={`inline-block
-            font-black text-4xl
-            md:text-6xl
-            lg:text-7xl`}
-            style={{
-              viewTransitionName: `library-name`,
-            }}
-          >
-            <span className={gradientText}>TanStack Router</span>
-          </h1>
-        </div>
+        <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
+          <span>TanStack</span>
+          <span className={twMerge(gradientText)}>Router</span>
+        </h1>
         <h2
           className="font-bold text-2xl max-w-md
             md:text-3xl

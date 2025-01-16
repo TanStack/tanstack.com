@@ -8,6 +8,8 @@ import { storeProject } from '~/libraries/store'
 import { Await } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
+import { getLibrary } from '~/libraries'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 
 export const Route = createFileRoute('/_libraries/store/$version/')({
   component: StoreVersionIndex,
@@ -20,6 +22,7 @@ export const Route = createFileRoute('/_libraries/store/$version/')({
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('store')
 
 export default function StoreVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
@@ -65,110 +68,9 @@ export default function StoreVersionIndex() {
             Get Started
           </Link>
         </div>
-        {/* <div
-          className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
-                        md:flex-row"
-        >
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <VscWand className="text-gray-400 text-6xl" />
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                First-Class TypeScript Support
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                TanStack Form touts first-class TypeScript support with
-                outstanding autocompletion, excellent generic throughput and
-                inferred types everywhere possible.{' '}
-                <span className="font-semibold text-gray-600 dark:text-gray-300">
-                  This results in fewer runtime errors, increased code
-                  maintainability, and a smoother development experience
-                </span>{' '}
-                to help you confidently build robust and type-safe form
-                solutions that scale.
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <FaBolt className="text-gray-500 text-6xl" />
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                Headless and Framework Agnostic
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                Form's headless and framework agnostic approach ensures maximum
-                flexibility and broad compatibility with many front-end
-                frameworks, or no framework at all. By both supplying and
-                encouraging a headless approach to your forms, building custom
-                reusable form components tailored to your application's needs{' '}
-                <span className="font-semibold text-amber-600 dark:text-gray-500">
-                  requires little abstraction and keeps your code modular,
-                  simple and composable.
-                </span>
-              </p>
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col gap-8 items-center">
-            <div className="text-center">
-              <FaCogs className="text-amber-500 text-6xl" />
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="uppercase text-center text-xl font-black">
-                Granular Reactive Performance
-              </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                When it comes to performance, TanStack Form delivers amazing
-                speed and control, but without the cruft, boilerplate, or
-                abstractions. With granularly reactive APIs at its core,{' '}
-                <span className="font-semibold text-amber-700 dark:text-amber-500">
-                  only relevant components are updated when the form state
-                  changes.
-                </span>{' '}
-                The end result? A faster UI, happy users, and zero worries about
-                performance.
-              </p>
-            </div>
-          </div>
-        </div> */}
-
-        {/* <div className="px-4 sm:px-6 lg:px-8 mx-auto">
-          <div className=" sm:text-center pb-16">
-            <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-              No dependencies. All the Features.
-            </h3>
-            <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-              With zero dependencies, TanStack Form is extremely lean given the
-              dense feature set it provides. From weekend hobbies all the way to
-              enterprise TanStack Form has the tools to help you succeed at the
-              speed of your creativity.
-            </p>
-          </div>
-          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4  mx-auto">
-            {[
-              // A list of features that @tanstack/form provides for managing form state, validation, touched/dirty states, UI integration, etc.
-              'Framework agnostic design',
-              'First Class TypeScript Support',
-              'Headless',
-              'Tiny / Zero Deps',
-              'Granularly Reactive Components/Hooks',
-              'Extensibility and plugin architecture',
-              'Modular architecture',
-              'Form/Field validation',
-              'Async Validation',
-              'Built-in Async Validation Debouncing',
-              'Configurable Validation Events',
-              'Deeply Nested Object/Array Fields',
-            ].map((d, i) => {
-              return (
-                <span key={i} className="flex items-center gap-2">
-                  <FaCheckCircle className="text-green-500 " /> {d}
-                </span>
-              )
-            })}
-          </div>
-        </div> */}
-
+        <LibraryFeatureHighlights
+          featureHighlights={library.featureHighlights}
+        />
         <div className="px-4 w-[500px] max-w-full mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Partners

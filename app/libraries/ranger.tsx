@@ -1,8 +1,15 @@
-import { VscPreview } from 'react-icons/vsc'
+import { VscPreview, VscWand } from 'react-icons/vsc'
 import { Library } from '.'
 import { FaGithub } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { CgTimelapse } from 'react-icons/cg'
+import { TbZoomQuestion } from 'react-icons/tb'
+import { RiLightbulbFlashLine } from 'react-icons/ri'
+import { twMerge } from 'tailwind-merge'
+
 const repo = 'tanstack/ranger'
+
+const textStyles = 'text-pink-600 dark:text-pink-400'
 
 export const rangerProject = {
   id: 'ranger',
@@ -39,6 +46,61 @@ export const rangerProject = {
       icon: <FaGithub />,
       label: 'Github',
       to: `https://github.com/${repo}`,
+    },
+  ],
+  featureHighlights: [
+    {
+      title: 'Typesafe & powerful, yet familiarly simple',
+      icon: (
+        <RiLightbulbFlashLine
+          className={twMerge('text-6xl scale-125 animate-pulse', textStyles)}
+        />
+      ),
+      description: (
+        <div>
+          Hooks for building range and multi-range sliders in React{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            100% typesafe without compromising on DX
+          </span>
+          .
+        </div>
+      ),
+    },
+    {
+      title: '"Headless" UI library',
+      icon: (
+        <CgTimelapse
+          className={twMerge('text-6xl animate-spin', textStyles)}
+          style={{
+            animationDuration: '3s',
+            animationTimingFunction: 'ease-in-out',
+          }}
+        />
+      ),
+      description: (
+        <div>
+          Headless and extensible. Ranger doesn't render or supply any actual UI
+          elements. It's a{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            utility for building your own custom-designed UI components
+          </span>
+          .
+        </div>
+      ),
+    },
+    {
+      title: 'Extensible',
+      icon: <TbZoomQuestion className={twMerge('text-6xl', textStyles)} />,
+      description: (
+        <div>
+          Designed with maximum inversion of control in mind, Ranger is built to
+          be{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            easily extended and customized
+          </span>{' '}
+          to fit your needs.
+        </div>
+      ),
     },
   ],
 } satisfies Library

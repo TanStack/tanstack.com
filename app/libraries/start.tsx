@@ -1,10 +1,14 @@
-import { FaBook, FaDiscord, FaGithub } from 'react-icons/fa'
+import { FaGithub, FaYinYang } from 'react-icons/fa'
 import { Library } from '.'
 import { VscPreview } from 'react-icons/vsc'
-import { ImBook } from 'react-icons/im'
 import { BiBookAlt } from 'react-icons/bi'
+import { PiRocketLaunchDuotone, PiTreeStructureBold } from 'react-icons/pi'
+import { TbServerBolt } from 'react-icons/tb'
+import { twMerge } from 'tailwind-merge'
 
 const repo = 'tanstack/start'
+
+const textStyles = 'text-cyan-600 dark:text-cyan-500'
 
 export const startProject = {
   id: 'start',
@@ -20,8 +24,8 @@ export const startProject = {
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
-  colorFrom: 'from-cyan-500',
-  colorTo: 'to-cyan-600',
+  colorFrom: 'from-teal-500',
+  colorTo: 'to-cyan-500',
   textColor: 'text-cyan-600',
   frameworks: ['react'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
@@ -40,6 +44,105 @@ export const startProject = {
       icon: <FaGithub />,
       label: 'GitHub',
       to: `https://github.com/${repo}`,
+    },
+  ],
+  featureHighlights: [
+    {
+      title: 'Enterprise-Grade Routing',
+      icon: (
+        <PiTreeStructureBold
+          className={twMerge('text-6xl motion-safe:animate-pulse', textStyles)}
+          style={{
+            animationDuration: '5s',
+            animationTimingFunction: 'ease-in-out',
+          }}
+        />
+      ),
+      description: (
+        <div>
+          Built on TanStack Router, Start comes pre-packed with a{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            fully type-safe and powerfully-unmatched routing system
+          </span>{' '}
+          that is designed to handle the beefiest of full-stack routing
+          requirements with ease. Start builds on top of Router's fully inferred
+          type safety to also provide type-safe full-stack APIs that keep you in
+          the fast lane.
+        </div>
+      ),
+    },
+    {
+      title: 'SSR, Streaming and Server RPCs',
+      icon: (
+        <TbServerBolt
+          className={twMerge('text-6xl animate-ping', textStyles)}
+          style={{
+            animationDuration: '2s',
+            animationTimingFunction: 'ease-out',
+          }}
+        />
+      ),
+      description: (
+        <div>
+          Who said rich and interactive applications can't have it all? TanStack
+          Start includes powerful capabilities for{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            full-document SSR, streaming, server functions and RPCs
+          </span>
+          . No more choosing between server-side rendering and top-class
+          client-side interactivity. Command the server as you see fit.
+        </div>
+      ),
+    },
+    {
+      title: 'Client-Side First, 100% Server Capable',
+      icon: (
+        <FaYinYang
+          className={twMerge('text-6xl motion-safe:animate-spin', textStyles)}
+          style={{
+            animationDuration: '10s',
+            animationTimingFunction: 'ease-in-out',
+          }}
+        />
+      ),
+      description: (
+        <div>
+          While other frameworks continue to compromise on the client-side
+          application experience we've cultivated as a front-end community over
+          the years, TanStack Start stays true to the{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            client-side first developer experience,
+          </span>{' '}
+          while providing a{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            full-featured server-side capable system
+          </span>{' '}
+          that won't make you compromise on user experience.
+        </div>
+      ),
+    },
+    {
+      title: 'Deploy Anywhere with Vinxi & Vite',
+      icon: (
+        <PiRocketLaunchDuotone
+          className={twMerge('text-6xl motion-safe:animate-bounce', textStyles)}
+          style={{
+            animationDuration: '2.5s',
+            animationTimingFunction: 'ease-in-out',
+          }}
+        />
+      ),
+      description: (
+        <div>
+          With Vinxi and Vite under the hood, TanStack Start is designed to be{' '}
+          <span className={twMerge('font-semibold', textStyles)}>
+            deployable anywhere JS can run
+          </span>
+          . Whether you're hosting on a traditional server, a serverless
+          platform, or even a CDN, Start seamlessly builds, bundles and deploys
+          your application with ease.
+        </div>
+      ),
     },
   ],
 } satisfies Library

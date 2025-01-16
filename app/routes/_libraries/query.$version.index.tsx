@@ -19,9 +19,10 @@ import SponsorPack from '~/components/SponsorPack'
 import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { queryProject } from '~/libraries/query'
 import { createFileRoute } from '@tanstack/react-router'
-import { Framework, getBranch } from '~/libraries'
+import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 
 export const Route = createFileRoute('/_libraries/query/$version/')({
   component: VersionIndex,
@@ -34,6 +35,8 @@ export const Route = createFileRoute('/_libraries/query/$version/')({
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
+
+const library = getLibrary('query')
 
 export default function VersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
@@ -92,70 +95,9 @@ export default function VersionIndex() {
             </div>
             <QueryGGBanner />
           </div>
-          <div
-            className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
-            md:flex-row"
-          >
-            <div className="flex-1 flex flex-col gap-8 items-center">
-              <VscWand className="text-red-500 text-6xl" />
-              <div className="flex flex-col gap-4">
-                <h3 className="uppercase text-center text-xl font-black">
-                  Declarative & Automatic
-                </h3>
-                <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                  Writing your data fetching logic by hand is over. Tell
-                  TanStack Query where to get your data and how fresh you need
-                  it to be and the rest is automatic. It handles{' '}
-                  <span className="font-semibold text-red-700 dark:text-red-400">
-                    caching, background updates and stale data out of the box
-                    with zero-configuration
-                  </span>
-                  .
-                </p>
-              </div>
-            </div>
-            <div className="flex-1 flex flex-col gap-8 items-center">
-              <div className="text-center">
-                <FaBolt className="text-orange-600 text-6xl" />
-              </div>
-              <div className="flex flex-col gap-4">
-                <h3 className="uppercase text-center text-xl font-black">
-                  Simple & Familiar
-                </h3>
-                <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                  If you know how to work with promises or async/await, then you
-                  already know how to use TanStack Query. There's{' '}
-                  <span className="font-semibold text-orange-700 dark:text-orange-400">
-                    no global state to manage, reducers, normalization systems
-                    or heavy configurations to understand
-                  </span>
-                  . Simply pass a function that resolves your data (or throws an
-                  error) and the rest is history.
-                </p>
-              </div>
-            </div>
-            <div className="flex-1 flex flex-col gap-8 items-center">
-              <div className="text-center">
-                <FaCogs className="text-amber-500 text-6xl" />
-              </div>
-              <div className="flex flex-col gap-4">
-                <h3 className="uppercase text-center text-xl font-black">
-                  Extensible
-                </h3>
-                <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-                  TanStack Query is configurable down to each observer instance
-                  of a query with knobs and options to fit every use-case. It
-                  comes wired up with{' '}
-                  <span className="font-semibold text-amber-700 dark:text-amber-400">
-                    dedicated devtools, infinite-loading APIs, and first class
-                    mutation tools that make updating your data a breeze
-                  </span>
-                  . Don't worry though, everything is pre-configured for
-                  success!
-                </p>
-              </div>
-            </div>
-          </div>
+          <LibraryFeatureHighlights
+            featureHighlights={library.featureHighlights}
+          />
 
           <div className="px-4 sm:px-6 lg:px-8 mx-auto">
             <div className=" sm:text-center pb-16">

@@ -66,6 +66,11 @@ export type Library = {
   showVercelUrl?: boolean
   showNetlifyUrl?: boolean
   menu: LibraryMenuItem[]
+  featureHighlights?: {
+    title: string
+    icon: React.ReactNode
+    description: React.ReactNode
+  }[]
 }
 
 export type LibraryMenuItem = {
@@ -86,7 +91,7 @@ export const libraries = [
   configProject,
 ] satisfies Library[]
 
-export function getLibrary(id: string) {
+export function getLibrary(id: (typeof libraries)[number]['id']) {
   const library = libraries.find((d) => d.id === id)
 
   if (!library) {

@@ -1,27 +1,18 @@
 import * as React from 'react'
-import { CgCornerUpLeft, CgSpinner } from 'react-icons/cg'
-import {
-  FaBolt,
-  FaBook,
-  FaCheckCircle,
-  FaCogs,
-  FaDiscord,
-  FaGithub,
-  FaTshirt,
-} from 'react-icons/fa'
+import { CgSpinner } from 'react-icons/cg'
+import { FaCheckCircle } from 'react-icons/fa'
 import { Link, createFileRoute, getRouteApi } from '@tanstack/react-router'
 import { tableProject } from '~/libraries/table'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { IoIosBody } from 'react-icons/io'
 import SponsorPack from '~/components/SponsorPack'
-import { VscPreview } from 'react-icons/vsc'
 import { Await } from '@tanstack/react-router'
-import { Framework, getBranch } from '~/libraries'
+import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { getInitialSandboxFileName } from '~/utils/sandbox'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 
 export const Route = createFileRoute('/_libraries/table/$version/')({
   component: TableVersionIndex,
@@ -34,6 +25,8 @@ export const Route = createFileRoute('/_libraries/table/$version/')({
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
+
+const library = getLibrary('table')
 
 export default function TableVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
@@ -77,74 +70,13 @@ export default function TableVersionIndex() {
         </p>
         <Link
           to="./docs/introduction"
-          className={`py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
+          className={`py-2 px-4 bg-blue-500 rounded text-white uppercase font-extrabold`}
         >
           Get Started
         </Link>
       </div>
-      <div
-        className="text-lg flex flex-col gap-12 p-8 max-w-[1200px] mx-auto
-                        md:flex-row"
-      >
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center overflow-hidden">
-            <IoIosBody className="text-teal-500 text-6xl -mt-5 mb-5 scale-125 origin-top" />
-          </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
-              Designed for zero design
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              What good is a powerful table if that super hip designer you just
-              hired can't work their UI magic on it?{' '}
-              <span className="font-semibold text-teal-700 dark:text-teal-400">
-                TanStack Table is headless by design
-              </span>
-              , which means 100% control down to the very smallest HTML tag,
-              component, class and style. Pixel Perfection? Go for it!
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
-            <FaBolt className="text-blue-600 text-6xl" />
-          </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
-              Big Power, Small Package
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              Don't be fooled by the small bundle size. TanStack Table is a
-              workhorse. It's built to materialize, filter, sort, group,
-              aggregate, paginate and display massive data sets using a very
-              small API surface. Wire up your new or existing tables and{' '}
-              <span className="font-semibold text-blue-700 dark:text-blue-400">
-                watch your users become instantly more productive
-              </span>
-              .
-            </p>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col gap-8 items-center">
-          <div className="text-center">
-            <FaCogs className="text-indigo-500 text-6xl" />
-          </div>
-          <div className="flex flex-col gap-4">
-            <h3 className="uppercase text-center text-xl font-black">
-              Extensible
-            </h3>
-            <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
-              TanStack table ships with excellent defaults to get you off the
-              ground as fast as possible, but nothing is stopping you from{' '}
-              <span className="font-semibold text-indigo-700 dark:text-indigo-400">
-                customizing and overriding literally everything to your liking
-              </span>
-              . Feeling tenacious enough to build your own Sheets/Excel/AirTable
-              clone? Be our guest 😉
-            </p>
-          </div>
-        </div>
-      </div>
+
+      <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
 
       <div className="px-4 sm:px-6 lg:px-8 mx-auto">
         <div className=" sm:text-center pb-16">
@@ -372,7 +304,12 @@ export default function TableVersionIndex() {
         </div>
         <div>
           <Link
-            to="./docs/introduction"
+            to="/$libraryId/$version/docs/$"
+            params={{
+              libraryId: 'table',
+              version,
+              _splat: 'introduction',
+            }}
             className={`inline-block py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started!

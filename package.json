@@ -34,7 +34,7 @@
     "@tanstack/react-router": "1.97.1",
     "@tanstack/react-router-with-query": "1.97.1",
     "@tanstack/router-devtools": "1.97.1",
-    "@tanstack/start": "1.97.1",
+    "@tanstack/start": "1.97.2",
     "@typescript-eslint/parser": "^7.2.0",
     "@vercel/analytics": "^1.2.2",
     "@vercel/speed-insights": "^1.0.10",

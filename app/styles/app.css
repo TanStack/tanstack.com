@@ -8,6 +8,11 @@
     @apply text-gray-900 bg-gray-50 dark:bg-gray-950 dark:text-gray-200;
   }
 
+  html.dark {
+    /* give black background to page overscroll (bounce effect on top and bottom of page) in dark mode */
+    background: black;
+  }
+
   .using-mouse * {
     outline: none !important;
   }

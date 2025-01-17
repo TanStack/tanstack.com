@@ -53,7 +53,7 @@ export const rangerProject = {
       title: 'Typesafe & powerful, yet familiarly simple',
       icon: (
         <RiLightbulbFlashLine
-          className={twMerge('text-6xl scale-125 animate-pulse', textStyles)}
+          className={twMerge('scale-125 animate-pulse', textStyles)}
         />
       ),
       description: (
@@ -70,7 +70,7 @@ export const rangerProject = {
       title: '"Headless" UI library',
       icon: (
         <CgTimelapse
-          className={twMerge('text-6xl animate-spin', textStyles)}
+          className={twMerge('animate-spin', textStyles)}
           style={{
             animationDuration: '3s',
             animationTimingFunction: 'ease-in-out',
@@ -90,7 +90,7 @@ export const rangerProject = {
     },
     {
       title: 'Extensible',
-      icon: <TbZoomQuestion className={twMerge('text-6xl', textStyles)} />,
+      icon: <TbZoomQuestion className={twMerge('', textStyles)} />,
       description: (
         <div>
           Designed with maximum inversion of control in mind, Ranger is built to

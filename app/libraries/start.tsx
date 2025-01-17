@@ -51,7 +51,7 @@ export const startProject = {
       title: 'Enterprise-Grade Routing',
       icon: (
         <PiTreeStructureBold
-          className={twMerge('text-6xl motion-safe:animate-pulse', textStyles)}
+          className={twMerge('motion-safe:animate-pulse', textStyles)}
           style={{
             animationDuration: '5s',
             animationTimingFunction: 'ease-in-out',
@@ -75,7 +75,7 @@ export const startProject = {
       title: 'SSR, Streaming and Server RPCs',
       icon: (
         <TbServerBolt
-          className={twMerge('text-6xl animate-ping', textStyles)}
+          className={twMerge('animate-ping', textStyles)}
           style={{
             animationDuration: '2s',
             animationTimingFunction: 'ease-out',
@@ -98,7 +98,7 @@ export const startProject = {
       title: 'Client-Side First, 100% Server Capable',
       icon: (
         <FaYinYang
-          className={twMerge('text-6xl motion-safe:animate-spin', textStyles)}
+          className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '10s',
             animationTimingFunction: 'ease-in-out',
@@ -125,7 +125,7 @@ export const startProject = {
       title: 'Deploy Anywhere with Vinxi & Vite',
       icon: (
         <PiRocketLaunchDuotone
-          className={twMerge('text-6xl motion-safe:animate-bounce', textStyles)}
+          className={twMerge('motion-safe:animate-bounce', textStyles)}
           style={{
             animationDuration: '2.5s',
             animationTimingFunction: 'ease-in-out',

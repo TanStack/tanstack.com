@@ -49,7 +49,7 @@ export const storeProject = {
   featureHighlights: [
     {
       title: 'Intuitive Configuration',
-      icon: <VscWand className={twMerge('text-6xl', textStyles)} />,
+      icon: <VscWand className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack Store offers a seamless and intuitive configuration
@@ -65,7 +65,7 @@ export const storeProject = {
     },
     {
       title: 'Vite-Powered Builds',
-      icon: <FaBolt className={twMerge('text-6xl', textStyles)} />,
+      icon: <FaBolt className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack Store's build configuration harnesses the Vite ecosystem.
@@ -82,7 +82,7 @@ export const storeProject = {
     },
     {
       title: 'Effortless Publication',
-      icon: <FaCogs className={twMerge('text-6xl', textStyles)} />,
+      icon: <FaCogs className={twMerge(textStyles)} />,
       description: (
         <div>
           Say goodbye to the complexities of code publishing. This package

@@ -58,9 +58,7 @@ export const routerProject = {
     {
       title: 'Typesafe & powerful, yet familiarly simple',
       icon: (
-        <RiLightbulbFlashLine
-          className={twMerge('text-6xl scale-125 animate-pulse', textStyles)}
-        />
+        <RiLightbulbFlashLine className={twMerge('scale-125', textStyles)} />
       ),
       description: (
         <div>
@@ -77,7 +75,7 @@ export const routerProject = {
       title: 'Built-in Data Fetching with Caching',
       icon: (
         <CgTimelapse
-          className={twMerge('text-6xl motion-safe:animate-spin', textStyles)}
+          className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '3s',
             animationTimingFunction: 'ease-in-out',
@@ -98,22 +96,7 @@ export const routerProject = {
     },
     {
       title: 'Search Param APIs to make your state-manager jealous',
-      icon: <TbZoomQuestion className={twMerge('text-6xl', textStyles)} />,
-      description: (
-        <div>
-          Instead of throwing you to the URLSearchParam wolves, TanStack Router
-          outfits you with state-manager-grade search param APIs. With{' '}
-          <span className={twMerge('font-semibold', textStyles)}>
-            schemas, validation, full type-safety and pre/post manipulation
-          </span>
-          , you can manage your state in the URL and easily sync it to your
-          state-manager of choice.
-        </div>
-      ),
-    },
-    {
-      title: 'Seamless Integration with the Existing React Ecosystem',
-      icon: <TbZoomQuestion className={twMerge('text-6xl', textStyles)} />,
+      icon: <TbZoomQuestion className={twMerge('', textStyles)} />,
       description: (
         <div>
           Instead of throwing you to the URLSearchParam wolves, TanStack Router

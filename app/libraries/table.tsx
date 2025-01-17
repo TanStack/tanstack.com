@@ -72,12 +72,7 @@ export const tableProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <IoIosBody
-            className={twMerge(
-              'text-6xl -mt-5 mb-5 scale-125 origin-top',
-              textStyles
-            )}
-          />
+          <IoIosBody className={twMerge(textStyles)} />
         </div>
       ),
       description: (
@@ -94,7 +89,7 @@ export const tableProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <FaBolt className={twMerge('text-6xl', textStyles)} />,
+      icon: <FaBolt className={twMerge(textStyles)} />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Table is a
@@ -110,7 +105,7 @@ export const tableProject = {
     },
     {
       title: 'Extensible',
-      icon: <FaCogs className={twMerge('text-6xl', textStyles)} />,
+      icon: <FaCogs className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack table ships with excellent defaults to get you off the ground

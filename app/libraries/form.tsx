@@ -48,7 +48,7 @@ export const formProject = {
   featureHighlights: [
     {
       title: 'First-Class TypeScript Support',
-      icon: <VscWand className="text-yellow-400 text-6xl" />,
+      icon: <VscWand className="text-yellow-400" />,
       description: (
         <div>
           TanStack Form touts first-class TypeScript support with outstanding
@@ -65,7 +65,7 @@ export const formProject = {
     },
     {
       title: 'Headless and Framework Agnostic',
-      icon: <FaBolt className="text-yellow-500 text-6xl" />,
+      icon: <FaBolt className="text-yellow-500" />,
       description: (
         <div>
           Form's headless and framework agnostic approach ensures maximum
@@ -82,7 +82,7 @@ export const formProject = {
     },
     {
       title: 'Granular Reactive Performance',
-      icon: <FaCogs className="text-amber-500 text-6xl" />,
+      icon: <FaCogs className="text-amber-500" />,
       description: (
         <div>
           When it comes to performance, TanStack Form delivers amazing speed and

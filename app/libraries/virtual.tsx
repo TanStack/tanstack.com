@@ -52,7 +52,7 @@ export const virtualProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <IoIosBody className="text-purple-400 text-6xl -mt-5 mb-5 scale-125 origin-top" />
+          <IoIosBody className="text-purple-400" />
         </div>
       ),
       description: (
@@ -68,7 +68,7 @@ export const virtualProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <FaBolt className="text-purple-500 text-6xl" />,
+      icon: <FaBolt className="text-purple-500" />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Virtual uses every
@@ -83,7 +83,7 @@ export const virtualProject = {
     },
     {
       title: 'Maximum Composability',
-      icon: <FaCogs className="text-purple-600 text-6xl" />,
+      icon: <FaCogs className="text-purple-600" />,
       description: (
         <div>
           With a single function/hook, you'll get limitless virtualization for{' '}

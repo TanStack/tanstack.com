@@ -70,7 +70,7 @@ export const queryProject = {
       title: 'Declarative & Automatic',
       icon: (
         <VscWand
-          className={twMerge('text-6xl motion-safe:animate-pulse', textStyles)}
+          className={twMerge('motion-safe:animate-pulse', textStyles)}
           style={{
             animationDuration: '5s',
             animationTimingFunction: 'ease-in-out',
@@ -94,7 +94,7 @@ export const queryProject = {
       title: 'Simple & Familiar',
       icon: (
         <FaBolt
-          className={twMerge('text-6xl motion-safe:animate-bounce', textStyles)}
+          className={twMerge('motion-safe:animate-bounce', textStyles)}
           style={{
             animationDuration: '2s',
             animationTimingFunction: 'ease-in-out',
@@ -118,7 +118,7 @@ export const queryProject = {
       title: 'Extensible',
       icon: (
         <FaCogs
-          className={twMerge('text-6xl motion-safe:animate-spin', textStyles)}
+          className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '10s',
             animationTimingFunction: 'ease-in-out',

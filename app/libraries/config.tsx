@@ -42,7 +42,7 @@ export const configProject = {
   featureHighlights: [
     {
       title: 'Intuitive Configuration',
-      icon: <VscWand className="text-gray-400 text-6xl" />,
+      icon: <VscWand className="text-gray-400" />,
       description: (
         <div>
           TanStack Config offers a seamless and intuitive configuration
@@ -58,7 +58,7 @@ export const configProject = {
     },
     {
       title: 'Vite-Powered Builds',
-      icon: <FaBolt className="text-gray-500 text-6xl" />,
+      icon: <FaBolt className="text-gray-500" />,
       description: (
         <div>
           TanStack Config's build configuration harnesses the Vite ecosystem.
@@ -75,7 +75,7 @@ export const configProject = {
     },
     {
       title: 'Effortless Publication',
-      icon: <FaCogs className="text-gray-700 text-6xl" />,
+      icon: <FaCogs className="text-gray-700" />,
       description: (
         <div>
           Say goodbye to the complexities of code publishing. This package

@@ -42,6 +42,10 @@ export const Route = createRootRouteWithContext<{
         keywords:
           'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
       }),
+      {
+        name: 'google-adsense-account',
+        content: 'ca-pub-9403278435468733',
+      },
     ],
     links: [
       { rel: 'stylesheet', href: appCss },

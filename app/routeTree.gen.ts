@@ -19,7 +19,9 @@ import { Route as LibrariesRouteImport } from './routes/_libraries/route'
 import { Route as LibraryIdRouteImport } from './routes/$libraryId/route'
 import { Route as LibrariesIndexImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexImport } from './routes/$libraryId/index'
+import { Route as LibrariesTermsImport } from './routes/_libraries/terms'
 import { Route as LibrariesSupportImport } from './routes/_libraries/support'
+import { Route as LibrariesPrivacyImport } from './routes/_libraries/privacy'
 import { Route as LibrariesLearnImport } from './routes/_libraries/learn'
 import { Route as LibrariesDedicatedSupportImport } from './routes/_libraries/dedicated-support'
 import { Route as LibrariesBlogImport } from './routes/_libraries/blog'
@@ -90,9 +92,21 @@ const LibraryIdIndexRoute = LibraryIdIndexImport.update({
   getParentRoute: () => LibraryIdRouteRoute,
 } as any)
 
+const LibrariesTermsRoute = LibrariesTermsImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
+
 const LibrariesSupportRoute = LibrariesSupportImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
+
+const LibrariesPrivacyRoute = LibrariesPrivacyImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
 
@@ -304,11 +318,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesLearnImport
       parentRoute: typeof LibrariesRouteImport
     }
+    '/_libraries/privacy': {
+      id: '/_libraries/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof LibrariesPrivacyImport
+      parentRoute: typeof LibrariesRouteImport
+    }
     '/_libraries/support': {
       id: '/_libraries/support'
       path: '/support'
       fullPath: '/support'
       preLoaderRoute: typeof LibrariesSupportImport
+      parentRoute: typeof LibrariesRouteImport
+    }
+    '/_libraries/terms': {
+      id: '/_libraries/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof LibrariesTermsImport
       parentRoute: typeof LibrariesRouteImport
     }
     '/$libraryId/': {
@@ -504,7 +532,9 @@ interface LibrariesRouteRouteChildren {
   LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
   LibrariesDedicatedSupportRoute: typeof LibrariesDedicatedSupportRoute
   LibrariesLearnRoute: typeof LibrariesLearnRoute
+  LibrariesPrivacyRoute: typeof LibrariesPrivacyRoute
   LibrariesSupportRoute: typeof LibrariesSupportRoute
+  LibrariesTermsRoute: typeof LibrariesTermsRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
   LibrariesFormVersionIndexRoute: typeof LibrariesFormVersionIndexRoute
@@ -521,7 +551,9 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
   LibrariesDedicatedSupportRoute: LibrariesDedicatedSupportRoute,
   LibrariesLearnRoute: LibrariesLearnRoute,
+  LibrariesPrivacyRoute: LibrariesPrivacyRoute,
   LibrariesSupportRoute: LibrariesSupportRoute,
+  LibrariesTermsRoute: LibrariesTermsRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
   LibrariesFormVersionIndexRoute: LibrariesFormVersionIndexRoute,
@@ -549,7 +581,9 @@ export interface FileRoutesByFullPath {
   '/blog': typeof LibrariesBlogRouteWithChildren
   '/dedicated-support': typeof LibrariesDedicatedSupportRoute
   '/learn': typeof LibrariesLearnRoute
+  '/privacy': typeof LibrariesPrivacyRoute
   '/support': typeof LibrariesSupportRoute
+  '/terms': typeof LibrariesTermsRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
@@ -578,7 +612,9 @@ export interface FileRoutesByTo {
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/dedicated-support': typeof LibrariesDedicatedSupportRoute
   '/learn': typeof LibrariesLearnRoute
+  '/privacy': typeof LibrariesPrivacyRoute
   '/support': typeof LibrariesSupportRoute
+  '/terms': typeof LibrariesTermsRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
@@ -610,7 +646,9 @@ export interface FileRoutesById {
   '/_libraries/blog': typeof LibrariesBlogRouteWithChildren
   '/_libraries/dedicated-support': typeof LibrariesDedicatedSupportRoute
   '/_libraries/learn': typeof LibrariesLearnRoute
+  '/_libraries/privacy': typeof LibrariesPrivacyRoute
   '/_libraries/support': typeof LibrariesSupportRoute
+  '/_libraries/terms': typeof LibrariesTermsRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/_libraries/': typeof LibrariesIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
@@ -644,7 +682,9 @@ export interface FileRouteTypes {
     | '/blog'
     | '/dedicated-support'
     | '/learn'
+    | '/privacy'
     | '/support'
+    | '/terms'
     | '/$libraryId/'
     | '/'
     | '/$libraryId/$version/docs'
@@ -672,7 +712,9 @@ export interface FileRouteTypes {
     | '/$libraryId/$version'
     | '/dedicated-support'
     | '/learn'
+    | '/privacy'
     | '/support'
+    | '/terms'
     | '/$libraryId'
     | '/'
     | '/blog/$'
@@ -702,7 +744,9 @@ export interface FileRouteTypes {
     | '/_libraries/blog'
     | '/_libraries/dedicated-support'
     | '/_libraries/learn'
+    | '/_libraries/privacy'
     | '/_libraries/support'
+    | '/_libraries/terms'
     | '/$libraryId/'
     | '/_libraries/'
     | '/$libraryId/$version/docs'
@@ -773,7 +817,9 @@ export const routeTree = rootRoute
         "/_libraries/blog",
         "/_libraries/dedicated-support",
         "/_libraries/learn",
+        "/_libraries/privacy",
         "/_libraries/support",
+        "/_libraries/terms",
         "/_libraries/",
         "/_libraries/config/$version/",
         "/_libraries/form/$version/",
@@ -821,8 +867,16 @@ export const routeTree = rootRoute
       "filePath": "_libraries/learn.tsx",
       "parent": "/_libraries"
     },
+    "/_libraries/privacy": {
+      "filePath": "_libraries/privacy.tsx",
+      "parent": "/_libraries"
+    },
     "/_libraries/support": {
       "filePath": "_libraries/support.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/terms": {
+      "filePath": "_libraries/terms.tsx",
       "parent": "/_libraries"
     },
     "/$libraryId/": {

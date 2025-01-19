@@ -2,19 +2,19 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute('/_libraries/terms copy')({
+export const Route = createFileRoute('/_libraries/privacy')({
   component: RouteComp,
   head: () => ({
     meta: seo({
-      title: 'Terms of Service',
-      description: 'Terms of Service',
+      title: 'Privacy Policy',
+      description: 'Privacy Policy',
     }),
   }),
 })
 
 export default function RouteComp() {
   return (
-    <div className="flex flex-col max-w-full pt-32 min-h-screen gap-12">
+    <div className="flex flex-col max-w-full pt-32 min-h-screen gap-12 px-4 md:px-8">
       <div className="flex-1 space-y-12 w-full max-w-3xl mx-auto">
         <header className="">
           <h1 className="text-4xl font-bold">Privacy Policy</h1>

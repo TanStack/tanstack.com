@@ -14,7 +14,7 @@ export const Route = createFileRoute('/_libraries/privacy')({
 
 export default function RouteComp() {
   return (
-    <div className="flex flex-col max-w-full pt-32 min-h-screen gap-12 px-4 md:px-8">
+    <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
       <div className="flex-1 space-y-12 w-full max-w-3xl mx-auto">
         <header className="">
           <h1 className="text-4xl font-bold">Privacy Policy</h1>

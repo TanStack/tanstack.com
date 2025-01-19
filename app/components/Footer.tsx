@@ -16,6 +16,14 @@ const footerLinks = [
     label: 'Nozzle.io - Keyword Rank Tracker',
     to: 'https://nozzle.io',
   },
+  {
+    label: 'Privacy Policy',
+    to: '/privacy',
+  },
+  {
+    label: 'Terms of Service',
+    to: '/terms',
+  },
 ]
 
 export function Footer() {
@@ -29,7 +37,7 @@ export function Footer() {
         {footerLinks.map((item) => (
           <div key={item.to}>
             {item.to.startsWith('http') ? (
-              <a href={item.to} target="_blank">
+              <a href={item.to} target="_blank" rel="noreferrer">
                 {item.label}
               </a>
             ) : (

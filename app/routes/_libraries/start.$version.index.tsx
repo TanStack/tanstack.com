@@ -45,7 +45,7 @@ export default function VersionIndex() {
   const gradientText = `text-transparent bg-clip-text bg-gradient-to-r ${startProject.colorFrom} ${startProject.colorTo}`
 
   return (
-    <div className="flex flex-col gap-20 md:gap-32 max-w-full py-32">
+    <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
       <div className="flex flex-col items-center gap-8 text-center px-4">
         <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
           <span>TanStack</span>

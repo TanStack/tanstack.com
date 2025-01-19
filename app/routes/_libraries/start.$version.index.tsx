@@ -53,11 +53,13 @@ export default function VersionIndex() {
         </h1>
         {/* <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-[150%]"> */}
         <div
-          className="text-sm
-            md:text-base font-black
-            lg:text-lg align-super text-white animate-bounce uppercase
-              dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md
-              leading-none whitespace-nowrap"
+          className={twMerge(
+            'text-sm',
+            'md:text-base font-black',
+            'lg:text-lg align-super text-white animate-bounce uppercase',
+            'dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md',
+            'leading-none whitespace-nowrap'
+          )}
         >
           STATUS: BETA
           {/* {version === 'latest' ? latestVersion : version} */}

@@ -94,7 +94,7 @@ export default function VersionIndex() {
         <div className="font-black text-3xl mr-1 text-center">
           When can I use it?
         </div>
-        <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-gray-700 rounded-xl shadow-xl shadow-black/10">
+        <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-black/40 rounded-xl shadow-xl shadow-black/10">
           <div>
             You can use <strong>TanStack Start BETA</strong> today! Although
             currently in active development, we do not expect any more breaking

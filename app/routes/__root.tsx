@@ -276,11 +276,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const isHomePage = useRouterState({
-    select: (s) => s.location.pathname === '/',
-  })
+  // const isHomePage = useRouterState({
+  //   select: (s) => s.location.pathname === '/',
+  // })
 
-  const mounted = useMounted()
+  // const mounted = useMounted()
 
   return (
     <html lang="en" className={themeClass}>
@@ -298,17 +298,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <div
+          id="animated-background-canvas-container"
           className={twMerge(
             'fixed inset-0 z-0 opacity-20 pointer-events-none',
             'transition-opacity duration-[2s] ease-linear',
-            `[&+*]:relative`,
-            'mix-blend-hard-light' // for smoother color mixing
+            `[&+*]:relative`
           )}
-          style={{
-            backgroundImage: 'radial-gradient(transparent 1px, #000 1px)', // dot effect
-            backgroundSize: '4px 4px', // dot effect repeat
-            mask: 'radial-gradient(#000, #0000)', // dark edges all around the screen
-          }}
         >
           <canvas ref={canvasRef} />
         </div>

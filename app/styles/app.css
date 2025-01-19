@@ -3,14 +3,12 @@
 @tailwind utilities;
 
 @layer base {
-  html,
-  body {
-    @apply text-gray-900 bg-gray-50 dark:bg-gray-950 dark:text-gray-200;
+  html {
+    @apply bg-neutral-50 dark:bg-neutral-950;
   }
-
-  html.dark {
-    /* give black background to page overscroll (bounce effect on top and bottom of page) in dark mode */
-    background: black;
+  body {
+    @apply text-gray-900 dark:text-gray-200;
+    /* @apply text-gray-900 bg-gray-50 dark:bg-gray-950 dark:text-gray-200; */
   }
 
   .using-mouse * {
@@ -37,6 +35,11 @@
     background: theme(colors.gray.300);
     border-radius: 0.5rem;
     border: 3px solid theme(colors.gray.100);
+  }
+
+  html.dark {
+    /* give black background to page overscroll (bounce effect on top and bottom of page) in dark mode */
+    background: black;
   }
 
   html.dark {
@@ -70,6 +73,32 @@
       border-radius: 0.5rem;
       border: 3px solid theme(colors.gray.800);
     }
+  }
+
+  html:not(.dark) #animated-background-canvas-container {
+    /* First mask - the dots */
+    --dot-mask: radial-gradient(black 1px, transparent 1px);
+    /* Second mask - gradient fade out on edges */
+    --edge-mask: radial-gradient(circle at center, black 50%, transparent 100%);
+    /* Combine both masks */
+    mask-image: var(--dot-mask), var(--edge-mask);
+    mask-size: 4px 4px, 100% 100%; /* size for dots, size for gradient */
+    mask-repeat: repeat, no-repeat; /* repeat dots, don't repeat gradient */
+    mask-composite: intersect; /* 'intersect' shows only where both masks are visible */
+  }
+
+  html.dark #animated-background-canvas-container {
+    /* First mask - the dots */
+    --dot-mask: radial-gradient(black 1px, transparent 1px);
+    /* Second mask - gradient fade out on edges */
+    --edge-mask: radial-gradient(circle at center, black 50%, transparent 100%);
+    /* Combine both masks */
+    mask-image: var(--dot-mask), var(--edge-mask);
+    mask-size: 4px 4px, 100% 100%; /* size for dots, size for gradient */
+    mask-repeat: repeat, no-repeat; /* repeat dots, don't repeat gradient */
+    mask-composite: intersect; /* 'intersect' shows only where both masks are visible */
+
+    mix-blend-mode: hard-light;
   }
 
   [disabled] {

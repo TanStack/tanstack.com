@@ -85,13 +85,7 @@
     mask-size: 4px 4px, 100% 100%; /* size for dots, size for gradient */
     mask-repeat: repeat, no-repeat; /* repeat dots, don't repeat gradient */
     mask-composite: intersect; /* 'intersect' shows only where both masks are visible */
-  }
-
-  html.dark #animated-background-canvas-container {
-    mix-blend-mode: lighten;
-  }
-  html:not(.dark) #animated-background-canvas-container {
-    mix-blend-mode: darken;
+    mix-blend-mode: hard-light;
   }
 
   [disabled] {

@@ -185,33 +185,33 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       const blobs = [
         {
           direction: [Math.random() * 1, Math.random() * 1],
-          color: { h: 184, s: 100, l: 66 }, // turquoise from logo sky (higher luminance)
+          color: { h: 184, s: 100, l: 50 }, // turquoise from logo sky
         },
         {
           direction: [Math.random() * 1, Math.random() * 1],
-          color: { h: 42, s: 100, l: 66 }, // orange from logo sun (higher luminance)
+          color: { h: 42, s: 100, l: 50 }, // orange from logo sun
         },
         {
           direction: [Math.random() * 1, Math.random() * 1],
-          color: { h: 341, s: 94, l: 66 }, // red from logo sunchair (higher luminance)
+          color: { h: 341, s: 94, l: 50 }, // red from logo sunchair
         },
         {
           direction: [Math.random() * 1, Math.random() * 1],
-          color: { h: 184, s: 100, l: 66 }, // turquoise from logo sky (higher luminance) (second instance)
+          color: { h: 184, s: 100, l: 50 }, // turquoise from logo sky (second instance)
         },
         {
           direction: [Math.random() * 1, Math.random() * 1],
-          color: { h: 42, s: 100, l: 66 }, // orange from logo sun (higher luminance) (second instance)
+          color: { h: 42, s: 100, l: 50 }, // orange from logo sun (second instance)
         },
         {
           direction: [Math.random() * 1, Math.random() * 1],
-          color: { h: 341, s: 94, l: 66 }, // red from logo sunchair (higher luminance) (second instance)
+          color: { h: 341, s: 94, l: 50 }, // red from logo sunchair (second instance)
         },
       ].map((blob, i) => ({
         ...blob,
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * Math.random() * canvas.height + 150,
+        r: Math.max(Math.random() * canvas.height, 200), // at least 200
         colorH: blob.color.h,
         colorS: blob.color.s,
         colorL: blob.color.l,

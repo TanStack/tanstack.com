@@ -75,11 +75,11 @@
     }
   }
 
-  html:not(.dark) #animated-background-canvas-container {
+  #animated-background-canvas-container {
     /* First mask - the dots */
     --dot-mask: radial-gradient(black 1px, transparent 1px);
-    /* Second mask - gradient fade out on edges */
-    --edge-mask: radial-gradient(circle at center, black 50%, transparent 100%);
+    /* Second mask - gradient fade out on screen edges */
+    --edge-mask: radial-gradient(circle at center, black 40%, transparent 120%);
     /* Combine both masks */
     mask-image: var(--dot-mask), var(--edge-mask);
     mask-size: 4px 4px, 100% 100%; /* size for dots, size for gradient */
@@ -88,17 +88,10 @@
   }
 
   html.dark #animated-background-canvas-container {
-    /* First mask - the dots */
-    --dot-mask: radial-gradient(black 1px, transparent 1px);
-    /* Second mask - gradient fade out on edges */
-    --edge-mask: radial-gradient(circle at center, black 50%, transparent 100%);
-    /* Combine both masks */
-    mask-image: var(--dot-mask), var(--edge-mask);
-    mask-size: 4px 4px, 100% 100%; /* size for dots, size for gradient */
-    mask-repeat: repeat, no-repeat; /* repeat dots, don't repeat gradient */
-    mask-composite: intersect; /* 'intersect' shows only where both masks are visible */
-
-    mix-blend-mode: hard-light;
+    mix-blend-mode: lighten;
+  }
+  html:not(.dark) #animated-background-canvas-container {
+    mix-blend-mode: darken;
   }
 
   [disabled] {

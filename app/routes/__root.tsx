@@ -177,106 +177,145 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     const canvas = canvasRef.current
 
+    const morphDuration = 4000
+    const waitDuration = 1000 * 60 * 2
+
+    function easeInOutCubic(t: number, b: number, c: number, d: number) {
+      if ((t /= d / 2) < 1) return (c / 2) * t * t * t + b
+      return (c / 2) * ((t -= 2) * t * t + 2) + b
+    }
+
     if (canvas) {
       const ctx = canvas.getContext('2d')!
 
-      // Resize canvas to fill the window
-      function resizeCanvas() {
+      let rafId: ReturnType<typeof requestAnimationFrame> | null = null
+      let timeout: ReturnType<typeof setTimeout> | null = null
+      let startTime = performance.now()
+
+      function createBlobs() {
+        return shuffle([
+          {
+            color: { h: 10, s: 100, l: 50 },
+          },
+          {
+            color: { h: 40, s: 100, l: 50 },
+          },
+          {
+            color: { h: 150, s: 100, l: 50 },
+          },
+          {
+            color: { h: 200, s: 100, l: 50 },
+          },
+        ]).map((blob) => ({
+          ...blob,
+          x: Math.random() * canvas!.width,
+          y: Math.random() * canvas!.height,
+          r: Math.random() * 500 + 700,
+          colorH: blob.color.h,
+          colorS: blob.color.s,
+          colorL: blob.color.l,
+        }))
+      }
+
+      function shuffle<T>(array: T[]) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[array[i], array[j]] = [array[j], array[i]]
+        }
+        return array
+      }
+
+      let currentBlobs = createBlobs()
+      let interBlobs = currentBlobs
+      let targetBlobs: ReturnType<typeof createBlobs> = []
+
+      function start() {
+        if (timeout) {
+          clearTimeout(timeout)
+        }
+        if (rafId) {
+          cancelAnimationFrame(rafId)
+        }
         const parent = canvas!.parentElement
         canvas!.width = parent!.clientWidth
         canvas!.height = parent!.clientHeight
+
+        currentBlobs = interBlobs
+        targetBlobs = createBlobs()
+        startTime = performance.now()
+        animate()
       }
 
-      resizeCanvas()
-
-      window.addEventListener('resize', resizeCanvas)
-
-      // Configuration for gradient blobs
-      const blobs = [
-        // Do Red, Orange, Yellow, Green, Blue, Turquoise
-        {
-          direction: [Math.random() * 1, Math.random() * 1],
-          color: { h: 10, s: 100, l: 50 },
-        }, // Red
-        {
-          direction: [Math.random() * 1, Math.random() * 1],
-          color: { h: 40, s: 100, l: 50 },
-        }, // Yellow
-        {
-          direction: [Math.random() * 1, Math.random() * 1],
-          color: { h: 150, s: 100, l: 50 },
-        }, // Green
-        {
-          direction: [Math.random() * 1, Math.random() * 1],
-          color: { h: 200, s: 100, l: 50 },
-        }, // Blue
-      ].map((blob, i) => ({
-        ...blob,
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 500 + 700,
-        colorH: blob.color.h,
-        colorS: blob.color.s,
-        colorL: blob.color.l,
-        colorA: 1,
-      }))
-
-      const movementSpeed = 1
-
-      // Animate the blobs
       function animate() {
         ctx.clearRect(0, 0, canvas!.width, canvas!.height)
 
-        // Manage blob existing
-        ;[...blobs].forEach((blob, i) => {
-          // If the blob is going to be outside the canvas, bounce it's direction
-          if (blob.x < 0 || blob.x > canvas!.width) {
-            blob.direction[0] = -blob.direction[0]
-          }
-          if (blob.y < 0 || blob.y > canvas!.height) {
-            blob.direction[1] = -blob.direction[1]
-          }
-        })
+        const time = performance.now() - startTime
+        const progress = easeInOutCubic(time, 0, 1, morphDuration)
 
-        blobs.forEach((blob, i) => {
-          // Create a radial gradient for each blob[...blobs].forEach((blob, i) => {
-          blob.x += blob.direction[0] * movementSpeed
-          blob.y += blob.direction[1] * movementSpeed
+        // Draw the blobs
+        currentBlobs.forEach((blob, i) => {
+          const targetBlob = targetBlobs[i]
+          interBlobs[i].x = blob.x + (targetBlob.x - blob.x) * progress
+          interBlobs[i].y = blob.y + (targetBlob.y - blob.y) * progress
 
-          // Create radial gradient
           const gradient = ctx.createRadialGradient(
-            blob.x,
-            blob.y,
+            interBlobs[i].x,
+            interBlobs[i].y,
             0,
-            blob.x,
-            blob.y,
-            blob.r
+            interBlobs[i].x,
+            interBlobs[i].y,
+            interBlobs[i].r
           )
+
+          interBlobs[i].colorH =
+            blob.colorH + (targetBlob.colorH - blob.colorH) * progress
+          interBlobs[i].colorS =
+            blob.colorS + (targetBlob.colorS - blob.colorS) * progress
+          interBlobs[i].colorL =
+            blob.colorL + (targetBlob.colorL - blob.colorL) * progress
 
           gradient.addColorStop(
             0,
-            `hsla(${blob.colorH}, ${blob.colorS}%, ${blob.colorL}%, ${blob.colorA})`
+            `hsla(${interBlobs[i].colorH}, ${interBlobs[i].colorS}%, ${interBlobs[i].colorL}%, 1)`
           )
           gradient.addColorStop(
             1,
-            `hsla(${blob.colorH}, ${blob.colorS}%, ${blob.colorL}%, 0)`
+            `hsla(${interBlobs[i].colorH}, ${interBlobs[i].colorS}%, ${interBlobs[i].colorL}%, 0)`
           )
 
-          // Draw gradient
           ctx.fillStyle = gradient
           ctx.beginPath()
-          ctx.arc(blob.x, blob.y, blob.r, 0, Math.PI * 2)
+          ctx.arc(
+            interBlobs[i].x,
+            interBlobs[i].y,
+            interBlobs[i].r,
+            0,
+            Math.PI * 2
+          )
           ctx.fill()
         })
 
-        const id = requestAnimationFrame(animate)
-
-        return () => {
-          cancelAnimationFrame(id)
+        if (progress < 1) {
+          rafId = requestAnimationFrame(animate)
+        } else {
+          timeout = setTimeout(() => {
+            start()
+          }, waitDuration)
         }
       }
 
-      return animate()
+      start()
+      window.addEventListener('resize', start)
+
+      return () => {
+        if (rafId) {
+          cancelAnimationFrame(rafId)
+        }
+        if (timeout) {
+          clearTimeout(timeout)
+        }
+        window.removeEventListener('resize', start)
+      }
     }
   }, [])
 

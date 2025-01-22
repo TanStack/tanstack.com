@@ -152,7 +152,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     select: (s) => s.status === 'pending',
   })
 
-  const [showLoading, setShowLoading] = React.useState(false)
+  const [canShowLoading, setShowLoading] = React.useState(false)
 
   React.useEffect(() => {
     const timeout = setTimeout(() => {
@@ -168,7 +168,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     select: (s) => s.resolvedLocation.pathname.startsWith('/router'),
   })
 
-  const showDevtools = showLoading && isRouterPage
+  const showDevtools = canShowLoading && isRouterPage
 
   const themeClass = themeCookie === 'dark' ? 'dark' : ''
 
@@ -358,14 +358,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         {showDevtools ? (
           <TanStackRouterDevtools position="bottom-right" />
         ) : null}
-        {showLoading ? (
+        {canShowLoading ? (
           <div
             className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none
         z-30 dark:h-[200px] dark:!bg-white/10 dark:rounded-[100%] ${
           isLoading
-            ? 'delay-0 opacity-1 -translate-y-1/2'
-            : 'delay-300 opacity-0 -translate-y-full'
+            ? 'delay-500 opacity-1 -translate-y-1/2'
+            : 'delay-0 opacity-0 -translate-y-full'
         }`}
             style={{
               background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,

@@ -1,9 +1,7 @@
 import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
-import { PiTreeStructureBold, PiRocketLaunchDuotone } from 'react-icons/pi'
-import { TbServerBolt } from 'react-icons/tb'
-import { FaBook, FaGithub, FaTwitter, FaYinYang } from 'react-icons/fa'
+import { FaBook, FaGithub, FaTwitter } from 'react-icons/fa'
 import { Await, Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'

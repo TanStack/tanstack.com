@@ -1,7 +1,6 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
 import { Library } from '.'
 import { VscPreview } from 'react-icons/vsc'
-import { ImBook } from 'react-icons/im'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
 import { IoIosBody } from 'react-icons/io'

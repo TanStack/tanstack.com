@@ -6,8 +6,8 @@ import {
   getTierById,
   updateTiersMeta,
 } from '~/server/tiers'
-import { createServerFn, json } from '@tanstack/start'
-import { getEvent, setHeader, setHeaders } from 'vinxi/http'
+import { createServerFn } from '@tanstack/start'
+import { getEvent, setHeaders } from 'vinxi/http'
 
 export type Sponsor = {
   login: string

@@ -3,7 +3,6 @@ import {
   Link,
   Outlet,
   createFileRoute,
-  useChildMatches,
   useLocation,
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'

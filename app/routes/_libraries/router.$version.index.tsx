@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CgSpinner, CgTimelapse } from 'react-icons/cg'
+import { CgSpinner } from 'react-icons/cg'
 import { FaCheckCircle } from 'react-icons/fa'
 import {
   Await,
@@ -7,8 +7,6 @@ import {
   createFileRoute,
   getRouteApi,
 } from '@tanstack/react-router'
-import { TbZoomQuestion } from 'react-icons/tb'
-import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { routerProject } from '~/libraries/router'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'

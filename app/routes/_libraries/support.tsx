@@ -1,12 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import imgTanner from '~/images/people/tannerlinsley.jpeg'
-import imgKevin from '~/images/people/kevinvancott.jpeg'
-import imgDominik from '~/images/people/dominikdorfmeister.jpg'
-import imgCorbin from '~/images/people/corbincrutchley.jpeg'
 import { seo } from '~/utils/seo'
-import { shuffle } from '~/utils/utils'
-import { CiTurnL1 } from 'react-icons/ci'
-import { useScript } from '~/hooks/useScript'
 
 export const Route = createFileRoute('/_libraries/support')({
   component: LoginComp,

@@ -2,7 +2,6 @@ import React from 'react'
 import { Pack, hierarchy } from '@visx/hierarchy'
 import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
-import { set } from 'date-fns'
 
 export default function SponsorPack({ sponsors }: { sponsors: any }) {
   const pack = React.useMemo(

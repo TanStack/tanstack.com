@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import headerCourse from '~/images/query-header-course.svg'
 import cornerTopLeft from '~/images/query-corner-top-left.svg'
 import cornerTopRight from '~/images/query-corner-top-right.svg'

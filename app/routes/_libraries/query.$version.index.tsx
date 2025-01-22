@@ -1,19 +1,12 @@
 import * as React from 'react'
 
-import { CgCornerUpLeft, CgSpinner } from 'react-icons/cg'
+import { CgSpinner } from 'react-icons/cg'
 import {
-  FaBolt,
-  FaBook,
-  FaCheckCircle,
-  FaCogs,
-  FaDiscord,
-  FaGithub,
-  FaTshirt,
+  FaCheckCircle
 } from 'react-icons/fa'
 import { Await, Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { VscPreview, VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { QueryGGBanner } from '~/components/QueryGGBanner'

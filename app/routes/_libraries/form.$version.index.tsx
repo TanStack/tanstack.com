@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
-import { FaBolt, FaCheckCircle, FaCogs } from 'react-icons/fa'
+import { FaCheckCircle } from 'react-icons/fa'
 import {
   Await,
   Link,
@@ -10,7 +10,6 @@ import {
 } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { VscWand } from 'react-icons/vsc'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
 import { formProject } from '~/libraries/form'

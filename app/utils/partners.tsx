@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import agGridDarkSvg from '~/images/ag-grid-dark.svg'
 import agGridLightSvg from '~/images/ag-grid-light.svg'

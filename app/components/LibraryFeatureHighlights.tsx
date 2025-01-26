@@ -13,7 +13,10 @@ export function LibraryFeatureHighlights({
     >
       {featureHighlights?.map((featureHighlight) => {
         return (
-          <div className="p-4 pt-6 flex-1 flex flex-col gap-4 items-center bg-white/50 dark:bg-black/40 shadow-xl rounded-xl relative">
+          <div
+            key={featureHighlight.title}
+            className="p-4 pt-6 flex-1 flex flex-col gap-4 items-center bg-white/50 dark:bg-black/40 shadow-xl rounded-xl relative"
+          >
             <div className="text-3xl text-center p-2 rounded-full shadow-md absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2/3 bg-white dark:bg-black/50">
               {featureHighlight.icon}
             </div>

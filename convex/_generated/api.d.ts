@@ -159,6 +159,7 @@ export declare const components: {
           packages: Array<{
             dayOfWeekAverages: Array<number>;
             downloadCount: number;
+            isNotFound?: boolean;
             name: string;
           }>;
         },

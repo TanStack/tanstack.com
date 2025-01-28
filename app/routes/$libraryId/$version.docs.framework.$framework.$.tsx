@@ -48,6 +48,7 @@ function Docs() {
   return (
     <DocContainer>
       <Doc
+        key={filePath}
         title={title}
         content={content}
         repo={library.repo}

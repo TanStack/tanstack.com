@@ -1,9 +1,7 @@
 import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
-import {
-  FaCheckCircle
-} from 'react-icons/fa'
+import { FaCheckCircle } from 'react-icons/fa'
 import { Await, Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'

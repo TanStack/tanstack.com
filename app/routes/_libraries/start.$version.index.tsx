@@ -77,8 +77,8 @@ export default function VersionIndex() {
           className="text opacity-90 max-w-[500px]
             lg:text-xl lg:max-w-[600px]"
         >
-          Full-document SSR, Streaming, Server Functions, bundling and more,
-          powered by <strong>TanStack Router</strong>, <strong>Vinxi</strong>,
+          SSR, Streaming, Server Functions, API Routes, bundling and more
+          powered by <strong>TanStack Router</strong>, <strong>Nitro</strong>,
           and <strong>Vite</strong>. Ready to deploy to your favorite hosting
           provider.
         </p>

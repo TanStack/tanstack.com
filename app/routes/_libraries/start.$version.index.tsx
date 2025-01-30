@@ -77,17 +77,25 @@ export default function VersionIndex() {
           className="text opacity-90 max-w-[500px]
             lg:text-xl lg:max-w-[600px]"
         >
-          Full-document SSR, Streaming, Server Functions, bundling and more,
-          powered by <strong>TanStack Router</strong>, <strong>Vinxi</strong>,
+          SSR, Streaming, Server Functions, API Routes, bundling and more
+          powered by <strong>TanStack Router</strong>, <strong>Nitro</strong>,
           and <strong>Vite</strong>. Ready to deploy to your favorite hosting
           provider.
         </p>
-        <Link
-          to="/start/latest/docs/framework/react/overview"
-          className={`py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
-        >
-          Get Started
-        </Link>
+        <div className="flex justify-center gap-4 flex-wrap">
+          <Link
+            to="./docs/framework/react/quick-start#impatient"
+            className={`py-2 px-4 bg-transparent text-cyan-600 dark:text-cyan-400 border-2 border-cyan-500 dark:border-cyan-600 rounded uppercase font-extrabold`}
+          >
+            Try it in 60 seconds
+          </Link>
+          <Link
+            to="./docs/framework/react/overview"
+            className={`py-2 px-4 bg-cyan-500 dark:bg-cyan-600 rounded text-white uppercase font-extrabold flex items-center`}
+          >
+            Get Started
+          </Link>
+        </div>
       </div>
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
       <div className="space-y-8 px-4">

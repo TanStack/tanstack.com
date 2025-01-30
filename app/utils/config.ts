@@ -52,12 +52,14 @@ export type ConfigSchema = z.infer<typeof configSchema>
   Fetch the config file for the project and validate it.
   */
 export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
-  .validator(z.object({ repo: z.string(), branch: z.string() }))
-  .handler(async ({ data: { repo, branch } }) => {
-    const config = await fetchRepoFile(repo, branch, `docs/config.json`)
+  .validator(
+    z.object({ repo: z.string(), branch: z.string(), docsRoot: z.string() })
+  )
+  .handler(async ({ data: { repo, branch, docsRoot } }) => {
+    const config = await fetchRepoFile(repo, branch, `${docsRoot}/config.json`)
 
     if (!config) {
-      throw new Error('Repo docs/config.json not found!')
+      throw new Error(`Repo's ${docsRoot}/config.json was not found!`)
     }
 
     try {

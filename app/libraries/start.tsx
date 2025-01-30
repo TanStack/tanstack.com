@@ -24,6 +24,7 @@ export const startProject = {
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
+  docsRoot: 'docs/start',
   colorFrom: 'from-teal-500',
   colorTo: 'to-cyan-500',
   textColor: 'text-cyan-600',
@@ -33,12 +34,12 @@ export const startProject = {
     {
       icon: <BiBookAlt />,
       label: 'Docs',
-      to: '/router/latest/docs',
+      to: '/start/latest/docs/framework/react/overview',
     },
     {
       icon: <VscPreview />,
       label: 'Examples',
-      to: '/router/latest/docs/framework/react/examples/start-basic',
+      to: '/start/latest/docs/framework/react/examples/start-basic',
     },
     {
       icon: <FaGithub />,

@@ -14,6 +14,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
       data: {
         repo: library.repo,
         branch,
+        docsRoot: library.docsRoot || 'docs',
       },
     })
 

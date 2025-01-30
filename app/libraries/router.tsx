@@ -6,6 +6,7 @@ import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { CgTimelapse } from 'react-icons/cg'
 import { TbZoomQuestion } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
+import { redirect } from '@tanstack/react-router'
 
 const repo = 'tanstack/router'
 
@@ -28,6 +29,7 @@ export const routerProject = {
   latestBranch: 'main',
   latestVersion: 'v1',
   availableVersions: ['v1'],
+  docsRoot: 'docs/router',
   colorFrom: 'from-emerald-500',
   colorTo: 'to-lime-600',
   textColor: textStyles,
@@ -110,4 +112,23 @@ export const routerProject = {
       ),
     },
   ],
+  handleRedirects(href) {
+    if (href.includes('router/latest/docs/framework/react/start')) {
+      throw redirect({
+        href: href.replace(
+          'router/latest/docs/framework/react/start',
+          'start/latest/docs/framework/react'
+        ),
+      })
+    }
+
+    if (href.includes('/router/latest/docs/framework/react/examples/start')) {
+      throw redirect({
+        href: href.replace(
+          'router/latest/docs/framework/react/examples/start',
+          'start/latest/docs/framework/react/examples/start'
+        ),
+      })
+    }
+  },
 } satisfies Library

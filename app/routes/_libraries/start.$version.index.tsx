@@ -83,7 +83,7 @@ export default function VersionIndex() {
           provider.
         </p>
         <Link
-          to="../../router/latest/docs/framework/react/start/overview"
+          to="/start/latest/docs/framework/react/overview"
           className={`py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
         >
           Get Started
@@ -106,13 +106,13 @@ export default function VersionIndex() {
         </div>
         <div className="grid items-center gap-2 justify-center grid-cols-2 w-[600px] max-w-full mx-auto">
           <Link
-            to="../../router/latest/docs/framework/react/examples/start-basic"
+            to="/start/latest/docs/framework/react/examples/start-basic"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-900 rounded text-white uppercase font-extrabold`}
           >
             <VscPreview /> See an Example
           </Link>
           <Link
-            to="../../router/latest/docs/framework/react/start/overview"
+            to="/start/latest/docs/framework/react/overview"
             className={`flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded text-white uppercase font-extrabold`}
           >
             <FaBook /> Try the BETA
@@ -442,7 +442,7 @@ export default function VersionIndex() {
         </div>
         <div>
           <Link
-            to="../../router/latest/docs/framework/react/start/overview"
+            to="/start/latest/docs/framework/react/overview"
             className={`inline-block py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started!

@@ -71,6 +71,7 @@ export type Library = {
     icon: React.ReactNode
     description: React.ReactNode
   }[]
+  docsRoot?: string
 }
 
 export type LibraryMenuItem = {
@@ -91,7 +92,7 @@ export const libraries = [
   configProject,
 ] satisfies Library[]
 
-export function getLibrary(id: (typeof libraries)[number]['id']) {
+export function getLibrary(id: string) {
   const library = libraries.find((d) => d.id === id)
 
   if (!library) {

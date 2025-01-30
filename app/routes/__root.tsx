@@ -165,7 +165,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   }, [])
 
   const isRouterPage = useRouterState({
-    select: (s) => s.resolvedLocation.pathname.startsWith('/router'),
+    select: (s) => s.resolvedLocation?.pathname.startsWith('/router'),
   })
 
   const showDevtools = canShowLoading && isRouterPage

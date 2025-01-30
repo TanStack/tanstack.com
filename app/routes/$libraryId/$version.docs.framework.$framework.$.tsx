@@ -18,7 +18,9 @@ export const Route = createFileRoute(
     return loadDocs({
       repo: library.repo,
       branch: getBranch(library, version),
-      docsPath: `docs/framework/${framework}/${docsPath}`,
+      docsPath: `${
+        library.docsRoot || 'docs'
+      }/framework/${framework}/${docsPath}`,
       currentPath: ctx.location.pathname,
       redirectPath: `/${library.id}/${version}/docs/overview`,
     })

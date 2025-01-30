@@ -43,6 +43,51 @@ export function Doc({
 
   const isTocVisible = shouldRenderToc && headings && headings.length > 1
 
+  const markdownContainerRef = React.useRef<HTMLDivElement>(null)
+  const [activeHeadings, setActiveHeadings] = React.useState<Array<string>>([])
+
+  const headingElementRefs = React.useRef<
+    Record<string, IntersectionObserverEntry>
+  >({})
+
+  React.useEffect(() => {
+    const callback = (headingsList: Array<IntersectionObserverEntry>) => {
+      headingElementRefs.current = headingsList.reduce(
+        (map, headingElement) => {
+          map[headingElement.target.id] = headingElement
+          return map
+        },
+        headingElementRefs.current
+      )
+
+      const visibleHeadings: Array<IntersectionObserverEntry> = []
+      Object.keys(headingElementRefs.current).forEach((key) => {
+        const headingElement = headingElementRefs.current[key]
+        if (headingElement.isIntersecting) {
+          visibleHeadings.push(headingElement)
+        }
+      })
+
+      if (visibleHeadings.length >= 1) {
+        setActiveHeadings(visibleHeadings.map((h) => h.target.id))
+      }
+    }
+
+    const observer = new IntersectionObserver(callback, {
+      rootMargin: '0px',
+      threshold: 0.2,
+    })
+
+    const headingElements = Array.from(
+      markdownContainerRef.current?.querySelectorAll(
+        'h2[id], h3[id], h4[id], h5[id], h6[id]'
+      ) ?? []
+    )
+    headingElements.forEach((el) => observer.observe(el))
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div
       className={twMerge(
@@ -61,9 +106,11 @@ export function Doc({
         <div className="h-px bg-gray-500 opacity-20" />
         <div className="h-4" />
         <div
+          ref={markdownContainerRef}
           className={twMerge(
             'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
-            isTocVisible && 'pr-4 lg:pr-6'
+            isTocVisible && 'pr-4 lg:pr-6',
+            'styled-markdown-content'
           )}
         >
           <Markdown htmlMarkup={markup} />
@@ -83,7 +130,12 @@ export function Doc({
 
       {isTocVisible && (
         <div className="border-l border-gray-500/20 max-w-52 w-full hidden 2xl:block transition-all">
-          <Toc headings={headings} colorFrom={colorFrom} colorTo={colorTo} />
+          <Toc
+            headings={headings}
+            activeHeadings={activeHeadings}
+            colorFrom={colorFrom}
+            colorTo={colorTo}
+          />
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 function getWithExpiry<T>(key: string) {
   if (typeof window !== 'undefined') {

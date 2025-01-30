@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { HeadingData } from 'marked-gfm-heading-id'
-import { useLocation } from '@tanstack/react-router'
 
 const headingLevels: Record<number, string> = {
   1: 'pl-2',
@@ -16,17 +15,15 @@ type TocProps = {
   headings: HeadingData[]
   colorFrom?: string
   colorTo?: string
+  activeHeadings: Array<string>
 }
 
-export function Toc({ headings, colorFrom, colorTo }: TocProps) {
-  const location = useLocation()
-
-  const [hash, setHash] = React.useState('')
-
-  React.useEffect(() => {
-    setHash(location.hash)
-  }, [location])
-
+export function Toc({
+  headings,
+  colorFrom,
+  colorTo,
+  activeHeadings,
+}: TocProps) {
   return (
     <nav className="flex flex-col sticky top-2 max-h-screen divide-y divide-gray-500/20">
       <div className="p-2">
@@ -48,7 +45,7 @@ export function Toc({ headings, colorFrom, colorTo }: TocProps) {
             <a
               title={heading.id}
               href={`#${heading.id}`}
-              aria-current={hash === heading.id && 'location'}
+              aria-current={activeHeadings.includes(heading.id) && 'location'}
               className={`truncate block aria-current:bg-gradient-to-r ${colorFrom} ${colorTo} aria-current:bg-clip-text aria-current:text-transparent`}
               dangerouslySetInnerHTML={{
                 __html: heading.text,

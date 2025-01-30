@@ -15,6 +15,8 @@ import clerkLightSvg from '~/images/clerk-logo-light.svg'
 import clerkDarkSvg from '~/images/clerk-logo-dark.svg'
 import sentryWordMarkLightSvg from '~/images/sentry-wordmark-light.svg'
 import sentryWordMarkDarkSvg from '~/images/sentry-wordmark-dark.svg'
+import speakeasyLightSvg from '~/images/speakeasy-light.svg'
+import speakeasyDarkSvg from '~/images/speakeasy-dark.svg'
 import { Library } from '~/libraries'
 
 type Partner = {
@@ -369,6 +371,55 @@ const nozzle = (() => {
   }
 })()
 
+const speakeasy = (() => {
+  const href =
+    'https://speakeasy.com/?utm_source=tanstack&utm_campaign=tanstack'
+
+  return {
+    name: 'Speakeasy',
+    id: 'speakeasy',
+    href,
+    sidebarImgLight: speakeasyLightSvg,
+    sidebarImgDark: speakeasyDarkSvg,
+    sidebarImgClass: 'w-[150px] py-4',
+    libraries: ['query'],
+    homepageImg: (
+      <div className="py-6">
+        <img
+          src={speakeasyLightSvg}
+          alt="Speakeasy"
+          className="w-[300px] max-w-full my-2 dark:hidden"
+          width="300"
+          height="100"
+        />
+        <img
+          src={speakeasyDarkSvg}
+          alt="Speakeasy"
+          className="w-[300px] max-w-full my-2 hidden dark:block"
+          width="300"
+          height="100"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          Speakeasy and TanStack are working together to make{' '}
+          <strong>API management effortless</strong>. With Speakeasy's{' '}
+          <strong>automated SDK generation</strong> and TanStack's robust
+          front-end tooling, developers can move faster than ever. Whether
+          you're integrating APIs or streamlining your developer experience,
+          this partnership ensures you're covered from server to client with{' '}
+          <strong>powerful, type-safe, and optimized solutions</strong>.
+        </div>
+        <span className="text-blue-500 uppercase font-black text-sm">
+          Learn More
+        </span>
+      </>
+    ),
+  }
+})()
+
 // const vercel = (() => {
 //   const href = 'https://vercel.com?utm_source=tanstack'
 
@@ -420,6 +471,7 @@ export const partners: Partner[] = [
   netlify,
   convex,
   sentry,
+  speakeasy,
   uiDev,
   nozzle,
 ]

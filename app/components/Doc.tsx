@@ -84,10 +84,6 @@ export function Doc({
       ) ?? []
     )
     headingElements.forEach((el) => observer.observe(el))
-    console.log(
-      'observing',
-      headingElements.map((h) => h.id)
-    )
 
     return () => observer.disconnect()
   }, [])

@@ -32,14 +32,14 @@ export const startProject = {
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   menu: [
     {
-      icon: <BiBookAlt />,
-      label: 'Docs',
-      to: '/start/latest/docs/framework/react/overview',
-    },
-    {
       icon: <VscPreview />,
       label: 'Examples',
       to: '/start/latest/docs/framework/react/examples/start-basic',
+    },
+    {
+      icon: <BiBookAlt />,
+      label: 'Docs',
+      to: '/start/latest/docs/framework/react/overview',
     },
     {
       icon: <FaGithub />,

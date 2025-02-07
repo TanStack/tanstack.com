@@ -576,7 +576,7 @@ export function DocsLayout({
         >
           {children}
         </div>
-        <DocContainer className="mb-8 !py-0">
+        <DocContainer className="mb-8 !py-0 flex justify-center">
           <GadFooter />
         </DocContainer>
         <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">

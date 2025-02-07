@@ -30,6 +30,8 @@ import { ClientOnlySearchButton } from './ClientOnlySearchButton'
 import { twMerge } from 'tailwind-merge'
 import { partners } from '~/utils/partners'
 import { useThemeStore } from './ThemeToggle'
+import { GadFooter, GadRightRail } from './GoogleScripts'
+import { DocContainer } from './DocContainer'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -574,6 +576,9 @@ export function DocsLayout({
         >
           {children}
         </div>
+        <DocContainer className="mb-8 !py-0">
+          <GadFooter />
+        </DocContainer>
         <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
           <div className="w-1/2 px-1 flex justify-end flex-wrap">
             {prevItem ? (
@@ -683,6 +688,10 @@ export function DocsLayout({
             ) : (
               <DocsCalloutBytes />
             )}
+          </div>
+
+          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+            <GadRightRail />
           </div>
 
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">

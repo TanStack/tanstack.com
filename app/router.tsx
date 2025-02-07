@@ -36,6 +36,7 @@ export function createRouter() {
       defaultNotFoundComponent: () => {
         return <NotFound />
       },
+      scrollRestoration: true,
       context: {
         queryClient,
       },

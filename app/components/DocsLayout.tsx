@@ -30,7 +30,11 @@ import { ClientOnlySearchButton } from './ClientOnlySearchButton'
 import { twMerge } from 'tailwind-merge'
 import { partners } from '~/utils/partners'
 import { useThemeStore } from './ThemeToggle'
-import { GadFooter, GadRightRail } from './GoogleScripts'
+import {
+  GadFooter,
+  GadLeftRailSquare,
+  GadRightRailSquare,
+} from './GoogleScripts'
 import { DocContainer } from './DocContainer'
 
 // Let's use zustand to wrap the local storage logic. This way
@@ -541,6 +545,9 @@ export function DocsLayout({
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-8">
         {menuItems}
       </div>
+      <div className="mt-auto overflow-hidden h-0">
+        <GadLeftRailSquare />
+      </div>
     </div>
   )
 
@@ -691,7 +698,7 @@ export function DocsLayout({
           </div>
 
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
-            <GadRightRail />
+            <GadRightRailSquare />
           </div>
 
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">

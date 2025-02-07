@@ -6,6 +6,39 @@ declare global {
   }
 }
 
+const adSlots = {
+  leaderboard: {
+    id: 'div-gpt-ad-1738811978953-leaderboard',
+    sizes: [[728, 90]],
+    targeting: 'leaderboard',
+    refreshInterval: 45000, // 45 seconds
+  },
+  footer: {
+    id: 'div-gpt-ad-1738811978953-footer',
+    sizes: [[728, 90]],
+    targeting: 'footer',
+    refreshInterval: 45000, // 45 seconds
+  },
+  rightRail: {
+    id: 'div-gpt-ad-1738811978953-right-rail',
+    sizes: [
+      // [160, 600],
+      [300, 250],
+    ],
+    targeting: 'right-side-rail',
+    refreshInterval: 45000, // 45 seconds
+  },
+  leftRail: {
+    id: 'div-gpt-ad-1738811978953-left-rail',
+    sizes: [
+      // [160, 600],
+      [300, 250],
+    ],
+    targeting: 'left-side-rail',
+    refreshInterval: 45000, // 45 seconds
+  },
+}
+
 export function GoogleScripts() {
   return (
     <>
@@ -18,37 +51,12 @@ export function GoogleScripts() {
         dangerouslySetInnerHTML={{
           __html: `
           (() => {
-            const adSlots = [
-              {
-                id: 'div-gpt-ad-1738811978953-leaderboard',
-                sizes: [[728, 90]],
-                targeting: 'leaderboard',
-                refreshInterval: 45000 // 45 seconds
-              },
-              {
-                id: 'div-gpt-ad-1738811978953-footer', 
-                sizes: [[728, 90]],
-                targeting: 'footer',
-                refreshInterval: 45000 // 45 seconds
-              },
-              {
-                id: 'div-gpt-ad-1738811978953-right-rail',
-                sizes: [[160, 600], [300,250]],
-                targeting: 'right-side-rail',
-                refreshInterval: 45000 // 45 seconds
-              },
-              {
-                id: 'div-gpt-ad-1738811978953-left-rail',
-                sizes: [[160, 600], [300,250]], 
-                targeting: 'left-side-rail',
-                refreshInterval: 45000 // 45 seconds
-              }
-            ];
+            const adSlots = ${JSON.stringify(adSlots)};
 
             window.googletag = window.googletag || {cmd: []};
             googletag.cmd.push(function() {
               // Define all ad slots
-              adSlots.forEach(slot => {
+              Object.values(adSlots).forEach(slot => {
                 googletag.defineSlot('/23278945940/TopLevel', slot.sizes, slot.id)
                   .addService(googletag.pubads())
                   .setTargeting(slot.targeting, [slot.targeting]);
@@ -59,7 +67,7 @@ export function GoogleScripts() {
             });
 
             // Set individual refresh intervals for each ad
-            adSlots.forEach(slot => {
+            Object.values(adSlots).forEach(slot => {
               setInterval(function() {
                 googletag.cmd.push(function() {
                   googletag.pubads().refresh([googletag.slots[slot.id]]);
@@ -91,7 +99,7 @@ export function GadLeader() {
   return (
     <div className="overflow-hidden h-0 w-0">
       <Gad
-        adId="div-gpt-ad-1738811978953-leaderboard"
+        adId={adSlots.leaderboard.id}
         style={{
           maxWidth: '728px',
           aspectRatio: '728 / 90',
@@ -104,25 +112,25 @@ export function GadLeader() {
 export function GadFooter() {
   return (
     <Gad
-      adId="div-gpt-ad-1738811978953-footer"
+      adId={adSlots.footer.id}
       style={{ maxWidth: '728px', aspectRatio: '728 / 90' }}
     />
   )
 }
 
-export function GadLeftRail() {
+export function GadLeftRailSquare() {
   return (
     <Gad
-      adId="div-gpt-ad-1738811978953-left-rail"
+      adId={adSlots.leftRail.id}
       style={{ maxWidth: '300px', aspectRatio: '300 / 250' }}
     />
   )
 }
 
-export function GadRightRail() {
+export function GadRightRailSquare() {
   return (
     <Gad
-      adId="div-gpt-ad-1738811978953-right-rail"
+      adId={adSlots.rightRail.id}
       style={{ maxWidth: '300px', aspectRatio: '300 / 250' }}
     />
   )

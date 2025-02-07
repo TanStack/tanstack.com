@@ -80,7 +80,11 @@ export default function OssStats() {
           <FaDownload className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
           <div>
             <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
-              <NpmDownloadCounter npmData={npm} />
+              {/* Uncomment for live counter */}
+              {/*<NpmDownloadCounter npmData={npm} />*/}
+
+              {/* Uncomment for static counter */}
+              <StableCounter value={1688523620} />
             </div>
             <div className="text-sm opacity-50 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
               NPM Downloads

@@ -142,6 +142,14 @@ export default function RouteComp() {
             actually make the web a better place.
           </p>
         </section>
+
+        <section className="space-y-4">
+          <div>
+            <strong>- Tanner Linsley</strong>
+            <br />
+            Founder, TanStack LLC
+          </div>
+        </section>
       </div>
       <Footer />
     </div>

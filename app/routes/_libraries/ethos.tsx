@@ -29,51 +29,54 @@ export default function RouteComp() {
           </p>
         </section>
 
-        <section>
+        <section className="space-y-4">
           <h2 className="text-2xl font-semibold">
             Independently Owned, Unbiased by Design
           </h2>
           <p>
-            TanStack LLC is <strong>privately owned</strong>—no external
-            investors, no controlling interests, and no hidden agendas. Our
-            funding comes from media and marketing partnerships with companies
-            that share our core values:{' '}
+            TanStack LLC is <strong>100% privately owned</strong> by its
+            founder—no external investors, no controlling interests, and no
+            hidden agendas. Our funding comes from media and marketing
+            partnerships with companies that share our core values:{' '}
             <strong>
-              openness, interoperability, and empowering developers to build
-              without limitations.
+              the open web, open standards, and the freedom to compose and
+              deploy anything you want, anywhere you please.
             </strong>
           </p>
         </section>
 
-        <section>
-          <h2 className="text-2xl font-semibold">Sustainability Over Scale</h2>
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold">A Sustainable Future</h2>
           <p>
-            Unlike some popular open-source projects burdened by massive
-            payrolls, overhead, or investor expectations,{' '}
-            <strong>
-              TanStack doesn't need to make crazy amounts of money.
-            </strong>{' '}
-            It only needs to be sustainable for the people who put in the time
-            to build and maintain it.
+            TanStack is a lean, focused team: a full-time founder, several
+            prominent and well-sponsored maintainers and a thriving community of
+            users and contributors who share our core values.
           </p>
-          <p className="mt-4">That means:</p>
-          <ul className="list-none space-y-2 mt-2">
-            <li className="flex items-start">
-              <span className="text-green-500 mr-2">✅</span>
+          <p className="">
+            Unlike venture-backed projects chasing growth at all costs,{' '}
+            <strong>
+              we don't need to "scale", "grow", or "expand" into a VC-funded,
+              acquisition-seeking, or freemium-grifting product.
+            </strong>{' '}
+            We're not obsessed with hitting the next 10x multiplier to satisfy
+            some parent company's lead-generating IPO ambitions.
+          </p>
+          <p className="">That means:</p>
+          <ul className="list-disc pl-8 space-y-2">
+            <li>
               No pressure to chase profits at the cost of developer experience.
             </li>
-            <li className="flex items-start">
-              <span className="text-green-500 mr-2">✅</span>
-              No corporate influence dictating our technical direction.
-            </li>
-            <li className="flex items-start">
-              <span className="text-green-500 mr-2">✅</span>A long-term focus
-              on <strong>what's best for developers, not shareholders.</strong>
+            <li>No corporate influence dictating our technical direction.</li>
+            <li>
+              A singular focus on{' '}
+              <strong>
+                building tools that make the web better for users and developers
+              </strong>
             </li>
           </ul>
         </section>
 
-        <section>
+        <section className="space-y-4">
           <h2 className="text-2xl font-semibold">
             Technology-Agnostic by Default
           </h2>
@@ -84,33 +87,38 @@ export default function RouteComp() {
             </strong>{' '}
             that puts developers first:
           </p>
-          <ul className="list-disc pl-8 mt-4 space-y-2">
+          <ul className="list-disc pl-8 space-y-2">
             <li>
-              <strong>TanStack Start</strong> is built on foundational
-              primitives (like Nitro) that prioritize flexibility over lock-in.
+              TanStack libraries are built on framework and platform-agnostic
+              primitives. When our libraries build on other tools, like TanStack
+              Start builds on Nitro, we ensure that these tools uphold these
+              same values of openness and flexibility.
             </li>
             <li>
-              <strong>TanStack Libraries</strong> work seamlessly across all
-              major frameworks and deployment environments—and when a new one
-              rises, we aim to support it too.
+              <strong>TanStack Libraries</strong> either already support or will
+              support all major (and some minor!) frameworks and deployment
+              environments—no exceptions.
             </li>
             <li>
-              <strong>If we have any bias, it's toward TypeScript</strong>—or
-              more broadly, whatever "typed JavaScript" evolves into over the
-              next decade.
+              <strong>
+                If there's any technology we're aligned with, it's TypeScript
+              </strong>
+              —or more broadly, "typed JavaScript", whatever that evolves into
+              as time goes on.
             </li>
           </ul>
         </section>
 
-        <section>
-          <h2 className="text-2xl font-semibold">
-            Sponsorships Without Strings
-          </h2>
-          <p>Every sponsor we work with understands and respects our stance:</p>
-          <ul className="list-disc pl-8 mt-4 space-y-2">
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold">Open Sponsorships</h2>
+          <p>
+            Every sponsor we work with not only understands but actively upholds
+            our values:
+          </p>
+          <ul className="list-disc pl-8  space-y-2">
             <li>
-              No sponsor can dictate or influence TanStack's technology in a way
-              that biases it toward their platform.
+              No sponsor can dictate or influence TanStack's core technology in
+              a way that biases it toward their platform.
             </li>
             <li>
               Our libraries are built to serve <strong>developers first</strong>
@@ -123,13 +131,15 @@ export default function RouteComp() {
           </ul>
         </section>
 
-        <section>
+        <section className="space-y-4">
           <p className="text-lg font-medium">
             At the end of the day,{' '}
             <strong>
               TanStack isn't just a set of libraries—it's a commitment to
               building the web <em>on your terms</em>, without compromise.
-            </strong>
+            </strong>{' '}
+            All we need is enough to keep improving tools that we believe
+            actually make the web a better place.
           </p>
         </section>
       </div>

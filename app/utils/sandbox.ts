@@ -4,6 +4,10 @@ export const getInitialSandboxFileName = (
   framework: Framework,
   libraryId?: string
 ) => {
+  if (libraryId === 'start') {
+    return 'app/routes/__root.tsx'
+  }
+
   const dir = 'src'
 
   const file =

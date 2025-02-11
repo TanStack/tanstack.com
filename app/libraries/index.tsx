@@ -72,6 +72,7 @@ export type Library = {
     description: React.ReactNode
   }[]
   docsRoot?: string
+  embedEditor?: 'codesandbox' | 'stackblitz'
 }
 
 export type LibraryMenuItem = {

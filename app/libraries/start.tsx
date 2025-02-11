@@ -28,6 +28,7 @@ export const startProject = {
   colorFrom: 'from-teal-500',
   colorTo: 'to-cyan-500',
   textColor: 'text-cyan-600',
+  embedEditor: 'codesandbox',
   frameworks: ['react'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   menu: [

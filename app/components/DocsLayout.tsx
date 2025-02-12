@@ -455,7 +455,7 @@ export function DocsLayout({
   const logo = (
     <DocsLogo
       name={name}
-      linkTo={repo.replace('tanstack/', '')}
+      libraryId={libraryId}
       version={version}
       colorFrom={colorFrom}
       colorTo={colorTo}

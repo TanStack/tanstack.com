@@ -64,8 +64,8 @@ function RouterVersionIndex() {
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          A fully type-safe router with built-in data fetching,
-          stale-while revalidate caching and first-class search-param APIs.
+          A fully type-safe router with built-in data fetching, stale-while
+          revalidate caching and first-class search-param APIs.
         </p>
         <Link
           to="./docs/framework/react/overview"

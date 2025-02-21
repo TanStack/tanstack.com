@@ -208,7 +208,7 @@ pre.twoslash data-lsp:hover::before {
   text-align: left;
   padding: 5px 8px;
   border-radius: 2px;
-  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, Courier New, monospace;
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace, Courier New;
   font-size: 14px;
   white-space: pre-wrap;
   z-index: 100;
@@ -247,7 +247,7 @@ pre .code-container:hover a {
 
 pre code {
   font-size: 12px;
-  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, Courier New, monospace;
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace, Courier New;
   white-space: pre;
   -webkit-overflow-scrolling: touch;
 }
@@ -386,7 +386,7 @@ data-lsp {
 }
 .tag-container .twoslash-annotation {
   position: absolute;
-  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, Courier New, monospace;
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace, Courier New;
   right: -10px;
   /** Default annotation text to 200px */
   width: 200px;

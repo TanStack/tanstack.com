@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
 import type { HTMLProps } from 'react'
 
@@ -44,6 +45,11 @@ function resolveRelativePath(routerHref: string, relativePath: string): string {
   //   stack.pop()
   // }
 
+  // Treat relative paths without "./" or "../" as if they started with "../"
+  if (!relativePath.startsWith('./') && !relativePath.startsWith('../')) {
+    stack.pop()
+  }
+
   let firstDoubleDotEncountered = false // Flag to track the first ".."
 
   for (let i = 0; i < parts.length; i++) {
@@ -76,12 +82,16 @@ function resolveRelativePath(routerHref: string, relativePath: string): string {
 
 export function MarkdownLink({ href, ...rest }: HTMLProps<HTMLAnchorElement>) {
   const pathname = useLocation({ select: (s) => s.href })
+
+  // const relativeHref = href?.replace(/([A-Za-z][A-Za-z/_-]+).md/, '../$1')
+  const relativeHref = useMemo(
+    () => resolveRelativePath(pathname + '/', href ?? ''),
+    [pathname, href]
+  )
+
   if (href?.startsWith('http')) {
     return <a {...rest} href={href} />
   }
-
-  // const relativeHref = href?.replace(/([A-Za-z][A-Za-z/_-]+).md/, '../$1')
-  const relativeHref = resolveRelativePath(pathname + '/', href ?? '')
 
   return (
     <Link

@@ -1,6 +1,27 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import type { HTMLProps } from 'react'
 
+export function MarkdownLink({ href, ...rest }: HTMLProps<HTMLAnchorElement>) {
+  const pathname = useLocation({ select: (s) => s.href })
+
+  if (href?.startsWith('http')) {
+    return <a {...rest} href={href} />
+  }
+
+  // const relativeHref = href?.replace(/([A-Za-z][A-Za-z/_-]+).md/, '../$1')
+  const relativeHref = resolveRelativePath(pathname + '/', href ?? '')
+
+  return (
+    <Link
+      to={relativeHref}
+      params={{}}
+      {...rest}
+      preload={undefined}
+      ref={undefined}
+    />
+  )
+}
+
 function resolveRelativePath(routerHref: string, markdownPath: string): string {
   let hash = ''
   let basePath = routerHref
@@ -77,25 +98,4 @@ function resolveRelativePath(routerHref: string, markdownPath: string): string {
   resolvedPath += hash
 
   return resolvedPath
-}
-
-export function MarkdownLink({ href, ...rest }: HTMLProps<HTMLAnchorElement>) {
-  const pathname = useLocation({ select: (s) => s.href })
-
-  if (href?.startsWith('http')) {
-    return <a {...rest} href={href} />
-  }
-
-  // const relativeHref = href?.replace(/([A-Za-z][A-Za-z/_-]+).md/, '../$1')
-  const relativeHref = resolveRelativePath(pathname + '/', href ?? '')
-
-  return (
-    <Link
-      to={relativeHref}
-      params={{}}
-      {...rest}
-      preload={undefined}
-      ref={undefined}
-    />
-  )
 }

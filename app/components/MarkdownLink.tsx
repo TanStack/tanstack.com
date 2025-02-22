@@ -2,7 +2,7 @@ import { Link, useLocation } from '@tanstack/react-router'
 import type { HTMLProps } from 'react'
 
 export function MarkdownLink({ href, ...rest }: HTMLProps<HTMLAnchorElement>) {
-  const pathname = useLocation({ select: (s) => s.href })
+  const pathname = useLocation({ select: (s) => s.pathname })
 
   if (href?.startsWith('http')) {
     return <a {...rest} href={href} />

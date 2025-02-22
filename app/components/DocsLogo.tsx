@@ -3,15 +3,19 @@ import { ThemeToggle } from './ThemeToggle'
 
 type Props = {
   name: string
-  linkTo: string
+  libraryId: string
   version: string
   colorFrom: string
   colorTo: string
 }
 
-export const DocsLogo = (props: Props) => {
-  const { name, version, colorFrom, colorTo } = props
-
+export const DocsLogo = ({
+  name,
+  version,
+  colorFrom,
+  colorTo,
+  libraryId,
+}: Props) => {
   const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
 
   return (
@@ -20,9 +24,9 @@ export const DocsLogo = (props: Props) => {
         TanStack
       </Link>
       <Link
-        to={`/${props.linkTo}`}
+        to={`/$libraryId`}
         className="font-bold whitespace-nowrap"
-        params
+        params={{ libraryId }}
       >
         <span className={`${gradientText}`}>{name}</span>{' '}
         <span className="text-sm align-super">{version}</span>

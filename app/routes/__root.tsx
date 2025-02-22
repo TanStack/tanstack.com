@@ -2,18 +2,18 @@ import * as React from 'react'
 import {
   Outlet,
   ScriptOnce,
-  ScrollRestoration,
   createRootRouteWithContext,
   redirect,
   useMatches,
   useRouterState,
+  HeadContent,
+  Scripts,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-import { Scripts, Meta } from '@tanstack/start'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
@@ -334,7 +334,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             children={`window.matchMedia('(prefers-color-scheme: dark)').matches ? document.documentElement.classList.add('dark') : null`}
           />
         ) : null}
-        <Meta />
+        <HeadContent />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
         ) : null}
@@ -379,7 +379,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         ) : null}
-        <ScrollRestoration />
         <Scripts />
       </body>
     </html>

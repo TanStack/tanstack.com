@@ -1,10 +1,15 @@
-import { useMemo } from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
 import type { HTMLProps } from 'react'
 
-function resolveRelativePath(routerHref: string, relativePath: string): string {
+function resolveRelativePath(routerHref: string, markdownPath: string): string {
   let hash = ''
   let basePath = routerHref
+  let relativePath = markdownPath
+
+  // Add a leading "./" if the relative path doesn't start with "./" or "../"
+  if (!relativePath.startsWith('./') && !relativePath.startsWith('../')) {
+    relativePath = './' + relativePath
+  }
 
   // Check if there's a hash fragment in the relative path
   const hashIndex = relativePath.indexOf('#')
@@ -16,18 +21,6 @@ function resolveRelativePath(routerHref: string, relativePath: string): string {
   // Remove .md extension if it exists
   if (relativePath.endsWith('.md')) {
     relativePath = relativePath.substring(0, relativePath.length - 3)
-  }
-
-  // Check if the last segment is "index" and remove it
-  const stackBeforeIndexCheck = basePath.split('/').filter(Boolean)
-  if (
-    stackBeforeIndexCheck.length > 0 &&
-    stackBeforeIndexCheck[stackBeforeIndexCheck.length - 1] === 'index'
-  ) {
-    if (basePath.endsWith('/')) {
-      basePath = basePath.substring(0, basePath.length - 1)
-    }
-    basePath = basePath.substring(0, basePath.length - 'index'.length)
   }
 
   const stack = basePath.split('/').filter(Boolean)
@@ -44,11 +37,6 @@ function resolveRelativePath(routerHref: string, relativePath: string): string {
   // if (stack.length > 0 && stack[stack.length - 1].indexOf('.') > -1) {
   //   stack.pop()
   // }
-
-  // Treat relative paths without "./" or "../" as if they started with "../"
-  if (!relativePath.startsWith('./') && !relativePath.startsWith('../')) {
-    stack.pop()
-  }
 
   let firstDoubleDotEncountered = false // Flag to track the first ".."
 
@@ -83,15 +71,12 @@ function resolveRelativePath(routerHref: string, relativePath: string): string {
 export function MarkdownLink({ href, ...rest }: HTMLProps<HTMLAnchorElement>) {
   const pathname = useLocation({ select: (s) => s.href })
 
-  // const relativeHref = href?.replace(/([A-Za-z][A-Za-z/_-]+).md/, '../$1')
-  const relativeHref = useMemo(
-    () => resolveRelativePath(pathname + '/', href ?? ''),
-    [pathname, href]
-  )
-
   if (href?.startsWith('http')) {
     return <a {...rest} href={href} />
   }
+
+  // const relativeHref = href?.replace(/([A-Za-z][A-Za-z/_-]+).md/, '../$1')
+  const relativeHref = resolveRelativePath(pathname + '/', href ?? '')
 
   return (
     <Link

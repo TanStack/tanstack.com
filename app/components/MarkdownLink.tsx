@@ -8,6 +8,12 @@ function resolveRelativePath(routerHref: string, markdownPath: string): string {
 
   // Check if starts with a hash
   if (relativePath.startsWith('#')) {
+    // If the basePath already has a hash, remove it
+    const hashIndex = basePath.indexOf('#')
+    if (hashIndex !== -1) {
+      basePath = basePath.substring(0, hashIndex)
+    }
+
     return basePath + relativePath
   }
 

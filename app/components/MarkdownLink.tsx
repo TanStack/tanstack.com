@@ -45,14 +45,19 @@ function resolveRelativePath(routerHref: string, markdownPath: string): string {
 
   // Check if there's a hash fragment in the relative path
   const hashIndex = relativePath.indexOf('#')
+
+  // Remove hash from path if it exists, we'll add it back later
   if (hashIndex !== -1) {
     hash = relativePath.substring(hashIndex)
-    relativePath = relativePath.substring(0, hashIndex) // Remove hash from path
+    relativePath = relativePath.substring(0, hashIndex)
   }
 
   // Remove .md extension if it exists
   if (relativePath.endsWith('.md')) {
     relativePath = relativePath.substring(0, relativePath.length - 3)
+  } else {
+    // If the path doesn't end with .md, return the path as is
+    return relativePath + hash
   }
 
   const stack = basePath.split('/').filter(Boolean)

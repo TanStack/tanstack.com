@@ -125,7 +125,11 @@ export default function Example() {
       </div>
       <div className="flex-1 lg:px-6 flex flex-col min-h-0">
         <iframe
-          src={stackBlitzUrl}
+          src={
+            library.embedEditor === 'codesandbox'
+              ? codesandboxUrl
+              : stackBlitzUrl
+          }
           title={`${library.name} | ${examplePath}`}
           sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
           className="flex-1 w-full overflow-hidden lg:rounded-lg shadow-xl shadow-gray-700/20 bg-white dark:bg-black"

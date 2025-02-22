@@ -23,6 +23,7 @@ import { Route as LibrariesTermsImport } from './routes/_libraries/terms'
 import { Route as LibrariesSupportImport } from './routes/_libraries/support'
 import { Route as LibrariesPrivacyImport } from './routes/_libraries/privacy'
 import { Route as LibrariesLearnImport } from './routes/_libraries/learn'
+import { Route as LibrariesEthosImport } from './routes/_libraries/ethos'
 import { Route as LibrariesDedicatedSupportImport } from './routes/_libraries/dedicated-support'
 import { Route as LibrariesBlogImport } from './routes/_libraries/blog'
 import { Route as LibraryIdVersionImport } from './routes/$libraryId/$version'
@@ -113,6 +114,12 @@ const LibrariesPrivacyRoute = LibrariesPrivacyImport.update({
 const LibrariesLearnRoute = LibrariesLearnImport.update({
   id: '/learn',
   path: '/learn',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
+
+const LibrariesEthosRoute = LibrariesEthosImport.update({
+  id: '/ethos',
+  path: '/ethos',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
 
@@ -309,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/dedicated-support'
       fullPath: '/dedicated-support'
       preLoaderRoute: typeof LibrariesDedicatedSupportImport
+      parentRoute: typeof LibrariesRouteImport
+    }
+    '/_libraries/ethos': {
+      id: '/_libraries/ethos'
+      path: '/ethos'
+      fullPath: '/ethos'
+      preLoaderRoute: typeof LibrariesEthosImport
       parentRoute: typeof LibrariesRouteImport
     }
     '/_libraries/learn': {
@@ -531,6 +545,7 @@ const LibrariesBlogRouteWithChildren = LibrariesBlogRoute._addFileChildren(
 interface LibrariesRouteRouteChildren {
   LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
   LibrariesDedicatedSupportRoute: typeof LibrariesDedicatedSupportRoute
+  LibrariesEthosRoute: typeof LibrariesEthosRoute
   LibrariesLearnRoute: typeof LibrariesLearnRoute
   LibrariesPrivacyRoute: typeof LibrariesPrivacyRoute
   LibrariesSupportRoute: typeof LibrariesSupportRoute
@@ -550,6 +565,7 @@ interface LibrariesRouteRouteChildren {
 const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
   LibrariesDedicatedSupportRoute: LibrariesDedicatedSupportRoute,
+  LibrariesEthosRoute: LibrariesEthosRoute,
   LibrariesLearnRoute: LibrariesLearnRoute,
   LibrariesPrivacyRoute: LibrariesPrivacyRoute,
   LibrariesSupportRoute: LibrariesSupportRoute,
@@ -580,6 +596,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/blog': typeof LibrariesBlogRouteWithChildren
   '/dedicated-support': typeof LibrariesDedicatedSupportRoute
+  '/ethos': typeof LibrariesEthosRoute
   '/learn': typeof LibrariesLearnRoute
   '/privacy': typeof LibrariesPrivacyRoute
   '/support': typeof LibrariesSupportRoute
@@ -611,6 +628,7 @@ export interface FileRoutesByTo {
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/dedicated-support': typeof LibrariesDedicatedSupportRoute
+  '/ethos': typeof LibrariesEthosRoute
   '/learn': typeof LibrariesLearnRoute
   '/privacy': typeof LibrariesPrivacyRoute
   '/support': typeof LibrariesSupportRoute
@@ -645,6 +663,7 @@ export interface FileRoutesById {
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/_libraries/blog': typeof LibrariesBlogRouteWithChildren
   '/_libraries/dedicated-support': typeof LibrariesDedicatedSupportRoute
+  '/_libraries/ethos': typeof LibrariesEthosRoute
   '/_libraries/learn': typeof LibrariesLearnRoute
   '/_libraries/privacy': typeof LibrariesPrivacyRoute
   '/_libraries/support': typeof LibrariesSupportRoute
@@ -681,6 +700,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version'
     | '/blog'
     | '/dedicated-support'
+    | '/ethos'
     | '/learn'
     | '/privacy'
     | '/support'
@@ -711,6 +731,7 @@ export interface FileRouteTypes {
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/dedicated-support'
+    | '/ethos'
     | '/learn'
     | '/privacy'
     | '/support'
@@ -743,6 +764,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version'
     | '/_libraries/blog'
     | '/_libraries/dedicated-support'
+    | '/_libraries/ethos'
     | '/_libraries/learn'
     | '/_libraries/privacy'
     | '/_libraries/support'
@@ -816,6 +838,7 @@ export const routeTree = rootRoute
       "children": [
         "/_libraries/blog",
         "/_libraries/dedicated-support",
+        "/_libraries/ethos",
         "/_libraries/learn",
         "/_libraries/privacy",
         "/_libraries/support",
@@ -861,6 +884,10 @@ export const routeTree = rootRoute
     },
     "/_libraries/dedicated-support": {
       "filePath": "_libraries/dedicated-support.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/ethos": {
+      "filePath": "_libraries/ethos.tsx",
       "parent": "/_libraries"
     },
     "/_libraries/learn": {

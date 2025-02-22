@@ -58,14 +58,14 @@ function RouterVersionIndex() {
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
             Modern and scalable
           </span>{' '}
-          routing for React applications
+          routing for React and Solid applications
         </h2>
         <p
           className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl"
         >
-          A fully type-safe React router with built-in data fetching,
-          stale-while revalidate caching and first-class search-param APIs.
+          A fully type-safe router with built-in data fetching, stale-while
+          revalidate caching and first-class search-param APIs.
         </p>
         <Link
           to="./docs/framework/react/overview"

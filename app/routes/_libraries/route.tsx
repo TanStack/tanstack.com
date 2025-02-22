@@ -19,6 +19,7 @@ import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { ClientOnlySearchButton } from '~/components/ClientOnlySearchButton'
 import { ThemeToggle, useThemeStore } from '~/components/ThemeToggle'
 import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
+import { BiSolidCheckShield } from 'react-icons/bi'
 
 export const Route = createFileRoute('/_libraries')({
   staleTime: Infinity,
@@ -189,6 +190,11 @@ function LibrariesLayout() {
           label: 'GitHub',
           icon: <FaGithub />,
           to: 'https://github.com/tanstack',
+        },
+        {
+          label: 'Ethos',
+          icon: <BiSolidCheckShield />,
+          to: '/ethos',
         },
       ].map((item, i) => {
         return (

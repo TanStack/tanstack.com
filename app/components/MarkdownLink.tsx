@@ -27,7 +27,7 @@ function resolveRelativePath(routerHref: string, markdownPath: string): string {
   let basePath = routerHref
   let relativePath = markdownPath
 
-  // Check if starts with a hash
+  // Check if the relative path starts with a hash
   if (relativePath.startsWith('#')) {
     // If the basePath already has a hash, remove it
     const hashIndex = basePath.indexOf('#')
@@ -36,6 +36,11 @@ function resolveRelativePath(routerHref: string, markdownPath: string): string {
     }
 
     return basePath + relativePath
+  }
+
+  // Check if the relative path is an absolute path
+  if (relativePath.startsWith('/')) {
+    return relativePath
   }
 
   // Add a leading "./" if the relative path doesn't start with "./" or "../"

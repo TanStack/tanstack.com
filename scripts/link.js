@@ -3,7 +3,6 @@ import path from 'path'
 
 const packages = {
   '@tanstack/history': 'router/packages/history',
-  '@tanstack/react-cross-context': 'router/packages/react-cross-context',
   '@tanstack/react-router': 'router/packages/react-router',
   '@tanstack/router-cli': 'router/packages/router-cli',
   '@tanstack/router-devtools': 'router/packages/router-devtools',

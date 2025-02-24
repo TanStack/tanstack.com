@@ -90,7 +90,6 @@
       "@tanstack/react-router": "file:../router/packages/react-router",
       "@tanstack/router-devtools": "file:../router/packages/router-devtools",
       "@tanstack/start": "file:../router/packages/start",
-      "@tanstack/react-cross-context": "file:../router/packages/react-cross-context",
       "@tanstack/history": "file:../router/packages/history",
       "@tanstack/react-store": "file:../router/packages/react-router/node_modules/@tanstack/react-store",
       "@tanstack/router-vite-plugin": "file:../router/packages/router-vite-plugin",

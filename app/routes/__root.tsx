@@ -6,9 +6,8 @@ import {
   redirect,
   useMatches,
   useRouterState,
-  HeadContent,
-  Scripts,
 } from '@tanstack/react-router'
+import { Meta, Scripts } from '@tanstack/start'
 import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
@@ -334,7 +333,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             children={`window.matchMedia('(prefers-color-scheme: dark)').matches ? document.documentElement.classList.add('dark') : null`}
           />
         ) : null}
-        <HeadContent />
+        <Meta />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
         ) : null}

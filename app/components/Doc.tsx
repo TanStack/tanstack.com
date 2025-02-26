@@ -7,7 +7,7 @@ import { DocTitle } from '~/components/DocTitle'
 import { Markdown } from '~/components/Markdown'
 import { Toc } from './Toc'
 import { twMerge } from 'tailwind-merge'
-import { GadFooter, GadLeader } from './GoogleScripts'
+import { GadLeader } from './GoogleScripts'
 
 type DocProps = {
   title: string

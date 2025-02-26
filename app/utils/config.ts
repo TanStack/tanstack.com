@@ -74,10 +74,10 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
         throw new Error('Zod validation failed')
       }
 
-      // setHeaders({
-      //   'cache-control': 'public, max-age=0, must-revalidate',
-      //   'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-      // })
+      setHeaders({
+        'cache-control': 'public, max-age=0, must-revalidate',
+        'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+      })
 
       return validationResult.data
     } catch (e) {

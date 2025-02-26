@@ -9,28 +9,22 @@ declare global {
 const adSlots = {
   leaderboard: {
     id: 'div-gpt-ad-1738811978953-leaderboard',
-    sizes: [
-      // [728, 90],
-      'fluid',
-    ],
+    sizes: [[728, 90]],
     targeting: 'leaderboard',
     refreshInterval: 45000, // 45 seconds
   },
   footer: {
     id: 'div-gpt-ad-1738811978953-footer',
-    sizes: [
-      // [728, 90],
-      'fluid',
-    ],
+    sizes: [[728, 90]],
     targeting: 'footer',
     refreshInterval: 45000, // 45 seconds
   },
   rightRail: {
     id: 'div-gpt-ad-1738811978953-right-rail',
     sizes: [
-      // [160, 600],
-      // [300, 250],
-      'fluid',
+      [200, 200],
+      [215, 180], // Common rail size that fits within 215px
+      [180, 150], // Smaller option for tighter spaces
     ],
     targeting: 'right-side-rail',
     refreshInterval: 45000, // 45 seconds
@@ -38,9 +32,9 @@ const adSlots = {
   leftRail: {
     id: 'div-gpt-ad-1738811978953-left-rail',
     sizes: [
-      // [160, 600],
-      // [300, 250],
-      'fluid',
+      [200, 200],
+      [215, 180], // Common rail size that fits within 215px
+      [180, 150], // Smaller option for tighter spaces
     ],
     targeting: 'left-side-rail',
     refreshInterval: 45000, // 45 seconds
@@ -128,18 +122,32 @@ export function GadFooter() {
 
 export function GadLeftRailSquare() {
   return (
-    <Gad
-      adId={adSlots.leftRail.id}
-      style={{ maxWidth: '300px', aspectRatio: '300 / 250' }}
-    />
+    <div className="w-full flex justify-center">
+      <Gad
+        adId={adSlots.leftRail.id}
+        style={{
+          width: '100%',
+          maxWidth: '215px',
+          minHeight: '150px',
+          height: 'auto',
+        }}
+      />
+    </div>
   )
 }
 
 export function GadRightRailSquare() {
   return (
-    <Gad
-      adId={adSlots.rightRail.id}
-      style={{ maxWidth: '300px', aspectRatio: '300 / 250' }}
-    />
+    <div className="w-full flex justify-center">
+      <Gad
+        adId={adSlots.rightRail.id}
+        style={{
+          width: '100%',
+          maxWidth: '215px',
+          minHeight: '150px',
+          height: 'auto',
+        }}
+      />
+    </div>
   )
 }

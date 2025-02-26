@@ -9,13 +9,19 @@ declare global {
 const adSlots = {
   leaderboard: {
     id: 'div-gpt-ad-1738811978953-leaderboard',
-    sizes: [[728, 90]],
+    sizes: [
+      // [728, 90],
+      'fluid',
+    ],
     targeting: 'leaderboard',
     refreshInterval: 45000, // 45 seconds
   },
   footer: {
     id: 'div-gpt-ad-1738811978953-footer',
-    sizes: [[728, 90]],
+    sizes: [
+      // [728, 90],
+      'fluid',
+    ],
     targeting: 'footer',
     refreshInterval: 45000, // 45 seconds
   },
@@ -23,7 +29,8 @@ const adSlots = {
     id: 'div-gpt-ad-1738811978953-right-rail',
     sizes: [
       // [160, 600],
-      [300, 250],
+      // [300, 250],
+      'fluid',
     ],
     targeting: 'right-side-rail',
     refreshInterval: 45000, // 45 seconds
@@ -32,7 +39,8 @@ const adSlots = {
     id: 'div-gpt-ad-1738811978953-left-rail',
     sizes: [
       // [160, 600],
-      [300, 250],
+      // [300, 250],
+      'fluid',
     ],
     targeting: 'left-side-rail',
     refreshInterval: 45000, // 45 seconds

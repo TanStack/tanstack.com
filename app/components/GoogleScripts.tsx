@@ -11,22 +11,23 @@ const adSlots = {
     id: 'div-gpt-ad-1738811978953-leaderboard',
     sizes: [[728, 90]],
     targeting: 'leaderboard',
-    refreshInterval: 45000, // 45 seconds
+    refreshInterval: 45_000, // 45 seconds
   },
   footer: {
     id: 'div-gpt-ad-1738811978953-footer',
     sizes: [[728, 90]],
     targeting: 'footer',
-    refreshInterval: 45000, // 45 seconds
+    refreshInterval: 45_000, // 45 seconds
   },
   rightRail: {
     id: 'div-gpt-ad-1738811978953-right-rail',
     sizes: [
       // [160, 600],
       [300, 250],
+      [250, 250],
     ],
     targeting: 'right-side-rail',
-    refreshInterval: 45000, // 45 seconds
+    refreshInterval: 45_000, // 45 seconds
   },
   leftRail: {
     id: 'div-gpt-ad-1738811978953-left-rail',
@@ -35,7 +36,7 @@ const adSlots = {
       [300, 250],
     ],
     targeting: 'left-side-rail',
-    refreshInterval: 45000, // 45 seconds
+    refreshInterval: 45_000, // 45 seconds
   },
 }
 
@@ -96,17 +97,19 @@ function Gad({
 }
 
 export function GadLeader() {
-  return (
-    <div className="overflow-hidden h-0 w-0">
-      <Gad
-        adId={adSlots.leaderboard.id}
-        style={{
-          maxWidth: '728px',
-          aspectRatio: '728 / 90',
-        }}
-      />
-    </div>
-  )
+  // return (
+  //   <div className="overflow-hidden h-0 w-0">
+  //     <Gad
+  //       adId={adSlots.leaderboard.id}
+  //       style={{
+  //         maxWidth: '728px',
+  //         aspectRatio: '728 / 90',
+  //       }}
+  //     />
+  //   </div>
+  // )
+
+  return null
 }
 
 export function GadFooter() {
@@ -119,19 +122,21 @@ export function GadFooter() {
 }
 
 export function GadLeftRailSquare() {
-  return (
-    <Gad
-      adId={adSlots.leftRail.id}
-      style={{ maxWidth: '300px', aspectRatio: '300 / 250' }}
-    />
-  )
+  // return (
+  //   <Gad
+  //     adId={adSlots.leftRail.id}
+  //     style={{ maxWidth: '300px', aspectRatio: '300 / 250' }}
+  //   />
+  // )
+
+  return null
 }
 
 export function GadRightRailSquare() {
   return (
     <Gad
       adId={adSlots.rightRail.id}
-      style={{ maxWidth: '300px', aspectRatio: '300 / 250' }}
+      className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250]"
     />
   )
 }

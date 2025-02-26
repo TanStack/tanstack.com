@@ -583,7 +583,7 @@ export function DocsLayout({
         >
           {children}
         </div>
-        <DocContainer className="mb-8 !py-0 flex justify-center">
+        <DocContainer className="mb-8 !py-0 flex overflow-hidden">
           <GadFooter />
         </DocContainer>
         <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
@@ -621,7 +621,7 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="-ml-2 pl-2 w-64 shrink-0 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
+      <div className="-ml-2 pl-2 w-[290px] xl:w-[340px] shrink-0 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
         <div className="ml-auto flex flex-col space-y-4">
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
             <div className="uppercase font-black text-center p-3 opacity-50">
@@ -703,13 +703,6 @@ export function DocsLayout({
 
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
             <Carbon />
-            <div
-              className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic
-                dark:bg-opacity-20 self-center opacity-50 hover:opacity-100 transition-opacity"
-            >
-              This ad helps to keep us from burning out and rage-quitting OSS
-              just *that* much more, so chill. 😉
-            </div>
           </div>
         </div>
       </div>

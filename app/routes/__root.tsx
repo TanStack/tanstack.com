@@ -21,6 +21,7 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { twMerge } from 'tailwind-merge'
 import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
 import { useMounted } from '~/hooks/useMounted'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -173,8 +174,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const themeClass = themeCookie === 'dark' ? 'dark' : ''
 
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
+  const prefersReducedMotion = usePrefersReducedMotion()
 
   React.useEffect(() => {
+    if (prefersReducedMotion !== false) {
+      return
+    }
+
     const canvas = canvasRef.current
 
     const morphDuration = 4000
@@ -317,7 +323,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         window.removeEventListener('resize', start)
       }
     }
-  }, [])
+  }, [prefersReducedMotion])
 
   const isHomePage = useRouterState({
     select: (s) => s.location.pathname === '/',

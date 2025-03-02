@@ -66,16 +66,18 @@ We even support type-checking what errors are returned in `<form.Field>`:
 
 ```tsx
 <form.Field
-    name="age"
-    validators={{onChange: ({value}) => value < 12 ? {tooYoung: true} : undefined}}
-    children={field => (
-		<>
-	        <NumberInput value={field.state.value}/>
-        	// TypeScript will correctly tell you that `errorMap.onChange`
-        	// is an object, not a string
-        	<p>{field.state.meta.errorMap.onChange}</p>
-        </>
-	)}
+  name="age"
+  validators={{
+    onChange: ({ value }) => (value < 12 ? { tooYoung: true } : undefined),
+  }}
+  children={(field) => (
+    <>
+      <NumberInput value={field.state.value} />
+      // TypeScript will correctly tell you that `errorMap.onChange` // is an object,
+      not a string
+      <p>{field.state.meta.errorMap.onChange}</p>
+    </>
+  )}
 />
 ```
 
@@ -123,8 +125,8 @@ That's not all, though! We also support async functions to validate your code; c
   name="age"
   asyncDebounceMs={500}
   validators={{
-    onBlurAsync: async ({value, signal}) => {
-      const currentAge = await fetchCurrentAgeOnProfile({signal})
+    onBlurAsync: async ({ value, signal }) => {
+      const currentAge = await fetchCurrentAgeOnProfile({ signal })
       return value < currentAge ? 'You can only increase the age' : undefined
     },
   }}
@@ -139,25 +141,22 @@ In fact, if you're using SSR solutions, we even make server-side form validation
 
 ```typescript
 // app/routes/index.tsx, but can be extracted to any other path
-import {
-  createServerValidate,
-  getFormData,
-} from '@tanstack/react-form/start'
-import {yourSchemaHere} from '~/constants/forms';
+import { createServerValidate, getFormData } from '@tanstack/react-form/start'
+import { yourSchemaHere } from '~/constants/forms'
 
 const serverValidate = createServerValidate({
   ...formOpts,
-  onServerValidate: yourSchemaHere
+  onServerValidate: yourSchemaHere,
 })
 
 export const getFormDataFromServer = createServerFn({ method: 'GET' }).handler(
   async () => {
     return getFormData()
-  },
+  }
 )
 ```
 
-> This code sample excludes some of the relevant code to keep things glanceable. [For more details on our SSR integration, please check our docs.](/form/latest/docs/framework/react/guides/ssr) 
+> This code sample excludes some of the relevant code to keep things glanceable. [For more details on our SSR integration, please check our docs.](/form/latest/docs/framework/react/guides/ssr)
 
 And boom, the exact same validation logic is running on both your frontend and backend. Your forms will even show errors when JavaScript is disabled on the user's browser!
 
@@ -171,7 +170,6 @@ We're not resting on our laurels, however - we have plans to add new features to
 - [Form Groups](https://github.com/TanStack/form/issues/419)
 
 And much more.
-
 
 # Thank **you**
 

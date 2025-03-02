@@ -5,6 +5,8 @@ authors:
   - Corbin Crutchley
 ---
 
+![TanStack Form v1](/blog-assets/announcing-tanstack-form-v1/form_header.png)
+
 We're excited to announce the first stable version of [TanStack Form](/form/v1) is live and ready for usage in production! 🥳
 
 We support five frameworks at launch: React, Vue, Angular, Solid, and Lit, as well as a myriad of features for each specific framework.

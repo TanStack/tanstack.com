@@ -82,7 +82,7 @@ ${content}`
 
   return (
     <DocContainer>
-      <div>
+      <div className="mb-2 md:mb-6 lg:mb-8">
         <Link
           from="/blog/$"
           to="/blog"

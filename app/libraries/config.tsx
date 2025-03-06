@@ -31,7 +31,7 @@ export const configProject = {
     {
       icon: <BiBookAlt />,
       label: 'Docs',
-      to: '/config/docs',
+      to: '/config/latest/docs',
     },
     {
       icon: <FaGithub />,

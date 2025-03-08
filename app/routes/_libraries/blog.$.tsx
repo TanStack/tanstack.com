@@ -33,6 +33,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
     setHeaders({
       'cache-control': 'public, max-age=0, must-revalidate',
       'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+      'Netlify-Vary': 'query=payload',
     })
 
     return {
@@ -81,7 +82,7 @@ ${content}`
 
   return (
     <DocContainer>
-      <div>
+      <div className="mb-2 md:mb-6 lg:mb-8">
         <Link
           from="/blog/$"
           to="/blog"

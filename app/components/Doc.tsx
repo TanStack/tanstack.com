@@ -7,6 +7,7 @@ import { DocTitle } from '~/components/DocTitle'
 import { Markdown } from '~/components/Markdown'
 import { Toc } from './Toc'
 import { twMerge } from 'tailwind-merge'
+import { TocMobile } from './TocMobile'
 
 type DocProps = {
   title: string
@@ -89,55 +90,59 @@ export function Doc({
   }, [])
 
   return (
-    <div
-      className={twMerge(
-        'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]',
-        isTocVisible && 'max-w-full'
-      )}
-    >
+    <React.Fragment>
+      {shouldRenderToc ? <TocMobile headings={headings} /> : null}
       <div
         className={twMerge(
-          'flex overflow-auto flex-col w-full p-4 lg:p-6',
-          isTocVisible && '!pr-0'
+          'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]',
+          isTocVisible && 'max-w-full',
+          shouldRenderToc && 'lg:pt-0'
         )}
       >
-        {title ? <DocTitle>{title}</DocTitle> : null}
-        <div className="h-4" />
-        <div className="h-px bg-gray-500 opacity-20" />
-        <div className="h-4" />
         <div
-          ref={markdownContainerRef}
           className={twMerge(
-            'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
-            isTocVisible && 'pr-4 lg:pr-6',
-            'styled-markdown-content'
+            'flex overflow-auto flex-col w-full p-4 lg:p-6',
+            isTocVisible && '!pr-0'
           )}
         >
-          <Markdown htmlMarkup={markup} />
-        </div>
-        <div className="h-12" />
-        <div className="w-full h-px bg-gray-500 opacity-30" />
-        <div className="py-4 opacity-70">
-          <a
-            href={`https://github.com/${repo}/tree/${branch}/${filePath}`}
-            className="flex items-center gap-2"
+          {title ? <DocTitle>{title}</DocTitle> : null}
+          <div className="h-4" />
+          <div className="h-px bg-gray-500 opacity-20" />
+          <div className="h-4" />
+          <div
+            ref={markdownContainerRef}
+            className={twMerge(
+              'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
+              isTocVisible && 'pr-4 lg:pr-6',
+              'styled-markdown-content'
+            )}
           >
-            <FaEdit /> Edit on GitHub
-          </a>
+            <Markdown htmlMarkup={markup} />
+          </div>
+          <div className="h-12" />
+          <div className="w-full h-px bg-gray-500 opacity-30" />
+          <div className="py-4 opacity-70">
+            <a
+              href={`https://github.com/${repo}/tree/${branch}/${filePath}`}
+              className="flex items-center gap-2"
+            >
+              <FaEdit /> Edit on GitHub
+            </a>
+          </div>
+          <div className="h-24" />
         </div>
-        <div className="h-24" />
-      </div>
 
-      {isTocVisible && (
-        <div className="border-l border-gray-500/20 max-w-52 w-full hidden 2xl:block transition-all">
-          <Toc
-            headings={headings}
-            activeHeadings={activeHeadings}
-            colorFrom={colorFrom}
-            colorTo={colorTo}
-          />
-        </div>
-      )}
-    </div>
+        {isTocVisible && (
+          <div className="border-l border-gray-500/20 max-w-52 w-full hidden 2xl:block transition-all">
+            <Toc
+              headings={headings}
+              activeHeadings={activeHeadings}
+              colorFrom={colorFrom}
+              colorTo={colorTo}
+            />
+          </div>
+        )}
+      </div>
+    </React.Fragment>
   )
 }

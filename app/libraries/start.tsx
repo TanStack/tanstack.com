@@ -77,7 +77,7 @@ export const startProject = {
       title: 'SSR, Streaming and Server RPCs',
       icon: (
         <TbServerBolt
-          className={twMerge('animate-ping', textStyles)}
+          className={twMerge('motion-safe:animate-ping', textStyles)}
           style={{
             animationDuration: '2s',
             animationTimingFunction: 'ease-out',

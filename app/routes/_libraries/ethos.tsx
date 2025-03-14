@@ -91,8 +91,8 @@ export default function RouteComp() {
             <li>
               TanStack libraries are built on framework and platform-agnostic
               primitives. When our libraries build on other tools, like TanStack
-              Start builds on Nitro, we ensure that these tools uphold these
-              same values of openness and flexibility.
+              Start builds on Vite, we ensure that these tools uphold these same
+              values of openness and flexibility.
             </li>
             <li>
               <strong>TanStack Libraries</strong> either already support or will

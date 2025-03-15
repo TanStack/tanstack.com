@@ -100,17 +100,13 @@ export function Doc({
           shouldRenderToc && 'lg:pt-0'
         )}
       >
-        <GadLeader />
-        {title ? <DocTitle>{title}</DocTitle> : null}
-        <div className="h-4" />
-        <div className="h-px bg-gray-500 opacity-20" />
-        <div className="h-4" />
         <div
           className={twMerge(
             'flex overflow-auto flex-col w-full p-4 lg:p-6',
             isTocVisible && '!pr-0'
           )}
         >
+          <GadLeader />
           {title ? <DocTitle>{title}</DocTitle> : null}
           <div className="h-4" />
           <div className="h-px bg-gray-500 opacity-20" />

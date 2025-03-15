@@ -583,9 +583,9 @@ export function DocsLayout({
         >
           {children}
         </div>
-        <DocContainer className="mb-8 !py-0 overflow-hidden max-w-[728px] mx-auto">
+        <div className="mb-8 !py-0 mx-auto">
           <GadFooter />
-        </DocContainer>
+        </div>
         <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
           <div className="w-1/2 px-1 flex justify-end flex-wrap">
             {prevItem ? (

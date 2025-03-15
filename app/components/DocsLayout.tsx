@@ -30,6 +30,12 @@ import { ClientOnlySearchButton } from './ClientOnlySearchButton'
 import { twMerge } from 'tailwind-merge'
 import { partners } from '~/utils/partners'
 import { useThemeStore } from './ThemeToggle'
+import {
+  GadFooter,
+  GadLeftRailSquare,
+  GadRightRailSquare,
+} from './GoogleScripts'
+import { DocContainer } from './DocContainer'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -539,6 +545,9 @@ export function DocsLayout({
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-8">
         {menuItems}
       </div>
+      <div className="mt-auto overflow-hidden h-0">
+        <GadLeftRailSquare />
+      </div>
     </div>
   )
 
@@ -573,6 +582,9 @@ export function DocsLayout({
           )}
         >
           {children}
+        </div>
+        <div className="mb-8 !py-0 mx-auto">
+          <GadFooter />
         </div>
         <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
           <div className="w-1/2 px-1 flex justify-end flex-wrap">
@@ -609,7 +621,7 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="-ml-2 pl-2 w-64 shrink-0 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
+      <div className="-ml-2 pl-2 w-[290px] xl:w-[340px] shrink-0 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
         <div className="ml-auto flex flex-col space-y-4">
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
             <div className="uppercase font-black text-center p-3 opacity-50">
@@ -686,14 +698,11 @@ export function DocsLayout({
           </div>
 
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+            <GadRightRailSquare />
+          </div>
+
+          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
             <Carbon />
-            <div
-              className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500 italic
-                dark:bg-opacity-20 self-center opacity-50 hover:opacity-100 transition-opacity"
-            >
-              This ad helps to keep us from burning out and rage-quitting OSS
-              just *that* much more, so chill. 😉
-            </div>
           </div>
         </div>
       </div>

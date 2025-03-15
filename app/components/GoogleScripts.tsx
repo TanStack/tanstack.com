@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import React from 'react'
 
 declare global {
@@ -85,6 +86,7 @@ export function GoogleScripts() {
 
 function Gad({
   adId,
+  children,
   ...props
 }: { adId: string } & React.HTMLAttributes<HTMLDivElement>) {
   React.useEffect(() => {
@@ -93,7 +95,12 @@ function Gad({
     })
   }, [])
 
-  return <div id={adId} {...props} />
+  return (
+    <div {...props} className="grid [&>*]:col-start-1 [&>*]:row-start-1">
+      <div id={adId} className="w-full flex-1"></div>
+      <div className="flex items-center justify-center">{children}</div>
+    </div>
+  )
 }
 
 export function GadLeader() {
@@ -136,7 +143,18 @@ export function GadRightRailSquare() {
   return (
     <Gad
       adId={adSlots.rightRail.id}
-      className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250]"
-    />
+      className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
+    >
+      <Link
+        to="/form"
+        className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter h-full"
+      >
+        <span>TanStack</span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600">
+          Form
+        </span>
+        <span className="text-xs">V1</span>
+      </Link>
+    </Gad>
   )
 }

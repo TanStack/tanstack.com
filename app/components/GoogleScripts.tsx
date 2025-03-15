@@ -41,6 +41,32 @@ const adSlots = {
   },
 }
 
+const googleScriptFn = (slots: typeof adSlots) => {
+  window.googletag = window.googletag || { cmd: [] }
+  googletag.cmd.push(function () {
+    // Define all ad slots
+    const slotInstances = Object.values(slots).map((slot) => {
+      return googletag
+        .defineSlot('/23278945940/TopLevel', slot.sizes, slot.id)
+        .addService(googletag.pubads())
+        .setTargeting(slot.targeting, [slot.targeting])
+    })
+
+    googletag.pubads().enableSingleRequest()
+    googletag.enableServices()
+
+    // Set individual refresh intervals for each ad
+    slotInstances.forEach((slotInstance, index) => {
+      const slot = Object.values(slots)[index]
+      setInterval(function () {
+        googletag.cmd.push(function () {
+          googletag.pubads().refresh([slotInstance])
+        })
+      }, slot.refreshInterval)
+    })
+  })
+}
+
 export function GoogleScripts() {
   return (
     <>
@@ -51,33 +77,7 @@ export function GoogleScripts() {
 
       <script
         dangerouslySetInnerHTML={{
-          __html: `
-          (() => {
-            const adSlots = ${JSON.stringify(adSlots)};
-
-            window.googletag = window.googletag || {cmd: []};
-            googletag.cmd.push(function() {
-              // Define all ad slots
-              Object.values(adSlots).forEach(slot => {
-                googletag.defineSlot('/23278945940/TopLevel', slot.sizes, slot.id)
-                  .addService(googletag.pubads())
-                  .setTargeting(slot.targeting, [slot.targeting]);
-              });
-
-              googletag.pubads().enableSingleRequest();
-              googletag.enableServices();
-            });
-
-            // Set individual refresh intervals for each ad
-            Object.values(adSlots).forEach(slot => {
-              setInterval(function() {
-                googletag.cmd.push(function() {
-                  googletag.pubads().refresh([googletag.slots[slot.id]]);
-                });
-              }, slot.refreshInterval);
-            });
-          })();
-        `,
+          __html: `(${googleScriptFn.toString()})(${JSON.stringify(adSlots)});`,
         }}
       />
     </>

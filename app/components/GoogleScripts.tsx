@@ -97,7 +97,7 @@ function Gad({
 
   return (
     <div {...props} className="grid [&>*]:col-start-1 [&>*]:row-start-1">
-      <div id={adId} className="w-full flex-1"></div>
+      <div id={adId} className="w-full flex-1 z-1"></div>
       <div className="flex items-center justify-center">{children}</div>
     </div>
   )

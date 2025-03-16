@@ -22,6 +22,7 @@ import { twMerge } from 'tailwind-merge'
 import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
 import { useMounted } from '~/hooks/useMounted'
 import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
+import { GoogleScripts } from '~/components/GoogleScripts'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -344,6 +345,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
         ) : null}
+        <GoogleScripts />
       </head>
       <body>
         <div

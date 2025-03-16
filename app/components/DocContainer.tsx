@@ -9,7 +9,7 @@ export function DocContainer({
     <div
       {...props}
       className={twMerge(
-        'w-full max-w-full p-2 md:p-6 lg:p-8',
+        'w-full max-w-full p-2 md:p-4 2xl:p-8',
         props.className
       )}
     >

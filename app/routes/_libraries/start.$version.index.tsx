@@ -78,9 +78,8 @@ export default function VersionIndex() {
             lg:text-xl lg:max-w-[600px]"
         >
           SSR, Streaming, Server Functions, API Routes, bundling and more
-          powered by <strong>TanStack Router</strong>, <strong>Nitro</strong>,
-          and <strong>Vite</strong>. Ready to deploy to your favorite hosting
-          provider.
+          powered by <strong>TanStack Router</strong> and <strong>Vite</strong>.
+          Ready to deploy to your favorite hosting provider.
         </p>
         <div className="flex justify-center gap-4 flex-wrap">
           <Link

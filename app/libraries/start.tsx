@@ -16,7 +16,7 @@ export const startProject = {
   cardStyles: `shadow-xl shadow-cyan-500/20 dark:shadow-lg dark:shadow-cyan-500/30 text-cyan-500 dark:text-white-400 border-2 border-transparent hover:border-current`,
   to: '/start',
   tagline: `Full-stack React Framework powered by TanStack Router`,
-  description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router, Nitro, Vite and ready to deploy to your favorite hosting provider.`,
+  description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.`,
   bgStyle: 'bg-cyan-500',
   textStyle: 'text-cyan-500',
   badge: 'beta',
@@ -77,7 +77,7 @@ export const startProject = {
       title: 'SSR, Streaming and Server RPCs',
       icon: (
         <TbServerBolt
-          className={twMerge('animate-ping', textStyles)}
+          className={twMerge('motion-safe:animate-ping', textStyles)}
           style={{
             animationDuration: '2s',
             animationTimingFunction: 'ease-out',
@@ -124,7 +124,7 @@ export const startProject = {
       ),
     },
     {
-      title: 'Deploy Anywhere with Nitro Vite',
+      title: 'Deploy Anywhere',
       icon: (
         <PiRocketLaunchDuotone
           className={twMerge('motion-safe:animate-bounce', textStyles)}
@@ -136,9 +136,9 @@ export const startProject = {
       ),
       description: (
         <div>
-          With Nitro and Vite under the hood, TanStack Start is designed to be{' '}
+          TanStack Start can be{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            deployable anywhere JS can run
+            deployed anywhere JS can run
           </span>
           . Whether you're hosting on a traditional server, a serverless
           platform, or even a CDN, Start seamlessly builds, bundles and deploys

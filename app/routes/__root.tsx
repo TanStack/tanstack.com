@@ -19,7 +19,6 @@ import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
-import { useMounted } from '~/hooks/useMounted'
 import { GoogleScripts } from '~/components/GoogleScripts'
 import CookieConsent from '~/components/CookieConsent'
 import { BackgroundAnimation } from '~/components/BackgroundAnimation'
@@ -90,20 +89,6 @@ export const Route = createRootRouteWithContext<{
           j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
           })(window,document,'script','dataLayer','GTM-5N57KQT4');
-        `,
-      },
-      // Google Analytics script (gtag.js)
-      {
-        src: 'https://www.googletagmanager.com/gtag/js?id=G-JMT1Z50SPS',
-        async: true,
-      },
-      // Initialize Google Analytics via Google Tag Manager
-      {
-        children: `
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-JMT1Z50SPS');
         `,
       },
     ],

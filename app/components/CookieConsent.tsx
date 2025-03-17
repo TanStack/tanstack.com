@@ -147,7 +147,7 @@ export default function CookieConsent() {
   const restoreGoogleScripts = () => {
     if (!document.querySelector("script[src*='googletagmanager.com']")) {
       const script = document.createElement('script')
-      script.src = 'https://www.googletagmanager.com/gtag/js?id=GTM-XXXXXX'
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=GTM-5N57KQT4'
       script.async = true
       document.body.appendChild(script)
     }

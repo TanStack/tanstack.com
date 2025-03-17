@@ -78,7 +78,7 @@ const markdownComponents: Record<string, React.FC> = {
   ),
 }
 
-function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
+export function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
   let lang = props?.children?.props?.className?.replace('language-', '')
 
   if (lang === 'diff') {

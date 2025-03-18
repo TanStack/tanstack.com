@@ -241,81 +241,6 @@ export default function Example() {
   const showVercel = library.showVercelUrl
   const showNetlify = library.showNetlifyUrl
 
-  const FileIcon = () => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="#61DAFB" // React brand blue
-      xmlns="http://www.w3.org/2000/svg"
-      className="inline-block"
-    >
-      <path d="M14 4.5V14C14 14.5523 13.5523 15 13 15H3C2.44772 15 2 14.5523 2 14V2C2 1.44772 2.44772 1 3 1H10.5L14 4.5Z" />
-    </svg>
-  )
-
-  const FolderIcon = ({ isOpen }: { isOpen: boolean }) => (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="#FFC107" // Material yellow
-      xmlns="http://www.w3.org/2000/svg"
-      className="inline-block"
-    >
-      {isOpen ? (
-        <path d="M1.5 2h5l1 2h7a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 14.5 14h-13A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2z" />
-      ) : (
-        <path d="M.5 3a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5H7l-1-2H.5z" />
-      )}
-    </svg>
-  )
-
-  const renderFileTree = (files: GitHubFileNode[] | undefined) => {
-    if (!files) return null
-
-    return (
-      <div className="flex flex-col">
-        {files.map((file) => (
-          <div key={file.path} style={{ marginLeft: `${file.depth * 16}px` }}>
-            <button
-              onClick={() => {
-                if (file.type === 'dir') {
-                  toggleFolder(file.path)
-                } else {
-                  setCurrentFile(file)
-                }
-              }}
-              onMouseEnter={() =>
-                file.type !== 'dir' && prefetchFileContent(file)
-              }
-              className={`px-2 py-2 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0 ${
-                currentFile?.path === file.path
-                  ? `${libraryColor.replace(
-                      'bg-',
-                      'bg-opacity-20 bg-'
-                    )} text-gray-900 dark:text-white shadow-sm`
-                  : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              <span className="flex-shrink-0">
-                {file.type === 'dir' ? (
-                  <FolderIcon isOpen={expandedFolders.has(file.path)} />
-                ) : (
-                  <FileIcon />
-                )}
-              </span>
-              <span className="truncate">{file.name}</span>
-            </button>
-            {file.children &&
-              expandedFolders.has(file.path) &&
-              renderFileTree(file.children)}
-          </div>
-        ))}
-      </div>
-    )
-  }
-
   const [isFullScreen, setIsFullScreen] = React.useState(false)
 
   // Add escape key handler
@@ -459,7 +384,17 @@ export default function Example() {
                 className="flex-shrink-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 pr-2 bg-gray-50 dark:bg-gray-800/50 shadow-sm"
               >
                 {gitHubFiles ? (
-                  <div className="p-2">{renderFileTree(gitHubFiles)}</div>
+                  <div className="p-2">
+                    <RenderFileTree
+                      files={gitHubFiles}
+                      libraryColor={libraryColor}
+                      toggleFolder={toggleFolder}
+                      prefetchFileContent={prefetchFileContent}
+                      expandedFolders={expandedFolders}
+                      currentFile={currentFile}
+                      setCurrentFile={setCurrentFile}
+                    />
+                  </div>
                 ) : (
                   <div className="px-4 text-sm text-gray-500">
                     No files found
@@ -496,7 +431,89 @@ export default function Example() {
           )}
         </div>
       </div>
-      <div className="h-8" />
+    </div>
+  )
+}
+
+const FileIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="#61DAFB" // React brand blue
+    xmlns="http://www.w3.org/2000/svg"
+    className="inline-block"
+  >
+    <path d="M14 4.5V14C14 14.5523 13.5523 15 13 15H3C2.44772 15 2 14.5523 2 14V2C2 1.44772 2.44772 1 3 1H10.5L14 4.5Z" />
+  </svg>
+)
+
+const FolderIcon = ({ isOpen }: { isOpen: boolean }) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="#FFC107" // Material yellow
+    xmlns="http://www.w3.org/2000/svg"
+    className="inline-block"
+  >
+    {isOpen ? (
+      <path d="M1.5 2h5l1 2h7a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 14.5 14h-13A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2z" />
+    ) : (
+      <path d="M.5 3a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5H7l-1-2H.5z" />
+    )}
+  </svg>
+)
+
+const RenderFileTree = (props: {
+  files: GitHubFileNode[] | undefined
+  libraryColor: string
+  toggleFolder: (path: string) => void
+  prefetchFileContent: (file: GitHubFile) => void
+  expandedFolders: Set<string>
+  currentFile: GitHubFile | null
+  setCurrentFile: (file: GitHubFile) => void
+}) => {
+  if (!props.files) return null
+
+  return (
+    <div className="flex flex-col">
+      {props.files.map((file) => (
+        <div key={file.path} style={{ marginLeft: `${file.depth * 16}px` }}>
+          <button
+            onClick={() => {
+              if (file.type === 'dir') {
+                props.toggleFolder(file.path)
+              } else {
+                props.setCurrentFile(file)
+              }
+            }}
+            onMouseEnter={() =>
+              file.type !== 'dir' && props.prefetchFileContent(file)
+            }
+            className={`px-2 py-2 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0 ${
+              props.currentFile?.path === file.path
+                ? `${props.libraryColor.replace(
+                    'bg-',
+                    'bg-opacity-20 bg-'
+                  )} text-gray-900 dark:text-white shadow-sm`
+                : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            <span className="flex-shrink-0">
+              {file.type === 'dir' ? (
+                <FolderIcon isOpen={props.expandedFolders.has(file.path)} />
+              ) : (
+                <FileIcon />
+              )}
+            </span>
+            <span className="truncate">{file.name}</span>
+          </button>
+          {file.children && props.expandedFolders.has(file.path) && (
+            <RenderFileTree {...props} files={file.children} />
+          )}
+        </div>
+      ))}
     </div>
   )
 }

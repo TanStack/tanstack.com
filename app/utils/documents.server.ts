@@ -387,7 +387,7 @@ export function fetchApiContents(
 async function fetchApiContentsFs(
   repoPair: string,
   startingPath: string
-): Promise<Array<GitHubFileNode>> {
+): Promise<Array<GitHubFileNode> | null> {
   //
   return []
 }
@@ -396,7 +396,7 @@ async function fetchApiContentsRemote(
   repo: string,
   branch: string,
   startingPath: string
-): Promise<Array<GitHubFileNode>> {
+): Promise<Array<GitHubFileNode> | null> {
   const res = await fetch(
     `https://api.github.com/repos/${repo}/contents/${startingPath}?=${branch}`
   )
@@ -410,10 +410,11 @@ async function fetchApiContentsRemote(
   const data = (await res.json()) as Array<GitHubFile> | null
 
   if (!Array.isArray(data)) {
-    throw new Error(`
-      Expected an array of files from GitHub API, but received: ${JSON.stringify(
-        data
-      )}`)
+    console.warn(
+      'Expected an array of files from GitHub API, but received:\n',
+      JSON.stringify(data)
+    )
+    return null
   }
 
   async function buildFileTree(

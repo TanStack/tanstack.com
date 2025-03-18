@@ -58,7 +58,7 @@ export const Route = createFileRoute(
       }),
     }
   },
-  component: Example,
+  component: RouteComponent,
   loader: async ({ params, context: { queryClient } }) => {
     const library = getLibrary(params.libraryId)
     const branch = getBranch(library, params.version)
@@ -96,7 +96,14 @@ export const Route = createFileRoute(
   },
 })
 
-export default function Example() {
+function RouteComponent() {
+  const splat = Route.useParams({
+    select: (s) => [s.libraryId, s._splat].join('/'),
+  })
+  return <Example key={splat} />
+}
+
+function Example() {
   // Not sure why this inferred type is not working
   // @ts-expect-error
   const { directoryStartingPath, sandboxStartingFilePath } =
@@ -107,6 +114,8 @@ export default function Example() {
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
 
+  const examplePath = [framework, _splat].join('/')
+
   const mainExampleFile = getInitialSandboxFileName(
     framework as Framework,
     libraryId
@@ -115,11 +124,10 @@ export default function Example() {
   const { data: gitHubFiles } = useSuspenseQuery(
     repoDirApiContentsQueryOptions(library.repo, branch, directoryStartingPath)
   )
-  const examplePath = [framework, _splat].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
   const [currentPath, setCurrentPath] = React.useState<string>(
-    sandboxStartingFilePath
+    () => sandboxStartingFilePath
   )
 
   const { data: currentCode } = useQuery(

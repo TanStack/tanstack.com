@@ -1,4 +1,9 @@
-import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  queryOptions,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
 
@@ -6,33 +11,31 @@ import { FaExternalLinkAlt, FaExpand, FaCompress } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { CodeBlock } from '~/components/Markdown'
 import { Framework, getBranch, getLibrary } from '~/libraries'
-import { fetchFile } from '~/utils/docs'
+import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
 import { getInitialSandboxFileName } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
+import type { GitHubFile, GitHubFileNode } from '~/utils/documents.server'
 
-interface GitHubFile {
-  name: string
-  path: string
-  sha: string
-  size: number
-  url: string
-  html_url: string
-  git_url: string
-  download_url: string
-  type: string
-  _links: {
-    self: string
-    git: string
-    html: string
-  }
-}
+const fileQueryOptions = (repo: string, branch: string, filePath: string) =>
+  queryOptions({
+    queryKey: ['currentCode', repo, branch, filePath],
+    queryFn: () =>
+      fetchFile({
+        data: { repo, branch, filePath },
+      }),
+  })
 
-interface GitHubFileNode extends GitHubFile {
-  children?: GitHubFileNode[]
-  level: number
-  parentPath?: string
-}
+const repoDirApiContentsQueryOptions = (
+  repo: string,
+  branch: string,
+  startingPath: string
+) =>
+  queryOptions({
+    queryKey: ['repo-api-contents', repo, branch, startingPath],
+    queryFn: () =>
+      fetchRepoDirectoryContents({ data: { repo, branch, startingPath } }),
+  })
 
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/examples/$'
@@ -60,7 +63,8 @@ export const Route = createFileRoute(
       params.framework as Framework,
       params.libraryId
     )
-    const gitHubFilesUrl = `https://api.github.com/repos/${library.repo}/contents/examples/${examplePath}/src`
+
+    const directoryStartingPath = `examples/${examplePath}/src`
 
     await Promise.allSettled([
       queryClient.ensureQueryData(
@@ -70,72 +74,24 @@ export const Route = createFileRoute(
           `examples/${examplePath}/${sandboxFirstFileName}`
         )
       ),
+      queryClient.ensureQueryData(
+        repoDirApiContentsQueryOptions(
+          library.repo,
+          branch,
+          directoryStartingPath
+        )
+      ),
     ])
-
-    const [gitHubFilesResult] = await Promise.allSettled([
-      fetch(gitHubFilesUrl).then((res) => res.json()) as Promise<GitHubFile[]>,
-    ])
-
-    const startingGithubFiles =
-      gitHubFilesResult.status === 'fulfilled' ? gitHubFilesResult.value : []
-
-    let gitHubFiles: Array<GitHubFile> | null =
-      gitHubFilesResult.status === 'fulfilled' ? gitHubFilesResult.value : null
-
-    if (gitHubFiles) {
-      const buildFileTree = async (
-        files: GitHubFile[] | undefined,
-        level: number = 0,
-        parentPath: string = ''
-      ): Promise<GitHubFileNode[]> => {
-        const result: GitHubFileNode[] = []
-
-        for (const file of files ?? []) {
-          const fileNode: GitHubFileNode = {
-            ...file,
-            level,
-            parentPath,
-          }
-
-          if (file.type === 'dir' && level < 3) {
-            const dirFilesResponse = await fetch(file._links.self)
-            const dirFiles = await dirFilesResponse.json()
-            fileNode.children = await buildFileTree(
-              dirFiles,
-              level + 1,
-              `${parentPath}${file.name}/`
-            )
-          }
-
-          result.push(fileNode)
-        }
-
-        return result
-      }
-
-      gitHubFiles = await buildFileTree(gitHubFiles)
-    }
 
     return {
-      gitHubFiles,
+      directoryStartingPath,
     }
   },
 })
 
-const fileQueryOptions = (repo: string, branch: string, filePath: string) =>
-  queryOptions({
-    queryKey: ['currentCode', repo, branch, filePath],
-    queryFn: () =>
-      fetchFile({
-        data: { repo, branch, filePath },
-      }),
-  })
-
 export default function Example() {
-  const gitHubFiles = Route.useLoaderData({
-    // @ts-expect-error
-    select: (d) => d.gitHubFiles as Array<GitHubFileNode>,
-  })
+  // @ts-expect-error
+  const { directoryStartingPath } = Route.useLoaderData()
   const { version, framework, _splat, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
@@ -145,6 +101,9 @@ export default function Example() {
     libraryId
   )
 
+  const { data: gitHubFiles } = useSuspenseQuery(
+    repoDirApiContentsQueryOptions(library.repo, branch, directoryStartingPath)
+  )
   const examplePath = [framework, _splat].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
@@ -185,7 +144,7 @@ export default function Example() {
       const expanded = new Set<string>()
       if (gitHubFiles) {
         gitHubFiles.forEach((file: GitHubFileNode) => {
-          if (file.type === 'dir' && file.level === 0) {
+          if (file.type === 'dir' && file.depth === 0) {
             expanded.add(file.path)
           }
         })
@@ -318,7 +277,7 @@ export default function Example() {
     return (
       <div className="flex flex-col">
         {files.map((file) => (
-          <div key={file.path} style={{ marginLeft: `${file.level * 16}px` }}>
+          <div key={file.path} style={{ marginLeft: `${file.depth * 16}px` }}>
             <button
               onClick={() => {
                 if (file.type === 'dir') {

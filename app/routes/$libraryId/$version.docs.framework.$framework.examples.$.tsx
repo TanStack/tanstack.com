@@ -400,7 +400,7 @@ export default function Example() {
                 onMouseDown={startResize}
               />
               <div className="flex-1 pl-4 overflow-auto relative">
-                <CodeBlock className={`mt-4`}>
+                <CodeBlock className={`mt-4 max-h-[80dvh]`}>
                   <code className={`language-${currentPath.split('.').pop()}`}>
                     {currentCode}
                   </code>

@@ -396,9 +396,30 @@ async function fetchApiContentsFs(
     `../../../../${repo}`,
     startingPath
   )
-  console.log('🚀 ~ localFilePath:', localFilePath)
 
-  return null
+  async function getContentsForPath(
+    filePath: string
+  ): Promise<Array<GitHubFile>> {
+    const list = await fsp.readdir(filePath, { withFileTypes: true })
+    return list.map((item) => {
+      return {
+        name: item.name,
+        path: path.join(filePath, item.name),
+        type: item.isDirectory() ? 'dir' : 'file',
+        _links: {
+          self: path.join(filePath, item.name),
+        },
+      }
+    })
+  }
+
+  const res = await getContentsForPath(localFilePath)
+
+  return res.map((r) => ({
+    ...r,
+    depth: 0,
+    parentPath: '',
+  }))
 }
 
 async function fetchApiContentsRemote(

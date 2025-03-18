@@ -22,6 +22,15 @@ import type { GitHubFileNode } from '~/utils/documents.server'
 import { z } from 'zod'
 import { useWindowSize } from '~/hooks/useWindowSize'
 
+import typescriptIconUrl from '~/images/file-icons/typescript.svg?url'
+import javascriptIconUrl from '~/images/file-icons/javascript.svg?url'
+import cssIconUrl from '~/images/file-icons/css.svg?url'
+import htmlIconUrl from '~/images/file-icons/html.svg?url'
+import jsonIconUrl from '~/images/file-icons/json.svg?url'
+import svelteIconUrl from '~/images/file-icons/svelte.svg?url'
+import vueIconUrl from '~/images/file-icons/vue.svg?url'
+import textIconUrl from '~/images/file-icons/txt.svg?url'
+
 const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
   return queryOptions({
     queryKey: ['currentCode', repo, branch, filePath],
@@ -544,22 +553,22 @@ const getFileIconPath = (filename: string) => {
   switch (ext) {
     case 'ts':
     case 'tsx':
-      return '/app/images/file-icons/typescript.svg'
+      return typescriptIconUrl
     case 'js':
     case 'jsx':
-      return '/app/images/file-icons/javascript.svg'
+      return javascriptIconUrl
     case 'css':
-      return '/app/images/file-icons/css.svg'
+      return cssIconUrl
     case 'html':
-      return '/app/images/file-icons/html.svg'
+      return htmlIconUrl
     case 'json':
-      return '/app/images/file-icons/json.svg'
+      return jsonIconUrl
     case 'svelte':
-      return '/app/images/file-icons/svelte.svg'
+      return svelteIconUrl
     case 'vue':
-      return '/app/images/file-icons/vue.svg'
+      return vueIconUrl
     default:
-      return '/app/images/file-icons/txt.svg'
+      return textIconUrl
   }
 }
 

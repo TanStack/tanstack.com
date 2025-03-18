@@ -101,6 +101,8 @@ export const Route = createFileRoute(
   },
 })
 
+const bannedDefaultOpenFolders = new Set(['public', '.vscode', 'tests', 'spec'])
+
 function RouteComponent() {
   // Not sure why this inferred type is not working
   // @ts-expect-error
@@ -184,7 +186,11 @@ function RouteComponent() {
       const expanded = new Set<string>()
       if (gitHubFiles) {
         gitHubFiles.forEach((file: GitHubFileNode) => {
-          if (file.type === 'dir' && file.depth === 0) {
+          if (
+            file.type === 'dir' &&
+            file.depth === 0 &&
+            !bannedDefaultOpenFolders.has(file.name)
+          ) {
             expanded.add(file.path)
           }
         })

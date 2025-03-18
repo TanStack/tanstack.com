@@ -20,6 +20,7 @@ import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import type { GitHubFileNode } from '~/utils/documents.server'
 import { z } from 'zod'
+import { useWindowSize } from '~/hooks/useWindowSize'
 
 const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
   return queryOptions({
@@ -172,7 +173,7 @@ function RouteComponent() {
     [queryClient, library.repo, branch]
   )
 
-  const [sidebarWidth, setSidebarWidth] = React.useState(250)
+  const [sidebarWidth, setSidebarWidth] = React.useState(200)
   const [isResizing, setIsResizing] = React.useState(false)
   const sidebarRef = React.useRef<HTMLDivElement>(null)
   const startResizeRef = React.useRef({
@@ -243,7 +244,15 @@ function RouteComponent() {
   const showNetlify = library.showNetlifyUrl
 
   const [isFullScreen, setIsFullScreen] = React.useState(false)
+  const windowSize = useWindowSize()
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
+
+  React.useEffect(() => {
+    // Default to closed on mobile (width < 768px)
+    if (windowSize.width && isSidebarOpen) {
+      setIsSidebarOpen(windowSize.width >= 768)
+    }
+  }, [windowSize.width])
 
   // Add escape key handler
   React.useEffect(() => {
@@ -446,7 +455,7 @@ function RouteComponent() {
                   onMouseDown={startResize}
                 />
                 <div className="flex-1 overflow-auto relative">
-                  <CodeBlock isEmbedded>
+                  <CodeBlock isEmbedded className="max-h-[80dvh]">
                     <code
                       className={`language-${overrideExtension(
                         currentPath.split('.').pop()
@@ -604,7 +613,7 @@ const RenderFileTree = (props: {
                 : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
             }`}
           >
-            <span className="flex-shrink-0">
+            <span className="flex-shrink-0 select-none">
               {file.type === 'dir' ? (
                 <FolderIcon isOpen={props.expandedFolders.has(file.path)} />
               ) : (

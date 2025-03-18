@@ -380,12 +380,7 @@ function RouteComponent() {
             </div>
             <button
               onClick={() => {
-                if (activeTab === 'code') {
-                  setIsFullScreen(!isFullScreen)
-                } else {
-                  setActiveTab('code')
-                  setIsFullScreen(true)
-                }
+                setIsFullScreen((prev) => !prev)
               }}
               className={`p-2 text-sm rounded transition-colors mr-2 hover:bg-gray-200 dark:hover:bg-gray-700 group relative ${
                 activeTab === 'code'

@@ -15,16 +15,17 @@ import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
 import { getInitialSandboxFileName } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
-import type { GitHubFile, GitHubFileNode } from '~/utils/documents.server'
+import type { GitHubFileNode } from '~/utils/documents.server'
 
-const fileQueryOptions = (repo: string, branch: string, filePath: string) =>
-  queryOptions({
+const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
+  return queryOptions({
     queryKey: ['currentCode', repo, branch, filePath],
     queryFn: () =>
       fetchFile({
         data: { repo, branch, filePath },
       }),
   })
+}
 
 const repoDirApiContentsQueryOptions = (
   repo: string,
@@ -63,16 +64,12 @@ export const Route = createFileRoute(
       params.framework as Framework,
       params.libraryId
     )
-
     const directoryStartingPath = `examples/${examplePath}/src`
+    const sandboxStartingFilePath = `examples/${examplePath}/${sandboxFirstFileName}`
 
     await Promise.allSettled([
       queryClient.ensureQueryData(
-        fileQueryOptions(
-          library.repo,
-          branch,
-          `examples/${examplePath}/${sandboxFirstFileName}`
-        )
+        fileQueryOptions(library.repo, branch, sandboxStartingFilePath)
       ),
       queryClient.ensureQueryData(
         repoDirApiContentsQueryOptions(
@@ -85,13 +82,18 @@ export const Route = createFileRoute(
 
     return {
       directoryStartingPath,
+      sandboxStartingFilePath,
     }
   },
 })
 
 export default function Example() {
+  // Not sure why this inferred type is not working
   // @ts-expect-error
-  const { directoryStartingPath } = Route.useLoaderData()
+  const { directoryStartingPath, sandboxStartingFilePath } =
+    Route.useLoaderData()
+
+  const queryClient = useQueryClient()
   const { version, framework, _splat, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
@@ -107,25 +109,17 @@ export default function Example() {
   const examplePath = [framework, _splat].join('/')
 
   const [isDark, setIsDark] = React.useState(true)
-  const [currentFile, setCurrentFile] = React.useState<GitHubFile | null>(
-    () =>
-      gitHubFiles?.find(
-        (file: GitHubFile) =>
-          file.path === `examples/${examplePath}/${mainExampleFile}`
-      ) || null
+  const [currentPath, setCurrentPath] = React.useState<string>(
+    sandboxStartingFilePath
   )
 
-  const queryClient = useQueryClient()
-
   const { data: currentCode } = useQuery(
-    fileQueryOptions(library.repo, branch, currentFile?.path || '')
+    fileQueryOptions(library.repo, branch, currentPath)
   )
 
   const prefetchFileContent = React.useCallback(
-    (file: GitHubFile) => {
-      queryClient.prefetchQuery(
-        fileQueryOptions(library.repo, branch, file.path)
-      )
+    (path: string) => {
+      queryClient.prefetchQuery(fileQueryOptions(library.repo, branch, path))
     },
     [queryClient, library.repo, branch]
   )
@@ -175,42 +169,6 @@ export default function Example() {
     )
   })
 
-  // Update local storage when tab changes
-  React.useEffect(() => {
-    localStorage.setItem('exampleViewPreference', activeTab)
-  }, [activeTab])
-
-  React.useEffect(() => {
-    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
-  }, [])
-
-  React.useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return
-
-      const diff = e.clientX - startResizeRef.current.startX
-      const newWidth = startResizeRef.current.startWidth + diff
-
-      if (newWidth >= 150 && newWidth <= 600) {
-        setSidebarWidth(newWidth)
-      }
-    }
-
-    const handleMouseUp = () => {
-      setIsResizing(false)
-    }
-
-    if (isResizing) {
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [isResizing])
-
   const startResize = (e: React.MouseEvent) => {
     setIsResizing(true)
     startResizeRef.current = {
@@ -253,6 +211,42 @@ export default function Example() {
     window.addEventListener('keydown', handleEsc)
     return () => window.removeEventListener('keydown', handleEsc)
   }, [isFullScreen])
+
+  // Update local storage when tab changes
+  React.useEffect(() => {
+    localStorage.setItem('exampleViewPreference', activeTab)
+  }, [activeTab])
+
+  React.useEffect(() => {
+    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
+  }, [])
+
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return
+
+      const diff = e.clientX - startResizeRef.current.startX
+      const newWidth = startResizeRef.current.startWidth + diff
+
+      if (newWidth >= 150 && newWidth <= 600) {
+        setSidebarWidth(newWidth)
+      }
+    }
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+    }
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isResizing])
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto h-[95dvh]">
@@ -391,8 +385,8 @@ export default function Example() {
                       toggleFolder={toggleFolder}
                       prefetchFileContent={prefetchFileContent}
                       expandedFolders={expandedFolders}
-                      currentFile={currentFile}
-                      setCurrentFile={setCurrentFile}
+                      currentPath={currentPath}
+                      setCurrentPath={setCurrentPath}
                     />
                   </div>
                 ) : (
@@ -407,9 +401,7 @@ export default function Example() {
               />
               <div className="flex-1 pl-4 overflow-auto relative">
                 <CodeBlock className={`mt-4`}>
-                  <code
-                    className={`language-${currentFile?.name.split('.').pop()}`}
-                  >
+                  <code className={`language-${currentPath.split('.').pop()}`}>
                     {currentCode}
                   </code>
                 </CodeBlock>
@@ -469,10 +461,10 @@ const RenderFileTree = (props: {
   files: GitHubFileNode[] | undefined
   libraryColor: string
   toggleFolder: (path: string) => void
-  prefetchFileContent: (file: GitHubFile) => void
+  prefetchFileContent: (file: string) => void
   expandedFolders: Set<string>
-  currentFile: GitHubFile | null
-  setCurrentFile: (file: GitHubFile) => void
+  currentPath: string | null
+  setCurrentPath: (file: string) => void
 }) => {
   if (!props.files) return null
 
@@ -485,14 +477,14 @@ const RenderFileTree = (props: {
               if (file.type === 'dir') {
                 props.toggleFolder(file.path)
               } else {
-                props.setCurrentFile(file)
+                props.setCurrentPath(file.path)
               }
             }}
             onMouseEnter={() =>
-              file.type !== 'dir' && props.prefetchFileContent(file)
+              file.type !== 'dir' && props.prefetchFileContent(file.path)
             }
             className={`px-2 py-2 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0 ${
-              props.currentFile?.path === file.path
+              props.currentPath === file.path
                 ? `${props.libraryColor.replace(
                     'bg-',
                     'bg-opacity-20 bg-'

@@ -377,8 +377,7 @@ export function fetchApiContents(
     ttl: isDev ? 1 : 1 * 60 * 1000, // 5 minute
     fn: () => {
       return isDev
-        ? // ? fetchApiContentsFs(repoPair, startingPath)
-          fetchApiContentsRemote(repoPair, branch, startingPath)
+        ? fetchApiContentsFs(repoPair, startingPath)
         : fetchApiContentsRemote(repoPair, branch, startingPath)
     },
   })
@@ -388,8 +387,18 @@ async function fetchApiContentsFs(
   repoPair: string,
   startingPath: string
 ): Promise<Array<GitHubFileNode> | null> {
-  //
-  return []
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, repo] = repoPair.split('/')
+  const dirname = import.meta.url.split('://').at(-1)!
+
+  const localFilePath = path.resolve(
+    dirname,
+    `../../../../${repo}`,
+    startingPath
+  )
+  console.log('🚀 ~ localFilePath:', localFilePath)
+
+  return null
 }
 
 async function fetchApiContentsRemote(

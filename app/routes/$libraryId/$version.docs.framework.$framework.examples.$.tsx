@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
 
@@ -122,6 +122,15 @@ export const Route = createFileRoute(
   },
 })
 
+const fileQueryOptions = (repo: string, branch: string, filePath: string) =>
+  queryOptions({
+    queryKey: ['currentCode', repo, branch, filePath],
+    queryFn: () =>
+      fetchFile({
+        data: { repo, branch, filePath },
+      }),
+  })
+
 export default function Example() {
   const { version, framework, _splat, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
@@ -148,27 +157,15 @@ export default function Example() {
   const queryClient = useQueryClient()
 
   const { data: currentCode } = useQuery({
+    ...fileQueryOptions(library.repo, branch, currentFile?.path || ''),
     initialData: mainFileCode,
-    queryKey: ['currentCode', library.repo, branch, currentFile?.path],
-    queryFn: async () => {
-      const response = await fetch(
-        `https://raw.githubusercontent.com/${library.repo}/refs/heads/${branch}/${currentFile?.path}`
-      )
-      return response.text()
-    },
   })
 
   const prefetchFileContent = React.useCallback(
     (file: GitHubFile) => {
-      queryClient.prefetchQuery({
-        queryKey: ['currentCode', library.repo, branch, file.path],
-        queryFn: async () => {
-          const response = await fetch(
-            `https://raw.githubusercontent.com/${library.repo}/refs/heads/${branch}/${file.path}`
-          )
-          return response.text()
-        },
-      })
+      queryClient.prefetchQuery(
+        fileQueryOptions(library.repo, branch, file.path)
+      )
     },
     [queryClient, library.repo, branch]
   )

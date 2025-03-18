@@ -439,7 +439,7 @@ function RouteComponent() {
               <div className="flex-1 pl-4 overflow-auto relative">
                 <CodeBlock className={`mt-4 max-h-[80dvh]`}>
                   <code
-                    className={`language-${normalizeExtension(
+                    className={`language-${overrideExtension(
                       currentPath.split('.').pop()
                     )}`}
                   >
@@ -468,10 +468,31 @@ function RouteComponent() {
   )
 }
 
-function normalizeExtension(ext: string | undefined) {
+function overrideExtension(ext: string | undefined) {
   if (!ext) return 'txt'
+
+  // Override some extensions
   if (['cts', 'mts'].includes(ext)) return 'ts'
   if (['cjs', 'mjs'].includes(ext)) return 'js'
+  if (['prettierrc', 'babelrc', 'webmanifest'].includes(ext)) return 'json'
+  if (['env', 'example'].includes(ext)) return 'sh'
+  if (
+    [
+      'gitignore',
+      'prettierignore',
+      'log',
+      'gitattributes',
+      'editorconfig',
+      'lock',
+      'opts',
+      'Dockerfile',
+      'dockerignore',
+      'npmrc',
+      'nvmrc',
+    ].includes(ext)
+  )
+    return 'txt'
+
   return ext
 }
 

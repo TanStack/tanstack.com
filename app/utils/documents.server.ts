@@ -414,6 +414,9 @@ async function fetchApiContentsFs(
     '.output',
     '.netlify',
     '.vercel',
+    '.DS_Store',
+    '.nitro',
+    '.vinxi',
   ]
 
   async function getContentsForPath(

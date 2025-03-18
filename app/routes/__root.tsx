@@ -20,7 +20,6 @@ import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
 import { GoogleScripts } from '~/components/GoogleScripts'
-import CookieConsent from '~/components/CookieConsent'
 import { BackgroundAnimation } from '~/components/BackgroundAnimation'
 
 export const Route = createRootRouteWithContext<{
@@ -212,7 +211,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         ) : null}
-        <CookieConsent />
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-5N57KQT4"

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
 
@@ -25,6 +25,12 @@ interface GitHubFile {
     git: string
     html: string
   }
+}
+
+interface GitHubFileNode extends GitHubFile {
+  children?: GitHubFileNode[]
+  level: number
+  parentPath?: string
 }
 
 export const Route = createFileRoute(
@@ -69,23 +75,37 @@ export const Route = createFileRoute(
       gitHubFilesResult.status === 'fulfilled' ? gitHubFilesResult.value : null
 
     if (gitHubFiles) {
-      const allFiles: GitHubFile[] = []
-      const directories = gitHubFiles.filter((file) => file.type === 'dir')
-      const nonDirectories = gitHubFiles.filter((file) => file.type !== 'dir')
+      const buildFileTree = async (
+        files: GitHubFile[],
+        level: number = 0,
+        parentPath: string = ''
+      ): Promise<GitHubFileNode[]> => {
+        const result: GitHubFileNode[] = []
 
-      const directoryFiles = await Promise.all(
-        directories.map(async (dir) => {
-          const dirFilesResponse = await fetch(dir._links.self)
-          const dirFiles = await dirFilesResponse.json()
-          return dirFiles.map((file: GitHubFile) => ({
+        for (const file of files) {
+          const fileNode: GitHubFileNode = {
             ...file,
-            name: `${dir.name}/${file.name}`, // Prefix the file name with parent directory name
-          }))
-        })
-      )
+            level,
+            parentPath,
+          }
 
-      allFiles.push(...nonDirectories, ...directoryFiles.flat())
-      gitHubFiles = allFiles
+          if (file.type === 'dir' && level < 2) {
+            const dirFilesResponse = await fetch(file._links.self)
+            const dirFiles = await dirFilesResponse.json()
+            fileNode.children = await buildFileTree(
+              dirFiles,
+              level + 1,
+              `${parentPath}${file.name}/`
+            )
+          }
+
+          result.push(fileNode)
+        }
+
+        return result
+      }
+
+      gitHubFiles = await buildFileTree(gitHubFiles)
     }
 
     return {
@@ -120,6 +140,8 @@ export default function Example() {
       ) || null
   )
 
+  const queryClient = useQueryClient()
+
   const { data: currentCode } = useQuery({
     initialData: mainFileCode,
     queryKey: ['currentCode', library.repo, branch, currentFile?.path],
@@ -131,9 +153,109 @@ export default function Example() {
     },
   })
 
+  const prefetchFileContent = React.useCallback(
+    (file: GitHubFile) => {
+      queryClient.prefetchQuery({
+        queryKey: ['currentCode', library.repo, branch, file.path],
+        queryFn: async () => {
+          const response = await fetch(
+            `https://raw.githubusercontent.com/${library.repo}/refs/heads/${branch}/${file.path}`
+          )
+          return response.text()
+        },
+      })
+    },
+    [queryClient, library.repo, branch]
+  )
+
+  const [sidebarWidth, setSidebarWidth] = React.useState(250)
+  const [isResizing, setIsResizing] = React.useState(false)
+  const sidebarRef = React.useRef<HTMLDivElement>(null)
+  const startResizeRef = React.useRef({
+    startX: 0,
+    startWidth: 0,
+  })
+
+  // Initialize expandedFolders with root-level folders
+  const [expandedFolders, setExpandedFolders] = React.useState<Set<string>>(
+    () => {
+      const expanded = new Set<string>()
+      if (gitHubFiles) {
+        gitHubFiles.forEach((file) => {
+          if (file.type === 'dir' && file.level === 0) {
+            expanded.add(file.path)
+          }
+        })
+      }
+      return expanded
+    }
+  )
+
+  // Add toggle function for folders
+  const toggleFolder = (path: string) => {
+    setExpandedFolders((prev) => {
+      const next = new Set(prev)
+      if (next.has(path)) {
+        next.delete(path)
+      } else {
+        next.add(path)
+      }
+      return next
+    })
+  }
+
+  // Add tab state with local storage persistence
+  const [activeTab, setActiveTab] = React.useState<'code' | 'sandbox'>(() => {
+    if (typeof window === 'undefined') return 'code'
+    return (
+      (localStorage.getItem('exampleViewPreference') as 'code' | 'sandbox') ||
+      'code'
+    )
+  })
+
+  // Update local storage when tab changes
+  React.useEffect(() => {
+    localStorage.setItem('exampleViewPreference', activeTab)
+  }, [activeTab])
+
   React.useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
+
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return
+
+      const diff = e.clientX - startResizeRef.current.startX
+      const newWidth = startResizeRef.current.startWidth + diff
+
+      if (newWidth >= 150 && newWidth <= 600) {
+        setSidebarWidth(newWidth)
+      }
+    }
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+    }
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isResizing])
+
+  const startResize = (e: React.MouseEvent) => {
+    setIsResizing(true)
+    startResizeRef.current = {
+      startX: e.clientX,
+      startWidth: sidebarWidth,
+    }
+  }
 
   const repoUrl = `https://github.com/${library.repo}`
   const githubUrl = `https://github.com/${library.repo}/tree/${branch}/examples/${examplePath}`
@@ -156,6 +278,79 @@ export default function Example() {
   const hideStackblitz = library.hideStackblitzUrl
   const showVercel = library.showVercelUrl
   const showNetlify = library.showNetlifyUrl
+
+  const FileIcon = () => (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="#61DAFB" // React brand blue
+      xmlns="http://www.w3.org/2000/svg"
+      className="inline-block"
+    >
+      <path d="M14 4.5V14C14 14.5523 13.5523 15 13 15H3C2.44772 15 2 14.5523 2 14V2C2 1.44772 2.44772 1 3 1H10.5L14 4.5Z" />
+    </svg>
+  )
+
+  const FolderIcon = ({ isOpen }: { isOpen: boolean }) => (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="#FFC107" // Material yellow
+      xmlns="http://www.w3.org/2000/svg"
+      className="inline-block"
+    >
+      {isOpen ? (
+        <path d="M1.5 2h5l1 2h7a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 14.5 14h-13A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2z" />
+      ) : (
+        <path d="M.5 3a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5H7l-1-2H.5z" />
+      )}
+    </svg>
+  )
+
+  const renderFileTree = (files: GitHubFileNode[]) => {
+    return (
+      <div className="flex flex-col">
+        {(files || []).map((file) => (
+          <div key={file.path} style={{ marginLeft: `${file.level * 16}px` }}>
+            <button
+              onClick={() => {
+                if (file.type === 'dir') {
+                  toggleFolder(file.path)
+                } else {
+                  setCurrentFile(file)
+                }
+              }}
+              onMouseEnter={() =>
+                file.type !== 'dir' && prefetchFileContent(file)
+              }
+              className={`px-2 py-2 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0 ${
+                currentFile?.path === file.path
+                  ? `${libraryColor.replace(
+                      'bg-',
+                      'bg-opacity-20 bg-'
+                    )} text-gray-900 dark:text-white shadow-sm`
+                  : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              <span className="flex-shrink-0">
+                {file.type === 'dir' ? (
+                  <FolderIcon isOpen={expandedFolders.has(file.path)} />
+                ) : (
+                  <FileIcon />
+                )}
+              </span>
+              <span className="truncate">{file.name}</span>
+            </button>
+            {file.children &&
+              expandedFolders.has(file.path) &&
+              renderFileTree(file.children)}
+          </div>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto h-[95dvh]">
@@ -215,44 +410,70 @@ export default function Example() {
         </DocTitle>
       </div>
       <div className="flex-1 lg:px-6 flex flex-col min-h-0">
-        <div className="flex flex-col gap-4">
-          <div className="flex overflow-x-auto pb-2">
-            {gitHubFiles.map((file: GitHubFile) => (
-              <button
-                key={file.path}
-                onClick={() => setCurrentFile(file)}
-                className={`px-4 py-2 whitespace-nowrap text-sm rounded-t-lg transition-colors duration-200 ${
-                  currentFile?.path === file.path
-                    ? `${libraryColor} text-white shadow-sm`
-                    : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-                } ${
-                  currentFile?.path === file.path
-                    ? `border-b-2 border-white-600`
-                    : 'border-b border-transparent hover:border-gray-300 dark:hover:border-gray-600'
-                }`}
-              >
-                {file.name}
-              </button>
-            ))}
-          </div>
-          <CodeBlock className={`m-0 language-${currentFile?.type}`}>
-            <code className="language-tsx">{currentCode}</code>
-          </CodeBlock>
+        <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => setActiveTab('code')}
+            className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+              activeTab === 'code'
+                ? 'text-gray-900 dark:text-white'
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            Code Explorer
+            {activeTab === 'code' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('sandbox')}
+            className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+              activeTab === 'sandbox'
+                ? 'text-gray-900 dark:text-white'
+                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+            }`}
+          >
+            Interactive Sandbox
+            {activeTab === 'sandbox' && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+            )}
+          </button>
         </div>
 
-        <h2 id="interactive-sandbox" className="text-2xl font-bold my-8">
-          Interactive Sandbox
-        </h2>
-        <iframe
-          src={
-            library.embedEditor === 'codesandbox'
-              ? codeSandboxUrl
-              : stackBlitzUrl
-          }
-          title={`${library.name} | ${examplePath}`}
-          sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-          className="flex-1 w-full min-h-[600px] overflow-hidden lg:rounded-lg shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
-        />
+        {activeTab === 'code' ? (
+          <div className="flex min-h-[80dvh]">
+            <div
+              ref={sidebarRef}
+              style={{ width: sidebarWidth }}
+              className="flex-shrink-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 pr-2"
+            >
+              {gitHubFiles ? (
+                renderFileTree(gitHubFiles)
+              ) : (
+                <div className="px-4 text-sm text-gray-500">No files found</div>
+              )}
+            </div>
+            <div
+              className="w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 transition-colors"
+              onMouseDown={startResize}
+            />
+            <div className="flex-1 pl-4 overflow-auto">
+              <CodeBlock className={`mt-4 language-${currentFile?.type}`}>
+                <code className="language-tsx">{currentCode}</code>
+              </CodeBlock>
+            </div>
+          </div>
+        ) : (
+          <iframe
+            src={
+              library.embedEditor === 'codesandbox'
+                ? codeSandboxUrl
+                : stackBlitzUrl
+            }
+            title={`${library.name} | ${examplePath}`}
+            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+            className="flex-1 w-full min-h-[80dvh] overflow-hidden lg:rounded-lg shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
+          />
+        )}
       </div>
       <div className="h-8" />
     </div>

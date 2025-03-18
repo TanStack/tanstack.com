@@ -87,6 +87,13 @@ export function isNumericString(str: string): boolean {
   ) // ...and ensure strings of whitespace fail
 }
 
+/**
+ * A utility function from Router, to sort an array of objects by multiple accessors.
+ *
+ * @param arr Unsorted array
+ * @param accessors Callbacks to access the values to sort by
+ * @returns Sorted array
+ */
 export function multiSortBy<T>(
   arr: Array<T>,
   accessors: Array<(item: T) => any> = [(d) => d]
@@ -115,4 +122,14 @@ export function multiSortBy<T>(
       return ai - bi
     })
     .map(([d]) => d)
+}
+
+/**
+ * A utility function from Router, to remove leading slash from a path.
+ *
+ * @param path Candidate path to remove leading slash
+ * @returns Path without leading slash
+ */
+export function removeLeadingSlash(path: string): string {
+  return path.replace(/^\//, '')
 }

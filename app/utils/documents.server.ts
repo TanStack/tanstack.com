@@ -3,7 +3,7 @@ import path from 'node:path'
 // import { fileURLToPath } from 'node:url'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
-import { multiSortBy } from './utils'
+import { multiSortBy, removeLeadingSlash } from './utils'
 
 export type Doc = {
   filepath: string
@@ -400,11 +400,8 @@ async function fetchApiContentsFs(
   const [_, repo] = repoPair.split('/')
   const dirname = import.meta.url.split('://').at(-1)!
 
-  const localFilePath = path.resolve(
-    dirname,
-    `../../../../${repo}`,
-    startingPath
-  )
+  const base = path.resolve(dirname, `../../../../${repo}`)
+  const fsStartPath = path.join(base, removeLeadingSlash(startingPath))
 
   const dirsAndFilesToIgnore = [
     'node_modules',
@@ -437,7 +434,7 @@ async function fetchApiContentsFs(
       })
   }
 
-  const data = await getContentsForPath(localFilePath)
+  const data = await getContentsForPath(fsStartPath)
 
   async function buildFileTree(
     nodes: Array<GitHubFile> | undefined,
@@ -463,6 +460,10 @@ async function fetchApiContentsFs(
           `${parentPath}${file.path}/`
         )
       }
+
+      // This replacement is only being done to more accurately mock the GitHub API response
+      file.path = removeLeadingSlash(file.path.replace(base, ''))
+      file._links.self = removeLeadingSlash(file._links.self.replace(base, ''))
 
       result.push(file)
     }

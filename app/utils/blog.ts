@@ -21,6 +21,9 @@ export function getPostList() {
     {
       id: 'why-tanstack-start-and-router',
     },
+    {
+      id: 'netlify-partnership',
+    },
   ]
 }
 

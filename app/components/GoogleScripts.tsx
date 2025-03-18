@@ -55,15 +55,15 @@ const googleScriptFn = (slots: typeof adSlots) => {
     googletag.pubads().enableSingleRequest()
     googletag.enableServices()
 
-    // Set individual refresh intervals for each ad
-    slotInstances.forEach((slotInstance, index) => {
-      const slot = Object.values(slots)[index]
-      setInterval(function () {
-        googletag.cmd.push(function () {
-          googletag.pubads().refresh([slotInstance])
-        })
-      }, slot.refreshInterval)
-    })
+    // // Set individual refresh intervals for each ad
+    // slotInstances.forEach((slotInstance, index) => {
+    //   const slot = Object.values(slots)[index]
+    //   setInterval(function () {
+    //     googletag.cmd.push(function () {
+    //       googletag.pubads().refresh([slotInstance])
+    //     })
+    //   }, slot.refreshInterval)
+    // })
   })
 }
 

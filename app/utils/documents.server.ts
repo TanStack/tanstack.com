@@ -397,29 +397,59 @@ async function fetchApiContentsFs(
     startingPath
   )
 
+  const dirsAndFilesToIgnore = ['node_modules', '.git', 'dist']
+
   async function getContentsForPath(
     filePath: string
   ): Promise<Array<GitHubFile>> {
     const list = await fsp.readdir(filePath, { withFileTypes: true })
-    return list.map((item) => {
-      return {
-        name: item.name,
-        path: path.join(filePath, item.name),
-        type: item.isDirectory() ? 'dir' : 'file',
-        _links: {
-          self: path.join(filePath, item.name),
-        },
-      }
-    })
+    return list
+      .filter((item) => !dirsAndFilesToIgnore.includes(item.name))
+      .map((item) => {
+        return {
+          name: item.name,
+          path: path.join(filePath, item.name),
+          type: item.isDirectory() ? 'dir' : 'file',
+          _links: {
+            self: path.join(filePath, item.name),
+          },
+        }
+      })
   }
 
-  const res = await getContentsForPath(localFilePath)
+  const data = await getContentsForPath(localFilePath)
 
-  return res.map((r) => ({
-    ...r,
-    depth: 0,
-    parentPath: '',
-  }))
+  async function buildFileTree(
+    nodes: Array<GitHubFile> | undefined,
+    depth: number,
+    parentPath: string
+  ) {
+    const result: Array<GitHubFileNode> = []
+
+    for (const node of nodes ?? []) {
+      const file: GitHubFileNode = {
+        ...node,
+        depth,
+        parentPath,
+      }
+
+      if (file.type === 'dir' && depth <= API_CONTENTS_MAX_DEPTH) {
+        const directoryFiles = await getContentsForPath(file._links.self)
+        file.children = await buildFileTree(
+          directoryFiles,
+          depth + 1,
+          `${parentPath}${file.path}/`
+        )
+      }
+
+      result.push(file)
+    }
+
+    return result
+  }
+
+  const fileTree = await buildFileTree(data, 0, '')
+  return fileTree
 }
 
 async function fetchApiContentsRemote(

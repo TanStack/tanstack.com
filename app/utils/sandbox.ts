@@ -30,3 +30,11 @@ export const getInitialSandboxFileName = (
 
   return `${dir}/${file}.${ext}` as const
 }
+
+export const getInitialSandboxDirectory = (libraryId: string) => {
+  if (['start', 'router'].includes(libraryId!)) {
+    return ''
+  }
+
+  return '/src'
+}

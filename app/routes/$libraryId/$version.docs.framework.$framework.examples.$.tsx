@@ -12,7 +12,10 @@ import { DocTitle } from '~/components/DocTitle'
 import { CodeBlock } from '~/components/Markdown'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
-import { getInitialSandboxFileName } from '~/utils/sandbox'
+import {
+  getInitialSandboxDirectory,
+  getInitialSandboxFileName,
+} from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import type { GitHubFileNode } from '~/utils/documents.server'
@@ -60,12 +63,18 @@ export const Route = createFileRoute(
     const library = getLibrary(params.libraryId)
     const branch = getBranch(library, params.version)
     const examplePath = [params.framework, params._splat].join('/')
+    const sandboxFirstDirectory = getInitialSandboxDirectory(params.libraryId)
     const sandboxFirstFileName = getInitialSandboxFileName(
       params.framework as Framework,
       params.libraryId
     )
-    const directoryStartingPath = `examples/${examplePath}/src`
+
+    // Used for fetching the file content of the initial file
     const sandboxStartingFilePath = `examples/${examplePath}/${sandboxFirstFileName}`
+
+    // Used to indicate from where should the directory tree start.
+    // i.e. from `examples/react/quickstart` or `examples/react/quickstart/src`
+    const directoryStartingPath = `examples/${examplePath}${sandboxFirstDirectory}`
 
     await Promise.allSettled([
       queryClient.ensureQueryData(

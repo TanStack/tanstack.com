@@ -359,7 +359,7 @@ function RouteComponent() {
       </div>
       <div className="flex-1 lg:px-6 flex flex-col min-h-0">
         <div
-          className={`flex flex-col min-h-[80dvh] ${
+          className={`flex flex-col min-h-[80dvh] border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden ${
             isFullScreen
               ? 'fixed inset-0 z-50 bg-white dark:bg-gray-900 p-4'
               : ''
@@ -430,9 +430,9 @@ function RouteComponent() {
                 <div
                   ref={sidebarRef}
                   style={{ width: isSidebarOpen ? sidebarWidth : 0 }}
-                  className={`flex-shrink-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 pr-2 bg-gray-50 dark:bg-gray-800/50 shadow-sm ${
+                  className={`flex-shrink-0 overflow-y-auto bg-gradient-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent pr-2 shadow-sm ${
                     isResizing ? '' : 'transition-all duration-300'
-                  } ${isSidebarOpen ? '' : 'w-0 pr-0 border-r-0'}`}
+                  } ${isSidebarOpen ? '' : 'w-0 pr-0'}`}
                 >
                   {gitHubFiles && isSidebarOpen ? (
                     <div className="p-2">
@@ -455,7 +455,10 @@ function RouteComponent() {
                   onMouseDown={startResize}
                 />
                 <div className="flex-1 overflow-auto relative">
-                  <CodeBlock isEmbedded className="max-h-[80dvh]">
+                  <CodeBlock
+                    isEmbedded
+                    className={`max-h-[${isFullScreen ? '90' : '80'}dvh]`}
+                  >
                     <code
                       className={`language-${overrideExtension(
                         currentPath.split('.').pop()

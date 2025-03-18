@@ -6,8 +6,8 @@ import {
 } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
-
 import { FaExternalLinkAlt, FaExpand, FaCompress } from 'react-icons/fa'
+import { CgMenuLeft } from 'react-icons/cg'
 import { DocTitle } from '~/components/DocTitle'
 import { CodeBlock } from '~/components/Markdown'
 import { Framework, getBranch, getLibrary } from '~/libraries'
@@ -243,6 +243,7 @@ function RouteComponent() {
   const showNetlify = library.showNetlifyUrl
 
   const [isFullScreen, setIsFullScreen] = React.useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
 
   // Add escape key handler
   React.useEffect(() => {
@@ -384,28 +385,34 @@ function RouteComponent() {
                 )}
               </button>
             </div>
-            <button
-              onClick={() => {
-                setIsFullScreen((prev) => !prev)
-              }}
-              className={`p-2 text-sm rounded transition-colors mr-2 hover:bg-gray-200 dark:hover:bg-gray-700 group relative ${
-                activeTab === 'code'
-                  ? 'text-gray-700 dark:text-gray-300'
-                  : 'text-gray-400 dark:text-gray-600'
-              }`}
-              aria-label={
-                isFullScreen ? 'Exit full screen' : 'Enter full screen'
-              }
-            >
-              {isFullScreen ? (
-                <FaCompress className="w-4 h-4" />
-              ) : (
-                <FaExpand className="w-4 h-4" />
+            <div className="flex items-center gap-2">
+              {activeTab === 'code' && (
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  title={isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+                >
+                  <CgMenuLeft className="w-4 h-4" />
+                </button>
               )}
-              <div className="absolute bottom-full right-full mb-2 mr-2 hidden group-hover:block whitespace-nowrap px-2 py-1 text-xs bg-gray-900 text-white rounded shadow-lg">
-                {isFullScreen ? 'Exit full screen' : 'Enter full screen'}
-              </div>
-            </button>
+              <button
+                onClick={() => {
+                  setIsFullScreen((prev) => !prev)
+                }}
+                className={`p-2 text-sm rounded transition-colors mr-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                  activeTab === 'code'
+                    ? 'text-gray-700 dark:text-gray-300'
+                    : 'text-gray-400 dark:text-gray-600'
+                }`}
+                title={isFullScreen ? 'Exit full screen' : 'Enter full screen'}
+              >
+                {isFullScreen ? (
+                  <FaCompress className="w-4 h-4" />
+                ) : (
+                  <FaExpand className="w-4 h-4" />
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="relative flex-1">
@@ -413,10 +420,12 @@ function RouteComponent() {
               <div className="flex flex-1">
                 <div
                   ref={sidebarRef}
-                  style={{ width: sidebarWidth }}
-                  className="flex-shrink-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 pr-2 bg-gray-50 dark:bg-gray-800/50 shadow-sm"
+                  style={{ width: isSidebarOpen ? sidebarWidth : 0 }}
+                  className={`flex-shrink-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 pr-2 bg-gray-50 dark:bg-gray-800/50 shadow-sm ${
+                    isResizing ? '' : 'transition-all duration-300'
+                  } ${isSidebarOpen ? '' : 'w-0 pr-0 border-r-0'}`}
                 >
-                  {gitHubFiles ? (
+                  {gitHubFiles && isSidebarOpen ? (
                     <div className="p-2">
                       <RenderFileTree
                         files={gitHubFiles}
@@ -428,18 +437,16 @@ function RouteComponent() {
                         setCurrentPath={setCurrentPath}
                       />
                     </div>
-                  ) : (
-                    <div className="px-4 text-sm text-gray-500">
-                      No files found
-                    </div>
-                  )}
+                  ) : null}
                 </div>
                 <div
-                  className="w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 transition-colors"
+                  className={`w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 ${
+                    isResizing ? '' : 'transition-colors'
+                  } ${isSidebarOpen ? '' : 'hidden'}`}
                   onMouseDown={startResize}
                 />
-                <div className="flex-1 pl-4 overflow-auto relative">
-                  <CodeBlock className={`mt-4 max-h-[80dvh]`}>
+                <div className="flex-1 overflow-auto relative">
+                  <CodeBlock isEmbedded>
                     <code
                       className={`language-${overrideExtension(
                         currentPath.split('.').pop()
@@ -604,7 +611,7 @@ const RenderFileTree = (props: {
                 <FileIcon filename={file.name} />
               )}
             </span>
-            <span className="truncate">{file.name}</span>
+            <span className="truncate select-none">{file.name}</span>
           </button>
           {file.children && props.expandedFolders.has(file.path) && (
             <RenderFileTree {...props} files={file.children} />

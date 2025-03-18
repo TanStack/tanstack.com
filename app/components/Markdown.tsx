@@ -78,7 +78,10 @@ const markdownComponents: Record<string, React.FC> = {
   ),
 }
 
-export function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
+export function CodeBlock({
+  isEmbedded,
+  ...props
+}: React.HTMLProps<HTMLPreElement> & { isEmbedded?: boolean }) {
   let lang = props?.children?.props?.className?.replace('language-', '')
 
   if (lang === 'diff') {
@@ -100,10 +103,17 @@ export function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
 
   const [codeElement, setCodeElement] = React.useState(
     <>
-      <pre ref={ref} className="shiki github-light">
+      <pre
+        ref={ref}
+        className={`shiki github-light ${isEmbedded ? 'rounded-none' : ''}`}
+      >
         <code>{code}</code>
       </pre>
-      <pre className="shiki tokyo-night bg-gray-900 text-gray-400">
+      <pre
+        className={`shiki tokyo-night bg-gray-900 text-gray-400 ${
+          isEmbedded ? 'rounded-none' : ''
+        }`}
+      >
         <code>{code}</code>
       </pre>
     </>
@@ -142,7 +152,11 @@ export function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
       className={`${props.className} w-full max-w-full relative not-prose`}
       style={props.style}
     >
-      <div className="absolute flex items-stretch bg-white text-sm z-10 border border-gray-500/20 rounded-md -top-3 right-2 dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20">
+      <div
+        className={`absolute flex items-stretch bg-white text-sm z-10 border border-gray-500/20 rounded-md ${
+          isEmbedded ? 'top-2 right-4' : '-top-3 right-2'
+        } dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20`}
+      >
         {lang ? <div className="px-2">{lang}</div> : null}
         <button
           className="px-2 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"

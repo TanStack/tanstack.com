@@ -408,49 +408,56 @@ function RouteComponent() {
             </button>
           </div>
 
-          {activeTab === 'code' ? (
-            <div className="flex flex-1">
-              <div
-                ref={sidebarRef}
-                style={{ width: sidebarWidth }}
-                className="flex-shrink-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 pr-2 bg-gray-50 dark:bg-gray-800/50 shadow-sm"
-              >
-                {gitHubFiles ? (
-                  <div className="p-2">
-                    <RenderFileTree
-                      files={gitHubFiles}
-                      libraryColor={libraryColor}
-                      toggleFolder={toggleFolder}
-                      prefetchFileContent={prefetchFileContent}
-                      expandedFolders={expandedFolders}
-                      currentPath={currentPath}
-                      setCurrentPath={setCurrentPath}
-                    />
-                  </div>
-                ) : (
-                  <div className="px-4 text-sm text-gray-500">
-                    No files found
-                  </div>
-                )}
-              </div>
-              <div
-                className="w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 transition-colors"
-                onMouseDown={startResize}
-              />
-              <div className="flex-1 pl-4 overflow-auto relative">
-                <CodeBlock className={`mt-4 max-h-[80dvh]`}>
-                  <code
-                    className={`language-${overrideExtension(
-                      currentPath.split('.').pop()
-                    )}`}
-                  >
-                    {currentCode}
-                  </code>
-                </CodeBlock>
+          <div className="relative flex-1">
+            <div className={`${activeTab === 'code' ? '' : 'hidden'}`}>
+              <div className="flex flex-1">
+                <div
+                  ref={sidebarRef}
+                  style={{ width: sidebarWidth }}
+                  className="flex-shrink-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 pr-2 bg-gray-50 dark:bg-gray-800/50 shadow-sm"
+                >
+                  {gitHubFiles ? (
+                    <div className="p-2">
+                      <RenderFileTree
+                        files={gitHubFiles}
+                        libraryColor={libraryColor}
+                        toggleFolder={toggleFolder}
+                        prefetchFileContent={prefetchFileContent}
+                        expandedFolders={expandedFolders}
+                        currentPath={currentPath}
+                        setCurrentPath={setCurrentPath}
+                      />
+                    </div>
+                  ) : (
+                    <div className="px-4 text-sm text-gray-500">
+                      No files found
+                    </div>
+                  )}
+                </div>
+                <div
+                  className="w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 transition-colors"
+                  onMouseDown={startResize}
+                />
+                <div className="flex-1 pl-4 overflow-auto relative">
+                  <CodeBlock className={`mt-4 max-h-[80dvh]`}>
+                    <code
+                      className={`language-${overrideExtension(
+                        currentPath.split('.').pop()
+                      )}`}
+                    >
+                      {currentCode}
+                    </code>
+                  </CodeBlock>
+                </div>
               </div>
             </div>
-          ) : (
-            <div className="flex-1">
+
+            <div
+              className={`absolute inset-0 ${
+                activeTab === 'sandbox' ? '' : 'pointer-events-none opacity-0'
+              }`}
+              aria-hidden={activeTab !== 'sandbox'}
+            >
               <iframe
                 src={
                   library.embedEditor === 'codesandbox'
@@ -462,7 +469,7 @@ function RouteComponent() {
                 className="w-full h-full min-h-[80dvh] overflow-hidden lg:rounded-lg shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
               />
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
@@ -497,18 +504,42 @@ function overrideExtension(ext: string | undefined) {
   return ext
 }
 
-const FileIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="#61DAFB" // React brand blue
-    xmlns="http://www.w3.org/2000/svg"
-    className="inline-block"
-  >
-    <path d="M14 4.5V14C14 14.5523 13.5523 15 13 15H3C2.44772 15 2 14.5523 2 14V2C2 1.44772 2.44772 1 3 1H10.5L14 4.5Z" />
-  </svg>
-)
+const getFileIconPath = (filename: string) => {
+  const ext = filename.split('.').pop()?.toLowerCase() || ''
+
+  switch (ext) {
+    case 'ts':
+    case 'tsx':
+      return '/app/images/file-icons/typescript.svg'
+    case 'js':
+    case 'jsx':
+      return '/app/images/file-icons/javascript.svg'
+    case 'css':
+      return '/app/images/file-icons/css.svg'
+    case 'html':
+      return '/app/images/file-icons/html.svg'
+    case 'json':
+      return '/app/images/file-icons/json.svg'
+    case 'svelte':
+      return '/app/images/file-icons/svelte.svg'
+    case 'vue':
+      return '/app/images/file-icons/vue.svg'
+    default:
+      return '/app/images/file-icons/txt.svg'
+  }
+}
+
+const FileIcon = ({ filename }: { filename: string }) => {
+  return (
+    <img
+      src={getFileIconPath(filename)}
+      alt={`${filename} file icon`}
+      width={16}
+      height={16}
+      className="inline-block"
+    />
+  )
+}
 
 const FolderIcon = ({ isOpen }: { isOpen: boolean }) => (
   <svg
@@ -570,7 +601,7 @@ const RenderFileTree = (props: {
               {file.type === 'dir' ? (
                 <FolderIcon isOpen={props.expandedFolders.has(file.path)} />
               ) : (
-                <FileIcon />
+                <FileIcon filename={file.name} />
               )}
             </span>
             <span className="truncate">{file.name}</span>

@@ -84,3 +84,17 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       content: frontMatter.content,
     }
   })
+
+export const fetchFile = createServerFn({ method: 'GET' })
+  .validator(
+    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() })
+  )
+  .handler(async ({ data: { repo, branch, filePath } }) => {
+    const file = await fetchRepoFile(repo, branch, filePath)
+
+    if (!file) {
+      throw notFound()
+    }
+
+    return file
+  })

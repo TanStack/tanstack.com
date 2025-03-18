@@ -6,6 +6,7 @@ import { FaExternalLinkAlt, FaExpand, FaCompress } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { CodeBlock } from '~/components/Markdown'
 import { Framework, getBranch, getLibrary } from '~/libraries'
+import { fetchFile } from '~/utils/docs'
 import { getInitialSandboxFileName } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
@@ -60,10 +61,15 @@ export const Route = createFileRoute(
       params.libraryId
     )
     const gitHubFilesUrl = `https://api.github.com/repos/${library.repo}/contents/examples/${examplePath}/src`
-    const mainFileCodeUrl = `https://raw.githubusercontent.com/${library.repo}/refs/heads/${branch}/examples/${examplePath}/${sandboxFirstFileName}`
 
     const [mainFileCodeResult, gitHubFilesResult] = await Promise.allSettled([
-      fetch(mainFileCodeUrl).then((res) => res.text()) as Promise<string>,
+      fetchFile({
+        data: {
+          repo: library.repo,
+          branch,
+          filePath: `examples/${examplePath}/${sandboxFirstFileName}`,
+        },
+      }),
       fetch(gitHubFilesUrl).then((res) => res.json()) as Promise<GitHubFile[]>,
     ])
 
@@ -92,6 +98,7 @@ export const Route = createFileRoute(
           if (file.type === 'dir' && level < 2) {
             const dirFilesResponse = await fetch(file._links.self)
             const dirFiles = await dirFilesResponse.json()
+            console.log('dirFiles', dirFiles)
             fileNode.children = await buildFileTree(
               dirFiles,
               level + 1,

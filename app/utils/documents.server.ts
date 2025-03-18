@@ -406,7 +406,15 @@ async function fetchApiContentsFs(
     startingPath
   )
 
-  const dirsAndFilesToIgnore = ['node_modules', '.git', 'dist', 'test-results']
+  const dirsAndFilesToIgnore = [
+    'node_modules',
+    '.git',
+    'dist',
+    'test-results',
+    '.output',
+    '.netlify',
+    '.vercel',
+  ]
 
   async function getContentsForPath(
     filePath: string

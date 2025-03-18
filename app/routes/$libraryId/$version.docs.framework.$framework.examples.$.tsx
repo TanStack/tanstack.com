@@ -52,7 +52,7 @@ export const Route = createFileRoute(
     }
   },
   component: Example,
-  loader: async ({ params }) => {
+  loader: async ({ params, context: { queryClient } }) => {
     const library = getLibrary(params.libraryId)
     const branch = getBranch(library, params.version)
     const examplePath = [params.framework, params._splat].join('/')
@@ -62,22 +62,24 @@ export const Route = createFileRoute(
     )
     const gitHubFilesUrl = `https://api.github.com/repos/${library.repo}/contents/examples/${examplePath}/src`
 
-    const [mainFileCodeResult, gitHubFilesResult] = await Promise.allSettled([
-      fetchFile({
-        data: {
-          repo: library.repo,
+    await Promise.allSettled([
+      queryClient.ensureQueryData(
+        fileQueryOptions(
+          library.repo,
           branch,
-          filePath: `examples/${examplePath}/${sandboxFirstFileName}`,
-        },
-      }),
+          `examples/${examplePath}/${sandboxFirstFileName}`
+        )
+      ),
+    ])
+
+    const [gitHubFilesResult] = await Promise.allSettled([
       fetch(gitHubFilesUrl).then((res) => res.json()) as Promise<GitHubFile[]>,
     ])
 
-    const mainFileCode =
-      mainFileCodeResult.status === 'fulfilled'
-        ? mainFileCodeResult.value
-        : null
-    let gitHubFiles =
+    const startingGithubFiles =
+      gitHubFilesResult.status === 'fulfilled' ? gitHubFilesResult.value : []
+
+    let gitHubFiles: Array<GitHubFile> | null =
       gitHubFilesResult.status === 'fulfilled' ? gitHubFilesResult.value : null
 
     if (gitHubFiles) {
@@ -95,10 +97,9 @@ export const Route = createFileRoute(
             parentPath,
           }
 
-          if (file.type === 'dir' && level < 2) {
+          if (file.type === 'dir' && level < 3) {
             const dirFilesResponse = await fetch(file._links.self)
             const dirFiles = await dirFilesResponse.json()
-            console.log('dirFiles', dirFiles)
             fileNode.children = await buildFileTree(
               dirFiles,
               level + 1,
@@ -117,7 +118,6 @@ export const Route = createFileRoute(
 
     return {
       gitHubFiles,
-      mainFileCode,
     }
   },
 })
@@ -132,11 +132,13 @@ const fileQueryOptions = (repo: string, branch: string, filePath: string) =>
   })
 
 export default function Example() {
+  const gitHubFiles = Route.useLoaderData({
+    // @ts-expect-error
+    select: (d) => d.gitHubFiles as Array<GitHubFileNode>,
+  })
   const { version, framework, _splat, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
-
-  const { mainFileCode, gitHubFiles } = Route.useLoaderData<any>()
 
   const mainExampleFile = getInitialSandboxFileName(
     framework as Framework,
@@ -156,10 +158,9 @@ export default function Example() {
 
   const queryClient = useQueryClient()
 
-  const { data: currentCode } = useQuery({
-    ...fileQueryOptions(library.repo, branch, currentFile?.path || ''),
-    initialData: mainFileCode,
-  })
+  const { data: currentCode } = useQuery(
+    fileQueryOptions(library.repo, branch, currentFile?.path || '')
+  )
 
   const prefetchFileContent = React.useCallback(
     (file: GitHubFile) => {

@@ -39,7 +39,7 @@ This template is a great way to explore how TanStack Start and Netlify work toge
 
 We’re just getting started. Expect more updates, new features, and deeper collaboration between TanStack Start and Netlify. Stay tuned for success stories, guides, and real-world examples showcasing what’s possible with this powerful combination.
 
-Additionally, join us for a **special TanStack Start episode on Netlify’s Remote Desk series**. We’ll dive into live demos, developer tips, and an exclusive Q&A to show how to unlock the full potential of TanStack Start on Netlify.
+Additionally, join us March 31 for a **special TanStack Start episode on [Netlify’s Remote Desk series](https://www.netlify.com/webinars/netlify-remote-desk/)**. We’ll dive into live demos, developer tips, and an exclusive Q&A to show how to unlock the full potential of TanStack Start on Netlify.
 
 **Ready to dive in?** Check out the [TanStack Start docs](/start/latest/docs/framework/react/overview), explore the deployment guides, and start building with Netlify today.
 

@@ -384,9 +384,12 @@ export function fetchApiContents(
   })
 }
 
-async function fetchApiContentsFs(repoPair: string, startingPath: string) {
+async function fetchApiContentsFs(
+  repoPair: string,
+  startingPath: string
+): Promise<Array<GitHubFileNode>> {
   //
-  return [] as Array<string>
+  return []
 }
 
 async function fetchApiContentsRemote(

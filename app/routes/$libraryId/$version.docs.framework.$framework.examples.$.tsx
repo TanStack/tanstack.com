@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
 
-import { FaExternalLinkAlt } from 'react-icons/fa'
+import { FaExternalLinkAlt, FaExpand, FaCompress } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { CodeBlock } from '~/components/Markdown'
 import { Framework, getBranch, getLibrary } from '~/libraries'
@@ -76,13 +76,13 @@ export const Route = createFileRoute(
 
     if (gitHubFiles) {
       const buildFileTree = async (
-        files: GitHubFile[],
+        files: GitHubFile[] | undefined,
         level: number = 0,
         parentPath: string = ''
       ): Promise<GitHubFileNode[]> => {
         const result: GitHubFileNode[] = []
 
-        for (const file of files) {
+        for (const file of files ?? []) {
           const fileNode: GitHubFileNode = {
             ...file,
             level,
@@ -128,8 +128,6 @@ export default function Example() {
   )
 
   const examplePath = [framework, _splat].join('/')
-
-  console.log({ examplePath, gitHubFiles })
 
   const [isDark, setIsDark] = React.useState(true)
   const [currentFile, setCurrentFile] = React.useState<GitHubFile | null>(
@@ -181,7 +179,7 @@ export default function Example() {
     () => {
       const expanded = new Set<string>()
       if (gitHubFiles) {
-        gitHubFiles.forEach((file) => {
+        gitHubFiles.forEach((file: GitHubFileNode) => {
           if (file.type === 'dir' && file.level === 0) {
             expanded.add(file.path)
           }
@@ -309,10 +307,12 @@ export default function Example() {
     </svg>
   )
 
-  const renderFileTree = (files: GitHubFileNode[]) => {
+  const renderFileTree = (files: GitHubFileNode[] | undefined) => {
+    if (!files) return null
+
     return (
       <div className="flex flex-col">
-        {(files || []).map((file) => (
+        {files.map((file) => (
           <div key={file.path} style={{ marginLeft: `${file.level * 16}px` }}>
             <button
               onClick={() => {
@@ -352,6 +352,19 @@ export default function Example() {
     )
   }
 
+  const [isFullScreen, setIsFullScreen] = React.useState(false)
+
+  // Add escape key handler
+  React.useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullScreen) {
+        setIsFullScreen(false)
+      }
+    }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [isFullScreen])
+
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-auto h-[95dvh]">
       <div className="p-4 lg:p-6">
@@ -360,7 +373,6 @@ export default function Example() {
             {capitalize(framework)} Example: {slugToTitle(_splat!)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
-            <a href="#interactive-sandbox">Interactive Sandbox ↓</a>
             {showNetlify ? (
               <a
                 href={`https://app.netlify.com/start/deploy?repository=${repoUrl}&create_from_path=${githubExamplePath}`}
@@ -410,70 +422,115 @@ export default function Example() {
         </DocTitle>
       </div>
       <div className="flex-1 lg:px-6 flex flex-col min-h-0">
-        <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => setActiveTab('code')}
-            className={`px-4 py-2 text-sm font-medium transition-colors relative ${
-              activeTab === 'code'
-                ? 'text-gray-900 dark:text-white'
-                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
-          >
-            Code Explorer
-            {activeTab === 'code' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
-            )}
-          </button>
-          <button
-            onClick={() => setActiveTab('sandbox')}
-            className={`px-4 py-2 text-sm font-medium transition-colors relative ${
-              activeTab === 'sandbox'
-                ? 'text-gray-900 dark:text-white'
-                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-            }`}
-          >
-            Interactive Sandbox
-            {activeTab === 'sandbox' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
-            )}
-          </button>
-        </div>
-
-        {activeTab === 'code' ? (
-          <div className="flex min-h-[80dvh]">
-            <div
-              ref={sidebarRef}
-              style={{ width: sidebarWidth }}
-              className="flex-shrink-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 pr-2"
+        <div
+          className={`flex flex-col min-h-[80dvh] ${
+            isFullScreen
+              ? 'fixed inset-0 z-50 bg-white dark:bg-gray-900 p-4'
+              : ''
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setActiveTab('code')}
+                className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+                  activeTab === 'code'
+                    ? 'text-gray-900 dark:text-white'
+                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                Code Explorer
+                {activeTab === 'code' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('sandbox')}
+                className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+                  activeTab === 'sandbox'
+                    ? 'text-gray-900 dark:text-white'
+                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
+              >
+                Interactive Sandbox
+                {activeTab === 'sandbox' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+                )}
+              </button>
+            </div>
+            <button
+              onClick={() => {
+                if (activeTab === 'code') {
+                  setIsFullScreen(!isFullScreen)
+                } else {
+                  setActiveTab('code')
+                  setIsFullScreen(true)
+                }
+              }}
+              className={`p-2 text-sm rounded transition-colors mr-2 hover:bg-gray-200 dark:hover:bg-gray-700 group relative ${
+                activeTab === 'code'
+                  ? 'text-gray-700 dark:text-gray-300'
+                  : 'text-gray-400 dark:text-gray-600'
+              }`}
+              aria-label={
+                isFullScreen ? 'Exit full screen' : 'Enter full screen'
+              }
             >
-              {gitHubFiles ? (
-                renderFileTree(gitHubFiles)
+              {isFullScreen ? (
+                <FaCompress className="w-4 h-4" />
               ) : (
-                <div className="px-4 text-sm text-gray-500">No files found</div>
+                <FaExpand className="w-4 h-4" />
               )}
-            </div>
-            <div
-              className="w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 transition-colors"
-              onMouseDown={startResize}
-            />
-            <div className="flex-1 pl-4 overflow-auto">
-              <CodeBlock className={`mt-4 language-${currentFile?.type}`}>
-                <code className="language-tsx">{currentCode}</code>
-              </CodeBlock>
-            </div>
+              <div className="absolute bottom-full right-full mb-2 mr-2 hidden group-hover:block whitespace-nowrap px-2 py-1 text-xs bg-gray-900 text-white rounded shadow-lg">
+                {isFullScreen ? 'Exit full screen' : 'Enter full screen'}
+              </div>
+            </button>
           </div>
-        ) : (
-          <iframe
-            src={
-              library.embedEditor === 'codesandbox'
-                ? codeSandboxUrl
-                : stackBlitzUrl
-            }
-            title={`${library.name} | ${examplePath}`}
-            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-            className="flex-1 w-full min-h-[80dvh] overflow-hidden lg:rounded-lg shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
-          />
-        )}
+
+          {activeTab === 'code' ? (
+            <div className="flex flex-1">
+              <div
+                ref={sidebarRef}
+                style={{ width: sidebarWidth }}
+                className="flex-shrink-0 overflow-y-auto border-r border-gray-200 dark:border-gray-700 pr-2 bg-gray-50 dark:bg-gray-800/50 shadow-sm"
+              >
+                {gitHubFiles ? (
+                  <div className="p-2">{renderFileTree(gitHubFiles)}</div>
+                ) : (
+                  <div className="px-4 text-sm text-gray-500">
+                    No files found
+                  </div>
+                )}
+              </div>
+              <div
+                className="w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 transition-colors"
+                onMouseDown={startResize}
+              />
+              <div className="flex-1 pl-4 overflow-auto relative">
+                <CodeBlock className={`mt-4`}>
+                  <code
+                    className={`language-${currentFile?.name.split('.').pop()}`}
+                  >
+                    {currentCode}
+                  </code>
+                </CodeBlock>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1">
+              <iframe
+                src={
+                  library.embedEditor === 'codesandbox'
+                    ? codeSandboxUrl
+                    : stackBlitzUrl
+                }
+                title={`${library.name} | ${examplePath}`}
+                sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+                className="w-full h-full min-h-[80dvh] overflow-hidden lg:rounded-lg shadow-xl shadow-gray-700/20 bg-white dark:bg-black"
+              />
+            </div>
+          )}
+        </div>
       </div>
       <div className="h-8" />
     </div>

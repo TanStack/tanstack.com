@@ -3,6 +3,7 @@ import path from 'node:path'
 // import { fileURLToPath } from 'node:url'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
+import { multiSortBy } from './utils'
 
 export type Doc = {
   filepath: string
@@ -383,6 +384,14 @@ export function fetchApiContents(
   })
 }
 
+function sortApiContents(contents: Array<GitHubFile>): Array<GitHubFile> {
+  return multiSortBy(contents, [
+    (node) => (node.type === 'dir' ? -1 : 1),
+    (node) => (node.name.startsWith('.') ? -1 : 1),
+    (node) => node.name,
+  ])
+}
+
 async function fetchApiContentsFs(
   repoPair: string,
   startingPath: string
@@ -397,7 +406,7 @@ async function fetchApiContentsFs(
     startingPath
   )
 
-  const dirsAndFilesToIgnore = ['node_modules', '.git', 'dist']
+  const dirsAndFilesToIgnore = ['node_modules', '.git', 'dist', 'test-results']
 
   async function getContentsForPath(
     filePath: string
@@ -426,7 +435,9 @@ async function fetchApiContentsFs(
   ) {
     const result: Array<GitHubFileNode> = []
 
-    for (const node of nodes ?? []) {
+    const sortedNodes = sortApiContents(nodes ?? [])
+
+    for (const node of sortedNodes) {
       const file: GitHubFileNode = {
         ...node,
         depth,
@@ -484,7 +495,9 @@ async function fetchApiContentsRemote(
   ) {
     const result: Array<GitHubFileNode> = []
 
-    for (const node of nodes ?? []) {
+    const sortedNodes = sortApiContents(nodes ?? [])
+
+    for (const node of sortedNodes) {
       const file: GitHubFileNode = {
         ...node,
         depth,

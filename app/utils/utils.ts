@@ -86,3 +86,33 @@ export function isNumericString(str: string): boolean {
     !isNaN(parseFloat(str))
   ) // ...and ensure strings of whitespace fail
 }
+
+export function multiSortBy<T>(
+  arr: Array<T>,
+  accessors: Array<(item: T) => any> = [(d) => d]
+): Array<T> {
+  return arr
+    .map((d, i) => [d, i] as const)
+    .sort(([a, ai], [b, bi]) => {
+      for (const accessor of accessors) {
+        const ao = accessor(a)
+        const bo = accessor(b)
+
+        if (typeof ao === 'undefined') {
+          if (typeof bo === 'undefined') {
+            continue
+          }
+          return 1
+        }
+
+        if (ao === bo) {
+          continue
+        }
+
+        return ao > bo ? 1 : -1
+      }
+
+      return ai - bi
+    })
+    .map(([d]) => d)
+}

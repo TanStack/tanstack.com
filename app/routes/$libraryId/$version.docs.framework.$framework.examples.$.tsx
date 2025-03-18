@@ -505,6 +505,10 @@ const FolderIcon = ({ isOpen }: { isOpen: boolean }) => (
   </svg>
 )
 
+function getMarginLeft(depth: number) {
+  return `${depth * 2 + 12}px`
+}
+
 const RenderFileTree = (props: {
   files: GitHubFileNode[] | undefined
   libraryColor: string
@@ -519,7 +523,7 @@ const RenderFileTree = (props: {
   return (
     <div className="flex flex-col">
       {props.files.map((file) => (
-        <div key={file.path} style={{ marginLeft: `${file.depth * 16}px` }}>
+        <div key={file.path} style={{ marginLeft: getMarginLeft(file.depth) }}>
           <button
             onClick={() => {
               if (file.type === 'dir') {

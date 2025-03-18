@@ -376,8 +376,10 @@ function RouteComponent() {
                 }`}
               >
                 Code Explorer
-                {activeTab === 'code' && (
+                {activeTab === 'code' ? (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+                ) : (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent" />
                 )}
               </button>
               <button
@@ -389,8 +391,10 @@ function RouteComponent() {
                 }`}
               >
                 Interactive Sandbox
-                {activeTab === 'sandbox' && (
+                {activeTab === 'sandbox' ? (
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+                ) : (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent" />
                 )}
               </button>
             </div>
@@ -425,49 +429,51 @@ function RouteComponent() {
           </div>
 
           <div className="relative flex-1">
-            <div className={`${activeTab === 'code' ? '' : 'hidden'}`}>
-              <div className="flex flex-1">
-                <div
-                  ref={sidebarRef}
-                  style={{ width: isSidebarOpen ? sidebarWidth : 0 }}
-                  className={`flex-shrink-0 overflow-y-auto bg-gradient-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent pr-2 shadow-sm ${
-                    isResizing ? '' : 'transition-all duration-300'
-                  } ${isSidebarOpen ? '' : 'w-0 pr-0'}`}
+            <div
+              className={`absolute inset-0 flex ${
+                activeTab === 'code' ? '' : 'hidden'
+              }`}
+            >
+              <div
+                ref={sidebarRef}
+                style={{ width: isSidebarOpen ? sidebarWidth : 0 }}
+                className={`flex-shrink-0 overflow-y-auto bg-gradient-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent pr-2 shadow-sm ${
+                  isResizing ? '' : 'transition-all duration-300'
+                } ${isSidebarOpen ? '' : 'w-0 pr-0'}`}
+              >
+                {gitHubFiles && isSidebarOpen ? (
+                  <div className="p-2">
+                    <RenderFileTree
+                      files={gitHubFiles}
+                      libraryColor={libraryColor}
+                      toggleFolder={toggleFolder}
+                      prefetchFileContent={prefetchFileContent}
+                      expandedFolders={expandedFolders}
+                      currentPath={currentPath}
+                      setCurrentPath={setCurrentPath}
+                    />
+                  </div>
+                ) : null}
+              </div>
+              <div
+                className={`w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 ${
+                  isResizing ? '' : 'transition-colors'
+                } ${isSidebarOpen ? '' : 'hidden'}`}
+                onMouseDown={startResize}
+              />
+              <div className="flex-1 overflow-auto relative">
+                <CodeBlock
+                  isEmbedded
+                  className={`max-h-[${isFullScreen ? '90' : '80'}dvh]`}
                 >
-                  {gitHubFiles && isSidebarOpen ? (
-                    <div className="p-2">
-                      <RenderFileTree
-                        files={gitHubFiles}
-                        libraryColor={libraryColor}
-                        toggleFolder={toggleFolder}
-                        prefetchFileContent={prefetchFileContent}
-                        expandedFolders={expandedFolders}
-                        currentPath={currentPath}
-                        setCurrentPath={setCurrentPath}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-                <div
-                  className={`w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 ${
-                    isResizing ? '' : 'transition-colors'
-                  } ${isSidebarOpen ? '' : 'hidden'}`}
-                  onMouseDown={startResize}
-                />
-                <div className="flex-1 overflow-auto relative">
-                  <CodeBlock
-                    isEmbedded
-                    className={`max-h-[${isFullScreen ? '90' : '80'}dvh]`}
+                  <code
+                    className={`language-${overrideExtension(
+                      currentPath.split('.').pop()
+                    )}`}
                   >
-                    <code
-                      className={`language-${overrideExtension(
-                        currentPath.split('.').pop()
-                      )}`}
-                    >
-                      {currentCode}
-                    </code>
-                  </CodeBlock>
-                </div>
+                    {currentCode}
+                  </code>
+                </CodeBlock>
               </div>
             </div>
 
@@ -593,9 +599,9 @@ const RenderFileTree = (props: {
   if (!props.files) return null
 
   return (
-    <div className="flex flex-col">
+    <ul className="flex flex-col">
       {props.files.map((file) => (
-        <div key={file.path} style={{ marginLeft: getMarginLeft(file.depth) }}>
+        <li key={file.path} style={{ marginLeft: getMarginLeft(file.depth) }}>
           <button
             onClick={() => {
               if (file.type === 'dir') {
@@ -628,8 +634,8 @@ const RenderFileTree = (props: {
           {file.children && props.expandedFolders.has(file.path) && (
             <RenderFileTree {...props} files={file.children} />
           )}
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   )
 }

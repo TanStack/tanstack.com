@@ -399,7 +399,7 @@ function RouteComponent() {
               </button>
             </div>
             <div className="flex items-center gap-2">
-              {activeTab === 'code' && (
+              {activeTab === 'code' ? (
                 <button
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                   className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
@@ -407,6 +407,13 @@ function RouteComponent() {
                 >
                   <CgMenuLeft className="w-4 h-4" />
                 </button>
+              ) : (
+                <div className="p-2 text-sm rounded" aria-hidden>
+                  <CgMenuLeft
+                    className="w-4 h-4 text-transparent"
+                    aria-hidden
+                  />
+                </div>
               )}
               <button
                 onClick={() => {
@@ -437,7 +444,7 @@ function RouteComponent() {
               <div
                 ref={sidebarRef}
                 style={{ width: isSidebarOpen ? sidebarWidth : 0 }}
-                className={`flex-shrink-0 overflow-y-auto bg-gradient-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent pr-2 shadow-sm ${
+                className={`flex-shrink-0 overflow-y-auto bg-gradient-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent lg:pr-2 shadow-sm ${
                   isResizing ? '' : 'transition-all duration-300'
                 } ${isSidebarOpen ? '' : 'w-0 pr-0'}`}
               >
@@ -464,7 +471,9 @@ function RouteComponent() {
               <div className="flex-1 overflow-auto relative">
                 <CodeBlock
                   isEmbedded
-                  className={`max-h-[${isFullScreen ? '90' : '80'}dvh]`}
+                  className={`${
+                    isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]'
+                  }`}
                 >
                   <code
                     className={`language-${overrideExtension(

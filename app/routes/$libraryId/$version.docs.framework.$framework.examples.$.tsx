@@ -19,6 +19,7 @@ import {
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
 import type { GitHubFileNode } from '~/utils/documents.server'
+import { z } from 'zod'
 
 const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
   return queryOptions({
@@ -59,6 +60,10 @@ export const Route = createFileRoute(
     }
   },
   component: RouteComponent,
+  validateSearch: z.object({
+    path: z.string().optional(),
+    panel: z.string().optional(),
+  }),
   loader: async ({ params, context: { queryClient } }) => {
     const library = getLibrary(params.libraryId)
     const branch = getBranch(library, params.version)
@@ -97,18 +102,12 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-  const splat = Route.useParams({
-    select: (s) => [s.libraryId, s._splat].join('/'),
-  })
-  return <Example key={splat} />
-}
-
-function Example() {
   // Not sure why this inferred type is not working
   // @ts-expect-error
   const { directoryStartingPath, sandboxStartingFilePath } =
     Route.useLoaderData()
 
+  const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
   const { version, framework, _splat, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
@@ -126,9 +125,39 @@ function Example() {
   )
 
   const [isDark, setIsDark] = React.useState(true)
-  const [currentPath, setCurrentPath] = React.useState<string>(
-    () => sandboxStartingFilePath
-  )
+
+  const activeTab = Route.useSearch({
+    select: (s) => {
+      if (typeof window === 'undefined') return s.panel || 'code'
+      const localValue = localStorage.getItem('exampleViewPreference') as
+        | 'code'
+        | 'sandbox'
+        | null
+      return s.panel || localValue || 'code'
+    },
+  })
+  const setActiveTab = (tab: string) => {
+    if (typeof window === 'undefined') {
+      localStorage.setItem('exampleViewPreference', tab)
+    }
+    navigate({
+      search: { path: undefined, panel: tab },
+      replace: true,
+      resetScroll: true,
+    })
+  }
+
+  const currentPath = Route.useSearch({
+    select: (s) => s.path || sandboxStartingFilePath,
+  })
+
+  const setCurrentPath = (path: string) => {
+    navigate({
+      search: { path, panel: undefined },
+      replace: true,
+      resetScroll: false,
+    })
+  }
 
   const { data: currentCode } = useQuery(
     fileQueryOptions(library.repo, branch, currentPath)
@@ -176,15 +205,6 @@ function Example() {
       return next
     })
   }
-
-  // Add tab state with local storage persistence
-  const [activeTab, setActiveTab] = React.useState<'code' | 'sandbox'>(() => {
-    if (typeof window === 'undefined') return 'code'
-    return (
-      (localStorage.getItem('exampleViewPreference') as 'code' | 'sandbox') ||
-      'code'
-    )
-  })
 
   const startResize = (e: React.MouseEvent) => {
     setIsResizing(true)
@@ -418,7 +438,11 @@ function Example() {
               />
               <div className="flex-1 pl-4 overflow-auto relative">
                 <CodeBlock className={`mt-4 max-h-[80dvh]`}>
-                  <code className={`language-${currentPath.split('.').pop()}`}>
+                  <code
+                    className={`language-${normalizeExtension(
+                      currentPath.split('.').pop()
+                    )}`}
+                  >
                     {currentCode}
                   </code>
                 </CodeBlock>
@@ -442,6 +466,13 @@ function Example() {
       </div>
     </div>
   )
+}
+
+function normalizeExtension(ext: string | undefined) {
+  if (!ext) return 'txt'
+  if (['cts', 'mts'].includes(ext)) return 'ts'
+  if (['cjs', 'mjs'].includes(ext)) return 'js'
+  return ext
 }
 
 const FileIcon = () => (

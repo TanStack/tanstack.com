@@ -115,7 +115,32 @@ export const Route = createFileRoute(
   staleTime: 1000 * 60 * 5, // 5 minutes
 })
 
-const bannedDefaultOpenFolders = new Set(['public', '.vscode', 'tests', 'spec'])
+function RouteComponent() {
+  const { _splat } = Route.useParams()
+  return <PageComponent key={`page-${_splat}`} />
+}
+
+function recursiveFlattenGithubContents(
+  nodes: Array<GitHubFileNode>
+): Array<GitHubFileNode> {
+  return nodes.flatMap((node) => {
+    if (node.type === 'dir' && node.children) {
+      return recursiveFlattenGithubContents(node.children)
+    }
+    return node
+  })
+}
+
+function flattedOnlyToDirs(
+  nodes: Array<GitHubFileNode>
+): Array<GitHubFileNode> {
+  return nodes.flatMap((node) => {
+    if (node.type === 'dir' && node.children) {
+      return [node, ...flattedOnlyToDirs(node.children)]
+    }
+    return node.type === 'dir' ? [node] : []
+  })
+}
 
 function determineStartingFilePath(
   nodes: Array<GitHubFileNode> | null,
@@ -125,19 +150,7 @@ function determineStartingFilePath(
 ) {
   if (!nodes) return candidate
 
-  // flatten the tree to check if the candidate is a file
-  function recursiveFlatten(
-    nodes: Array<GitHubFileNode>
-  ): Array<GitHubFileNode> {
-    return nodes.flatMap((node) => {
-      if (node.type === 'dir' && node.children) {
-        return recursiveFlatten(node.children)
-      }
-      return node
-    })
-  }
-  const flattened = recursiveFlatten(nodes)
-
+  const flattened = recursiveFlattenGithubContents(nodes)
   const found = flattened.find((node) => node.path === candidate)
   if (found) {
     return candidate
@@ -186,7 +199,7 @@ function determineStartingFilePath(
   return candidate
 }
 
-function RouteComponent() {
+function PageComponent() {
   // Not sure why this inferred type is not working
   // @ts-expect-error
   const { explorerDirectoryStartingPath, explorerStartingFilePath } =
@@ -281,15 +294,32 @@ function RouteComponent() {
     () => {
       const expanded = new Set<string>()
       if (githubContents) {
-        githubContents.forEach((file: GitHubFileNode) => {
-          if (
-            file.type === 'dir' &&
-            file.depth === 0 &&
-            !bannedDefaultOpenFolders.has(file.name)
-          ) {
-            expanded.add(file.path)
+        const flattened = recursiveFlattenGithubContents(githubContents)
+        if (flattened.every((f) => f.depth === 0)) {
+          return expanded
+        }
+
+        // if the currentPath matches, then open
+        for (const file of flattened) {
+          if (file.path === currentPath) {
+            // Open all ancestors directories
+            const dirs = flattedOnlyToDirs(githubContents)
+            const ancestors = file.path.split('/').slice(0, -1)
+
+            while (ancestors.length > 0) {
+              const ancestor = ancestors.join('/')
+              console.log(ancestor)
+              if (dirs.some((d) => d.path === ancestor)) {
+                expanded.add(ancestor)
+                ancestors.pop()
+              } else {
+                break
+              }
+            }
+
+            break
           }
-        })
+        }
       }
       return expanded
     }

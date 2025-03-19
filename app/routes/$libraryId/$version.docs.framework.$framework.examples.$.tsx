@@ -173,7 +173,7 @@ function determineStartingFilePath(
     'README.md',
   ])
 
-  const preferenceDirs = new Set(['src', 'routes'])
+  const preferenceDirs = new Set(['src', 'routes', 'app', 'pages'])
 
   // Try and find a preference file
   for (const file of preferenceFiles) {

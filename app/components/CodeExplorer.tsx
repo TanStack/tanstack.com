@@ -62,107 +62,18 @@ export function CodeExplorer({
   stackBlitzUrl,
 }: CodeExplorerProps) {
   const [isFullScreen, setIsFullScreen] = React.useState(false)
-  const [sidebarWidth, setSidebarWidth] = React.useState(200)
-  const [isResizing, setIsResizing] = React.useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
-  const startResizeRef = React.useRef({
-    startX: 0,
-    startWidth: 0,
-  })
 
-  // Initialize expandedFolders with root-level folders
-  const [expandedFolders, setExpandedFolders] = React.useState<Set<string>>(
-    () => {
-      const expanded = new Set<string>()
-      if (githubContents) {
-        const flattened = recursiveFlattenGithubContents(githubContents)
-        if (flattened.every((f) => f.depth === 0)) {
-          return expanded
-        }
-
-        // if the currentPath matches, then open
-        for (const file of flattened) {
-          if (file.path === currentPath) {
-            // Open all ancestors directories
-            const dirs = flattedOnlyToDirs(githubContents)
-            const ancestors = file.path.split('/').slice(0, -1)
-
-            while (ancestors.length > 0) {
-              const ancestor = ancestors.join('/')
-
-              if (dirs.some((d) => d.path === ancestor)) {
-                expanded.add(ancestor)
-                ancestors.pop()
-              } else {
-                break
-              }
-            }
-
-            break
-          }
-        }
-      }
-      return expanded
-    }
-  )
-
-    // Add escape key handler
-    React.useEffect(() => {
-      const handleEsc = (e: KeyboardEvent) => {
-        if (e.key === 'Escape' && isFullScreen) {
-          setIsFullScreen(false)
-        }
-      }
-      window.addEventListener('keydown', handleEsc)
-      return () => window.removeEventListener('keydown', handleEsc)
-    }, [isFullScreen])
-
-  const toggleFolder = (path: string) => {
-    setExpandedFolders((prev) => {
-      const next = new Set(prev)
-      if (next.has(path)) {
-        next.delete(path)
-      } else {
-        next.add(path)
-      }
-      return next
-    })
-  }
-
-  const startResize = (e: React.MouseEvent) => {
-    setIsResizing(true)
-    startResizeRef.current = {
-      startX: e.clientX,
-      startWidth: sidebarWidth,
-    }
-  }
-
+  // Add escape key handler
   React.useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return
-
-      const diff = e.clientX - startResizeRef.current.startX
-      const newWidth = startResizeRef.current.startWidth + diff
-
-      if (newWidth >= 150 && newWidth <= 600) {
-        setSidebarWidth(newWidth)
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullScreen) {
+        setIsFullScreen(false)
       }
     }
-
-    const handleMouseUp = () => {
-      setIsResizing(false)
-    }
-
-    if (isResizing) {
-      document.addEventListener('mousemove', handleMouseMove)
-      document.addEventListener('mouseup', handleMouseUp)
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
-    }
-  }, [isResizing])
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [isFullScreen])
 
   return (
     <div
@@ -186,17 +97,12 @@ export function CodeExplorer({
           }`}
         >
           <FileExplorer
-            files={githubContents}
-            libraryColor={library.bgStyle}
-            toggleFolder={toggleFolder}
-            prefetchFileContent={prefetchFileContent}
-            expandedFolders={expandedFolders}
             currentPath={currentPath}
-            setCurrentPath={setCurrentPath}
-            sidebarWidth={sidebarWidth}
+            githubContents={githubContents}
             isSidebarOpen={isSidebarOpen}
-            isResizing={isResizing}
-            onResizeStart={startResize}
+            libraryColor={library.bgStyle}
+            prefetchFileContent={prefetchFileContent}
+            setCurrentPath={setCurrentPath}
           />
           <div className="flex-1 overflow-auto relative">
             <CodeBlock
@@ -213,7 +119,6 @@ export function CodeExplorer({
             </CodeBlock>
           </div>
         </div>
-
         <InteractiveSandbox
           isActive={activeTab === 'sandbox'}
           codeSandboxUrl={codeSandboxUrl}
@@ -225,27 +130,4 @@ export function CodeExplorer({
       </div>
     </div>
   )
-}
-
-function recursiveFlattenGithubContents(
-  nodes: Array<GitHubFileNode>,
-  bannedDirs: Set<string> = new Set()
-): Array<GitHubFileNode> {
-  return nodes.flatMap((node) => {
-    if (node.type === 'dir' && node.children && !bannedDirs.has(node.name)) {
-      return recursiveFlattenGithubContents(node.children, bannedDirs)
-    }
-    return node
-  })
-}
-
-function flattedOnlyToDirs(
-  nodes: Array<GitHubFileNode>
-): Array<GitHubFileNode> {
-  return nodes.flatMap((node) => {
-    if (node.type === 'dir' && node.children) {
-      return [node, ...flattedOnlyToDirs(node.children)]
-    }
-    return node.type === 'dir' ? [node] : []
-  })
 }

@@ -1,6 +1,4 @@
 import React from 'react'
-import type { GitHubFileNode } from '~/utils/documents.server'
-
 import typescriptIconUrl from '~/images/file-icons/typescript.svg?url'
 import javascriptIconUrl from '~/images/file-icons/javascript.svg?url'
 import cssIconUrl from '~/images/file-icons/css.svg?url'
@@ -9,6 +7,7 @@ import jsonIconUrl from '~/images/file-icons/json.svg?url'
 import svelteIconUrl from '~/images/file-icons/svelte.svg?url'
 import vueIconUrl from '~/images/file-icons/vue.svg?url'
 import textIconUrl from '~/images/file-icons/txt.svg?url'
+import type { GitHubFileNode } from '~/utils/documents.server'
 
 const getFileIconPath = (filename: string) => {
   const ext = filename.split('.').pop()?.toLowerCase() || ''
@@ -70,32 +69,112 @@ function getMarginLeft(depth: number) {
 
 interface FileExplorerProps {
   currentPath: string | null
-  expandedFolders: Set<string>
-  files: GitHubFileNode[] | undefined
-  isResizing: boolean
+  githubContents: GitHubFileNode[] | undefined
   isSidebarOpen: boolean
   libraryColor: string
-  onResizeStart: (e: React.MouseEvent) => void
   prefetchFileContent: (file: string) => void
   setCurrentPath: (file: string) => void
-  sidebarWidth: number
-  toggleFolder: (path: string) => void
 }
 
 export function FileExplorer({
   currentPath,
-  expandedFolders,
-  files,
-  isResizing,
+  githubContents,
   isSidebarOpen,
   libraryColor,
-  onResizeStart,
   prefetchFileContent,
   setCurrentPath,
-  sidebarWidth,
-  toggleFolder,
 }: FileExplorerProps) {
-  if (!files) return null
+  const [sidebarWidth, setSidebarWidth] = React.useState(200)
+  const [isResizing, setIsResizing] = React.useState(false)
+  // Initialize expandedFolders with root-level folders
+  const [expandedFolders, setExpandedFolders] = React.useState<Set<string>>(
+    () => {
+      const expanded = new Set<string>()
+      if (githubContents) {
+        const flattened = recursiveFlattenGithubContents(githubContents)
+        if (flattened.every((f) => f.depth === 0)) {
+          return expanded
+        }
+
+        // if the currentPath matches, then open
+        for (const file of flattened) {
+          if (file.path === currentPath) {
+            // Open all ancestors directories
+            const dirs = flattedOnlyToDirs(githubContents)
+            const ancestors = file.path.split('/').slice(0, -1)
+
+            while (ancestors.length > 0) {
+              const ancestor = ancestors.join('/')
+
+              if (dirs.some((d) => d.path === ancestor)) {
+                expanded.add(ancestor)
+                ancestors.pop()
+              } else {
+                break
+              }
+            }
+
+            break
+          }
+        }
+      }
+      return expanded
+    }
+  )
+
+  const startResizeRef = React.useRef({
+    startX: 0,
+    startWidth: 0,
+  })
+
+  const startResize = (e: React.MouseEvent) => {
+    setIsResizing(true)
+    startResizeRef.current = {
+      startX: e.clientX,
+      startWidth: sidebarWidth,
+    }
+  }
+
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return
+
+      const diff = e.clientX - startResizeRef.current.startX
+      const newWidth = startResizeRef.current.startWidth + diff
+
+      if (newWidth >= 150 && newWidth <= 600) {
+        setSidebarWidth(newWidth)
+      }
+    }
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+    }
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isResizing])
+
+  const toggleFolder = (path: string) => {
+    setExpandedFolders((prev) => {
+      const next = new Set(prev)
+      if (next.has(path)) {
+        next.delete(path)
+      } else {
+        next.add(path)
+      }
+      return next
+    })
+  }
+
+  if (!githubContents) return null
 
   return (
     <>
@@ -105,12 +184,12 @@ export function FileExplorer({
           isResizing ? '' : 'transition-all duration-300'
         } ${isSidebarOpen ? '' : 'w-0 pr-0'}`}
       >
-        {files && isSidebarOpen ? (
+        {githubContents && isSidebarOpen ? (
           <div className="p-2">
             <RenderFileTree
               currentPath={currentPath}
               expandedFolders={expandedFolders}
-              files={files}
+              files={githubContents}
               libraryColor={libraryColor}
               prefetchFileContent={prefetchFileContent}
               setCurrentPath={setCurrentPath}
@@ -123,7 +202,7 @@ export function FileExplorer({
         className={`w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 ${
           isResizing ? '' : 'transition-colors'
         } ${isSidebarOpen ? '' : 'hidden'}`}
-        onMouseDown={onResizeStart}
+        onMouseDown={startResize}
       />
     </>
   )
@@ -180,4 +259,27 @@ const RenderFileTree = (props: {
       ))}
     </ul>
   )
+}
+
+function recursiveFlattenGithubContents(
+  nodes: Array<GitHubFileNode>,
+  bannedDirs: Set<string> = new Set()
+): Array<GitHubFileNode> {
+  return nodes.flatMap((node) => {
+    if (node.type === 'dir' && node.children && !bannedDirs.has(node.name)) {
+      return recursiveFlattenGithubContents(node.children, bannedDirs)
+    }
+    return node
+  })
+}
+
+function flattedOnlyToDirs(
+  nodes: Array<GitHubFileNode>
+): Array<GitHubFileNode> {
+  return nodes.flatMap((node) => {
+    if (node.type === 'dir' && node.children) {
+      return [node, ...flattedOnlyToDirs(node.children)]
+    }
+    return node.type === 'dir' ? [node] : []
+  })
 }

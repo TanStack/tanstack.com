@@ -21,7 +21,20 @@ export function CodeExplorerTopBar({
 }: CodeExplorerTopBarProps) {
   return (
     <div className="flex items-center justify-between gap-2 border-b border-gray-200 dark:border-gray-700">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 px-1">
+        {activeTab === 'code' ? (
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            title={isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
+          >
+            <CgMenuLeft className="w-4 h-4" />
+          </button>
+        ) : (
+          <div className="p-2 text-sm rounded" aria-hidden>
+            <CgMenuLeft className="w-4 h-4 text-transparent" aria-hidden />
+          </div>
+        )}
         <button
           onClick={() => setActiveTab('code')}
           className={`px-4 py-2 text-sm font-medium transition-colors relative ${
@@ -54,19 +67,6 @@ export function CodeExplorerTopBar({
         </button>
       </div>
       <div className="flex items-center gap-2">
-        {activeTab === 'code' ? (
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-            title={isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-          >
-            <CgMenuLeft className="w-4 h-4" />
-          </button>
-        ) : (
-          <div className="p-2 text-sm rounded" aria-hidden>
-            <CgMenuLeft className="w-4 h-4 text-transparent" aria-hidden />
-          </div>
-        )}
         <button
           onClick={() => {
             setIsFullScreen((prev) => !prev)

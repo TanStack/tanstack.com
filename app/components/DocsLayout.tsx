@@ -583,7 +583,7 @@ export function DocsLayout({
         >
           {children}
         </div>
-        <div className="mb-8 !py-0 mx-auto">
+        <div className="mb-8 !py-0 mx-auto max-w-full">
           <GadFooter />
         </div>
         <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">

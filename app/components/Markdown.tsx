@@ -67,7 +67,7 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
-  img: ({ children, ...props }) => (
+  img: ({ children, ...props }: HTMLProps<HTMLImageElement>) => (
     // eslint-disable-next-line jsx-a11y/alt-text
     <img
       {...props}
@@ -82,6 +82,7 @@ export function CodeBlock({
   isEmbedded,
   ...props
 }: React.HTMLProps<HTMLPreElement> & { isEmbedded?: boolean }) {
+  // @ts-ignore
   let lang = props?.children?.props?.className?.replace('language-', '')
 
   if (lang === 'diff') {
@@ -228,7 +229,7 @@ const options: HTMLReactParserOptions = {
         return React.createElement(
           replacer,
           attributesToProps(domNode.attribs),
-          domToReact(domNode.children, options)
+          domToReact(domNode.children as any, options)
         )
       }
     }

@@ -347,7 +347,7 @@ function RouteComponent() {
     if (windowSize.width && isSidebarOpen) {
       setIsSidebarOpen(windowSize.width >= 768)
     }
-  }, [windowSize.width])
+  }, [windowSize.width, isSidebarOpen])
 
   // Add escape key handler
   React.useEffect(() => {

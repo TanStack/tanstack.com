@@ -44,12 +44,15 @@ const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
 const repoDirApiContentsQueryOptions = (
   repo: string,
   branch: string,
-  startingPath: string
+  startingPath: string,
+  candidateStartingFilePath: string
 ) =>
   queryOptions({
     queryKey: ['repo-api-contents', repo, branch, startingPath],
     queryFn: () =>
-      fetchRepoDirectoryContents({ data: { repo, branch, startingPath } }),
+      fetchRepoDirectoryContents({
+        data: { repo, branch, startingPath, candidateStartingFilePath },
+      }),
   })
 
 export const Route = createFileRoute(
@@ -85,30 +88,32 @@ export const Route = createFileRoute(
     )
 
     // Used for fetching the file content of the initial file
-    const sandboxStartingFilePath = `examples/${examplePath}/${sandboxFirstFileName}`
+    const explorerStartingFilePath = `examples/${examplePath}/${sandboxFirstFileName}`
 
     // Used to indicate from where should the directory tree start.
     // i.e. from `examples/react/quickstart` or `examples/react/quickstart/src`
-    const directoryStartingPath = `examples/${examplePath}${sandboxFirstDirectory}`
+    const explorerDirectoryStartingPath = `examples/${examplePath}${sandboxFirstDirectory}`
 
     await Promise.allSettled([
       queryClient.ensureQueryData(
-        fileQueryOptions(library.repo, branch, sandboxStartingFilePath)
+        fileQueryOptions(library.repo, branch, explorerStartingFilePath)
       ),
       queryClient.ensureQueryData(
         repoDirApiContentsQueryOptions(
           library.repo,
           branch,
-          directoryStartingPath
+          explorerDirectoryStartingPath,
+          explorerStartingFilePath
         )
       ),
     ])
 
     return {
-      directoryStartingPath,
-      sandboxStartingFilePath,
+      explorerDirectoryStartingPath,
+      explorerStartingFilePath,
     }
   },
+  staleTime: 1000 * 60 * 5, // 5 minutes
 })
 
 const bannedDefaultOpenFolders = new Set(['public', '.vscode', 'tests', 'spec'])
@@ -116,7 +121,7 @@ const bannedDefaultOpenFolders = new Set(['public', '.vscode', 'tests', 'spec'])
 function RouteComponent() {
   // Not sure why this inferred type is not working
   // @ts-expect-error
-  const { directoryStartingPath, sandboxStartingFilePath } =
+  const { explorerDirectoryStartingPath, explorerStartingFilePath } =
     Route.useLoaderData()
 
   const navigate = Route.useNavigate()
@@ -132,8 +137,15 @@ function RouteComponent() {
     libraryId
   )
 
-  const { data: gitHubFiles } = useSuspenseQuery(
-    repoDirApiContentsQueryOptions(library.repo, branch, directoryStartingPath)
+  const {
+    data: { githubContents, startingFilePath },
+  } = useSuspenseQuery(
+    repoDirApiContentsQueryOptions(
+      library.repo,
+      branch,
+      explorerDirectoryStartingPath,
+      explorerStartingFilePath
+    )
   )
 
   const [isDark, setIsDark] = React.useState(true)
@@ -160,7 +172,9 @@ function RouteComponent() {
   }
 
   const currentPath = Route.useSearch({
-    select: (s) => s.path || sandboxStartingFilePath,
+    select: (s) => {
+      return s.path || startingFilePath || explorerStartingFilePath
+    },
   })
 
   const setCurrentPath = (path: string) => {
@@ -194,8 +208,8 @@ function RouteComponent() {
   const [expandedFolders, setExpandedFolders] = React.useState<Set<string>>(
     () => {
       const expanded = new Set<string>()
-      if (gitHubFiles) {
-        gitHubFiles.forEach((file: GitHubFileNode) => {
+      if (githubContents) {
+        githubContents.forEach((file: GitHubFileNode) => {
           if (
             file.type === 'dir' &&
             file.depth === 0 &&
@@ -457,10 +471,10 @@ function RouteComponent() {
                   isResizing ? '' : 'transition-all duration-300'
                 } ${isSidebarOpen ? '' : 'w-0 pr-0'}`}
               >
-                {gitHubFiles && isSidebarOpen ? (
+                {githubContents && isSidebarOpen ? (
                   <div className="p-2">
                     <RenderFileTree
-                      files={gitHubFiles}
+                      files={githubContents}
                       libraryColor={libraryColor}
                       toggleFolder={toggleFolder}
                       prefetchFileContent={prefetchFileContent}

@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 // import { fileURLToPath } from 'node:url'
@@ -47,6 +48,13 @@ async function fetchFs(repo: string, filepath: string) {
   // const __dirname = fileURLToPath(new URL('.', import.meta.url))
   const dirname = import.meta.url.split('://').at(-1)!
   const localFilePath = path.resolve(dirname, `../../../../${repo}`, filepath)
+  const exists = fs.existsSync(localFilePath)
+  if (!exists) {
+    console.warn(
+      `[fetchFs] Tried to read file that does not exist: ${localFilePath}\n`
+    )
+    return ''
+  }
   const file = await fsp.readFile(localFilePath)
   return file.toString()
 }

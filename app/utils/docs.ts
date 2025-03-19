@@ -111,8 +111,17 @@ export const fetchRepoDirectoryContents = createServerFn({
       repo: z.string(),
       branch: z.string(),
       startingPath: z.string(),
+      candidateStartingFilePath: z.string(),
     })
   )
-  .handler(async ({ data: { repo, branch, startingPath } }) => {
-    return fetchApiContents(repo, branch, startingPath)
-  })
+  .handler(
+    async ({
+      data: { repo, branch, startingPath, candidateStartingFilePath },
+    }) => {
+      const githubContents = await fetchApiContents(repo, branch, startingPath)
+
+      const startingFilePath: string | null = candidateStartingFilePath
+
+      return { githubContents, startingFilePath }
+    }
+  )

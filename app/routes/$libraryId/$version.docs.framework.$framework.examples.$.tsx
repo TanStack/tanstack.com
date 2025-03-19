@@ -121,11 +121,12 @@ function RouteComponent() {
 }
 
 function recursiveFlattenGithubContents(
-  nodes: Array<GitHubFileNode>
+  nodes: Array<GitHubFileNode>,
+  bannedDirs: Set<string> = new Set()
 ): Array<GitHubFileNode> {
   return nodes.flatMap((node) => {
-    if (node.type === 'dir' && node.children) {
-      return recursiveFlattenGithubContents(node.children)
+    if (node.type === 'dir' && node.children && !bannedDirs.has(node.name)) {
+      return recursiveFlattenGithubContents(node.children, bannedDirs)
     }
     return node
   })
@@ -150,13 +151,15 @@ function determineStartingFilePath(
 ) {
   if (!nodes) return candidate
 
-  const flattened = recursiveFlattenGithubContents(nodes)
+  const bannedDirs = new Set(['public', '.vscode', 'tests', 'spec', 'assets'])
+
+  const flattened = recursiveFlattenGithubContents(nodes, bannedDirs)
   const found = flattened.find((node) => node.path === candidate)
   if (found) {
     return candidate
   }
 
-  const preferenceFiles = [
+  const preferenceFiles = new Set([
     getFrameworkStartFileName(framework, libraryId),
     'page.tsx',
     'page.ts',
@@ -168,12 +171,13 @@ function determineStartingFilePath(
     'index.ts',
     'action.ts',
     'README.md',
-  ]
-  const preferenceDirs = ['src', 'routes']
+  ])
+
+  const preferenceDirs = new Set(['src', 'routes'])
 
   // Try and find a preference file
   for (const file of preferenceFiles) {
-    const found = flattened.find((node) => node.path === file)
+    const found = flattened.find((node) => node.name === file)
     if (found) {
       return found.path
     }
@@ -308,7 +312,7 @@ function PageComponent() {
 
             while (ancestors.length > 0) {
               const ancestor = ancestors.join('/')
-              console.log(ancestor)
+
               if (dirs.some((d) => d.path === ancestor)) {
                 expanded.add(ancestor)
                 ancestors.pop()

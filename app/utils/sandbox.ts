@@ -4,7 +4,7 @@ export const getInitialSandboxFileName = (
   framework: Framework,
   libraryId?: string
 ) => {
-  if (libraryId === 'start') {
+  if (libraryId && ['start', 'router'].includes(libraryId)) {
     return 'src/routes/__root.tsx'
   }
 
@@ -39,7 +39,7 @@ export function getFrameworkStartFileName(
 }
 
 export const getInitialExplorerDirectory = (libraryId: string) => {
-  if (['start', 'router'].includes(libraryId!)) {
+  if (['start', 'router'].includes(libraryId)) {
     return ''
   }
 

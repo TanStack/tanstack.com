@@ -13,7 +13,8 @@ import { CodeBlock } from '~/components/Markdown'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
 import {
-  getInitialSandboxDirectory,
+  getFrameworkStartFileName,
+  getInitialExplorerDirectory,
   getInitialSandboxFileName,
 } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
@@ -44,14 +45,13 @@ const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
 const repoDirApiContentsQueryOptions = (
   repo: string,
   branch: string,
-  startingPath: string,
-  candidateStartingFilePath: string
+  startingPath: string
 ) =>
   queryOptions({
     queryKey: ['repo-api-contents', repo, branch, startingPath],
     queryFn: () =>
       fetchRepoDirectoryContents({
-        data: { repo, branch, startingPath, candidateStartingFilePath },
+        data: { repo, branch, startingPath },
       }),
   })
 
@@ -81,18 +81,18 @@ export const Route = createFileRoute(
     const library = getLibrary(params.libraryId)
     const branch = getBranch(library, params.version)
     const examplePath = [params.framework, params._splat].join('/')
-    const sandboxFirstDirectory = getInitialSandboxDirectory(params.libraryId)
-    const sandboxFirstFileName = getInitialSandboxFileName(
+    const explorerFirstDirectory = getInitialExplorerDirectory(params.libraryId)
+    const explorerFirstFileName = getInitialSandboxFileName(
       params.framework as Framework,
       params.libraryId
     )
 
     // Used for fetching the file content of the initial file
-    const explorerStartingFilePath = `examples/${examplePath}/${sandboxFirstFileName}`
+    const explorerStartingFilePath = `examples/${examplePath}/${explorerFirstFileName}`
 
     // Used to indicate from where should the directory tree start.
     // i.e. from `examples/react/quickstart` or `examples/react/quickstart/src`
-    const explorerDirectoryStartingPath = `examples/${examplePath}${sandboxFirstDirectory}`
+    const explorerDirectoryStartingPath = `examples/${examplePath}${explorerFirstDirectory}`
 
     await Promise.allSettled([
       queryClient.ensureQueryData(
@@ -102,8 +102,7 @@ export const Route = createFileRoute(
         repoDirApiContentsQueryOptions(
           library.repo,
           branch,
-          explorerDirectoryStartingPath,
-          explorerStartingFilePath
+          explorerDirectoryStartingPath
         )
       ),
     ])
@@ -117,6 +116,75 @@ export const Route = createFileRoute(
 })
 
 const bannedDefaultOpenFolders = new Set(['public', '.vscode', 'tests', 'spec'])
+
+function determineStartingFilePath(
+  nodes: Array<GitHubFileNode> | null,
+  candidate: string,
+  framework: Framework,
+  libraryId: string
+) {
+  if (!nodes) return candidate
+
+  // flatten the tree to check if the candidate is a file
+  function recursiveFlatten(
+    nodes: Array<GitHubFileNode>
+  ): Array<GitHubFileNode> {
+    return nodes.flatMap((node) => {
+      if (node.type === 'dir' && node.children) {
+        return recursiveFlatten(node.children)
+      }
+      return node
+    })
+  }
+  const flattened = recursiveFlatten(nodes)
+
+  const found = flattened.find((node) => node.path === candidate)
+  if (found) {
+    return candidate
+  }
+
+  const preferenceFiles = [
+    getFrameworkStartFileName(framework, libraryId),
+    'page.tsx',
+    'page.ts',
+    'App.tsx',
+    'App.ts',
+    'main.tsx',
+    'main.ts',
+    'index.tsx',
+    'index.ts',
+    'action.ts',
+    'README.md',
+  ]
+  const preferenceDirs = ['src', 'routes']
+
+  // Try and find a preference file
+  for (const file of preferenceFiles) {
+    const found = flattened.find((node) => node.path === file)
+    if (found) {
+      return found.path
+    }
+  }
+
+  // If no preference file is found, try and find the first file from a preference directory
+  for (const dir of preferenceDirs) {
+    const found = flattened.find(
+      (node) => node.path.startsWith(dir) && node.type === 'file'
+    )
+    if (found) {
+      return found.path
+    }
+  }
+
+  // If no preference file is found, just return the first file
+  const firstFile = flattened.find((node) => node.type === 'file')
+  if (firstFile) {
+    return firstFile.path
+  }
+
+  // If no file is found, return the candidate
+  return candidate
+}
 
 function RouteComponent() {
   // Not sure why this inferred type is not working
@@ -137,15 +205,19 @@ function RouteComponent() {
     libraryId
   )
 
-  const {
-    data: { githubContents, startingFilePath },
-  } = useSuspenseQuery(
+  const { data: githubContents } = useSuspenseQuery(
     repoDirApiContentsQueryOptions(
       library.repo,
       branch,
-      explorerDirectoryStartingPath,
-      explorerStartingFilePath
+      explorerDirectoryStartingPath
     )
+  )
+
+  const startingFilePath = determineStartingFilePath(
+    githubContents,
+    explorerStartingFilePath,
+    framework as Framework,
+    libraryId
   )
 
   const [isDark, setIsDark] = React.useState(true)

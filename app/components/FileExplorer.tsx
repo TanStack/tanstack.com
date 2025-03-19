@@ -64,7 +64,7 @@ const FolderIcon = ({ isOpen }: { isOpen: boolean }) => (
 )
 
 function getMarginLeft(depth: number) {
-  return `${depth * 2 + 12}px`
+  return `${depth * 16 + 4}px`
 }
 
 interface FileExplorerProps {
@@ -86,6 +86,8 @@ export function FileExplorer({
 }: FileExplorerProps) {
   const [sidebarWidth, setSidebarWidth] = React.useState(200)
   const [isResizing, setIsResizing] = React.useState(false)
+  const MIN_SIDEBAR_WIDTH = 60
+
   // Initialize expandedFolders with root-level folders
   const [expandedFolders, setExpandedFolders] = React.useState<Set<string>>(
     () => {
@@ -142,13 +144,22 @@ export function FileExplorer({
       const diff = e.clientX - startResizeRef.current.startX
       const newWidth = startResizeRef.current.startWidth + diff
 
-      if (newWidth >= 150 && newWidth <= 600) {
+      if (newWidth >= MIN_SIDEBAR_WIDTH && newWidth <= 600) {
         setSidebarWidth(newWidth)
+      } else if (newWidth < MIN_SIDEBAR_WIDTH) {
+        setSidebarWidth(MIN_SIDEBAR_WIDTH)
       }
     }
 
     const handleMouseUp = () => {
       setIsResizing(false)
+      // Check if we should close the sidebar
+      if (sidebarWidth <= MIN_SIDEBAR_WIDTH) {
+        setSidebarWidth(200) // Reset width to default
+        // Find setIsSidebarOpen in parent scope
+        const event = new CustomEvent('closeSidebar')
+        window.dispatchEvent(event)
+      }
     }
 
     if (isResizing) {
@@ -160,7 +171,7 @@ export function FileExplorer({
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isResizing])
+  }, [isResizing, sidebarWidth])
 
   const toggleFolder = (path: string) => {
     setExpandedFolders((prev) => {
@@ -221,37 +232,62 @@ const RenderFileTree = (props: {
 
   return (
     <ul className="flex flex-col">
-      {props.files.map((file) => (
-        <li key={file.path} style={{ marginLeft: getMarginLeft(file.depth) }}>
-          <button
-            onClick={() => {
-              if (file.type === 'dir') {
-                props.toggleFolder(file.path)
-              } else {
-                props.setCurrentPath(file.path)
+      {props.files.map((file, index) => (
+        <li key={file.path} className="relative">
+          {/* Tree lines */}
+          {file.depth > 0 && (
+            <>
+              {/* Vertical line */}
+              <div
+                className="absolute w-px bg-gray-200 dark:bg-gray-700"
+                style={{
+                  left: `${file.depth * 16 - 9}px`,
+                  top: 0,
+                  bottom: 0,
+                }}
+              />
+              {/* Horizontal line */}
+              <div
+                className="absolute h-px bg-gray-200 dark:bg-gray-700"
+                style={{
+                  left: `${file.depth * 16 - 9}px`,
+                  width: '9px',
+                  top: '50%',
+                }}
+              />
+            </>
+          )}
+          <div style={{ paddingLeft: getMarginLeft(file.depth) }}>
+            <button
+              onClick={() => {
+                if (file.type === 'dir') {
+                  props.toggleFolder(file.path)
+                } else {
+                  props.setCurrentPath(file.path)
+                }
+              }}
+              onMouseEnter={() =>
+                file.type !== 'dir' && props.prefetchFileContent(file.path)
               }
-            }}
-            onMouseEnter={() =>
-              file.type !== 'dir' && props.prefetchFileContent(file.path)
-            }
-            className={`px-2 py-2 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0 ${
-              props.currentPath === file.path
-                ? `${props.libraryColor.replace(
-                    'bg-',
-                    'bg-opacity-20 bg-'
-                  )} text-gray-900 dark:text-white shadow-sm`
-                : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-            }`}
-          >
-            <span className="flex-shrink-0 select-none">
-              {file.type === 'dir' ? (
-                <FolderIcon isOpen={props.expandedFolders.has(file.path)} />
-              ) : (
-                <FileIcon filename={file.name} />
-              )}
-            </span>
-            <span className="truncate select-none">{file.name}</span>
-          </button>
+              className={`px-2 py-1.5 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0 ${
+                props.currentPath === file.path
+                  ? `${props.libraryColor.replace(
+                      'bg-',
+                      'bg-opacity-20 bg-'
+                    )} text-gray-900 dark:text-white shadow-sm`
+                  : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              <span className="flex-shrink-0 select-none">
+                {file.type === 'dir' ? (
+                  <FolderIcon isOpen={props.expandedFolders.has(file.path)} />
+                ) : (
+                  <FileIcon filename={file.name} />
+                )}
+              </span>
+              <span className="truncate select-none">{file.name}</span>
+            </button>
+          </div>
           {file.children && props.expandedFolders.has(file.path) && (
             <RenderFileTree {...props} files={file.children} />
           )}

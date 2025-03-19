@@ -129,19 +129,20 @@ export function FileExplorer({
     startWidth: 0,
   })
 
-  const startResize = (e: React.MouseEvent) => {
+  const startResize = (e: React.MouseEvent | React.TouchEvent) => {
     setIsResizing(true)
     startResizeRef.current = {
-      startX: e.clientX,
+      startX: 'touches' in e ? e.touches[0].clientX : e.clientX,
       startWidth: sidebarWidth,
     }
   }
 
   React.useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
       if (!isResizing) return
 
-      const diff = e.clientX - startResizeRef.current.startX
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+      const diff = clientX - startResizeRef.current.startX
       const newWidth = startResizeRef.current.startWidth + diff
 
       if (newWidth >= MIN_SIDEBAR_WIDTH && newWidth <= 600) {
@@ -153,10 +154,8 @@ export function FileExplorer({
 
     const handleMouseUp = () => {
       setIsResizing(false)
-      // Check if we should close the sidebar
       if (sidebarWidth <= MIN_SIDEBAR_WIDTH) {
-        setSidebarWidth(200) // Reset width to default
-        // Find setIsSidebarOpen in parent scope
+        setSidebarWidth(200)
         const event = new CustomEvent('closeSidebar')
         window.dispatchEvent(event)
       }
@@ -165,11 +164,15 @@ export function FileExplorer({
     if (isResizing) {
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
+      document.addEventListener('touchmove', handleMouseMove)
+      document.addEventListener('touchend', handleMouseUp)
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('touchmove', handleMouseMove)
+      document.removeEventListener('touchend', handleMouseUp)
     }
   }, [isResizing, sidebarWidth])
 
@@ -190,10 +193,13 @@ export function FileExplorer({
   return (
     <>
       <div
-        style={{ width: isSidebarOpen ? sidebarWidth : 0 }}
-        className={`flex-shrink-0 overflow-y-auto bg-gradient-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent lg:pr-2 shadow-sm ${
+        style={{
+          width: isSidebarOpen ? sidebarWidth : 0,
+          paddingRight: isSidebarOpen ? '0.5rem' : 0,
+        }}
+        className={`flex-shrink-0 overflow-y-auto bg-gradient-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent shadow-sm ${
           isResizing ? '' : 'transition-all duration-300'
-        } ${isSidebarOpen ? '' : 'w-0 pr-0'}`}
+        }`}
       >
         {githubContents && isSidebarOpen ? (
           <div className="p-2">
@@ -214,6 +220,7 @@ export function FileExplorer({
           isResizing ? '' : 'transition-colors'
         } ${isSidebarOpen ? '' : 'hidden'}`}
         onMouseDown={startResize}
+        onTouchStart={startResize}
       />
     </>
   )

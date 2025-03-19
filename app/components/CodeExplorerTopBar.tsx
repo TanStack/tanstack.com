@@ -43,7 +43,8 @@ export function CodeExplorerTopBar({
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
           }`}
         >
-          Code Explorer
+          <span className="hidden sm:inline">Code Explorer</span>
+          <span className="sm:hidden">Code</span>
           {activeTab === 'code' ? (
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
           ) : (
@@ -58,7 +59,8 @@ export function CodeExplorerTopBar({
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
           }`}
         >
-          Interactive Sandbox
+          <span className="hidden sm:inline">Interactive Sandbox</span>
+          <span className="sm:hidden">Sandbox</span>
           {activeTab === 'sandbox' ? (
             <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
           ) : (

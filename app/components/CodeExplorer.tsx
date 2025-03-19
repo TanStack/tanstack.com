@@ -86,7 +86,7 @@ export function CodeExplorer({
 
   return (
     <div
-      className={`flex flex-col min-h-[80dvh] border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden ${
+      className={`flex flex-col min-h-[60dvh] sm:min-h-[80dvh] border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden ${
         isFullScreen ? 'fixed inset-0 z-50 bg-white dark:bg-gray-900 p-4' : ''
       }`}
     >
@@ -116,7 +116,9 @@ export function CodeExplorer({
           <div className="flex-1 overflow-auto relative">
             <CodeBlock
               isEmbedded
-              className={`${isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]'}`}
+              className={`h-full ${
+                isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]'
+              }`}
             >
               <code
                 className={`language-${overrideExtension(

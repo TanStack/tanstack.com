@@ -2,7 +2,7 @@ import * as React from 'react'
 import { FaRegCopy } from 'react-icons/fa'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
-import { getHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
+import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import parse, {
   attributesToProps,
@@ -104,17 +104,10 @@ export function CodeBlock({
 
   const [codeElement, setCodeElement] = React.useState(
     <>
-      <pre
-        ref={ref}
-        className={`shiki github-light ${isEmbedded ? 'rounded-none' : ''}`}
-      >
+      <pre ref={ref} className={`shiki github-light`}>
         <code>{code}</code>
       </pre>
-      <pre
-        className={`shiki tokyo-night bg-gray-900 text-gray-400 ${
-          isEmbedded ? 'rounded-none' : ''
-        }`}
-      >
+      <pre className={`shiki tokyo-night bg-gray-900 text-gray-400`}>
         <code>{code}</code>
       </pre>
     </>
@@ -141,6 +134,9 @@ export function CodeBlock({
       setCodeElement(
         <div
           // className={`m-0 text-sm rounded-md w-full border border-gray-500/20 dark:border-gray-500/30`}
+          className={`${
+            isEmbedded ? 'h-full [&>pre]:h-full [&>pre]:rounded-none' : ''
+          } `}
           dangerouslySetInnerHTML={{ __html: htmls.join('') }}
           ref={ref}
         />

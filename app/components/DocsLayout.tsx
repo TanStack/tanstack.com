@@ -400,6 +400,8 @@ export function DocsLayout({
                     }}
                     activeOptions={{
                       exact: true,
+                      includeHash: false,
+                      includeSearch: false,
                     }}
                     className="!cursor-pointer relative"
                   >

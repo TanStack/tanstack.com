@@ -2,7 +2,7 @@ import * as React from 'react'
 import { FaRegCopy } from 'react-icons/fa'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
-import { getHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
+import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import parse, {
   attributesToProps,
@@ -67,7 +67,7 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
-  img: ({ children, ...props }) => (
+  img: ({ children, ...props }: HTMLProps<HTMLImageElement>) => (
     // eslint-disable-next-line jsx-a11y/alt-text
     <img
       {...props}
@@ -78,7 +78,11 @@ const markdownComponents: Record<string, React.FC> = {
   ),
 }
 
-function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
+export function CodeBlock({
+  isEmbedded,
+  ...props
+}: React.HTMLProps<HTMLPreElement> & { isEmbedded?: boolean }) {
+  // @ts-ignore
   let lang = props?.children?.props?.className?.replace('language-', '')
 
   if (lang === 'diff') {
@@ -100,10 +104,10 @@ function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
 
   const [codeElement, setCodeElement] = React.useState(
     <>
-      <pre ref={ref} className="shiki github-light">
+      <pre ref={ref} className={`shiki github-light`}>
         <code>{code}</code>
       </pre>
-      <pre className="shiki tokyo-night bg-gray-900 text-gray-400">
+      <pre className={`shiki tokyo-night bg-gray-900 text-gray-400`}>
         <code>{code}</code>
       </pre>
     </>
@@ -130,6 +134,9 @@ function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
       setCodeElement(
         <div
           // className={`m-0 text-sm rounded-md w-full border border-gray-500/20 dark:border-gray-500/30`}
+          className={`${
+            isEmbedded ? 'h-full [&>pre]:h-full [&>pre]:rounded-none' : ''
+          } `}
           dangerouslySetInnerHTML={{ __html: htmls.join('') }}
           ref={ref}
         />
@@ -142,7 +149,11 @@ function CodeBlock(props: React.HTMLProps<HTMLPreElement>) {
       className={`${props.className} w-full max-w-full relative not-prose`}
       style={props.style}
     >
-      <div className="absolute flex items-stretch bg-white text-sm z-10 border border-gray-500/20 rounded-md -top-3 right-2 dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20">
+      <div
+        className={`absolute flex items-stretch bg-white text-sm z-10 border border-gray-500/20 rounded-md ${
+          isEmbedded ? 'top-2 right-4' : '-top-3 right-2'
+        } dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20`}
+      >
         {lang ? <div className="px-2">{lang}</div> : null}
         <button
           className="px-2 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
@@ -214,7 +225,7 @@ const options: HTMLReactParserOptions = {
         return React.createElement(
           replacer,
           attributesToProps(domNode.attribs),
-          domToReact(domNode.children, options)
+          domToReact(domNode.children as any, options)
         )
       }
     }

@@ -86,3 +86,50 @@ export function isNumericString(str: string): boolean {
     !isNaN(parseFloat(str))
   ) // ...and ensure strings of whitespace fail
 }
+
+/**
+ * A utility function from Router, to sort an array of objects by multiple accessors.
+ *
+ * @param arr Unsorted array
+ * @param accessors Callbacks to access the values to sort by
+ * @returns Sorted array
+ */
+export function multiSortBy<T>(
+  arr: Array<T>,
+  accessors: Array<(item: T) => any> = [(d) => d]
+): Array<T> {
+  return arr
+    .map((d, i) => [d, i] as const)
+    .sort(([a, ai], [b, bi]) => {
+      for (const accessor of accessors) {
+        const ao = accessor(a)
+        const bo = accessor(b)
+
+        if (typeof ao === 'undefined') {
+          if (typeof bo === 'undefined') {
+            continue
+          }
+          return 1
+        }
+
+        if (ao === bo) {
+          continue
+        }
+
+        return ao > bo ? 1 : -1
+      }
+
+      return ai - bi
+    })
+    .map(([d]) => d)
+}
+
+/**
+ * A utility function from Router, to remove leading slash from a path.
+ *
+ * @param path Candidate path to remove leading slash
+ * @returns Path without leading slash
+ */
+export function removeLeadingSlash(path: string): string {
+  return path.replace(/^\//, '')
+}

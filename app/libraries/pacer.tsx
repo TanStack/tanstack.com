@@ -87,8 +87,8 @@ export const pacerProject = {
           Handle complex asynchronous workflows with intelligent queuing and
           concurrency control.{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            Manage long-running tasks with FIFO/LIFO ordering, priority queuing, and parallel
-            execution
+            Manage long-running tasks with FIFO/LIFO ordering, priority queuing,
+            and parallel execution
           </span>
           . Built-in pause, resume and cancel capabilities give you complete
           control over your queue's lifecycle. Perfect for managing API calls,

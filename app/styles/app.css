@@ -441,16 +441,12 @@ pre .logger.log-log svg {
   margin-right: 9px;
 }
 
-@media (prefers-color-scheme: light) {
-  .shiki.tokyo-night {
-    display: none;
-  }
+html:not(.dark) .shiki.tokyo-night {
+  display: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  .shiki.github-light {
-    display: none;
-  }
+html.dark .shiki.github-light {
+  display: none;
 }
 
 /* TanStack Router Devtools */

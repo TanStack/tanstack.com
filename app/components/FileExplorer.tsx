@@ -51,14 +51,27 @@ const FolderIcon = ({ isOpen }: { isOpen: boolean }) => (
     width="16"
     height="16"
     viewBox="0 0 16 16"
-    fill="#FFC107"
     xmlns="http://www.w3.org/2000/svg"
     className="inline-block"
   >
     {isOpen ? (
-      <path d="M1.5 2h5l1 2h7a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 14.5 14h-13A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2z" />
+      // Open folder - with visible opening and perspective
+      <>
+        <path
+          d="M1.5 2h5l1 2h7a1.5 1.5 0 0 1 1.5 1.5V4.5h-14v-2A1.5 1.5 0 0 1 1.5 2z"
+          fill="#FFA000"
+        />
+        <path
+          d="M0 5l2 7.5a1 1 0 0 0 1 .5h12a1 1 0 0 0 1-.5l2-7.5H0z"
+          fill="#FFCA28"
+        />
+      </>
     ) : (
-      <path d="M.5 3a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5H7l-1-2H.5z" />
+      // Closed folder - lighter color and simpler shape
+      <path
+        d="M.5 3a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5H7l-1-2H.5z"
+        fill="#FFC107"
+      />
     )}
   </svg>
 )
@@ -84,7 +97,7 @@ export function FileExplorer({
   prefetchFileContent,
   setCurrentPath,
 }: FileExplorerProps) {
-  const [sidebarWidth, setSidebarWidth] = React.useState(200)
+  const [sidebarWidth, setSidebarWidth] = React.useState(220)
   const [isResizing, setIsResizing] = React.useState(false)
   const MIN_SIDEBAR_WIDTH = 60
 

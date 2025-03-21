@@ -66,13 +66,6 @@ export const fetchDocs = createServerFn({ method: 'GET' })
     const frontMatter = extractFrontMatter(file)
     const description = removeMarkdown(frontMatter.excerpt ?? '')
 
-    console.log({
-      title: frontMatter.data?.title,
-      description,
-      filePath,
-      // content: frontMatter.content,
-    })
-
     // Cache for 5 minutes on shared cache
     // Revalidate in the background
     setHeader('Cache-Control', 'public, max-age=0, must-revalidate')

@@ -43,6 +43,7 @@ const repoDirApiContentsQueryOptions = (
       fetchRepoDirectoryContents({
         data: { repo, branch, startingPath },
       }),
+    staleTime: Infinity,
   })
 
 export const Route = createFileRoute(

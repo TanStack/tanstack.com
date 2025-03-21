@@ -28,6 +28,7 @@ const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
       fetchFile({
         data: { repo, branch, filePath },
       }),
+    staleTime: Infinity, // We can cache this forever. A refresh can invalidate the cache if necessary.
   })
 }
 

@@ -4,12 +4,19 @@ export const getInitialSandboxFileName = (
   framework: Framework,
   libraryId?: string
 ) => {
-  if (libraryId === 'start') {
+  if (libraryId && ['start', 'router'].includes(libraryId)) {
     return 'src/routes/__root.tsx'
   }
 
   const dir = 'src'
 
+  return `${dir}/${getFrameworkStartFileName(framework, libraryId)}` as const
+}
+
+export function getFrameworkStartFileName(
+  framework: Framework,
+  libraryId?: string
+) {
   const file =
     framework === 'angular'
       ? 'app.component'
@@ -28,5 +35,13 @@ export const getInitialSandboxFileName = (
       ? 'ts'
       : 'tsx'
 
-  return `${dir}/${file}.${ext}` as const
+  return `${file}.${ext}` as const
+}
+
+export const getInitialExplorerDirectory = (libraryId: string) => {
+  if (['start', 'router'].includes(libraryId)) {
+    return ''
+  }
+
+  return '/src'
 }

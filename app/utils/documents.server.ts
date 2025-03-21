@@ -1,8 +1,11 @@
+import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 // import { fileURLToPath } from 'node:url'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
+import { multiSortBy, removeLeadingSlash } from './utils'
+import { env } from './env'
 
 export type Doc = {
   filepath: string
@@ -46,6 +49,13 @@ async function fetchFs(repo: string, filepath: string) {
   // const __dirname = fileURLToPath(new URL('.', import.meta.url))
   const dirname = import.meta.url.split('://').at(-1)!
   const localFilePath = path.resolve(dirname, `../../../../${repo}`, filepath)
+  const exists = fs.existsSync(localFilePath)
+  if (!exists) {
+    console.warn(
+      `[fetchFs] Tried to read file that does not exist: ${localFilePath}\n`
+    )
+    return ''
+  }
   const file = await fsp.readFile(localFilePath)
   return file.toString()
 }
@@ -339,4 +349,210 @@ function extractFirstImage(markdown: string) {
   const imageRegex = /!\[(.*?)\]\((.*?)\)/
   const match = markdown.match(imageRegex)
   return match?.[0]
+}
+
+export interface GitHubFile {
+  name: string
+  path: string
+  // sha: string
+  // size: number
+  // url: string
+  // html_url: string
+  // git_url: string
+  // download_url: string
+  type: string
+  _links: {
+    self: string
+    // git: string
+    // html: string
+  }
+}
+
+export interface GitHubFileNode extends GitHubFile {
+  children?: Array<GitHubFileNode>
+  depth: number
+  parentPath?: string
+}
+
+const API_CONTENTS_MAX_DEPTH = 3
+
+export function fetchApiContents(
+  repoPair: string,
+  branch: string,
+  startingPath: string
+) {
+  const isDev = process.env.NODE_ENV === 'development'
+  return fetchCached({
+    key: `${repoPair}:${branch}:${startingPath}`,
+    ttl: isDev ? 1 : 1 * 60 * 1000, // 5 minute
+    fn: () => {
+      return isDev
+        ? fetchApiContentsFs(repoPair, startingPath)
+        : fetchApiContentsRemote(repoPair, branch, startingPath)
+    },
+  })
+}
+
+function sortApiContents(contents: Array<GitHubFile>): Array<GitHubFile> {
+  return multiSortBy(contents, [
+    (node) => (node.type === 'dir' ? -1 : 1),
+    (node) => (node.name.startsWith('.') ? -1 : 1),
+    (node) => node.name,
+  ])
+}
+
+async function fetchApiContentsFs(
+  repoPair: string,
+  startingPath: string
+): Promise<Array<GitHubFileNode> | null> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, repo] = repoPair.split('/')
+  const dirname = import.meta.url.split('://').at(-1)!
+
+  const base = path.resolve(dirname, `../../../../${repo}`)
+  const fsStartPath = path.join(base, removeLeadingSlash(startingPath))
+
+  const dirsAndFilesToIgnore = [
+    'node_modules',
+    '.git',
+    'dist',
+    'test-results',
+    '.output',
+    '.netlify',
+    '.vercel',
+    '.DS_Store',
+    '.nitro',
+    '.vinxi',
+  ]
+
+  async function getContentsForPath(
+    filePath: string
+  ): Promise<Array<GitHubFile>> {
+    const list = await fsp.readdir(filePath, { withFileTypes: true })
+    return list
+      .filter((item) => !dirsAndFilesToIgnore.includes(item.name))
+      .map((item) => {
+        return {
+          name: item.name,
+          path: path.join(filePath, item.name),
+          type: item.isDirectory() ? 'dir' : 'file',
+          _links: {
+            self: path.join(filePath, item.name),
+          },
+        }
+      })
+  }
+
+  const data = await getContentsForPath(fsStartPath)
+
+  async function buildFileTree(
+    nodes: Array<GitHubFile> | undefined,
+    depth: number,
+    parentPath: string
+  ) {
+    const result: Array<GitHubFileNode> = []
+
+    const sortedNodes = sortApiContents(nodes ?? [])
+
+    for (const node of sortedNodes) {
+      const file: GitHubFileNode = {
+        ...node,
+        depth,
+        parentPath,
+      }
+
+      if (file.type === 'dir' && depth <= API_CONTENTS_MAX_DEPTH) {
+        const directoryFiles = await getContentsForPath(file._links.self)
+        file.children = await buildFileTree(
+          directoryFiles,
+          depth + 1,
+          `${parentPath}${file.path}/`
+        )
+      }
+
+      // This replacement is only being done to more accurately mock the GitHub API response
+      file.path = removeLeadingSlash(file.path.replace(base, ''))
+      file._links.self = removeLeadingSlash(file._links.self.replace(base, ''))
+
+      result.push(file)
+    }
+
+    return result
+  }
+
+  const fileTree = await buildFileTree(data, 0, '')
+  return fileTree
+}
+
+async function fetchApiContentsRemote(
+  repo: string,
+  branch: string,
+  startingPath: string
+): Promise<Array<GitHubFileNode> | null> {
+  const fetchOptions: RequestInit = {
+    headers: {
+      'X-GitHub-Api-Version': '2022-11-28',
+      Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
+    },
+  }
+  const res = await fetch(
+    `https://api.github.com/repos/${repo}/contents/${startingPath}?=${branch}`,
+    fetchOptions
+  )
+
+  if (!res.ok) {
+    throw new Error(
+      `Failed to fetch repo contents for ${repo}/${branch}/${startingPath}: Status is ${res.statusText} - ${res.status}`
+    )
+  }
+
+  const data = (await res.json()) as Array<GitHubFile> | null
+
+  if (!Array.isArray(data)) {
+    console.warn(
+      'Expected an array of files from GitHub API, but received:\n',
+      JSON.stringify(data)
+    )
+    return null
+  }
+
+  async function buildFileTree(
+    nodes: Array<GitHubFile> | undefined,
+    depth: number,
+    parentPath: string
+  ) {
+    const result: Array<GitHubFileNode> = []
+
+    const sortedNodes = sortApiContents(nodes ?? [])
+
+    for (const node of sortedNodes) {
+      const file: GitHubFileNode = {
+        ...node,
+        depth,
+        parentPath,
+      }
+
+      if (file.type === 'dir' && depth <= API_CONTENTS_MAX_DEPTH) {
+        const directoryFilesResponse = await fetch(
+          file._links.self,
+          fetchOptions
+        )
+        const directoryFiles =
+          (await directoryFilesResponse.json()) as Array<GitHubFile>
+
+        file.children = await buildFileTree(
+          directoryFiles,
+          depth + 1,
+          `${parentPath}${file.path}/`
+        )
+      }
+
+      result.push(file)
+    }
+
+    return result
+  }
+
+  const fileTree = await buildFileTree(data, 0, '')
+  return fileTree
 }

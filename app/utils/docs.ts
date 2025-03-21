@@ -1,4 +1,8 @@
-import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
+import {
+  extractFrontMatter,
+  fetchApiContents,
+  fetchRepoFile,
+} from '~/utils/documents.server'
 import removeMarkdown from 'remove-markdown'
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/start'
@@ -83,4 +87,33 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       filePath,
       content: frontMatter.content,
     }
+  })
+
+export const fetchFile = createServerFn({ method: 'GET' })
+  .validator(
+    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() })
+  )
+  .handler(async ({ data: { repo, branch, filePath } }) => {
+    const file = await fetchRepoFile(repo, branch, filePath)
+
+    if (!file) {
+      throw notFound()
+    }
+
+    return file
+  })
+
+export const fetchRepoDirectoryContents = createServerFn({
+  method: 'GET',
+})
+  .validator(
+    z.object({
+      repo: z.string(),
+      branch: z.string(),
+      startingPath: z.string(),
+    })
+  )
+  .handler(async ({ data: { repo, branch, startingPath } }) => {
+    const githubContents = await fetchApiContents(repo, branch, startingPath)
+    return githubContents
   })

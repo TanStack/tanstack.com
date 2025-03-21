@@ -5,6 +5,7 @@ import path from 'node:path'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
 import { multiSortBy, removeLeadingSlash } from './utils'
+import { env } from './env'
 
 export type Doc = {
   filepath: string
@@ -488,8 +489,15 @@ async function fetchApiContentsRemote(
   branch: string,
   startingPath: string
 ): Promise<Array<GitHubFileNode> | null> {
+  const fetchOptions: RequestInit = {
+    headers: {
+      'X-GitHub-Api-Version': '2022-11-28',
+      Authorization: `Bearer ${env.GITHUB_AUTH_TOKEN}`,
+    },
+  }
   const res = await fetch(
-    `https://api.github.com/repos/${repo}/contents/${startingPath}?=${branch}`
+    `https://api.github.com/repos/${repo}/contents/${startingPath}?=${branch}`,
+    fetchOptions
   )
 
   if (!res.ok) {
@@ -525,9 +533,13 @@ async function fetchApiContentsRemote(
       }
 
       if (file.type === 'dir' && depth <= API_CONTENTS_MAX_DEPTH) {
-        const directoryFiles = (await fetch(file._links.self).then((res) =>
-          res.json()
-        )) as Array<GitHubFile>
+        const directoryFilesResponse = await fetch(
+          file._links.self,
+          fetchOptions
+        )
+        const directoryFiles =
+          (await directoryFilesResponse.json()) as Array<GitHubFile>
+
         file.children = await buildFileTree(
           directoryFiles,
           depth + 1,

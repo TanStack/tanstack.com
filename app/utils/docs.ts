@@ -100,13 +100,13 @@ export const fetchFile = createServerFn({ method: 'GET' })
       throw notFound()
     }
 
-    // // Cache for 5 minutes on shared cache
-    // // Revalidate in the background
-    // setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    // setHeader(
-    //   'CDN-Cache-Control',
-    //   'max-age=300, stale-while-revalidate=300, durable'
-    // )
+    // Cache for 60 minutes on shared cache
+    // Revalidate in the background
+    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setHeader(
+      'CDN-Cache-Control',
+      'max-age=3600, stale-while-revalidate=3600, durable'
+    )
 
     return file
   })
@@ -123,5 +123,14 @@ export const fetchRepoDirectoryContents = createServerFn({
   )
   .handler(async ({ data: { repo, branch, startingPath } }) => {
     const githubContents = await fetchApiContents(repo, branch, startingPath)
+
+    // Cache for 60 minutes on shared cache
+    // Revalidate in the background
+    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setHeader(
+      'CDN-Cache-Control',
+      'max-age=3600, stale-while-revalidate=3600, durable'
+    )
+
     return githubContents
   })

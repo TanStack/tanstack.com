@@ -1,34 +1,36 @@
 import { CgSpinner } from 'react-icons/cg'
+import * as React from 'react'
 import { Link, createFileRoute, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { TbHeartHandshake } from 'react-icons/tb'
+import { FaCheckCircle } from 'react-icons/fa'
 import SponsorPack from '~/components/SponsorPack'
-import { storeProject } from '~/libraries/store'
+import { pacerProject } from '~/libraries/pacer'
 import { Await } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 
-export const Route = createFileRoute('/_libraries/store/$version/')({
-  component: StoreVersionIndex,
+export const Route = createFileRoute('/_libraries/pacer/$version/')({
+  component: PacerVersionIndex,
   head: () => ({
     meta: seo({
-      title: storeProject.name,
-      description: storeProject.description,
+      title: pacerProject.name,
+      description: pacerProject.description,
     }),
   }),
 })
 
 const librariesRouteApi = getRouteApi('/_libraries')
-const library = getLibrary('store')
+const library = getLibrary('pacer')
 
-export default function StoreVersionIndex() {
+export default function PacerVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
 
-  const gradientText = `pr-1inline-block text-transparent bg-clip-text bg-gradient-to-r ${storeProject.colorFrom} ${storeProject.colorTo}`
+  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-gradient-to-r ${pacerProject.colorFrom} ${pacerProject.colorTo}`
 
   return (
     <>
@@ -36,7 +38,7 @@ export default function StoreVersionIndex() {
         <div className="flex flex-col items-center gap-6 text-center px-4">
           <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
             <span>TanStack</span>
-            <span className={twMerge(gradientText)}>Store</span>
+            <span className={twMerge(gradientText)}>Pacer</span>
           </h1>
           <h2
             className="font-bold text-2xl max-w-md
@@ -46,23 +48,22 @@ export default function StoreVersionIndex() {
             <span className="underline decoration-dashed decoration-gray-500 decoration-3 underline-offset-2">
               Framework agnostic
             </span>{' '}
-            type-safe store w/ reactive framework adapters
+            type-safe rate-limiting and queueing utilities
           </h2>
           <p
             className="text opacity-90 max-w-[500px]
             lg:text-xl lg:max-w-[800px]"
           >
-            Level up your state management with TanStack Store – the
-            framework-agnostic, type-safe store. Enjoy{' '}
-            <strong>
-              minimal setup, granular APIs, and seamless adaptability across
-              frameworks
-            </strong>
-            . Simplify your development and boost efficiency with TanStack
-            Store.
+            Take control of your application's timing with TanStack Pacer's{' '}
+            <strong>rate limiting, throttling, and debouncing utilities</strong>
+            . Manage complex async workflows using{' '}
+            <strong>intelligent queuing and concurrency controls</strong> while
+            maintaining full control with built-in pause, resume, and cancel
+            capabilities.
           </p>
           <Link
-            to="./docs/"
+            to="/$libraryId/$version/docs"
+            params={{ libraryId: library.id, version }}
             className={`py-2 px-4 bg-stone-600 text-white rounded uppercase font-extrabold`}
           >
             Get Started
@@ -71,6 +72,45 @@ export default function StoreVersionIndex() {
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />
+
+        <div className="px-4 sm:px-6 lg:px-8 mx-auto">
+          <div className=" sm:text-center pb-16">
+            <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
+              Framework Agnostic & Feature Rich
+            </h3>
+            <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
+              TanStack Pacer's API is highly modular and framework-independent
+              while still prioritizing ergonomics. Behold, the obligatory
+              feature-list:
+            </p>
+          </div>
+          <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4 mx-auto">
+            {[
+              'Lightweight',
+              'Tree-Shaking',
+              'Type-Safe',
+              'Rate Limiting',
+              'Throttling',
+              'Debouncing',
+              'Queueing',
+              'LIFO/FIFO/Dequeue Ordering',
+              'Concurrency Control',
+              'Queue Prioritization',
+              'Pause/Resume Controls',
+              'Cancellation',
+              'Abort Controller Support',
+              'Promise Integration',
+              'Multiple Layers of Abstraction',
+            ].map((d, i) => {
+              return (
+                <span key={i} className="flex items-center gap-2">
+                  <FaCheckCircle className="text-green-500 " /> {d}
+                </span>
+              )
+            })}
+          </div>
+        </div>
+
         <div className="px-4 w-[500px] max-w-full mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Partners
@@ -83,16 +123,16 @@ export default function StoreVersionIndex() {
                         dark:bg-black/40 dark:shadow-none"
           >
             <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Store <TbHeartHandshake /> You?
+              Pacer <TbHeartHandshake /> You?
             </span>
             <div className="flex flex-col p-4 gap-4">
               <div>
-                We're looking for a TanStack Store OSS Partner to go above and
+                We're looking for a TanStack Pacer OSS Partner to go above and
                 beyond the call of sponsorship. Are you as invested in TanStack
-                Store as we are? Let's push the boundaries of Store together!
+                Pacer as we are? Let's push the boundaries of Pacer together!
               </div>
               <a
-                href="mailto:partners@tanstack.com?subject=TanStack Store Partnership"
+                href="mailto:partners@tanstack.com?subject=TanStack Pacer Partnership"
                 className="text-blue-500 uppercase font-black text-sm"
               >
                 Let's chat
@@ -145,34 +185,26 @@ export default function StoreVersionIndex() {
         {/* <div className="flex flex-col gap-4">
           <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
             <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
-              Less code, fewer edge cases.
+              Take it for a spin!
             </h3>
-            <p className="my-4 text-xl leading-7  text-gray-600">
-              Instead of encouraging hasty abstractions and hook-focused APIs,
-              TanStack Form embraces composition where it counts by giving you
-              headless APIs via components (and hooks if you want them of
-              course). TanStack Form is designed to be used directly in your
-              components and UI. This means less code, fewer edge cases, and
-              deeper control over your UI. Try it out with one of the examples
-              below!
+            <p className="my-4 text-xl leading-7 text-gray-600">
+              With just a few lines of code, you can start using powerful rate
+              limiting, throttling, debouncing, and queueing utilities.
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
               {(
                 [
                   { label: 'React', value: 'react' },
-                  { label: 'Solid', value: 'solid' },
-                  { label: 'Svelte', value: 'svelte' },
-                  { label: 'Vue', value: 'vue' },
+                  // More adapters coming soon
+                  // { label: 'Solid', value: 'solid' },
+                  // { label: 'Svelte', value: 'svelte' },
+                  // { label: 'Vue', value: 'vue' },
+                  // { label: 'Vanilla', value: 'vanilla' },
                 ] as const
               ).map((item) => (
                 <button
                   key={item.value}
-                  className={`inline-block py-2 px-4 rounded text-black uppercase font-extrabold ${
-                    item.value === framework
-                      ? 'bg-gray-500'
-                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-gray-400'
-                  }`}
-                  onClick={() => setFramework(item.value)}
+                  className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold bg-stone-600`}
                 >
                   {item.label}
                 </button>
@@ -181,40 +213,20 @@ export default function StoreVersionIndex() {
           </div>
         </div>
 
-        {['solid', 'vue', 'svelte'].includes(framework) ? (
-          <div className="px-2">
-            <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
-              Looking for the <strong>@tanstack/{framework}-form</strong>{' '}
-              example? We could use your help to build the{' '}
-              <strong>@tanstack/{framework}-form</strong> adapter! Join the{' '}
-              <a
-                href="https://tlinz.com/discord"
-                className="text-teal-500 font-bold"
-              >
-                TanStack Discord Server
-              </a>{' '}
-              and let's get to work!
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white dark:bg-black">
-            <iframe
-              key={framework}
-              src={`https://stackblitz.com/github/${repo}/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
-                isDark ? 'dark' : 'light'
-              }`}
-              title={`tanstack//${framework}-form: simple`}
-              sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-              className="shadow-2xl max-h-[800px]"
-              loading="lazy"
-              style={{
-                width: '100%',
-                height: '80vh',
-                border: '0',
-              }}
-            ></iframe>
-          </div>
-        )} */}
+        <div className="bg-white dark:bg-black">
+          <iframe
+            src={`https://stackblitz.com/github/${pacerProject.repo}/tree/main/examples/react/useDebouncer?embed=1&theme=dark&preset=node&file=src/main.tsx`}
+            title="tanstack/pacer: useDebouncer"
+            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+            className="shadow-2xl"
+            loading="lazy"
+            style={{
+              width: '100%',
+              height: '80vh',
+              border: '0',
+            }}
+          ></iframe>
+        </div> */}
 
         <div className="flex flex-col gap-4 items-center">
           <div className="font-extrabold text-xl lg:text-2xl">
@@ -225,7 +237,8 @@ export default function StoreVersionIndex() {
           </div>
           <div>
             <Link
-              to="./docs/"
+              to="/$libraryId/$version/docs"
+              params={{ libraryId: library.id, version }}
               className={`inline-block py-2 px-4 bg-stone-700 rounded text-white uppercase font-extrabold`}
             >
               Get Started!

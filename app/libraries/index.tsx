@@ -15,6 +15,7 @@ import { tableProject } from './table'
 import { virtualProject } from './virtual'
 import { rangerProject } from './ranger'
 import { storeProject } from './store'
+import { pacerProject } from './pacer'
 
 export const frameworkOptions = [
   { label: 'React', value: 'react', logo: reactLogo },
@@ -39,6 +40,7 @@ export type Library = {
     | 'virtual'
     | 'ranger'
     | 'store'
+    | 'pacer'
     | 'config'
     | 'react-charts'
   name: string
@@ -88,8 +90,9 @@ export const libraries = [
   tableProject,
   formProject,
   virtualProject,
-  rangerProject,
   storeProject,
+  rangerProject,
+  pacerProject,
   configProject,
 ] satisfies Library[]
 

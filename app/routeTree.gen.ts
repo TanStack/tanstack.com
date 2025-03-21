@@ -37,6 +37,7 @@ import { Route as LibrariesStartVersionIndexImport } from './routes/_libraries/s
 import { Route as LibrariesRouterVersionIndexImport } from './routes/_libraries/router.$version.index'
 import { Route as LibrariesRangerVersionIndexImport } from './routes/_libraries/ranger.$version.index'
 import { Route as LibrariesQueryVersionIndexImport } from './routes/_libraries/query.$version.index'
+import { Route as LibrariesPacerVersionIndexImport } from './routes/_libraries/pacer.$version.index'
 import { Route as LibrariesFormVersionIndexImport } from './routes/_libraries/form.$version.index'
 import { Route as LibrariesConfigVersionIndexImport } from './routes/_libraries/config.$version.index'
 import { Route as LibraryIdVersionDocsIndexImport } from './routes/$libraryId/$version.docs.index'
@@ -208,6 +209,14 @@ const LibrariesQueryVersionIndexRoute = LibrariesQueryVersionIndexImport.update(
   {
     id: '/query/$version/',
     path: '/query/$version/',
+    getParentRoute: () => LibrariesRouteRoute,
+  } as any,
+)
+
+const LibrariesPacerVersionIndexRoute = LibrariesPacerVersionIndexImport.update(
+  {
+    id: '/pacer/$version/',
+    path: '/pacer/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any,
 )
@@ -416,6 +425,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesFormVersionIndexImport
       parentRoute: typeof LibrariesRouteImport
     }
+    '/_libraries/pacer/$version/': {
+      id: '/_libraries/pacer/$version/'
+      path: '/pacer/$version'
+      fullPath: '/pacer/$version'
+      preLoaderRoute: typeof LibrariesPacerVersionIndexImport
+      parentRoute: typeof LibrariesRouteImport
+    }
     '/_libraries/query/$version/': {
       id: '/_libraries/query/$version/'
       path: '/query/$version'
@@ -553,6 +569,7 @@ interface LibrariesRouteRouteChildren {
   LibrariesIndexRoute: typeof LibrariesIndexRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
   LibrariesFormVersionIndexRoute: typeof LibrariesFormVersionIndexRoute
+  LibrariesPacerVersionIndexRoute: typeof LibrariesPacerVersionIndexRoute
   LibrariesQueryVersionIndexRoute: typeof LibrariesQueryVersionIndexRoute
   LibrariesRangerVersionIndexRoute: typeof LibrariesRangerVersionIndexRoute
   LibrariesRouterVersionIndexRoute: typeof LibrariesRouterVersionIndexRoute
@@ -573,6 +590,7 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesIndexRoute: LibrariesIndexRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
   LibrariesFormVersionIndexRoute: LibrariesFormVersionIndexRoute,
+  LibrariesPacerVersionIndexRoute: LibrariesPacerVersionIndexRoute,
   LibrariesQueryVersionIndexRoute: LibrariesQueryVersionIndexRoute,
   LibrariesRangerVersionIndexRoute: LibrariesRangerVersionIndexRoute,
   LibrariesRouterVersionIndexRoute: LibrariesRouterVersionIndexRoute,
@@ -610,6 +628,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
   '/form/$version': typeof LibrariesFormVersionIndexRoute
+  '/pacer/$version': typeof LibrariesPacerVersionIndexRoute
   '/query/$version': typeof LibrariesQueryVersionIndexRoute
   '/ranger/$version': typeof LibrariesRangerVersionIndexRoute
   '/router/$version': typeof LibrariesRouterVersionIndexRoute
@@ -641,6 +660,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
   '/form/$version': typeof LibrariesFormVersionIndexRoute
+  '/pacer/$version': typeof LibrariesPacerVersionIndexRoute
   '/query/$version': typeof LibrariesQueryVersionIndexRoute
   '/ranger/$version': typeof LibrariesRangerVersionIndexRoute
   '/router/$version': typeof LibrariesRouterVersionIndexRoute
@@ -677,6 +697,7 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/_libraries/config/$version/': typeof LibrariesConfigVersionIndexRoute
   '/_libraries/form/$version/': typeof LibrariesFormVersionIndexRoute
+  '/_libraries/pacer/$version/': typeof LibrariesPacerVersionIndexRoute
   '/_libraries/query/$version/': typeof LibrariesQueryVersionIndexRoute
   '/_libraries/ranger/$version/': typeof LibrariesRangerVersionIndexRoute
   '/_libraries/router/$version/': typeof LibrariesRouterVersionIndexRoute
@@ -714,6 +735,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/'
     | '/config/$version'
     | '/form/$version'
+    | '/pacer/$version'
     | '/query/$version'
     | '/ranger/$version'
     | '/router/$version'
@@ -744,6 +766,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/config/$version'
     | '/form/$version'
+    | '/pacer/$version'
     | '/query/$version'
     | '/ranger/$version'
     | '/router/$version'
@@ -778,6 +801,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/'
     | '/_libraries/config/$version/'
     | '/_libraries/form/$version/'
+    | '/_libraries/pacer/$version/'
     | '/_libraries/query/$version/'
     | '/_libraries/ranger/$version/'
     | '/_libraries/router/$version/'
@@ -846,6 +870,7 @@ export const routeTree = rootRoute
         "/_libraries/",
         "/_libraries/config/$version/",
         "/_libraries/form/$version/",
+        "/_libraries/pacer/$version/",
         "/_libraries/query/$version/",
         "/_libraries/ranger/$version/",
         "/_libraries/router/$version/",
@@ -946,6 +971,10 @@ export const routeTree = rootRoute
     },
     "/_libraries/form/$version/": {
       "filePath": "_libraries/form.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/pacer/$version/": {
+      "filePath": "_libraries/pacer.$version.index.tsx",
       "parent": "/_libraries"
     },
     "/_libraries/query/$version/": {

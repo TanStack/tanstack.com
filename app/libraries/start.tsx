@@ -31,6 +31,7 @@ export const startProject = {
   embedEditor: 'codesandbox',
   frameworks: ['react'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
+  showNetlifyUrl: true,
   menu: [
     {
       icon: <VscPreview />,

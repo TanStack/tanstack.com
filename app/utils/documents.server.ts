@@ -387,7 +387,8 @@ export function fetchApiContents(
     ttl: isDev ? 1 : 1 * 60 * 1000, // 5 minute
     fn: () => {
       return isDev
-        ? fetchApiContentsFs(repoPair, startingPath)
+        ? // ? fetchApiContentsFs(repoPair, startingPath)
+          fetchApiContentsRemote(repoPair, branch, startingPath)
         : fetchApiContentsRemote(repoPair, branch, startingPath)
     },
   })
@@ -496,7 +497,7 @@ async function fetchApiContentsRemote(
     },
   }
   const res = await fetch(
-    `https://api.github.com/repos/${repo}/contents/${startingPath}?=${branch}`,
+    `https://api.github.com/repos/${repo}/contents/${startingPath}?ref=${branch}`,
     fetchOptions
   )
 

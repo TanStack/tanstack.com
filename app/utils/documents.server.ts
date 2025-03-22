@@ -387,8 +387,7 @@ export function fetchApiContents(
     ttl: isDev ? 1 : 1 * 60 * 1000, // 5 minute
     fn: () => {
       return isDev
-        ? // ? fetchApiContentsFs(repoPair, startingPath)
-          fetchApiContentsRemote(repoPair, branch, startingPath)
+        ? fetchApiContentsFs(repoPair, startingPath)
         : fetchApiContentsRemote(repoPair, branch, startingPath)
     },
   })

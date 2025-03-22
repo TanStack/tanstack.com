@@ -71,6 +71,10 @@ export const Route = createFileRoute(
     const library = getLibrary(params.libraryId)
     const branch = getBranch(library, params.version)
     const examplePath = [params.framework, params._splat].join('/')
+
+    // Used to determine the starting file name for the explorer
+    // i.e. app.tsx, main.tsx, src/routes/__root.tsx, etc.
+    // This value is not absolutely guaranteed to be available, so further resolution may be necessary
     const explorerCandidateStartingFileName = getInitialExplorerFileName(
       params.framework as Framework,
       params.libraryId
@@ -84,7 +88,8 @@ export const Route = createFileRoute(
       repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath)
     )
 
-    // Determine the starting file path for the explorer and the file to be fetched
+    // Using the fetched contents, get the actual starting file-path for the explorer
+    // The `explorerCandidateStartingFileName` is used for matching, but the actual file-path may differ
     const repoStartingFilePath = determineStartingFilePath(
       githubContents,
       explorerCandidateStartingFileName,
@@ -92,7 +97,8 @@ export const Route = createFileRoute(
       params.libraryId
     )
 
-    // Fetching and Caching the file content for the starting file path
+    // Now that we've resolved the starting file path, we can
+    // fetching and caching the file content for the starting file path
     await queryClient.ensureQueryData(
       fileQueryOptions(library.repo, branch, repoStartingFilePath)
     )

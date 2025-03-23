@@ -38,10 +38,13 @@ export function getFrameworkStartFileName(
   return `${file}.${ext}` as const
 }
 
-export const getInitialExplorerDirectory = (libraryId: string) => {
-  if (['start', 'router'].includes(libraryId)) {
-    return ''
+export const getInitialExplorerFileName = (
+  framework: Framework,
+  libraryId?: string
+) => {
+  if (libraryId && ['start', 'router'].includes(libraryId)) {
+    return 'src/routes/__root.tsx'
   }
 
-  return '/src'
+  return getFrameworkStartFileName(framework, libraryId)
 }

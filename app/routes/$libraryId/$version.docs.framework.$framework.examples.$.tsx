@@ -12,8 +12,7 @@ import { Framework, getBranch, getLibrary } from '~/libraries'
 import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
 import {
   getFrameworkStartFileName,
-  getInitialExplorerDirectory,
-  getInitialSandboxFileName,
+  getInitialExplorerFileName,
 } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
@@ -43,7 +42,7 @@ const repoDirApiContentsQueryOptions = (
       fetchRepoDirectoryContents({
         data: { repo, branch, startingPath },
       }),
-    staleTime: Infinity,
+    staleTime: Infinity, // We can cache this forever. A refresh can invalidate the cache if necessary.
   })
 
 export const Route = createFileRoute(
@@ -72,35 +71,41 @@ export const Route = createFileRoute(
     const library = getLibrary(params.libraryId)
     const branch = getBranch(library, params.version)
     const examplePath = [params.framework, params._splat].join('/')
-    const explorerFirstDirectory = getInitialExplorerDirectory(params.libraryId)
-    const explorerFirstFileName = getInitialSandboxFileName(
+
+    // Used to determine the starting file name for the explorer
+    // i.e. app.tsx, main.tsx, src/routes/__root.tsx, etc.
+    // This value is not absolutely guaranteed to be available, so further resolution may be necessary
+    const explorerCandidateStartingFileName = getInitialExplorerFileName(
       params.framework as Framework,
       params.libraryId
     )
 
-    // Used for fetching the file content of the initial file
-    const explorerStartingFilePath = `examples/${examplePath}/${explorerFirstFileName}`
+    // Used to tell the github contents api where to start looking for files in the target repository
+    const repoStartingDirPath = `examples/${examplePath}`
 
-    // Used to indicate from where should the directory tree start.
-    // i.e. from `examples/react/quickstart` or `examples/react/quickstart/src`
-    const explorerDirectoryStartingPath = `examples/${examplePath}${explorerFirstDirectory}`
+    // Fetching and Caching the contents of the target directory
+    const githubContents = await queryClient.ensureQueryData(
+      repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath)
+    )
 
-    await Promise.allSettled([
-      queryClient.ensureQueryData(
-        fileQueryOptions(library.repo, branch, explorerStartingFilePath)
-      ),
-      queryClient.ensureQueryData(
-        repoDirApiContentsQueryOptions(
-          library.repo,
-          branch,
-          explorerDirectoryStartingPath
-        )
-      ),
-    ])
+    // Using the fetched contents, get the actual starting file-path for the explorer
+    // The `explorerCandidateStartingFileName` is used for matching, but the actual file-path may differ
+    const repoStartingFilePath = determineStartingFilePath(
+      githubContents,
+      explorerCandidateStartingFileName,
+      params.framework as Framework,
+      params.libraryId
+    )
+
+    // Now that we've resolved the starting file path, we can
+    // fetching and caching the file content for the starting file path
+    await queryClient.ensureQueryData(
+      fileQueryOptions(library.repo, branch, repoStartingFilePath)
+    )
 
     return {
-      explorerDirectoryStartingPath,
-      explorerStartingFilePath,
+      repoStartingDirPath,
+      repoStartingFilePath,
     }
   },
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -114,8 +119,7 @@ function RouteComponent() {
 function PageComponent() {
   // Not sure why this inferred type is not working
   // @ts-expect-error
-  const { explorerDirectoryStartingPath, explorerStartingFilePath } =
-    Route.useLoaderData()
+  const { repoStartingDirPath, repoStartingFilePath } = Route.useLoaderData()
 
   const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
@@ -125,24 +129,13 @@ function PageComponent() {
 
   const examplePath = [framework, _splat].join('/')
 
-  const mainExampleFile = getInitialSandboxFileName(
+  const mainExampleFile = getInitialExplorerFileName(
     framework as Framework,
     libraryId
   )
 
   const { data: githubContents } = useSuspenseQuery(
-    repoDirApiContentsQueryOptions(
-      library.repo,
-      branch,
-      explorerDirectoryStartingPath
-    )
-  )
-
-  const startingFilePath = determineStartingFilePath(
-    githubContents,
-    explorerStartingFilePath,
-    framework as Framework,
-    libraryId
+    repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath)
   )
 
   const [isDark, setIsDark] = React.useState(true)
@@ -170,7 +163,7 @@ function PageComponent() {
 
   const currentPath = Route.useSearch({
     select: (s) => {
-      return s.path || startingFilePath || explorerStartingFilePath
+      return s.path || repoStartingFilePath
     },
   })
 
@@ -313,15 +306,9 @@ function determineStartingFilePath(
 
   const preferenceFiles = new Set([
     getFrameworkStartFileName(framework, libraryId),
-    'page.tsx',
-    'page.ts',
-    'App.tsx',
-    'App.ts',
-    'main.tsx',
-    'main.ts',
-    'index.tsx',
-    'index.ts',
-    'action.ts',
+    ...['App', 'main', 'index', 'page', 'action']
+      .map((name) => [`${name}.tsx`, `${name}.ts`, `${name}.js`, `${name}.jsx`])
+      .flat(),
     'README.md',
   ])
 

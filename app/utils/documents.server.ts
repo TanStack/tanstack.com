@@ -496,7 +496,7 @@ async function fetchApiContentsRemote(
     },
   }
   const res = await fetch(
-    `https://api.github.com/repos/${repo}/contents/${startingPath}?=${branch}`,
+    `https://api.github.com/repos/${repo}/contents/${startingPath}?ref=${branch}`,
     fetchOptions
   )
 

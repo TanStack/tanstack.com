@@ -147,7 +147,7 @@ export function GadRightRailSquare() {
     >
       <Link
         to="/form"
-        className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter h-full"
+        className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter h-[256px]"
       >
         <span>TanStack</span>
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600">

@@ -62,26 +62,28 @@ function Gad({
   const adId = adSlot.id
 
   React.useEffect(() => {
-    window.googletag.cmd.push(function () {
-      // Define all ad slots
-      const slot = window.googletag
-        .defineSlot('/23278945940/TopLevel', adSlot.sizes, adSlot.id)
-        .addService(window.googletag.pubads())
-        .setTargeting(adSlot.targeting, [adSlot.targeting])
+    if (window.googletag) {
+      window.googletag.cmd.push(function () {
+        // Define all ad slots
+        const slot = window.googletag
+          .defineSlot('/23278945940/TopLevel', adSlot.sizes, adSlot.id)
+          .addService(window.googletag.pubads())
+          .setTargeting(adSlot.targeting, [adSlot.targeting])
 
-      window.googletag.pubads().enableSingleRequest()
-      window.googletag.enableServices()
-      window.googletag.display(adId)
+        window.googletag.pubads().enableSingleRequest()
+        window.googletag.enableServices()
+        window.googletag.display(adId)
 
-      // // Set individual refresh intervals for each ad
-      // const interval = setInterval(function () {
-      //   window.googletag.cmd.push(function () {
-      //     window.googletag.pubads().refresh([slot])
-      //   })
-      // }, slot.refreshInterval)
+        // // Set individual refresh intervals for each ad
+        // const interval = setInterval(function () {
+        //   window.googletag.cmd.push(function () {
+        //     window.googletag.pubads().refresh([slot])
+        //   })
+        // }, slot.refreshInterval)
 
-      // return () => clearInterval(interval)
-    })
+        // return () => clearInterval(interval)
+      })
+    }
   }, [])
 
   return (

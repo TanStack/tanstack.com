@@ -68,7 +68,7 @@ export default function VersionIndex() {
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
         >
-          Full-stack React framework{' '}
+          Full-stack React and Solid framework{' '}
           <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
             powered by TanStack Router
           </span>{' '}

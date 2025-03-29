@@ -691,13 +691,11 @@ export function DocsLayout({
                 })
             )}
           </div>
-          <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
-            {libraryId === 'query' ? (
+          {libraryId === 'query' ? (
+            <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
               <DocsCalloutQueryGG />
-            ) : (
-              <DocsCalloutBytes />
-            )}
-          </div>
+            </div>
+          ) : null}
 
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
             <GadRightRailSquare />
@@ -706,6 +704,12 @@ export function DocsLayout({
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
             <Carbon />
           </div>
+
+          {libraryId !== 'query' ? (
+            <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+              <DocsCalloutBytes />
+            </div>
+          ) : null}
         </div>
       </div>
       {showBytes ? (

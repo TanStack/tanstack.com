@@ -29,7 +29,7 @@ export const startProject = {
   colorTo: 'to-cyan-500',
   textColor: 'text-cyan-600',
   embedEditor: 'codesandbox',
-  frameworks: ['react'],
+  frameworks: ['react', 'solid'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   showNetlifyUrl: true,
   menu: [

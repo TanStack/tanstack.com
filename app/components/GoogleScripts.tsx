@@ -22,50 +22,25 @@ const adSlots = {
   },
   rightRail: {
     id: 'div-gpt-ad-1738811978953-right-rail',
-    sizes: [
-      // [160, 600],
-      [300, 250],
-      [250, 250],
-    ],
+    sizes: [[300, 250]],
     targeting: 'right-side-rail',
     refreshInterval: 45_000, // 45 seconds
   },
   leftRail: {
     id: 'div-gpt-ad-1738811978953-left-rail',
-    sizes: [
-      // [160, 600],
-      [300, 250],
-    ],
+    sizes: [[300, 250]],
     targeting: 'left-side-rail',
     refreshInterval: 45_000, // 45 seconds
   },
-}
-
-const googleScriptFn = (slots: typeof adSlots) => {
-  window.googletag = window.googletag || { cmd: [] }
-  googletag.cmd.push(function () {
-    // Define all ad slots
-    const slotInstances = Object.values(slots).map((slot) => {
-      return googletag
-        .defineSlot('/23278945940/TopLevel', slot.sizes, slot.id)
-        .addService(googletag.pubads())
-        .setTargeting(slot.targeting, [slot.targeting])
-    })
-
-    googletag.pubads().enableSingleRequest()
-    googletag.enableServices()
-
-    // // Set individual refresh intervals for each ad
-    // slotInstances.forEach((slotInstance, index) => {
-    //   const slot = Object.values(slots)[index]
-    //   setInterval(function () {
-    //     googletag.cmd.push(function () {
-    //       googletag.pubads().refresh([slotInstance])
-    //     })
-    //   }, slot.refreshInterval)
-    // })
-  })
-}
+} satisfies Record<
+  string,
+  {
+    id: string
+    sizes: [number, number][]
+    targeting: string
+    refreshInterval: number
+  }
+>
 
 export function GoogleScripts() {
   return (
@@ -74,25 +49,41 @@ export function GoogleScripts() {
         async
         src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
       ></script>
-
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `(${googleScriptFn.toString()})(${JSON.stringify(adSlots)});`,
-        }}
-      />
     </>
   )
 }
 
 function Gad({
-  adId,
+  name,
   children,
   ...props
-}: { adId: string } & React.HTMLAttributes<HTMLDivElement>) {
+}: { name: keyof typeof adSlots } & React.HTMLAttributes<HTMLDivElement>) {
+  const adSlot = adSlots[name]!
+  const adId = adSlot.id
+
   React.useEffect(() => {
-    window.googletag.cmd.push(function () {
-      window.googletag.display(adId)
-    })
+    if (window.googletag) {
+      window.googletag.cmd.push(function () {
+        // Define all ad slots
+        const slot = window.googletag
+          .defineSlot('/23278945940/TopLevel', adSlot.sizes, adSlot.id)
+          .addService(window.googletag.pubads())
+          .setTargeting(adSlot.targeting, [adSlot.targeting])
+
+        window.googletag.pubads().enableSingleRequest()
+        window.googletag.enableServices()
+        window.googletag.display(adId)
+
+        // // Set individual refresh intervals for each ad
+        // const interval = setInterval(function () {
+        //   window.googletag.cmd.push(function () {
+        //     window.googletag.pubads().refresh([slot])
+        //   })
+        // }, slot.refreshInterval)
+
+        // return () => clearInterval(interval)
+      })
+    }
   }, [])
 
   return (
@@ -121,10 +112,7 @@ export function GadLeader() {
 
 export function GadFooter() {
   return (
-    <Gad
-      adId={adSlots.footer.id}
-      style={{ maxWidth: '728px', aspectRatio: '728 / 90' }}
-    />
+    <Gad name="footer" style={{ maxWidth: '728px', aspectRatio: '728 / 90' }} />
   )
 }
 
@@ -142,12 +130,12 @@ export function GadLeftRailSquare() {
 export function GadRightRailSquare() {
   return (
     <Gad
-      adId={adSlots.rightRail.id}
+      name="rightRail"
       className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
     >
       <Link
         to="/form"
-        className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter h-full"
+        className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter h-[256px]"
       >
         <span>TanStack</span>
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600">

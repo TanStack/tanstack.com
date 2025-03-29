@@ -44,7 +44,7 @@ export default function RouteComp() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const gradientText = `inline-block text-transparent bg-clip-text bg-gradient-to-r ${virtualProject.colorFrom} ${virtualProject.colorTo}`
+  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-gradient-to-r ${virtualProject.colorFrom} ${virtualProject.colorTo}`
 
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">

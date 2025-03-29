@@ -18,6 +18,8 @@ import logoColor from '~/images/logo-color-600w.png'
 import bytesImage from '~/images/bytes.svg'
 import { partners } from '../../utils/partners'
 import OpenSourceStats from '~/components/OpenSourceStats'
+import splashLightImg from '~/images/splash-light.png'
+import splashDarkImg from '~/images/splash-dark.png'
 
 export const textColors = [
   `text-rose-500`,
@@ -89,50 +91,57 @@ function Index() {
         className="-bottom-[50px] -right-[100px] z-0 fixed opacity-20"
       /> */}
       <div className="max-w-full z-10">
-        <div className="flex flex-col items-center gap-6 text-center px-4 pt-12 lg:pt-24">
-          <div className="flex gap-2 lg:gap-4 items-center">
-            <img
-              src={logoColor}
-              alt="TanStack Logo"
-              className="w-[40px] md:w-[60px] lg:w-[100px]"
-            />
-            <h1
-              className={`inline-block
+        <div className="flex flex-col xl:flex-row items-center gap-4 xl:pt-24 xl:justify-center">
+          <img
+            src={splashLightImg}
+            className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
+            alt="TanStack Logo"
+          />
+          <img
+            src={splashDarkImg}
+            className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
+            alt="TanStack Logo"
+          />
+          <div className="flex flex-col items-center gap-6 text-center px-4 xl:text-left xl:items-start">
+            <div className="flex gap-2 lg:gap-4 items-center">
+              <h1
+                className={`inline-block
             font-black text-5xl
             md:text-6xl
             lg:text-8xl`}
-            >
-              <span
-                className={`
+              >
+                <span
+                  className={`
             inline-block text-black dark:text-white
             mb-2 uppercase [letter-spacing:-.04em] pr-1.5
             `}
-              >
-                TanStack
+                >
+                  TanStack
+                </span>
+              </h1>
+            </div>
+            <h2
+              className="font-bold text-2xl max-w-md
+            md:text-4xl md:max-w-2xl
+            2xl:text-5xl lg:max-w-2xl text-balance"
+            >
+              High-quality open-source software for{' '}
+              <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
+                web developers.
               </span>
-            </h1>
-          </div>
-          <h2
-            className="font-bold text-2xl max-w-md
-            md:text-4xl
-            lg:text-5xl lg:max-w-2xl text-balance"
-          >
-            High-quality open-source software for{' '}
-            <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-              web developers.
-            </span>
-          </h2>
-          <p
-            className="text opacity-90 max-w-sm
+            </h2>
+            <p
+              className="text opacity-90 max-w-sm
             lg:text-xl lg:max-w-2xl text-balance"
-          >
-            Headless, type-safe, & powerful utilities for Web Applications,
-            Routing, State Management, Data Visualization, Datagrids/Tables, and
-            more.
-          </p>
+            >
+              Headless, type-safe, & powerful utilities for Web Applications,
+              Routing, State Management, Data Visualization, Datagrids/Tables,
+              and more.
+            </p>
+          </div>
         </div>
         <div className="h-8" />
-        <div className="w-fit mx-auto">
+        <div className="w-fit mx-auto px-4">
           <OpenSourceStats />
         </div>
         <div className="h-24" />

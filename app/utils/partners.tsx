@@ -17,6 +17,8 @@ import sentryWordMarkLightSvg from '~/images/sentry-wordmark-light.svg'
 import sentryWordMarkDarkSvg from '~/images/sentry-wordmark-dark.svg'
 import speakeasyLightSvg from '~/images/speakeasy-light.svg'
 import speakeasyDarkSvg from '~/images/speakeasy-dark.svg'
+import neonLightSvg from '~/images/neon-light.svg'
+import neonDarkSvg from '~/images/neon-dark.svg'
 import { Library } from '~/libraries'
 
 type Partner = {
@@ -30,6 +32,56 @@ type Partner = {
   content: JSX.Element
   sidebarImgClass?: string
 }
+
+const neon = (() => {
+  const href = 'https://neon.tech?utm_source=tanstack'
+
+  return {
+    name: 'Neon',
+    id: 'neon',
+    libraries: ['start', 'router'],
+    sidebarImgLight: neonLightSvg,
+    sidebarImgDark: neonDarkSvg,
+    sidebarImgClass: 'py-3 scale-[1]',
+    href,
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-6">
+        <img
+          src={neonLightSvg}
+          alt="Neon"
+          className="w-[260px] max-w-full dark:hidden"
+          width="260"
+          height="72"
+        />
+        <img
+          src={neonDarkSvg}
+          alt="Neon"
+          className="w-[260px] max-w-full hidden dark:block"
+          width="260"
+          height="72"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          Neon and TanStack are joining forces to bring{' '}
+          <strong>serverless PostgreSQL</strong> to the modern web stack. With
+          Neon's{' '}
+          <strong>
+            blazing-fast branching, autoscaling, and storage/compute separation
+          </strong>
+          , developers can instantly spin up production-grade databases for
+          every branch, test, or feature. TanStack's developer-first framework +
+          Neon's cutting-edge infra = next-gen DX.
+        </div>
+        <span className="text-blue-500 uppercase font-black text-sm">
+          Learn More
+        </span>
+      </>
+    ),
+  }
+})()
 
 const convex = (() => {
   const href = 'https://convex.dev?utm_source=tanstack'
@@ -136,15 +188,15 @@ const agGrid = (() => {
         <img
           src={agGridDarkSvg}
           alt="Enterprise Data Grid"
-          className="w-[270px] max-w-full dark:hidden"
-          width="270"
+          className="w-[290px] max-w-full dark:hidden"
+          width="290"
           height="95"
         />
         <img
           src={agGridLightSvg}
           alt="Enterprise Data Grid"
-          className="w-[270px] max-w-full hidden dark:block"
-          width="270"
+          className="w-[290px] max-w-full hidden dark:block"
+          width="290"
           height="95"
         />
       </div>
@@ -183,13 +235,13 @@ const netlify = (() => {
     sidebarImgDark: netlifyDarkSvg,
     sidebarImgClass: 'pt-2 scale-[.9]',
     sidebarAfterImg: (
-      <div className="text-[10px] text-center py-1 px-2 w-full bg-gradient-to-b from-transparent to-gray-500/10 uppercase font-bold">
+      <div className="text-[10px] rounded-xl m-1 mx-auto w-fit text-center py-px px-2 bg-[#03bdba] text-white uppercase font-bold">
         Official Deployment Partner
       </div>
     ),
     href,
     homepageImg: (
-      <div className="flex flex-col justify-center items-center pb-4 gap-2  w-full">
+      <div className="flex flex-col justify-center items-center pb-4 gap-2 relative w-full h-full">
         <div className="w-full h-full flex items-center justify-center px-4 pt-6 pb-2">
           <img
             src={netlifyLightSvg}
@@ -202,7 +254,10 @@ const netlify = (() => {
             className="w-[280px] max-w-full hidden dark:block"
           />
         </div>
-        <div className="w-auto text-xs text-center py-1 px-3 rounded-full uppercase font-bold m-2 bg-[#03bdba] text-white ">
+        <div
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[2px] w-auto text-xs text-center
+        py-1 px-3 rounded-t-xl uppercase font-bold bg-gradient-to-r from-[#03bdba] to-[#00aaba] text-white "
+        >
           Official Deployment Partner
         </div>
       </div>
@@ -469,6 +524,7 @@ export const partners: Partner[] = [
   clerk,
   agGrid,
   netlify,
+  neon,
   convex,
   sentry,
   speakeasy,

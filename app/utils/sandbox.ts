@@ -8,7 +8,7 @@ export const getInitialSandboxFileName = (
     return 'src/routes/__root.tsx'
   }
 
-  const dir = 'src'
+  const dir = framework === 'angular' ? 'src/app' : 'src'
 
   return `${dir}/${getFrameworkStartFileName(framework, libraryId)}` as const
 }
@@ -22,7 +22,7 @@ export function getFrameworkStartFileName(
       ? 'app.component'
       : ['svelte', 'vue'].includes(framework)
       ? 'App'
-      : ['form', 'query'].includes(libraryId!)
+      : ['form', 'query', 'pacer'].includes(libraryId!)
       ? 'index'
       : 'main'
 

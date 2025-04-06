@@ -13,8 +13,7 @@ import SponsorPack from '~/components/SponsorPack'
 import discordImage from '~/images/discord-logo-white.svg'
 import { useMutation } from '~/hooks/useMutation'
 import { sample } from '~/utils/utils'
-import { libraries } from '~/libraries'
-import logoColor from '~/images/logo-color-600w.png'
+import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
 import { partners } from '../../utils/partners'
 import OpenSourceStats from '~/components/OpenSourceStats'
@@ -144,82 +143,114 @@ function Index() {
         <div className="w-fit mx-auto px-4">
           <OpenSourceStats />
         </div>
-        <div className="h-24" />
+        <div className="h-12" />
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">
           <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>
-          <div
-            className={`mt-4 grid grid-cols-1 gap-8
-            sm:grid-cols-2 sm:gap-4
-            lg:grid-cols-3`}
-          >
-            {libraries.map((library, i) => {
-              return (
-                <Link
-                  key={library.name}
-                  to={library.to ?? '#'}
-                  params
-                  className={twMerge(
-                    `border-4 border-transparent rounded-lg shadow-lg p-4 md:p-8 text-white transition-all bg-white/80 dark:bg-black/40 dark:border dark:border-gray-800`,
-                    'hover:bg-white dark:hover:bg-black/60',
-                    'relative overflow-hidden',
-                    library.cardStyles
-                  )}
-                  style={{
-                    zIndex: i,
-                  }}
+
+          {Object.entries(librariesByGroup).map(
+            ([groupName, groupLibraries]: [string, Library[]]) => (
+              <div key={groupName} className="mt-8">
+                <h4 className={`text-2xl font-medium capitalize mb-4`}>
+                  {
+                    librariesGroupNamesMap[
+                      groupName as keyof typeof librariesGroupNamesMap
+                    ]
+                  }
+                </h4>
+                <div
+                  className={`grid grid-cols-1 gap-4 justify-center
+                sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4`}
                 >
-                  <div className="flex gap-2 justify-between items-center">
-                    <MatchRoute
-                      pending
-                      to={library.to}
-                      children={(isPending) => {
-                        return (
-                          <div
-                            className={twMerge(
-                              `flex items-center gap-1.5 text-[1.3rem] font-extrabold uppercase [letter-spacing:-.04em]`
-                              // isPending && `[view-transition-name:library-name]`
-                            )}
-                            style={{
-                              viewTransitionName: `library-name-${library.id}`,
-                            }}
-                          >
-                            <span className="bg-current rounded-md leading-none flex items-center">
-                              <span className="font-black text-white dark:text-black text-xs leading-none p-1 px-1.5 uppercase">
-                                TanStack
-                              </span>
-                            </span>
-                            {library.name.replace('TanStack ', '')}
+                  {groupLibraries.map((library, i: number) => {
+                    return (
+                      <Link
+                        key={library.name}
+                        to={library.to ?? '#'}
+                        params
+                        className={twMerge(
+                          `border-2 border-transparent rounded-lg shadow-md p-4 text-white transition-all bg-white/80 dark:bg-black/40 dark:border dark:border-gray-800`,
+                          'hover:bg-white dark:hover:bg-black/60',
+                          'relative overflow-hidden group',
+                          ' min-h-[240px]',
+                          library.cardStyles
+                        )}
+                        style={{
+                          zIndex: i,
+                        }}
+                      >
+                        {/* Background content that will blur on hover */}
+                        <div className="z-0 relative group-hover:blur-sm transition-all duration-200">
+                          <div className="flex gap-2 justify-between items-center">
+                            <MatchRoute
+                              pending
+                              to={library.to}
+                              children={(isPending) => {
+                                return (
+                                  <div
+                                    className={twMerge(
+                                      `flex items-center gap-1.5 text-[1.1rem] font-extrabold uppercase [letter-spacing:-.04em]`
+                                    )}
+                                    style={{
+                                      viewTransitionName: `library-name-${library.id}`,
+                                    }}
+                                  >
+                                    <span className="bg-current rounded-md leading-none flex items-center">
+                                      <span className="font-black text-white dark:text-black text-xs leading-none p-1 px-1.5 uppercase">
+                                        TanStack
+                                      </span>
+                                    </span>
+                                    {library.name.replace('TanStack ', '')}
+                                  </div>
+                                )
+                              }}
+                            />
                           </div>
-                        )
-                      }}
-                    />
-                    {/* {library.badge ? (
-                      <div className={twMerge(`absolute top-0 right-0`)}>
-                        <div
-                          className={twMerge(
-                            `w-24 h-24 rounded-full translate-x-1/2 -translate-y-1/2`,
-                            library.bgStyle
-                          )}
-                        />
-                        <span className="inline-block transform rotate-45 uppercase text-white text-xs font-black italic animate-pulse absolute top-4 right-4">
-                          {library.badge}
-                        </span>
-                      </div>
-                    ) : null} */}
-                  </div>
-                  <div className={`text-base italic font-normal mt-2`}>
-                    {library.tagline}
-                  </div>
-                  <div className={`text-sm mt-2 text-black dark:text-white`}>
-                    {library.description}
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
+                          <div className={`text-sm italic font-normal mt-2`}>
+                            {library.tagline}
+                          </div>
+
+                          {/* Description preview with ellipsis */}
+                          <div
+                            className={`text-sm mt-2 text-black dark:text-white line-clamp-3`}
+                          >
+                            {library.description}
+                          </div>
+                        </div>
+
+                        {/* Foreground content that appears on hover */}
+                        <div className="absolute inset-0 z-10 bg-white/90 dark:bg-black/90 p-4 flex flex-col justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <div className={`text-sm text-black dark:text-white`}>
+                            {library.description}
+                          </div>
+                          <div className="mt-4 text-center">
+                            <span className="inline-block px-3 py-1 bg-black/10 dark:bg-white/20 rounded-full text-xs font-medium text-black dark:text-white">
+                              Click to learn more
+                            </span>
+                          </div>
+                        </div>
+                        {library.badge ? (
+                          <div className={twMerge(`absolute top-0 right-0`)}>
+                            <div
+                              className={twMerge(
+                                `w-20 h-20 rounded-full translate-x-1/2 -translate-y-1/2`,
+                                library.bgStyle
+                              )}
+                            />
+                            <span className="inline-block transform rotate-45 uppercase text-white text-xs font-black italic animate-pulse absolute top-3 right-1">
+                              {library.badge}
+                            </span>
+                          </div>
+                        ) : null}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          )}
         </div>
         <div className="h-12" />
-        <div className={`px-4 lg:max-w-screen-lg md:mx-auto`}>
+        <div className="px-4 lg:max-w-screen-lg md:mx-auto">
           <h3 className={`text-4xl font-light mb-4`}>Partners</h3>
           <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
             {partners.map((partner) => {

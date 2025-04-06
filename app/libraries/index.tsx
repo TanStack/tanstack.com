@@ -16,6 +16,7 @@ import { virtualProject } from './virtual'
 import { rangerProject } from './ranger'
 import { storeProject } from './store'
 import { pacerProject } from './pacer'
+import { optimisticProject } from './optimistic'
 
 export const frameworkOptions = [
   { label: 'React', value: 'react', logo: reactLogo },
@@ -41,6 +42,7 @@ export type Library = {
     | 'ranger'
     | 'store'
     | 'pacer'
+    | 'optimistic'
     | 'config'
     | 'react-charts'
   name: string
@@ -93,8 +95,23 @@ export const libraries = [
   storeProject,
   rangerProject,
   pacerProject,
+  optimisticProject,
   configProject,
 ] satisfies Library[]
+
+export const librariesByGroup = {
+  app: [startProject, routerProject],
+  state: [queryProject, optimisticProject, storeProject, pacerProject],
+  headlessUI: [tableProject, formProject, virtualProject, rangerProject],
+  other: [configProject],
+}
+
+export const librariesGroupNamesMap = {
+  app: 'Application Building',
+  state: 'Data and State Management',
+  headlessUI: 'Headless UI',
+  other: 'Other',
+}
 
 export function getLibrary(id: string) {
   const library = libraries.find((d) => d.id === id)

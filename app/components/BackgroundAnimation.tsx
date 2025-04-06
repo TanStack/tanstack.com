@@ -68,6 +68,21 @@ export function BackgroundAnimation() {
       let currentBlobs = startBlobs
       let targetBlobs: ReturnType<typeof createBlobs> = []
 
+      function resizeHandler() {
+        // Create an offscreen canvas and copy the current content
+        const offscreen = document.createElement('canvas')
+        offscreen.width = canvas!.width
+        offscreen.height = canvas!.height
+        offscreen.getContext('2d')!.drawImage(canvas!, 0, 0)
+
+        // Resize the main canvas
+        canvas!.width = document.documentElement.clientWidth
+        canvas!.height = document.documentElement.clientHeight
+
+        // Stretch and redraw the saved content to fill the new size
+        ctx.drawImage(offscreen, 0, 0, canvas!.width, canvas!.height)
+      }
+
       function start() {
         if (timeout) {
           clearTimeout(timeout)
@@ -75,8 +90,6 @@ export function BackgroundAnimation() {
         if (rafId) {
           cancelAnimationFrame(rafId)
         }
-        canvas!.width = document.documentElement.clientWidth
-        canvas!.height = document.documentElement.clientHeight
 
         startBlobs = JSON.parse(JSON.stringify(currentBlobs))
         targetBlobs = createBlobs()
@@ -162,8 +175,9 @@ export function BackgroundAnimation() {
         }
       }
 
+      resizeHandler()
       start()
-      window.addEventListener('resize', start)
+      window.addEventListener('resize', resizeHandler)
 
       return () => {
         if (rafId) {
@@ -172,7 +186,7 @@ export function BackgroundAnimation() {
         if (timeout) {
           clearTimeout(timeout)
         }
-        window.removeEventListener('resize', start)
+        window.removeEventListener('resize', resizeHandler)
       }
     }
   }, [prefersReducedMotion])

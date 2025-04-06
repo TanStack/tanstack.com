@@ -209,8 +209,8 @@ export function BackgroundAnimation() {
   )
 }
 
-function cubicBezier(p1x, p1y, p2x, p2y) {
-  return function (t) {
+function cubicBezier(p1x: number, p1y: number, p2x: number, p2y: number) {
+  return function (t: number) {
     const cx = 3 * p1x
     const bx = 3 * (p2x - p1x) - cx
     const ax = 1 - cx - bx

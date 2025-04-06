@@ -76,8 +76,8 @@ export function BackgroundAnimation() {
         offscreen.getContext('2d')!.drawImage(canvas!, 0, 0)
 
         // Resize the main canvas
-        canvas!.width = document.documentElement.clientWidth
-        canvas!.height = document.documentElement.clientHeight
+        canvas!.width = window.innerWidth
+        canvas!.height = window.innerHeight
 
         // Stretch and redraw the saved content to fill the new size
         ctx.drawImage(offscreen, 0, 0, canvas!.width, canvas!.height)

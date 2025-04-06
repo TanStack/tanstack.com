@@ -19,13 +19,10 @@ export function BackgroundAnimation() {
 
     const canvas = canvasRef.current
 
-    const morphDuration = 4000
+    let morphDuration = 2000
     const waitDuration = 1000 * 60 * 2
 
-    function easeInOutCubic(t: number, b: number, c: number, d: number) {
-      if ((t /= d / 2) < 1) return (c / 2) * t * t * t + b
-      return (c / 2) * ((t -= 2) * t * t + 2) + b
-    }
+    const easingFn = cubicBezier(0.645, 0.045, 0.355, 1.0)
 
     if (canvas) {
       const ctx = canvas.getContext('2d')!
@@ -67,8 +64,8 @@ export function BackgroundAnimation() {
         return array
       }
 
-      let currentBlobs = createBlobs()
-      let interBlobs = currentBlobs
+      let startBlobs = createBlobs()
+      let currentBlobs = startBlobs
       let targetBlobs: ReturnType<typeof createBlobs> = []
 
       function start() {
@@ -78,11 +75,10 @@ export function BackgroundAnimation() {
         if (rafId) {
           cancelAnimationFrame(rafId)
         }
-        const parent = canvas!.parentElement
-        canvas!.width = parent!.clientWidth
-        canvas!.height = parent!.clientHeight
+        canvas!.width = document.documentElement.clientWidth
+        canvas!.height = document.documentElement.clientHeight
 
-        currentBlobs = interBlobs
+        startBlobs = JSON.parse(JSON.stringify(currentBlobs))
         targetBlobs = createBlobs()
         startTime = performance.now()
         animate()
@@ -92,45 +88,64 @@ export function BackgroundAnimation() {
         ctx.clearRect(0, 0, canvas!.width, canvas!.height)
 
         const time = performance.now() - startTime
-        const progress = easeInOutCubic(time, 0, 1, morphDuration)
+        const progress = time / morphDuration
+        const easedProgress = easingFn(progress)
 
         // Draw the blobs
-        currentBlobs.forEach((blob, i) => {
+        startBlobs.forEach((startBlob, i) => {
           const targetBlob = targetBlobs[i]
-          interBlobs[i].x = blob.x + (targetBlob.x - blob.x) * progress
-          interBlobs[i].y = blob.y + (targetBlob.y - blob.y) * progress
 
-          const gradient = ctx.createRadialGradient(
-            interBlobs[i].x,
-            interBlobs[i].y,
-            0,
-            interBlobs[i].x,
-            interBlobs[i].y,
-            interBlobs[i].r
+          currentBlobs[i].x = interpolate(
+            startBlob.x,
+            targetBlob.x,
+            easedProgress
+          )
+          currentBlobs[i].y = interpolate(
+            startBlob.y,
+            targetBlob.y,
+            easedProgress
           )
 
-          interBlobs[i].colorH =
-            blob.colorH + (targetBlob.colorH - blob.colorH) * progress
-          interBlobs[i].colorS =
-            blob.colorS + (targetBlob.colorS - blob.colorS) * progress
-          interBlobs[i].colorL =
-            blob.colorL + (targetBlob.colorL - blob.colorL) * progress
+          const gradient = ctx.createRadialGradient(
+            currentBlobs[i].x,
+            currentBlobs[i].y,
+            0,
+            currentBlobs[i].x,
+            currentBlobs[i].y,
+            currentBlobs[i].r
+          )
+
+          currentBlobs[i].colorH = interpolate(
+            startBlob.colorH,
+            targetBlob.colorH,
+            easedProgress
+          )
+          currentBlobs[i].colorS = interpolate(
+            startBlob.colorS,
+            targetBlob.colorS,
+            easedProgress
+          )
+          currentBlobs[i].colorL = interpolate(
+            startBlob.colorL,
+            targetBlob.colorL,
+            easedProgress
+          )
 
           gradient.addColorStop(
             0,
-            `hsla(${interBlobs[i].colorH}, ${interBlobs[i].colorS}%, ${interBlobs[i].colorL}%, 1)`
+            `hsla(${currentBlobs[i].colorH}, ${currentBlobs[i].colorS}%, ${currentBlobs[i].colorL}%, 1)`
           )
           gradient.addColorStop(
             1,
-            `hsla(${interBlobs[i].colorH}, ${interBlobs[i].colorS}%, ${interBlobs[i].colorL}%, 0)`
+            `hsla(${currentBlobs[i].colorH}, ${currentBlobs[i].colorS}%, ${currentBlobs[i].colorL}%, 0)`
           )
 
           ctx.fillStyle = gradient
           ctx.beginPath()
           ctx.arc(
-            interBlobs[i].x,
-            interBlobs[i].y,
-            interBlobs[i].r,
+            currentBlobs[i].x,
+            currentBlobs[i].y,
+            currentBlobs[i].r,
             0,
             Math.PI * 2
           )
@@ -141,6 +156,7 @@ export function BackgroundAnimation() {
           rafId = requestAnimationFrame(animate)
         } else {
           timeout = setTimeout(() => {
+            morphDuration = 4000
             start()
           }, waitDuration)
         }
@@ -177,4 +193,25 @@ export function BackgroundAnimation() {
       <canvas ref={canvasRef} />
     </div>
   )
+}
+
+function cubicBezier(p1x, p1y, p2x, p2y) {
+  return function (t) {
+    const cx = 3 * p1x
+    const bx = 3 * (p2x - p1x) - cx
+    const ax = 1 - cx - bx
+
+    const cy = 3 * p1y
+    const by = 3 * (p2y - p1y) - cy
+    const ay = 1 - cy - by
+
+    const x = ((ax * t + bx) * t + cx) * t
+    const y = ((ay * t + by) * t + cy) * t
+
+    return y
+  }
+}
+
+function interpolate(start: number, end: number, progress: number) {
+  return start + (end - start) * progress
 }

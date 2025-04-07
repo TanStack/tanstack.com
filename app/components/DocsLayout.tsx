@@ -324,6 +324,7 @@ export function DocsLayout({
   const { libraryId } = useParams({
     from: '/$libraryId/$version/docs',
   })
+  const { _splat } = useParams({ strict: false })
   const frameworkConfig = useFrameworkConfig({ frameworks })
   const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
@@ -367,9 +368,14 @@ export function DocsLayout({
     const WrapperComp = group.collapsible ? 'details' : 'div'
     const LabelComp = group.collapsible ? 'summary' : 'div'
 
-    const isCollapsed = group.defaultCollapsed ?? false
+    const isChildActive = group.children.some((d) => d.to === _splat)
+    const configGroupOpenState =
+      typeof group.defaultCollapsed !== 'undefined'
+        ? !group.defaultCollapsed // defaultCollapsed is true means the group is closed
+        : undefined
+    const isOpen = isChildActive ? true : configGroupOpenState ?? false
 
-    const detailsProps = group.collapsible ? { open: !isCollapsed } : {}
+    const detailsProps = group.collapsible ? { open: isOpen } : {}
 
     return (
       <WrapperComp

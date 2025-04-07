@@ -33,7 +33,7 @@ export default function FormVersionIndex() {
   const { version } = Route.useParams()
   const library = getLibrary('config')
 
-  const gradientText = `inline-block leading-snug text-transparent bg-clip-text bg-gradient-to-r ${configProject.colorFrom} ${configProject.colorTo}`
+  const gradientText = `pr-1 inline-block leading-snug text-transparent bg-clip-text bg-gradient-to-r ${configProject.colorFrom} ${configProject.colorTo}`
 
   return (
     <>

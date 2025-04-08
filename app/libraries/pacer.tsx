@@ -16,7 +16,7 @@ export const pacerProject = {
   tagline: `Framework agnostic debouncing, throttling, and queueing utilities`,
   description: `Set the pace of interactions in your applications. Limit the rate at which functions can fire, or intelligently queue long-running tasks with Concurrency Control.`,
   ogImage: 'https://github.com/tanstack/pacer/raw/main/media/repo-header.png',
-  badge: 'soon',
+  badge: 'alpha',
   bgStyle: `bg-lime-700`,
   textStyle: `text-lime-500`,
   repo,

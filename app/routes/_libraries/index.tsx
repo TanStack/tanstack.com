@@ -159,7 +159,7 @@ function Index() {
                 </h4>
                 <div
                   className={`grid grid-cols-1 gap-4 justify-center
-                sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4`}
+                sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3`}
                 >
                   {groupLibraries.map((library, i: number) => {
                     return (
@@ -171,7 +171,7 @@ function Index() {
                           `border-2 border-transparent rounded-lg shadow-md p-4 text-white transition-all bg-white/80 dark:bg-black/40 dark:border dark:border-gray-800`,
                           'hover:bg-white dark:hover:bg-black/60',
                           'relative overflow-hidden group',
-                          ' min-h-[240px]',
+                          ' min-h-[220px]',
                           library.cardStyles
                         )}
                         style={{
@@ -228,6 +228,7 @@ function Index() {
                             </span>
                           </div>
                         </div>
+                        {/* Badge */}
                         {library.badge ? (
                           <div className={twMerge(`absolute top-0 right-0`)}>
                             <div
@@ -236,7 +237,10 @@ function Index() {
                                 library.bgStyle
                               )}
                             />
-                            <span className="inline-block transform rotate-45 uppercase text-white text-xs font-black italic animate-pulse absolute top-3 right-1">
+                            <span className={twMerge(
+                              "inline-block transform rotate-45 uppercase text-white font-black italic animate-pulse absolute top-3 right-1",
+                              library.badge.length > 4 ? "text-[10px]" : "text-xs"
+                            )}>
                               {library.badge}
                             </span>
                           </div>

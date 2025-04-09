@@ -157,8 +157,9 @@ function Index() {
                     ]
                   }
                 </h4>
+                {/* Library Cards */}
                 <div
-                  className={`grid grid-cols-1 gap-4 justify-center
+                  className={`grid grid-cols-1 gap-4 gap-y-8 justify-center
                 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3`}
                 >
                   {groupLibraries.map((library, i: number) => {
@@ -168,10 +169,12 @@ function Index() {
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `border-2 border-transparent rounded-lg shadow-md p-4 text-white transition-all bg-white/80 dark:bg-black/40 dark:border dark:border-gray-800`,
-                          'hover:bg-white dark:hover:bg-black/60',
+                          `border-2 border-transparent rounded-xl shadow-md p-6 transition-all duration-200
+                          bg-white/90 dark:bg-black/40 backdrop-blur-sm
+                          dark:border-gray-800/50`,
+                          'hover:shadow-lg',
                           'relative overflow-hidden group',
-                          ' min-h-[220px]',
+                          'min-h-[250px] xl:min-h-[220px]',
                           library.cardStyles
                         )}
                         style={{
@@ -179,7 +182,7 @@ function Index() {
                         }}
                       >
                         {/* Background content that will blur on hover */}
-                        <div className="z-0 relative group-hover:blur-sm transition-all duration-200">
+                        <div className="z-0 relative group-hover:blur-[0.5px] transition-[filter] duration-200">
                           <div className="flex gap-2 justify-between items-center">
                             <MatchRoute
                               pending
@@ -188,59 +191,91 @@ function Index() {
                                 return (
                                   <div
                                     className={twMerge(
-                                      `flex items-center gap-1.5 text-[1.1rem] font-extrabold uppercase [letter-spacing:-.04em]`
+                                      `flex items-center gap-2 text-[1.2rem] font-extrabold uppercase [letter-spacing:-.04em]`
                                     )}
                                     style={{
                                       viewTransitionName: `library-name-${library.id}`,
                                     }}
                                   >
-                                    <span className="bg-current rounded-md leading-none flex items-center">
-                                      <span className="font-black text-white dark:text-black text-xs leading-none p-1 px-1.5 uppercase">
+                                    <span className="bg-current rounded-lg leading-none flex items-center">
+                                      <span className="font-black text-white dark:text-black text-xs leading-none p-1.5 px-2 uppercase">
                                         TanStack
                                       </span>
                                     </span>
-                                    {library.name.replace('TanStack ', '')}
+                                    <span className="text-current">
+                                      {library.name.replace('TanStack ', '')}
+                                    </span>
                                   </div>
                                 )
                               }}
                             />
                           </div>
-                          <div className={`text-sm italic font-normal mt-2`}>
+                          <div
+                            className={`text-sm italic font-medium mt-3 text-current`}
+                          >
                             {library.tagline}
                           </div>
 
                           {/* Description preview with ellipsis */}
                           <div
-                            className={`text-sm mt-2 text-black dark:text-white line-clamp-3`}
+                            className={`text-sm mt-3 text-gray-700 dark:text-gray-300 line-clamp-3 leading-relaxed`}
                           >
                             {library.description}
                           </div>
                         </div>
 
                         {/* Foreground content that appears on hover */}
-                        <div className="absolute inset-0 z-10 bg-white/90 dark:bg-black/90 p-4 flex flex-col justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <div className={`text-sm text-black dark:text-white`}>
+                        <div
+                          className="absolute inset-0 z-10 bg-white/95 dark:bg-black/95 p-6 
+                          flex flex-col justify-center opacity-0 group-hover:opacity-100 
+                          transition-opacity duration-200"
+                        >
+                          <div
+                            className={`text-sm text-gray-800 dark:text-gray-200 leading-relaxed`}
+                          >
                             {library.description}
                           </div>
-                          <div className="mt-4 text-center">
-                            <span className="inline-block px-3 py-1 bg-black/10 dark:bg-white/20 rounded-full text-xs font-medium text-black dark:text-white">
+                          <div className="mt-6 text-center">
+                            <span
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/10 
+                              rounded-full text-sm font-medium text-gray-900 dark:text-white"
+                            >
                               Click to learn more
+                              <svg
+                                className="w-4 h-4 transform transition-transform duration-200 group-hover:translate-x-0.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 5l7 7-7 7"
+                                />
+                              </svg>
                             </span>
                           </div>
                         </div>
                         {/* Badge */}
                         {library.badge ? (
-                          <div className={twMerge(`absolute top-0 right-0`)}>
+                          <div
+                            className={twMerge(`absolute top-0 right-0 z-20`)}
+                          >
                             <div
                               className={twMerge(
                                 `w-20 h-20 rounded-full translate-x-1/2 -translate-y-1/2`,
                                 library.bgStyle
                               )}
                             />
-                            <span className={twMerge(
-                              "inline-block transform rotate-45 uppercase text-white font-black italic animate-pulse absolute top-3 right-1",
-                              library.badge.length > 4 ? "text-[10px]" : "text-xs"
-                            )}>
+                            <span
+                              className={twMerge(
+                                'inline-block transform rotate-45 uppercase text-white font-black italic animate-pulse absolute top-3 right-1',
+                                library.badge.length > 4
+                                  ? 'text-[10px]'
+                                  : 'text-xs'
+                              )}
+                            >
                               {library.badge}
                             </span>
                           </div>
@@ -350,7 +385,7 @@ function Index() {
           </div>
         </div>
         <div className="h-12" />
-        <div className={`lg:max-w-[400px] px-4 mx-auto`}>
+        <div className={`lg:max-[400px] px-4 mx-auto`}>
           <div className="flex flex-col gap-4">
             <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white max-w-[250px] mx-auto">
               <Carbon />

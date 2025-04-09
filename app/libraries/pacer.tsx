@@ -33,7 +33,7 @@ export const pacerProject = {
     {
       icon: <VscPreview />,
       label: 'Examples',
-      to: '/pacer/latest/docs/framework/react/examples/simple',
+      to: '/pacer/latest/docs/framework/react/examples/debounce',
     },
     {
       icon: <BiBookAlt />,

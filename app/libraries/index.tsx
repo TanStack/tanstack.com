@@ -1,4 +1,5 @@
 import reactLogo from '../images/react-logo.svg'
+import preactLogo from '../images/preact-logo.svg'
 import solidLogo from '../images/solid-logo.svg'
 import vueLogo from '../images/vue-logo.svg'
 import angularLogo from '../images/angular-logo.svg'
@@ -16,9 +17,11 @@ import { virtualProject } from './virtual'
 import { rangerProject } from './ranger'
 import { storeProject } from './store'
 import { pacerProject } from './pacer'
+// import { optimisticProject } from './optimistic'
 
 export const frameworkOptions = [
   { label: 'React', value: 'react', logo: reactLogo },
+  { label: 'Preact', value: 'preact', logo: preactLogo },
   { label: 'Vue', value: 'vue', logo: vueLogo },
   { label: 'Angular', value: 'angular', logo: angularLogo },
   { label: 'Solid', value: 'solid', logo: solidLogo },
@@ -41,6 +44,7 @@ export type Library = {
     | 'ranger'
     | 'store'
     | 'pacer'
+    | 'optimistic'
     | 'config'
     | 'react-charts'
   name: string
@@ -51,7 +55,7 @@ export type Library = {
   ogImage?: string
   bgStyle: string
   textStyle: string
-  badge?: 'new' | 'soon' | 'alpha' | 'beta'
+  badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh'
   repo: string
   latestBranch: string
   latestVersion: string
@@ -93,8 +97,23 @@ export const libraries = [
   storeProject,
   rangerProject,
   pacerProject,
+  // optimisticProject,
   configProject,
 ] satisfies Library[]
+
+export const librariesByGroup = {
+  app: [startProject, routerProject],
+  state: [queryProject, storeProject, pacerProject],
+  headlessUI: [tableProject, formProject, virtualProject, rangerProject],
+  other: [configProject],
+}
+
+export const librariesGroupNamesMap = {
+  app: 'Application Building',
+  state: 'Data and State Management',
+  headlessUI: 'Headless UI',
+  other: 'Other',
+}
 
 export function getLibrary(id: string) {
   const library = libraries.find((d) => d.id === id)

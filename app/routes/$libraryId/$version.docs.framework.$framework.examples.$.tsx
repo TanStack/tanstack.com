@@ -11,8 +11,8 @@ import { DocTitle } from '~/components/DocTitle'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
 import {
-  getFrameworkStartFileName,
-  getInitialExplorerFileName,
+  getExampleStartingFileName,
+  getExampleStartingPath,
 } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
@@ -75,7 +75,7 @@ export const Route = createFileRoute(
     // Used to determine the starting file name for the explorer
     // i.e. app.tsx, main.tsx, src/routes/__root.tsx, etc.
     // This value is not absolutely guaranteed to be available, so further resolution may be necessary
-    const explorerCandidateStartingFileName = getInitialExplorerFileName(
+    const explorerCandidateStartingFileName = getExampleStartingPath(
       params.framework as Framework,
       params.libraryId
     )
@@ -129,7 +129,7 @@ function PageComponent() {
 
   const examplePath = [framework, _splat].join('/')
 
-  const mainExampleFile = getInitialExplorerFileName(
+  const mainExampleFile = getExampleStartingPath(
     framework as Framework,
     libraryId
   )
@@ -305,8 +305,8 @@ function determineStartingFilePath(
   }
 
   const preferenceFiles = new Set([
-    getFrameworkStartFileName(framework, libraryId),
-    ...['App', 'main', 'index', 'page', 'action']
+    getExampleStartingFileName(framework, libraryId),
+    ...['__root', 'App', 'main', 'index', 'page', 'action']
       .map((name) => [`${name}.tsx`, `${name}.ts`, `${name}.js`, `${name}.jsx`])
       .flat(),
     'README.md',

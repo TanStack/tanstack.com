@@ -1,6 +1,6 @@
 import { type Framework } from '~/libraries'
 
-export const getInitialSandboxFileName = (
+export const getExampleStartingPath = (
   framework: Framework,
   libraryId?: string
 ) => {
@@ -10,10 +10,10 @@ export const getInitialSandboxFileName = (
 
   const dir = framework === 'angular' ? 'src/app' : 'src'
 
-  return `${dir}/${getFrameworkStartFileName(framework, libraryId)}` as const
+  return `${dir}/${getExampleStartingFileName(framework, libraryId)}` as const
 }
 
-export function getFrameworkStartFileName(
+export function getExampleStartingFileName(
   framework: Framework,
   libraryId?: string
 ) {
@@ -36,15 +36,4 @@ export function getFrameworkStartFileName(
       : 'tsx'
 
   return `${file}.${ext}` as const
-}
-
-export const getInitialExplorerFileName = (
-  framework: Framework,
-  libraryId?: string
-) => {
-  if (libraryId && ['start', 'router'].includes(libraryId)) {
-    return 'src/routes/__root.tsx'
-  }
-
-  return getFrameworkStartFileName(framework, libraryId)
 }

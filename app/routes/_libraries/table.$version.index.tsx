@@ -9,7 +9,7 @@ import SponsorPack from '~/components/SponsorPack'
 import { Await } from '@tanstack/react-router'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
-import { getInitialSandboxFileName } from '~/utils/sandbox'
+import { getExampleStartingPath } from '~/utils/sandbox'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
@@ -35,7 +35,7 @@ export default function TableVersionIndex() {
   const [framework, setFramework] = React.useState<Framework>('react')
   const [isDark, setIsDark] = React.useState(true)
 
-  const sandboxFirstFileName = getInitialSandboxFileName(framework)
+  const sandboxFirstFileName = getExampleStartingPath(framework)
 
   React.useEffect(() => {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)

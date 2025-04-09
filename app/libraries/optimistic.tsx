@@ -4,28 +4,29 @@ import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
 import { twMerge } from 'tailwind-merge'
 
-const repo = 'tanstack/pacer'
+const repo = 'tanstack/optimistic'
 
-const textStyles = `text-lime-600 dark:text-lime-500`
+const textStyles = `text-orange-600 dark:text-orange-500`
 
-export const pacerProject = {
-  id: 'pacer',
-  name: 'TanStack Pacer',
-  cardStyles: `shadow-xl shadow-lime-700/20 dark:shadow-lg dark:shadow-lime-500/20 text-lime-500 dark:text-lime-400 border-2 border-transparent hover:border-current`,
-  to: '/pacer',
+export const optimisticProject = {
+  id: 'optimistic',
+  name: 'TanStack Optimistic',
+  cardStyles: `shadow-xl shadow-orange-700/20 dark:shadow-lg dark:shadow-orange-500/20 text-orange-500 dark:text-orange-400 border-2 border-transparent hover:border-current`,
+  to: '/optimistic',
   tagline: `Framework agnostic debouncing, throttling, and queueing utilities`,
   description: `Set the pace of interactions in your applications. Limit the rate at which functions can fire, or intelligently queue long-running tasks with Concurrency Control.`,
-  ogImage: 'https://github.com/tanstack/pacer/raw/main/media/repo-header.png',
-  badge: 'alpha',
-  bgStyle: `bg-lime-700`,
-  textStyle: `text-lime-500`,
+  ogImage:
+    'https://github.com/tanstack/optimistic/raw/main/media/repo-header.png',
+  badge: 'soon',
+  bgStyle: `bg-orange-700`,
+  textStyle: `text-orange-500`,
   repo,
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
-  colorFrom: `from-lime-500`,
-  colorTo: `to-lime-700`,
-  textColor: `text-lime-700`,
+  colorFrom: `from-orange-500`,
+  colorTo: `to-orange-700`,
+  textColor: `text-orange-700`,
   frameworks: ['react', 'solid'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
@@ -33,12 +34,12 @@ export const pacerProject = {
     {
       icon: <VscPreview />,
       label: 'Examples',
-      to: '/pacer/latest/docs/framework/react/examples/debounce',
+      to: '/optimistic/latest/docs/framework/react/examples/simple',
     },
     {
       icon: <BiBookAlt />,
       label: 'Docs',
-      to: '/pacer/latest/docs',
+      to: '/optimistic/latest/docs',
     },
     {
       icon: <FaGithub />,
@@ -52,7 +53,7 @@ export const pacerProject = {
       icon: <VscWand className={twMerge(textStyles)} />,
       description: (
         <div>
-          TanStack Pacer provides an intuitive and flexible API that works
+          TanStack Optimistic provides an intuitive and flexible API that works
           across any JavaScript framework.{' '}
           <span className={twMerge('font-semibold', textStyles)}>
             Every utility is fully type-safe with reactive framework adapters

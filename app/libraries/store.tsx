@@ -16,7 +16,7 @@ export const storeProject = {
   tagline: `Framework agnostic data store with reactive framework adapters`,
   description: `The immutable-reactive data store that powers the core of TanStack libraries and their framework adapters.`,
   ogImage: 'https://github.com/tanstack/store/raw/main/media/repo-header.png',
-  badge: undefined,
+  badge: 'alpha',
   bgStyle: 'bg-twine-700',
   textStyle: 'text-twine-500',
   repo,

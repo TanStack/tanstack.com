@@ -12,25 +12,25 @@ const adSlots = {
     id: 'div-gpt-ad-1738811978953-leaderboard',
     sizes: [[728, 90]],
     targeting: 'leaderboard',
-    refreshInterval: 45_000, // 45 seconds
+    refreshInterval: 90_000, // 45 seconds
   },
   footer: {
     id: 'div-gpt-ad-1738811978953-footer',
     sizes: [[728, 90]],
     targeting: 'footer',
-    refreshInterval: 45_000, // 45 seconds
+    refreshInterval: 90_000, // 45 seconds
   },
   rightRail: {
     id: 'div-gpt-ad-1738811978953-right-rail',
     sizes: [[300, 250]],
     targeting: 'right-side-rail',
-    refreshInterval: 45_000, // 45 seconds
+    refreshInterval: 90_000, // 45 seconds
   },
   leftRail: {
     id: 'div-gpt-ad-1738811978953-left-rail',
     sizes: [[300, 250]],
     targeting: 'left-side-rail',
-    refreshInterval: 45_000, // 45 seconds
+    refreshInterval: 90_000, // 45 seconds
   },
 } satisfies Record<
   string,
@@ -74,14 +74,14 @@ function Gad({
         window.googletag.enableServices()
         window.googletag.display(adId)
 
-        // // Set individual refresh intervals for each ad
-        // const interval = setInterval(function () {
-        //   window.googletag.cmd.push(function () {
-        //     window.googletag.pubads().refresh([slot])
-        //   })
-        // }, slot.refreshInterval)
+        // Set individual refresh intervals for each ad
+        const interval = setInterval(function () {
+          window.googletag.cmd.push(function () {
+            window.googletag.pubads().refresh([slot])
+          })
+        }, slot.refreshInterval)
 
-        // return () => clearInterval(interval)
+        return () => clearInterval(interval)
       })
     }
   }, [])

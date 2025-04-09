@@ -12,25 +12,25 @@ const adSlots = {
     id: 'div-gpt-ad-1738811978953-leaderboard',
     sizes: [[728, 90]],
     targeting: 'leaderboard',
-    refreshInterval: 90_000, // 45 seconds
+    refreshInterval: 150_000,
   },
   footer: {
     id: 'div-gpt-ad-1738811978953-footer',
     sizes: [[728, 90]],
     targeting: 'footer',
-    refreshInterval: 90_000, // 45 seconds
+    refreshInterval: 150_000,
   },
   rightRail: {
     id: 'div-gpt-ad-1738811978953-right-rail',
     sizes: [[300, 250]],
     targeting: 'right-side-rail',
-    refreshInterval: 90_000, // 45 seconds
+    refreshInterval: 150_000,
   },
   leftRail: {
     id: 'div-gpt-ad-1738811978953-left-rail',
     sizes: [[300, 250]],
     targeting: 'left-side-rail',
-    refreshInterval: 90_000, // 45 seconds
+    refreshInterval: 150_000,
   },
 } satisfies Record<
   string,

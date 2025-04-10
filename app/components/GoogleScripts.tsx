@@ -75,13 +75,13 @@ function Gad({
         window.googletag.display(adId)
 
         // Set individual refresh intervals for each ad
-        const interval = setInterval(function () {
-          window.googletag.cmd.push(function () {
-            window.googletag.pubads().refresh([slot])
-          })
-        }, slot.refreshInterval)
+        // const interval = setInterval(function () {
+        //  window.googletag.cmd.push(function () {
+        //    window.googletag.pubads().refresh([slot])
+        //  })
+        //}, slot.refreshInterval)
 
-        return () => clearInterval(interval)
+        //return () => clearInterval(interval)
       })
     }
   }, [])

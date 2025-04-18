@@ -30,7 +30,6 @@ const librariesRouteApi = getRouteApi('/_libraries')
 
 export default function FormVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
-  const { version } = Route.useParams()
   const library = getLibrary('config')
 
   const gradientText = `pr-1 inline-block leading-snug text-transparent bg-clip-text bg-gradient-to-r ${configProject.colorFrom} ${configProject.colorTo}`

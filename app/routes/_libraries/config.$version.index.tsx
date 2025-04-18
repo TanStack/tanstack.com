@@ -73,8 +73,8 @@ export default function FormVersionIndex() {
               </h3>
               <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
                 Incorporate TanStack Config into your development toolkit and
-                experience a new level of efficiency, speed, and customization in
-                building and releasing high-quality JavaScript packages.
+                experience a new level of efficiency, speed, and customization
+                in building and releasing high-quality JavaScript packages.
               </p>
             </div>
             <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 mx-auto">
@@ -113,9 +113,10 @@ export default function FormVersionIndex() {
                 </span>
                 <div className="flex flex-col p-4 gap-4">
                   <div>
-                    We're looking for a TanStack Config OSS Partner to go above and
-                    beyond the call of sponsorship. Are you as invested in TanStack
-                    Config as we are? Let's push the boundaries of Config together!
+                    We're looking for a TanStack Config OSS Partner to go above
+                    and beyond the call of sponsorship. Are you as invested in
+                    TanStack Config as we are? Let's push the boundaries of
+                    Config together!
                   </div>
                   <a
                     href="mailto:partners@tanstack.com?subject=TanStack Config Partnership"

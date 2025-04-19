@@ -139,11 +139,11 @@ function Index() {
             </p>
           </div>
         </div>
-        <div className="h-8" />
+        <div className="my-16" />
         <div className="w-fit mx-auto px-4">
           <OpenSourceStats />
         </div>
-        <div className="h-12" />
+        <hr className="my-16 border-gray-200 dark:border-gray-500/10" />
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">
           <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>
 
@@ -227,7 +227,7 @@ function Index() {
                         {/* Foreground content that appears on hover */}
                         <div
                           className="absolute inset-0 z-30 bg-white/95 dark:bg-black/95 p-6
-                          flex flex-col justify-center opacity-0 group-hover:opacity-100
+                          backdrop-blur-sm flex flex-col justify-center opacity-0 group-hover:opacity-100
                           transition-opacity duration-300"
                         >
                           <div
@@ -288,9 +288,9 @@ function Index() {
             )
           )}
         </div>
-        <div className="h-12" />
+        <hr className="my-16 border-gray-200 dark:border-gray-500/10" />
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">
-          <h3 className={`text-4xl font-light mb-4`}>Partners</h3>
+          <h3 className={`text-4xl font-light mb-6`}>Partners</h3>
           <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
             {partners.map((partner) => {
               return (
@@ -301,10 +301,10 @@ function Index() {
                   className="bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none group overflow-hidden grid"
                   rel="noreferrer"
                 >
-                  <div className="z-0 row-start-1 col-start-1 flex items-center justify-center group-hover:blur-sm transition-all duration-200">
+                  <div className="z-0 row-start-1 col-start-1 flex items-center justify-center group-hover:blur-md transition-all duration-200 p-4">
                     {partner.homepageImg}
                   </div>
-                  <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/70">
+                  <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/80">
                     {partner.content}
                   </div>
                 </a>
@@ -312,9 +312,9 @@ function Index() {
             })}
           </div>
         </div>
-        <div className="h-20" />
+        <hr className="my-16 border-gray-200 dark:border-gray-500/10" />
         <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
-          <h3 className={`text-4xl font-light`}>Courses</h3>
+          <h3 className={`text-4xl font-light mb-6`}>Courses</h3>
           <div className={`mt-4 grid grid-cols-1 gap-4`}>
             {courses.map((course) => (
               <a
@@ -346,24 +346,25 @@ function Index() {
             ))}
           </div>
         </div>
-        <div className="h-12" />
+        <hr className="my-16 border-gray-200 dark:border-gray-500/10" />
         <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
           <h3 className={`text-4xl font-light`}>OSS Sponsors</h3>
-          <div className="h-4" />
+          <div className="h-6" />
           <div
             style={{
               aspectRatio: '1/1',
             }}
+            className="max-w-2xl mx-auto"
           >
             <Await
               promise={sponsorsPromise}
-              fallback={<CgSpinner className="text-2xl animate-spin" />}
+              fallback={<CgSpinner className="text-2xl animate-spin mx-auto" />}
               children={(sponsors) => {
                 return <SponsorPack sponsors={sponsors} />
               }}
             />
           </div>
-          <div className={`h-6`} />
+          <div className={`h-8`} />
           <div className={`text-center`}>
             <div>
               <a
@@ -384,29 +385,29 @@ function Index() {
             </p>
           </div>
         </div>
-        <div className="h-12" />
+        <hr className="my-16 border-gray-200 dark:border-gray-500/10" />
         <div className={`lg:max-[400px] px-4 mx-auto`}>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 items-center">
             <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white max-w-[250px] mx-auto">
               <Carbon />
             </div>
             <span
               className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
-                dark:bg-opacity-20 self-center"
+                dark:bg-opacity-20 self-center text-center"
             >
               This ad helps us be happy about our invested time and not burn out
               and rage-quit OSS. Yay money! 😉
             </span>
           </div>
         </div>
-        <div className="h-12" />
+        <hr className="my-16 border-gray-200 dark:border-gray-500/10" />
         <div className="px-4 mx-auto max-w-screen-lg">
           <div
             className={`
           rounded-md p-4 grid gap-6
           bg-discord text-white overflow-hidden relative
           shadow-xl shadow-indigo-700/30
-          sm:p-8 sm:grid-cols-3`}
+          sm:p-8 sm:grid-cols-3 items-center`}
           >
             <div
               className={`absolute transform opacity-10 z-0

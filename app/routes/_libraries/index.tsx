@@ -264,16 +264,16 @@ function Index() {
                           >
                             <div
                               className={twMerge(
-                                `w-20 h-20 rounded-full translate-x-1/2 -translate-y-1/2`,
+                                `w-[100px] h-[100px] rounded-full translate-x-1/2 -translate-y-1/2`,
                                 library.bgStyle
                               )}
                             />
                             <span
                               className={twMerge(
-                                'inline-block transform rotate-45 uppercase text-white font-black italic animate-pulse absolute top-3 right-1',
+                                'inline-block transform rotate-45 uppercase text-white font-black italic animate-pulse text-xs',
                                 library.badge.length > 4
-                                  ? 'text-[10px]'
-                                  : 'text-xs'
+                                  ? 'absolute top-[16px] right-[-2px]'
+                                  : 'absolute top-[14px] right-[5px]'
                               )}
                             >
                               {library.badge}

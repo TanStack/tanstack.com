@@ -149,8 +149,8 @@ function Index() {
 
           {Object.entries(librariesByGroup).map(
             ([groupName, groupLibraries]: [string, Library[]]) => (
-              <div key={groupName} className="mt-8">
-                <h4 className={`text-2xl font-medium capitalize mb-4`}>
+              <div key={groupName} className="mt-10">
+                <h4 className={`text-2xl font-medium capitalize mb-6`}>
                   {
                     librariesGroupNamesMap[
                       groupName as keyof typeof librariesGroupNamesMap
@@ -159,7 +159,7 @@ function Index() {
                 </h4>
                 {/* Library Cards */}
                 <div
-                  className={`grid grid-cols-1 gap-4 gap-y-8 justify-center
+                  className={`grid grid-cols-1 gap-6 gap-y-8 justify-center
                 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3`}
                 >
                   {groupLibraries.map((library, i: number) => {
@@ -169,7 +169,7 @@ function Index() {
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `border-2 border-transparent rounded-xl shadow-md p-6 transition-all duration-200
+                          `border-2 border-transparent rounded-xl shadow-md p-8 transition-all duration-300
                           bg-white/90 dark:bg-black/40 backdrop-blur-sm
                           dark:border-gray-800/50`,
                           'hover:shadow-lg',
@@ -226,9 +226,9 @@ function Index() {
 
                         {/* Foreground content that appears on hover */}
                         <div
-                          className="absolute inset-0 z-10 bg-white/95 dark:bg-black/95 p-6 
-                          flex flex-col justify-center opacity-0 group-hover:opacity-100 
-                          transition-opacity duration-200"
+                          className="absolute inset-0 z-30 bg-white/95 dark:bg-black/95 p-6
+                          flex flex-col justify-center opacity-0 group-hover:opacity-100
+                          transition-opacity duration-300"
                         >
                           <div
                             className={`text-sm text-gray-800 dark:text-gray-200 leading-relaxed`}

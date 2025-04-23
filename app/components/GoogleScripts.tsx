@@ -117,20 +117,9 @@ export function GadFooter() {
 }
 
 export function GadLeftRailSquare() {
-  // return (
-  //   <Gad
-  //     adId={adSlots.leftRail.id}
-  //     style={{ maxWidth: '300px', aspectRatio: '300 / 250' }}
-  //   />
-  // )
-
-  return null
-}
-
-export function GadRightRailSquare() {
   return (
     <Gad
-      name="rightRail"
+      name="leftRail"
       className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
     >
       <Link
@@ -142,6 +131,26 @@ export function GadRightRailSquare() {
           Form
         </span>
         <span className="text-xs">V1</span>
+      </Link>
+    </Gad>
+  )
+}
+
+export function GadRightRailSquare() {
+  return (
+    <Gad
+      name="rightRail"
+      className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
+    >
+      <Link
+        to="/start"
+        className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter h-[256px]"
+      >
+        <span>TanStack</span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">
+          Start
+        </span>
+        <span className="text-xs">BETA</span>
       </Link>
     </Gad>
   )

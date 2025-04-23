@@ -553,9 +553,6 @@ export function DocsLayout({
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-8">
         {menuItems}
       </div>
-      <div className="mt-auto overflow-hidden h-0">
-        <GadLeftRailSquare />
-      </div>
     </div>
   )
 
@@ -708,8 +705,12 @@ export function DocsLayout({
           </div>
 
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
-            <Carbon />
+            <GadLeftRailSquare />
           </div>
+
+          {/* <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+            <Carbon />
+          </div> */}
 
           {libraryId !== 'query' ? (
             <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">

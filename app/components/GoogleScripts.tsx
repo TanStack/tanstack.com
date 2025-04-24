@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
+import { getLibrary, libraries } from '~/libraries'
 
 declare global {
   interface Window {
@@ -87,8 +89,12 @@ function Gad({
   }, [])
 
   return (
-    <div {...props} className="grid [&>*]:col-start-1 [&>*]:row-start-1">
-      <div id={adId} className="w-full flex-1 z-10"></div>
+    <div
+      {...props}
+      className="grid [&>*]:col-start-1 [&>*]:row-start-1"
+      id={adId}
+    >
+      {/* <div className="w-full flex-1 z-10"></div> */}
       <div className="flex items-center justify-center">{children}</div>
     </div>
   )
@@ -124,13 +130,28 @@ export function GadLeftRailSquare() {
     >
       <Link
         to="/form"
-        className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter h-[256px]"
+        className="flex flex-col justify-center items-center h-[256px] gap-4 group"
       >
-        <span>TanStack</span>
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600">
-          Form
-        </span>
-        <span className="text-xs">V1</span>
+        <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
+          <span>TanStack</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600">
+            Form
+          </span>
+          <span className="text-xs">V1</span>
+        </div>
+        <div className="text-sm text-center">
+          {getLibrary('form').description}
+        </div>
+        <div>
+          <button
+            className={twMerge(
+              'text-sm px-2 py-1 rounded-lg text-white font-black uppercase tracking-tighter transition-transform duration-700 group-hover:scale-[1.2]',
+              getLibrary('form').bgStyle
+            )}
+          >
+            Learn More
+          </button>
+        </div>
       </Link>
     </Gad>
   )
@@ -144,13 +165,28 @@ export function GadRightRailSquare() {
     >
       <Link
         to="/start"
-        className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter h-[256px]"
+        className="flex flex-col justify-center items-center h-[256px] gap-4 group"
       >
-        <span>TanStack</span>
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">
-          Start
-        </span>
-        <span className="text-xs">BETA</span>
+        <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
+          <span>TanStack</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">
+            Start
+          </span>
+          <span className="text-xs">BETA</span>
+        </div>
+        <div className="text-sm text-center">
+          {getLibrary('start').description}
+        </div>
+        <div>
+          <button
+            className={twMerge(
+              'text-sm px-2 py-1 rounded-lg text-white font-black uppercase tracking-tighter transition-transform duration-700 group-hover:scale-[1.2]',
+              getLibrary('start').bgStyle
+            )}
+          >
+            Learn More
+          </button>
+        </div>
       </Link>
     </Gad>
   )

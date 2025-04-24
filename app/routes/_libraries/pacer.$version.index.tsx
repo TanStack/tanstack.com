@@ -12,6 +12,7 @@ import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
+import { partners } from '~/utils/partners'
 
 export const Route = createFileRoute('/_libraries/pacer/$version/')({
   component: PacerVersionIndex,
@@ -111,33 +112,32 @@ export default function PacerVersionIndex() {
           </div>
         </div>
 
-        <div className="px-4 w-[500px] max-w-full mx-auto">
+        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto max-w-full">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Partners
           </h3>
           <div className="h-8" />
-          <div
-            className="flex-1 flex flex-col items-center text-sm text-center
-                      bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg
-                        divide-y-2 divide-gray-500 divide-opacity-10 overflow-hidden
-                        dark:bg-black/40 dark:shadow-none"
-          >
-            <span className="flex items-center gap-2 p-12 text-4xl text-rose-500 font-black uppercase">
-              Pacer <TbHeartHandshake /> You?
-            </span>
-            <div className="flex flex-col p-4 gap-4">
-              <div>
-                We're looking for a TanStack Pacer OSS Partner to go above and
-                beyond the call of sponsorship. Are you as invested in TanStack
-                Pacer as we are? Let's push the boundaries of Pacer together!
-              </div>
-              <a
-                href="mailto:partners@tanstack.com?subject=TanStack Pacer Partnership"
-                className="text-blue-500 uppercase font-black text-sm"
-              >
-                Let's chat
-              </a>
-            </div>
+          <div className={`w-[500px] max-w-full`}>
+            {partners
+              .filter((d) => d.libraries?.includes('pacer'))
+              .map((partner) => {
+                return (
+                  <a
+                    key={partner.name}
+                    href={partner.href}
+                    target="_blank"
+                    className="shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 bg-white dark:bg-black/40 dark:shadow-none group overflow-hidden grid"
+                    rel="noreferrer"
+                  >
+                    <div className="z-0 row-start-1 col-start-1 flex items-center justify-center group-hover:blur-sm transition-all duration-200">
+                      {partner.homepageImg}
+                    </div>
+                    <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/70">
+                      {partner.content}
+                    </div>
+                  </a>
+                )
+              })}
           </div>
         </div>
 

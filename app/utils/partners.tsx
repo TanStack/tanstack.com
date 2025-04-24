@@ -19,6 +19,8 @@ import speakeasyLightSvg from '~/images/speakeasy-light.svg'
 import speakeasyDarkSvg from '~/images/speakeasy-dark.svg'
 import neonLightSvg from '~/images/neon-light.svg'
 import neonDarkSvg from '~/images/neon-dark.svg'
+import unkeyBlackSvg from '~/images/unkey-black.svg'
+import unkeyWhiteSvg from '~/images/unkey-white.svg'
 import { Library } from '~/libraries'
 
 type Partner = {
@@ -475,6 +477,54 @@ const speakeasy = (() => {
   }
 })()
 
+const unkey = (() => {
+  const href = 'https://www.unkey.com/?utm_source=tanstack'
+
+  return {
+    name: 'Unkey',
+    id: 'unkey',
+    libraries: ['pacer'],
+    sidebarImgLight: unkeyBlackSvg,
+    sidebarImgDark: unkeyWhiteSvg,
+    sidebarImgClass: 'py-4 scale-[1]',
+    href,
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-6">
+        <img
+          src={unkeyBlackSvg}
+          alt="Unkey"
+          className="w-[180px] max-w-full dark:hidden"
+          width="180"
+          height="77"
+        />
+        <img
+          src={unkeyWhiteSvg}
+          alt="Unkey"
+          className="w-[180px] max-w-full hidden dark:block"
+          width="180"
+          height="77"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          Unkey and TanStack are teaming up to streamline API management for
+          developers. With Unkey's powerful features like{' '}
+          <strong>API key management</strong>, <strong>rate limiting</strong>,
+          and <strong>usage analytics</strong>, integrating with TanStack's
+          developer-first tools becomes seamless. Together, we're enhancing the
+          developer experience by providing secure and scalable solutions for
+          modern web applications.
+        </div>
+        <span className="text-blue-500 uppercase font-black text-sm">
+          Learn More
+        </span>
+      </>
+    ),
+  }
+})()
+
 // const vercel = (() => {
 //   const href = 'https://vercel.com?utm_source=tanstack'
 
@@ -528,6 +578,7 @@ export const partners: Partner[] = [
   convex,
   sentry,
   speakeasy,
+  unkey,
   uiDev,
   nozzle,
 ]

@@ -151,7 +151,6 @@ export function GadRightRailSquare() {
           >
             {randomLibrary.name.replace('TanStack ', '')}
           </span>
-          <span className="text-xs">BETA</span>
         </div>
         <div className="text-sm text-center">{randomLibrary.description}</div>
         <div>
@@ -196,7 +195,6 @@ export function GadLeftRailSquare() {
           >
             {randomRemainingLibrary.name.replace('TanStack ', '')}
           </span>
-          <span className="text-xs">V1</span>
         </div>
         <div className="text-sm text-center">
           {randomRemainingLibrary.description}

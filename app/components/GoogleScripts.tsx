@@ -130,7 +130,7 @@ export function GadLeftRailSquare() {
     >
       <Link
         to="/form"
-        className="flex flex-col justify-center items-center h-[256px] gap-4 group"
+        className="flex flex-col justify-center items-center h-[250px] gap-4 group"
       >
         <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
           <span>TanStack</span>
@@ -165,7 +165,7 @@ export function GadRightRailSquare() {
     >
       <Link
         to="/start"
-        className="flex flex-col justify-center items-center h-[256px] gap-4 group"
+        className="flex flex-col justify-center items-center h-[250px] gap-4 group"
       >
         <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
           <span>TanStack</span>

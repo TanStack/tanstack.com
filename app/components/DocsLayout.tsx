@@ -306,6 +306,7 @@ type DocsLayoutProps = {
   frameworks: Framework[]
   versions: string[]
   repo: string
+  stableRandoms: number[]
   children: React.ReactNode
 }
 

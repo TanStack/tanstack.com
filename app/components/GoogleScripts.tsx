@@ -122,31 +122,43 @@ export function GadFooter() {
   )
 }
 
-export function GadLeftRailSquare() {
+const libraryHalfIndex = Math.ceil(libraries.length / 2)
+
+export function GadRightRailSquare() {
+  const randomLibrary = React.useMemo(() => {
+    const sampledLibraries = libraries.slice(0, libraryHalfIndex)
+    const seed = Math.floor(Date.now() / (1000 * 60 * 5)) // Change seed every 5 minutes
+    return sampledLibraries[seed % sampledLibraries.length]
+  }, [])
+
   return (
     <Gad
-      name="leftRail"
+      name="rightRail"
       className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
     >
       <Link
-        to="/form"
+        to={`/${randomLibrary.id}`}
         className="flex flex-col justify-center items-center h-[250px] gap-4 group"
       >
         <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
           <span>TanStack</span>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600">
-            Form
+          <span
+            className={twMerge(
+              'text-transparent bg-clip-text bg-gradient-to-r',
+              randomLibrary.colorFrom,
+              randomLibrary.colorTo
+            )}
+          >
+            {randomLibrary.name.replace('TanStack ', '')}
           </span>
-          <span className="text-xs">V1</span>
+          <span className="text-xs">BETA</span>
         </div>
-        <div className="text-sm text-center">
-          {getLibrary('form').description}
-        </div>
+        <div className="text-sm text-center">{randomLibrary.description}</div>
         <div>
           <button
             className={twMerge(
               'text-sm px-2 py-1 rounded-lg text-white font-black uppercase tracking-tighter transition-transform duration-700 group-hover:scale-[1.2]',
-              getLibrary('form').bgStyle
+              randomLibrary.bgStyle
             )}
           >
             Learn More
@@ -157,31 +169,43 @@ export function GadLeftRailSquare() {
   )
 }
 
-export function GadRightRailSquare() {
+export function GadLeftRailSquare() {
+  const randomRemainingLibrary = React.useMemo(() => {
+    const remainingLibraries = libraries.slice(libraryHalfIndex)
+    const seed = Math.floor(Date.now() / (1000 * 60 * 5)) // Change seed every 5 minutes
+    return remainingLibraries[seed % remainingLibraries.length]
+  }, [])
+
   return (
     <Gad
-      name="rightRail"
+      name="leftRail"
       className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
     >
       <Link
-        to="/start"
+        to={`/${randomRemainingLibrary.id}`}
         className="flex flex-col justify-center items-center h-[250px] gap-4 group"
       >
         <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
           <span>TanStack</span>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">
-            Start
+          <span
+            className={twMerge(
+              'text-transparent bg-clip-text bg-gradient-to-r',
+              randomRemainingLibrary.colorFrom,
+              randomRemainingLibrary.colorTo
+            )}
+          >
+            {randomRemainingLibrary.name.replace('TanStack ', '')}
           </span>
-          <span className="text-xs">BETA</span>
+          <span className="text-xs">V1</span>
         </div>
         <div className="text-sm text-center">
-          {getLibrary('start').description}
+          {randomRemainingLibrary.description}
         </div>
         <div>
           <button
             className={twMerge(
               'text-sm px-2 py-1 rounded-lg text-white font-black uppercase tracking-tighter transition-transform duration-700 group-hover:scale-[1.2]',
-              getLibrary('start').bgStyle
+              randomRemainingLibrary.bgStyle
             )}
           >
             Learn More

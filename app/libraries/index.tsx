@@ -94,9 +94,9 @@ export const libraries = [
   tableProject,
   formProject,
   virtualProject,
+  pacerProject,
   storeProject,
   rangerProject,
-  pacerProject,
   // optimisticProject,
   configProject,
 ] satisfies Library[]

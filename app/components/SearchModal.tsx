@@ -158,13 +158,13 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
   )
 }
 
-function CustomRefinementList() {
+function LibraryRefinement() {
   const subpathname = useRouterState({
     select: (state) => state.location.pathname.split('/')[1],
   })
 
   const { items, refine } = useRefinementList({
-    attribute: '_tags',
+    attribute: 'library',
     limit: 50,
     sortBy: ['isRefined:desc', 'count:desc', 'name:asc'],
   })
@@ -183,27 +183,99 @@ function CustomRefinementList() {
 
   return (
     <div className="overflow-x-auto scrollbar-hide">
-      <div className="flex gap-2 p-4 min-w-max">
-        {items.map((item) => {
-          const library = libraries.find((l) => l.id === item.value)
+      <div className="flex items-center gap-2 p-2 min-w-max">
+        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          Libraries:
+        </span>
+        <div className="flex gap-1.5">
+          {items.map((item) => {
+            const library = libraries.find((l) => l.id === item.value)
 
-          return (
-            <button
-              key={item.value}
-              onClick={() => refine(item.value)}
-              className={twMerge(
-                'px-3 py-1 text-sm rounded-full transition-colors font-bold text-white',
-                item.isRefined
-                  ? library
-                    ? library.bgStyle
-                    : 'bg-black dark:bg-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-              )}
-            >
-              {item.label} ({item.count.toLocaleString()})
-            </button>
-          )
-        })}
+            return (
+              <button
+                key={item.value}
+                onClick={() => refine(item.value)}
+                className={twMerge(
+                  'px-2 py-0.5 text-xs rounded-full transition-colors font-bold text-white',
+                  item.isRefined
+                    ? library
+                      ? library.bgStyle
+                      : 'bg-black dark:bg-white'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                )}
+              >
+                {item.label} ({item.count.toLocaleString()})
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function FrameworkRefinement() {
+  const subpathname = useRouterState({
+    select: (state) => {
+      const path = state.location.pathname
+      const frameworkIndex = path.indexOf('/framework/')
+      if (frameworkIndex !== -1) {
+        return path.split('/')[
+          path.split('/').indexOf('framework') + 1
+        ] as string
+      }
+      return null
+    },
+  })
+
+  const { items, refine } = useRefinementList({
+    attribute: 'framework',
+    limit: 50,
+    sortBy: ['isRefined:desc', 'count:desc', 'name:asc'],
+  })
+
+  React.useEffect(() => {
+    if (!subpathname) return
+
+    const isAlreadyRefined = items.some(
+      (item) => item.value === subpathname && item.isRefined
+    )
+
+    const framework = frameworkOptions.find((f) => f.value === subpathname)
+
+    if (!isAlreadyRefined && framework) {
+      refine(subpathname)
+    }
+  }, [subpathname])
+
+  return (
+    <div className="overflow-x-auto scrollbar-hide">
+      <div className="flex items-center gap-2 p-2 min-w-max">
+        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          Frameworks:
+        </span>
+        <div className="flex gap-1.5">
+          {items.map((item) => {
+            const framework = frameworkOptions.find(
+              (f) => f.value === item.value
+            )
+
+            return (
+              <button
+                key={item.value}
+                onClick={() => refine(item.value)}
+                className={twMerge(
+                  'px-2 py-0.5 text-xs rounded-full transition-colors font-bold text-white',
+                  item.isRefined
+                    ? framework?.color || 'bg-black dark:bg-white'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                )}
+              >
+                {item.label} ({item.count.toLocaleString()})
+              </button>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
@@ -382,7 +454,8 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
 
   return (
     <>
-      <CustomRefinementList />
+      <LibraryRefinement />
+      <FrameworkRefinement />
       <div
         className="max-h-[60vh] overflow-y-auto"
         role="listbox"

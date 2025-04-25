@@ -15,6 +15,7 @@ import { MdClose, MdSearch } from 'react-icons/md'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { frameworkOptions, libraries } from '~/libraries'
+import { capitalize } from '~/utils/utils'
 
 const searchClient = liteClient(
   'FQ0DQ6MA3C',
@@ -179,7 +180,7 @@ function CustomRefinementList() {
     if (!isAlreadyRefined && library) {
       refine(subpathname)
     }
-  }, [])
+  }, [items, refine, subpathname])
 
   return (
     <div className="overflow-x-auto scrollbar-hide">
@@ -200,7 +201,7 @@ function CustomRefinementList() {
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
               )}
             >
-              {item.label} ({item.count.toLocaleString()})
+              {capitalize(item.label)} ({item.count.toLocaleString()})
             </button>
           )
         })}

@@ -13,8 +13,6 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import { OramaSearchBox } from '@orama/react-components'
-import { Carbon } from '~/components/Carbon'
 import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsLogo } from '~/components/DocsLogo'
@@ -22,11 +20,9 @@ import { last, capitalize } from '~/utils/utils'
 import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
-import { searchBoxParams, searchButtonParams } from '~/components/Orama'
 import { Framework, getFrameworkOptions } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
-import { ClientOnlySearchButton } from './ClientOnlySearchButton'
 import { twMerge } from 'tailwind-merge'
 import { partners } from '~/utils/partners'
 import { useThemeStore } from './ThemeToggle'
@@ -35,7 +31,7 @@ import {
   GadLeftRailSquare,
   GadRightRailSquare,
 } from './GoogleScripts'
-import { DocContainer } from './DocContainer'
+import { SearchButton } from './SearchButton'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -306,7 +302,6 @@ type DocsLayoutProps = {
   frameworks: Framework[]
   versions: string[]
   repo: string
-  stableRandoms: number[]
   children: React.ReactNode
 }
 
@@ -329,10 +324,6 @@ export function DocsLayout({
   const frameworkConfig = useFrameworkConfig({ frameworks })
   const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
-
-  const { mode: themeMode } = useThemeStore()
-
-  const oramaThemeMode = themeMode === 'auto' ? 'system' : themeMode
 
   const matches = useMatches()
   const lastMatch = last(matches)
@@ -510,12 +501,7 @@ export function DocsLayout({
               onSelect={versionConfig.onSelect}
             />
           </div>
-          <ClientOnlySearchButton
-            {...searchButtonParams}
-            colorScheme={oramaThemeMode}
-          >
-            Search
-          </ClientOnlySearchButton>
+          <SearchButton />
           {menuItems}
         </div>
       </details>
@@ -533,7 +519,7 @@ export function DocsLayout({
         {logo}
       </div>
       <div className="px-4">
-        <ClientOnlySearchButton {...searchButtonParams} />
+        <SearchButton />
       </div>
       <div className="flex gap-2 px-4">
         <Select
@@ -561,23 +547,6 @@ export function DocsLayout({
     <div
       className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300`}
     >
-      <div className="fixed z-50">
-        {mounted && (
-          <OramaSearchBox
-            {...searchBoxParams}
-            searchParams={{
-              threshold: 0,
-              where: {
-                category: {
-                  eq: capitalize(libraryId!) as string,
-                },
-              } as any,
-            }}
-            facetProperty={undefined}
-            colorScheme={oramaThemeMode}
-          />
-        )}
-      </div>
       {smallMenu}
       {largeMenu}
       <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative">

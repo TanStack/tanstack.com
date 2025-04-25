@@ -112,7 +112,7 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
       tabIndex={-1}
       ref={ref}
     >
-      <div className="flex items-start gap-4">
+      <article className="flex items-start gap-4">
         <div className="flex-1">
           <h3 className="font-bold text-gray-900 dark:text-white">
             <Highlight attribute="hierarchy.lvl1" hit={hit} />
@@ -154,7 +154,7 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
             )
           })()}
         </div>
-      </div>
+      </article>
     </SafeLink>
   )
 }
@@ -318,8 +318,8 @@ export function SearchModal() {
       onKeyDown={handleKeyDown}
     >
       <div className="min-h-screen text-center">
-        <Dialog.Overlay className="fixed inset-0 bg-black/30" />
-        <div className="inline-block w-full max-w-2xl my-8 overflow-hidden text-left align-middle transition-all transform bg-white/80 dark:bg-black/80 shadow-xl rounded-2xl divide-y divide-gray-500/20 backdrop-blur-lg">
+        <Dialog.Overlay className="fixed inset-0 bg-black/60 xl:bg-black/30" />
+        <div className="inline-block w-[98%] xl:w-full max-w-2xl my-8 overflow-hidden text-left align-middle transition-all transform bg-white/80 dark:bg-black/80 shadow-xl rounded-lg xl:rounded-2xl divide-y divide-gray-500/20 backdrop-blur-lg">
           <InstantSearch searchClient={searchClient} indexName="tanstack">
             <Configure
               attributesToRetrieve={[
@@ -385,7 +385,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
     <>
       <CustomRefinementList />
       <div
-        className="max-h-[60vh] overflow-y-auto"
+        className="max-h-[80vh] lg:max-h-[60vh] overflow-y-auto"
         role="listbox"
         aria-label="Search results"
       >

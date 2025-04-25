@@ -166,7 +166,7 @@ function CustomRefinementList() {
   const { items, refine } = useRefinementList({
     attribute: '_tags',
     limit: 50,
-    sortBy: ['count:desc', 'name:asc'],
+    sortBy: ['isRefined:desc', 'count:desc', 'name:asc'],
   })
 
   React.useEffect(() => {

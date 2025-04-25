@@ -519,3 +519,7 @@ html.dark .shiki.github-light {
 .bg-clip-text {
   @apply print:text-gray-800;
 }
+
+mark {
+  @apply bg-yellow-400 rounded-md px-px mx-px;
+}

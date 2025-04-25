@@ -9,6 +9,7 @@ import {
   Configure,
   useRefinementList,
   useInstantSearch,
+  Pagination,
 } from 'react-instantsearch'
 import { liteClient } from 'algoliasearch/lite'
 import { MdClose, MdSearch } from 'react-icons/md'
@@ -135,14 +136,14 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
             </p>
           ) : null}
         </div>
-        <div className="flex-none">
-          {(() => {
-            const framework = frameworkOptions.find((f) =>
-              hit.url.includes(`/framework/${f.value}`)
-            )
-            if (!framework) return null
+        {(() => {
+          const framework = frameworkOptions.find((f) =>
+            hit.url.includes(`/framework/${f.value}`)
+          )
+          if (!framework) return null
 
-            return (
+          return (
+            <div className="flex-none">
               <div className="flex items-center gap-1 text-xs font-black bg-white rounded-xl px-2 py-1 dark:bg-black">
                 <img
                   src={framework.logo}
@@ -151,9 +152,9 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
                 />
                 {framework.label}
               </div>
-            )
-          })()}
-        </div>
+            </div>
+          )
+        })()}
       </article>
     </SafeLink>
   )
@@ -397,6 +398,10 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
             )
             return <Hit hit={hit} isFocused={index === focusedIndex} />
           }}
+        />
+        <Pagination
+          padding={2}
+          className="border-t text-sm dark:border-white/20 px-4 py-3 [&>ul]:w-full [&>ul]:flex [&>ul]:justify-between [&_li>*]:px-3 [&_li>*]:py-1.5 [&_.ais-Pagination-item--selected>*]:bg-red-500 [&_.ais-Pagination-item--selected>*]:rounded-lg [&_li>span]:cursor-not-allowed"
         />
       </div>
     </>

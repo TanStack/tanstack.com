@@ -2,6 +2,7 @@ import * as React from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import {
+  MdArrowBack,
   MdClose,
   MdLock,
   MdLockOpen,
@@ -13,6 +14,8 @@ import * as Plot from '@observablehq/plot'
 import { ParentSize } from '@visx/responsive'
 import { Tooltip } from '~/components/Tooltip'
 import * as d3 from 'd3'
+import { useCombobox } from 'downshift'
+import { FaAngleRight, FaArrowLeft } from 'react-icons/fa'
 
 type NpmStats = {
   start: string
@@ -45,6 +48,15 @@ const timeIntervals = [
 type TimeInterval = '7-days' | '30-days' | '90-days' | '180-days' | '365-days'
 
 type BinningOption = 'monthly' | 'weekly' | 'daily'
+
+type NpmPackage = {
+  name: string
+  description: string
+  version: string
+  publisher: {
+    username: string
+  }
+}
 
 function npmQueryOptions({
   packageNames,
@@ -180,6 +192,7 @@ function NpmStatsChart({
 
     // Compare dates at the start of the day
     cutoffDate.setHours(0, 0, 0, 0)
+
     return {
       ...stat,
       downloads: stat.downloads.filter((d) => {
@@ -286,8 +299,8 @@ function NpmStatsChart({
         {({ width }) => (
           <PlotFigure
             options={{
-              marginLeft: 50,
-              marginRight: 0,
+              marginLeft: 70,
+              marginRight: 10,
               marginBottom: 70,
               width,
               height,
@@ -428,6 +441,110 @@ export const Route = createFileRoute('/stats/npm/')({
   component: RouteComponent,
 })
 
+function PackageSearch() {
+  const [items, setItems] = React.useState<NpmPackage[]>([])
+  const [isLoading, setIsLoading] = React.useState(false)
+  const navigate = Route.useNavigate()
+
+  const {
+    isOpen,
+    getMenuProps,
+    getInputProps,
+    highlightedIndex,
+    getItemProps,
+    reset,
+    inputValue,
+  } = useCombobox({
+    items,
+    onInputValueChange: ({ inputValue }) => {
+      if (inputValue && inputValue.length > 2) {
+        setIsLoading(true)
+        fetch(
+          `https://api.npms.io/v2/search?q=${encodeURIComponent(
+            inputValue
+          )}&size=10`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            const hasInputValue = data.results.find(
+              (r: any) => r.package.name === inputValue
+            )
+
+            setItems([
+              ...(hasInputValue ? [] : [{ name: inputValue }]),
+              ...data.results.map((r: any) => r.package),
+            ])
+            setIsLoading(false)
+          })
+          .catch(() => {
+            setIsLoading(false)
+          })
+      } else {
+        setItems([])
+      }
+    },
+    onSelectedItemChange: ({ selectedItem }) => {
+      if (!selectedItem) return
+
+      navigate({
+        to: '.',
+        search: (prev) => ({
+          ...prev,
+          packageNames: [...(prev.packageNames || []), selectedItem.name],
+        }),
+        resetScroll: false,
+      })
+      reset()
+      setItems([])
+    },
+  })
+
+  return (
+    <div className="flex-1">
+      <div className="relative">
+        <input
+          {...getInputProps()}
+          placeholder="Search for a package..."
+          className="w-full bg-gray-500/10 rounded-md px-3 py-2"
+        />
+        <ul
+          {...getMenuProps()}
+          className={`absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto ${
+            isOpen ? '' : 'hidden'
+          }`}
+        >
+          {isLoading ? (
+            <li className="px-3 py-2 text-gray-500">Loading...</li>
+          ) : items.length === 0 ? (
+            <li className="px-3 py-2 text-gray-500">No packages found</li>
+          ) : (
+            items.map((item, index) => (
+              <li
+                key={item.name}
+                {...getItemProps({ item, index })}
+                className={`px-3 py-2 cursor-pointer ${
+                  highlightedIndex === index
+                    ? 'bg-gray-500/20 '
+                    : 'hover:bg-gray-500/20'
+                }`}
+              >
+                <div className="font-medium">{item.name}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {item.description}
+                </div>
+                <div className="text-xs text-gray-400 dark:text-gray-500">
+                  {item.version ? `v${item.version}• ` : ''}
+                  {item.publisher?.username}
+                </div>
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
 function RouteComponent() {
   const {
     packageNames,
@@ -436,7 +553,6 @@ function RouteComponent() {
     viewMode = 'absolute',
     binningOption: binningOptionParam,
   } = Route.useSearch()
-  const [searchValue, setSearchValue] = React.useState('')
   const [hiddenPackages, setHiddenPackages] = React.useState<Set<string>>(
     new Set()
   )
@@ -478,20 +594,6 @@ function RouteComponent() {
     })
   )
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!searchValue) return
-
-    setSearchValue('')
-    navigate({
-      to: '.',
-      search: (prev) => ({
-        ...prev,
-        packageNames: [...(prev.packageNames || []), searchValue],
-      }),
-    })
-  }
-
   const removePackageName = (packageName: string) => {
     navigate({
       to: '.',
@@ -499,6 +601,7 @@ function RouteComponent() {
         ...prev,
         packageNames: prev.packageNames?.filter((name) => name !== packageName),
       }),
+      resetScroll: false,
     })
   }
 
@@ -506,6 +609,7 @@ function RouteComponent() {
     navigate({
       to: '.',
       search: (prev) => ({ ...prev, binningOption: newBinningOption }),
+      resetScroll: false,
     })
   }
 
@@ -535,6 +639,7 @@ function RouteComponent() {
         ...prev,
         interval: newInterval,
       }),
+      resetScroll: false,
     })
   }
 
@@ -545,6 +650,7 @@ function RouteComponent() {
         ...prev,
         viewMode: mode,
       }),
+      resetScroll: false,
     })
   }
 
@@ -555,6 +661,7 @@ function RouteComponent() {
         ...prev,
         binningOption: value,
       }),
+      resetScroll: false,
     })
   }
 
@@ -565,6 +672,7 @@ function RouteComponent() {
         ...prev,
         baseline: prev.baseline === packageName ? undefined : packageName,
       }),
+      resetScroll: false,
     })
   }
 
@@ -575,22 +683,18 @@ function RouteComponent() {
 
   return (
     <div className="min-h-dvh p-4 space-y-4">
-      <div className="bg-white dark:bg-black/50 rounded-lg p-4">
-        <Link to=".">
-          <h1 className="text-3xl font-bold">NPM Stats</h1>
+      <div className="bg-white dark:bg-black/50 rounded-lg p-4 flex items-center gap-2 text-xl">
+        <Link to="/" className="hover:text-blue-500">
+          Home
+        </Link>
+        <FaAngleRight />
+        <Link to="." className="hover:text-blue-500">
+          NPM Stats
         </Link>
       </div>
       <div className="bg-white dark:bg-black/50 rounded-lg space-y-4 p-4">
         <div className="flex gap-4 flex-wrap">
-          <form className="flex gap-2 flex-1" onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={searchValue}
-              placeholder="package-name"
-              className="bg-gray-500/10 rounded-md px-3 py-2 flex-1"
-              onChange={(e) => setSearchValue(e.target.value)}
-            />
-          </form>
+          <PackageSearch />
           <select
             value={interval}
             onChange={(e) =>
@@ -691,15 +795,6 @@ function RouteComponent() {
                   )}
                 </button>
               </Tooltip>
-              <Tooltip content="Use as baseline for comparison">
-                <button
-                  onClick={() => handleBaselineChange(packageName)}
-                  className="p-1 hover:text-blue-500"
-                >
-                  {baseline === packageName ? <MdLock /> : <MdLockOpen />}
-                </button>
-              </Tooltip>
-
               <button
                 onClick={() => togglePackageVisibility(packageName)}
                 className={`px-1 hover:text-blue-500 ${
@@ -708,6 +803,14 @@ function RouteComponent() {
               >
                 {packageName}
               </button>
+              <Tooltip content="Use as baseline for comparison">
+                <button
+                  onClick={() => handleBaselineChange(packageName)}
+                  className="p-1 hover:text-blue-500"
+                >
+                  {baseline === packageName ? <MdLock /> : <MdLockOpen />}
+                </button>
+              </Tooltip>
               <button
                 onClick={() => removePackageName(packageName)}
                 className="p-1 text-gray-500 hover:text-red-500"
@@ -718,7 +821,7 @@ function RouteComponent() {
           ))}
         </div>
         {packageNames?.length ? (
-          <div className="p-4 rounded-lg bg-white dark:bg-gray-900">
+          <div className="">
             <div className="space-y-4">
               <NpmStatsChart
                 stats={validStats}
@@ -740,6 +843,9 @@ function RouteComponent() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Growth
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                      % Growth
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900">
@@ -756,7 +862,8 @@ function RouteComponent() {
                       const lastValue =
                         sortedDownloads[sortedDownloads.length - 1]
                           ?.downloads || 1
-                      const growth =
+                      const growth = lastValue - firstValue
+                      const growthPercentage =
                         ((lastValue - firstValue) / firstValue) * 100
 
                       return {
@@ -766,6 +873,7 @@ function RouteComponent() {
                           0
                         ),
                         growth,
+                        growthPercentage,
                       }
                     })
                     .filter(Boolean)
@@ -788,7 +896,19 @@ function RouteComponent() {
                           }`}
                         >
                           {stat!.growth > 0 ? '+' : ''}
-                          {stat!.growth.toFixed(1)}%
+                          {formatNumber(stat!.growth)}
+                        </td>
+                        <td
+                          className={`px-6 py-4 whitespace-nowrap text-sm ${
+                            stat!.growthPercentage > 0
+                              ? 'text-green-500'
+                              : stat!.growthPercentage < 0
+                              ? 'text-red-500'
+                              : 'text-gray-500'
+                          }`}
+                        >
+                          {stat!.growthPercentage > 0 ? '+' : ''}
+                          {stat!.growthPercentage.toFixed(1)}%
                         </td>
                       </tr>
                     ))}

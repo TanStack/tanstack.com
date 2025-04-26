@@ -59,7 +59,7 @@ type TimeRange =
   | '1825-days'
   | 'all-time'
 
-type BinningOption = 'monthly' | 'weekly' | 'daily'
+type BinningOption = 'monthly' | 'weekly' | 'daily' | 'yearly'
 
 type NpmPackage = {
   name: string
@@ -451,6 +451,9 @@ function NpmStatsChart({
       let binnedDate = date
 
       switch (binningOption) {
+        case 'yearly':
+          binnedDate = d3.timeYear.floor(date)
+          break
         case 'monthly':
           binnedDate = d3.timeMonth.floor(date)
           break
@@ -624,6 +627,12 @@ function NpmStatsChart({
                       return d3.timeFormat('%b %d')(d)
                     case '7-days':
                       return d3.timeFormat('%a')(d)
+                    case '730-days':
+                    case '1825-days':
+                    case 'all-time':
+                      return binningOption === 'yearly'
+                        ? d3.timeFormat('%Y')(d)
+                        : d3.timeFormat('%b %Y')(d)
                     default:
                       return d3.timeFormat('%x')(d)
                   }
@@ -704,7 +713,7 @@ export const Route = createFileRoute('/stats/npm/')({
       .default('7-days'),
     baseline: z.string().optional(),
     viewMode: z.enum(['absolute', 'relative']).optional(),
-    binningOption: z.enum(['monthly', 'weekly', 'daily']).optional(),
+    binningOption: z.enum(['yearly', 'monthly', 'weekly', 'daily']).optional(),
     alignStartDates: z.boolean().optional().default(false),
   }),
   loaderDeps: ({ search }) => ({
@@ -877,9 +886,9 @@ function RouteComponent() {
         case '730-days':
           return 'monthly'
         case '1825-days':
-          return 'monthly'
+          return 'yearly'
         case 'all-time':
-          return 'monthly'
+          return 'yearly'
       }
     })()
 
@@ -1010,10 +1019,10 @@ function RouteComponent() {
         setBinningOption('monthly')
         break
       case '1825-days':
-        setBinningOption('monthly')
+        setBinningOption('yearly')
         break
       case 'all-time':
-        setBinningOption('monthly')
+        setBinningOption('yearly')
         break
     }
 
@@ -1037,7 +1046,9 @@ function RouteComponent() {
     })
   }
 
-  const handleBinnedChange = (value: 'daily' | 'weekly' | 'monthly') => {
+  const handleBinnedChange = (
+    value: 'daily' | 'weekly' | 'monthly' | 'yearly'
+  ) => {
     navigate({
       to: '.',
       search: (prev) => ({
@@ -1152,10 +1163,22 @@ function RouteComponent() {
             </Tooltip>
           </div>
           <div className="flex items-stretch bg-gray-500/10 rounded-md">
+            <Tooltip content="Group data by year">
+              <button
+                onClick={() => handleBinnedChange('yearly')}
+                className={`px-3 py-1.5 rounded-l ${
+                  binningOption === 'yearly'
+                    ? 'bg-cyan-500 text-white'
+                    : 'hover:bg-gray-500/20'
+                }`}
+              >
+                Yearly
+              </button>
+            </Tooltip>
             <Tooltip content="Group data by month">
               <button
                 onClick={() => handleBinnedChange('monthly')}
-                className={`px-3 py-1.5 rounded-l ${
+                className={`px-3 py-1.5 ${
                   binningOption === 'monthly'
                     ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'

@@ -386,13 +386,13 @@ function NpmStatsChart({
   alignStartDates: boolean
   packages: Array<{ packages: string[]; color?: string | null }>
 }) {
-  // Get the range from the URL
-  const { range = '7-days' } = Route.useSearch()
-  const [height, setHeight] = React.useState(400)
+  // Get the range and height from the URL
+  const { range = '7-days', height: initialHeight = 400 } = Route.useSearch()
   const [isDragging, setIsDragging] = React.useState(false)
   const dragRef = React.useRef<HTMLDivElement>(null)
   const startYRef = React.useRef<number>(0)
-  const startHeightRef = React.useRef<number>(0)
+  const startHeightRef = React.useRef<number>(initialHeight)
+  const navigate = Route.useNavigate()
 
   React.useEffect(() => {
     if (!dragRef.current) return
@@ -400,11 +400,19 @@ function NpmStatsChart({
     const handleMouseDown = (e: MouseEvent) => {
       setIsDragging(true)
       startYRef.current = e.clientY
-      startHeightRef.current = height
+      startHeightRef.current = initialHeight
 
       const handleMouseMove = (e: MouseEvent) => {
         const deltaY = e.clientY - startYRef.current
-        setHeight(Math.max(300, startHeightRef.current + deltaY))
+        const newHeight = Math.max(300, startHeightRef.current + deltaY)
+        navigate({
+          to: '.',
+          search: (prev) => ({
+            ...prev,
+            height: newHeight,
+          }),
+          resetScroll: false,
+        })
       }
 
       const handleMouseUp = () => {
@@ -421,7 +429,7 @@ function NpmStatsChart({
     return () => {
       dragRef.current?.removeEventListener('mousedown', handleMouseDown)
     }
-  }, [height])
+  }, [initialHeight, navigate])
 
   if (!stats.length) return null
 
@@ -610,7 +618,7 @@ function NpmStatsChart({
               marginRight: 10,
               marginBottom: 70,
               width,
-              height,
+              height: initialHeight,
               marks: [
                 Plot.ruleY([0], {
                   stroke: 'currentColor',
@@ -760,6 +768,7 @@ export const Route = createFileRoute('/stats/npm/')({
     viewMode: z.enum(['absolute', 'relative']).optional(),
     binningOption: z.enum(['yearly', 'monthly', 'weekly', 'daily']).optional(),
     alignStartDates: z.boolean().optional().default(false),
+    height: z.number().optional().default(400),
   }),
   loaderDeps: ({ search }) => ({
     packages: search.packages,

@@ -1,22 +1,14 @@
 import * as React from 'react'
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import {
   MdClose,
-  MdStarBorder,
-  MdStar,
   MdLock,
   MdLockOpen,
   MdVisibility,
   MdVisibilityOff,
 } from 'react-icons/md'
-import {
-  keepPreviousData,
-  queryOptions,
-  useQueries,
-  useQuery,
-  useSuspenseQuery,
-} from '@tanstack/react-query'
+import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import * as Plot from '@observablehq/plot'
 import { ParentSize } from '@visx/responsive'
 import { Tooltip } from '~/components/Tooltip'
@@ -425,14 +417,14 @@ export const Route = createFileRoute('/stats/npm/')({
     packageNames: search.packageNames,
     interval: search.interval,
   }),
-  loader: async ({ context, deps }) => {
-    await context.queryClient.ensureQueryData(
-      npmQueryOptions({
-        packageNames: deps.packageNames,
-        interval: deps.interval,
-      })
-    )
-  },
+  // loader: async ({ context, deps }) => {
+  //   await context.queryClient.ensureQueryData(
+  //     npmQueryOptions({
+  //       packageNames: deps.packageNames,
+  //       interval: deps.interval,
+  //     })
+  //   )
+  // },
   component: RouteComponent,
 })
 
@@ -479,7 +471,7 @@ function RouteComponent() {
     })
   }
 
-  const npmQuery = useSuspenseQuery(
+  const npmQuery = useQuery(
     npmQueryOptions({
       packageNames: packageNames || [],
       interval,
@@ -576,7 +568,7 @@ function RouteComponent() {
     })
   }
 
-  const validStats = npmQuery.data?.filter((data): data is NpmStats => {
+  const validStats = (npmQuery.data ?? [])?.filter((data): data is NpmStats => {
     if (!data) return false
     return Array.isArray(data.downloads) && data.downloads.length > 0
   })
@@ -752,7 +744,7 @@ function RouteComponent() {
                 </thead>
                 <tbody className="bg-white dark:bg-gray-900">
                   {npmQuery.data
-                    .map((stats) => {
+                    ?.map((stats) => {
                       if (!stats?.downloads?.length) return null
 
                       // Sort downloads by date

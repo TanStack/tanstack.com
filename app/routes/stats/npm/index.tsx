@@ -8,6 +8,7 @@ import {
   MdLockOpen,
   MdVisibility,
   MdVisibilityOff,
+  MdAdd,
 } from 'react-icons/md'
 import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import * as Plot from '@observablehq/plot'
@@ -15,7 +16,7 @@ import { ParentSize } from '@visx/responsive'
 import { Tooltip } from '~/components/Tooltip'
 import * as d3 from 'd3'
 import { useCombobox } from 'downshift'
-import { FaAngleRight, FaArrowLeft } from 'react-icons/fa'
+import { FaAngleRight, FaArrowLeft, FaSpinner } from 'react-icons/fa'
 
 type NpmStats = {
   start: string
@@ -37,15 +38,26 @@ type NpmResponse = {
   package: string
 }
 
-const timeIntervals = [
+const timeRanges = [
   { value: '7-days', label: '7 Days' },
   { value: '30-days', label: '30 Days' },
   { value: '90-days', label: '90 Days' },
   { value: '180-days', label: '6 Months' },
   { value: '365-days', label: '1 Year' },
+  { value: '730-days', label: '2 Years' },
+  { value: '1825-days', label: '5 Years' },
+  { value: 'all-time', label: 'All Time' },
 ] as const
 
-type TimeInterval = '7-days' | '30-days' | '90-days' | '180-days' | '365-days'
+type TimeRange =
+  | '7-days'
+  | '30-days'
+  | '90-days'
+  | '180-days'
+  | '365-days'
+  | '730-days'
+  | '1825-days'
+  | 'all-time'
 
 type BinningOption = 'monthly' | 'weekly' | 'daily'
 
@@ -56,25 +68,189 @@ type NpmPackage = {
   publisher: {
     username: string
   }
+  time?: {
+    created: string
+    modified: string
+  }
+}
+
+// Define package aliases that should be combined
+const packageAliases: Record<string, string[]> = {
+  '@tanstack/react-query': ['react-query'],
+  // Add more aliases as needed
 }
 
 function npmQueryOptions({
-  packageNames,
-  interval,
+  packages,
+  range,
+  hiddenSubPackages,
 }: {
-  packageNames: string[]
-  interval: TimeInterval
+  packages: Record<string, string[]>
+  range: TimeRange
+  hiddenSubPackages: Set<string>
 }) {
+  const now = new Date()
+  // Set to start of today to avoid timezone issues
+  now.setHours(0, 0, 0, 0)
+  let startDate: Date
+  let endDate = now
+
+  // Function to get package creation date
+  const getPackageCreationDate = async (packageName: string): Promise<Date> => {
+    try {
+      const response = await fetch(`https://registry.npmjs.org/${packageName}`)
+      if (!response.ok) return new Date('2010-01-12') // Fallback date
+      const data = await response.json()
+      return new Date(data.time?.created || '2010-01-12')
+    } catch (error) {
+      console.error(`Error fetching creation date for ${packageName}:`, error)
+      return new Date('2010-01-12') // Fallback date
+    }
+  }
+
+  // Get the earliest creation date among all packages
+  const getEarliestCreationDate = async () => {
+    const packageNames = Object.entries(packages).flatMap(
+      ([packageName, groupPackages]) => {
+        const subPackages = groupPackages.filter(
+          (p) => p !== packageName && !hiddenSubPackages.has(p)
+        )
+        return [packageName, ...subPackages]
+      }
+    )
+
+    const creationDates = await Promise.all(
+      packageNames.map(getPackageCreationDate)
+    )
+    return new Date(Math.min(...creationDates.map((date) => date.getTime())))
+  }
+
+  switch (range) {
+    case '7-days':
+      startDate = d3.timeDay.offset(now, -7)
+      break
+    case '30-days':
+      startDate = d3.timeDay.offset(now, -30)
+      break
+    case '90-days':
+      startDate = d3.timeDay.offset(now, -90)
+      break
+    case '180-days':
+      startDate = d3.timeDay.offset(now, -180)
+      break
+    case '365-days':
+      startDate = d3.timeDay.offset(now, -365)
+      break
+    case '730-days':
+      startDate = d3.timeDay.offset(now, -730)
+      break
+    case '1825-days':
+      startDate = d3.timeDay.offset(now, -1825)
+      break
+    case 'all-time':
+      // We'll handle this in the queryFn
+      startDate = new Date('2010-01-12') // This will be overridden
+      break
+  }
+
+  const formatDate = (date: Date) => {
+    return date.toISOString().split('T')[0]
+  }
+
+  // Expand package names to include aliases, but exclude hidden sub-packages
+  const expandedPackageNames = Object.entries(packages).flatMap(
+    ([packageName, groupPackages]) => {
+      const subPackages = groupPackages.filter(
+        (p) => p !== packageName && !hiddenSubPackages.has(p)
+      )
+      return [packageName, ...subPackages]
+    }
+  )
+
   return queryOptions({
-    queryKey: (packageNames || []).map((packageName) => [
+    queryKey: expandedPackageNames.map((packageName) => [
       'npm-stats',
       packageName,
-      interval,
+      range,
     ]),
     queryFn: async () => {
-      return Promise.all(
-        (packageNames || []).map(async (packageName) => {
-          const url = `https://api.npmjs.org/downloads/range/last-year/${packageName}`
+      // For all-time range, get the earliest creation date
+      if (range === 'all-time') {
+        startDate = await getEarliestCreationDate()
+      }
+
+      const results = await Promise.all(
+        expandedPackageNames.map(async (packageName) => {
+          // For longer ranges, we need to make multiple requests
+          if (range === '1825-days' || range === 'all-time') {
+            const chunks: NpmStats[] = []
+            let currentEnd = endDate
+            let currentStart = startDate
+
+            while (currentStart < currentEnd) {
+              const chunkEnd = new Date(currentEnd)
+              const chunkStart = new Date(
+                Math.max(
+                  currentStart.getTime(),
+                  currentEnd.getTime() - 365 * 24 * 60 * 60 * 1000
+                )
+              )
+
+              const url = `https://api.npmjs.org/downloads/range/${formatDate(
+                chunkStart
+              )}:${formatDate(chunkEnd)}/${packageName}`
+              const response = await fetch(url)
+              if (!response.ok) break
+              const data = await response.json()
+              chunks.push(data)
+
+              // Move the end date to the day before the start of the current chunk
+              currentEnd = new Date(chunkStart.getTime() - 24 * 60 * 60 * 1000)
+            }
+
+            // Combine all chunks and ensure no gaps
+            const combinedDownloads = chunks
+              .flatMap((chunk) => chunk.downloads || [])
+              .sort(
+                (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime()
+              )
+
+            // Find the earliest non-zero download
+            const firstNonZero = combinedDownloads.find((d) => d.downloads > 0)
+            if (firstNonZero) {
+              startDate = new Date(firstNonZero.day)
+            }
+
+            // Fill in any gaps with zero downloads
+            const filledDownloads = []
+            let currentDate = new Date(startDate)
+            const endDateObj = new Date(endDate)
+
+            while (currentDate <= endDateObj) {
+              const dateStr = formatDate(currentDate)
+              const existingData = combinedDownloads.find(
+                (d) => d.day === dateStr
+              )
+              filledDownloads.push(
+                existingData || { day: dateStr, downloads: 0 }
+              )
+              currentDate = new Date(
+                currentDate.getTime() + 24 * 60 * 60 * 1000
+              )
+            }
+
+            return {
+              package: packageName,
+              downloads: filledDownloads,
+              start: formatDate(startDate),
+              end: formatDate(endDate),
+            } as NpmStats
+          }
+
+          // For shorter ranges, use a single request
+          const url = `https://api.npmjs.org/downloads/range/${formatDate(
+            startDate
+          )}:${formatDate(endDate)}/${packageName}`
           const response = await fetch(url)
           if (!response.ok) return null
           const data = await response.json()
@@ -85,6 +261,46 @@ function npmQueryOptions({
           } as NpmStats
         })
       )
+
+      // Combine results for aliased packages
+      const combinedResults = Object.entries(packages).map(
+        ([packageName, aliases]) => {
+          const allPackages = [packageName, ...aliases]
+          const packageResults = results.filter(
+            (r) => r && allPackages.includes(r.package)
+          )
+
+          if (!packageResults.length) return null
+
+          // Combine downloads from all packages
+          const combinedDownloads = packageResults.reduce((acc, curr) => {
+            if (!curr) return acc
+            curr.downloads.forEach((d) => {
+              const existing = acc.find((a) => a.day === d.day)
+              if (existing) {
+                existing.downloads += d.downloads
+              } else {
+                acc.push({ ...d })
+              }
+            })
+            return acc
+          }, [] as Array<{ day: string; downloads: number }>)
+
+          // Sort by date
+          combinedDownloads.sort(
+            (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime()
+          )
+
+          return {
+            package: packageName,
+            downloads: combinedDownloads,
+            start: formatDate(startDate),
+            end: formatDate(endDate),
+          } as NpmStats
+        }
+      )
+
+      return combinedResults
     },
     placeholderData: keepPreviousData,
   })
@@ -120,6 +336,7 @@ function NpmStatsChart({
   hiddenPackages,
   onTogglePackageVisibility,
   binningOption,
+  alignStartDates,
 }: {
   stats: NpmStats[]
   baseline?: string
@@ -127,24 +344,27 @@ function NpmStatsChart({
   hiddenPackages: Set<string>
   onTogglePackageVisibility: (packageName: string) => void
   binningOption: BinningOption
+  alignStartDates: boolean
 }) {
-  // Get the interval from the URL
-  const { interval = '7-days' } = Route.useSearch()
+  // Get the range from the URL
+  const { range = '7-days' } = Route.useSearch()
   const [height, setHeight] = React.useState(400)
   const [isDragging, setIsDragging] = React.useState(false)
   const dragRef = React.useRef<HTMLDivElement>(null)
+  const startYRef = React.useRef<number>(0)
+  const startHeightRef = React.useRef<number>(0)
 
   React.useEffect(() => {
     if (!dragRef.current) return
 
     const handleMouseDown = (e: MouseEvent) => {
       setIsDragging(true)
-      const startY = e.clientY
-      const startHeight = height
+      startYRef.current = e.clientY
+      startHeightRef.current = height
 
       const handleMouseMove = (e: MouseEvent) => {
-        const deltaY = e.clientY - startY
-        setHeight(Math.max(300, startHeight + deltaY))
+        const deltaY = e.clientY - startYRef.current
+        setHeight(Math.max(300, startHeightRef.current + deltaY))
       }
 
       const handleMouseUp = () => {
@@ -165,12 +385,12 @@ function NpmStatsChart({
 
   if (!stats.length) return null
 
-  // Filter data based on selected interval
+  // Filter data based on selected range
   const filteredStats = stats.map((stat) => {
     const now = new Date()
     let cutoffDate: Date
 
-    switch (interval) {
+    switch (range) {
       case '7-days':
         cutoffDate = d3.timeWeek.offset(d3.timeWeek.floor(now), -1)
         break
@@ -186,13 +406,21 @@ function NpmStatsChart({
       case '365-days':
         cutoffDate = d3.timeMonth.offset(d3.timeMonth.floor(now), -12)
         break
+      case '730-days':
+        cutoffDate = d3.timeMonth.offset(d3.timeMonth.floor(now), -24)
+        break
+      case '1825-days':
+        cutoffDate = d3.timeMonth.offset(d3.timeMonth.floor(now), -60)
+        break
+      case 'all-time':
+        cutoffDate = new Date('2010-01-12')
+        break
       default:
         return stat
     }
 
     // Compare dates at the start of the day
     cutoffDate.setHours(0, 0, 0, 0)
-
     return {
       ...stat,
       downloads: stat.downloads.filter((d) => {
@@ -202,6 +430,19 @@ function NpmStatsChart({
       }),
     }
   })
+
+  // Find the latest first non-zero date across all packages if aligning start dates
+  let latestFirstNonZero: Date | null = null
+  if (alignStartDates) {
+    latestFirstNonZero = new Date(
+      Math.max(
+        ...filteredStats.map((stat) => {
+          const firstNonZero = stat.downloads.find((d) => d.downloads > 0)
+          return firstNonZero ? new Date(firstNonZero.day).getTime() : 0
+        })
+      )
+    )
+  }
 
   // Bin the data first
   const binnedStats = filteredStats.map((stat) => {
@@ -293,6 +534,29 @@ function NpmStatsChart({
   // Filter out hidden packages for display
   const visibleData = plotData.filter((d) => !hiddenPackages.has(d.pkg))
 
+  // Shift dates if aligning start dates
+  const shiftedData =
+    alignStartDates && latestFirstNonZero
+      ? visibleData.map((d) => {
+          const firstNonZero = visibleData.find(
+            (p) => p.pkg === d.pkg && p.downloads > 0
+          )
+          if (!firstNonZero) return d
+
+          const daysSinceFirstNonZero = Math.floor(
+            (d.date.getTime() - firstNonZero.date.getTime()) /
+              (24 * 60 * 60 * 1000)
+          )
+          const newDate = new Date(latestFirstNonZero)
+          newDate.setDate(newDate.getDate() + daysSinceFirstNonZero)
+
+          return {
+            ...d,
+            date: newDate,
+          }
+        })
+      : visibleData
+
   return (
     <div className="relative">
       <ParentSize>
@@ -310,7 +574,7 @@ function NpmStatsChart({
                   strokeWidth: 1.5,
                   strokeOpacity: 0.5,
                 }),
-                Plot.line(visibleData, {
+                Plot.line(shiftedData, {
                   x: 'date',
                   y: 'normalizedDownloads',
                   stroke: 'pkg',
@@ -318,12 +582,12 @@ function NpmStatsChart({
                   curve: 'monotone-x',
                   tip: 'x',
                 }),
-                Plot.dot(visibleData, {
+                Plot.dot(shiftedData, {
                   x: 'date',
                   y: 'normalizedDownloads',
                   fill: 'pkg',
                   r: 3,
-                  title: (d: (typeof visibleData)[0]) => {
+                  title: (d: (typeof shiftedData)[0]) => {
                     const value = d.normalizedDownloads
                     const label =
                       viewMode === 'relative'
@@ -341,10 +605,17 @@ function NpmStatsChart({
               ],
               x: {
                 type: 'time',
-                label: 'Date',
+                label: alignStartDates ? 'Days Since First Download' : 'Date',
                 labelOffset: 35,
                 tickFormat: (d: Date) => {
-                  switch (interval) {
+                  if (alignStartDates) {
+                    const days = Math.floor(
+                      (d.getTime() - latestFirstNonZero!.getTime()) /
+                        (24 * 60 * 60 * 1000)
+                    )
+                    return `Day ${days}`
+                  }
+                  switch (range) {
                     case '365-days':
                     case '180-days':
                       return d3.timeFormat('%b %Y')(d)
@@ -417,27 +688,29 @@ function NpmStatsChart({
 
 export const Route = createFileRoute('/stats/npm/')({
   validateSearch: z.object({
-    packageNames: z.array(z.string()).optional().default([]),
-    interval: z
-      .enum(['7-days', '30-days', '90-days', '180-days', '365-days'])
+    packages: z.record(z.array(z.string())).optional().default({}),
+    range: z
+      .enum([
+        '7-days',
+        '30-days',
+        '90-days',
+        '180-days',
+        '365-days',
+        '730-days',
+        '1825-days',
+        'all-time',
+      ])
       .optional()
       .default('7-days'),
     baseline: z.string().optional(),
     viewMode: z.enum(['absolute', 'relative']).optional(),
     binningOption: z.enum(['monthly', 'weekly', 'daily']).optional(),
+    alignStartDates: z.boolean().optional().default(false),
   }),
   loaderDeps: ({ search }) => ({
-    packageNames: search.packageNames,
-    interval: search.interval,
+    packages: search.packages,
+    range: search.range,
   }),
-  // loader: async ({ context, deps }) => {
-  //   await context.queryClient.ensureQueryData(
-  //     npmQueryOptions({
-  //       packageNames: deps.packageNames,
-  //       interval: deps.interval,
-  //     })
-  //   )
-  // },
   component: RouteComponent,
 })
 
@@ -456,9 +729,19 @@ function PackageSearch() {
     inputValue,
   } = useCombobox({
     items,
+    defaultHighlightedIndex: 0,
     onInputValueChange: ({ inputValue }) => {
       if (inputValue && inputValue.length > 2) {
         setIsLoading(true)
+        setItems([
+          {
+            name: inputValue,
+            description: '',
+            version: '',
+            publisher: { username: '' },
+          },
+        ])
+
         fetch(
           `https://api.npms.io/v2/search?q=${encodeURIComponent(
             inputValue
@@ -490,7 +773,10 @@ function PackageSearch() {
         to: '.',
         search: (prev) => ({
           ...prev,
-          packageNames: [...(prev.packageNames || []), selectedItem.name],
+          packages: {
+            ...prev.packages,
+            [selectedItem.name]: [selectedItem.name],
+          },
         }),
         resetScroll: false,
       })
@@ -502,20 +788,25 @@ function PackageSearch() {
   return (
     <div className="flex-1">
       <div className="relative">
-        <input
-          {...getInputProps()}
-          placeholder="Search for a package..."
-          className="w-full bg-gray-500/10 rounded-md px-3 py-2"
-        />
+        <div>
+          <input
+            {...getInputProps()}
+            placeholder="Search for a package..."
+            className="w-full bg-gray-500/10 rounded-md px-3 py-2 min-w-[200px]"
+          />
+          {isLoading ? (
+            <div className="absolute right-2 top-0 bottom-0 flex items-center justify-center">
+              <FaSpinner className="w-4 h-4 animate-spin" />
+            </div>
+          ) : null}
+        </div>
         <ul
           {...getMenuProps()}
           className={`absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto ${
             isOpen ? '' : 'hidden'
           }`}
         >
-          {isLoading ? (
-            <li className="px-3 py-2 text-gray-500">Loading...</li>
-          ) : items.length === 0 ? (
+          {items.length === 0 ? (
             <li className="px-3 py-2 text-gray-500">No packages found</li>
           ) : (
             items.map((item, index) => (
@@ -547,21 +838,32 @@ function PackageSearch() {
 
 function RouteComponent() {
   const {
-    packageNames,
-    interval = '7-days',
+    packages,
+    range = '7-days',
     baseline,
     viewMode = 'absolute',
     binningOption: binningOptionParam,
+    alignStartDates = false,
   } = Route.useSearch()
   const [hiddenPackages, setHiddenPackages] = React.useState<Set<string>>(
     new Set()
   )
+  const [hiddenSubPackages, setHiddenSubPackages] = React.useState<Set<string>>(
+    new Set()
+  )
+  const [combiningPackage, setCombiningPackage] = React.useState<string | null>(
+    null
+  )
+  const [combineSearchResults, setCombineSearchResults] = React.useState<
+    NpmPackage[]
+  >([])
+  const [isCombining, setIsCombining] = React.useState(false)
   const navigate = Route.useNavigate()
 
   const binningOption =
     binningOptionParam ??
     (() => {
-      switch (interval) {
+      switch (range) {
         case '7-days':
           return 'daily'
         case '30-days':
@@ -571,6 +873,12 @@ function RouteComponent() {
         case '180-days':
           return 'monthly'
         case '365-days':
+          return 'monthly'
+        case '730-days':
+          return 'monthly'
+        case '1825-days':
+          return 'monthly'
+        case 'all-time':
           return 'monthly'
       }
     })()
@@ -587,19 +895,86 @@ function RouteComponent() {
     })
   }
 
+  const toggleSubPackageVisibility = (packageName: string) => {
+    setHiddenSubPackages((prev) => {
+      const next = new Set(prev)
+      if (next.has(packageName)) {
+        next.delete(packageName)
+      } else {
+        next.add(packageName)
+      }
+      return next
+    })
+  }
+
   const npmQuery = useQuery(
     npmQueryOptions({
-      packageNames: packageNames || [],
-      interval,
+      packages,
+      range,
+      hiddenSubPackages,
     })
   )
 
-  const removePackageName = (packageName: string) => {
+  const handleCombineSelect = (selectedPackage: NpmPackage) => {
+    if (!combiningPackage) return
+
+    // Update the packages object
+    const newPackages = {
+      ...packages,
+      [combiningPackage]: [
+        ...(packages[combiningPackage] || [combiningPackage]),
+        selectedPackage.name,
+      ],
+    }
+
+    // Update the URL with the new packages
     navigate({
       to: '.',
       search: (prev) => ({
         ...prev,
-        packageNames: prev.packageNames?.filter((name) => name !== packageName),
+        packages: newPackages,
+      }),
+      resetScroll: false,
+    })
+
+    setCombiningPackage(null)
+    setCombineSearchResults([])
+  }
+
+  const handleRemoveFromGroup = (mainPackage: string, subPackage: string) => {
+    // Update the packages object
+    const newPackages = {
+      ...packages,
+      [mainPackage]: packages[mainPackage].filter((p) => p !== subPackage),
+    }
+
+    // If no more packages in the group, remove the entry
+    if (newPackages[mainPackage].length === 0) {
+      delete newPackages[mainPackage]
+    }
+
+    // Update the URL with the new packages
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        packages: newPackages,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const removePackageName = (packageName: string) => {
+    // Update the packages object
+    const newPackages = { ...packages }
+    delete newPackages[packageName]
+
+    // Update the URL with the new packages
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        packages: newPackages,
       }),
       resetScroll: false,
     })
@@ -613,9 +988,9 @@ function RouteComponent() {
     })
   }
 
-  const handleIntervalChange = (newInterval: TimeInterval) => {
-    // Set default binning option based on the new interval
-    switch (newInterval) {
+  const handleRangeChange = (newRange: TimeRange) => {
+    // Set default binning option based on the new range
+    switch (newRange) {
       case '7-days':
         setBinningOption('daily')
         break
@@ -631,15 +1006,23 @@ function RouteComponent() {
       case '365-days':
         setBinningOption('monthly')
         break
+      case '730-days':
+        setBinningOption('monthly')
+        break
+      case '1825-days':
+        setBinningOption('monthly')
+        break
+      case 'all-time':
+        setBinningOption('monthly')
+        break
     }
 
     navigate({
       to: '.',
       search: (prev) => ({
         ...prev,
-        interval: newInterval,
+        range: newRange,
       }),
-      resetScroll: false,
     })
   }
 
@@ -676,6 +1059,42 @@ function RouteComponent() {
     })
   }
 
+  const handleAlignStartDatesChange = (value: boolean) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        alignStartDates: value,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleCombinePackage = (packageName: string) => {
+    setCombiningPackage(packageName)
+    setCombineSearchResults([])
+  }
+
+  const handleCombineSearch = async (query: string) => {
+    if (!query || query.length < 2) {
+      setCombineSearchResults([])
+      return
+    }
+
+    setIsCombining(true)
+    try {
+      const response = await fetch(
+        `https://api.npms.io/v2/search?q=${encodeURIComponent(query)}&size=10`
+      )
+      const data = await response.json()
+      setCombineSearchResults(data.results.map((r: any) => r.package))
+    } catch (error) {
+      console.error('Error searching packages:', error)
+    } finally {
+      setIsCombining(false)
+    }
+  }
+
   const validStats = (npmQuery.data ?? [])?.filter((data): data is NpmStats => {
     if (!data) return false
     return Array.isArray(data.downloads) && data.downloads.length > 0
@@ -696,13 +1115,11 @@ function RouteComponent() {
         <div className="flex gap-4 flex-wrap">
           <PackageSearch />
           <select
-            value={interval}
-            onChange={(e) =>
-              handleIntervalChange(e.target.value as TimeInterval)
-            }
+            value={range}
+            onChange={(e) => handleRangeChange(e.target.value as TimeRange)}
             className="bg-gray-500/10 rounded-md px-3 py-2"
           >
-            {timeIntervals.map(({ value, label }) => (
+            {timeRanges.map(({ value, label }) => (
               <option key={value} value={value}>
                 {label}
               </option>
@@ -714,7 +1131,7 @@ function RouteComponent() {
                 onClick={() => handleViewModeChange('absolute')}
                 className={`px-3 py-1.5 rounded-l ${
                   viewMode === 'absolute'
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
                 }`}
               >
@@ -726,7 +1143,7 @@ function RouteComponent() {
                 onClick={() => handleViewModeChange('relative')}
                 className={`px-3 py-1.5 rounded-r ${
                   viewMode === 'relative'
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
                 }`}
               >
@@ -740,7 +1157,7 @@ function RouteComponent() {
                 onClick={() => handleBinnedChange('monthly')}
                 className={`px-3 py-1.5 rounded-l ${
                   binningOption === 'monthly'
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
                 }`}
               >
@@ -752,7 +1169,7 @@ function RouteComponent() {
                 onClick={() => handleBinnedChange('weekly')}
                 className={`px-3 py-1.5 ${
                   binningOption === 'weekly'
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
                 }`}
               >
@@ -764,7 +1181,7 @@ function RouteComponent() {
                 onClick={() => handleBinnedChange('daily')}
                 className={`px-3 py-1.5 rounded-r ${
                   binningOption === 'daily'
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
                 }`}
               >
@@ -772,55 +1189,184 @@ function RouteComponent() {
               </button>
             </Tooltip>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {packageNames?.map((packageName) => (
-            <div
-              key={packageName}
-              className={`flex items-center pl-2 py-1 rounded-md ${
-                baseline === packageName
-                  ? 'bg-blue-500/20 text-blue-500'
-                  : 'bg-gray-500/20'
-              } text-sm`}
-            >
-              <Tooltip content="Toggle package visibility">
-                <button
-                  onClick={() => togglePackageVisibility(packageName)}
-                  className={`p-1 hover:text-blue-500`}
-                >
-                  {hiddenPackages.has(packageName) ? (
-                    <MdVisibilityOff />
-                  ) : (
-                    <MdVisibility />
-                  )}
-                </button>
-              </Tooltip>
+          <div className="flex items-stretch bg-gray-500/10 rounded-md">
+            <Tooltip content="Align all packages to start from their first non-zero download">
               <button
-                onClick={() => togglePackageVisibility(packageName)}
-                className={`px-1 hover:text-blue-500 ${
-                  hiddenPackages.has(packageName) ? 'opacity-50' : ''
+                onClick={() => handleAlignStartDatesChange(!alignStartDates)}
+                className={`px-3 py-1.5 rounded ${
+                  alignStartDates
+                    ? 'bg-cyan-500 text-white'
+                    : 'hover:bg-gray-500/20'
                 }`}
               >
-                {packageName}
+                Align Start Dates
               </button>
-              <Tooltip content="Use as baseline for comparison">
-                <button
-                  onClick={() => handleBaselineChange(packageName)}
-                  className="p-1 hover:text-blue-500"
-                >
-                  {baseline === packageName ? <MdLock /> : <MdLockOpen />}
-                </button>
-              </Tooltip>
-              <button
-                onClick={() => removePackageName(packageName)}
-                className="p-1 text-gray-500 hover:text-red-500"
-              >
-                <MdClose />
-              </button>
-            </div>
-          ))}
+            </Tooltip>
+          </div>
         </div>
-        {packageNames?.length ? (
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(packages).map(([packageName, groupPackages]) => {
+            const isCombined = groupPackages.length > 1
+            const subPackages = groupPackages.filter((p) => p !== packageName)
+
+            return (
+              <div
+                key={packageName}
+                className={`flex flex-col pl-2 py-1 rounded-md ${
+                  baseline === packageName
+                    ? 'bg-blue-500/20 text-blue-500'
+                    : 'bg-gray-500/20'
+                } text-sm`}
+              >
+                <div className="flex items-center">
+                  <Tooltip content="Toggle package visibility">
+                    <button
+                      onClick={() => togglePackageVisibility(packageName)}
+                      className={`p-1 hover:text-blue-500`}
+                    >
+                      {hiddenPackages.has(packageName) ? (
+                        <MdVisibilityOff />
+                      ) : (
+                        <MdVisibility />
+                      )}
+                    </button>
+                  </Tooltip>
+                  <button
+                    onClick={() => togglePackageVisibility(packageName)}
+                    className={`px-1 hover:text-blue-500 ${
+                      hiddenPackages.has(packageName) ? 'opacity-50' : ''
+                    }`}
+                  >
+                    {packageName}
+                  </button>
+                  <Tooltip content="Use as baseline for comparison">
+                    <button
+                      onClick={() => handleBaselineChange(packageName)}
+                      className="p-1 hover:text-blue-500"
+                    >
+                      {baseline === packageName ? <MdLock /> : <MdLockOpen />}
+                    </button>
+                  </Tooltip>
+                  <Tooltip content="Add packages to this group">
+                    <button
+                      onClick={() => handleCombinePackage(packageName)}
+                      className="p-1 hover:text-blue-500"
+                    >
+                      <MdAdd />
+                    </button>
+                  </Tooltip>
+                  <button
+                    onClick={() => removePackageName(packageName)}
+                    className="p-1 text-gray-500 hover:text-red-500"
+                  >
+                    <MdClose />
+                  </button>
+                </div>
+                {isCombined && (
+                  <div className="mt-1 space-y-1">
+                    {subPackages.map((subPackage) => (
+                      <div
+                        key={subPackage}
+                        className="flex items-center text-gray-500"
+                      >
+                        <Tooltip content="Toggle sub-package visibility">
+                          <button
+                            onClick={() =>
+                              toggleSubPackageVisibility(subPackage)
+                            }
+                            className={`px-1 hover:text-blue-500 ${
+                              hiddenSubPackages.has(subPackage)
+                                ? 'opacity-50'
+                                : ''
+                            }`}
+                          >
+                            {hiddenSubPackages.has(subPackage) ? (
+                              <MdVisibilityOff />
+                            ) : (
+                              <MdVisibility />
+                            )}
+                          </button>
+                        </Tooltip>
+                        <button
+                          onClick={() => toggleSubPackageVisibility(subPackage)}
+                          className={`px-1 hover:text-blue-500 ${
+                            hiddenSubPackages.has(subPackage)
+                              ? 'opacity-50'
+                              : ''
+                          }`}
+                        >
+                          {subPackage}
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleRemoveFromGroup(packageName, subPackage)
+                          }
+                          className="ml-1 p-0.5 text-gray-400 hover:text-red-500"
+                        >
+                          <MdClose className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Combine Package Dialog */}
+        {combiningPackage && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">
+                  Add packages to {combiningPackage}
+                </h3>
+                <button
+                  onClick={() => setCombiningPackage(null)}
+                  className="p-1 hover:text-red-500"
+                >
+                  <MdClose />
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search for packages..."
+                  className="w-full bg-gray-500/10 rounded-md px-3 py-2"
+                  onChange={(e) => handleCombineSearch(e.target.value)}
+                  autoFocus
+                />
+                {isCombining && (
+                  <div className="absolute right-2 top-0 bottom-0 flex items-center justify-center">
+                    <FaSpinner className="w-4 h-4 animate-spin" />
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 max-h-60 overflow-auto">
+                {combineSearchResults.map((pkg) => (
+                  <button
+                    key={pkg.name}
+                    onClick={() => handleCombineSelect(pkg)}
+                    className="w-full text-left px-3 py-2 hover:bg-gray-500/20 rounded-md"
+                  >
+                    <div className="font-medium">{pkg.name}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {pkg.description}
+                    </div>
+                  </button>
+                ))}
+                {combineSearchResults.length === 0 && (
+                  <div className="px-3 py-2 text-gray-500">
+                    No matching packages found
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {Object.keys(packages).length ? (
           <div className="">
             <div className="space-y-4">
               <NpmStatsChart
@@ -830,6 +1376,7 @@ function RouteComponent() {
                 hiddenPackages={hiddenPackages}
                 onTogglePackageVisibility={togglePackageVisibility}
                 binningOption={binningOption}
+                alignStartDates={alignStartDates}
               />
               <table className="min-w-full">
                 <thead className="bg-gray-50 dark:bg-gray-800">
@@ -858,20 +1405,33 @@ function RouteComponent() {
                         (a, b) =>
                           new Date(a.day).getTime() - new Date(b.day).getTime()
                       )
-                      const firstValue = sortedDownloads[0]?.downloads || 1
-                      const lastValue =
-                        sortedDownloads[sortedDownloads.length - 1]
-                          ?.downloads || 1
-                      const growth = lastValue - firstValue
+
+                      // Get the latest week of downloads
+                      const latestWeek = sortedDownloads.slice(-7)
+                      const latestWeeklyDownloads = latestWeek.reduce(
+                        (sum, day) => sum + day.downloads,
+                        0
+                      )
+
+                      // Calculate growth metrics
+                      const firstWeek = sortedDownloads.slice(0, 7)
+                      const firstWeeklyDownloads = firstWeek.reduce(
+                        (sum, day) => sum + day.downloads,
+                        0
+                      )
+
+                      const growth =
+                        latestWeeklyDownloads - firstWeeklyDownloads
                       const growthPercentage =
-                        ((lastValue - firstValue) / firstValue) * 100
+                        firstWeeklyDownloads > 0
+                          ? ((latestWeeklyDownloads - firstWeeklyDownloads) /
+                              firstWeeklyDownloads) *
+                            100
+                          : 0
 
                       return {
                         package: stats.package,
-                        totalDownloads: stats.downloads.reduce(
-                          (sum, day) => sum + day.downloads,
-                          0
-                        ),
+                        totalDownloads: latestWeeklyDownloads,
                         growth,
                         growthPercentage,
                       }
@@ -884,7 +1444,7 @@ function RouteComponent() {
                           {stat!.package}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                          {formatNumber(stat!.totalDownloads)}
+                          {formatNumber(stat!.totalDownloads)}/week
                         </td>
                         <td
                           className={`px-6 py-4 whitespace-nowrap text-sm ${
@@ -896,7 +1456,7 @@ function RouteComponent() {
                           }`}
                         >
                           {stat!.growth > 0 ? '+' : ''}
-                          {formatNumber(stat!.growth)}
+                          {formatNumber(stat!.growth)}/week
                         </td>
                         <td
                           className={`px-6 py-4 whitespace-nowrap text-sm ${

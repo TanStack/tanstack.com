@@ -17,6 +17,7 @@ import { Tooltip } from '~/components/Tooltip'
 import * as d3 from 'd3'
 import { useCombobox } from 'downshift'
 import { FaAngleRight, FaArrowLeft, FaSpinner } from 'react-icons/fa'
+import { HexColorPicker } from 'react-colorful'
 
 type NpmStats = {
   start: string
@@ -74,18 +75,48 @@ type NpmPackage = {
   }
 }
 
+type PackageInfo = {
+  packages: string[]
+  color?: string | null
+}
+
+type PackageValue = string[] | PackageInfo
+
+function isPackageInfo(value: PackageValue): value is PackageInfo {
+  return typeof value === 'object' && 'packages' in value
+}
+
+function getPackageList(value: PackageValue): string[] {
+  return isPackageInfo(value) ? value.packages : value
+}
+
 // Define package aliases that should be combined
 const packageAliases: Record<string, string[]> = {
   '@tanstack/react-query': ['react-query'],
   // Add more aliases as needed
 }
 
+const defaultColors = [
+  '#1f77b4', // blue
+  '#ff7f0e', // orange
+  '#2ca02c', // green
+  '#d62728', // red
+  '#9467bd', // purple
+  '#8c564b', // brown
+  '#e377c2', // pink
+  '#7f7f7f', // gray
+  '#bcbd22', // yellow-green
+  '#17becf', // cyan
+] as const
+
+type PackageColor = (typeof defaultColors)[number]
+
 function npmQueryOptions({
   packages,
   range,
   hiddenSubPackages,
 }: {
-  packages: Record<string, string[]>
+  packages: Array<{ packages: string[]; color?: string | null }>
   range: TimeRange
   hiddenSubPackages: Set<string>
 }) {
@@ -110,13 +141,8 @@ function npmQueryOptions({
 
   // Get the earliest creation date among all packages
   const getEarliestCreationDate = async () => {
-    const packageNames = Object.entries(packages).flatMap(
-      ([packageName, groupPackages]) => {
-        const subPackages = groupPackages.filter(
-          (p) => p !== packageName && !hiddenSubPackages.has(p)
-        )
-        return [packageName, ...subPackages]
-      }
+    const packageNames = packages.flatMap((pkg) =>
+      pkg.packages.filter((p) => !hiddenSubPackages.has(p))
     )
 
     const creationDates = await Promise.all(
@@ -158,13 +184,8 @@ function npmQueryOptions({
   }
 
   // Expand package names to include aliases, but exclude hidden sub-packages
-  const expandedPackageNames = Object.entries(packages).flatMap(
-    ([packageName, groupPackages]) => {
-      const subPackages = groupPackages.filter(
-        (p) => p !== packageName && !hiddenSubPackages.has(p)
-      )
-      return [packageName, ...subPackages]
-    }
+  const expandedPackageNames = packages.flatMap((pkg) =>
+    pkg.packages.filter((p) => !hiddenSubPackages.has(p))
   )
 
   return queryOptions({
@@ -263,42 +284,40 @@ function npmQueryOptions({
       )
 
       // Combine results for aliased packages
-      const combinedResults = Object.entries(packages).map(
-        ([packageName, aliases]) => {
-          const allPackages = [packageName, ...aliases]
-          const packageResults = results.filter(
-            (r) => r && allPackages.includes(r.package)
-          )
+      const combinedResults = packages.map((pkg) => {
+        const allPackages = [...pkg.packages]
+        const packageResults = results.filter(
+          (r) => r && allPackages.includes(r.package)
+        )
 
-          if (!packageResults.length) return null
+        if (!packageResults.length) return null
 
-          // Combine downloads from all packages
-          const combinedDownloads = packageResults.reduce((acc, curr) => {
-            if (!curr) return acc
-            curr.downloads.forEach((d) => {
-              const existing = acc.find((a) => a.day === d.day)
-              if (existing) {
-                existing.downloads += d.downloads
-              } else {
-                acc.push({ ...d })
-              }
-            })
-            return acc
-          }, [] as Array<{ day: string; downloads: number }>)
+        // Combine downloads from all packages
+        const combinedDownloads = packageResults.reduce((acc, curr) => {
+          if (!curr) return acc
+          curr.downloads.forEach((d) => {
+            const existing = acc.find((a) => a.day === d.day)
+            if (existing) {
+              existing.downloads += d.downloads
+            } else {
+              acc.push({ ...d })
+            }
+          })
+          return acc
+        }, [] as Array<{ day: string; downloads: number }>)
 
-          // Sort by date
-          combinedDownloads.sort(
-            (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime()
-          )
+        // Sort by date
+        combinedDownloads.sort(
+          (a, b) => new Date(a.day).getTime() - new Date(b.day).getTime()
+        )
 
-          return {
-            package: packageName,
-            downloads: combinedDownloads,
-            start: formatDate(startDate),
-            end: formatDate(endDate),
-          } as NpmStats
-        }
-      )
+        return {
+          package: pkg.packages[0], // Use first package as the main package name
+          downloads: combinedDownloads,
+          start: formatDate(startDate),
+          end: formatDate(endDate),
+        } as NpmStats
+      })
 
       return combinedResults
     },
@@ -314,6 +333,24 @@ const formatNumber = (num: number) => {
     return `${(num / 1000).toFixed(1)}k`
   }
   return num.toString()
+}
+
+// Get or assign colors for packages
+function getPackageColor(
+  packageName: string,
+  packages: Array<{ packages: string[]; color?: string | null }>
+) {
+  // Find the package group that contains this package
+  const packageInfo = packages.find((pkg) => pkg.packages.includes(packageName))
+  if (packageInfo?.color) {
+    return packageInfo.color
+  }
+
+  // Otherwise, assign a default color based on the package's position
+  const packageIndex = packages.findIndex((pkg) =>
+    pkg.packages.includes(packageName)
+  )
+  return defaultColors[packageIndex % defaultColors.length]
 }
 
 function PlotFigure({ options }: { options: any }) {
@@ -337,6 +374,7 @@ function NpmStatsChart({
   onTogglePackageVisibility,
   binningOption,
   alignStartDates,
+  packages,
 }: {
   stats: NpmStats[]
   baseline?: string
@@ -345,6 +383,7 @@ function NpmStatsChart({
   onTogglePackageVisibility: (packageName: string) => void
   binningOption: BinningOption
   alignStartDates: boolean
+  packages: Array<{ packages: string[]; color?: string | null }>
 }) {
   // Get the range from the URL
   const { range = '7-days' } = Route.useSearch()
@@ -661,23 +700,11 @@ function NpmStatsChart({
               },
               grid: true,
               color: {
-                legend: true,
-                domain: plotData.map((d) => d.pkg),
-                legendLabel: (d: string) => (
-                  <button
-                    onClick={() => onTogglePackageVisibility(d)}
-                    className={`flex items-center gap-1 ${
-                      hiddenPackages.has(d) ? 'opacity-50' : ''
-                    }`}
-                  >
-                    {hiddenPackages.has(d) ? (
-                      <MdVisibilityOff className="w-4 h-4" />
-                    ) : (
-                      <MdVisibility className="w-4 h-4" />
-                    )}
-                    {d}
-                  </button>
+                domain: [...new Set(plotData.map((d) => d.pkg))],
+                range: [...new Set(plotData.map((d) => d.pkg))].map((pkg) =>
+                  getPackageColor(pkg, packages)
                 ),
+                legend: false,
               },
             }}
           />
@@ -697,7 +724,15 @@ function NpmStatsChart({
 
 export const Route = createFileRoute('/stats/npm/')({
   validateSearch: z.object({
-    packages: z.record(z.array(z.string())).optional().default({}),
+    packages: z
+      .array(
+        z.object({
+          packages: z.array(z.string()),
+          color: z.string().nullable().optional(),
+        })
+      )
+      .optional()
+      .default([]),
     range: z
       .enum([
         '7-days',
@@ -710,7 +745,7 @@ export const Route = createFileRoute('/stats/npm/')({
         'all-time',
       ])
       .optional()
-      .default('7-days'),
+      .default('365-days'),
     baseline: z.string().optional(),
     viewMode: z.enum(['absolute', 'relative']).optional(),
     binningOption: z.enum(['yearly', 'monthly', 'weekly', 'daily']).optional(),
@@ -782,10 +817,12 @@ function PackageSearch() {
         to: '.',
         search: (prev) => ({
           ...prev,
-          packages: {
+          packages: [
             ...prev.packages,
-            [selectedItem.name]: [selectedItem.name],
-          },
+            {
+              packages: [selectedItem.name],
+            },
+          ],
         }),
         resetScroll: false,
       })
@@ -868,6 +905,13 @@ function RouteComponent() {
   >([])
   const [isCombining, setIsCombining] = React.useState(false)
   const navigate = Route.useNavigate()
+  const [colorPickerPackage, setColorPickerPackage] = React.useState<
+    string | null
+  >(null)
+  const [colorPickerPosition, setColorPickerPosition] = React.useState<{
+    x: number
+    y: number
+  } | null>(null)
 
   const binningOption =
     binningOptionParam ??
@@ -927,42 +971,65 @@ function RouteComponent() {
   const handleCombineSelect = (selectedPackage: NpmPackage) => {
     if (!combiningPackage) return
 
-    // Update the packages object
-    const newPackages = {
-      ...packages,
-      [combiningPackage]: [
-        ...(packages[combiningPackage] || [combiningPackage]),
-        selectedPackage.name,
-      ],
-    }
+    // Find the package group that contains the combining package
+    const packageGroup = packages.find((pkg) =>
+      pkg.packages.includes(combiningPackage)
+    )
 
-    // Update the URL with the new packages
-    navigate({
-      to: '.',
-      search: (prev) => ({
-        ...prev,
-        packages: newPackages,
-      }),
-      resetScroll: false,
-    })
+    if (packageGroup) {
+      // Update existing package group
+      const newPackages = packages.map((pkg) =>
+        pkg === packageGroup
+          ? { ...pkg, packages: [...pkg.packages, selectedPackage.name] }
+          : pkg
+      )
+
+      navigate({
+        to: '.',
+        search: (prev) => ({
+          ...prev,
+          packages: newPackages,
+        }),
+        resetScroll: false,
+      })
+    } else {
+      // Create new package group
+      navigate({
+        to: '.',
+        search: (prev) => ({
+          ...prev,
+          packages: [
+            ...packages,
+            { packages: [combiningPackage, selectedPackage.name] },
+          ],
+        }),
+        resetScroll: false,
+      })
+    }
 
     setCombiningPackage(null)
     setCombineSearchResults([])
   }
 
   const handleRemoveFromGroup = (mainPackage: string, subPackage: string) => {
-    // Update the packages object
-    const newPackages = {
-      ...packages,
-      [mainPackage]: packages[mainPackage].filter((p) => p !== subPackage),
-    }
+    // Find the package group
+    const packageGroup = packages.find((pkg) =>
+      pkg.packages.includes(mainPackage)
+    )
+    if (!packageGroup) return
 
-    // If no more packages in the group, remove the entry
-    if (newPackages[mainPackage].length === 0) {
-      delete newPackages[mainPackage]
-    }
+    // Remove the subpackage
+    const updatedPackages = packageGroup.packages.filter(
+      (p) => p !== subPackage
+    )
 
-    // Update the URL with the new packages
+    // Update the packages array
+    const newPackages = packages
+      .map((pkg) =>
+        pkg === packageGroup ? { ...pkg, packages: updatedPackages } : pkg
+      )
+      .filter((pkg) => pkg.packages.length > 0)
+
     navigate({
       to: '.',
       search: (prev) => ({
@@ -974,11 +1041,10 @@ function RouteComponent() {
   }
 
   const removePackageName = (packageName: string) => {
-    // Update the packages object
-    const newPackages = { ...packages }
-    delete newPackages[packageName]
+    const newPackages = packages.filter(
+      (pkg) => !pkg.packages.includes(packageName)
+    )
 
-    // Update the URL with the new packages
     navigate({
       to: '.',
       search: (prev) => ({
@@ -1111,6 +1177,38 @@ function RouteComponent() {
     return Array.isArray(data.downloads) && data.downloads.length > 0
   })
 
+  const handleColorClick = (packageName: string, event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    setColorPickerPosition({ x: rect.left, y: rect.bottom + 5 })
+    setColorPickerPackage(packageName)
+  }
+
+  const handleColorChange = (packageName: string, color: string | null) => {
+    navigate({
+      to: '.',
+      search: (prev) => {
+        const packageGroup = packages.find((pkg) =>
+          pkg.packages.includes(packageName)
+        )
+        if (!packageGroup) return prev
+
+        const newPackages = packages.map((pkg) =>
+          pkg === packageGroup
+            ? color === null
+              ? { packages: pkg.packages }
+              : { ...pkg, color }
+            : pkg
+        )
+
+        return {
+          ...prev,
+          packages: newPackages,
+        }
+      },
+      resetScroll: false,
+    })
+  }
+
   return (
     <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4">
       <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex items-center gap-2 text-lg sm:text-xl">
@@ -1228,26 +1326,33 @@ function RouteComponent() {
           </div>
         </div>
         <div className="flex flex-wrap gap-1 sm:gap-2">
-          {Object.entries(packages).map(([packageName, groupPackages]) => {
-            const isCombined = groupPackages.length > 1
-            const subPackages = groupPackages.filter((p) => p !== packageName)
+          {packages.map((pkg) => {
+            const mainPackage = pkg.packages[0]
+            const packageList = pkg.packages
+            const isCombined = packageList.length > 1
+            const subPackages = packageList.filter((p) => p !== mainPackage)
+            const color = getPackageColor(mainPackage, packages)
+            const hasCustomColor = pkg.color !== undefined
 
             return (
               <div
-                key={packageName}
+                key={mainPackage}
                 className={`flex flex-col pl-1 sm:pl-2 py-0.5 sm:py-1 rounded-md ${
-                  baseline === packageName
-                    ? 'bg-blue-500/20 text-blue-500'
-                    : 'bg-gray-500/20'
+                  baseline === mainPackage
+                    ? 'text-blue-500'
+                    : 'text-gray-900 dark:text-gray-100'
                 } text-xs sm:text-sm`}
+                style={{
+                  backgroundColor: `${color}20`,
+                }}
               >
                 <div className="flex items-center">
                   <Tooltip content="Toggle package visibility">
                     <button
-                      onClick={() => togglePackageVisibility(packageName)}
+                      onClick={() => togglePackageVisibility(mainPackage)}
                       className={`p-0.5 sm:p-1 hover:text-blue-500`}
                     >
-                      {hiddenPackages.has(packageName) ? (
+                      {hiddenPackages.has(mainPackage) ? (
                         <MdVisibilityOff className="w-3 h-3 sm:w-4 sm:h-4" />
                       ) : (
                         <MdVisibility className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1255,19 +1360,19 @@ function RouteComponent() {
                     </button>
                   </Tooltip>
                   <button
-                    onClick={() => togglePackageVisibility(packageName)}
+                    onClick={() => togglePackageVisibility(mainPackage)}
                     className={`px-0.5 sm:px-1 hover:text-blue-500 ${
-                      hiddenPackages.has(packageName) ? 'opacity-50' : ''
+                      hiddenPackages.has(mainPackage) ? 'opacity-50' : ''
                     }`}
                   >
-                    {packageName}
+                    {mainPackage}
                   </button>
                   <Tooltip content="Use as baseline for comparison">
                     <button
-                      onClick={() => handleBaselineChange(packageName)}
+                      onClick={() => handleBaselineChange(mainPackage)}
                       className="p-0.5 sm:p-1 hover:text-blue-500"
                     >
-                      {baseline === packageName ? (
+                      {baseline === mainPackage ? (
                         <MdLock className="w-3 h-3 sm:w-4 sm:h-4" />
                       ) : (
                         <MdLockOpen className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1276,14 +1381,31 @@ function RouteComponent() {
                   </Tooltip>
                   <Tooltip content="Add packages to this group">
                     <button
-                      onClick={() => handleCombinePackage(packageName)}
+                      onClick={() => handleCombinePackage(mainPackage)}
                       className="p-0.5 sm:p-1 hover:text-blue-500"
                     >
                       <MdAdd className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
                   </Tooltip>
+                  <Tooltip
+                    content={
+                      hasCustomColor ? 'Reset to default color' : 'Change color'
+                    }
+                  >
+                    <button
+                      onClick={(e) => handleColorClick(mainPackage, e)}
+                      className={`p-0.5 sm:p-1 hover:text-blue-500 ${
+                        hasCustomColor ? 'ring-1 ring-current rounded-full' : ''
+                      }`}
+                    >
+                      <div
+                        className="w-3 h-3 sm:w-4 sm:h-4 rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
+                    </button>
+                  </Tooltip>
                   <button
-                    onClick={() => removePackageName(packageName)}
+                    onClick={() => removePackageName(mainPackage)}
                     className="p-0.5 sm:p-1 text-gray-500 hover:text-red-500"
                   >
                     <MdClose className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -1326,7 +1448,7 @@ function RouteComponent() {
                         </button>
                         <button
                           onClick={() =>
-                            handleRemoveFromGroup(packageName, subPackage)
+                            handleRemoveFromGroup(mainPackage, subPackage)
                           }
                           className="ml-0.5 sm:ml-1 p-0.5 text-gray-400 hover:text-red-500"
                         >
@@ -1395,6 +1517,57 @@ function RouteComponent() {
           </div>
         )}
 
+        {/* Color Picker Popover */}
+        {colorPickerPackage && colorPickerPosition && (
+          <div
+            className="fixed z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2"
+            style={{
+              left: colorPickerPosition.x,
+              top: colorPickerPosition.y,
+            }}
+          >
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium">Pick a color</span>
+              <button
+                onClick={() => {
+                  setColorPickerPackage(null)
+                  setColorPickerPosition(null)
+                }}
+                className="p-1 hover:text-red-500"
+              >
+                <MdClose className="w-4 h-4" />
+              </button>
+            </div>
+            <HexColorPicker
+              color={getPackageColor(colorPickerPackage, packages)}
+              onChange={(color: string) =>
+                handleColorChange(colorPickerPackage, color)
+              }
+            />
+            <div className="flex justify-between mt-2">
+              <button
+                onClick={() => {
+                  handleColorChange(colorPickerPackage, null)
+                  setColorPickerPackage(null)
+                  setColorPickerPosition(null)
+                }}
+                className="px-2 py-1 text-sm text-gray-500 hover:text-red-500"
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => {
+                  setColorPickerPackage(null)
+                  setColorPickerPosition(null)
+                }}
+                className="px-2 py-1 text-sm text-blue-500 hover:text-blue-600"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        )}
+
         {Object.keys(packages).length ? (
           <div className="">
             <div className="space-y-2 sm:space-y-4">
@@ -1406,6 +1579,7 @@ function RouteComponent() {
                 onTogglePackageVisibility={togglePackageVisibility}
                 binningOption={binningOption}
                 alignStartDates={alignStartDates}
+                packages={packages}
               />
               <div className="overflow-x-auto">
                 <table className="min-w-full">

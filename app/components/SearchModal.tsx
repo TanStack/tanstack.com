@@ -9,12 +9,14 @@ import {
   Configure,
   useRefinementList,
   useInstantSearch,
+  Pagination,
 } from 'react-instantsearch'
 import { liteClient } from 'algoliasearch/lite'
 import { MdClose, MdSearch } from 'react-icons/md'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { frameworkOptions, libraries } from '~/libraries'
+import { capitalize } from '~/utils/utils'
 
 const searchClient = liteClient(
   'FQ0DQ6MA3C',
@@ -111,7 +113,7 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
       tabIndex={-1}
       ref={ref}
     >
-      <div className="flex items-start gap-4">
+      <article className="flex items-start gap-4">
         <div className="flex-1">
           <h3 className="font-bold text-gray-900 dark:text-white">
             <Highlight attribute="hierarchy.lvl1" hit={hit} />
@@ -134,26 +136,26 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
             </p>
           ) : null}
         </div>
-        <div className="flex-none">
-          {(() => {
-            const framework = frameworkOptions.find((f) =>
-              hit.url.includes(`/framework/${f.value}`)
-            )
-            if (!framework) return null
+        {(() => {
+          const framework = frameworkOptions.find((f) =>
+            hit.url.includes(`/framework/${f.value}`)
+          )
+          if (!framework) return null
 
-            return (
+          return (
+            <div className="flex-none">
               <div className="flex items-center gap-1 text-xs font-black bg-white rounded-xl px-2 py-1 dark:bg-black">
                 <img
                   src={framework.logo}
                   alt={framework.label}
                   className="w-4"
                 />
-                {framework.label}
+                {capitalize(framework.label)}
               </div>
-            )
-          })()}
-        </div>
-      </div>
+            </div>
+          )
+        })()}
+      </article>
     </SafeLink>
   )
 }
@@ -204,7 +206,10 @@ function LibraryRefinement() {
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 )}
               >
-                {item.label} ({item.count.toLocaleString()})
+                {capitalize(item.label)}{' '}
+                <span className="tabular-nums">
+                  ({item.count.toLocaleString()})
+                </span>
               </button>
             )
           })}
@@ -271,7 +276,10 @@ function FrameworkRefinement() {
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 )}
               >
-                {item.label} ({item.count.toLocaleString()})
+                {capitalize(item.label)}{' '}
+                <span className="tabular-nums">
+                  ({item.count.toLocaleString()})
+                </span>
               </button>
             )
           })}
@@ -389,8 +397,8 @@ export function SearchModal() {
       onKeyDown={handleKeyDown}
     >
       <div className="min-h-screen text-center">
-        <Dialog.Overlay className="fixed inset-0 bg-black/30" />
-        <div className="inline-block w-full max-w-2xl my-8 overflow-hidden text-left align-middle transition-all transform bg-white/80 dark:bg-black/80 shadow-xl rounded-2xl divide-y divide-gray-500/20 backdrop-blur-lg">
+        <Dialog.Overlay className="fixed inset-0 bg-black/60 xl:bg-black/30" />
+        <div className="inline-block w-[98%] xl:w-full max-w-2xl mt-8 overflow-hidden text-left align-middle transition-all transform bg-white/80 dark:bg-black/80 shadow-xl rounded-lg xl:rounded-xl divide-y divide-gray-500/20 backdrop-blur-lg dark:border dark:border-white/20">
           <InstantSearch searchClient={searchClient} indexName="tanstack">
             <Configure
               attributesToRetrieve={[
@@ -419,7 +427,7 @@ export function SearchModal() {
                 placeholder="Search..."
                 classNames={{
                   root: 'w-full',
-                  form: 'text-2xl flex items-center gap-2 px-4',
+                  form: 'text-xl flex items-center gap-2 px-4',
                   input:
                     'flex-1 p-4 pl-0 outline-none font-bold [&::-webkit-search-cancel-button]:hidden bg-transparent',
                   submit: 'p-2',
@@ -457,7 +465,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
       <LibraryRefinement />
       <FrameworkRefinement />
       <div
-        className="max-h-[60vh] overflow-y-auto"
+        className="max-h-[70dvh] lg:max-h-[60dvh] overflow-y-auto"
         role="listbox"
         aria-label="Search results"
       >
@@ -469,6 +477,16 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
             )
             return <Hit hit={hit} isFocused={index === focusedIndex} />
           }}
+        />
+        <Pagination
+          padding={2}
+          className={twMerge(
+            'border-t text-sm dark:border-white/20 px-4 py-3',
+            '[&>ul]:w-full [&>ul]:flex [&>ul]:justify-center [&>ul]:gap-2 lg:[&>ul]:gap-4',
+            '[&_li>*]:px-3 [&_li>*]:py-1.5',
+            '[&_li>span]:cursor-not-allowed',
+            '[&_.ais-Pagination-item--selected>*]:bg-emerald-500 [&_.ais-Pagination-item--selected>*]:text-white [&_.ais-Pagination-item--selected>*]:rounded-lg'
+          )}
         />
       </div>
     </>

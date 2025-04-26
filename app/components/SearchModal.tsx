@@ -482,8 +482,9 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
           padding={2}
           className={twMerge(
             'border-t text-sm dark:border-white/20 px-4 py-3',
-            '[&>ul]:w-full [&>ul]:flex [&>ul]:gap-2 lg:[&>ul]:gap-4 [&>ul]:justify-center',
-            '[&_li>*]:px-3 [&_li>*]:py-1.5 [&_li>span]:cursor-not-allowed',
+            '[&>ul]:w-full [&>ul]:flex [&>ul]:justify-center [&>ul]:gap-2 lg:[&>ul]:gap-4',
+            '[&_li>*]:px-3 [&_li>*]:py-1.5',
+            '[&_li>span]:cursor-not-allowed',
             '[&_.ais-Pagination-item--selected>*]:bg-emerald-500 [&_.ais-Pagination-item--selected>*]:text-white [&_.ais-Pagination-item--selected>*]:rounded-lg'
           )}
         />

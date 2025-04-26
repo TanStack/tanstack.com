@@ -1112,8 +1112,8 @@ function RouteComponent() {
   })
 
   return (
-    <div className="min-h-dvh p-4 space-y-4">
-      <div className="bg-white dark:bg-black/50 rounded-lg p-4 flex items-center gap-2 text-xl">
+    <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4">
+      <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex items-center gap-2 text-lg sm:text-xl">
         <Link to="/" className="hover:text-blue-500">
           Home
         </Link>
@@ -1122,13 +1122,13 @@ function RouteComponent() {
           NPM Stats
         </Link>
       </div>
-      <div className="bg-white dark:bg-black/50 rounded-lg space-y-4 p-4">
-        <div className="flex gap-4 flex-wrap">
+      <div className="bg-white dark:bg-black/50 rounded-lg space-y-2 sm:space-y-4 p-2 sm:p-4">
+        <div className="flex flex-col md:flex-row gap-2 sm:gap-4 flex-wrap">
           <PackageSearch />
           <select
             value={range}
             onChange={(e) => handleRangeChange(e.target.value as TimeRange)}
-            className="bg-gray-500/10 rounded-md px-3 py-2"
+            className="bg-gray-500/10 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base"
           >
             {timeRanges.map(({ value, label }) => (
               <option key={value} value={value}>
@@ -1136,11 +1136,11 @@ function RouteComponent() {
               </option>
             ))}
           </select>
-          <div className="flex items-stretch bg-gray-500/10 rounded-md">
+          <div className="flex items-stretch bg-gray-500/10 rounded-md text-sm sm:text-base">
             <Tooltip content="Show absolute download numbers">
               <button
                 onClick={() => handleViewModeChange('absolute')}
-                className={`px-3 py-1.5 rounded-l ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-l ${
                   viewMode === 'absolute'
                     ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
@@ -1152,7 +1152,7 @@ function RouteComponent() {
             <Tooltip content="Show growth relative to each package's starting point">
               <button
                 onClick={() => handleViewModeChange('relative')}
-                className={`px-3 py-1.5 rounded-r ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-r ${
                   viewMode === 'relative'
                     ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
@@ -1162,11 +1162,11 @@ function RouteComponent() {
               </button>
             </Tooltip>
           </div>
-          <div className="flex items-stretch bg-gray-500/10 rounded-md">
+          <div className="flex items-stretch bg-gray-500/10 rounded-md text-sm sm:text-base">
             <Tooltip content="Group data by year">
               <button
                 onClick={() => handleBinnedChange('yearly')}
-                className={`px-3 py-1.5 rounded-l ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-l ${
                   binningOption === 'yearly'
                     ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
@@ -1178,7 +1178,7 @@ function RouteComponent() {
             <Tooltip content="Group data by month">
               <button
                 onClick={() => handleBinnedChange('monthly')}
-                className={`px-3 py-1.5 ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 ${
                   binningOption === 'monthly'
                     ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
@@ -1190,7 +1190,7 @@ function RouteComponent() {
             <Tooltip content="Group data by week">
               <button
                 onClick={() => handleBinnedChange('weekly')}
-                className={`px-3 py-1.5 ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 ${
                   binningOption === 'weekly'
                     ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
@@ -1202,7 +1202,7 @@ function RouteComponent() {
             <Tooltip content="Show daily data points">
               <button
                 onClick={() => handleBinnedChange('daily')}
-                className={`px-3 py-1.5 rounded-r ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-r ${
                   binningOption === 'daily'
                     ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
@@ -1212,11 +1212,11 @@ function RouteComponent() {
               </button>
             </Tooltip>
           </div>
-          <div className="flex items-stretch bg-gray-500/10 rounded-md">
+          <div className="flex items-stretch bg-gray-500/10 rounded-md text-sm sm:text-base">
             <Tooltip content="Align all packages to start from their first non-zero download">
               <button
                 onClick={() => handleAlignStartDatesChange(!alignStartDates)}
-                className={`px-3 py-1.5 rounded ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded ${
                   alignStartDates
                     ? 'bg-cyan-500 text-white'
                     : 'hover:bg-gray-500/20'
@@ -1227,7 +1227,7 @@ function RouteComponent() {
             </Tooltip>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1 sm:gap-2">
           {Object.entries(packages).map(([packageName, groupPackages]) => {
             const isCombined = groupPackages.length > 1
             const subPackages = groupPackages.filter((p) => p !== packageName)
@@ -1235,28 +1235,28 @@ function RouteComponent() {
             return (
               <div
                 key={packageName}
-                className={`flex flex-col pl-2 py-1 rounded-md ${
+                className={`flex flex-col pl-1 sm:pl-2 py-0.5 sm:py-1 rounded-md ${
                   baseline === packageName
                     ? 'bg-blue-500/20 text-blue-500'
                     : 'bg-gray-500/20'
-                } text-sm`}
+                } text-xs sm:text-sm`}
               >
                 <div className="flex items-center">
                   <Tooltip content="Toggle package visibility">
                     <button
                       onClick={() => togglePackageVisibility(packageName)}
-                      className={`p-1 hover:text-blue-500`}
+                      className={`p-0.5 sm:p-1 hover:text-blue-500`}
                     >
                       {hiddenPackages.has(packageName) ? (
-                        <MdVisibilityOff />
+                        <MdVisibilityOff className="w-3 h-3 sm:w-4 sm:h-4" />
                       ) : (
-                        <MdVisibility />
+                        <MdVisibility className="w-3 h-3 sm:w-4 sm:h-4" />
                       )}
                     </button>
                   </Tooltip>
                   <button
                     onClick={() => togglePackageVisibility(packageName)}
-                    className={`px-1 hover:text-blue-500 ${
+                    className={`px-0.5 sm:px-1 hover:text-blue-500 ${
                       hiddenPackages.has(packageName) ? 'opacity-50' : ''
                     }`}
                   >
@@ -1265,28 +1265,32 @@ function RouteComponent() {
                   <Tooltip content="Use as baseline for comparison">
                     <button
                       onClick={() => handleBaselineChange(packageName)}
-                      className="p-1 hover:text-blue-500"
+                      className="p-0.5 sm:p-1 hover:text-blue-500"
                     >
-                      {baseline === packageName ? <MdLock /> : <MdLockOpen />}
+                      {baseline === packageName ? (
+                        <MdLock className="w-3 h-3 sm:w-4 sm:h-4" />
+                      ) : (
+                        <MdLockOpen className="w-3 h-3 sm:w-4 sm:h-4" />
+                      )}
                     </button>
                   </Tooltip>
                   <Tooltip content="Add packages to this group">
                     <button
                       onClick={() => handleCombinePackage(packageName)}
-                      className="p-1 hover:text-blue-500"
+                      className="p-0.5 sm:p-1 hover:text-blue-500"
                     >
-                      <MdAdd />
+                      <MdAdd className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
                   </Tooltip>
                   <button
                     onClick={() => removePackageName(packageName)}
-                    className="p-1 text-gray-500 hover:text-red-500"
+                    className="p-0.5 sm:p-1 text-gray-500 hover:text-red-500"
                   >
-                    <MdClose />
+                    <MdClose className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                 </div>
                 {isCombined && (
-                  <div className="mt-1 space-y-1">
+                  <div className="mt-0.5 sm:mt-1 space-y-0.5 sm:space-y-1">
                     {subPackages.map((subPackage) => (
                       <div
                         key={subPackage}
@@ -1297,22 +1301,22 @@ function RouteComponent() {
                             onClick={() =>
                               toggleSubPackageVisibility(subPackage)
                             }
-                            className={`px-1 hover:text-blue-500 ${
+                            className={`px-0.5 sm:px-1 hover:text-blue-500 ${
                               hiddenSubPackages.has(subPackage)
                                 ? 'opacity-50'
                                 : ''
                             }`}
                           >
                             {hiddenSubPackages.has(subPackage) ? (
-                              <MdVisibilityOff />
+                              <MdVisibilityOff className="w-3 h-3 sm:w-4 sm:h-4" />
                             ) : (
-                              <MdVisibility />
+                              <MdVisibility className="w-3 h-3 sm:w-4 sm:h-4" />
                             )}
                           </button>
                         </Tooltip>
                         <button
                           onClick={() => toggleSubPackageVisibility(subPackage)}
-                          className={`px-1 hover:text-blue-500 ${
+                          className={`px-0.5 sm:px-1 hover:text-blue-500 ${
                             hiddenSubPackages.has(subPackage)
                               ? 'opacity-50'
                               : ''
@@ -1324,9 +1328,9 @@ function RouteComponent() {
                           onClick={() =>
                             handleRemoveFromGroup(packageName, subPackage)
                           }
-                          className="ml-1 p-0.5 text-gray-400 hover:text-red-500"
+                          className="ml-0.5 sm:ml-1 p-0.5 text-gray-400 hover:text-red-500"
                         >
-                          <MdClose className="w-3 h-3" />
+                          <MdClose className="w-3 h-3 sm:w-4 sm:h-4" />
                         </button>
                       </div>
                     ))}
@@ -1339,48 +1343,50 @@ function RouteComponent() {
 
         {/* Combine Package Dialog */}
         {combiningPackage && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 w-full max-w-md">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-4 w-full max-w-md">
+              <div className="flex justify-between items-center mb-2 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-medium">
                   Add packages to {combiningPackage}
                 </h3>
                 <button
                   onClick={() => setCombiningPackage(null)}
-                  className="p-1 hover:text-red-500"
+                  className="p-0.5 sm:p-1 hover:text-red-500"
                 >
-                  <MdClose />
+                  <MdClose className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search for packages..."
-                  className="w-full bg-gray-500/10 rounded-md px-3 py-2"
+                  className="w-full bg-gray-500/10 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base"
                   onChange={(e) => handleCombineSearch(e.target.value)}
                   autoFocus
                 />
                 {isCombining && (
                   <div className="absolute right-2 top-0 bottom-0 flex items-center justify-center">
-                    <FaSpinner className="w-4 h-4 animate-spin" />
+                    <FaSpinner className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
                   </div>
                 )}
               </div>
-              <div className="mt-4 max-h-60 overflow-auto">
+              <div className="mt-2 sm:mt-4 max-h-40 sm:max-h-60 overflow-auto">
                 {combineSearchResults.map((pkg) => (
                   <button
                     key={pkg.name}
                     onClick={() => handleCombineSelect(pkg)}
-                    className="w-full text-left px-3 py-2 hover:bg-gray-500/20 rounded-md"
+                    className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-gray-500/20 rounded-md"
                   >
-                    <div className="font-medium">{pkg.name}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="font-medium text-sm sm:text-base">
+                      {pkg.name}
+                    </div>
+                    <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                       {pkg.description}
                     </div>
                   </button>
                 ))}
                 {combineSearchResults.length === 0 && (
-                  <div className="px-3 py-2 text-gray-500">
+                  <div className="px-2 sm:px-3 py-1.5 sm:py-2 text-sm text-gray-500">
                     No matching packages found
                   </div>
                 )}
@@ -1391,7 +1397,7 @@ function RouteComponent() {
 
         {Object.keys(packages).length ? (
           <div className="">
-            <div className="space-y-4">
+            <div className="space-y-2 sm:space-y-4">
               <NpmStatsChart
                 stats={validStats}
                 baseline={baseline}
@@ -1401,102 +1407,105 @@ function RouteComponent() {
                 binningOption={binningOption}
                 alignStartDates={alignStartDates}
               />
-              <table className="min-w-full">
-                <thead className="bg-gray-50 dark:bg-gray-800">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Package Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Total Downloads
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Growth
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      % Growth
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-900">
-                  {npmQuery.data
-                    ?.map((stats) => {
-                      if (!stats?.downloads?.length) return null
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Package Name
+                      </th>
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Total Downloads
+                      </th>
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Growth
+                      </th>
+                      <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        % Growth
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-900">
+                    {npmQuery.data
+                      ?.map((stats) => {
+                        if (!stats?.downloads?.length) return null
 
-                      // Sort downloads by date
-                      const sortedDownloads = [...stats.downloads].sort(
-                        (a, b) =>
-                          new Date(a.day).getTime() - new Date(b.day).getTime()
-                      )
+                        // Sort downloads by date
+                        const sortedDownloads = [...stats.downloads].sort(
+                          (a, b) =>
+                            new Date(a.day).getTime() -
+                            new Date(b.day).getTime()
+                        )
 
-                      // Get the latest week of downloads
-                      const latestWeek = sortedDownloads.slice(-7)
-                      const latestWeeklyDownloads = latestWeek.reduce(
-                        (sum, day) => sum + day.downloads,
-                        0
-                      )
+                        // Get the latest week of downloads
+                        const latestWeek = sortedDownloads.slice(-7)
+                        const latestWeeklyDownloads = latestWeek.reduce(
+                          (sum, day) => sum + day.downloads,
+                          0
+                        )
 
-                      // Calculate growth metrics
-                      const firstWeek = sortedDownloads.slice(0, 7)
-                      const firstWeeklyDownloads = firstWeek.reduce(
-                        (sum, day) => sum + day.downloads,
-                        0
-                      )
+                        // Calculate growth metrics
+                        const firstWeek = sortedDownloads.slice(0, 7)
+                        const firstWeeklyDownloads = firstWeek.reduce(
+                          (sum, day) => sum + day.downloads,
+                          0
+                        )
 
-                      const growth =
-                        latestWeeklyDownloads - firstWeeklyDownloads
-                      const growthPercentage =
-                        firstWeeklyDownloads > 0
-                          ? ((latestWeeklyDownloads - firstWeeklyDownloads) /
-                              firstWeeklyDownloads) *
-                            100
-                          : 0
+                        const growth =
+                          latestWeeklyDownloads - firstWeeklyDownloads
+                        const growthPercentage =
+                          firstWeeklyDownloads > 0
+                            ? ((latestWeeklyDownloads - firstWeeklyDownloads) /
+                                firstWeeklyDownloads) *
+                              100
+                            : 0
 
-                      return {
-                        package: stats.package,
-                        totalDownloads: latestWeeklyDownloads,
-                        growth,
-                        growthPercentage,
-                      }
-                    })
-                    .filter(Boolean)
-                    .sort((a, b) => b!.totalDownloads - a!.totalDownloads)
-                    .map((stat) => (
-                      <tr key={stat!.package}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {stat!.package}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                          {formatNumber(stat!.totalDownloads)}/week
-                        </td>
-                        <td
-                          className={`px-6 py-4 whitespace-nowrap text-sm ${
-                            stat!.growth > 0
-                              ? 'text-green-500'
-                              : stat!.growth < 0
-                              ? 'text-red-500'
-                              : 'text-gray-500'
-                          }`}
-                        >
-                          {stat!.growth > 0 ? '+' : ''}
-                          {formatNumber(stat!.growth)}/week
-                        </td>
-                        <td
-                          className={`px-6 py-4 whitespace-nowrap text-sm ${
-                            stat!.growthPercentage > 0
-                              ? 'text-green-500'
-                              : stat!.growthPercentage < 0
-                              ? 'text-red-500'
-                              : 'text-gray-500'
-                          }`}
-                        >
-                          {stat!.growthPercentage > 0 ? '+' : ''}
-                          {stat!.growthPercentage.toFixed(1)}%
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+                        return {
+                          package: stats.package,
+                          totalDownloads: latestWeeklyDownloads,
+                          growth,
+                          growthPercentage,
+                        }
+                      })
+                      .filter(Boolean)
+                      .sort((a, b) => b!.totalDownloads - a!.totalDownloads)
+                      .map((stat) => (
+                        <tr key={stat!.package}>
+                          <td className="px-3 sm:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {stat!.package}
+                          </td>
+                          <td className="px-3 sm:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                            {formatNumber(stat!.totalDownloads)}/week
+                          </td>
+                          <td
+                            className={`px-3 sm:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm ${
+                              stat!.growth > 0
+                                ? 'text-green-500'
+                                : stat!.growth < 0
+                                ? 'text-red-500'
+                                : 'text-gray-500'
+                            }`}
+                          >
+                            {stat!.growth > 0 ? '+' : ''}
+                            {formatNumber(stat!.growth)}/week
+                          </td>
+                          <td
+                            className={`px-3 sm:px-6 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm ${
+                              stat!.growthPercentage > 0
+                                ? 'text-green-500'
+                                : stat!.growthPercentage < 0
+                                ? 'text-red-500'
+                                : 'text-gray-500'
+                            }`}
+                          >
+                            {stat!.growthPercentage > 0 ? '+' : ''}
+                            {stat!.growthPercentage.toFixed(1)}%
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         ) : null}

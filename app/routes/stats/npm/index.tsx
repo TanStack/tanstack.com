@@ -1216,8 +1216,11 @@ function RouteComponent() {
           Home
         </Link>
         <FaAngleRight />
-        <Link to="." className="hover:text-blue-500">
-          NPM Stats
+        <Link to="." className="hover:text-blue-500 flex items-center gap-2">
+          NPM Stats{' '}
+          <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+            BETA
+          </span>
         </Link>
       </div>
       <div className="bg-white dark:bg-black/50 rounded-lg space-y-2 sm:space-y-4 p-2 sm:p-4">

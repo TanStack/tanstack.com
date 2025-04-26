@@ -181,7 +181,7 @@ function LibraryRefinement() {
     if (!isAlreadyRefined && library) {
       refine(subpathname)
     }
-  }, [items, refine, subpathname])
+  }, [])
 
   return (
     <div className="overflow-x-auto scrollbar-hide">
@@ -251,7 +251,7 @@ function FrameworkRefinement() {
     if (!isAlreadyRefined && framework) {
       refine(subpathname)
     }
-  }, [items, refine, subpathname])
+  }, [subpathname])
 
   return (
     <div className="overflow-x-auto scrollbar-hide">

@@ -6,7 +6,7 @@ import {
   useLocation,
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
-import { MdLibraryBooks, MdSupport } from 'react-icons/md'
+import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
@@ -160,6 +160,18 @@ function LibrariesLayout() {
           label: 'Learn',
           icon: <MdLibraryBooks />,
           to: '/learn',
+        },
+        {
+          label: (
+            <span className="flex items-center gap-2">
+              Stats
+              <span className="text-xs bg-transparent text-transparent bg-clip-text bg-gradient-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
+                BETA
+              </span>
+            </span>
+          ),
+          icon: <MdLineAxis />,
+          to: '/stats/npm',
         },
         {
           label: 'Discord',

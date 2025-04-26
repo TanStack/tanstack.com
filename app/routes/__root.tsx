@@ -1,4 +1,5 @@
 import * as React from 'react'
+import * as ReactDom from 'react-dom'
 import {
   Outlet,
   ScriptOnce,
@@ -21,6 +22,8 @@ import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
 import { GoogleScripts } from '~/components/GoogleScripts'
 import { BackgroundAnimation } from '~/components/BackgroundAnimation'
+import { SearchProvider } from '~/contexts/SearchContext'
+import { SearchModal } from '~/components/SearchModal'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -129,9 +132,11 @@ export const Route = createRootRouteWithContext<{
 
 function RootComponent() {
   return (
-    <RootDocument>
-      <Outlet />
-    </RootDocument>
+    <SearchProvider>
+      <RootDocument>
+        <Outlet />
+      </RootDocument>
+    </SearchProvider>
   )
 }
 
@@ -211,6 +216,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         ) : null}
+        <SearchModal />
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-5N57KQT4"
@@ -225,48 +231,3 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     </html>
   )
 }
-
-// export function Html({ children, ...props }: React.HTMLProps<HTMLHtmlElement>) {
-//   const router = useRouter()
-
-//   // warning(
-//   //   !Object.keys(props).length,
-//   //   'Passing props other than children to the Html component will be supported very soon in React 19.',
-//   // )
-
-//   if (!router.isServer) {
-//     return <>{children}</>
-//   }
-
-//   return <html>{children}</html>
-// }
-
-// export function Head({ children, ...props }: React.HTMLProps<HTMLHeadElement>) {
-//   const router = useRouter()
-
-//   // warning(
-//   //   !Object.keys(props).length,
-//   //   'Passing props other than children to the Head component will be supported very soon in React 19.',
-//   // )
-
-//   if (!router.isServer) {
-//     return children
-//   }
-
-//   return <head>{children}</head>
-// }
-
-// export function Body({ children, ...props }: React.HTMLProps<HTMLBodyElement>) {
-//   const router = useRouter()
-
-//   // warning(
-//   //   !Object.keys(props).length,
-//   //   'Passing props other than children to the Body component will be supported very soon in React 19.',
-//   // )
-
-//   if (!router.isServer) {
-//     return children
-//   }
-
-//   return <body>{children}</body>
-// }

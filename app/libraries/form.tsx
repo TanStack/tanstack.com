@@ -14,7 +14,7 @@ export const formProject = {
   cardStyles: `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
   to: '/form',
   tagline: `Headless UI for building performant and type-safe forms`,
-  description: `Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid and Lit`,
+  description: `Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid, Lit and Svelte.`,
   ogImage: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
   badge: 'new',
   bgStyle: 'bg-yellow-500',
@@ -26,7 +26,7 @@ export const formProject = {
   colorFrom: 'from-yellow-500',
   colorTo: 'to-yellow-600',
   textColor: 'text-yellow-600',
-  frameworks: ['react', 'vue', 'angular', 'solid', 'lit'],
+  frameworks: ['react', 'vue', 'angular', 'solid', 'lit', 'svelte'],
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
   menu: [
     {

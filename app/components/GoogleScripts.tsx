@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import React from 'react'
+import { twMerge } from 'tailwind-merge'
+import { getLibrary, libraries } from '~/libraries'
 
 declare global {
   interface Window {
@@ -87,8 +89,12 @@ function Gad({
   }, [])
 
   return (
-    <div {...props} className="grid [&>*]:col-start-1 [&>*]:row-start-1">
-      <div id={adId} className="w-full flex-1 z-10"></div>
+    <div
+      {...props}
+      className="grid [&>*]:col-start-1 [&>*]:row-start-1"
+      id={adId}
+    >
+      {/* <div className="w-full flex-1 z-10"></div> */}
       <div className="flex items-center justify-center">{children}</div>
     </div>
   )
@@ -116,32 +122,93 @@ export function GadFooter() {
   )
 }
 
-export function GadLeftRailSquare() {
-  // return (
-  //   <Gad
-  //     adId={adSlots.leftRail.id}
-  //     style={{ maxWidth: '300px', aspectRatio: '300 / 250' }}
-  //   />
-  // )
-
-  return null
-}
+const libraryHalfIndex = Math.ceil(libraries.length / 2)
 
 export function GadRightRailSquare() {
+  const randomLibrary = React.useMemo(() => {
+    const sampledLibraries = libraries.slice(0, libraryHalfIndex)
+    const seed = Math.floor(Date.now() / (1000 * 60 * 5)) // Change seed every 5 minutes
+    return sampledLibraries[seed % sampledLibraries.length]
+  }, [])
+
   return (
     <Gad
       name="rightRail"
       className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
     >
       <Link
-        to="/form"
-        className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter h-[256px]"
+        to={`/${randomLibrary.id}`}
+        className="flex flex-col justify-center items-center h-[250px] gap-4 group"
       >
-        <span>TanStack</span>
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-600">
-          Form
-        </span>
-        <span className="text-xs">V1</span>
+        <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
+          <span>TanStack</span>
+          <span
+            className={twMerge(
+              'text-transparent bg-clip-text bg-gradient-to-r',
+              randomLibrary.colorFrom,
+              randomLibrary.colorTo
+            )}
+          >
+            {randomLibrary.name.replace('TanStack ', '')}
+          </span>
+        </div>
+        <div className="text-sm text-center">{randomLibrary.description}</div>
+        <div>
+          <button
+            className={twMerge(
+              'text-sm px-2 py-1 rounded-lg text-white font-black uppercase tracking-tighter transition-transform duration-700 group-hover:scale-[1.2]',
+              randomLibrary.bgStyle
+            )}
+          >
+            Learn More
+          </button>
+        </div>
+      </Link>
+    </Gad>
+  )
+}
+
+export function GadLeftRailSquare() {
+  const randomRemainingLibrary = React.useMemo(() => {
+    const remainingLibraries = libraries.slice(libraryHalfIndex)
+    const seed = Math.floor(Date.now() / (1000 * 60 * 5)) // Change seed every 5 minutes
+    return remainingLibraries[seed % remainingLibraries.length]
+  }, [])
+
+  return (
+    <Gad
+      name="leftRail"
+      className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
+    >
+      <Link
+        to={`/${randomRemainingLibrary.id}`}
+        className="flex flex-col justify-center items-center h-[250px] gap-4 group"
+      >
+        <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
+          <span>TanStack</span>
+          <span
+            className={twMerge(
+              'text-transparent bg-clip-text bg-gradient-to-r',
+              randomRemainingLibrary.colorFrom,
+              randomRemainingLibrary.colorTo
+            )}
+          >
+            {randomRemainingLibrary.name.replace('TanStack ', '')}
+          </span>
+        </div>
+        <div className="text-sm text-center">
+          {randomRemainingLibrary.description}
+        </div>
+        <div>
+          <button
+            className={twMerge(
+              'text-sm px-2 py-1 rounded-lg text-white font-black uppercase tracking-tighter transition-transform duration-700 group-hover:scale-[1.2]',
+              randomRemainingLibrary.bgStyle
+            )}
+          >
+            Learn More
+          </button>
+        </div>
       </Link>
     </Gad>
   )

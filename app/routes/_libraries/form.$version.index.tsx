@@ -61,7 +61,8 @@ export default function FormVersionIndex() {
             <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
               Headless, performant, and type-safe
             </span>{' '}
-            form state management for TS/JS, React, Vue, Angular, Solid, and Lit
+            form state management for TS/JS, React, Vue, Angular, Solid, Lit and
+            Svelte
           </h2>
           <p
             className="text opacity-90 max-w-[500px]
@@ -77,7 +78,8 @@ export default function FormVersionIndex() {
             you need to build forms fast with peace of mind.
           </p>
           <Link
-            to="./docs/"
+            to="/$libraryId/$version/docs"
+            params={{ libraryId: library.id, version }}
             className={`py-2 px-4 bg-yellow-400 text-black rounded uppercase font-extrabold`}
           >
             Get Started
@@ -264,7 +266,8 @@ export default function FormVersionIndex() {
           </div>
           <div>
             <Link
-              to="./docs/"
+              to="/$libraryId/$version/docs"
+              params={{ libraryId: library.id, version }}
               className={`inline-block py-2 px-4 bg-yellow-500 rounded text-black uppercase font-extrabold`}
             >
               Get Started!

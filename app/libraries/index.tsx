@@ -20,15 +20,25 @@ import { pacerProject } from './pacer'
 // import { optimisticProject } from './optimistic'
 
 export const frameworkOptions = [
-  { label: 'React', value: 'react', logo: reactLogo },
-  { label: 'Preact', value: 'preact', logo: preactLogo },
-  { label: 'Vue', value: 'vue', logo: vueLogo },
-  { label: 'Angular', value: 'angular', logo: angularLogo },
-  { label: 'Solid', value: 'solid', logo: solidLogo },
-  { label: 'Lit', value: 'lit', logo: litLogo },
-  { label: 'Svelte', value: 'svelte', logo: svelteLogo },
-  { label: 'Qwik', value: 'qwik', logo: qwikLogo },
-  { label: 'Vanilla', value: 'vanilla', logo: jsLogo },
+  { label: 'React', value: 'react', logo: reactLogo, color: 'bg-blue-500' },
+  { label: 'Preact', value: 'preact', logo: preactLogo, color: 'bg-blue-400' },
+  { label: 'Vue', value: 'vue', logo: vueLogo, color: 'bg-green-500' },
+  {
+    label: 'Angular',
+    value: 'angular',
+    logo: angularLogo,
+    color: 'bg-red-500',
+  },
+  { label: 'Solid', value: 'solid', logo: solidLogo, color: 'bg-blue-600' },
+  { label: 'Lit', value: 'lit', logo: litLogo, color: 'bg-orange-500' },
+  {
+    label: 'Svelte',
+    value: 'svelte',
+    logo: svelteLogo,
+    color: 'bg-orange-600',
+  },
+  { label: 'Qwik', value: 'qwik', logo: qwikLogo, color: 'bg-purple-500' },
+  { label: 'Vanilla', value: 'vanilla', logo: jsLogo, color: 'bg-yellow-500' },
 ] as const
 
 export type Framework = (typeof frameworkOptions)[number]['value']
@@ -94,9 +104,9 @@ export const libraries = [
   tableProject,
   formProject,
   virtualProject,
+  pacerProject,
   storeProject,
   rangerProject,
-  pacerProject,
   // optimisticProject,
   configProject,
 ] satisfies Library[]

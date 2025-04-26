@@ -465,7 +465,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
       <LibraryRefinement />
       <FrameworkRefinement />
       <div
-        className="max-h-[70vh] lg:max-h-[60vh] overflow-y-auto"
+        className="max-h-[70dvh] lg:max-h-[60dvh] overflow-y-auto"
         role="listbox"
         aria-label="Search results"
       >

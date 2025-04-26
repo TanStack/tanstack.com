@@ -18,6 +18,7 @@ import * as d3 from 'd3'
 import { useCombobox } from 'downshift'
 import { FaAngleRight, FaArrowLeft, FaSpinner } from 'react-icons/fa'
 import { HexColorPicker } from 'react-colorful'
+import { getLibrary } from '~/libraries'
 
 type NpmStats = {
   start: string
@@ -732,7 +733,16 @@ export const Route = createFileRoute('/stats/npm/')({
         })
       )
       .optional()
-      .default([]),
+      .default([
+        {
+          packages: ['react'],
+          color: '#4da6d1',
+        },
+        {
+          packages: ['@tanstack/query-core', 'react-query'],
+          color: '#ff4500',
+        },
+      ]),
     range: z
       .enum([
         '7-days',

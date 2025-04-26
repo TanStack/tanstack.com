@@ -480,7 +480,12 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
         />
         <Pagination
           padding={2}
-          className="border-t text-sm dark:border-white/20 px-4 py-3 [&>ul]:w-full [&>ul]:flex [&>ul]:justify-between [&_li>*]:px-3 [&_li>*]:py-1.5 [&_.ais-Pagination-item--selected>*]:bg-red-500 [&_.ais-Pagination-item--selected>*]:rounded-lg [&_li>span]:cursor-not-allowed"
+          className={twMerge(
+            'border-t text-sm dark:border-white/20 px-4 py-3',
+            '[&>ul]:w-full [&>ul]:flex [&>ul]:gap-2 lg:[&>ul]:gap-4 [&>ul]:justify-center',
+            '[&_li>*]:px-3 [&_li>*]:py-1.5 [&_li>span]:cursor-not-allowed',
+            '[&_.ais-Pagination-item--selected>*]:bg-emerald-500 [&_.ais-Pagination-item--selected>*]:text-white [&_.ais-Pagination-item--selected>*]:rounded-lg'
+          )}
         />
       </div>
     </>

@@ -206,7 +206,10 @@ function LibraryRefinement() {
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 )}
               >
-                {item.label} ({item.count.toLocaleString()})
+                {capitalize(item.label)}{' '}
+                <span className="tabular-nums">
+                  ({item.count.toLocaleString()})
+                </span>
               </button>
             )
           })}
@@ -273,7 +276,10 @@ function FrameworkRefinement() {
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 )}
               >
-                {capitalize(item.label)} ({item.count.toLocaleString()})
+                {capitalize(item.label)}{' '}
+                <span className="tabular-nums">
+                  ({item.count.toLocaleString()})
+                </span>
               </button>
             )
           })}

@@ -24,7 +24,7 @@ export const routerProject = {
   ogImage: 'https://github.com/tanstack/router/raw/main/media/header.png',
   bgStyle: 'bg-emerald-500',
   textStyle: textStyles,
-  badge: 'new',
+  badge: undefined,
   repo,
   latestBranch: 'main',
   latestVersion: 'v1',

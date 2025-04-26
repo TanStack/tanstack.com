@@ -143,13 +143,13 @@ function Index() {
         <div className="w-fit mx-auto px-4">
           <OpenSourceStats />
         </div>
-        <hr className="my-16 border-gray-200 dark:border-gray-500/10" />
+        <div className="my-16" />
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">
           <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>
 
           {Object.entries(librariesByGroup).map(
             ([groupName, groupLibraries]: [string, Library[]]) => (
-              <div key={groupName} className="mt-10">
+              <div key={groupName} className="mt-8">
                 <h4 className={`text-2xl font-medium capitalize mb-6`}>
                   {
                     librariesGroupNamesMap[

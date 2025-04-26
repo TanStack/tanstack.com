@@ -27,6 +27,7 @@ import { Route as LibrariesEthosImport } from './routes/_libraries/ethos'
 import { Route as LibrariesDedicatedSupportImport } from './routes/_libraries/dedicated-support'
 import { Route as LibrariesBlogImport } from './routes/_libraries/blog'
 import { Route as LibraryIdVersionImport } from './routes/$libraryId/$version'
+import { Route as StatsNpmIndexImport } from './routes/stats/npm/index'
 import { Route as LibrariesBlogIndexImport } from './routes/_libraries/blog.index'
 import { Route as LibrariesBlogSplatImport } from './routes/_libraries/blog.$'
 import { Route as LibraryIdVersionDocsImport } from './routes/$libraryId/$version.docs'
@@ -140,6 +141,12 @@ const LibraryIdVersionRoute = LibraryIdVersionImport.update({
   id: '/$version',
   path: '/$version',
   getParentRoute: () => LibraryIdRouteRoute,
+} as any)
+
+const StatsNpmIndexRoute = StatsNpmIndexImport.update({
+  id: '/stats/npm/',
+  path: '/stats/npm/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const LibrariesBlogIndexRoute = LibrariesBlogIndexImport.update({
@@ -397,6 +404,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesBlogIndexImport
       parentRoute: typeof LibrariesBlogImport
     }
+    '/stats/npm/': {
+      id: '/stats/npm/'
+      path: '/stats/npm'
+      fullPath: '/stats/npm'
+      preLoaderRoute: typeof StatsNpmIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/$libraryId/$version/docs/$': {
       id: '/$libraryId/$version/docs/$'
       path: '/$'
@@ -624,6 +638,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/blog/': typeof LibrariesBlogIndexRoute
+  '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
@@ -656,6 +671,7 @@ export interface FileRoutesByTo {
   '/': typeof LibrariesIndexRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/blog': typeof LibrariesBlogIndexRoute
+  '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
@@ -693,6 +709,7 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
+  '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/_libraries/config/$version/': typeof LibrariesConfigVersionIndexRoute
@@ -731,6 +748,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/blog/$'
     | '/blog/'
+    | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/'
     | '/config/$version'
@@ -762,6 +780,7 @@ export interface FileRouteTypes {
     | '/'
     | '/blog/$'
     | '/blog'
+    | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs'
     | '/config/$version'
@@ -797,6 +816,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/_libraries/blog/$'
     | '/_libraries/blog/'
+    | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/'
     | '/_libraries/config/$version/'
@@ -821,6 +841,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MerchRoute: typeof MerchRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
+  StatsNpmIndexRoute: typeof StatsNpmIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -830,6 +851,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MerchRoute: MerchRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
+  StatsNpmIndexRoute: StatsNpmIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -847,7 +869,8 @@ export const routeTree = rootRoute
         "/dashboard",
         "/login",
         "/merch",
-        "/sponsors-embed"
+        "/sponsors-embed",
+        "/stats/npm/"
       ]
     },
     "/$libraryId": {
@@ -956,6 +979,9 @@ export const routeTree = rootRoute
     "/_libraries/blog/": {
       "filePath": "_libraries/blog.index.tsx",
       "parent": "/_libraries/blog"
+    },
+    "/stats/npm/": {
+      "filePath": "stats/npm/index.tsx"
     },
     "/$libraryId/$version/docs/$": {
       "filePath": "$libraryId/$version.docs.$.tsx",

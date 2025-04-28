@@ -13,11 +13,11 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import { Select } from '~/components/Select'
+import { FrameworkSelect } from '~/components/FrameworkSelect'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsLogo } from '~/components/DocsLogo'
 import { last, capitalize } from '~/utils/utils'
-import type { SelectOption } from '~/components/Select'
+import type { SelectOption } from '~/components/FrameworkSelect'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { Framework, getFrameworkOptions } from '~/libraries'
@@ -188,6 +188,14 @@ const useMenuConfig = ({
         label: 'Home',
         to: '..',
       },
+      ...(frameworks.length > 1
+        ? [
+            {
+              label: 'Frameworks',
+              to: './framework',
+            },
+          ]
+        : []),
       {
         label: (
           <div className="flex items-center gap-2">
@@ -488,13 +496,13 @@ export function DocsLayout({
           dark:bg-black/20"
         >
           <div className="flex gap-4">
-            <Select
+            <FrameworkSelect
               label={frameworkConfig.label}
               selected={frameworkConfig.selected}
               available={frameworkConfig.available}
               onSelect={frameworkConfig.onSelect}
             />
-            <Select
+            <FrameworkSelect
               label={versionConfig.label}
               selected={versionConfig.selected!}
               available={versionConfig.available}
@@ -522,14 +530,14 @@ export function DocsLayout({
         <SearchButton />
       </div>
       <div className="flex gap-2 px-4">
-        <Select
+        <FrameworkSelect
           className="flex-[3_1_0%]"
           label={frameworkConfig.label}
           selected={frameworkConfig.selected}
           available={frameworkConfig.available}
           onSelect={frameworkConfig.onSelect}
         />
-        <Select
+        <FrameworkSelect
           className="flex-[2_1_0%]"
           label={versionConfig.label}
           selected={versionConfig.selected!}

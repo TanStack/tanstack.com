@@ -17,7 +17,7 @@ export type SelectProps<T extends SelectOption> = {
   onSelect: (selected: T) => void
 }
 
-export function Select<T extends SelectOption>({
+export function FrameworkSelect<T extends SelectOption>({
   className = '',
   label,
   selected,

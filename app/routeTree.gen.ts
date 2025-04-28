@@ -43,6 +43,8 @@ import { Route as LibrariesFormVersionIndexImport } from './routes/_libraries/fo
 import { Route as LibrariesConfigVersionIndexImport } from './routes/_libraries/config.$version.index'
 import { Route as LibraryIdVersionDocsIndexImport } from './routes/$libraryId/$version.docs.index'
 import { Route as LibraryIdVersionDocsSplatImport } from './routes/$libraryId/$version.docs.$'
+import { Route as LibraryIdVersionDocsFrameworkIndexImport } from './routes/$libraryId/$version.docs.framework.index'
+import { Route as LibraryIdVersionDocsFrameworkFrameworkIndexImport } from './routes/$libraryId/$version.docs.framework.$framework.index'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatImport } from './routes/$libraryId/$version.docs.framework.$framework.$'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatImport } from './routes/$libraryId/$version.docs.framework.$framework.examples.$'
 
@@ -252,6 +254,20 @@ const LibraryIdVersionDocsSplatRoute = LibraryIdVersionDocsSplatImport.update({
   path: '/$',
   getParentRoute: () => LibraryIdVersionDocsRoute,
 } as any)
+
+const LibraryIdVersionDocsFrameworkIndexRoute =
+  LibraryIdVersionDocsFrameworkIndexImport.update({
+    id: '/framework/',
+    path: '/framework/',
+    getParentRoute: () => LibraryIdVersionDocsRoute,
+  } as any)
+
+const LibraryIdVersionDocsFrameworkFrameworkIndexRoute =
+  LibraryIdVersionDocsFrameworkFrameworkIndexImport.update({
+    id: '/framework/$framework/',
+    path: '/framework/$framework/',
+    getParentRoute: () => LibraryIdVersionDocsRoute,
+  } as any)
 
 const LibraryIdVersionDocsFrameworkFrameworkSplatRoute =
   LibraryIdVersionDocsFrameworkFrameworkSplatImport.update({
@@ -495,11 +511,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesVirtualVersionIndexImport
       parentRoute: typeof LibrariesRouteImport
     }
+    '/$libraryId/$version/docs/framework/': {
+      id: '/$libraryId/$version/docs/framework/'
+      path: '/framework'
+      fullPath: '/$libraryId/$version/docs/framework'
+      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkIndexImport
+      parentRoute: typeof LibraryIdVersionDocsImport
+    }
     '/$libraryId/$version/docs/framework/$framework/$': {
       id: '/$libraryId/$version/docs/framework/$framework/$'
       path: '/framework/$framework/$'
       fullPath: '/$libraryId/$version/docs/framework/$framework/$'
       preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkSplatImport
+      parentRoute: typeof LibraryIdVersionDocsImport
+    }
+    '/$libraryId/$version/docs/framework/$framework/': {
+      id: '/$libraryId/$version/docs/framework/$framework/'
+      path: '/framework/$framework'
+      fullPath: '/$libraryId/$version/docs/framework/$framework'
+      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkIndexImport
       parentRoute: typeof LibraryIdVersionDocsImport
     }
     '/$libraryId/$version/docs/framework/$framework/examples/$': {
@@ -517,15 +547,21 @@ declare module '@tanstack/react-router' {
 interface LibraryIdVersionDocsRouteChildren {
   LibraryIdVersionDocsSplatRoute: typeof LibraryIdVersionDocsSplatRoute
   LibraryIdVersionDocsIndexRoute: typeof LibraryIdVersionDocsIndexRoute
+  LibraryIdVersionDocsFrameworkIndexRoute: typeof LibraryIdVersionDocsFrameworkIndexRoute
   LibraryIdVersionDocsFrameworkFrameworkSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
+  LibraryIdVersionDocsFrameworkFrameworkIndexRoute: typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
 
 const LibraryIdVersionDocsRouteChildren: LibraryIdVersionDocsRouteChildren = {
   LibraryIdVersionDocsSplatRoute: LibraryIdVersionDocsSplatRoute,
   LibraryIdVersionDocsIndexRoute: LibraryIdVersionDocsIndexRoute,
+  LibraryIdVersionDocsFrameworkIndexRoute:
+    LibraryIdVersionDocsFrameworkIndexRoute,
   LibraryIdVersionDocsFrameworkFrameworkSplatRoute:
     LibraryIdVersionDocsFrameworkFrameworkSplatRoute,
+  LibraryIdVersionDocsFrameworkFrameworkIndexRoute:
+    LibraryIdVersionDocsFrameworkFrameworkIndexRoute,
   LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute:
     LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute,
 }
@@ -651,7 +687,9 @@ export interface FileRoutesByFullPath {
   '/store/$version': typeof LibrariesStoreVersionIndexRoute
   '/table/$version': typeof LibrariesTableVersionIndexRoute
   '/virtual/$version': typeof LibrariesVirtualVersionIndexRoute
+  '/$libraryId/$version/docs/framework': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
+  '/$libraryId/$version/docs/framework/$framework': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
 
@@ -684,7 +722,9 @@ export interface FileRoutesByTo {
   '/store/$version': typeof LibrariesStoreVersionIndexRoute
   '/table/$version': typeof LibrariesTableVersionIndexRoute
   '/virtual/$version': typeof LibrariesVirtualVersionIndexRoute
+  '/$libraryId/$version/docs/framework': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
+  '/$libraryId/$version/docs/framework/$framework': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
 
@@ -722,7 +762,9 @@ export interface FileRoutesById {
   '/_libraries/store/$version/': typeof LibrariesStoreVersionIndexRoute
   '/_libraries/table/$version/': typeof LibrariesTableVersionIndexRoute
   '/_libraries/virtual/$version/': typeof LibrariesVirtualVersionIndexRoute
+  '/$libraryId/$version/docs/framework/': typeof LibraryIdVersionDocsFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/$': typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
+  '/$libraryId/$version/docs/framework/$framework/': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
 
@@ -761,7 +803,9 @@ export interface FileRouteTypes {
     | '/store/$version'
     | '/table/$version'
     | '/virtual/$version'
+    | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
+    | '/$libraryId/$version/docs/framework/$framework'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -793,7 +837,9 @@ export interface FileRouteTypes {
     | '/store/$version'
     | '/table/$version'
     | '/virtual/$version'
+    | '/$libraryId/$version/docs/framework'
     | '/$libraryId/$version/docs/framework/$framework/$'
+    | '/$libraryId/$version/docs/framework/$framework'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   id:
     | '__root__'
@@ -829,7 +875,9 @@ export interface FileRouteTypes {
     | '/_libraries/store/$version/'
     | '/_libraries/table/$version/'
     | '/_libraries/virtual/$version/'
+    | '/$libraryId/$version/docs/framework/'
     | '/$libraryId/$version/docs/framework/$framework/$'
+    | '/$libraryId/$version/docs/framework/$framework/'
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   fileRoutesById: FileRoutesById
 }
@@ -968,7 +1016,9 @@ export const routeTree = rootRoute
       "children": [
         "/$libraryId/$version/docs/$",
         "/$libraryId/$version/docs/",
+        "/$libraryId/$version/docs/framework/",
         "/$libraryId/$version/docs/framework/$framework/$",
+        "/$libraryId/$version/docs/framework/$framework/",
         "/$libraryId/$version/docs/framework/$framework/examples/$"
       ]
     },
@@ -1031,8 +1081,16 @@ export const routeTree = rootRoute
       "filePath": "_libraries/virtual.$version.index.tsx",
       "parent": "/_libraries"
     },
+    "/$libraryId/$version/docs/framework/": {
+      "filePath": "$libraryId/$version.docs.framework.index.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
     "/$libraryId/$version/docs/framework/$framework/$": {
       "filePath": "$libraryId/$version.docs.framework.$framework.$.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/$libraryId/$version/docs/framework/$framework/": {
+      "filePath": "$libraryId/$version.docs.framework.$framework.index.tsx",
       "parent": "/$libraryId/$version/docs"
     },
     "/$libraryId/$version/docs/framework/$framework/examples/$": {

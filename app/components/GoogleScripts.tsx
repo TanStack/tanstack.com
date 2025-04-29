@@ -5,7 +5,28 @@ import { getLibrary, libraries } from '~/libraries'
 
 declare global {
   interface Window {
-    googletag: any
+    googletag:
+      | undefined
+      | Partial<{
+          cmd: {
+            push: (fn: () => void) => void
+          }
+          pubads: () => {
+            enableSingleRequest: () => void
+            refresh: (slots: any[]) => void
+          }
+          enableServices: () => void
+          display: (id: string) => void
+          defineSlot: (
+            path: string,
+            sizes: [number, number][],
+            id: string
+          ) => {
+            addService: (pubads: any) => {
+              setTargeting: (key: string, value: string[]) => void
+            }
+          }
+        }>
   }
 }
 
@@ -64,28 +85,32 @@ function Gad({
   const adId = adSlot.id
 
   React.useEffect(() => {
-    if (window.googletag) {
-      window.googletag.cmd.push(function () {
-        // Define all ad slots
-        const slot = window.googletag
-          .defineSlot('/23278945940/TopLevel', adSlot.sizes, adSlot.id)
-          .addService(window.googletag.pubads())
-          .setTargeting(adSlot.targeting, [adSlot.targeting])
+    const googletag = window.googletag
+    if (!googletag) return
 
-        window.googletag.pubads().enableSingleRequest()
-        window.googletag.enableServices()
-        window.googletag.display(adId)
+    const cmd = googletag.cmd
+    if (!cmd) return
 
-        // Set individual refresh intervals for each ad
-        const interval = setInterval(function () {
-          window.googletag.cmd.push(function () {
-            window.googletag.pubads().refresh([slot])
-          })
-        }, adSlot.refreshInterval)
+    cmd.push(function () {
+      // Define all ad slots
+      const slot = googletag
+        .defineSlot?.('/23278945940/TopLevel', adSlot.sizes, adSlot.id)
+        .addService(googletag.pubads?.())
+        .setTargeting(adSlot.targeting, [adSlot.targeting])
 
-        return () => clearInterval(interval)
-      })
-    }
+      googletag.pubads?.().enableSingleRequest()
+      googletag.enableServices?.()
+      googletag.display?.(adId)
+
+      // Set individual refresh intervals for each ad
+      const interval = setInterval(function () {
+        cmd.push(function () {
+          googletag.pubads?.().refresh([slot])
+        })
+      }, adSlot.refreshInterval)
+
+      return () => clearInterval(interval)
+    })
   }, [])
 
   return (

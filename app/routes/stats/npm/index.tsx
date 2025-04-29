@@ -67,10 +67,10 @@ export const Route = createFileRoute('/stats/npm/')({
   },
   head: ({ loaderData }) => ({
     meta: seo({
-      title: `NPM Download Stats by TanStack- ${loaderData.packages
+      title: `NPM Download Stats and Trends — Track and Compare Packages Instantly: ${loaderData.packages
         ?.map((p) => p.packages)
         .join(' vs ')}`,
-      description: `Explore and compare download statistics of one or more NPM packages over various time ranges. Analyze trends, growth patterns, and historical data to make informed decisions on package usage and popularity. `,
+      description: `Get real-time npm download statistics, compare package popularity, spot trends, and make better choices for your projects. Faster and more detailed than npm-stat, npmtrends, and others.`,
     }),
   }),
   component: RouteComponent,

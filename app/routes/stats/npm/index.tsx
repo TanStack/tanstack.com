@@ -2,7 +2,6 @@ import * as React from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import {
-  MdArrowBack,
   MdClose,
   MdLock,
   MdLockOpen,
@@ -16,9 +15,66 @@ import { ParentSize } from '@visx/responsive'
 import { Tooltip } from '~/components/Tooltip'
 import * as d3 from 'd3'
 import { useCombobox } from 'downshift'
-import { FaAngleRight, FaArrowLeft, FaSpinner } from 'react-icons/fa'
+import { FaAngleRight, FaSpinner } from 'react-icons/fa'
 import { HexColorPicker } from 'react-colorful'
-import { getLibrary } from '~/libraries'
+import { seo } from '~/utils/seo'
+
+export const Route = createFileRoute('/stats/npm/')({
+  validateSearch: z.object({
+    packages: z
+      .array(
+        z.object({
+          packages: z.array(z.string()),
+          color: z.string().nullable().optional(),
+        })
+      )
+      .optional()
+      .default([
+        {
+          packages: ['react'],
+          color: '#4da6d1',
+        },
+        {
+          packages: ['@tanstack/query-core', 'react-query'],
+          color: '#ff4500',
+        },
+      ]),
+    range: z
+      .enum([
+        '7-days',
+        '30-days',
+        '90-days',
+        '180-days',
+        '365-days',
+        '730-days',
+        '1825-days',
+        'all-time',
+      ])
+      .optional()
+      .default('365-days'),
+    baseline: z.string().optional(),
+    viewMode: z.enum(['absolute', 'relative']).optional(),
+    binningOption: z.enum(['yearly', 'monthly', 'weekly', 'daily']).optional(),
+    alignStartDates: z.boolean().optional().default(false),
+    height: z.number().optional().default(400),
+  }),
+  loaderDeps: ({ search }) => ({
+    packages: search.packages,
+    range: search.range,
+  }),
+  loader: async ({ deps }) => {
+    return deps
+  },
+  head: ({ loaderData }) => ({
+    meta: seo({
+      title: `NPM Download Stats by TanStack- ${loaderData.packages
+        ?.map((p) => p.packages)
+        .join(' vs ')}`,
+      description: `Explore and compare download statistics of one or more NPM packages over various time ranges. Analyze trends, growth patterns, and historical data to make informed decisions on package usage and popularity. `,
+    }),
+  }),
+  component: RouteComponent,
+})
 
 type NpmStats = {
   start: string
@@ -109,8 +165,6 @@ const defaultColors = [
   '#bcbd22', // yellow-green
   '#17becf', // cyan
 ] as const
-
-type PackageColor = (typeof defaultColors)[number]
 
 function npmQueryOptions({
   packages,
@@ -730,52 +784,6 @@ function NpmStatsChart({
     </div>
   )
 }
-
-export const Route = createFileRoute('/stats/npm/')({
-  validateSearch: z.object({
-    packages: z
-      .array(
-        z.object({
-          packages: z.array(z.string()),
-          color: z.string().nullable().optional(),
-        })
-      )
-      .optional()
-      .default([
-        {
-          packages: ['react'],
-          color: '#4da6d1',
-        },
-        {
-          packages: ['@tanstack/query-core', 'react-query'],
-          color: '#ff4500',
-        },
-      ]),
-    range: z
-      .enum([
-        '7-days',
-        '30-days',
-        '90-days',
-        '180-days',
-        '365-days',
-        '730-days',
-        '1825-days',
-        'all-time',
-      ])
-      .optional()
-      .default('365-days'),
-    baseline: z.string().optional(),
-    viewMode: z.enum(['absolute', 'relative']).optional(),
-    binningOption: z.enum(['yearly', 'monthly', 'weekly', 'daily']).optional(),
-    alignStartDates: z.boolean().optional().default(false),
-    height: z.number().optional().default(400),
-  }),
-  loaderDeps: ({ search }) => ({
-    packages: search.packages,
-    range: search.range,
-  }),
-  component: RouteComponent,
-})
 
 function PackageSearch() {
   const [items, setItems] = React.useState<NpmPackage[]>([])

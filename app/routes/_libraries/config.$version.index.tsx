@@ -15,6 +15,7 @@ import {
 } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
+import LandingPageGad from '~/components/LandingPageGad'
 
 export const Route = createFileRoute('/_libraries/config/$version/')({
   component: FormVersionIndex,
@@ -153,17 +154,7 @@ export default function FormVersionIndex() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
-          <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white">
-            <Carbon />
-          </div>
-          <span
-            className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
-                dark:bg-opacity-20"
-          >
-            This ad helps us keep the lights on 😉
-          </span>
-        </div>
+        <LandingPageGad />
 
         <div className="flex flex-col gap-4 items-center">
           <div className="font-extrabold text-xl lg:text-2xl">

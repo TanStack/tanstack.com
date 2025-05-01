@@ -951,15 +951,15 @@ function RouteComponent() {
         case '90-days':
           return 'weekly'
         case '180-days':
-          return 'monthly'
+          return 'weekly'
         case '365-days':
-          return 'monthly'
+          return 'weekly'
         case '730-days':
           return 'monthly'
         case '1825-days':
-          return 'yearly'
+          return 'monthly'
         case 'all-time':
-          return 'yearly'
+          return 'monthly'
       }
     })()
 

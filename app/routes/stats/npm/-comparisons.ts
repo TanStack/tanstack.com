@@ -74,7 +74,7 @@ export function getPopularComparisons(): PackageComparison[] {
           color: '#FFCA28',
         },
         {
-          packages: ['mui-datatables'],
+          packages: ['@mui/x-data-grid', 'mui-datatables'],
           color: '#1976D2',
         },
         {
@@ -107,7 +107,7 @@ export function getPopularComparisons(): PackageComparison[] {
           color: '#6C5CE7',
         },
         {
-          packages: ['virtuoso'],
+          packages: ['react-virtuoso'],
           color: '#00B894',
         },
       ],

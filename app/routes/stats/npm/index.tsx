@@ -24,6 +24,8 @@ import {
   GadLeftRailSquare,
   GadRightRailSquare,
 } from '~/components/GoogleScripts'
+import { twMerge } from 'tailwind-merge'
+import logoColor100w from '~/images/logo-color-100w.png'
 
 export const Route = createFileRoute('/stats/npm/')({
   validateSearch: z.object({
@@ -1237,8 +1239,13 @@ function RouteComponent() {
   return (
     <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4">
       <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex items-center gap-2 text-lg sm:text-xl shadow-xl">
-        <Link to="/" className="hover:text-blue-500">
-          Home
+        <Link to="/" className={twMerge(`flex items-center gap-1.5`)}>
+          <img
+            src={logoColor100w}
+            alt=""
+            className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
+          />
+          <div className="font-black text-xl uppercase">TanStack</div>
         </Link>
         <FaAngleRight />
         <Link to="." className="hover:text-blue-500 flex items-center gap-2">

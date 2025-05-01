@@ -1755,9 +1755,6 @@ function RouteComponent() {
               ))}
             </div>
           </div>
-          <div className="!mt-24 mx-auto max-w-full overflow-x-hidden">
-            <GadFooter />
-          </div>
         </div>
         <div className="hidden lg:block w-[290px] xl:w-[332px] shrink-0">
           <div className="sticky top-4 space-y-4">
@@ -1781,14 +1778,21 @@ function RouteComponent() {
               </div>
             </div>
             <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
-              <GadRightRailSquare />
+              <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
+                <GadRightRailSquare />
+              </div>
             </div>
 
             <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
-              <GadLeftRailSquare />
+              <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
+                <GadLeftRailSquare />
+              </div>
             </div>
           </div>
         </div>
+      </div>
+      <div className="!mt-24 mx-auto max-w-full overflow-x-hidden">
+        <GadFooter />
       </div>
     </div>
   )

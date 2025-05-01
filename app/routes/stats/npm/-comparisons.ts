@@ -174,8 +174,12 @@ export function getPopularComparisons(): PackageComparison[] {
           color: '#646CFF',
         },
         {
-          packages: ['@rollup/rollup'],
+          packages: ['rollup'],
           color: '#EC4A3F',
+        },
+        {
+          packages: ['rolldown'],
+          color: '#FF5733',
         },
         {
           packages: ['esbuild'],
@@ -190,7 +194,7 @@ export function getPopularComparisons(): PackageComparison[] {
           color: '#2D8CFF',
         },
         {
-          packages: ['@rspack/cli'],
+          packages: ['@rspack/core'],
           color: '#8DD6F9',
         },
       ],

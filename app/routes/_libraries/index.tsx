@@ -355,7 +355,7 @@ function Index() {
             style={{
               aspectRatio: '1/1',
             }}
-            className="max-w-2xl mx-auto"
+            className="max-w-[1000px] mx-auto"
           >
             <Await
               promise={sponsorsPromise}

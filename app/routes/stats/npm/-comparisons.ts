@@ -171,11 +171,11 @@ export function getPopularComparisons(): PackageComparison[] {
         },
         {
           packages: ['vite'],
-          color: '#646CFF',
+          color: '#008000', // Green color
         },
         {
           packages: ['rollup'],
-          color: '#EC4A3F',
+          color: '#e80A3F',
         },
         {
           packages: ['rolldown'],
@@ -237,7 +237,7 @@ export function getPopularComparisons(): PackageComparison[] {
         },
         {
           packages: ['@tanstack/form-core'],
-          color: '#FF4500',
+          color: '#FFD700',
         },
         {
           packages: ['conform'],
@@ -258,7 +258,7 @@ export function getPopularComparisons(): PackageComparison[] {
         },
         {
           packages: ['@radix-ui/themes'],
-          color: '#14b8a6',
+          color: '#FF6F61',
         },
         {
           packages: ['@headlessui/react'],
@@ -266,11 +266,7 @@ export function getPopularComparisons(): PackageComparison[] {
         },
         {
           packages: ['@mantine/core'],
-          color: '#339AF0',
-        },
-        {
-          packages: ['@nextui-org/react'],
-          color: '#0ea5e9',
+          color: '#FFD700',
         },
       ],
     },
@@ -278,28 +274,28 @@ export function getPopularComparisons(): PackageComparison[] {
       title: 'Animation Libraries',
       packages: [
         {
-          packages: ['framer-motion'],
+          packages: ['motion', 'framer-motion'],
           color: '#FF0055',
         },
         {
           packages: ['react-spring'],
-          color: '#FF6B6B',
+          color: '#FF7F50',
         },
         {
           packages: ['@react-spring/web'],
-          color: '#FF6B6B',
+          color: '#FF4500',
         },
         {
           packages: ['gsap'],
-          color: '#88CE02',
+          color: '#32CD32',
         },
         {
           packages: ['@motionone/dom'],
-          color: '#FF0055',
+          color: '#FF1493',
         },
         {
           packages: ['auto-animate'],
-          color: '#F59E0B',
+          color: '#FFD700',
         },
       ],
     },
@@ -324,7 +320,7 @@ export function getPopularComparisons(): PackageComparison[] {
         },
         {
           packages: ['@date-io/date-fns'],
-          color: '#E91E63',
+          color: '#FFD700',
         },
         {
           packages: ['temporal-polyfill'],
@@ -366,15 +362,15 @@ export function getPopularComparisons(): PackageComparison[] {
       packages: [
         {
           packages: ['react-router'],
-          color: '#CA4245',
+          color: '#FF0000',
         },
         {
           packages: ['@tanstack/react-router'],
-          color: '#FF4500',
+          color: '#32CD32',
         },
         {
           packages: ['next'],
-          color: '#84cc16',
+          color: '#4682B4',
         },
         {
           packages: ['wouter'],

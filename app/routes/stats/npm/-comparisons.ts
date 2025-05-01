@@ -240,7 +240,7 @@ export function getPopularComparisons(): PackageComparison[] {
           color: '#FFD700',
         },
         {
-          packages: ['conform'],
+          packages: ['@conform-to/dom'],
           color: '#FF5733',
         },
       ],

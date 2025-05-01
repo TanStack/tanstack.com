@@ -1,6 +1,6 @@
 ---
 title: A milestone for TypeScript Performance in TanStack Router
-published: 09/17/2024
+published: 2024-09-17
 authors:
   - Christopher Horobin
 ---

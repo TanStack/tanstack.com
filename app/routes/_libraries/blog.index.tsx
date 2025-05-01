@@ -1,63 +1,28 @@
-import { Link, createFileRoute, notFound } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
-import { formatAuthors, getPostList } from '~/utils/blog'
+import { formatAuthors } from '~/utils/blog'
 import { DocTitle } from '~/components/DocTitle'
 import { Markdown } from '~/components/Markdown'
 import { format } from 'date-fns'
 import { Footer } from '~/components/Footer'
-import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/start'
+import { allPosts } from "content-collections";
 import { setHeaders } from 'vinxi/http'
 
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const postInfos = getPostList()
+    setHeaders({
+      'cache-control': 'public, max-age=0, must-revalidate',
+      'cdn-cache-control':
+        'max-age=300, stale-while-revalidate=300, durable',
+      'Netlify-Vary': 'query=payload',
+    })
 
-    const frontMatters = await Promise.all(
-      postInfos.map(async (info) => {
-        const filePath = `app/blog/${info.id}.md`
-
-        const file = await fetchRepoFile(
-          'tanstack/tanstack.com',
-          'main',
-          filePath
-        )
-
-        if (!file) {
-          throw notFound()
-        }
-
-        const frontMatter = extractFrontMatter(file)
-
-        setHeaders({
-          'cache-control': 'public, max-age=0, must-revalidate',
-          'cdn-cache-control':
-            'max-age=300, stale-while-revalidate=300, durable',
-          'Netlify-Vary': 'query=payload',
-        })
-
-        return [
-          info.id,
-          {
-            title: frontMatter.data.title,
-            published: frontMatter.data.published,
-            excerpt: frontMatter.excerpt,
-            authors: frontMatter.data.authors as Array<string> | undefined,
-          },
-        ] as const
-      })
-    )
-
-    return frontMatters.sort((a, b) => {
-      if (!a[1].published) {
-        return 1
-      }
-
-      return (
-        new Date(b[1].published || 0).getTime() -
-        new Date(a[1].published || 0).getTime()
-      )
+    return allPosts.map(post => {
+      return post;
+    }).sort((a, b) => {
+      return new Date(b.published).getTime() -  new Date(a.published).getTime()
     })
 
     // return json(frontMatters, {
@@ -94,11 +59,11 @@ function BlogIndex() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
           {frontMatters.map(
-            ([id, { title, published, excerpt, authors = [] }]) => {
+            ({ _meta: {path}, title, published, excerpt, authors = [] }) => {
               return (
                 <Link
-                  key={id}
-                  to={`${id}`}
+                  key={path}
+                  to={`${path}`}
                   className={`flex flex-col gap-4 justify-between
                   border-2 border-transparent rounded-lg p-4 md:p-8
                   transition-all bg-white/100 dark:bg-gray-800

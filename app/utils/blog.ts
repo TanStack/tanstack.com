@@ -1,32 +1,3 @@
-export function getPostList() {
-  return [
-    {
-      id: 'announcing-tanstack-form-v1',
-    },
-    {
-      id: 'announcing-tanstack-query-v5',
-    },
-    {
-      id: 'announcing-tanstack-query-v4',
-    },
-    {
-      id: 'ag-grid-partnership',
-    },
-    {
-      id: 'tanstack-router-typescript-performance',
-    },
-    {
-      id: 'why-tanstack-start-is-ditching-adapters',
-    },
-    {
-      id: 'why-tanstack-start-and-router',
-    },
-    {
-      id: 'netlify-partnership',
-    },
-  ]
-}
-
 export function formatAuthors(authors: Array<string>) {
   if (!authors.length) {
     return 'TanStack'

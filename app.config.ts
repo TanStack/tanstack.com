@@ -1,5 +1,6 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { defineConfig } from '@tanstack/start/config'
+import contentCollections from "@content-collections/vinxi";
 import tsConfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
@@ -9,6 +10,7 @@ export default defineConfig({
   vite: {
     plugins: [
       tsConfigPaths(),
+      contentCollections(),
       (() => {
         const replacements = [
           // replace `throw Error(p(418))` with `console.error(p(418))`

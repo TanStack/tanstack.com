@@ -163,7 +163,7 @@ export function GadRightRailSquare() {
     >
       <Link
         to={`/${randomLibrary.id}`}
-        className="flex flex-col justify-center items-center h-[250px] gap-4 group"
+        className="flex flex-col justify-center items-center h-[250px] w-[250px] gap-4 group"
       >
         <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
           <span>TanStack</span>
@@ -207,7 +207,7 @@ export function GadLeftRailSquare() {
     >
       <Link
         to={`/${randomRemainingLibrary.id}`}
-        className="flex flex-col justify-center items-center h-[250px] gap-4 group"
+        className="flex flex-col justify-center items-center h-[250px] w-[250px] gap-4 group"
       >
         <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
           <span>TanStack</span>

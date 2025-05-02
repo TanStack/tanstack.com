@@ -1,6 +1,6 @@
 ---
 title: TanStack + Netlify Partnership
-published: 3/18/2025
+published: 2025-03-18
 authors:
   - Tanner Linsley
 ---

@@ -1,6 +1,4 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router'
-import { extractFrontMatter, fetchRepoFile } from '~/utils/documents.server'
-import removeMarkdown from 'remove-markdown'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'
@@ -11,6 +9,7 @@ import { z } from 'zod'
 import { FaArrowLeft } from 'react-icons/fa'
 import { DocContainer } from '~/components/DocContainer'
 import { setHeaders } from 'vinxi/http'
+import { allPosts } from 'content-collections'
 
 const fetchBlogPost = createServerFn({ method: 'GET' })
   .validator(z.string().optional())
@@ -21,14 +20,11 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
 
     const filePath = `app/blog/${docsPath}.md`
 
-    const file = await fetchRepoFile('tanstack/tanstack.com', 'main', filePath)
+    const post = allPosts.find((post) => post.slug === docsPath)
 
-    if (!file) {
+    if (!post) {
       throw notFound()
     }
-
-    const frontMatter = extractFrontMatter(file)
-    const description = removeMarkdown(frontMatter.excerpt ?? '')
 
     setHeaders({
       'cache-control': 'public, max-age=0, must-revalidate',
@@ -37,11 +33,11 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
     })
 
     return {
-      title: frontMatter.data.title,
-      description,
-      published: frontMatter.data.published,
-      content: frontMatter.content,
-      authors: (frontMatter.data.authors ?? []) as Array<string>,
+      title: post.title,
+      description: post.excerpt,
+      published: post.published,
+      content: post.content,
+      authors: post.authors,
       filePath,
     }
   })

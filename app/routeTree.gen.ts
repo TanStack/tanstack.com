@@ -17,6 +17,7 @@ import { Route as LoginImport } from './routes/login'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as LibrariesRouteImport } from './routes/_libraries/route'
 import { Route as LibraryIdRouteImport } from './routes/$libraryId/route'
+import { Route as StatsIndexImport } from './routes/stats/index'
 import { Route as LibrariesIndexImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexImport } from './routes/$libraryId/index'
 import { Route as LibrariesTermsImport } from './routes/_libraries/terms'
@@ -82,6 +83,12 @@ const LibrariesRouteRoute = LibrariesRouteImport.update({
 const LibraryIdRouteRoute = LibraryIdRouteImport.update({
   id: '/$libraryId',
   path: '/$libraryId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const StatsIndexRoute = StatsIndexImport.update({
+  id: '/stats/',
+  path: '/stats/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -399,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesIndexImport
       parentRoute: typeof LibrariesRouteImport
     }
+    '/stats/': {
+      id: '/stats/'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/$libraryId/$version/docs': {
       id: '/$libraryId/$version/docs'
       path: '/docs'
@@ -671,6 +685,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof LibrariesTermsRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
+  '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/blog/': typeof LibrariesBlogIndexRoute
@@ -707,6 +722,7 @@ export interface FileRoutesByTo {
   '/terms': typeof LibrariesTermsRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
+  '/stats': typeof StatsIndexRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/blog': typeof LibrariesBlogIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
@@ -746,6 +762,7 @@ export interface FileRoutesById {
   '/_libraries/terms': typeof LibrariesTermsRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/_libraries/': typeof LibrariesIndexRoute
+  '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
@@ -787,6 +804,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/$libraryId/'
     | '/'
+    | '/stats'
     | '/$libraryId/$version/docs'
     | '/blog/$'
     | '/blog/'
@@ -822,6 +840,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/$libraryId'
     | '/'
+    | '/stats'
     | '/blog/$'
     | '/blog'
     | '/stats/npm'
@@ -859,6 +878,7 @@ export interface FileRouteTypes {
     | '/_libraries/terms'
     | '/$libraryId/'
     | '/_libraries/'
+    | '/stats/'
     | '/$libraryId/$version/docs'
     | '/_libraries/blog/$'
     | '/_libraries/blog/'
@@ -889,6 +909,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MerchRoute: typeof MerchRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
+  StatsIndexRoute: typeof StatsIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
 }
 
@@ -899,6 +920,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MerchRoute: MerchRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
+  StatsIndexRoute: StatsIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
 }
 
@@ -918,6 +940,7 @@ export const routeTree = rootRoute
         "/login",
         "/merch",
         "/sponsors-embed",
+        "/stats/",
         "/stats/npm/"
       ]
     },
@@ -1009,6 +1032,9 @@ export const routeTree = rootRoute
     "/_libraries/": {
       "filePath": "_libraries/index.tsx",
       "parent": "/_libraries"
+    },
+    "/stats/": {
+      "filePath": "stats/index.tsx"
     },
     "/$libraryId/$version/docs": {
       "filePath": "$libraryId/$version.docs.tsx",

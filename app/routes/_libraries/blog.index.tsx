@@ -64,7 +64,8 @@ function BlogIndex() {
               return (
                 <Link
                   key={path}
-                  to={`${path}`}
+                  to="/blog/$"
+                  params={{ _splat: path }}
                   className={`flex flex-col gap-4 justify-between
                   border-2 border-transparent rounded-lg p-4 md:p-8
                   transition-all bg-white/100 dark:bg-gray-800

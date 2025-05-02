@@ -18,13 +18,9 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
       'Netlify-Vary': 'query=payload',
     })
 
-    return allPosts
-      .map((post) => {
-        return post
-      })
-      .sort((a, b) => {
-        return new Date(b.published).getTime() - new Date(a.published).getTime()
-      })
+    return allPosts.sort((a, b) => {
+      return new Date(b.published).getTime() - new Date(a.published).getTime()
+    })
 
     // return json(frontMatters, {
     //   headers: {
@@ -59,51 +55,49 @@ function BlogIndex() {
           <div className="h-6" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
-          {frontMatters.map(
-            ({ _meta: { path }, title, published, excerpt, authors = [] }) => {
-              return (
-                <Link
-                  key={path}
-                  to="/blog/$"
-                  params={{ _splat: path }}
-                  className={`flex flex-col gap-4 justify-between
+          {frontMatters.map(({ slug, title, published, excerpt, authors }) => {
+            return (
+              <Link
+                key={slug}
+                to="/blog/$"
+                params={{ _splat: slug }}
+                className={`flex flex-col gap-4 justify-between
                   border-2 border-transparent rounded-lg p-4 md:p-8
                   transition-all bg-white/100 dark:bg-gray-800
                   shadow-xl dark:shadow-lg dark:shadow-blue-500/30
                   hover:border-blue-500
               `}
-                >
-                  <div>
-                    <div className={`text-lg font-extrabold`}>{title}</div>
-                    <div className={`text-xs italic font-light mt-1`}>
-                      <p>
-                        by {formatAuthors(authors)}
-                        {published ? (
-                          <time
-                            dateTime={published}
-                            title={format(new Date(published), 'MMM dd, yyyy')}
-                          >
-                            {' '}
-                            on {format(new Date(published), 'MMM dd, yyyy')}
-                          </time>
-                        ) : null}
-                      </p>
-                    </div>
-                    <div
-                      className={`text-sm mt-4 text-black dark:text-white leading-7`}
-                    >
-                      <Markdown rawContent={excerpt || ''} />
-                    </div>
+              >
+                <div>
+                  <div className={`text-lg font-extrabold`}>{title}</div>
+                  <div className={`text-xs italic font-light mt-1`}>
+                    <p>
+                      by {formatAuthors(authors)}
+                      {published ? (
+                        <time
+                          dateTime={published}
+                          title={format(new Date(published), 'MMM dd, yyyy')}
+                        >
+                          {' '}
+                          on {format(new Date(published), 'MMM dd, yyyy')}
+                        </time>
+                      ) : null}
+                    </p>
                   </div>
-                  <div>
-                    <div className="text-blue-500 uppercase font-black text-sm">
-                      Read More
-                    </div>
+                  <div
+                    className={`text-sm mt-4 text-black dark:text-white leading-7`}
+                  >
+                    <Markdown rawContent={excerpt || ''} />
                   </div>
-                </Link>
-              )
-            }
-          )}
+                </div>
+                <div>
+                  <div className="text-blue-500 uppercase font-black text-sm">
+                    Read More
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
         </div>
         <div className="h-24" />
       </div>

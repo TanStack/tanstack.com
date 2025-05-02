@@ -1,4 +1,4 @@
-const joiner = new Intl.ListFormat('en-US', {
+const listJoiner = new Intl.ListFormat('en-US', {
   style: 'long',
   type: 'conjunction',
 })
@@ -8,5 +8,5 @@ export function formatAuthors(authors: Array<string>) {
     return 'TanStack'
   }
 
-  return joiner.format(authors)
+  return listJoiner.format(authors)
 }

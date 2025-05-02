@@ -180,9 +180,9 @@ importers:
       '@content-collections/core':
         specifier: ^0.8.2
         version: 0.8.2(typescript@5.6.3)
-      '@content-collections/vinxi':
-        specifier: ^0.1.0
-        version: 0.1.0(@content-collections/core@0.8.2(typescript@5.6.3))
+      '@content-collections/vite':
+        specifier: ^0.2.4
+        version: 0.2.4(@content-collections/core@0.8.2(typescript@5.6.3))
       '@shikijs/transformers':
         specifier: ^1.10.3
         version: 1.10.3
@@ -1021,8 +1021,13 @@ packages:
     peerDependencies:
       typescript: ^5.0.2
 
-  '@content-collections/vinxi@0.1.0':
-    resolution: {integrity: sha512-DB80W3Rb+pBTGr+qBXSFn6llRe1YOCKjXUo5ye31lXiP8md0jA7I1/dvmxsXQAYPg5TRbNcMN+Mj7BjnNinLSg==}
+  '@content-collections/integrations@0.2.1':
+    resolution: {integrity: sha512-AyEcS2MmcOXSYt6vNmJsAiu6EBYjtNiwYGUVUmpG3llm8Gt8uiNrhIhlHyv3cuk+N8KJ2PWemLcMqtQJ+sW3bA==}
+    peerDependencies:
+      '@content-collections/core': 0.x
+
+  '@content-collections/vite@0.2.4':
+    resolution: {integrity: sha512-3+n7pUnUMyjVasZLyxoUEU9VtJigWN/REliCyvAjsm0obv+6UpHAiRrkuLhn9luKAiHw4PRcFIJefBGz4i8Uzw==}
     peerDependencies:
       '@content-collections/core': ^0.x
       vite: ^5
@@ -8030,9 +8035,14 @@ snapshots:
       yaml: 2.7.1
       zod: 3.24.1
 
-  '@content-collections/vinxi@0.1.0(@content-collections/core@0.8.2(typescript@5.6.3))':
+  '@content-collections/integrations@0.2.1(@content-collections/core@0.8.2(typescript@5.6.3))':
     dependencies:
       '@content-collections/core': 0.8.2(typescript@5.6.3)
+
+  '@content-collections/vite@0.2.4(@content-collections/core@0.8.2(typescript@5.6.3))':
+    dependencies:
+      '@content-collections/core': 0.8.2(typescript@5.6.3)
+      '@content-collections/integrations': 0.2.1(@content-collections/core@0.8.2(typescript@5.6.3))
 
   '@convex-dev/crons@0.1.5(convex@1.17.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0))':
     dependencies:

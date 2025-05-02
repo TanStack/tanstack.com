@@ -1965,9 +1965,9 @@ function RouteComponent() {
                             >
                               <div className="inline-flex items-center gap-1">
                                 {stat!.growth > 0 ? (
-                                  <MdArrowDownward />
-                                ) : (
                                   <MdArrowUpward />
+                                ) : (
+                                  <MdArrowDownward />
                                 )}
                                 {formatNumber(Math.abs(stat!.growth))}
                               </div>
@@ -1983,9 +1983,9 @@ function RouteComponent() {
                             >
                               <div className="inline-flex items-center gap-1">
                                 {stat!.growthPercentage > 0 ? (
-                                  <MdArrowDownward />
-                                ) : (
                                   <MdArrowUpward />
+                                ) : (
+                                  <MdArrowDownward />
                                 )}
                                 {Math.abs(stat!.growthPercentage).toFixed(1)}%
                               </div>

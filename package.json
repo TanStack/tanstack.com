@@ -75,6 +75,8 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
+    "@content-collections/core": "^0.8.2",
+    "@content-collections/vite": "^0.2.4",
     "@shikijs/transformers": "^1.10.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

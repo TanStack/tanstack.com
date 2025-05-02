@@ -1,386 +1,398 @@
-export type PackageComparison = {
-  title: string
-  packages: Array<{
-    packages: string[]
-    color: string
-  }>
-}
+import { z } from 'zod'
+import { packageComparisonSchema } from './index'
 
-export function getPopularComparisons(): PackageComparison[] {
+export function getPopularComparisons(): z.input<
+  typeof packageComparisonSchema
+>[] {
   return [
     {
       title: 'Data Fetching',
-      packages: [
+      packageGroups: [
         {
-          packages: ['@tanstack/react-query', 'react-query'],
+          packages: [
+            { name: '@tanstack/react-query' },
+            { name: 'react-query' },
+          ],
           color: '#FF4500',
         },
         {
-          packages: ['swr'],
+          packages: [{ name: 'swr' }],
           color: '#ec4899',
         },
         {
-          packages: ['@apollo/client'],
+          packages: [{ name: '@apollo/client' }],
           color: '#6B46C1',
         },
         {
-          packages: ['@trpc/client'],
+          packages: [{ name: '@trpc/client' }],
           color: '#2596BE',
         },
       ],
     },
     {
       title: 'State Management',
-      packages: [
+      packageGroups: [
         {
-          packages: ['redux'],
+          packages: [{ name: 'redux' }],
           color: '#764ABC',
         },
         {
-          packages: ['mobx'],
+          packages: [{ name: 'mobx' }],
           color: '#FF9955',
         },
         {
-          packages: ['zustand'],
+          packages: [{ name: 'zustand' }],
           color: '#764ABC',
         },
         {
-          packages: ['jotai'],
+          packages: [{ name: 'jotai' }],
           color: '#6366f1',
         },
         {
-          packages: ['valtio'],
+          packages: [{ name: 'valtio' }],
           color: '#FF6B6B',
         },
         {
-          packages: ['@tanstack/react-query', 'react-query'],
+          packages: [
+            { name: '@tanstack/react-query' },
+            { name: 'react-query' },
+          ],
           color: '#FF4500',
         },
       ],
     },
     {
-      title: 'Table/Grid Libraries',
-      packages: [
+      title: 'Data Grids',
+      packageGroups: [
         {
-          packages: ['ag-grid-community', 'ag-grid-enterprise'],
+          packages: [
+            { name: 'ag-grid-community' },
+            { name: 'ag-grid-enterprise' },
+          ],
           color: '#29B6F6',
         },
         {
-          packages: ['@tanstack/react-table', 'react-table'],
+          packages: [
+            { name: '@tanstack/react-table' },
+            { name: 'react-table' },
+          ],
           color: '#FF7043',
         },
         {
-          packages: ['handsontable'],
+          packages: [{ name: 'handsontable' }],
           color: '#FFCA28',
         },
         {
-          packages: ['@mui/x-data-grid', 'mui-datatables'],
+          packages: [{ name: '@mui/x-data-grid' }, { name: 'mui-datatables' }],
           color: '#1976D2',
         },
         {
-          packages: ['react-data-grid'],
+          packages: [{ name: 'react-data-grid' }],
           color: '#4CAF50',
         },
       ],
     },
     {
-      title: 'Virtualization Libraries',
-      packages: [
+      title: 'Virtualization',
+      packageGroups: [
         {
-          packages: ['react-virtualized'],
+          packages: [{ name: 'react-virtualized' }],
           color: '#FF6B6B',
         },
         {
-          packages: ['react-window'],
+          packages: [{ name: 'react-window' }],
           color: '#4ECDC4',
         },
         {
-          packages: ['@tanstack/react-virtual', 'react-virtual'],
+          packages: [
+            { name: '@tanstack/react-virtual' },
+            { name: 'react-virtual' },
+          ],
           color: '#FF4500',
         },
         {
-          packages: ['react-lazyload'],
+          packages: [{ name: 'react-lazyload' }],
           color: '#FFD93D',
         },
         {
-          packages: ['virtua'],
+          packages: [{ name: 'virtua' }],
           color: '#6C5CE7',
         },
         {
-          packages: ['react-virtuoso'],
+          packages: [{ name: 'react-virtuoso' }],
           color: '#00B894',
         },
       ],
     },
     {
-      title: 'UI Frameworks',
-      packages: [
+      title: 'Frameworks',
+      packageGroups: [
         {
-          packages: ['react'],
+          packages: [{ name: 'react' }],
           color: '#61DAFB',
         },
         {
-          packages: ['vue'],
+          packages: [{ name: 'vue' }],
           color: '#41B883',
         },
         {
-          packages: ['@angular/core'],
+          packages: [{ name: '@angular/core' }],
           color: '#DD0031',
         },
         {
-          packages: ['svelte'],
+          packages: [{ name: 'svelte' }],
           color: '#FF3E00',
         },
         {
-          packages: ['preact'],
+          packages: [{ name: 'preact' }],
           color: '#673AB8',
         },
       ],
     },
     {
-      title: 'CSS Frameworks',
-      packages: [
+      title: 'Styling',
+      packageGroups: [
         {
-          packages: ['tailwindcss'],
+          packages: [{ name: 'tailwindcss' }],
           color: '#06B6D4',
         },
         {
-          packages: ['bootstrap'],
+          packages: [{ name: 'bootstrap' }],
           color: '#7952B3',
         },
         {
-          packages: ['@emotion/react'],
+          packages: [{ name: '@emotion/react' }],
           color: '#D36AC2',
         },
         {
-          packages: ['@stitches/react'],
+          packages: [{ name: '@stitches/react' }],
           color: '#8b5cf6',
         },
         {
-          packages: ['@vanilla-extract/css'],
+          packages: [{ name: '@vanilla-extract/css' }],
           color: '#FFB6C1',
         },
       ],
     },
     {
       title: 'Build Tools',
-      packages: [
+      packageGroups: [
         {
-          packages: ['webpack'],
+          packages: [{ name: 'webpack' }],
           color: '#8DD6F9',
         },
         {
-          packages: ['vite'],
-          color: '#008000', // Green color
+          packages: [{ name: 'vite' }],
+          color: '#008000',
         },
         {
-          packages: ['rollup'],
+          packages: [{ name: 'rollup' }],
           color: '#e80A3F',
         },
         {
-          packages: ['rolldown'],
+          packages: [{ name: 'rolldown' }],
           color: '#FF5733',
         },
         {
-          packages: ['esbuild'],
+          packages: [{ name: 'esbuild' }],
           color: '#FFCF00',
         },
         {
-          packages: ['@swc/core'],
+          packages: [{ name: '@swc/core' }],
           color: '#DEAD0F',
         },
         {
-          packages: ['parcel'],
+          packages: [{ name: 'parcel' }],
           color: '#2D8CFF',
         },
         {
-          packages: ['@rspack/core'],
+          packages: [{ name: '@rspack/core' }],
           color: '#8DD6F9',
         },
       ],
     },
     {
-      title: 'Testing Frameworks',
-      packages: [
+      title: 'Testing',
+      packageGroups: [
         {
-          packages: ['jest'],
+          packages: [{ name: 'jest' }],
           color: '#C21325',
         },
         {
-          packages: ['vitest'],
+          packages: [{ name: 'vitest' }],
           color: '#646CFF',
         },
         {
-          packages: ['@testing-library/react'],
+          packages: [{ name: '@testing-library/react' }],
           color: '#E33332',
         },
         {
-          packages: ['cypress'],
+          packages: [{ name: 'cypress' }],
           color: '#4A5568',
         },
         {
-          packages: ['playwright'],
+          packages: [{ name: 'playwright' }],
           color: '#2EAD33',
         },
         {
-          packages: ['@storybook/react'],
+          packages: [{ name: '@storybook/react' }],
           color: '#FF4785',
         },
       ],
     },
     {
-      title: 'Form Libraries',
-      packages: [
+      title: 'Forms',
+      packageGroups: [
         {
-          packages: ['react-hook-form'],
+          packages: [{ name: 'react-hook-form' }],
           color: '#EC5990',
         },
         {
-          packages: ['@tanstack/form-core'],
+          packages: [{ name: '@tanstack/form-core' }],
           color: '#FFD700',
         },
         {
-          packages: ['@conform-to/dom'],
+          packages: [{ name: '@conform-to/dom' }],
           color: '#FF5733',
         },
       ],
     },
     {
-      title: 'UI Component Libraries',
-      packages: [
+      title: 'UI Components',
+      packageGroups: [
         {
-          packages: ['@mui/material'],
+          packages: [{ name: '@mui/material' }],
           color: '#0081CB',
         },
         {
-          packages: ['@chakra-ui/react'],
+          packages: [{ name: '@chakra-ui/react' }],
           color: '#319795',
         },
         {
-          packages: ['@radix-ui/themes'],
+          packages: [{ name: '@radix-ui/themes' }],
           color: '#FF6F61',
         },
         {
-          packages: ['@headlessui/react'],
+          packages: [{ name: '@headlessui/react' }],
           color: '#f43f5e',
         },
         {
-          packages: ['@mantine/core'],
+          packages: [{ name: '@mantine/core' }],
           color: '#FFD700',
         },
       ],
     },
     {
-      title: 'Animation Libraries',
-      packages: [
+      title: 'Animation',
+      packageGroups: [
         {
-          packages: ['motion', 'framer-motion'],
+          packages: [{ name: 'motion' }, { name: 'framer-motion' }],
           color: '#FF0055',
         },
         {
-          packages: ['react-spring'],
+          packages: [{ name: 'react-spring' }],
           color: '#FF7F50',
         },
         {
-          packages: ['@react-spring/web'],
+          packages: [{ name: '@react-spring/web' }],
           color: '#FF4500',
         },
         {
-          packages: ['gsap'],
+          packages: [{ name: 'gsap' }],
           color: '#32CD32',
         },
         {
-          packages: ['@motionone/dom'],
+          packages: [{ name: '@motionone/dom' }],
           color: '#FF1493',
         },
         {
-          packages: ['auto-animate'],
+          packages: [{ name: 'auto-animate' }],
           color: '#FFD700',
         },
       ],
     },
     {
-      title: 'Date Libraries',
-      packages: [
+      title: 'Date & Time',
+      packageGroups: [
         {
-          packages: ['date-fns'],
+          packages: [{ name: 'date-fns' }],
           color: '#E91E63',
         },
         {
-          packages: ['dayjs'],
+          packages: [{ name: 'dayjs' }],
           color: '#FF6B6B',
         },
         {
-          packages: ['luxon'],
+          packages: [{ name: 'luxon' }],
           color: '#3498DB',
         },
         {
-          packages: ['moment'],
+          packages: [{ name: 'moment' }],
           color: '#4A5568',
         },
         {
-          packages: ['@date-io/date-fns'],
+          packages: [{ name: '@date-io/date-fns' }],
           color: '#FFD700',
         },
         {
-          packages: ['temporal-polyfill'],
+          packages: [{ name: 'temporal-polyfill' }],
           color: '#a855f7',
         },
       ],
     },
     {
-      title: 'Type Checking',
-      packages: [
+      title: 'Validation',
+      packageGroups: [
         {
-          packages: ['zod'],
+          packages: [{ name: 'zod' }],
           color: '#ef4444',
         },
         {
-          packages: ['io-ts'],
+          packages: [{ name: 'io-ts' }],
           color: '#3b82f6',
         },
         {
-          packages: ['arktype'],
+          packages: [{ name: 'arktype' }],
           color: '#10b981',
         },
         {
-          packages: ['valibot'],
+          packages: [{ name: 'valibot' }],
           color: '#f97316',
         },
         {
-          packages: ['yup'],
+          packages: [{ name: 'yup' }],
           color: '#06b6d4',
         },
         {
-          packages: ['@sinclair/typebox'],
+          packages: [{ name: '@sinclair/typebox' }],
           color: '#d946ef',
         },
       ],
     },
     {
       title: 'Routing',
-      packages: [
+      packageGroups: [
         {
-          packages: ['react-router'],
+          packages: [{ name: 'react-router' }],
           color: '#FF0000',
         },
         {
-          packages: ['@tanstack/react-router'],
+          packages: [{ name: '@tanstack/react-router' }],
           color: '#32CD32',
         },
         {
-          packages: ['next'],
+          packages: [{ name: 'next' }],
           color: '#4682B4',
         },
         {
-          packages: ['wouter'],
+          packages: [{ name: 'wouter' }],
           color: '#8b5cf6',
         },
         {
-          packages: ['expo'],
+          packages: [{ name: 'expo' }],
           color: '#f59e0b',
         },
       ],
     },
-  ]
+  ] as const
 }

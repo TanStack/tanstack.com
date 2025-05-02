@@ -531,8 +531,6 @@ function NpmStatsChart({
       })
     : undefined
 
-  console.log(baselinePackage)
-
   const baseLineCorrectionsByDate =
     baselinePackage && subfilteredPackageGroups.length
       ? (() => {

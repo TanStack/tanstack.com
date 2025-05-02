@@ -1,6 +1,6 @@
 ---
 title: Why TanStack Start is Ditching Adapters
-published: 11/22/2024
+published: 2024-11-22
 authors:
   - Tanner Linsley
 ---

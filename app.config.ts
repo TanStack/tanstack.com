@@ -1,5 +1,6 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { defineConfig } from '@tanstack/start/config'
+import contentCollections from '@content-collections/vite'
 import tsConfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
@@ -45,6 +46,7 @@ export default defineConfig({
             org: 'tanstack',
             project: 'tanstack-com',
           }),
+          contentCollections(),
         ],
       },
     },

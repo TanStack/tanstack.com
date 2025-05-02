@@ -15,6 +15,7 @@ import { seo } from '~/utils/seo'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
+import LandingPageGad from '~/components/LandingPageGad'
 
 export const Route = createFileRoute('/_libraries/router/$version/')({
   component: RouterVersionIndex,
@@ -142,19 +143,6 @@ function RouterVersionIndex() {
         </div>
       </div>
 
-      {/* <div className="mx-auto max-w-[400px] flex flex-col gap-2 items-center">
-        <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white max-w-[250px] mx-auto">
-          <Carbon />
-        </div>
-        <span
-          className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
-                dark:bg-opacity-20"
-        >
-          This ad helps us be happy about our invested time and not burn out and
-          rage-quit OSS. Yay money! 😉
-        </span>
-      </div> */}
-
       <div className="relative text-lg overflow-hidden">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Sponsors
@@ -182,6 +170,8 @@ function RouterVersionIndex() {
           </a>
         </div>
       </div>
+
+      <LandingPageGad />
 
       <div>
         <div className="flex flex-col gap-4">

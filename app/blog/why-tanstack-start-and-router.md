@@ -1,6 +1,6 @@
 ---
 title: Why choose TanStack Start and Router?
-published: 12/03/2024
+published: 2024-12-03
 authors:
   - Tanner Linsley
 ---

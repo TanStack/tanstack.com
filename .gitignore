@@ -20,3 +20,7 @@ yarn.lock
 dist
 .vscode/
 .env.local
+
+# Content Collections generated files
+.content-collections
+

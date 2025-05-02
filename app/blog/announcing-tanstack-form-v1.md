@@ -1,6 +1,6 @@
 ---
 title: Announcing TanStack Form v1
-published: 03/03/2025
+published: 2025-03-03
 authors:
   - Corbin Crutchley
 ---

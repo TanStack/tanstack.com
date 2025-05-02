@@ -19,6 +19,8 @@ import { partners } from '../../utils/partners'
 import OpenSourceStats from '~/components/OpenSourceStats'
 import splashLightImg from '~/images/splash-light.png'
 import splashDarkImg from '~/images/splash-dark.png'
+import { GadFooter } from '~/components/GoogleScripts'
+import LandingPageGad from '~/components/LandingPageGad'
 
 export const textColors = [
   `text-rose-500`,
@@ -354,7 +356,7 @@ function Index() {
             style={{
               aspectRatio: '1/1',
             }}
-            className="max-w-2xl mx-auto"
+            className="max-w-[1000px] mx-auto"
           >
             <Await
               promise={sponsorsPromise}
@@ -386,20 +388,7 @@ function Index() {
           </div>
         </div>
         <hr className="my-16 border-gray-200 dark:border-gray-500/10" />
-        <div className={`lg:max-[400px] px-4 mx-auto`}>
-          <div className="flex flex-col gap-4 items-center">
-            <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white max-w-[250px] mx-auto">
-              <Carbon />
-            </div>
-            <span
-              className="text-[.7rem] bg-gray-500 bg-opacity-10 py-1 px-2 rounded text-gray-500
-                dark:bg-opacity-20 self-center text-center"
-            >
-              This ad helps us be happy about our invested time and not burn out
-              and rage-quit OSS. Yay money! 😉
-            </span>
-          </div>
-        </div>
+        <LandingPageGad />
         <hr className="my-16 border-gray-200 dark:border-gray-500/10" />
         <div className="px-4 mx-auto max-w-screen-lg">
           <div

@@ -7,23 +7,24 @@ import { format } from 'date-fns'
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/start'
-import { allPosts } from "content-collections";
+import { allPosts } from 'content-collections'
 import { setHeaders } from 'vinxi/http'
 
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   async () => {
     setHeaders({
       'cache-control': 'public, max-age=0, must-revalidate',
-      'cdn-cache-control':
-        'max-age=300, stale-while-revalidate=300, durable',
+      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
       'Netlify-Vary': 'query=payload',
     })
 
-    return allPosts.map(post => {
-      return post;
-    }).sort((a, b) => {
-      return new Date(b.published).getTime() -  new Date(a.published).getTime()
-    })
+    return allPosts
+      .map((post) => {
+        return post
+      })
+      .sort((a, b) => {
+        return new Date(b.published).getTime() - new Date(a.published).getTime()
+      })
 
     // return json(frontMatters, {
     //   headers: {
@@ -59,7 +60,7 @@ function BlogIndex() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
           {frontMatters.map(
-            ({ _meta: {path}, title, published, excerpt, authors = [] }) => {
+            ({ _meta: { path }, title, published, excerpt, authors = [] }) => {
               return (
                 <Link
                   key={path}

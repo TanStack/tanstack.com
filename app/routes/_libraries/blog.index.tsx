@@ -18,9 +18,19 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
       'Netlify-Vary': 'query=payload',
     })
 
-    return allPosts.sort((a, b) => {
-      return new Date(b.published).getTime() - new Date(a.published).getTime()
-    })
+    return allPosts
+      .sort((a, b) => {
+        return new Date(b.published).getTime() - new Date(a.published).getTime()
+      })
+      .map((post) => {
+        return {
+          slug: post.slug,
+          title: post.title,
+          published: post.published,
+          excerpt: post.excerpt,
+          authors: post.authors,
+        }
+      })
 
     // return json(frontMatters, {
     //   headers: {

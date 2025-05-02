@@ -527,3 +527,7 @@ mark {
 .dark g[aria-label='tip'] > g > path {
   @apply fill-gray-800/90 stroke-gray-500/20;
 }
+
+/* svg g[aria-label='crosshair text'] {
+  stroke: none;
+} */

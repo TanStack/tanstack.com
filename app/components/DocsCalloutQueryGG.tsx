@@ -29,7 +29,9 @@ export function DocsCalloutQueryGG() {
           <h2 className="mt-1 mb-1 px-2 text-md font-semibold">
             Launch week sale
           </h2>
-          <p className="normal-case mb-4 text-sm text-balance">Up to 25% off through May 10th</p>
+          <p className="normal-case mb-4 text-sm text-balance">
+            Up to 25% off through May 10th
+          </p>
           <CountdownTimerSmall targetDate="2025-05-10" />
         </div>
 

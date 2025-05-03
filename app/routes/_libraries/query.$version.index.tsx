@@ -85,7 +85,16 @@ export default function VersionIndex() {
               >
                 Read the Docs
               </Link>
-              <p>(or <a href="https://query.gg?s=tanstack" className="font-semibold underline">check out our official course</a>. It’s on sale!)</p>
+              <p>
+                (or{' '}
+                <a
+                  href="https://query.gg?s=tanstack"
+                  className="font-semibold underline"
+                >
+                  check out our official course
+                </a>
+                . It’s on sale!)
+              </p>
             </div>
             {/* <QueryGGBanner /> */}
           </div>

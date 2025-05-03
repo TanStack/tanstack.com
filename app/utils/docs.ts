@@ -9,18 +9,27 @@ import { createServerFn } from '@tanstack/start'
 import { z } from 'zod'
 import { setHeader } from 'vinxi/http'
 
+const FetchDocsDataSchema = z.object({
+  repo: z.string(),
+  branch: z.string(),
+  filePath: z.string(),
+})
+type FetchDocsData = z.infer<typeof FetchDocsDataSchema>
+
 export const loadDocs = async ({
   repo,
   branch,
   // currentPath,
   // redirectPath,
   docsPath,
+  useServerFn = true,
 }: {
   repo: string
   branch: string
   docsPath: string
   currentPath: string
   redirectPath: string
+  useServerFn?: boolean
 }) => {
   if (!branch) {
     throw new Error('Invalid branch')
@@ -32,55 +41,59 @@ export const loadDocs = async ({
 
   const filePath = `${docsPath}.md`
 
-  return await fetchDocs({
+  const params: { data: FetchDocsData } = {
     data: {
       repo,
       branch,
       filePath,
-      // currentPath,
-      // redirectPath,
     },
-  })
+  }
+
+  return useServerFn ? fetchDocs(params) : fetchDocsFunction(params)
+}
+
+const fetchDocsFunction = async ({
+  data: { repo, branch, filePath },
+}: {
+  data: FetchDocsData
+}) => {
+  const file = await fetchRepoFile(repo, branch, filePath)
+
+  if (!file) {
+    throw notFound()
+    // if (currentPath === redirectPath) {
+    //   // console.log('not found')
+    //   throw notFound()
+    // } else {
+    //   // console.log('redirect')
+    //   throw redirect({
+    //     to: redirectPath,
+    //   })
+    // }
+  }
+
+  const frontMatter = extractFrontMatter(file)
+  const description = removeMarkdown(frontMatter.excerpt ?? '')
+
+  // Cache for 5 minutes on shared cache
+  // Revalidate in the background
+  setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+  setHeader(
+    'CDN-Cache-Control',
+    'max-age=300, stale-while-revalidate=300, durable'
+  )
+
+  return {
+    title: frontMatter.data?.title,
+    description,
+    filePath,
+    content: frontMatter.content,
+  }
 }
 
 export const fetchDocs = createServerFn({ method: 'GET' })
-  .validator(
-    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() })
-  )
-  .handler(async ({ data: { repo, branch, filePath } }) => {
-    const file = await fetchRepoFile(repo, branch, filePath)
-
-    if (!file) {
-      throw notFound()
-      // if (currentPath === redirectPath) {
-      //   // console.log('not found')
-      //   throw notFound()
-      // } else {
-      //   // console.log('redirect')
-      //   throw redirect({
-      //     to: redirectPath,
-      //   })
-      // }
-    }
-
-    const frontMatter = extractFrontMatter(file)
-    const description = removeMarkdown(frontMatter.excerpt ?? '')
-
-    // Cache for 5 minutes on shared cache
-    // Revalidate in the background
-    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setHeader(
-      'CDN-Cache-Control',
-      'max-age=300, stale-while-revalidate=300, durable'
-    )
-
-    return {
-      title: frontMatter.data?.title,
-      description,
-      filePath,
-      content: frontMatter.content,
-    }
-  })
+  .validator(FetchDocsDataSchema)
+  .handler(fetchDocsFunction)
 
 export const fetchFile = createServerFn({ method: 'GET' })
   .validator(

@@ -37,7 +37,6 @@ import {
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu'
 import { Command } from 'cmdk'
-import { useThemeStore } from '~/components/ThemeToggle'
 
 export const packageGroupSchema = z.object({
   packages: z.array(
@@ -55,7 +54,8 @@ export const packageComparisonSchema = z.object({
 })
 
 const transformModeSchema = z.enum(['none', 'normalize-y'])
-const binningOptionSchema = z.enum(['yearly', 'monthly', 'weekly', 'daily'])
+const binTypeSchema = z.enum(['yearly', 'monthly', 'weekly', 'daily'])
+const showDataModeSchema = z.enum(['all', 'complete'])
 export const Route = createFileRoute('/stats/npm/')({
   validateSearch: z.object({
     packageGroups: z
@@ -79,12 +79,10 @@ export const Route = createFileRoute('/stats/npm/')({
       .catch('365-days'),
     baseline: z.string().optional(),
     transform: transformModeSchema.optional().default('none').catch('none'),
-    facetX: z.enum(['pkg']).optional().catch(undefined),
-    facetY: z.enum(['pkg']).optional().catch(undefined),
-    binningOption: binningOptionSchema
-      .optional()
-      .default('weekly')
-      .catch('weekly'),
+    facetX: z.enum(['name']).optional().catch(undefined),
+    facetY: z.enum(['name']).optional().catch(undefined),
+    binType: binTypeSchema.optional().default('weekly').catch('weekly'),
+    showDataMode: showDataModeSchema.optional().default('all').catch('all'),
     height: z.number().optional().default(400).catch(400),
   }),
   loaderDeps: ({ search }) => ({
@@ -125,7 +123,39 @@ type TimeRange =
   | '1825-days'
   | 'all-time'
 
-type BinningOption = z.infer<typeof binningOptionSchema>
+type BinType = z.infer<typeof binTypeSchema>
+
+const binningOptions = [
+  {
+    label: 'Yearly',
+    value: 'yearly',
+    single: 'year',
+    bin: d3.timeYear,
+  },
+  {
+    label: 'Monthly',
+    value: 'monthly',
+    single: 'month',
+    bin: d3.timeMonth,
+  },
+  {
+    label: 'Weekly',
+    value: 'weekly',
+    single: 'week',
+    bin: d3.timeSunday,
+  },
+  {
+    label: 'Daily',
+    value: 'daily',
+    single: 'day',
+    bin: d3.timeDay,
+  },
+] as const
+
+const binningOptionsByType = binningOptions.reduce((acc, option) => {
+  acc[option.value] = option
+  return acc
+}, {} as Record<BinType, (typeof binningOptions)[number]>)
 
 type TransformMode = z.infer<typeof transformModeSchema>
 
@@ -190,22 +220,21 @@ function npmQueryOptions({
   packageGroups: z.infer<typeof packageGroupSchema>[]
   range: TimeRange
 }) {
-  const now = new Date()
+  const now = d3.timeDay(new Date())
   // Set to start of today to avoid timezone issues
   now.setHours(0, 0, 0, 0)
-  let startDate: Date
   let endDate = now
 
   // Function to get package creation date
   const getPackageCreationDate = async (packageName: string): Promise<Date> => {
     try {
       const response = await fetch(`https://registry.npmjs.org/${packageName}`)
-      if (!response.ok) return new Date('2010-01-12') // Fallback date
+      if (!response.ok) return d3.timeDay(new Date('2010-01-12')) // Fallback date
       const data = await response.json()
-      return new Date(data.time?.created || '2010-01-12')
+      return d3.timeDay(new Date(data.time?.created || '2010-01-12'))
     } catch (error) {
       console.error(`Error fetching creation date for ${packageName}:`, error)
-      return new Date('2010-01-12') // Fallback date
+      return d3.timeDay(new Date('2010-01-12')) // Fallback date
     }
   }
 
@@ -221,33 +250,27 @@ function npmQueryOptions({
     return new Date(Math.min(...creationDates.map((date) => date.getTime())))
   }
 
-  switch (range) {
-    case '7-days':
-      startDate = d3.timeDay.offset(now, -7)
-      break
-    case '30-days':
-      startDate = d3.timeDay.offset(now, -30)
-      break
-    case '90-days':
-      startDate = d3.timeDay.offset(now, -90)
-      break
-    case '180-days':
-      startDate = d3.timeDay.offset(now, -180)
-      break
-    case '365-days':
-      startDate = d3.timeDay.offset(now, -365)
-      break
-    case '730-days':
-      startDate = d3.timeDay.offset(now, -730)
-      break
-    case '1825-days':
-      startDate = d3.timeDay.offset(now, -1825)
-      break
-    case 'all-time':
-      // We'll handle this in the queryFn
-      startDate = new Date('2010-01-12') // This will be overridden
-      break
-  }
+  let startDate = (() => {
+    switch (range) {
+      case '7-days':
+        return d3.timeDay.offset(now, -7)
+      case '30-days':
+        return d3.timeDay.offset(now, -30)
+      case '90-days':
+        return d3.timeDay.offset(now, -90)
+      case '180-days':
+        return d3.timeDay.offset(now, -180)
+      case '365-days':
+        return d3.timeDay.offset(now, -365)
+      case '730-days':
+        return d3.timeDay.offset(now, -730)
+      case '1825-days':
+        return d3.timeDay.offset(now, -1825)
+      case 'all-time':
+        // We'll handle this in the queryFn
+        return d3.timeDay(new Date('2010-01-12')) // This will be overridden
+    }
+  })()
 
   const formatDate = (date: Date) => {
     return date.toISOString().split('T')[0]
@@ -272,18 +295,11 @@ function npmQueryOptions({
                 const chunkRanges: { start: Date; end: Date }[] = []
 
                 while (currentStart < currentEnd) {
-                  const chunkEnd = new Date(currentEnd)
-                  const chunkStart = new Date(
-                    Math.max(
-                      currentStart.getTime(),
-                      currentEnd.getTime() - 365 * 24 * 60 * 60 * 1000
-                    )
-                  )
+                  const chunkEnd = d3.timeDay(new Date(currentEnd))
+                  const chunkStart = d3.timeDay.offset(currentEnd, -365)
 
                   // Move the end date to the day before the start of the current chunk
-                  currentEnd = new Date(
-                    chunkStart.getTime() - 24 * 60 * 60 * 1000
-                  )
+                  currentEnd = d3.timeDay.offset(chunkStart, -1)
 
                   chunkRanges.push({ start: chunkStart, end: chunkEnd })
                 }
@@ -315,7 +331,7 @@ function npmQueryOptions({
                 // Find the earliest non-zero download
                 const firstNonZero = downloads.find((d) => d.downloads > 0)
                 if (firstNonZero) {
-                  startDate = new Date(firstNonZero.day)
+                  startDate = d3.timeDay(new Date(firstNonZero.day))
                 }
 
                 return { ...pkg, downloads }
@@ -384,14 +400,6 @@ function PlotFigure({ options }: { options: any }) {
   return <div ref={containerRef} />
 }
 
-// Add this mapping for d3 time intervals
-const binThresholdsMap: Record<BinningOption, d3.CountableTimeInterval> = {
-  yearly: d3.timeYear,
-  monthly: d3.timeMonth,
-  weekly: d3.timeWeek,
-  daily: d3.timeDay,
-}
-
 function Resizable({
   height,
   onHeightChange,
@@ -454,29 +462,42 @@ function Resizable({
   )
 }
 
+const showDataModeOptions = [
+  { value: 'all', label: 'All Data' },
+  { value: 'complete', label: 'Hide Partial Data' },
+] as const
+
+type ShowDataMode = z.infer<typeof showDataModeSchema>
+
 function NpmStatsChart({
   queryData,
   baseline,
   transform,
-  binningOption,
+  binType,
   packages,
   range,
   facetX,
   facetY,
+  showDataMode,
 }: {
   queryData: undefined | NpmQueryData
   baseline?: string
   transform: TransformMode
-  binningOption: BinningOption
+  binType: BinType
   packages: z.infer<typeof packageGroupSchema>[]
   range: TimeRange
   facetX?: FacetValue
   facetY?: FacetValue
+  showDataMode: ShowDataMode
 }) {
   if (!queryData?.length) return null
 
-  const now = new Date()
-  const startDate = (() => {
+  const binOption = binningOptionsByType[binType]
+  const binUnit = binningOptionsByType[binType].bin
+
+  const now = d3.timeDay(new Date())
+
+  let startDate = (() => {
     switch (range) {
       case '7-days':
         return d3.timeDay.offset(now, -7)
@@ -493,35 +514,38 @@ function NpmStatsChart({
       case '1825-days':
         return d3.timeDay.offset(now, -1825)
       case 'all-time':
-        return new Date('2010-01-12')
+        return d3.timeDay(new Date('2010-01-12'))
     }
   })()
 
-  startDate.setHours(0, 0, 0, 0)
+  startDate = binOption.bin.floor(startDate)
 
+  // Filter out any packages that are hidden
+  // and clamp the data to the floor bin of the start date
   const subfilteredPackageGroups = queryData.map((packageGroup) => {
     const visiblePackages = packageGroup.packages.filter(
       (p, i) => !i || !p.hidden
     )
 
-    const downloadsByDate: Map<string, number> = new Map()
+    const downloadsByDate: Map<number, number> = new Map()
 
     visiblePackages.forEach((pkg) => {
       pkg.downloads.forEach((d) => {
-        const downloadDate = new Date(d.day)
-        downloadDate.setHours(0, 0, 0, 0)
-        if (downloadDate < startDate) return
+        const date = d3.timeDay(new Date(d.day))
+        if (date < startDate) return
 
         downloadsByDate.set(
-          d.day,
-          (downloadsByDate.get(d.day) || 0) + d.downloads
+          date.getTime(),
+          (downloadsByDate.get(date.getTime()) || 0) + d.downloads
         )
       })
     })
 
     return {
       ...packageGroup,
-      downloads: Array.from(downloadsByDate.entries()),
+      downloads: Array.from(downloadsByDate.entries()).map(
+        ([date, downloads]) => [d3.timeDay(new Date(date)), downloads]
+      ) as [Date, number][],
     }
   })
 
@@ -538,11 +562,11 @@ function NpmStatsChart({
 
           return new Map(
             baselinePackage.downloads.map(([date, value]) => {
-              return [date, firstValue === 0 ? 1 : firstValue / value]
+              return [date.getTime(), firstValue === 0 ? 1 : firstValue / value]
             })
           )
         })()
-      : new Map<string, number>()
+      : undefined
 
   // Filter out any top-level hidden packages
   const filteredPackageGroups = subfilteredPackageGroups.filter(
@@ -550,46 +574,64 @@ function NpmStatsChart({
   )
 
   // Prepare data for plotting
-  const plotData = filteredPackageGroups.flatMap((packageGroup) => {
-    return packageGroup.downloads.map((d) => {
-      let downloads = d[1]
+  const plotPackageData = filteredPackageGroups.map((packageGroup) => {
+    // Now apply our binning as groupings
+    const binned = d3.sort(
+      d3.rollup(
+        packageGroup.downloads,
+        (v) =>
+          d3.sum(v, (d) => {
+            let downloads = d[1]
 
-      if (baseline) {
-        downloads = d[1] * (baseLineCorrectionsByDate.get(d[0]) || 1)
-      }
+            if (baseline && baseLineCorrectionsByDate) {
+              downloads =
+                d[1] * (baseLineCorrectionsByDate.get(d[0].getTime()) || 1)
+            }
 
-      return {
-        ...d,
-        pkg: packageGroup.packages[0].name,
-        date: new Date(d[0]),
-        downloads,
-      }
+            return downloads
+          }),
+        (d) => binUnit.floor(d[0])
+      ),
+      (d) => d[0]
+    )
+
+    const data: {
+      name: string
+      date: Date
+      downloads: number
+      change: number
+    }[] = []
+
+    binned.forEach((d) => {
+      const change = data[0] ? d[1] - data[0].downloads : 0
+
+      data.push({
+        name: packageGroup.packages[0].name,
+        date: d3.timeDay(new Date(d[0])),
+        downloads: d[1],
+        change,
+      })
     })
+
+    return data
   })
 
-  const binUnit = binThresholdsMap[binningOption]
+  const plotData = plotPackageData.flat()
 
   let baseOptions: Plot.LineYOptions = {
     x: 'date',
-    y: 'downloads',
+    y: transform === 'normalize-y' ? 'change' : 'downloads',
     fx: facetX,
     fy: facetY,
-    thresholds: binUnit,
-    filter:
-      binUnit === d3.timeYear
-        ? undefined
-        : (d) =>
-            binUnit.ceil(startDate) <= d.date && d.date <= binUnit.floor(now),
+    stroke: 'name',
   } as const
 
-  const modifyOptions = (options: Plot.LineYOptions) => {
-    return [
-      (d: any) => Plot.binX({ y: 'sum' }, d),
-      (d: any) => (transform === 'normalize-y' ? Plot.normalizeY(d) : d),
-    ]
-      .filter(Boolean)
-      .reduce((acc, mod: any) => mod(acc), options)
-  }
+  const partialBinEnd = binUnit.floor(now)
+  const partialBinStart = binUnit.offset(partialBinEnd, -1)
+
+  // Force complete data mode when using relative change
+  const effectiveShowDataMode =
+    transform === 'normalize-y' ? 'complete' : showDataMode
 
   return (
     <ParentSize>
@@ -612,62 +654,60 @@ function NpmStatsChart({
                 strokeWidth: 1.5,
                 strokeOpacity: 0.5,
               }),
-              // We need to figure out how to style the crosshair in dark mode first
-              // Plot.crosshairX(
-              //   plotData,
-              //   modifyOptions({
-              //     ...baseOptions,
-              //     stroke: 'pkg',
-              //     textStroke:
-              //       mode === 'auto'
-              //         ? prefers === 'dark'
-              //           ? 'white'
-              //           : 'black'
-              //         : mode === 'dark'
-              //         ? 'white'
-              //         : 'black',
-              //     textStrokeWidth: 10,
-              //   })
-              // ),
+              effectiveShowDataMode === 'all' && [
+                Plot.lineY(
+                  plotData.filter((d) => d.date >= partialBinStart),
+                  {
+                    ...baseOptions,
+                    strokeWidth: 1.5,
+                    strokeDasharray: '2 4',
+                    strokeOpacity: 0.8,
+                    curve: 'monotone-x',
+                  }
+                ),
+              ],
               Plot.lineY(
-                plotData,
-                modifyOptions({
+                plotData.filter((d) => d.date < partialBinEnd),
+                {
                   ...baseOptions,
-                  stroke: 'pkg',
                   strokeWidth: 2,
                   curve: 'monotone-x',
-                  tip: {
-                    format: {
-                      y:
-                        transform === 'normalize-y'
-                          ? (d) => {
-                              return `${d > 1 ? '+' : ''}${Math.round(
-                                100 * (d - 1)
-                              )}%`
-                            }
-                          : d3.format('.2s'),
-                    },
-                  },
-                })
+                }
               ),
-              // dotMark,
-            ],
+              Plot.tip(
+                effectiveShowDataMode === 'all'
+                  ? plotData
+                  : plotData.filter((d) => d.date < partialBinEnd),
+                Plot.pointer({
+                  ...baseOptions,
+                  // format: {
+                  //   y:
+                  //     transform === 'normalize-y'
+                  //       ? (d: number) => {
+                  //           return `${d > 1 ? '+' : ''}${Math.round(
+                  //             100 * (d - 1)
+                  //           )}%`
+                  //         }
+                  //       : d3.format('.2s'),
+                  // },
+                } as Plot.TipOptions)
+              ),
+            ].filter(Boolean),
             x: {
-              type: 'time',
               label: 'Date',
               labelOffset: 35,
             },
             y: {
-              tickFormat:
-                transform === 'normalize-y'
-                  ? (d: number) => {
-                      return `${d > 1 ? '+' : ''}${Math.round(100 * (d - 1))}%`
-                    }
-                  : d3.format('.2s'),
+              // tickFormat:
+              //   transform === 'normalize-y'
+              //     ? (d: number) => {
+              //         return `${d > 1 ? '+' : ''}${Math.round(100 * (d - 1))}%`
+              //       }
+              //     : d3.format('.2s'),
               label:
                 transform === 'normalize-y'
-                  ? 'Downloads Change (%)'
-                  : baseline
+                  ? 'Downloads Growth'
+                  : baselinePackage
                   ? 'Downloads (% of baseline)'
                   : 'Downloads',
               labelOffset: 35,
@@ -675,8 +715,8 @@ function NpmStatsChart({
             // facet: { margin },
             grid: true,
             color: {
-              domain: [...new Set(plotData.map((d) => d.pkg))],
-              range: [...new Set(plotData.map((d) => d.pkg))].map((pkg) =>
+              domain: [...new Set(plotData.map((d) => d.name))],
+              range: [...new Set(plotData.map((d) => d.name))].map((pkg) =>
                 getPackageColor(pkg, packages)
               ),
               legend: false,
@@ -825,7 +865,7 @@ function PackageSearch() {
   )
 }
 
-const defaultRangeBinningOption: Record<TimeRange, BinningOption> = {
+const defaultRangeBinTypes: Record<TimeRange, BinType> = {
   '7-days': 'daily',
   '30-days': 'daily',
   '90-days': 'weekly',
@@ -839,24 +879,20 @@ const defaultRangeBinningOption: Record<TimeRange, BinningOption> = {
 // Add a function to check if a binning option is valid for a time range
 function isBinningOptionValidForRange(
   range: TimeRange,
-  binningOption: BinningOption
+  binType: BinType
 ): boolean {
   switch (range) {
     case '7-days':
     case '30-days':
-      return binningOption === 'daily'
+      return binType === 'daily'
     case '90-days':
     case '180-days':
       return (
-        binningOption === 'daily' ||
-        binningOption === 'weekly' ||
-        binningOption === 'monthly'
+        binType === 'daily' || binType === 'weekly' || binType === 'monthly'
       )
     case '365-days':
       return (
-        binningOption === 'daily' ||
-        binningOption === 'weekly' ||
-        binningOption === 'monthly'
+        binType === 'daily' || binType === 'weekly' || binType === 'monthly'
       )
     case '730-days':
     case '1825-days':
@@ -871,7 +907,7 @@ const transformOptions = [
 ] as const
 
 const facetOptions = [
-  { value: 'pkg', label: 'Package' },
+  { value: 'name', label: 'Package' },
   // Add more options here in the future
 ] as const
 
@@ -885,7 +921,8 @@ function RouteComponent() {
     transform,
     facetX,
     facetY,
-    binningOption: binningOptionParam,
+    binType: binTypeParam,
+    showDataMode: showDataModeParam = 'all',
     height = 400,
   } = Route.useSearch()
   const [combiningPackage, setCombiningPackage] = React.useState<string | null>(
@@ -907,7 +944,64 @@ function RouteComponent() {
     null
   )
 
-  const binningOption = binningOptionParam ?? defaultRangeBinningOption[range]
+  const binType = binTypeParam ?? defaultRangeBinTypes[range]
+  const binOption = binningOptionsByType[binType]
+
+  const handleBinnedChange = (value: BinType) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        binType: value,
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleBaselineChange = (packageName: string) => {
+    navigate({
+      to: '.',
+      search: (prev) => {
+        // If we're removing the baseline, show the package
+        if (prev.baseline === packageName) {
+          return {
+            ...prev,
+            baseline: undefined,
+            packageGroups: prev.packageGroups.map((pkg) => ({
+              ...pkg,
+              packages: pkg.packages.map((p) =>
+                p.name === packageName ? { ...p, hidden: false } : p
+              ),
+            })),
+          }
+        }
+
+        // If we're setting a new baseline, hide the package and set it as baseline
+        return {
+          ...prev,
+          baseline: packageName,
+          packageGroups: prev.packageGroups.map((pkg) => ({
+            ...pkg,
+            packages: pkg.packages.map((p) =>
+              p.name === packageName ? { ...p, hidden: true } : p
+            ),
+          })),
+        }
+      },
+      resetScroll: false,
+    })
+  }
+
+  const handleShowDataModeChange = (mode: ShowDataMode) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        showDataMode: mode,
+      }),
+      resetScroll: false,
+    })
+  }
 
   const togglePackageVisibility = (index: number, packageName: string) => {
     navigate({
@@ -1033,17 +1127,17 @@ function RouteComponent() {
     })
   }
 
-  const setBinningOption = (newBinningOption: BinningOption) => {
+  const setBinningOption = (newBinningOption: BinType) => {
     navigate({
       to: '.',
-      search: (prev) => ({ ...prev, binningOption: newBinningOption }),
+      search: (prev) => ({ ...prev, binType: newBinningOption }),
       resetScroll: false,
     })
   }
 
   const handleRangeChange = (newRange: TimeRange) => {
     // Set default binning option based on the new range
-    setBinningOption(defaultRangeBinningOption[newRange])
+    setBinningOption(defaultRangeBinTypes[newRange])
 
     navigate({
       to: '.',
@@ -1061,53 +1155,6 @@ function RouteComponent() {
         ...prev,
         transform: mode,
       }),
-      resetScroll: false,
-    })
-  }
-
-  const handleBinnedChange = (
-    value: 'daily' | 'weekly' | 'monthly' | 'yearly'
-  ) => {
-    navigate({
-      to: '.',
-      search: (prev) => ({
-        ...prev,
-        binningOption: value,
-      }),
-      resetScroll: false,
-    })
-  }
-
-  const handleBaselineChange = (packageName: string) => {
-    navigate({
-      to: '.',
-      search: (prev) => {
-        // If we're removing the baseline, show the package
-        if (prev.baseline === packageName) {
-          return {
-            ...prev,
-            baseline: undefined,
-            packageGroups: prev.packageGroups.map((pkg) => ({
-              ...pkg,
-              packages: pkg.packages.map((p) =>
-                p.name === packageName ? { ...p, hidden: false } : p
-              ),
-            })),
-          }
-        }
-
-        // If we're setting a new baseline, hide the package and set it as baseline
-        return {
-          ...prev,
-          baseline: packageName,
-          packageGroups: prev.packageGroups.map((pkg) => ({
-            ...pkg,
-            packages: pkg.packages.map((p) =>
-              p.name === packageName ? { ...p, hidden: true } : p
-            ),
-          })),
-        }
-      },
       resetScroll: false,
     })
   }
@@ -1275,33 +1322,10 @@ function RouteComponent() {
                   <button
                     className={twMerge(
                       dropdownButtonStyles.base,
-                      binningOption !== 'weekly' && dropdownButtonStyles.active
+                      binType !== 'weekly' && dropdownButtonStyles.active
                     )}
                   >
-                    {
-                      [
-                        {
-                          label: 'Yearly',
-                          value: 'yearly' as const,
-                          single: 'year',
-                        },
-                        {
-                          label: 'Monthly',
-                          value: 'monthly' as const,
-                          single: 'month',
-                        },
-                        {
-                          label: 'Weekly',
-                          value: 'weekly' as const,
-                          single: 'week',
-                        },
-                        {
-                          label: 'Daily',
-                          value: 'daily' as const,
-                          single: 'day',
-                        },
-                      ].find((b) => b.value === binningOption)?.label
-                    }
+                    {binningOptions.find((b) => b.value === binType)?.label}
                     <MdMoreVert className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
@@ -1310,37 +1334,14 @@ function RouteComponent() {
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-medium">Binning Interval</span>
                 </div>
-                {[
-                  {
-                    label: 'Yearly',
-                    value: 'yearly' as const,
-                    single: 'year',
-                  },
-                  {
-                    label: 'Monthly',
-                    value: 'monthly' as const,
-                    single: 'month',
-                  },
-                  {
-                    label: 'Weekly',
-                    value: 'weekly' as const,
-                    single: 'week',
-                  },
-                  {
-                    label: 'Daily',
-                    value: 'daily' as const,
-                    single: 'day',
-                  },
-                ].map(({ label, value, single }) => (
+                {binningOptions.map(({ label, value }) => (
                   <DropdownMenuItem
                     key={value}
                     onSelect={() => handleBinnedChange(value)}
                     disabled={!isBinningOptionValidForRange(range, value)}
                     className={twMerge(
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      binningOption === value
-                        ? 'text-blue-500 bg-blue-500/10'
-                        : '',
+                      binType === value ? 'text-blue-500 bg-blue-500/10' : '',
                       'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
                       !isBinningOptionValidForRange(range, value)
                         ? 'opacity-50 cursor-not-allowed'
@@ -1479,6 +1480,59 @@ function RouteComponent() {
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                       facetY === value ? 'text-blue-500 bg-blue-500/10' : '',
                       'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                    )}
+                  >
+                    {label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <Tooltip
+                content={
+                  transform === 'normalize-y'
+                    ? 'Only complete data is shown when using relative change'
+                    : 'Control how data is displayed'
+                }
+              >
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={twMerge(
+                      dropdownButtonStyles.base,
+                      showDataModeParam !== 'all' &&
+                        dropdownButtonStyles.active,
+                      transform === 'normalize-y' &&
+                        'opacity-50 cursor-not-allowed'
+                    )}
+                    disabled={transform === 'normalize-y'}
+                  >
+                    {
+                      showDataModeOptions.find(
+                        (opt) => opt.value === showDataModeParam
+                      )?.label
+                    }
+                    <MdMoreVert className="w-3 h-3" />
+                  </button>
+                </DropdownMenuTrigger>
+              </Tooltip>
+              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">Data Display Mode</span>
+                </div>
+                {showDataModeOptions.map(({ value, label }) => (
+                  <DropdownMenuItem
+                    key={value}
+                    onSelect={() => handleShowDataModeChange(value)}
+                    disabled={transform === 'normalize-y'}
+                    className={twMerge(
+                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
+                      showDataModeParam === value
+                        ? 'text-blue-500 bg-blue-500/10'
+                        : '',
+                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
+                      transform === 'normalize-y'
+                        ? 'opacity-50 cursor-not-allowed'
+                        : ''
                     )}
                   >
                     {label}
@@ -1814,10 +1868,11 @@ function RouteComponent() {
                     queryData={npmQuery.data}
                     baseline={baseline}
                     transform={transform}
-                    binningOption={binningOption}
+                    binType={binType}
                     packages={packageGroups}
                     facetX={facetX}
                     facetY={facetY}
+                    showDataMode={showDataModeParam}
                   />
                 </Resizable>
                 <div className="overflow-x-auto rounded-xl">
@@ -1828,72 +1883,106 @@ function RouteComponent() {
                           Package Name
                         </th>
                         <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Total Downloads / {binningOption}
+                          Total Period Downloads
                         </th>
                         <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Growth / {binningOption}
+                          Downloads last {binOption.single}
+                        </th>
+                        {/* <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Period Growth
                         </th>
                         <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          % Growth
-                        </th>
+                          Period Growth %
+                        </th> */}
                       </tr>
                     </thead>
                     <tbody className="bg-gray-500/5 divide-y divide-gray-500/10">
                       {npmQuery.data
                         ?.map((packageGroupDownloads, index) => {
-                          const packageData = packageGroupDownloads.packages[0]
-                          if (!packageData?.downloads?.length) return null
+                          if (
+                            !packageGroupDownloads.packages.some(
+                              (p) => p.downloads.length
+                            )
+                          ) {
+                            return null
+                          }
+
+                          // const flooredStartData =
+                          //   binOption.bin.floor(startDate)
+
+                          const firstPackage = packageGroupDownloads.packages[0]
+
+                          // const rangeFilteredDownloads =
+                          //   packageGroupDownloads.packages.map((p) => {
+                          //     return {
+                          //       ...p,
+                          //       downloads: p.downloads.filter(
+                          //         (d) => d.day >= startDate
+                          //       ),
+                          //     }
+                          //   })
 
                           // Sort downloads by date
-                          const sortedDownloads = [
-                            ...packageData.downloads,
-                          ].sort(
-                            (a, b) =>
-                              new Date(a.day).getTime() -
-                              new Date(b.day).getTime()
+                          const sortedDownloads = packageGroupDownloads.packages
+                            .flatMap((p) => p.downloads)
+                            .sort(
+                              (a, b) =>
+                                d3.timeDay(a.day).getTime() -
+                                d3.timeDay(b.day).getTime()
+                            )
+
+                          // Get the binning unit and calculate partial bin boundaries
+                          const binUnit = binOption.bin
+                          const now = d3.timeDay(new Date())
+                          const partialBinEnd = binUnit.floor(now)
+
+                          // Filter downloads based on showDataMode for total downloads
+                          const filteredDownloads = sortedDownloads.filter(
+                            (d) => d3.timeDay(new Date(d.day)) < partialBinEnd
                           )
 
-                          // Get the latest week of downloads
-                          const latestWeek = sortedDownloads.slice(-7)
-                          const latestWeeklyDownloads = latestWeek.reduce(
-                            (sum, day) => sum + day.downloads,
-                            0
+                          // Group downloads by bin using d3
+                          const binnedDownloads = d3.sort(
+                            d3.rollup(
+                              filteredDownloads,
+                              (v) => d3.sum(v, (d) => d.downloads),
+                              (d) => binUnit.floor(new Date(d.day))
+                            ),
+                            (d) => d[0]
                           )
-
-                          // Calculate growth metrics
-                          const firstWeek = sortedDownloads.slice(0, 7)
-                          const firstWeeklyDownloads = firstWeek.reduce(
-                            (sum, day) => sum + day.downloads,
-                            0
-                          )
-
-                          const growth =
-                            latestWeeklyDownloads - firstWeeklyDownloads
-                          const growthPercentage =
-                            firstWeeklyDownloads > 0
-                              ? ((latestWeeklyDownloads -
-                                  firstWeeklyDownloads) /
-                                  firstWeeklyDownloads) *
-                                100
-                              : 0
 
                           const color = getPackageColor(
-                            packageData.name,
+                            firstPackage.name,
                             packageGroups
                           )
 
+                          const firstBin = binnedDownloads[0]
+                          const lastBin =
+                            binnedDownloads[binnedDownloads.length - 1]
+
+                          const growth = lastBin[1] - firstBin[1]
+                          const growthPercentage = growth / firstBin[1]
+
                           return {
-                            package: packageData.name,
-                            totalDownloads: latestWeeklyDownloads,
+                            package: firstPackage.name,
+                            totalDownloads: d3.sum(
+                              binnedDownloads,
+                              (d) => d[1]
+                            ),
+                            binDownloads: lastBin[1],
                             growth,
                             growthPercentage,
                             color,
-                            hidden: packageData.hidden,
+                            hidden: firstPackage.hidden,
                             index,
                           }
                         })
                         .filter(Boolean)
-                        .sort((a, b) => b!.totalDownloads - a!.totalDownloads)
+                        .sort((a, b) =>
+                          transform === 'normalize-y'
+                            ? b!.growth - a!.growth
+                            : b!.binDownloads - a!.binDownloads
+                        )
                         .map((stat) => (
                           <tr key={stat!.package}>
                             <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -1952,7 +2041,10 @@ function RouteComponent() {
                             <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
                               {formatNumber(stat!.totalDownloads)}
                             </td>
-                            <td
+                            <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
+                              {formatNumber(stat!.binDownloads)}
+                            </td>
+                            {/* <td
                               className={`px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-right ${
                                 stat!.growth > 0
                                   ? 'text-green-500'
@@ -1987,7 +2079,7 @@ function RouteComponent() {
                                 )}
                                 {Math.abs(stat!.growthPercentage).toFixed(1)}%
                               </div>
-                            </td>
+                            </td> */}
                           </tr>
                         ))}
                     </tbody>

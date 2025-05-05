@@ -30,8 +30,8 @@ export function QueryGGBannerSale(props: React.HTMLProps<HTMLDivElement>) {
             <h2 className="mb-1 text-lg lg:text-2xl xl:text-3xl font-semibold">
               Launch week sale
             </h2>
-            <p className="normal-case mb-4">Up to 25% off through May 10th</p>
-            <CountdownTimer targetDate="2025-05-10" />
+            <p className="normal-case mb-4">Up to 30% off through May 17th</p>
+            <CountdownTimer targetDate="2025-05-17" />
             <a
               href="https://query.gg?s=tanstack"
               className="mt-4 mb-1 xl:mb-2 px-6 py-2 inline-block bg-[#fcba28] text-[#231f20] rounded-full uppercase border border-black cursor-pointer font-black"

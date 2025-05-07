@@ -22,16 +22,18 @@ export const APIRoute = createAPIRoute('/api/md/$libraryId/$version/docs/framewo
 
     const res = await loadDocs(loadDocsArgs)
 
-
     const { content, description, title} = res
 
     // Generate or fetch the Markdown content dynamically
     const markdownContent = `# ${title}\n\n> ${description}\n\n${content}`
 
+    const filename = (docsPath || 'file').split('/').join('-')
+
     // Return the Markdown content as a response
     return new Response(markdownContent, {
       headers: {
         'Content-Type': 'text/markdown',
+        'Content-Disposition': `inline; filename="${filename}.md"`,
       },
     })
   },

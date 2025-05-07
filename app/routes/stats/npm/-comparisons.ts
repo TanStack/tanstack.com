@@ -62,6 +62,40 @@ export function getPopularComparisons(): z.input<
       ],
     },
     {
+      title: 'Routing (React)',
+      packageGroups: [
+        {
+          packages: [{ name: 'react-router' }],
+          color: '#FF0000',
+        },
+        {
+          packages: [{ name: '@tanstack/react-router' }],
+          color: '#32CD32',
+        },
+        {
+          packages: [{ name: 'next' }],
+          color: '#4682B4',
+        },
+        {
+          packages: [{ name: 'wouter' }],
+          color: '#8b5cf6',
+        },
+        {
+          packages: [{ name: 'expo' }],
+          color: '#f59e0b',
+        },
+        {
+          packages: [
+            {
+              name: 'react',
+              hidden: true,
+            },
+          ],
+          baseline: true,
+        },
+      ],
+    },
+    {
       title: 'Data Grids',
       packageGroups: [
         {
@@ -366,31 +400,6 @@ export function getPopularComparisons(): z.input<
         {
           packages: [{ name: '@sinclair/typebox' }],
           color: '#d946ef',
-        },
-      ],
-    },
-    {
-      title: 'Routing',
-      packageGroups: [
-        {
-          packages: [{ name: 'react-router' }],
-          color: '#FF0000',
-        },
-        {
-          packages: [{ name: '@tanstack/react-router' }],
-          color: '#32CD32',
-        },
-        {
-          packages: [{ name: 'next' }],
-          color: '#4682B4',
-        },
-        {
-          packages: [{ name: 'wouter' }],
-          color: '#8b5cf6',
-        },
-        {
-          packages: [{ name: 'expo' }],
-          color: '#f59e0b',
         },
       ],
     },

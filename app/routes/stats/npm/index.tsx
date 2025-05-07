@@ -46,11 +46,13 @@ export const packageGroupSchema = z.object({
     })
   ),
   color: z.string().nullable().optional(),
+  baseline: z.boolean().optional(),
 })
 
 export const packageComparisonSchema = z.object({
   title: z.string(),
   packageGroups: z.array(packageGroupSchema),
+  baseline: z.string().optional(),
 })
 
 const transformModeSchema = z.enum(['none', 'normalize-y'])
@@ -77,7 +79,6 @@ export const Route = createFileRoute('/stats/npm/')({
       .optional()
       .default('365-days')
       .catch('365-days'),
-    baseline: z.string().optional(),
     transform: transformModeSchema.optional().default('none').catch('none'),
     facetX: z.enum(['name']).optional().catch(undefined),
     facetY: z.enum(['name']).optional().catch(undefined),
@@ -207,6 +208,7 @@ type NpmQueryData = {
     name: string
     hidden?: boolean | undefined
   }[]
+  baseline?: boolean
   start: string
   end: string
   color?: string | null | undefined
@@ -278,7 +280,7 @@ function npmQueryOptions({
 
   return queryOptions({
     queryKey: ['npm-stats', packageGroups, range],
-    queryFn: async () => {
+    queryFn: async (): Promise<NpmQueryData> => {
       // For all-time range, get the earliest creation date
       if (range === 'all-time') {
         startDate = await getEarliestCreationDate()
@@ -471,7 +473,6 @@ type ShowDataMode = z.infer<typeof showDataModeSchema>
 
 function NpmStatsChart({
   queryData,
-  baseline,
   transform,
   binType,
   packages,
@@ -481,7 +482,6 @@ function NpmStatsChart({
   showDataMode,
 }: {
   queryData: undefined | NpmQueryData
-  baseline?: string
   transform: TransformMode
   binType: BinType
   packages: z.infer<typeof packageGroupSchema>[]
@@ -520,9 +520,9 @@ function NpmStatsChart({
 
   startDate = binOption.bin.floor(startDate)
 
-  // Filter out any packages that are hidden
-  // and clamp the data to the floor bin of the start date
-  const subfilteredPackageGroups = queryData.map((packageGroup) => {
+  const combinedPackageGroups = queryData.map((packageGroup) => {
+    // Filter out any sub packages that are hidden before
+    // summing them into a unified downloads count
     const visiblePackages = packageGroup.packages.filter(
       (p, i) => !i || !p.hidden
     )
@@ -531,11 +531,13 @@ function NpmStatsChart({
 
     visiblePackages.forEach((pkg) => {
       pkg.downloads.forEach((d) => {
+        // Clamp the data to the floor bin of the start date
         const date = d3.timeDay(new Date(d.day))
         if (date < startDate) return
 
         downloadsByDate.set(
           date.getTime(),
+          // Sum the downloads for each date
           (downloadsByDate.get(date.getTime()) || 0) + d.downloads
         )
       })
@@ -549,81 +551,83 @@ function NpmStatsChart({
     }
   })
 
-  const baselinePackage = baseline
-    ? subfilteredPackageGroups.find((pkg) => {
-        return pkg.packages[0].name === baseline
-      })
-    : undefined
-
-  const baseLineCorrectionsByDate =
-    baselinePackage && subfilteredPackageGroups.length
-      ? (() => {
-          const firstValue = baselinePackage.downloads[0][1]
-
-          return new Map(
-            baselinePackage.downloads.map(([date, value]) => {
-              return [date.getTime(), firstValue === 0 ? 1 : firstValue / value]
-            })
-          )
-        })()
-      : undefined
-
-  // Filter out any top-level hidden packages
-  const filteredPackageGroups = subfilteredPackageGroups.filter(
-    (pkg) => !pkg.packages[0].hidden
-  )
-
   // Prepare data for plotting
-  const plotPackageData = filteredPackageGroups.map((packageGroup) => {
+  const binnedPackageData = combinedPackageGroups.map((packageGroup) => {
     // Now apply our binning as groupings
     const binned = d3.sort(
       d3.rollup(
         packageGroup.downloads,
-        (v) =>
-          d3.sum(v, (d) => {
-            let downloads = d[1]
-
-            if (baseline && baseLineCorrectionsByDate) {
-              downloads =
-                d[1] * (baseLineCorrectionsByDate.get(d[0].getTime()) || 1)
-            }
-
-            return downloads
-          }),
+        (v) => d3.sum(v, (d) => d[1]),
         (d) => binUnit.floor(d[0])
       ),
       (d) => d[0]
     )
 
-    const data: {
-      name: string
-      date: Date
-      downloads: number
-      change: number
-    }[] = []
+    const downloads = binned.map((d) => ({
+      name: packageGroup.packages[0].name,
+      date: d3.timeDay(new Date(d[0])),
+      downloads: d[1],
+    }))
 
-    binned.forEach((d) => {
-      const change = data[0] ? d[1] - data[0].downloads : 0
-
-      data.push({
-        name: packageGroup.packages[0].name,
-        date: d3.timeDay(new Date(d[0])),
-        downloads: d[1],
-        change,
-      })
-    })
-
-    return data
+    return {
+      ...packageGroup,
+      downloads,
+    }
   })
 
-  const plotData = plotPackageData.flat()
+  // Apply the baseline correction
+
+  const baselinePackage = binnedPackageData.find((pkg) => {
+    return pkg.baseline
+  })
+
+  const baseLineCorrectionsByDate =
+    baselinePackage && binnedPackageData.length
+      ? (() => {
+          const firstValue = baselinePackage.downloads[0].downloads
+
+          return new Map(
+            baselinePackage.downloads.map((d) => {
+              return [
+                d.date.getTime(),
+                firstValue === 0 ? 1 : firstValue / d.downloads,
+              ]
+            })
+          )
+        })()
+      : undefined
+
+  const correctedPackageData = binnedPackageData.map((packageGroup) => {
+    const first = packageGroup.downloads[0]
+
+    return {
+      ...packageGroup,
+      downloads: packageGroup.downloads.map((d) => {
+        if (baseLineCorrectionsByDate) {
+          d.downloads =
+            d.downloads * (baseLineCorrectionsByDate.get(d.date.getTime()) || 1)
+        }
+
+        return {
+          ...d,
+          change: d.downloads - first.downloads,
+        }
+      }),
+    }
+  })
+
+  // Filter out any top-level hidden packages
+  const filteredPackageData = correctedPackageData.filter(
+    (pkg) => !pkg.baseline && !pkg.packages[0].hidden
+  )
+
+  const plotData = filteredPackageData.flatMap((d) => d.downloads)
 
   let baseOptions: Plot.LineYOptions = {
     x: 'date',
     y: transform === 'normalize-y' ? 'change' : 'downloads',
     fx: facetX,
     fy: facetY,
-    stroke: 'name',
   } as const
 
   const partialBinEnd = binUnit.floor(now)
@@ -659,6 +663,7 @@ function NpmStatsChart({
                   plotData.filter((d) => d.date >= partialBinStart),
                   {
                     ...baseOptions,
+                    stroke: 'name',
                     strokeWidth: 1.5,
                     strokeDasharray: '2 4',
                     strokeOpacity: 0.8,
@@ -670,6 +675,7 @@ function NpmStatsChart({
                 plotData.filter((d) => d.date < partialBinEnd),
                 {
                   ...baseOptions,
+                  stroke: 'name',
                   strokeWidth: 2,
                   curve: 'monotone-x',
                 }
@@ -680,16 +686,6 @@ function NpmStatsChart({
                   : plotData.filter((d) => d.date < partialBinEnd),
                 Plot.pointer({
                   ...baseOptions,
-                  // format: {
-                  //   y:
-                  //     transform === 'normalize-y'
-                  //       ? (d: number) => {
-                  //           return `${d > 1 ? '+' : ''}${Math.round(
-                  //             100 * (d - 1)
-                  //           )}%`
-                  //         }
-                  //       : d3.format('.2s'),
-                  // },
                 } as Plot.TipOptions)
               ),
             ].filter(Boolean),
@@ -698,12 +694,6 @@ function NpmStatsChart({
               labelOffset: 35,
             },
             y: {
-              // tickFormat:
-              //   transform === 'normalize-y'
-              //     ? (d: number) => {
-              //         return `${d > 1 ? '+' : ''}${Math.round(100 * (d - 1))}%`
-              //       }
-              //     : d3.format('.2s'),
               label:
                 transform === 'normalize-y'
                   ? 'Downloads Growth'
@@ -712,7 +702,6 @@ function NpmStatsChart({
                   : 'Downloads',
               labelOffset: 35,
             },
-            // facet: { margin },
             grid: true,
             color: {
               domain: [...new Set(plotData.map((d) => d.name))],
@@ -917,7 +906,6 @@ function RouteComponent() {
   const {
     packageGroups,
     range = '7-days',
-    baseline,
     transform,
     facetX,
     facetY,
@@ -962,30 +950,17 @@ function RouteComponent() {
     navigate({
       to: '.',
       search: (prev) => {
-        // If we're removing the baseline, show the package
-        if (prev.baseline === packageName) {
-          return {
-            ...prev,
-            baseline: undefined,
-            packageGroups: prev.packageGroups.map((pkg) => ({
-              ...pkg,
-              packages: pkg.packages.map((p) =>
-                p.name === packageName ? { ...p, hidden: false } : p
-              ),
-            })),
-          }
-        }
-
-        // If we're setting a new baseline, hide the package and set it as baseline
         return {
           ...prev,
-          baseline: packageName,
-          packageGroups: prev.packageGroups.map((pkg) => ({
-            ...pkg,
-            packages: pkg.packages.map((p) =>
-              p.name === packageName ? { ...p, hidden: true } : p
-            ),
-          })),
+          packageGroups: prev.packageGroups.map((pkg) => {
+            const baseline =
+              pkg.packages[0].name === packageName ? !pkg.baseline : false
+
+            return {
+              ...pkg,
+              baseline,
+            }
+          }),
         }
       },
       resetScroll: false,
@@ -1567,43 +1542,53 @@ function RouteComponent() {
                   }}
                 >
                   <div className="flex items-center gap-1 w-full">
-                    {baseline === mainPackage.name && (
-                      <Tooltip content="Remove baseline">
-                        <button
-                          onClick={() => handleBaselineChange(mainPackage.name)}
-                          className="p-0.5 sm:p-1 hover:text-blue-500"
-                        >
-                          <MdPushPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
-                        </button>
-                      </Tooltip>
+                    {pkg.baseline ? (
+                      <>
+                        <Tooltip content="Remove baseline">
+                          <button
+                            onClick={() =>
+                              handleBaselineChange(mainPackage.name)
+                            }
+                            className=" hover:text-blue-500"
+                          >
+                            <MdPushPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
+                          </button>
+                        </Tooltip>
+                        <span>{mainPackage.name}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Tooltip content="Change color">
+                          <button
+                            onClick={(e) =>
+                              handleColorClick(mainPackage.name, e)
+                            }
+                            className="hover:opacity-80"
+                          >
+                            <div
+                              className="w-3 h-3 sm:w-4 sm:h-4 rounded"
+                              style={{ backgroundColor: color }}
+                            />
+                          </button>
+                        </Tooltip>
+                        <Tooltip content="Toggle package visibility">
+                          <button
+                            onClick={() =>
+                              togglePackageVisibility(index, mainPackage.name)
+                            }
+                            className={twMerge(
+                              'hover:text-blue-500 flex items-center gap-1',
+                              mainPackage.hidden ? 'opacity-50' : ''
+                            )}
+                          >
+                            {mainPackage.name}
+                            {mainPackage.hidden ? (
+                              <MdVisibilityOff className="w-3 h-3 sm:w-4 sm:h-4" />
+                            ) : null}
+                          </button>
+                        </Tooltip>
+                      </>
                     )}
-                    <Tooltip content="Change color">
-                      <button
-                        onClick={(e) => handleColorClick(mainPackage.name, e)}
-                        className="hover:opacity-80"
-                      >
-                        <div
-                          className="w-3 h-3 sm:w-4 sm:h-4 rounded"
-                          style={{ backgroundColor: color }}
-                        />
-                      </button>
-                    </Tooltip>
-                    <Tooltip content="Toggle package visibility">
-                      <button
-                        onClick={() =>
-                          togglePackageVisibility(index, mainPackage.name)
-                        }
-                        className={twMerge(
-                          'hover:text-blue-500 flex items-center gap-1',
-                          mainPackage.hidden ? 'opacity-50' : ''
-                        )}
-                      >
-                        {mainPackage.name}
-                        {mainPackage.hidden ? (
-                          <MdVisibilityOff className="w-3 h-3 sm:w-4 sm:h-4" />
-                        ) : null}
-                      </button>
-                    </Tooltip>
                     {isCombined ? (
                       <span className="text-black/70 dark:text-white/70 text-[.7em] font-black py-0.5 px-1 leading-none rounded-md border-[1.5px] border-current opacity-80">
                         + {subPackages.length}
@@ -1654,13 +1639,11 @@ function RouteComponent() {
                               }}
                               className={twMerge(
                                 'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                                baseline === mainPackage.name
-                                  ? 'text-blue-500'
-                                  : ''
+                                pkg.baseline ? 'text-blue-500' : ''
                               )}
                             >
                               <MdPushPin className="text-sm" />
-                              {baseline === mainPackage.name
+                              {pkg.baseline
                                 ? 'Remove Baseline'
                                 : 'Set as Baseline'}
                             </DropdownMenuItem>
@@ -1866,7 +1849,6 @@ function RouteComponent() {
                   <NpmStatsChart
                     range={range}
                     queryData={npmQuery.data}
-                    baseline={baseline}
                     transform={transform}
                     binType={binType}
                     packages={packageGroups}
@@ -2093,43 +2075,65 @@ function RouteComponent() {
           <div>
             <h2 className="text-xl font-semibold mb-4">Popular Comparisons</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {getPopularComparisons().map((comparison) => (
-                <Link
-                  key={comparison.title}
-                  to="."
-                  search={(prev) => ({
-                    ...prev,
-                    packageGroups: comparison.packageGroups,
-                  })}
-                  resetScroll={false}
-                  onClick={(e) => {
-                    window.scrollTo({
-                      top: 0,
-                      behavior: 'smooth',
-                    })
-                  }}
-                  className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors"
-                >
-                  <h3 className="font-medium mb-2">{comparison.title}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {comparison.packageGroups.map((packageGroup) => (
-                      <div
-                        key={packageGroup.packages[0].name}
-                        className="flex items-center gap-1.5 text-sm"
-                      >
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{
-                            backgroundColor:
-                              packageGroup.color || defaultColors[0],
-                          }}
-                        />
-                        <span>{packageGroup.packages[0].name}</span>
+              {getPopularComparisons().map((comparison) => {
+                const baselinePackage = comparison.packageGroups.find(
+                  (pg) => pg.baseline
+                )
+                return (
+                  <Link
+                    key={comparison.title}
+                    to="."
+                    search={(prev) => ({
+                      ...prev,
+                      packageGroups: comparison.packageGroups,
+                      baseline: comparison.packageGroups.find(
+                        (pg) => pg.baseline
+                      )?.packages[0].name,
+                    })}
+                    resetScroll={false}
+                    onClick={(e) => {
+                      window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth',
+                      })
+                    }}
+                    className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors space-y-4"
+                  >
+                    <div className="space-y-2">
+                      <div>
+                        <h3 className="font-medium">{comparison.title}</h3>
                       </div>
-                    ))}
-                  </div>
-                </Link>
-              ))}
+                      <div className="flex flex-wrap gap-2">
+                        {comparison.packageGroups
+                          .filter((d) => !d.baseline)
+                          .map((packageGroup) => (
+                            <div
+                              key={packageGroup.packages[0].name}
+                              className="flex items-center gap-1.5 text-sm"
+                            >
+                              <div
+                                className="w-3 h-3 rounded-full"
+                                style={{
+                                  backgroundColor:
+                                    packageGroup.color || defaultColors[0],
+                                }}
+                              />
+                              <span>{packageGroup.packages[0].name}</span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                    {baselinePackage && (
+                      <div className="flex items-center gap-1 text-sm">
+                        <div className="font-medium">Baseline:</div>
+                        <div className="bg-gray-500/10 rounded-md px-2 py-1 leading-none font-bold text-sm">
+                          {baselinePackage.packages[0].name}
+                        </div>
+                      </div>
+                    )}
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </div>

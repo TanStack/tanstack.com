@@ -53,6 +53,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.13
         version: 0.5.13(tailwindcss@3.4.1)
+      '@tanstack-dev/components':
+        specifier: ^1.4.0
+        version: 1.4.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@tanstack/pacer':
         specifier: ^0.2.0
         version: 0.2.0
@@ -2883,6 +2886,12 @@ packages:
     resolution: {integrity: sha512-ADGcJ8dX21dVVHIwTRgzrcunY6YY9uSlAHHGVKvkA+vLc5qLwEszvKts40lx7z0qc4clpjclwLeK5rVCV2P/uw==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
+
+  '@tanstack-dev/components@1.4.0':
+    resolution: {integrity: sha512-d+8NEzqfQpSRUVN8gcP9qBT/M6fOMerGux8pCV4Hmq2mHr+C9tJ3MwFFnP9xXh9LwPzXqKEU/2b/eDSMyunAUw==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
 
   '@tanstack/directive-functions-plugin@1.106.0':
     resolution: {integrity: sha512-eAK+8tGl+ZZimROdnuHoAc1MVKvmQWh7WTQbh531607NQAuD/7TgbTAiSBfTJYW8qeGovrSp/qq+dnhjqTy3xQ==}
@@ -10010,6 +10019,12 @@ snapshots:
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
       tailwindcss: 3.4.1
+
+  '@tanstack-dev/components@1.4.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+      react-icons: 5.3.0(react@19.0.0)
 
   '@tanstack/directive-functions-plugin@1.106.0(babel-plugin-macros@3.1.0)':
     dependencies:

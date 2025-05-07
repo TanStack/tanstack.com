@@ -518,14 +518,7 @@ export function DocsLayout({
 
   const largeMenu = (
     <div className="bg-white/50 dark:bg-black/30 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20 transition-all duration-500">
-      <div
-        className="px-4 pt-4 flex gap-2 items-center text-2xl"
-        style={{
-          viewTransitionName: `library-name`,
-        }}
-      >
-        {logo}
-      </div>
+      <div className="px-4 pt-4 flex gap-2 items-center text-2xl">{logo}</div>
       <div className="px-4">
         <SearchButton />
       </div>

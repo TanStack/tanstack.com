@@ -1549,7 +1549,7 @@ function RouteComponent() {
                             onClick={() =>
                               handleBaselineChange(mainPackage.name)
                             }
-                            className=" hover:text-blue-500"
+                            className="hover:text-blue-500"
                           >
                             <MdPushPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
                           </button>

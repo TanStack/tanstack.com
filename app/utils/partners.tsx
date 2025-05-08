@@ -430,7 +430,7 @@ const nozzle = (() => {
 
 const speakeasy = (() => {
   const href =
-    'https://speakeasy.com/?utm_source=tanstack&utm_campaign=tanstack'
+    'https://www.speakeasy.com/product/react-query?utm_source=tanstack&utm_campaign=tanstack'
 
   return {
     name: 'Speakeasy',

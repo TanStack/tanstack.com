@@ -18,6 +18,7 @@ import { ThemeToggle, useThemeStore } from '~/components/ThemeToggle'
 import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { SearchButton } from '~/components/SearchButton'
+import {I18nToggle} from '@tanstack-dev/components'
 
 export const Route = createFileRoute('/_libraries')({
   staleTime: Infinity,
@@ -37,6 +38,7 @@ function LibrariesLayout() {
       })
     },
   })
+  const href = useLocation().href;
 
   const detailsRef = React.useRef<HTMLElement>(null!)
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
@@ -225,7 +227,7 @@ function LibrariesLayout() {
   )
 
   const logo = (
-    <div className="flex-1 flex items-center gap-4 justify-between">
+    <div className="flex-1 flex items-center gap-2 justify-between">
       <Link to="/" className={twMerge(`flex items-center gap-1.5`)}>
         <img
           src={logoColor100w}
@@ -253,6 +255,7 @@ function LibrariesLayout() {
         >
           <FaInstagram className="text-xl" />
         </a>
+        <I18nToggle href={href}/>
       </div>
       <div className="ml-auto">
         <ThemeToggle />

@@ -1,4 +1,4 @@
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import * as React from 'react'
 import { FaMoon, FaSun } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'

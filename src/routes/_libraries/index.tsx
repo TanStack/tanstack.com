@@ -1,10 +1,8 @@
-import {
-  Await,
+import { createFileRoute } from '@tanstack/react-router'
+import { Await,
   Link,
   MatchRoute,
-  createFileRoute,
-  getRouteApi,
-} from '@tanstack/react-router'
+  getRouteApi, } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { CgSpinner } from 'react-icons/cg'

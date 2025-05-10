@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 

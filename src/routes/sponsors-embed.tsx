@@ -1,6 +1,7 @@
+import { createFileRoute } from '@tanstack/react-router'
 import SponsorPack from '~/components/SponsorPack'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { createFileRoute } from '@tanstack/react-router'
+import { } from '@tanstack/react-router'
 
 const cacheHeaders = {
   'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',

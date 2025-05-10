@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { fetchRepoFile } from './documents.server'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { setHeaders } from 'vinxi/http'
 
 export type MenuItem = {

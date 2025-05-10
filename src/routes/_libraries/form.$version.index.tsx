@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
@@ -5,9 +6,7 @@ import { FaCheckCircle } from 'react-icons/fa'
 import {
   Await,
   Link,
-  createFileRoute,
-  getRouteApi,
-} from '@tanstack/react-router'
+  getRouteApi, } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { TbHeartHandshake } from 'react-icons/tb'

@@ -1,4 +1,5 @@
-import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { Outlet } from '@tanstack/react-router'
 import { Scarf } from '~/components/Scarf'
 import { getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'

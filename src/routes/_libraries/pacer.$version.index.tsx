@@ -1,6 +1,7 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { CgSpinner } from 'react-icons/cg'
 import * as React from 'react'
-import { Link, createFileRoute, getRouteApi } from '@tanstack/react-router'
+import { Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { TbHeartHandshake } from 'react-icons/tb'

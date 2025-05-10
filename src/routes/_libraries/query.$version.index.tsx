@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
@@ -10,7 +11,7 @@ import SponsorPack from '~/components/SponsorPack'
 // import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { QueryGGBannerSale } from '~/components/QueryGGBannerSale'
 import { queryProject } from '~/libraries/query'
-import { createFileRoute } from '@tanstack/react-router'
+import { } from '@tanstack/react-router'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'

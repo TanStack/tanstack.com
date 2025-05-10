@@ -1,4 +1,5 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 
 import { formatAuthors } from '~/utils/blog'
 import { DocTitle } from '~/components/DocTitle'
@@ -6,7 +7,7 @@ import { Markdown } from '~/components/Markdown'
 import { format } from 'date-fns'
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { allPosts } from 'content-collections'
 import { setHeaders } from 'vinxi/http'
 

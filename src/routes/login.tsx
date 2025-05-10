@@ -1,5 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { createServerFn, json } from '@tanstack/start'
+import { createFileRoute } from '@tanstack/react-router'
+import {  redirect } from '@tanstack/react-router'
+import { createServerFn, json } from '@tanstack/react-start'
 import { setAuthOnResponse } from '~/auth/auth'
 import { useMutation } from '~/hooks/useMutation'
 

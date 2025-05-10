@@ -1,8 +1,9 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import {  Link, notFound } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { formatAuthors } from '~/utils/blog'
 import { format } from 'date-fns'
 import { z } from 'zod'
@@ -18,7 +19,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
       throw new Error('Invalid docs path')
     }
 
-    const filePath = `app/blog/${docsPath}.md`
+    const filePath = `src/blog/${docsPath}.md`
 
     const post = allPosts.find((post) => post.slug === docsPath)
 

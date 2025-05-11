@@ -1,5 +1,5 @@
 import { seo } from '~/utils/seo'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
@@ -14,6 +14,20 @@ export const Route = createFileRoute(
     const { _splat: docsPath, framework, version, libraryId } = ctx.params
 
     const library = getLibrary(libraryId)
+
+    const isMarkdown = !!docsPath?.endsWith('.md')
+
+    if (isMarkdown) {
+      const href =
+        '/api/md' +
+        ctx.location.pathname.slice(
+          0,
+          ctx.location.pathname.length - '.md'.length
+        )
+      throw redirect({
+        href,
+      })
+    }
 
     return loadDocs({
       repo: library.repo,

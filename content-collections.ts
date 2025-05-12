@@ -3,7 +3,7 @@ import { extractFrontMatter } from '~/utils/documents.server'
 
 const posts = defineCollection({
   name: 'posts',
-  directory: './app/blog',
+  directory: './src/blog',
   include: '*.md',
   schema: (z) => ({
     title: z.string(),

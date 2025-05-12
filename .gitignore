@@ -8,7 +8,7 @@ yarn.lock
 .vercel
 .output
 .vinxi
-.tanstack-start/*
+.tanstack-start/build
 .nitro/*
 .netlify/*
 

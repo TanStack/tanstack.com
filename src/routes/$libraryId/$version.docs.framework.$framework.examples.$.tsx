@@ -5,7 +5,6 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import {} from '@tanstack/react-router'
 import React from 'react'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'

@@ -1,8 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
+import { getCookie, setCookie } from '@tanstack/react-start/server'
 import * as React from 'react'
 import { FaMoon, FaSun } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
-import { getCookie, setCookie } from 'vinxi/http'
+
 import { z } from 'zod'
 import { create } from 'zustand'
 

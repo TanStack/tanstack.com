@@ -9,7 +9,7 @@ import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { allPosts } from 'content-collections'
-import { setHeaders } from 'vinxi/http'
+import { setHeaders } from '@tanstack/react-start/server'
 
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   async () => {

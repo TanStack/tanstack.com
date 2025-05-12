@@ -7,7 +7,7 @@ import {
   updateTiersMeta,
 } from '~/server/tiers'
 import { createServerFn } from '@tanstack/react-start'
-import { getEvent, setHeaders } from 'vinxi/http'
+import { getEvent, setHeaders } from '@tanstack/react-start/server'
 
 export type Sponsor = {
   login: string

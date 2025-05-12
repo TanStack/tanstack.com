@@ -6,7 +6,7 @@ import { rangerProject } from '~/libraries/ranger'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import {,} from '@tanstack/react-router'
+
 import { getRouteApi } from '@tanstack/react-router'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'

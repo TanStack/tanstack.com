@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { redirectWithClearedCookie, requireAuthCookie } from '~/auth/auth'
 import { useMutation } from '~/hooks/useMutation'
-import { getWebRequest } from 'vinxi/http'
+import { getWebRequest } from '@tanstack/react-start/server'
 
 const loadDashboard = createServerFn({ method: 'GET' }).handler(async () => {
   const userId = await requireAuthCookie(getWebRequest())

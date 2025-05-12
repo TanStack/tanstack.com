@@ -9,7 +9,7 @@ import { format } from 'date-fns'
 import { z } from 'zod'
 import { FaArrowLeft } from 'react-icons/fa'
 import { DocContainer } from '~/components/DocContainer'
-import { setHeaders } from 'vinxi/http'
+import { setHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 
 const fetchBlogPost = createServerFn({ method: 'GET' })

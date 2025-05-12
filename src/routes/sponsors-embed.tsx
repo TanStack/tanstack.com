@@ -1,4 +1,3 @@
-
 import SponsorPack from '~/components/SponsorPack'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 

@@ -1,5 +1,3 @@
-
-
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 

@@ -1,5 +1,3 @@
-
-
 import { createServerFn } from '@tanstack/react-start'
 import { redirectWithClearedCookie, requireAuthCookie } from '~/auth/auth'
 import { useMutation } from '~/hooks/useMutation'

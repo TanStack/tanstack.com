@@ -12,7 +12,7 @@
     "dev:backend": "convex dev --tail-logs",
     "build": "vinxi build",
     "start": "vinxi start",
-    "lint": "prettier --check '**/*' --ignore-unknown && eslint --ext .ts,.tsx ./app",
+    "lint": "prettier --check '**/*' --ignore-unknown && eslint --ext .ts,.tsx ./src",
     "format": "prettier --write '**/*' --ignore-unknown",
     "linkAll": "node scripts/link.js"
   },

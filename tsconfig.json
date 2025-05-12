@@ -15,7 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"],
+      "~/*": ["./src/*"],
       "content-collections": ["./.content-collections/generated"]
     },
     "types": ["vite/client"],

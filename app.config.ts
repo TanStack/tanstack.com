@@ -4,6 +4,9 @@ import contentCollections from '@content-collections/vite'
 import tsConfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
+  tsr: {
+    appDirectory: 'src',
+  },
   server: {
     preset: 'netlify',
   },

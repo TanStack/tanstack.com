@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
@@ -15,7 +14,7 @@ import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 
-export const Route = createFileRoute('/_libraries/form/$version/')({
+export const Route = createFileRoute({
   component: FormVersionIndex,
   head: () => ({
     meta: seo({

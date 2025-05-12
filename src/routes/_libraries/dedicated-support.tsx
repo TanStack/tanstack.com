@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import imgTanner from '~/images/people/tannerlinsley.jpeg'
 import imgKevin from '~/images/people/kevinvancott.jpeg'
@@ -17,7 +16,7 @@ interface TeamMember {
   img: string
 }
 
-export const Route = createFileRoute('/_libraries/dedicated-support')({
+export const Route = createFileRoute({
   component: LoginComp,
   staleTime: Infinity,
   loader: () => {

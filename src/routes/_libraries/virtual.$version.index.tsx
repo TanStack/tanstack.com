@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
@@ -16,7 +15,7 @@ import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
 import LandingPageGad from '~/components/LandingPageGad'
 
-export const Route = createFileRoute('/_libraries/virtual/$version/')({
+export const Route = createFileRoute({
   component: RouteComp,
   head: () => ({
     meta: seo({

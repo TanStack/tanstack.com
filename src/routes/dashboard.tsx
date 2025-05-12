@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+
 
 import { createServerFn } from '@tanstack/react-start'
 import { redirectWithClearedCookie, requireAuthCookie } from '~/auth/auth'
@@ -17,7 +17,7 @@ const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
   return redirectWithClearedCookie()
 })
 
-export const Route = createFileRoute('/dashboard')({
+export const Route = createFileRoute({
   loader: () => loadDashboard(),
   component: LoginComp,
 })

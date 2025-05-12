@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { Link, notFound } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
@@ -43,7 +42,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
     }
   })
 
-export const Route = createFileRoute('/_libraries/blog/$')({
+export const Route = createFileRoute({
   staleTime: Infinity,
   loader: ({ params }) => fetchBlogPost({ data: params._splat }),
   head: ({ loaderData }) => {

@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 
 import { formatAuthors } from '~/utils/blog'
@@ -41,7 +40,7 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   }
 )
 
-export const Route = createFileRoute('/_libraries/blog/')({
+export const Route = createFileRoute({
   staleTime: Infinity,
   loader: () => fetchFrontMatters(),
   notFoundComponent: () => <PostNotFound />,

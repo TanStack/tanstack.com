@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 import { Link, Outlet, useLocation } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
@@ -15,7 +14,7 @@ import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { SearchButton } from '~/components/SearchButton'
 
-export const Route = createFileRoute('/_libraries')({
+export const Route = createFileRoute({
   staleTime: Infinity,
   loader: async (ctx) => {
     return {

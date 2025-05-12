@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 import { CgSpinner } from 'react-icons/cg'
 import { FaCheckCircle } from 'react-icons/fa'
@@ -16,7 +15,7 @@ import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 
-export const Route = createFileRoute('/_libraries/table/$version/')({
+export const Route = createFileRoute({
   component: TableVersionIndex,
   head: () => ({
     meta: seo({

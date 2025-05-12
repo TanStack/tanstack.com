@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { z } from 'zod'
@@ -59,7 +58,7 @@ export const packageComparisonSchema = z.object({
 const transformModeSchema = z.enum(['none', 'normalize-y'])
 const binTypeSchema = z.enum(['yearly', 'monthly', 'weekly', 'daily'])
 const showDataModeSchema = z.enum(['all', 'complete'])
-export const Route = createFileRoute('/stats/npm/')({
+export const Route = createFileRoute({
   validateSearch: z.object({
     packageGroups: z
       .array(packageGroupSchema)

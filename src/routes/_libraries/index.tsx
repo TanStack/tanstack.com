@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { Await, Link, MatchRoute, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
@@ -40,7 +39,7 @@ const courses = [
   },
 ]
 
-export const Route = createFileRoute('/_libraries/')({
+export const Route = createFileRoute({
   loader: () => {
     return {
       randomNumber: Math.random(),

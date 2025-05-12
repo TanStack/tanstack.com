@@ -1,4 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { CgSpinner } from 'react-icons/cg'
 import { Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
@@ -13,7 +12,7 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 
-export const Route = createFileRoute('/_libraries/store/$version/')({
+export const Route = createFileRoute({
   component: StoreVersionIndex,
   head: () => ({
     meta: seo({

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {  Link, notFound } from '@tanstack/react-router'
+import { Link, notFound } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'

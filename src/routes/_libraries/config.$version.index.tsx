@@ -8,10 +8,7 @@ import SponsorPack from '~/components/SponsorPack'
 import { configProject } from '~/libraries/config'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import {
-  Await,
-  Link,
-  getRouteApi, } from '@tanstack/react-router'
+import { Await, Link, getRouteApi } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
 import LandingPageGad from '~/components/LandingPageGad'

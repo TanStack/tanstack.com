@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
-import {  Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import { throttle } from '@tanstack/pacer'
 import { useDebouncedValue } from '@tanstack/react-pacer'

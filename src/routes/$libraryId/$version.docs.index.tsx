@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {  redirect } from '@tanstack/react-router'
+import { redirect } from '@tanstack/react-router'
 import { getLibrary } from '~/libraries'
 
 export const Route = createFileRoute('/$libraryId/$version/docs/')({

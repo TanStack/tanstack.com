@@ -3,5 +3,5 @@
   "rootDirectory": ".",
   "routesDirectory": "./src/routes",
   "generatedRouteTree": "./src/routeTree.gen.ts",
-  "verboseFileRoutes": true 
+  "verboseFileRoutes": true
 }

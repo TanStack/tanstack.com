@@ -3,10 +3,7 @@ import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
 import { FaCheckCircle } from 'react-icons/fa'
-import {
-  Await,
-  Link,
-  getRouteApi, } from '@tanstack/react-router'
+import { Await, Link, getRouteApi } from '@tanstack/react-router'
 import { virtualProject } from '~/libraries/virtual'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'

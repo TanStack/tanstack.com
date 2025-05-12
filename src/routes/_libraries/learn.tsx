@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {  Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { FaCheckCircle } from 'react-icons/fa'
 import { LogoQueryGG } from '~/components/LogoQueryGG'

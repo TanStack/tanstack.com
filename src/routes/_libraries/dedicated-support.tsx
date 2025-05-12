@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {  Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import imgTanner from '~/images/people/tannerlinsley.jpeg'
 import imgKevin from '~/images/people/kevinvancott.jpeg'
 import imgDominik from '~/images/people/dominikdorfmeister.jpg'

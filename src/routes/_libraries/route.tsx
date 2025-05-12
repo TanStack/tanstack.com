@@ -1,8 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
-import { Link,
-  Outlet,
-  useLocation, } from '@tanstack/react-router'
+import { Link, Outlet, useLocation } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'

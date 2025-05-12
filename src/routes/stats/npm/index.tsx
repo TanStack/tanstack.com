@@ -686,6 +686,15 @@ function NpmStatsChart({
                   : plotData.filter((d) => d.date < partialBinEnd),
                 Plot.pointer({
                   ...baseOptions,
+                  stroke: 'name',
+                  format: {
+                    x: (d) =>
+                      d.toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      }),
+                  },
                 } as Plot.TipOptions)
               ),
             ].filter(Boolean),

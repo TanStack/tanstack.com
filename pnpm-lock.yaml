@@ -53,12 +53,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.13
         version: 0.5.13(tailwindcss@3.4.1)
-      '@tanstack/pacer':
-        specifier: ^0.2.0
-        version: 0.2.0
       '@tanstack/react-pacer':
-        specifier: ^0.2.0
-        version: 0.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: ^0.6.0
+        version: 0.6.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@tanstack/react-query':
         specifier: ^5.66.0
         version: 5.66.9(react@19.0.0)
@@ -2892,8 +2889,8 @@ packages:
     resolution: {integrity: sha512-JMd7USmnp8zV8BRGIjALqzPxazvKtQ7PGXQC7n39HpbqdsmfV2ePCzieO84IvN+mwsTrXErpbjI4BfKCa+ZNCg==}
     engines: {node: '>=12'}
 
-  '@tanstack/pacer@0.2.0':
-    resolution: {integrity: sha512-fUJs3NpSwtAL/tfq8kuYdgvm9HbbJvHsOG6aHY2dFDfff0NBFNwjvyGreWZZRPs2zgoIbr4nOk+rRV7aQgmf+A==}
+  '@tanstack/pacer@0.6.0':
+    resolution: {integrity: sha512-uunCU7ABQoq4pgujY3gRerPa6jp+K7/taAikYcY/xJTH+PJZu0YzOulMpJRsLVBHFd2kz7cAs3eOq1jA4Q9rCQ==}
     engines: {node: '>=18'}
 
   '@tanstack/query-core@5.66.4':
@@ -2905,8 +2902,8 @@ packages:
       react: '>=18.0.0 || >=19.0.0'
       react-dom: '>=18.0.0 || >=19.0.0'
 
-  '@tanstack/react-pacer@0.2.0':
-    resolution: {integrity: sha512-KU5GtjkKSeNdYCilen5Dc+Pu/6BPQbsQshKrUUjrg7URyJIiGBCz6ZZFre1QjDz/aeUeqUJWMWSm+2Dsh64v+w==}
+  '@tanstack/react-pacer@0.6.0':
+    resolution: {integrity: sha512-f0U7oySn6yQKmbe+np0pxNt93PJGmhsWy5hxWpRpzVCbm/hUQyRrRXk2Ai2/KJiB0n7o/Q2KRofYWo6TthwksQ==}
     engines: {node: '>=18'}
     peerDependencies:
       react: '>=16.8'
@@ -10034,7 +10031,7 @@ snapshots:
 
   '@tanstack/history@1.99.13': {}
 
-  '@tanstack/pacer@0.2.0': {}
+  '@tanstack/pacer@0.6.0': {}
 
   '@tanstack/query-core@5.66.4': {}
 
@@ -10043,9 +10040,9 @@ snapshots:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 
-  '@tanstack/react-pacer@0.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@tanstack/react-pacer@0.6.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
-      '@tanstack/pacer': 0.2.0
+      '@tanstack/pacer': 0.6.0
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 

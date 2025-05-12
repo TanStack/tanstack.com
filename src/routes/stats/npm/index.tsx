@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { z } from 'zod'
-import { throttle } from '@tanstack/pacer'
-import { useDebouncedValue } from '@tanstack/react-pacer'
+import { throttle, useDebouncedValue } from '@tanstack/react-pacer'
 import {
   MdClose,
   MdVisibility,

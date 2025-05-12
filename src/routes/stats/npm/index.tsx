@@ -131,25 +131,25 @@ const binningOptions = [
     label: 'Yearly',
     value: 'yearly',
     single: 'year',
-    bin: d3.timeYear,
+    bin: d3.utcYear,
   },
   {
     label: 'Monthly',
     value: 'monthly',
     single: 'month',
-    bin: d3.timeMonth,
+    bin: d3.utcMonth,
   },
   {
     label: 'Weekly',
     value: 'weekly',
     single: 'week',
-    bin: d3.timeSunday,
+    bin: d3.utcWeek,
   },
   {
     label: 'Daily',
     value: 'daily',
     single: 'day',
-    bin: d3.timeDay,
+    bin: d3.utcDay,
   },
 ] as const
 
@@ -222,7 +222,7 @@ function npmQueryOptions({
   packageGroups: z.infer<typeof packageGroupSchema>[]
   range: TimeRange
 }) {
-  const now = d3.timeDay(new Date())
+  const now = d3.utcDay(new Date())
   // Set to start of today to avoid timezone issues
   now.setHours(0, 0, 0, 0)
   let endDate = now
@@ -231,12 +231,12 @@ function npmQueryOptions({
   const getPackageCreationDate = async (packageName: string): Promise<Date> => {
     try {
       const response = await fetch(`https://registry.npmjs.org/${packageName}`)
-      if (!response.ok) return d3.timeDay(new Date('2010-01-12')) // Fallback date
+      if (!response.ok) return d3.utcDay(new Date('2010-01-12')) // Fallback date
       const data = await response.json()
-      return d3.timeDay(new Date(data.time?.created || '2010-01-12'))
+      return d3.utcDay(new Date(data.time?.created || '2010-01-12'))
     } catch (error) {
       console.error(`Error fetching creation date for ${packageName}:`, error)
-      return d3.timeDay(new Date('2010-01-12')) // Fallback date
+      return d3.utcDay(new Date('2010-01-12')) // Fallback date
     }
   }
 
@@ -255,22 +255,22 @@ function npmQueryOptions({
   let startDate = (() => {
     switch (range) {
       case '7-days':
-        return d3.timeDay.offset(now, -7)
+        return d3.utcDay.offset(now, -7)
       case '30-days':
-        return d3.timeDay.offset(now, -30)
+        return d3.utcDay.offset(now, -30)
       case '90-days':
-        return d3.timeDay.offset(now, -90)
+        return d3.utcDay.offset(now, -90)
       case '180-days':
-        return d3.timeDay.offset(now, -180)
+        return d3.utcDay.offset(now, -180)
       case '365-days':
-        return d3.timeDay.offset(now, -365)
+        return d3.utcDay.offset(now, -365)
       case '730-days':
-        return d3.timeDay.offset(now, -730)
+        return d3.utcDay.offset(now, -730)
       case '1825-days':
-        return d3.timeDay.offset(now, -1825)
+        return d3.utcDay.offset(now, -1825)
       case 'all-time':
         // We'll handle this in the queryFn
-        return d3.timeDay(new Date('2010-01-12')) // This will be overridden
+        return d3.utcDay(new Date('2010-01-12')) // This will be overridden
     }
   })()
 
@@ -297,11 +297,11 @@ function npmQueryOptions({
                 const chunkRanges: { start: Date; end: Date }[] = []
 
                 while (currentStart < currentEnd) {
-                  const chunkEnd = d3.timeDay(new Date(currentEnd))
-                  const chunkStart = d3.timeDay.offset(currentEnd, -365)
+                  const chunkEnd = d3.utcDay(new Date(currentEnd))
+                  const chunkStart = d3.utcDay.offset(currentEnd, -365)
 
                   // Move the end date to the day before the start of the current chunk
-                  currentEnd = d3.timeDay.offset(chunkStart, -1)
+                  currentEnd = d3.utcDay.offset(chunkStart, -1)
 
                   chunkRanges.push({ start: chunkStart, end: chunkEnd })
                 }
@@ -333,7 +333,7 @@ function npmQueryOptions({
                 // Find the earliest non-zero download
                 const firstNonZero = downloads.find((d) => d.downloads > 0)
                 if (firstNonZero) {
-                  startDate = d3.timeDay(new Date(firstNonZero.day))
+                  startDate = d3.utcDay(new Date(firstNonZero.day))
                 }
 
                 return { ...pkg, downloads }
@@ -495,26 +495,26 @@ function NpmStatsChart({
   const binOption = binningOptionsByType[binType]
   const binUnit = binningOptionsByType[binType].bin
 
-  const now = d3.timeDay(new Date())
+  const now = d3.utcDay(new Date())
 
   let startDate = (() => {
     switch (range) {
       case '7-days':
-        return d3.timeDay.offset(now, -7)
+        return d3.utcDay.offset(now, -7)
       case '30-days':
-        return d3.timeDay.offset(now, -30)
+        return d3.utcDay.offset(now, -30)
       case '90-days':
-        return d3.timeDay.offset(now, -90)
+        return d3.utcDay.offset(now, -90)
       case '180-days':
-        return d3.timeDay.offset(now, -180)
+        return d3.utcDay.offset(now, -180)
       case '365-days':
-        return d3.timeDay.offset(now, -365)
+        return d3.utcDay.offset(now, -365)
       case '730-days':
-        return d3.timeDay.offset(now, -730)
+        return d3.utcDay.offset(now, -730)
       case '1825-days':
-        return d3.timeDay.offset(now, -1825)
+        return d3.utcDay.offset(now, -1825)
       case 'all-time':
-        return d3.timeDay(new Date('2010-01-12'))
+        return d3.utcDay(new Date('2010-01-12'))
     }
   })()
 
@@ -532,7 +532,7 @@ function NpmStatsChart({
     visiblePackages.forEach((pkg) => {
       pkg.downloads.forEach((d) => {
         // Clamp the data to the floor bin of the start date
-        const date = d3.timeDay(new Date(d.day))
+        const date = d3.utcDay(new Date(d.day))
         if (date < startDate) return
 
         downloadsByDate.set(
@@ -546,7 +546,7 @@ function NpmStatsChart({
     return {
       ...packageGroup,
       downloads: Array.from(downloadsByDate.entries()).map(
-        ([date, downloads]) => [d3.timeDay(new Date(date)), downloads]
+        ([date, downloads]) => [d3.utcDay(new Date(date)), downloads]
       ) as [Date, number][],
     }
   })
@@ -565,7 +565,7 @@ function NpmStatsChart({
 
     const downloads = binned.map((d) => ({
       name: packageGroup.packages[0].name,
-      date: d3.timeDay(new Date(d[0])),
+      date: d3.utcDay(new Date(d[0])),
       downloads: d[1],
     }))
 
@@ -1918,18 +1918,18 @@ function RouteComponent() {
                             .flatMap((p) => p.downloads)
                             .sort(
                               (a, b) =>
-                                d3.timeDay(a.day).getTime() -
-                                d3.timeDay(b.day).getTime()
+                                d3.utcDay(a.day).getTime() -
+                                d3.utcDay(b.day).getTime()
                             )
 
                           // Get the binning unit and calculate partial bin boundaries
                           const binUnit = binOption.bin
-                          const now = d3.timeDay(new Date())
+                          const now = d3.utcDay(new Date())
                           const partialBinEnd = binUnit.floor(now)
 
                           // Filter downloads based on showDataMode for total downloads
                           const filteredDownloads = sortedDownloads.filter(
-                            (d) => d3.timeDay(new Date(d.day)) < partialBinEnd
+                            (d) => d3.utcDay(new Date(d.day)) < partialBinEnd
                           )
 
                           // Group downloads by bin using d3

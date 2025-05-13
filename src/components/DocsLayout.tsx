@@ -325,7 +325,6 @@ export function DocsLayout({
   repo,
   children,
 }: DocsLayoutProps) {
-  
   const params = useParams({ strict: false })
   const libraryId = params.libraryId || ''
 
@@ -404,7 +403,7 @@ export function DocsLayout({
                     params={{
                       libraryId,
                       version: params.version || 'latest',
-                      _splat: child.to
+                      _splat: child.to,
                     }}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')

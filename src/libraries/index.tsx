@@ -45,18 +45,18 @@ export type Framework = (typeof frameworkOptions)[number]['value']
 
 export type Library = {
   id:
-  | 'start'
-  | 'router'
-  | 'query'
-  | 'table'
-  | 'form'
-  | 'virtual'
-  | 'ranger'
-  | 'store'
-  | 'pacer'
-  | 'db'
-  | 'config'
-  | 'react-charts'
+    | 'start'
+    | 'router'
+    | 'query'
+    | 'table'
+    | 'form'
+    | 'virtual'
+    | 'ranger'
+    | 'store'
+    | 'pacer'
+    | 'db'
+    | 'config'
+    | 'react-charts'
   name: string
   cardStyles: string
   to: string
@@ -112,8 +112,14 @@ export const libraries = [
 ] satisfies Library[]
 
 export const librariesByGroup = {
-  app: [startProject, routerProject],
-  state: [queryProject, dbProject, storeProject, pacerProject],
+  state: [
+    startProject,
+    routerProject,
+    queryProject,
+    dbProject,
+    storeProject,
+    pacerProject,
+  ],
   headlessUI: [tableProject, formProject, virtualProject, rangerProject],
   other: [configProject],
 }

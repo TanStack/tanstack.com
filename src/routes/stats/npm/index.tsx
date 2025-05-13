@@ -11,8 +11,6 @@ import {
   MdPushPin,
   MdMoreVert,
   MdSearch,
-  MdArrowDownward,
-  MdArrowUpward,
 } from 'react-icons/md'
 import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import * as Plot from '@observablehq/plot'
@@ -726,10 +724,17 @@ function NpmStatsChart({
   )
 }
 
-function PackageSearch() {
+function PackageSearch({
+  onSelect,
+  placeholder = 'Search for a package...',
+  autoFocus = false,
+}: {
+  onSelect: (packageName: string) => void
+  placeholder?: string
+  autoFocus?: boolean
+}) {
   const [inputValue, setInputValue] = React.useState('')
   const [open, setOpen] = React.useState(false)
-  const navigate = Route.useNavigate()
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   const [debouncedInputValue] = useDebouncedValue(inputValue, {
@@ -791,19 +796,7 @@ function PackageSearch() {
     const selectedItem = searchQuery.data?.find((item) => item.name === value)
     if (!selectedItem) return
 
-    navigate({
-      to: '.',
-      search: (prev) => ({
-        ...prev,
-        packageGroups: [
-          ...prev.packageGroups,
-          {
-            packages: [{ name: selectedItem.name }],
-          },
-        ],
-      }),
-      resetScroll: false,
-    })
+    onSelect(selectedItem.name)
     setInputValue('')
     setOpen(false)
   }
@@ -815,11 +808,12 @@ function PackageSearch() {
           <div className="flex items-center gap-1">
             <MdSearch className="text-lg" />
             <Command.Input
-              placeholder="Search for a package..."
+              placeholder={placeholder}
               className="w-full bg-gray-500/10 rounded-md px-2 py-1 min-w-[200px] text-sm"
               value={inputValue}
               onValueChange={handleInputChange}
               onFocus={() => setOpen(true)}
+              autoFocus={autoFocus}
             />
           </div>
           {searchQuery.isLoading && (
@@ -925,10 +919,6 @@ function RouteComponent() {
   const [combiningPackage, setCombiningPackage] = React.useState<string | null>(
     null
   )
-  const [combineSearchResults, setCombineSearchResults] = React.useState<
-    NpmPackage[]
-  >([])
-  const [isCombining, setIsCombining] = React.useState(false)
   const navigate = Route.useNavigate()
   const [colorPickerPackage, setColorPickerPackage] = React.useState<
     string | null
@@ -1066,7 +1056,6 @@ function RouteComponent() {
     }
 
     setCombiningPackage(null)
-    setCombineSearchResults([])
   }
 
   const handleRemoveFromGroup = (mainPackage: string, subPackage: string) => {
@@ -1145,27 +1134,6 @@ function RouteComponent() {
 
   const handleCombinePackage = (packageName: string) => {
     setCombiningPackage(packageName)
-    setCombineSearchResults([])
-  }
-
-  const handleCombineSearch = async (query: string) => {
-    if (!query || query.length < 2) {
-      setCombineSearchResults([])
-      return
-    }
-
-    setIsCombining(true)
-    try {
-      const response = await fetch(
-        `https://api.npms.io/v2/search?q=${encodeURIComponent(query)}&size=10`
-      )
-      const data = await response.json()
-      setCombineSearchResults(data.results.map((r: any) => r.package))
-    } catch (error) {
-      console.error('Error searching packages:', error)
-    } finally {
-      setIsCombining(false)
-    }
   }
 
   const handleColorClick = (packageName: string, event: React.MouseEvent) => {
@@ -1249,6 +1217,69 @@ function RouteComponent() {
     })
   }
 
+  const handleAddPackage = (packageName: string) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        packageGroups: [
+          ...prev.packageGroups,
+          {
+            packages: [{ name: packageName }],
+          },
+        ],
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleAddToGroup = (packageName: string) => {
+    if (!combiningPackage) return
+
+    // Find the package group that contains the combining package
+    const packageGroup = packageGroups.find((pkg) =>
+      pkg.packages.some((p) => p.name === combiningPackage)
+    )
+
+    if (packageGroup) {
+      // Update existing package group
+      const newPackages = packageGroups.map((pkg) =>
+        pkg === packageGroup
+          ? {
+              ...pkg,
+              packages: [...pkg.packages, { name: packageName }],
+            }
+          : pkg
+      )
+
+      navigate({
+        to: '.',
+        search: (prev) => ({
+          ...prev,
+          packageGroups: newPackages,
+        }),
+        resetScroll: false,
+      })
+    } else {
+      // Create new package group
+      navigate({
+        to: '.',
+        search: (prev) => ({
+          ...prev,
+          packageGroups: [
+            ...packageGroups,
+            {
+              packages: [{ name: combiningPackage }, { name: packageName }],
+            },
+          ],
+        }),
+        resetScroll: false,
+      })
+    }
+
+    setCombiningPackage(null)
+  }
+
   return (
     <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4">
       <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex items-center gap-2 text-lg sm:text-xl shadow-xl">
@@ -1271,7 +1302,7 @@ function RouteComponent() {
       <div className="flex gap-4">
         <div className="flex-1 bg-white dark:bg-black/50 rounded-lg space-y-4 p-4 shadow-xl max-w-full">
           <div className="flex gap-2 flex-wrap">
-            <PackageSearch />
+            <PackageSearch onSelect={handleAddPackage} />
             <DropdownMenu>
               <Tooltip content="Select time range">
                 <DropdownMenuTrigger asChild>
@@ -1770,41 +1801,11 @@ function RouteComponent() {
                     <MdClose className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search for packages..."
-                    className="w-full bg-gray-500/10 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base"
-                    onChange={(e) => handleCombineSearch(e.target.value)}
-                    autoFocus
-                  />
-                  {isCombining && (
-                    <div className="absolute right-2 top-0 bottom-0 flex items-center justify-center">
-                      <FaSpinner className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
-                    </div>
-                  )}
-                </div>
-                <div className="mt-2 sm:mt-4 max-h-40 sm:max-h-60 overflow-auto">
-                  {combineSearchResults.map((pkg) => (
-                    <button
-                      key={pkg.name}
-                      onClick={() => handleCombineSelect(pkg)}
-                      className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-gray-500/20 rounded-md"
-                    >
-                      <div className="font-medium text-sm sm:text-base">
-                        {pkg.name}
-                      </div>
-                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                        {pkg.description}
-                      </div>
-                    </button>
-                  ))}
-                  {combineSearchResults.length === 0 && (
-                    <div className="px-2 sm:px-3 py-1.5 sm:py-2 text-sm text-gray-500">
-                      No matching packages found
-                    </div>
-                  )}
-                </div>
+                <PackageSearch
+                  onSelect={handleAddToGroup}
+                  placeholder="Search for packages to add..."
+                  autoFocus={true}
+                />
               </div>
             </div>
           )}

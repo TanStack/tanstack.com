@@ -1,6 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { redirect } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/$libraryId/')({
+export const Route = createFileRoute({
   beforeLoad: ({ params }) => {
     throw redirect({
       to: '/$libraryId/$version',

@@ -2,12 +2,7 @@ import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
 import { FaCheckCircle } from 'react-icons/fa'
-import {
-  Await,
-  Link,
-  createFileRoute,
-  getRouteApi,
-} from '@tanstack/react-router'
+import { Await, Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { TbHeartHandshake } from 'react-icons/tb'
@@ -19,7 +14,7 @@ import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 
-export const Route = createFileRoute('/_libraries/form/$version/')({
+export const Route = createFileRoute({
   component: FormVersionIndex,
   head: () => ({
     meta: seo({

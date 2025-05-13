@@ -1,5 +1,5 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { createServerFn, json } from '@tanstack/start'
+import { redirect } from '@tanstack/react-router'
+import { createServerFn, json } from '@tanstack/react-start'
 import { setAuthOnResponse } from '~/auth/auth'
 import { useMutation } from '~/hooks/useMutation'
 
@@ -27,7 +27,7 @@ const loginFn = createServerFn({ method: 'POST' })
     throw await setAuthOnResponse(json(redirect({ to: '/dashboard' })), '1234')
   })
 
-export const Route = createFileRoute('/login')({
+export const Route = createFileRoute({
   component: LoginComp,
 })
 

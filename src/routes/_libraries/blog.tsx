@@ -1,7 +1,7 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute('/_libraries/blog')({
+export const Route = createFileRoute({
   head: () => ({
     meta: seo({
       title: 'Blog | TanStack',

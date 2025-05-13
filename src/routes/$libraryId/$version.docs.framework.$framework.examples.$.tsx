@@ -4,7 +4,6 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
 import React from 'react'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
@@ -45,9 +44,7 @@ const repoDirApiContentsQueryOptions = (
     staleTime: Infinity, // We can cache this forever. A refresh can invalidate the cache if necessary.
   })
 
-export const Route = createFileRoute(
-  '/$libraryId/$version/docs/framework/$framework/examples/$'
-)({
+export const Route = createFileRoute({
   head: ({ params }) => {
     const library = getLibrary(params.libraryId)
 

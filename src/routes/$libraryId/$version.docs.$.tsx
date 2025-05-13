@@ -1,11 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
 
-export const Route = createFileRoute('/$libraryId/$version/docs/$')({
+export const Route = createFileRoute({
   staleTime: 1000 * 60 * 5,
   loader: (ctx) => {
     const { _splat: docsPath, version, libraryId } = ctx.params

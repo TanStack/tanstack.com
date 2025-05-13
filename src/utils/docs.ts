@@ -5,9 +5,9 @@ import {
 } from '~/utils/documents.server'
 import removeMarkdown from 'remove-markdown'
 import { notFound } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { setHeader } from 'vinxi/http'
+import { setHeader } from '@tanstack/react-start/server'
 
 export const loadDocs = async ({
   repo,

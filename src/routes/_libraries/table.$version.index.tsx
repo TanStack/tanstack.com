@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { CgSpinner } from 'react-icons/cg'
 import { FaCheckCircle } from 'react-icons/fa'
-import { Link, createFileRoute, getRouteApi } from '@tanstack/react-router'
+import { Link, getRouteApi } from '@tanstack/react-router'
 import { tableProject } from '~/libraries/table'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
@@ -15,7 +15,7 @@ import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 
-export const Route = createFileRoute('/_libraries/table/$version/')({
+export const Route = createFileRoute({
   component: TableVersionIndex,
   head: () => ({
     meta: seo({

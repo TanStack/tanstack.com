@@ -1,14 +1,14 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import { Link, notFound } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'
-import { createServerFn } from '@tanstack/start'
+import { createServerFn } from '@tanstack/react-start'
 import { formatAuthors } from '~/utils/blog'
 import { format } from 'date-fns'
 import { z } from 'zod'
 import { FaArrowLeft } from 'react-icons/fa'
 import { DocContainer } from '~/components/DocContainer'
-import { setHeaders } from 'vinxi/http'
+import { setHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 
 const fetchBlogPost = createServerFn({ method: 'GET' })
@@ -18,7 +18,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
       throw new Error('Invalid docs path')
     }
 
-    const filePath = `app/blog/${docsPath}.md`
+    const filePath = `src/blog/${docsPath}.md`
 
     const post = allPosts.find((post) => post.slug === docsPath)
 
@@ -42,7 +42,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
     }
   })
 
-export const Route = createFileRoute('/_libraries/blog/$')({
+export const Route = createFileRoute({
   staleTime: Infinity,
   loader: ({ params }) => fetchBlogPost({ data: params._splat }),
   head: ({ loaderData }) => {

@@ -399,7 +399,11 @@ export function DocsLayout({
                   </a>
                 ) : (
                   <Link
-                    to={child.to.startsWith('/') ? child.to : "/$libraryId/$version/docs/$"}
+                    to={
+                      child.to.startsWith('/')
+                        ? child.to
+                        : '/$libraryId/$version/docs/$'
+                    }
                     params={{
                       libraryId,
                       version: params.version || 'latest',

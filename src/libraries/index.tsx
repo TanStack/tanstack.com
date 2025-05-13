@@ -17,7 +17,7 @@ import { virtualProject } from './virtual'
 import { rangerProject } from './ranger'
 import { storeProject } from './store'
 import { pacerProject } from './pacer'
-// import { optimisticProject } from './optimistic'
+import { dbProject } from './db'
 
 export const frameworkOptions = [
   { label: 'React', value: 'react', logo: reactLogo, color: 'bg-blue-500' },
@@ -45,18 +45,18 @@ export type Framework = (typeof frameworkOptions)[number]['value']
 
 export type Library = {
   id:
-    | 'start'
-    | 'router'
-    | 'query'
-    | 'table'
-    | 'form'
-    | 'virtual'
-    | 'ranger'
-    | 'store'
-    | 'pacer'
-    | 'optimistic'
-    | 'config'
-    | 'react-charts'
+  | 'start'
+  | 'router'
+  | 'query'
+  | 'table'
+  | 'form'
+  | 'virtual'
+  | 'ranger'
+  | 'store'
+  | 'pacer'
+  | 'db'
+  | 'config'
+  | 'react-charts'
   name: string
   cardStyles: string
   to: string
@@ -107,13 +107,13 @@ export const libraries = [
   pacerProject,
   storeProject,
   rangerProject,
-  // optimisticProject,
+  dbProject,
   configProject,
 ] satisfies Library[]
 
 export const librariesByGroup = {
   app: [startProject, routerProject],
-  state: [queryProject, storeProject, pacerProject],
+  state: [queryProject, dbProject, storeProject, pacerProject],
   headlessUI: [tableProject, formProject, virtualProject, rangerProject],
   other: [configProject],
 }

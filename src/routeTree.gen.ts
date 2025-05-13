@@ -43,6 +43,7 @@ import { Route as LibrariesRangerVersionIndexRouteImport } from './routes/_libra
 import { Route as LibrariesQueryVersionIndexRouteImport } from './routes/_libraries/query.$version.index'
 import { Route as LibrariesPacerVersionIndexRouteImport } from './routes/_libraries/pacer.$version.index'
 import { Route as LibrariesFormVersionIndexRouteImport } from './routes/_libraries/form.$version.index'
+import { Route as LibrariesDbVersionIndexRouteImport } from './routes/_libraries/db.$version.index'
 import { Route as LibrariesConfigVersionIndexRouteImport } from './routes/_libraries/config.$version.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
 import { Route as LibraryIdVersionDocsSplatRouteImport } from './routes/$libraryId/$version.docs.$'
@@ -241,6 +242,12 @@ const LibrariesFormVersionIndexRoute =
     path: '/form/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
+const LibrariesDbVersionIndexRoute = LibrariesDbVersionIndexRouteImport.update({
+  id: '/db/$version/',
+  path: '/db/$version/',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
 
 const LibrariesConfigVersionIndexRoute =
   LibrariesConfigVersionIndexRouteImport.update({
@@ -461,6 +468,13 @@ declare module '@tanstack/react-router' {
       path: '/config/$version'
       fullPath: '/config/$version'
       preLoaderRoute: typeof LibrariesConfigVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/db/$version/': {
+      id: '/_libraries/db/$version/'
+      path: '/db/$version'
+      fullPath: '/db/$version'
+      preLoaderRoute: typeof LibrariesDbVersionIndexRouteImport
       parentRoute: typeof LibrariesRouteRouteImport
     }
     '/_libraries/form/$version/': {
@@ -775,6 +789,15 @@ declare module './routes/_libraries/config.$version.index' {
     FileRoutesByPath['/_libraries/config/$version/']['fullPath']
   >
 }
+declare module './routes/_libraries/db.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/db/$version/',
+    FileRoutesByPath['/_libraries/db/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/db/$version/']['id'],
+    FileRoutesByPath['/_libraries/db/$version/']['path'],
+    FileRoutesByPath['/_libraries/db/$version/']['fullPath']
+  >
+}
 declare module './routes/_libraries/form.$version.index' {
   const createFileRoute: CreateFileRoute<
     '/_libraries/form/$version/',
@@ -969,6 +992,7 @@ interface LibrariesRouteRouteChildren {
   LibrariesTermsRoute: typeof LibrariesTermsRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
+  LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
   LibrariesFormVersionIndexRoute: typeof LibrariesFormVersionIndexRoute
   LibrariesPacerVersionIndexRoute: typeof LibrariesPacerVersionIndexRoute
   LibrariesQueryVersionIndexRoute: typeof LibrariesQueryVersionIndexRoute
@@ -990,6 +1014,7 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesTermsRoute: LibrariesTermsRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
+  LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,
   LibrariesFormVersionIndexRoute: LibrariesFormVersionIndexRoute,
   LibrariesPacerVersionIndexRoute: LibrariesPacerVersionIndexRoute,
   LibrariesQueryVersionIndexRoute: LibrariesQueryVersionIndexRoute,
@@ -1030,6 +1055,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
+  '/db/$version': typeof LibrariesDbVersionIndexRoute
   '/form/$version': typeof LibrariesFormVersionIndexRoute
   '/pacer/$version': typeof LibrariesPacerVersionIndexRoute
   '/query/$version': typeof LibrariesQueryVersionIndexRoute
@@ -1066,6 +1092,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
+  '/db/$version': typeof LibrariesDbVersionIndexRoute
   '/form/$version': typeof LibrariesFormVersionIndexRoute
   '/pacer/$version': typeof LibrariesPacerVersionIndexRoute
   '/query/$version': typeof LibrariesQueryVersionIndexRoute
@@ -1107,6 +1134,7 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/_libraries/config/$version/': typeof LibrariesConfigVersionIndexRoute
+  '/_libraries/db/$version/': typeof LibrariesDbVersionIndexRoute
   '/_libraries/form/$version/': typeof LibrariesFormVersionIndexRoute
   '/_libraries/pacer/$version/': typeof LibrariesPacerVersionIndexRoute
   '/_libraries/query/$version/': typeof LibrariesQueryVersionIndexRoute
@@ -1149,6 +1177,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/'
     | '/config/$version'
+    | '/db/$version'
     | '/form/$version'
     | '/pacer/$version'
     | '/query/$version'
@@ -1184,6 +1213,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs'
     | '/config/$version'
+    | '/db/$version'
     | '/form/$version'
     | '/pacer/$version'
     | '/query/$version'
@@ -1223,6 +1253,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/'
     | '/_libraries/config/$version/'
+    | '/_libraries/db/$version/'
     | '/_libraries/form/$version/'
     | '/_libraries/pacer/$version/'
     | '/_libraries/query/$version/'
@@ -1300,6 +1331,7 @@ export const routeTree = rootRoute
         "/_libraries/terms",
         "/_libraries/",
         "/_libraries/config/$version/",
+        "/_libraries/db/$version/",
         "/_libraries/form/$version/",
         "/_libraries/pacer/$version/",
         "/_libraries/query/$version/",
@@ -1406,6 +1438,10 @@ export const routeTree = rootRoute
     },
     "/_libraries/config/$version/": {
       "filePath": "_libraries/config.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/db/$version/": {
+      "filePath": "_libraries/db.$version.index.tsx",
       "parent": "/_libraries"
     },
     "/_libraries/form/$version/": {

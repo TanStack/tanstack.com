@@ -423,6 +423,7 @@ async function fetchApiContentsFs(
     '.DS_Store',
     '.nitro',
     '.vinxi',
+    '.tanstack-start/build',
   ]
 
   async function getContentsForPath(

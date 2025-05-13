@@ -7,7 +7,6 @@ import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import { startProject } from '~/libraries/start'
-import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { partners } from '~/utils/partners'
 import { VscPreview } from 'react-icons/vsc'
@@ -16,7 +15,7 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 
-export const Route = createFileRoute('/_libraries/start/$version/')({
+export const Route = createFileRoute({
   component: VersionIndex,
   head: () => ({
     meta: seo({

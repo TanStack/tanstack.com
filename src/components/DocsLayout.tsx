@@ -325,10 +325,10 @@ export function DocsLayout({
   repo,
   children,
 }: DocsLayoutProps) {
-  const { libraryId } = useParams({
-    from: '/$libraryId/$version/docs',
-  })
-  const { _splat } = useParams({ strict: false })
+  const params = useParams({ strict: false })
+  const libraryId = params.libraryId || ''
+
+  const { _splat } = params
   const frameworkConfig = useFrameworkConfig({ frameworks })
   const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
@@ -399,8 +399,12 @@ export function DocsLayout({
                   </a>
                 ) : (
                   <Link
-                    to={child.to}
-                    params
+                    to="/$libraryId/$version/docs/$"
+                    params={{
+                      libraryId,
+                      version: params.version || 'latest',
+                      _splat: child.to,
+                    }}
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}

@@ -1,6 +1,6 @@
 import { CgSpinner } from 'react-icons/cg'
 import * as React from 'react'
-import { Link, createFileRoute, getRouteApi } from '@tanstack/react-router'
+import { Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { TbHeartHandshake } from 'react-icons/tb'
@@ -15,7 +15,7 @@ import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { partners } from '~/utils/partners'
 import LandingPageGad from '~/components/LandingPageGad'
 
-export const Route = createFileRoute('/_libraries/pacer/$version/')({
+export const Route = createFileRoute({
   component: PacerVersionIndex,
   head: () => ({
     meta: seo({

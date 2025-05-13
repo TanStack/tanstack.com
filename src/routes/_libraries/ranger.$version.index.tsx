@@ -5,7 +5,7 @@ import { rangerProject } from '~/libraries/ranger'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
-import { createFileRoute } from '@tanstack/react-router'
+
 import { getRouteApi } from '@tanstack/react-router'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
@@ -13,7 +13,7 @@ import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 
-export const Route = createFileRoute('/_libraries/ranger/$version/')({
+export const Route = createFileRoute({
   component: VersionIndex,
   head: () => ({
     meta: seo({

@@ -42,7 +42,7 @@ By using Nitro, all of TanStack Start’s adapter problems were gone. I never ev
 In fact, to deploy to Vercel, it was even easier than I had initially planned: just pass a `vercel` target to our `defineConfig`’s `server.preset` option, which is passed to Nitro:
 
 ```jsx
-import { defineConfig } from '@tanstack/start/config'
+import { defineConfig } from '@tanstack/react-start/config'
 
 export default defineConfig({
   server: {

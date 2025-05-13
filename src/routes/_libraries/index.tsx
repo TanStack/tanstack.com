@@ -1,10 +1,4 @@
-import {
-  Await,
-  Link,
-  MatchRoute,
-  createFileRoute,
-  getRouteApi,
-} from '@tanstack/react-router'
+import { Await, Link, MatchRoute, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { CgSpinner } from 'react-icons/cg'
@@ -45,7 +39,7 @@ const courses = [
   },
 ]
 
-export const Route = createFileRoute('/_libraries/')({
+export const Route = createFileRoute({
   loader: () => {
     return {
       randomNumber: Math.random(),

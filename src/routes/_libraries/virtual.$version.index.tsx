@@ -2,12 +2,7 @@ import * as React from 'react'
 
 import { CgSpinner } from 'react-icons/cg'
 import { FaCheckCircle } from 'react-icons/fa'
-import {
-  Await,
-  Link,
-  createFileRoute,
-  getRouteApi,
-} from '@tanstack/react-router'
+import { Await, Link, getRouteApi } from '@tanstack/react-router'
 import { virtualProject } from '~/libraries/virtual'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
@@ -20,7 +15,7 @@ import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
 import LandingPageGad from '~/components/LandingPageGad'
 
-export const Route = createFileRoute('/_libraries/virtual/$version/')({
+export const Route = createFileRoute({
   component: RouteComp,
   head: () => ({
     meta: seo({

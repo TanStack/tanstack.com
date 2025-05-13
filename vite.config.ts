@@ -10,9 +10,7 @@ export default defineConfig({
       projects: ['./tsconfig.json'],
     }),
 
-    tanstackStart({
-      target: 'netlify',
-    }),
+    tanstackStart({}),
 
     sentryVitePlugin({
       authToken: process.env.SENTRY_AUTH_TOKEN,

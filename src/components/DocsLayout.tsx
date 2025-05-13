@@ -186,13 +186,13 @@ const useMenuConfig = ({
     children: [
       {
         label: 'Home',
-        to: '..',
+        to: '/$libraryId/$version',
       },
       ...(frameworks.length > 1
         ? [
             {
               label: 'Frameworks',
-              to: './framework',
+              to: '/$libraryId/$version/docs/framework',
             },
           ]
         : []),
@@ -399,7 +399,11 @@ export function DocsLayout({
                   </a>
                 ) : (
                   <Link
-                    to="/$libraryId/$version/docs/$"
+                    to={
+                      child.to.startsWith('/')
+                        ? child.to
+                        : '/$libraryId/$version/docs/$'
+                    }
                     params={{
                       libraryId,
                       version: params.version || 'latest',

@@ -19,7 +19,7 @@ export const routerProject = {
     `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 ${textStyles} border-2 border-transparent hover:border-current`
   ),
   to: '/router',
-  tagline: `Type-safe Routing for React applications.`,
+  tagline: `Type-safe Routing for React and Solid applications.`,
   description: `A powerful React router for client-side and full-stack react applications. Fully type-safe APIs, first-class search-params for managing state in the URL and seamless integration with the existing React ecosystem.`,
   ogImage: 'https://github.com/tanstack/router/raw/main/media/header.png',
   bgStyle: 'bg-emerald-500',

@@ -186,13 +186,13 @@ const useMenuConfig = ({
     children: [
       {
         label: 'Home',
-        to: '/$libraryId/$version',
+        to: '..',
       },
       ...(frameworks.length > 1
         ? [
             {
               label: 'Frameworks',
-              to: '/$libraryId/$version/docs/framework',
+              to: './framework',
             },
           ]
         : []),
@@ -325,10 +325,10 @@ export function DocsLayout({
   repo,
   children,
 }: DocsLayoutProps) {
-  const params = useParams({ strict: false })
-  const libraryId = params.libraryId || ''
-
-  const { _splat } = params
+  const { libraryId } = useParams({
+    from: '/$libraryId/$version/docs',
+  })
+  const { _splat } = useParams({ strict: false })
   const frameworkConfig = useFrameworkConfig({ frameworks })
   const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
@@ -399,16 +399,8 @@ export function DocsLayout({
                   </a>
                 ) : (
                   <Link
-                    to={
-                      child.to.startsWith('/')
-                        ? child.to
-                        : '/$libraryId/$version/docs/$'
-                    }
-                    params={{
-                      libraryId,
-                      version: params.version || 'latest',
-                      _splat: child.to,
-                    }}
+                  to={child.to}
+                  params
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}

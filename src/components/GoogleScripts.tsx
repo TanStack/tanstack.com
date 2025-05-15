@@ -99,11 +99,13 @@ function Gad({
           .defineSlot?.('/23278945940/TopLevel', adSlot.sizes, adSlot.id)
           .addService(googletag.pubads?.())
           .setTargeting(adSlot.targeting, [adSlot.targeting])
+        googletag.pubads?.().enableSingleRequest()
+        googletag.enableServices?.()
+        googletag.display?.(adId)
+      } else {
+        googletag.display?.(adId)
+        googletag.pubads?.().refresh([adSlot.slot])
       }
-
-      googletag.pubads?.().enableSingleRequest()
-      googletag.enableServices?.()
-      googletag.display?.(adId)
 
       // Set individual refresh intervals for each ad
       const interval = setInterval(function () {

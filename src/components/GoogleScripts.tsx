@@ -106,16 +106,18 @@ function Gad({
         googletag.display?.(adId)
         googletag.pubads?.().refresh([adSlot.slot])
       }
-
-      // Set individual refresh intervals for each ad
-      const interval = setInterval(function () {
-        cmd.push(function () {
-          googletag.pubads?.().refresh([adSlot.slot])
-        })
-      }, adSlot.refreshInterval)
-
-      return () => clearInterval(interval)
     })
+
+    // Set individual refresh intervals for each ad
+    const interval = setInterval(function () {
+      cmd.push(function () {
+        googletag.pubads?.().refresh([adSlot.slot])
+      })
+    }, adSlot.refreshInterval)
+
+    return () => {
+      clearInterval(interval)
+    }
   }, [])
 
   return (

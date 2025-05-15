@@ -41,14 +41,14 @@ export const routerProject = {
   showNetlifyUrl: true,
   menu: [
     {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/router/latest/docs/framework/react/examples/kitchen-sink-file-based',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/router/latest/docs/framework/react/overview',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/router/latest/docs/framework/react/examples/kitchen-sink-file-based',
     },
     {
       icon: <FaGithub />,

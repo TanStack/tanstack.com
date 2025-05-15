@@ -31,14 +31,14 @@ export const pacerProject = {
   defaultDocs: 'overview',
   menu: [
     {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/pacer/latest/docs/framework/react/examples/debounce',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/pacer/latest/docs',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/pacer/latest/docs/framework/react/examples/debounce',
     },
     {
       icon: <FaGithub />,

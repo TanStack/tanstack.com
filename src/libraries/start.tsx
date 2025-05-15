@@ -34,14 +34,14 @@ export const startProject = {
   showNetlifyUrl: true,
   menu: [
     {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/start/latest/docs/framework/react/examples/start-basic',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/start/latest/docs/framework/react/overview',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/start/latest/docs/framework/react/examples/start-basic',
     },
     {
       icon: <FaGithub />,

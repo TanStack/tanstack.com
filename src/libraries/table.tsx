@@ -51,14 +51,14 @@ export const tableProject = {
   },
   menu: [
     {
-      icon: <VscPreview className="text-lg" />,
-      label: 'Examples',
-      to: '/table/latest/docs/framework/react/examples/basic',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/table/latest/docs/introduction',
+    },
+    {
+      icon: <VscPreview className="text-lg" />,
+      label: 'Examples',
+      to: '/table/latest/docs/framework/react/examples/basic',
     },
     {
       icon: <FaGithub />,

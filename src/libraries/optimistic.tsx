@@ -32,14 +32,14 @@ export const optimisticProject = {
   defaultDocs: 'overview',
   menu: [
     {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/optimistic/latest/docs/framework/react/examples/simple',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/optimistic/latest/docs',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/optimistic/latest/docs/framework/react/examples/simple',
     },
     {
       icon: <FaGithub />,

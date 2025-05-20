@@ -24,6 +24,8 @@ export const ServerRoute = createServerFileRoute().methods({
       headers: {
         'Content-Type': 'text/markdown',
         'Content-Disposition': `inline; filename="${filename}.md"`,
+        'Cache-Control': 'public, max-age=0, must-revalidate',
+        'Cdn-Cache-Control': 'max-age=300, stale-while-revalidate=300, durable',
       },
     })
   },

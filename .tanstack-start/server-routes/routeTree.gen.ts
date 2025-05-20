@@ -19,40 +19,114 @@ import {
   createServerFileRoute,
 } from '@tanstack/react-start/server'
 
+import { ServerRoute as LibraryIdVersionDocsChar123Char125DotmdRouteImport } from './../../src/routes/$libraryId/$version.docs.{$}[.]md'
+import { ServerRoute as LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport } from './../../src/routes/$libraryId/$version.docs.framework.$framework.{$}[.]md'
+
 // Create/Update Routes
 
 const rootRoute = createServerRoute()
 
+const LibraryIdVersionDocsChar123Char125DotmdRoute =
+  LibraryIdVersionDocsChar123Char125DotmdRouteImport.update({
+    id: '/$libraryId/$version/docs/{$}.md',
+    path: '/$libraryId/$version/docs/{$}.md',
+    getParentRoute: () => rootRoute,
+  } as any)
+
+const LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute =
+  LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport.update({
+    id: '/$libraryId/$version/docs/framework/$framework/{$}.md',
+    path: '/$libraryId/$version/docs/framework/$framework/{$}.md',
+    getParentRoute: () => rootRoute,
+  } as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-start/server' {
-  interface FileRoutesByPath {}
+  interface FileRoutesByPath {
+    '/$libraryId/$version/docs/{$}.md': {
+      id: '/$libraryId/$version/docs/{$}.md'
+      path: '/$libraryId/$version/docs/{$}.md'
+      fullPath: '/$libraryId/$version/docs/{$}.md'
+      preLoaderRoute: typeof LibraryIdVersionDocsChar123Char125DotmdRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/$libraryId/$version/docs/framework/$framework/{$}.md': {
+      id: '/$libraryId/$version/docs/framework/$framework/{$}.md'
+      path: '/$libraryId/$version/docs/framework/$framework/{$}.md'
+      fullPath: '/$libraryId/$version/docs/framework/$framework/{$}.md'
+      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRouteImport
+      parentRoute: typeof rootRoute
+    }
+  }
 }
 
 // Add type-safety to the createFileRoute function across the route tree
 
+declare module './../../src/routes/$libraryId/$version.docs.{$}[.]md' {
+  const createServerFileRoute: CreateServerFileRoute<
+    FileRoutesByPath['/$libraryId/$version/docs/{$}.md']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs/{$}.md']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs/{$}.md']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs/{$}.md']['fullPath'],
+    unknown
+  >
+}
+declare module './../../src/routes/$libraryId/$version.docs.framework.$framework.{$}[.]md' {
+  const createServerFileRoute: CreateServerFileRoute<
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['fullPath'],
+    unknown
+  >
+}
+
 // Create and export the route tree
 
-export interface FileRoutesByFullPath {}
+export interface FileRoutesByFullPath {
+  '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
+  '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
+}
 
-export interface FileRoutesByTo {}
+export interface FileRoutesByTo {
+  '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
+  '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
+}
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
+  '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: never
+  fullPaths:
+    | '/$libraryId/$version/docs/{$}.md'
+    | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   fileRoutesByTo: FileRoutesByTo
-  to: never
-  id: '__root__'
+  to:
+    | '/$libraryId/$version/docs/{$}.md'
+    | '/$libraryId/$version/docs/framework/$framework/{$}.md'
+  id:
+    | '__root__'
+    | '/$libraryId/$version/docs/{$}.md'
+    | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   fileRoutesById: FileRoutesById
 }
 
-export interface RootRouteChildren {}
+export interface RootRouteChildren {
+  LibraryIdVersionDocsChar123Char125DotmdRoute: typeof LibraryIdVersionDocsChar123Char125DotmdRoute
+  LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute: typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute
+}
 
-const rootRouteChildren: RootRouteChildren = {}
+const rootRouteChildren: RootRouteChildren = {
+  LibraryIdVersionDocsChar123Char125DotmdRoute:
+    LibraryIdVersionDocsChar123Char125DotmdRoute,
+  LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute:
+    LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdRoute,
+}
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
@@ -63,7 +137,16 @@ export const routeTree = rootRoute
   "routes": {
     "__root__": {
       "filePath": "__root.tsx",
-      "children": []
+      "children": [
+        "/$libraryId/$version/docs/{$}.md",
+        "/$libraryId/$version/docs/framework/$framework/{$}.md"
+      ]
+    },
+    "/$libraryId/$version/docs/{$}.md": {
+      "filePath": "$libraryId/$version.docs.{$}[.]md.tsx"
+    },
+    "/$libraryId/$version/docs/framework/$framework/{$}.md": {
+      "filePath": "$libraryId/$version.docs.framework.$framework.{$}[.]md.tsx"
     }
   }
 }

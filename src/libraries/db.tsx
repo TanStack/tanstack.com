@@ -36,11 +36,11 @@ export const dbProject = {
     //   label: 'Examples',
     //   to: '/db/latest/docs/framework/react/examples/simple',
     // },
-    // {
-    //   icon: <BiBookAlt />,
-    //   label: 'Docs',
-    //   to: '/db/latest/docs',
-    // },
+    {
+      icon: <BiBookAlt />,
+      label: 'Docs',
+      to: `https://github.com/${repo}/blob/main/docs/index.md`,
+    },
     {
       icon: <FaGithub />,
       label: 'Github',

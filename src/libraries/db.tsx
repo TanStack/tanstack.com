@@ -1,4 +1,5 @@
-import { VscPreview, VscWand } from 'react-icons/vsc'
+import { BsCollectionFill } from 'react-icons/bs'
+import { VscPreview, VscWand } from 'react-icons/co'
 import { Library } from '.'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
@@ -15,8 +16,7 @@ export const dbProject = {
   to: '/db',
   tagline: `A reactive client store for building super fast apps on sync`,
   description: `TanStack DB extends TanStack Query with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥`,
-  ogImage:
-    'https://github.com/tanstack/db/raw/main/media/repo-header.png',
+  ogImage: 'https://github.com/tanstack/db/raw/main/media/repo-header.png',
   badge: 'soon',
   bgStyle: `bg-orange-700`,
   textStyle: `text-orange-500`,
@@ -31,15 +31,15 @@ export const dbProject = {
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
   menu: [
-    {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/db/latest/docs/framework/react/examples/simple',
-    },
+    // {
+    //   icon: <VscPreview />,
+    //   label: 'Examples',
+    //   to: '/db/latest/docs/framework/react/examples/simple',
+    // },
     {
       icon: <BiBookAlt />,
       label: 'Docs',
-      to: '/db/latest/docs',
+      to: `https://github.com/${repo}/blob/main/docs/index.md`,
     },
     {
       icon: <FaGithub />,
@@ -50,10 +50,12 @@ export const dbProject = {
   featureHighlights: [
     {
       title: 'Collections',
-      icon: <VscWand className={twMerge(textStyles)} />,
+      icon: <BsCollectionFill className={twMerge(textStyles)} />,
       description: (
-        <div>Typed sets of objects that can mirror a backend table or be populated with a filtered view or result set, such as <code>pendingTodos</code> or <code>decemberNewTodos</code>.
-          Collections are just JavaScript data — load them on demand and define as many as you need.
+        <div>
+          Collections are typed sets of objects. Sync or load data into them.
+          Query across them with live queries and write locally to them using
+          optimistic mutations.
         </div>
       ),
     },
@@ -61,14 +63,22 @@ export const dbProject = {
       title: 'Live Queries',
       icon: <FaBolt className={twMerge(textStyles)} />,
       description: (
-        <div>Queries run reactively against and across collections with support for joins, filters and aggregates. They're powered by differential dataflow: query results update incrementally, not by re-running the whole query.</div>
+        <div>
+          Live queries run reactively against and across collections. They're
+          super fast, powered by differential dataflow, with support for joins,
+          filters and aggregates.
+        </div>
       ),
     },
     {
-      title: 'Transactional mutators',
+      title: 'Optimistic mutations',
       icon: <FaCogs className={twMerge(textStyles)} />,
       description: (
-        <div>Batch and stage local changes across collections with immediate application of local optimistic updates. Then sync transactions to the backend with automatic rollbacks and management of optimistic state.</div>
+        <div>
+          Batch and stage instant local changes across collections. Sync
+          transactions to the backend with automatic management of rollbacks and
+          optimistic state.
+        </div>
       ),
     },
   ],

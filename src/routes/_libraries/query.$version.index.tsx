@@ -7,8 +7,7 @@ import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { TbHeartHandshake } from 'react-icons/tb'
 import SponsorPack from '~/components/SponsorPack'
-// import { QueryGGBanner } from '~/components/QueryGGBanner'
-import { QueryGGBannerSale } from '~/components/QueryGGBannerSale'
+import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { queryProject } from '~/libraries/query'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
@@ -48,7 +47,6 @@ export default function VersionIndex() {
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
         <div className="flex flex-col gap-20 md:gap-32 max-w-full py-32">
           <div className="flex flex-col items-center gap-8 text-center px-4">
-            <QueryGGBannerSale />
             <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
               <span>TanStack</span>
               <span className={twMerge(gradientText)}>Query</span>
@@ -84,18 +82,9 @@ export default function VersionIndex() {
               >
                 Read the Docs
               </Link>
-              <p>
-                (or{' '}
-                <a
-                  href="https://query.gg?s=tanstack"
-                  className="font-semibold underline"
-                >
-                  check out our official course
-                </a>
-                . It’s on sale!)
-              </p>
+              <p>(or chek out our official course 👇)</p>
             </div>
-            {/* <QueryGGBanner /> */}
+            <QueryGGBanner /> 
           </div>
           <LibraryFeatureHighlights
             featureHighlights={library.featureHighlights}

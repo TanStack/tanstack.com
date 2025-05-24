@@ -31,14 +31,14 @@ export const storeProject = {
   defaultDocs: 'overview',
   menu: [
     {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/store/latest/docs/framework/react/examples/simple',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/store/latest/docs',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/store/latest/docs/framework/react/examples/simple',
     },
     {
       icon: <FaGithub />,

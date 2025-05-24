@@ -10,7 +10,7 @@ export function QueryGGBanner() {
   let body = (
     <>
       <p className="text-lg">
-        “If you're serious about *really* understanding React Query, there's no
+        “If you’re serious about *really* understanding React Query, there’s no
         better way than with query.gg”
       </p>
       <p className="mt-2"> —Tanner Linsley</p>

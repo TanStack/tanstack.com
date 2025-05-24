@@ -12,6 +12,7 @@ import {
   useMatches,
   useNavigate,
   useParams,
+  useRouterState,
 } from '@tanstack/react-router'
 import { FrameworkSelect } from '~/components/FrameworkSelect'
 import { useLocalStorage } from '~/utils/useLocalStorage'
@@ -186,13 +187,13 @@ const useMenuConfig = ({
     children: [
       {
         label: 'Home',
-        to: '/$libraryId/$version',
+        to: '..',
       },
       ...(frameworks.length > 1
         ? [
             {
               label: 'Frameworks',
-              to: '/$libraryId/$version/docs/framework',
+              to: './framework',
             },
           ]
         : []),
@@ -325,10 +326,10 @@ export function DocsLayout({
   repo,
   children,
 }: DocsLayoutProps) {
-  const params = useParams({ strict: false })
-  const libraryId = params.libraryId || ''
-
-  const { _splat } = params
+  const { libraryId } = useParams({
+    from: '/$libraryId/$version/docs',
+  })
+  const { _splat } = useParams({ strict: false })
   const frameworkConfig = useFrameworkConfig({ frameworks })
   const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
@@ -358,11 +359,7 @@ export function DocsLayout({
 
   const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
 
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
+  const footerAdKey = useRouterState({ select: (d) => d.location.pathname })
 
   const menuItems = menuConfig.map((group, i) => {
     const WrapperComp = group.collapsible ? 'details' : 'div'
@@ -399,16 +396,8 @@ export function DocsLayout({
                   </a>
                 ) : (
                   <Link
-                    to={
-                      child.to.startsWith('/')
-                        ? child.to
-                        : '/$libraryId/$version/docs/$'
-                    }
-                    params={{
-                      libraryId,
-                      version: params.version || 'latest',
-                      _splat: child.to,
-                    }}
+                    to={child.to}
+                    params
                     onClick={() => {
                       detailsRef.current.removeAttribute('open')
                     }}
@@ -574,7 +563,10 @@ export function DocsLayout({
         >
           {children}
         </div>
-        <div className="mb-8 !py-0 mx-auto max-w-full overflow-x-hidden">
+        <div
+          className="mb-8 !py-0 mx-auto max-w-full overflow-x-hidden"
+          key={footerAdKey}
+        >
           <GadFooter />
         </div>
         <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">

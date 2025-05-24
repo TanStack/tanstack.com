@@ -32,14 +32,14 @@ export const virtualProject = {
   scarfId: '32372eb1-91e0-48e7-8df1-4808a7be6b94',
   menu: [
     {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/virtual/latest/docs/framework/react/examples/dynamic',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/virtual/latest/docs/introduction',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/virtual/latest/docs/framework/react/examples/dynamic',
     },
     {
       icon: <FaGithub />,

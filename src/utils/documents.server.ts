@@ -312,9 +312,17 @@ export async function fetchRepoFile(
 }
 
 export function extractFrontMatter(content: string) {
-  return graymatter.default(content, {
-    excerpt: (file: any) => (file.excerpt = createExcerpt(file.content)),
+  const result = graymatter.default(content, {
+    excerpt: (file: any) => (file.excerpt = createRichExcerpt(file.content)),
   })
+
+  return {
+    ...result,
+    data: {
+      ...result.data,
+      description: createExcerpt(result.content)
+    } as { [key: string]: any } & { description: string }
+  }
 }
 
 function createExcerpt(text: string, maxLength = 200) {
@@ -334,6 +342,12 @@ function createExcerpt(text: string, maxLength = 200) {
   if (cleanText.length > maxLength) {
     cleanText = cleanText.slice(0, maxLength).trim() + '...'
   }
+
+  return cleanText
+}
+
+function createRichExcerpt(text: string, maxLength = 200) {
+  let cleanText = createExcerpt(text, maxLength)
 
   const imageText = extractFirstImage(text)
 

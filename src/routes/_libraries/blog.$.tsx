@@ -34,7 +34,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
 
     return {
       title: post.title,
-      description: post.excerpt,
+      description: post.description,
       published: post.published,
       content: post.content,
       authors: post.authors,

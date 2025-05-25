@@ -84,7 +84,7 @@ export default function VersionIndex() {
               </Link>
               <p>(or chek out our official course 👇)</p>
             </div>
-            <QueryGGBanner /> 
+            <QueryGGBanner />
           </div>
           <LibraryFeatureHighlights
             featureHighlights={library.featureHighlights}

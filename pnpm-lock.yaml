@@ -53,12 +53,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.13
         version: 0.5.13(tailwindcss@3.4.1)
-      '@tanstack/pacer':
-        specifier: ^0.2.0
-        version: 0.2.0
       '@tanstack/react-pacer':
-        specifier: ^0.2.0
-        version: 0.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: ^0.7.0
+        version: 0.7.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@tanstack/react-query':
         specifier: ^5.66.0
         version: 5.66.9(react@19.0.0)
@@ -2819,15 +2816,15 @@ packages:
     resolution: {integrity: sha512-/nKiPTyUIqSlCS0hGOL/hjQUI/TJ/i5w+dAFdgq0bhhiGpLvv4s/SAxbHb+/6Sm1WGkule6+taaRamDmrK3SYQ==}
     engines: {node: '>=12'}
 
-  '@tanstack/pacer@0.2.0':
-    resolution: {integrity: sha512-fUJs3NpSwtAL/tfq8kuYdgvm9HbbJvHsOG6aHY2dFDfff0NBFNwjvyGreWZZRPs2zgoIbr4nOk+rRV7aQgmf+A==}
+  '@tanstack/pacer@0.7.0':
+    resolution: {integrity: sha512-/CB3dN05Vd6CxiuiqRYdVQDu9wO61kN9flQiPcbdojYF2hWhhuzwbqS+lbKxZjObWuiTQPsC559lnZn1lbpM9Q==}
     engines: {node: '>=18'}
 
   '@tanstack/query-core@5.66.4':
     resolution: {integrity: sha512-skM/gzNX4shPkqmdTCSoHtJAPMTtmIJNS0hE+xwTTUVYwezArCT34NMermABmBVUg5Ls5aiUXEDXfqwR1oVkcA==}
 
-  '@tanstack/react-pacer@0.2.0':
-    resolution: {integrity: sha512-KU5GtjkKSeNdYCilen5Dc+Pu/6BPQbsQshKrUUjrg7URyJIiGBCz6ZZFre1QjDz/aeUeqUJWMWSm+2Dsh64v+w==}
+  '@tanstack/react-pacer@0.7.0':
+    resolution: {integrity: sha512-1QymYEkRnkcDxARJBb6pCMRtflIqMMsZExa27Qk9npl/StY3fQZZLH2wrNuzi1dyeMdqIxFjx8fm/LqZcxPP3Q==}
     engines: {node: '>=18'}
     peerDependencies:
       react: '>=16.8'
@@ -10282,13 +10279,13 @@ snapshots:
 
   '@tanstack/history@1.121.0-alpha.1': {}
 
-  '@tanstack/pacer@0.2.0': {}
+  '@tanstack/pacer@0.7.0': {}
 
   '@tanstack/query-core@5.66.4': {}
 
-  '@tanstack/react-pacer@0.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@tanstack/react-pacer@0.7.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
-      '@tanstack/pacer': 0.2.0
+      '@tanstack/pacer': 0.7.0
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 

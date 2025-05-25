@@ -23,8 +23,7 @@ export function DocsCalloutQueryGG() {
           <cite className="italic block text-right">—Tanner Linsley</cite>
         </blockquote>
 
-        <div className="grid justify-center bg-gray-800 dark:bg-gray-100 text-gray-100 dark:text-gray-800 z-10">
-        </div>
+        <div className="grid justify-center bg-gray-800 dark:bg-gray-100 text-gray-100 dark:text-gray-800 z-10"></div>
 
         {ppp && (
           <>

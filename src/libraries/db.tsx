@@ -1,5 +1,5 @@
 import { BsCollectionFill } from 'react-icons/bs'
-import { VscPreview, VscWand } from 'react-icons/co'
+import { VscPreview } from 'react-icons/vsc'
 import { Library } from '.'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
@@ -27,19 +27,19 @@ export const dbProject = {
   colorFrom: `from-orange-500`,
   colorTo: `to-orange-700`,
   textColor: `text-orange-700`,
-  frameworks: ['react', 'solid'],
+  frameworks: ['react', 'vue'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
   menu: [
-    // {
-    //   icon: <VscPreview />,
-    //   label: 'Examples',
-    //   to: '/db/latest/docs/framework/react/examples/simple',
-    // },
     {
       icon: <BiBookAlt />,
       label: 'Docs',
-      to: `https://github.com/${repo}/blob/main/docs/index.md`,
+      to: '/db/latest/docs',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/db/latest/docs/framework/react/examples/todo',
     },
     {
       icon: <FaGithub />,

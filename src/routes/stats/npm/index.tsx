@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
 import { z } from 'zod'
-import { throttle } from '@tanstack/pacer'
-import { useDebouncedValue } from '@tanstack/react-pacer'
+import { useDebouncedValue, useThrottledCallback } from '@tanstack/react-pacer'
 import {
   MdClose,
   MdVisibility,
@@ -1142,7 +1141,7 @@ function RouteComponent() {
     setColorPickerPackage(packageName)
   }
 
-  const handleColorChange = throttle(
+  const handleColorChange = useThrottledCallback(
     (packageName: string, color: string | null) => {
       navigate({
         to: '.',
@@ -1174,7 +1173,7 @@ function RouteComponent() {
     }
   )
 
-  const onHeightChange = throttle(
+  const onHeightChange = useThrottledCallback(
     (height: number) => {
       navigate({
         to: '.',

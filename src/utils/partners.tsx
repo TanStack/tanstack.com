@@ -21,6 +21,8 @@ import neonLightSvg from '~/images/neon-light.svg'
 import neonDarkSvg from '~/images/neon-dark.svg'
 import unkeyBlackSvg from '~/images/unkey-black.svg'
 import unkeyWhiteSvg from '~/images/unkey-white.svg'
+import electricDarkSvg from '~/images/electric-dark.svg'
+import electricLightSvg from '~/images/electric-light.svg'
 import { Library } from '~/libraries'
 
 type Partner = {
@@ -525,6 +527,49 @@ const unkey = (() => {
   }
 })()
 
+const electric = (() => {
+  const href = 'https://electric-sql.com'
+
+  return {
+    name: 'Electric',
+    id: 'electric',
+    libraries: ['db'],
+    sidebarImgLight: electricLightSvg,
+    sidebarImgDark: electricDarkSvg,
+    sidebarImgClass: 'py-4 scale-[1]',
+    href,
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-6">
+        <img
+          src={electricLightSvg}
+          alt="Unkey"
+          className="w-[180px] max-w-full dark:hidden"
+          width="180"
+          height="77"
+        />
+        <img
+          src={electricDarkSvg}
+          alt="Unkey"
+          className="w-[180px] max-w-full hidden dark:block"
+          width="180"
+          height="77"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          Electric and TanStack are teaming up on TanStack DB to bring sync to
+          mainstream application developers.
+        </div>
+        <span className="text-cyan-500 uppercase font-black text-sm">
+          Learn More
+        </span>
+      </>
+    ),
+  }
+})()
+
 // const vercel = (() => {
 //   const href = 'https://vercel.com?utm_source=tanstack'
 
@@ -581,6 +626,7 @@ export const partners: Partner[] = [
   unkey,
   uiDev,
   nozzle,
+  electric,
 ]
 
 if (typeof window !== 'undefined') {

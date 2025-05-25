@@ -320,8 +320,8 @@ export function extractFrontMatter(content: string) {
     ...result,
     data: {
       ...result.data,
-      description: createExcerpt(result.content)
-    } as { [key: string]: any } & { description: string }
+      description: createExcerpt(result.content),
+    } as { [key: string]: any } & { description: string },
   }
 }
 

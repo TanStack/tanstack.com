@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
 import { getFrameworkOptions, getLibrary } from '~/libraries'
 
-export const Route = createFileRoute('/$libraryId/$version/docs/framework/')({
+export const Route = createFileRoute({
   component: RouteComponent,
 })
 

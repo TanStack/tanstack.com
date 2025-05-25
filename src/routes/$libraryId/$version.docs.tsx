@@ -1,10 +1,10 @@
-import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { Outlet } from '@tanstack/react-router'
 import { DocsLayout } from '~/components/DocsLayout'
 import { getBranch, getLibrary } from '~/libraries'
 import { getTanstackDocsConfig } from '~/utils/config'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute('/$libraryId/$version/docs')({
+export const Route = createFileRoute({
   staleTime: 1000 * 60 * 5,
   loader: async (ctx) => {
     const { libraryId, version } = ctx.params

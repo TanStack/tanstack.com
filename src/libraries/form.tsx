@@ -30,14 +30,14 @@ export const formProject = {
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
   menu: [
     {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/form/latest/docs/framework/react/examples/simple',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/form/latest/docs',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/form/latest/docs/framework/react/examples/simple',
     },
     {
       icon: <FaGithub />,

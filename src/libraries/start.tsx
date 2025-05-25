@@ -15,7 +15,7 @@ export const startProject = {
   name: 'TanStack Start',
   cardStyles: `shadow-xl shadow-cyan-500/20 dark:shadow-lg dark:shadow-cyan-500/30 text-cyan-500 dark:text-white-400 border-2 border-transparent hover:border-current`,
   to: '/start',
-  tagline: `Full-stack React Framework powered by TanStack Router`,
+  tagline: `Full-stack Framework powered by TanStack Router for React and Solid`,
   description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.`,
   bgStyle: 'bg-cyan-500',
   textStyle: 'text-cyan-500',
@@ -34,14 +34,14 @@ export const startProject = {
   showNetlifyUrl: true,
   menu: [
     {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/start/latest/docs/framework/react/examples/start-basic',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/start/latest/docs/framework/react/overview',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/start/latest/docs/framework/react/examples/start-basic',
     },
     {
       icon: <FaGithub />,

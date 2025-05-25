@@ -1,8 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute('/_libraries/terms')({
+export const Route = createFileRoute({
   component: RouteComp,
   head: () => ({
     meta: seo({

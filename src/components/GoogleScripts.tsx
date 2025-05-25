@@ -55,13 +55,14 @@ const adSlots = {
     targeting: 'left-side-rail',
     refreshInterval: 45_000,
   },
-} satisfies Record<
+} as Record<
   string,
   {
     id: string
     sizes: [number, number][]
     targeting: string
     refreshInterval: number
+    slot?: any
   }
 >
 
@@ -93,24 +94,30 @@ function Gad({
 
     cmd.push(function () {
       // Define all ad slots
-      const slot = googletag
-        .defineSlot?.('/23278945940/TopLevel', adSlot.sizes, adSlot.id)
-        .addService(googletag.pubads?.())
-        .setTargeting(adSlot.targeting, [adSlot.targeting])
-
-      googletag.pubads?.().enableSingleRequest()
-      googletag.enableServices?.()
-      googletag.display?.(adId)
-
-      // Set individual refresh intervals for each ad
-      const interval = setInterval(function () {
-        cmd.push(function () {
-          googletag.pubads?.().refresh([slot])
-        })
-      }, adSlot.refreshInterval)
-
-      return () => clearInterval(interval)
+      if (!adSlot.slot) {
+        adSlot.slot = googletag
+          .defineSlot?.('/23278945940/TopLevel', adSlot.sizes, adSlot.id)
+          .addService(googletag.pubads?.())
+          .setTargeting(adSlot.targeting, [adSlot.targeting])
+        googletag.pubads?.().enableSingleRequest()
+        googletag.enableServices?.()
+        googletag.display?.(adId)
+      } else {
+        googletag.display?.(adId)
+        googletag.pubads?.().refresh([adSlot.slot])
+      }
     })
+
+    // Set individual refresh intervals for each ad
+    const interval = setInterval(function () {
+      cmd.push(function () {
+        googletag.pubads?.().refresh([adSlot.slot])
+      })
+    }, adSlot.refreshInterval)
+
+    return () => {
+      clearInterval(interval)
+    }
   }, [])
 
   return (

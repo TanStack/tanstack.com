@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { FaCheckCircle } from 'react-icons/fa'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 
-export const Route = createFileRoute('/_libraries/learn')({
+export const Route = createFileRoute({
   component: LoginComp,
   head: () => ({
     meta: seo({

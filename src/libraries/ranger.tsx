@@ -33,14 +33,14 @@ export const rangerProject = {
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
   menu: [
     {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/ranger/latest/docs/framework/react/examples/basic',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/ranger/latest/docs/overview',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/ranger/latest/docs/framework/react/examples/basic',
     },
     {
       icon: <FaGithub />,

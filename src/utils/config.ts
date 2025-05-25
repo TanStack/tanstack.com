@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { fetchRepoFile } from './documents.server'
-import { createServerFn } from '@tanstack/start'
-import { setHeaders } from 'vinxi/http'
+import { createServerFn } from '@tanstack/react-start'
+import { setHeaders } from '@tanstack/react-start/server'
 
 export type MenuItem = {
   label: string | React.ReactNode

@@ -15,7 +15,7 @@ import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
+import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
@@ -193,7 +193,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <BackgroundAnimation />
         <React.Suspense fallback={null}>{children}</React.Suspense>
         {showDevtools ? (
-          <TanStackRouterDevtools position="bottom-right" />
+          <TanStackRouterDevtoolsInProd position="bottom-right" />
         ) : null}
         {canShowLoading ? (
           <div

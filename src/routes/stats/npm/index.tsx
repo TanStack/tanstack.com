@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import { throttle, useDebouncedValue } from '@tanstack/react-pacer'
 import {
@@ -10,8 +10,6 @@ import {
   MdPushPin,
   MdMoreVert,
   MdSearch,
-  MdArrowDownward,
-  MdArrowUpward,
 } from 'react-icons/md'
 import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import * as Plot from '@observablehq/plot'
@@ -57,7 +55,7 @@ export const packageComparisonSchema = z.object({
 const transformModeSchema = z.enum(['none', 'normalize-y'])
 const binTypeSchema = z.enum(['yearly', 'monthly', 'weekly', 'daily'])
 const showDataModeSchema = z.enum(['all', 'complete'])
-export const Route = createFileRoute('/stats/npm/')({
+export const Route = createFileRoute({
   validateSearch: z.object({
     packageGroups: z
       .array(packageGroupSchema)
@@ -130,25 +128,25 @@ const binningOptions = [
     label: 'Yearly',
     value: 'yearly',
     single: 'year',
-    bin: d3.timeYear,
+    bin: d3.utcYear,
   },
   {
     label: 'Monthly',
     value: 'monthly',
     single: 'month',
-    bin: d3.timeMonth,
+    bin: d3.utcMonth,
   },
   {
     label: 'Weekly',
     value: 'weekly',
     single: 'week',
-    bin: d3.timeSunday,
+    bin: d3.utcWeek,
   },
   {
     label: 'Daily',
     value: 'daily',
     single: 'day',
-    bin: d3.timeDay,
+    bin: d3.utcDay,
   },
 ] as const
 
@@ -221,7 +219,7 @@ function npmQueryOptions({
   packageGroups: z.infer<typeof packageGroupSchema>[]
   range: TimeRange
 }) {
-  const now = d3.timeDay(new Date())
+  const now = d3.utcDay(new Date())
   // Set to start of today to avoid timezone issues
   now.setHours(0, 0, 0, 0)
   let endDate = now
@@ -230,12 +228,12 @@ function npmQueryOptions({
   const getPackageCreationDate = async (packageName: string): Promise<Date> => {
     try {
       const response = await fetch(`https://registry.npmjs.org/${packageName}`)
-      if (!response.ok) return d3.timeDay(new Date('2010-01-12')) // Fallback date
+      if (!response.ok) return d3.utcDay(new Date('2010-01-12')) // Fallback date
       const data = await response.json()
-      return d3.timeDay(new Date(data.time?.created || '2010-01-12'))
+      return d3.utcDay(new Date(data.time?.created || '2010-01-12'))
     } catch (error) {
       console.error(`Error fetching creation date for ${packageName}:`, error)
-      return d3.timeDay(new Date('2010-01-12')) // Fallback date
+      return d3.utcDay(new Date('2010-01-12')) // Fallback date
     }
   }
 
@@ -254,22 +252,22 @@ function npmQueryOptions({
   let startDate = (() => {
     switch (range) {
       case '7-days':
-        return d3.timeDay.offset(now, -7)
+        return d3.utcDay.offset(now, -7)
       case '30-days':
-        return d3.timeDay.offset(now, -30)
+        return d3.utcDay.offset(now, -30)
       case '90-days':
-        return d3.timeDay.offset(now, -90)
+        return d3.utcDay.offset(now, -90)
       case '180-days':
-        return d3.timeDay.offset(now, -180)
+        return d3.utcDay.offset(now, -180)
       case '365-days':
-        return d3.timeDay.offset(now, -365)
+        return d3.utcDay.offset(now, -365)
       case '730-days':
-        return d3.timeDay.offset(now, -730)
+        return d3.utcDay.offset(now, -730)
       case '1825-days':
-        return d3.timeDay.offset(now, -1825)
+        return d3.utcDay.offset(now, -1825)
       case 'all-time':
         // We'll handle this in the queryFn
-        return d3.timeDay(new Date('2010-01-12')) // This will be overridden
+        return d3.utcDay(new Date('2010-01-12')) // This will be overridden
     }
   })()
 
@@ -296,11 +294,11 @@ function npmQueryOptions({
                 const chunkRanges: { start: Date; end: Date }[] = []
 
                 while (currentStart < currentEnd) {
-                  const chunkEnd = d3.timeDay(new Date(currentEnd))
-                  const chunkStart = d3.timeDay.offset(currentEnd, -365)
+                  const chunkEnd = d3.utcDay(new Date(currentEnd))
+                  const chunkStart = d3.utcDay.offset(currentEnd, -365)
 
                   // Move the end date to the day before the start of the current chunk
-                  currentEnd = d3.timeDay.offset(chunkStart, -1)
+                  currentEnd = d3.utcDay.offset(chunkStart, -1)
 
                   chunkRanges.push({ start: chunkStart, end: chunkEnd })
                 }
@@ -332,7 +330,7 @@ function npmQueryOptions({
                 // Find the earliest non-zero download
                 const firstNonZero = downloads.find((d) => d.downloads > 0)
                 if (firstNonZero) {
-                  startDate = d3.timeDay(new Date(firstNonZero.day))
+                  startDate = d3.utcDay(new Date(firstNonZero.day))
                 }
 
                 return { ...pkg, downloads }
@@ -494,26 +492,26 @@ function NpmStatsChart({
   const binOption = binningOptionsByType[binType]
   const binUnit = binningOptionsByType[binType].bin
 
-  const now = d3.timeDay(new Date())
+  const now = d3.utcDay(new Date())
 
   let startDate = (() => {
     switch (range) {
       case '7-days':
-        return d3.timeDay.offset(now, -7)
+        return d3.utcDay.offset(now, -7)
       case '30-days':
-        return d3.timeDay.offset(now, -30)
+        return d3.utcDay.offset(now, -30)
       case '90-days':
-        return d3.timeDay.offset(now, -90)
+        return d3.utcDay.offset(now, -90)
       case '180-days':
-        return d3.timeDay.offset(now, -180)
+        return d3.utcDay.offset(now, -180)
       case '365-days':
-        return d3.timeDay.offset(now, -365)
+        return d3.utcDay.offset(now, -365)
       case '730-days':
-        return d3.timeDay.offset(now, -730)
+        return d3.utcDay.offset(now, -730)
       case '1825-days':
-        return d3.timeDay.offset(now, -1825)
+        return d3.utcDay.offset(now, -1825)
       case 'all-time':
-        return d3.timeDay(new Date('2010-01-12'))
+        return d3.utcDay(new Date('2010-01-12'))
     }
   })()
 
@@ -531,7 +529,7 @@ function NpmStatsChart({
     visiblePackages.forEach((pkg) => {
       pkg.downloads.forEach((d) => {
         // Clamp the data to the floor bin of the start date
-        const date = d3.timeDay(new Date(d.day))
+        const date = d3.utcDay(new Date(d.day))
         if (date < startDate) return
 
         downloadsByDate.set(
@@ -545,7 +543,7 @@ function NpmStatsChart({
     return {
       ...packageGroup,
       downloads: Array.from(downloadsByDate.entries()).map(
-        ([date, downloads]) => [d3.timeDay(new Date(date)), downloads]
+        ([date, downloads]) => [d3.utcDay(new Date(date)), downloads]
       ) as [Date, number][],
     }
   })
@@ -564,7 +562,7 @@ function NpmStatsChart({
 
     const downloads = binned.map((d) => ({
       name: packageGroup.packages[0].name,
-      date: d3.timeDay(new Date(d[0])),
+      date: d3.utcDay(new Date(d[0])),
       downloads: d[1],
     }))
 
@@ -685,6 +683,15 @@ function NpmStatsChart({
                   : plotData.filter((d) => d.date < partialBinEnd),
                 Plot.pointer({
                   ...baseOptions,
+                  stroke: 'name',
+                  format: {
+                    x: (d) =>
+                      d.toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      }),
+                  },
                 } as Plot.TipOptions)
               ),
             ].filter(Boolean),
@@ -716,10 +723,17 @@ function NpmStatsChart({
   )
 }
 
-function PackageSearch() {
+function PackageSearch({
+  onSelect,
+  placeholder = 'Search for a package...',
+  autoFocus = false,
+}: {
+  onSelect: (packageName: string) => void
+  placeholder?: string
+  autoFocus?: boolean
+}) {
   const [inputValue, setInputValue] = React.useState('')
   const [open, setOpen] = React.useState(false)
-  const navigate = Route.useNavigate()
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   const [debouncedInputValue] = useDebouncedValue(inputValue, {
@@ -781,19 +795,7 @@ function PackageSearch() {
     const selectedItem = searchQuery.data?.find((item) => item.name === value)
     if (!selectedItem) return
 
-    navigate({
-      to: '.',
-      search: (prev) => ({
-        ...prev,
-        packageGroups: [
-          ...prev.packageGroups,
-          {
-            packages: [{ name: selectedItem.name }],
-          },
-        ],
-      }),
-      resetScroll: false,
-    })
+    onSelect(selectedItem.name)
     setInputValue('')
     setOpen(false)
   }
@@ -805,11 +807,12 @@ function PackageSearch() {
           <div className="flex items-center gap-1">
             <MdSearch className="text-lg" />
             <Command.Input
-              placeholder="Search for a package..."
+              placeholder={placeholder}
               className="w-full bg-gray-500/10 rounded-md px-2 py-1 min-w-[200px] text-sm"
               value={inputValue}
               onValueChange={handleInputChange}
               onFocus={() => setOpen(true)}
+              autoFocus={autoFocus}
             />
           </div>
           {searchQuery.isLoading && (
@@ -915,10 +918,6 @@ function RouteComponent() {
   const [combiningPackage, setCombiningPackage] = React.useState<string | null>(
     null
   )
-  const [combineSearchResults, setCombineSearchResults] = React.useState<
-    NpmPackage[]
-  >([])
-  const [isCombining, setIsCombining] = React.useState(false)
   const navigate = Route.useNavigate()
   const [colorPickerPackage, setColorPickerPackage] = React.useState<
     string | null
@@ -1056,7 +1055,6 @@ function RouteComponent() {
     }
 
     setCombiningPackage(null)
-    setCombineSearchResults([])
   }
 
   const handleRemoveFromGroup = (mainPackage: string, subPackage: string) => {
@@ -1135,27 +1133,6 @@ function RouteComponent() {
 
   const handleCombinePackage = (packageName: string) => {
     setCombiningPackage(packageName)
-    setCombineSearchResults([])
-  }
-
-  const handleCombineSearch = async (query: string) => {
-    if (!query || query.length < 2) {
-      setCombineSearchResults([])
-      return
-    }
-
-    setIsCombining(true)
-    try {
-      const response = await fetch(
-        `https://api.npms.io/v2/search?q=${encodeURIComponent(query)}&size=10`
-      )
-      const data = await response.json()
-      setCombineSearchResults(data.results.map((r: any) => r.package))
-    } catch (error) {
-      console.error('Error searching packages:', error)
-    } finally {
-      setIsCombining(false)
-    }
   }
 
   const handleColorClick = (packageName: string, event: React.MouseEvent) => {
@@ -1239,6 +1216,69 @@ function RouteComponent() {
     })
   }
 
+  const handleAddPackage = (packageName: string) => {
+    navigate({
+      to: '.',
+      search: (prev) => ({
+        ...prev,
+        packageGroups: [
+          ...prev.packageGroups,
+          {
+            packages: [{ name: packageName }],
+          },
+        ],
+      }),
+      resetScroll: false,
+    })
+  }
+
+  const handleAddToGroup = (packageName: string) => {
+    if (!combiningPackage) return
+
+    // Find the package group that contains the combining package
+    const packageGroup = packageGroups.find((pkg) =>
+      pkg.packages.some((p) => p.name === combiningPackage)
+    )
+
+    if (packageGroup) {
+      // Update existing package group
+      const newPackages = packageGroups.map((pkg) =>
+        pkg === packageGroup
+          ? {
+              ...pkg,
+              packages: [...pkg.packages, { name: packageName }],
+            }
+          : pkg
+      )
+
+      navigate({
+        to: '.',
+        search: (prev) => ({
+          ...prev,
+          packageGroups: newPackages,
+        }),
+        resetScroll: false,
+      })
+    } else {
+      // Create new package group
+      navigate({
+        to: '.',
+        search: (prev) => ({
+          ...prev,
+          packageGroups: [
+            ...packageGroups,
+            {
+              packages: [{ name: combiningPackage }, { name: packageName }],
+            },
+          ],
+        }),
+        resetScroll: false,
+      })
+    }
+
+    setCombiningPackage(null)
+  }
+
   return (
     <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4">
       <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex items-center gap-2 text-lg sm:text-xl shadow-xl">
@@ -1261,7 +1301,7 @@ function RouteComponent() {
       <div className="flex gap-4">
         <div className="flex-1 bg-white dark:bg-black/50 rounded-lg space-y-4 p-4 shadow-xl max-w-full">
           <div className="flex gap-2 flex-wrap">
-            <PackageSearch />
+            <PackageSearch onSelect={handleAddPackage} />
             <DropdownMenu>
               <Tooltip content="Select time range">
                 <DropdownMenuTrigger asChild>
@@ -1760,41 +1800,11 @@ function RouteComponent() {
                     <MdClose className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search for packages..."
-                    className="w-full bg-gray-500/10 rounded-md px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base"
-                    onChange={(e) => handleCombineSearch(e.target.value)}
-                    autoFocus
-                  />
-                  {isCombining && (
-                    <div className="absolute right-2 top-0 bottom-0 flex items-center justify-center">
-                      <FaSpinner className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
-                    </div>
-                  )}
-                </div>
-                <div className="mt-2 sm:mt-4 max-h-40 sm:max-h-60 overflow-auto">
-                  {combineSearchResults.map((pkg) => (
-                    <button
-                      key={pkg.name}
-                      onClick={() => handleCombineSelect(pkg)}
-                      className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-gray-500/20 rounded-md"
-                    >
-                      <div className="font-medium text-sm sm:text-base">
-                        {pkg.name}
-                      </div>
-                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                        {pkg.description}
-                      </div>
-                    </button>
-                  ))}
-                  {combineSearchResults.length === 0 && (
-                    <div className="px-2 sm:px-3 py-1.5 sm:py-2 text-sm text-gray-500">
-                      No matching packages found
-                    </div>
-                  )}
-                </div>
+                <PackageSearch
+                  onSelect={handleAddToGroup}
+                  placeholder="Search for packages to add..."
+                  autoFocus={true}
+                />
               </div>
             </div>
           )}
@@ -1908,18 +1918,18 @@ function RouteComponent() {
                             .flatMap((p) => p.downloads)
                             .sort(
                               (a, b) =>
-                                d3.timeDay(a.day).getTime() -
-                                d3.timeDay(b.day).getTime()
+                                d3.utcDay(a.day).getTime() -
+                                d3.utcDay(b.day).getTime()
                             )
 
                           // Get the binning unit and calculate partial bin boundaries
                           const binUnit = binOption.bin
-                          const now = d3.timeDay(new Date())
+                          const now = d3.utcDay(new Date())
                           const partialBinEnd = binUnit.floor(now)
 
                           // Filter downloads based on showDataMode for total downloads
                           const filteredDownloads = sortedDownloads.filter(
-                            (d) => d3.timeDay(new Date(d.day)) < partialBinEnd
+                            (d) => d3.utcDay(new Date(d.day)) < partialBinEnd
                           )
 
                           // Group downloads by bin using d3

@@ -1,9 +1,9 @@
-import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { Outlet } from '@tanstack/react-router'
 import { Scarf } from '~/components/Scarf'
 import { getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute('/$libraryId')({
+export const Route = createFileRoute({
   component: RouteForm,
   head: (ctx) => {
     const library = getLibrary(ctx.params.libraryId)

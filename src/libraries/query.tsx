@@ -50,14 +50,14 @@ export const queryProject = {
   },
   menu: [
     {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/query/latest/docs/framework/react/examples/basic',
-    },
-    {
       icon: <BiBookAlt />,
       label: 'Docs',
       to: '/query/latest/docs/framework/react/overview',
+    },
+    {
+      icon: <VscPreview />,
+      label: 'Examples',
+      to: '/query/latest/docs/framework/react/examples/basic',
     },
     {
       icon: <FaGithub />,

@@ -48,53 +48,49 @@ export const storeProject = {
   ],
   featureHighlights: [
     {
-      title: 'Intuitive Configuration',
+      title: 'Battle-Tested',
       icon: <VscWand className={twMerge(textStyles)} />,
       description: (
         <div>
-          TanStack Store offers a seamless and intuitive configuration
-          management system that simplifies the process of building and
-          publishing high-quality JavaScript packages. TanStack Store{' '}
+          TanStack Store is widely adopted across the TanStack ecosystem,
+          powering libraries like TanStack Form, TanStack Router, and more. It
+          has been{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            streamlines the configuration process, allowing developers to focus
-            on writing code
+            battle-tested in production environments, ensuring reliability and
+            performance
           </span>{' '}
-          without the hassle of intricate setup procedures.
+          for developers.
         </div>
       ),
     },
     {
-      title: 'Vite-Powered Builds',
-      icon: <FaBolt className={twMerge(textStyles)} />,
+      title: 'Tiny Bundle Size',
+      icon: <VscWand className={twMerge(textStyles)} />,
       description: (
         <div>
-          TanStack Store's build configuration harnesses the Vite ecosystem.
-          Customize and extend your build workflows with ease, tailoring them to
-          meet the unique requirements of your project.{' '}
+          Designed with a focus on performance and efficiency, boasting a{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            Whether you need advanced optimizations, pre-processors, or other
-            specialized tools,
+            tiny bundle size
           </span>{' '}
-          TanStack Store provides a robust foundation for crafting a build
-          pipeline that suits your specific needs.
+          that ensures fast loading times and minimal impact on application
+          performance. This makes it an ideal choice for developers looking to
+          optimize their applications.
         </div>
       ),
     },
     {
-      title: 'Effortless Publication',
-      icon: <FaCogs className={twMerge(textStyles)} />,
+      title: 'Framework Agnostic',
+      icon: <VscWand className={twMerge(textStyles)} />,
       description: (
         <div>
-          Say goodbye to the complexities of code publishing. This package
-          provides tools designed to automate the publication of your projects.
-          Developers can effortlessly publish updates, manage versioning, and
-          release on npm and GitHub.{' '}
+          TanStack Store is{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            TanStack Store takes care of the tedious aspects of package
-            publishing,
-          </span>{' '}
-          empowering developers to share their work with the community
-          efficiently.
+            framework agnostic
+          </span>
+          , with adapters available for popular frameworks like React, Vue,
+          Angular, Solid, and Svelte. This flexibility allows developers to use
+          the store in their preferred framework without being locked into a
+          specific ecosystem.
         </div>
       ),
     },

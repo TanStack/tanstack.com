@@ -82,7 +82,7 @@ export default function VersionIndex() {
               >
                 Read the Docs
               </Link>
-              <p>(or chek out our official course 👇)</p>
+              <p>(or check out our official course 👇)</p>
             </div>
             <QueryGGBanner />
           </div>

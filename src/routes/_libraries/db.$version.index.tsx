@@ -61,7 +61,8 @@ export default function DBVersionIndex() {
             and&nbsp;blazing fast 🔥
           </p>
           <Link
-            to="https://github.com/tanstack/db"
+            to="/$libraryId/$version/docs"
+            params={{ libraryId: library.id, version }}
             className={`py-2 px-4 bg-orange-500 rounded text-white uppercase font-extrabold`}
           >
             Coming soon &raquo;
@@ -173,8 +174,9 @@ export default function DBVersionIndex() {
           </div>
           <div>
             <Link
-              to="https://github.com/TanStack/db"
-              className={`inline-block py-2 px-4 bg-orange-500 rounded text-white uppercase font-extrabold`}
+              to="/$libraryId/$version/docs"
+              params={{ libraryId: library.id, version }}
+              className={`inline-block py-2 px-4 bg-stone-700 rounded text-white uppercase font-extrabold`}
             >
               Get Started!
             </Link>

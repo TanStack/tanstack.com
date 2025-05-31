@@ -133,7 +133,7 @@ export function Doc({
           <div className="h-24" />
         </div>
 
-        {isTocVisible && (
+        {isTocVisible ? (
           <div className="hidden w-full max-w-64 border-l border-gray-500/20 transition-all 2xl:block">
             <Toc
               headings={headings}
@@ -142,6 +142,8 @@ export function Doc({
               colorTo={colorTo}
             />
           </div>
+        ) : (
+          <div className="hidden w-full max-w-64 2xl:block" />
         )}
       </div>
     </React.Fragment>

@@ -154,7 +154,7 @@ function Index() {
                           `rounded-xl border-transparent bg-white/90 p-6 shadow-md backdrop-blur-sm transition-all duration-300 dark:border-gray-800/50 dark:bg-black/40`,
                           'hover:shadow-lg',
                           'group relative overflow-hidden',
-                          'min-h-60',
+                          'min-h-60 hover:scale-105',
                           library.cardStyles,
                         )}
                         style={{
@@ -209,11 +209,11 @@ function Index() {
                         {/* Foreground content that appears on hover */}
                         <div className="absolute inset-0 z-30 flex h-full flex-col justify-between bg-white/95 p-6 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-black/95">
                           <div
-                            className={`text-sm leading-relaxed text-gray-800 dark:text-gray-200`}
+                            className={`text-[12.95px] leading-relaxed text-gray-800 dark:text-gray-200`}
                           >
                             {library.description}
                           </div>
-                          <div className="mt-6 text-center">
+                          <div className="mt-1 text-center">
                             <span className="inline-flex items-center gap-2 rounded-full bg-black/5 px-4 py-2 text-sm font-medium text-gray-900 dark:bg-white/10 dark:text-white">
                               Click to learn more
                               <svg
@@ -233,9 +233,12 @@ function Index() {
                           </div>
                         </div>
                         {/* Badge */}
+
                         {library.badge ? (
                           <div
-                            className={twMerge(`absolute top-0 right-0 z-20`)}
+                            className={twMerge(
+                              `absolute top-0 right-0 z-20 group-hover:hidden`,
+                            )}
                           >
                             <div
                               className={twMerge(

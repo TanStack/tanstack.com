@@ -386,7 +386,7 @@ export function DocsLayout({
         <div className="h-2" />
         <ul className="ml-2 text-[.85em] list-none">
           {group?.children?.map((child, i) => {
-            const linkClasses = `cursor-pointer flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
+            const linkClasses = `cursor-pointer flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500/10`
 
             return (
               <li key={i}>

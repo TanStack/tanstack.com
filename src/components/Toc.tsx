@@ -38,7 +38,7 @@ export function Toc({
           <li
             key={heading.id}
             className={twMerge(
-              'cursor-pointer py-[.1rem] w-full rounded hover:bg-gray-500 hover:bg-opacity-10',
+              'cursor-pointer py-[.1rem] w-full rounded hover:bg-gray-500/10',
               headingLevels[heading.level]
             )}
           >

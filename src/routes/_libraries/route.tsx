@@ -34,7 +34,7 @@ function LibrariesLayout() {
   })
 
   const detailsRef = React.useRef<HTMLElement>(null!)
-  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
+  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
 
   const items = (
     <>

@@ -125,7 +125,7 @@ function Index() {
             <OpenSourceStats />
           </div>
         </div>
-        <div className="px-4 md:mx-auto lg:max-w-screen-lg">
+        <div className="px-4 md:mx-auto lg:max-w-6xl">
           <h3 className={`text-center text-4xl font-light`}>
             Open Source Libraries
           </h3>

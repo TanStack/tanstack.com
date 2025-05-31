@@ -95,7 +95,7 @@ export function Doc({
       {shouldRenderToc ? <TocMobile headings={headings} /> : null}
       <div
         className={twMerge(
-          'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]',
+          'w-full flex bg-white/70 dark:bg-black/40 mx-auto lg:rounded-br-xl',
           isTocVisible && 'max-w-full',
           shouldRenderToc && 'lg:pt-0'
         )}
@@ -135,7 +135,7 @@ export function Doc({
         </div>
 
         {isTocVisible && (
-          <div className="border-l border-gray-500/20 max-w-52 w-full hidden 2xl:block transition-all">
+          <div className="border-l border-gray-500/20 max-w-64 w-full hidden 2xl:block transition-all">
             <Toc
               headings={headings}
               activeHeadings={activeHeadings}

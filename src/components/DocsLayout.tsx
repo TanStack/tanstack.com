@@ -488,7 +488,7 @@ export function DocsLayout({
           </div>
         </summary>
         <div
-          className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto
+          className="flex flex-col gap-4 p-4 whitespace-nowrap overflow-y-auto
           border-t border-gray-500/20 bg-white/20 text-lg
           dark:bg-black/20"
         >

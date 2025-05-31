@@ -19,7 +19,7 @@ export function TocMobile({ headings }: TocMobileProps) {
   }
 
   return (
-    <div className="lg:hidden flex -mx-2 -mt-2 md:-mx-6 md:-mt-6 pb-3 md:pb-5">
+    <div className="lg:hidden flex -mx-2">
       <details className="w-full" onToggle={handleToggle}>
         <summary
           className="px-4 py-3 text-sm font-medium w-full flex content-start items-center gap-2 bg-white/50 dark:bg-black/60 backdrop-blur-lg border-b border-gray-500/20"

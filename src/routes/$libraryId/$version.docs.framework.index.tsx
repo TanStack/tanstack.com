@@ -18,7 +18,7 @@ function RouteComponent() {
     <DocContainer>
       <div
         className={twMerge(
-          'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]'
+          'w-full flex bg-white/70 dark:bg-black/40 mx-auto lg:rounded-br-xl'
         )}
       >
         <div

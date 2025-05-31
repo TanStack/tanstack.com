@@ -13,7 +13,7 @@ const textStyles = 'text-blue-500 dark:text-blue-400'
 export const tableProject = {
   id: 'table',
   name: 'TanStack Table',
-  cardStyles: `shadow-xl shadow-blue-700/20 dark:shadow-lg dark:shadow-blue-500/30 text-blue-500 border-2 border-transparent hover:border-current`,
+  cardStyles: `border-red-500 dark:border-red-500 text-red-500 dark:text-red-500 border-2`,
   to: '/table',
   tagline: `Headless UI for building powerful tables & datagrids`,
   description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.`,

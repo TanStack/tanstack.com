@@ -16,7 +16,7 @@ export const routerProject = {
   id: 'router',
   name: 'TanStack Router',
   cardStyles: twMerge(
-    `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 ${textStyles} border-2 border-transparent hover:border-current`,
+    `border-emerald-500 dark:border-emerald-500 text-emerald-500 dark:text-emerald-500 border-2`,
   ),
   to: '/router',
   tagline: `Type-safe Routing for React and Solid applications`,

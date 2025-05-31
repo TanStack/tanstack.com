@@ -12,7 +12,7 @@ const textStyles = 'text-violet-700 dark:text-violet-400'
 export const virtualProject = {
   id: 'virtual',
   name: 'TanStack Virtual',
-  cardStyles: `shadow-xl shadow-purple-700/20 dark:shadow-lg dark:shadow-purple-500/30 text-purple-500 border-2 border-transparent hover:border-current`,
+  cardStyles: `border-purple-500 dark:border-purple-500 text-purple-500 dark:text-purple-500 border-2`,
   to: '/virtual',
   tagline: `Headless UI for Virtualizing Large Element Lists`,
   description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit & Angular while retaining 100% control over markup and styles.`,

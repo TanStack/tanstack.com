@@ -95,7 +95,7 @@ export function Doc({
       {shouldRenderToc ? <TocMobile headings={headings} /> : null}
       <div
         className={twMerge(
-          'w-full flex bg-white/70 dark:bg-black/40 mx-auto lg:rounded-br-xl',
+          'w-full flex bg-white/70 dark:bg-black/40 mx-auto',
           isTocVisible && 'max-w-full',
           shouldRenderToc && 'lg:pt-0'
         )}

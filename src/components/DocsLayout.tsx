@@ -423,7 +423,7 @@ export function DocsLayout({
                             {child.label}
                             {/* </div> */}
                           </div>
-                          {child.badge ? (
+                          {/* {child.badge ? (
                             <div
                               className={`text-xs ${
                                 props.isActive ? 'opacity-100' : 'opacity-40'
@@ -449,7 +449,7 @@ export function DocsLayout({
                             >
                               {child.badge}
                             </div>
-                          ) : null}
+                          ) : null} */}
                         </div>
                       )
                     }}
@@ -542,7 +542,7 @@ export function DocsLayout({
           onSelect={versionConfig.onSelect}
         />
       </div>
-      <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-8">
+      <div className="flex-1 flex flex-col gap-4 px-2 whitespace-nowrap overflow-y-auto text-base pb-8">
         {menuItems}
       </div>
     </div>
@@ -569,7 +569,7 @@ export function DocsLayout({
         >
           <GadFooter />
         </div>
-        <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
+        <div className="sticky flex items-center flex-wrap bottom-4 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
           <div className="w-1/2 px-1 flex justify-end flex-wrap">
             {prevItem ? (
               <Link

@@ -77,8 +77,8 @@ export default function BlogPost() {
 ${content}`
 
   return (
-    <DocContainer>
-      <div className="mb-2 md:mb-6 lg:mb-8">
+    <DocContainer className="max-w-4xl">
+      <div className="my-4 pl-3">
         <Link
           from="/blog/$"
           to="/blog"

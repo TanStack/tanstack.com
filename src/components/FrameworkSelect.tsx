@@ -36,7 +36,7 @@ export function FrameworkSelect<T extends SelectOption>({
 
   return (
     <div className={`top-16 w-full flex-1 ${className}`}>
-      <div className="text-[.8em] uppercase font-black">{label}</div>
+      <div className="text-[.8em] uppercase font-black pl-2">{label}</div>
       <form
         onSubmit={(e) => {
           e.preventDefault()

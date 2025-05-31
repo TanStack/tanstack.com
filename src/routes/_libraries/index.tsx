@@ -143,9 +143,7 @@ function Index() {
                   }
                 </h4>
                 {/* Library Cards */}
-                <div
-                  className={`grid grid-cols-1 justify-center gap-6 gap-y-8 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3`}
-                >
+                <div className="grid grid-cols-1 justify-center gap-5 sm:grid-cols-2 md:grid-cols-3">
                   {groupLibraries.map((library, i: number) => {
                     return (
                       <Link
@@ -153,10 +151,10 @@ function Index() {
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `rounded-xl border-2 border-transparent bg-white/90 p-6 shadow-md backdrop-blur-sm transition-all duration-300 dark:border-gray-800/50 dark:bg-black/40`,
+                          `rounded-xl border-transparent bg-white/90 p-6 shadow-md backdrop-blur-sm transition-all duration-300 dark:border-gray-800/50 dark:bg-black/40`,
                           'hover:shadow-lg',
                           'group relative overflow-hidden',
-                          'min-h-[250px] xl:min-h-[220px]',
+                          'min-h-60',
                           library.cardStyles,
                         )}
                         style={{
@@ -164,38 +162,40 @@ function Index() {
                         }}
                       >
                         {/* Background content that will blur on hover */}
-                        <div className="relative z-0 transition-[filter] duration-200 group-hover:blur-[0.5px]">
-                          <div className="flex items-center justify-between gap-2">
-                            <MatchRoute
-                              pending
-                              to={library.to}
-                              children={(isPending) => {
-                                return (
-                                  <div
-                                    className={twMerge(
-                                      `flex items-center gap-2 text-[1.2rem] font-extrabold [letter-spacing:-.04em] uppercase`,
-                                    )}
-                                    style={{
-                                      viewTransitionName: `library-name-${library.id}`,
-                                    }}
-                                  >
-                                    <span className="flex items-center rounded-lg bg-current leading-none">
-                                      <span className="p-1.5 px-2 text-xs leading-none font-black text-white uppercase dark:text-black">
-                                        TanStack
+                        <div className="relative z-0 flex h-full flex-col justify-between transition-[filter] duration-200 group-hover:blur-[0.5px]">
+                          <div>
+                            <div className="flex items-center justify-between gap-2">
+                              <MatchRoute
+                                pending
+                                to={library.to}
+                                children={(isPending) => {
+                                  return (
+                                    <div
+                                      className={twMerge(
+                                        `flex items-center gap-2 text-[1.2rem] font-extrabold [letter-spacing:-.04em] uppercase`,
+                                      )}
+                                      style={{
+                                        viewTransitionName: `library-name-${library.id}`,
+                                      }}
+                                    >
+                                      <span className="flex items-center rounded-lg bg-current leading-none">
+                                        <span className="p-1.5 px-2 text-xs leading-none font-black text-white uppercase dark:text-black">
+                                          TanStack
+                                        </span>
                                       </span>
-                                    </span>
-                                    <span className="text-current">
-                                      {library.name.replace('TanStack ', '')}
-                                    </span>
-                                  </div>
-                                )
-                              }}
-                            />
-                          </div>
-                          <div
-                            className={`mt-3 text-sm font-medium text-current italic`}
-                          >
-                            {library.tagline}
+                                      <span className="text-current">
+                                        {library.name.replace('TanStack ', '')}
+                                      </span>
+                                    </div>
+                                  )
+                                }}
+                              />
+                            </div>
+                            <div
+                              className={`mt-3 text-sm font-medium text-current italic`}
+                            >
+                              {library.tagline}
+                            </div>
                           </div>
 
                           {/* Description preview with ellipsis */}
@@ -207,7 +207,7 @@ function Index() {
                         </div>
 
                         {/* Foreground content that appears on hover */}
-                        <div className="absolute inset-0 z-30 flex flex-col justify-center bg-white/95 p-6 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-black/95">
+                        <div className="absolute inset-0 z-30 flex h-full flex-col justify-between bg-white/95 p-6 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-black/95">
                           <div
                             className={`text-sm leading-relaxed text-gray-800 dark:text-gray-200`}
                           >

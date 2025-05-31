@@ -179,7 +179,7 @@ function Index() {
                                       }}
                                     >
                                       <span className="flex items-center rounded-lg bg-current leading-none">
-                                        <span className="p-1.5 px-2 text-xs leading-none font-black text-white uppercase dark:text-black">
+                                        <span className="p-1.5 px-2 text-[13px] leading-none font-black text-white uppercase dark:text-black">
                                           TanStack
                                         </span>
                                       </span>

@@ -102,7 +102,7 @@ export function Doc({
       >
         <div
           className={twMerge(
-            'flex w-full flex-col overflow-auto p-4.5',
+            'mx-auto flex w-full max-w-3xl flex-col overflow-auto p-4.5',
             isTocVisible && '!pr-0',
           )}
         >

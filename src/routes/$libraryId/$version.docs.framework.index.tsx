@@ -19,7 +19,11 @@ function RouteComponent() {
       <div
         className={twMerge('mx-auto flex w-full bg-white/70 dark:bg-black/40')}
       >
-        <div className={twMerge('flex w-full flex-col overflow-auto p-4.5')}>
+        <div
+          className={twMerge(
+            'mx-auto flex w-full max-w-3xl flex-col overflow-auto p-4.5',
+          )}
+        >
           <DocTitle>Supported {library.name} Frameworks</DocTitle>
           <div className="h-4" />
           <div className="h-px bg-gray-500 opacity-20" />

@@ -192,7 +192,7 @@ function Index() {
                               />
                             </div>
                             <div
-                              className={`mt-3 text-sm font-medium text-current italic`}
+                              className={`mt-3 text-sm font-semibold text-current italic`}
                             >
                               {library.tagline}
                             </div>
@@ -200,7 +200,7 @@ function Index() {
 
                           {/* Description preview with ellipsis */}
                           <div
-                            className={`mt-3 line-clamp-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300`}
+                            className={`mt-3 line-clamp-4 text-sm leading-relaxed text-gray-700 dark:text-gray-300`}
                           >
                             {library.description}
                           </div>

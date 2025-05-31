@@ -11,7 +11,7 @@ const textStyles = `text-lime-600 dark:text-lime-500`
 export const pacerProject = {
   id: 'pacer',
   name: 'TanStack Pacer',
-  cardStyles: `border-lime-500 dark:border-lime-500 text-lime-500 dark:text-lime-500 border-2`,
+  cardStyles: `border-lime-500/50 dark:border-lime-500/50 text-lime-500 dark:text-lime-500 border-2`,
   to: '/pacer',
   tagline: `Framework agnostic debouncing, throttling, and queueing utilities`,
   description: `Set the pace of interactions in your applications. Limit the rate at which functions can fire, or intelligently queue long-running tasks with Concurrency Control.`,

@@ -11,7 +11,7 @@ const textStyles = 'text-twine-600 dark:text-twine-500'
 export const storeProject = {
   id: 'store',
   name: 'TanStack Store',
-  cardStyles: `border-twine-500 dark:border-twine-500 text-twine-500 dark:text-twine-500 border-2`,
+  cardStyles: `border-twine-500/50 dark:border-twine-500/50 text-twine-500 dark:text-twine-500 border-2`,
   to: '/store',
   tagline: `Framework agnostic data store with reactive framework adapters`,
   description: `The immutable-reactive data store that powers the core of TanStack libraries and their framework adapters.`,

@@ -11,7 +11,7 @@ const textStyles = 'text-gray-700 dark:text-gray-500'
 export const configProject = {
   id: 'config',
   name: 'TanStack Config',
-  cardStyles: `border-slate-500 dark:border-slate-500 text-slate-500 dark:text-slate-500 border-2`,
+  cardStyles: `border-slate-500/50 dark:border-slate-500/50 text-slate-500 dark:text-slate-500 border-2`,
   to: '/config',
   tagline: `Configuration and tools for publishing and maintaining high-quality JavaScript packages`,
   description: `The build and publish utilities used by all of our projects. Use it if you dare!`,

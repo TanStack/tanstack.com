@@ -13,7 +13,7 @@ const textStyles = 'text-cyan-600 dark:text-cyan-500'
 export const startProject = {
   id: 'start',
   name: 'TanStack Start',
-  cardStyles: `border-cyan-500 dark:border-cyan-500 text-cyan-500 dark:text-white-400 border-2`,
+  cardStyles: `border-cyan-500/50 dark:border-cyan-500/50 text-cyan-500 dark:text-white-400 border-2`,
   to: '/start',
   tagline: `Full-stack Framework powered by TanStack Router for React and Solid`,
   description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.`,

@@ -11,7 +11,7 @@ const textStyles = 'text-yellow-600 dark:text-yellow-300'
 export const formProject = {
   id: 'form',
   name: 'TanStack Form',
-  cardStyles: `border-yellow-500 dark:border-yellow-500 text-yellow-500 dark:text-yellow-500 border-2`,
+  cardStyles: `border-yellow-500/50 dark:border-yellow-500/50 text-yellow-500 dark:text-yellow-500 border-2`,
   to: '/form',
   tagline: `Headless UI for building performant and type-safe forms`,
   description: `Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid, Lit and Svelte.`,

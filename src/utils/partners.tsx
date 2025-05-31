@@ -11,7 +11,6 @@ import electricLightSvg from '~/images/electric-light.svg'
 import neonDarkSvg from '~/images/neon-dark.svg'
 import neonLightSvg from '~/images/neon-light.svg'
 import netlifyDarkSvg from '~/images/netlify-dark.svg'
-
 import netlifyLightSvg from '~/images/netlify-light.svg'
 import nozzleDarkSvg from '~/images/nozzle-dark.svg'
 import nozzleLightSvg from '~/images/nozzle-light.svg'

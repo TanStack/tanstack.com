@@ -423,33 +423,33 @@ export function DocsLayout({
                             {child.label}
                             {/* </div> */}
                           </div>
-                          {/* {child.badge ? (
+                          {child.badge ? (
                             <div
                               className={`text-xs ${
                                 props.isActive ? 'opacity-100' : 'opacity-40'
-                              } group-hover:opacity-100 font-bold transition-opacity ${
+                              } font-bold transition-opacity group-hover:opacity-100 ${
                                 child.badge === 'react'
                                   ? 'text-sky-500'
                                   : child.badge === 'solid'
-                                  ? 'text-blue-500'
-                                  : child.badge === 'svelte'
-                                  ? 'text-orange-500'
-                                  : child.badge === 'vue'
-                                  ? 'text-green-500'
-                                  : child.badge === 'angular'
-                                  ? 'text-fuchsia-500'
-                                  : child.badge === 'qwik'
-                                  ? 'text-indigo-500'
-                                  : child.badge === 'lit'
-                                  ? 'text-emerald-500'
-                                  : child.badge === 'vanilla'
-                                  ? 'text-yellow-500'
-                                  : 'text-gray-500'
+                                    ? 'text-blue-500'
+                                    : child.badge === 'svelte'
+                                      ? 'text-orange-500'
+                                      : child.badge === 'vue'
+                                        ? 'text-green-500'
+                                        : child.badge === 'angular'
+                                          ? 'text-fuchsia-500'
+                                          : child.badge === 'qwik'
+                                            ? 'text-indigo-500'
+                                            : child.badge === 'lit'
+                                              ? 'text-emerald-500'
+                                              : child.badge === 'vanilla'
+                                                ? 'text-yellow-500'
+                                                : 'text-gray-500'
                               }`}
                             >
                               {child.badge}
                             </div>
-                          ) : null} */}
+                          ) : null}
                         </div>
                       )
                     }}

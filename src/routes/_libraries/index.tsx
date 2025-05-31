@@ -141,12 +141,16 @@ function Index() {
           </div>
         </div>
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">
-          <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>
+          <h3 className={`text-4xl font-light text-center`}>
+            Open Source Libraries
+          </h3>
 
           {Object.entries(librariesByGroup).map(
             ([groupName, groupLibraries]: [string, Library[]]) => (
               <div key={groupName} className="mt-8">
-                <h4 className={`text-2xl font-medium capitalize mb-6`}>
+                <h4
+                  className={`text-2xl font-medium capitalize mb-6 text-center`}
+                >
                   {
                     librariesGroupNamesMap[
                       groupName as keyof typeof librariesGroupNamesMap
@@ -156,7 +160,7 @@ function Index() {
                 {/* Library Cards */}
                 <div
                   className={`grid grid-cols-1 gap-6 gap-y-8 justify-center
-                sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3`}
+                sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 `}
                 >
                   {groupLibraries.map((library, i: number) => {
                     return (
@@ -165,7 +169,7 @@ function Index() {
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `border-2 border-transparent rounded-xl shadow-md p-8 transition-all duration-300
+                          `border-2 border-transparent rounded-xl shadow-md p-6 transition-all duration-300
                           bg-white/90 dark:bg-black/40 backdrop-blur-sm
                           dark:border-gray-800/50`,
                           'hover:shadow-lg',
@@ -286,7 +290,7 @@ function Index() {
         </div>
 
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">
-          <h3 className={`text-4xl font-light mb-6`}>Partners</h3>
+          <h3 className={`text-4xl font-light mb-6 text-center`}>Partners</h3>
           <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
             {partners.map((partner) => {
               return (
@@ -310,7 +314,7 @@ function Index() {
         </div>
 
         <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
-          <h3 className={`text-4xl font-light mb-6`}>Courses</h3>
+          <h3 className={`text-4xl font-light mb-6 text-center`}>Courses</h3>
           <div className={`mt-4 grid grid-cols-1 gap-4`}>
             {courses.map((course) => (
               <a
@@ -344,7 +348,7 @@ function Index() {
         </div>
 
         <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
-          <h3 className={`text-4xl font-light`}>OSS Sponsors</h3>
+          <h3 className={`text-4xl font-light text-center`}>OSS Sponsors</h3>
           <div className="h-6" />
           <div
             style={{

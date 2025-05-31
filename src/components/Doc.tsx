@@ -102,14 +102,13 @@ export function Doc({
       >
         <div
           className={twMerge(
-            'mx-auto flex w-full max-w-3xl flex-col overflow-auto p-4.5',
-            isTocVisible && '!pr-0',
+            'ml-auto flex w-full max-w-[820px] flex-col overflow-auto p-4.5',
           )}
         >
           <GadLeader />
           {title ? <DocTitle>{title}</DocTitle> : null}
           <div className="h-4" />
-          <div className="h-px bg-gray-500 opacity-20" />
+          <div className="h-px bg-gray-500/20" />
           <div className="h-4" />
           <div
             ref={markdownContainerRef}

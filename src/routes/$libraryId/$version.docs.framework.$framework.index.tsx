@@ -52,7 +52,7 @@ function Comp() {
       >
         <div
           className={twMerge(
-            'mx-auto flex w-full max-w-3xl flex-col overflow-auto p-4.5',
+            'ml-auto flex w-full max-w-[820px] flex-col overflow-auto p-4.5',
           )}
         >
           <DocTitle>

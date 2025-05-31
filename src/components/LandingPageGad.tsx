@@ -9,8 +9,8 @@ export default function LandingPageGad() {
           <GadFooter />
         </div>
         <div
-          className="text-xs bg-gray-500 bg-opacity-10 py-2 px-4 rounded text-gray-500
-                dark:bg-opacity-20 self-center text-center w-[500px] max-w-full space-y-2"
+          className="text-xs bg-gray-500/10 py-2 px-4 rounded text-gray-500
+                dark:bg-gray-500/20 self-center text-center w-[500px] max-w-full space-y-2"
         >
           <div>
             <span className="font-medium italic">

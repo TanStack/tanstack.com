@@ -42,7 +42,7 @@
     outline: none !important;
   }
 
-  * {
+  /* * {
     scrollbar-color: var(--colors-gray-400) var(--colors-gray-100);
   }
 
@@ -62,9 +62,9 @@
     background: var(--colors-gray-300);
     border-radius: 0.5rem;
     border: 3px solid var(--colors-gray-100);
-  }
+  } */
 
-  html.dark {
+  /* html.dark {
     &,
     * {
       color-scheme: dark;
@@ -95,7 +95,7 @@
       border-radius: 0.5rem;
       border: 3px solid var(--colors-gray-800);
     }
-  }
+  } */
 
   [disabled] {
     @apply opacity-50 pointer-events-none;

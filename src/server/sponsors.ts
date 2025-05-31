@@ -1,4 +1,5 @@
-import { fetchCached } from '~/utils/cache.server'
+import { createServerFn } from '@tanstack/react-start'
+import { getEvent, setHeaders } from '@tanstack/react-start/server'
 import { getSponsorsTable } from '~/server/airtable'
 import { GITHUB_ORG, graphqlWithAuth, octokit } from '~/server/github'
 import {
@@ -6,8 +7,7 @@ import {
   getTierById,
   updateTiersMeta,
 } from '~/server/tiers'
-import { createServerFn } from '@tanstack/react-start'
-import { getEvent, setHeaders } from '@tanstack/react-start/server'
+import { fetchCached } from '~/utils/cache.server'
 
 export type Sponsor = {
   login: string
@@ -88,7 +88,7 @@ async function inviteAllSponsors() {
         team_slug: sponsor.tier.meta.githubTeamSlug,
         username: sponsor.login,
       })
-    })
+    }),
   )
 }
 
@@ -129,7 +129,7 @@ export async function getSponsorsAndTiers() {
   sponsors.sort(
     (a, b) =>
       b.monthlyPriceInDollars - a.monthlyPriceInDollars ||
-      (b.createdAt > a.createdAt ? -1 : 1)
+      (b.createdAt > a.createdAt ? -1 : 1),
   )
 
   return {
@@ -179,7 +179,7 @@ async function getGithubSponsors() {
       `,
         {
           cursor,
-        }
+        },
       )
 
       const {
@@ -249,7 +249,7 @@ async function getSponsorsMeta() {
           } else {
             resolve(allSponsors)
           }
-        }
+        },
       )
     })
   } catch (err: any) {

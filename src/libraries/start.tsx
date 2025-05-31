@@ -1,10 +1,10 @@
-import { FaGithub, FaYinYang } from 'react-icons/fa'
-import { Library } from '.'
-import { VscPreview } from 'react-icons/vsc'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaGithub, FaYinYang } from 'react-icons/fa'
 import { PiRocketLaunchDuotone, PiTreeStructureBold } from 'react-icons/pi'
 import { TbServerBolt } from 'react-icons/tb'
+import { VscPreview } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/router'
 

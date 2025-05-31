@@ -1,10 +1,10 @@
-import React from 'react'
 import { CodeBlock } from '~/components/Markdown'
+import type { Library } from '~/libraries'
+import type { GitHubFileNode } from '~/utils/documents.server'
+import React from 'react'
+import { CodeExplorerTopBar } from './CodeExplorerTopBar'
 import { FileExplorer } from './FileExplorer'
 import { InteractiveSandbox } from './InteractiveSandbox'
-import { CodeExplorerTopBar } from './CodeExplorerTopBar'
-import type { GitHubFileNode } from '~/utils/documents.server'
-import type { Library } from '~/libraries'
 
 function overrideExtension(ext: string | undefined) {
   if (!ext) return 'txt'
@@ -86,8 +86,8 @@ export function CodeExplorer({
 
   return (
     <div
-      className={`flex flex-col min-h-[60dvh] sm:min-h-[80dvh] border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden ${
-        isFullScreen ? 'fixed inset-0 z-50 bg-white dark:bg-gray-900 p-4' : ''
+      className={`flex min-h-[60dvh] flex-col overflow-hidden rounded-lg border border-gray-200 sm:min-h-[80dvh] dark:border-gray-700 ${
+        isFullScreen ? 'fixed inset-0 z-50 bg-white p-4 dark:bg-gray-900' : ''
       }`}
     >
       <CodeExplorerTopBar
@@ -113,7 +113,7 @@ export function CodeExplorer({
             prefetchFileContent={prefetchFileContent}
             setCurrentPath={setCurrentPath}
           />
-          <div className="flex-1 overflow-auto relative">
+          <div className="relative flex-1 overflow-auto">
             <CodeBlock
               isEmbedded
               className={`h-full ${
@@ -122,7 +122,7 @@ export function CodeExplorer({
             >
               <code
                 className={`language-${overrideExtension(
-                  currentPath.split('.').pop()
+                  currentPath.split('.').pop(),
                 )}`}
               >
                 {currentCode}

@@ -2,7 +2,7 @@ import { type Framework } from '~/libraries'
 
 export const getExampleStartingPath = (
   framework: Framework,
-  libraryId?: string
+  libraryId?: string,
 ) => {
   if (libraryId && ['start', 'router'].includes(libraryId)) {
     return 'src/routes/__root.tsx'
@@ -15,25 +15,25 @@ export const getExampleStartingPath = (
 
 export function getExampleStartingFileName(
   framework: Framework,
-  libraryId?: string
+  libraryId?: string,
 ) {
   const file =
     framework === 'angular'
       ? 'app.component'
       : ['svelte', 'vue'].includes(framework)
-      ? 'App'
-      : ['form', 'query', 'pacer'].includes(libraryId!)
-      ? 'index'
-      : 'main'
+        ? 'App'
+        : ['form', 'query', 'pacer'].includes(libraryId!)
+          ? 'index'
+          : 'main'
 
   const ext =
     framework === 'svelte'
       ? 'svelte'
       : framework === 'vue'
-      ? 'vue'
-      : ['angular', 'lit'].includes(framework)
-      ? 'ts'
-      : 'tsx'
+        ? 'vue'
+        : ['angular', 'lit'].includes(framework)
+          ? 'ts'
+          : 'tsx'
 
   return `${file}.${ext}` as const
 }

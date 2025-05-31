@@ -1,14 +1,14 @@
-import * as React from 'react'
-import { FaEdit } from 'react-icons/fa'
-import { marked } from 'marked'
-import markedAlert from 'marked-alert'
-import { gfmHeadingId, getHeadingList } from 'marked-gfm-heading-id'
 import { DocTitle } from '~/components/DocTitle'
 import { Markdown } from '~/components/Markdown'
-import { Toc } from './Toc'
+import { marked } from 'marked'
+import markedAlert from 'marked-alert'
+import { getHeadingList, gfmHeadingId } from 'marked-gfm-heading-id'
+import * as React from 'react'
+import { FaEdit } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
-import { TocMobile } from './TocMobile'
 import { GadLeader } from './GoogleScripts'
+import { Toc } from './Toc'
+import { TocMobile } from './TocMobile'
 
 type DocProps = {
   title: string
@@ -35,7 +35,7 @@ export function Doc({
     const markup = marked.use(
       { gfm: true },
       gfmHeadingId(),
-      markedAlert()
+      markedAlert(),
     )(content) as string
 
     const headings = getHeadingList()
@@ -59,7 +59,7 @@ export function Doc({
           map[headingElement.target.id] = headingElement
           return map
         },
-        headingElementRefs.current
+        headingElementRefs.current,
       )
 
       const visibleHeadings: Array<IntersectionObserverEntry> = []
@@ -82,8 +82,8 @@ export function Doc({
 
     const headingElements = Array.from(
       markdownContainerRef.current?.querySelectorAll(
-        'h2[id], h3[id], h4[id], h5[id], h6[id]'
-      ) ?? []
+        'h2[id], h3[id], h4[id], h5[id], h6[id]',
+      ) ?? [],
     )
     headingElements.forEach((el) => observer.observe(el))
 
@@ -95,15 +95,15 @@ export function Doc({
       {shouldRenderToc ? <TocMobile headings={headings} /> : null}
       <div
         className={twMerge(
-          'w-full flex bg-white/70 dark:bg-black/40 mx-auto',
+          'mx-auto flex w-full bg-white/70 dark:bg-black/40',
           isTocVisible && 'max-w-full',
-          shouldRenderToc && 'lg:pt-0'
+          shouldRenderToc && 'lg:pt-0',
         )}
       >
         <div
           className={twMerge(
-            'flex overflow-auto flex-col w-full p-4 lg:p-6',
-            isTocVisible && '!pr-0'
+            'flex w-full flex-col overflow-auto p-4.5',
+            isTocVisible && '!pr-0',
           )}
         >
           <GadLeader />
@@ -116,13 +116,13 @@ export function Doc({
             className={twMerge(
               'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
               isTocVisible && 'pr-4 lg:pr-6',
-              'styled-markdown-content'
+              'styled-markdown-content',
             )}
           >
             <Markdown htmlMarkup={markup} />
           </div>
           <div className="h-12" />
-          <div className="w-full h-px bg-gray-500 opacity-30" />
+          <div className="h-px w-full bg-gray-500 opacity-30" />
           <div className="py-4 opacity-70">
             <a
               href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
@@ -135,7 +135,7 @@ export function Doc({
         </div>
 
         {isTocVisible && (
-          <div className="border-l border-gray-500/20 max-w-64 w-full hidden 2xl:block transition-all">
+          <div className="hidden w-full max-w-64 border-l border-gray-500/20 transition-all 2xl:block">
             <Toc
               headings={headings}
               activeHeadings={activeHeadings}

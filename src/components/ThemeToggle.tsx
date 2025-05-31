@@ -3,7 +3,6 @@ import { getCookie, setCookie } from '@tanstack/react-start/server'
 import * as React from 'react'
 import { FaMoon, FaSun } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
-
 import { z } from 'zod'
 import { create } from 'zustand'
 
@@ -92,7 +91,7 @@ export function ThemeToggle() {
   const toggleMode = useThemeStore((s) => s.toggleMode)
 
   const handleToggleMode = (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     e.preventDefault()
     e.stopPropagation()
@@ -103,33 +102,33 @@ export function ThemeToggle() {
     <div
       onClick={handleToggleMode}
       className={twMerge(
-        `w-12 h-6 bg-gray-500/10 dark:bg-gray-800 rounded-full flex items-center justify-between cursor-pointer relative transition-all`
+        `relative flex h-6 w-12 cursor-pointer items-center justify-between rounded-full bg-gray-500/10 transition-all dark:bg-gray-800`,
       )}
     >
-      <div className="flex-1 flex items-center justify-between px-1.5">
+      <div className="flex flex-1 items-center justify-between px-1.5">
         <FaSun
           className={twMerge(
             `text-sm transition-opacity`,
-            mode !== 'auto' ? 'opacity-50' : 'opacity-0'
+            mode !== 'auto' ? 'opacity-50' : 'opacity-0',
           )}
         />
         <FaMoon
           className={twMerge(
             `text-sm transition-opacity`,
-            mode !== 'auto' ? 'opacity-50' : 'opacity-0'
+            mode !== 'auto' ? 'opacity-50' : 'opacity-0',
           )}
         />
         <span
           className={twMerge(
-            `uppercase select-none font-black text-[.6rem] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity`,
-            mode === 'auto' ? 'opacity-30 hover:opacity-50' : 'opacity-0'
+            `absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[.6rem] font-black uppercase transition-opacity select-none`,
+            mode === 'auto' ? 'opacity-30 hover:opacity-50' : 'opacity-0',
           )}
         >
           Auto
         </span>
       </div>
       <div
-        className="absolute w-6 h-6 rounded-full shadow-md shadow-black/20 bg-white dark:bg-gray-400 transition-all duration-300 ease-in-out"
+        className="absolute h-6 w-6 rounded-full bg-white shadow-md shadow-black/20 transition-all duration-300 ease-in-out dark:bg-gray-400"
         style={{
           left: mode === 'auto' ? '50%' : mode === 'light' ? '100%' : '0%',
           transform: `translateX(${

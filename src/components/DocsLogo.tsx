@@ -29,7 +29,7 @@ export const DocsLogo = ({
         params={{ libraryId }}
       >
         <span className={`${gradientText}`}>{name}</span>{' '}
-        <span className="text-sm align-super">{version}</span>
+        <span className="align-super text-sm">{version}</span>
       </Link>
       <div className="ml-auto">
         <ThemeToggle />

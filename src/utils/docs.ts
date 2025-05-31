@@ -1,13 +1,13 @@
+import { notFound } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
+import { setHeader } from '@tanstack/react-start/server'
 import {
   extractFrontMatter,
   fetchApiContents,
   fetchRepoFile,
 } from '~/utils/documents.server'
 import removeMarkdown from 'remove-markdown'
-import { notFound } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { setHeader } from '@tanstack/react-start/server'
 
 export const loadDocs = async ({
   repo,
@@ -45,7 +45,7 @@ export const loadDocs = async ({
 
 export const fetchDocs = createServerFn({ method: 'GET' })
   .validator(
-    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() })
+    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() }),
   )
   .handler(async ({ data: { repo, branch, filePath } }) => {
     const file = await fetchRepoFile(repo, branch, filePath)
@@ -71,7 +71,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
     setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
     setHeader(
       'CDN-Cache-Control',
-      'max-age=300, stale-while-revalidate=300, durable'
+      'max-age=300, stale-while-revalidate=300, durable',
     )
 
     return {
@@ -84,7 +84,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
 export const fetchFile = createServerFn({ method: 'GET' })
   .validator(
-    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() })
+    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() }),
   )
   .handler(async ({ data: { repo, branch, filePath } }) => {
     const file = await fetchRepoFile(repo, branch, filePath)
@@ -98,7 +98,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
     setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
     setHeader(
       'CDN-Cache-Control',
-      'max-age=3600, stale-while-revalidate=3600, durable'
+      'max-age=3600, stale-while-revalidate=3600, durable',
     )
 
     return file
@@ -112,7 +112,7 @@ export const fetchRepoDirectoryContents = createServerFn({
       repo: z.string(),
       branch: z.string(),
       startingPath: z.string(),
-    })
+    }),
   )
   .handler(async ({ data: { repo, branch, startingPath } }) => {
     const githubContents = await fetchApiContents(repo, branch, startingPath)
@@ -122,7 +122,7 @@ export const fetchRepoDirectoryContents = createServerFn({
     setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
     setHeader(
       'CDN-Cache-Control',
-      'max-age=3600, stale-while-revalidate=3600, durable'
+      'max-age=3600, stale-while-revalidate=3600, durable',
     )
 
     return githubContents

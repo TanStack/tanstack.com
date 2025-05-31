@@ -1,6 +1,6 @@
+import { HeadingData } from 'marked-gfm-heading-id'
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { HeadingData } from 'marked-gfm-heading-id'
 
 const headingLevels: Record<number, string> = {
   1: 'pl-2',
@@ -25,28 +25,28 @@ export function Toc({
   activeHeadings,
 }: TocProps) {
   return (
-    <nav className="flex flex-col sticky top-2 max-h-screen divide-y divide-gray-500/20">
+    <nav className="sticky top-2 flex max-h-screen flex-col divide-y divide-gray-500/20">
       <div className="p-2">
-        <h3 className="text-[.9em] font-bold px-2">On this page</h3>
+        <h3 className="px-2 text-[.9em] font-bold">On this page</h3>
       </div>
       <ul
         className={twMerge(
-          'p-2 flex flex-col overflow-y-auto gap-0.5 text-[.8em]'
+          'flex flex-col gap-0.5 overflow-y-auto p-2 text-[.8em]',
         )}
       >
         {headings?.map((heading) => (
           <li
             key={heading.id}
             className={twMerge(
-              'cursor-pointer py-[.1rem] w-full rounded hover:bg-gray-500/10',
-              headingLevels[heading.level]
+              'w-full cursor-pointer rounded py-[.1rem] hover:bg-gray-500/10',
+              headingLevels[heading.level],
             )}
           >
             <a
               title={heading.id}
               href={`#${heading.id}`}
               aria-current={activeHeadings.includes(heading.id) && 'location'}
-              className={`truncate block aria-current:bg-gradient-to-r ${colorFrom} ${colorTo} aria-current:bg-clip-text aria-current:text-transparent`}
+              className={`block truncate aria-current:bg-gradient-to-r ${colorFrom} ${colorTo} aria-current:bg-clip-text aria-current:text-transparent`}
               dangerouslySetInnerHTML={{
                 __html: heading.text,
               }}

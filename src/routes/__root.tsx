@@ -1,29 +1,29 @@
-import * as React from 'react'
-import * as ReactDom from 'react-dom'
+import { QueryClient } from '@tanstack/react-query'
 import {
-  Outlet,
-  ScriptOnce,
   createRootRouteWithContext,
+  HeadContent,
+  Outlet,
   redirect,
+  ScriptOnce,
+  Scripts,
   useMatches,
   useRouterState,
-  HeadContent,
-  Scripts,
 } from '@tanstack/react-router'
-import { QueryClient } from '@tanstack/react-query'
+import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
+import { BackgroundAnimation } from '~/components/BackgroundAnimation'
+import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
+import { GoogleScripts } from '~/components/GoogleScripts'
+import { NotFound } from '~/components/NotFound'
+import { SearchModal } from '~/components/SearchModal'
+import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
+import { SearchProvider } from '~/contexts/SearchContext'
+import ogImage from '~/images/og.png'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
-import ogImage from '~/images/og.png'
-import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
-import { NotFound } from '~/components/NotFound'
+import * as React from 'react'
+import * as ReactDom from 'react-dom'
 import { CgSpinner } from 'react-icons/cg'
-import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
-import { GoogleScripts } from '~/components/GoogleScripts'
-import { BackgroundAnimation } from '~/components/BackgroundAnimation'
-import { SearchProvider } from '~/contexts/SearchContext'
-import { SearchModal } from '~/components/SearchModal'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -102,7 +102,7 @@ export const Route = createRootRouteWithContext<{
       throw redirect({
         href: ctx.location.href.replace(
           /\/docs\/(react|vue|angular|svelte|solid)\//gm,
-          '/docs/framework/$1/'
+          '/docs/framework/$1/',
         ),
       })
     }
@@ -197,22 +197,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         ) : null}
         {canShowLoading ? (
           <div
-            className={`fixed top-0 left-0 h-[300px] w-full
-        transition-all duration-300 pointer-events-none
-        z-30 dark:h-[200px] dark:!bg-white/10 dark:rounded-[100%] ${
-          isLoading
-            ? 'delay-500 opacity-1 -translate-y-1/2'
-            : 'delay-0 opacity-0 -translate-y-full'
-        }`}
+            className={`pointer-events-none fixed top-0 left-0 z-30 h-[300px] w-full transition-all duration-300 dark:h-[200px] dark:rounded-[100%] dark:!bg-white/10 ${
+              isLoading
+                ? '-translate-y-1/2 opacity-1 delay-500'
+                : '-translate-y-full opacity-0 delay-0'
+            }`}
             style={{
               background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
             }}
           >
             <div
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
-        rounded-lg shadow-lg`}
+              className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] rounded-lg bg-white/80 p-2 shadow-lg dark:bg-gray-800`}
             >
-              <CgSpinner className="text-3xl animate-spin" />
+              <CgSpinner className="animate-spin text-3xl" />
             </div>
           </div>
         ) : null}

@@ -1,20 +1,18 @@
-import { Await, Link, MatchRoute, getRouteApi } from '@tanstack/react-router'
-import { Carbon } from '~/components/Carbon'
-import { twMerge } from 'tailwind-merge'
-import { CgSpinner } from 'react-icons/cg'
+import { Await, getRouteApi, Link, MatchRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import SponsorPack from '~/components/SponsorPack'
-import discordImage from '~/images/discord-logo-white.svg'
-import { useMutation } from '~/hooks/useMutation'
-import { sample } from '~/utils/utils'
-import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
-import bytesImage from '~/images/bytes.svg'
-import { partners } from '../../utils/partners'
-import OpenSourceStats from '~/components/OpenSourceStats'
-import splashLightImg from '~/images/splash-light.png'
-import splashDarkImg from '~/images/splash-dark.png'
-import { GadFooter } from '~/components/GoogleScripts'
 import LandingPageGad from '~/components/LandingPageGad'
+import OpenSourceStats from '~/components/OpenSourceStats'
+import SponsorPack from '~/components/SponsorPack'
+import { useMutation } from '~/hooks/useMutation'
+import bytesImage from '~/images/bytes.svg'
+import discordImage from '~/images/discord-logo-white.svg'
+import splashDarkImg from '~/images/splash-dark.png'
+import splashLightImg from '~/images/splash-light.png'
+import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
+import { sample } from '~/utils/utils'
+import { CgSpinner } from 'react-icons/cg'
+import { twMerge } from 'tailwind-merge'
+import { partners } from '../../utils/partners'
 
 export const textColors = [
   `text-rose-500`,
@@ -73,7 +71,7 @@ function Index() {
 
   const { randomNumber } = Route.useLoaderData()
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
-  const gradient = sample(gradients, randomNumber)
+  sample(gradients, randomNumber)
 
   return (
     <>
@@ -85,63 +83,50 @@ function Index() {
         src={toyPalmChair}
         className="-bottom-[50px] -right-[100px] z-0 fixed opacity-20"
       /> */}
-      <div className="max-w-full z-10 space-y-24">
+      <div className="z-10 max-w-full space-y-24">
         <div className="space-y-8">
-          <div className="flex flex-col xl:flex-row items-center gap-4 xl:pt-24 xl:justify-center">
+          <div className="flex flex-col items-center gap-4 xl:flex-row xl:justify-center xl:pt-24">
             <img
               src={splashLightImg}
-              className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
+              className="w-[300px] pt-8 xl:w-[400px] xl:pt-0 2xl:w-[500px] dark:hidden"
               alt="TanStack Logo"
             />
             <img
               src={splashDarkImg}
-              className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
+              className="hidden w-[300px] pt-8 xl:w-[400px] xl:pt-0 2xl:w-[500px] dark:block"
               alt="TanStack Logo"
             />
-            <div className="flex flex-col items-center gap-6 text-center px-4 xl:text-left xl:items-start">
-              <div className="flex gap-2 lg:gap-4 items-center">
+            <div className="flex flex-col items-center gap-6 px-4 text-center xl:items-start xl:text-left">
+              <div className="flex items-center gap-2 lg:gap-4">
                 <h1
-                  className={`inline-block
-            font-black text-5xl
-            md:text-6xl
-            lg:text-8xl`}
+                  className={`inline-block text-5xl font-black md:text-6xl lg:text-8xl`}
                 >
                   <span
-                    className={`
-            inline-block text-black dark:text-white
-            mb-2 uppercase [letter-spacing:-.04em] pr-1.5
-            `}
+                    className={`mb-2 inline-block pr-1.5 [letter-spacing:-.04em] text-black uppercase dark:text-white`}
                   >
                     TanStack
                   </span>
                 </h1>
               </div>
-              <h2
-                className="font-bold text-2xl max-w-md
-            md:text-4xl md:max-w-2xl
-            2xl:text-5xl lg:max-w-2xl text-balance"
-              >
+              <h2 className="max-w-md text-2xl font-bold text-balance md:max-w-2xl md:text-4xl lg:max-w-2xl 2xl:text-5xl">
                 High-quality open-source software for{' '}
-                <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
+                <span className="underline decoration-yellow-500 decoration-dashed decoration-3 underline-offset-2">
                   web developers.
                 </span>
               </h2>
-              <p
-                className="text opacity-90 max-w-sm
-            lg:text-xl lg:max-w-2xl text-balance"
-              >
+              <p className="text max-w-sm text-balance opacity-90 lg:max-w-2xl lg:text-xl">
                 Headless, type-safe, & powerful utilities for Web Applications,
                 Routing, State Management, Data Visualization, Datagrids/Tables,
                 and more.
               </p>
             </div>
           </div>
-          <div className="w-fit mx-auto px-4">
+          <div className="mx-auto w-fit px-4">
             <OpenSourceStats />
           </div>
         </div>
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto">
-          <h3 className={`text-4xl font-light text-center`}>
+        <div className="px-4 md:mx-auto lg:max-w-screen-lg">
+          <h3 className={`text-center text-4xl font-light`}>
             Open Source Libraries
           </h3>
 
@@ -149,7 +134,7 @@ function Index() {
             ([groupName, groupLibraries]: [string, Library[]]) => (
               <div key={groupName} className="mt-8">
                 <h4
-                  className={`text-2xl font-medium capitalize mb-6 text-center`}
+                  className={`mb-6 text-center text-2xl font-medium capitalize`}
                 >
                   {
                     librariesGroupNamesMap[
@@ -159,8 +144,7 @@ function Index() {
                 </h4>
                 {/* Library Cards */}
                 <div
-                  className={`grid grid-cols-1 gap-6 gap-y-8 justify-center
-                sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 `}
+                  className={`grid grid-cols-1 justify-center gap-6 gap-y-8 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3`}
                 >
                   {groupLibraries.map((library, i: number) => {
                     return (
@@ -169,21 +153,19 @@ function Index() {
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `border-2 border-transparent rounded-xl shadow-md p-6 transition-all duration-300
-                          bg-white/90 dark:bg-black/40 backdrop-blur-sm
-                          dark:border-gray-800/50`,
+                          `rounded-xl border-2 border-transparent bg-white/90 p-6 shadow-md backdrop-blur-sm transition-all duration-300 dark:border-gray-800/50 dark:bg-black/40`,
                           'hover:shadow-lg',
-                          'relative overflow-hidden group',
+                          'group relative overflow-hidden',
                           'min-h-[250px] xl:min-h-[220px]',
-                          library.cardStyles
+                          library.cardStyles,
                         )}
                         style={{
                           zIndex: i,
                         }}
                       >
                         {/* Background content that will blur on hover */}
-                        <div className="z-0 relative group-hover:blur-[0.5px] transition-[filter] duration-200">
-                          <div className="flex gap-2 justify-between items-center">
+                        <div className="relative z-0 transition-[filter] duration-200 group-hover:blur-[0.5px]">
+                          <div className="flex items-center justify-between gap-2">
                             <MatchRoute
                               pending
                               to={library.to}
@@ -191,14 +173,14 @@ function Index() {
                                 return (
                                   <div
                                     className={twMerge(
-                                      `flex items-center gap-2 text-[1.2rem] font-extrabold uppercase [letter-spacing:-.04em]`
+                                      `flex items-center gap-2 text-[1.2rem] font-extrabold [letter-spacing:-.04em] uppercase`,
                                     )}
                                     style={{
                                       viewTransitionName: `library-name-${library.id}`,
                                     }}
                                   >
-                                    <span className="bg-current rounded-lg leading-none flex items-center">
-                                      <span className="font-black text-white dark:text-black text-xs leading-none p-1.5 px-2 uppercase">
+                                    <span className="flex items-center rounded-lg bg-current leading-none">
+                                      <span className="p-1.5 px-2 text-xs leading-none font-black text-white uppercase dark:text-black">
                                         TanStack
                                       </span>
                                     </span>
@@ -211,38 +193,31 @@ function Index() {
                             />
                           </div>
                           <div
-                            className={`text-sm italic font-medium mt-3 text-current`}
+                            className={`mt-3 text-sm font-medium text-current italic`}
                           >
                             {library.tagline}
                           </div>
 
                           {/* Description preview with ellipsis */}
                           <div
-                            className={`text-sm mt-3 text-gray-700 dark:text-gray-300 line-clamp-3 leading-relaxed`}
+                            className={`mt-3 line-clamp-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300`}
                           >
                             {library.description}
                           </div>
                         </div>
 
                         {/* Foreground content that appears on hover */}
-                        <div
-                          className="absolute inset-0 z-30 bg-white/95 dark:bg-black/95 p-6
-                          backdrop-blur-sm flex flex-col justify-center opacity-0 group-hover:opacity-100
-                          transition-opacity duration-300"
-                        >
+                        <div className="absolute inset-0 z-30 flex flex-col justify-center bg-white/95 p-6 opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100 dark:bg-black/95">
                           <div
-                            className={`text-sm text-gray-800 dark:text-gray-200 leading-relaxed`}
+                            className={`text-sm leading-relaxed text-gray-800 dark:text-gray-200`}
                           >
                             {library.description}
                           </div>
                           <div className="mt-6 text-center">
-                            <span
-                              className="inline-flex items-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/10 
-                              rounded-full text-sm font-medium text-gray-900 dark:text-white"
-                            >
+                            <span className="inline-flex items-center gap-2 rounded-full bg-black/5 px-4 py-2 text-sm font-medium text-gray-900 dark:bg-white/10 dark:text-white">
                               Click to learn more
                               <svg
-                                className="w-4 h-4 transform transition-transform duration-200 group-hover:translate-x-0.5"
+                                className="h-4 w-4 transform transition-transform duration-200 group-hover:translate-x-0.5"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -264,16 +239,16 @@ function Index() {
                           >
                             <div
                               className={twMerge(
-                                `w-[100px] h-[100px] rounded-full translate-x-1/2 -translate-y-1/2`,
-                                library.bgStyle
+                                `h-[100px] w-[100px] translate-x-1/2 -translate-y-1/2 rounded-full`,
+                                library.bgStyle,
                               )}
                             />
                             <span
                               className={twMerge(
-                                'inline-block transform rotate-45 uppercase text-white font-black italic animate-pulse text-xs',
+                                'inline-block rotate-45 transform animate-pulse text-xs font-black text-white uppercase italic',
                                 library.badge.length > 4
                                   ? 'absolute top-[16px] right-[-2px]'
-                                  : 'absolute top-[14px] right-[5px]'
+                                  : 'absolute top-[14px] right-[5px]',
                               )}
                             >
                               {library.badge}
@@ -285,12 +260,12 @@ function Index() {
                   })}
                 </div>
               </div>
-            )
+            ),
           )}
         </div>
 
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto">
-          <h3 className={`text-4xl font-light mb-6 text-center`}>Partners</h3>
+        <div className="px-4 md:mx-auto lg:max-w-screen-lg">
+          <h3 className={`mb-6 text-center text-4xl font-light`}>Partners</h3>
           <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
             {partners.map((partner) => {
               return (
@@ -298,13 +273,13 @@ function Index() {
                   key={partner.name}
                   href={partner.href}
                   target="_blank"
-                  className="bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none group overflow-hidden grid"
+                  className="group grid overflow-hidden rounded-lg border-gray-500/20 bg-white/80 shadow-xl shadow-gray-500/20 dark:border dark:bg-black/40 dark:shadow-none"
                   rel="noreferrer"
                 >
-                  <div className="z-0 row-start-1 col-start-1 flex items-center justify-center group-hover:blur-md transition-all duration-200 p-4">
+                  <div className="z-0 col-start-1 row-start-1 flex items-center justify-center p-4 transition-all duration-200 group-hover:blur-md">
                     {partner.homepageImg}
                   </div>
-                  <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/80">
+                  <div className="z-10 col-start-1 row-start-1 flex max-w-full flex-col items-start justify-center gap-4 bg-white/70 p-4 text-sm opacity-0 transition-opacity duration-200 group-hover:opacity-100 dark:bg-gray-800/80">
                     {partner.content}
                   </div>
                 </a>
@@ -313,31 +288,24 @@ function Index() {
           </div>
         </div>
 
-        <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
-          <h3 className={`text-4xl font-light mb-6 text-center`}>Courses</h3>
+        <div className={`mx-auto px-4 lg:max-w-screen-lg`}>
+          <h3 className={`mb-6 text-center text-4xl font-light`}>Courses</h3>
           <div className={`mt-4 grid grid-cols-1 gap-4`}>
             {courses.map((course) => (
               <a
                 key={course.name}
                 href={course.href}
-                className={`flex gap-2 justify-between border-2 border-transparent rounded-lg p-4 md:p-8
-              transition-all bg-white/90 dark:bg-black/40
-              shadow-xl shadow-green-700/10 dark:shadow-green-500/30
-              hover:border-green-500
-              `}
+                className={`flex justify-between gap-2 rounded-lg border-2 border-transparent bg-white/90 p-4 shadow-xl shadow-green-700/10 transition-all hover:border-green-500 md:p-8 dark:bg-black/40 dark:shadow-green-500/30`}
                 target="_blank"
                 rel="noreferrer"
               >
-                <div
-                  className={`col-span-2
-                    md:col-span-5`}
-                >
+                <div className={`col-span-2 md:col-span-5`}>
                   <div className={`text-2xl font-bold text-green-500`}>
                     {course.name}
                   </div>
-                  <div className={`text-sm mt-2`}>{course.description}</div>
+                  <div className={`mt-2 text-sm`}>{course.description}</div>
                   <div
-                    className={`inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded shadow uppercase font-black text-sm`}
+                    className={`mt-4 inline-block rounded bg-green-500 px-4 py-2 text-sm font-black text-white uppercase shadow`}
                   >
                     Check it out →
                   </div>
@@ -347,18 +315,18 @@ function Index() {
           </div>
         </div>
 
-        <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
-          <h3 className={`text-4xl font-light text-center`}>OSS Sponsors</h3>
+        <div className={`mx-auto px-4 lg:max-w-screen-lg`}>
+          <h3 className={`text-center text-4xl font-light`}>OSS Sponsors</h3>
           <div className="h-6" />
           <div
             style={{
               aspectRatio: '1/1',
             }}
-            className="max-w-[1000px] mx-auto"
+            className="mx-auto max-w-[1000px]"
           >
             <Await
               promise={sponsorsPromise}
-              fallback={<CgSpinner className="text-2xl animate-spin mx-auto" />}
+              fallback={<CgSpinner className="mx-auto animate-spin text-2xl" />}
               children={(sponsors) => {
                 return <SponsorPack sponsors={sponsors} />
               }}
@@ -369,13 +337,13 @@ function Index() {
             <div>
               <a
                 href="https://github.com/sponsors/tannerlinsley"
-                className={`inline-block p-4 bg-green-500 rounded text-white uppercase font-black`}
+                className={`inline-block rounded bg-green-500 p-4 font-black text-white uppercase`}
               >
                 Become a Sponsor!
               </a>
             </div>
             <div className={`h-4`} />
-            <p className={`italic mx-auto max-w-screen-sm text-gray-500`}>
+            <p className={`mx-auto max-w-screen-sm text-gray-500 italic`}>
               Sponsors get special perks like{' '}
               <strong>
                 private discord channels, priority issue requests, direct
@@ -388,18 +356,12 @@ function Index() {
 
         <LandingPageGad />
 
-        <div className="px-4 mx-auto max-w-screen-lg">
+        <div className="mx-auto max-w-screen-lg px-4">
           <div
-            className={`
-          rounded-md p-4 grid gap-6
-          bg-discord text-white overflow-hidden relative
-          shadow-xl shadow-indigo-700/30
-          sm:p-8 sm:grid-cols-3 items-center`}
+            className={`bg-discord relative grid items-center gap-6 overflow-hidden rounded-md p-4 text-white shadow-xl shadow-indigo-700/30 sm:grid-cols-3 sm:p-8`}
           >
             <div
-              className={`absolute transform opacity-10 z-0
-            right-0 top-0 -translate-y-1/3 translate-x-1/3
-            sm:opacity-20`}
+              className={`absolute top-0 right-0 z-0 translate-x-1/3 -translate-y-1/3 transform opacity-10 sm:opacity-20`}
             >
               <img
                 src={discordImage}
@@ -420,8 +382,7 @@ function Index() {
               <a
                 href="https://discord.com/invite/WrRKjPJ"
                 target="_blank"
-                className={`block w-full mt-4 px-4 py-2 bg-white text-discord
-                text-center rounded shadow-lg z-10 uppercase font-black`}
+                className={`text-discord z-10 mt-4 block w-full rounded bg-white px-4 py-2 text-center font-black uppercase shadow-lg`}
                 rel="noreferrer"
               >
                 Join TanStack Discord
@@ -430,8 +391,8 @@ function Index() {
           </div>
         </div>
         <div className="h-4" />
-        <div className="px-4 mx-auto max-w-screen-lg relative">
-          <div className="rounded-md p-8 bg-white shadow-xl shadow-gray-900/10 md:p-14 dark:bg-black/40">
+        <div className="relative mx-auto max-w-screen-lg px-4">
+          <div className="rounded-md bg-white p-8 shadow-xl shadow-gray-900/10 md:p-14 dark:bg-black/40">
             {!bytesSignupMutation.submittedAt ? (
               <form
                 onSubmit={(e) => {
@@ -456,14 +417,14 @@ function Index() {
                     </figure>
                   </div>
 
-                  <h3 className={`text-lg mt-1`}>
+                  <h3 className={`mt-1 text-lg`}>
                     The Best JavaScript Newsletter
                   </h3>
                 </div>
-                <div className={`grid grid-cols-3 mt-4 gap-2`}>
+                <div className={`mt-4 grid grid-cols-3 gap-2`}>
                   <input
                     disabled={bytesSignupMutation.status === 'pending'}
-                    className={`col-span-2 p-3 placeholder-gray-400 text-black bg-gray-200 rounded text-sm outline-none focus:outline-none w-full dark:(text-white bg-gray-700)`}
+                    className={`dark:(text-white bg-gray-700) col-span-2 w-full rounded bg-gray-200 p-3 text-sm text-black placeholder-gray-400 outline-none focus:outline-none`}
                     name="email_address"
                     placeholder="Your email address"
                     type="text"
@@ -471,7 +432,7 @@ function Index() {
                   />
                   <button
                     type="submit"
-                    className={`bg-[#ED203D] text-white rounded uppercase font-black`}
+                    className={`rounded bg-[#ED203D] font-black text-white uppercase`}
                   >
                     <span>
                       {bytesSignupMutation.status === 'pending'
@@ -482,12 +443,12 @@ function Index() {
                 </div>
                 {bytesSignupMutation.error ? (
                   <p
-                    className={`text-sm text-red-500 font-semibold italic mt-2`}
+                    className={`mt-2 text-sm font-semibold text-red-500 italic`}
                   >
                     Looks like something went wrong. Please try again.
                   </p>
                 ) : (
-                  <p className={`text-sm opacity-30 font-semibold italic mt-2`}>
+                  <p className={`mt-2 text-sm font-semibold italic opacity-30`}>
                     Join over 100,000 devs
                   </p>
                 )}

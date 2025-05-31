@@ -1,7 +1,7 @@
-import { z } from 'zod'
-import { fetchRepoFile } from './documents.server'
 import { createServerFn } from '@tanstack/react-start'
 import { setHeaders } from '@tanstack/react-start/server'
+import { z } from 'zod'
+import { fetchRepoFile } from './documents.server'
 
 export type MenuItem = {
   label: string | React.ReactNode
@@ -23,7 +23,7 @@ const configSchema = z.object({
           label: z.string(),
           to: z.string(),
           badge: z.string().optional(),
-        })
+        }),
       ),
       frameworks: z
         .array(
@@ -34,14 +34,14 @@ const configSchema = z.object({
                 label: z.string(),
                 to: z.string(),
                 badge: z.string().optional(),
-              })
+              }),
             ),
-          })
+          }),
         )
         .optional(),
       collapsible: z.boolean().optional(),
       defaultCollapsed: z.boolean().optional(),
-    })
+    }),
   ),
   users: z.array(z.string()).optional(),
 })
@@ -53,7 +53,7 @@ export type ConfigSchema = z.infer<typeof configSchema>
   */
 export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
   .validator(
-    z.object({ repo: z.string(), branch: z.string(), docsRoot: z.string() })
+    z.object({ repo: z.string(), branch: z.string(), docsRoot: z.string() }),
   )
   .handler(async ({ data: { repo, branch, docsRoot } }) => {
     const config = await fetchRepoFile(repo, branch, `${docsRoot}/config.json`)
@@ -65,7 +65,7 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
     try {
       const tanstackDocsConfigFromJson = JSON.parse(config)
       const validationResult = configSchema.safeParse(
-        tanstackDocsConfigFromJson
+        tanstackDocsConfigFromJson,
       )
 
       if (!validationResult.success) {

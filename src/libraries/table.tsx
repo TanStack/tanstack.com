@@ -1,10 +1,10 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { Library } from '.'
-import { VscPreview } from 'react-icons/vsc'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
 import { IoIosBody } from 'react-icons/io'
+import { VscPreview } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/table'
 
@@ -46,7 +46,7 @@ export const tableProject = {
       href,
       '/table/v7',
       '/table/v8',
-      'from=reactTableV7'
+      'from=reactTableV7',
     )
   },
   menu: [
@@ -70,7 +70,7 @@ export const tableProject = {
     {
       title: 'Designed for zero design',
       icon: (
-        <div className="text-center overflow-hidden">
+        <div className="overflow-hidden text-center">
           <IoIosBody className={twMerge(textStyles)} />
         </div>
       ),

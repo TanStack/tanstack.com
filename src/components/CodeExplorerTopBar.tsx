@@ -1,6 +1,6 @@
 import React from 'react'
-import { FaExpand, FaCompress } from 'react-icons/fa'
 import { CgMenuLeft } from 'react-icons/cg'
+import { FaCompress, FaExpand } from 'react-icons/fa'
 
 interface CodeExplorerTopBarProps {
   activeTab: 'code' | 'sandbox'
@@ -25,19 +25,19 @@ export function CodeExplorerTopBar({
         {activeTab === 'code' ? (
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+            className="rounded p-2 text-sm text-gray-700 transition-colors hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700"
             title={isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
           >
-            <CgMenuLeft className="w-4 h-4" />
+            <CgMenuLeft className="h-4 w-4" />
           </button>
         ) : (
-          <div className="p-2 text-sm rounded" aria-hidden>
-            <CgMenuLeft className="w-4 h-4 text-transparent" aria-hidden />
+          <div className="rounded p-2 text-sm" aria-hidden>
+            <CgMenuLeft className="h-4 w-4 text-transparent" aria-hidden />
           </div>
         )}
         <button
           onClick={() => setActiveTab('code')}
-          className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+          className={`relative px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === 'code'
               ? 'text-gray-900 dark:text-white'
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
@@ -46,14 +46,14 @@ export function CodeExplorerTopBar({
           <span className="hidden sm:inline">Code Explorer</span>
           <span className="sm:hidden">Code</span>
           {activeTab === 'code' ? (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+            <div className="absolute right-0 bottom-0 left-0 h-0.5 bg-blue-500" />
           ) : (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent" />
+            <div className="absolute right-0 bottom-0 left-0 h-0.5 bg-transparent" />
           )}
         </button>
         <button
           onClick={() => setActiveTab('sandbox')}
-          className={`px-4 py-2 text-sm font-medium transition-colors relative ${
+          className={`relative px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === 'sandbox'
               ? 'text-gray-900 dark:text-white'
               : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
@@ -62,9 +62,9 @@ export function CodeExplorerTopBar({
           <span className="hidden sm:inline">Interactive Sandbox</span>
           <span className="sm:hidden">Sandbox</span>
           {activeTab === 'sandbox' ? (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+            <div className="absolute right-0 bottom-0 left-0 h-0.5 bg-blue-500" />
           ) : (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent" />
+            <div className="absolute right-0 bottom-0 left-0 h-0.5 bg-transparent" />
           )}
         </button>
       </div>
@@ -73,7 +73,7 @@ export function CodeExplorerTopBar({
           onClick={() => {
             setIsFullScreen((prev) => !prev)
           }}
-          className={`p-2 text-sm rounded transition-colors mr-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${
+          className={`mr-2 rounded p-2 text-sm transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 ${
             activeTab === 'code'
               ? 'text-gray-700 dark:text-gray-300'
               : 'text-gray-400 dark:text-gray-600'
@@ -81,9 +81,9 @@ export function CodeExplorerTopBar({
           title={isFullScreen ? 'Exit full screen' : 'Enter full screen'}
         >
           {isFullScreen ? (
-            <FaCompress className="w-4 h-4" />
+            <FaCompress className="h-4 w-4" />
           ) : (
-            <FaExpand className="w-4 h-4" />
+            <FaExpand className="h-4 w-4" />
           )}
         </button>
       </div>

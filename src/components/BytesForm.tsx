@@ -10,13 +10,13 @@ export default function BytesForm() {
   }
   return (
     <form onSubmit={handleSubmit}>
-      <div data-element="fields" className="grid relative">
+      <div data-element="fields" className="relative grid">
         <div className="relative">
           <figure className="absolute right-[-8px] bottom-3 md:bottom-4">
             <img height={38} width={38} src={bytesImage} alt="Bytes" />
           </figure>
           <input
-            className="text-xs border border-black/50 dark:border-white/50 rounded p-2 mb-1 md:mb-2 w-full bg-transparent"
+            className="mb-1 w-full rounded border border-black/50 bg-transparent p-2 text-xs md:mb-2 dark:border-white/50"
             name="email_address"
             placeholder="Your email address"
             type="email"
@@ -25,7 +25,7 @@ export default function BytesForm() {
         </div>
         <button
           type="submit"
-          className="text-xs mb-4 border rounded bg-rose-600 border-none text-white p-2"
+          className="mb-4 rounded border border-none bg-rose-600 p-2 text-xs text-white"
         >
           {state !== 'loading' ? (
             <span>Subscribe</span>

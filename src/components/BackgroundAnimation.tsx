@@ -1,8 +1,8 @@
-import * as React from 'react'
-import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
-import { twMerge } from 'tailwind-merge'
-import { useMounted } from '~/hooks/useMounted'
 import { useRouterState } from '@tanstack/react-router'
+import { useMounted } from '~/hooks/useMounted'
+import { usePrefersReducedMotion } from '~/utils/usePrefersReducedMotion'
+import * as React from 'react'
+import { twMerge } from 'tailwind-merge'
 
 export function BackgroundAnimation() {
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
@@ -111,12 +111,12 @@ export function BackgroundAnimation() {
           currentBlobs[i].x = interpolate(
             startBlob.x,
             targetBlob.x,
-            easedProgress
+            easedProgress,
           )
           currentBlobs[i].y = interpolate(
             startBlob.y,
             targetBlob.y,
-            easedProgress
+            easedProgress,
           )
 
           const gradient = ctx.createRadialGradient(
@@ -125,32 +125,32 @@ export function BackgroundAnimation() {
             0,
             currentBlobs[i].x,
             currentBlobs[i].y,
-            currentBlobs[i].r
+            currentBlobs[i].r,
           )
 
           currentBlobs[i].colorH = interpolate(
             startBlob.colorH,
             targetBlob.colorH,
-            easedProgress
+            easedProgress,
           )
           currentBlobs[i].colorS = interpolate(
             startBlob.colorS,
             targetBlob.colorS,
-            easedProgress
+            easedProgress,
           )
           currentBlobs[i].colorL = interpolate(
             startBlob.colorL,
             targetBlob.colorL,
-            easedProgress
+            easedProgress,
           )
 
           gradient.addColorStop(
             0,
-            `hsla(${currentBlobs[i].colorH}, ${currentBlobs[i].colorS}%, ${currentBlobs[i].colorL}%, 1)`
+            `hsla(${currentBlobs[i].colorH}, ${currentBlobs[i].colorS}%, ${currentBlobs[i].colorL}%, 1)`,
           )
           gradient.addColorStop(
             1,
-            `hsla(${currentBlobs[i].colorH}, ${currentBlobs[i].colorS}%, ${currentBlobs[i].colorL}%, 0)`
+            `hsla(${currentBlobs[i].colorH}, ${currentBlobs[i].colorS}%, ${currentBlobs[i].colorL}%, 0)`,
           )
 
           ctx.fillStyle = gradient
@@ -160,7 +160,7 @@ export function BackgroundAnimation() {
             currentBlobs[i].y,
             currentBlobs[i].r,
             0,
-            Math.PI * 2
+            Math.PI * 2,
           )
           ctx.fill()
         })
@@ -194,14 +194,14 @@ export function BackgroundAnimation() {
   return (
     <div
       className={twMerge(
-        'fixed inset-0 z-0 opacity-20 pointer-events-none',
+        'pointer-events-none fixed inset-0 z-0 opacity-20',
         'transition-opacity duration-[2s] ease-linear',
         '[&+*]:relative',
         mounted
           ? isHomePage
             ? 'opacity-10 dark:opacity-20'
             : 'opacity-10 dark:opacity-20'
-          : 'opacity-0'
+          : 'opacity-0',
       )}
     >
       <canvas ref={canvasRef} />

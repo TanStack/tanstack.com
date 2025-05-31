@@ -1,8 +1,8 @@
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { Library } from '.'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
 import { VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/config'
 

@@ -1,3 +1,20 @@
+import {
+  Link,
+  useMatches,
+  useNavigate,
+  useParams,
+  useRouterState,
+} from '@tanstack/react-router'
+import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
+import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
+import { DocsLogo } from '~/components/DocsLogo'
+import { FrameworkSelect } from '~/components/FrameworkSelect'
+import type { SelectOption } from '~/components/FrameworkSelect'
+import { Framework, getFrameworkOptions } from '~/libraries'
+import type { ConfigSchema, MenuItem } from '~/utils/config'
+import { partners } from '~/utils/partners'
+import { useLocalStorage } from '~/utils/useLocalStorage'
+import { capitalize, last } from '~/utils/utils'
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import {
@@ -7,32 +24,15 @@ import {
   FaGithub,
   FaTimes,
 } from 'react-icons/fa'
-import {
-  Link,
-  useMatches,
-  useNavigate,
-  useParams,
-  useRouterState,
-} from '@tanstack/react-router'
-import { FrameworkSelect } from '~/components/FrameworkSelect'
-import { useLocalStorage } from '~/utils/useLocalStorage'
-import { DocsLogo } from '~/components/DocsLogo'
-import { last, capitalize } from '~/utils/utils'
-import type { SelectOption } from '~/components/FrameworkSelect'
-import type { ConfigSchema, MenuItem } from '~/utils/config'
-import { create } from 'zustand'
-import { Framework, getFrameworkOptions } from '~/libraries'
-import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
-import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { twMerge } from 'tailwind-merge'
-import { partners } from '~/utils/partners'
-import { useThemeStore } from './ThemeToggle'
+import { create } from 'zustand'
 import {
   GadFooter,
   GadLeftRailSquare,
   GadRightRailSquare,
 } from './GoogleScripts'
 import { SearchButton } from './SearchButton'
+import { useThemeStore } from './ThemeToggle'
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -81,7 +81,7 @@ function useCurrentFramework(frameworks: Framework[]) {
       })
       localCurrentFramework.setCurrentFramework(framework)
     },
-    [localCurrentFramework, navigate]
+    [localCurrentFramework, navigate],
   )
 
   React.useEffect(() => {
@@ -150,7 +150,7 @@ function useCurrentVersion(versions: string[]) {
       })
       localCurrentVersion.setCurrentVersion(version)
     },
-    [localCurrentVersion, navigate]
+    [localCurrentVersion, navigate],
   )
 
   React.useEffect(() => {
@@ -221,7 +221,7 @@ const useMenuConfig = ({
     // Merge the two menus together based on their group labels
     ...config.sections.map((section): MenuItem | undefined => {
       const frameworkDocs = section.frameworks?.find(
-        (f) => f.label === currentFramework.framework
+        (f) => f.label === currentFramework.framework,
       )
       const frameworkItems = frameworkDocs?.children ?? []
 
@@ -283,7 +283,7 @@ const useVersionConfig = ({ versions }: { versions: string[] }) => {
           label: 'Latest',
           value: 'latest',
         },
-      ]
+      ],
     )
 
     return {
@@ -343,14 +343,14 @@ export function DocsLayout({
 
   const flatMenu = React.useMemo(
     () => menuConfig.flatMap((d) => d?.children),
-    [menuConfig]
+    [menuConfig],
   )
 
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
 
   const relativePathname = lastMatch.pathname.replace(
     docsMatch!.pathname + '/',
-    ''
+    '',
   )
 
   const index = flatMenu.findIndex((d) => d?.to === relativePathname)
@@ -370,21 +370,21 @@ export function DocsLayout({
       typeof group.defaultCollapsed !== 'undefined'
         ? !group.defaultCollapsed // defaultCollapsed is true means the group is closed
         : undefined
-    const isOpen = isChildActive ? true : configGroupOpenState ?? false
+    const isOpen = isChildActive ? true : (configGroupOpenState ?? false)
 
     const detailsProps = group.collapsible ? { open: isOpen } : {}
 
     return (
       <WrapperComp
         key={`group-${i}`}
-        className="[&>summary]:before:mr-[0.4rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:leading-4 [&>div.ts-sidebar-label]:ml-[1rem] relative select-none"
+        className="relative select-none [&>div.ts-sidebar-label]:ml-[1rem] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 [&>summary]:before:mr-[0.4rem]"
         {...detailsProps}
       >
-        <LabelComp className="text-[.8em] uppercase font-black leading-4 ts-sidebar-label">
+        <LabelComp className="ts-sidebar-label text-[.8em] leading-4 font-black uppercase">
           {group?.label}
         </LabelComp>
         <div className="h-2" />
-        <ul className="ml-2 text-[.85em] list-none">
+        <ul className="ml-2 list-none text-[.85em]">
           {group?.children?.map((child, i) => {
             const linkClasses = `cursor-pointer flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500/10`
 
@@ -406,17 +406,17 @@ export function DocsLayout({
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="!cursor-pointer relative"
+                    className="relative !cursor-pointer"
                   >
                     {(props) => {
                       return (
                         <div className={twMerge(linkClasses)}>
                           <div
                             className={twMerge(
-                              'overflow-auto w-full',
+                              'w-full overflow-auto',
                               props.isActive
-                                ? `font-bold text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
-                                : ''
+                                ? `bg-gradient-to-r bg-clip-text font-bold text-transparent ${colorFrom} ${colorTo}`
+                                : '',
                             )}
                           >
                             {/* <div className="transition group-hover:delay-700 duration-300 group-hover:duration-[2s] group-hover:translate-x-[-50%]"> */}
@@ -474,24 +474,20 @@ export function DocsLayout({
   )
 
   const smallMenu = (
-    <div className="lg:hidden bg-white/50 sticky top-0 z-20 dark:bg-black/60 backdrop-blur-lg">
+    <div className="sticky top-0 z-20 bg-white/50 backdrop-blur-lg lg:hidden dark:bg-black/60">
       <details
         ref={detailsRef as any}
         id="docs-details"
         className="border-b border-gray-500/20"
       >
-        <summary className="p-4 flex gap-2 items-center justify-between">
-          <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
+        <summary className="flex items-center justify-between gap-2 p-4">
+          <div className="flex flex-1 items-center gap-2 text-xl md:text-2xl">
             <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
         </summary>
-        <div
-          className="flex flex-col gap-4 p-4 whitespace-nowrap overflow-y-auto
-          border-t border-gray-500/20 bg-white/20 text-lg
-          dark:bg-black/20"
-        >
+        <div className="flex flex-col gap-4 overflow-y-auto border-t border-gray-500/20 bg-white/20 p-4 text-lg whitespace-nowrap dark:bg-black/20">
           <div className="flex gap-4">
             <FrameworkSelect
               label={frameworkConfig.label}
@@ -514,9 +510,9 @@ export function DocsLayout({
   )
 
   const largeMenu = (
-    <div className="bg-white/50 dark:bg-black/30 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20 transition-all duration-500">
+    <div className="sticky top-0 z-20 hidden h-screen max-w-[300px] flex-col gap-4 border-gray-500/20 bg-white/50 shadow-xl transition-all duration-500 lg:flex xl:max-w-[350px] 2xl:max-w-[400px] dark:border-r dark:bg-black/30">
       <div
-        className="px-4 pt-4 flex gap-2 items-center text-2xl"
+        className="flex items-center gap-2 px-4 pt-4 text-2xl"
         style={{
           viewTransitionName: `library-name`,
         }}
@@ -542,7 +538,7 @@ export function DocsLayout({
           onSelect={versionConfig.onSelect}
         />
       </div>
-      <div className="flex-1 flex flex-col gap-4 px-2 whitespace-nowrap overflow-y-auto text-base pb-8">
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-2 pb-8 text-base whitespace-nowrap">
         {menuItems}
       </div>
     </div>
@@ -550,48 +546,48 @@ export function DocsLayout({
 
   return (
     <div
-      className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300`}
+      className={`flex min-h-screen w-full flex-col transition-all duration-300 lg:flex-row`}
     >
       {smallMenu}
       {largeMenu}
-      <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative">
+      <div className="relative flex min-h-0 w-full max-w-full min-w-0 flex-col">
         <div
           className={twMerge(
-            `max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0`,
-            !isExample && 'mx-auto w-[1208px]'
+            `flex min-h-[88dvh] w-full max-w-full min-w-0 justify-center lg:min-h-0`,
+            !isExample && 'mx-auto w-[1208px]',
           )}
         >
           {children}
         </div>
         <div
-          className="mb-8 !py-0 mx-auto max-w-full overflow-x-hidden"
+          className="mx-auto mb-8 max-w-full overflow-x-hidden !py-0"
           key={footerAdKey}
         >
           <GadFooter />
         </div>
-        <div className="sticky flex items-center flex-wrap bottom-4 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
-          <div className="w-1/2 px-1 flex justify-end flex-wrap">
+        <div className="sticky right-0 bottom-4 z-10 flex flex-wrap items-center px-1 text-xs md:text-sm print:hidden">
+          <div className="flex w-1/2 flex-wrap justify-end px-1">
             {prevItem ? (
               <Link
                 to={prevItem.to}
                 params
-                className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
+                className="z-20 flex items-center justify-center overflow-hidden rounded-lg bg-white/70 px-2 py-1 text-black shadow-lg shadow-black/20 backdrop-blur-sm dark:bg-gray-500/40 dark:text-white"
               >
-                <div className="flex gap-2 items-center font-bold">
+                <div className="flex items-center gap-2 font-bold">
                   <FaArrowLeft />
                   {prevItem.label}
                 </div>
               </Link>
             ) : null}
           </div>
-          <div className="w-1/2 px-1 flex justify-start flex-wrap">
+          <div className="flex w-1/2 flex-wrap justify-start px-1">
             {nextItem ? (
               <Link
                 to={nextItem.to}
                 params
-                className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
+                className="z-20 flex items-center justify-center overflow-hidden rounded-lg bg-white/70 px-2 py-1 text-black shadow-lg shadow-black/20 backdrop-blur-sm dark:bg-gray-500/40 dark:text-white"
               >
-                <div className="flex gap-2 items-center font-bold">
+                <div className="flex items-center gap-2 font-bold">
                   <span
                     className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
                   >
@@ -604,25 +600,25 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="-ml-2 pl-2 w-[290px] xl:w-[340px] shrink-0 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
+      <div className="sticky top-0 -ml-2 hidden max-h-screen w-[290px] shrink-0 overflow-y-auto pl-2 md:block xl:w-[340px]">
         <div className="ml-auto flex flex-col space-y-4">
-          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
-            <div className="uppercase font-black text-center p-3 opacity-50">
+          <div className="flex flex-col divide-y divide-gray-500/20 rounded-bl-lg border border-t-0 border-r-0 border-gray-500/20 bg-white shadow-xl dark:bg-black/40">
+            <div className="p-3 text-center font-black uppercase opacity-50">
               Our Partners
             </div>
             {!partners.some((d) => d.libraries?.includes(libraryId as any)) ? (
-              <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
+              <div className="transition-colors hover:bg-gray-500/10 dark:hover:bg-gray-500/10">
                 <a
                   href={`mailto:partners@tanstack.com?subject=TanStack ${
                     repo.split('/')[1]
                   } Partnership`}
-                  className="p-2 block text-xs"
+                  className="block p-2 text-xs"
                 >
-                  <span className="opacity-50 italic">
+                  <span className="italic opacity-50">
                     Wow, it looks like you could be our first partner for this
                     library!
                   </span>{' '}
-                  <span className="text-blue-500 font-black">
+                  <span className="font-black text-blue-500">
                     Chat with us!
                   </span>
                 </a>
@@ -635,12 +631,12 @@ export function DocsLayout({
                   return (
                     <div
                       key={partner.name}
-                      className="overflow-hidden hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors"
+                      className="overflow-hidden transition-colors hover:bg-gray-500/10 dark:hover:bg-gray-500/10"
                     >
                       <a
                         href={partner.href}
                         target="_blank"
-                        className="px-4 flex flex-col items-center justify-center cursor-pointer gap-1"
+                        className="flex cursor-pointer flex-col items-center justify-center gap-1 px-4"
                         rel="noreferrer"
                       >
                         <div className="mx-auto max-w-[150px]">
@@ -650,7 +646,7 @@ export function DocsLayout({
                             className={twMerge(
                               'w-full',
                               partner.sidebarImgClass,
-                              'dark:hidden'
+                              'dark:hidden',
                             )}
                           />
                           <img
@@ -661,7 +657,7 @@ export function DocsLayout({
                             className={twMerge(
                               'w-full',
                               partner.sidebarImgClass,
-                              'hidden dark:block'
+                              'hidden dark:block',
                             )}
                           />
                         </div>
@@ -673,16 +669,16 @@ export function DocsLayout({
             )}
           </div>
           {libraryId === 'query' ? (
-            <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+            <div className="flex flex-col divide-y divide-gray-500/20 rounded-l-lg border-t border-b border-l border-gray-500/20 bg-white p-4 shadow-xl dark:bg-black/40">
               <DocsCalloutQueryGG />
             </div>
           ) : null}
 
-          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+          <div className="flex flex-col space-y-2 rounded-l-lg border-t border-b border-l border-gray-500/20 bg-white p-4 shadow-xl dark:bg-black/40">
             <GadRightRailSquare />
           </div>
 
-          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+          <div className="flex flex-col space-y-2 rounded-l-lg border-t border-b border-l border-gray-500/20 bg-white p-4 shadow-xl dark:bg-black/40">
             <GadLeftRailSquare />
           </div>
 
@@ -691,22 +687,22 @@ export function DocsLayout({
           </div> */}
 
           {libraryId !== 'query' ? (
-            <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+            <div className="flex flex-col divide-y divide-gray-500/20 rounded-l-lg border-t border-b border-l border-gray-500/20 bg-white p-4 shadow-xl dark:bg-black/40">
               <DocsCalloutBytes />
             </div>
           ) : null}
         </div>
       </div>
       {showBytes ? (
-        <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg print:hidden">
-          <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
+        <div className="fixed top-1/2 right-2 z-30 w-[300px] max-w-[350px] -translate-y-1/2 shadow-lg md:hidden print:hidden">
+          <div className="rounded-lg border border-black/10 bg-white p-4 md:p-6 dark:border-white/10 dark:bg-gray-800">
             {libraryId === 'query' ? (
               <DocsCalloutQueryGG />
             ) : (
               <DocsCalloutBytes />
             )}
             <button
-              className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
+              className="opacity:30 absolute top-0 right-0 p-2 hover:text-red-500 hover:opacity-100"
               onClick={() => {
                 setShowBytes(false)
               }}
@@ -717,15 +713,12 @@ export function DocsLayout({
         </div>
       ) : (
         <button
-          className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden print:hidden"
+          className="fixed top-1/2 right-0 -translate-y-[50px] lg:hidden print:hidden"
           onClick={() => {
             setShowBytes(true)
           }}
         >
-          <div
-            className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
-            hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
-          >
+          <div className="origin-bottom-right -rotate-90 rounded-t-md border border-gray-100 bg-white p-1 px-2 text-xs shadow-md hover:bg-rose-600 hover:text-white dark:border-0 dark:bg-gray-800">
             {libraryId === 'query' ? (
               <>
                 <strong>

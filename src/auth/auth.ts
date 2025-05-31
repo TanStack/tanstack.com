@@ -4,7 +4,7 @@ import { redirect } from '@tanstack/react-router'
 let secret = process.env.COOKIE_SECRET || 'default'
 if (secret === 'default') {
   console.warn(
-    '🚨 No COOKIE_SECRET environment variable set, using default. The app is insecure in production.'
+    '🚨 No COOKIE_SECRET environment variable set, using default. The app is insecure in production.',
   )
   secret = 'default-secret'
 }
@@ -19,7 +19,7 @@ let cookie = createCookie('auth', {
 })
 
 export async function getAuthFromRequest(
-  request: Request
+  request: Request,
 ): Promise<string | null> {
   const c = request.headers.get('Cookie')
   let userId = await cookie.parse(c)
@@ -28,7 +28,7 @@ export async function getAuthFromRequest(
 
 export async function setAuthOnResponse(
   response: Response,
-  userId: string
+  userId: string,
 ): Promise<Response> {
   let header = await cookie.serialize(userId)
   response.headers.append('Set-Cookie', header)

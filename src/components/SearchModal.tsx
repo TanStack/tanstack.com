@@ -1,26 +1,26 @@
-import * as React from 'react'
 import { Dialog } from '@headlessui/react'
-import { twMerge } from 'tailwind-merge'
-import {
-  InstantSearch,
-  SearchBox,
-  Hits,
-  Highlight,
-  Configure,
-  useRefinementList,
-  useInstantSearch,
-  Pagination,
-} from 'react-instantsearch'
-import { liteClient } from 'algoliasearch/lite'
-import { MdClose, MdSearch } from 'react-icons/md'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { frameworkOptions, libraries } from '~/libraries'
 import { capitalize } from '~/utils/utils'
+import { liteClient } from 'algoliasearch/lite'
+import * as React from 'react'
+import { MdClose, MdSearch } from 'react-icons/md'
+import {
+  Configure,
+  Highlight,
+  Hits,
+  InstantSearch,
+  Pagination,
+  SearchBox,
+  useInstantSearch,
+  useRefinementList,
+} from 'react-instantsearch'
+import { twMerge } from 'tailwind-merge'
 
 const searchClient = liteClient(
   'FQ0DQ6MA3C',
-  '10c34d6a5c89f6048cf644d601e65172'
+  '10c34d6a5c89f6048cf644d601e65172',
 )
 
 const SafeLink = React.forwardRef(
@@ -35,7 +35,7 @@ const SafeLink = React.forwardRef(
       tabIndex,
       ...props
     }: React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    ref: React.Ref<HTMLAnchorElement>
+    ref: React.Ref<HTMLAnchorElement>,
   ) => {
     const isInternal = href?.includes('//tanstack.com')
 
@@ -71,7 +71,7 @@ const SafeLink = React.forwardRef(
         {children}
       </Link>
     )
-  }
+  },
 )
 
 const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
@@ -102,8 +102,8 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
     <SafeLink
       href={hit.url}
       className={twMerge(
-        'block p-4 focus:outline-none border-b border-gray-500/10',
-        isFocused ? 'bg-gray-500/20' : 'hover:bg-gray-500/10'
+        'block border-b border-gray-500/10 p-4 focus:outline-none',
+        isFocused ? 'bg-gray-500/20' : 'hover:bg-gray-500/10',
       )}
       onKeyDown={handleKeyDown}
       onFocus={() => ref.current?.focus()}
@@ -124,27 +124,27 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
               hit.hierarchy[lvl] ? (
                 <p
                   key={lvl}
-                  className="text-sm text-gray-500 dark:text-gray-500 mt-1"
+                  className="mt-1 text-sm text-gray-500 dark:text-gray-500"
                 >
                   <Highlight attribute={`hierarchy.${lvl}`} hit={hit} />
                 </p>
-              ) : null
+              ) : null,
             )}
           {hit.content ? (
-            <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-500">
               <Highlight attribute="content" hit={hit} />
             </p>
           ) : null}
         </div>
         {(() => {
           const framework = frameworkOptions.find((f) =>
-            hit.url.includes(`/framework/${f.value}`)
+            hit.url.includes(`/framework/${f.value}`),
           )
           if (!framework) return null
 
           return (
             <div className="flex-none">
-              <div className="flex items-center gap-1 text-xs font-black bg-white rounded-xl px-2 py-1 dark:bg-black">
+              <div className="flex items-center gap-1 rounded-xl bg-white px-2 py-1 text-xs font-black dark:bg-black">
                 <img
                   src={framework.logo}
                   alt={framework.label}
@@ -173,7 +173,7 @@ function LibraryRefinement() {
 
   React.useEffect(() => {
     const isAlreadyRefined = items.some(
-      (item) => item.label === subpathname && item.isRefined
+      (item) => item.label === subpathname && item.isRefined,
     )
 
     const library = libraries.find((l) => l.id === subpathname)
@@ -184,9 +184,9 @@ function LibraryRefinement() {
   }, [])
 
   return (
-    <div className="overflow-x-auto scrollbar-hide">
-      <div className="flex items-center gap-2 p-2 min-w-max">
-        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+    <div className="scrollbar-hide overflow-x-auto">
+      <div className="flex min-w-max items-center gap-2 p-2">
+        <span className="text-xs font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
           Libraries:
         </span>
         <div className="flex gap-1.5">
@@ -198,12 +198,12 @@ function LibraryRefinement() {
                 key={item.value}
                 onClick={() => refine(item.value)}
                 className={twMerge(
-                  'px-2 py-0.5 text-xs rounded-full transition-colors font-bold text-white',
+                  'rounded-full px-2 py-0.5 text-xs font-bold text-white transition-colors',
                   item.isRefined
                     ? library
                       ? library.bgStyle
                       : 'bg-black dark:bg-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700',
                 )}
               >
                 {capitalize(item.label)}{' '}
@@ -243,7 +243,7 @@ function FrameworkRefinement() {
     if (!subpathname) return
 
     const isAlreadyRefined = items.some(
-      (item) => item.value === subpathname && item.isRefined
+      (item) => item.value === subpathname && item.isRefined,
     )
 
     const framework = frameworkOptions.find((f) => f.value === subpathname)
@@ -254,15 +254,15 @@ function FrameworkRefinement() {
   }, [subpathname])
 
   return (
-    <div className="overflow-x-auto scrollbar-hide">
-      <div className="flex items-center gap-2 p-2 min-w-max">
-        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+    <div className="scrollbar-hide overflow-x-auto">
+      <div className="flex min-w-max items-center gap-2 p-2">
+        <span className="text-xs font-medium whitespace-nowrap text-gray-500 dark:text-gray-400">
           Frameworks:
         </span>
         <div className="flex gap-1.5">
           {items.map((item) => {
             const framework = frameworkOptions.find(
-              (f) => f.value === item.value
+              (f) => f.value === item.value,
             )
 
             return (
@@ -270,10 +270,10 @@ function FrameworkRefinement() {
                 key={item.value}
                 onClick={() => refine(item.value)}
                 className={twMerge(
-                  'px-2 py-0.5 text-xs rounded-full transition-colors font-bold text-white',
+                  'rounded-full px-2 py-0.5 text-xs font-bold text-white transition-colors',
                   item.isRefined
                     ? framework?.color || 'bg-black dark:bg-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700',
                 )}
               >
                 {capitalize(item.label)}{' '}
@@ -398,7 +398,7 @@ export function SearchModal() {
     >
       <div className="min-h-screen text-center">
         <Dialog.Overlay className="fixed inset-0 bg-black/60 xl:bg-black/30" />
-        <div className="inline-block w-[98%] xl:w-full max-w-2xl mt-8 overflow-hidden text-left align-middle transition-all transform bg-white/80 dark:bg-black/80 shadow-xl rounded-lg xl:rounded-xl divide-y divide-gray-500/20 backdrop-blur-lg dark:border dark:border-white/20">
+        <div className="mt-8 inline-block w-[98%] max-w-2xl transform divide-y divide-gray-500/20 overflow-hidden rounded-lg bg-white/80 text-left align-middle shadow-xl backdrop-blur-lg transition-all xl:w-full xl:rounded-xl dark:border dark:border-white/20 dark:bg-black/80">
           <InstantSearch searchClient={searchClient} indexName="tanstack">
             <Configure
               attributesToRetrieve={[
@@ -422,7 +422,7 @@ export function SearchModal() {
               ]}
               filters="version:latest"
             />
-            <div className="flex justify-between items-center gap-2">
+            <div className="flex items-center justify-between gap-2">
               <SearchBox
                 placeholder="Search..."
                 classNames={{
@@ -465,7 +465,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
       <LibraryRefinement />
       <FrameworkRefinement />
       <div
-        className="max-h-[70dvh] lg:max-h-[60dvh] overflow-y-auto"
+        className="max-h-[70dvh] overflow-y-auto lg:max-h-[60dvh]"
         role="listbox"
         aria-label="Search results"
       >
@@ -473,7 +473,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
         <Hits
           hitComponent={({ hit }) => {
             const index = results.hits.findIndex(
-              (h) => h.objectID === hit.objectID
+              (h) => h.objectID === hit.objectID,
             )
             return <Hit hit={hit} isFocused={index === focusedIndex} />
           }}
@@ -481,11 +481,11 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
         <Pagination
           padding={2}
           className={twMerge(
-            'border-t text-sm dark:border-white/20 px-4 py-3',
-            '[&>ul]:w-full [&>ul]:flex [&>ul]:justify-center [&>ul]:gap-2 lg:[&>ul]:gap-4',
+            'border-t px-4 py-3 text-sm dark:border-white/20',
+            '[&>ul]:flex [&>ul]:w-full [&>ul]:justify-center [&>ul]:gap-2 lg:[&>ul]:gap-4',
             '[&_li>*]:px-3 [&_li>*]:py-1.5',
             '[&_li>span]:cursor-not-allowed',
-            '[&_.ais-Pagination-item--selected>*]:bg-emerald-500 [&_.ais-Pagination-item--selected>*]:text-white [&_.ais-Pagination-item--selected>*]:rounded-lg'
+            '[&_.ais-Pagination-item--selected>*]:rounded-lg [&_.ais-Pagination-item--selected>*]:bg-emerald-500 [&_.ais-Pagination-item--selected>*]:text-white',
           )}
         />
       </div>

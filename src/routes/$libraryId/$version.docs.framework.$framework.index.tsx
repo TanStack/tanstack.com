@@ -1,16 +1,16 @@
-import { seo } from '~/utils/seo'
 import { redirect } from '@tanstack/react-router'
 import { Doc } from '~/components/Doc'
-import { loadDocs } from '~/utils/docs'
+import { DocContainer } from '~/components/DocContainer'
+import { DocTitle } from '~/components/DocTitle'
 import {
   Framework,
   getBranch,
   getFrameworkOptions,
   getLibrary,
 } from '~/libraries'
+import { loadDocs } from '~/utils/docs'
+import { seo } from '~/utils/seo'
 import { capitalize } from '~/utils/utils'
-import { DocContainer } from '~/components/DocContainer'
-import { DocTitle } from '~/components/DocTitle'
 import { twMerge } from 'tailwind-merge'
 
 export const Route = createFileRoute({
@@ -48,11 +48,9 @@ function Comp() {
   return (
     <DocContainer>
       <div
-        className={twMerge('w-full flex bg-white/70 dark:bg-black/40 mx-auto')}
+        className={twMerge('mx-auto flex w-full bg-white/70 dark:bg-black/40')}
       >
-        <div
-          className={twMerge('flex overflow-auto flex-col w-full p-4 lg:p-6')}
-        >
+        <div className={twMerge('flex w-full flex-col overflow-auto p-4.5')}>
           <DocTitle>
             TanStack {frameworkOption.label}{' '}
             {library.name.replace('TanStack ', '')} Documentation
@@ -63,7 +61,7 @@ function Comp() {
           <div
             className={twMerge(
               'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
-              'styled-markdown-content'
+              'styled-markdown-content',
             )}
           >
             Use the menu to select a documentation page.

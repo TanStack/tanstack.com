@@ -1,9 +1,9 @@
-import { BsCollectionFill } from 'react-icons/bs'
-import { VscPreview } from 'react-icons/vsc'
-import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { BsCollectionFill } from 'react-icons/bs'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
+import { VscPreview } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/db'
 

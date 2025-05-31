@@ -30,7 +30,7 @@ export async function linkGithubAndDiscordUser({ githubToken, discordToken }) {
 
   if (!sponsor) {
     throw new Error(
-      `TanStack sponsorship not found for GitHub user "${login}". Please sign up at https://github.com/sponsors/tannerlinsley`
+      `TanStack sponsorship not found for GitHub user "${login}". Please sign up at https://github.com/sponsors/tannerlinsley`,
     )
   }
 

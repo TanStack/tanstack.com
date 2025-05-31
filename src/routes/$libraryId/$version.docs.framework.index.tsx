@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router'
-import { twMerge } from 'tailwind-merge'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
 import { getFrameworkOptions, getLibrary } from '~/libraries'
+import { twMerge } from 'tailwind-merge'
 
 export const Route = createFileRoute({
   component: RouteComponent,
@@ -17,11 +17,9 @@ function RouteComponent() {
   return (
     <DocContainer>
       <div
-        className={twMerge('w-full flex bg-white/70 dark:bg-black/40 mx-auto')}
+        className={twMerge('mx-auto flex w-full bg-white/70 dark:bg-black/40')}
       >
-        <div
-          className={twMerge('flex overflow-auto flex-col w-full p-4 lg:p-6')}
-        >
+        <div className={twMerge('flex w-full flex-col overflow-auto p-4.5')}>
           <DocTitle>Supported {library.name} Frameworks</DocTitle>
           <div className="h-4" />
           <div className="h-px bg-gray-500 opacity-20" />
@@ -29,7 +27,7 @@ function RouteComponent() {
           <div
             className={twMerge(
               'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
-              'styled-markdown-content'
+              'styled-markdown-content',
             )}
           >
             <ul className="text-lg">
@@ -42,7 +40,7 @@ function RouteComponent() {
                     <img
                       src={framework.logo}
                       alt={framework.label}
-                      className="w-4 h-4 p-0 m-0"
+                      className="m-0 h-4 w-4 p-0"
                     />
                     TanStack {framework.label}{' '}
                     {library.name.replace('TanStack ', '')}

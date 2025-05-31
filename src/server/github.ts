@@ -1,6 +1,6 @@
-import axios from 'axios'
-import { Octokit } from '@octokit/rest'
 import { graphql } from '@octokit/graphql'
+import { Octokit } from '@octokit/rest'
+import axios from 'axios'
 
 export const GITHUB_ORG = 'TanStack'
 
@@ -33,7 +33,7 @@ export async function exchangeGithubCodeForToken({ code, state, redirectUrl }) {
         headers: {
           Accept: 'application/json',
         },
-      }
+      },
     )
 
     return data.access_token

@@ -24,7 +24,7 @@ function SponsorsEmbed() {
   return (
     <>
       <div
-        className={`h-screen w-screen flex items-center justify-center overflow-hidden`}
+        className={`flex h-screen w-screen items-center justify-center overflow-hidden`}
       >
         <style
           dangerouslySetInnerHTML={{

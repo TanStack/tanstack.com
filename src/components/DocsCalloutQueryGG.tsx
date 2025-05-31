@@ -12,29 +12,29 @@ export function DocsCalloutQueryGG() {
       rel="noreferrer"
     >
       <div className="space-y-3">
-        <h6 className="text-[.7rem] uppercase font-black opacity-50">
+        <h6 className="text-[.7rem] font-black uppercase opacity-50">
           Want to Skip the Docs?
         </h6>
         <LogoQueryGGSmall className="w-full" />
 
-        <blockquote className="text-sm -indent-[.45em] pl-2">
+        <blockquote className="pl-2 -indent-[.45em] text-sm">
           “If you’re serious about *really* understanding React Query, there’s
           no better way than with query.gg”
-          <cite className="italic block text-right">—Tanner Linsley</cite>
+          <cite className="block text-right italic">—Tanner Linsley</cite>
         </blockquote>
 
-        <div className="grid justify-center bg-gray-800 dark:bg-gray-100 text-gray-100 dark:text-gray-800 z-10"></div>
+        <div className="z-10 grid justify-center bg-gray-800 text-gray-100 dark:bg-gray-100 dark:text-gray-800"></div>
 
         {ppp && (
           <>
-            <p className="text-sm pl-2 py-2">
+            <p className="py-2 pl-2 text-sm">
               To help make query.gg more accessible, you can enable a regional
               discount of {ppp.discount * 100}% off for being in {ppp.flag}{' '}
               {ppp.country}.
             </p>
           </>
         )}
-        <button className="block m-1 w-full mx-auto px-4 py-2 rounded uppercase font-bold text-sm text-center hover:bg-gray-100/70 dark:hover:bg-gray-800 cursor-default border-2 dark:border-gray-700/80">
+        <button className="m-1 mx-auto block w-full cursor-default rounded border-2 px-4 py-2 text-center text-sm font-bold uppercase hover:bg-gray-100/70 dark:border-gray-700/80 dark:hover:bg-gray-800">
           {ppp ? ` Get ${ppp.discount * 100}% off ${ppp.flag}` : 'Learn More'}
         </button>
       </div>

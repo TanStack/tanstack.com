@@ -1,17 +1,15 @@
-import * as React from 'react'
-import { CgSpinner } from 'react-icons/cg'
-import { Await, Link } from '@tanstack/react-router'
-import { rangerProject } from '~/libraries/ranger'
+import { Await, getRouteApi, Link } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import SponsorPack from '~/components/SponsorPack'
-
-import { getRouteApi } from '@tanstack/react-router'
-import { Framework, getBranch, getLibrary } from '~/libraries'
-import { seo } from '~/utils/seo'
-import { twMerge } from 'tailwind-merge'
-import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
+import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
+import SponsorPack from '~/components/SponsorPack'
+import { Framework, getBranch, getLibrary } from '~/libraries'
+import { rangerProject } from '~/libraries/ranger'
+import { seo } from '~/utils/seo'
+import * as React from 'react'
+import { CgSpinner } from 'react-icons/cg'
+import { twMerge } from 'tailwind-merge'
 
 export const Route = createFileRoute({
   component: VersionIndex,
@@ -41,32 +39,25 @@ export default function VersionIndex() {
 
   return (
     <>
-      <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
-        <div className="flex flex-col items-center gap-8 text-center px-4">
-          <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
+      <div className="flex max-w-full flex-col gap-20 pt-32 md:gap-32">
+        <div className="flex flex-col items-center gap-8 px-4 text-center">
+          <h1 className="flex items-center gap-3 text-4xl font-black [letter-spacing:-.05em] uppercase md:text-6xl lg:text-7xl xl:text-8xl">
             <span>TanStack</span>
             <span className={twMerge(gradientText)}>Ranger</span>
           </h1>
-          <h2
-            className="font-bold text-2xl max-w-md
-            md:text-3xl
-            lg:text-5xl lg:max-w-2xl"
-          >
-            <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
+          <h2 className="max-w-md text-2xl font-bold md:text-3xl lg:max-w-2xl lg:text-5xl">
+            <span className="underline decoration-yellow-500 decoration-dashed decoration-3 underline-offset-2">
               Headless
             </span>{' '}
             Modern and headless Range Selector UI Library
           </h2>
-          <p
-            className="text opacity-90 max-w-sm
-            lg:text-xl lg:max-w-2xl"
-          >
+          <p className="text max-w-sm opacity-90 lg:max-w-2xl lg:text-xl">
             A fully typesafe hooks for building range and multi-range sliders in
             React.
           </p>
           <Link
             to="./docs/overview"
-            className={`py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
+            className={`rounded bg-pink-500 px-4 py-2 font-extrabold text-white uppercase`}
           >
             Get Started
           </Link>
@@ -75,19 +66,19 @@ export default function VersionIndex() {
           featureHighlights={library.featureHighlights}
         />
 
-        <div className="relative text-lg overflow-hidden">
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
+        <div className="relative overflow-hidden text-lg">
+          <h3 className="mt-8 text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none">
             Sponsors
           </h3>
           <div
-            className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
+            className="mx-auto my-4 flex max-w-screen-lg flex-wrap"
             style={{
               aspectRatio: '1/1',
             }}
           >
             <Await
               promise={sponsorsPromise}
-              fallback={<CgSpinner className="text-2xl animate-spin" />}
+              fallback={<CgSpinner className="animate-spin text-2xl" />}
               children={(sponsors) => {
                 return <SponsorPack sponsors={sponsors} />
               }}
@@ -96,7 +87,7 @@ export default function VersionIndex() {
           <div className="text-center">
             <a
               href="https://github.com/sponsors/tannerlinsley"
-              className="inline-block bg-green-500 px-4 py-2 text-xl mx-auto leading-tight font-extrabold tracking-tight text-white rounded-full"
+              className="mx-auto inline-block rounded-full bg-green-500 px-4 py-2 text-xl leading-tight font-extrabold tracking-tight text-white"
             >
               Become a Sponsor!
             </a>
@@ -106,11 +97,11 @@ export default function VersionIndex() {
         <LandingPageGad />
 
         <div className="flex flex-col gap-4">
-          <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
-            <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
+          <div className="container mx-auto max-w-3xl px-4 sm:px-6 sm:text-center lg:px-8">
+            <h3 className="mt-2 text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none">
               Take it for a spin!
             </h3>
-            <p className="my-4 text-xl leading-7  text-gray-600">
+            <p className="my-4 text-xl leading-7 text-gray-600">
               Let's see it in action!
             </p>
           </div>
@@ -135,17 +126,17 @@ export default function VersionIndex() {
             }}
           ></iframe>
         </div>
-        <div className="flex flex-col gap-4 items-center">
-          <div className="font-extrabold text-xl lg:text-2xl">
+        <div className="flex flex-col items-center gap-4">
+          <div className="text-xl font-extrabold lg:text-2xl">
             Wow, you've come a long way!
           </div>
-          <div className="italic font-sm opacity-70">
+          <div className="font-sm italic opacity-70">
             Only one thing left to do...
           </div>
           <div>
             <Link
               to="./docs/overview"
-              className={`inline-block py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
+              className={`inline-block rounded bg-pink-500 px-4 py-2 font-extrabold text-white uppercase`}
             >
               Get Started!
             </Link>

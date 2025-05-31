@@ -1,6 +1,6 @@
-import * as React from 'react'
 import * as Plot from '@observablehq/plot'
 import { ParentSize } from '@visx/responsive'
+import * as React from 'react'
 
 type NpmStats = {
   start: string
@@ -24,7 +24,7 @@ export function NpmStatsChart({ stats }: { stats: NpmStats[] }) {
         ...d,
         package: stat.package,
         date: new Date(d.day),
-      }))
+      })),
     )
 
     const chart = Plot.plot({

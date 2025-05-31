@@ -2,7 +2,7 @@ export function DocTitle(props: { children: React.ReactNode }) {
   return (
     <>
       <h1
-        className={`flex gap-4 items-center flex-wrap text-xl md:text-2xl font-black`}
+        className={`flex flex-wrap items-center gap-4 text-xl font-black md:text-2xl`}
       >
         {props.children}
       </h1>

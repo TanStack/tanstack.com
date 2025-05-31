@@ -1,9 +1,9 @@
-import { VscPreview } from 'react-icons/vsc'
-import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
 import { IoIosBody } from 'react-icons/io'
+import { VscPreview } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/virtual'
 
@@ -51,7 +51,7 @@ export const virtualProject = {
     {
       title: 'Designed for zero design',
       icon: (
-        <div className="text-center overflow-hidden">
+        <div className="overflow-hidden text-center">
           <IoIosBody className="text-purple-400" />
         </div>
       ),

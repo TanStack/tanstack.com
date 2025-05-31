@@ -1,7 +1,7 @@
-import React from 'react'
 import { Link } from '@tanstack/react-router'
 import type { HeadingData } from 'marked-gfm-heading-id'
-import { FaCaretRight, FaCaretDown } from 'react-icons/fa6'
+import React from 'react'
+import { FaCaretDown, FaCaretRight } from 'react-icons/fa6'
 
 interface TocMobileProps {
   headings: Array<HeadingData>
@@ -19,17 +19,17 @@ export function TocMobile({ headings }: TocMobileProps) {
   }
 
   return (
-    <div className="lg:hidden flex -mx-2">
+    <div className="-mx-2 flex lg:hidden">
       <details className="w-full" onToggle={handleToggle}>
         <summary
-          className="px-4 py-3 text-sm font-medium w-full flex content-start items-center gap-2 bg-white/50 dark:bg-black/60 backdrop-blur-lg border-b border-gray-500/20"
+          className="flex w-full content-start items-center gap-2 border-b border-gray-500/20 bg-white/50 px-4 py-3 text-sm font-medium backdrop-blur-lg dark:bg-black/60"
           aria-expanded={isOpen}
         >
           <span>{isOpen ? <FaCaretDown /> : <FaCaretRight />}</span>
           <span>On this page</span>
         </summary>
         <div className="px-2 py-2">
-          <ul className="list-none grid gap-2">
+          <ul className="grid list-none gap-2">
             {headings.map((heading) => (
               <li
                 key={`mobile-toc-${heading.id}`}

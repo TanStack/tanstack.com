@@ -14,8 +14,8 @@ export const Route = createFileRoute({
 
 export default function RouteComp() {
   return (
-    <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
-      <div className="flex-1 space-y-12 w-full max-w-3xl mx-auto">
+    <div className="flex min-h-screen max-w-full flex-col gap-12 p-4 pb-0 md:p-8">
+      <div className="mx-auto w-full max-w-3xl flex-1 space-y-12">
         <header className="">
           <h1 className="text-4xl font-bold">TanStack Ethos</h1>
         </header>
@@ -61,7 +61,7 @@ export default function RouteComp() {
             some parent company's lead-generating IPO ambitions.
           </p>
           <p className="">That means:</p>
-          <ul className="list-disc pl-8 space-y-2">
+          <ul className="list-disc space-y-2 pl-8">
             <li>
               No pressure to chase profits at the cost of developer experience.
             </li>
@@ -86,7 +86,7 @@ export default function RouteComp() {
             </strong>{' '}
             that puts developers first:
           </p>
-          <ul className="list-disc pl-8 space-y-2">
+          <ul className="list-disc space-y-2 pl-8">
             <li>
               TanStack libraries are built on framework and platform-agnostic
               primitives. When our libraries build on other tools, like TanStack
@@ -114,7 +114,7 @@ export default function RouteComp() {
             Every sponsor we work with not only understands but actively upholds
             our values:
           </p>
-          <ul className="list-disc pl-8  space-y-2">
+          <ul className="list-disc space-y-2 pl-8">
             <li>
               No sponsor can dictate or influence TanStack's core technology in
               a way that biases it toward their platform.

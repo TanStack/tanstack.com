@@ -1,9 +1,5 @@
-import * as React from 'react'
-import { FaRegCopy } from 'react-icons/fa'
-import { MarkdownLink } from '~/components/MarkdownLink'
-import type { HTMLProps } from 'react'
-import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
 import { transformerNotationDiff } from '@shikijs/transformers'
+import { MarkdownLink } from '~/components/MarkdownLink'
 import parse, {
   attributesToProps,
   domToReact,
@@ -11,8 +7,12 @@ import parse, {
   HTMLReactParserOptions,
 } from 'html-react-parser'
 import { marked } from 'marked'
-import { gfmHeadingId } from 'marked-gfm-heading-id'
 import markedAlert from 'marked-alert'
+import { gfmHeadingId } from 'marked-gfm-heading-id'
+import * as React from 'react'
+import type { HTMLProps } from 'react'
+import { FaRegCopy } from 'react-icons/fa'
+import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
 
 const CustomHeading = ({
   Comp,
@@ -36,14 +36,13 @@ const CustomHeading = ({
 
 const makeHeading =
   (type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
-  (props: HTMLProps<HTMLHeadingElement>) =>
-    (
-      <CustomHeading
-        Comp={type}
-        {...props}
-        className={`${props.className ?? ''} inline-block`}
-      />
-    )
+  (props: HTMLProps<HTMLHeadingElement>) => (
+    <CustomHeading
+      Comp={type}
+      {...props}
+      className={`${props.className ?? ''} inline-block`}
+    />
+  )
 
 const markdownComponents: Record<string, React.FC> = {
   a: MarkdownLink,
@@ -57,7 +56,7 @@ const markdownComponents: Record<string, React.FC> = {
   code: function Code({ className, ...rest }: HTMLProps<HTMLElement>) {
     return (
       <span
-        className={`border border-gray-500/20 bg-gray-500/10 rounded p-1${
+        className={`rounded border border-gray-500/20 bg-gray-500/10 p-1${
           className ?? ` ${className}`
         }`}
         {...rest}
@@ -71,7 +70,7 @@ const markdownComponents: Record<string, React.FC> = {
     // eslint-disable-next-line jsx-a11y/alt-text
     <img
       {...props}
-      className="max-w-full h-auto rounded-lg shadow-md"
+      className="h-auto max-w-full rounded-lg shadow-md"
       // loading="lazy"
       // decoding="async"
     />
@@ -110,7 +109,7 @@ export function CodeBlock({
       <pre className={`shiki tokyo-night bg-gray-900 text-gray-400`}>
         <code>{code}</code>
       </pre>
-    </>
+    </>,
   )
 
   React[
@@ -127,8 +126,8 @@ export function CodeBlock({
             lang,
             theme,
             transformers: [transformerNotationDiff()],
-          })
-        )
+          }),
+        ),
       )
 
       setCodeElement(
@@ -139,24 +138,24 @@ export function CodeBlock({
           } `}
           dangerouslySetInnerHTML={{ __html: htmls.join('') }}
           ref={ref}
-        />
+        />,
       )
     })()
   }, [code, lang])
 
   return (
     <div
-      className={`${props.className} w-full max-w-full relative not-prose`}
+      className={`${props.className} not-prose relative w-full max-w-full`}
       style={props.style}
     >
       <div
-        className={`absolute flex items-stretch bg-white text-sm z-10 border border-gray-500/20 rounded-md ${
+        className={`absolute z-10 flex items-stretch rounded-md border border-gray-500/20 bg-white text-sm ${
           isEmbedded ? 'top-2 right-4' : '-top-3 right-2'
-        } dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20`}
+        } divide-x divide-gray-500/20 overflow-hidden dark:bg-gray-800`}
       >
         {lang ? <div className="px-2">{lang}</div> : null}
         <button
-          className="px-2 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
+          className="flex items-center px-2 text-gray-500 transition duration-200 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200"
           onClick={() => {
             let copyContent =
               typeof ref.current?.innerText === 'string'
@@ -225,7 +224,7 @@ const options: HTMLReactParserOptions = {
         return React.createElement(
           replacer,
           attributesToProps(domNode.attribs),
-          domToReact(domNode.children as any, options)
+          domToReact(domNode.children as any, options),
         )
       }
     }
@@ -242,7 +241,7 @@ export function Markdown({ rawContent, htmlMarkup }: MarkdownProps) {
       const markup = marked.use(
         { gfm: true },
         gfmHeadingId(),
-        markedAlert()
+        markedAlert(),
       )(rawContent) as string
 
       return parse(markup, options)

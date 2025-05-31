@@ -1,11 +1,11 @@
-import { VscPreview } from 'react-icons/vsc'
-import { Library } from '.'
-import { FaGithub } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
 import { CgTimelapse } from 'react-icons/cg'
-import { TbZoomQuestion } from 'react-icons/tb'
+import { FaGithub } from 'react-icons/fa'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
+import { TbZoomQuestion } from 'react-icons/tb'
+import { VscPreview } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/ranger'
 

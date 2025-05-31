@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
+import { getWebRequest } from '@tanstack/react-start/server'
 import { redirectWithClearedCookie, requireAuthCookie } from '~/auth/auth'
 import { useMutation } from '~/hooks/useMutation'
-import { getWebRequest } from '@tanstack/react-start/server'
 
 const loadDashboard = createServerFn({ method: 'GET' }).handler(async () => {
   const userId = await requireAuthCookie(getWebRequest())
@@ -28,7 +28,7 @@ function LoginComp() {
   })
 
   return (
-    <div className="p-4 space-y-2">
+    <div className="space-y-2 p-4">
       <h1 className="text-2xl font-black">Dashboard</h1>
       <div>
         Welcome! Your userId is "{userId}" This is an experiment to test:
@@ -45,7 +45,7 @@ function LoginComp() {
       <div>
         <button
           onClick={() => mutation.mutate(undefined as never)}
-          className="bg-red-500 text-white px-4 py-2 rounded"
+          className="rounded bg-red-500 px-4 py-2 text-white"
         >
           Logout
         </button>

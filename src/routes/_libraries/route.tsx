@@ -1,18 +1,18 @@
-import * as React from 'react'
 import { Link, Outlet, useLocation } from '@tanstack/react-router'
-import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
-import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
-import { twMerge } from 'tailwind-merge'
-import { sortBy } from '~/utils/utils'
-import logoColor100w from '~/images/logo-color-100w.png'
-import { FaDiscord, FaGithub, FaInstagram, FaTshirt } from 'react-icons/fa'
-import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
-import { ThemeToggle, useThemeStore } from '~/components/ThemeToggle'
-import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
-import { BiSolidCheckShield } from 'react-icons/bi'
 import { SearchButton } from '~/components/SearchButton'
+import { ThemeToggle, useThemeStore } from '~/components/ThemeToggle'
+import logoColor100w from '~/images/logo-color-100w.png'
+import { libraries } from '~/libraries'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import { sortBy } from '~/utils/utils'
+import * as React from 'react'
+import { BiSolidCheckShield } from 'react-icons/bi'
+import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
+import { FaDiscord, FaGithub, FaInstagram, FaTshirt } from 'react-icons/fa'
+import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
+import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
+import { twMerge } from 'tailwind-merge'
 
 export const Route = createFileRoute({
   staleTime: Infinity,
@@ -68,7 +68,7 @@ function LibrariesLayout() {
                             linkClasses,
                             props.isActive
                               ? 'bg-gray-500/10 dark:bg-gray-500/30'
-                              : ''
+                              : '',
                           )}
                         >
                           <span
@@ -81,14 +81,14 @@ function LibrariesLayout() {
                                 'font-light dark:font-bold dark:opacity-40',
                                 props.isActive
                                   ? `font-bold dark:opacity-100`
-                                  : ''
+                                  : '',
                               )}
                             >
                               {prefix}
                             </span>{' '}
                             <span
                               className={twMerge(
-                                library.textStyle
+                                library.textStyle,
                                 // isPending &&
                                 //   `[view-transition-name:library-name]`
                               )}
@@ -99,13 +99,13 @@ function LibrariesLayout() {
                           {library.badge ? (
                             <span
                               className={twMerge(
-                                `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
+                                `animate-pulse rounded-full bg-gray-500/10 px-2 py-px text-[.7rem] font-black text-white uppercase transition-opacity group-hover:opacity-100 dark:bg-gray-500/20`,
                                 // library.badge === 'new'
                                 //   ? 'text-green-500'
                                 //   : library.badge === 'soon'
                                 //   ? 'text-cyan-500'
                                 //   : '',
-                                library.textStyle
+                                library.textStyle,
                               )}
                             >
                               {library.badge}
@@ -117,7 +117,7 @@ function LibrariesLayout() {
                   </Link>
                   <div
                     className={twMerge(
-                      library.to === activeLibrary?.to ? 'block' : 'hidden'
+                      library.to === activeLibrary?.to ? 'block' : 'hidden',
                     )}
                   >
                     {library.menu?.map((item, i) => {
@@ -126,8 +126,8 @@ function LibrariesLayout() {
                           to={item.to}
                           key={i}
                           className={twMerge(
-                            'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
-                            'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                            'my-1 ml-2 flex items-center gap-2 px-2 py-0.5',
+                            'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30',
                           )}
                         >
                           {item.icon}
@@ -140,10 +140,10 @@ function LibrariesLayout() {
               )}
             </div>
           )
-        }
+        },
       )}
       <div className="py-2">
-        <div className="bg-gray-500/10 h-px" />
+        <div className="h-px bg-gray-500/10" />
       </div>
       {[
         {
@@ -160,7 +160,7 @@ function LibrariesLayout() {
           label: (
             <span className="flex items-center gap-2">
               Stats
-              <span className="text-xs bg-transparent text-transparent bg-clip-text bg-gradient-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
+              <span className="rounded border border-cyan-600 bg-transparent bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text px-1 text-xs font-bold text-transparent">
                 BETA
               </span>
             </span>
@@ -202,13 +202,13 @@ function LibrariesLayout() {
             className={twMerge(linkClasses, 'font-normal')}
             activeProps={{
               className: twMerge(
-                '!font-bold bg-gray-500/10 dark:bg-gray-500/30'
+                '!font-bold bg-gray-500/10 dark:bg-gray-500/30',
               ),
             }}
             target={item.to.startsWith('http') ? '_blank' : undefined}
           >
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-4 justify-between">
+              <div className="flex items-center justify-between gap-4">
                 {item.icon}
               </div>
               <div>{item.label}</div>
@@ -220,14 +220,14 @@ function LibrariesLayout() {
   )
 
   const logo = (
-    <div className="flex-1 flex items-center gap-4 justify-between">
+    <div className="flex flex-1 items-center justify-between gap-4">
       <Link to="/" className={twMerge(`flex items-center gap-1.5`)}>
         <img
           src={logoColor100w}
           alt=""
-          className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
+          className="w-[30px] overflow-hidden rounded-full border-2 border-black dark:border-none"
         />
-        <div className="font-black text-xl uppercase">TanStack</div>
+        <div className="text-xl font-black uppercase">TanStack</div>
       </Link>
       <div className="flex items-center gap-1">
         <a
@@ -256,27 +256,24 @@ function LibrariesLayout() {
   )
 
   const smallMenu = (
-    <div className="lg:hidden bg-white/50 dark:bg-black/60 sticky top-0 z-20 backdrop-blur-[20px]">
+    <div className="sticky top-0 z-20 bg-white/50 backdrop-blur-[20px] lg:hidden dark:bg-black/60">
       <details
         ref={detailsRef as any}
         id="docs-details"
         className="border-b border-gray-500/20"
       >
-        <summary className="p-4 flex gap-2 items-center justify-between">
-          <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
+        <summary className="flex items-center justify-between gap-2 p-4">
+          <div className="flex flex-1 items-center gap-2 text-xl md:text-2xl">
             <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
             <CgClose className="icon-close mr-2 cursor-pointer" />
             {logo}
           </div>
         </summary>
-        <div
-          className="flex flex-col gap-4 whitespace-nowrap overflow-y-auto
-          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
-        >
+        <div className="flex flex-col gap-4 overflow-y-auto border-t border-gray-500/20 bg-white/80 text-lg whitespace-nowrap dark:bg-black/20">
           <div className="p-2 pb-0">
             <SearchButton />
           </div>
-          <div className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
+          <div className="space-y-px border-b border-gray-500/10 p-2 text-sm dark:border-gray-500/20">
             {items}
           </div>
         </div>
@@ -286,15 +283,15 @@ function LibrariesLayout() {
 
   const largeMenu = (
     <>
-      <div className="min-w-[250px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-white/50 dark:bg-black/30 shadow-xl dark:border-r border-gray-500/20">
-        <div className="p-4 flex gap-2 items-center text-2xl border-b border-gray-500/10 dark:border-gray-500/20">
+      <div className="sticky top-0 z-20 hidden h-screen min-w-[250px] flex-col border-gray-500/20 bg-white/50 shadow-xl lg:flex dark:border-r dark:bg-black/30">
+        <div className="flex items-center gap-2 border-b border-gray-500/10 p-4 text-2xl dark:border-gray-500/20">
           {logo}
         </div>
         <div className="p-2">
           <SearchButton />
         </div>
-        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[50px]">
-          <div className="space-y-1 text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto pb-[50px] text-base whitespace-nowrap">
+          <div className="space-y-1 border-b border-gray-500/10 p-2 text-sm dark:border-gray-500/20">
             {items}
           </div>
         </div>
@@ -304,11 +301,11 @@ function LibrariesLayout() {
 
   return (
     <div
-      className={`min-h-screen flex flex-col min-w-0 lg:flex-row w-full transition-all duration-300`}
+      className={`flex min-h-screen w-full min-w-0 flex-col transition-all duration-300 lg:flex-row`}
     >
       {smallMenu}
       {largeMenu}
-      <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
+      <div className="relative flex min-h-0 flex-1 justify-center overflow-x-hidden">
         <Outlet />
       </div>
       {activeLibrary?.scarfId ? <Scarf id={activeLibrary.scarfId} /> : null}

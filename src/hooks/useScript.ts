@@ -4,7 +4,7 @@ export function useScript(
   attrs: React.HTMLProps<HTMLScriptElement>,
   opts?: {
     delay?: number
-  }
+  },
 ) {
   const attrsStringified = JSON.stringify(attrs)
 

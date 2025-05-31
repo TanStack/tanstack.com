@@ -7,7 +7,7 @@ export function handleRedirects(
   urlFromRequest: string,
   urlFromPathStart: string,
   urlToPathStart: string,
-  urlToQueryParams: string
+  urlToQueryParams: string,
 ) {
   const url = new URL(urlFromRequest, 'https://tanstack.com')
 

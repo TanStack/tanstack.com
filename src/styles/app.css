@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   --shadow-md: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)';
@@ -35,7 +36,7 @@
 @layer base {
   html,
   body {
-    @apply text-gray-900 bg-gray-50 dark:bg-gray-950 dark:text-gray-200;
+    @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-200;
   }
 
   .using-mouse * {
@@ -98,7 +99,7 @@
   } */
 
   [disabled] {
-    @apply opacity-50 pointer-events-none;
+    @apply pointer-events-none opacity-50;
   }
 
   #docs-details summary::-webkit-details-marker {
@@ -129,7 +130,7 @@
 
   .anchor-heading > *:after {
     content: '#';
-    @apply relative opacity-0 ml-2 transition duration-100;
+    @apply relative ml-2 opacity-0 transition duration-100;
   }
 
   .anchor-heading:hover > *:after {
@@ -161,7 +162,7 @@
   }
 
   .carbon-small .carbon-wrap .carbon-img {
-    @apply w-[50%] pt-2 !pointer-events-auto rounded-tr-lg border-t border-r border-gray-500/10 overflow-hidden;
+    @apply !pointer-events-auto w-[50%] overflow-hidden rounded-tr-lg border-t border-r border-gray-500/10 pt-2;
   }
 
   .carbon-small .carbon-wrap .carbon-img img {
@@ -169,19 +170,19 @@
   }
 
   .carbon-small .carbon-wrap .carbon-text {
-    @apply bg-white dark:bg-gray-800 rounded-tr-lg !pb-6 !m-0 !pointer-events-auto border-t border-r border-gray-500/10;
+    @apply !pointer-events-auto !m-0 rounded-tr-lg border-t border-r border-gray-500/10 bg-white !pb-6 dark:bg-gray-800;
   }
 
   .carbon-small .carbon-wrap .carbon-poweredby {
-    @apply absolute bottom-0 right-0;
+    @apply absolute right-0 bottom-0;
   }
 }
 
 /* https://github.com/shikijs/twoslash/tree/main/packages/remark-shiki-twoslash#plugin-setup */
 pre {
   /* All code samples get a grey border, twoslash ones get a different color */
-  @apply bg-white text-black p-2 border border-gray-500/30 mb-4 rounded-md;
-  @apply overflow-x-auto relative leading-tight;
+  @apply mb-4 rounded-md border border-gray-500/30 bg-white p-2 text-black;
+  @apply relative overflow-x-auto leading-tight;
 }
 pre.shiki {
   overflow-x: auto;
@@ -238,7 +239,13 @@ pre.twoslash data-lsp:hover::before {
   text-align: left;
   padding: 5px 8px;
   border-radius: 2px;
-  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace, Courier New;
+  font-family:
+    'JetBrains Mono',
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace,
+    Courier New;
   font-size: 14px;
   white-space: pre-wrap;
   z-index: 100;
@@ -277,7 +284,13 @@ pre .code-container:hover a {
 
 pre code {
   font-size: 12px;
-  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace, Courier New;
+  font-family:
+    'JetBrains Mono',
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace,
+    Courier New;
   white-space: pre;
   -webkit-overflow-scrolling: touch;
 }
@@ -416,7 +429,13 @@ data-lsp {
 }
 .tag-container .twoslash-annotation {
   position: absolute;
-  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace, Courier New;
+  font-family:
+    'JetBrains Mono',
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace,
+    Courier New;
   right: -10px;
   /** Default annotation text to 200px */
   width: 200px;
@@ -482,8 +501,8 @@ html.dark .shiki.github-light {
 /* TanStack Router Devtools */
 
 .TanStackRouterDevtools > button {
-  @apply rotate-90 origin-top-right -translate-y-[50px] translate-x-2 rounded-t-none bg-white dark:bg-gray-900;
-  @apply border-t-0 border-gray-500/10 shadow-xl text-gray-800;
+  @apply origin-top-right translate-x-2 -translate-y-[50px] rotate-90 rounded-t-none bg-white dark:bg-gray-900;
+  @apply border-t-0 border-gray-500/10 text-gray-800 shadow-xl;
 }
 
 /* Hubspot */
@@ -495,7 +514,7 @@ html.dark .shiki.github-light {
 
 /* Markdown Alerts */
 .markdown-alert {
-  @apply border-l-4 pl-4 py-1.5 my-2 dark:bg-gray-900 rounded-r-sm;
+  @apply my-2 rounded-r-sm border-l-4 py-1.5 pl-4 dark:bg-gray-900;
 }
 
 .markdown-alert > * {
@@ -543,7 +562,7 @@ html.dark .shiki.github-light {
 }
 
 .markdown-alert .markdown-alert-title {
-  @apply flex justify-start items-center font-medium mb-1.5;
+  @apply mb-1.5 flex items-center justify-start font-medium;
 }
 
 .bg-clip-text {
@@ -551,7 +570,7 @@ html.dark .shiki.github-light {
 }
 
 mark {
-  @apply bg-yellow-400 rounded-md px-px mx-px;
+  @apply mx-px rounded-md bg-yellow-400 px-px;
 }
 
 .dark g[aria-label='tip'] > g > path {

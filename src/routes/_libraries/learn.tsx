@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
+import { LogoQueryGG } from '~/components/LogoQueryGG'
 import { seo } from '~/utils/seo'
 import { FaCheckCircle } from 'react-icons/fa'
-import { LogoQueryGG } from '~/components/LogoQueryGG'
 
 export const Route = createFileRoute({
   component: LoginComp,
@@ -16,46 +16,46 @@ export const Route = createFileRoute({
 
 function LoginComp() {
   return (
-    <div className="flex flex-col min-h-[100dvh] max-w-full">
-      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 px-8">
-        <div className="flex flex-col items-center space-y-12 text-center ">
+    <div className="flex min-h-[100dvh] max-w-full flex-col">
+      <section className="w-full px-8 py-12 md:py-24 lg:py-32 xl:py-48">
+        <div className="flex flex-col items-center space-y-12 text-center">
           <div className="space-y-4">
             <h1 className="space-y-2">
-              <div className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl/none text-pretty">
+              <div className="text-3xl font-black tracking-tight text-pretty sm:text-4xl md:text-5xl lg:text-6xl/none">
                 Educational Resources
               </div>
-              <div className="text-xl font-normal tracking-tight sm:text-2xl md:text-3xl lg:text-4xl/none text-pretty">
+              <div className="text-xl font-normal tracking-tight text-pretty sm:text-2xl md:text-3xl lg:text-4xl/none">
                 for TanStack Libraries
               </div>
             </h1>
-            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400 text-pretty">
+            <p className="mx-auto max-w-[700px] text-pretty text-gray-500 md:text-xl dark:text-gray-400">
               Whether you're just getting started or looking to level up as an
               individual or team, we have resources that will help you succeed.
             </p>
           </div>
-          <div className="flex items-stretch flex-wrap gap-4 max-w-full w-[900px] justify-center">
+          <div className="flex w-[900px] max-w-full flex-wrap items-stretch justify-center gap-4">
             <Link
               to={'https://query.gg?s=tanstack' as string}
               target="_blank"
-              className="min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800 shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 overflow-hidden block"
+              className="block max-w-[300px] min-w-[300px] divide-y divide-white/30 overflow-hidden rounded-lg bg-white shadow-lg shadow-black/20 transition-all duration-200 hover:scale-105 hover:shadow-2xl hover:shadow-black/20 dark:bg-gray-800"
             >
               <LogoQueryGG className="w-full" />
-              <div className="flex flex-col gap-6 pt-2 p-4 lg:p-8 ">
+              <div className="flex flex-col gap-6 p-4 pt-2 lg:p-8">
                 <div className="text-center">
-                  <div className="text-sm opacity-70 mt-2">
+                  <div className="mt-2 text-sm opacity-70">
                     Created by{' '}
                     <span className="font-bold">Dominik Dorfmeister</span> and{' '}
                     <span className="font-bold">ui.dev</span>
                   </div>
                 </div>
 
-                <div className="text-sm max-w-full text-center font-bold">
+                <div className="max-w-full text-center text-sm font-bold">
                   “This is the best way to learn how to use React Query in
                   real-world applications.”
                   <div className="mt-2 text-xs italic">—Tanner Linsley</div>
                 </div>
 
-                <div className="grid max-w-screen-lg mx-auto text-xs gap-2 text-left">
+                <div className="mx-auto grid max-w-screen-lg gap-2 text-left text-xs">
                   <div className="flex items-start gap-2">
                     <span className="text-lg text-green-500">
                       <FaCheckCircle />
@@ -79,8 +79,8 @@ function LoginComp() {
                 </div>
               </div>
             </Link>
-            <div className="flex items-center min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800/60 shadow-lg divide-y divide-white/30 overflow-hidden justify-center p-4">
-              <div className="opacity-20 font-black text-3xl rotate-[-5deg]">
+            <div className="flex max-w-[300px] min-w-[300px] items-center justify-center divide-y divide-white/30 overflow-hidden rounded-lg bg-white p-4 shadow-lg dark:bg-gray-800/60">
+              <div className="rotate-[-5deg] text-3xl font-black opacity-20">
                 More Coming Soon!
               </div>
             </div>

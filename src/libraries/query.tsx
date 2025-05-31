@@ -1,9 +1,9 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { VscPreview, VscWand } from 'react-icons/vsc'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
+import { VscPreview, VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/query'
 
@@ -37,7 +37,7 @@ export const queryProject = {
       href,
       '/query/v3',
       '/query/latest',
-      'from=reactQueryV3'
+      'from=reactQueryV3',
     )
 
     handleRedirects(
@@ -45,7 +45,7 @@ export const queryProject = {
       href,
       '/query/v3',
       '/query/v5',
-      'from=reactQueryV3'
+      'from=reactQueryV3',
     )
   },
   menu: [

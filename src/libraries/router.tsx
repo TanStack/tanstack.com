@@ -1,12 +1,12 @@
-import { FaGithub } from 'react-icons/fa'
-import { Library } from '.'
-import { VscPreview } from 'react-icons/vsc'
-import { BiBookAlt } from 'react-icons/bi'
-import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { CgTimelapse } from 'react-icons/cg'
-import { TbZoomQuestion } from 'react-icons/tb'
-import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
+import { BiBookAlt } from 'react-icons/bi'
+import { CgTimelapse } from 'react-icons/cg'
+import { FaGithub } from 'react-icons/fa'
+import { RiLightbulbFlashLine } from 'react-icons/ri'
+import { TbZoomQuestion } from 'react-icons/tb'
+import { VscPreview } from 'react-icons/vsc'
+import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/router'
 
@@ -16,7 +16,7 @@ export const routerProject = {
   id: 'router',
   name: 'TanStack Router',
   cardStyles: twMerge(
-    `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 ${textStyles} border-2 border-transparent hover:border-current`
+    `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 ${textStyles} border-2 border-transparent hover:border-current`,
   ),
   to: '/router',
   tagline: `Type-safe Routing for React and Solid applications`,
@@ -117,7 +117,7 @@ export const routerProject = {
       throw redirect({
         href: href.replace(
           'router/latest/docs/framework/react/start',
-          'start/latest/docs/framework/react'
+          'start/latest/docs/framework/react',
         ),
       })
     }
@@ -126,7 +126,7 @@ export const routerProject = {
       throw redirect({
         href: href.replace(
           'router/latest/docs/framework/react/examples/start',
-          'start/latest/docs/framework/react/examples/start'
+          'start/latest/docs/framework/react/examples/start',
         ),
       })
     }

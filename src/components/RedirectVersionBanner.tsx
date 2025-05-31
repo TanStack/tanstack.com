@@ -1,6 +1,6 @@
-import { useLocalStorage } from '~/utils/useLocalStorage'
-import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
 import { Link, useMatches } from '@tanstack/react-router'
+import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
+import { useLocalStorage } from '~/utils/useLocalStorage'
 
 export function RedirectVersionBanner(props: {
   version: string
@@ -15,7 +15,7 @@ export function RedirectVersionBanner(props: {
   const [showModal, setShowModal] = useLocalStorage(
     'showRedirectToLatestModal',
     true,
-    1000 * 60 * 24 * 30
+    1000 * 60 * 24 * 30,
   )
 
   if (!useClientOnlyRender()) {
@@ -24,7 +24,7 @@ export function RedirectVersionBanner(props: {
 
   if (![latestVersion, 'latest'].includes(version) && showModal) {
     return (
-      <div className="p-4 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-xl shadow-black/20 flex items-center justify-center gap-2.5 lg:gap-4 fixed top-4 left-1/2 bottom-auto backdrop-blur-sm z-20 -translate-x-1/2 rounded-3xl lg:rounded-full overflow-hidden w-[80%] lg:w-auto">
+      <div className="fixed top-4 bottom-auto left-1/2 z-20 flex w-[80%] -translate-x-1/2 items-center justify-center gap-2.5 overflow-hidden rounded-3xl bg-white/70 p-4 text-black shadow-xl shadow-black/20 backdrop-blur-sm lg:w-auto lg:gap-4 lg:rounded-full dark:bg-gray-500/40 dark:text-white">
         <p className="block">
           You are currently reading <strong>{version}</strong> docs. Redirect to{' '}
           <Link
@@ -38,20 +38,20 @@ export function RedirectVersionBanner(props: {
           </Link>{' '}
           version?
         </p>
-        <div className="flex gap-2 flex-col lg:flex-row items-center">
+        <div className="flex flex-col items-center gap-2 lg:flex-row">
           <Link
             to={activeMatch.fullPath}
             params={{
               version: 'latest',
             }}
             replace
-            className="bg-black dark:bg-white dark:text-black text-white w-full lg:w-auto py-1 px-2 rounded-md uppercase font-black text-xs"
+            className="w-full rounded-md bg-black px-2 py-1 text-xs font-black text-white uppercase lg:w-auto dark:bg-white dark:text-black"
           >
             Latest
           </Link>
           <button
             onClick={() => setShowModal(false)}
-            className="bg-black dark:bg-white dark:text-black text-white w-full lg:w-auto py-1 px-2 rounded-md uppercase font-black text-xs"
+            className="w-full rounded-md bg-black px-2 py-1 text-xs font-black text-white uppercase lg:w-auto dark:bg-white dark:text-black"
           >
             Hide
           </button>

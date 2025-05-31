@@ -1,6 +1,5 @@
-import { Fragment } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
-
+import { Fragment } from 'react'
 import { HiCheck, HiChevronDown } from 'react-icons/hi'
 
 export type SelectOption = {
@@ -36,7 +35,7 @@ export function FrameworkSelect<T extends SelectOption>({
 
   return (
     <div className={`top-16 w-full flex-1 ${className}`}>
-      <div className="text-[.8em] uppercase font-black pl-2">{label}</div>
+      <div className="pl-2 text-[.8em] font-black uppercase">{label}</div>
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -44,7 +43,7 @@ export function FrameworkSelect<T extends SelectOption>({
       >
         <Listbox name="framework" value={selectedOption} onChange={onSelect}>
           <div className="relative mt-1">
-            <Listbox.Button className="relative items-center  w-full gap-2 flex hover:bg-gray-100/70 dark:hover:bg-gray-800 cursor-default border-2 dark:border-gray-700/80 rounded-md py-2 pl-2 pr-10 text-left focus:outline-none focus-visible:border-indigo-500  sm:text-sm">
+            <Listbox.Button className="relative flex w-full cursor-default items-center gap-2 rounded-md border-2 py-2 pr-10 pl-2 text-left hover:bg-gray-100/70 focus:outline-none focus-visible:border-indigo-500 sm:text-sm dark:border-gray-700/80 dark:hover:bg-gray-800">
               {selectedOption.logo ? (
                 <figure className="flex">
                   <img
@@ -69,12 +68,12 @@ export function FrameworkSelect<T extends SelectOption>({
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="absolute z-10 dark:bg-gray-800 dark:border-2 border-gray-600/70 mt-1 max-h-60 w-fit overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+              <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-fit overflow-auto rounded-md border-gray-600/70 bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm dark:border-2 dark:bg-gray-800">
                 {Object.values(available).map((option) => (
                   <Listbox.Option
                     key={option.value}
                     className={({ active }) =>
-                      `relative cursor-default select-none py-2 pr-10 ${
+                      `relative cursor-default py-2 pr-10 select-none ${
                         active
                           ? 'bg-gray-100 dark:bg-gray-700'
                           : 'text-gray-900 dark:text-gray-300'

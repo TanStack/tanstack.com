@@ -1,15 +1,15 @@
 import { Link, notFound } from '@tanstack/react-router'
-import { seo } from '~/utils/seo'
-import { Doc } from '~/components/Doc'
-import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
-import { formatAuthors } from '~/utils/blog'
-import { format } from 'date-fns'
-import { z } from 'zod'
-import { FaArrowLeft } from 'react-icons/fa'
-import { DocContainer } from '~/components/DocContainer'
 import { setHeaders } from '@tanstack/react-start/server'
+import { Doc } from '~/components/Doc'
+import { DocContainer } from '~/components/DocContainer'
+import { formatAuthors } from '~/utils/blog'
+import { seo } from '~/utils/seo'
 import { allPosts } from 'content-collections'
+import { format } from 'date-fns'
+import { FaArrowLeft } from 'react-icons/fa'
+import { z } from 'zod'
+import { PostNotFound } from './blog'
 
 const fetchBlogPost = createServerFn({ method: 'GET' })
   .validator(z.string().optional())
@@ -72,7 +72,7 @@ export default function BlogPost() {
 
   const blogContent = `_by ${formatAuthors(authors)} on ${format(
     new Date(published || 0),
-    'MMM dd, yyyy'
+    'MMM dd, yyyy',
   )}._
 ${content}`
 
@@ -82,7 +82,7 @@ ${content}`
         <Link
           from="/blog/$"
           to="/blog"
-          className="font-bold flex items-center gap-2 p-1"
+          className="flex items-center gap-2 p-1 font-bold"
         >
           <FaArrowLeft />
           Back

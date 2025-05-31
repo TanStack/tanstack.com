@@ -1,46 +1,46 @@
-import * as React from 'react'
-import { Link } from '@tanstack/react-router'
-import { z } from 'zod'
-import { useDebouncedValue, useThrottledCallback } from '@tanstack/react-pacer'
-import {
-  MdClose,
-  MdVisibility,
-  MdVisibilityOff,
-  MdAdd,
-  MdPushPin,
-  MdMoreVert,
-  MdSearch,
-} from 'react-icons/md'
-import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import * as Plot from '@observablehq/plot'
-import { ParentSize } from '@visx/responsive'
-import { Tooltip } from '~/components/Tooltip'
-import * as d3 from 'd3'
-import { FaAngleRight, FaSpinner } from 'react-icons/fa'
-import { HexColorPicker } from 'react-colorful'
-import { seo } from '~/utils/seo'
-import { getPopularComparisons } from './-comparisons'
-import {
-  GadFooter,
-  GadLeftRailSquare,
-  GadRightRailSquare,
-} from '~/components/GoogleScripts'
-import { twMerge } from 'tailwind-merge'
-import logoColor100w from '~/images/logo-color-100w.png'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu'
+import { useDebouncedValue, useThrottledCallback } from '@tanstack/react-pacer'
+import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
+import { ParentSize } from '@visx/responsive'
+import {
+  GadFooter,
+  GadLeftRailSquare,
+  GadRightRailSquare,
+} from '~/components/GoogleScripts'
+import { Tooltip } from '~/components/Tooltip'
+import logoColor100w from '~/images/logo-color-100w.png'
+import { seo } from '~/utils/seo'
 import { Command } from 'cmdk'
+import * as d3 from 'd3'
+import * as React from 'react'
+import { HexColorPicker } from 'react-colorful'
+import { FaAngleRight, FaSpinner } from 'react-icons/fa'
+import {
+  MdAdd,
+  MdClose,
+  MdMoreVert,
+  MdPushPin,
+  MdSearch,
+  MdVisibility,
+  MdVisibilityOff,
+} from 'react-icons/md'
+import { twMerge } from 'tailwind-merge'
+import { z } from 'zod'
+import { getPopularComparisons } from './-comparisons'
 
 export const packageGroupSchema = z.object({
   packages: z.array(
     z.object({
       name: z.string(),
       hidden: z.boolean().optional(),
-    })
+    }),
   ),
   color: z.string().nullable().optional(),
   baseline: z.boolean().optional(),
@@ -150,10 +150,13 @@ const binningOptions = [
   },
 ] as const
 
-const binningOptionsByType = binningOptions.reduce((acc, option) => {
-  acc[option.value] = option
-  return acc
-}, {} as Record<BinType, (typeof binningOptions)[number]>)
+const binningOptionsByType = binningOptions.reduce(
+  (acc, option) => {
+    acc[option.value] = option
+    return acc
+  },
+  {} as Record<BinType, (typeof binningOptions)[number]>,
+)
 
 type TransformMode = z.infer<typeof transformModeSchema>
 
@@ -240,11 +243,11 @@ function npmQueryOptions({
   // Get the earliest creation date among all packages
   const getEarliestCreationDate = async () => {
     const packageNames = packageGroups.flatMap((pkg) =>
-      pkg.packages.filter((p) => !p.hidden).map((p) => p.name)
+      pkg.packages.filter((p) => !p.hidden).map((p) => p.name),
     )
 
     const creationDates = await Promise.all(
-      packageNames.map(getPackageCreationDate)
+      packageNames.map(getPackageCreationDate),
     )
     return new Date(Math.min(...creationDates.map((date) => date.getTime())))
   }
@@ -306,7 +309,7 @@ function npmQueryOptions({
                 const chunks = await Promise.all(
                   chunkRanges.map(async (chunk) => {
                     const url = `https://api.npmjs.org/downloads/range/${formatDate(
-                      chunk.start
+                      chunk.start,
                     )}:${formatDate(chunk.end)}/${pkg.name}`
                     const response = await fetch(url)
                     if (!response.ok) {
@@ -316,7 +319,7 @@ function npmQueryOptions({
                       throw new Error('fetch_failed')
                     }
                     return response.json()
-                  })
+                  }),
                 )
 
                 // Combine all chunks and ensure no gaps
@@ -324,7 +327,7 @@ function npmQueryOptions({
                   .flatMap((chunk) => chunk.downloads || [])
                   .sort(
                     (a, b) =>
-                      new Date(a.day).getTime() - new Date(b.day).getTime()
+                      new Date(a.day).getTime() - new Date(b.day).getTime(),
                   )
 
                 // Find the earliest non-zero download
@@ -334,7 +337,7 @@ function npmQueryOptions({
                 }
 
                 return { ...pkg, downloads }
-              })
+              }),
             )
 
             return {
@@ -359,7 +362,7 @@ function npmQueryOptions({
                   : 'Failed to fetch package data (see console for details)',
             }
           }
-        })
+        }),
       )
     },
     placeholderData: keepPreviousData,
@@ -369,11 +372,11 @@ function npmQueryOptions({
 // Get or assign colors for packages
 function getPackageColor(
   packageName: string,
-  packages: z.infer<typeof packageGroupSchema>[]
+  packages: z.infer<typeof packageGroupSchema>[],
 ) {
   // Find the package group that contains this package
   const packageInfo = packages.find((pkg) =>
-    pkg.packages.some((p) => p.name === packageName)
+    pkg.packages.some((p) => p.name === packageName),
   )
   if (packageInfo?.color) {
     return packageInfo.color
@@ -381,7 +384,7 @@ function getPackageColor(
 
   // Otherwise, assign a default color based on the package's position
   const packageIndex = packages.findIndex((pkg) =>
-    pkg.packages.some((p) => p.name === packageName)
+    pkg.packages.some((p) => p.name === packageName),
   )
   return defaultColors[packageIndex % defaultColors.length]
 }
@@ -451,11 +454,11 @@ function Resizable({
       {children}
       <div
         ref={setDragEl}
-        className={`absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize flex items-center justify-center select-none ${
+        className={`absolute right-0 bottom-0 left-0 flex h-2 cursor-ns-resize items-center justify-center select-none ${
           isDragging ? 'bg-blue-500' : 'hover:bg-gray-500/20'
         }`}
       >
-        <div className="w-8 h-1 bg-gray-400 rounded-full" />
+        <div className="h-1 w-8 rounded-full bg-gray-400" />
       </div>
     </div>
   )
@@ -521,7 +524,7 @@ function NpmStatsChart({
     // Filter out any sub packages that are hidden before
     // summing them into a unified downloads count
     const visiblePackages = packageGroup.packages.filter(
-      (p, i) => !i || !p.hidden
+      (p, i) => !i || !p.hidden,
     )
 
     const downloadsByDate: Map<number, number> = new Map()
@@ -535,7 +538,7 @@ function NpmStatsChart({
         downloadsByDate.set(
           date.getTime(),
           // Sum the downloads for each date
-          (downloadsByDate.get(date.getTime()) || 0) + d.downloads
+          (downloadsByDate.get(date.getTime()) || 0) + d.downloads,
         )
       })
     })
@@ -543,7 +546,7 @@ function NpmStatsChart({
     return {
       ...packageGroup,
       downloads: Array.from(downloadsByDate.entries()).map(
-        ([date, downloads]) => [d3.utcDay(new Date(date)), downloads]
+        ([date, downloads]) => [d3.utcDay(new Date(date)), downloads],
       ) as [Date, number][],
     }
   })
@@ -555,9 +558,9 @@ function NpmStatsChart({
       d3.rollup(
         packageGroup.downloads,
         (v) => d3.sum(v, (d) => d[1]),
-        (d) => binUnit.floor(d[0])
+        (d) => binUnit.floor(d[0]),
       ),
-      (d) => d[0]
+      (d) => d[0],
     )
 
     const downloads = binned.map((d) => ({
@@ -589,7 +592,7 @@ function NpmStatsChart({
                 d.date.getTime(),
                 firstValue === 0 ? 1 : firstValue / d.downloads,
               ]
-            })
+            }),
           )
         })()
       : undefined
@@ -615,7 +618,7 @@ function NpmStatsChart({
 
   // Filter out any top-level hidden packages
   const filteredPackageData = correctedPackageData.filter(
-    (pkg) => !pkg.baseline && !pkg.packages[0].hidden
+    (pkg) => !pkg.baseline && !pkg.packages[0].hidden,
   )
 
   const plotData = filteredPackageData.flatMap((d) => d.downloads)
@@ -665,7 +668,7 @@ function NpmStatsChart({
                     strokeDasharray: '2 4',
                     strokeOpacity: 0.8,
                     curve: 'monotone-x',
-                  }
+                  },
                 ),
               ],
               Plot.lineY(
@@ -675,7 +678,7 @@ function NpmStatsChart({
                   stroke: 'name',
                   strokeWidth: 2,
                   curve: 'monotone-x',
-                }
+                },
               ),
               Plot.tip(
                 effectiveShowDataMode === 'all'
@@ -692,7 +695,7 @@ function NpmStatsChart({
                         year: 'numeric',
                       }),
                   },
-                } as Plot.TipOptions)
+                } as Plot.TipOptions),
               ),
             ].filter(Boolean),
             x: {
@@ -704,15 +707,15 @@ function NpmStatsChart({
                 transform === 'normalize-y'
                   ? 'Downloads Growth'
                   : baselinePackage
-                  ? 'Downloads (% of baseline)'
-                  : 'Downloads',
+                    ? 'Downloads (% of baseline)'
+                    : 'Downloads',
               labelOffset: 35,
             },
             grid: true,
             color: {
               domain: [...new Set(plotData.map((d) => d.name))],
               range: [...new Set(plotData.map((d) => d.name))].map((pkg) =>
-                getPackageColor(pkg, packages)
+                getPackageColor(pkg, packages),
               ),
               legend: false,
             },
@@ -763,12 +766,12 @@ function PackageSearch({
 
       const response = await fetch(
         `https://api.npms.io/v2/search?q=${encodeURIComponent(
-          debouncedInputValue
-        )}&size=10`
+          debouncedInputValue,
+        )}&size=10`,
       )
       const data = await response.json()
       const hasInputValue = data.results.find(
-        (r: any) => r.package.name === debouncedInputValue
+        (r: any) => r.package.name === debouncedInputValue,
       )
 
       return [
@@ -808,7 +811,7 @@ function PackageSearch({
             <MdSearch className="text-lg" />
             <Command.Input
               placeholder={placeholder}
-              className="w-full bg-gray-500/10 rounded-md px-2 py-1 min-w-[200px] text-sm"
+              className="w-full min-w-[200px] rounded-md bg-gray-500/10 px-2 py-1 text-sm"
               value={inputValue}
               onValueChange={handleInputChange}
               onFocus={() => setOpen(true)}
@@ -816,17 +819,17 @@ function PackageSearch({
             />
           </div>
           {searchQuery.isLoading && (
-            <div className="absolute right-2 top-0 bottom-0 flex items-center justify-center">
-              <FaSpinner className="w-4 h-4 animate-spin" />
+            <div className="absolute top-0 right-2 bottom-0 flex items-center justify-center">
+              <FaSpinner className="h-4 w-4 animate-spin" />
             </div>
           )}
           {inputValue.length && open ? (
-            <Command.List className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-auto divide-y divide-gray-500/10">
+            <Command.List className="absolute z-10 mt-1 max-h-60 w-full divide-y divide-gray-500/10 overflow-auto rounded-md bg-white shadow-lg dark:bg-gray-800">
               {inputValue.length < 3 ? (
                 <div className="px-3 py-2">Keep typing to search...</div>
               ) : searchQuery.isLoading ? (
-                <div className="px-3 py-2 flex items-center gap-2">
-                  <FaSpinner className="w-4 h-4 animate-spin" /> Searching...
+                <div className="flex items-center gap-2 px-3 py-2">
+                  <FaSpinner className="h-4 w-4 animate-spin" /> Searching...
                 </div>
               ) : !searchQuery.data?.length ? (
                 <div className="px-3 py-2">No packages found</div>
@@ -836,7 +839,7 @@ function PackageSearch({
                   key={item.name}
                   value={item.name}
                   onSelect={handleSelect}
-                  className="px-3 py-2 cursor-pointer hover:bg-gray-500/20 data-[selected=true]:bg-gray-500/20"
+                  className="cursor-pointer px-3 py-2 hover:bg-gray-500/20 data-[selected=true]:bg-gray-500/20"
                 >
                   <div className="font-medium">{item.label || item.name}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -870,7 +873,7 @@ const defaultRangeBinTypes: Record<TimeRange, BinType> = {
 // Add a function to check if a binning option is valid for a time range
 function isBinningOptionValidForRange(
   range: TimeRange,
-  binType: BinType
+  binType: BinType,
 ): boolean {
   switch (range) {
     case '7-days':
@@ -916,7 +919,7 @@ function RouteComponent() {
     height = 400,
   } = Route.useSearch()
   const [combiningPackage, setCombiningPackage] = React.useState<string | null>(
-    null
+    null,
   )
   const navigate = Route.useNavigate()
   const [colorPickerPackage, setColorPickerPackage] = React.useState<
@@ -927,7 +930,7 @@ function RouteComponent() {
     y: number
   } | null>(null)
   const [openMenuPackage, setOpenMenuPackage] = React.useState<string | null>(
-    null
+    null,
   )
 
   const binType = binTypeParam ?? defaultRangeBinTypes[range]
@@ -986,10 +989,10 @@ function RouteComponent() {
             ? {
                 ...pkg,
                 packages: pkg.packages.map((p) =>
-                  p.name === packageName ? { ...p, hidden: !p.hidden } : p
+                  p.name === packageName ? { ...p, hidden: !p.hidden } : p,
                 ),
               }
-            : pkg
+            : pkg,
         ),
       }),
       replace: true,
@@ -1001,7 +1004,7 @@ function RouteComponent() {
     npmQueryOptions({
       packageGroups: packageGroups,
       range,
-    })
+    }),
   )
 
   const handleCombineSelect = (selectedPackage: NpmPackage) => {
@@ -1009,7 +1012,7 @@ function RouteComponent() {
 
     // Find the package group that contains the combining package
     const packageGroup = packageGroups.find((pkg) =>
-      pkg.packages.some((p) => p.name === combiningPackage)
+      pkg.packages.some((p) => p.name === combiningPackage),
     )
 
     if (packageGroup) {
@@ -1023,7 +1026,7 @@ function RouteComponent() {
                 { name: selectedPackage.name, hidden: true },
               ],
             }
-          : pkg
+          : pkg,
       )
 
       navigate({
@@ -1060,19 +1063,19 @@ function RouteComponent() {
   const handleRemoveFromGroup = (mainPackage: string, subPackage: string) => {
     // Find the package group
     const packageGroup = packageGroups.find((pkg) =>
-      pkg.packages.some((p) => p.name === mainPackage)
+      pkg.packages.some((p) => p.name === mainPackage),
     )
     if (!packageGroup) return
 
     // Remove the subpackage
     const updatedPackages = packageGroup.packages.filter(
-      (p) => p.name !== subPackage
+      (p) => p.name !== subPackage,
     )
 
     // Update the packages array
     const newPackages = packageGroups
       .map((pkg) =>
-        pkg === packageGroup ? { ...pkg, packages: updatedPackages } : pkg
+        pkg === packageGroup ? { ...pkg, packages: updatedPackages } : pkg,
       )
       .filter((pkg) => pkg.packages.length > 0)
 
@@ -1092,7 +1095,7 @@ function RouteComponent() {
       search: (prev) => ({
         ...prev,
         packageGroups: prev.packageGroups.filter(
-          (_, i) => i !== packageGroupIndex
+          (_, i) => i !== packageGroupIndex,
         ),
       }),
       resetScroll: false,
@@ -1147,7 +1150,7 @@ function RouteComponent() {
         to: '.',
         search: (prev) => {
           const packageGroup = packageGroups.find((pkg) =>
-            pkg.packages.some((p) => p.name === packageName)
+            pkg.packages.some((p) => p.name === packageName),
           )
           if (!packageGroup) return prev
 
@@ -1156,7 +1159,7 @@ function RouteComponent() {
               ? color === null
                 ? { packages: pkg.packages }
                 : { ...pkg, color }
-              : pkg
+              : pkg,
           )
 
           return {
@@ -1170,7 +1173,7 @@ function RouteComponent() {
     },
     {
       wait: 100,
-    }
+    },
   )
 
   const onHeightChange = useThrottledCallback(
@@ -1183,7 +1186,7 @@ function RouteComponent() {
     },
     {
       wait: 16,
-    }
+    },
   )
 
   const handleMenuOpenChange = (packageName: string, open: boolean) => {
@@ -1237,7 +1240,7 @@ function RouteComponent() {
 
     // Find the package group that contains the combining package
     const packageGroup = packageGroups.find((pkg) =>
-      pkg.packages.some((p) => p.name === combiningPackage)
+      pkg.packages.some((p) => p.name === combiningPackage),
     )
 
     if (packageGroup) {
@@ -1248,7 +1251,7 @@ function RouteComponent() {
               ...pkg,
               packages: [...pkg.packages, { name: packageName }],
             }
-          : pkg
+          : pkg,
       )
 
       navigate({
@@ -1280,39 +1283,39 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4">
-      <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex items-center gap-2 text-lg sm:text-xl shadow-xl">
+    <div className="min-h-dvh space-y-2 p-2 sm:space-y-4 sm:p-4">
+      <div className="flex items-center gap-2 rounded-lg bg-white p-2 text-lg shadow-xl sm:p-4 sm:text-xl dark:bg-black/50">
         <Link to="/" className={twMerge(`flex items-center gap-1.5`)}>
           <img
             src={logoColor100w}
             alt=""
-            className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
+            className="w-[30px] overflow-hidden rounded-full border-2 border-black dark:border-none"
           />
-          <div className="font-black text-xl uppercase">TanStack</div>
+          <div className="text-xl font-black uppercase">TanStack</div>
         </Link>
         <FaAngleRight />
-        <Link to="." className="hover:text-blue-500 flex items-center gap-2">
+        <Link to="." className="flex items-center gap-2 hover:text-blue-500">
           NPM Stats{' '}
-          <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+          <span className="rounded bg-gradient-to-r from-blue-500 to-cyan-500 px-2 py-0.5 text-xs font-bold text-white">
             BETA
           </span>
         </Link>
       </div>
       <div className="flex gap-4">
-        <div className="flex-1 bg-white dark:bg-black/50 rounded-lg space-y-4 p-4 shadow-xl max-w-full">
-          <div className="flex gap-2 flex-wrap">
+        <div className="max-w-full flex-1 space-y-4 rounded-lg bg-white p-4 shadow-xl dark:bg-black/50">
+          <div className="flex flex-wrap gap-2">
             <PackageSearch onSelect={handleAddPackage} />
             <DropdownMenu>
               <Tooltip content="Select time range">
                 <DropdownMenuTrigger asChild>
                   <button className={twMerge(dropdownButtonStyles.base)}>
                     {timeRanges.find((r) => r.value === range)?.label}
-                    <MdMoreVert className="w-3 h-3" />
+                    <MdMoreVert className="h-3 w-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
+              <DropdownMenuContent className="z-50 min-w-[200px] rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800">
+                <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium">Time Range</span>
                 </div>
                 {timeRanges.map(({ value, label }) => (
@@ -1320,9 +1323,9 @@ function RouteComponent() {
                     key={value}
                     onSelect={() => handleRangeChange(value)}
                     className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      value === range ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                      'flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20',
+                      value === range ? 'bg-blue-500/10 text-blue-500' : '',
+                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
                     )}
                   >
                     {label}
@@ -1336,16 +1339,16 @@ function RouteComponent() {
                   <button
                     className={twMerge(
                       dropdownButtonStyles.base,
-                      binType !== 'weekly' && dropdownButtonStyles.active
+                      binType !== 'weekly' && dropdownButtonStyles.active,
                     )}
                   >
                     {binningOptions.find((b) => b.value === binType)?.label}
-                    <MdMoreVert className="w-3 h-3" />
+                    <MdMoreVert className="h-3 w-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
+              <DropdownMenuContent className="z-50 min-w-[200px] rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800">
+                <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium">Binning Interval</span>
                 </div>
                 {binningOptions.map(({ label, value }) => (
@@ -1354,12 +1357,12 @@ function RouteComponent() {
                     onSelect={() => handleBinnedChange(value)}
                     disabled={!isBinningOptionValidForRange(range, value)}
                     className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      binType === value ? 'text-blue-500 bg-blue-500/10' : '',
+                      'flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20',
+                      binType === value ? 'bg-blue-500/10 text-blue-500' : '',
                       'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
                       !isBinningOptionValidForRange(range, value)
-                        ? 'opacity-50 cursor-not-allowed'
-                        : ''
+                        ? 'cursor-not-allowed opacity-50'
+                        : '',
                     )}
                   >
                     {label}
@@ -1373,19 +1376,19 @@ function RouteComponent() {
                   <button
                     className={twMerge(
                       dropdownButtonStyles.base,
-                      transform !== 'none' && dropdownButtonStyles.active
+                      transform !== 'none' && dropdownButtonStyles.active,
                     )}
                   >
                     {
                       transformOptions.find((opt) => opt.value === transform)
                         ?.label
                     }
-                    <MdMoreVert className="w-3 h-3" />
+                    <MdMoreVert className="h-3 w-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
+              <DropdownMenuContent className="z-50 min-w-[200px] rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800">
+                <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium">Y-Axis Transform</span>
                 </div>
                 {transformOptions.map(({ value, label }) => (
@@ -1395,9 +1398,9 @@ function RouteComponent() {
                       handleTransformChange(value as TransformMode)
                     }
                     className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      transform === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                      'flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20',
+                      transform === value ? 'bg-blue-500/10 text-blue-500' : '',
+                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
                     )}
                   >
                     {label}
@@ -1411,7 +1414,7 @@ function RouteComponent() {
                   <button
                     className={twMerge(
                       dropdownButtonStyles.base,
-                      facetX && dropdownButtonStyles.active
+                      facetX && dropdownButtonStyles.active,
                     )}
                   >
                     {facetX
@@ -1420,20 +1423,20 @@ function RouteComponent() {
                             ?.label
                         }`
                       : 'No Facet X'}
-                    <MdMoreVert className="w-3 h-3" />
+                    <MdMoreVert className="h-3 w-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
+              <DropdownMenuContent className="z-50 min-w-[200px] rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800">
+                <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium">Horizontal Facet</span>
                 </div>
                 <DropdownMenuItem
                   onSelect={() => handleFacetXChange(undefined)}
                   className={twMerge(
-                    'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                    !facetX ? 'text-blue-500 bg-blue-500/10' : '',
-                    'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                    'flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20',
+                    !facetX ? 'bg-blue-500/10 text-blue-500' : '',
+                    'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
                   )}
                 >
                   No Facet
@@ -1443,9 +1446,9 @@ function RouteComponent() {
                     key={value}
                     onSelect={() => handleFacetXChange(value)}
                     className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      facetX === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                      'flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20',
+                      facetX === value ? 'bg-blue-500/10 text-blue-500' : '',
+                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
                     )}
                   >
                     {label}
@@ -1459,7 +1462,7 @@ function RouteComponent() {
                   <button
                     className={twMerge(
                       dropdownButtonStyles.base,
-                      facetY && dropdownButtonStyles.active
+                      facetY && dropdownButtonStyles.active,
                     )}
                   >
                     {facetY
@@ -1468,20 +1471,20 @@ function RouteComponent() {
                             ?.label
                         }`
                       : 'No Facet Y'}
-                    <MdMoreVert className="w-3 h-3" />
+                    <MdMoreVert className="h-3 w-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
+              <DropdownMenuContent className="z-50 min-w-[200px] rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800">
+                <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium">Vertical Facet</span>
                 </div>
                 <DropdownMenuItem
                   onSelect={() => handleFacetYChange(undefined)}
                   className={twMerge(
-                    'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                    !facetY ? 'text-blue-500 bg-blue-500/10' : '',
-                    'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                    'flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20',
+                    !facetY ? 'bg-blue-500/10 text-blue-500' : '',
+                    'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
                   )}
                 >
                   No Facet
@@ -1491,9 +1494,9 @@ function RouteComponent() {
                     key={value}
                     onSelect={() => handleFacetYChange(value)}
                     className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                      facetY === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                      'flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20',
+                      facetY === value ? 'bg-blue-500/10 text-blue-500' : '',
+                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
                     )}
                   >
                     {label}
@@ -1516,21 +1519,21 @@ function RouteComponent() {
                       showDataModeParam !== 'all' &&
                         dropdownButtonStyles.active,
                       transform === 'normalize-y' &&
-                        'opacity-50 cursor-not-allowed'
+                        'cursor-not-allowed opacity-50',
                     )}
                     disabled={transform === 'normalize-y'}
                   >
                     {
                       showDataModeOptions.find(
-                        (opt) => opt.value === showDataModeParam
+                        (opt) => opt.value === showDataModeParam,
                       )?.label
                     }
-                    <MdMoreVert className="w-3 h-3" />
+                    <MdMoreVert className="h-3 w-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
-              <DropdownMenuContent className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50">
-                <div className="flex justify-between items-center mb-2">
+              <DropdownMenuContent className="z-50 min-w-[200px] rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800">
+                <div className="mb-2 flex items-center justify-between">
                   <span className="text-sm font-medium">Data Display Mode</span>
                 </div>
                 {showDataModeOptions.map(({ value, label }) => (
@@ -1539,14 +1542,14 @@ function RouteComponent() {
                     onSelect={() => handleShowDataModeChange(value)}
                     disabled={transform === 'normalize-y'}
                     className={twMerge(
-                      'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
+                      'flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20',
                       showDataModeParam === value
-                        ? 'text-blue-500 bg-blue-500/10'
+                        ? 'bg-blue-500/10 text-blue-500'
                         : '',
                       'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
                       transform === 'normalize-y'
-                        ? 'opacity-50 cursor-not-allowed'
-                        : ''
+                        ? 'cursor-not-allowed opacity-50'
+                        : '',
                     )}
                   >
                     {label}
@@ -1561,7 +1564,7 @@ function RouteComponent() {
               const packageList = pkg.packages
               const isCombined = packageList.length > 1
               const subPackages = packageList.filter(
-                (p) => p.name !== mainPackage.name
+                (p) => p.name !== mainPackage.name,
               )
               const color = getPackageColor(mainPackage.name, packageGroups)
 
@@ -1571,16 +1574,12 @@ function RouteComponent() {
               return (
                 <div
                   key={mainPackage.name}
-                  className={`flex flex-col items-start
-                    rounded-md text-gray-900
-                    px-1 py-0.5
-                    sm:px-2 sm:py-1
-                    dark:text-gray-100 text-xs sm:text-sm`}
+                  className={`flex flex-col items-start rounded-md px-1 py-0.5 text-xs text-gray-900 sm:px-2 sm:py-1 sm:text-sm dark:text-gray-100`}
                   style={{
                     backgroundColor: `${color}20`,
                   }}
                 >
-                  <div className="flex items-center gap-1 w-full">
+                  <div className="flex w-full items-center gap-1">
                     {pkg.baseline ? (
                       <>
                         <Tooltip content="Remove baseline">
@@ -1590,7 +1589,7 @@ function RouteComponent() {
                             }
                             className="hover:text-blue-500"
                           >
-                            <MdPushPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
+                            <MdPushPin className="h-3 w-3 text-blue-500 sm:h-4 sm:w-4" />
                           </button>
                         </Tooltip>
                         <span>{mainPackage.name}</span>
@@ -1605,7 +1604,7 @@ function RouteComponent() {
                             className="hover:opacity-80"
                           >
                             <div
-                              className="w-3 h-3 sm:w-4 sm:h-4 rounded"
+                              className="h-3 w-3 rounded sm:h-4 sm:w-4"
                               style={{ backgroundColor: color }}
                             />
                           </button>
@@ -1616,20 +1615,20 @@ function RouteComponent() {
                               togglePackageVisibility(index, mainPackage.name)
                             }
                             className={twMerge(
-                              'hover:text-blue-500 flex items-center gap-1',
-                              mainPackage.hidden ? 'opacity-50' : ''
+                              'flex items-center gap-1 hover:text-blue-500',
+                              mainPackage.hidden ? 'opacity-50' : '',
                             )}
                           >
                             {mainPackage.name}
                             {mainPackage.hidden ? (
-                              <MdVisibilityOff className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <MdVisibilityOff className="h-3 w-3 sm:h-4 sm:w-4" />
                             ) : null}
                           </button>
                         </Tooltip>
                       </>
                     )}
                     {isCombined ? (
-                      <span className="text-black/70 dark:text-white/70 text-[.7em] font-black py-0.5 px-1 leading-none rounded-md border-[1.5px] border-current opacity-80">
+                      <span className="rounded-md border-[1.5px] border-current px-1 py-0.5 text-[.7em] leading-none font-black text-black/70 opacity-80 dark:text-white/70">
                         + {subPackages.length}
                       </span>
                     ) : null}
@@ -1642,16 +1641,16 @@ function RouteComponent() {
                       >
                         <Tooltip content="More options">
                           <DropdownMenuTrigger asChild>
-                            <button className="px-0.5 sm:px-1 hover:text-blue-500">
-                              <MdMoreVert className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <button className="px-0.5 hover:text-blue-500 sm:px-1">
+                              <MdMoreVert className="h-3 w-3 sm:h-4 sm:w-4" />
                             </button>
                           </DropdownMenuTrigger>
                         </Tooltip>
                         <DropdownMenuContent
-                          className="min-w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 z-50"
+                          className="z-50 min-w-[200px] rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800"
                           sideOffset={5}
                         >
-                          <div className="flex justify-between items-center mb-2">
+                          <div className="mb-2 flex items-center justify-between">
                             <span className="text-sm font-medium">Options</span>
                           </div>
                           <div className="space-y-1">
@@ -1660,7 +1659,7 @@ function RouteComponent() {
                                 e.preventDefault()
                                 togglePackageVisibility(index, mainPackage.name)
                               }}
-                              className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
+                              className="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20"
                             >
                               {mainPackage.hidden ? (
                                 <MdVisibilityOff className="text-sm" />
@@ -1677,8 +1676,8 @@ function RouteComponent() {
                                 handleBaselineChange(mainPackage.name)
                               }}
                               className={twMerge(
-                                'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                                pkg.baseline ? 'text-blue-500' : ''
+                                'flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20',
+                                pkg.baseline ? 'text-blue-500' : '',
                               )}
                             >
                               <MdPushPin className="text-sm" />
@@ -1691,20 +1690,20 @@ function RouteComponent() {
                                 e.preventDefault()
                                 handleColorClick(
                                   mainPackage.name,
-                                  e as unknown as React.MouseEvent
+                                  e as unknown as React.MouseEvent,
                                 )
                               }}
-                              className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
+                              className="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20"
                             >
                               <div
-                                className="w-3 h-3 rounded-full"
+                                className="h-3 w-3 rounded-full"
                                 style={{ backgroundColor: color }}
                               />
                               Change Color
                             </DropdownMenuItem>
                             {isCombined && (
                               <>
-                                <div className="h-px bg-gray-500/20 my-1" />
+                                <div className="my-1 h-px bg-gray-500/20" />
                                 <div className="px-2 py-1 text-xs font-medium text-gray-500">
                                   Sub-packages
                                 </div>
@@ -1715,12 +1714,12 @@ function RouteComponent() {
                                       e.preventDefault()
                                       togglePackageVisibility(
                                         index,
-                                        subPackage.name
+                                        subPackage.name,
                                       )
                                     }}
-                                    className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
+                                    className="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20"
                                   >
-                                    <div className="flex-1 flex items-center justify-between">
+                                    <div className="flex flex-1 items-center justify-between">
                                       <div className="flex items-center gap-2">
                                         {subPackage.hidden ? (
                                           <MdVisibilityOff className="text-sm" />
@@ -1742,12 +1741,12 @@ function RouteComponent() {
                                           e.stopPropagation()
                                           handleRemoveFromGroup(
                                             mainPackage.name,
-                                            subPackage.name
+                                            subPackage.name,
                                           )
                                         }}
                                         className="p-1 text-gray-400 hover:text-red-500"
                                       >
-                                        <MdClose className="w-3 h-3" />
+                                        <MdClose className="h-3 w-3" />
                                       </button>
                                     </div>
                                   </DropdownMenuItem>
@@ -1759,7 +1758,7 @@ function RouteComponent() {
                                 e.preventDefault()
                                 handleCombinePackage(mainPackage.name)
                               }}
-                              className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
+                              className="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-left text-sm outline-none hover:bg-gray-500/20"
                             >
                               <MdAdd className="text-sm" />
                               Add Packages
@@ -1770,13 +1769,13 @@ function RouteComponent() {
                     </div>
                     <button
                       onClick={() => handleRemovePackageName(index)}
-                      className="ml-auto pl-0.5 sm:pl-1 text-gray-500 hover:text-red-500"
+                      className="ml-auto pl-0.5 text-gray-500 hover:text-red-500 sm:pl-1"
                     >
-                      <MdClose className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <MdClose className="h-3 w-3 sm:h-4 sm:w-4" />
                     </button>
                   </div>
                   {packageError && (
-                    <div className="mt-1 text-xs font-mono text-red-500 px-1 font-medium bg-red-500/10 rounded">
+                    <div className="mt-1 rounded bg-red-500/10 px-1 font-mono text-xs font-medium text-red-500">
                       {packageError}
                     </div>
                   )}
@@ -1787,17 +1786,17 @@ function RouteComponent() {
 
           {/* Combine Package Dialog */}
           {combiningPackage && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-2 sm:p-4 w-full max-w-md">
-                <div className="flex justify-between items-center mb-2 sm:mb-4">
-                  <h3 className="text-base sm:text-lg font-medium">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4">
+              <div className="w-full max-w-md rounded-lg bg-white p-2 sm:p-4 dark:bg-gray-800">
+                <div className="mb-2 flex items-center justify-between sm:mb-4">
+                  <h3 className="text-base font-medium sm:text-lg">
                     Add packages to {combiningPackage}
                   </h3>
                   <button
                     onClick={() => setCombiningPackage(null)}
-                    className="p-0.5 sm:p-1 hover:text-red-500"
+                    className="p-0.5 hover:text-red-500 sm:p-1"
                   >
-                    <MdClose className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <MdClose className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
                 </div>
                 <PackageSearch
@@ -1812,13 +1811,13 @@ function RouteComponent() {
           {/* Color Picker Popover */}
           {colorPickerPackage && colorPickerPosition && (
             <div
-              className="fixed z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2"
+              className="fixed z-50 rounded-lg bg-white p-2 shadow-lg dark:bg-gray-800"
               style={{
                 left: colorPickerPosition.x,
                 top: colorPickerPosition.y,
               }}
             >
-              <div className="flex justify-between items-center mb-2">
+              <div className="mb-2 flex items-center justify-between">
                 <span className="text-sm font-medium">Pick a color</span>
               </div>
               <HexColorPicker
@@ -1827,7 +1826,7 @@ function RouteComponent() {
                   handleColorChange(colorPickerPackage, color)
                 }
               />
-              <div className="flex justify-between mt-2">
+              <div className="mt-2 flex justify-between">
                 <button
                   onClick={() => {
                     handleColorChange(colorPickerPackage, null)
@@ -1870,13 +1869,13 @@ function RouteComponent() {
                   <table className="min-w-full">
                     <thead className="bg-gray-500/10">
                       <tr>
-                        <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 sm:py-3 dark:text-gray-300">
                           Package Name
                         </th>
-                        <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-right text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 sm:py-3 dark:text-gray-300">
                           Total Period Downloads
                         </th>
-                        <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-right text-xs font-medium tracking-wider text-gray-500 uppercase sm:px-6 sm:py-3 dark:text-gray-300">
                           Downloads last {binOption.single}
                         </th>
                         {/* <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -1887,12 +1886,12 @@ function RouteComponent() {
                         </th> */}
                       </tr>
                     </thead>
-                    <tbody className="bg-gray-500/5 divide-y divide-gray-500/10">
+                    <tbody className="divide-y divide-gray-500/10 bg-gray-500/5">
                       {npmQuery.data
                         ?.map((packageGroupDownloads, index) => {
                           if (
                             !packageGroupDownloads.packages.some(
-                              (p) => p.downloads.length
+                              (p) => p.downloads.length,
                             )
                           ) {
                             return null
@@ -1919,7 +1918,7 @@ function RouteComponent() {
                             .sort(
                               (a, b) =>
                                 d3.utcDay(a.day).getTime() -
-                                d3.utcDay(b.day).getTime()
+                                d3.utcDay(b.day).getTime(),
                             )
 
                           // Get the binning unit and calculate partial bin boundaries
@@ -1929,7 +1928,7 @@ function RouteComponent() {
 
                           // Filter downloads based on showDataMode for total downloads
                           const filteredDownloads = sortedDownloads.filter(
-                            (d) => d3.utcDay(new Date(d.day)) < partialBinEnd
+                            (d) => d3.utcDay(new Date(d.day)) < partialBinEnd,
                           )
 
                           // Group downloads by bin using d3
@@ -1937,14 +1936,14 @@ function RouteComponent() {
                             d3.rollup(
                               filteredDownloads,
                               (v) => d3.sum(v, (d) => d.downloads),
-                              (d) => binUnit.floor(new Date(d.day))
+                              (d) => binUnit.floor(new Date(d.day)),
                             ),
-                            (d) => d[0]
+                            (d) => d[0],
                           )
 
                           const color = getPackageColor(
                             firstPackage.name,
-                            packageGroups
+                            packageGroups,
                           )
 
                           const firstBin = binnedDownloads[0]
@@ -1958,7 +1957,7 @@ function RouteComponent() {
                             package: firstPackage.name,
                             totalDownloads: d3.sum(
                               binnedDownloads,
-                              (d) => d[1]
+                              (d) => d[1],
                             ),
                             binDownloads: lastBin[1],
                             growth,
@@ -1972,11 +1971,11 @@ function RouteComponent() {
                         .sort((a, b) =>
                           transform === 'normalize-y'
                             ? b!.growth - a!.growth
-                            : b!.binDownloads - a!.binDownloads
+                            : b!.binDownloads - a!.binDownloads,
                         )
                         .map((stat) => (
                           <tr key={stat!.package}>
-                            <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
+                            <td className="px-3 py-1 text-xs font-medium whitespace-nowrap text-gray-900 sm:px-6 sm:py-2 sm:text-sm dark:text-gray-100">
                               <div className="flex items-center gap-2">
                                 <Tooltip content="Change color">
                                   <button
@@ -1986,7 +1985,7 @@ function RouteComponent() {
                                     className="hover:opacity-80"
                                   >
                                     <div
-                                      className="w-4 h-4 rounded"
+                                      className="h-4 w-4 rounded"
                                       style={{ backgroundColor: stat!.color }}
                                     />
                                   </button>
@@ -1998,10 +1997,10 @@ function RouteComponent() {
                                         onClick={() =>
                                           togglePackageVisibility(
                                             stat!.index,
-                                            stat!.package
+                                            stat!.package,
                                           )
                                         }
-                                        className="p-0.5 hover:text-blue-500 flex items-center gap-1"
+                                        className="flex items-center gap-1 p-0.5 hover:text-blue-500"
                                       >
                                         <span
                                           className={
@@ -2029,10 +2028,10 @@ function RouteComponent() {
                                 </div>
                               </div>
                             </td>
-                            <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
+                            <td className="px-3 py-1 text-right text-xs whitespace-nowrap text-gray-500 sm:px-6 sm:py-2 sm:text-sm dark:text-gray-400">
                               {formatNumber(stat!.totalDownloads)}
                             </td>
-                            <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
+                            <td className="px-3 py-1 text-right text-xs whitespace-nowrap text-gray-500 sm:px-6 sm:py-2 sm:text-sm dark:text-gray-400">
                               {formatNumber(stat!.binDownloads)}
                             </td>
                             {/* <td
@@ -2082,11 +2081,11 @@ function RouteComponent() {
 
           {/* Popular Comparisons Section */}
           <div>
-            <h2 className="text-xl font-semibold mb-4">Popular Comparisons</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <h2 className="mb-4 text-xl font-semibold">Popular Comparisons</h2>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {getPopularComparisons().map((comparison) => {
                 const baselinePackage = comparison.packageGroups.find(
-                  (pg) => pg.baseline
+                  (pg) => pg.baseline,
                 )
                 return (
                   <Link
@@ -2096,7 +2095,7 @@ function RouteComponent() {
                       ...prev,
                       packageGroups: comparison.packageGroups,
                       baseline: comparison.packageGroups.find(
-                        (pg) => pg.baseline
+                        (pg) => pg.baseline,
                       )?.packages[0].name,
                     })}
                     resetScroll={false}
@@ -2106,7 +2105,7 @@ function RouteComponent() {
                         behavior: 'smooth',
                       })
                     }}
-                    className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors space-y-4"
+                    className="block space-y-4 rounded-lg bg-gray-500/10 p-4 transition-colors hover:bg-gray-500/20"
                   >
                     <div className="space-y-2">
                       <div>
@@ -2121,7 +2120,7 @@ function RouteComponent() {
                               className="flex items-center gap-1.5 text-sm"
                             >
                               <div
-                                className="w-3 h-3 rounded-full"
+                                className="h-3 w-3 rounded-full"
                                 style={{
                                   backgroundColor:
                                     packageGroup.color || defaultColors[0],
@@ -2135,7 +2134,7 @@ function RouteComponent() {
                     {baselinePackage && (
                       <div className="flex items-center gap-1 text-sm">
                         <div className="font-medium">Baseline:</div>
-                        <div className="bg-gray-500/10 rounded-md px-2 py-1 leading-none font-bold text-sm">
+                        <div className="rounded-md bg-gray-500/10 px-2 py-1 text-sm leading-none font-bold">
                           {baselinePackage.packages[0].name}
                         </div>
                       </div>
@@ -2146,42 +2145,42 @@ function RouteComponent() {
             </div>
           </div>
         </div>
-        <div className="hidden lg:block w-[290px] xl:w-[332px] shrink-0">
+        <div className="hidden w-[290px] shrink-0 lg:block xl:w-[332px]">
           <div className="sticky top-4 space-y-4">
-            <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col rounded-lg p-4 space-y-2">
-              <div className="uppercase font-black text-center opacity-50">
+            <div className="flex flex-col space-y-2 rounded-lg bg-white p-4 shadow-xl dark:bg-black/40">
+              <div className="text-center font-black uppercase opacity-50">
                 Our Partners
               </div>
-              <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
+              <div className="transition-colors hover:bg-gray-500/10 dark:hover:bg-gray-500/10">
                 <a
                   href="mailto:partners@tanstack.com?subject=TanStack NPM Stats Partnership"
-                  className="p-2 block text-xs"
+                  className="block p-2 text-xs"
                 >
-                  <span className="opacity-50 italic">
+                  <span className="italic opacity-50">
                     Wow, it looks like you could be our first partner for this
                     tool!
                   </span>{' '}
-                  <span className="text-blue-500 font-black">
+                  <span className="font-black text-blue-500">
                     Chat with us!
                   </span>
                 </a>
               </div>
             </div>
-            <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
-              <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
+            <div className="flex flex-col space-y-2 rounded-lg bg-white p-4 shadow-xl dark:bg-black/40">
+              <div className="w-[258px] overflow-x-hidden xl:w-[300px]">
                 <GadRightRailSquare />
               </div>
             </div>
 
-            <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
-              <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
+            <div className="flex flex-col space-y-2 rounded-lg bg-white p-4 shadow-xl dark:bg-black/40">
+              <div className="w-[258px] overflow-x-hidden xl:w-[300px]">
                 <GadLeftRailSquare />
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="!mt-24 mx-auto max-w-full overflow-x-hidden">
+      <div className="mx-auto !mt-24 max-w-full overflow-x-hidden">
         <GadFooter />
       </div>
     </div>

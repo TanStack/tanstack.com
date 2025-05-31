@@ -18,7 +18,7 @@ async function getTiersMeta() {
           } else {
             resolve(allTiers)
           }
-        }
+        },
       )
     })
 
@@ -43,7 +43,7 @@ async function createTiersMeta(tiersMeta) {
           return reject(err)
         }
         resolve()
-      }
+      },
     )
   })
   // return Promise.resolve()
@@ -93,7 +93,7 @@ export async function getGithubTiers() {
             }
           }
         }
-      }`
+      }`,
     )
 
     return res.viewer.sponsorshipsAsMaintainer.nodes[0].sponsorable
@@ -131,7 +131,7 @@ export async function updateTiersMeta(githubTiers) {
         })
       }
       return tierMeta.destroy()
-    })
+    }),
   )
 
   if (githubTiers?.length) {

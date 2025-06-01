@@ -46,7 +46,7 @@ export function Toc({
               title={heading.id}
               href={`#${heading.id}`}
               aria-current={activeHeadings.includes(heading.id) && 'location'}
-              className={`block truncate aria-current:bg-gradient-to-r ${colorFrom} ${colorTo} aria-current:bg-clip-text aria-current:text-transparent`}
+              className={`block truncate aria-[current=location]:bg-gradient-to-r ${colorFrom} ${colorTo} aria-[current=location]:bg-clip-text aria-[current=location]:text-transparent`}
               dangerouslySetInnerHTML={{
                 __html: heading.text,
               }}

@@ -11,6 +11,7 @@ import { Toc } from './Toc'
 import { TocMobile } from './TocMobile'
 
 type DocProps = {
+  isBlog?: boolean
   title: string
   content: string
   repo: string
@@ -22,6 +23,7 @@ type DocProps = {
 }
 
 export function Doc({
+  isBlog = false,
   title,
   content,
   repo,
@@ -103,6 +105,7 @@ export function Doc({
         <div
           className={twMerge(
             'ml-auto flex w-full max-w-[820px] flex-col overflow-auto p-4.5',
+            isBlog && 'mx-auto',
           )}
         >
           <GadLeader />
@@ -143,7 +146,12 @@ export function Doc({
             />
           </div>
         ) : (
-          <div className="hidden w-full max-w-64 2xl:block" />
+          <div
+            className={twMerge(
+              'hidden w-full max-w-64 2xl:block',
+              isBlog && '2xl:hidden',
+            )}
+          />
         )}
       </div>
     </React.Fragment>

@@ -89,6 +89,7 @@ ${content}`
         </Link>
       </div>
       <Doc
+        isBlog={true}
         title={title}
         content={blogContent}
         repo={'tanstack/tanstack.com'}

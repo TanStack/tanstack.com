@@ -1,5 +1,5 @@
-import * as React from 'react'
 import { useMounted } from '~/hooks/useMounted'
+import * as React from 'react'
 
 export function Mounted({ children }: { children: React.ReactNode }) {
   const mounted = useMounted()

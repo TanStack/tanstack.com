@@ -16,7 +16,7 @@ type BaseMutationProps<TVariables, TData, TError> = {
 }
 
 export function useBaseMutation<TVariables, TData, TError = Error>(
-  opts: BaseMutationProps<TVariables, TData, TError>
+  opts: BaseMutationProps<TVariables, TData, TError>,
 ) {
   const [submittedAt, setSubmittedAt] = React.useState<number | undefined>()
   const [variables, setVariables] = React.useState<TVariables | undefined>()
@@ -51,7 +51,7 @@ export function useBaseMutation<TVariables, TData, TError = Error>(
       ? (variables?: TVariables) => Promise<TData | undefined>
       : (variables: TVariables) => Promise<TData | undefined>,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [opts.fn]
+    [opts.fn],
   )
 
   const handleSubmit = React.useCallback(
@@ -60,7 +60,7 @@ export function useBaseMutation<TVariables, TData, TError = Error>(
       mutate(new FormData((e as any).target) as TVariables)
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mutate, variables]
+    [mutate, variables],
   )
 
   return {
@@ -75,7 +75,7 @@ export function useBaseMutation<TVariables, TData, TError = Error>(
 }
 
 export function useMutation<TVariables, TData, TError = Error>(
-  opts: BaseMutationProps<TVariables, TData, TError>
+  opts: BaseMutationProps<TVariables, TData, TError>,
 ) {
   const router = useRouter()
 

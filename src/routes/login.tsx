@@ -9,8 +9,8 @@ const loginFn = createServerFn({ method: 'POST' })
       d: TypedFormData<{
         username: string
         password: string
-      }>
-    ) => d
+      }>,
+    ) => d,
   )
   .handler(async ({ data }) => {
     const username = data.get('username') as string
@@ -37,41 +37,41 @@ function LoginComp() {
   })
 
   return (
-    <div className="p-4 space-y-2">
-      <h1 className=" text-2xl font-bold">Login</h1>
+    <div className="space-y-2 p-4">
+      <h1 className="text-2xl font-bold">Login</h1>
       <form onSubmit={mutation.handleSubmit} className="space-y-2">
         <div className="space-y-2">
           <div>
-            <label className="inline-flex flex-col gap-1 ">
-              <span className="uppercase font-bold text-xs opacity-50">
+            <label className="inline-flex flex-col gap-1">
+              <span className="text-xs font-bold uppercase opacity-50">
                 Username
               </span>
               <input
                 type="text"
                 name="username"
                 placeholder="tanner"
-                className="rounded py-1 px-2 shadow-lg"
+                className="rounded px-2 py-1 shadow-lg"
               />
               {mutation.data?.errors?.username ? (
-                <div className="text-red-500 text-xs">
+                <div className="text-xs text-red-500">
                   {mutation.data.errors.username}
                 </div>
               ) : null}
             </label>
           </div>
           <div>
-            <label className="inline-flex flex-col gap-1 ">
-              <span className="uppercase font-bold text-xs opacity-50">
+            <label className="inline-flex flex-col gap-1">
+              <span className="text-xs font-bold uppercase opacity-50">
                 Password
               </span>
               <input
                 type="password"
                 name="password"
                 placeholder="********"
-                className="rounded py-1 px-2 shadow-lg"
+                className="rounded px-2 py-1 shadow-lg"
               />
               {mutation.data?.errors?.password ? (
-                <div className="text-red-500 text-xs">
+                <div className="text-xs text-red-500">
                   {mutation.data.errors.password}
                 </div>
               ) : null}
@@ -80,7 +80,7 @@ function LoginComp() {
         </div>
         <button
           type="submit"
-          className="bg-blue-500 rounded-lg p-2 text-white font-black uppercase"
+          className="rounded-lg bg-blue-500 p-2 font-black text-white uppercase"
         >
           Submit
         </button>

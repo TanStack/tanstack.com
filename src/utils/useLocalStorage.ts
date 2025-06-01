@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 function getWithExpiry<T>(key: string) {
   if (typeof window !== 'undefined') {
@@ -25,7 +25,7 @@ function getWithExpiry<T>(key: string) {
 export function useLocalStorage<T>(
   key: string,
   defaultValue: T,
-  ttl?: number
+  ttl?: number,
 ): [T, typeof setValue] {
   const [value, setValue] = useState(defaultValue)
 
@@ -40,7 +40,7 @@ export function useLocalStorage<T>(
       JSON.stringify({
         value,
         ttl: ttl ? new Date().getTime() + ttl : null,
-      })
+      }),
     )
   }, [key, value, ttl])
 

@@ -25,7 +25,7 @@ export function last<T>(arr: T[]) {
 // Generates path replacing tokens with params
 export function generatePath(
   id: string,
-  params: Record<string, string | undefined>
+  params: Record<string, string | undefined>,
 ) {
   let result = id.replace('routes', '').replaceAll('.', '/')
   Object.entries(params).forEach(([key, value]) => {
@@ -96,7 +96,7 @@ export function isNumericString(str: string): boolean {
  */
 export function multiSortBy<T>(
   arr: Array<T>,
-  accessors: Array<(item: T) => any> = [(d) => d]
+  accessors: Array<(item: T) => any> = [(d) => d],
 ): Array<T> {
   return arr
     .map((d, i) => [d, i] as const)

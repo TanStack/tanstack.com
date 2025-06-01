@@ -55,7 +55,7 @@ const TanBotToken = process.env.DISCORD_TOKEN
 export async function linkSponsorToken({ discordToken, sponsorType }) {
   if (sponsorType === 'sleep-aid') {
     throw new Error(
-      '😔 You must be at least a "Fan" sponsor to access exclusive discord channels.'
+      '😔 You must be at least a "Fan" sponsor to access exclusive discord channels.',
     )
   }
 
@@ -92,17 +92,17 @@ export async function linkSponsorToken({ discordToken, sponsorType }) {
   } catch (err) {
     console.error(err)
     throw new Error(
-      'Unable to fetch Discord user info. Please contact support!'
+      'Unable to fetch Discord user info. Please contact support!',
     )
   }
 
   let tierRole = roles.find((role) =>
-    role.name.includes(rolesBySponsorType[sponsorType])
+    role.name.includes(rolesBySponsorType[sponsorType]),
   )
 
   if (!tierRole) {
     throw new Error(
-      'Could not find Discord role for sponsor tier! Please contact support.'
+      'Could not find Discord role for sponsor tier! Please contact support.',
     )
   }
 
@@ -114,13 +114,13 @@ export async function linkSponsorToken({ discordToken, sponsorType }) {
       {
         roles: [tierRole.id],
         access_token: discordToken,
-      }
+      },
     )
 
     addData = data
   } catch (err) {
     throw new Error(
-      'Unable to add user to TanStack Discord. Please contact support.'
+      'Unable to add user to TanStack Discord. Please contact support.',
     )
   }
 
@@ -132,7 +132,7 @@ export async function linkSponsorToken({ discordToken, sponsorType }) {
       })
     } catch (err) {
       throw new Error(
-        'Could not update Discord role for user! Please contact support.'
+        'Could not update Discord role for user! Please contact support.',
       )
     }
   }
@@ -158,7 +158,7 @@ export async function exchangeDiscordCodeForToken({ code, redirectUrl }) {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-      }
+      },
     )
 
     return data.access_token

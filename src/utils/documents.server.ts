@@ -2,10 +2,10 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 // import { fileURLToPath } from 'node:url'
-import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
-import { multiSortBy, removeLeadingSlash } from './utils'
+import * as graymatter from 'gray-matter'
 import { env } from './env'
+import { multiSortBy, removeLeadingSlash } from './utils'
 
 export type Doc = {
   filepath: string
@@ -24,11 +24,11 @@ async function fetchRemote(
   owner: string,
   repo: string,
   ref: string,
-  filepath: string
+  filepath: string,
 ) {
   const href = new URL(
     `${owner}/${repo}/${ref}/${filepath}`,
-    'https://raw.githubusercontent.com/'
+    'https://raw.githubusercontent.com/',
   ).href
 
   const response = await fetch(href, {
@@ -52,7 +52,7 @@ async function fetchFs(repo: string, filepath: string) {
   const exists = fs.existsSync(localFilePath)
   if (!exists) {
     console.warn(
-      `[fetchFs] Tried to read file that does not exist: ${localFilePath}\n`
+      `[fetchFs] Tried to read file that does not exist: ${localFilePath}\n`,
     )
     return ''
   }
@@ -65,7 +65,7 @@ async function fetchFs(repo: string, filepath: string) {
  */
 function replaceContent(
   text: string,
-  frontmatter: graymatter.GrayMatterFile<string>
+  frontmatter: graymatter.GrayMatterFile<string>,
 ) {
   let result = text
   const replace = frontmatter.data.replace as Record<string, string> | undefined
@@ -89,7 +89,7 @@ function replaceContent(
  */
 function replaceSections(
   text: string,
-  frontmatter: graymatter.GrayMatterFile<string>
+  frontmatter: graymatter.GrayMatterFile<string>,
 ) {
   let result = text
   // RegExp defining token pair to dicover sections in the document
@@ -103,7 +103,7 @@ function replaceSections(
   for (const match of frontmatter.content.matchAll(sectionRegex)) {
     if (match[1] !== match[2]) {
       console.error(
-        `Origin section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`
+        `Origin section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`,
       )
     }
 
@@ -115,7 +115,7 @@ function replaceSections(
   for (const match of result.matchAll(sectionRegex)) {
     if (match[1] !== match[2]) {
       console.error(
-        `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`
+        `Target section '${match[1]}' does not have matching closing token (found '${match[2]}'). Please make sure that each section has corresponsing closing token and that sections are not nested.`,
       )
     }
 
@@ -132,7 +132,7 @@ function replaceSections(
           value[0] +
           result.slice(
             sectionMatch.index! + sectionMatch[0].length,
-            result.length
+            result.length,
           )
       }
     })
@@ -156,7 +156,7 @@ function replaceSections(
 function replaceProjectImageBranch(
   text: string,
   repoPair: string,
-  ref: string
+  ref: string,
 ) {
   const handleReplaceImageSrc = (src: string): string => {
     const srcLowered = src.toLowerCase()
@@ -206,7 +206,7 @@ function replaceProjectImageBranch(
   }
 
   // find all instances of markdown inline images
-  const markdownInlineImageRegex = /\!(\[([^\]]+)\]\(([^)]+)\))/g
+  const markdownInlineImageRegex = /!(\[([^\]]+)\]\(([^)]+)\))/g
   const inlineMarkdownImageMatches = text.matchAll(markdownInlineImageRegex)
   for (const match of inlineMarkdownImageMatches) {
     const [fullMatch, _, __, src] = match
@@ -254,7 +254,7 @@ function replaceProjectImageBranch(
 export async function fetchRepoFile(
   repoPair: string,
   ref: string,
-  filepath: string
+  filepath: string,
 ) {
   const key = `${repoPair}:${ref}:${filepath}`
   let [owner, repo] = repoPair.split('/')
@@ -393,7 +393,7 @@ const API_CONTENTS_MAX_DEPTH = 3
 export function fetchApiContents(
   repoPair: string,
   branch: string,
-  startingPath: string
+  startingPath: string,
 ) {
   const isDev = process.env.NODE_ENV === 'development'
   return fetchCached({
@@ -417,7 +417,7 @@ function sortApiContents(contents: Array<GitHubFile>): Array<GitHubFile> {
 
 async function fetchApiContentsFs(
   repoPair: string,
-  startingPath: string
+  startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, repo] = repoPair.split('/')
@@ -441,7 +441,7 @@ async function fetchApiContentsFs(
   ]
 
   async function getContentsForPath(
-    filePath: string
+    filePath: string,
   ): Promise<Array<GitHubFile>> {
     const list = await fsp.readdir(filePath, { withFileTypes: true })
     return list
@@ -463,7 +463,7 @@ async function fetchApiContentsFs(
   async function buildFileTree(
     nodes: Array<GitHubFile> | undefined,
     depth: number,
-    parentPath: string
+    parentPath: string,
   ) {
     const result: Array<GitHubFileNode> = []
 
@@ -481,7 +481,7 @@ async function fetchApiContentsFs(
         file.children = await buildFileTree(
           directoryFiles,
           depth + 1,
-          `${parentPath}${file.path}/`
+          `${parentPath}${file.path}/`,
         )
       }
 
@@ -502,7 +502,7 @@ async function fetchApiContentsFs(
 async function fetchApiContentsRemote(
   repo: string,
   branch: string,
-  startingPath: string
+  startingPath: string,
 ): Promise<Array<GitHubFileNode> | null> {
   const fetchOptions: RequestInit = {
     headers: {
@@ -512,12 +512,12 @@ async function fetchApiContentsRemote(
   }
   const res = await fetch(
     `https://api.github.com/repos/${repo}/contents/${startingPath}?ref=${branch}`,
-    fetchOptions
+    fetchOptions,
   )
 
   if (!res.ok) {
     throw new Error(
-      `Failed to fetch repo contents for ${repo}/${branch}/${startingPath}: Status is ${res.statusText} - ${res.status}`
+      `Failed to fetch repo contents for ${repo}/${branch}/${startingPath}: Status is ${res.statusText} - ${res.status}`,
     )
   }
 
@@ -526,7 +526,7 @@ async function fetchApiContentsRemote(
   if (!Array.isArray(data)) {
     console.warn(
       'Expected an array of files from GitHub API, but received:\n',
-      JSON.stringify(data)
+      JSON.stringify(data),
     )
     return null
   }
@@ -534,7 +534,7 @@ async function fetchApiContentsRemote(
   async function buildFileTree(
     nodes: Array<GitHubFile> | undefined,
     depth: number,
-    parentPath: string
+    parentPath: string,
   ) {
     const result: Array<GitHubFileNode> = []
 
@@ -550,7 +550,7 @@ async function fetchApiContentsRemote(
       if (file.type === 'dir' && depth <= API_CONTENTS_MAX_DEPTH) {
         const directoryFilesResponse = await fetch(
           file._links.self,
-          fetchOptions
+          fetchOptions,
         )
         const directoryFiles =
           (await directoryFilesResponse.json()) as Array<GitHubFile>
@@ -558,7 +558,7 @@ async function fetchApiContentsRemote(
         file.children = await buildFileTree(
           directoryFiles,
           depth + 1,
-          `${parentPath}${file.path}/`
+          `${parentPath}${file.path}/`,
         )
       }
 

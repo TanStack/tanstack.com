@@ -12,15 +12,15 @@ export const Route = createFileRoute({
 
 export function PostNotFound() {
   return (
-    <div className="flex-1 p-4 flex flex-col items-center justify-center gap-6">
-      <h1 className="opacity-10 flex flex-col text-center font-black">
+    <div className="flex flex-1 flex-col items-center justify-center gap-6 p-4">
+      <h1 className="flex flex-col text-center font-black opacity-10">
         <div className="text-7xl leading-none">404</div>
         <div className="text-3xl leading-none">Not Found</div>
       </h1>
       <div className="text-lg">Post not found.</div>
       <Link
         to="/blog"
-        className={`py-2 px-4 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+        className={`rounded bg-gray-600 px-4 py-2 font-extrabold text-white uppercase dark:bg-gray-700`}
       >
         Blog Home
       </Link>

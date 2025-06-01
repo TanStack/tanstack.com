@@ -55,7 +55,7 @@ export default function CookieConsent() {
       if (!consentSettings.analytics && !consentSettings.ads) {
         try {
           const response = await fetch(
-            'https://www.cloudflare.com/cdn-cgi/trace'
+            'https://www.cloudflare.com/cdn-cgi/trace',
           )
           const data = await response.text()
           const country = data.match(/loc=(\w+)/)?.[1]
@@ -156,12 +156,7 @@ export default function CookieConsent() {
   return (
     <>
       {showBanner && (
-        <div
-          className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 p-4 z-50
-          text-sm gap-2 flex flex-col lg:flex-row [box-shadow:0_0_10px_rgba(0,0,0,0.2)]
-          items-center justify-between
-          "
-        >
+        <div className="fixed right-0 bottom-0 left-0 z-50 flex flex-col items-center justify-between gap-2 bg-white p-4 text-sm [box-shadow:0_0_10px_rgba(0,0,0,0.2)] lg:flex-row dark:bg-gray-800">
           <span className="text-xs">
             We use cookies for site functionality, analytics, and ads{' '}
             <strong>
@@ -173,22 +168,22 @@ export default function CookieConsent() {
             </Link>{' '}
             for details.
           </span>
-          <div className="flex gap-2 flex-wrap items-center text-white font-black">
+          <div className="flex flex-wrap items-center gap-2 font-black text-white">
             <button
               onClick={rejectAllCookies}
-              className="rounded-md px-2 py-0.5 bg-rose-500 uppercase hover:bg-rose-600"
+              className="rounded-md bg-rose-500 px-2 py-0.5 uppercase hover:bg-rose-600"
             >
               Reject All
             </button>
             <button
               onClick={openSettings}
-              className="rounded-md px-2 py-0.5 bg-gray-500 uppercase hover:bg-gray-600"
+              className="rounded-md bg-gray-500 px-2 py-0.5 uppercase hover:bg-gray-600"
             >
               Customize
             </button>
             <button
               onClick={acceptAllCookies}
-              className="rounded-md px-2 py-0.5 bg-emerald-500 uppercase hover:bg-emerald-600"
+              className="rounded-md bg-emerald-500 px-2 py-0.5 uppercase hover:bg-emerald-600"
             >
               Accept All
             </button>
@@ -197,9 +192,9 @@ export default function CookieConsent() {
       )}
 
       {showSettings && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-bold mb-4">Cookie Settings</h3>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+          <div className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+            <h3 className="mb-4 text-lg font-bold">Cookie Settings</h3>
             <div className="space-y-4">
               <label className="flex items-start gap-2">
                 <input
@@ -212,7 +207,7 @@ export default function CookieConsent() {
                     }
                     localStorage.setItem(
                       'cookie_consent',
-                      JSON.stringify(updated)
+                      JSON.stringify(updated),
                     )
                     updateGTMConsent(updated)
                   }}
@@ -237,7 +232,7 @@ export default function CookieConsent() {
                     if (typeof document !== 'undefined') {
                       localStorage.setItem(
                         'cookie_consent',
-                        JSON.stringify(updated)
+                        JSON.stringify(updated),
                       )
                     }
                     updateGTMConsent(updated)
@@ -254,7 +249,7 @@ export default function CookieConsent() {
               <div className="mt-6">
                 <button
                   onClick={closeSettings}
-                  className="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600"
+                  className="rounded-md bg-emerald-500 px-4 py-2 text-white hover:bg-emerald-600"
                 >
                   Save
                 </button>

@@ -1,28 +1,28 @@
 import { Link } from '@tanstack/react-router'
 import agGridDarkSvg from '~/images/ag-grid-dark.svg'
 import agGridLightSvg from '~/images/ag-grid-light.svg'
-import nozzleImage from '~/images/nozzle.png'
-import nozzleDarkSvg from '~/images/nozzle-dark.svg'
-import nozzleLightSvg from '~/images/nozzle-light.svg'
 import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
-// import vercelLightSvg from '~/images/vercel-light.svg'
-// import vercelDarkSvg from '~/images/vercel-dark.svg'
-import netlifyLightSvg from '~/images/netlify-light.svg'
-import netlifyDarkSvg from '~/images/netlify-dark.svg'
-import convexWhiteSvg from '~/images/convex-white.svg'
-import convexColorSvg from '~/images/convex-color.svg'
-import clerkLightSvg from '~/images/clerk-logo-light.svg'
 import clerkDarkSvg from '~/images/clerk-logo-dark.svg'
-import sentryWordMarkLightSvg from '~/images/sentry-wordmark-light.svg'
-import sentryWordMarkDarkSvg from '~/images/sentry-wordmark-dark.svg'
-import speakeasyLightSvg from '~/images/speakeasy-light.svg'
-import speakeasyDarkSvg from '~/images/speakeasy-dark.svg'
-import neonLightSvg from '~/images/neon-light.svg'
-import neonDarkSvg from '~/images/neon-dark.svg'
-import unkeyBlackSvg from '~/images/unkey-black.svg'
-import unkeyWhiteSvg from '~/images/unkey-white.svg'
+import clerkLightSvg from '~/images/clerk-logo-light.svg'
+import convexColorSvg from '~/images/convex-color.svg'
+import convexWhiteSvg from '~/images/convex-white.svg'
 import electricDarkSvg from '~/images/electric-dark.svg'
 import electricLightSvg from '~/images/electric-light.svg'
+import neonDarkSvg from '~/images/neon-dark.svg'
+import neonLightSvg from '~/images/neon-light.svg'
+import netlifyDarkSvg from '~/images/netlify-dark.svg'
+import netlifyLightSvg from '~/images/netlify-light.svg'
+import nozzleDarkSvg from '~/images/nozzle-dark.svg'
+import nozzleLightSvg from '~/images/nozzle-light.svg'
+import nozzleImage from '~/images/nozzle.png'
+import sentryWordMarkDarkSvg from '~/images/sentry-wordmark-dark.svg'
+import sentryWordMarkLightSvg from '~/images/sentry-wordmark-light.svg'
+import speakeasyDarkSvg from '~/images/speakeasy-dark.svg'
+import speakeasyLightSvg from '~/images/speakeasy-light.svg'
+import unkeyBlackSvg from '~/images/unkey-black.svg'
+import unkeyWhiteSvg from '~/images/unkey-white.svg'
+// import vercelLightSvg from '~/images/vercel-light.svg'
+// import vercelDarkSvg from '~/images/vercel-dark.svg'
 import { Library } from '~/libraries'
 
 type Partner = {
@@ -49,7 +49,7 @@ const neon = (() => {
     sidebarImgClass: 'py-3 scale-[1]',
     href,
     homepageImg: (
-      <div className="w-full h-full flex items-center justify-center px-4 py-6">
+      <div className="flex h-full w-full items-center justify-center px-4 py-6">
         <img
           src={neonLightSvg}
           alt="Neon"
@@ -60,7 +60,7 @@ const neon = (() => {
         <img
           src={neonDarkSvg}
           alt="Neon"
-          className="w-[260px] max-w-full hidden dark:block"
+          className="hidden w-[260px] max-w-full dark:block"
           width="260"
           height="72"
         />
@@ -79,7 +79,7 @@ const neon = (() => {
           every branch, test, or feature. TanStack's developer-first framework +
           Neon's cutting-edge infra = next-gen DX.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
+        <span className="text-sm font-black text-blue-500 uppercase">
           Learn More
         </span>
       </>
@@ -99,7 +99,7 @@ const convex = (() => {
     sidebarImgClass: 'py-5 scale-[1.1]',
     href,
     homepageImg: (
-      <div className="w-full h-full flex items-center justify-center px-4 py-6">
+      <div className="flex h-full w-full items-center justify-center px-4 py-6">
         <img
           src={convexColorSvg}
           alt="Convex"
@@ -108,7 +108,7 @@ const convex = (() => {
         <img
           src={convexWhiteSvg}
           alt="Convex"
-          className="w-[300px] max-w-full hidden dark:block"
+          className="hidden w-[300px] max-w-full dark:block"
         />
       </div>
     ),
@@ -124,7 +124,7 @@ const convex = (() => {
           together, we're elevating what's possible with real-time React
           applications.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
+        <span className="text-sm font-black text-blue-500 uppercase">
           Learn More
         </span>
       </>
@@ -144,7 +144,7 @@ const clerk = (() => {
     sidebarImgDark: clerkDarkSvg,
     sidebarImgClass: 'py-4',
     homepageImg: (
-      <div className="w-full h-full flex items-center justify-center px-4 py-12">
+      <div className="flex h-full w-full items-center justify-center px-4 py-12">
         <img
           src={clerkLightSvg}
           alt="Clerk"
@@ -153,7 +153,7 @@ const clerk = (() => {
         <img
           src={clerkDarkSvg}
           alt="Clerk"
-          className="w-[200px] max-w-full hidden dark:block"
+          className="hidden w-[200px] max-w-full dark:block"
         />
       </div>
     ),
@@ -167,7 +167,7 @@ const clerk = (() => {
           effortlessly deliver top-notch experiences that your users can trust
           and your developers can rely on.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
+        <span className="text-sm font-black text-blue-500 uppercase">
           Learn More
         </span>
       </>
@@ -199,7 +199,7 @@ const agGrid = (() => {
         <img
           src={agGridLightSvg}
           alt="Enterprise Data Grid"
-          className="w-[290px] max-w-full hidden dark:block"
+          className="hidden w-[290px] max-w-full dark:block"
           width="290"
           height="95"
         />
@@ -219,7 +219,7 @@ const agGrid = (() => {
           params={{
             _splat: 'ag-grid-partnership',
           }}
-          className="text-blue-500 uppercase font-black text-sm"
+          className="text-sm font-black text-blue-500 uppercase"
         >
           Learn More
         </Link>
@@ -239,14 +239,14 @@ const netlify = (() => {
     sidebarImgDark: netlifyDarkSvg,
     sidebarImgClass: 'pt-2 scale-[.9]',
     sidebarAfterImg: (
-      <div className="text-[10px] rounded-xl m-1 mx-auto w-fit text-center py-px px-2 bg-[#03bdba] text-white uppercase font-bold">
+      <div className="m-1 mx-auto w-fit rounded-xl bg-[#03bdba] px-2 py-px text-center text-[10px] font-bold text-white uppercase">
         Official Deployment Partner
       </div>
     ),
     href,
     homepageImg: (
-      <div className="flex flex-col justify-center items-center pb-4 gap-2 relative w-full h-full">
-        <div className="w-full h-full flex items-center justify-center px-4 pt-6 pb-2">
+      <div className="relative flex h-full w-full flex-col items-center justify-center gap-2 pb-4">
+        <div className="flex h-full w-full items-center justify-center px-4 pt-6 pb-2">
           <img
             src={netlifyLightSvg}
             alt="Convex"
@@ -255,13 +255,10 @@ const netlify = (() => {
           <img
             src={netlifyDarkSvg}
             alt="Convex"
-            className="w-[280px] max-w-full hidden dark:block"
+            className="hidden w-[280px] max-w-full dark:block"
           />
         </div>
-        <div
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[2px] w-auto text-xs text-center
-        py-1 px-3 rounded-t-xl uppercase font-bold bg-gradient-to-r from-[#03bdba] to-[#00aaba] text-white "
-        >
+        <div className="absolute bottom-0 left-1/2 w-auto -translate-x-1/2 translate-y-[2px] rounded-t-xl bg-gradient-to-r from-[#03bdba] to-[#00aaba] px-3 py-1 text-center text-xs font-bold text-white uppercase">
           Official Deployment Partner
         </div>
       </div>
@@ -281,7 +278,7 @@ const netlify = (() => {
           TanStack applications can take full advantage of Netlify's powerful
           platform features.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
+        <span className="text-sm font-black text-blue-500 uppercase">
           Learn More
         </span>
       </>
@@ -301,7 +298,7 @@ const sentry = (() => {
     sidebarImgClass: 'py-4 scale-[1.1]',
     href,
     homepageImg: (
-      <div className="w-full h-full flex items-center justify-center px-4 py-6">
+      <div className="flex h-full w-full items-center justify-center px-4 py-6">
         <img
           src={sentryWordMarkDarkSvg}
           alt="Sentry"
@@ -310,7 +307,7 @@ const sentry = (() => {
         <img
           src={sentryWordMarkLightSvg}
           alt="Sentry"
-          className="w-[275px] max-w-full hidden dark:block"
+          className="hidden w-[275px] max-w-full dark:block"
         />
       </div>
     ),
@@ -324,7 +321,7 @@ const sentry = (() => {
           possible experience to your users. Together, we're committed to making
           sure that you can build with confidence.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
+        <span className="text-sm font-black text-blue-500 uppercase">
           Learn More
         </span>
       </>
@@ -380,7 +377,7 @@ const uiDev = (() => {
           <strong>stay up to date with the latest and greatest</strong> in the
           web dev world regardless.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
+        <span className="text-sm font-black text-blue-500 uppercase">
           Learn More
         </span>
       </>
@@ -403,7 +400,7 @@ const nozzle = (() => {
         <img
           src={nozzleImage}
           alt="SEO keyword rank tracker"
-          className="w-[230px] max-w-full my-2"
+          className="my-2 w-[230px] max-w-full"
           width="230"
           height="80"
         />
@@ -422,7 +419,7 @@ const nozzle = (() => {
           prove the value of the full gamut of TanStack tools on the front-end
           with unmatched UI/UX.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
+        <span className="text-sm font-black text-blue-500 uppercase">
           Learn More
         </span>
       </>
@@ -447,14 +444,14 @@ const speakeasy = (() => {
         <img
           src={speakeasyLightSvg}
           alt="Speakeasy"
-          className="w-[300px] max-w-full my-2 dark:hidden"
+          className="my-2 w-[300px] max-w-full dark:hidden"
           width="300"
           height="100"
         />
         <img
           src={speakeasyDarkSvg}
           alt="Speakeasy"
-          className="w-[300px] max-w-full my-2 hidden dark:block"
+          className="my-2 hidden w-[300px] max-w-full dark:block"
           width="300"
           height="100"
         />
@@ -471,7 +468,7 @@ const speakeasy = (() => {
           this partnership ensures you're covered from server to client with{' '}
           <strong>powerful, type-safe, and optimized solutions</strong>.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
+        <span className="text-sm font-black text-blue-500 uppercase">
           Learn More
         </span>
       </>
@@ -491,7 +488,7 @@ const unkey = (() => {
     sidebarImgClass: 'py-4 scale-[1]',
     href,
     homepageImg: (
-      <div className="w-full h-full flex items-center justify-center px-4 py-6">
+      <div className="flex h-full w-full items-center justify-center px-4 py-6">
         <img
           src={unkeyBlackSvg}
           alt="Unkey"
@@ -502,7 +499,7 @@ const unkey = (() => {
         <img
           src={unkeyWhiteSvg}
           alt="Unkey"
-          className="w-[180px] max-w-full hidden dark:block"
+          className="hidden w-[180px] max-w-full dark:block"
           width="180"
           height="77"
         />
@@ -519,7 +516,7 @@ const unkey = (() => {
           developer experience by providing secure and scalable solutions for
           modern web applications.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
+        <span className="text-sm font-black text-blue-500 uppercase">
           Learn More
         </span>
       </>
@@ -539,7 +536,7 @@ const electric = (() => {
     sidebarImgClass: 'py-4 scale-[1]',
     href,
     homepageImg: (
-      <div className="w-full h-full flex items-center justify-center px-4 py-6">
+      <div className="flex h-full w-full items-center justify-center px-4 py-6">
         <img
           src={electricLightSvg}
           alt="Unkey"
@@ -550,7 +547,7 @@ const electric = (() => {
         <img
           src={electricDarkSvg}
           alt="Unkey"
-          className="w-[180px] max-w-full hidden dark:block"
+          className="hidden w-[180px] max-w-full dark:block"
           width="180"
           height="77"
         />
@@ -562,7 +559,7 @@ const electric = (() => {
           Electric and TanStack are teaming up on TanStack DB to bring sync to
           mainstream application developers.
         </div>
-        <span className="text-cyan-500 uppercase font-black text-sm">
+        <span className="text-sm font-black text-cyan-500 uppercase">
           Learn More
         </span>
       </>

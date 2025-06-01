@@ -67,7 +67,7 @@ async function init() {
     console.info(member)
 
     member.roles.add(
-      member.guild.roles.cache.find((i) => i.name === 'Among The Server')
+      member.guild.roles.cache.find((i) => i.name === 'Among The Server'),
     )
   })
 }

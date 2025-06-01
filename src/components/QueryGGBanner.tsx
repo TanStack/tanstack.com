@@ -1,8 +1,8 @@
-import headerCourse from '~/images/query-header-course.svg'
+import { useQueryGGPPPDiscount } from '~/hooks/useQueryGGPPPDiscount'
+import cornerFishBottomRight from '~/images/query-corner-fish-bottom-right.svg'
 import cornerTopLeft from '~/images/query-corner-top-left.svg'
 import cornerTopRight from '~/images/query-corner-top-right.svg'
-import cornerFishBottomRight from '~/images/query-corner-fish-bottom-right.svg'
-import { useQueryGGPPPDiscount } from '~/hooks/useQueryGGPPPDiscount'
+import headerCourse from '~/images/query-header-course.svg'
 
 export function QueryGGBanner() {
   const ppp = useQueryGGPPPDiscount()
@@ -20,7 +20,7 @@ export function QueryGGBanner() {
   if (ppp) {
     body = (
       <>
-        <p className="text-lg font-bold mb-2">
+        <p className="mb-2 text-lg font-bold">
           We noticed you’re in {ppp.flag} {ppp.country}
         </p>
         <p>
@@ -32,11 +32,11 @@ export function QueryGGBanner() {
   }
 
   return (
-    <aside className="mx-auto w-full max-w-[1200px] px-8 flex justify-between items-center">
-      <div className="w-full xl:flex xl:gap-6 bg-[#f9f4da] border-4 border-[#231f20] relative">
+    <aside className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-8">
+      <div className="relative w-full border-4 border-[#231f20] bg-[#f9f4da] xl:flex xl:gap-6">
         <a
           href="https://query.gg?s=tanstack"
-          className="xl:w-7/12 pb-4 grid grid-cols-[70px_1fr_70px] sm:grid-cols-[100px_1fr_100px] md:grid-cols-[140px_1fr_140px] xl:grid-cols-[110px_1fr] 2xl:grid-cols-[150px_1fr]"
+          className="grid grid-cols-[70px_1fr_70px] pb-4 sm:grid-cols-[100px_1fr_100px] md:grid-cols-[140px_1fr_140px] xl:w-7/12 xl:grid-cols-[110px_1fr] 2xl:grid-cols-[150px_1fr]"
         >
           <img src={cornerTopLeft} alt="sun" className="" />
           <img
@@ -46,13 +46,13 @@ export function QueryGGBanner() {
           />
           <img src={cornerTopRight} alt="moon" className="xl:hidden" />
         </a>
-        <div className="hidden xl:block w-[80px] mr-[-55px] bg-[#231f20] border-4 border-r-0 border-[#f9f4da] border-s-[#f9f4da] shadow-[-4px_0_0_#231f20] -skew-x-[15deg] z-0"></div>
-        <div className="xl:w-5/12 py-2 xl:pb-0 grid xl:grid-cols-[1fr_90px] 2xl:grid-cols-[1fr_120px] justify-center bg-[#231f20] border-2 xl:border-4 xl:border-l-0 border-[#f9f4da] text-[#f9f4da] z-10">
-          <div className="my-2 text-center place-self-center">
+        <div className="z-0 mr-[-55px] hidden w-[80px] -skew-x-[15deg] border-4 border-r-0 border-[#f9f4da] border-s-[#f9f4da] bg-[#231f20] shadow-[-4px_0_0_#231f20] xl:block"></div>
+        <div className="z-10 grid justify-center border-2 border-[#f9f4da] bg-[#231f20] py-2 text-[#f9f4da] xl:w-5/12 xl:grid-cols-[1fr_90px] xl:border-4 xl:border-l-0 xl:pb-0 2xl:grid-cols-[1fr_120px]">
+          <div className="my-2 place-self-center text-center">
             {body}
             <a
               href="https://query.gg?s=tanstack"
-              className="mt-4 mb-1 xl:mb-2 px-6 py-2 inline-block bg-[#fcba28] text-[#231f20] rounded-full uppercase border border-black cursor-pointer font-black"
+              className="mt-4 mb-1 inline-block cursor-pointer rounded-full border border-black bg-[#fcba28] px-6 py-2 font-black text-[#231f20] uppercase xl:mb-2"
             >
               {ppp?.discount ? `Get ${ppp.discount * 100}% off` : 'Join now'}
             </a>
@@ -60,7 +60,7 @@ export function QueryGGBanner() {
           <img
             src={cornerFishBottomRight}
             alt="mutated fish"
-            className="hidden xl:block self-end"
+            className="hidden self-end xl:block"
           />
         </div>
       </div>

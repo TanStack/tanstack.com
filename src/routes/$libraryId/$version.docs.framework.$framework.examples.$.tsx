@@ -4,20 +4,20 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query'
-import React from 'react'
-import { FaExternalLinkAlt } from 'react-icons/fa'
+import { CodeExplorer } from '~/components/CodeExplorer'
 import { DocTitle } from '~/components/DocTitle'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
+import type { GitHubFileNode } from '~/utils/documents.server'
 import {
   getExampleStartingFileName,
   getExampleStartingPath,
 } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
+import React from 'react'
+import { FaExternalLinkAlt } from 'react-icons/fa'
 import { z } from 'zod'
-import { CodeExplorer } from '~/components/CodeExplorer'
-import type { GitHubFileNode } from '~/utils/documents.server'
 
 const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
   return queryOptions({
@@ -33,7 +33,7 @@ const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
 const repoDirApiContentsQueryOptions = (
   repo: string,
   branch: string,
-  startingPath: string
+  startingPath: string,
 ) =>
   queryOptions({
     queryKey: ['repo-api-contents', repo, branch, startingPath],
@@ -51,10 +51,10 @@ export const Route = createFileRoute({
     return {
       meta: seo({
         title: `${capitalize(params.framework)} ${library.name} ${slugToTitle(
-          params._splat || ''
+          params._splat || '',
         )} Example | ${library.name} Docs`,
         description: `An example showing how to implement ${slugToTitle(
-          params._splat || ''
+          params._splat || '',
         )} in ${capitalize(params.framework)} using ${library.name}.`,
       }),
     }
@@ -74,7 +74,7 @@ export const Route = createFileRoute({
     // This value is not absolutely guaranteed to be available, so further resolution may be necessary
     const explorerCandidateStartingFileName = getExampleStartingPath(
       params.framework as Framework,
-      params.libraryId
+      params.libraryId,
     )
 
     // Used to tell the github contents api where to start looking for files in the target repository
@@ -82,7 +82,7 @@ export const Route = createFileRoute({
 
     // Fetching and Caching the contents of the target directory
     const githubContents = await queryClient.ensureQueryData(
-      repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath)
+      repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath),
     )
 
     // Using the fetched contents, get the actual starting file-path for the explorer
@@ -91,13 +91,13 @@ export const Route = createFileRoute({
       githubContents,
       explorerCandidateStartingFileName,
       params.framework as Framework,
-      params.libraryId
+      params.libraryId,
     )
 
     // Now that we've resolved the starting file path, we can
     // fetching and caching the file content for the starting file path
     await queryClient.ensureQueryData(
-      fileQueryOptions(library.repo, branch, repoStartingFilePath)
+      fileQueryOptions(library.repo, branch, repoStartingFilePath),
     )
 
     return {
@@ -128,11 +128,11 @@ function PageComponent() {
 
   const mainExampleFile = getExampleStartingPath(
     framework as Framework,
-    libraryId
+    libraryId,
   )
 
   const { data: githubContents } = useSuspenseQuery(
-    repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath)
+    repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath),
   )
 
   const [isDark, setIsDark] = React.useState(true)
@@ -173,14 +173,14 @@ function PageComponent() {
   }
 
   const { data: currentCode } = useQuery(
-    fileQueryOptions(library.repo, branch, currentPath)
+    fileQueryOptions(library.repo, branch, currentPath),
   )
 
   const prefetchFileContent = React.useCallback(
     (path: string) => {
       queryClient.prefetchQuery(fileQueryOptions(library.repo, branch, path))
     },
-    [queryClient, library.repo, branch]
+    [queryClient, library.repo, branch],
   )
 
   // Update local storage when tab changes
@@ -211,13 +211,13 @@ function PageComponent() {
   }&file=${mainExampleFile}`
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 overflow-auto h-[95dvh]">
+    <div className="flex h-[95dvh] min-h-0 flex-1 flex-col overflow-auto">
       <div className="p-4 lg:p-6">
         <DocTitle>
           <span>
             {capitalize(framework)} Example: {slugToTitle(_splat!)}
           </span>
-          <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-normal">
             {library.showNetlifyUrl ? (
               <a
                 href={`https://app.netlify.com/start/deploy?repository=${repoUrl}&create_from_path=${githubExamplePath}`}
@@ -238,7 +238,7 @@ function PageComponent() {
             <a
               href={githubUrl}
               target="_blank"
-              className="flex gap-1 items-center"
+              className="flex items-center gap-1"
               rel="noreferrer"
             >
               <FaExternalLinkAlt /> Github
@@ -247,7 +247,7 @@ function PageComponent() {
               <a
                 href={stackBlitzUrl}
                 target="_blank"
-                className="flex gap-1 items-center"
+                className="flex items-center gap-1"
                 rel="noreferrer"
               >
                 <FaExternalLinkAlt /> StackBlitz
@@ -257,7 +257,7 @@ function PageComponent() {
               <a
                 href={codeSandboxUrl}
                 target="_blank"
-                className="flex gap-1 items-center"
+                className="flex items-center gap-1"
                 rel="noreferrer"
               >
                 <FaExternalLinkAlt /> CodeSandbox
@@ -266,7 +266,7 @@ function PageComponent() {
           </div>
         </DocTitle>
       </div>
-      <div className="flex-1 lg:px-6 flex flex-col min-h-0">
+      <div className="flex min-h-0 flex-1 flex-col lg:px-6">
         <CodeExplorer
           activeTab={activeTab as 'code' | 'sandbox'}
           codeSandboxUrl={codeSandboxUrl}
@@ -289,7 +289,7 @@ function determineStartingFilePath(
   nodes: Array<GitHubFileNode> | null,
   candidate: string,
   framework: Framework,
-  libraryId: string
+  libraryId: string,
 ) {
   if (!nodes) return candidate
 
@@ -322,7 +322,7 @@ function determineStartingFilePath(
   // If no preference file is found, try and find the first file from a preference directory
   for (const dir of preferenceDirs) {
     const found = flattened.find(
-      (node) => node.path.startsWith(dir) && node.type === 'file'
+      (node) => node.path.startsWith(dir) && node.type === 'file',
     )
     if (found) {
       return found.path
@@ -341,7 +341,7 @@ function determineStartingFilePath(
 
 function recursiveFlattenGithubContents(
   nodes: Array<GitHubFileNode>,
-  bannedDirs: Set<string> = new Set()
+  bannedDirs: Set<string> = new Set(),
 ): Array<GitHubFileNode> {
   return nodes.flatMap((node) => {
     if (node.type === 'dir' && node.children && !bannedDirs.has(node.name)) {

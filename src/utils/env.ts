@@ -31,13 +31,13 @@ export const env = new Proxy(
       if (prop in parsedServerEnv && typeof window !== 'undefined') {
         throw new Error(
           `Access to server-only environment variable '${String(
-            prop
-          )}' from client code is not allowed.`
+            prop,
+          )}' from client code is not allowed.`,
         )
       }
       return prop in parsedServerEnv
         ? parsedServerEnv[prop as keyof typeof parsedServerEnv]
         : target[prop as keyof typeof parsedClientEnv]
     },
-  }
+  },
 ) as ParsedEnv

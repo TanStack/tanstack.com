@@ -1,12 +1,12 @@
 import { Link } from '@tanstack/react-router'
-import imgTanner from '~/images/people/tannerlinsley.jpeg'
-import imgKevin from '~/images/people/kevinvancott.jpeg'
-import imgDominik from '~/images/people/dominikdorfmeister.jpg'
+import { useScript } from '~/hooks/useScript'
 import imgCorbin from '~/images/people/corbincrutchley.jpeg'
+import imgDominik from '~/images/people/dominikdorfmeister.jpg'
+import imgKevin from '~/images/people/kevinvancott.jpeg'
+import imgTanner from '~/images/people/tannerlinsley.jpeg'
 import { seo } from '~/utils/seo'
 import { shuffle } from '~/utils/utils'
 import { CiTurnL1 } from 'react-icons/ci'
-import { useScript } from '~/hooks/useScript'
 
 interface TeamMember {
   name: string
@@ -23,7 +23,7 @@ export const Route = createFileRoute({
     let indices = shuffle(
       Array.from({ length: teamMembers.length - 1 })
         .fill(0)
-        .map((_, i) => i + 1)
+        .map((_, i) => i + 1),
     )
 
     return indices
@@ -81,20 +81,20 @@ function LoginComp() {
   })
 
   return (
-    <div className="flex flex-col min-h-[100dvh]">
+    <div className="flex min-h-[100dvh] flex-col">
       <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
-        <div className="container mx-auto px-4 md:px-6 space-y-12">
+        <div className="container mx-auto space-y-12 px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-4">
               <h1 className="space-y-2">
-                <div className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl/none text-pretty">
+                <div className="text-3xl font-black tracking-tight text-pretty sm:text-4xl md:text-5xl lg:text-6xl/none">
                   Dedicated Support
                 </div>
-                <div className="text-xl font-normal tracking-tight sm:text-2xl md:text-3xl lg:text-4xl/none text-pretty">
+                <div className="text-xl font-normal tracking-tight text-pretty sm:text-2xl md:text-3xl lg:text-4xl/none">
                   for TanStack Libraries
                 </div>
               </h1>
-              <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400 text-pretty">
+              <p className="mx-auto max-w-[700px] text-pretty text-gray-500 md:text-xl dark:text-gray-400">
                 Private consultation and enterprise support contracts for
                 projects of any size.
               </p>
@@ -108,21 +108,21 @@ function LoginComp() {
               </Link>
             </div> */}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-6xl mx-auto px-4 md:px-6">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 sm:grid-cols-2 md:grid-cols-2 md:px-6 lg:grid-cols-3 xl:grid-cols-4">
             {[
               teamMembers[0],
               ...randomIndices.map((i: number) => teamMembers[i]),
             ].map((member: TeamMember) => (
               <Link
                 to={`https://twitter.com/${member.twitter}`}
-                className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg"
+                className="group overflow-hidden rounded-lg bg-white shadow-lg dark:bg-gray-800"
                 key={member.name}
                 target="_blank"
               >
-                <div className="relative h-40 sm:h-48 md:h-52 lg:h-60 overflow-hidden">
+                <div className="relative h-40 overflow-hidden sm:h-48 md:h-52 lg:h-60">
                   <img
                     alt="User Avatar"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 origin-top"
+                    className="h-full w-full origin-top object-cover transition-transform duration-500 group-hover:scale-110"
                     height={400}
                     src={member.img}
                     style={{
@@ -133,7 +133,7 @@ function LoginComp() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
                 </div>
-                <div className="p-2 sm:p-4 space-y-4">
+                <div className="space-y-4 p-2 sm:p-4">
                   <div className="">
                     <h3 className="text-xl font-bold">{member.name}</h3>
                     <p className="text-gray-500 dark:text-gray-400">
@@ -155,7 +155,7 @@ function LoginComp() {
                     {member.specialties.length > 0
                       ? member.specialties.map((specialty) => (
                           <li
-                            className="bg-gray-500/10 text-xs text-gray-500 dark:text-white rounded-full px-2 py-1 mr-2 mb-2"
+                            className="mr-2 mb-2 rounded-full bg-gray-500/10 px-2 py-1 text-xs text-gray-500 dark:text-white"
                             key={specialty}
                           >
                             {specialty}
@@ -168,7 +168,7 @@ function LoginComp() {
             ))}
           </div>
         </div>
-        <div className="text-center max-w-xl mt-12 mx-auto px-4 text-gray-500 dark:text-gray-400 text-sm border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800/50">
+        <div className="mx-auto mt-12 max-w-xl rounded-lg border border-gray-200 bg-white p-4 px-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800/50 dark:text-gray-400">
           <p>
             Note: This page is specifically for inquiring about dedicated paid
             support contracts. For general support questions, please ask
@@ -194,15 +194,15 @@ function LoginComp() {
             clearly described and scoped questions.
           </p>
         </div>
-        <div className="flex items-center flex-col py-12 space-y-2">
-          <div className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extralight italic">
+        <div className="flex flex-col items-center space-y-2 py-12">
+          <div className="text-2xl font-extralight italic md:text-3xl lg:text-4xl xl:text-5xl">
             Let's chat!
           </div>
-          <div className="opacity-30 text-xs max-w-[300px] text-center hover:opacity-100 focus:opacity-100 transition duration-300">
+          <div className="max-w-[300px] text-center text-xs opacity-30 transition duration-300 hover:opacity-100 focus:opacity-100">
             (Use the chat icon in the bottom right corner of the screen to get
             started)
           </div>
-          <CiTurnL1 className="text-[5rem] rotate-180 translate-x-1/3" />
+          <CiTurnL1 className="translate-x-1/3 rotate-180 text-[5rem]" />
         </div>
       </section>
       {/* <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">

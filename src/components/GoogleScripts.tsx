@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
+import { getLibrary, libraries } from '~/libraries'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { getLibrary, libraries } from '~/libraries'
 
 declare global {
   interface Window {
@@ -20,7 +20,7 @@ declare global {
           defineSlot: (
             path: string,
             sizes: [number, number][],
-            id: string
+            id: string,
           ) => {
             addService: (pubads: any) => {
               setTargeting: (key: string, value: string[]) => void
@@ -166,30 +166,30 @@ export function GadRightRailSquare() {
   return (
     <Gad
       name="rightRail"
-      className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
+      className="flex [aspect-ratio:250/250] items-center justify-center xl:[aspect-ratio:300/250]"
     >
       <Link
         to={`/${randomLibrary.id}`}
-        className="flex flex-col justify-center items-center h-[250px] w-[250px] gap-4 group"
+        className="group flex h-[250px] w-[250px] flex-col items-center justify-center gap-4"
       >
-        <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
+        <div className="flex items-center gap-2 text-3xl font-black tracking-tighter uppercase">
           <span>TanStack</span>
           <span
             className={twMerge(
-              'text-transparent bg-clip-text bg-gradient-to-r',
+              'bg-gradient-to-r bg-clip-text text-transparent',
               randomLibrary.colorFrom,
-              randomLibrary.colorTo
+              randomLibrary.colorTo,
             )}
           >
             {randomLibrary.name.replace('TanStack ', '')}
           </span>
         </div>
-        <div className="text-sm text-center">{randomLibrary.description}</div>
+        <div className="text-center text-sm">{randomLibrary.description}</div>
         <div>
           <button
             className={twMerge(
-              'text-sm px-2 py-1 rounded-lg text-white font-black uppercase tracking-tighter transition-transform duration-700 group-hover:scale-[1.2]',
-              randomLibrary.bgStyle
+              'rounded-lg px-2 py-1 text-sm font-black tracking-tighter text-white uppercase transition-transform duration-700 group-hover:scale-[1.2]',
+              randomLibrary.bgStyle,
             )}
           >
             Learn More
@@ -210,32 +210,32 @@ export function GadLeftRailSquare() {
   return (
     <Gad
       name="leftRail"
-      className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
+      className="flex [aspect-ratio:250/250] items-center justify-center xl:[aspect-ratio:300/250]"
     >
       <Link
         to={`/${randomRemainingLibrary.id}`}
-        className="flex flex-col justify-center items-center h-[250px] w-[250px] gap-4 group"
+        className="group flex h-[250px] w-[250px] flex-col items-center justify-center gap-4"
       >
-        <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
+        <div className="flex items-center gap-2 text-3xl font-black tracking-tighter uppercase">
           <span>TanStack</span>
           <span
             className={twMerge(
-              'text-transparent bg-clip-text bg-gradient-to-r',
+              'bg-gradient-to-r bg-clip-text text-transparent',
               randomRemainingLibrary.colorFrom,
-              randomRemainingLibrary.colorTo
+              randomRemainingLibrary.colorTo,
             )}
           >
             {randomRemainingLibrary.name.replace('TanStack ', '')}
           </span>
         </div>
-        <div className="text-sm text-center">
+        <div className="text-center text-sm">
           {randomRemainingLibrary.description}
         </div>
         <div>
           <button
             className={twMerge(
-              'text-sm px-2 py-1 rounded-lg text-white font-black uppercase tracking-tighter transition-transform duration-700 group-hover:scale-[1.2]',
-              randomRemainingLibrary.bgStyle
+              'rounded-lg px-2 py-1 text-sm font-black tracking-tighter text-white uppercase transition-transform duration-700 group-hover:scale-[1.2]',
+              randomRemainingLibrary.bgStyle,
             )}
           >
             Learn More

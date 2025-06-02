@@ -1,10 +1,10 @@
-import { FaGithub, FaYinYang } from 'react-icons/fa'
-import { Library } from '.'
-import { VscPreview } from 'react-icons/vsc'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaGithub, FaYinYang } from 'react-icons/fa'
 import { PiRocketLaunchDuotone, PiTreeStructureBold } from 'react-icons/pi'
 import { TbServerBolt } from 'react-icons/tb'
+import { VscPreview } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/router'
 
@@ -13,11 +13,11 @@ const textStyles = 'text-cyan-600 dark:text-cyan-500'
 export const startProject = {
   id: 'start',
   name: 'TanStack Start',
-  cardStyles: `shadow-xl shadow-cyan-500/20 dark:shadow-lg dark:shadow-cyan-500/30 text-cyan-500 dark:text-white-400 border-2 border-transparent hover:border-current`,
+  cardStyles: `border-cyan-500/25 dark:border-cyan-500/25 text-cyan-500 dark:text-white-400 border-2`,
   to: '/start',
   tagline: `Full-stack Framework powered by TanStack Router for React and Solid`,
   description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.`,
-  bgStyle: 'bg-cyan-500',
+  bgStyle: 'bg-cyan-700',
   textStyle: 'text-cyan-500',
   badge: 'beta',
   repo,

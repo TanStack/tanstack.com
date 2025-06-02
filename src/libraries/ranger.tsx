@@ -1,11 +1,11 @@
-import { VscPreview } from 'react-icons/vsc'
-import { Library } from '.'
-import { FaGithub } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
 import { CgTimelapse } from 'react-icons/cg'
-import { TbZoomQuestion } from 'react-icons/tb'
+import { FaGithub } from 'react-icons/fa'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
+import { TbZoomQuestion } from 'react-icons/tb'
+import { VscPreview } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/ranger'
 
@@ -14,7 +14,7 @@ const textStyles = 'text-pink-600 dark:text-pink-400'
 export const rangerProject = {
   id: 'ranger',
   name: 'TanStack Ranger',
-  cardStyles: `shadow-xl shadow-pink-700/20 dark:shadow-lg dark:shadow-pink-500/30 text-pink-500 border-2 border-transparent hover:border-current`,
+  cardStyles: `border-pink-500/25 dark:border-pink-500/25 text-pink-500 dark:text-pink-500 border-2`,
   to: '/ranger',
   tagline: `Headless range and multi-range slider utilities.`,
   description: `Headless, lightweight, and extensible primitives for building range and multi-range sliders.`,

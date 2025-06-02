@@ -1,8 +1,8 @@
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
+import { VscPreview, VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/store'
 
@@ -11,7 +11,7 @@ const textStyles = 'text-twine-600 dark:text-twine-500'
 export const storeProject = {
   id: 'store',
   name: 'TanStack Store',
-  cardStyles: `shadow-xl shadow-twine-700/20 dark:shadow-lg dark:shadow-twine-500/20 text-twine-500 dark:text-twine-400 border-2 border-transparent hover:border-current`,
+  cardStyles: `border-twine-500/25 dark:border-twine-500/25 text-twine-500 dark:text-twine-500 border-2`,
   to: '/store',
   tagline: `Framework agnostic data store with reactive framework adapters`,
   description: `The immutable-reactive data store that powers the core of TanStack libraries and their framework adapters.`,

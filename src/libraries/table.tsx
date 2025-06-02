@@ -1,10 +1,10 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { Library } from '.'
-import { VscPreview } from 'react-icons/vsc'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
 import { IoIosBody } from 'react-icons/io'
+import { VscPreview } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/table'
 
@@ -13,7 +13,7 @@ const textStyles = 'text-blue-500 dark:text-blue-400'
 export const tableProject = {
   id: 'table',
   name: 'TanStack Table',
-  cardStyles: `shadow-xl shadow-blue-700/20 dark:shadow-lg dark:shadow-blue-500/30 text-blue-500 border-2 border-transparent hover:border-current`,
+  cardStyles: `border-red-500/25 dark:border-red-500/25 text-red-500 dark:text-red-500 border-2`,
   to: '/table',
   tagline: `Headless UI for building powerful tables & datagrids`,
   description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.`,
@@ -46,7 +46,7 @@ export const tableProject = {
       href,
       '/table/v7',
       '/table/v8',
-      'from=reactTableV7'
+      'from=reactTableV7',
     )
   },
   menu: [
@@ -70,7 +70,7 @@ export const tableProject = {
     {
       title: 'Designed for zero design',
       icon: (
-        <div className="text-center overflow-hidden">
+        <div className="overflow-hidden text-center">
           <IoIosBody className={twMerge(textStyles)} />
         </div>
       ),

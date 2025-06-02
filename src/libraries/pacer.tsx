@@ -1,8 +1,8 @@
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
+import { VscPreview, VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/pacer'
 
@@ -11,7 +11,7 @@ const textStyles = `text-lime-600 dark:text-lime-500`
 export const pacerProject = {
   id: 'pacer',
   name: 'TanStack Pacer',
-  cardStyles: `shadow-xl shadow-lime-700/20 dark:shadow-lg dark:shadow-lime-500/20 text-lime-500 dark:text-lime-400 border-2 border-transparent hover:border-current`,
+  cardStyles: `border-lime-500/25 dark:border-lime-500/25 text-lime-500 dark:text-lime-500 border-2`,
   to: '/pacer',
   tagline: `Framework agnostic debouncing, throttling, and queueing utilities`,
   description: `Set the pace of interactions in your applications. Limit the rate at which functions can fire, or intelligently queue long-running tasks with Concurrency Control.`,

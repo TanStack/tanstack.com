@@ -8,10 +8,7 @@ export function DocContainer({
   return (
     <div
       {...props}
-      className={twMerge(
-        'w-full max-w-full p-2 md:p-4 2xl:p-8',
-        props.className
-      )}
+      className={twMerge('w-full max-w-full lg:pr-4', props.className)}
     >
       {children}
     </div>

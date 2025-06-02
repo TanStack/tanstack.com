@@ -1,9 +1,9 @@
-import { BsCollectionFill } from 'react-icons/bs'
-import { VscPreview } from 'react-icons/vsc'
-import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { BsCollectionFill } from 'react-icons/bs'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
+import { VscPreview } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/db'
 
@@ -12,7 +12,7 @@ const textStyles = `text-orange-600 dark:text-orange-500`
 export const dbProject = {
   id: 'db',
   name: 'TanStack DB',
-  cardStyles: `shadow-xl shadow-orange-700/20 dark:shadow-lg dark:shadow-orange-500/20 text-orange-500 dark:text-orange-400 border-2 border-transparent hover:border-current`,
+  cardStyles: `border-orange-500/25 dark:border-orange-500/25 text-orange-500 dark:text-orange-500 border-2`,
   to: '/db',
   tagline: `A reactive client store for building super fast apps on sync`,
   description: `TanStack DB extends TanStack Query with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥`,

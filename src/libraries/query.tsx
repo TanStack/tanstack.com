@@ -1,9 +1,9 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { VscPreview, VscWand } from 'react-icons/vsc'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
+import { VscPreview, VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/query'
 
@@ -12,7 +12,7 @@ const textStyles = 'text-red-500 dark:text-red-400'
 export const queryProject = {
   id: 'query',
   name: 'TanStack Query',
-  cardStyles: `shadow-xl shadow-red-700/20 dark:shadow-lg dark:shadow-red-500/30 text-red-500 border-2 border-transparent hover:border-current`,
+  cardStyles: `border-red-500/25 dark:border-red-500/25 text-red-500 dark:text-red-500 border-2`,
   to: '/query',
   tagline: `Powerful asynchronous state management, server-state utilities and data fetching`,
   description:
@@ -37,7 +37,7 @@ export const queryProject = {
       href,
       '/query/v3',
       '/query/latest',
-      'from=reactQueryV3'
+      'from=reactQueryV3',
     )
 
     handleRedirects(
@@ -45,7 +45,7 @@ export const queryProject = {
       href,
       '/query/v3',
       '/query/v5',
-      'from=reactQueryV3'
+      'from=reactQueryV3',
     )
   },
   menu: [

@@ -1,8 +1,8 @@
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
+import { FaBolt, FaCogs, FaGithub } from 'react-icons/fa'
+import { VscPreview, VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { Library } from '.'
 
 const repo = 'tanstack/form'
 
@@ -11,14 +11,14 @@ const textStyles = 'text-yellow-600 dark:text-yellow-300'
 export const formProject = {
   id: 'form',
   name: 'TanStack Form',
-  cardStyles: `shadow-xl shadow-yellow-700/20 dark:shadow-lg dark:shadow-yellow-500/30 text-yellow-500 border-2 border-transparent hover:border-current`,
+  cardStyles: `border-yellow-500/25 dark:border-yellow-500/25 text-yellow-500 dark:text-yellow-500 border-2`,
   to: '/form',
   tagline: `Headless UI for building performant and type-safe forms`,
   description: `Headless, performant, and type-safe form state management for TS/JS, React, Vue, Angular, Solid, Lit and Svelte.`,
   ogImage: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
   badge: 'new',
   bgStyle: 'bg-yellow-500',
-  textStyle: 'text-yellow-500',
+  textStyle: 'text-yellow-700',
   repo,
   latestBranch: 'main',
   latestVersion: 'v1',

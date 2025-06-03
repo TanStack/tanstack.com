@@ -150,11 +150,12 @@ export const Route = createFileRoute('/dashboard/$dashboardId')({
 
 When you match \`/dashboard/123?sort=desc&filter=active\`, the parent validates \`sort\`, the child validates \`filter\`, and everything works together seamlessly.
 
-Try to redefine or omit the required parent param in the child route? Type error.
+Try to redefine the required parent param in the child route to something entirely different? Type error.
 
 ```ts
-// ❌ Type error: missing required \`sort\` param from parent
 validateSearch: z.object({
+  // ❌ Type error: boolean does not extend 'asc' | 'desc' from parent
+  sort: z.boolean(),
   filter: z.string().optional(),
 })
 ```

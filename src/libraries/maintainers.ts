@@ -48,6 +48,10 @@ export const allMaintainers: Maintainer[] = [
     contributorOf: ['router'],
     frameworkExpertise: ['react'],
     specialties: ['Core API', 'TypeScript', 'Documentation'],
+    social: {
+      bluesky: '@tkdodo.eu',
+      website: 'https://tkdodo.eu',
+    },
   },
   {
     name: 'Corbin Crutchley',

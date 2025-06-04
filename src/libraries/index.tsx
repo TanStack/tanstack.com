@@ -165,4 +165,3 @@ export function getBranch(library: Library, argVersion?: string) {
 
   return resolvedVersion
 }
-

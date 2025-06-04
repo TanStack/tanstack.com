@@ -38,6 +38,11 @@ export const allMaintainers: Maintainer[] = [
     ],
     frameworkExpertise: ['react', 'solid'],
     specialties: ['Architecture', 'Core API', 'Documentation'],
+    social: {
+      twitter: 'https://x.com/tannerlinsley',
+      bluesky: 'https://bsky.app/profile/tannerlinsley.com',
+      website: 'https://tannerlinsley.com',
+    },
   },
   {
     name: 'Dominik Dorfmeister',
@@ -62,6 +67,11 @@ export const allMaintainers: Maintainer[] = [
     maintainerOf: ['store'],
     frameworkExpertise: ['react', 'solid', 'vue', 'angular'],
     specialties: ['Forms', 'Validation', 'State Management'],
+    social: {
+      twitter: 'https://x.com/crutchcorn',
+      bluesky: 'https://bsky.app/profile/crutchcorn.dev',
+      website: 'https://playfulprogramming.com/people/crutchcorn',
+    },
   },
   {
     name: 'Manual Schiller',
@@ -83,6 +93,11 @@ export const allMaintainers: Maintainer[] = [
     consultantOf: ['query'],
     frameworkExpertise: ['react', 'solid', 'svelte'],
     specialties: ['Tables', 'Data Grids', 'Dashboards'],
+    social: {
+      twitter: 'https://x.com/kevinvancott',
+      bluesky: 'https://bsky.app/profile/kevinvancott.dev',
+      website: 'https://kevinvancott.dev',
+    },
   },
   {
     name: 'Sean Cassiere',

@@ -142,7 +142,11 @@ function LibrariesLayout() {
                       )
                     })}
                     <Link
-                      to={`/${library.id}/latest/docs/contributors`}
+                      to={`/$libraryId/$version/docs/contributors`}
+                      params={{
+                        libraryId: library.id,
+                        version: 'latest',
+                      }}
                       className={twMerge(
                         'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
                         'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'

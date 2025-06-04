@@ -130,7 +130,7 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/lachlancollins.png',
     github: 'lachlancollins',
-    maintainerOf: ['config'],
+    maintainerOf: ['config', 'query'],
     frameworkExpertise: ['react', 'svelte'],
     specialties: ['Architecture'],
   },

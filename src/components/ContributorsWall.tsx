@@ -4,7 +4,7 @@ export function ContributorsWall({ library }: { library: Library }) {
   return (
     <div className="flex flex-col items-center my-4">
       <a
-        href={`https://github.com/tanstack/${library.id}/graphs/contributors`}
+        href={`https://github.com/${library.repo}/graphs/contributors`}
         target="_blank"
         rel="noopener noreferrer"
       >

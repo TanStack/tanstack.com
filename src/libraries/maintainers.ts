@@ -116,7 +116,7 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/jherr.png',
     github: 'jherr',
-    creatorOf: ['create-ts-router-app'],
+    creatorOf: ['create-tsrouter-app'],
     frameworkExpertise: ['react'],
     specialties: ['Templates'],
   },

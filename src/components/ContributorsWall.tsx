@@ -10,12 +10,30 @@ export function ContributorsWall({ library }: { library: Library }) {
       >
         <img
           alt="GitHub Contributors"
-          src={`https://contrib.rocks/image?repo=tanstack/${library.id}`}
+          src={`https://contrib.rocks/image?repo=${library.repo}`}
           loading="lazy"
         />
       </a>
       <div className="text-xs text-gray-500 mt-2">
-        Powered by <a href="https://contrib.rocks" target="_blank" rel="noopener noreferrer" className="underline">contrib.rocks</a>
+        Powered by{' '}
+        <a
+          href="https://contrib.rocks"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          contrib.rocks
+        </a>
+      </div>
+      <div className="mt-4">
+        <a
+          href={`https://github.com/${library.repo}/graphs/contributors`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 mb-2"
+        >
+          View all contributors on GitHub
+        </a>
       </div>
     </div>
   )

@@ -60,7 +60,7 @@ export type Library = {
     | 'create-tsrouter-app'
   name: string
   cardStyles: string
-  to: string
+  to?: string
   tagline: string
   description: string
   ogImage?: string
@@ -90,6 +90,7 @@ export type Library = {
   }[]
   docsRoot?: string
   embedEditor?: 'codesandbox' | 'stackblitz'
+  visible?: boolean
 }
 
 export type LibraryMenuItem = {
@@ -110,6 +111,16 @@ export const libraries = [
   rangerProject,
   dbProject,
   configProject,
+  {
+    id: 'react-charts',
+    name: 'React Charts',
+    repo: 'tanstack/react-charts',
+  } as Library,
+  {
+    id: 'create-tsrouter-app',
+    name: 'Create TS Router App',
+    repo: 'tanstack/create-tsrouter-app',
+  } as Library,
 ] satisfies Library[]
 
 export const librariesByGroup = {

@@ -57,6 +57,7 @@ export type Library = {
     | 'db'
     | 'config'
     | 'react-charts'
+    | 'create-ts-router-app'
   name: string
   cardStyles: string
   to: string
@@ -125,7 +126,6 @@ export const librariesByGroup = {
 }
 
 export const librariesGroupNamesMap = {
-  app: 'Application Building',
   state: 'Data and State Management',
   headlessUI: 'Headless UI',
   other: 'Other',
@@ -165,3 +165,4 @@ export function getBranch(library: Library, argVersion?: string) {
 
   return resolvedVersion
 }
+

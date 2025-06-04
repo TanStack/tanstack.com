@@ -5,7 +5,13 @@ import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
-import { FaDiscord, FaGithub, FaInstagram, FaTshirt } from 'react-icons/fa'
+import {
+  FaDiscord,
+  FaGithub,
+  FaInstagram,
+  FaTshirt,
+  FaUsers,
+} from 'react-icons/fa'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
@@ -135,6 +141,16 @@ function LibrariesLayout() {
                         </Link>
                       )
                     })}
+                    <Link
+                      to={`/${library.id}/latest/docs/contributors`}
+                      className={twMerge(
+                        'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
+                        'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                      )}
+                    >
+                      <FaUsers />
+                      Contributors
+                    </Link>
                   </div>
                 </div>
               )}

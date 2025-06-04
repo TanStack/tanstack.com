@@ -198,6 +198,10 @@ const useMenuConfig = ({
           ]
         : []),
       {
+        label: 'Contributors',
+        to: '/$libraryId/$version/docs/contributors',
+      },
+      {
         label: (
           <div className="flex items-center gap-2">
             GitHub <FaGithub className="text-lg opacity-20" />

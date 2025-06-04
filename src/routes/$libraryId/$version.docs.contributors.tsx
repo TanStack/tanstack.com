@@ -22,7 +22,7 @@ function RouteComponent() {
     <DocContainer>
       <div
         className={twMerge(
-          'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]'
+          'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[1200px]'
         )}
       >
         <div
@@ -31,7 +31,7 @@ function RouteComponent() {
           <DocTitle>{library.name} Maintainers and Contributors</DocTitle>
           <div className="h-4" />
           <section>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8 pt-8">
               {libraryContributors.map((maintainer) => (
                 <MaintainerCard
                   key={maintainer.github}

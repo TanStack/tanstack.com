@@ -49,15 +49,15 @@ export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
       </div>
-      <div className="p-4 space-y-2">
+      <div className="p-3 space-y-1.5">
         <div>
-          <h3 className="text-lg font-bold">{maintainer.name}</h3>
-          <p className="mt-1">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold">{maintainer.name}</h3>
             <RoleBadge
               role={getRoleInLibrary(maintainer, libraryId)}
               libraryId={libraryId}
             />
-          </p>
+          </div>
           <p className="text-gray-500 dark:text-gray-400 mt-2 flex items-center">
             <svg
               viewBox="0 0 16 16"

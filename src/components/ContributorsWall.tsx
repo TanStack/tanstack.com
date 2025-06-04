@@ -14,6 +14,9 @@ export function ContributorsWall({ library }: { library: Library }) {
           loading="lazy"
         />
       </a>
+      <div className="text-xs text-gray-500 mt-2">
+        Powered by <a href="https://contrib.rocks" target="_blank" rel="noopener noreferrer" className="underline">contrib.rocks</a>
+      </div>
     </div>
   )
 }

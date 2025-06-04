@@ -57,7 +57,7 @@ export type Library = {
     | 'db'
     | 'config'
     | 'react-charts'
-    | 'create-ts-router-app'
+    | 'create-tsrouter-app'
   name: string
   cardStyles: string
   to: string

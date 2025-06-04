@@ -4,7 +4,7 @@ export interface Maintainer {
   name: string
   avatar: string
   github: string
-  isCoreMaintainer: boolean
+  isCoreMaintainer?: boolean
   creatorOf?: Library['id'][]
   maintainerOf?: Library['id'][] // inherits from creatorOf
   contributorOf?: Library['id'][] // inherits from maintainerOf
@@ -137,6 +137,61 @@ export const allMaintainers: Maintainer[] = [
     maintainerOf: ['config', 'query'],
     frameworkExpertise: ['react', 'svelte'],
     specialties: ['Architecture'],
+  },
+  {
+    name: 'Leonardo Montini',
+    avatar: 'https://github.com/Balastrong.png',
+    github: 'Balastrong',
+    maintainerOf: ['form'],
+    frameworkExpertise: ['react'],
+    social: {
+      website: 'https://leonardomontini.dev/',
+      twitter: 'https://x.com/Balastrong',
+      bluesky: 'https://bsky.app/profile/leonardomontini.dev',
+    },
+  },
+  {
+    name: 'Fredrik Höglund',
+    avatar: 'https://github.com/ephem.png',
+    github: 'ephem',
+    maintainerOf: ['query'],
+    frameworkExpertise: ['react'],
+    specialties: ['Data Management', 'SSR', 'Hydration'],
+    social: {
+      bluesky: 'https://bsky.app/profile/ephem.dev',
+      twitter: 'https://x.com/ephemjs',
+      website: 'https://www.ephem.dev',
+    },
+  },
+  {
+    name: 'Aadit Olkar',
+    avatar: 'https://github.com/aadito123.png',
+    github: 'aadito123',
+    maintainerOf: ['form'],
+    frameworkExpertise: ['solid'],
+    social: {
+      twitter: 'https://x.com/swagdoctor19',
+    },
+  },
+  {
+    name: 'Luca Jakob',
+    avatar: 'https://github.com/LeCarbonator.png',
+    github: 'LeCarbonator',
+    maintainerOf: ['form'],
+    frameworkExpertise: ['react'],
+  },
+  {
+    name: 'Jonghyeon Ko',
+    avatar: 'https://github.com/manudeli.png',
+    github: 'manudeli',
+    maintainerOf: ['query'],
+    frameworkExpertise: ['react'],
+    specialties: ['TypeScript', 'Backport', 'Test'],
+    social: {
+      twitter: 'https://x.com/manudeli_',
+      bluesky: 'https://bsky.app/profile/manudeli.bsky.social',
+      website: 'https://www.linkedin.com/in/jonghyeonko',
+    },
   },
 ]
 

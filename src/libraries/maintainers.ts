@@ -125,7 +125,7 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/KyleAMathews.png',
     github: 'KyleAMathews',
-    creatorOf: ['create-ts-router-app'],
+    creatorOf: ['db'],
     frameworkExpertise: ['react'],
     specialties: ['Sync Engines'],
   },

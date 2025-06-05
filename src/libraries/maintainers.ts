@@ -65,7 +65,7 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/crutchcorn.png',
     github: 'crutchcorn',
     creatorOf: ['form'],
-    maintainerOf: ['store'],
+    maintainerOf: ['store', 'config'],
     frameworkExpertise: ['react', 'solid', 'vue', 'angular'],
     specialties: ['Forms', 'Validation', 'State Management'],
     social: {
@@ -227,7 +227,7 @@ export const allMaintainers: Maintainer[] = [
     avatar:
       'https://cdn.bsky.app/img/avatar/plain/did:plc:gtnigsmgu7jyrc4tnkvn62qw/bafkreiceysbj4o6jrbbniudtwj3tcsns6rvwcxyjsqiaumeojurwbkki5a@jpeg',
     github: 'riccardoperra',
-    contributorOf: ['table'],
+    maintainerOf: ['table'],
     frameworkExpertise: ['angular', 'solid'],
     specialties: [],
     social: {
@@ -241,6 +241,7 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/birkskyum.png',
     github: 'birkskyum',
     maintainerOf: ['start'],
+    contributorOf: ['pacer'],
     frameworkExpertise: ['solid'],
     specialties: [],
     social: {
@@ -268,7 +269,6 @@ export const allMaintainers: Maintainer[] = [
   },
   {
     name: 'Fülöp Kovács',
-    isCoreMaintainer: false,
     avatar: 'https://github.com/fulopkovacs.png',
     github: 'fulopkovacs',
     maintainerOf: ['form'],
@@ -278,6 +278,48 @@ export const allMaintainers: Maintainer[] = [
       twitter: 'https://x.com/notacheetah',
       bluesky: 'https://bsky.app/profile/notacheetah.bsky.social',
     },
+  },
+  {
+    name: 'Aryan Deora',
+    avatar: 'https://github.com/ardeora.png',
+    github: 'ardeora',
+    maintainerOf: ['query'],
+    frameworkExpertise: ['solid'],
+    specialties: ['Dev Tools'],
+    social: {
+      twitter: 'https://x.com/aryan__deora',
+      website: 'https://www.aryandeora.com/',
+    },
+  },
+  {
+    name: 'Mokshit Jain',
+    avatar: 'https://github.com/Mokshit06.png',
+    contributorOf: ['table'],
+    frameworkExpertise: ['svelte', 'solid', 'vue'],
+    github: 'Mokshit06',
+    social: {
+      twitter: 'https://x.com/mokshit06',
+      website: 'https://mokshitjain.co',
+    },
+  },
+  {
+    name: 'Walker Lockard',
+    github: 'walker-tx',
+    avatar: 'https://github.com/walker-tx.png',
+    contributorOf: ['table'],
+    frameworkExpertise: ['svelte', 'react'],
+    social: {
+      twitter: 'https://x.com/walker_lockard',
+      website: 'https://walker.dev',
+    },
+  },
+  {
+    name: 'Tom',
+    github: 'tombuntus',
+    avatar: 'https://github.com/tombuntus.png',
+    contributorOf: ['table'],
+    frameworkExpertise: ['react'],
+    social: {},
   },
 ]
 

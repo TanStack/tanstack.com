@@ -6,9 +6,17 @@ import {
 } from '~/libraries/maintainers'
 import { useState } from 'react'
 
-function RoleBadge({ role }: { role: string }) {
+function RoleBadge({
+  maintainer,
+  libraryId,
+}: {
+  maintainer: Maintainer
+  libraryId?: Library['id']
+}) {
+  const role = libraryId ? getRoleInLibrary(maintainer, libraryId) : ''
   const isCreator = role.toLowerCase().includes('creator')
   const isMaintainer = role.toLowerCase().includes('maintainer')
+  const isCoreMaintainer = isMaintainer && maintainer.isCoreMaintainer
 
   if (isCreator) {
     return (
@@ -20,7 +28,13 @@ function RoleBadge({ role }: { role: string }) {
 
   if (isMaintainer) {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500 text-white">
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          isCoreMaintainer
+            ? 'bg-gradient-to-r from-blue-400 to-blue-700 text-white shadow border border-blue-300'
+            : 'bg-blue-500 text-white'
+        }`}
+      >
         {role}
       </span>
     )
@@ -71,14 +85,18 @@ function SpecialtyChip({ specialty }: { specialty: string }) {
 
 function LibraryBadge({ library }: { library: Library }) {
   return (
-    <span
+    <a
+      href={`/${library.id}/latest/docs/contributors`}
       className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${
         library.bgStyle ?? 'bg-gray-500'
-      } bg-opacity-40 dark:bg-opacity-30 capitalize`}
-      aria-label={`Library: ${library.name}`}
+      } bg-opacity-40 dark:bg-opacity-30 capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`}
+      aria-label={`View contributors for ${library.name}`}
+      tabIndex={0}
+      onClick={(e) => e.stopPropagation()}
+      title={`View all contributors for ${library.name}`}
     >
       {library.name.replace('TanStack', '🌴')}
-    </span>
+    </a>
   )
 }
 
@@ -92,14 +110,18 @@ export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
   const [showAllLibraries, setShowAllLibraries] = useState(false)
 
   return (
-    <a
-      href={`https://github.com/${maintainer.github}`}
+    <div
       className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`View ${maintainer.name}'s GitHub profile`}
+      aria-label={`Maintainer card for ${maintainer.name}`}
     >
-      <div className="relative h-64 overflow-hidden">
+      <a
+        href={`https://github.com/${maintainer.github}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`View ${maintainer.name}'s GitHub profile`}
+        className="relative h-64 overflow-hidden block"
+        tabIndex={0}
+      >
         <img
           alt={`Avatar of ${maintainer.name}`}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
@@ -131,10 +153,23 @@ export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
             )}
           </div>
         </div>
-      </div>
+      </a>
       <div className="p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <span
+            className="text-base font-bold"
+            id={`maintainer-name-${maintainer.github}`}
+          >
+            {maintainer.name}
+          </span>
+          <div className="flex items-center gap-2">
+            {libraryId && (
+              <RoleBadge maintainer={maintainer} libraryId={libraryId} />
+            )}
+          </div>
+        </div>
         {!libraryId && libraries.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1.5 pt-1">
             {libraries
               .slice(0, showAllLibraries ? undefined : 2)
               .map((library) => (
@@ -157,18 +192,7 @@ export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
             )}
           </div>
         )}
-        <div className="flex items-center justify-between">
-          <h3
-            className="text-base font-bold"
-            id={`maintainer-name-${maintainer.github}`}
-          >
-            {maintainer.name}
-          </h3>
-          {libraryId && (
-            <RoleBadge role={getRoleInLibrary(maintainer, libraryId)} />
-          )}
-        </div>
-        <div className="flex items-center space-x-4 text-gray-400 dark:text-gray-500 [&>*]:grayscale">
+        <div className="flex items-center space-x-4 text-gray-400 dark:text-gray-500 [&>*]:grayscale pt-1">
           <a
             href={`https://github.com/${maintainer.github}`}
             className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors p-2 -m-2 hover:grayscale-0"
@@ -240,6 +264,6 @@ export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
           )}
         </div>
       </div>
-    </a>
+    </div>
   )
 }

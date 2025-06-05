@@ -31,7 +31,7 @@ function RouteComponent() {
           <DocTitle>{library.name} Maintainers and Contributors</DocTitle>
           <div className="h-4" />
           <section>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8 pt-8">
+            <div className="grid grid-cols-2 xl:grid-cols-3 gap-4 mb-8 pt-8">
               {libraryContributors.map((maintainer) => (
                 <MaintainerCard
                   key={maintainer.github}
@@ -45,7 +45,7 @@ function RouteComponent() {
           <div className="h-px bg-gray-500 opacity-20" />
           <div className="h-4" />
 
-          <h2 className="text-xl font-bold mb-4">All Contributors</h2>
+          <h2 className="text-xl font-bold mb-4">All-Time Contributors</h2>
           <ContributorsWall library={library} />
           <div className="h-24" />
         </div>

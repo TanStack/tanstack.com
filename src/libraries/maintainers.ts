@@ -123,9 +123,13 @@ export const allMaintainers: Maintainer[] = [
     isCoreMaintainer: true,
     avatar: 'https://github.com/chorobin.png',
     github: 'chorobin',
-    maintainerOf: ['router'],
+    maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react'],
     specialties: ['TypeScript'],
+    social: {
+      twitter: 'https://x.com/c_horobin',
+      bluesky: 'https://bsky.app/profile/chorobin.bsky.social',
+    },
   },
   {
     name: 'Damian Pieczynski',

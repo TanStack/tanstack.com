@@ -75,13 +75,17 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
-    name: 'Manual Schiller',
+    name: 'Manuel Schiller',
     isCoreMaintainer: true,
     avatar: 'https://github.com/schiller-manuel.png',
     github: 'schiller-manuel',
     maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react'],
-    specialties: [],
+    specialties: ['Architecture', 'Core API', 'Documentation'],
+    social: {
+      twitter: 'https://x.com/schanuelmiller',
+      bluesky: 'https://bsky.app/profile/manuelschiller.bsky.social',
+    },
   },
   {
     name: 'Kevin Van Cott',

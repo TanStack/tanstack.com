@@ -5,7 +5,13 @@ import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
-import { FaDiscord, FaGithub, FaInstagram, FaTshirt } from 'react-icons/fa'
+import {
+  FaDiscord,
+  FaGithub,
+  FaInstagram,
+  FaTshirt,
+  FaUsers,
+} from 'react-icons/fa'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
@@ -28,7 +34,7 @@ function LibrariesLayout() {
   const activeLibrary = useLocation({
     select: (location) => {
       return libraries.find((library) => {
-        return location.pathname.startsWith(library.to)
+        return location.pathname.startsWith(library.to!)
       })
     },
   })
@@ -38,110 +44,123 @@ function LibrariesLayout() {
 
   const items = (
     <>
-      {sortBy(libraries, (d) => !d.name.includes('TanStack')).map(
-        (library, i) => {
-          const [prefix, name] = library.name.split(' ')
+      {sortBy(
+        libraries.filter((d) => d.to),
+        (d) => !d.name.includes('TanStack')
+      ).map((library, i) => {
+        const [prefix, name] = library.name.split(' ')
 
-          return (
-            <div key={i}>
-              {library.to.startsWith('http') ? (
-                <a href={library.to} className={linkClasses}>
-                  <span>
-                    <span className="font-light dark:font-bold dark:opacity-40">
-                      {prefix}
-                    </span>{' '}
-                    <span className={library.textStyle}>{name}</span>
-                  </span>
-                </a>
-              ) : (
-                <div>
-                  <Link
-                    to={library.to}
-                    onClick={() => {
-                      detailsRef.current.removeAttribute('open')
-                    }}
-                  >
-                    {(props) => {
-                      return (
-                        <div
-                          className={twMerge(
-                            linkClasses,
-                            props.isActive
-                              ? 'bg-gray-500/10 dark:bg-gray-500/30'
-                              : ''
-                          )}
+        return (
+          <div key={i}>
+            {library.to?.startsWith('http') ? (
+              <a href={library.to} className={linkClasses}>
+                <span>
+                  <span className="font-light dark:font-bold dark:opacity-40">
+                    {prefix}
+                  </span>{' '}
+                  <span className={library.textStyle}>{name}</span>
+                </span>
+              </a>
+            ) : (
+              <div>
+                <Link
+                  to={library.to}
+                  onClick={() => {
+                    detailsRef.current.removeAttribute('open')
+                  }}
+                >
+                  {(props) => {
+                    return (
+                      <div
+                        className={twMerge(
+                          linkClasses,
+                          props.isActive
+                            ? 'bg-gray-500/10 dark:bg-gray-500/30'
+                            : ''
+                        )}
+                      >
+                        <span
+                          style={{
+                            viewTransitionName: `library-name-${library.id}`,
+                          }}
                         >
                           <span
-                            style={{
-                              viewTransitionName: `library-name-${library.id}`,
-                            }}
+                            className={twMerge(
+                              'font-light dark:font-bold dark:opacity-40',
+                              props.isActive ? `font-bold dark:opacity-100` : ''
+                            )}
                           >
-                            <span
-                              className={twMerge(
-                                'font-light dark:font-bold dark:opacity-40',
-                                props.isActive
-                                  ? `font-bold dark:opacity-100`
-                                  : ''
-                              )}
-                            >
-                              {prefix}
-                            </span>{' '}
-                            <span
-                              className={twMerge(
-                                library.textStyle
-                                // isPending &&
-                                //   `[view-transition-name:library-name]`
-                              )}
-                            >
-                              {name}
-                            </span>
+                            {prefix}
+                          </span>{' '}
+                          <span
+                            className={twMerge(
+                              library.textStyle
+                              // isPending &&
+                              //   `[view-transition-name:library-name]`
+                            )}
+                          >
+                            {name}
                           </span>
-                          {library.badge ? (
-                            <span
-                              className={twMerge(
-                                `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
-                                // library.badge === 'new'
-                                //   ? 'text-green-500'
-                                //   : library.badge === 'soon'
-                                //   ? 'text-cyan-500'
-                                //   : '',
-                                library.textStyle
-                              )}
-                            >
-                              {library.badge}
-                            </span>
-                          ) : null}
-                        </div>
-                      )
+                        </span>
+                        {library.badge ? (
+                          <span
+                            className={twMerge(
+                              `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
+                              // library.badge === 'new'
+                              //   ? 'text-green-500'
+                              //   : library.badge === 'soon'
+                              //   ? 'text-cyan-500'
+                              //   : '',
+                              library.textStyle
+                            )}
+                          >
+                            {library.badge}
+                          </span>
+                        ) : null}
+                      </div>
+                    )
+                  }}
+                </Link>
+                <div
+                  className={twMerge(
+                    library.to === activeLibrary?.to ? 'block' : 'hidden'
+                  )}
+                >
+                  {library.menu?.map((item, i) => {
+                    return (
+                      <Link
+                        to={item.to}
+                        key={i}
+                        className={twMerge(
+                          'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
+                          'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                        )}
+                      >
+                        {item.icon}
+                        {item.label}
+                      </Link>
+                    )
+                  })}
+                  <Link
+                    to={`/$libraryId/$version/docs/contributors`}
+                    params={{
+                      libraryId: library.id,
+                      version: 'latest',
                     }}
-                  </Link>
-                  <div
                     className={twMerge(
-                      library.to === activeLibrary?.to ? 'block' : 'hidden'
+                      'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
+                      'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
                     )}
                   >
-                    {library.menu?.map((item, i) => {
-                      return (
-                        <Link
-                          to={item.to}
-                          key={i}
-                          className={twMerge(
-                            'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
-                            'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
-                          )}
-                        >
-                          {item.icon}
-                          {item.label}
-                        </Link>
-                      )
-                    })}
-                  </div>
+                    <FaUsers />
+                    Contributors
+                  </Link>
                 </div>
-              )}
-            </div>
-          )
-        }
-      )}
+              </div>
+            )}
+          </div>
+        )
+      })}
       <div className="py-2">
         <div className="bg-gray-500/10 h-px" />
       </div>

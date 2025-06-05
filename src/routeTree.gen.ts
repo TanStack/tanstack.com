@@ -46,6 +46,7 @@ import { Route as LibrariesFormVersionIndexRouteImport } from './routes/_librari
 import { Route as LibrariesDbVersionIndexRouteImport } from './routes/_libraries/db.$version.index'
 import { Route as LibrariesConfigVersionIndexRouteImport } from './routes/_libraries/config.$version.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
+import { Route as LibraryIdVersionDocsContributorsRouteImport } from './routes/$libraryId/$version.docs.contributors'
 import { Route as LibraryIdVersionDocsSplatRouteImport } from './routes/$libraryId/$version.docs.$'
 import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.index'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.index'
@@ -263,6 +264,13 @@ const LibraryIdVersionDocsIndexRoute =
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
 
+const LibraryIdVersionDocsContributorsRoute =
+  LibraryIdVersionDocsContributorsRouteImport.update({
+    id: '/contributors',
+    path: '/contributors',
+    getParentRoute: () => LibraryIdVersionDocsRoute,
+  } as any)
+
 const LibraryIdVersionDocsSplatRoute =
   LibraryIdVersionDocsSplatRouteImport.update({
     id: '/$',
@@ -454,6 +462,13 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$libraryId/$version/docs/$'
       preLoaderRoute: typeof LibraryIdVersionDocsSplatRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRouteImport
+    }
+    '/$libraryId/$version/docs/contributors': {
+      id: '/$libraryId/$version/docs/contributors'
+      path: '/contributors'
+      fullPath: '/$libraryId/$version/docs/contributors'
+      preLoaderRoute: typeof LibraryIdVersionDocsContributorsRouteImport
       parentRoute: typeof LibraryIdVersionDocsRouteImport
     }
     '/$libraryId/$version/docs/': {
@@ -771,6 +786,15 @@ declare module './routes/$libraryId/$version.docs.$' {
     FileRoutesByPath['/$libraryId/$version/docs/$']['fullPath']
   >
 }
+declare module './routes/$libraryId/$version.docs.contributors' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/$version/docs/contributors',
+    FileRoutesByPath['/$libraryId/$version/docs/contributors']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs/contributors']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs/contributors']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs/contributors']['fullPath']
+  >
+}
 declare module './routes/$libraryId/$version.docs.index' {
   const createFileRoute: CreateFileRoute<
     '/$libraryId/$version/docs/',
@@ -920,6 +944,7 @@ declare module './routes/$libraryId/$version.docs.framework.$framework.examples.
 
 interface LibraryIdVersionDocsRouteChildren {
   LibraryIdVersionDocsSplatRoute: typeof LibraryIdVersionDocsSplatRoute
+  LibraryIdVersionDocsContributorsRoute: typeof LibraryIdVersionDocsContributorsRoute
   LibraryIdVersionDocsIndexRoute: typeof LibraryIdVersionDocsIndexRoute
   LibraryIdVersionDocsFrameworkIndexRoute: typeof LibraryIdVersionDocsFrameworkIndexRoute
   LibraryIdVersionDocsFrameworkFrameworkSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
@@ -929,6 +954,7 @@ interface LibraryIdVersionDocsRouteChildren {
 
 const LibraryIdVersionDocsRouteChildren: LibraryIdVersionDocsRouteChildren = {
   LibraryIdVersionDocsSplatRoute: LibraryIdVersionDocsSplatRoute,
+  LibraryIdVersionDocsContributorsRoute: LibraryIdVersionDocsContributorsRoute,
   LibraryIdVersionDocsIndexRoute: LibraryIdVersionDocsIndexRoute,
   LibraryIdVersionDocsFrameworkIndexRoute:
     LibraryIdVersionDocsFrameworkIndexRoute,
@@ -1053,6 +1079,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof LibrariesBlogIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
+  '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
   '/db/$version': typeof LibrariesDbVersionIndexRoute
@@ -1090,6 +1117,7 @@ export interface FileRoutesByTo {
   '/blog': typeof LibrariesBlogIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
+  '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
   '/db/$version': typeof LibrariesDbVersionIndexRoute
@@ -1132,6 +1160,7 @@ export interface FileRoutesById {
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
+  '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/_libraries/config/$version/': typeof LibrariesConfigVersionIndexRoute
   '/_libraries/db/$version/': typeof LibrariesDbVersionIndexRoute
@@ -1175,6 +1204,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
+    | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/'
     | '/config/$version'
     | '/db/$version'
@@ -1211,6 +1241,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
+    | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs'
     | '/config/$version'
     | '/db/$version'
@@ -1251,6 +1282,7 @@ export interface FileRouteTypes {
     | '/_libraries/blog/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
+    | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/'
     | '/_libraries/config/$version/'
     | '/_libraries/db/$version/'
@@ -1410,6 +1442,7 @@ export const routeTree = rootRoute
       "parent": "/$libraryId/$version",
       "children": [
         "/$libraryId/$version/docs/$",
+        "/$libraryId/$version/docs/contributors",
         "/$libraryId/$version/docs/",
         "/$libraryId/$version/docs/framework/",
         "/$libraryId/$version/docs/framework/$framework/$",
@@ -1430,6 +1463,10 @@ export const routeTree = rootRoute
     },
     "/$libraryId/$version/docs/$": {
       "filePath": "$libraryId/$version.docs.$.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/$libraryId/$version/docs/contributors": {
+      "filePath": "$libraryId/$version.docs.contributors.tsx",
       "parent": "/$libraryId/$version/docs"
     },
     "/$libraryId/$version/docs/": {

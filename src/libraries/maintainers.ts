@@ -55,7 +55,7 @@ export const allMaintainers: Maintainer[] = [
     frameworkExpertise: ['react'],
     specialties: ['Core API', 'TypeScript', 'Documentation'],
     social: {
-      bluesky: '@tkdodo.eu',
+      bluesky: 'https://bsky.app/profile/tkdodo.eu',
       website: 'https://tkdodo.eu',
     },
   },

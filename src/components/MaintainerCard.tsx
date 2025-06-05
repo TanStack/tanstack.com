@@ -84,19 +84,32 @@ function SpecialtyChip({ specialty }: { specialty: string }) {
 }
 
 function LibraryBadge({ library }: { library: Library }) {
+  if (library.to) {
+    return (
+      <a
+        href={`${library.to}/latest/docs/contributors`}
+        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${
+          library.bgStyle ?? 'bg-gray-500'
+        } bg-opacity-40 dark:bg-opacity-30 capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`}
+        aria-label={`View contributors for ${library.name}`}
+        tabIndex={0}
+        onClick={(e) => e.stopPropagation()}
+        title={`View all contributors for ${library.name}`}
+      >
+        {library.name.replace('TanStack', '🌴')}
+      </a>
+    )
+  }
   return (
-    <a
-      href={`/${library.id}/latest/docs/contributors`}
+    <span
       className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${
         library.bgStyle ?? 'bg-gray-500'
-      } bg-opacity-40 dark:bg-opacity-30 capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`}
+      } bg-opacity-40 dark:bg-opacity-30 capitalize`}
       aria-label={`View contributors for ${library.name}`}
-      tabIndex={0}
-      onClick={(e) => e.stopPropagation()}
       title={`View all contributors for ${library.name}`}
     >
       {library.name.replace('TanStack', '🌴')}
-    </a>
+    </span>
   )
 }
 

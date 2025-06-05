@@ -111,7 +111,12 @@ export const allMaintainers: Maintainer[] = [
     github: 'seancassiere',
     maintainerOf: ['start', 'router'],
     frameworkExpertise: ['react'],
-    specialties: [],
+    specialties: ['Architecture', 'Core API', 'Documentation'],
+    social: {
+      twitter: 'https://x.com/seancassiere',
+      bluesky: 'https://bsky.app/profile/seancassiere.com',
+      website: 'https://seancassiere.com',
+    },
   },
   {
     name: 'Chris Horobin',

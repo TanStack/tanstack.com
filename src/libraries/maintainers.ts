@@ -321,6 +321,14 @@ export const allMaintainers: Maintainer[] = [
     frameworkExpertise: ['react'],
     social: {},
   },
+  {
+    name: 'Damian Osipiuk',
+    avatar: 'https://github.com/DamianOsipiuk.png',
+    github: 'DamianOsipiuk',
+    maintainerOf: ['query'],
+    frameworkExpertise: ['vue'],
+    specialties: [],
+  },
 ]
 
 export const coreMaintainers = allMaintainers.filter(

@@ -85,6 +85,7 @@
     "@types/react-dom": "^18.3.1",
     "@types/remove-markdown": "^0.3.4",
     "autoprefixer": "^10.4.18",
+    "broken-link-checker": "^0.7.8",
     "dotenv-cli": "^8.0.0",
     "eslint": "^8.57.0",
     "eslint-plugin-unicorn": "^49.0.0",

@@ -1,9 +1,6 @@
 import { CgSpinner } from 'react-icons/cg'
-import * as React from 'react'
 import { Link, getRouteApi } from '@tanstack/react-router'
-import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { TbHeartHandshake } from 'react-icons/tb'
 import { FaCheckCircle } from 'react-icons/fa'
 import SponsorPack from '~/components/SponsorPack'
 import { pacerProject } from '~/libraries/pacer'
@@ -42,31 +39,50 @@ export default function PacerVersionIndex() {
             <span>TanStack</span>
             <span className={twMerge(gradientText)}>Pacer</span>
           </h1>
+          <div
+            className={twMerge(
+              'text-sm',
+              'md:text-base font-black',
+              'lg:text-lg align-super text-white animate-bounce uppercase',
+              'dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md',
+              'leading-none whitespace-nowrap'
+            )}
+          >
+            STATUS: ALPHA
+          </div>
           <h2
             className="font-bold text-2xl max-w-md
             md:text-3xl
             lg:text-5xl lg:max-w-2xl"
           >
             <span className="underline decoration-dashed decoration-gray-500 decoration-3 underline-offset-2">
-              Framework agnostic
+              Flexible
             </span>{' '}
-            type-safe rate-limiting and queueing utilities
+            type-safe throttling and queuing utilities
           </h2>
           <p
             className="text opacity-90 max-w-[500px]
             lg:text-xl lg:max-w-[800px]"
           >
-            Take control of your application's timing with TanStack Pacer's{' '}
-            <strong>rate limiting, throttling, and debouncing utilities</strong>
-            . Manage complex async workflows using{' '}
-            <strong>intelligent queuing and concurrency controls</strong> while
-            maintaining full control with built-in pause, resume, and cancel
-            capabilities.
+            Optimize your application's performance with TanStack Pacer's core
+            primitives:{' '}
+            <strong>
+              Debouncing, Throttling, Rate Limiting, Queuing, and Batching
+            </strong>
+            .
+          </p>
+          <p
+            className="text opacity-90 max-w-[500px]
+            lg:text-xl lg:max-w-[800px]"
+          >
+            Choose from multiple layers of abstraction using high-level
+            pre-built hooks or low-level primitives that you can connect to your
+            own state management solutions of choice.
           </p>
           <Link
             to="/$libraryId/$version/docs"
             params={{ libraryId: library.id, version }}
-            className={`py-2 px-4 bg-stone-600 text-white rounded uppercase font-extrabold`}
+            className={`py-2 px-4 bg-lime-600 hover:bg-lime-700 text-white rounded uppercase font-extrabold transition-colors`}
           >
             Get Started
           </Link>
@@ -94,14 +110,15 @@ export default function PacerVersionIndex() {
               'Rate Limiting',
               'Throttling',
               'Debouncing',
-              'Queueing',
+              'Queuing',
+              'Batching',
               'LIFO/FIFO/Dequeue Ordering',
               'Concurrency Control',
               'Queue Prioritization',
               'Pause/Resume Controls',
               'Cancellation',
               'Abort Controller Support',
-              'Promise Integration',
+              'Async/Sync Execution',
               'Multiple Layers of Abstraction',
             ].map((d, i) => {
               return (
@@ -171,52 +188,6 @@ export default function PacerVersionIndex() {
         </div>
 
         <LandingPageGad />
-
-        {/* <div className="flex flex-col gap-4">
-          <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
-            <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
-              Take it for a spin!
-            </h3>
-            <p className="my-4 text-xl leading-7 text-gray-600">
-              With just a few lines of code, you can start using powerful rate
-              limiting, throttling, debouncing, and queueing utilities.
-            </p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {(
-                [
-                  { label: 'React', value: 'react' },
-                  // More adapters coming soon
-                  // { label: 'Solid', value: 'solid' },
-                  // { label: 'Svelte', value: 'svelte' },
-                  // { label: 'Vue', value: 'vue' },
-                  // { label: 'Vanilla', value: 'vanilla' },
-                ] as const
-              ).map((item) => (
-                <button
-                  key={item.value}
-                  className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold bg-stone-600`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-black">
-          <iframe
-            src={`https://stackblitz.com/github/${pacerProject.repo}/tree/main/examples/react/useDebouncer?embed=1&theme=dark&preset=node&file=src/main.tsx`}
-            title="tanstack/pacer: useDebouncer"
-            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-            className="shadow-2xl"
-            loading="lazy"
-            style={{
-              width: '100%',
-              height: '80vh',
-              border: '0',
-            }}
-          ></iframe>
-        </div> */}
 
         <div className="flex flex-col gap-4 items-center">
           <div className="font-extrabold text-xl lg:text-2xl">

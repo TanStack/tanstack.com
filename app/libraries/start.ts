@@ -1,4 +1,5 @@
 import { Library } from '.'
+import { redirect } from '@tanstack/react-router'
 
 export const startProject: Library = {
   id: 'start',
@@ -6,7 +7,7 @@ export const startProject: Library = {
   cardStyles: `shadow-xl shadow-cyan-500/20 dark:shadow-lg dark:shadow-cyan-500/30 text-cyan-500 dark:text-white-400 border-2 border-transparent hover:border-current`,
   to: '/start',
   tagline: `Full-stack React Framework powered by TanStack Router`,
-  description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router, Vinxi, and Nitro and ready to deploy to your favorite hosting provider.`,
+  description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and ready to deploy to your favorite hosting provider.`,
   bgStyle: 'bg-cyan-500',
   textStyle: 'text-cyan-500',
   badge: 'alpha',
@@ -19,4 +20,13 @@ export const startProject: Library = {
   textColor: 'text-cyan-600',
   frameworks: ['react'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
+  handleRedirects: (href) => {
+    if (
+      href.match(/\/start\/latest\/docs\/framework\/(react|solid)\/api-routes/)
+    ) {
+      throw redirect({
+        href: href.replace('/api-routes', '/server-routes'),
+      })
+    }
+  },
 }

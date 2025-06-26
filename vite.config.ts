@@ -13,7 +13,11 @@ export default defineConfig({
       projects: ['./tsconfig.json'],
     }),
 
-    tanstackStart({}),
+    tanstackStart({
+      tsr: {
+        verboseFileRoutes: false,
+      },
+    }),
 
     sentryVitePlugin({
       authToken: process.env.SENTRY_AUTH_TOKEN,

@@ -15,8 +15,8 @@ export default defineConfig({
 
     tanstackStart({
       tsr: {
-        verboseFileRoutes: false
-      }
+        verboseFileRoutes: false,
+      },
     }),
 
     sentryVitePlugin({

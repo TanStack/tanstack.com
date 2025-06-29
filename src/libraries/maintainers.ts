@@ -329,6 +329,14 @@ export const allMaintainers: Maintainer[] = [
     frameworkExpertise: ['vue'],
     specialties: [],
   },
+  {
+    name: 'Eliya Cohen',
+    avatar: 'https://github.com/Newbie012.png',
+    github: 'Newbie012',
+    maintainerOf: ['query'],
+    frameworkExpertise: [],
+    specialties: ['eslint plugin'],
+  },
 ]
 
 export const coreMaintainers = allMaintainers.filter(

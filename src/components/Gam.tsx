@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { getLibrary, libraries } from '~/libraries'
+import { libraries } from '~/libraries'
 
 declare global {
   interface Window {
@@ -30,133 +30,60 @@ declare global {
   }
 }
 
-const adSlots = {
-  leaderboard: {
-    id: 'div-gpt-ad-1738811978953-leaderboard',
-    sizes: [[728, 90]],
-    targeting: 'leaderboard',
-    refreshInterval: 45_000,
-  },
-  footer: {
-    id: 'div-gpt-ad-1738811978953-footer',
-    sizes: [[728, 90]],
-    targeting: 'footer',
-    refreshInterval: 45_000,
-  },
-  rightRail: {
-    id: 'div-gpt-ad-1738811978953-right-rail',
-    sizes: [[300, 250]],
-    targeting: 'right-side-rail',
-    refreshInterval: 45_000,
-  },
-  leftRail: {
-    id: 'div-gpt-ad-1738811978953-left-rail',
-    sizes: [[300, 250]],
-    targeting: 'left-side-rail',
-    refreshInterval: 45_000,
-  },
-} as Record<
-  string,
-  {
-    id: string
-    sizes: [number, number][]
-    targeting: string
-    refreshInterval: number
-    slot?: any
-  }
->
+export const GamScripts = () => (
+  <>
+    <script
+      async
+      src="https://cdn.fuseplatform.net/publift/tags/2/4019/fuse.js"
+    />
+  </>
+)
 
-export function GoogleScripts() {
-  return (
-    <>
-      <script
-        async
-        src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"
-      ></script>
-    </>
-  )
-}
+// GAM divs for ad placement
+const gamDivs = {
+  incontent_1: 'incontent_1',
+  incontent_2: 'incontent_2',
+  incontent_3: 'incontent_3',
+  incontent_4: 'incontent_4',
+  incontent_footer: 'incontent_footer',
+  mrec_1: 'mrec_1',
+  mrec_2: 'mrec_2',
+} as const
 
-function Gad({
+function GamAd({
   name,
   children,
   ...props
-}: { name: keyof typeof adSlots } & React.HTMLAttributes<HTMLDivElement>) {
-  const adSlot = adSlots[name]!
-  const adId = adSlot.id
-
-  React.useEffect(() => {
-    const googletag = window.googletag
-    if (!googletag) return
-
-    const cmd = googletag.cmd
-    if (!cmd) return
-
-    cmd.push(function () {
-      // Define all ad slots
-      if (!adSlot.slot) {
-        adSlot.slot = googletag
-          .defineSlot?.('/23278945940/TopLevel', adSlot.sizes, adSlot.id)
-          .addService(googletag.pubads?.())
-          .setTargeting(adSlot.targeting, [adSlot.targeting])
-        googletag.pubads?.().enableSingleRequest()
-        googletag.enableServices?.()
-        googletag.display?.(adId)
-      } else {
-        googletag.display?.(adId)
-        googletag.pubads?.().refresh([adSlot.slot])
-      }
-    })
-
-    // Set individual refresh intervals for each ad
-    const interval = setInterval(function () {
-      cmd.push(function () {
-        googletag.pubads?.().refresh([adSlot.slot])
-      })
-    }, adSlot.refreshInterval)
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [])
+}: { name: keyof typeof gamDivs } & React.HTMLAttributes<HTMLDivElement>) {
+  const gamId = gamDivs[name]
 
   return (
     <div
       {...props}
       className="grid [&>*]:col-start-1 [&>*]:row-start-1"
-      id={adId}
+      data-fuse={gamId}
     >
-      {/* <div className="w-full flex-1 z-10"></div> */}
       <div className="flex items-center justify-center">{children}</div>
     </div>
   )
 }
 
-export function GadLeader() {
-  // return (
-  //   <div className="overflow-hidden h-0 w-0">
-  //     <Gad
-  //       adId={adSlots.leaderboard.id}
-  //       style={{
-  //         maxWidth: '728px',
-  //         aspectRatio: '728 / 90',
-  //       }}
-  //     />
-  //   </div>
-  // )
-
+export function GamLeader() {
   return null
 }
 
-export function GadFooter() {
+export function GamFooter() {
   return (
-    <Gad name="footer" style={{ maxWidth: '728px', aspectRatio: '728 / 90' }} />
+    <GamAd
+      name="incontent_footer"
+      style={{ maxWidth: '728px', aspectRatio: '728 / 90' }}
+    />
   )
 }
 
 const libraryHalfIndex = Math.ceil(libraries.length / 2)
 
-export function GadRightRailSquare() {
+export function GamRightRailSquare() {
   const randomLibrary = React.useMemo(() => {
     const sampledLibraries = libraries.slice(0, libraryHalfIndex)
     const seed = Math.floor(Date.now() / (1000 * 60 * 5)) // Change seed every 5 minutes
@@ -164,12 +91,12 @@ export function GadRightRailSquare() {
   }, [])
 
   return (
-    <Gad
-      name="rightRail"
+    <GamAd
+      name="mrec_1"
       className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
     >
       <Link
-        to={`/${randomLibrary.id}`}
+        to={`/${randomLibrary.id}` as any}
         className="flex flex-col justify-center items-center h-[250px] w-[250px] gap-4 group"
       >
         <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
@@ -196,11 +123,11 @@ export function GadRightRailSquare() {
           </button>
         </div>
       </Link>
-    </Gad>
+    </GamAd>
   )
 }
 
-export function GadLeftRailSquare() {
+export function GamLeftRailSquare() {
   const randomRemainingLibrary = React.useMemo(() => {
     const remainingLibraries = libraries.slice(libraryHalfIndex)
     const seed = Math.floor(Date.now() / (1000 * 60 * 5)) // Change seed every 5 minutes
@@ -208,12 +135,12 @@ export function GadLeftRailSquare() {
   }, [])
 
   return (
-    <Gad
-      name="leftRail"
+    <GamAd
+      name="mrec_2"
       className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
     >
       <Link
-        to={`/${randomRemainingLibrary.id}`}
+        to={`/${randomRemainingLibrary.id}` as any}
         className="flex flex-col justify-center items-center h-[250px] w-[250px] gap-4 group"
       >
         <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
@@ -242,6 +169,35 @@ export function GadLeftRailSquare() {
           </button>
         </div>
       </Link>
-    </Gad>
+    </GamAd>
   )
+}
+
+// Export GAM div components for direct use
+export function GamIncontent1() {
+  return <GamAd name="incontent_1" />
+}
+
+export function GamIncontent2() {
+  return <GamAd name="incontent_2" />
+}
+
+export function GamIncontent3() {
+  return <GamAd name="incontent_3" />
+}
+
+export function GamIncontent4() {
+  return <GamAd name="incontent_4" />
+}
+
+export function GamIncontentFooter() {
+  return <GamAd name="incontent_footer" />
+}
+
+export function GamMrec1() {
+  return <GamAd name="mrec_1" />
+}
+
+export function GamMrec2() {
+  return <GamAd name="mrec_2" />
 }

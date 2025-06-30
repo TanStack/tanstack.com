@@ -20,7 +20,7 @@ import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
-import { GoogleScripts } from '~/components/GoogleScripts'
+import { GamScripts } from '~/components/Gam'
 import { BackgroundAnimation } from '~/components/BackgroundAnimation'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
@@ -45,10 +45,6 @@ export const Route = createRootRouteWithContext<{
         keywords:
           'tanstack,react,reactjs,react query,react table,open source,open source software,oss,software',
       }),
-      {
-        name: 'google-adsense-account',
-        content: 'ca-pub-9403278435468733',
-      },
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
@@ -187,7 +183,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
         ) : null}
-        <GoogleScripts />
+        <GamScripts />
       </head>
       <body>
         <BackgroundAnimation />

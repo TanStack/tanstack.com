@@ -9,13 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import type { CreateFileRoute, FileRoutesByPath } from '@tanstack/react-router'
-import type {
-  CreateServerFileRoute,
-  ServerFileRoutesByPath,
-} from '@tanstack/react-start/server'
-import { createServerRootRoute } from '@tanstack/react-start/server'
 
-import { Route as rootRouteImport } from './routes/__root'
+// Import Routes
+
+import { Route as rootRoute } from './routes/__root'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
 import { Route as MerchRouteImport } from './routes/merch'
 import { Route as LoginRouteImport } from './routes/login'
@@ -55,240 +52,1013 @@ import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes
 import { Route as LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.index'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.$'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.examples.$'
-import { ServerRoute as LibraryIdVersionDocsChar123Char125DotmdServerRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
-import { ServerRoute as LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.{$}[.]md'
 
-const rootServerRouteImport = createServerRootRoute()
+// Create/Update Routes
 
 const SponsorsEmbedRoute = SponsorsEmbedRouteImport.update({
   id: '/sponsors-embed',
   path: '/sponsors-embed',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootRoute,
 } as any)
+
 const MerchRoute = MerchRouteImport.update({
   id: '/merch',
   path: '/merch',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootRoute,
 } as any)
+
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootRoute,
 } as any)
+
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootRoute,
 } as any)
+
 const LibrariesRouteRoute = LibrariesRouteRouteImport.update({
   id: '/_libraries',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootRoute,
 } as any)
+
 const LibraryIdRouteRoute = LibraryIdRouteRouteImport.update({
   id: '/$libraryId',
   path: '/$libraryId',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootRoute,
 } as any)
+
 const StatsIndexRoute = StatsIndexRouteImport.update({
   id: '/stats/',
   path: '/stats/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootRoute,
 } as any)
+
 const LibrariesIndexRoute = LibrariesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+
 const LibraryIdIndexRoute = LibraryIdIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LibraryIdRouteRoute,
 } as any)
+
 const LibrariesTermsRoute = LibrariesTermsRouteImport.update({
   id: '/terms',
   path: '/terms',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+
 const LibrariesSupportRoute = LibrariesSupportRouteImport.update({
   id: '/support',
   path: '/support',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+
 const LibrariesPrivacyRoute = LibrariesPrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+
 const LibrariesLearnRoute = LibrariesLearnRouteImport.update({
   id: '/learn',
   path: '/learn',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+
 const LibrariesEthosRoute = LibrariesEthosRouteImport.update({
   id: '/ethos',
   path: '/ethos',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+
 const LibrariesDedicatedSupportRoute =
   LibrariesDedicatedSupportRouteImport.update({
     id: '/dedicated-support',
     path: '/dedicated-support',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibrariesBlogRoute = LibrariesBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+
 const LibraryIdVersionRoute = LibraryIdVersionRouteImport.update({
   id: '/$version',
   path: '/$version',
   getParentRoute: () => LibraryIdRouteRoute,
 } as any)
+
 const StatsNpmIndexRoute = StatsNpmIndexRouteImport.update({
   id: '/stats/npm/',
   path: '/stats/npm/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootRoute,
 } as any)
+
 const LibrariesBlogIndexRoute = LibrariesBlogIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LibrariesBlogRoute,
 } as any)
+
 const LibrariesBlogSplatRoute = LibrariesBlogSplatRouteImport.update({
   id: '/$',
   path: '/$',
   getParentRoute: () => LibrariesBlogRoute,
 } as any)
+
 const LibraryIdVersionDocsRoute = LibraryIdVersionDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
   getParentRoute: () => LibraryIdVersionRoute,
 } as any)
+
 const LibrariesVirtualVersionIndexRoute =
   LibrariesVirtualVersionIndexRouteImport.update({
     id: '/virtual/$version/',
     path: '/virtual/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibrariesTableVersionIndexRoute =
   LibrariesTableVersionIndexRouteImport.update({
     id: '/table/$version/',
     path: '/table/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibrariesStoreVersionIndexRoute =
   LibrariesStoreVersionIndexRouteImport.update({
     id: '/store/$version/',
     path: '/store/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibrariesStartVersionIndexRoute =
   LibrariesStartVersionIndexRouteImport.update({
     id: '/start/$version/',
     path: '/start/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibrariesRouterVersionIndexRoute =
   LibrariesRouterVersionIndexRouteImport.update({
     id: '/router/$version/',
     path: '/router/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibrariesRangerVersionIndexRoute =
   LibrariesRangerVersionIndexRouteImport.update({
     id: '/ranger/$version/',
     path: '/ranger/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibrariesQueryVersionIndexRoute =
   LibrariesQueryVersionIndexRouteImport.update({
     id: '/query/$version/',
     path: '/query/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibrariesPacerVersionIndexRoute =
   LibrariesPacerVersionIndexRouteImport.update({
     id: '/pacer/$version/',
     path: '/pacer/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibrariesFormVersionIndexRoute =
   LibrariesFormVersionIndexRouteImport.update({
     id: '/form/$version/',
     path: '/form/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibrariesDbVersionIndexRoute = LibrariesDbVersionIndexRouteImport.update({
   id: '/db/$version/',
   path: '/db/$version/',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+
 const LibrariesConfigVersionIndexRoute =
   LibrariesConfigVersionIndexRouteImport.update({
     id: '/config/$version/',
     path: '/config/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+
 const LibraryIdVersionDocsIndexRoute =
   LibraryIdVersionDocsIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+
 const LibraryIdVersionDocsContributorsRoute =
   LibraryIdVersionDocsContributorsRouteImport.update({
     id: '/contributors',
     path: '/contributors',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+
 const LibraryIdVersionDocsSplatRoute =
   LibraryIdVersionDocsSplatRouteImport.update({
     id: '/$',
     path: '/$',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+
 const LibraryIdVersionDocsFrameworkIndexRoute =
   LibraryIdVersionDocsFrameworkIndexRouteImport.update({
     id: '/framework/',
     path: '/framework/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+
 const LibraryIdVersionDocsFrameworkFrameworkIndexRoute =
   LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport.update({
     id: '/framework/$framework/',
     path: '/framework/$framework/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+
 const LibraryIdVersionDocsFrameworkFrameworkSplatRoute =
   LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport.update({
     id: '/framework/$framework/$',
     path: '/framework/$framework/$',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+
 const LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
   LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport.update({
     id: '/framework/$framework/examples/$',
     path: '/framework/$framework/examples/$',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
-const LibraryIdVersionDocsChar123Char125DotmdServerRoute =
-  LibraryIdVersionDocsChar123Char125DotmdServerRouteImport.update({
-    id: '/$libraryId/$version/docs/{$}.md',
-    path: '/$libraryId/$version/docs/{$}.md',
-    getParentRoute: () => rootServerRouteImport,
-  } as any)
-const LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute =
-  LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRouteImport.update(
-    {
-      id: '/$libraryId/$version/docs/framework/$framework/{$}.md',
-      path: '/$libraryId/$version/docs/framework/$framework/{$}.md',
-      getParentRoute: () => rootServerRouteImport,
-    } as any,
-  )
+
+// Populate the FileRoutesByPath interface
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/$libraryId': {
+      id: '/$libraryId'
+      path: '/$libraryId'
+      fullPath: '/$libraryId'
+      preLoaderRoute: typeof LibraryIdRouteRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/_libraries': {
+      id: '/_libraries'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof LibrariesRouteRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/merch': {
+      id: '/merch'
+      path: '/merch'
+      fullPath: '/merch'
+      preLoaderRoute: typeof MerchRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/sponsors-embed': {
+      id: '/sponsors-embed'
+      path: '/sponsors-embed'
+      fullPath: '/sponsors-embed'
+      preLoaderRoute: typeof SponsorsEmbedRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/$libraryId/$version': {
+      id: '/$libraryId/$version'
+      path: '/$version'
+      fullPath: '/$libraryId/$version'
+      preLoaderRoute: typeof LibraryIdVersionRouteImport
+      parentRoute: typeof LibraryIdRouteRouteImport
+    }
+    '/_libraries/blog': {
+      id: '/_libraries/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof LibrariesBlogRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/dedicated-support': {
+      id: '/_libraries/dedicated-support'
+      path: '/dedicated-support'
+      fullPath: '/dedicated-support'
+      preLoaderRoute: typeof LibrariesDedicatedSupportRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/ethos': {
+      id: '/_libraries/ethos'
+      path: '/ethos'
+      fullPath: '/ethos'
+      preLoaderRoute: typeof LibrariesEthosRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/learn': {
+      id: '/_libraries/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LibrariesLearnRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/privacy': {
+      id: '/_libraries/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof LibrariesPrivacyRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/support': {
+      id: '/_libraries/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof LibrariesSupportRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/terms': {
+      id: '/_libraries/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof LibrariesTermsRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/$libraryId/': {
+      id: '/$libraryId/'
+      path: '/'
+      fullPath: '/$libraryId/'
+      preLoaderRoute: typeof LibraryIdIndexRouteImport
+      parentRoute: typeof LibraryIdRouteRouteImport
+    }
+    '/_libraries/': {
+      id: '/_libraries/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof LibrariesIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/stats/': {
+      id: '/stats/'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsIndexRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/$libraryId/$version/docs': {
+      id: '/$libraryId/$version/docs'
+      path: '/docs'
+      fullPath: '/$libraryId/$version/docs'
+      preLoaderRoute: typeof LibraryIdVersionDocsRouteImport
+      parentRoute: typeof LibraryIdVersionRouteImport
+    }
+    '/_libraries/blog/$': {
+      id: '/_libraries/blog/$'
+      path: '/$'
+      fullPath: '/blog/$'
+      preLoaderRoute: typeof LibrariesBlogSplatRouteImport
+      parentRoute: typeof LibrariesBlogRouteImport
+    }
+    '/_libraries/blog/': {
+      id: '/_libraries/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof LibrariesBlogIndexRouteImport
+      parentRoute: typeof LibrariesBlogRouteImport
+    }
+    '/stats/npm/': {
+      id: '/stats/npm/'
+      path: '/stats/npm'
+      fullPath: '/stats/npm'
+      preLoaderRoute: typeof StatsNpmIndexRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/$libraryId/$version/docs/$': {
+      id: '/$libraryId/$version/docs/$'
+      path: '/$'
+      fullPath: '/$libraryId/$version/docs/$'
+      preLoaderRoute: typeof LibraryIdVersionDocsSplatRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRouteImport
+    }
+    '/$libraryId/$version/docs/contributors': {
+      id: '/$libraryId/$version/docs/contributors'
+      path: '/contributors'
+      fullPath: '/$libraryId/$version/docs/contributors'
+      preLoaderRoute: typeof LibraryIdVersionDocsContributorsRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRouteImport
+    }
+    '/$libraryId/$version/docs/': {
+      id: '/$libraryId/$version/docs/'
+      path: '/'
+      fullPath: '/$libraryId/$version/docs/'
+      preLoaderRoute: typeof LibraryIdVersionDocsIndexRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRouteImport
+    }
+    '/_libraries/config/$version/': {
+      id: '/_libraries/config/$version/'
+      path: '/config/$version'
+      fullPath: '/config/$version'
+      preLoaderRoute: typeof LibrariesConfigVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/db/$version/': {
+      id: '/_libraries/db/$version/'
+      path: '/db/$version'
+      fullPath: '/db/$version'
+      preLoaderRoute: typeof LibrariesDbVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/form/$version/': {
+      id: '/_libraries/form/$version/'
+      path: '/form/$version'
+      fullPath: '/form/$version'
+      preLoaderRoute: typeof LibrariesFormVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/pacer/$version/': {
+      id: '/_libraries/pacer/$version/'
+      path: '/pacer/$version'
+      fullPath: '/pacer/$version'
+      preLoaderRoute: typeof LibrariesPacerVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/query/$version/': {
+      id: '/_libraries/query/$version/'
+      path: '/query/$version'
+      fullPath: '/query/$version'
+      preLoaderRoute: typeof LibrariesQueryVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/ranger/$version/': {
+      id: '/_libraries/ranger/$version/'
+      path: '/ranger/$version'
+      fullPath: '/ranger/$version'
+      preLoaderRoute: typeof LibrariesRangerVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/router/$version/': {
+      id: '/_libraries/router/$version/'
+      path: '/router/$version'
+      fullPath: '/router/$version'
+      preLoaderRoute: typeof LibrariesRouterVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/start/$version/': {
+      id: '/_libraries/start/$version/'
+      path: '/start/$version'
+      fullPath: '/start/$version'
+      preLoaderRoute: typeof LibrariesStartVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/store/$version/': {
+      id: '/_libraries/store/$version/'
+      path: '/store/$version'
+      fullPath: '/store/$version'
+      preLoaderRoute: typeof LibrariesStoreVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/table/$version/': {
+      id: '/_libraries/table/$version/'
+      path: '/table/$version'
+      fullPath: '/table/$version'
+      preLoaderRoute: typeof LibrariesTableVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/_libraries/virtual/$version/': {
+      id: '/_libraries/virtual/$version/'
+      path: '/virtual/$version'
+      fullPath: '/virtual/$version'
+      preLoaderRoute: typeof LibrariesVirtualVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRouteImport
+    }
+    '/$libraryId/$version/docs/framework/': {
+      id: '/$libraryId/$version/docs/framework/'
+      path: '/framework'
+      fullPath: '/$libraryId/$version/docs/framework'
+      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkIndexRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRouteImport
+    }
+    '/$libraryId/$version/docs/framework/$framework/$': {
+      id: '/$libraryId/$version/docs/framework/$framework/$'
+      path: '/framework/$framework/$'
+      fullPath: '/$libraryId/$version/docs/framework/$framework/$'
+      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRouteImport
+    }
+    '/$libraryId/$version/docs/framework/$framework/': {
+      id: '/$libraryId/$version/docs/framework/$framework/'
+      path: '/framework/$framework'
+      fullPath: '/$libraryId/$version/docs/framework/$framework'
+      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRouteImport
+    }
+    '/$libraryId/$version/docs/framework/$framework/examples/$': {
+      id: '/$libraryId/$version/docs/framework/$framework/examples/$'
+      path: '/framework/$framework/examples/$'
+      fullPath: '/$libraryId/$version/docs/framework/$framework/examples/$'
+      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRouteImport
+    }
+  }
+}
+
+// Add type-safety to the createFileRoute function across the route tree
+
+declare module './routes/$libraryId/route' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId',
+    FileRoutesByPath['/$libraryId']['parentRoute'],
+    FileRoutesByPath['/$libraryId']['id'],
+    FileRoutesByPath['/$libraryId']['path'],
+    FileRoutesByPath['/$libraryId']['fullPath']
+  >
+}
+declare module './routes/_libraries/route' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries',
+    FileRoutesByPath['/_libraries']['parentRoute'],
+    FileRoutesByPath['/_libraries']['id'],
+    FileRoutesByPath['/_libraries']['path'],
+    FileRoutesByPath['/_libraries']['fullPath']
+  >
+}
+declare module './routes/dashboard' {
+  const createFileRoute: CreateFileRoute<
+    '/dashboard',
+    FileRoutesByPath['/dashboard']['parentRoute'],
+    FileRoutesByPath['/dashboard']['id'],
+    FileRoutesByPath['/dashboard']['path'],
+    FileRoutesByPath['/dashboard']['fullPath']
+  >
+}
+declare module './routes/login' {
+  const createFileRoute: CreateFileRoute<
+    '/login',
+    FileRoutesByPath['/login']['parentRoute'],
+    FileRoutesByPath['/login']['id'],
+    FileRoutesByPath['/login']['path'],
+    FileRoutesByPath['/login']['fullPath']
+  >
+}
+declare module './routes/merch' {
+  const createFileRoute: CreateFileRoute<
+    '/merch',
+    FileRoutesByPath['/merch']['parentRoute'],
+    FileRoutesByPath['/merch']['id'],
+    FileRoutesByPath['/merch']['path'],
+    FileRoutesByPath['/merch']['fullPath']
+  >
+}
+declare module './routes/sponsors-embed' {
+  const createFileRoute: CreateFileRoute<
+    '/sponsors-embed',
+    FileRoutesByPath['/sponsors-embed']['parentRoute'],
+    FileRoutesByPath['/sponsors-embed']['id'],
+    FileRoutesByPath['/sponsors-embed']['path'],
+    FileRoutesByPath['/sponsors-embed']['fullPath']
+  >
+}
+declare module './routes/$libraryId/$version' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/$version',
+    FileRoutesByPath['/$libraryId/$version']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version']['id'],
+    FileRoutesByPath['/$libraryId/$version']['path'],
+    FileRoutesByPath['/$libraryId/$version']['fullPath']
+  >
+}
+declare module './routes/_libraries/blog' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/blog',
+    FileRoutesByPath['/_libraries/blog']['parentRoute'],
+    FileRoutesByPath['/_libraries/blog']['id'],
+    FileRoutesByPath['/_libraries/blog']['path'],
+    FileRoutesByPath['/_libraries/blog']['fullPath']
+  >
+}
+declare module './routes/_libraries/dedicated-support' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/dedicated-support',
+    FileRoutesByPath['/_libraries/dedicated-support']['parentRoute'],
+    FileRoutesByPath['/_libraries/dedicated-support']['id'],
+    FileRoutesByPath['/_libraries/dedicated-support']['path'],
+    FileRoutesByPath['/_libraries/dedicated-support']['fullPath']
+  >
+}
+declare module './routes/_libraries/ethos' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/ethos',
+    FileRoutesByPath['/_libraries/ethos']['parentRoute'],
+    FileRoutesByPath['/_libraries/ethos']['id'],
+    FileRoutesByPath['/_libraries/ethos']['path'],
+    FileRoutesByPath['/_libraries/ethos']['fullPath']
+  >
+}
+declare module './routes/_libraries/learn' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/learn',
+    FileRoutesByPath['/_libraries/learn']['parentRoute'],
+    FileRoutesByPath['/_libraries/learn']['id'],
+    FileRoutesByPath['/_libraries/learn']['path'],
+    FileRoutesByPath['/_libraries/learn']['fullPath']
+  >
+}
+declare module './routes/_libraries/privacy' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/privacy',
+    FileRoutesByPath['/_libraries/privacy']['parentRoute'],
+    FileRoutesByPath['/_libraries/privacy']['id'],
+    FileRoutesByPath['/_libraries/privacy']['path'],
+    FileRoutesByPath['/_libraries/privacy']['fullPath']
+  >
+}
+declare module './routes/_libraries/support' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/support',
+    FileRoutesByPath['/_libraries/support']['parentRoute'],
+    FileRoutesByPath['/_libraries/support']['id'],
+    FileRoutesByPath['/_libraries/support']['path'],
+    FileRoutesByPath['/_libraries/support']['fullPath']
+  >
+}
+declare module './routes/_libraries/terms' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/terms',
+    FileRoutesByPath['/_libraries/terms']['parentRoute'],
+    FileRoutesByPath['/_libraries/terms']['id'],
+    FileRoutesByPath['/_libraries/terms']['path'],
+    FileRoutesByPath['/_libraries/terms']['fullPath']
+  >
+}
+declare module './routes/$libraryId/index' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/',
+    FileRoutesByPath['/$libraryId/']['parentRoute'],
+    FileRoutesByPath['/$libraryId/']['id'],
+    FileRoutesByPath['/$libraryId/']['path'],
+    FileRoutesByPath['/$libraryId/']['fullPath']
+  >
+}
+declare module './routes/_libraries/index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/',
+    FileRoutesByPath['/_libraries/']['parentRoute'],
+    FileRoutesByPath['/_libraries/']['id'],
+    FileRoutesByPath['/_libraries/']['path'],
+    FileRoutesByPath['/_libraries/']['fullPath']
+  >
+}
+declare module './routes/stats/index' {
+  const createFileRoute: CreateFileRoute<
+    '/stats/',
+    FileRoutesByPath['/stats/']['parentRoute'],
+    FileRoutesByPath['/stats/']['id'],
+    FileRoutesByPath['/stats/']['path'],
+    FileRoutesByPath['/stats/']['fullPath']
+  >
+}
+declare module './routes/$libraryId/$version.docs' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/$version/docs',
+    FileRoutesByPath['/$libraryId/$version/docs']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs']['fullPath']
+  >
+}
+declare module './routes/_libraries/blog.$' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/blog/$',
+    FileRoutesByPath['/_libraries/blog/$']['parentRoute'],
+    FileRoutesByPath['/_libraries/blog/$']['id'],
+    FileRoutesByPath['/_libraries/blog/$']['path'],
+    FileRoutesByPath['/_libraries/blog/$']['fullPath']
+  >
+}
+declare module './routes/_libraries/blog.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/blog/',
+    FileRoutesByPath['/_libraries/blog/']['parentRoute'],
+    FileRoutesByPath['/_libraries/blog/']['id'],
+    FileRoutesByPath['/_libraries/blog/']['path'],
+    FileRoutesByPath['/_libraries/blog/']['fullPath']
+  >
+}
+declare module './routes/stats/npm/index' {
+  const createFileRoute: CreateFileRoute<
+    '/stats/npm/',
+    FileRoutesByPath['/stats/npm/']['parentRoute'],
+    FileRoutesByPath['/stats/npm/']['id'],
+    FileRoutesByPath['/stats/npm/']['path'],
+    FileRoutesByPath['/stats/npm/']['fullPath']
+  >
+}
+declare module './routes/$libraryId/$version.docs.$' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/$version/docs/$',
+    FileRoutesByPath['/$libraryId/$version/docs/$']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs/$']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs/$']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs/$']['fullPath']
+  >
+}
+declare module './routes/$libraryId/$version.docs.contributors' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/$version/docs/contributors',
+    FileRoutesByPath['/$libraryId/$version/docs/contributors']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs/contributors']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs/contributors']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs/contributors']['fullPath']
+  >
+}
+declare module './routes/$libraryId/$version.docs.index' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/$version/docs/',
+    FileRoutesByPath['/$libraryId/$version/docs/']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs/']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs/']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs/']['fullPath']
+  >
+}
+declare module './routes/_libraries/config.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/config/$version/',
+    FileRoutesByPath['/_libraries/config/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/config/$version/']['id'],
+    FileRoutesByPath['/_libraries/config/$version/']['path'],
+    FileRoutesByPath['/_libraries/config/$version/']['fullPath']
+  >
+}
+declare module './routes/_libraries/db.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/db/$version/',
+    FileRoutesByPath['/_libraries/db/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/db/$version/']['id'],
+    FileRoutesByPath['/_libraries/db/$version/']['path'],
+    FileRoutesByPath['/_libraries/db/$version/']['fullPath']
+  >
+}
+declare module './routes/_libraries/form.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/form/$version/',
+    FileRoutesByPath['/_libraries/form/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/form/$version/']['id'],
+    FileRoutesByPath['/_libraries/form/$version/']['path'],
+    FileRoutesByPath['/_libraries/form/$version/']['fullPath']
+  >
+}
+declare module './routes/_libraries/pacer.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/pacer/$version/',
+    FileRoutesByPath['/_libraries/pacer/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/pacer/$version/']['id'],
+    FileRoutesByPath['/_libraries/pacer/$version/']['path'],
+    FileRoutesByPath['/_libraries/pacer/$version/']['fullPath']
+  >
+}
+declare module './routes/_libraries/query.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/query/$version/',
+    FileRoutesByPath['/_libraries/query/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/query/$version/']['id'],
+    FileRoutesByPath['/_libraries/query/$version/']['path'],
+    FileRoutesByPath['/_libraries/query/$version/']['fullPath']
+  >
+}
+declare module './routes/_libraries/ranger.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/ranger/$version/',
+    FileRoutesByPath['/_libraries/ranger/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/ranger/$version/']['id'],
+    FileRoutesByPath['/_libraries/ranger/$version/']['path'],
+    FileRoutesByPath['/_libraries/ranger/$version/']['fullPath']
+  >
+}
+declare module './routes/_libraries/router.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/router/$version/',
+    FileRoutesByPath['/_libraries/router/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/router/$version/']['id'],
+    FileRoutesByPath['/_libraries/router/$version/']['path'],
+    FileRoutesByPath['/_libraries/router/$version/']['fullPath']
+  >
+}
+declare module './routes/_libraries/start.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/start/$version/',
+    FileRoutesByPath['/_libraries/start/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/start/$version/']['id'],
+    FileRoutesByPath['/_libraries/start/$version/']['path'],
+    FileRoutesByPath['/_libraries/start/$version/']['fullPath']
+  >
+}
+declare module './routes/_libraries/store.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/store/$version/',
+    FileRoutesByPath['/_libraries/store/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/store/$version/']['id'],
+    FileRoutesByPath['/_libraries/store/$version/']['path'],
+    FileRoutesByPath['/_libraries/store/$version/']['fullPath']
+  >
+}
+declare module './routes/_libraries/table.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/table/$version/',
+    FileRoutesByPath['/_libraries/table/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/table/$version/']['id'],
+    FileRoutesByPath['/_libraries/table/$version/']['path'],
+    FileRoutesByPath['/_libraries/table/$version/']['fullPath']
+  >
+}
+declare module './routes/_libraries/virtual.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/virtual/$version/',
+    FileRoutesByPath['/_libraries/virtual/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/virtual/$version/']['id'],
+    FileRoutesByPath['/_libraries/virtual/$version/']['path'],
+    FileRoutesByPath['/_libraries/virtual/$version/']['fullPath']
+  >
+}
+declare module './routes/$libraryId/$version.docs.framework.index' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/$version/docs/framework/',
+    FileRoutesByPath['/$libraryId/$version/docs/framework/']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/']['fullPath']
+  >
+}
+declare module './routes/$libraryId/$version.docs.framework.$framework.$' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/$version/docs/framework/$framework/$',
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['fullPath']
+  >
+}
+declare module './routes/$libraryId/$version.docs.framework.$framework.index' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/$version/docs/framework/$framework/',
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['fullPath']
+  >
+}
+declare module './routes/$libraryId/$version.docs.framework.$framework.examples.$' {
+  const createFileRoute: CreateFileRoute<
+    '/$libraryId/$version/docs/framework/$framework/examples/$',
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['parentRoute'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['id'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['path'],
+    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['fullPath']
+  >
+}
+
+// Create and export the route tree
+
+interface LibraryIdVersionDocsRouteChildren {
+  LibraryIdVersionDocsSplatRoute: typeof LibraryIdVersionDocsSplatRoute
+  LibraryIdVersionDocsContributorsRoute: typeof LibraryIdVersionDocsContributorsRoute
+  LibraryIdVersionDocsIndexRoute: typeof LibraryIdVersionDocsIndexRoute
+  LibraryIdVersionDocsFrameworkIndexRoute: typeof LibraryIdVersionDocsFrameworkIndexRoute
+  LibraryIdVersionDocsFrameworkFrameworkSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
+  LibraryIdVersionDocsFrameworkFrameworkIndexRoute: typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
+  LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
+}
+
+const LibraryIdVersionDocsRouteChildren: LibraryIdVersionDocsRouteChildren = {
+  LibraryIdVersionDocsSplatRoute: LibraryIdVersionDocsSplatRoute,
+  LibraryIdVersionDocsContributorsRoute: LibraryIdVersionDocsContributorsRoute,
+  LibraryIdVersionDocsIndexRoute: LibraryIdVersionDocsIndexRoute,
+  LibraryIdVersionDocsFrameworkIndexRoute:
+    LibraryIdVersionDocsFrameworkIndexRoute,
+  LibraryIdVersionDocsFrameworkFrameworkSplatRoute:
+    LibraryIdVersionDocsFrameworkFrameworkSplatRoute,
+  LibraryIdVersionDocsFrameworkFrameworkIndexRoute:
+    LibraryIdVersionDocsFrameworkFrameworkIndexRoute,
+  LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute:
+    LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute,
+}
+
+const LibraryIdVersionDocsRouteWithChildren =
+  LibraryIdVersionDocsRoute._addFileChildren(LibraryIdVersionDocsRouteChildren)
+
+interface LibraryIdVersionRouteChildren {
+  LibraryIdVersionDocsRoute: typeof LibraryIdVersionDocsRouteWithChildren
+}
+
+const LibraryIdVersionRouteChildren: LibraryIdVersionRouteChildren = {
+  LibraryIdVersionDocsRoute: LibraryIdVersionDocsRouteWithChildren,
+}
+
+const LibraryIdVersionRouteWithChildren =
+  LibraryIdVersionRoute._addFileChildren(LibraryIdVersionRouteChildren)
+
+interface LibraryIdRouteRouteChildren {
+  LibraryIdVersionRoute: typeof LibraryIdVersionRouteWithChildren
+  LibraryIdIndexRoute: typeof LibraryIdIndexRoute
+}
+
+const LibraryIdRouteRouteChildren: LibraryIdRouteRouteChildren = {
+  LibraryIdVersionRoute: LibraryIdVersionRouteWithChildren,
+  LibraryIdIndexRoute: LibraryIdIndexRoute,
+}
+
+const LibraryIdRouteRouteWithChildren = LibraryIdRouteRoute._addFileChildren(
+  LibraryIdRouteRouteChildren,
+)
+
+interface LibrariesBlogRouteChildren {
+  LibrariesBlogSplatRoute: typeof LibrariesBlogSplatRoute
+  LibrariesBlogIndexRoute: typeof LibrariesBlogIndexRoute
+}
+
+const LibrariesBlogRouteChildren: LibrariesBlogRouteChildren = {
+  LibrariesBlogSplatRoute: LibrariesBlogSplatRoute,
+  LibrariesBlogIndexRoute: LibrariesBlogIndexRoute,
+}
+
+const LibrariesBlogRouteWithChildren = LibrariesBlogRoute._addFileChildren(
+  LibrariesBlogRouteChildren,
+)
+
+interface LibrariesRouteRouteChildren {
+  LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
+  LibrariesDedicatedSupportRoute: typeof LibrariesDedicatedSupportRoute
+  LibrariesEthosRoute: typeof LibrariesEthosRoute
+  LibrariesLearnRoute: typeof LibrariesLearnRoute
+  LibrariesPrivacyRoute: typeof LibrariesPrivacyRoute
+  LibrariesSupportRoute: typeof LibrariesSupportRoute
+  LibrariesTermsRoute: typeof LibrariesTermsRoute
+  LibrariesIndexRoute: typeof LibrariesIndexRoute
+  LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
+  LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
+  LibrariesFormVersionIndexRoute: typeof LibrariesFormVersionIndexRoute
+  LibrariesPacerVersionIndexRoute: typeof LibrariesPacerVersionIndexRoute
+  LibrariesQueryVersionIndexRoute: typeof LibrariesQueryVersionIndexRoute
+  LibrariesRangerVersionIndexRoute: typeof LibrariesRangerVersionIndexRoute
+  LibrariesRouterVersionIndexRoute: typeof LibrariesRouterVersionIndexRoute
+  LibrariesStartVersionIndexRoute: typeof LibrariesStartVersionIndexRoute
+  LibrariesStoreVersionIndexRoute: typeof LibrariesStoreVersionIndexRoute
+  LibrariesTableVersionIndexRoute: typeof LibrariesTableVersionIndexRoute
+  LibrariesVirtualVersionIndexRoute: typeof LibrariesVirtualVersionIndexRoute
+}
+
+const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
+  LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
+  LibrariesDedicatedSupportRoute: LibrariesDedicatedSupportRoute,
+  LibrariesEthosRoute: LibrariesEthosRoute,
+  LibrariesLearnRoute: LibrariesLearnRoute,
+  LibrariesPrivacyRoute: LibrariesPrivacyRoute,
+  LibrariesSupportRoute: LibrariesSupportRoute,
+  LibrariesTermsRoute: LibrariesTermsRoute,
+  LibrariesIndexRoute: LibrariesIndexRoute,
+  LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
+  LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,
+  LibrariesFormVersionIndexRoute: LibrariesFormVersionIndexRoute,
+  LibrariesPacerVersionIndexRoute: LibrariesPacerVersionIndexRoute,
+  LibrariesQueryVersionIndexRoute: LibrariesQueryVersionIndexRoute,
+  LibrariesRangerVersionIndexRoute: LibrariesRangerVersionIndexRoute,
+  LibrariesRouterVersionIndexRoute: LibrariesRouterVersionIndexRoute,
+  LibrariesStartVersionIndexRoute: LibrariesStartVersionIndexRoute,
+  LibrariesStoreVersionIndexRoute: LibrariesStoreVersionIndexRoute,
+  LibrariesTableVersionIndexRoute: LibrariesTableVersionIndexRoute,
+  LibrariesVirtualVersionIndexRoute: LibrariesVirtualVersionIndexRoute,
+}
+
+const LibrariesRouteRouteWithChildren = LibrariesRouteRoute._addFileChildren(
+  LibrariesRouteRouteChildren,
+)
 
 export interface FileRoutesByFullPath {
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
+  '': typeof LibrariesRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/merch': typeof MerchRoute
@@ -327,6 +1097,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/framework/$framework': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
+
 export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -364,8 +1135,9 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/framework/$framework': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
+
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
+  __root__: typeof rootRoute
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
   '/_libraries': typeof LibrariesRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
@@ -406,10 +1178,12 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs/framework/$framework/': typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
+
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/$libraryId'
+    | ''
     | '/dashboard'
     | '/login'
     | '/merch'
@@ -527,6 +1301,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   fileRoutesById: FileRoutesById
 }
+
 export interface RootRouteChildren {
   LibraryIdRouteRoute: typeof LibraryIdRouteRouteWithChildren
   LibrariesRouteRoute: typeof LibrariesRouteRouteWithChildren
@@ -537,1433 +1312,6 @@ export interface RootRouteChildren {
   StatsIndexRoute: typeof StatsIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
 }
-export interface FileServerRoutesByFullPath {
-  '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
-  '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
-}
-export interface FileServerRoutesByTo {
-  '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
-  '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport
-  '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
-  '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths:
-    | '/$libraryId/$version/docs/{$}.md'
-    | '/$libraryId/$version/docs/framework/$framework/{$}.md'
-  fileServerRoutesByTo: FileServerRoutesByTo
-  to:
-    | '/$libraryId/$version/docs/{$}.md'
-    | '/$libraryId/$version/docs/framework/$framework/{$}.md'
-  id:
-    | '__root__'
-    | '/$libraryId/$version/docs/{$}.md'
-    | '/$libraryId/$version/docs/framework/$framework/{$}.md'
-  fileServerRoutesById: FileServerRoutesById
-}
-export interface RootServerRouteChildren {
-  LibraryIdVersionDocsChar123Char125DotmdServerRoute: typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
-  LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute: typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
-}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/$libraryId': {
-      id: '/$libraryId'
-      path: '/$libraryId'
-      fullPath: '/$libraryId'
-      preLoaderRoute: typeof LibraryIdRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_libraries': {
-      id: '/_libraries'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof LibrariesRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/merch': {
-      id: '/merch'
-      path: '/merch'
-      fullPath: '/merch'
-      preLoaderRoute: typeof MerchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sponsors-embed': {
-      id: '/sponsors-embed'
-      path: '/sponsors-embed'
-      fullPath: '/sponsors-embed'
-      preLoaderRoute: typeof SponsorsEmbedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/$libraryId/$version': {
-      id: '/$libraryId/$version'
-      path: '/$version'
-      fullPath: '/$libraryId/$version'
-      preLoaderRoute: typeof LibraryIdVersionRouteImport
-      parentRoute: typeof LibraryIdRouteRoute
-    }
-    '/_libraries/blog': {
-      id: '/_libraries/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof LibrariesBlogRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/dedicated-support': {
-      id: '/_libraries/dedicated-support'
-      path: '/dedicated-support'
-      fullPath: '/dedicated-support'
-      preLoaderRoute: typeof LibrariesDedicatedSupportRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/ethos': {
-      id: '/_libraries/ethos'
-      path: '/ethos'
-      fullPath: '/ethos'
-      preLoaderRoute: typeof LibrariesEthosRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/learn': {
-      id: '/_libraries/learn'
-      path: '/learn'
-      fullPath: '/learn'
-      preLoaderRoute: typeof LibrariesLearnRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/privacy': {
-      id: '/_libraries/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof LibrariesPrivacyRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/support': {
-      id: '/_libraries/support'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: typeof LibrariesSupportRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/terms': {
-      id: '/_libraries/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof LibrariesTermsRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/$libraryId/': {
-      id: '/$libraryId/'
-      path: '/'
-      fullPath: '/$libraryId/'
-      preLoaderRoute: typeof LibraryIdIndexRouteImport
-      parentRoute: typeof LibraryIdRouteRoute
-    }
-    '/_libraries/': {
-      id: '/_libraries/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof LibrariesIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/stats/': {
-      id: '/stats/'
-      path: '/stats'
-      fullPath: '/stats'
-      preLoaderRoute: typeof StatsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/$libraryId/$version/docs': {
-      id: '/$libraryId/$version/docs'
-      path: '/docs'
-      fullPath: '/$libraryId/$version/docs'
-      preLoaderRoute: typeof LibraryIdVersionDocsRouteImport
-      parentRoute: typeof LibraryIdVersionRoute
-    }
-    '/_libraries/blog/$': {
-      id: '/_libraries/blog/$'
-      path: '/$'
-      fullPath: '/blog/$'
-      preLoaderRoute: typeof LibrariesBlogSplatRouteImport
-      parentRoute: typeof LibrariesBlogRoute
-    }
-    '/_libraries/blog/': {
-      id: '/_libraries/blog/'
-      path: '/'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof LibrariesBlogIndexRouteImport
-      parentRoute: typeof LibrariesBlogRoute
-    }
-    '/stats/npm/': {
-      id: '/stats/npm/'
-      path: '/stats/npm'
-      fullPath: '/stats/npm'
-      preLoaderRoute: typeof StatsNpmIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/$libraryId/$version/docs/$': {
-      id: '/$libraryId/$version/docs/$'
-      path: '/$'
-      fullPath: '/$libraryId/$version/docs/$'
-      preLoaderRoute: typeof LibraryIdVersionDocsSplatRouteImport
-      parentRoute: typeof LibraryIdVersionDocsRoute
-    }
-    '/$libraryId/$version/docs/contributors': {
-      id: '/$libraryId/$version/docs/contributors'
-      path: '/contributors'
-      fullPath: '/$libraryId/$version/docs/contributors'
-      preLoaderRoute: typeof LibraryIdVersionDocsContributorsRouteImport
-      parentRoute: typeof LibraryIdVersionDocsRoute
-    }
-    '/$libraryId/$version/docs/{$}.md': {
-      id: '/$libraryId/$version/docs/{$}.md'
-      path: ''
-      fullPath: '/$libraryId/$version/docs/{$}.md'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootRouteImport
-    }
-    '/$libraryId/$version/docs/': {
-      id: '/$libraryId/$version/docs/'
-      path: '/'
-      fullPath: '/$libraryId/$version/docs/'
-      preLoaderRoute: typeof LibraryIdVersionDocsIndexRouteImport
-      parentRoute: typeof LibraryIdVersionDocsRoute
-    }
-    '/_libraries/config/$version/': {
-      id: '/_libraries/config/$version/'
-      path: '/config/$version'
-      fullPath: '/config/$version'
-      preLoaderRoute: typeof LibrariesConfigVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/db/$version/': {
-      id: '/_libraries/db/$version/'
-      path: '/db/$version'
-      fullPath: '/db/$version'
-      preLoaderRoute: typeof LibrariesDbVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/form/$version/': {
-      id: '/_libraries/form/$version/'
-      path: '/form/$version'
-      fullPath: '/form/$version'
-      preLoaderRoute: typeof LibrariesFormVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/pacer/$version/': {
-      id: '/_libraries/pacer/$version/'
-      path: '/pacer/$version'
-      fullPath: '/pacer/$version'
-      preLoaderRoute: typeof LibrariesPacerVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/query/$version/': {
-      id: '/_libraries/query/$version/'
-      path: '/query/$version'
-      fullPath: '/query/$version'
-      preLoaderRoute: typeof LibrariesQueryVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/ranger/$version/': {
-      id: '/_libraries/ranger/$version/'
-      path: '/ranger/$version'
-      fullPath: '/ranger/$version'
-      preLoaderRoute: typeof LibrariesRangerVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/router/$version/': {
-      id: '/_libraries/router/$version/'
-      path: '/router/$version'
-      fullPath: '/router/$version'
-      preLoaderRoute: typeof LibrariesRouterVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/start/$version/': {
-      id: '/_libraries/start/$version/'
-      path: '/start/$version'
-      fullPath: '/start/$version'
-      preLoaderRoute: typeof LibrariesStartVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/store/$version/': {
-      id: '/_libraries/store/$version/'
-      path: '/store/$version'
-      fullPath: '/store/$version'
-      preLoaderRoute: typeof LibrariesStoreVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/table/$version/': {
-      id: '/_libraries/table/$version/'
-      path: '/table/$version'
-      fullPath: '/table/$version'
-      preLoaderRoute: typeof LibrariesTableVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/virtual/$version/': {
-      id: '/_libraries/virtual/$version/'
-      path: '/virtual/$version'
-      fullPath: '/virtual/$version'
-      preLoaderRoute: typeof LibrariesVirtualVersionIndexRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/$libraryId/$version/docs/framework/': {
-      id: '/$libraryId/$version/docs/framework/'
-      path: '/framework'
-      fullPath: '/$libraryId/$version/docs/framework'
-      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkIndexRouteImport
-      parentRoute: typeof LibraryIdVersionDocsRoute
-    }
-    '/$libraryId/$version/docs/framework/$framework/$': {
-      id: '/$libraryId/$version/docs/framework/$framework/$'
-      path: '/framework/$framework/$'
-      fullPath: '/$libraryId/$version/docs/framework/$framework/$'
-      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport
-      parentRoute: typeof LibraryIdVersionDocsRoute
-    }
-    '/$libraryId/$version/docs/framework/$framework/{$}.md': {
-      id: '/$libraryId/$version/docs/framework/$framework/{$}.md'
-      path: ''
-      fullPath: '/$libraryId/$version/docs/framework/$framework/{$}.md'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootRouteImport
-    }
-    '/$libraryId/$version/docs/framework/$framework/': {
-      id: '/$libraryId/$version/docs/framework/$framework/'
-      path: '/framework/$framework'
-      fullPath: '/$libraryId/$version/docs/framework/$framework'
-      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport
-      parentRoute: typeof LibraryIdVersionDocsRoute
-    }
-    '/$libraryId/$version/docs/framework/$framework/examples/$': {
-      id: '/$libraryId/$version/docs/framework/$framework/examples/$'
-      path: '/framework/$framework/examples/$'
-      fullPath: '/$libraryId/$version/docs/framework/$framework/examples/$'
-      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport
-      parentRoute: typeof LibraryIdVersionDocsRoute
-    }
-  }
-}
-declare module '@tanstack/react-start/server' {
-  interface ServerFileRoutesByPath {
-    '/$libraryId': {
-      id: '/$libraryId'
-      path: '/$libraryId'
-      fullPath: '/$libraryId'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries': {
-      id: '/_libraries'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/merch': {
-      id: '/merch'
-      path: '/merch'
-      fullPath: '/merch'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/sponsors-embed': {
-      id: '/sponsors-embed'
-      path: '/sponsors-embed'
-      fullPath: '/sponsors-embed'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version': {
-      id: '/$libraryId/$version'
-      path: '/$version'
-      fullPath: '/$libraryId/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/blog': {
-      id: '/_libraries/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/dedicated-support': {
-      id: '/_libraries/dedicated-support'
-      path: '/dedicated-support'
-      fullPath: '/dedicated-support'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/ethos': {
-      id: '/_libraries/ethos'
-      path: '/ethos'
-      fullPath: '/ethos'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/learn': {
-      id: '/_libraries/learn'
-      path: '/learn'
-      fullPath: '/learn'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/privacy': {
-      id: '/_libraries/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/support': {
-      id: '/_libraries/support'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/terms': {
-      id: '/_libraries/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/': {
-      id: '/$libraryId/'
-      path: '/'
-      fullPath: '/$libraryId/'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/': {
-      id: '/_libraries/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/stats/': {
-      id: '/stats/'
-      path: '/stats'
-      fullPath: '/stats'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version/docs': {
-      id: '/$libraryId/$version/docs'
-      path: '/docs'
-      fullPath: '/$libraryId/$version/docs'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/blog/$': {
-      id: '/_libraries/blog/$'
-      path: '/$'
-      fullPath: '/blog/$'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/blog/': {
-      id: '/_libraries/blog/'
-      path: '/'
-      fullPath: '/blog/'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/stats/npm/': {
-      id: '/stats/npm/'
-      path: '/stats/npm'
-      fullPath: '/stats/npm'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version/docs/$': {
-      id: '/$libraryId/$version/docs/$'
-      path: '/$'
-      fullPath: '/$libraryId/$version/docs/$'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version/docs/contributors': {
-      id: '/$libraryId/$version/docs/contributors'
-      path: '/contributors'
-      fullPath: '/$libraryId/$version/docs/contributors'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version/docs/{$}.md': {
-      id: '/$libraryId/$version/docs/{$}.md'
-      path: '/$libraryId/$version/docs/{$}.md'
-      fullPath: '/$libraryId/$version/docs/{$}.md'
-      preLoaderRoute: typeof LibraryIdVersionDocsChar123Char125DotmdServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version/docs/': {
-      id: '/$libraryId/$version/docs/'
-      path: '/'
-      fullPath: '/$libraryId/$version/docs/'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/config/$version/': {
-      id: '/_libraries/config/$version/'
-      path: '/config/$version'
-      fullPath: '/config/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/db/$version/': {
-      id: '/_libraries/db/$version/'
-      path: '/db/$version'
-      fullPath: '/db/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/form/$version/': {
-      id: '/_libraries/form/$version/'
-      path: '/form/$version'
-      fullPath: '/form/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/pacer/$version/': {
-      id: '/_libraries/pacer/$version/'
-      path: '/pacer/$version'
-      fullPath: '/pacer/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/query/$version/': {
-      id: '/_libraries/query/$version/'
-      path: '/query/$version'
-      fullPath: '/query/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/ranger/$version/': {
-      id: '/_libraries/ranger/$version/'
-      path: '/ranger/$version'
-      fullPath: '/ranger/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/router/$version/': {
-      id: '/_libraries/router/$version/'
-      path: '/router/$version'
-      fullPath: '/router/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/start/$version/': {
-      id: '/_libraries/start/$version/'
-      path: '/start/$version'
-      fullPath: '/start/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/store/$version/': {
-      id: '/_libraries/store/$version/'
-      path: '/store/$version'
-      fullPath: '/store/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/table/$version/': {
-      id: '/_libraries/table/$version/'
-      path: '/table/$version'
-      fullPath: '/table/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/virtual/$version/': {
-      id: '/_libraries/virtual/$version/'
-      path: '/virtual/$version'
-      fullPath: '/virtual/$version'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version/docs/framework/': {
-      id: '/$libraryId/$version/docs/framework/'
-      path: '/framework'
-      fullPath: '/$libraryId/$version/docs/framework'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version/docs/framework/$framework/$': {
-      id: '/$libraryId/$version/docs/framework/$framework/$'
-      path: '/framework/$framework/$'
-      fullPath: '/$libraryId/$version/docs/framework/$framework/$'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version/docs/framework/$framework/{$}.md': {
-      id: '/$libraryId/$version/docs/framework/$framework/{$}.md'
-      path: '/$libraryId/$version/docs/framework/$framework/{$}.md'
-      fullPath: '/$libraryId/$version/docs/framework/$framework/{$}.md'
-      preLoaderRoute: typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version/docs/framework/$framework/': {
-      id: '/$libraryId/$version/docs/framework/$framework/'
-      path: '/framework/$framework'
-      fullPath: '/$libraryId/$version/docs/framework/$framework'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/$libraryId/$version/docs/framework/$framework/examples/$': {
-      id: '/$libraryId/$version/docs/framework/$framework/examples/$'
-      path: '/framework/$framework/examples/$'
-      fullPath: '/$libraryId/$version/docs/framework/$framework/examples/$'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-  }
-}
-
-declare module './routes/$libraryId/route' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId',
-    FileRoutesByPath['/$libraryId']['parentRoute'],
-    FileRoutesByPath['/$libraryId']['id'],
-    FileRoutesByPath['/$libraryId']['path'],
-    FileRoutesByPath['/$libraryId']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId']['id'],
-    ServerFileRoutesByPath['/$libraryId']['path'],
-    ServerFileRoutesByPath['/$libraryId']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/route' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries',
-    FileRoutesByPath['/_libraries']['parentRoute'],
-    FileRoutesByPath['/_libraries']['id'],
-    FileRoutesByPath['/_libraries']['path'],
-    FileRoutesByPath['/_libraries']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries']['id'],
-    ServerFileRoutesByPath['/_libraries']['path'],
-    ServerFileRoutesByPath['/_libraries']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/dashboard' {
-  const createFileRoute: CreateFileRoute<
-    '/dashboard',
-    FileRoutesByPath['/dashboard']['parentRoute'],
-    FileRoutesByPath['/dashboard']['id'],
-    FileRoutesByPath['/dashboard']['path'],
-    FileRoutesByPath['/dashboard']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/dashboard']['parentRoute'],
-    ServerFileRoutesByPath['/dashboard']['id'],
-    ServerFileRoutesByPath['/dashboard']['path'],
-    ServerFileRoutesByPath['/dashboard']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/login' {
-  const createFileRoute: CreateFileRoute<
-    '/login',
-    FileRoutesByPath['/login']['parentRoute'],
-    FileRoutesByPath['/login']['id'],
-    FileRoutesByPath['/login']['path'],
-    FileRoutesByPath['/login']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/login']['parentRoute'],
-    ServerFileRoutesByPath['/login']['id'],
-    ServerFileRoutesByPath['/login']['path'],
-    ServerFileRoutesByPath['/login']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/merch' {
-  const createFileRoute: CreateFileRoute<
-    '/merch',
-    FileRoutesByPath['/merch']['parentRoute'],
-    FileRoutesByPath['/merch']['id'],
-    FileRoutesByPath['/merch']['path'],
-    FileRoutesByPath['/merch']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/merch']['parentRoute'],
-    ServerFileRoutesByPath['/merch']['id'],
-    ServerFileRoutesByPath['/merch']['path'],
-    ServerFileRoutesByPath['/merch']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/sponsors-embed' {
-  const createFileRoute: CreateFileRoute<
-    '/sponsors-embed',
-    FileRoutesByPath['/sponsors-embed']['parentRoute'],
-    FileRoutesByPath['/sponsors-embed']['id'],
-    FileRoutesByPath['/sponsors-embed']['path'],
-    FileRoutesByPath['/sponsors-embed']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/sponsors-embed']['parentRoute'],
-    ServerFileRoutesByPath['/sponsors-embed']['id'],
-    ServerFileRoutesByPath['/sponsors-embed']['path'],
-    ServerFileRoutesByPath['/sponsors-embed']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version',
-    FileRoutesByPath['/$libraryId/$version']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version']['id'],
-    FileRoutesByPath['/$libraryId/$version']['path'],
-    FileRoutesByPath['/$libraryId/$version']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/blog' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/blog',
-    FileRoutesByPath['/_libraries/blog']['parentRoute'],
-    FileRoutesByPath['/_libraries/blog']['id'],
-    FileRoutesByPath['/_libraries/blog']['path'],
-    FileRoutesByPath['/_libraries/blog']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/blog']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/blog']['id'],
-    ServerFileRoutesByPath['/_libraries/blog']['path'],
-    ServerFileRoutesByPath['/_libraries/blog']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/dedicated-support' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/dedicated-support',
-    FileRoutesByPath['/_libraries/dedicated-support']['parentRoute'],
-    FileRoutesByPath['/_libraries/dedicated-support']['id'],
-    FileRoutesByPath['/_libraries/dedicated-support']['path'],
-    FileRoutesByPath['/_libraries/dedicated-support']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/dedicated-support']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/dedicated-support']['id'],
-    ServerFileRoutesByPath['/_libraries/dedicated-support']['path'],
-    ServerFileRoutesByPath['/_libraries/dedicated-support']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/ethos' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/ethos',
-    FileRoutesByPath['/_libraries/ethos']['parentRoute'],
-    FileRoutesByPath['/_libraries/ethos']['id'],
-    FileRoutesByPath['/_libraries/ethos']['path'],
-    FileRoutesByPath['/_libraries/ethos']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/ethos']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/ethos']['id'],
-    ServerFileRoutesByPath['/_libraries/ethos']['path'],
-    ServerFileRoutesByPath['/_libraries/ethos']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/learn' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/learn',
-    FileRoutesByPath['/_libraries/learn']['parentRoute'],
-    FileRoutesByPath['/_libraries/learn']['id'],
-    FileRoutesByPath['/_libraries/learn']['path'],
-    FileRoutesByPath['/_libraries/learn']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/learn']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/learn']['id'],
-    ServerFileRoutesByPath['/_libraries/learn']['path'],
-    ServerFileRoutesByPath['/_libraries/learn']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/privacy' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/privacy',
-    FileRoutesByPath['/_libraries/privacy']['parentRoute'],
-    FileRoutesByPath['/_libraries/privacy']['id'],
-    FileRoutesByPath['/_libraries/privacy']['path'],
-    FileRoutesByPath['/_libraries/privacy']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/privacy']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/privacy']['id'],
-    ServerFileRoutesByPath['/_libraries/privacy']['path'],
-    ServerFileRoutesByPath['/_libraries/privacy']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/support' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/support',
-    FileRoutesByPath['/_libraries/support']['parentRoute'],
-    FileRoutesByPath['/_libraries/support']['id'],
-    FileRoutesByPath['/_libraries/support']['path'],
-    FileRoutesByPath['/_libraries/support']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/support']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/support']['id'],
-    ServerFileRoutesByPath['/_libraries/support']['path'],
-    ServerFileRoutesByPath['/_libraries/support']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/terms' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/terms',
-    FileRoutesByPath['/_libraries/terms']['parentRoute'],
-    FileRoutesByPath['/_libraries/terms']['id'],
-    FileRoutesByPath['/_libraries/terms']['path'],
-    FileRoutesByPath['/_libraries/terms']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/terms']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/terms']['id'],
-    ServerFileRoutesByPath['/_libraries/terms']['path'],
-    ServerFileRoutesByPath['/_libraries/terms']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/index' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/',
-    FileRoutesByPath['/$libraryId/']['parentRoute'],
-    FileRoutesByPath['/$libraryId/']['id'],
-    FileRoutesByPath['/$libraryId/']['path'],
-    FileRoutesByPath['/$libraryId/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/']['id'],
-    ServerFileRoutesByPath['/$libraryId/']['path'],
-    ServerFileRoutesByPath['/$libraryId/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/',
-    FileRoutesByPath['/_libraries/']['parentRoute'],
-    FileRoutesByPath['/_libraries/']['id'],
-    FileRoutesByPath['/_libraries/']['path'],
-    FileRoutesByPath['/_libraries/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/']['id'],
-    ServerFileRoutesByPath['/_libraries/']['path'],
-    ServerFileRoutesByPath['/_libraries/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/stats/index' {
-  const createFileRoute: CreateFileRoute<
-    '/stats/',
-    FileRoutesByPath['/stats/']['parentRoute'],
-    FileRoutesByPath['/stats/']['id'],
-    FileRoutesByPath['/stats/']['path'],
-    FileRoutesByPath['/stats/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/stats/']['parentRoute'],
-    ServerFileRoutesByPath['/stats/']['id'],
-    ServerFileRoutesByPath['/stats/']['path'],
-    ServerFileRoutesByPath['/stats/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version.docs' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version/docs',
-    FileRoutesByPath['/$libraryId/$version/docs']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version/docs']['id'],
-    FileRoutesByPath['/$libraryId/$version/docs']['path'],
-    FileRoutesByPath['/$libraryId/$version/docs']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version/docs']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/blog.$' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/blog/$',
-    FileRoutesByPath['/_libraries/blog/$']['parentRoute'],
-    FileRoutesByPath['/_libraries/blog/$']['id'],
-    FileRoutesByPath['/_libraries/blog/$']['path'],
-    FileRoutesByPath['/_libraries/blog/$']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/blog/$']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/blog/$']['id'],
-    ServerFileRoutesByPath['/_libraries/blog/$']['path'],
-    ServerFileRoutesByPath['/_libraries/blog/$']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/blog.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/blog/',
-    FileRoutesByPath['/_libraries/blog/']['parentRoute'],
-    FileRoutesByPath['/_libraries/blog/']['id'],
-    FileRoutesByPath['/_libraries/blog/']['path'],
-    FileRoutesByPath['/_libraries/blog/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/blog/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/blog/']['id'],
-    ServerFileRoutesByPath['/_libraries/blog/']['path'],
-    ServerFileRoutesByPath['/_libraries/blog/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/stats/npm/index' {
-  const createFileRoute: CreateFileRoute<
-    '/stats/npm/',
-    FileRoutesByPath['/stats/npm/']['parentRoute'],
-    FileRoutesByPath['/stats/npm/']['id'],
-    FileRoutesByPath['/stats/npm/']['path'],
-    FileRoutesByPath['/stats/npm/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/stats/npm/']['parentRoute'],
-    ServerFileRoutesByPath['/stats/npm/']['id'],
-    ServerFileRoutesByPath['/stats/npm/']['path'],
-    ServerFileRoutesByPath['/stats/npm/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version.docs.$' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version/docs/$',
-    FileRoutesByPath['/$libraryId/$version/docs/$']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version/docs/$']['id'],
-    FileRoutesByPath['/$libraryId/$version/docs/$']['path'],
-    FileRoutesByPath['/$libraryId/$version/docs/$']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version/docs/$']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/$']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/$']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/$']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version.docs.contributors' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version/docs/contributors',
-    FileRoutesByPath['/$libraryId/$version/docs/contributors']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version/docs/contributors']['id'],
-    FileRoutesByPath['/$libraryId/$version/docs/contributors']['path'],
-    FileRoutesByPath['/$libraryId/$version/docs/contributors']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version/docs/contributors']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/contributors']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/contributors']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/contributors']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version.docs.{$}[.]md' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version/docs/{$}.md',
-    FileRoutesByPath['/$libraryId/$version/docs/{$}.md']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version/docs/{$}.md']['id'],
-    FileRoutesByPath['/$libraryId/$version/docs/{$}.md']['path'],
-    FileRoutesByPath['/$libraryId/$version/docs/{$}.md']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version/docs/{$}.md']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/{$}.md']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/{$}.md']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/{$}.md']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version.docs.index' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version/docs/',
-    FileRoutesByPath['/$libraryId/$version/docs/']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version/docs/']['id'],
-    FileRoutesByPath['/$libraryId/$version/docs/']['path'],
-    FileRoutesByPath['/$libraryId/$version/docs/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version/docs/']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/config.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/config/$version/',
-    FileRoutesByPath['/_libraries/config/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/config/$version/']['id'],
-    FileRoutesByPath['/_libraries/config/$version/']['path'],
-    FileRoutesByPath['/_libraries/config/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/config/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/config/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/config/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/config/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/db.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/db/$version/',
-    FileRoutesByPath['/_libraries/db/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/db/$version/']['id'],
-    FileRoutesByPath['/_libraries/db/$version/']['path'],
-    FileRoutesByPath['/_libraries/db/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/db/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/db/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/db/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/db/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/form.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/form/$version/',
-    FileRoutesByPath['/_libraries/form/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/form/$version/']['id'],
-    FileRoutesByPath['/_libraries/form/$version/']['path'],
-    FileRoutesByPath['/_libraries/form/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/form/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/form/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/form/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/form/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/pacer.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/pacer/$version/',
-    FileRoutesByPath['/_libraries/pacer/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/pacer/$version/']['id'],
-    FileRoutesByPath['/_libraries/pacer/$version/']['path'],
-    FileRoutesByPath['/_libraries/pacer/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/pacer/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/pacer/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/pacer/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/pacer/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/query.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/query/$version/',
-    FileRoutesByPath['/_libraries/query/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/query/$version/']['id'],
-    FileRoutesByPath['/_libraries/query/$version/']['path'],
-    FileRoutesByPath['/_libraries/query/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/query/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/query/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/query/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/query/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/ranger.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/ranger/$version/',
-    FileRoutesByPath['/_libraries/ranger/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/ranger/$version/']['id'],
-    FileRoutesByPath['/_libraries/ranger/$version/']['path'],
-    FileRoutesByPath['/_libraries/ranger/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/ranger/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/ranger/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/ranger/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/ranger/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/router.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/router/$version/',
-    FileRoutesByPath['/_libraries/router/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/router/$version/']['id'],
-    FileRoutesByPath['/_libraries/router/$version/']['path'],
-    FileRoutesByPath['/_libraries/router/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/router/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/router/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/router/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/router/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/start.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/start/$version/',
-    FileRoutesByPath['/_libraries/start/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/start/$version/']['id'],
-    FileRoutesByPath['/_libraries/start/$version/']['path'],
-    FileRoutesByPath['/_libraries/start/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/start/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/start/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/start/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/start/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/store.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/store/$version/',
-    FileRoutesByPath['/_libraries/store/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/store/$version/']['id'],
-    FileRoutesByPath['/_libraries/store/$version/']['path'],
-    FileRoutesByPath['/_libraries/store/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/store/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/store/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/store/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/store/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/table.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/table/$version/',
-    FileRoutesByPath['/_libraries/table/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/table/$version/']['id'],
-    FileRoutesByPath['/_libraries/table/$version/']['path'],
-    FileRoutesByPath['/_libraries/table/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/table/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/table/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/table/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/table/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/virtual.$version.index' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/virtual/$version/',
-    FileRoutesByPath['/_libraries/virtual/$version/']['parentRoute'],
-    FileRoutesByPath['/_libraries/virtual/$version/']['id'],
-    FileRoutesByPath['/_libraries/virtual/$version/']['path'],
-    FileRoutesByPath['/_libraries/virtual/$version/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/virtual/$version/']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/virtual/$version/']['id'],
-    ServerFileRoutesByPath['/_libraries/virtual/$version/']['path'],
-    ServerFileRoutesByPath['/_libraries/virtual/$version/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version.docs.framework.index' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version/docs/framework/',
-    FileRoutesByPath['/$libraryId/$version/docs/framework/']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/']['id'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/']['path'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version.docs.framework.$framework.$' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version/docs/framework/$framework/$',
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['id'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['path'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/$']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version.docs.framework.$framework.{$}[.]md' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version/docs/framework/$framework/{$}.md',
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['id'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['path'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/{$}.md']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version.docs.framework.$framework.index' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version/docs/framework/$framework/',
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['id'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['path'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/$libraryId/$version.docs.framework.$framework.examples.$' {
-  const createFileRoute: CreateFileRoute<
-    '/$libraryId/$version/docs/framework/$framework/examples/$',
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['parentRoute'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['id'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['path'],
-    FileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['parentRoute'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['id'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['path'],
-    ServerFileRoutesByPath['/$libraryId/$version/docs/framework/$framework/examples/$']['fullPath'],
-    unknown
-  >
-}
-
-interface LibraryIdVersionDocsRouteChildren {
-  LibraryIdVersionDocsSplatRoute: typeof LibraryIdVersionDocsSplatRoute
-  LibraryIdVersionDocsContributorsRoute: typeof LibraryIdVersionDocsContributorsRoute
-  LibraryIdVersionDocsIndexRoute: typeof LibraryIdVersionDocsIndexRoute
-  LibraryIdVersionDocsFrameworkIndexRoute: typeof LibraryIdVersionDocsFrameworkIndexRoute
-  LibraryIdVersionDocsFrameworkFrameworkSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkSplatRoute
-  LibraryIdVersionDocsFrameworkFrameworkIndexRoute: typeof LibraryIdVersionDocsFrameworkFrameworkIndexRoute
-  LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute: typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
-}
-
-const LibraryIdVersionDocsRouteChildren: LibraryIdVersionDocsRouteChildren = {
-  LibraryIdVersionDocsSplatRoute: LibraryIdVersionDocsSplatRoute,
-  LibraryIdVersionDocsContributorsRoute: LibraryIdVersionDocsContributorsRoute,
-  LibraryIdVersionDocsIndexRoute: LibraryIdVersionDocsIndexRoute,
-  LibraryIdVersionDocsFrameworkIndexRoute:
-    LibraryIdVersionDocsFrameworkIndexRoute,
-  LibraryIdVersionDocsFrameworkFrameworkSplatRoute:
-    LibraryIdVersionDocsFrameworkFrameworkSplatRoute,
-  LibraryIdVersionDocsFrameworkFrameworkIndexRoute:
-    LibraryIdVersionDocsFrameworkFrameworkIndexRoute,
-  LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute:
-    LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute,
-}
-
-const LibraryIdVersionDocsRouteWithChildren =
-  LibraryIdVersionDocsRoute._addFileChildren(LibraryIdVersionDocsRouteChildren)
-
-interface LibraryIdVersionRouteChildren {
-  LibraryIdVersionDocsRoute: typeof LibraryIdVersionDocsRouteWithChildren
-}
-
-const LibraryIdVersionRouteChildren: LibraryIdVersionRouteChildren = {
-  LibraryIdVersionDocsRoute: LibraryIdVersionDocsRouteWithChildren,
-}
-
-const LibraryIdVersionRouteWithChildren =
-  LibraryIdVersionRoute._addFileChildren(LibraryIdVersionRouteChildren)
-
-interface LibraryIdRouteRouteChildren {
-  LibraryIdVersionRoute: typeof LibraryIdVersionRouteWithChildren
-  LibraryIdIndexRoute: typeof LibraryIdIndexRoute
-}
-
-const LibraryIdRouteRouteChildren: LibraryIdRouteRouteChildren = {
-  LibraryIdVersionRoute: LibraryIdVersionRouteWithChildren,
-  LibraryIdIndexRoute: LibraryIdIndexRoute,
-}
-
-const LibraryIdRouteRouteWithChildren = LibraryIdRouteRoute._addFileChildren(
-  LibraryIdRouteRouteChildren,
-)
-
-interface LibrariesBlogRouteChildren {
-  LibrariesBlogSplatRoute: typeof LibrariesBlogSplatRoute
-  LibrariesBlogIndexRoute: typeof LibrariesBlogIndexRoute
-}
-
-const LibrariesBlogRouteChildren: LibrariesBlogRouteChildren = {
-  LibrariesBlogSplatRoute: LibrariesBlogSplatRoute,
-  LibrariesBlogIndexRoute: LibrariesBlogIndexRoute,
-}
-
-const LibrariesBlogRouteWithChildren = LibrariesBlogRoute._addFileChildren(
-  LibrariesBlogRouteChildren,
-)
-
-interface LibrariesRouteRouteChildren {
-  LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
-  LibrariesDedicatedSupportRoute: typeof LibrariesDedicatedSupportRoute
-  LibrariesEthosRoute: typeof LibrariesEthosRoute
-  LibrariesLearnRoute: typeof LibrariesLearnRoute
-  LibrariesPrivacyRoute: typeof LibrariesPrivacyRoute
-  LibrariesSupportRoute: typeof LibrariesSupportRoute
-  LibrariesTermsRoute: typeof LibrariesTermsRoute
-  LibrariesIndexRoute: typeof LibrariesIndexRoute
-  LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
-  LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
-  LibrariesFormVersionIndexRoute: typeof LibrariesFormVersionIndexRoute
-  LibrariesPacerVersionIndexRoute: typeof LibrariesPacerVersionIndexRoute
-  LibrariesQueryVersionIndexRoute: typeof LibrariesQueryVersionIndexRoute
-  LibrariesRangerVersionIndexRoute: typeof LibrariesRangerVersionIndexRoute
-  LibrariesRouterVersionIndexRoute: typeof LibrariesRouterVersionIndexRoute
-  LibrariesStartVersionIndexRoute: typeof LibrariesStartVersionIndexRoute
-  LibrariesStoreVersionIndexRoute: typeof LibrariesStoreVersionIndexRoute
-  LibrariesTableVersionIndexRoute: typeof LibrariesTableVersionIndexRoute
-  LibrariesVirtualVersionIndexRoute: typeof LibrariesVirtualVersionIndexRoute
-}
-
-const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
-  LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
-  LibrariesDedicatedSupportRoute: LibrariesDedicatedSupportRoute,
-  LibrariesEthosRoute: LibrariesEthosRoute,
-  LibrariesLearnRoute: LibrariesLearnRoute,
-  LibrariesPrivacyRoute: LibrariesPrivacyRoute,
-  LibrariesSupportRoute: LibrariesSupportRoute,
-  LibrariesTermsRoute: LibrariesTermsRoute,
-  LibrariesIndexRoute: LibrariesIndexRoute,
-  LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
-  LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,
-  LibrariesFormVersionIndexRoute: LibrariesFormVersionIndexRoute,
-  LibrariesPacerVersionIndexRoute: LibrariesPacerVersionIndexRoute,
-  LibrariesQueryVersionIndexRoute: LibrariesQueryVersionIndexRoute,
-  LibrariesRangerVersionIndexRoute: LibrariesRangerVersionIndexRoute,
-  LibrariesRouterVersionIndexRoute: LibrariesRouterVersionIndexRoute,
-  LibrariesStartVersionIndexRoute: LibrariesStartVersionIndexRoute,
-  LibrariesStoreVersionIndexRoute: LibrariesStoreVersionIndexRoute,
-  LibrariesTableVersionIndexRoute: LibrariesTableVersionIndexRoute,
-  LibrariesVirtualVersionIndexRoute: LibrariesVirtualVersionIndexRoute,
-}
-
-const LibrariesRouteRouteWithChildren = LibrariesRouteRoute._addFileChildren(
-  LibrariesRouteRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   LibraryIdRouteRoute: LibraryIdRouteRouteWithChildren,
@@ -1975,15 +1323,216 @@ const rootRouteChildren: RootRouteChildren = {
   StatsIndexRoute: StatsIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
 }
-export const routeTree = rootRouteImport
+
+export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-const rootServerRouteChildren: RootServerRouteChildren = {
-  LibraryIdVersionDocsChar123Char125DotmdServerRoute:
-    LibraryIdVersionDocsChar123Char125DotmdServerRoute,
-  LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute:
-    LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute,
+
+/* ROUTE_MANIFEST_START
+{
+  "routes": {
+    "__root__": {
+      "filePath": "__root.tsx",
+      "children": [
+        "/$libraryId",
+        "/_libraries",
+        "/dashboard",
+        "/login",
+        "/merch",
+        "/sponsors-embed",
+        "/stats/",
+        "/stats/npm/"
+      ]
+    },
+    "/$libraryId": {
+      "filePath": "$libraryId/route.tsx",
+      "children": [
+        "/$libraryId/$version",
+        "/$libraryId/"
+      ]
+    },
+    "/_libraries": {
+      "filePath": "_libraries/route.tsx",
+      "children": [
+        "/_libraries/blog",
+        "/_libraries/dedicated-support",
+        "/_libraries/ethos",
+        "/_libraries/learn",
+        "/_libraries/privacy",
+        "/_libraries/support",
+        "/_libraries/terms",
+        "/_libraries/",
+        "/_libraries/config/$version/",
+        "/_libraries/db/$version/",
+        "/_libraries/form/$version/",
+        "/_libraries/pacer/$version/",
+        "/_libraries/query/$version/",
+        "/_libraries/ranger/$version/",
+        "/_libraries/router/$version/",
+        "/_libraries/start/$version/",
+        "/_libraries/store/$version/",
+        "/_libraries/table/$version/",
+        "/_libraries/virtual/$version/"
+      ]
+    },
+    "/dashboard": {
+      "filePath": "dashboard.tsx"
+    },
+    "/login": {
+      "filePath": "login.tsx"
+    },
+    "/merch": {
+      "filePath": "merch.tsx"
+    },
+    "/sponsors-embed": {
+      "filePath": "sponsors-embed.tsx"
+    },
+    "/$libraryId/$version": {
+      "filePath": "$libraryId/$version.tsx",
+      "parent": "/$libraryId",
+      "children": [
+        "/$libraryId/$version/docs"
+      ]
+    },
+    "/_libraries/blog": {
+      "filePath": "_libraries/blog.tsx",
+      "parent": "/_libraries",
+      "children": [
+        "/_libraries/blog/$",
+        "/_libraries/blog/"
+      ]
+    },
+    "/_libraries/dedicated-support": {
+      "filePath": "_libraries/dedicated-support.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/ethos": {
+      "filePath": "_libraries/ethos.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/learn": {
+      "filePath": "_libraries/learn.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/privacy": {
+      "filePath": "_libraries/privacy.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/support": {
+      "filePath": "_libraries/support.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/terms": {
+      "filePath": "_libraries/terms.tsx",
+      "parent": "/_libraries"
+    },
+    "/$libraryId/": {
+      "filePath": "$libraryId/index.tsx",
+      "parent": "/$libraryId"
+    },
+    "/_libraries/": {
+      "filePath": "_libraries/index.tsx",
+      "parent": "/_libraries"
+    },
+    "/stats/": {
+      "filePath": "stats/index.tsx"
+    },
+    "/$libraryId/$version/docs": {
+      "filePath": "$libraryId/$version.docs.tsx",
+      "parent": "/$libraryId/$version",
+      "children": [
+        "/$libraryId/$version/docs/$",
+        "/$libraryId/$version/docs/contributors",
+        "/$libraryId/$version/docs/",
+        "/$libraryId/$version/docs/framework/",
+        "/$libraryId/$version/docs/framework/$framework/$",
+        "/$libraryId/$version/docs/framework/$framework/",
+        "/$libraryId/$version/docs/framework/$framework/examples/$"
+      ]
+    },
+    "/_libraries/blog/$": {
+      "filePath": "_libraries/blog.$.tsx",
+      "parent": "/_libraries/blog"
+    },
+    "/_libraries/blog/": {
+      "filePath": "_libraries/blog.index.tsx",
+      "parent": "/_libraries/blog"
+    },
+    "/stats/npm/": {
+      "filePath": "stats/npm/index.tsx"
+    },
+    "/$libraryId/$version/docs/$": {
+      "filePath": "$libraryId/$version.docs.$.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/$libraryId/$version/docs/contributors": {
+      "filePath": "$libraryId/$version.docs.contributors.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/$libraryId/$version/docs/": {
+      "filePath": "$libraryId/$version.docs.index.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/_libraries/config/$version/": {
+      "filePath": "_libraries/config.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/db/$version/": {
+      "filePath": "_libraries/db.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/form/$version/": {
+      "filePath": "_libraries/form.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/pacer/$version/": {
+      "filePath": "_libraries/pacer.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/query/$version/": {
+      "filePath": "_libraries/query.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/ranger/$version/": {
+      "filePath": "_libraries/ranger.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/router/$version/": {
+      "filePath": "_libraries/router.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/start/$version/": {
+      "filePath": "_libraries/start.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/store/$version/": {
+      "filePath": "_libraries/store.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/table/$version/": {
+      "filePath": "_libraries/table.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/_libraries/virtual/$version/": {
+      "filePath": "_libraries/virtual.$version.index.tsx",
+      "parent": "/_libraries"
+    },
+    "/$libraryId/$version/docs/framework/": {
+      "filePath": "$libraryId/$version.docs.framework.index.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/$libraryId/$version/docs/framework/$framework/$": {
+      "filePath": "$libraryId/$version.docs.framework.$framework.$.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/$libraryId/$version/docs/framework/$framework/": {
+      "filePath": "$libraryId/$version.docs.framework.$framework.index.tsx",
+      "parent": "/$libraryId/$version/docs"
+    },
+    "/$libraryId/$version/docs/framework/$framework/examples/$": {
+      "filePath": "$libraryId/$version.docs.framework.$framework.examples.$.tsx",
+      "parent": "/$libraryId/$version/docs"
+    }
+  }
 }
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>()
+ROUTE_MANIFEST_END */

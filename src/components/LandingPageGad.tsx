@@ -1,12 +1,12 @@
 import { Link } from '@tanstack/react-router'
-import { GadFooter } from './GoogleScripts'
+import { GamFooter } from './Gam'
 
 export default function LandingPageGad() {
   return (
     <div className={`lg:max-[400px] px-4 mx-auto`}>
       <div className="flex flex-col gap-4 items-center">
         <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white mx-auto">
-          <GadFooter />
+          <GamFooter />
         </div>
         <div
           className="text-xs bg-gray-500 bg-opacity-10 py-2 px-4 rounded text-gray-500

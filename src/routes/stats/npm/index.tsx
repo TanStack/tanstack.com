@@ -21,10 +21,10 @@ import { HexColorPicker } from 'react-colorful'
 import { seo } from '~/utils/seo'
 import { getPopularComparisons } from './-comparisons'
 import {
-  GadFooter,
-  GadLeftRailSquare,
-  GadRightRailSquare,
-} from '~/components/GoogleScripts'
+  GamFooter,
+  GamLeftRailSquare,
+  GamRightRailSquare,
+} from '~/components/Gam'
 import { twMerge } from 'tailwind-merge'
 import logoColor100w from '~/images/logo-color-100w.png'
 import {
@@ -2169,20 +2169,20 @@ function RouteComponent() {
             </div>
             <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
               <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
-                <GadRightRailSquare />
+                <GamRightRailSquare />
               </div>
             </div>
 
             <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
               <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
-                <GadLeftRailSquare />
+                <GamLeftRailSquare />
               </div>
             </div>
           </div>
         </div>
       </div>
       <div className="!mt-24 mx-auto max-w-full overflow-x-hidden">
-        <GadFooter />
+        <GamFooter />
       </div>
     </div>
   )

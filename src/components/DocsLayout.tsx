@@ -27,11 +27,7 @@ import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { twMerge } from 'tailwind-merge'
 import { partners } from '~/utils/partners'
 import { useThemeStore } from './ThemeToggle'
-import {
-  GadFooter,
-  GadLeftRailSquare,
-  GadRightRailSquare,
-} from './GoogleScripts'
+import { GamFooter, GamLeftRailSquare, GamRightRailSquare } from './Gam'
 import { SearchButton } from './SearchButton'
 
 // Let's use zustand to wrap the local storage logic. This way
@@ -571,7 +567,7 @@ export function DocsLayout({
           className="mb-8 !py-0 mx-auto max-w-full overflow-x-hidden"
           key={footerAdKey}
         >
-          <GadFooter />
+          <GamFooter />
         </div>
         <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
           <div className="w-1/2 px-1 flex justify-end flex-wrap">
@@ -683,11 +679,11 @@ export function DocsLayout({
           ) : null}
 
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
-            <GadRightRailSquare />
+            <GamRightRailSquare />
           </div>
 
           <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
-            <GadLeftRailSquare />
+            <GamLeftRailSquare />
           </div>
 
           {/* <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">

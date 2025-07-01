@@ -36,6 +36,14 @@ export const GamScripts = () => (
       async
       src="https://cdn.fuseplatform.net/publift/tags/2/4019/fuse.js"
     />
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `window.googletag = window.googletag || { cmd: [] };
+  googletag.cmd.push(function () {
+    googletag.pubads().set("page_url", "https://tanstack.com/ ");
+  });`,
+      }}
+    />
   </>
 )
 

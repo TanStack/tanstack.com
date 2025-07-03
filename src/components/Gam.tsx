@@ -27,7 +27,20 @@ declare global {
             }
           }
         }>
+    fusetag: {
+      que: {
+        push: (fn: () => void) => void
+      }
+      pageInit: () => void
+    }
   }
+}
+
+export function GamOnPageChange() {
+  if (typeof window === 'undefined' || !window.fusetag) return
+  window.fusetag.que.push(function () {
+    window.fusetag.pageInit()
+  })
 }
 
 export const GamScripts = () => (
@@ -66,12 +79,9 @@ function GamAd({
   const gamId = gamDivs[name]
 
   return (
-    <div
-      {...props}
-      className="grid [&>*]:col-start-1 [&>*]:row-start-1"
-      data-fuse={gamId}
-    >
+    <div {...props} className="grid [&>*]:col-start-1 [&>*]:row-start-1">
       <div className="flex items-center justify-center">{children}</div>
+      <div data-fuse={gamId} />
     </div>
   )
 }
@@ -81,19 +91,18 @@ export function GamLeader() {
 }
 
 export function GamFooter() {
-  return (
-    <GamAd
-      name="incontent_footer"
-      style={{ maxWidth: '728px', aspectRatio: '728 / 90' }}
-    />
-  )
+  return <GamAd name="incontent_footer" style={{ maxWidth: '728px' }} />
 }
 
-const libraryHalfIndex = Math.ceil(libraries.length / 2)
+const supportedLibraries = libraries.filter(
+  (d) => d.id && d.name && d.description && d.description.length > 0
+)
+
+const libraryHalfIndex = Math.ceil(supportedLibraries.length / 2)
 
 export function GamRightRailSquare() {
   const randomLibrary = React.useMemo(() => {
-    const sampledLibraries = libraries.slice(0, libraryHalfIndex)
+    const sampledLibraries = supportedLibraries.slice(0, libraryHalfIndex)
     const seed = Math.floor(Date.now() / (1000 * 60 * 5)) // Change seed every 5 minutes
     return sampledLibraries[seed % sampledLibraries.length]
   }, [])
@@ -107,7 +116,7 @@ export function GamRightRailSquare() {
         to={`/${randomLibrary.id}` as any}
         className="flex flex-col justify-center items-center h-[250px] w-[250px] gap-4 group"
       >
-        <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
+        <div className="flex items-center gap-2 flex-wrap justify-center text-3xl font-black uppercase tracking-tighter leading-none">
           <span>TanStack</span>
           <span
             className={twMerge(
@@ -137,7 +146,7 @@ export function GamRightRailSquare() {
 
 export function GamLeftRailSquare() {
   const randomRemainingLibrary = React.useMemo(() => {
-    const remainingLibraries = libraries.slice(libraryHalfIndex)
+    const remainingLibraries = supportedLibraries.slice(libraryHalfIndex)
     const seed = Math.floor(Date.now() / (1000 * 60 * 5)) // Change seed every 5 minutes
     return remainingLibraries[seed % remainingLibraries.length]
   }, [])
@@ -151,7 +160,7 @@ export function GamLeftRailSquare() {
         to={`/${randomRemainingLibrary.id}` as any}
         className="flex flex-col justify-center items-center h-[250px] w-[250px] gap-4 group"
       >
-        <div className="flex items-center gap-2 text-3xl font-black uppercase tracking-tighter">
+        <div className="flex items-center gap-2 flex-wrap justify-center text-3xl font-black uppercase tracking-tighter leading-none">
           <span>TanStack</span>
           <span
             className={twMerge(

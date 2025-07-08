@@ -80,8 +80,8 @@ function GamAd({
 
   return (
     <div {...props} className="grid [&>*]:col-start-1 [&>*]:row-start-1">
-      <div className="flex items-center justify-center">{children}</div>
-      <div data-fuse={gamId} />
+      {/* <div className="flex items-center justify-center">{children}</div> */}
+      <div data-fuse={gamId} className="w-full min-h-[200px]" />
     </div>
   )
 }

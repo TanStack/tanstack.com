@@ -599,7 +599,7 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="-ml-2 pl-2 w-full lg:w-[290px] xl:w-[340px] shrink-0 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto">
+      <div className="-ml-2 pl-2 w-full lg:w-[340px] shrink-0 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto">
         <div className="ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-4">
           <div className="min-w-[250px] bg-white dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
             <div className="uppercase font-black text-center p-3 opacity-50">

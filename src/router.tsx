@@ -6,6 +6,7 @@ import { routeTree } from './routeTree.gen'
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
+import { GamOnPageChange } from './components/Gam'
 
 export function createRouter() {
   const CONVEX_URL =
@@ -49,15 +50,16 @@ export function createRouter() {
     queryClient
   )
 
+  let firstRender = true
+
   router.subscribe('onResolved', () => {
-    try {
-      ;(window as any)._carbonads?.refresh?.()
-      document.querySelectorAll('[id^="carbonads_"]').forEach((el, i) => {
-        if (i > 0) {
-          el.remove()
-        }
-      })
-    } catch {}
+    if (firstRender) {
+      firstRender = false
+      return
+    }
+
+    console.log('onResolved')
+    GamOnPageChange()
   })
 
   return router

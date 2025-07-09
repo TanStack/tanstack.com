@@ -8,7 +8,7 @@ import { Markdown } from '~/components/Markdown'
 import { Toc } from './Toc'
 import { twMerge } from 'tailwind-merge'
 import { TocMobile } from './TocMobile'
-import { GadLeader } from './GoogleScripts'
+import { GamLeader } from './Gam'
 
 type DocProps = {
   title: string
@@ -106,7 +106,7 @@ export function Doc({
             isTocVisible && '!pr-0'
           )}
         >
-          <GadLeader />
+          <GamLeader />
           {title ? <DocTitle>{title}</DocTitle> : null}
           <div className="h-4" />
           <div className="h-px bg-gray-500 opacity-20" />

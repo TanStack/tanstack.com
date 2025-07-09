@@ -32,6 +32,8 @@ export const startProject = {
   frameworks: ['react', 'solid'],
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   showNetlifyUrl: true,
+  // hide stackblitz until they support Async Local Storage
+  hideStackblitzUrl: true,
   menu: [
     {
       icon: <BiBookAlt />,

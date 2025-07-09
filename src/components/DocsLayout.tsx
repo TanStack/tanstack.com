@@ -27,11 +27,7 @@ import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { twMerge } from 'tailwind-merge'
 import { partners } from '~/utils/partners'
 import { useThemeStore } from './ThemeToggle'
-import {
-  GadFooter,
-  GadLeftRailSquare,
-  GadRightRailSquare,
-} from './GoogleScripts'
+import { GamFooter, GamLeftRailSquare, GamRightRailSquare } from './Gam'
 import { SearchButton } from './SearchButton'
 
 // Let's use zustand to wrap the local storage logic. This way
@@ -363,8 +359,6 @@ export function DocsLayout({
 
   const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
 
-  const footerAdKey = useRouterState({ select: (d) => d.location.pathname })
-
   const menuItems = menuConfig.map((group, i) => {
     const WrapperComp = group.collapsible ? 'details' : 'div'
     const LabelComp = group.collapsible ? 'summary' : 'div'
@@ -558,7 +552,7 @@ export function DocsLayout({
     >
       {smallMenu}
       {largeMenu}
-      <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative">
+      <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative mb-8">
         <div
           className={twMerge(
             `max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0`,
@@ -567,11 +561,8 @@ export function DocsLayout({
         >
           {children}
         </div>
-        <div
-          className="mb-8 !py-0 mx-auto max-w-full overflow-x-hidden"
-          key={footerAdKey}
-        >
-          <GadFooter />
+        <div className="mb-8 !py-0 mx-auto max-w-full overflow-x-hidden">
+          <GamFooter />
         </div>
         <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
           <div className="w-1/2 px-1 flex justify-end flex-wrap">
@@ -608,9 +599,9 @@ export function DocsLayout({
           </div>
         </div>
       </div>
-      <div className="-ml-2 pl-2 w-[290px] xl:w-[340px] shrink-0 hidden md:block sticky top-0 max-h-screen overflow-y-auto">
-        <div className="ml-auto flex flex-col space-y-4">
-          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
+      <div className="-ml-2 pl-2 w-full lg:w-[340px] shrink-0 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto lg:overflow-x-hidden">
+        <div className="ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-4">
+          <div className="min-w-[250px] bg-white dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
             <div className="uppercase font-black text-center p-3 opacity-50">
               Our Partners
             </div>
@@ -682,12 +673,12 @@ export function DocsLayout({
             </div>
           ) : null}
 
-          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
-            <GadRightRailSquare />
+          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
+            <GamRightRailSquare />
           </div>
 
-          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
-            <GadLeftRailSquare />
+          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
+            <GamLeftRailSquare />
           </div>
 
           {/* <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">

@@ -413,19 +413,9 @@ export function DocsLayout({
                             className={twMerge(
                               'overflow-auto w-full',
                               props.isActive
-                                ? `font-bold text-transparent bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text`
+                                ? `font-bold text-teal-500 dark:text-cyan-400`
                                 : ''
                             )}
-                            style={
-                              props.isActive
-                                ? {
-                                    backgroundImage: `linear-gradient(to right, rgb(20 184 166), rgb(6 182 212))`,
-                                    WebkitBackgroundClip: 'text',
-                                    backgroundClip: 'text',
-                                    color: 'transparent',
-                                  }
-                                : {}
-                            }
                           >
                             {/* <div className="transition group-hover:delay-700 duration-300 group-hover:duration-[2s] group-hover:translate-x-[-50%]"> */}
                             {child.label}

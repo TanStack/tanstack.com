@@ -83,8 +83,7 @@ export default function PacerVersionIndex() {
             className="text opacity-90 max-w-[500px]
             lg:text-xl lg:max-w-[800px]"
           >
-            TanStack Pacer is built on top of{' '}
-            {/* @ts-ignore */}
+            TanStack Pacer is built on top of {/* @ts-ignore */}
             <Link target="_blank" to="/store/latest" className="underline">
               TanStack Store
             </Link>{' '}

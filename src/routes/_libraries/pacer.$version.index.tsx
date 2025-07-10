@@ -79,6 +79,19 @@ export default function PacerVersionIndex() {
             pre-built hooks or low-level primitives that you can connect to your
             own state management solutions of choice.
           </p>
+          <p
+            className="text opacity-90 max-w-[500px]
+            lg:text-xl lg:max-w-[800px]"
+          >
+            TanStack Pacer is built on top of{' '}
+            {/* @ts-ignore */}
+            <Link target="_blank" to="/store/latest" className="underline">
+              TanStack Store
+            </Link>{' '}
+            with reactive and subscribable state to make interacting with your
+            state management or persistence solution of choice a breeze, no
+            matter which framework you're using.
+          </p>
           <Link
             to="/$libraryId/$version/docs"
             params={{ libraryId: library.id, version }}
@@ -107,11 +120,14 @@ export default function PacerVersionIndex() {
               'Lightweight',
               'Tree-Shaking',
               'Type-Safe',
+              'Framework Agnostic',
+              'Reactive & Subscribable State',
               'Rate Limiting',
               'Throttling',
               'Debouncing',
               'Queuing',
               'Batching',
+              'Flush Controls',
               'LIFO/FIFO/Dequeue Ordering',
               'Concurrency Control',
               'Queue Prioritization',

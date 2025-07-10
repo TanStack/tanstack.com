@@ -72,7 +72,7 @@ export const pacerProject = {
         <div>
           Enhance your application's efficiency with flexible utilities for{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            throttling, debouncing, queuing, and batching
+            debouncing, throttling, rate limiting, queuing, and batching
           </span>
           . Reduce unnecessary operations and resource consumption while
           maintaining smooth user experiences. Built-in cleanup and cancellation
@@ -94,7 +94,7 @@ export const pacerProject = {
             status reporting
           </span>
           . Perfect for handling both simple synchronous operations and complex
-          task pooling workflows with with or without concurrency control.
+          task pooling workflows with or without concurrency control.
         </div>
       ),
     },

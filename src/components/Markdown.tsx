@@ -41,7 +41,7 @@ const makeHeading =
       <CustomHeading
         Comp={type}
         {...props}
-        className={`${props.className ?? ''} inline-block`}
+        className={`${props.className ?? ''} block`}
       />
     )
 

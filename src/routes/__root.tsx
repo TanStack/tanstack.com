@@ -71,12 +71,10 @@ export const Route = createRootRouteWithContext<{
       },
       { rel: 'manifest', href: '/site.webmanifest', color: '#fffff' },
       { rel: 'icon', href: '/favicon.ico' },
-      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: '' },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
-      },
+      { rel: 'preload', href: '/fonts/inter-v19-latin-regular.woff2', as: 'font', type: 'font/woff2', crossOrigin: '' },
+      { rel: 'preload', href: '/fonts/inter-v19-latin-700.woff2', as: 'font', type: 'font/woff2', crossOrigin: '' },
+      { rel: 'preload', href: '/fonts/inter-v19-latin-800.woff2', as: 'font', type: 'font/woff2', crossOrigin: '' },
+      { rel: 'preload', href: '/fonts/inter-v19-latin-900.woff2', as: 'font', type: 'font/woff2', crossOrigin: '' }
     ],
     scripts: [
       // Google Tag Manager script

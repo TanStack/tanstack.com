@@ -5,6 +5,7 @@ import { BiBookAlt } from 'react-icons/bi'
 import { PiRocketLaunchDuotone, PiTreeStructureBold } from 'react-icons/pi'
 import { TbServerBolt } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
+import { redirect } from '@tanstack/react-router'
 
 const repo = 'tanstack/router'
 
@@ -150,4 +151,16 @@ export const startProject = {
       ),
     },
   ],
+  handleRedirects: (href) => {
+    // Redirect from /api-routes to /server-routes
+    if (
+      href.match(
+        /\/start\/(latest|v1)\/docs\/framework\/(react|solid)\/api-routes/
+      )
+    ) {
+      throw redirect({
+        href: href.replace('/api-routes', '/server-routes'),
+      })
+    }
+  },
 } satisfies Library

@@ -152,8 +152,11 @@ export const startProject = {
     },
   ],
   handleRedirects: (href) => {
+    // Redirect from /api-routes to /server-routes
     if (
-      href.match(/\/start\/(latest|v1)\/docs\/framework\/(react|solid)\/api-routes/)
+      href.match(
+        /\/start\/(latest|v1)\/docs\/framework\/(react|solid)\/api-routes/
+      )
     ) {
       throw redirect({
         href: href.replace('/api-routes', '/server-routes'),

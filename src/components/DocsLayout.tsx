@@ -12,12 +12,11 @@ import {
   useMatches,
   useNavigate,
   useParams,
-  useRouterState,
 } from '@tanstack/react-router'
 import { FrameworkSelect } from '~/components/FrameworkSelect'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { DocsLogo } from '~/components/DocsLogo'
-import { last, capitalize } from '~/utils/utils'
+import { last } from '~/utils/utils'
 import type { SelectOption } from '~/components/FrameworkSelect'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
@@ -26,9 +25,22 @@ import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { twMerge } from 'tailwind-merge'
 import { partners } from '~/utils/partners'
-import { useThemeStore } from './ThemeToggle'
 import { GamFooter, GamLeftRailSquare, GamRightRailSquare } from './Gam'
 import { SearchButton } from './SearchButton'
+
+// Create context for width toggle state
+const WidthToggleContext = React.createContext<{
+  isFullWidth: boolean
+  setIsFullWidth: (isFullWidth: boolean) => void
+} | null>(null)
+
+export const useWidthToggle = () => {
+  const context = React.useContext(WidthToggleContext)
+  if (!context) {
+    throw new Error('useWidthToggle must be used within a WidthToggleProvider')
+  }
+  return context
+}
 
 // Let's use zustand to wrap the local storage logic. This way
 // we'll get subscriptions for free and we can use it in other
@@ -358,6 +370,7 @@ export function DocsLayout({
   const nextItem = flatMenu[index + 1]
 
   const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
+  const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
   const menuItems = menuConfig.map((group, i) => {
     const WrapperComp = group.collapsible ? 'details' : 'div'
@@ -547,197 +560,201 @@ export function DocsLayout({
   )
 
   return (
-    <div
-      className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300`}
-    >
-      {smallMenu}
-      {largeMenu}
-      <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative mb-8">
-        <div
-          className={twMerge(
-            `max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0`,
-            !isExample && 'mx-auto w-[1208px]'
-          )}
-        >
-          {children}
-        </div>
-        <div className="mb-8 !py-0 mx-auto max-w-full overflow-x-hidden">
-          <GamFooter />
-        </div>
-        <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
-          <div className="w-1/2 px-1 flex justify-end flex-wrap">
-            {prevItem ? (
-              <Link
-                to={prevItem.to}
-                params
-                className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
-              >
-                <div className="flex gap-2 items-center font-bold">
-                  <FaArrowLeft />
-                  {prevItem.label}
-                </div>
-              </Link>
-            ) : null}
-          </div>
-          <div className="w-1/2 px-1 flex justify-start flex-wrap">
-            {nextItem ? (
-              <Link
-                to={nextItem.to}
-                params
-                className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
-              >
-                <div className="flex gap-2 items-center font-bold">
-                  <span
-                    className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
-                  >
-                    {nextItem.label}
-                  </span>{' '}
-                  <FaArrowRight className={textColor} />
-                </div>
-              </Link>
-            ) : null}
-          </div>
-        </div>
-      </div>
-      <div className="-ml-2 pl-2 w-full lg:w-[340px] shrink-0 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto lg:overflow-x-hidden">
-        <div className="ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-4">
-          <div className="min-w-[250px] bg-white dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
-            <div className="uppercase font-black text-center p-3 opacity-50">
-              Our Partners
-            </div>
-            {!partners.some((d) => d.libraries?.includes(libraryId as any)) ? (
-              <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
-                <a
-                  href={`mailto:partners@tanstack.com?subject=TanStack ${
-                    repo.split('/')[1]
-                  } Partnership`}
-                  className="p-2 block text-xs"
-                >
-                  <span className="opacity-50 italic">
-                    Wow, it looks like you could be our first partner for this
-                    library!
-                  </span>{' '}
-                  <span className="text-blue-500 font-black">
-                    Chat with us!
-                  </span>
-                </a>
-              </div>
-            ) : (
-              partners
-                .filter((d) => d.sidebarImgLight)
-                .filter((d) => d.libraries?.includes(libraryId as any))
-                .map((partner) => {
-                  return (
-                    <div
-                      key={partner.name}
-                      className="overflow-hidden hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors"
-                    >
-                      <a
-                        href={partner.href}
-                        target="_blank"
-                        className="px-4 flex flex-col items-center justify-center cursor-pointer gap-1"
-                        rel="noreferrer"
-                      >
-                        <div className="mx-auto max-w-[150px]">
-                          <img
-                            src={partner.sidebarImgLight}
-                            alt={partner.name}
-                            className={twMerge(
-                              'w-full',
-                              partner.sidebarImgClass,
-                              'dark:hidden'
-                            )}
-                          />
-                          <img
-                            src={
-                              partner.sidebarImgDark || partner.sidebarImgLight
-                            }
-                            alt={partner.name}
-                            className={twMerge(
-                              'w-full',
-                              partner.sidebarImgClass,
-                              'hidden dark:block'
-                            )}
-                          />
-                        </div>
-                      </a>
-                      {partner.sidebarAfterImg || null}
-                    </div>
-                  )
-                })
-            )}
-          </div>
-          {libraryId === 'query' ? (
-            <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
-              <DocsCalloutQueryGG />
-            </div>
-          ) : null}
-
-          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
-            <GamRightRailSquare />
-          </div>
-
-          <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
-            <GamLeftRailSquare />
-          </div>
-
-          {/* <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
-            <Carbon />
-          </div> */}
-
-          {libraryId !== 'query' ? (
-            <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
-              <DocsCalloutBytes />
-            </div>
-          ) : null}
-        </div>
-      </div>
-      {showBytes ? (
-        <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg print:hidden">
-          <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
-            {libraryId === 'query' ? (
-              <DocsCalloutQueryGG />
-            ) : (
-              <DocsCalloutBytes />
-            )}
-            <button
-              className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
-              onClick={() => {
-                setShowBytes(false)
-              }}
-            >
-              <FaTimes />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <button
-          className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden print:hidden"
-          onClick={() => {
-            setShowBytes(true)
-          }}
-        >
+    <WidthToggleContext.Provider value={{ isFullWidth, setIsFullWidth }}>
+      <div
+        className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300`}
+      >
+        {smallMenu}
+        {largeMenu}
+        <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative mb-8">
           <div
-            className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
-            hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
-          >
-            {libraryId === 'query' ? (
-              <>
-                <strong>
-                  <span role="img" aria-label="crystal ball">
-                    &#128302;
-                  </span>{' '}
-                  Skip the docs?
-                </strong>
-              </>
-            ) : (
-              <>
-                Subscribe to <strong>Bytes</strong>
-              </>
+            className={twMerge(
+              `max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0`,
+              !isExample && !isFullWidth && 'mx-auto w-[1208px]' // page width
             )}
+          >
+            {children}
           </div>
-        </button>
-      )}
-    </div>
+          <div className="mb-8 !py-0 mx-auto max-w-full overflow-x-hidden">
+            <GamFooter />
+          </div>
+          <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
+            <div className="w-1/2 px-1 flex justify-end flex-wrap">
+              {prevItem ? (
+                <Link
+                  to={prevItem.to}
+                  params
+                  className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
+                >
+                  <div className="flex gap-2 items-center font-bold">
+                    <FaArrowLeft />
+                    {prevItem.label}
+                  </div>
+                </Link>
+              ) : null}
+            </div>
+            <div className="w-1/2 px-1 flex justify-start flex-wrap">
+              {nextItem ? (
+                <Link
+                  to={nextItem.to}
+                  params
+                  className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
+                >
+                  <div className="flex gap-2 items-center font-bold">
+                    <span
+                      className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
+                    >
+                      {nextItem.label}
+                    </span>{' '}
+                    <FaArrowRight className={textColor} />
+                  </div>
+                </Link>
+              ) : null}
+            </div>
+          </div>
+        </div>
+        <div className="-ml-2 pl-2 w-full lg:w-[340px] shrink-0 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto lg:overflow-x-hidden">
+          <div className="ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-4">
+            <div className="min-w-[250px] bg-white dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
+              <div className="uppercase font-black text-center p-3 opacity-50">
+                Our Partners
+              </div>
+              {!partners.some((d) =>
+                d.libraries?.includes(libraryId as any)
+              ) ? (
+                <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
+                  <a
+                    href={`mailto:partners@tanstack.com?subject=TanStack ${
+                      repo.split('/')[1]
+                    } Partnership`}
+                    className="p-2 block text-xs"
+                  >
+                    <span className="opacity-50 italic">
+                      Wow, it looks like you could be our first partner for this
+                      library!
+                    </span>{' '}
+                    <span className="text-blue-500 font-black">
+                      Chat with us!
+                    </span>
+                  </a>
+                </div>
+              ) : (
+                partners
+                  .filter((d) => d.sidebarImgLight)
+                  .filter((d) => d.libraries?.includes(libraryId as any))
+                  .map((partner) => {
+                    return (
+                      <div
+                        key={partner.name}
+                        className="overflow-hidden hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors"
+                      >
+                        <a
+                          href={partner.href}
+                          target="_blank"
+                          className="px-4 flex flex-col items-center justify-center cursor-pointer gap-1"
+                          rel="noreferrer"
+                        >
+                          <div className="mx-auto max-w-[150px]">
+                            <img
+                              src={partner.sidebarImgLight}
+                              alt={partner.name}
+                              className={twMerge(
+                                'w-full',
+                                partner.sidebarImgClass,
+                                'dark:hidden'
+                              )}
+                            />
+                            <img
+                              src={
+                                partner.sidebarImgDark ||
+                                partner.sidebarImgLight
+                              }
+                              alt={partner.name}
+                              className={twMerge(
+                                'w-full',
+                                partner.sidebarImgClass,
+                                'hidden dark:block'
+                              )}
+                            />
+                          </div>
+                        </a>
+                      </div>
+                    )
+                  })
+              )}
+            </div>
+            {libraryId === 'query' ? (
+              <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+                <DocsCalloutQueryGG />
+              </div>
+            ) : null}
+
+            <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
+              <GamRightRailSquare />
+            </div>
+
+            <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
+              <GamLeftRailSquare />
+            </div>
+
+            {/* <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
+              <Carbon />
+            </div> */}
+
+            {libraryId !== 'query' ? (
+              <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+                <DocsCalloutBytes />
+              </div>
+            ) : null}
+          </div>
+        </div>
+        {showBytes ? (
+          <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg print:hidden">
+            <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
+              {libraryId === 'query' ? (
+                <DocsCalloutQueryGG />
+              ) : (
+                <DocsCalloutBytes />
+              )}
+              <button
+                className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
+                onClick={() => {
+                  setShowBytes(false)
+                }}
+              >
+                <FaTimes />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden print:hidden"
+            onClick={() => {
+              setShowBytes(true)
+            }}
+          >
+            <div
+              className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
+              hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
+            >
+              {libraryId === 'query' ? (
+                <>
+                  <strong>
+                    <span role="img" aria-label="crystal ball">
+                      &#128302;
+                    </span>{' '}
+                    Skip the docs?
+                  </strong>
+                </>
+              ) : (
+                <>
+                  Subscribe to <strong>Bytes</strong>
+                </>
+              )}
+            </div>
+          </button>
+        )}
+      </div>
+    </WidthToggleContext.Provider>
   )
 }

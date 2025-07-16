@@ -9,6 +9,11 @@ import { Toc } from './Toc'
 import { twMerge } from 'tailwind-merge'
 import { TocMobile } from './TocMobile'
 import { GamLeader } from './Gam'
+import { useWidthToggle } from '~/components/DocsLayout'
+import {
+  BsArrowsCollapseVertical,
+  BsArrowsExpandVertical,
+} from 'react-icons/bs'
 
 type DocProps = {
   title: string
@@ -51,6 +56,18 @@ export function Doc({
   const headingElementRefs = React.useRef<
     Record<string, IntersectionObserverEntry>
   >({})
+
+  // Try to get the width toggle context from DocsLayout
+  let isFullWidth = false
+  let setIsFullWidth: ((isFullWidth: boolean) => void) | undefined
+
+  try {
+    const context = useWidthToggle()
+    isFullWidth = context.isFullWidth
+    setIsFullWidth = context.setIsFullWidth
+  } catch {
+    // Context not available, that's okay
+  }
 
   React.useEffect(() => {
     const callback = (headingsList: Array<IntersectionObserverEntry>) => {
@@ -107,7 +124,24 @@ export function Doc({
           )}
         >
           <GamLeader />
-          {title ? <DocTitle>{title}</DocTitle> : null}
+          {title ? (
+            <div className="flex items-center justify-between gap-4">
+              <DocTitle>{title}</DocTitle>
+              {setIsFullWidth && (
+                <button
+                  onClick={() => setIsFullWidth(!isFullWidth)}
+                  className="p-2 mr-4 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0 hidden [@media(min-width:1800px)]:inline-flex"
+                  title={isFullWidth ? 'Constrain width' : 'Expand width'}
+                >
+                  {isFullWidth ? (
+                    <BsArrowsCollapseVertical className="w-4 h-4" />
+                  ) : (
+                    <BsArrowsExpandVertical className="w-4 h-4" />
+                  )}
+                </button>
+              )}
+            </div>
+          ) : null}
           <div className="h-4" />
           <div className="h-px bg-gray-500 opacity-20" />
           <div className="h-4" />

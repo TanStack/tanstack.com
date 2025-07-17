@@ -373,7 +373,9 @@ function Index() {
               </a>
             </div>
             <div className={`h-4`} />
-            <p className={`italic mx-auto max-w-screen-sm text-gray-500 dark:text-gray-300`}>
+            <p
+              className={`italic mx-auto max-w-screen-sm text-gray-500 dark:text-gray-300`}
+            >
               Sponsors get special perks like{' '}
               <strong>
                 private discord channels, priority issue requests, direct

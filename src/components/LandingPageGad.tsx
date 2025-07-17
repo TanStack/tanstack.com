@@ -25,7 +25,10 @@ export default function LandingPageGad() {
             used by millions daily. What did you expect?
           </div>
           <div>
-            <Link to="/ethos" className="text-gray-600 dark:text-gray-200 font-bold underline">
+            <Link
+              to="/ethos"
+              className="text-gray-600 dark:text-gray-200 font-bold underline"
+            >
               Check out our ethos
             </Link>{' '}
             to learn more about how we plan on sticking around (and staying

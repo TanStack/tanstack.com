@@ -24,9 +24,9 @@ export function LibraryFeatureHighlights({
               <h3 className="uppercase text-xl font-black">
                 {featureHighlight.title}
               </h3>
-              <p className="text-sm text-gray-800 dark:text-gray-200 leading-6">
+              <div className="text-sm text-gray-800 dark:text-gray-200 leading-6">
                 {featureHighlight.description}
-              </p>
+              </div>
             </div>
           </div>
         )

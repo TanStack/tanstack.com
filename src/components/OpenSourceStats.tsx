@@ -19,7 +19,9 @@ const StableCounter = ({
     Array(value?.toString().length ?? 1)
       .fill('8')
       .join('')
-  ).toLocaleString()
+  )
+  // TODO don't use locale formatting since it can cause a hydration mismatch
+  //.toLocaleString()
 
   return (
     <>

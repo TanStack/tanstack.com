@@ -196,7 +196,7 @@ function Index() {
                                     }}
                                   >
                                     <span className="bg-current rounded-lg leading-none flex items-center">
-                                      <span className="font-black text-white dark:text-black text-xs leading-none p-1.5 px-2 uppercase">
+                                      <span className="text-white dark:text-black text-xs leading-none p-1.5 px-2 uppercase">
                                         TanStack
                                       </span>
                                     </span>
@@ -330,12 +330,12 @@ function Index() {
                   className={`col-span-2
                     md:col-span-5`}
                 >
-                  <div className={`text-2xl font-bold text-green-500`}>
+                  <div className={`text-2xl font-bold text-green-600`}>
                     {course.name}
                   </div>
                   <div className={`text-sm mt-2`}>{course.description}</div>
                   <div
-                    className={`inline-block mt-4 px-4 py-2 bg-green-500 text-white rounded shadow uppercase font-black text-sm`}
+                    className={`inline-block mt-4 px-4 py-2 bg-green-700 text-white rounded shadow uppercase font-black text-sm`}
                   >
                     Check it out →
                   </div>
@@ -367,13 +367,15 @@ function Index() {
             <div>
               <a
                 href="https://github.com/sponsors/tannerlinsley"
-                className={`inline-block p-4 bg-green-500 rounded text-white uppercase font-black`}
+                className={`inline-block p-4 bg-green-700 rounded text-white uppercase font-black`}
               >
                 Become a Sponsor!
               </a>
             </div>
             <div className={`h-4`} />
-            <p className={`italic mx-auto max-w-screen-sm text-gray-500`}>
+            <p
+              className={`italic mx-auto max-w-screen-sm text-gray-500 dark:text-gray-300`}
+            >
               Sponsors get special perks like{' '}
               <strong>
                 private discord channels, priority issue requests, direct

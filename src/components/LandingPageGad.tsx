@@ -9,7 +9,7 @@ export default function LandingPageGad() {
           <GamFooter />
         </div>
         <div
-          className="text-xs bg-gray-500 bg-opacity-10 py-2 px-4 rounded text-gray-500
+          className="text-xs bg-gray-500 bg-opacity-10 py-2 px-4 rounded text-gray-600 dark:text-gray-300
                 dark:bg-opacity-20 self-center text-center w-[500px] max-w-full space-y-2"
         >
           <div>
@@ -25,7 +25,10 @@ export default function LandingPageGad() {
             used by millions daily. What did you expect?
           </div>
           <div>
-            <Link to="/ethos" className="text-gray-500 font-bold underline">
+            <Link
+              to="/ethos"
+              className="text-gray-600 dark:text-gray-200 font-bold underline"
+            >
               Check out our ethos
             </Link>{' '}
             to learn more about how we plan on sticking around (and staying

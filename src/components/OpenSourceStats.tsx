@@ -84,7 +84,7 @@ export default function OssStats() {
             <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
               <NpmDownloadCounter npmData={npm} />
             </div>
-            <div className="text-sm opacity-50 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
+            <div className="text-sm opacity-60 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
               NPM Downloads
             </div>
           </div>
@@ -100,7 +100,7 @@ export default function OssStats() {
             <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200">
               <NumberFlow value={github?.starCount} />
             </div>
-            <div className="text-sm opacity-50 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
+            <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
               Stars on Github
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function OssStats() {
             <div className="text-2xl font-bold opacity-80">
               <NumberFlow value={github?.contributorCount} />
             </div>
-            <div className="text-sm opacity-50 font-medium italic -mt-1">
+            <div className="text-sm opacity-60 font-medium italic -mt-1">
               Contributors on GitHub
             </div>
           </div>
@@ -122,7 +122,7 @@ export default function OssStats() {
             <div className="text-2xl font-bold opacity-80 relative">
               <NumberFlow value={github?.dependentCount} />
             </div>
-            <div className="text-sm opacity-50 font-medium italic -mt-1">
+            <div className="text-sm opacity-60 font-medium italic -mt-1">
               Dependents on GitHub
             </div>
           </div>
@@ -135,7 +135,7 @@ export default function OssStats() {
         >
           <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
           <div className="flex items-center gap-1">
-            <span className="text-[.75rem] opacity-30 relative -top-px">
+            <span className="text-[.75rem] opacity-60 relative -top-px">
               Powered by
             </span>
             <img

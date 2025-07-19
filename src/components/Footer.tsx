@@ -46,7 +46,7 @@ export function Footer() {
           </div>
         ))}
       </div>
-      <div className={`text-center opacity-20`}>
+      <div className={`text-center opacity-60`}>
         &copy; {new Date().getFullYear()} TanStack LLC
       </div>
     </div>

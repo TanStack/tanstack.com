@@ -252,18 +252,21 @@ function LibrariesLayout() {
         <a
           href="https://x.com/tan_stack"
           className="opacity-70 hover:opacity-100"
+          aria-label="Follow TanStack on X (Twitter)"
         >
           <TbBrandTwitter className="text-xl" />
         </a>
         <a
           href="https://bsky.app/profile/tanstack.com"
           className="opacity-70 hover:opacity-100"
+          aria-label="Follow TanStack on Bluesky"
         >
           <TbBrandBluesky className="text-xl" />
         </a>
         <a
           href="https://instagram.com/tan_stack"
           className="opacity-70 hover:opacity-100"
+          aria-label="Follow TanStack on Instagram"
         >
           <FaInstagram className="text-xl" />
         </a>

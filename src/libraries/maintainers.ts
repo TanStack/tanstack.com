@@ -168,6 +168,15 @@ export const allMaintainers: Maintainer[] = [
     specialties: ['Architecture'],
   },
   {
+    name: 'Sam Willis',
+    isCoreMaintainer: true,
+    avatar: 'https://github.com/samwillis.png',
+    github: 'samwillis',
+    creatorOf: ['db'],
+    frameworkExpertise: ['react'],
+    specialties: ['Sync Engines', 'Incremental View Maintenance'],
+  },
+  {
     name: 'Leonardo Montini',
     avatar: 'https://github.com/Balastrong.png',
     github: 'Balastrong',
@@ -336,6 +345,14 @@ export const allMaintainers: Maintainer[] = [
     maintainerOf: ['query'],
     frameworkExpertise: [],
     specialties: ['eslint plugin'],
+  },
+  {
+    name: 'Kevin De Porre',
+    avatar: 'https://github.com/kevin-dp.png',
+    github: 'kevin-dp',
+    maintainerOf: ['db'],
+    frameworkExpertise: ['react'],
+    specialties: ['Sync Engines', 'Incremental View Maintenance'],
   },
 ]
 

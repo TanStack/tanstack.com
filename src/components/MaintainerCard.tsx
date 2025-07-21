@@ -113,6 +113,80 @@ function LibraryBadge({ library }: { library: Library }) {
   )
 }
 
+const MaintainerSocialIcons: Record<
+  keyof Maintainer['social'],
+  React.ReactNode
+> = {
+  twitter: (
+    <svg
+      viewBox="0 0 24 24"
+      className="w-5 h-5"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  ),
+  bluesky: (
+    <svg
+      viewBox="0 0 24 21"
+      className="w-5 h-5"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M5.20238 1.4019C7.95375 3.43816 10.9136 7.56632 12 9.78164V15.6329C12 15.5084 11.9513 15.6491 11.8463 15.9523C11.2793 17.594 9.0645 24.0012 4.00012 18.8791C1.3335 16.1822 2.568 13.4854 7.422 12.6712C4.64512 13.1368 1.52325 12.3672 0.66675 9.34985C0.42 8.48185 0 3.13532 0 2.41322C0 -1.20394 3.21712 -0.066993 5.20238 1.4019ZM18.7976 1.4019C16.0462 3.43816 13.0864 7.56632 12 9.78164V15.6329C12 15.5084 12.0487 15.6491 12.1537 15.9523C12.7207 17.594 14.9355 24.0012 19.9999 18.8791C22.6665 16.1822 21.432 13.4854 16.578 12.6712C19.3549 13.1368 22.4768 12.3672 23.3333 9.34985C23.58 8.48185 24 3.13532 24 2.41322C24 -1.20394 20.7832 -0.066993 18.7976 1.4019Z" />
+    </svg>
+  ),
+  website: (
+    <svg
+      viewBox="0 0 24 24"
+      className="w-5 h-5"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+    </svg>
+  ),
+  github: (
+    <svg
+      viewBox="0 0 16 16"
+      className="w-5 h-5"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+    </svg>
+  ),
+}
+
+function MaintainerSocialLinks({ maintainer }: { maintainer: Maintainer }) {
+  const links = Object.entries({
+    github: `https://github.com/${maintainer.github}`,
+    ...(maintainer.social || {}),
+  }).map(([key, value]) => {
+    const Icon = MaintainerSocialIcons[key as keyof Maintainer['social']]
+    return (
+      <a
+        key={key}
+        href={value}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={key}
+        onClick={(e) => e.stopPropagation()}
+        className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors p-2 -mb-2 -ml-2 hover:grayscale-0 hover:scale-110"
+      >
+        {Icon}
+      </a>
+    )
+  })
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-400 dark:text-gray-500  pt-1">
+      {links}
+    </div>
+  )
+}
+
 interface MaintainerCardProps {
   maintainer: Maintainer
   libraryId?: Library['id']
@@ -205,77 +279,7 @@ export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
             )}
           </div>
         )}
-        <div className="flex items-center space-x-4 text-gray-400 dark:text-gray-500 [&>*]:grayscale pt-1">
-          <a
-            href={`https://github.com/${maintainer.github}`}
-            className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors p-2 -m-2 hover:grayscale-0"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub profile"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <svg
-              viewBox="0 0 16 16"
-              className="w-5 h-5"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-            </svg>
-          </a>
-          {maintainer.social?.twitter && (
-            <a
-              href={maintainer.social.twitter}
-              className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors p-2 -m-2 hover:grayscale-0"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Twitter profile"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="w-5 h-5"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-            </a>
-          )}
-          {maintainer.social?.bluesky && (
-            <a
-              href={maintainer.social.bluesky}
-              className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors p-2 -m-2 hover:grayscale-0"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Bluesky profile"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <span className="text-lg" aria-hidden="true">
-                🦋
-              </span>
-            </a>
-          )}
-          {maintainer.social?.website && (
-            <a
-              href={maintainer.social.website}
-              className="hover:text-gray-700 dark:hover:text-gray-200 transition-colors p-2 -m-2 hover:grayscale-0"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Personal website"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="w-5 h-5"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-              </svg>
-            </a>
-          )}
-        </div>
+        <MaintainerSocialLinks maintainer={maintainer} />
       </div>
     </div>
   )

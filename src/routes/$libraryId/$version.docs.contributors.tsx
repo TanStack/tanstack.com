@@ -31,7 +31,7 @@ function RouteComponent() {
           <DocTitle>{library.name} Maintainers and Contributors</DocTitle>
           <div className="h-4" />
           <section>
-            <div className="grid grid-cols-2 xl:grid-cols-3 gap-4 mb-8 pt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-8 pt-8">
               {libraryContributors.map((maintainer) => (
                 <MaintainerCard
                   key={maintainer.github}

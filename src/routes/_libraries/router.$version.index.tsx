@@ -12,6 +12,7 @@ import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import OpenSourceStats from '~/components/OpenSourceStats'
 
 export const Route = createFileRoute({
   component: RouterVersionIndex,
@@ -71,7 +72,13 @@ function RouterVersionIndex() {
           Get Started
         </Link>
       </div>
+
+      <div className="w-fit mx-auto px-4">
+        <OpenSourceStats library={library} />
+      </div>
+
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
+
       <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Partners

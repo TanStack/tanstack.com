@@ -388,7 +388,7 @@ function Index() {
 
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">
           <h3 className={`text-4xl font-light mb-6`}>Core Maintainers</h3>
-          <div className={`grid gap-6 grid-cols-2 lg:grid-cols-3`}>
+          <div className="grid gap-6 grid-cols-2 lg:grid-cols-3">
             {coreMaintainers.map((maintainer) => (
               <MaintainerCard key={maintainer.github} maintainer={maintainer} />
             ))}

@@ -181,7 +181,7 @@ function MaintainerSocialLinks({ maintainer }: { maintainer: Maintainer }) {
   })
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-400 dark:text-gray-500  pt-1">
+    <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-4 gap-y-1 sm:gap-y-2 text-gray-400 dark:text-gray-500  pt-1">
       {links}
     </div>
   )

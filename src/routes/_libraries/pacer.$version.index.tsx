@@ -1,10 +1,9 @@
 import { CgSpinner } from 'react-icons/cg'
-import { Link, getRouteApi } from '@tanstack/react-router'
+import { Link, getRouteApi, Await } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { FaCheckCircle } from 'react-icons/fa'
 import SponsorPack from '~/components/SponsorPack'
 import { pacerProject } from '~/libraries/pacer'
-import { Await } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
 import { getLibrary } from '~/libraries'
@@ -76,20 +75,14 @@ export default function PacerVersionIndex() {
             lg:text-xl lg:max-w-[800px]"
           >
             Choose from multiple layers of abstraction using high-level
-            pre-built hooks or low-level primitives that you can connect to your
-            own state management solutions of choice.
-          </p>
-          <p
-            className="text opacity-90 max-w-[500px]
-            lg:text-xl lg:max-w-[800px]"
-          >
-            TanStack Pacer is built on top of {/* @ts-ignore */}
+            pre-built hooks or low-level primitives, all powered by{' '}
+            {/* @ts-ignore */}
             <Link target="_blank" to="/store/latest" className="underline">
-              TanStack Store
-            </Link>{' '}
-            with reactive and subscribable state to make interacting with your
-            state management or persistence solution of choice a breeze, no
-            matter which framework you're using.
+              <strong>TanStack Store</strong>
+            </Link>
+            . Pacer's reactive, subscribable and sliceable state makes it easy
+            to connect with any state management or persistence solution, no
+            matter which framework you use.
           </p>
           <Link
             to="/$libraryId/$version/docs"

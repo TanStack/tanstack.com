@@ -11,6 +11,7 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import OpenSourceStats from '~/components/OpenSourceStats'
 
 export const Route = createFileRoute({
   component: PacerVersionIndex,
@@ -44,6 +45,11 @@ export default function PacerVersionIndex() {
             className: 'bg-lime-600 hover:bg-lime-700 text-white',
           }}
         />
+
+        <div className="w-fit mx-auto px-4">
+          <OpenSourceStats library={library} />
+        </div>
+        
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />

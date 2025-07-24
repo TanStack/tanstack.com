@@ -51,7 +51,6 @@
     "axios": "^1.6.7",
     "cmdk": "^1.1.1",
     "convex": "^1.17.2",
-    "convex-oss-stats": "link:../../../erquhart/convex-oss-stats",
     "d3": "^7.9.0",
     "date-fns": "^2.30.0",
     "downshift": "^9.0.9",

@@ -110,9 +110,6 @@ importers:
       convex:
         specifier: ^1.17.2
         version: 1.17.2(@clerk/clerk-react@5.38.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      convex-oss-stats:
-        specifier: link:../../../erquhart/convex-oss-stats
-        version: link:../../../erquhart/convex-oss-stats
       d3:
         specifier: ^7.9.0
         version: 7.9.0

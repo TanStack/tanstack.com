@@ -57,6 +57,40 @@ export declare const components: {
           updatedAt: number;
         }>
       >;
+      getGithubRepo: FunctionReference<
+        "query",
+        "internal",
+        { name: string },
+        null | {
+          contributorCount: number;
+          dependentCount: number;
+          dependentCountPrevious?: { count: number; updatedAt: number };
+          dependentCountUpdatedAt?: number;
+          name: string;
+          nameNormalized: string;
+          owner: string;
+          ownerNormalized: string;
+          starCount: number;
+          updatedAt: number;
+        }
+      >;
+      getGithubRepos: FunctionReference<
+        "query",
+        "internal",
+        { names: Array<string> },
+        Array<null | {
+          contributorCount: number;
+          dependentCount: number;
+          dependentCountPrevious?: { count: number; updatedAt: number };
+          dependentCountUpdatedAt?: number;
+          name: string;
+          nameNormalized: string;
+          owner: string;
+          ownerNormalized: string;
+          starCount: number;
+          updatedAt: number;
+        }>
+      >;
       updateGithubOwner: FunctionReference<
         "mutation",
         "internal",
@@ -73,6 +107,12 @@ export declare const components: {
         "mutation",
         "internal",
         { name: string; owner: string; starCount: number },
+        any
+      >;
+      updateGithubRepoStats: FunctionReference<
+        "action",
+        "internal",
+        { githubAccessToken: string; repo: string },
         any
       >;
       updateGithubRepos: FunctionReference<
@@ -96,9 +136,11 @@ export declare const components: {
         "internal",
         {
           githubAccessToken: string;
-          githubOwners: Array<string>;
-          minStars: number;
-          npmOrgs: Array<string>;
+          githubOwners?: Array<string>;
+          githubRepos?: Array<string>;
+          minStars?: number;
+          npmOrgs?: Array<string>;
+          npmPackages?: Array<string>;
         },
         any
       >;
@@ -119,9 +161,11 @@ export declare const components: {
         "internal",
         {
           githubAccessToken: string;
-          githubOwners: Array<string>;
-          minStars: number;
-          npmOrgs: Array<string>;
+          githubOwners?: Array<string>;
+          githubRepos?: Array<string>;
+          minStars?: number;
+          npmOrgs?: Array<string>;
+          npmPackages?: Array<string>;
         },
         null
       >;
@@ -139,6 +183,30 @@ export declare const components: {
           updatedAt: number;
         }>
       >;
+      getNpmPackage: FunctionReference<
+        "query",
+        "internal",
+        { name: string },
+        null | {
+          dayOfWeekAverages: Array<number>;
+          downloadCount: number;
+          downloadCountUpdatedAt?: number;
+          name: string;
+          org?: string;
+          updatedAt: number;
+        }
+      >;
+      getNpmPackages: FunctionReference<
+        "query",
+        "internal",
+        { names: Array<string> },
+        {
+          dayOfWeekAverages: Array<number>;
+          downloadCount: number;
+          downloadCountUpdatedAt: number;
+          updatedAt: number;
+        }
+      >;
       updateNpmOrg: FunctionReference<
         "mutation",
         "internal",
@@ -149,6 +217,22 @@ export declare const components: {
         "action",
         "internal",
         { org: string; page?: number },
+        any
+      >;
+      updateNpmPackage: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          dayOfWeekAverages: Array<number>;
+          downloadCount: number;
+          name: string;
+        },
+        any
+      >;
+      updateNpmPackageStats: FunctionReference<
+        "action",
+        "internal",
+        { name: string },
         any
       >;
       updateNpmPackagesForOrg: FunctionReference<

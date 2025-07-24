@@ -14,6 +14,7 @@ import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
 import LandingPageGad from '~/components/LandingPageGad'
+import OpenSourceStats from '~/components/OpenSourceStats'
 
 export const Route = createFileRoute({
   component: RouteComp,
@@ -73,6 +74,10 @@ export default function RouteComp() {
         >
           Get Started
         </Link>
+      </div>
+
+      <div className="w-fit mx-auto px-4">
+        <OpenSourceStats library={library} />
       </div>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />

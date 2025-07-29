@@ -278,8 +278,9 @@ Instead of this:
 
 ```typescript
 // View-specific API call every time you navigate
-const { data: projectTodos } = useQuery(['project-todos', projectId], () =>
-  fetchProjectTodosWithUsers(projectId),
+const { data: projectTodos } = useQuery(
+  ['project-todos', projectId],
+  () => fetchProjectTodosWithUsers(projectId)
 )
 ```
 
@@ -301,19 +302,22 @@ const projectCollection = createQueryCollection({
 })
 
 // Navigation is instant — no new API calls needed
-const { data: activeProjectTodos } = useLiveQuery((q) =>
-  q
-    .from({ t: todoCollection })
-    .innerJoin(
-      { u: userCollection },
-      ({ t, u }) => eq(t.userId, u.id)
-    )
-    .innerJoin(
-      { p: projectCollection },
-      ({ u, p }) => eq(u.projectId, p.id)
-    )
-    .where(({ t }) => eq(t.active, true))
-    .where(({ p }) => eq(p.id, currentProject.id))
+const { data: activeProjectTodos } = useLiveQuery(
+  (q) =>
+    q
+      .from({ t: todoCollection })
+      .innerJoin(
+        { u: userCollection },
+        ({ t, u }) => eq(t.userId, u.id)
+      )
+      .innerJoin(
+        { p: projectCollection },
+        ({ u, p }) => eq(u.projectId, p.id)
+      )
+      .where(({ t }) => eq(t.active, true))
+      .where(({ p }) =>
+        eq(p.id, currentProject.id)
+      )
 )
 ```
 

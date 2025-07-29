@@ -17,7 +17,7 @@ export const dbProject = {
   tagline: `A reactive client store for building super fast apps on sync`,
   description: `TanStack DB extends TanStack Query with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥`,
   ogImage: 'https://github.com/tanstack/db/raw/main/media/repo-header.png',
-  badge: 'soon',
+  badge: 'beta',
   bgStyle: `bg-orange-700`,
   textStyle: `text-orange-500`,
   repo,

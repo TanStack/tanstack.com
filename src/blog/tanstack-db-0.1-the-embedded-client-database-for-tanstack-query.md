@@ -87,6 +87,8 @@ Differential dataflow unlocks **Option C—load normalized collections once, let
 
 **Live queries, effortless optimistic writes, and a radically simpler architecture**—all incrementally adoptable.
 
+_[Try out the TanStack DB Starter](https://github.com/TanStack/db/tree/main/examples/react/projects)_
+
 ## So what’s happening under the hood?
 
 TanStack DB keeps a **normalized collection store** in memory, then uses **differential dataflow** to update query results incrementally. Think of it like Materialize-style streaming SQL—except embedded in the browser and hooked straight into React Query’s cache.
@@ -373,6 +375,7 @@ If your team spends more time optimizing React re-renders than building features
 **Get started today:**
 
 - [Documentation & Quick Start](https://tanstack.com/db/latest)
+- [Try out the TanStack DB Starter](https://github.com/TanStack/db/tree/main/examples/react/projects)
 - [Join the TanStack Discord](https://tlinz.com/discord) - Direct migration support from the team
 
 No more stutters. No more jank. Stop re-rendering—start shipping!

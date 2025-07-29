@@ -185,21 +185,18 @@ const Todos = () => {
 
 ```typescript
 // ✅ Define a Query Collection
-import {
-  createCollection
-} from '@tanstack/react-db'
-import {
-  queryCollectionOptions
-} from '@tanstack/query-db-collection'
+import { createCollection } from '@tanstack/react-db'
+import { queryCollectionOptions } from '@tanstack/query-db-collection'
 
 const todoCollection = createCollection(
   queryCollectionOptions({
     queryKey: ['todos'],
     queryFn: async () =>
       api.todos.getAll('/api/todos'),
-    getKey: (item) => item.id,      // ✅ New
-    schema: todoSchema,              // ✅ New
-    onInsert: async ({ transaction }) => { // ✅ New
+    getKey: (item) => item.id, // ✅ New
+    schema: todoSchema, // ✅ New
+    onInsert: async ({ transaction }) => {
+      // ✅ New
       await Promise.all(
         transaction.mutations.map((mutation) =>
           api.todos.create(mutation.modified)

@@ -208,7 +208,13 @@ pre.twoslash data-lsp:hover::before {
   text-align: left;
   padding: 5px 8px;
   border-radius: 2px;
-  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace, Courier New;
+  font-family:
+    'JetBrains Mono',
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace,
+    Courier New;
   font-size: 14px;
   white-space: pre-wrap;
   z-index: 100;
@@ -247,7 +253,13 @@ pre .code-container:hover a {
 
 pre code {
   font-size: 12px;
-  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace, Courier New;
+  font-family:
+    'JetBrains Mono',
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace,
+    Courier New;
   white-space: pre;
   -webkit-overflow-scrolling: touch;
 }
@@ -386,7 +398,13 @@ data-lsp {
 }
 .tag-container .twoslash-annotation {
   position: absolute;
-  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace, Courier New;
+  font-family:
+    'JetBrains Mono',
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace,
+    Courier New;
   right: -10px;
   /** Default annotation text to 200px */
   width: 200px;
@@ -674,4 +692,16 @@ mark {
   font-style: italic;
   font-weight: 900;
   src: url('/fonts/inter-v19-latin-900italic.woff2') format('woff2');
+}
+
+/* Override prose paragraph styles */
+.prose
+  :is(:where(p):not(:where([class~='not-prose'], [class~='not-prose'] *))) {
+  line-height: 1.5 !important;
+  margin-top: 0 !important;
+  margin-bottom: 1em !important;
+}
+
+.p-1 {
+  padding: 0.05rem;
 }

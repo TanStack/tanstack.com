@@ -1,10 +1,24 @@
 ---
 title: Stop Re-Rendering — TanStack DB, the Embedded Client Database for TanStack Query
-published: 2025-07-28
+published: 2025-07-30
 authors:
   - Kyle Mathews
   - Sam Willis
 ---
+
+![Stop rerendering](/blog-assets/tanstack-db-0.1/header.png)
+
+**Your React dashboard shouldn't grind to a halt** just because one TODO turns from ☐ to ☑. Yet every optimistic update still kicks off a cascade of re-renders, filters, useMemos and spinner flashes.
+
+If you’ve ever muttered “**why is this still so hard in 2025?**”—same.
+
+TanStack DB is our answer: a client-side database layer powered by differential dataflow. It plugs straight into your existing useQuery calls.
+
+It recomputes only what changed—**0.3 ms to update one row in a 100k collection** on an M1 Pro
+
+One early-alpha adopter, building a Linear-like application, swapped out a pile of MobX code for TanStack DB and told us with relief, “everything is now completely instantaneous when clicking around the app, even w/ 1000s of tasks loaded.”
+
+### Why it matters
 
 <style>
 .code-comparison {
@@ -62,18 +76,6 @@ authors:
   }
 }
 </style>
-
-**Your React dashboard shouldn't grind to a halt** just because one TODO turns from ☐ to ☑. Yet every optimistic update still kicks off a cascade of re-renders, filters, useMemos and spinner flashes.
-
-If you’ve ever muttered “**why is this still so hard in 2025?**”—same.
-
-TanStack DB is our answer: a client-side database layer powered by differential dataflow. It plugs straight into your existing useQuery calls.
-
-It recomputes only what changed—**0.3 ms to update one row in a 100k collection** on an M1 Pro
-
-One early-alpha adopter, building a Linear-like application, swapped out a pile of MobX code for TanStack DB and told us with relief, “everything is now completely instantaneous when clicking around the app, even w/ 1000s of tasks loaded.”
-
-### Why it matters
 
 Today most teams face an ugly fork in the road:
 
@@ -276,9 +278,8 @@ Instead of this:
 
 ```typescript
 // View-specific API call every time you navigate
-const { data: projectTodos } = useQuery(
-  ['project-todos', projectId],
-  () => fetchProjectTodosWithUsers(projectId)
+const { data: projectTodos } = useQuery(['project-todos', projectId], () =>
+  fetchProjectTodosWithUsers(projectId),
 )
 ```
 
@@ -300,24 +301,23 @@ const projectCollection = createQueryCollection({
 })
 
 // Navigation is instant — no new API calls needed
-const { data: activeProjectTodos } = useLiveQuery(
-  (query) =>
-    query
-      .from({
-        t: todoCollection,
-        u: userCollection,
-        p: projectCollection,
-      })
-      .join({
-        type: 'inner',
-        on: [`@t.userId`, `=`, `@u.id`],
-      })
-      .join({
-        type: 'inner',
-        on: [`@u.projectId`, `=`, `@p.id`],
-      })
-      .where('@t.active', '=', true)
-      .where('@p.id', '=', currentProject.id)
+const { data: activeProjectTodos } = useLiveQuery((query) =>
+  query
+    .from({
+      t: todoCollection,
+      u: userCollection,
+      p: projectCollection,
+    })
+    .join({
+      type: 'inner',
+      on: [`@t.userId`, `=`, `@u.id`],
+    })
+    .join({
+      type: 'inner',
+      on: [`@u.projectId`, `=`, `@p.id`],
+    })
+    .where('@t.active', '=', true)
+    .where('@p.id', '=', currentProject.id),
 )
 ```
 

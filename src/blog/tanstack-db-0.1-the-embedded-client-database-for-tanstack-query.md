@@ -12,7 +12,7 @@ authors:
 
 If you’ve ever muttered “**why is this still so hard in 2025?**”—same.
 
-TanStack DB is our answer: a client-side database layer powered by differential dataflow. It plugs straight into your existing useQuery calls.
+TanStack DB is our answer: a client-side database layer powered by differential dataflow that plugs straight into your existing useQuery calls.
 
 It recomputes only what changed—**0.3 ms to update one row in a 100k collection** on an M1 Pro
 
@@ -79,11 +79,11 @@ One early-alpha adopter, building a Linear-like application, swapped out a pile 
 
 Today most teams face an ugly fork in the road:
 
-A. **View-specific endpoints** (fast render, slow network, endless endpoint sprawl) or
+**Option A. View-specific APIs** (fast render, slow network, endless endpoint sprawl) or
 
-B. **Load-everything-and-filter** (simple backend, sluggish client).
+**Option B. Load-everything-and-filter** (simple backend, sluggish client).
 
-Differential dataflow unlocks **Option C**—load normalized collections once, let TanStack DB stream millisecond-level incremental joins in the browser. No rewrites, no spinners, no jitter.
+Differential dataflow unlocks **Option C**—load normalized collections once, let TanStack DB stream millisecond-level incremental joins in the browser. No rewrites, no spinners, no jitter.
 
 **Live queries, effortless optimistic writes, and a radically simpler architecture**—all incrementally adoptable.
 
@@ -264,15 +264,15 @@ But it doesn’t just improve your current architecture — it enables a new rad
 
 ## TanStack DB enables a radically simplified architecture
 
-If you're using TanStack Query, you've probably hit this architectural fork:
+Let's revisit the three options:
 
 **Option A — View-Specific APIs**: Create view-specific API endpoints that return exactly what each component needs. Clean, fast, zero client-side processing. But now you're drowning in brittle API routes, dealing with network waterfalls when components need related data, and creating tight coupling between your frontend views and backend schemas.
 
-**Option B — Load and Filter Client-Side**: Load broader datasets and filter/process them client-side. Fewer API calls, more flexible frontend. But you slam into the performance wall — `todos.filter()`, `users.find()`, `posts.map()`, `useMemo()` everywhere, with cascading re-renders destroying your UX.
+**Option B — Load-everything-and-filter**: Load broader datasets and filter/process them client-side. Fewer API calls, more flexible frontend. But you slam into the performance wall — `todos.filter()`, `users.find()`, `posts.map()`, `useMemo()` everywhere, with cascading re-renders destroying your UX.
 
 Most teams pick Option A to avoid performance problems. You're trading client-side complexity for API proliferation and network dependency.
 
-**TanStack DB enables Option C – Normalized Collections + Incremental Joins (TanStack DB):** Load normalized collections through fewer API calls, then perform lightning-fast incremental joins in the client. You get the network efficiency of broad data loading with sub-millisecond query performance that makes Option A unnecessary.
+**TanStack DB enables Option C – Normalized Collections + Incremental Joins:** Load normalized collections through fewer API calls, then perform lightning-fast incremental joins in the client. You get the network efficiency of broad data loading with sub-millisecond query performance that makes Option A unnecessary.
 
 Instead of this:
 
@@ -301,23 +301,19 @@ const projectCollection = createQueryCollection({
 })
 
 // Navigation is instant — no new API calls needed
-const { data: activeProjectTodos } = useLiveQuery((query) =>
-  query
-    .from({
-      t: todoCollection,
-      u: userCollection,
-      p: projectCollection,
-    })
-    .join({
-      type: 'inner',
-      on: [`@t.userId`, `=`, `@u.id`],
-    })
-    .join({
-      type: 'inner',
-      on: [`@u.projectId`, `=`, `@p.id`],
-    })
-    .where('@t.active', '=', true)
-    .where('@p.id', '=', currentProject.id),
+const { data: activeProjectTodos } = useLiveQuery((q) =>
+  q
+    .from({ t: todoCollection })
+    .innerJoin(
+      { u: userCollection },
+      ({ t, u }) => eq(t.userId, u.id)
+    )
+    .innerJoin(
+      { p: projectCollection },
+      ({ u, p }) => eq(u.projectId, p.id)
+    )
+    .where(({ t }) => eq(t.active, true))
+    .where(({ p }) => eq(p.id, currentProject.id))
 )
 ```
 

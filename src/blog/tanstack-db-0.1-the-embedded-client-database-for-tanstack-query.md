@@ -67,7 +67,9 @@ authors:
 
 If you’ve ever muttered “**why is this still so hard in 2025?**”—same.
 
-TanStack DB is our answer: a client-side database layer powered by differential dataflow. It plugs straight into your existing useQuery calls. It recomputes only what changed—0.3 ms to update 100k rows on an M1 Pro
+TanStack DB is our answer: a client-side database layer powered by differential dataflow. It plugs straight into your existing useQuery calls.
+
+It recomputes only what changed—**0.3 ms to update one row in a 100k collection** on an M1 Pro
 
 One early-alpha adopter, building a Linear-like application, swapped out a pile of MobX code for TanStack DB and told us with relief, “everything is now completely instantaneous when clicking around the app, even w/ 1000s of tasks loaded.”
 

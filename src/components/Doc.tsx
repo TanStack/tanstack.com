@@ -148,7 +148,7 @@ export function Doc({
           <div
             ref={markdownContainerRef}
             className={twMerge(
-              'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
+              'prose prose-gray dark:prose-invert max-w-none',
               isTocVisible && 'pr-4 lg:pr-6',
               'styled-markdown-content'
             )}

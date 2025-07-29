@@ -17,7 +17,7 @@ export const dbProject = {
   tagline: `A reactive client store for building super fast apps on sync`,
   description: `TanStack DB extends TanStack Query with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥`,
   ogImage: 'https://github.com/tanstack/db/raw/main/media/repo-header.png',
-  badge: 'soon',
+  badge: 'beta',
   bgStyle: `bg-orange-700`,
   textStyle: `text-orange-500`,
   repo,
@@ -27,7 +27,7 @@ export const dbProject = {
   colorFrom: `from-orange-500`,
   colorTo: `to-orange-700`,
   textColor: `text-orange-700`,
-  frameworks: ['react', 'vue'],
+  frameworks: ['react', 'vue', 'solid', 'svelte', 'vanilla'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
   menu: [
@@ -36,11 +36,11 @@ export const dbProject = {
       label: 'Docs',
       to: '/db/latest/docs',
     },
-    {
-      icon: <VscPreview />,
-      label: 'Examples',
-      to: '/db/latest/docs/framework/react/examples/todo',
-    },
+    // {
+    //   icon: <VscPreview />,
+    //   label: 'Examples',
+    //   to: '/db/latest/docs/framework/react/examples/todo',
+    // },
     {
       icon: <FaGithub />,
       label: 'Github',

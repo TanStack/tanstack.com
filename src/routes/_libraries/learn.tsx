@@ -104,14 +104,14 @@ function LoginComp() {
               </div>
             </Link>
             <Link
-              to="/dedicated-support"
+              to="/paid-support"
               className="max-w-[300px] rounded-lg bg-gradient-to-br from-green-500 to-sky-500 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
             >
               <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
-                Dedicated Support
+                Paid Support
               </div>
               <div className="p-4 flex gap-2 flex-wrap">
-                {['Consulting', 'Enterprise Support Contracts'].map((d) => (
+                {['Consulting', 'Enterprise Paid Support'].map((d) => (
                   <div
                     key={d}
                     className="text-sm bg-white/90 rounded-full py-1 px-2 shadow-lg font-bold"

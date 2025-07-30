@@ -12,6 +12,7 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { partners } from '~/utils/partners'
 import LandingPageGad from '~/components/LandingPageGad'
+import { PartnershipCallout } from '~/components/PartnershipCallout'
 
 export const Route = createFileRoute({
   component: DBVersionIndex,
@@ -109,14 +110,16 @@ export default function DBVersionIndex() {
             </div>
           </div>
         </div>
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto max-w-full">
+        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Partners
           </h3>
           <div className="h-8" />
-          <div className={`w-[500px] max-w-full`}>
+          <div className={`w-[500px] max-w-full mx-auto`}>
             {partners
-              .filter((d) => d.libraries?.includes('db'))
+              .filter(
+                (d) => d.libraries?.includes('db') && d.status === 'active'
+              )
               .map((partner) => {
                 return (
                   <a
@@ -135,6 +138,17 @@ export default function DBVersionIndex() {
                   </a>
                 )
               })}
+          </div>
+          <div className="h-8" />
+          <PartnershipCallout libraryName="DB" />
+          <div className="text-center mt-6">
+            <Link
+              to="/partners"
+              search={{ libraries: ['db'], status: 'inactive' }}
+              className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            >
+              View Previous Partners →
+            </Link>
           </div>
         </div>
         <div className="relative text-lg overflow-hidden">

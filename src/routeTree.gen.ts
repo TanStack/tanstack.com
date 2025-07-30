@@ -28,9 +28,10 @@ import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as LibrariesTermsRouteImport } from './routes/_libraries/terms'
 import { Route as LibrariesSupportRouteImport } from './routes/_libraries/support'
 import { Route as LibrariesPrivacyRouteImport } from './routes/_libraries/privacy'
+import { Route as LibrariesPartnersRouteImport } from './routes/_libraries/partners'
+import { Route as LibrariesPaidSupportRouteImport } from './routes/_libraries/paid-support'
 import { Route as LibrariesLearnRouteImport } from './routes/_libraries/learn'
 import { Route as LibrariesEthosRouteImport } from './routes/_libraries/ethos'
-import { Route as LibrariesDedicatedSupportRouteImport } from './routes/_libraries/dedicated-support'
 import { Route as LibrariesBlogRouteImport } from './routes/_libraries/blog'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
@@ -119,6 +120,16 @@ const LibrariesPrivacyRoute = LibrariesPrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+const LibrariesPartnersRoute = LibrariesPartnersRouteImport.update({
+  id: '/partners',
+  path: '/partners',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
+const LibrariesPaidSupportRoute = LibrariesPaidSupportRouteImport.update({
+  id: '/paid-support',
+  path: '/paid-support',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
 const LibrariesLearnRoute = LibrariesLearnRouteImport.update({
   id: '/learn',
   path: '/learn',
@@ -129,12 +140,6 @@ const LibrariesEthosRoute = LibrariesEthosRouteImport.update({
   path: '/ethos',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
-const LibrariesDedicatedSupportRoute =
-  LibrariesDedicatedSupportRouteImport.update({
-    id: '/dedicated-support',
-    path: '/dedicated-support',
-    getParentRoute: () => LibrariesRouteRoute,
-  } as any)
 const LibrariesBlogRoute = LibrariesBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -295,9 +300,10 @@ export interface FileRoutesByFullPath {
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/blog': typeof LibrariesBlogRouteWithChildren
-  '/dedicated-support': typeof LibrariesDedicatedSupportRoute
   '/ethos': typeof LibrariesEthosRoute
   '/learn': typeof LibrariesLearnRoute
+  '/paid-support': typeof LibrariesPaidSupportRoute
+  '/partners': typeof LibrariesPartnersRoute
   '/privacy': typeof LibrariesPrivacyRoute
   '/support': typeof LibrariesSupportRoute
   '/terms': typeof LibrariesTermsRoute
@@ -333,9 +339,10 @@ export interface FileRoutesByTo {
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
-  '/dedicated-support': typeof LibrariesDedicatedSupportRoute
   '/ethos': typeof LibrariesEthosRoute
   '/learn': typeof LibrariesLearnRoute
+  '/paid-support': typeof LibrariesPaidSupportRoute
+  '/partners': typeof LibrariesPartnersRoute
   '/privacy': typeof LibrariesPrivacyRoute
   '/support': typeof LibrariesSupportRoute
   '/terms': typeof LibrariesTermsRoute
@@ -374,9 +381,10 @@ export interface FileRoutesById {
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/_libraries/blog': typeof LibrariesBlogRouteWithChildren
-  '/_libraries/dedicated-support': typeof LibrariesDedicatedSupportRoute
   '/_libraries/ethos': typeof LibrariesEthosRoute
   '/_libraries/learn': typeof LibrariesLearnRoute
+  '/_libraries/paid-support': typeof LibrariesPaidSupportRoute
+  '/_libraries/partners': typeof LibrariesPartnersRoute
   '/_libraries/privacy': typeof LibrariesPrivacyRoute
   '/_libraries/support': typeof LibrariesSupportRoute
   '/_libraries/terms': typeof LibrariesTermsRoute
@@ -416,9 +424,10 @@ export interface FileRouteTypes {
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/blog'
-    | '/dedicated-support'
     | '/ethos'
     | '/learn'
+    | '/paid-support'
+    | '/partners'
     | '/privacy'
     | '/support'
     | '/terms'
@@ -454,9 +463,10 @@ export interface FileRouteTypes {
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
-    | '/dedicated-support'
     | '/ethos'
     | '/learn'
+    | '/paid-support'
+    | '/partners'
     | '/privacy'
     | '/support'
     | '/terms'
@@ -494,9 +504,10 @@ export interface FileRouteTypes {
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/_libraries/blog'
-    | '/_libraries/dedicated-support'
     | '/_libraries/ethos'
     | '/_libraries/learn'
+    | '/_libraries/paid-support'
+    | '/_libraries/partners'
     | '/_libraries/privacy'
     | '/_libraries/support'
     | '/_libraries/terms'
@@ -628,13 +639,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesBlogRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
-    '/_libraries/dedicated-support': {
-      id: '/_libraries/dedicated-support'
-      path: '/dedicated-support'
-      fullPath: '/dedicated-support'
-      preLoaderRoute: typeof LibrariesDedicatedSupportRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
     '/_libraries/ethos': {
       id: '/_libraries/ethos'
       path: '/ethos'
@@ -647,6 +651,20 @@ declare module '@tanstack/react-router' {
       path: '/learn'
       fullPath: '/learn'
       preLoaderRoute: typeof LibrariesLearnRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
+    '/_libraries/paid-support': {
+      id: '/_libraries/paid-support'
+      path: '/paid-support'
+      fullPath: '/paid-support'
+      preLoaderRoute: typeof LibrariesPaidSupportRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
+    '/_libraries/partners': {
+      id: '/_libraries/partners'
+      path: '/partners'
+      fullPath: '/partners'
+      preLoaderRoute: typeof LibrariesPartnersRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/privacy': {
@@ -919,13 +937,6 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
-    '/_libraries/dedicated-support': {
-      id: '/_libraries/dedicated-support'
-      path: '/dedicated-support'
-      fullPath: '/dedicated-support'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
     '/_libraries/ethos': {
       id: '/_libraries/ethos'
       path: '/ethos'
@@ -937,6 +948,20 @@ declare module '@tanstack/react-start/server' {
       id: '/_libraries/learn'
       path: '/learn'
       fullPath: '/learn'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/_libraries/paid-support': {
+      id: '/_libraries/paid-support'
+      path: '/paid-support'
+      fullPath: '/paid-support'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/_libraries/partners': {
+      id: '/_libraries/partners'
+      path: '/partners'
+      fullPath: '/partners'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1289,23 +1314,6 @@ declare module './routes/_libraries/blog' {
     unknown
   >
 }
-declare module './routes/_libraries/dedicated-support' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/dedicated-support',
-    FileRoutesByPath['/_libraries/dedicated-support']['parentRoute'],
-    FileRoutesByPath['/_libraries/dedicated-support']['id'],
-    FileRoutesByPath['/_libraries/dedicated-support']['path'],
-    FileRoutesByPath['/_libraries/dedicated-support']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/dedicated-support']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/dedicated-support']['id'],
-    ServerFileRoutesByPath['/_libraries/dedicated-support']['path'],
-    ServerFileRoutesByPath['/_libraries/dedicated-support']['fullPath'],
-    unknown
-  >
-}
 declare module './routes/_libraries/ethos' {
   const createFileRoute: CreateFileRoute<
     '/_libraries/ethos',
@@ -1337,6 +1345,40 @@ declare module './routes/_libraries/learn' {
     ServerFileRoutesByPath['/_libraries/learn']['id'],
     ServerFileRoutesByPath['/_libraries/learn']['path'],
     ServerFileRoutesByPath['/_libraries/learn']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/_libraries/paid-support' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/paid-support',
+    FileRoutesByPath['/_libraries/paid-support']['parentRoute'],
+    FileRoutesByPath['/_libraries/paid-support']['id'],
+    FileRoutesByPath['/_libraries/paid-support']['path'],
+    FileRoutesByPath['/_libraries/paid-support']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/_libraries/paid-support']['parentRoute'],
+    ServerFileRoutesByPath['/_libraries/paid-support']['id'],
+    ServerFileRoutesByPath['/_libraries/paid-support']['path'],
+    ServerFileRoutesByPath['/_libraries/paid-support']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/_libraries/partners' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/partners',
+    FileRoutesByPath['/_libraries/partners']['parentRoute'],
+    FileRoutesByPath['/_libraries/partners']['id'],
+    FileRoutesByPath['/_libraries/partners']['path'],
+    FileRoutesByPath['/_libraries/partners']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/_libraries/partners']['parentRoute'],
+    ServerFileRoutesByPath['/_libraries/partners']['id'],
+    ServerFileRoutesByPath['/_libraries/partners']['path'],
+    ServerFileRoutesByPath['/_libraries/partners']['fullPath'],
     unknown
   >
 }
@@ -1919,9 +1961,10 @@ const LibrariesBlogRouteWithChildren = LibrariesBlogRoute._addFileChildren(
 
 interface LibrariesRouteRouteChildren {
   LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
-  LibrariesDedicatedSupportRoute: typeof LibrariesDedicatedSupportRoute
   LibrariesEthosRoute: typeof LibrariesEthosRoute
   LibrariesLearnRoute: typeof LibrariesLearnRoute
+  LibrariesPaidSupportRoute: typeof LibrariesPaidSupportRoute
+  LibrariesPartnersRoute: typeof LibrariesPartnersRoute
   LibrariesPrivacyRoute: typeof LibrariesPrivacyRoute
   LibrariesSupportRoute: typeof LibrariesSupportRoute
   LibrariesTermsRoute: typeof LibrariesTermsRoute
@@ -1941,9 +1984,10 @@ interface LibrariesRouteRouteChildren {
 
 const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
-  LibrariesDedicatedSupportRoute: LibrariesDedicatedSupportRoute,
   LibrariesEthosRoute: LibrariesEthosRoute,
   LibrariesLearnRoute: LibrariesLearnRoute,
+  LibrariesPaidSupportRoute: LibrariesPaidSupportRoute,
+  LibrariesPartnersRoute: LibrariesPartnersRoute,
   LibrariesPrivacyRoute: LibrariesPrivacyRoute,
   LibrariesSupportRoute: LibrariesSupportRoute,
   LibrariesTermsRoute: LibrariesTermsRoute,

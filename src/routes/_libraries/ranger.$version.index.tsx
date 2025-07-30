@@ -12,6 +12,7 @@ import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
+import { PartnershipCallout } from '~/components/PartnershipCallout'
 
 export const Route = createFileRoute({
   component: VersionIndex,
@@ -101,6 +102,14 @@ export default function VersionIndex() {
               Become a Sponsor!
             </a>
           </div>
+        </div>
+
+        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
+            Partners
+          </h3>
+          <div className="h-8" />
+          <PartnershipCallout libraryName="Ranger" />
         </div>
 
         <LandingPageGad />

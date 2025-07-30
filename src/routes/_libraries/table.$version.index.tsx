@@ -14,6 +14,7 @@ import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
+import { PartnershipCallout } from '~/components/PartnershipCallout'
 
 export const Route = createFileRoute({
   component: TableVersionIndex,
@@ -175,7 +176,9 @@ export default function TableVersionIndex() {
         <div className="h-8" />
         <div className={`grid grid-cols-1 gap-6 max-w-[400px]`}>
           {partners
-            .filter((d) => d.libraries?.includes('table'))
+            .filter(
+              (d) => d.libraries?.includes('table') && d.status === 'active'
+            )
             .map((partner) => {
               return (
                 <a
@@ -195,6 +198,17 @@ export default function TableVersionIndex() {
               )
             })}
         </div>
+        <div className="text-center mt-6">
+          <Link
+            to="/partners"
+            search={{ libraries: ['table'], status: 'inactive' }}
+            className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+          >
+            View Previous Partners →
+          </Link>
+        </div>
+        <div className="h-8" />
+        <PartnershipCallout libraryName="Table" />
       </div>
 
       <div className="relative text-lg overflow-hidden">

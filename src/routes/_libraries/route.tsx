@@ -166,6 +166,11 @@ function LibrariesLayout() {
       </div>
       {[
         {
+          label: 'Partners',
+          icon: <FaUsers />,
+          to: '/partners',
+        },
+        {
           label: 'Support',
           icon: <MdSupport />,
           to: '/support',

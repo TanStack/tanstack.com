@@ -11,6 +11,7 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { partners } from '~/utils/partners'
 import LandingPageGad from '~/components/LandingPageGad'
+import { PartnershipCallout } from '~/components/PartnershipCallout'
 
 export const Route = createFileRoute({
   component: PacerVersionIndex,
@@ -64,32 +65,17 @@ export default function PacerVersionIndex() {
             className="text opacity-90 max-w-[500px]
             lg:text-xl lg:max-w-[800px]"
           >
-            Optimize your application's performance with TanStack Pacer's core
-            primitives:{' '}
+            Framework-agnostic utilities with high-level hooks and low-level
+            primitives for{' '}
             <strong>
-              Debouncing, Throttling, Rate Limiting, Queuing, and Batching
+              debouncing, throttling, rate limiting, queuing, and batching
             </strong>
-            .
-          </p>
-          <p
-            className="text opacity-90 max-w-[500px]
-            lg:text-xl lg:max-w-[800px]"
-          >
-            Choose from multiple layers of abstraction using high-level
-            pre-built hooks or low-level primitives that you can connect to your
-            own state management solutions of choice.
-          </p>
-          <p
-            className="text opacity-90 max-w-[500px]
-            lg:text-xl lg:max-w-[800px]"
-          >
-            TanStack Pacer is built on top of {/* @ts-ignore */}
+            . Works with any framework (or no framework at all). Built on{' '}
+            {/* @ts-ignore */}
             <Link target="_blank" to="/store/latest" className="underline">
               TanStack Store
             </Link>{' '}
-            with reactive and subscribable state to make interacting with your
-            state management or persistence solution of choice a breeze, no
-            matter which framework you're using.
+            for reactive state management.
           </p>
           <Link
             to="/$libraryId/$version/docs"
@@ -145,14 +131,16 @@ export default function PacerVersionIndex() {
           </div>
         </div>
 
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto max-w-full">
+        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Partners
           </h3>
           <div className="h-8" />
-          <div className={`w-[500px] max-w-full`}>
+          <div className={`w-[500px] max-w-full mx-auto`}>
             {partners
-              .filter((d) => d.libraries?.includes('pacer'))
+              .filter(
+                (d) => d.libraries?.includes('pacer') && d.status === 'active'
+              )
               .map((partner) => {
                 return (
                   <a
@@ -172,6 +160,17 @@ export default function PacerVersionIndex() {
                 )
               })}
           </div>
+          <div className="text-center mt-6">
+            <Link
+              to="/partners"
+              search={{ libraries: ['pacer'], status: 'inactive' }}
+              className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            >
+              View Previous Partners →
+            </Link>
+          </div>
+          <div className="h-8" />
+          <PartnershipCallout libraryName="Pacer" />
         </div>
 
         <div className="relative text-lg overflow-hidden">

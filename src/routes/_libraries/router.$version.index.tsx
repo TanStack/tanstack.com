@@ -11,6 +11,7 @@ import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
+import { PartnershipCallout } from '~/components/PartnershipCallout'
 
 export const Route = createFileRoute({
   component: RouterVersionIndex,
@@ -78,7 +79,9 @@ function RouterVersionIndex() {
         <div className="h-8" />
         <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
           {partners
-            .filter((d) => d.libraries?.includes('router'))
+            .filter(
+              (d) => d.libraries?.includes('router') && d.status === 'active'
+            )
             .map((partner) => {
               return (
                 <a
@@ -98,6 +101,17 @@ function RouterVersionIndex() {
               )
             })}
         </div>
+        <div className="text-center mt-6">
+          <Link
+            to="/partners"
+            search={{ libraries: ['router'], status: 'inactive' }}
+            className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+          >
+            View Previous Partners →
+          </Link>
+        </div>
+        <div className="h-8" />
+        <PartnershipCallout libraryName="Router" />
       </div>
 
       <div className="px-4 sm:px-6 lg:px-8 mx-auto">

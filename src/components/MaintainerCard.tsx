@@ -192,6 +192,40 @@ interface MaintainerCardProps {
   libraryId?: Library['id']
 }
 
+interface CompactMaintainerCardProps {
+  maintainer: Maintainer
+}
+
+export function CompactMaintainerCard({
+  maintainer,
+}: CompactMaintainerCardProps) {
+  return (
+    <a
+      href={`https://github.com/${maintainer.github}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`View ${maintainer.name}'s GitHub profile`}
+      className="group relative min-h-40 block rounded-lg shadow-lg overflow-hidden"
+      tabIndex={0}
+      style={{
+        backgroundImage: `url(${maintainer.avatar})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+      <div className="absolute inset-0 p-3 flex flex-col justify-end">
+        <div className="text-white">
+          <div className="text-sm font-bold leading-tight">
+            {maintainer.name}
+          </div>
+        </div>
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    </a>
+  )
+}
+
 export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
   const libraries = getPersonsMaintainerOf(maintainer)
   const [showAllLibraries, setShowAllLibraries] = useState(false)
@@ -206,7 +240,7 @@ export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View ${maintainer.name}'s GitHub profile`}
-        className="relative h-64 overflow-hidden block"
+        className="relative h-64 overflow block"
         tabIndex={0}
       >
         <img

@@ -15,6 +15,7 @@ import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { partners } from '~/utils/partners'
 import LandingPageGad from '~/components/LandingPageGad'
+import { PartnershipCallout } from '~/components/PartnershipCallout'
 export const Route = createFileRoute({
   component: VersionIndex,
   head: () => ({
@@ -64,7 +65,7 @@ export default function VersionIndex() {
             </h2>
             <p
               className="text opacity-90 max-w-[500px]
-            lg:text-xl lg:max-w-[600px]"
+            lg:text-xl lg:max-w-[700px]"
             >
               Toss out that granular state management, manual refetching and
               endless bowls of async-spaghetti code. TanStack Query gives you
@@ -188,7 +189,9 @@ export default function VersionIndex() {
             <div className="h-8" />
             <div className={`grid grid-cols-1 gap-6 max-w-screen-md mx-auto`}>
               {partners
-                .filter((d) => d.libraries?.includes('query'))
+                .filter(
+                  (d) => d.libraries?.includes('query') && d.status === 'active'
+                )
                 .map((partner) => {
                   return (
                     <a
@@ -207,6 +210,17 @@ export default function VersionIndex() {
                     </a>
                   )
                 })}
+            </div>
+            <div className="h-8" />
+            <PartnershipCallout libraryName="Query" />
+            <div className="text-center mt-6">
+              <Link
+                to="/partners"
+                search={{ libraries: ['query'], status: 'inactive' }}
+                className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              >
+                View Previous Partners →
+              </Link>
             </div>
           </div>
 

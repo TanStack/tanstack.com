@@ -5,8 +5,8 @@ import nozzleImage from '~/images/nozzle.png'
 import nozzleDarkSvg from '~/images/nozzle-dark.svg'
 import nozzleLightSvg from '~/images/nozzle-light.svg'
 import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
-// import vercelLightSvg from '~/images/vercel-light.svg'
-// import vercelDarkSvg from '~/images/vercel-dark.svg'
+import vercelLightSvg from '~/images/vercel-light.svg'
+import vercelDarkSvg from '~/images/vercel-dark.svg'
 import netlifyLightSvg from '~/images/netlify-light.svg'
 import netlifyDarkSvg from '~/images/netlify-dark.svg'
 import convexWhiteSvg from '~/images/convex-white.svg'
@@ -25,6 +25,14 @@ import electricDarkSvg from '~/images/electric-dark.svg'
 import electricLightSvg from '~/images/electric-light.svg'
 import { Library } from '~/libraries'
 
+function LearnMoreButton() {
+  return (
+    <span className="text-blue-500 uppercase font-black text-sm">
+      Learn More
+    </span>
+  )
+}
+
 type Partner = {
   name: string
   id: string
@@ -35,6 +43,9 @@ type Partner = {
   homepageImg: JSX.Element
   content: JSX.Element
   sidebarImgClass?: string
+  status?: 'active' | 'inactive'
+  startDate?: string
+  endDate?: string
 }
 
 const neon = (() => {
@@ -47,6 +58,7 @@ const neon = (() => {
     sidebarImgLight: neonLightSvg,
     sidebarImgDark: neonDarkSvg,
     sidebarImgClass: 'py-3 scale-[1]',
+    status: 'active' as const,
     href,
     homepageImg: (
       <div className="w-full h-full flex items-center justify-center px-4 py-6">
@@ -79,9 +91,7 @@ const neon = (() => {
           every branch, test, or feature. TanStack's developer-first framework +
           Neon's cutting-edge infra = next-gen DX.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
-          Learn More
-        </span>
+        <LearnMoreButton />
       </>
     ),
   }
@@ -97,6 +107,7 @@ const convex = (() => {
     sidebarImgLight: convexColorSvg,
     sidebarImgDark: convexWhiteSvg,
     sidebarImgClass: 'py-5 scale-[1.1]',
+    status: 'active' as const,
     href,
     homepageImg: (
       <div className="w-full h-full flex items-center justify-center px-4 py-6">
@@ -124,9 +135,7 @@ const convex = (() => {
           together, we're elevating what's possible with real-time React
           applications.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
-          Learn More
-        </span>
+        <LearnMoreButton />
       </>
     ),
   }
@@ -143,6 +152,7 @@ const clerk = (() => {
     sidebarImgLight: clerkLightSvg,
     sidebarImgDark: clerkDarkSvg,
     sidebarImgClass: 'py-4',
+    status: 'active' as const,
     homepageImg: (
       <div className="w-full h-full flex items-center justify-center px-4 py-12">
         <img
@@ -167,9 +177,7 @@ const clerk = (() => {
           effortlessly deliver top-notch experiences that your users can trust
           and your developers can rely on.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
-          Learn More
-        </span>
+        <LearnMoreButton />
       </>
     ),
   }
@@ -182,10 +190,11 @@ const agGrid = (() => {
   return {
     name: 'AG Grid',
     id: 'ag-grid',
-    libraries: ['table'],
+    libraries: ['table'] as const,
     sidebarImgLight: agGridDarkSvg,
     sidebarImgDark: agGridLightSvg,
     sidebarImgClass: 'py-5 scale-[1.1]',
+    status: 'active' as const,
     href,
     homepageImg: (
       <div className="px-8 py-8">
@@ -243,9 +252,10 @@ const netlify = (() => {
         Official Deployment Partner
       </div>
     ),
+    status: 'active' as const,
     href,
     homepageImg: (
-      <div className="flex flex-col justify-center items-center pb-4 gap-2 relative w-full h-full">
+      <div className="flex flex-col justify-center items-center pb-4 gap-2 relative w-full h-full space-y-2">
         <div className="w-full h-full flex items-center justify-center px-4 pt-6 pb-2">
           <img
             src={netlifyLightSvg}
@@ -259,8 +269,8 @@ const netlify = (() => {
           />
         </div>
         <div
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[2px] w-auto text-xs text-center
-        py-1 px-3 rounded-t-xl uppercase font-bold bg-gradient-to-r from-[#03bdba] to-[#00aaba] text-white "
+          className="w-auto text-xs text-center
+        py-1 px-3 rounded-xl uppercase font-bold bg-gradient-to-r from-[#03bdba] to-[#00aaba] text-white "
         >
           Official Deployment Partner
         </div>
@@ -281,9 +291,7 @@ const netlify = (() => {
           TanStack applications can take full advantage of Netlify's powerful
           platform features.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
-          Learn More
-        </span>
+        <LearnMoreButton />
       </>
     ),
   }
@@ -299,6 +307,7 @@ const sentry = (() => {
     sidebarImgLight: sentryWordMarkDarkSvg,
     sidebarImgDark: sentryWordMarkLightSvg,
     sidebarImgClass: 'py-4 scale-[1.1]',
+    status: 'active' as const,
     href,
     homepageImg: (
       <div className="w-full h-full flex items-center justify-center px-4 py-6">
@@ -324,9 +333,7 @@ const sentry = (() => {
           possible experience to your users. Together, we're committed to making
           sure that you can build with confidence.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
-          Learn More
-        </span>
+        <LearnMoreButton />
       </>
     ),
   }
@@ -339,6 +346,7 @@ const uiDev = (() => {
     name: 'UI.dev',
     id: 'ui-dev',
     libraries: [],
+    status: 'active' as const,
     href,
     homepageImg: (
       <div className="py-4">
@@ -380,9 +388,7 @@ const uiDev = (() => {
           <strong>stay up to date with the latest and greatest</strong> in the
           web dev world regardless.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
-          Learn More
-        </span>
+        <LearnMoreButton />
       </>
     ),
   }
@@ -398,6 +404,7 @@ const nozzle = (() => {
     sidebarImgLight: nozzleDarkSvg,
     sidebarImgDark: nozzleLightSvg,
     sidebarImgClass: 'w-[150px] py-4',
+    status: 'active' as const,
     homepageImg: (
       <div className="py-6">
         <img
@@ -422,9 +429,7 @@ const nozzle = (() => {
           prove the value of the full gamut of TanStack tools on the front-end
           with unmatched UI/UX.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
-          Learn More
-        </span>
+        <LearnMoreButton />
       </>
     ),
   }
@@ -441,7 +446,10 @@ const speakeasy = (() => {
     sidebarImgLight: speakeasyLightSvg,
     sidebarImgDark: speakeasyDarkSvg,
     sidebarImgClass: 'w-[150px] py-4',
-    libraries: ['query'],
+    libraries: ['query'] as const,
+    status: 'inactive' as const,
+    startDate: 'Feb 2025',
+    endDate: 'Jul 2025',
     homepageImg: (
       <div className="py-6">
         <img
@@ -471,9 +479,7 @@ const speakeasy = (() => {
           this partnership ensures you're covered from server to client with{' '}
           <strong>powerful, type-safe, and optimized solutions</strong>.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
-          Learn More
-        </span>
+        <LearnMoreButton />
       </>
     ),
   }
@@ -485,10 +491,11 @@ const unkey = (() => {
   return {
     name: 'Unkey',
     id: 'unkey',
-    libraries: ['pacer'],
+    libraries: ['pacer'] as const,
     sidebarImgLight: unkeyBlackSvg,
     sidebarImgDark: unkeyWhiteSvg,
     sidebarImgClass: 'py-4 scale-[1]',
+    status: 'active' as const,
     href,
     homepageImg: (
       <div className="w-full h-full flex items-center justify-center px-4 py-6">
@@ -519,9 +526,7 @@ const unkey = (() => {
           developer experience by providing secure and scalable solutions for
           modern web applications.
         </div>
-        <span className="text-blue-500 uppercase font-black text-sm">
-          Learn More
-        </span>
+        <LearnMoreButton />
       </>
     ),
   }
@@ -533,10 +538,11 @@ const electric = (() => {
   return {
     name: 'Electric',
     id: 'electric',
-    libraries: ['db'],
+    libraries: ['db'] as const,
     sidebarImgLight: electricLightSvg,
     sidebarImgDark: electricDarkSvg,
     sidebarImgClass: 'py-4 scale-[1]',
+    status: 'active' as const,
     href,
     homepageImg: (
       <div className="w-full h-full flex items-center justify-center px-4 py-6">
@@ -562,58 +568,55 @@ const electric = (() => {
           Electric and TanStack are teaming up on TanStack DB to bring sync to
           mainstream application developers.
         </div>
-        <span className="text-cyan-500 uppercase font-black text-sm">
-          Learn More
-        </span>
+        <LearnMoreButton />
       </>
     ),
   }
 })()
 
-// const vercel = (() => {
-//   const href = 'https://vercel.com?utm_source=tanstack'
+const vercel = (() => {
+  const href = 'https://vercel.com?utm_source=tanstack'
 
-//   return {
-//     name: 'Vercel',
-//     id: 'vercel',
-//     href,
-//     libraries: ['start', 'router'],
-//     sidebarImgLight: vercelLightSvg,
-//     sidebarImgDark: vercelDarkSvg,
-//     sidebarImgClass: 'py-4',
-//     homepageImg: (
-//       <div className="w-full h-full flex items-center justify-center px-4 py-12">
-//         <img
-//           src={vercelLightSvg}
-//           alt="Vercel"
-//           className="w-[220px] max-w-full dark:hidden"
-//         />
-//         <img
-//           src={vercelDarkSvg}
-//           alt="Vercel"
-//           className="w-[220px] max-w-full hidden dark:block"
-//         />
-//       </div>
-//     ),
-//     content: (
-//       <>
-//         <div className="text-xs">
-//           TanStack Router/Start and Vercel are a match made in heaven.
-//           Vercel's{' '}
-//           <strong>cutting-edge deployment and serverless capabilities</strong>{' '}
-//           continue to deliver on the TanStack promise for apps to be{' '}
-//           <strong>high-performant and scalable</strong>. We're working closely
-//           with Vercel to not only ensure a flawless deployment experience, but
-//           also push the boundaries of what's possible with TanStack on the
-//           web.
-//         </div>
-//         <span className="text-blue-500 uppercase font-black text-sm">
-//           Learn More
-//         </span>
-//       </>
-//     ),
-//   }
-// })()
+  return {
+    name: 'Vercel',
+    id: 'vercel',
+    href,
+    libraries: ['start', 'router'] as const,
+    sidebarImgLight: vercelLightSvg,
+    sidebarImgDark: vercelDarkSvg,
+    sidebarImgClass: 'py-4',
+    status: 'inactive' as const,
+    startDate: 'May 2024',
+    endDate: 'Oct 2024',
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-12">
+        <img
+          src={vercelLightSvg}
+          alt="Vercel"
+          className="w-[220px] max-w-full dark:hidden"
+        />
+        <img
+          src={vercelDarkSvg}
+          alt="Vercel"
+          className="w-[220px] max-w-full hidden dark:block"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          TanStack Router/Start and Vercel are a match made in heaven. Vercel's{' '}
+          <strong>cutting-edge deployment and serverless capabilities</strong>{' '}
+          continue to deliver on the TanStack promise for apps to be{' '}
+          <strong>high-performant and scalable</strong>. We're working closely
+          with Vercel to not only ensure a flawless deployment experience, but
+          also push the boundaries of what's possible with TanStack on the web.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
 
 export const partners: Partner[] = [
   clerk,
@@ -622,12 +625,13 @@ export const partners: Partner[] = [
   neon,
   convex,
   sentry,
-  speakeasy,
   unkey,
   uiDev,
   nozzle,
   electric,
-]
+  vercel,
+  speakeasy,
+] as any
 
 if (typeof window !== 'undefined') {
   ;(window as any).githubPartnersSnippet = partners

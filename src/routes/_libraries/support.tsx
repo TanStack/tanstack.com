@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute({
-  component: LoginComp,
+  component: SupportComp,
   head: () => ({
     meta: seo({
       title: 'Support | TanStack',
@@ -12,89 +12,90 @@ export const Route = createFileRoute({
   }),
 })
 
-function LoginComp() {
+function SupportComp() {
   return (
-    <div className="flex flex-col min-h-[100dvh] max-w-full">
-      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 px-8">
-        <div className="flex flex-col items-center space-y-12 text-center ">
-          <div className="space-y-4">
-            <h1 className="space-y-2">
-              <div className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl/none text-pretty">
-                Support
-              </div>
-              <div className="text-xl font-normal tracking-tight sm:text-2xl md:text-3xl lg:text-4xl/none text-pretty">
-                for TanStack Libraries
-              </div>
-            </h1>
-            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400 text-pretty">
-              Whether you're a solo developer or a large enterprise, we have
-              solutions that will fit your needs like a glove!
-            </p>
-          </div>
-          <div className="flex items-center flex-wrap gap-4 max-w-full w-[900px] justify-center">
-            <Link
-              to={'https://tlinz.com/discord' as string}
-              target="_blank"
-              className="max-w-[300px] rounded-lg bg-gradient-to-br from-discord/60 to-discord text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
-            >
-              <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
-                Discord
-              </div>
-              <div className="p-4 flex gap-2 flex-wrap">
+    <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
+      <div className="flex-1 space-y-16 w-full max-w-4xl mx-auto">
+        <header className="text-center pt-8">
+          <h1 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mb-6">
+            Support
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Whether you're a solo developer or a large enterprise, we have
+            solutions that will fit your needs perfectly
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <Link
+            to={'https://tlinz.com/discord' as string}
+            target="_blank"
+            className="group bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none overflow-hidden hover:shadow-2xl transition-shadow duration-200"
+          >
+            <div className="bg-gradient-to-br from-discord/60 to-discord p-6 text-white">
+              <h3 className="text-xl font-semibold mb-2">Discord</h3>
+              <p className="text-sm text-white/80 mb-4">
+                Community support and real-time help
+              </p>
+              <div className="flex flex-wrap gap-2">
                 {['Community Support', 'Q&A', 'General Chat', 'Networking'].map(
                   (d) => (
-                    <div
+                    <span
                       key={d}
-                      className="text-sm bg-white text-discord rounded-full py-1 px-2 shadow-lg font-bold"
+                      className="text-xs bg-white/20 text-white rounded-md px-2 py-1"
                     >
                       {d}
-                    </div>
+                    </span>
                   )
                 )}
               </div>
-            </Link>
-            <Link
-              to={'https://github.com/tanstack' as string}
-              target="_blank"
-              className="max-w-[300px] rounded-lg bg-gradient-to-br from-gray-500 to-gray-900 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
-            >
-              <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
-                GitHub
-              </div>
-              <div className="p-4 flex gap-2 flex-wrap">
+            </div>
+          </Link>
+          <Link
+            to={'https://github.com/tanstack' as string}
+            target="_blank"
+            className="group bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none overflow-hidden hover:shadow-2xl transition-shadow duration-200"
+          >
+            <div className="bg-gradient-to-br from-gray-600 to-gray-900 p-6 text-white">
+              <h3 className="text-xl font-semibold mb-2">GitHub</h3>
+              <p className="text-sm text-white/80 mb-4">
+                Issues, discussions, and source code
+              </p>
+              <div className="flex flex-wrap gap-2">
                 {['Bug Reports', 'Feature Requests', 'Source Code'].map((d) => (
-                  <div
+                  <span
                     key={d}
-                    className="text-sm bg-white text-black rounded-full py-1 px-2 shadow-lg font-bold"
+                    className="text-xs bg-white/20 text-white rounded-md px-2 py-1"
                   >
                     {d}
-                  </div>
+                  </span>
                 ))}
               </div>
-            </Link>
-            <Link
-              to="/dedicated-support"
-              className="max-w-[300px] rounded-lg bg-gradient-to-br from-green-500 to-sky-500 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
-            >
-              <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
-                Dedicated Support
-              </div>
-              <div className="p-4 flex gap-2 flex-wrap">
-                {['Consulting', 'Enterprise Support Contracts'].map((d) => (
-                  <div
+            </div>
+          </Link>
+          <Link
+            to="/paid-support"
+            className="group bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none overflow-hidden hover:shadow-2xl transition-shadow duration-200"
+          >
+            <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-6 text-white">
+              <h3 className="text-xl font-semibold mb-2">Paid Support</h3>
+              <p className="text-sm text-white/80 mb-4">
+                Expert consultation and enterprise support
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {['Consulting', 'Enterprise Support'].map((d) => (
+                  <span
                     key={d}
-                    className="text-sm bg-white/90 rounded-full py-1 px-2 shadow-lg font-bold"
+                    className="text-xs bg-white/20 text-white rounded-md px-2 py-1"
                   >
-                    <div className="text-transparent bg-clip-text bg-gradient-to-r to-green-600 from-sky-600">
-                      {d}
-                    </div>
-                  </div>
+                    {d}
+                  </span>
                 ))}
               </div>
-            </Link>
-          </div>
+            </div>
+          </Link>
         </div>
-      </section>
+      </div>
     </div>
   )
 }

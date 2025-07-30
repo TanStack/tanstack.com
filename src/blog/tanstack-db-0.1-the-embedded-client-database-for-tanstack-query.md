@@ -277,10 +277,10 @@ Instead of this:
 
 ```typescript
 // View-specific API call every time you navigate
-const { data: projectTodos } = useQuery(
-  ['project-todos', projectId],
-  () => fetchProjectTodosWithUsers(projectId)
-)
+const { data: projectTodos } = useQuery({
+  queryKey: ['project-todos', projectId],
+  queryFn: () => fetchProjectTodosWithUsers(projectId)
+})
 ```
 
 You can do this:

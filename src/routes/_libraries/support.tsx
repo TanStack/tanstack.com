@@ -75,7 +75,7 @@ function SupportComp() {
           </Link>
           <Link
             to="/paid-support"
-            className="group bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none overflow-hidden hover:shadow-2xl transition-shadow duration-200"
+            className="group bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none overflow-hidden hover:shadow-2xl transition-shadow duration-200 flex flex-column "
           >
             <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-6 text-white">
               <h3 className="text-xl font-semibold mb-2">Paid Support</h3>

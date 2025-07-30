@@ -30,7 +30,7 @@ export const Route = createFileRoute({
   component: RouteComp,
   validateSearch: z.object({
     libraries: z.array(librarySchema).optional().catch(undefined),
-    status: statusSchema.optional().catch(undefined),
+    status: statusSchema.optional().default('active').catch('active'),
   }),
   head: () => ({
     meta: seo({

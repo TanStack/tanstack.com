@@ -157,6 +157,21 @@ function PartnersFilter({
                       onClick={() => {
                         // Toggle: if currently inactive, turn off filter, otherwise set to inactive
                         onStatusChange(
+                          selectedStatus === 'active' ? undefined : 'active'
+                        )
+                      }}
+                      className={`px-3 py-2 rounded-md text-sm transition-colors ${
+                        selectedStatus === 'active'
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      Current Partners
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Toggle: if currently inactive, turn off filter, otherwise set to inactive
+                        onStatusChange(
                           selectedStatus === 'inactive' ? undefined : 'inactive'
                         )
                       }}
@@ -205,27 +220,6 @@ function PartnersFilter({
         {/* Current filter chips */}
         {hasFilters && (
           <div className="flex flex-wrap gap-2">
-            {/* Status chip */}
-            {selectedStatus && (
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs ${
-                  selectedStatus === 'active'
-                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                    : 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
-                }`}
-              >
-                {selectedStatus === 'active'
-                  ? 'Current Partners'
-                  : 'Previous Partners'}
-                <button
-                  onClick={() => onStatusChange(undefined)}
-                  className="hover:bg-green-200 dark:hover:bg-green-800 rounded p-0.5 transition-colors"
-                >
-                  <MdClose className="w-3 h-3" />
-                </button>
-              </span>
-            )}
-
             {/* Library chips */}
             {selectedLibraries?.map((libraryId) => {
               const library = availableLibraries.find(

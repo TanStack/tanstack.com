@@ -8,6 +8,12 @@ import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { setHeader } from '@tanstack/react-start/server'
+// import {
+//   getContributorStats,
+//   getContributorStatsForLibrary,
+//   getBatchContributorStats,
+//   type ContributorStats,
+// } from '~/server/github'
 
 export const loadDocs = async ({
   repo,
@@ -127,3 +133,86 @@ export const fetchRepoDirectoryContents = createServerFn({
 
     return githubContents
   })
+
+// GitHub contribution stats server functions - commented out due to performance/accuracy concerns
+/*
+export const fetchContributorStats = createServerFn({ method: 'GET' })
+  .validator(z.object({ username: z.string() }))
+  .handler(async ({ data: { username } }) => {
+    const stats = await getContributorStats(username)
+
+    // Cache for 30 minutes on shared cache
+    // Revalidate in the background
+    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setHeader(
+      'CDN-Cache-Control',
+      'max-age=1800, stale-while-revalidate=1800, durable'
+    )
+
+    return stats
+  })
+
+export const fetchContributorStatsForLibrary = createServerFn({ method: 'GET' })
+  .validator(
+    z.object({
+      username: z.string(),
+      libraryRepo: z.string(),
+    })
+  )
+  .handler(async ({ data: { username, libraryRepo } }) => {
+    const stats = await getContributorStatsForLibrary(username, libraryRepo)
+
+    // Cache for 30 minutes on shared cache
+    // Revalidate in the background
+    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setHeader(
+      'CDN-Cache-Control',
+      'max-age=1800, stale-while-revalidate=1800, durable'
+    )
+
+    return stats
+  })
+
+export const fetchBatchContributorStats = createServerFn({ method: 'GET' })
+  .validator(z.object({ usernames: z.array(z.string()) }))
+  .handler(async ({ data: { usernames } }) => {
+    const stats = await getBatchContributorStats(usernames)
+
+    // Cache for 30 minutes on shared cache
+    // Revalidate in the background
+    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setHeader(
+      'CDN-Cache-Control',
+      'max-age=1800, stale-while-revalidate=1800, durable'
+    )
+
+    return stats
+  })
+
+// Helper function to get stats for all maintainers
+export const fetchAllMaintainerStats = createServerFn({
+  method: 'GET',
+}).handler(async () => {
+  try {
+    // Import maintainers data
+    const { allMaintainers } = await import('~/libraries/maintainers')
+
+    const usernames = allMaintainers.map((maintainer) => maintainer.github)
+    const stats = await getBatchContributorStats(usernames)
+
+    // Cache for 30 minutes on shared cache
+    // Revalidate in the background
+    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setHeader(
+      'CDN-Cache-Control',
+      'max-age=1800, stale-while-revalidate=1800, durable'
+    )
+
+    return stats
+  } catch (error) {
+    console.error('Error fetching all maintainer stats:', error)
+    // Return empty array if there's an error
+    return []
+  }
+})
+*/

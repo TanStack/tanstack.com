@@ -5,6 +5,7 @@ import {
   getPersonsMaintainerOf,
 } from '~/libraries/maintainers'
 import { useState } from 'react'
+// import { FaCode, FaGitAlt, FaComment, FaEye } from 'react-icons/fa'
 
 function RoleBadge({
   maintainer,
@@ -187,6 +188,69 @@ function MaintainerSocialLinks({ maintainer }: { maintainer: Maintainer }) {
   )
 }
 
+// GitHub stats component - commented out due to performance/accuracy concerns
+/*
+function GitHubStats({
+  username,
+  stats,
+}: {
+  username: string
+  stats?: {
+    totalCommits: number
+    totalPullRequests: number
+    totalIssues: number
+    totalReviews: number
+  }
+}) {
+  if (!stats) return null
+
+  const totalContributions =
+    stats.totalCommits +
+    stats.totalPullRequests +
+    stats.totalIssues +
+    stats.totalReviews
+
+  return (
+    <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+      <div
+        className="flex items-center gap-1"
+        title="Total commits to TanStack repositories"
+      >
+        <FaCode className="w-3 h-3" />
+        <span>{stats.totalCommits.toLocaleString()}</span>
+      </div>
+      <div
+        className="flex items-center gap-1"
+        title="Total pull requests to TanStack repositories"
+      >
+        <FaGitAlt className="w-3 h-3" />
+        <span>{stats.totalPullRequests.toLocaleString()}</span>
+      </div>
+      <div
+        className="flex items-center gap-1"
+        title="Total issues opened in TanStack repositories"
+      >
+        <FaComment className="w-3 h-3" />
+        <span>{stats.totalIssues.toLocaleString()}</span>
+      </div>
+      <div
+        className="flex items-center gap-1"
+        title="Total pull request reviews in TanStack repositories"
+      >
+        <FaEye className="w-3 h-3" />
+        <span>{stats.totalReviews.toLocaleString()}</span>
+      </div>
+      <div
+        className="text-xs text-gray-500 dark:text-gray-500"
+        title="Total contributions to TanStack repositories"
+      >
+        {totalContributions.toLocaleString()} total
+      </div>
+    </div>
+  )
+}
+*/
+
 interface MaintainerCardProps {
   maintainer: Maintainer
   libraryId?: Library['id']
@@ -194,6 +258,17 @@ interface MaintainerCardProps {
 
 interface CompactMaintainerCardProps {
   maintainer: Maintainer
+}
+
+interface MaintainerRowCardProps {
+  maintainer: Maintainer
+  libraryId?: Library['id']
+  stats?: {
+    totalCommits: number
+    totalPullRequests: number
+    totalIssues: number
+    totalReviews: number
+  }
 }
 
 export function CompactMaintainerCard({
@@ -226,6 +301,119 @@ export function CompactMaintainerCard({
   )
 }
 
+export function MaintainerRowCard({
+  maintainer,
+  libraryId,
+  stats,
+}: MaintainerRowCardProps) {
+  const libraries = getPersonsMaintainerOf(maintainer)
+  const [showAllLibraries, setShowAllLibraries] = useState(false)
+
+  return (
+    <div
+      className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg w-full"
+      aria-label={`Maintainer row card for ${maintainer.name}`}
+    >
+      <div className="flex items-center gap-4 p-4">
+        {/* Avatar Section */}
+        <a
+          href={`https://github.com/${maintainer.github}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`View ${maintainer.name}'s GitHub profile`}
+          className="relative flex-shrink-0"
+          tabIndex={0}
+        >
+          <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+            <img
+              alt={`Avatar of ${maintainer.name}`}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              src={maintainer.avatar}
+              loading="lazy"
+              decoding="async"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+        </a>
+
+        {/* Main Content */}
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex items-center gap-3">
+              <span
+                className="text-lg font-bold truncate"
+                id={`maintainer-name-${maintainer.github}`}
+              >
+                {maintainer.name}
+              </span>
+              {libraryId && (
+                <RoleBadge maintainer={maintainer} libraryId={libraryId} />
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <MaintainerSocialLinks maintainer={maintainer} />
+            </div>
+          </div>
+
+          {/* All Pills Inline */}
+          {((maintainer.frameworkExpertise &&
+            maintainer.frameworkExpertise.length > 0) ||
+            (maintainer.specialties && maintainer.specialties.length > 0) ||
+            (!libraryId && libraries.length > 0)) && (
+            <div className="flex flex-wrap gap-2 mt-2 max-w-full">
+              {/* Framework chips */}
+              {maintainer.frameworkExpertise &&
+                maintainer.frameworkExpertise.length > 0 &&
+                maintainer.frameworkExpertise.map((framework) => (
+                  <FrameworkChip key={framework} framework={framework} />
+                ))}
+
+              {/* Specialty chips */}
+              {maintainer.specialties &&
+                maintainer.specialties.length > 0 &&
+                maintainer.specialties.map((specialty) => (
+                  <SpecialtyChip key={specialty} specialty={specialty} />
+                ))}
+
+              {/* Library badges */}
+              {!libraryId &&
+                libraries.length > 0 &&
+                libraries
+                  .slice(0, showAllLibraries ? undefined : 2)
+                  .map((library) => (
+                    <LibraryBadge key={library.id} library={library} />
+                  ))}
+
+              {/* Show more button */}
+              {!libraryId && !showAllLibraries && libraries.length > 2 && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setShowAllLibraries(true)
+                  }}
+                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  aria-label={`Show ${libraries.length - 2} more libraries`}
+                  tabIndex={0}
+                  type="button"
+                >
+                  +{libraries.length - 2} more
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* GitHub Stats - commented out due to performance/accuracy concerns */}
+          {/* <div className="mt-4">
+            <GitHubStats username={maintainer.github} stats={stats} />
+          </div> */}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
   const libraries = getPersonsMaintainerOf(maintainer)
   const [showAllLibraries, setShowAllLibraries] = useState(false)
@@ -240,7 +428,7 @@ export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View ${maintainer.name}'s GitHub profile`}
-        className="relative h-64 overflow block"
+        className="relative h-64 overflow-hidden block"
         tabIndex={0}
       >
         <img

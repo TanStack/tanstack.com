@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { getAuth } from '@clerk/tanstack-start/server'
+import { getAuth } from '@clerk/tanstack-react-start/server'
 import { getWebRequest } from '@tanstack/react-start/server'
 import { redirect } from '@tanstack/react-router'
 

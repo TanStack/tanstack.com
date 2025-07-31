@@ -11,7 +11,7 @@ import {
   Scripts,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
-import { ClerkProvider } from '@clerk/tanstack-start'
+import { ClerkProvider } from '@clerk/tanstack-react-start'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
@@ -150,12 +150,15 @@ export const Route = createRootRouteWithContext<{
 })
 
 function RootComponent() {
+  // Import your Publishable Key
+  const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+
+  if (!PUBLISHABLE_KEY) {
+    throw new Error('Add your Clerk Publishable Key to the .env file')
+  }
+
   return (
-    <ClerkProvider
-      waitlistUrl="/login"
-      afterSignInUrl="/dashboard"
-      afterSignUpUrl="/dashboard"
-    >
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <SearchProvider>
         <RootDocument>
           <Outlet />

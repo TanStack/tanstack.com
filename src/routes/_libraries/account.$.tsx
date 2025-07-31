@@ -4,7 +4,7 @@ import {
   UserProfile,
   SignInButton,
   SignOutButton,
-} from '@clerk/tanstack-start'
+} from '@clerk/tanstack-react-start'
 import { FaSignOutAlt } from 'react-icons/fa'
 
 export const Route = createFileRoute({

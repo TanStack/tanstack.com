@@ -4,7 +4,7 @@ import {
   UserButton,
   Waitlist,
   SignIn,
-} from '@clerk/tanstack-start'
+} from '@clerk/tanstack-react-start'
 import * as React from 'react'
 
 export const Route = createFileRoute({

@@ -30,6 +30,7 @@ import { Route as LibrariesSupportRouteImport } from './routes/_libraries/suppor
 import { Route as LibrariesPrivacyRouteImport } from './routes/_libraries/privacy'
 import { Route as LibrariesPartnersRouteImport } from './routes/_libraries/partners'
 import { Route as LibrariesPaidSupportRouteImport } from './routes/_libraries/paid-support'
+import { Route as LibrariesMaintainersRouteImport } from './routes/_libraries/maintainers'
 import { Route as LibrariesLearnRouteImport } from './routes/_libraries/learn'
 import { Route as LibrariesEthosRouteImport } from './routes/_libraries/ethos'
 import { Route as LibrariesBlogRouteImport } from './routes/_libraries/blog'
@@ -128,6 +129,11 @@ const LibrariesPartnersRoute = LibrariesPartnersRouteImport.update({
 const LibrariesPaidSupportRoute = LibrariesPaidSupportRouteImport.update({
   id: '/paid-support',
   path: '/paid-support',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
+const LibrariesMaintainersRoute = LibrariesMaintainersRouteImport.update({
+  id: '/maintainers',
+  path: '/maintainers',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
 const LibrariesLearnRoute = LibrariesLearnRouteImport.update({
@@ -302,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof LibrariesBlogRouteWithChildren
   '/ethos': typeof LibrariesEthosRoute
   '/learn': typeof LibrariesLearnRoute
+  '/maintainers': typeof LibrariesMaintainersRoute
   '/paid-support': typeof LibrariesPaidSupportRoute
   '/partners': typeof LibrariesPartnersRoute
   '/privacy': typeof LibrariesPrivacyRoute
@@ -341,6 +348,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/ethos': typeof LibrariesEthosRoute
   '/learn': typeof LibrariesLearnRoute
+  '/maintainers': typeof LibrariesMaintainersRoute
   '/paid-support': typeof LibrariesPaidSupportRoute
   '/partners': typeof LibrariesPartnersRoute
   '/privacy': typeof LibrariesPrivacyRoute
@@ -383,6 +391,7 @@ export interface FileRoutesById {
   '/_libraries/blog': typeof LibrariesBlogRouteWithChildren
   '/_libraries/ethos': typeof LibrariesEthosRoute
   '/_libraries/learn': typeof LibrariesLearnRoute
+  '/_libraries/maintainers': typeof LibrariesMaintainersRoute
   '/_libraries/paid-support': typeof LibrariesPaidSupportRoute
   '/_libraries/partners': typeof LibrariesPartnersRoute
   '/_libraries/privacy': typeof LibrariesPrivacyRoute
@@ -426,6 +435,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/ethos'
     | '/learn'
+    | '/maintainers'
     | '/paid-support'
     | '/partners'
     | '/privacy'
@@ -465,6 +475,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version'
     | '/ethos'
     | '/learn'
+    | '/maintainers'
     | '/paid-support'
     | '/partners'
     | '/privacy'
@@ -506,6 +517,7 @@ export interface FileRouteTypes {
     | '/_libraries/blog'
     | '/_libraries/ethos'
     | '/_libraries/learn'
+    | '/_libraries/maintainers'
     | '/_libraries/paid-support'
     | '/_libraries/partners'
     | '/_libraries/privacy'
@@ -651,6 +663,13 @@ declare module '@tanstack/react-router' {
       path: '/learn'
       fullPath: '/learn'
       preLoaderRoute: typeof LibrariesLearnRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
+    '/_libraries/maintainers': {
+      id: '/_libraries/maintainers'
+      path: '/maintainers'
+      fullPath: '/maintainers'
+      preLoaderRoute: typeof LibrariesMaintainersRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/paid-support': {
@@ -948,6 +967,13 @@ declare module '@tanstack/react-start/server' {
       id: '/_libraries/learn'
       path: '/learn'
       fullPath: '/learn'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/_libraries/maintainers': {
+      id: '/_libraries/maintainers'
+      path: '/maintainers'
+      fullPath: '/maintainers'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1345,6 +1371,23 @@ declare module './routes/_libraries/learn' {
     ServerFileRoutesByPath['/_libraries/learn']['id'],
     ServerFileRoutesByPath['/_libraries/learn']['path'],
     ServerFileRoutesByPath['/_libraries/learn']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/_libraries/maintainers' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/maintainers',
+    FileRoutesByPath['/_libraries/maintainers']['parentRoute'],
+    FileRoutesByPath['/_libraries/maintainers']['id'],
+    FileRoutesByPath['/_libraries/maintainers']['path'],
+    FileRoutesByPath['/_libraries/maintainers']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/_libraries/maintainers']['parentRoute'],
+    ServerFileRoutesByPath['/_libraries/maintainers']['id'],
+    ServerFileRoutesByPath['/_libraries/maintainers']['path'],
+    ServerFileRoutesByPath['/_libraries/maintainers']['fullPath'],
     unknown
   >
 }
@@ -1963,6 +2006,7 @@ interface LibrariesRouteRouteChildren {
   LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
   LibrariesEthosRoute: typeof LibrariesEthosRoute
   LibrariesLearnRoute: typeof LibrariesLearnRoute
+  LibrariesMaintainersRoute: typeof LibrariesMaintainersRoute
   LibrariesPaidSupportRoute: typeof LibrariesPaidSupportRoute
   LibrariesPartnersRoute: typeof LibrariesPartnersRoute
   LibrariesPrivacyRoute: typeof LibrariesPrivacyRoute
@@ -1986,6 +2030,7 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
   LibrariesEthosRoute: LibrariesEthosRoute,
   LibrariesLearnRoute: LibrariesLearnRoute,
+  LibrariesMaintainersRoute: LibrariesMaintainersRoute,
   LibrariesPaidSupportRoute: LibrariesPaidSupportRoute,
   LibrariesPartnersRoute: LibrariesPartnersRoute,
   LibrariesPrivacyRoute: LibrariesPrivacyRoute,

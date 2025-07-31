@@ -6,6 +6,7 @@ import { twMerge } from 'tailwind-merge'
 import { sortBy } from '~/utils/utils'
 import logoColor100w from '~/images/logo-color-100w.png'
 import {
+  FaCode,
   FaDiscord,
   FaGithub,
   FaInstagram,
@@ -165,6 +166,11 @@ function LibrariesLayout() {
         <div className="bg-gray-500/10 h-px" />
       </div>
       {[
+        {
+          label: 'Maintainers',
+          icon: <FaCode />,
+          to: '/maintainers',
+        },
         {
           label: 'Partners',
           icon: <FaUsers />,

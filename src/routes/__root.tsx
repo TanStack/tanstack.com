@@ -11,6 +11,7 @@ import {
   Scripts,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
+import { ClerkProvider } from '@clerk/tanstack-start'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
@@ -150,11 +151,17 @@ export const Route = createRootRouteWithContext<{
 
 function RootComponent() {
   return (
-    <SearchProvider>
-      <RootDocument>
-        <Outlet />
-      </RootDocument>
-    </SearchProvider>
+    <ClerkProvider
+      waitlistUrl="/login"
+      afterSignInUrl="/dashboard"
+      afterSignUpUrl="/dashboard"
+    >
+      <SearchProvider>
+        <RootDocument>
+          <Outlet />
+        </RootDocument>
+      </SearchProvider>
+    </ClerkProvider>
   )
 }
 

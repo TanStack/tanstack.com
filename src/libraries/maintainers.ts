@@ -164,6 +164,15 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/lachlancollins.png',
     github: 'lachlancollins',
     maintainerOf: ['config', 'query'],
+    contributorOf: [
+      'start',
+      'router',
+      'virtual',
+      'table',
+      'form',
+      'db',
+      'pacer',
+    ],
     frameworkExpertise: ['react', 'svelte'],
     specialties: ['Architecture'],
   },
@@ -483,4 +492,70 @@ export function getRoleInLibrary(person: Maintainer, libraryId: string) {
   if (getIsContributorOfLibrary(person, libraryId)) return 'Contributor'
   if (getIsConsultantOfLibrary(person, libraryId)) return 'Consultant'
   return 'Contributor'
+}
+
+export function getRoleForFilteredLibraries(
+  person: Maintainer,
+  libraryIds: Library['id'][] | undefined
+): 'creator' | 'maintainer' | 'contributor' | 'other' {
+  // If no libraries are filtered, use global roles
+  if (!libraryIds || libraryIds.length === 0) {
+    if (person.creatorOf && person.creatorOf.length > 0) return 'creator'
+    if (person.maintainerOf && person.maintainerOf.length > 0)
+      return 'maintainer'
+    if (person.contributorOf && person.contributorOf.length > 0)
+      return 'contributor'
+    return 'other'
+  }
+
+  // Check roles only for the filtered libraries
+  const isCreatorOfFiltered = libraryIds.some((lib) =>
+    person.creatorOf?.includes(lib)
+  )
+  const isMaintainerOfFiltered = libraryIds.some((lib) =>
+    person.maintainerOf?.includes(lib)
+  )
+  const isContributorOfFiltered = libraryIds.some((lib) =>
+    person.contributorOf?.includes(lib)
+  )
+
+  if (isCreatorOfFiltered) return 'creator'
+  if (isMaintainerOfFiltered) return 'maintainer'
+  if (isContributorOfFiltered) return 'contributor'
+  return 'other'
+}
+
+export function getRolePriorityForFilteredLibraries(
+  person: Maintainer,
+  libraryIds: Library['id'][] | undefined
+): number {
+  const role = getRoleForFilteredLibraries(person, libraryIds)
+
+  // Higher numbers = higher priority (sorted first)
+  switch (role) {
+    case 'creator':
+      return 4
+    case 'maintainer':
+      return 3
+    case 'contributor':
+      return 2
+    case 'other':
+      return 1
+    default:
+      return 0
+  }
+}
+
+export function getIsCoreMaintainerForFilteredLibraries(
+  person: Maintainer,
+  libraryIds: Library['id'][] | undefined
+): boolean {
+  // If no libraries are filtered, use global core maintainer status
+  if (!libraryIds || libraryIds.length === 0) {
+    return person.isCoreMaintainer || false
+  }
+
+  // When filtering, core maintainer status is only relevant if they have a role in filtered libraries
+  const role = getRoleForFilteredLibraries(person, libraryIds)
+  return role !== 'other' && (person.isCoreMaintainer || false)
 }

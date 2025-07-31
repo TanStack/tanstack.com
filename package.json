@@ -17,7 +17,7 @@
     "linkAll": "node scripts/link.js"
   },
   "dependencies": {
-    "@clerk/tanstack-start": "^0.11.5",
+    "@clerk/tanstack-react-start": "^0.21.5",
     "@convex-dev/react-query": "0.0.0-alpha.8",
     "@erquhart/convex-oss-stats": "^0.5.5",
     "@floating-ui/react": "^0.27.8",

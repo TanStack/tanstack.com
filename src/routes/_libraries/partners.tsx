@@ -273,12 +273,8 @@ export default function RouteComp() {
 
     // Library filter
     if (search.libraries && search.libraries.length > 0) {
-      // Include partners with no specific libraries (general partners)
-      if (!partner.libraries || partner.libraries.length === 0) {
-        return true
-      }
       // Include partners that match any of the selected libraries
-      return partner.libraries.some((lib) =>
+      return partner.libraries?.some((lib) =>
         search.libraries!.includes(lib as Library['id'])
       )
     }

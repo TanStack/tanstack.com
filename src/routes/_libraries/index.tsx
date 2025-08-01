@@ -139,13 +139,13 @@ function Index() {
             </div>
           </div>
           <div className="w-fit mx-auto px-4">
-          <div className="w-fit mx-auto px-4">
-            <Suspense fallback={<></>}>
-              <ErrorBoundary fallback={<></>}>
-                <OpenSourceStats />
-              </ErrorBoundary>
-            </Suspense>
-          </div>
+            <div className="w-fit mx-auto px-4">
+              <Suspense fallback={<></>}>
+                <ErrorBoundary fallback={<></>}>
+                  <OpenSourceStats />
+                </ErrorBoundary>
+              </Suspense>
+            </div>
           </div>
         </div>
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">

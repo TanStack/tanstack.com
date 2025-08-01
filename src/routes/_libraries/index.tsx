@@ -5,7 +5,6 @@ import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import discordImage from '~/images/discord-logo-white.svg'
 import { useMutation } from '~/hooks/useMutation'
-import { sample } from '~/utils/utils'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
 import { partners } from '../../utils/partners'
@@ -15,8 +14,6 @@ import splashDarkImg from '~/images/splash-dark.png'
 import LandingPageGad from '~/components/LandingPageGad'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
-import { Suspense } from 'react'
-import { ErrorBoundary } from '@sentry/react'
 
 export const textColors = [
   `text-rose-500`,
@@ -73,9 +70,7 @@ function Index() {
     fn: bytesSignupServerFn,
   })
 
-  const { randomNumber } = Route.useLoaderData()
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
-  const gradient = sample(gradients, randomNumber)
 
   return (
     <>
@@ -140,11 +135,7 @@ function Index() {
           </div>
           <div className="w-fit mx-auto px-4">
             <div className="w-fit mx-auto px-4">
-              <Suspense fallback={<></>}>
-                <ErrorBoundary fallback={<></>}>
-                  <OpenSourceStats />
-                </ErrorBoundary>
-              </Suspense>
+              <OpenSourceStats />
             </div>
           </div>
         </div>

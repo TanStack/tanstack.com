@@ -7,6 +7,8 @@ import { FaCube, FaStar, FaUsers } from 'react-icons/fa'
 import { FaDownload } from 'react-icons/fa'
 import convexImageWhite from '~/images/convex-white.svg'
 import convexImageDark from '~/images/convex-dark.svg'
+import { BlankErrorBoundary } from './BlankErrorBoundary'
+import { Suspense } from 'react'
 
 const StableCounter = ({
   value,
@@ -58,7 +60,7 @@ const NpmDownloadCounter = ({
   return <StableCounter value={count} intervalMs={intervalMs} />
 }
 
-export default function OssStats() {
+function _OssStats() {
   const { data: github } = useSuspenseQuery(
     convexQuery(api.stats.getGithubOwner, {
       owner: 'tanstack',
@@ -154,5 +156,15 @@ export default function OssStats() {
         </a>
       </div>
     </div>
+  )
+}
+
+export default function OssStats() {
+  return (
+    <Suspense fallback={<></>}>
+      <BlankErrorBoundary>
+        <_OssStats />
+      </BlankErrorBoundary>
+    </Suspense>
   )
 }

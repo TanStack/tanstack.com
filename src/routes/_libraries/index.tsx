@@ -134,9 +134,7 @@ function Index() {
             </div>
           </div>
           <div className="w-fit mx-auto px-4">
-            <div className="w-fit mx-auto px-4">
-              <OpenSourceStats />
-            </div>
+            <OpenSourceStats />
           </div>
         </div>
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">

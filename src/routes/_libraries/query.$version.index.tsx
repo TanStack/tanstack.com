@@ -16,6 +16,8 @@ import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { partners } from '~/utils/partners'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import OpenSourceStats from '~/components/OpenSourceStats'
+
 export const Route = createFileRoute({
   component: VersionIndex,
   head: () => ({
@@ -31,6 +33,7 @@ const librariesRouteApi = getRouteApi('/_libraries')
 const library = getLibrary('query')
 
 export default function VersionIndex() {
+  console.log('library', library)
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
   const branch = getBranch(queryProject, version)
@@ -86,6 +89,10 @@ export default function VersionIndex() {
               <p>(or check out our official course 👇)</p>
             </div>
             <QueryGGBanner />
+          </div>
+
+          <div className="w-fit mx-auto px-4">
+            <OpenSourceStats library={library} />
           </div>
           <LibraryFeatureHighlights
             featureHighlights={library.featureHighlights}

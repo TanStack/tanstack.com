@@ -7,6 +7,7 @@ import { FaCube, FaStar, FaUsers } from 'react-icons/fa'
 import { FaDownload } from 'react-icons/fa'
 import convexImageWhite from '~/images/convex-white.svg'
 import convexImageDark from '~/images/convex-dark.svg'
+import { Library } from '~/libraries'
 
 const StableCounter = ({
   value,
@@ -58,15 +59,16 @@ const NpmDownloadCounter = ({
   return <StableCounter value={count} intervalMs={intervalMs} />
 }
 
-export default function OssStats() {
-  const { data: github } = useSuspenseQuery(
-    convexQuery(api.stats.getGithubOwner, {
-      owner: 'tanstack',
-    })
-  )
-  const { data: npm } = useSuspenseQuery(
-    convexQuery(api.stats.getNpmOrg, {
-      name: 'tanstack',
+export default function OssStats({ library }: { library?: Library }) {
+  const { data: stats } = useSuspenseQuery(
+    convexQuery(api.stats.getStats, {
+      library: library
+        ? {
+            id: library.id,
+            repo: library.repo,
+            frameworks: library.frameworks,
+          }
+        : undefined,
     })
   )
 
@@ -82,7 +84,7 @@ export default function OssStats() {
           <FaDownload className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
           <div>
             <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
-              <NpmDownloadCounter npmData={npm} />
+              <NpmDownloadCounter npmData={stats.npm} />
             </div>
             <div className="text-sm opacity-60 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
               NPM Downloads
@@ -90,7 +92,11 @@ export default function OssStats() {
           </div>
         </a>
         <a
-          href="https://github.com/orgs/TanStack/repositories?q=sort:stars"
+          href={
+            library
+              ? `https://github.com/${library.repo}`
+              : 'https://github.com/orgs/TanStack/repositories?q=sort:stars'
+          }
           target="_blank"
           rel="noreferrer"
           className="group flex gap-4 items-center"
@@ -98,7 +104,7 @@ export default function OssStats() {
           <FaStar className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
           <div>
             <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200">
-              <NumberFlow value={github?.starCount} />
+              <NumberFlow value={stats.github?.starCount} />
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
               Stars on Github
@@ -109,7 +115,7 @@ export default function OssStats() {
           <FaUsers className="text-2xl" />
           <div className="">
             <div className="text-2xl font-bold opacity-80">
-              <NumberFlow value={github?.contributorCount} />
+              <NumberFlow value={stats.github?.contributorCount} />
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1">
               Contributors on GitHub
@@ -120,7 +126,7 @@ export default function OssStats() {
           <FaCube className="text-2xl" />
           <div className="">
             <div className="text-2xl font-bold opacity-80 relative">
-              <NumberFlow value={github?.dependentCount} />
+              <NumberFlow value={stats.github?.dependentCount} />
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1">
               Dependents on GitHub

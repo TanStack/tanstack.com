@@ -12,6 +12,7 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import OpenSourceStats from '~/components/OpenSourceStats'
 
 export const Route = createFileRoute({
   component: StoreVersionIndex,
@@ -70,6 +71,11 @@ export default function StoreVersionIndex() {
             Get Started
           </Link>
         </div>
+
+        <div className="w-fit mx-auto px-4">
+          <OpenSourceStats library={library} />
+        </div>
+
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />

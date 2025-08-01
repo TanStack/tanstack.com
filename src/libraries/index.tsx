@@ -18,6 +18,7 @@ import { rangerProject } from './ranger'
 import { storeProject } from './store'
 import { pacerProject } from './pacer'
 import { dbProject } from './db'
+import { devtoolsProject } from './devtools'
 
 export const frameworkOptions = [
   { label: 'React', value: 'react', logo: reactLogo, color: 'bg-blue-500' },
@@ -56,6 +57,7 @@ export type Library = {
     | 'pacer'
     | 'db'
     | 'config'
+    | 'devtools'
     | 'react-charts'
     | 'create-tsrouter-app'
   name: string
@@ -111,6 +113,7 @@ export const libraries = [
   rangerProject,
   dbProject,
   configProject,
+  devtoolsProject,
   {
     id: 'react-charts',
     name: 'React Charts',
@@ -133,7 +136,7 @@ export const librariesByGroup = {
     pacerProject,
   ],
   headlessUI: [tableProject, formProject, virtualProject, rangerProject],
-  other: [configProject],
+  other: [devtoolsProject, configProject],
 }
 
 export const librariesGroupNamesMap = {

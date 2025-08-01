@@ -1,4 +1,3 @@
-import { Link } from '@tanstack/react-router'
 import agGridDarkSvg from '~/images/ag-grid-dark.svg'
 import agGridLightSvg from '~/images/ag-grid-light.svg'
 import nozzleImage from '~/images/nozzle.png'
@@ -223,15 +222,16 @@ const agGrid = (() => {
           for the entire JS/TS ecosystem. Whether it's a lightweight table or a
           complex datagrid, we've we've got you covered.
         </div>
-        <Link
-          to="/blog/$"
-          params={{
-            _splat: 'ag-grid-partnership',
+        {/* Has to be button for separate link than parent anchor to be valid HTML */}
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = '/blog/ag-grid-partnership'
           }}
           className="text-blue-500 uppercase font-black text-sm"
         >
           Learn More
-        </Link>
+        </button>
       </>
     ),
   }
@@ -365,25 +365,32 @@ const uiDev = (() => {
           TanStack's priority is to make its users productive, efficient and
           knowledgeable about web dev. To help us on this quest, we've partnered
           with{' '}
-          <a
-            target="_blank"
-            className="text-blue-500 underline"
-            href="https://ui.dev/?utm_source=tanstack&utm_campaign=tanstack"
-            rel="noreferrer"
+          {/* Has to be button for separate link than parent anchor to be valid HTML */}
+          <button
+            type="button"
+            className="text-blue-500 underline cursor-pointer p-0 m-0 bg-transparent border-none inline"
+            onClick={() =>
+              window.open(
+                'https://ui.dev/?utm_source=tanstack&utm_campaign=tanstack',
+                '_blank',
+                'noopener,noreferrer'
+              )
+            }
+            tabIndex={0}
           >
             ui.dev
-          </a>{' '}
+          </button>{' '}
           to <strong>provide best-in-class education</strong> about TanStack
           products. It doesn't stop at TanStack though, with their sister
           product{' '}
-          <a
-            target="_blank"
-            className="text-blue-500 underline"
-            href={href}
-            rel="noreferrer"
+          <button
+            type="button"
+            className="text-blue-500 underline cursor-pointer p-0 m-0 bg-transparent border-none inline"
+            onClick={() => window.open(href, '_blank', 'noopener,noreferrer')}
+            tabIndex={0}
           >
             Bytes.dev
-          </a>{' '}
+          </button>{' '}
           as our official newsletter partner, you'll be able to{' '}
           <strong>stay up to date with the latest and greatest</strong> in the
           web dev world regardless.

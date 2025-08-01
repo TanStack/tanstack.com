@@ -1,19 +1,16 @@
 import { Await, Link, MatchRoute, getRouteApi } from '@tanstack/react-router'
-import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
 import discordImage from '~/images/discord-logo-white.svg'
 import { useMutation } from '~/hooks/useMutation'
-import { sample } from '~/utils/utils'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
 import { partners } from '../../utils/partners'
 import OpenSourceStats from '~/components/OpenSourceStats'
 import splashLightImg from '~/images/splash-light.png'
 import splashDarkImg from '~/images/splash-dark.png'
-import { GamFooter } from '~/components/Gam'
 import LandingPageGad from '~/components/LandingPageGad'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
@@ -73,9 +70,7 @@ function Index() {
     fn: bytesSignupServerFn,
   })
 
-  const { randomNumber } = Route.useLoaderData()
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
-  const gradient = sample(gradients, randomNumber)
 
   return (
     <>

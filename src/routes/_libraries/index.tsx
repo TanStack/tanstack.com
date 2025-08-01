@@ -1,5 +1,4 @@
 import { Await, Link, MatchRoute, getRouteApi } from '@tanstack/react-router'
-import { Carbon } from '~/components/Carbon'
 import { twMerge } from 'tailwind-merge'
 import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
@@ -13,10 +12,11 @@ import { partners } from '../../utils/partners'
 import OpenSourceStats from '~/components/OpenSourceStats'
 import splashLightImg from '~/images/splash-light.png'
 import splashDarkImg from '~/images/splash-dark.png'
-import { GamFooter } from '~/components/Gam'
 import LandingPageGad from '~/components/LandingPageGad'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
+import { Suspense } from 'react'
+import { ErrorBoundary } from '@sentry/react'
 
 export const textColors = [
   `text-rose-500`,
@@ -139,7 +139,13 @@ function Index() {
             </div>
           </div>
           <div className="w-fit mx-auto px-4">
-            <OpenSourceStats />
+          <div className="w-fit mx-auto px-4">
+            <Suspense fallback={<></>}>
+              <ErrorBoundary fallback={<></>}>
+                <OpenSourceStats />
+              </ErrorBoundary>
+            </Suspense>
+          </div>
           </div>
         </div>
         <div className="px-4 lg:max-w-screen-lg md:mx-auto">

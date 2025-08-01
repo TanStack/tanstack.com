@@ -13,7 +13,7 @@ export const devtoolsProject = {
   name: 'TanStack Devtools',
   cardStyles: `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-400 border-2 border-transparent hover:border-current`,
   to: '/devtools',
-  tagline: `Centralized devtools panel for TanStack libraries and custom devtools`,
+  tagline: `Centralized devtools panel for TanStack libraries and other custom devtools`,
   description: `A unified devtools panel that houses all TanStack devtools and allows you to create and integrate your own custom devtools.`,
   ogImage:
     'https://github.com/tanstack/devtools/raw/main/media/repo-header.png',
@@ -27,7 +27,7 @@ export const devtoolsProject = {
   colorFrom: 'from-slate-400',
   colorTo: 'to-slate-600',
   textColor: 'text-slate-600',
-  frameworks: [],
+  frameworks: ['react', 'solid', 'vanilla'],
   menu: [
     {
       icon: <BiBookAlt />,
@@ -62,7 +62,7 @@ export const devtoolsProject = {
       description: (
         <div>
           Built with Solid.js for lightweight performance, but designed to work
-          with any framework. Create and integrate your own custom devtools
+          within any framework. Create and integrate your own custom devtools
           regardless of your tech stack.{' '}
           <span className={twMerge('font-semibold', textStyles)}>
             Whether you're using React, Vue, Angular, or any other framework,

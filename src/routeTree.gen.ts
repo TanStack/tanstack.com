@@ -48,6 +48,7 @@ import { Route as LibrariesRangerVersionIndexRouteImport } from './routes/_libra
 import { Route as LibrariesQueryVersionIndexRouteImport } from './routes/_libraries/query.$version.index'
 import { Route as LibrariesPacerVersionIndexRouteImport } from './routes/_libraries/pacer.$version.index'
 import { Route as LibrariesFormVersionIndexRouteImport } from './routes/_libraries/form.$version.index'
+import { Route as LibrariesDevtoolsVersionIndexRouteImport } from './routes/_libraries/devtools.$version.index'
 import { Route as LibrariesDbVersionIndexRouteImport } from './routes/_libraries/db.$version.index'
 import { Route as LibrariesConfigVersionIndexRouteImport } from './routes/_libraries/config.$version.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
@@ -230,6 +231,12 @@ const LibrariesFormVersionIndexRoute =
     path: '/form/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+const LibrariesDevtoolsVersionIndexRoute =
+  LibrariesDevtoolsVersionIndexRouteImport.update({
+    id: '/devtools/$version/',
+    path: '/devtools/$version/',
+    getParentRoute: () => LibrariesRouteRoute,
+  } as any)
 const LibrariesDbVersionIndexRoute = LibrariesDbVersionIndexRouteImport.update({
   id: '/db/$version/',
   path: '/db/$version/',
@@ -326,6 +333,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
   '/db/$version': typeof LibrariesDbVersionIndexRoute
+  '/devtools/$version': typeof LibrariesDevtoolsVersionIndexRoute
   '/form/$version': typeof LibrariesFormVersionIndexRoute
   '/pacer/$version': typeof LibrariesPacerVersionIndexRoute
   '/query/$version': typeof LibrariesQueryVersionIndexRoute
@@ -365,6 +373,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
   '/db/$version': typeof LibrariesDbVersionIndexRoute
+  '/devtools/$version': typeof LibrariesDevtoolsVersionIndexRoute
   '/form/$version': typeof LibrariesFormVersionIndexRoute
   '/pacer/$version': typeof LibrariesPacerVersionIndexRoute
   '/query/$version': typeof LibrariesQueryVersionIndexRoute
@@ -409,6 +418,7 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/_libraries/config/$version/': typeof LibrariesConfigVersionIndexRoute
   '/_libraries/db/$version/': typeof LibrariesDbVersionIndexRoute
+  '/_libraries/devtools/$version/': typeof LibrariesDevtoolsVersionIndexRoute
   '/_libraries/form/$version/': typeof LibrariesFormVersionIndexRoute
   '/_libraries/pacer/$version/': typeof LibrariesPacerVersionIndexRoute
   '/_libraries/query/$version/': typeof LibrariesQueryVersionIndexRoute
@@ -453,6 +463,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/'
     | '/config/$version'
     | '/db/$version'
+    | '/devtools/$version'
     | '/form/$version'
     | '/pacer/$version'
     | '/query/$version'
@@ -492,6 +503,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/config/$version'
     | '/db/$version'
+    | '/devtools/$version'
     | '/form/$version'
     | '/pacer/$version'
     | '/query/$version'
@@ -535,6 +547,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/'
     | '/_libraries/config/$version/'
     | '/_libraries/db/$version/'
+    | '/_libraries/devtools/$version/'
     | '/_libraries/form/$version/'
     | '/_libraries/pacer/$version/'
     | '/_libraries/query/$version/'
@@ -794,6 +807,13 @@ declare module '@tanstack/react-router' {
       path: '/db/$version'
       fullPath: '/db/$version'
       preLoaderRoute: typeof LibrariesDbVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
+    '/_libraries/devtools/$version/': {
+      id: '/_libraries/devtools/$version/'
+      path: '/devtools/$version'
+      fullPath: '/devtools/$version'
+      preLoaderRoute: typeof LibrariesDevtoolsVersionIndexRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/form/$version/': {
@@ -1098,6 +1118,13 @@ declare module '@tanstack/react-start/server' {
       id: '/_libraries/db/$version/'
       path: '/db/$version'
       fullPath: '/db/$version'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/_libraries/devtools/$version/': {
+      id: '/_libraries/devtools/$version/'
+      path: '/devtools/$version'
+      fullPath: '/devtools/$version'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1695,6 +1722,23 @@ declare module './routes/_libraries/db.$version.index' {
     unknown
   >
 }
+declare module './routes/_libraries/devtools.$version.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/devtools/$version/',
+    FileRoutesByPath['/_libraries/devtools/$version/']['parentRoute'],
+    FileRoutesByPath['/_libraries/devtools/$version/']['id'],
+    FileRoutesByPath['/_libraries/devtools/$version/']['path'],
+    FileRoutesByPath['/_libraries/devtools/$version/']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/_libraries/devtools/$version/']['parentRoute'],
+    ServerFileRoutesByPath['/_libraries/devtools/$version/']['id'],
+    ServerFileRoutesByPath['/_libraries/devtools/$version/']['path'],
+    ServerFileRoutesByPath['/_libraries/devtools/$version/']['fullPath'],
+    unknown
+  >
+}
 declare module './routes/_libraries/form.$version.index' {
   const createFileRoute: CreateFileRoute<
     '/_libraries/form/$version/',
@@ -2015,6 +2059,7 @@ interface LibrariesRouteRouteChildren {
   LibrariesAccountSplatRoute: typeof LibrariesAccountSplatRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
   LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
+  LibrariesDevtoolsVersionIndexRoute: typeof LibrariesDevtoolsVersionIndexRoute
   LibrariesFormVersionIndexRoute: typeof LibrariesFormVersionIndexRoute
   LibrariesPacerVersionIndexRoute: typeof LibrariesPacerVersionIndexRoute
   LibrariesQueryVersionIndexRoute: typeof LibrariesQueryVersionIndexRoute
@@ -2041,6 +2086,7 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesAccountSplatRoute: LibrariesAccountSplatRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
   LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,
+  LibrariesDevtoolsVersionIndexRoute: LibrariesDevtoolsVersionIndexRoute,
   LibrariesFormVersionIndexRoute: LibrariesFormVersionIndexRoute,
   LibrariesPacerVersionIndexRoute: LibrariesPacerVersionIndexRoute,
   LibrariesQueryVersionIndexRoute: LibrariesQueryVersionIndexRoute,

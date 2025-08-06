@@ -1,84 +1,10 @@
-import { ScriptOnce } from '@tanstack/react-router'
 import * as React from 'react'
 import { FaMoon, FaSun } from 'react-icons/fa'
+import { useTheme } from './ThemeProvider'
 import { twMerge } from 'tailwind-merge'
-import { z } from 'zod'
-import { create } from 'zustand'
-
-const resolvedThemeSchema = z.enum(['light', 'dark'])
-const themeModeSchema = z.enum(['light', 'dark', 'auto'])
-const themeKey = 'theme'
-
-type ThemeMode = z.infer<typeof themeModeSchema>
-type ResolvedTheme = z.infer<typeof resolvedThemeSchema>
-
-interface ThemeStore {
-  mode: ThemeMode
-  toggleThemeMode: () => void
-}
-
-function getStoredThemeMode(): ThemeMode {
-  if (typeof window === 'undefined') return 'auto'
-  try {
-    const storedTheme = localStorage.getItem(themeKey)
-    return resolvedThemeSchema.parse(storedTheme)
-  } catch {
-    return 'auto'
-  }
-}
-
-function setStoredThemeMode(theme: ThemeMode): void {
-  if (typeof window === 'undefined') return
-  try {
-    const parsedTheme = themeModeSchema.parse(theme)
-    localStorage.setItem(themeKey, parsedTheme)
-  } catch {}
-}
-
-function getSystemTheme(): ResolvedTheme {
-  if (typeof window === 'undefined') return 'light'
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
-}
-
-function updateThemeClass(themeMode: ThemeMode) {
-  const root = document.documentElement
-  root.classList.remove('light', 'dark', 'auto')
-  const newTheme = themeMode === 'auto' ? getSystemTheme() : themeMode
-  root.classList.add(newTheme)
-
-  if (themeMode === 'auto') {
-    root.classList.add('auto')
-  }
-}
-
-export const useThemeStore = create<ThemeStore>((set) => ({
-  mode: getStoredThemeMode(),
-  toggleThemeMode: () =>
-    set((s) => {
-      const newMode =
-        s.mode === 'auto' ? 'light' : s.mode === 'light' ? 'dark' : 'auto'
-
-      updateThemeClass(newMode)
-      setStoredThemeMode(newMode)
-
-      return { mode: newMode }
-    }),
-}))
-
-if (typeof document !== 'undefined') {
-  window
-    .matchMedia('(prefers-color-scheme: dark)')
-    .addEventListener('change', () => {
-      if (useThemeStore.getState().mode === 'auto') {
-        updateThemeClass('auto')
-      }
-    })
-}
 
 export function ThemeToggle() {
-  const toggleMode = useThemeStore((s) => s.toggleThemeMode)
+  const { toggleMode } = useTheme()
 
   const handleToggleMode = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -115,37 +41,5 @@ export function ThemeToggle() {
                    dark:left-0 dark:translate-x-0 dark:scale-75"
       />
     </div>
-  )
-}
-
-export function ThemeDetector() {
-  return (
-    <ScriptOnce
-      children={(function () {
-        function themeFn() {
-          try {
-            const storedTheme = localStorage.getItem('theme') || 'auto'
-
-            if (storedTheme === 'auto') {
-              const autoTheme = window.matchMedia(
-                '(prefers-color-scheme: dark)'
-              ).matches
-                ? 'dark'
-                : 'light'
-              document.documentElement.classList.add(autoTheme, 'auto')
-            } else {
-              document.documentElement.classList.add(storedTheme)
-            }
-          } catch (e) {
-            const autoTheme = window.matchMedia('(prefers-color-scheme: dark)')
-              .matches
-              ? 'dark'
-              : 'light'
-            document.documentElement.classList.add(autoTheme, 'auto')
-          }
-        }
-        return `(${themeFn.toString()})();`
-      })()}
-    />
   )
 }

@@ -1,5 +1,4 @@
 import * as React from 'react'
-import * as ReactDom from 'react-dom'
 import {
   Outlet,
   createRootRouteWithContext,
@@ -23,7 +22,7 @@ import { GamScripts } from '~/components/Gam'
 import { BackgroundAnimation } from '~/components/BackgroundAnimation'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
-import { ThemeDetector } from '~/components/ThemeToggle'
+import { ThemeProvider } from '~/components/ThemeProvider'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -153,11 +152,13 @@ function RootComponent() {
 
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <SearchProvider>
-        <RootDocument>
-          <Outlet />
-        </RootDocument>
-      </SearchProvider>
+      <ThemeProvider>
+        <SearchProvider>
+          <RootDocument>
+            <Outlet />
+          </RootDocument>
+        </SearchProvider>
+      </ThemeProvider>
     </ClerkProvider>
   )
 }
@@ -190,7 +191,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <ThemeDetector />
         <HeadContent />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />

@@ -66,7 +66,7 @@ export default function DBVersionIndex() {
             params={{ libraryId: library.id, version }}
             className={`py-2 px-4 bg-orange-500 rounded text-white uppercase font-extrabold`}
           >
-            Coming soon &raquo;
+            Get Started &raquo;
           </Link>
         </div>
         <LibraryFeatureHighlights

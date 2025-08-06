@@ -84,13 +84,21 @@ export default function VersionIndex() {
         </p>
         <div className="flex justify-center gap-4 flex-wrap">
           <Link
-            to="./docs/framework/react/quick-start#impatient"
+            from={'/$libraryId/$version'}
+            to={'./docs/framework/$framework/$'}
+            params={{
+              libraryId: library.id,
+              framework: 'react',
+              _splat: 'quick-start#impatient',
+            }}
             className={`py-2 px-4 bg-transparent text-cyan-600 dark:text-cyan-400 border-2 border-cyan-500 dark:border-cyan-600 rounded uppercase font-extrabold`}
           >
             Try it in 60 seconds
           </Link>
           <Link
-            to="./docs/framework/react/overview"
+            from="/$libraryId/$version"
+            to="./docs"
+            params={{ libraryId: library.id }}
             className={`py-2 px-4 bg-cyan-500 dark:bg-cyan-600 rounded text-white uppercase font-extrabold flex items-center`}
           >
             Get Started
@@ -114,13 +122,21 @@ export default function VersionIndex() {
         </div>
         <div className="grid items-center gap-2 justify-center grid-cols-1 sm:grid-cols-2 w-[600px] max-w-full mx-auto">
           <Link
-            to="/start/latest/docs/framework/react/examples/start-basic"
+            from={'/$libraryId/$version'}
+            to="./docs/framework/$framework/examples/$"
+            params={{
+              libraryId: library.id,
+              framework: 'react',
+              _splat: 'start-basic',
+            }}
             className="flex items-center gap-2 py-2 px-4 bg-cyan-900 rounded text-white uppercase font-extrabold"
           >
             <VscPreview className="min-w-4" /> See an Example
           </Link>
           <Link
-            to="/start/latest/docs/framework/react/overview"
+            from={'/$libraryId/$version'}
+            to="./docs"
+            params={{ libraryId: library.id }}
             className="flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded text-white uppercase font-extrabold"
           >
             <FaBook className="min-w-4" /> Try the BETA
@@ -452,7 +468,9 @@ export default function VersionIndex() {
         </div>
         <div>
           <Link
-            to="/start/latest/docs/framework/react/overview"
+            from="/$libraryId/$version"
+            to={'./docs'}
+            params={{ libraryId: library.id }}
             className={`inline-block py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started!

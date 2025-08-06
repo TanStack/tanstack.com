@@ -75,8 +75,9 @@ export default function FormVersionIndex() {
             you need to build forms fast with peace of mind.
           </p>
           <Link
-            to="/$libraryId/$version/docs"
-            params={{ libraryId: library.id, version }}
+            from={'/$libraryId/$version'}
+            params={{ libraryId: library.id }}
+            to={'./docs'}
             className={`py-2 px-4 bg-yellow-400 text-black rounded uppercase font-extrabold`}
           >
             Get Started
@@ -230,8 +231,9 @@ export default function FormVersionIndex() {
           </div>
           <div>
             <Link
-              to="/$libraryId/$version/docs"
-              params={{ libraryId: library.id, version }}
+              from={'/$libraryId/$version'}
+              params={{ libraryId: library.id }}
+              to={'./docs'}
               className={`inline-block py-2 px-4 bg-yellow-500 rounded text-black uppercase font-extrabold`}
             >
               Get Started!

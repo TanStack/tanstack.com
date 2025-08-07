@@ -1,8 +1,6 @@
 import * as React from 'react'
-import * as ReactDom from 'react-dom'
 import {
   Outlet,
-  ScriptOnce,
   createRootRouteWithContext,
   redirect,
   useMatches,
@@ -20,11 +18,11 @@ import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
 import { GamScripts } from '~/components/Gam'
 import { BackgroundAnimation } from '~/components/BackgroundAnimation'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
+import { ThemeProvider } from '~/components/ThemeProvider'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -127,11 +125,6 @@ export const Route = createRootRouteWithContext<{
     }
   },
   staleTime: Infinity,
-  loader: async () => {
-    return {
-      themeCookie: await getThemeCookie(),
-    }
-  },
   errorComponent: (props) => {
     return (
       <RootDocument>
@@ -159,23 +152,18 @@ function RootComponent() {
 
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <SearchProvider>
-        <RootDocument>
-          <Outlet />
-        </RootDocument>
-      </SearchProvider>
+      <ThemeProvider>
+        <SearchProvider>
+          <RootDocument>
+            <Outlet />
+          </RootDocument>
+        </SearchProvider>
+      </ThemeProvider>
     </ClerkProvider>
   )
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { themeCookie } = Route.useLoaderData()
-
-  React.useEffect(() => {
-    useThemeStore.setState({ mode: themeCookie })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const matches = useMatches()
 
   const isLoading = useRouterState({
@@ -200,17 +188,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
   const showDevtools = canShowLoading && isRouterPage
 
-  const themeClass = themeCookie === 'dark' ? 'dark' : ''
-
   return (
-    <html lang="en" className={themeClass}>
+    <html lang="en" suppressHydrationWarning>
       <head>
-        {/* If the theme is set to auto, inject a tiny script to set the proper class on html based on the user preference */}
-        {themeCookie === 'auto' ? (
-          <ScriptOnce
-            children={`window.matchMedia('(prefers-color-scheme: dark)').matches ? document.documentElement.classList.add('dark') : null`}
-          />
-        ) : null}
         <HeadContent />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />

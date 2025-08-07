@@ -1,7 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
-  plugins: [require('@tailwindcss/typography')],
+  plugins: [
+    require('@tailwindcss/typography'),
+    function ({ addVariant }) {
+      addVariant('light', '&:is(.light *)')
+      addVariant('dark', '&:is(.dark *)')
+      addVariant('auto', '&:is(.auto *)')
+    },
+  ],
   darkMode: 'class',
   theme: {
     extend: {

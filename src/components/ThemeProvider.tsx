@@ -59,15 +59,18 @@ const themeDetectorScript = (function () {
   function themeFn() {
     try {
       const storedTheme = localStorage.getItem('theme') || 'auto'
+      const validTheme = ['light', 'dark', 'auto'].includes(storedTheme)
+        ? storedTheme
+        : 'auto'
 
-      if (storedTheme === 'auto') {
+      if (validTheme === 'auto') {
         const autoTheme = window.matchMedia('(prefers-color-scheme: dark)')
           .matches
           ? 'dark'
           : 'light'
         document.documentElement.classList.add(autoTheme, 'auto')
       } else {
-        document.documentElement.classList.add(storedTheme)
+        document.documentElement.classList.add(validTheme)
       }
     } catch (e) {
       const autoTheme = window.matchMedia('(prefers-color-scheme: dark)')

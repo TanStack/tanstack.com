@@ -18,7 +18,7 @@ import {
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
-import { ThemeToggle, useThemeStore } from '~/components/ThemeToggle'
+import { ThemeToggle } from '~/components/ThemeToggle'
 import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { SearchButton } from '~/components/SearchButton'

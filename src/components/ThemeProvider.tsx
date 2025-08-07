@@ -55,6 +55,14 @@ const setupPreferredListener = clientOnly(() => {
   return () => mediaQuery.removeEventListener('change', handler)
 })
 
+const getNextTheme = clientOnly((current: ThemeMode): ThemeMode => {
+  const themes: ThemeMode[] =
+    getSystemTheme() === 'dark'
+      ? ['auto', 'light', 'dark']
+      : ['auto', 'dark', 'light']
+  return themes[(themes.indexOf(current) + 1) % themes.length]
+})
+
 const themeDetectorScript = (function () {
   function themeFn() {
     try {
@@ -111,9 +119,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }
 
   const toggleMode = () => {
-    setTheme(
-      themeMode === 'light' ? 'dark' : themeMode === 'dark' ? 'auto' : 'light'
-    )
+    setTheme(getNextTheme(themeMode))
   }
 
   return (

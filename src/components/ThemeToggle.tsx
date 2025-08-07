@@ -37,7 +37,7 @@ export function ThemeToggle() {
       <div
         className="absolute w-6 h-6 rounded-full shadow-md shadow-black/20 bg-white dark:bg-gray-400 transition-all duration-300 ease-in-out
                    auto:left-1/2 auto:-translate-x-1/2 auto:scale-0 auto:opacity-0
-                   light:left-full light:-translate-x-full light:scale-75 
+                   left-full -translate-x-full scale-75
                    dark:left-0 dark:translate-x-0 dark:scale-75"
       />
     </div>

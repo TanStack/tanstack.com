@@ -67,7 +67,7 @@ export default function DBVersionIndex() {
             to={'./docs'}
             className={`py-2 px-4 bg-orange-500 rounded text-white uppercase font-extrabold`}
           >
-            Get Started &raquo;
+            Get Started
           </Link>
         </div>
         <LibraryFeatureHighlights
@@ -192,7 +192,7 @@ export default function DBVersionIndex() {
               from={'/$libraryId/$version'}
               params={{ libraryId: library.id }}
               to={'./docs'}
-              className={`inline-block py-2 px-4 bg-stone-700 rounded text-white uppercase font-extrabold`}
+              className={`py-2 px-4 bg-orange-500 rounded text-white uppercase font-extrabold`}
             >
               Get Started!
             </Link>

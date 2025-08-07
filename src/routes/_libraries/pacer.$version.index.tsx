@@ -216,7 +216,7 @@ export default function PacerVersionIndex() {
               from={'/$libraryId/$version'}
               params={{ libraryId: library.id }}
               to={'./docs'}
-              className={`inline-block py-2 px-4 bg-stone-700 rounded text-white uppercase font-extrabold`}
+              className={`py-2 px-4 bg-lime-600 hover:bg-lime-700 text-white rounded uppercase font-extrabold transition-colors`}
             >
               Get Started!
             </Link>

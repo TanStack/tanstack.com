@@ -30,13 +30,13 @@ export default function DevtoolsVersionIndex() {
   const { version } = Route.useParams()
   const library = getLibrary('devtools')
 
-  const gradientText = `pr-1 inline-block leading-snug text-transparent bg-clip-text bg-gradient-to-r ${devtoolsProject.colorFrom} ${devtoolsProject.colorTo}`
+  const gradientText = `pr-1 inline-block leading-snug text-transparent bg-clip-text bg-linear-to-r ${devtoolsProject.colorFrom} ${devtoolsProject.colorTo}`
 
   return (
     <>
       <div className="flex flex-col gap-20 md:gap-32 pt-32">
         <div className="flex flex-col items-center gap-8 text-center px-4">
-          <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
+          <h1 className="font-black flex flex-wrap justify-center gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
             <span>TanStack</span>
             <span className={twMerge(gradientText)}>Devtools</span>
           </h1>
@@ -46,7 +46,7 @@ export default function DevtoolsVersionIndex() {
               'md:text-base font-black',
               'lg:text-lg align-super text-white animate-bounce uppercase',
               'dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md',
-              'leading-none whitespace-nowrap'
+              'whitespace-nowrap'
             )}
           >
             STATUS: ALPHA
@@ -95,7 +95,7 @@ export default function DevtoolsVersionIndex() {
               ever before.
             </p>
           </div>
-          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-max mx-auto">
             {[
               'Centralized Panel',
               'Framework Agnostic',
@@ -116,7 +116,7 @@ export default function DevtoolsVersionIndex() {
           </div>
         </div>
 
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Partners
           </h3>
@@ -129,7 +129,7 @@ export default function DevtoolsVersionIndex() {
             Sponsors
           </h3>
           <div
-            className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
+            className="my-4 flex flex-wrap mx-auto max-w-(--breakpoint-lg)"
             style={{
               aspectRatio: '1/1',
             }}

@@ -270,7 +270,7 @@ const netlify = (() => {
         </div>
         <div
           className="w-auto text-xs text-center
-        py-1 px-3 rounded-xl uppercase font-bold bg-gradient-to-r from-[#03bdba] to-[#00aaba] text-white "
+        py-1 px-3 rounded-xl uppercase font-bold bg-linear-to-r from-[#03bdba] to-[#00aaba] text-white "
         >
           Official Deployment Partner
         </div>

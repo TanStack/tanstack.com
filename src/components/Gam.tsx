@@ -79,7 +79,7 @@ function GamAd({
   const gamId = gamDivs[name]
 
   return (
-    <div {...props} className="grid [&>*]:col-start-1 [&>*]:row-start-1">
+    <div {...props} className="grid *:col-start-1 *:row-start-1">
       {/* <div className="flex items-center justify-center">{children}</div> */}
       <div data-fuse={gamId} className="w-full min-h-[200px]" />
     </div>
@@ -110,7 +110,7 @@ export function GamRightRailSquare() {
   return (
     <GamAd
       name="mrec_1"
-      className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
+      className="aspect-250/250 xl:aspect-300/250 flex items-center justify-center"
     >
       <Link
         to={`/${randomLibrary.id}` as any}
@@ -120,7 +120,7 @@ export function GamRightRailSquare() {
           <span>TanStack</span>
           <span
             className={twMerge(
-              'text-transparent bg-clip-text bg-gradient-to-r',
+              'text-transparent bg-clip-text bg-linear-to-r',
               randomLibrary.colorFrom,
               randomLibrary.colorTo
             )}
@@ -154,7 +154,7 @@ export function GamLeftRailSquare() {
   return (
     <GamAd
       name="mrec_2"
-      className="[aspect-ratio:250/250] xl:[aspect-ratio:300/250] flex items-center justify-center"
+      className="aspect-250/250 xl:aspect-300/250 flex items-center justify-center"
     >
       <Link
         to={`/${randomRemainingLibrary.id}` as any}
@@ -164,7 +164,7 @@ export function GamLeftRailSquare() {
           <span>TanStack</span>
           <span
             className={twMerge(
-              'text-transparent bg-clip-text bg-gradient-to-r',
+              'text-transparent bg-clip-text bg-linear-to-r',
               randomRemainingLibrary.colorFrom,
               randomRemainingLibrary.colorTo
             )}

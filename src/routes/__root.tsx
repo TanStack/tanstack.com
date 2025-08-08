@@ -207,7 +207,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <div
             className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none
-        z-30 dark:h-[200px] dark:!bg-white/10 dark:rounded-[100%] ${
+        z-30 dark:h-[200px] dark:bg-white/10! dark:rounded-[100%] ${
           isLoading
             ? 'delay-500 opacity-1 -translate-y-1/2'
             : 'delay-0 opacity-0 -translate-y-full'

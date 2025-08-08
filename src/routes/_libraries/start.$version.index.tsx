@@ -41,7 +41,7 @@ export default function VersionIndex() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [isDark])
 
-  const gradientText = `pr-1 text-transparent bg-clip-text bg-gradient-to-r ${startProject.colorFrom} ${startProject.colorTo}`
+  const gradientText = `pr-1 text-transparent bg-clip-text bg-linear-to-r ${startProject.colorFrom} ${startProject.colorTo}`
 
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
@@ -57,7 +57,7 @@ export default function VersionIndex() {
             'md:text-base font-black',
             'lg:text-lg align-super text-white animate-bounce uppercase',
             'dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md',
-            'leading-none whitespace-nowrap'
+            'whitespace-nowrap'
           )}
         >
           STATUS: BETA
@@ -314,7 +314,7 @@ export default function VersionIndex() {
         </marquee>
       </div> */}
 
-      <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Partners
         </h3>
@@ -361,7 +361,7 @@ export default function VersionIndex() {
           Sponsors
         </h3>
         <div
-          className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
+          className="my-4 flex flex-wrap mx-auto max-w-(--breakpoint-lg)"
           style={{
             aspectRatio: '1/1',
           }}
@@ -427,7 +427,7 @@ export default function VersionIndex() {
 
       {/* {[''].includes(framework) ? (
         <div className="px-2">
-          <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
+          <div className="p-8 text-center text-lg w-full max-w-(--breakpoint-lg) mx-auto bg-black text-white rounded-xl">
             Looking for the <strong>@tanstack/{framework}-query</strong>{' '}
             example? We could use your help to build the{' '}
             <strong>@tanstack/{framework}-query</strong> adapter! Join the{' '}

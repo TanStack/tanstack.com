@@ -8,6 +8,7 @@ import svelteIconUrl from '~/images/file-icons/svelte.svg?url'
 import vueIconUrl from '~/images/file-icons/vue.svg?url'
 import textIconUrl from '~/images/file-icons/txt.svg?url'
 import type { GitHubFileNode } from '~/utils/documents.server'
+import { twMerge } from 'tailwind-merge'
 
 const getFileIconPath = (filename: string) => {
   const ext = filename.split('.').pop()?.toLowerCase() || ''
@@ -210,7 +211,7 @@ export function FileExplorer({
           width: isSidebarOpen ? sidebarWidth : 0,
           paddingRight: isSidebarOpen ? '0.5rem' : 0,
         }}
-        className={`flex-shrink-0 overflow-y-auto bg-gradient-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent shadow-sm ${
+        className={`shrink-0 overflow-y-auto bg-linear-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent shadow-sm ${
           isResizing ? '' : 'transition-all duration-300'
         }`}
       >
@@ -289,16 +290,14 @@ const RenderFileTree = (props: {
               onMouseEnter={() =>
                 file.type !== 'dir' && props.prefetchFileContent(file.path)
               }
-              className={`px-2 py-1.5 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0 ${
+              className={twMerge(
+                `px-2 py-1.5 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0`,
                 props.currentPath === file.path
-                  ? `${props.libraryColor.replace(
-                      'bg-',
-                      'bg-opacity-20 bg-'
-                    )} text-gray-900 dark:text-white shadow-sm`
+                  ? `${props.libraryColor}/20 text-gray-900 dark:text-white shadow-sm`
                   : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
-              }`}
+              )}
             >
-              <span className="flex-shrink-0 select-none">
+              <span className="shrink-0 select-none">
                 {file.type === 'dir' ? (
                   <FolderIcon isOpen={props.expandedFolders.has(file.path)} />
                 ) : (

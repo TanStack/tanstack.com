@@ -30,7 +30,7 @@ export default function FormVersionIndex() {
   const { version } = Route.useParams()
   const library = getLibrary('config')
 
-  const gradientText = `pr-1 inline-block leading-snug text-transparent bg-clip-text bg-gradient-to-r ${configProject.colorFrom} ${configProject.colorTo}`
+  const gradientText = `pr-1 inline-block leading-snug text-transparent bg-clip-text bg-linear-to-r ${configProject.colorFrom} ${configProject.colorTo}`
 
   return (
     <>
@@ -75,7 +75,7 @@ export default function FormVersionIndex() {
               building and releasing high-quality JavaScript packages.
             </p>
           </div>
-          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-[max-content] mx-auto">
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4 w-max mx-auto">
             {[
               // A list of features that @tanstack/config provides
               'Vite ecosystem',
@@ -94,7 +94,7 @@ export default function FormVersionIndex() {
           </div>
         </div>
 
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Partners
           </h3>
@@ -107,7 +107,7 @@ export default function FormVersionIndex() {
             Sponsors
           </h3>
           <div
-            className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
+            className="my-4 flex flex-wrap mx-auto max-w-(--breakpoint-lg)"
             style={{
               aspectRatio: '1/1',
             }}

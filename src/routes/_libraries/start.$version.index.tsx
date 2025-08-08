@@ -89,8 +89,9 @@ export default function VersionIndex() {
             params={{
               libraryId: library.id,
               framework: 'react',
-              _splat: 'quick-start#impatient',
+              _splat: 'quick-start',
             }}
+            hash={'impatient'}
             className={`py-2 px-4 bg-transparent text-cyan-600 dark:text-cyan-400 border-2 border-cyan-500 dark:border-cyan-600 rounded uppercase font-extrabold`}
           >
             Try it in 60 seconds

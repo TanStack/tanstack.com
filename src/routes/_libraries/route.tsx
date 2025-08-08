@@ -329,7 +329,7 @@ function LibrariesLayout() {
       <details
         ref={detailsRef as any}
         id="docs-details"
-        className="border-b border-gray-500 border-opacity-20"
+        className="border-b border-gray-500/20"
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
@@ -340,7 +340,7 @@ function LibrariesLayout() {
         </summary>
         <div
           className="flex flex-col gap-4 whitespace-nowrap h-[0vh] overflow-y-auto
-          border-t border-gray-500 border-opacity-20 text-lg bg-white/80 dark:bg-black/20"
+          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
         >
           <div className="p-2 pb-0">
             <SearchButton />

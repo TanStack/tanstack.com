@@ -57,7 +57,7 @@ const markdownComponents: Record<string, React.FC> = {
   code: function Code({ className, ...rest }: HTMLProps<HTMLElement>) {
     return (
       <span
-        className={`border border-gray-500 border-opacity-20 bg-gray-500 bg-opacity-10 rounded px-1 py-0.5${
+        className={`border border-gray-500/20 bg-gray-500/10 rounded px-1 py-0.5${
           className ?? ` ${className}`
         }`}
         {...rest}

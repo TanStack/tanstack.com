@@ -631,11 +631,11 @@ export const partners: Partner[] = [
   netlify,
   neon,
   convex,
+  electric,
   sentry,
   unkey,
   uiDev,
   nozzle,
-  electric,
   vercel,
   speakeasy,
 ] as any

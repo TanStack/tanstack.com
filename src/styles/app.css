@@ -678,6 +678,10 @@ mark {
 
 /* Clerk */
 
+.cl-cardBox {
+  @apply shadow-md;
+}
+
 .user-profile-container {
   container-type: inline-size;
 }

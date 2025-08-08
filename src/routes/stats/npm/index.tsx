@@ -25,6 +25,7 @@ import {
   GamLeftRailSquare,
   GamRightRailSquare,
 } from '~/components/Gam'
+import { AdGate } from '~/contexts/AdsContext'
 import { twMerge } from 'tailwind-merge'
 import logoColor100w from '~/images/logo-color-100w.png'
 import {
@@ -2167,23 +2168,29 @@ function RouteComponent() {
                 </a>
               </div>
             </div>
-            <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
-              <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
-                <GamRightRailSquare />
+            <AdGate>
+              <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
+                <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
+                  <GamRightRailSquare />
+                </div>
               </div>
-            </div>
+            </AdGate>
 
-            <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
-              <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
-                <GamLeftRailSquare />
+            <AdGate>
+              <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
+                <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
+                  <GamLeftRailSquare />
+                </div>
               </div>
-            </div>
+            </AdGate>
           </div>
         </div>
       </div>
-      <div className="!mt-24 mx-auto max-w-full overflow-x-hidden">
-        <GamFooter />
-      </div>
+      <AdGate>
+        <div className="!mt-24 mx-auto max-w-full overflow-x-hidden">
+          <GamFooter />
+        </div>
+      </AdGate>
     </div>
   )
 }

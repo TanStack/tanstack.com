@@ -5,6 +5,7 @@ import {
   getPersonsMaintainerOf,
 } from '~/libraries/maintainers'
 import { useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 // import { FaCode, FaGitAlt, FaComment, FaEye } from 'react-icons/fa'
 
 function RoleBadge({
@@ -49,7 +50,7 @@ function FrameworkChip({ framework }: { framework: Framework }) {
   const bgColor = frameworkOption?.color || 'bg-gray-500'
   return (
     <span
-      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${bgColor} bg-opacity-80 text-white gap-1`}
+      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${bgColor}/80 text-white gap-1`}
       aria-label={`Framework: ${frameworkOption?.label || framework}`}
     >
       <svg
@@ -85,13 +86,16 @@ function SpecialtyChip({ specialty }: { specialty: string }) {
 }
 
 function LibraryBadge({ library }: { library: Library }) {
+  const bgClass = library.bgStyle ?? 'bg-gray-500'
+  const bgClassOpacity = `${bgClass}/40 dark:${bgClass}/30`
   if (library.to) {
     return (
       <a
         href={`${library.to}/latest/docs/contributors`}
-        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${
-          library.bgStyle ?? 'bg-gray-500'
-        } bg-opacity-40 dark:bg-opacity-30 capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`}
+        className={twMerge(
+          `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`,
+          bgClassOpacity
+        )}
         aria-label={`View contributors for ${library.name}`}
         tabIndex={0}
         onClick={(e) => e.stopPropagation()}
@@ -103,9 +107,10 @@ function LibraryBadge({ library }: { library: Library }) {
   }
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${
-        library.bgStyle ?? 'bg-gray-500'
-      } bg-opacity-40 dark:bg-opacity-30 capitalize`}
+      className={twMerge(
+        `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 capitalize`,
+        bgClassOpacity
+      )}
       aria-label={`View contributors for ${library.name}`}
       title={`View all contributors for ${library.name}`}
     >

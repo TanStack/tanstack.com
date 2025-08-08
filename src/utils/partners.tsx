@@ -548,24 +548,20 @@ const electric = (() => {
     libraries: ['db'] as const,
     sidebarImgLight: electricLightSvg,
     sidebarImgDark: electricDarkSvg,
-    sidebarImgClass: 'py-4 scale-[1]',
+    sidebarImgClass: 'py-4 scale-[1.1]',
     status: 'active' as const,
     href,
     homepageImg: (
       <div className="w-full h-full flex items-center justify-center px-4 py-6">
         <img
           src={electricLightSvg}
-          alt="Unkey"
-          className="w-[180px] max-w-full dark:hidden"
-          width="180"
-          height="77"
+          alt="Electric"
+          className="w-[240px] max-w-full dark:hidden"
         />
         <img
           src={electricDarkSvg}
-          alt="Unkey"
-          className="w-[180px] max-w-full hidden dark:block"
-          width="180"
-          height="77"
+          alt="Electric"
+          className="w-[240px] max-w-full hidden dark:block"
         />
       </div>
     ),
@@ -631,11 +627,11 @@ export const partners: Partner[] = [
   netlify,
   neon,
   convex,
+  electric,
   sentry,
   unkey,
   uiDev,
   nozzle,
-  electric,
   vercel,
   speakeasy,
 ] as any

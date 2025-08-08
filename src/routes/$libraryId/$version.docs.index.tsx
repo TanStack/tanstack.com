@@ -7,11 +7,9 @@ export const Route = createFileRoute({
     const library = getLibrary(libraryId)
 
     throw redirect({
-      // to: `/$libraryId/$version/docs/${library.defaultDocs || 'overview'}`,
-      to: '/$libraryId/$version/docs/$',
+      from: '/$libraryId/$version/docs',
+      to: './$',
       params: {
-        libraryId,
-        version: ctx.params.version,
         _splat: 'defaultDocs' in library ? library.defaultDocs : 'overview',
       },
     })

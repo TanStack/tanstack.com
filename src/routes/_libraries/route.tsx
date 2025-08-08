@@ -275,7 +275,7 @@ function LibrariesLayout() {
         <div className="flex items-center gap-3 px-2 py-1 rounded-lg">
           <UserButton />
           <Link
-            to="/account"
+            to="/account/$"
             className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
           >
             My Account

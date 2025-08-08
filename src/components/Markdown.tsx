@@ -107,7 +107,7 @@ export function CodeBlock({
       <pre ref={ref} className={`shiki github-light`}>
         <code>{code}</code>
       </pre>
-      <pre className={`shiki tokyo-night bg-gray-900 text-gray-400`}>
+      <pre className={`shiki tokyo-night`}>
         <code>{code}</code>
       </pre>
     </>

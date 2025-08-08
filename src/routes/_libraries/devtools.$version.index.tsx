@@ -36,7 +36,7 @@ export default function DevtoolsVersionIndex() {
     <>
       <div className="flex flex-col gap-20 md:gap-32 pt-32">
         <div className="flex flex-col items-center gap-8 text-center px-4">
-          <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
+          <h1 className="font-black flex flex-wrap justify-center gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
             <span>TanStack</span>
             <span className={twMerge(gradientText)}>Devtools</span>
           </h1>
@@ -46,7 +46,7 @@ export default function DevtoolsVersionIndex() {
               'md:text-base font-black',
               'lg:text-lg align-super text-white animate-bounce uppercase',
               'dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md',
-              'leading-none whitespace-nowrap'
+              'whitespace-nowrap'
             )}
           >
             STATUS: ALPHA

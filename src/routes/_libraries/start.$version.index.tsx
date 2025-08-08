@@ -57,7 +57,7 @@ export default function VersionIndex() {
             'md:text-base font-black',
             'lg:text-lg align-super text-white animate-bounce uppercase',
             'dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md',
-            'leading-none whitespace-nowrap'
+            'whitespace-nowrap'
           )}
         >
           STATUS: BETA

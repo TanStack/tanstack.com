@@ -393,7 +393,7 @@ export function DocsLayout({
     return (
       <WrapperComp
         key={`group-${i}`}
-        className="[&>summary]:before:mr-[0.4rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:leading-4 [&>div.ts-sidebar-label]:ml-[1rem] relative select-none"
+        className="[&>summary]:before:mr-[0.4rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:leading-4 [&>div.ts-sidebar-label]:ml-4 relative select-none"
         {...detailsProps}
       >
         <LabelComp className="text-[.8em] uppercase font-black leading-4 ts-sidebar-label">
@@ -422,7 +422,7 @@ export function DocsLayout({
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="!cursor-pointer relative"
+                    className="cursor-pointer! relative"
                   >
                     {(props) => {
                       return (
@@ -431,7 +431,7 @@ export function DocsLayout({
                             className={twMerge(
                               'overflow-auto w-full',
                               props.isActive
-                                ? `font-bold text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
+                                ? `font-bold text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
                                 : ''
                             )}
                           >
@@ -581,7 +581,7 @@ export function DocsLayout({
             {children}
           </div>
           <AdGate>
-            <div className="mb-8 !py-0 mx-auto max-w-full overflow-x-hidden">
+            <div className="mb-8 !py-0! mx-auto max-w-full overflow-x-hidden">
               <GamFooter />
             </div>
           </AdGate>
@@ -609,7 +609,7 @@ export function DocsLayout({
                 >
                   <div className="flex gap-2 items-center font-bold">
                     <span
-                      className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
+                      className={`bg-linear-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
                     >
                       {nextItem.label}
                     </span>{' '}

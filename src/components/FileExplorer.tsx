@@ -210,7 +210,7 @@ export function FileExplorer({
           width: isSidebarOpen ? sidebarWidth : 0,
           paddingRight: isSidebarOpen ? '0.5rem' : 0,
         }}
-        className={`flex-shrink-0 overflow-y-auto bg-gradient-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent shadow-sm ${
+        className={`shrink-0 overflow-y-auto bg-linear-to-r from-gray-50 via-gray-50 to-transparent dark:from-gray-800/50 dark:via-gray-800/50 dark:to-transparent shadow-sm ${
           isResizing ? '' : 'transition-all duration-300'
         }`}
       >
@@ -298,7 +298,7 @@ const RenderFileTree = (props: {
                   : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
               }`}
             >
-              <span className="flex-shrink-0 select-none">
+              <span className="shrink-0 select-none">
                 {file.type === 'dir' ? (
                   <FolderIcon isOpen={props.expandedFolders.has(file.path)} />
                 ) : (

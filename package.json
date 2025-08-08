@@ -33,6 +33,7 @@
     "@sentry/react": "^8.35.0",
     "@sentry/vite-plugin": "^2.22.6",
     "@tailwindcss/typography": "^0.5.13",
+    "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-pacer": "^0.7.0",
     "@tanstack/react-query": "^5.84.2",
     "@tanstack/react-router": "1.131.2",
@@ -92,7 +93,7 @@
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.35",
     "prettier": "^2.8.8",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^4.1.11",
     "typescript": "^5.6.3",
     "vite": "^6.3.5"
   },

@@ -30,7 +30,7 @@ export default function StoreVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
 
-  const gradientText = `pr-1inline-block text-transparent bg-clip-text bg-gradient-to-r ${storeProject.colorFrom} ${storeProject.colorTo}`
+  const gradientText = `pr-1inline-block text-transparent bg-clip-text bg-linear-to-r ${storeProject.colorFrom} ${storeProject.colorTo}`
 
   return (
     <>
@@ -73,7 +73,7 @@ export default function StoreVersionIndex() {
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Partners
           </h3>
@@ -86,7 +86,7 @@ export default function StoreVersionIndex() {
             Sponsors
           </h3>
           <div
-            className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
+            className="my-4 flex flex-wrap mx-auto max-w-(--breakpoint-lg)"
             style={{
               aspectRatio: '1/1',
             }}
@@ -152,7 +152,7 @@ export default function StoreVersionIndex() {
 
         {['solid', 'vue', 'svelte'].includes(framework) ? (
           <div className="px-2">
-            <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
+            <div className="p-8 text-center text-lg w-full max-w-(--breakpoint-lg) mx-auto bg-black text-white rounded-xl">
               Looking for the <strong>@tanstack/{framework}-form</strong>{' '}
               example? We could use your help to build the{' '}
               <strong>@tanstack/{framework}-form</strong> adapter! Join the{' '}

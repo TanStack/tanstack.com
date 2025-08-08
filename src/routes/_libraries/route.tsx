@@ -43,7 +43,7 @@ function LibrariesLayout() {
   })
 
   const detailsRef = React.useRef<HTMLElement>(null!)
-  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
+  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
 
   const items = (
     <>
@@ -192,7 +192,7 @@ function LibrariesLayout() {
           label: (
             <span className="flex items-center gap-2">
               Stats
-              <span className="text-xs bg-transparent text-transparent bg-clip-text bg-gradient-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
+              <span className="text-xs bg-transparent text-transparent bg-clip-text bg-linear-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
                 BETA
               </span>
             </span>
@@ -234,7 +234,7 @@ function LibrariesLayout() {
             className={twMerge(linkClasses, 'font-normal')}
             activeProps={{
               className: twMerge(
-                '!font-bold bg-gray-500/10 dark:bg-gray-500/30'
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
               ),
             }}
             target={item.to.startsWith('http') ? '_blank' : undefined}
@@ -259,7 +259,7 @@ function LibrariesLayout() {
           to="/login"
           className={twMerge(linkClasses, 'font-normal')}
           activeProps={{
-            className: twMerge('!font-bold bg-gray-500/10 dark:bg-gray-500/30'),
+            className: twMerge('font-bold! bg-gray-500/10 dark:bg-gray-500/30'),
           }}
         >
           <div className="flex items-center gap-2">

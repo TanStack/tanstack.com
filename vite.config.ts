@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import contentCollections from '@content-collections/vite'
 import tsConfigPaths from 'vite-tsconfig-paths'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   server: {
@@ -25,5 +26,6 @@ export default defineConfig({
       project: 'tanstack-com',
     }),
     contentCollections(),
+    tailwindcss(),
   ],
 })

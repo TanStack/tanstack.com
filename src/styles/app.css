@@ -1,6 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@config '../../tailwind.config.cjs';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 @layer base {
   html,
@@ -13,7 +31,7 @@
   }
 
   * {
-    scrollbar-color: theme(colors.gray.400) theme(colors.gray.100);
+    scrollbar-color: var(--color-gray-400) var(--color-gray-100);
   }
 
   *::-webkit-scrollbar,
@@ -24,14 +42,14 @@
 
   *::-webkit-scrollbar-track,
   * scrollbar-track {
-    background: theme(colors.gray.100);
+    background: var(--color-gray-100);
   }
 
   *::-webkit-scrollbar-thumb,
   * scrollbar-thumb {
-    background: theme(colors.gray.300);
+    background: var(--color-gray-300);
     border-radius: 0.5rem;
-    border: 3px solid theme(colors.gray.100);
+    border: 3px solid var(--color-gray-100);
   }
 
   html.dark {
@@ -42,7 +60,7 @@
 
     &,
     * {
-      scrollbar-color: theme(colors.gray.700) theme(colors.gray.800);
+      scrollbar-color: var(--color-gray-700) var(--color-gray-800);
     }
 
     &::-webkit-scrollbar,
@@ -55,15 +73,15 @@
     & *::-webkit-scrollbar-track,
     *::-webkit-scrollbar-track,
     * scrollbar-track {
-      background: theme(colors.gray.800);
+      background: var(--color-gray-800);
     }
 
     &::-webkit-scrollbar-thumb,
     *::-webkit-scrollbar-thumb,
     * scrollbar-thumb {
-      background: theme(colors.gray.600);
+      background: var(--color-gray-600);
       border-radius: 0.5rem;
-      border: 3px solid theme(colors.gray.800);
+      border: 3px solid var(--color-gray-800);
     }
   }
 
@@ -131,15 +149,15 @@
   }
 
   .carbon-small .carbon-wrap .carbon-img {
-    @apply w-[50%] pt-2 !pointer-events-auto rounded-tr-lg border-t border-r border-gray-500 border-opacity-10 overflow-hidden;
+    @apply w-[50%] pt-2 pointer-events-auto! rounded-tr-lg border-t border-r border-gray-500 overflow-hidden;
   }
 
   .carbon-small .carbon-wrap .carbon-img img {
-    @apply w-full !max-w-full;
+    @apply w-full max-w-full!;
   }
 
   .carbon-small .carbon-wrap .carbon-text {
-    @apply bg-white dark:bg-gray-800 rounded-tr-lg !pb-6 !m-0 !pointer-events-auto border-t border-r border-gray-500 border-opacity-10;
+    @apply bg-white dark:bg-gray-800 rounded-tr-lg pb-6! m-0! pointer-events-auto! border-t border-r border-gray-500;
   }
 
   .carbon-small .carbon-wrap .carbon-poweredby {
@@ -460,7 +478,7 @@ html.dark .shiki.github-light {
 
 #hubspot-messages-iframe-container {
   @apply translate-x-[10px] translate-y-[10px];
-  @apply dark:[color-scheme:dark];
+  @apply dark:scheme-dark;
 }
 
 /* Markdown Alerts */

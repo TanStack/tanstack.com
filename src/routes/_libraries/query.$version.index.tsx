@@ -41,7 +41,7 @@ export default function VersionIndex() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [])
 
-  const gradientText = `pr-1 inline-block leading-snug text-transparent bg-clip-text bg-gradient-to-r ${queryProject.colorFrom} ${queryProject.colorTo}`
+  const gradientText = `pr-1 inline-block leading-snug text-transparent bg-clip-text bg-linear-to-r ${queryProject.colorFrom} ${queryProject.colorTo}`
 
   return (
     <div className="flex flex-1 flex-col min-h-0 relative overflow-x-hidden">
@@ -182,12 +182,12 @@ export default function VersionIndex() {
             </marquee>
           </div>
 
-          <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+          <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
             <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
               Partners
             </h3>
             <div className="h-8" />
-            <div className={`grid grid-cols-1 gap-6 max-w-screen-md mx-auto`}>
+            <div className={`grid grid-cols-1 gap-6 max-w-(--breakpoint-md) mx-auto`}>
               {partners
                 .filter(
                   (d) => d.libraries?.includes('query') && d.status === 'active'
@@ -229,7 +229,7 @@ export default function VersionIndex() {
               Sponsors
             </h3>
             <div
-              className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
+              className="my-4 flex flex-wrap mx-auto max-w-(--breakpoint-lg)"
               style={{
                 aspectRatio: '1/1',
               }}
@@ -295,7 +295,7 @@ export default function VersionIndex() {
 
           {[''].includes(framework) ? (
             <div className="px-2">
-              <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
+              <div className="p-8 text-center text-lg w-full max-w-(--breakpoint-lg) mx-auto bg-black text-white rounded-xl">
                 Looking for the <strong>@tanstack/{framework}-query</strong>{' '}
                 example? We could use your help to build the{' '}
                 <strong>@tanstack/{framework}-query</strong> adapter! Join the{' '}

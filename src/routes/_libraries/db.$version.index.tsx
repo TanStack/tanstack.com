@@ -31,7 +31,7 @@ export default function DBVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
 
-  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-gradient-to-r ${dbProject.colorFrom} ${dbProject.colorTo}`
+  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-linear-to-r ${dbProject.colorFrom} ${dbProject.colorTo}`
 
   return (
     <>
@@ -110,7 +110,7 @@ export default function DBVersionIndex() {
             </div>
           </div>
         </div>
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Partners
           </h3>
@@ -156,7 +156,7 @@ export default function DBVersionIndex() {
             Sponsors
           </h3>
           <div
-            className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
+            className="my-4 flex flex-wrap mx-auto max-w-(--breakpoint-lg)"
             style={{
               aspectRatio: '1/1',
             }}

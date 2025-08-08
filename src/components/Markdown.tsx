@@ -25,7 +25,7 @@ const CustomHeading = ({
     return (
       <a
         href={`#${id}`}
-        className={`anchor-heading [&>*]:scroll-my-[5rem] [&>*]:lg:scroll-my-4`}
+        className={`anchor-heading *:scroll-my-20 *:lg:scroll-my-4`}
       >
         <Comp id={id} {...props} />
       </a>

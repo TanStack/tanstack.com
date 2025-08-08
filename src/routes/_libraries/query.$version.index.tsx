@@ -76,7 +76,7 @@ export default function VersionIndex() {
               </strong>
               .
             </p>
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4 items-center">
               <Link
                 to="./docs/"
                 className={`py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
@@ -187,7 +187,9 @@ export default function VersionIndex() {
               Partners
             </h3>
             <div className="h-8" />
-            <div className={`grid grid-cols-1 gap-6 max-w-(--breakpoint-md) mx-auto`}>
+            <div
+              className={`grid grid-cols-1 gap-6 max-w-(--breakpoint-md) mx-auto`}
+            >
               {partners
                 .filter(
                   (d) => d.libraries?.includes('query') && d.status === 'active'

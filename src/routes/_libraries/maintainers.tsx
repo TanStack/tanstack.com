@@ -291,7 +291,7 @@ function MaintainersFilter({
                           className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
                             isSelected
                               ? `${bgStyle} text-white`
-                              : `${bgStyle}/20 dark:${bgStyle}/30 text-green-900 dark:text-green-200 hover:${bgStyle}/30 dark:hover:${bgStyle}/40`
+                              : `${bgStyle}/30 text-green-900 dark:text-green-200 hover:${bgStyle}/40`
                           }`}
                         >
                           {library.name}
@@ -316,7 +316,7 @@ function MaintainersFilter({
             return (
               <span
                 key={libraryId}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${bgStyle}/40 dark:${bgStyle}/30`}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${bgStyle}/40`}
               >
                 {library?.name || libraryId}
                 <button

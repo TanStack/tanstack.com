@@ -66,7 +66,9 @@ export default function VersionIndex() {
             React.
           </p>
           <Link
-            to="./docs/overview"
+            from="/$libraryId/$version"
+            to="./docs"
+            params={{ libraryId: library.id }}
             className={`py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started
@@ -153,7 +155,9 @@ export default function VersionIndex() {
           </div>
           <div>
             <Link
-              to="./docs/overview"
+              from="/$libraryId/$version"
+              to="./docs"
+              params={{ libraryId: library.id }}
               className={`inline-block py-2 px-4 bg-pink-500 rounded text-white uppercase font-extrabold`}
             >
               Get Started!

@@ -180,6 +180,10 @@ pre {
 }
 pre.shiki {
   overflow-x: auto;
+
+  &.tokyo-night {
+    @apply bg-gray-900 text-gray-400;
+  }
 }
 pre.shiki:hover .dim {
   opacity: 1;

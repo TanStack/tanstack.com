@@ -400,9 +400,9 @@ export function DocsLayout({
           {group?.label}
         </LabelComp>
         <div className="h-2" />
-        <ul className="ml-2 text-[.85em] list-none">
+        <ul className="ml-2 text-[.85em] leading-6 list-none">
           {group?.children?.map((child, i) => {
-            const linkClasses = `cursor-pointer flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500/10`
+            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500/10`
 
             return (
               <li key={i}>
@@ -422,7 +422,7 @@ export function DocsLayout({
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="cursor-pointer! relative"
+                    className="relative"
                   >
                     {(props) => {
                       return (

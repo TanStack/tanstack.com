@@ -1,6 +1,45 @@
 @import 'tailwindcss';
 
-@config '../../tailwind.config.cjs';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
+@custom-variant auto (&:where(.auto, .auto *));
+@custom-variant aria-current (&[aria-current="location"]);
+
+@theme {
+  /* Fonts */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
+    0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05),
+    0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+  --shadow-3xl: 0 35px 60px -15px rgba(0, 0, 0, 0.25);
+  --shadow-inset: inset 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+
+  /* Colors */
+  --color-twine-50: #f8f5ee;
+  --color-twine-100: #eee6d3;
+  --color-twine-200: #dfcda9;
+  --color-twine-300: #cdac77;
+  --color-twine-400: #bd9051;
+  --color-twine-500: #ae7d44;
+  --color-twine-600: #956339;
+  --color-twine-700: #784b30;
+  --color-twine-800: #653f2e;
+  --color-twine-900: #58362b;
+  --color-twine-950: #321c16;
+
+  --color-discord: #536bbd;
+}
 
 /* Safelist dynamic classes for Tailwind v4 using @source inline() */
 @source inline('{{hover:,dark:,dark:hover:,}bg-blue-500/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-emerald-500/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-purple-500/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-pink-500/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-cyan-500/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-slate-500/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-slate-400/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-twine-700/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-orange-500/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-yellow-500/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-orange-700/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-lime-700/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-red-500/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-blue-400/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-green-500/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-blue-600/{10,{10..90..10},90},{hover:,dark:,dark:hover:,}bg-orange-600/{10,{10..90..10},90}}');

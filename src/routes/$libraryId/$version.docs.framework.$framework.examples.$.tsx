@@ -45,20 +45,6 @@ const repoDirApiContentsQueryOptions = (
   })
 
 export const Route = createFileRoute({
-  head: ({ params }) => {
-    const library = getLibrary(params.libraryId)
-
-    return {
-      meta: seo({
-        title: `${capitalize(params.framework)} ${library.name} ${slugToTitle(
-          params._splat || ''
-        )} Example | ${library.name} Docs`,
-        description: `An example showing how to implement ${slugToTitle(
-          params._splat || ''
-        )} in ${capitalize(params.framework)} using ${library.name}.`,
-      }),
-    }
-  },
   component: RouteComponent,
   validateSearch: z.object({
     path: z.string().optional(),
@@ -105,6 +91,20 @@ export const Route = createFileRoute({
       repoStartingFilePath,
     }
   },
+  head: ({ params }) => {
+    const library = getLibrary(params.libraryId)
+
+    return {
+      meta: seo({
+        title: `${capitalize(params.framework)} ${library.name} ${slugToTitle(
+          params._splat || ''
+        )} Example | ${library.name} Docs`,
+        description: `An example showing how to implement ${slugToTitle(
+          params._splat || ''
+        )} in ${capitalize(params.framework)} using ${library.name}.`,
+      }),
+    }
+  },
   staleTime: 1000 * 60 * 5, // 5 minutes
 })
 
@@ -114,8 +114,6 @@ function RouteComponent() {
 }
 
 function PageComponent() {
-  // Not sure why this inferred type is not working
-  // @ts-expect-error
   const { repoStartingDirPath, repoStartingFilePath } = Route.useLoaderData()
 
   const navigate = Route.useNavigate()

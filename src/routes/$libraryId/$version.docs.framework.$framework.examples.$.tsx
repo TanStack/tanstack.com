@@ -50,18 +50,11 @@ export const Route = createFileRoute({
     path: z.string().optional(),
     panel: z.string().optional(),
   }),
-  loader: async ({ params, context: { queryClient } }) => {
+  loaderDeps: ({ search }) => ({ path: search.path }),
+  loader: async ({ params, context: { queryClient }, deps: { path } }) => {
     const library = getLibrary(params.libraryId)
     const branch = getBranch(library, params.version)
     const examplePath = [params.framework, params._splat].join('/')
-
-    // Used to determine the starting file name for the explorer
-    // i.e. app.tsx, main.tsx, src/routes/__root.tsx, etc.
-    // This value is not absolutely guaranteed to be available, so further resolution may be necessary
-    const explorerCandidateStartingFileName = getExampleStartingPath(
-      params.framework as Framework,
-      params.libraryId
-    )
 
     // Used to tell the github contents api where to start looking for files in the target repository
     const repoStartingDirPath = `examples/${examplePath}`
@@ -71,9 +64,17 @@ export const Route = createFileRoute({
       repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath)
     )
 
+    // Used to determine the starting file name for the explorer
+    // It's either the selected path in the search params or a default we can derive
+    // i.e. app.tsx, main.tsx, src/routes/__root.tsx, etc.
+    // This value is not absolutely guaranteed to be available, so further resolution may be necessary
+    const explorerCandidateStartingFileName =
+      path ||
+      getExampleStartingPath(params.framework as Framework, params.libraryId)
+
     // Using the fetched contents, get the actual starting file-path for the explorer
     // The `explorerCandidateStartingFileName` is used for matching, but the actual file-path may differ
-    const repoStartingFilePath = determineStartingFilePath(
+    const currentPath = determineStartingFilePath(
       githubContents,
       explorerCandidateStartingFileName,
       params.framework as Framework,
@@ -83,13 +84,10 @@ export const Route = createFileRoute({
     // Now that we've resolved the starting file path, we can
     // fetching and caching the file content for the starting file path
     await queryClient.ensureQueryData(
-      fileQueryOptions(library.repo, branch, repoStartingFilePath)
+      fileQueryOptions(library.repo, branch, currentPath)
     )
 
-    return {
-      repoStartingDirPath,
-      repoStartingFilePath,
-    }
+    return { repoStartingDirPath, currentPath }
   },
   head: ({ params }) => {
     const library = getLibrary(params.libraryId)
@@ -114,7 +112,7 @@ function RouteComponent() {
 }
 
 function PageComponent() {
-  const { repoStartingDirPath, repoStartingFilePath } = Route.useLoaderData()
+  const { repoStartingDirPath, currentPath } = Route.useLoaderData()
 
   const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
@@ -155,12 +153,6 @@ function PageComponent() {
       resetScroll: true,
     })
   }
-
-  const currentPath = Route.useSearch({
-    select: (s) => {
-      return s.path || repoStartingFilePath
-    },
-  })
 
   const setCurrentPath = (path: string) => {
     navigate({

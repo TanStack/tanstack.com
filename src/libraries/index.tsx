@@ -107,11 +107,11 @@ export const libraries = [
   queryProject,
   tableProject,
   formProject,
+  dbProject,
   virtualProject,
   pacerProject,
   storeProject,
   rangerProject,
-  dbProject,
   configProject,
   devtoolsProject,
   {

@@ -373,6 +373,10 @@ export function DocsLayout({
   const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
   const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
+  const activePartners = partners.filter(
+    (d) => d.libraries?.includes(libraryId as any) && d.status === 'active'
+  )
+
   const menuItems = menuConfig.map((group, i) => {
     const WrapperComp = group.collapsible ? 'details' : 'div'
     const LabelComp = group.collapsible ? 'summary' : 'div'
@@ -622,9 +626,7 @@ export function DocsLayout({
               <div className="uppercase font-black text-center p-3 opacity-50">
                 Our Partners
               </div>
-              {!partners.some((d) =>
-                d.libraries?.includes(libraryId as any)
-              ) ? (
+              {!activePartners?.length ? (
                 <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
                   <a
                     href={`mailto:partners@tanstack.com?subject=TanStack ${
@@ -642,9 +644,8 @@ export function DocsLayout({
                   </a>
                 </div>
               ) : (
-                partners
+                activePartners
                   .filter((d) => d.sidebarImgLight)
-                  .filter((d) => d.libraries?.includes(libraryId as any))
                   .map((partner) => {
                     return (
                       <div

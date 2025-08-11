@@ -18,6 +18,7 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
 import { Route as MerchRouteImport } from './routes/merch'
+import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as LibrariesRouteRouteImport } from './routes/_libraries/route'
 import { Route as LibraryIdRouteRouteImport } from './routes/$libraryId/route'
 import { Route as StatsIndexRouteImport } from './routes/stats/index'
@@ -71,6 +72,11 @@ const SponsorsEmbedRoute = SponsorsEmbedRouteImport.update({
 const MerchRoute = MerchRouteImport.update({
   id: '/merch',
   path: '/merch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderRoute = BuilderRouteImport.update({
+  id: '/builder',
+  path: '/builder',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibrariesRouteRoute = LibrariesRouteRouteImport.update({
@@ -307,6 +313,7 @@ const LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute =
 
 export interface FileRoutesByFullPath {
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
+  '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
@@ -349,6 +356,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
 export interface FileRoutesByTo {
+  '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
@@ -392,6 +400,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
   '/_libraries': typeof LibrariesRouteRouteWithChildren
+  '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
@@ -437,6 +446,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/$libraryId'
+    | '/builder'
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
@@ -479,6 +489,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/builder'
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
@@ -521,6 +532,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/$libraryId'
     | '/_libraries'
+    | '/builder'
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
@@ -566,6 +578,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   LibraryIdRouteRoute: typeof LibraryIdRouteRouteWithChildren
   LibrariesRouteRoute: typeof LibrariesRouteRouteWithChildren
+  BuilderRoute: typeof BuilderRoute
   MerchRoute: typeof MerchRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   StatsIndexRoute: typeof StatsIndexRoute
@@ -618,6 +631,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof LibrariesRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder': {
+      id: '/builder'
+      path: '/builder'
+      fullPath: '/builder'
+      preLoaderRoute: typeof BuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/merch': {
@@ -929,6 +949,13 @@ declare module '@tanstack/react-start/server' {
       id: '/_libraries'
       path: ''
       fullPath: ''
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/builder': {
+      id: '/builder'
+      path: '/builder'
+      fullPath: '/builder'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1260,6 +1287,23 @@ declare module './routes/_libraries/route' {
     ServerFileRoutesByPath['/_libraries']['id'],
     ServerFileRoutesByPath['/_libraries']['path'],
     ServerFileRoutesByPath['/_libraries']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/builder' {
+  const createFileRoute: CreateFileRoute<
+    '/builder',
+    FileRoutesByPath['/builder']['parentRoute'],
+    FileRoutesByPath['/builder']['id'],
+    FileRoutesByPath['/builder']['path'],
+    FileRoutesByPath['/builder']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/builder']['parentRoute'],
+    ServerFileRoutesByPath['/builder']['id'],
+    ServerFileRoutesByPath['/builder']['path'],
+    ServerFileRoutesByPath['/builder']['fullPath'],
     unknown
   >
 }
@@ -2105,6 +2149,7 @@ const LibrariesRouteRouteWithChildren = LibrariesRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   LibraryIdRouteRoute: LibraryIdRouteRouteWithChildren,
   LibrariesRouteRoute: LibrariesRouteRouteWithChildren,
+  BuilderRoute: BuilderRoute,
   MerchRoute: MerchRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   StatsIndexRoute: StatsIndexRoute,

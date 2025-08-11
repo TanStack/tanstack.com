@@ -104,10 +104,10 @@ export function CodeBlock({
 
   const [codeElement, setCodeElement] = React.useState(
     <>
-      <pre ref={ref} className={`shiki github-light`}>
+      <pre ref={ref} className={`shiki github-light h-full`}>
         <code>{code}</code>
       </pre>
-      <pre className={`shiki tokyo-night bg-gray-900 text-gray-400`}>
+      <pre className={`shiki tokyo-night h-full bg-gray-900 text-gray-400`}>
         <code>{code}</code>
       </pre>
     </>

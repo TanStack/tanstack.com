@@ -43,12 +43,10 @@ export const useUserSettingsStore = create<UserSettingsState>()(
 
 export function useAdsPreference() {
   const { isSignedIn } = useUser()
-  const { settings, hasHydrated } = useUserSettingsStore((s) => ({
+  const { settings } = useUserSettingsStore((s) => ({
     settings: s.settings,
-    hasHydrated: s.hasHydrated,
   }))
 
-  const adsEnabled = isSignedIn && !settings.adsDisabled
-  const status = hasHydrated ? (adsEnabled ? 'enabled' : 'disabled') : 'unknown'
-  return { status: status as 'unknown' | 'enabled' | 'disabled', adsEnabled }
+  const adsEnabled = isSignedIn ? !settings.adsDisabled : true
+  return { adsEnabled }
 }

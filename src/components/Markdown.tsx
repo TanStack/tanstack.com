@@ -71,7 +71,9 @@ const markdownComponents: Record<string, React.FC> = {
     // eslint-disable-next-line jsx-a11y/alt-text
     <img
       {...props}
-      className="max-w-full h-auto rounded-lg shadow-md"
+      className={`max-w-full h-auto rounded-lg shadow-md ${
+        props.className ?? ''
+      }`}
       // loading="lazy"
       // decoding="async"
     />

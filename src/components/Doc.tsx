@@ -9,6 +9,7 @@ import { Toc } from './Toc'
 import { twMerge } from 'tailwind-merge'
 import { TocMobile } from './TocMobile'
 import { GamLeader } from './Gam'
+import { AdGate } from '~/contexts/AdsContext'
 import { useWidthToggle } from '~/components/DocsLayout'
 import {
   BsArrowsCollapseVertical,
@@ -123,7 +124,9 @@ export function Doc({
             isTocVisible && 'pr-0!'
           )}
         >
-          <GamLeader />
+          <AdGate>
+            <GamLeader />
+          </AdGate>
           {title ? (
             <div className="flex items-center justify-between gap-4">
               <DocTitle>{title}</DocTitle>

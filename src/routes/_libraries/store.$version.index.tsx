@@ -64,7 +64,9 @@ export default function StoreVersionIndex() {
             Store.
           </p>
           <Link
-            to="./docs/"
+            from="/$libraryId/$version"
+            to="./docs"
+            params={{ libraryId: library.id }}
             className={`py-2 px-4 bg-stone-600 text-white rounded uppercase font-extrabold`}
           >
             Get Started
@@ -194,7 +196,9 @@ export default function StoreVersionIndex() {
           </div>
           <div>
             <Link
-              to="./docs/"
+              from="/$libraryId/$version"
+              to="./docs"
+              params={{ libraryId: library.id }}
               className={`inline-block py-2 px-4 bg-stone-700 rounded text-white uppercase font-extrabold`}
             >
               Get Started!

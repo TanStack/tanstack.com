@@ -78,7 +78,9 @@ export default function VersionIndex() {
             </p>
             <div className="flex flex-col gap-4 items-center">
               <Link
-                to="./docs/"
+                from={'/$libraryId/$version'}
+                params={{ libraryId: library.id }}
+                to={'./docs'}
                 className={`py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
               >
                 Read the Docs
@@ -341,7 +343,9 @@ export default function VersionIndex() {
             </div>
             <div>
               <Link
-                to="./docs/"
+                from={'/$libraryId/$version'}
+                params={{ libraryId: library.id }}
+                to={'./docs'}
                 className={`inline-block py-2 px-4 bg-red-500 rounded text-white uppercase font-extrabold`}
               >
                 Read the Docs!

@@ -71,7 +71,9 @@ export default function DevtoolsVersionIndex() {
             designed to work with any framework.
           </p>
           <Link
-            to="./docs/"
+            from="/$libraryId/$version"
+            to="./docs"
+            params={{ libraryId: library.id }}
             className={`py-2 px-4 bg-slate-500 hover:bg-slate-600 text-white rounded uppercase font-extrabold transition-colors`}
           >
             Get Started
@@ -161,7 +163,9 @@ export default function DevtoolsVersionIndex() {
           </div>
           <div>
             <Link
-              to="./docs/"
+              from="/$libraryId/$version"
+              to="./docs"
+              params={{ libraryId: library.id }}
               className={`inline-block py-2 px-4 bg-slate-500 hover:bg-slate-600 text-white rounded uppercase font-extrabold transition-colors`}
             >
               Get Started!

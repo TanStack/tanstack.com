@@ -71,7 +71,9 @@ export default function TableVersionIndex() {
           markup and styles.
         </p>
         <Link
-          to="./docs/introduction/"
+          from={'/$libraryId/$version'}
+          to={'./docs'}
+          params={{ libraryId: library.id }}
           className={`py-2 px-4 bg-blue-500 rounded text-white uppercase font-extrabold`}
         >
           Get Started
@@ -308,12 +310,9 @@ export default function TableVersionIndex() {
         </div>
         <div>
           <Link
-            to="/$libraryId/$version/docs/$"
-            params={{
-              libraryId: 'table',
-              version,
-              _splat: 'introduction',
-            }}
+            from={'/$libraryId/$version'}
+            to={'./docs/$'}
+            params={{ libraryId: library.id }}
             className={`inline-block py-2 px-4 bg-teal-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started!

@@ -40,6 +40,7 @@ const librarySchema = z.enum([
   'config',
   'react-charts',
   'create-tsrouter-app',
+  'devtools',
 ])
 
 const viewModeSchema = z.enum(['compact', 'full', 'row'])

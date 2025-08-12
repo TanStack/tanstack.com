@@ -51,7 +51,9 @@ export default function FormVersionIndex() {
             for publishing and maintaining high-quality JavaScript packages
           </h2>
           <Link
-            to="./docs/"
+            from="/$libraryId/$version"
+            to="./docs"
+            params={{ libraryId: library.id }}
             className={`py-2 px-4 bg-gray-500 text-white rounded uppercase font-extrabold`}
           >
             Get Started
@@ -139,7 +141,9 @@ export default function FormVersionIndex() {
           </div>
           <div>
             <Link
-              to="./docs/"
+              from="/$libraryId/$version"
+              to="./docs"
+              params={{ libraryId: library.id }}
               className={`inline-block py-2 px-4 bg-gray-500 text-white rounded uppercase font-extrabold`}
             >
               Get Started!

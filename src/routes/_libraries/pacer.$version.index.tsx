@@ -78,8 +78,9 @@ export default function PacerVersionIndex() {
             for reactive state management.
           </p>
           <Link
-            to="/$libraryId/$version/docs"
-            params={{ libraryId: library.id, version }}
+            from={'/$libraryId/$version'}
+            params={{ libraryId: library.id }}
+            to={'./docs'}
             className={`py-2 px-4 bg-lime-600 hover:bg-lime-700 text-white rounded uppercase font-extrabold transition-colors`}
           >
             Get Started
@@ -212,9 +213,10 @@ export default function PacerVersionIndex() {
           </div>
           <div>
             <Link
-              to="/$libraryId/$version/docs"
-              params={{ libraryId: library.id, version }}
-              className={`inline-block py-2 px-4 bg-stone-700 rounded text-white uppercase font-extrabold`}
+              from={'/$libraryId/$version'}
+              params={{ libraryId: library.id }}
+              to={'./docs'}
+              className={`py-2 px-4 bg-lime-600 hover:bg-lime-700 text-white rounded uppercase font-extrabold transition-colors`}
             >
               Get Started!
             </Link>

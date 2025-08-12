@@ -65,7 +65,9 @@ function RouterVersionIndex() {
           revalidate caching and first-class search-param APIs.
         </p>
         <Link
-          to="./docs/framework/react/overview"
+          from="/$libraryId/$version"
+          to="./docs"
+          params={{ libraryId: library.id }}
           className={`py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
         >
           Get Started
@@ -263,7 +265,9 @@ function RouterVersionIndex() {
         </div>
         <div>
           <Link
-            to="./docs/framework/react/overview"
+            from="/$libraryId/$version"
+            to="./docs"
+            params={{ libraryId: library.id }}
             className={`inline-block py-2 px-4 bg-emerald-500 rounded text-white uppercase font-extrabold`}
           >
             Get Started!

@@ -1,7 +1,7 @@
 import "./styles.css"
 
 import { seo } from '~/utils/seo'
-import App, { AppSidebar} from "@tanstack/cta-ui-base/src"
+import App, { AppSidebar } from "@tanstack/cta-ui-base/src"
 import { Button } from "@tanstack/cta-ui-base/src/components/ui/button"
 import { useDryRun } from "@tanstack/cta-ui-base/src/store/project"
 import JSZip from 'jszip'
@@ -63,7 +63,6 @@ export const CustomAppSidebarActions = () => {
   return (
     <>
     <Button onClick={handleExportZip} variant="outline">Export ZIP</Button>
-    <Button variant="destructive">Exit</Button>
     </>
   )
 }

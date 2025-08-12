@@ -1,3 +1,5 @@
+import "./styles.css"
+
 import { seo } from '~/utils/seo'
 import App from "@tanstack/cta-ui-base/src"
 

@@ -18,10 +18,10 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
 import { Route as MerchRouteImport } from './routes/merch'
-import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as LibrariesRouteRouteImport } from './routes/_libraries/route'
 import { Route as LibraryIdRouteRouteImport } from './routes/$libraryId/route'
 import { Route as StatsIndexRouteImport } from './routes/stats/index'
+import { Route as BuilderIndexRouteImport } from './routes/builder/index'
 import { Route as LibrariesIndexRouteImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as LibrariesTermsRouteImport } from './routes/_libraries/terms'
@@ -76,11 +76,6 @@ const MerchRoute = MerchRouteImport.update({
   path: '/merch',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuilderRoute = BuilderRouteImport.update({
-  id: '/builder',
-  path: '/builder',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LibrariesRouteRoute = LibrariesRouteRouteImport.update({
   id: '/_libraries',
   getParentRoute: () => rootRouteImport,
@@ -93,6 +88,11 @@ const LibraryIdRouteRoute = LibraryIdRouteRouteImport.update({
 const StatsIndexRoute = StatsIndexRouteImport.update({
   id: '/stats/',
   path: '/stats/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderIndexRoute = BuilderIndexRouteImport.update({
+  id: '/builder/',
+  path: '/builder/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibrariesIndexRoute = LibrariesIndexRouteImport.update({
@@ -326,7 +326,6 @@ const LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute =
 
 export interface FileRoutesByFullPath {
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
-  '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
@@ -342,6 +341,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof LibrariesTermsRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
+  '/builder': typeof BuilderIndexRoute
   '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/account/$': typeof LibrariesAccountSplatRoute
@@ -369,7 +369,6 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
 export interface FileRoutesByTo {
-  '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
@@ -384,6 +383,7 @@ export interface FileRoutesByTo {
   '/terms': typeof LibrariesTermsRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
+  '/builder': typeof BuilderIndexRoute
   '/stats': typeof StatsIndexRoute
   '/account/$': typeof LibrariesAccountSplatRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
@@ -413,7 +413,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
   '/_libraries': typeof LibrariesRouteRouteWithChildren
-  '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
@@ -429,6 +428,7 @@ export interface FileRoutesById {
   '/_libraries/terms': typeof LibrariesTermsRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/_libraries/': typeof LibrariesIndexRoute
+  '/builder/': typeof BuilderIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/_libraries/account/$': typeof LibrariesAccountSplatRoute
@@ -459,7 +459,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/$libraryId'
-    | '/builder'
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
@@ -475,6 +474,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/$libraryId/'
     | '/'
+    | '/builder'
     | '/stats'
     | '/$libraryId/$version/docs'
     | '/account/$'
@@ -502,7 +502,6 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/builder'
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
@@ -517,6 +516,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/$libraryId'
     | '/'
+    | '/builder'
     | '/stats'
     | '/account/$'
     | '/blog/$'
@@ -545,7 +545,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/$libraryId'
     | '/_libraries'
-    | '/builder'
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
@@ -561,6 +560,7 @@ export interface FileRouteTypes {
     | '/_libraries/terms'
     | '/$libraryId/'
     | '/_libraries/'
+    | '/builder/'
     | '/stats/'
     | '/$libraryId/$version/docs'
     | '/_libraries/account/$'
@@ -591,9 +591,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   LibraryIdRouteRoute: typeof LibraryIdRouteRouteWithChildren
   LibrariesRouteRoute: typeof LibrariesRouteRouteWithChildren
-  BuilderRoute: typeof BuilderRoute
   MerchRoute: typeof MerchRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
+  BuilderIndexRoute: typeof BuilderIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
 }
@@ -658,13 +658,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof LibrariesRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/builder': {
-      id: '/builder'
-      path: '/builder'
-      fullPath: '/builder'
-      preLoaderRoute: typeof BuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/merch': {
@@ -785,6 +778,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof LibrariesIndexRouteImport
       parentRoute: typeof LibrariesRouteRoute
+    }
+    '/builder/': {
+      id: '/builder/'
+      path: '/builder'
+      fullPath: '/builder'
+      preLoaderRoute: typeof BuilderIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/stats/': {
       id: '/stats/'
@@ -993,13 +993,6 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
-    '/builder': {
-      id: '/builder'
-      path: '/builder'
-      fullPath: '/builder'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
     '/merch': {
       id: '/merch'
       path: '/merch'
@@ -1116,6 +1109,13 @@ declare module '@tanstack/react-start/server' {
       id: '/_libraries/'
       path: '/'
       fullPath: '/'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/builder/': {
+      id: '/builder/'
+      path: '/builder'
+      fullPath: '/builder'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1342,23 +1342,6 @@ declare module './routes/_libraries/route' {
     ServerFileRoutesByPath['/_libraries']['id'],
     ServerFileRoutesByPath['/_libraries']['path'],
     ServerFileRoutesByPath['/_libraries']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/builder' {
-  const createFileRoute: CreateFileRoute<
-    '/builder',
-    FileRoutesByPath['/builder']['parentRoute'],
-    FileRoutesByPath['/builder']['id'],
-    FileRoutesByPath['/builder']['path'],
-    FileRoutesByPath['/builder']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/builder']['parentRoute'],
-    ServerFileRoutesByPath['/builder']['id'],
-    ServerFileRoutesByPath['/builder']['path'],
-    ServerFileRoutesByPath['/builder']['fullPath'],
     unknown
   >
 }
@@ -1648,6 +1631,23 @@ declare module './routes/_libraries/index' {
     ServerFileRoutesByPath['/_libraries/']['id'],
     ServerFileRoutesByPath['/_libraries/']['path'],
     ServerFileRoutesByPath['/_libraries/']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/builder/index' {
+  const createFileRoute: CreateFileRoute<
+    '/builder/',
+    FileRoutesByPath['/builder/']['parentRoute'],
+    FileRoutesByPath['/builder/']['id'],
+    FileRoutesByPath['/builder/']['path'],
+    FileRoutesByPath['/builder/']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/builder/']['parentRoute'],
+    ServerFileRoutesByPath['/builder/']['id'],
+    ServerFileRoutesByPath['/builder/']['path'],
+    ServerFileRoutesByPath['/builder/']['fullPath'],
     unknown
   >
 }
@@ -2238,9 +2238,9 @@ const LibrariesRouteRouteWithChildren = LibrariesRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   LibraryIdRouteRoute: LibraryIdRouteRouteWithChildren,
   LibrariesRouteRoute: LibrariesRouteRouteWithChildren,
-  BuilderRoute: BuilderRoute,
   MerchRoute: MerchRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
+  BuilderIndexRoute: BuilderIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
 }

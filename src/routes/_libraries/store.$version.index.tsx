@@ -1,9 +1,9 @@
-import { CgSpinner } from 'react-icons/cg'
 import { Link, getRouteApi } from '@tanstack/react-router'
 import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { TbHeartHandshake } from 'react-icons/tb'
-import SponsorPack from '~/components/SponsorPack'
+import { SponsorsSection } from '~/components/SponsorsSection'
+import { BottomCTA } from '~/components/BottomCTA'
 import { storeProject } from '~/libraries/store'
 import { Await } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
@@ -83,33 +83,7 @@ export default function StoreVersionIndex() {
           <PartnershipCallout libraryName="Store" />
         </div>
 
-        <div className="relative text-lg overflow-hidden">
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-            Sponsors
-          </h3>
-          <div
-            className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
-            style={{
-              aspectRatio: '1/1',
-            }}
-          >
-            <Await
-              promise={sponsorsPromise}
-              fallback={<CgSpinner className="text-2xl animate-spin" />}
-              children={(sponsors) => {
-                return <SponsorPack sponsors={sponsors} />
-              }}
-            />
-          </div>
-          <div className="text-center">
-            <a
-              href="https://github.com/sponsors/tannerlinsley"
-              className="inline-block bg-green-500 px-4 py-2 text-xl mx-auto leading-tight font-extrabold tracking-tight text-white rounded-full"
-            >
-              Become a Sponsor!
-            </a>
-          </div>
-        </div>
+        <SponsorsSection sponsorsPromise={sponsorsPromise} />
 
         <LandingPageGad />
 
@@ -187,24 +161,15 @@ export default function StoreVersionIndex() {
           </div>
         )} */}
 
-        <div className="flex flex-col gap-4 items-center">
-          <div className="font-extrabold text-xl lg:text-2xl">
-            Wow, you've come a long way!
-          </div>
-          <div className="italic font-sm opacity-70">
-            Only one thing left to do...
-          </div>
-          <div>
-            <Link
-              from="/$libraryId/$version"
-              to="./docs"
-              params={{ libraryId: library.id }}
-              className={`inline-block py-2 px-4 bg-stone-700 rounded text-white uppercase font-extrabold`}
-            >
-              Get Started!
-            </Link>
-          </div>
-        </div>
+        <BottomCTA
+          linkProps={{
+            from: '/$libraryId/$version',
+            to: './docs',
+            params: { libraryId: library.id },
+          }}
+          label="Get Started!"
+          className="bg-stone-700 text-white"
+        />
         <Footer />
       </div>
     </>

@@ -39,13 +39,7 @@ export default function TableVersionIndex() {
   const { version } = Route.useParams()
   const branch = getBranch(tableProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
-  const [isDark] = React.useState(true)
-
   const sandboxFirstFileName = getExampleStartingPath(framework)
-
-  React.useEffect(() => {
-    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
-  }, [])
 
   const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-gradient-to-r ${tableProject.colorFrom} ${tableProject.colorTo}`
 

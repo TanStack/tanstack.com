@@ -1,9 +1,10 @@
-import { CgSpinner } from 'react-icons/cg'
 import * as React from 'react'
 import { Link, getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { FaCheckCircle } from 'react-icons/fa'
-import SponsorPack from '~/components/SponsorPack'
+import { SponsorsSection } from '~/components/SponsorsSection'
+import { PartnersSection } from '~/components/PartnersSection'
+import { BottomCTA } from '~/components/BottomCTA'
 import { dbProject } from '~/libraries/db'
 import { Await } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
@@ -111,93 +112,23 @@ export default function DBVersionIndex() {
             </div>
           </div>
         </div>
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-            Partners
-          </h3>
-          <div className="h-8" />
-          <div className={`w-[500px] max-w-full mx-auto`}>
-            {partners
-              .filter(
-                (d) => d.libraries?.includes('db') && d.status === 'active'
-              )
-              .map((partner) => {
-                return (
-                  <a
-                    key={partner.name}
-                    href={partner.href}
-                    target="_blank"
-                    className="shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 bg-white dark:bg-black/40 dark:shadow-none group overflow-hidden grid"
-                    rel="noreferrer"
-                  >
-                    <div className="z-0 row-start-1 col-start-1 flex items-center justify-center group-hover:blur-sm transition-all duration-200">
-                      {partner.homepageImg}
-                    </div>
-                    <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/70">
-                      {partner.content}
-                    </div>
-                  </a>
-                )
-              })}
-          </div>
-          <div className="h-8" />
-          <PartnershipCallout libraryName="DB" />
-          <div className="text-center mt-6">
-            <Link
-              to="/partners"
-              search={{ libraries: ['db'], status: 'inactive' }}
-              className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            >
-              View Previous Partners →
-            </Link>
-          </div>
-        </div>
-        <div className="relative text-lg overflow-hidden">
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-            Sponsors
-          </h3>
-          <div
-            className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
-            style={{
-              aspectRatio: '1/1',
-            }}
-          >
-            <Await
-              promise={sponsorsPromise}
-              fallback={<CgSpinner className="text-2xl animate-spin" />}
-              children={(sponsors) => {
-                return <SponsorPack sponsors={sponsors} />
-              }}
-            />
-          </div>
-          <div className="text-center">
-            <a
-              href="https://github.com/sponsors/tannerlinsley"
-              className="inline-block bg-green-500 px-4 py-2 text-xl mx-auto leading-tight font-extrabold tracking-tight text-white rounded-full"
-            >
-              Become a Sponsor!
-            </a>
-          </div>
-        </div>
+        <PartnersSection
+          libraryId="db"
+          gridClassName="w-[500px] max-w-full mx-auto"
+        />
+        <div className="h-8" />
+        <PartnershipCallout libraryName="DB" />
+        <SponsorsSection sponsorsPromise={sponsorsPromise} />
         <LandingPageGad />
-        <div className="flex flex-col gap-4 items-center">
-          <div className="font-extrabold text-xl lg:text-2xl">
-            Wow, you've come a long way!
-          </div>
-          <div className="italic font-sm opacity-70">
-            Only one thing left to do...
-          </div>
-          <div>
-            <Link
-              from={'/$libraryId/$version'}
-              params={{ libraryId: library.id }}
-              to={'./docs'}
-              className={`py-2 px-4 bg-orange-500 rounded text-white uppercase font-extrabold`}
-            >
-              Get Started!
-            </Link>
-          </div>
-        </div>
+        <BottomCTA
+          linkProps={{
+            from: '/$libraryId/$version',
+            to: './docs',
+            params: { libraryId: library.id },
+          }}
+          label="Get Started!"
+          className="bg-orange-500 text-white"
+        />
         <Footer />
       </div>
     </>

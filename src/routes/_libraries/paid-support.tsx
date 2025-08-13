@@ -144,7 +144,7 @@ function PaidSupportComp() {
             </p>
             <a
               href="mailto:support@tanstack.com?subject=Paid%20Support%20Inquiry"
-              className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-600 to-cyan-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-lg hover:scale-105"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-linear-to-r from-green-600 to-cyan-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-lg hover:scale-105"
             >
               <HiOutlineMail className="w-5 h-5" />
               Contact Support Team

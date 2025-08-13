@@ -10,8 +10,8 @@ export default function LandingPageGad() {
           <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white mx-auto">
             <GamFooter />
             <div
-              className="text-xs bg-gray-500 bg-opacity-10 py-2 px-4 rounded text-gray-600 dark:text-gray-300
-                dark:bg-opacity-20 self-center text-center w-[500px] max-w-full space-y-2"
+              className="text-xs bg-gray-500/10 py-2 px-4 rounded text-gray-600 dark:text-gray-300
+                dark:bg-gray-500/20 self-center text-center w-[500px] max-w-full space-y-2"
             >
               <div>
                 <span className="font-medium italic">

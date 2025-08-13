@@ -114,6 +114,10 @@ function MaintainersFilter({
     id: lib.id,
     name: lib.name,
     bgStyle: lib.bgStyle,
+    bgStyleAccent: lib.bgStyleAccent,
+    bgStyleMuted: lib.bgStyleMuted,
+    bgStyleAccentHover: lib.bgStyleAccentHover,
+    textStyle: lib.textStyle,
   }))
 
   const toggleLibrary = (libraryId: Library['id']) => {
@@ -286,14 +290,12 @@ function MaintainersFilter({
                         <button
                           key={library.id}
                           onClick={() => toggleLibrary(library.id)}
-                          className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                          className={`text-left px-3 py-2 rounded-md text-sm transition-colors cursor-pointer ${
                             isSelected
                               ? `${
-                                  library.bgStyle ?? 'bg-gray-500'
-                                } bg-opacity-100 text-white`
-                              : `${
-                                  library.bgStyle ?? 'bg-gray-500'
-                                } bg-opacity-20 dark:bg-opacity-30 text-green-900 dark:text-green-200 hover:bg-opacity-30 dark:hover:bg-opacity-40`
+                                  library.bgStyleAccent ?? 'bg-gray-500'
+                                } text-white`
+                              : `${library.bgStyleAccentHover ?? 'hover:bg-gray-500/30 dark:hover:bg-gray-500/40'} text-green-900 dark:text-green-200`
                           }`}
                         >
                           {library.name}
@@ -317,13 +319,13 @@ function MaintainersFilter({
               <span
                 key={libraryId}
                 className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${
-                  library?.bgStyle ?? 'bg-gray-500'
-                } bg-opacity-40 dark:bg-opacity-30`}
+                  library?.bgStyleAccent ?? 'bg-gray-500'
+                } ${library?.bgStyleAccentHover ?? 'hover:bg-gray-500/30 dark:hover:bg-gray-500/40'}`}
               >
                 {library?.name || libraryId}
                 <button
                   onClick={() => toggleLibrary(libraryId)}
-                  className="hover:bg-black hover:bg-opacity-10 dark:hover:bg-white dark:hover:bg-opacity-10 rounded p-0.5 transition-colors"
+                  className="hover:bg-black/10 dark:hover:bg-white/10 rounded p-0.5 transition-colors"
                 >
                   <MdClose className="w-3 h-3" />
                 </button>

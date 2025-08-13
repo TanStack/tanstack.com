@@ -1,12 +1,36 @@
 import { Footer } from '~/components/Footer'
 import { partners } from '~/utils/partners'
 import { seo } from '~/utils/seo'
-import { Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 import { Library } from '~/libraries'
 import { useState } from 'react'
 import * as React from 'react'
 import { MdClose, MdFilterList } from 'react-icons/md'
+import { startProject } from '~/libraries/start'
+import { routerProject } from '~/libraries/router'
+import { queryProject } from '~/libraries/query'
+import { tableProject } from '~/libraries/table'
+import { configProject } from '~/libraries/config'
+import { dbProject } from '~/libraries/db'
+import { formProject } from '~/libraries/form'
+import { pacerProject } from '~/libraries/pacer'
+import { rangerProject } from '~/libraries/ranger'
+import { storeProject } from '~/libraries/store'
+import { virtualProject } from '~/libraries/virtual'
+
+const availableLibraries = [
+  startProject,
+  routerProject,
+  queryProject,
+  tableProject,
+  formProject,
+  virtualProject,
+  rangerProject,
+  storeProject,
+  pacerProject,
+  dbProject,
+  configProject,
+]
 
 const librarySchema = z.enum([
   'start',
@@ -21,6 +45,7 @@ const librarySchema = z.enum([
   'db',
   'config',
   'react-charts',
+  'devtools',
   'create-tsrouter-app',
 ])
 
@@ -48,7 +73,6 @@ interface FilterProps {
   onStatusChange: (status: 'active' | 'inactive' | undefined) => void
   onClearAll: () => void
 }
-
 function PartnersFilter({
   selectedLibraries,
   selectedStatus,
@@ -57,20 +81,6 @@ function PartnersFilter({
   onClearAll,
 }: FilterProps) {
   const [isOpen, setIsOpen] = useState(false)
-
-  const availableLibraries: Array<{ id: Library['id']; name: string }> = [
-    { id: 'start', name: 'TanStack Start' },
-    { id: 'router', name: 'TanStack Router' },
-    { id: 'query', name: 'TanStack Query' },
-    { id: 'table', name: 'TanStack Table' },
-    { id: 'form', name: 'TanStack Form' },
-    { id: 'virtual', name: 'TanStack Virtual' },
-    { id: 'ranger', name: 'TanStack Ranger' },
-    { id: 'store', name: 'TanStack Store' },
-    { id: 'pacer', name: 'TanStack Pacer' },
-    { id: 'db', name: 'TanStack DB' },
-    { id: 'config', name: 'TanStack Config' },
-  ]
 
   const toggleLibrary = (libraryId: Library['id']) => {
     if (!selectedLibraries) {
@@ -196,14 +206,16 @@ function PartnersFilter({
                       const isSelected =
                         selectedLibraries?.includes(library.id) || false
 
+                      const bgStyle = library.bgStyle ?? 'bg-gray-500'
+
                       return (
                         <button
                           key={library.id}
                           onClick={() => toggleLibrary(library.id)}
                           className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
                             isSelected
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                              ? `${bgStyle} text-white`
+                              : `${bgStyle}/30 text-gray-700 dark:text-gray-300 hover:${bgStyle}/40`
                           }`}
                         >
                           {library.name}
@@ -287,10 +299,9 @@ export default function RouteComp() {
   const hasResults = filteredPartners.length > 0
   const isShowingPrevious = search.status === 'inactive'
   const isShowingActive = search.status === 'active'
-  const isShowingAll = !search.status
 
   return (
-    <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
+    <div className="flex flex-col w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
       <div className="flex-1 space-y-16 w-full max-w-4xl mx-auto">
         <header className="text-center pt-8">
           <h1 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mb-6">

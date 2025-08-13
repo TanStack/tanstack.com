@@ -40,23 +40,7 @@ function RouterVersionIndex() {
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
       <LibraryHero
-        libraryName="Router"
-        gradientFrom={routerProject.colorFrom}
-        gradientTo={routerProject.colorTo}
-        subtitle={
-          <>
-            <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-              Modern and scalable
-            </span>{' '}
-            routing for React and Solid applications
-          </>
-        }
-        description={
-          <>
-            A fully type-safe router with built-in data fetching, stale-while
-            revalidate caching and first-class search-param APIs.
-          </>
-        }
+        project={routerProject}
         cta={{
           linkProps: {
             from: '/$libraryId/$version',

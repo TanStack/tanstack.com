@@ -14,7 +14,7 @@ export const configProject = {
   cardStyles: `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-500 border-2 border-transparent hover:border-current`,
   to: '/config',
   tagline: `Configuration and tools for publishing and maintaining high-quality JavaScript packages`,
-  description: `The build and publish utilities used by all of our projects. Use it if you dare!`,
+  description: `Opinionated tooling to lint, build, test, version, and publish JS/TS packages — minimal config, consistent results.`,
   ogImage: 'https://github.com/tanstack/config/raw/main/media/repo-header.png',
   badge: undefined,
   bgStyle: 'bg-slate-500',

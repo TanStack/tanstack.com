@@ -40,30 +40,7 @@ export default function FormVersionIndex() {
     <>
       <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
         <LibraryHero
-          libraryName="Form"
-          gradientFrom={formProject.colorFrom}
-          gradientTo={formProject.colorTo}
-          subtitle={
-            <>
-              <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-                Headless, performant, and type-safe
-              </span>{' '}
-              form state management for TS/JS, React, Vue, Angular, Solid, Lit
-              and Svelte
-            </>
-          }
-          description={
-            <>
-              Stop crying over your forms with a return to simplicity,
-              composability and type-safety with TanStack Form. Sporting a{' '}
-              <strong>
-                tiny footprint, zero dependencies, framework agnostic core and
-                granular type-safe APIs
-              </strong>
-              , TanStack Form is the perfect combination of simplicity and power
-              you need to build forms fast with peace of mind.
-            </>
-          }
+          project={formProject}
           cta={{
             linkProps: {
               from: '/$libraryId/$version',

@@ -40,24 +40,7 @@ export default function RouteComp() {
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
       <LibraryHero
-        libraryName="Virtual"
-        gradientFrom={virtualProject.colorFrom}
-        gradientTo={virtualProject.colorTo}
-        subtitle={
-          <>
-            <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-              Headless
-            </span>{' '}
-            UI for Virtualizing Large Element Lists
-          </>
-        }
-        description={
-          <>
-            Virtualize only the visible DOM nodes within massive scrollable
-            elements at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit & Angular
-            while retaining 100% control over markup and styles.
-          </>
-        }
+        project={virtualProject}
         cta={{
           linkProps: {
             from: '/$libraryId/$version',

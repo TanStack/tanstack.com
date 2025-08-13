@@ -5,6 +5,7 @@ import {
   getPersonsMaintainerOf,
 } from '~/libraries/maintainers'
 import { useState } from 'react'
+import { twMerge } from 'tailwind-merge'
 // import { FaCode, FaGitAlt, FaComment, FaEye } from 'react-icons/fa'
 
 function RoleBadge({
@@ -21,7 +22,7 @@ function RoleBadge({
 
   if (isCreator) {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-linear-to-r from-purple-500 to-pink-500 text-white shadow-lg">
         {role}
       </span>
     )
@@ -32,7 +33,7 @@ function RoleBadge({
       <span
         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
           isCoreMaintainer
-            ? 'bg-gradient-to-r from-blue-400 to-blue-700 text-white shadow border border-blue-300'
+            ? 'bg-linear-to-r from-blue-400 to-blue-700 text-white shadow border border-blue-300'
             : 'bg-blue-500 text-white'
         }`}
       >
@@ -49,7 +50,7 @@ function FrameworkChip({ framework }: { framework: Framework }) {
   const bgColor = frameworkOption?.color || 'bg-gray-500'
   return (
     <span
-      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${bgColor} bg-opacity-80 text-white gap-1`}
+      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${bgColor}/80 text-white gap-1`}
       aria-label={`Framework: ${frameworkOption?.label || framework}`}
     >
       <svg
@@ -85,13 +86,15 @@ function SpecialtyChip({ specialty }: { specialty: string }) {
 }
 
 function LibraryBadge({ library }: { library: Library }) {
+  const bgClass = `${library.bgStyle ?? 'bg-gray-500'}/40`
   if (library.to) {
     return (
       <a
         href={`${library.to}/latest/docs/contributors`}
-        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${
-          library.bgStyle ?? 'bg-gray-500'
-        } bg-opacity-40 dark:bg-opacity-30 capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`}
+        className={twMerge(
+          `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 capitalize hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors`,
+          bgClass
+        )}
         aria-label={`View contributors for ${library.name}`}
         tabIndex={0}
         onClick={(e) => e.stopPropagation()}
@@ -103,9 +106,10 @@ function LibraryBadge({ library }: { library: Library }) {
   }
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${
-        library.bgStyle ?? 'bg-gray-500'
-      } bg-opacity-40 dark:bg-opacity-30 capitalize`}
+      className={twMerge(
+        `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 capitalize`,
+        bgClass
+      )}
       aria-label={`View contributors for ${library.name}`}
       title={`View all contributors for ${library.name}`}
     >
@@ -288,7 +292,7 @@ export function CompactMaintainerCard({
         backgroundPosition: 'center',
       }}
     >
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
       <div className="absolute inset-0 p-3 flex flex-col justify-end">
         <div className="text-white">
           <div className="text-sm font-bold leading-tight">
@@ -296,7 +300,7 @@ export function CompactMaintainerCard({
           </div>
         </div>
       </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     </a>
   )
 }
@@ -321,7 +325,7 @@ export function MaintainerRowCard({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`View ${maintainer.name}'s GitHub profile`}
-          className="relative flex-shrink-0"
+          className="relative shrink-0"
           tabIndex={0}
         >
           <div className="relative w-16 h-16 rounded-lg overflow-hidden">
@@ -332,7 +336,7 @@ export function MaintainerRowCard({
               loading="lazy"
               decoding="async"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
         </a>
 
@@ -442,7 +446,7 @@ export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
             objectFit: 'cover',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <div className="absolute inset-0 p-4 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="space-y-2">
             {maintainer.frameworkExpertise &&

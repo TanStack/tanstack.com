@@ -43,7 +43,7 @@ function LibrariesLayout() {
   })
 
   const detailsRef = React.useRef<HTMLElement>(null!)
-  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
+  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
 
   const items = (
     <>
@@ -192,7 +192,7 @@ function LibrariesLayout() {
           label: (
             <span className="flex items-center gap-2">
               Stats
-              <span className="text-xs bg-transparent text-transparent bg-clip-text bg-gradient-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
+              <span className="text-xs bg-transparent text-transparent bg-clip-text bg-linear-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
                 BETA
               </span>
             </span>
@@ -234,7 +234,7 @@ function LibrariesLayout() {
             className={twMerge(linkClasses, 'font-normal')}
             activeProps={{
               className: twMerge(
-                '!font-bold bg-gray-500/10 dark:bg-gray-500/30'
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
               ),
             }}
             target={item.to.startsWith('http') ? '_blank' : undefined}
@@ -259,7 +259,7 @@ function LibrariesLayout() {
           to="/login"
           className={twMerge(linkClasses, 'font-normal')}
           activeProps={{
-            className: twMerge('!font-bold bg-gray-500/10 dark:bg-gray-500/30'),
+            className: twMerge('font-bold! bg-gray-500/10 dark:bg-gray-500/30'),
           }}
         >
           <div className="flex items-center gap-2">
@@ -329,7 +329,7 @@ function LibrariesLayout() {
       <details
         ref={detailsRef as any}
         id="docs-details"
-        className="border-b border-gray-500 border-opacity-20"
+        className="border-b border-gray-500/20"
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
@@ -339,8 +339,8 @@ function LibrariesLayout() {
           </div>
         </summary>
         <div
-          className="flex flex-col gap-4 whitespace-nowrap h-[0vh] overflow-y-auto
-          border-t border-gray-500 border-opacity-20 text-lg bg-white/80 dark:bg-black/20"
+          className="flex flex-col gap-4 whitespace-nowrap overflow-y-auto
+          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
         >
           <div className="p-2 pb-0">
             <SearchButton />
@@ -363,7 +363,7 @@ function LibrariesLayout() {
           <SearchButton />
         </div>
         <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[50px]">
-          <div className="space-y-1 text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
+          <div className="flex flex-col gap-1 text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
             {items}
           </div>
         </div>

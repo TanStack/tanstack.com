@@ -393,16 +393,16 @@ export function DocsLayout({
     return (
       <WrapperComp
         key={`group-${i}`}
-        className="[&>summary]:before:mr-[0.4rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:leading-4 [&>div.ts-sidebar-label]:ml-[1rem] relative select-none"
+        className="[&>summary]:before:mr-[0.4rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:leading-4 [&>div.ts-sidebar-label]:ml-4 relative select-none"
         {...detailsProps}
       >
         <LabelComp className="text-[.8em] uppercase font-black leading-4 ts-sidebar-label">
           {group?.label}
         </LabelComp>
         <div className="h-2" />
-        <ul className="ml-2 text-[.85em] list-none">
+        <ul className="ml-2 text-[.85em] leading-6 list-none">
           {group?.children?.map((child, i) => {
-            const linkClasses = `cursor-pointer flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500 hover:bg-opacity-10`
+            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500/10`
 
             return (
               <li key={i}>
@@ -422,7 +422,7 @@ export function DocsLayout({
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="!cursor-pointer relative"
+                    className="relative"
                   >
                     {(props) => {
                       return (
@@ -431,7 +431,7 @@ export function DocsLayout({
                             className={twMerge(
                               'overflow-auto w-full',
                               props.isActive
-                                ? `font-bold text-transparent bg-clip-text bg-gradient-to-r ${colorFrom} ${colorTo}`
+                                ? `font-bold text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
                                 : ''
                             )}
                           >
@@ -494,7 +494,7 @@ export function DocsLayout({
       <details
         ref={detailsRef as any}
         id="docs-details"
-        className="border-b border-gray-500 border-opacity-20"
+        className="border-b border-gray-500/20"
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
@@ -503,11 +503,7 @@ export function DocsLayout({
             {logo}
           </div>
         </summary>
-        <div
-          className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto
-          border-t border-gray-500 border-opacity-20 bg-white/20 text-lg
-          dark:bg-black/20"
-        >
+        <div className="flex flex-col gap-4 p-4 whitespace-nowrap overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">
           <div className="flex gap-4">
             <FrameworkSelect
               label={frameworkConfig.label}
@@ -581,7 +577,7 @@ export function DocsLayout({
             {children}
           </div>
           <AdGate>
-            <div className="mb-8 !py-0 mx-auto max-w-full overflow-x-hidden">
+            <div className="mb-8 !py-0! mx-auto max-w-full overflow-x-hidden">
               <GamFooter />
             </div>
           </AdGate>
@@ -609,7 +605,7 @@ export function DocsLayout({
                 >
                   <div className="flex gap-2 items-center font-bold">
                     <span
-                      className={`bg-gradient-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
+                      className={`bg-linear-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
                     >
                       {nextItem.label}
                     </span>{' '}

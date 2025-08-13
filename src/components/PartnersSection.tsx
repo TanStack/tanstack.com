@@ -22,7 +22,7 @@ export function PartnersSection({
   )
 
   return (
-    <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+    <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
       <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
         {title}
       </h3>

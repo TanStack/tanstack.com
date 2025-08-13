@@ -120,7 +120,7 @@ function RouterVersionIndex() {
 
         {/* {['preact', 'vue', 'solid', 'svelte'].includes(framework) ? (
         <div className="px-2">
-          <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
+          <div className="p-8 text-center text-lg w-full max-w-(--breakpoint-lg) mx-auto bg-black text-white rounded-xl">
             Looking for the <strong>@tanstack/{framework}-router</strong>{' '}
             example? The <strong>@tanstack/{framework}-router</strong> adapter
             is currently under development! Join the{' '}

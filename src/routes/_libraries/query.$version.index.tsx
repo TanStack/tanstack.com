@@ -108,7 +108,7 @@ export default function VersionIndex() {
 
           <PartnersSection
             libraryId="query"
-            gridClassName="grid grid-cols-1 gap-6 max-w-screen-md mx-auto"
+            gridClassName="grid grid-cols-1 gap-6 max-w-(--breakpoint-md) mx-auto"
           />
           <div className="h-8" />
           <PartnershipCallout libraryName="Query" />
@@ -167,7 +167,7 @@ export default function VersionIndex() {
 
           {[''].includes(framework) ? (
             <div className="px-2">
-              <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
+              <div className="p-8 text-center text-lg w-full max-w-(--breakpoint-lg) mx-auto bg-black text-white rounded-xl">
                 Looking for the <strong>@tanstack/{framework}-query</strong>{' '}
                 example? We could use your help to build the{' '}
                 <strong>@tanstack/{framework}-query</strong> adapter! Join the{' '}

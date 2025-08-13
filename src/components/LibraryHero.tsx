@@ -15,7 +15,7 @@ type LibraryHeroProps = {
 
 export function LibraryHero({ project, cta, actions }: LibraryHeroProps) {
   const resolvedName = project.name.replace('TanStack ', '')
-  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-gradient-to-r ${project.colorFrom} ${project.colorTo}`
+  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-linear-to-r ${project.colorFrom} ${project.colorTo}`
 
   return (
     <div className="flex flex-col items-center gap-8 text-center px-4">

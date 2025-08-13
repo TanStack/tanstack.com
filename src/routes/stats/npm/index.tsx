@@ -1294,7 +1294,7 @@ function RouteComponent() {
         <FaAngleRight />
         <Link to="." className="hover:text-blue-500 flex items-center gap-2">
           NPM Stats{' '}
-          <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold px-2 py-0.5 rounded">
+          <span className="bg-linear-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold px-2 py-0.5 rounded">
             BETA
           </span>
         </Link>
@@ -1323,7 +1323,7 @@ function RouteComponent() {
                     className={twMerge(
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                       value === range ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
                     )}
                   >
                     {label}
@@ -1357,7 +1357,7 @@ function RouteComponent() {
                     className={twMerge(
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                       binType === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
+                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
                       !isBinningOptionValidForRange(range, value)
                         ? 'opacity-50 cursor-not-allowed'
                         : ''
@@ -1398,7 +1398,7 @@ function RouteComponent() {
                     className={twMerge(
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                       transform === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
                     )}
                   >
                     {label}
@@ -1434,7 +1434,7 @@ function RouteComponent() {
                   className={twMerge(
                     'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                     !facetX ? 'text-blue-500 bg-blue-500/10' : '',
-                    'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
                   )}
                 >
                   No Facet
@@ -1446,7 +1446,7 @@ function RouteComponent() {
                     className={twMerge(
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                       facetX === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
                     )}
                   >
                     {label}
@@ -1482,7 +1482,7 @@ function RouteComponent() {
                   className={twMerge(
                     'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                     !facetY ? 'text-blue-500 bg-blue-500/10' : '',
-                    'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
                   )}
                 >
                   No Facet
@@ -1494,7 +1494,7 @@ function RouteComponent() {
                     className={twMerge(
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                       facetY === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500'
+                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
                     )}
                   >
                     {label}
@@ -1544,7 +1544,7 @@ function RouteComponent() {
                       showDataModeParam === value
                         ? 'text-blue-500 bg-blue-500/10'
                         : '',
-                      'data-[highlighted]:bg-gray-500/20 data-[highlighted]:text-blue-500',
+                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
                       transform === 'normalize-y'
                         ? 'opacity-50 cursor-not-allowed'
                         : ''
@@ -2187,7 +2187,7 @@ function RouteComponent() {
         </div>
       </div>
       <AdGate>
-        <div className="!mt-24 mx-auto max-w-full overflow-x-hidden">
+        <div className="mt-24! mx-auto max-w-full overflow-x-hidden">
           <GamFooter />
         </div>
       </AdGate>

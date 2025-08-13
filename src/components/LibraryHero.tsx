@@ -31,7 +31,7 @@ export function LibraryHero({ project, cta, actions }: LibraryHeroProps) {
             'leading-none whitespace-nowrap'
           )}
         >
-          STATUS: {String(project.badge).toUpperCase()}
+          {String(project.badge).toUpperCase()}
         </div>
       ) : null}
       <h2 className="font-bold text-2xl max-w-md md:max-w-lg md:text-4xl lg:max-w-4xl text-balance">

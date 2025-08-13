@@ -33,32 +33,7 @@ export default function PacerVersionIndex() {
     <>
       <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
         <LibraryHero
-          libraryName="Pacer"
-          gradientFrom={pacerProject.colorFrom}
-          gradientTo={pacerProject.colorTo}
-          subtitle={
-            <>
-              <span className="underline decoration-dashed decoration-gray-500 decoration-3 underline-offset-2">
-                Flexible
-              </span>{' '}
-              type-safe throttling and queuing utilities
-            </>
-          }
-          description={
-            <>
-              Framework-agnostic utilities with high-level hooks and low-level
-              primitives for{' '}
-              <strong>
-                debouncing, throttling, rate limiting, queuing, and batching
-              </strong>
-              . Works with any framework (or no framework at all). Built on{' '}
-              {/* @ts-ignore */}
-              <Link target="_blank" to="/store/latest" className="underline">
-                TanStack Store
-              </Link>{' '}
-              for reactive state management.
-            </>
-          }
+          project={pacerProject}
           cta={{
             linkProps: {
               from: '/$libraryId/$version',
@@ -68,7 +43,6 @@ export default function PacerVersionIndex() {
             label: 'Get Started',
             className: 'bg-lime-600 hover:bg-lime-700 text-white',
           }}
-          statusBadge="ALPHA"
         />
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}

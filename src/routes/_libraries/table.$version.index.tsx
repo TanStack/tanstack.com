@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { Link, getRouteApi } from '@tanstack/react-router'
+import { getRouteApi } from '@tanstack/react-router'
 import { tableProject } from '~/libraries/table'
-import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
@@ -10,12 +9,9 @@ import { PartnersSection } from '~/components/PartnersSection'
 import { SponsorsSection } from '~/components/SponsorsSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { BottomCTA } from '~/components/BottomCTA'
-import { Await } from '@tanstack/react-router'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { getExampleStartingPath } from '~/utils/sandbox'
-import { partners } from '~/utils/partners'
-import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
@@ -41,29 +37,10 @@ export default function TableVersionIndex() {
   const [framework, setFramework] = React.useState<Framework>('react')
   const sandboxFirstFileName = getExampleStartingPath(framework)
 
-  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-gradient-to-r ${tableProject.colorFrom} ${tableProject.colorTo}`
-
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
       <LibraryHero
-        libraryName="Table"
-        gradientFrom={tableProject.colorFrom}
-        gradientTo={tableProject.colorTo}
-        subtitle={
-          <>
-            <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-              Headless
-            </span>{' '}
-            UI for building powerful tables & datagrids
-          </>
-        }
-        description={
-          <>
-            Supercharge your tables or build a datagrid from scratch for TS/JS,
-            React, Vue, Solid, Svelte & Lit while retaining 100% control over
-            markup and styles.
-          </>
-        }
+        project={tableProject}
         cta={{
           linkProps: {
             from: '/$libraryId/$version',
@@ -193,7 +170,7 @@ export default function TableVersionIndex() {
       <BottomCTA
         linkProps={{
           from: '/$libraryId/$version',
-          to: './docs/$',
+          to: './docs',
           params: { libraryId: library.id },
         }}
         label="Get Started!"

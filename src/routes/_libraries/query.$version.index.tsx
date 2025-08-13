@@ -45,30 +45,7 @@ export default function VersionIndex() {
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
         <div className="flex flex-col gap-20 md:gap-32 max-w-full py-32">
           <LibraryHero
-            libraryName="Query"
-            gradientFrom={queryProject.colorFrom}
-            gradientTo={queryProject.colorTo}
-            subtitle={
-              <>
-                Powerful{' '}
-                <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-                  asynchronous state management
-                </span>{' '}
-                for TS/JS, React, Solid, Vue, Svelte and Angular
-              </>
-            }
-            description={
-              <>
-                Toss out that granular state management, manual refetching and
-                endless bowls of async-spaghetti code. TanStack Query gives you
-                declarative, always-up-to-date auto-managed queries and
-                mutations that{' '}
-                <strong>
-                  directly improve both your developer and user experiences
-                </strong>
-                .
-              </>
-            }
+            project={queryProject}
             cta={{
               linkProps: {
                 from: '/$libraryId/$version',

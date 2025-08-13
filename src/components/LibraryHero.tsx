@@ -1,39 +1,29 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Link } from '@tanstack/react-router'
+import type { Library } from '~/libraries'
 
 type LibraryHeroProps = {
-  libraryName: string // e.g., "Query"
-  gradientFrom: string
-  gradientTo: string
-  subtitle: React.ReactNode
-  description?: React.ReactNode
+  project: Library
   cta?: {
     linkProps: React.ComponentProps<typeof Link>
     label: string
     className?: string
   }
-  statusBadge?: string
+  actions?: React.ReactNode
 }
 
-export function LibraryHero({
-  libraryName,
-  gradientFrom,
-  gradientTo,
-  subtitle,
-  description,
-  cta,
-  statusBadge,
-}: LibraryHeroProps) {
-  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-gradient-to-r ${gradientFrom} ${gradientTo}`
+export function LibraryHero({ project, cta, actions }: LibraryHeroProps) {
+  const resolvedName = project.name.replace('TanStack ', '')
+  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-gradient-to-r ${project.colorFrom} ${project.colorTo}`
 
   return (
     <div className="flex flex-col items-center gap-8 text-center px-4">
-      <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
+      <h1 className="font-black flex gap-x-3 gap-y-0 items-center text-5xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em] flex-wrap justify-center leading-none">
         <span>TanStack</span>
-        <span className={twMerge(gradientText)}>{libraryName}</span>
+        <span className={twMerge(gradientText)}>{resolvedName}</span>
       </h1>
-      {statusBadge ? (
+      {project.badge ? (
         <div
           className={twMerge(
             'text-sm md:text-base font-black lg:text-lg align-super text-white animate-bounce uppercase',
@@ -41,18 +31,20 @@ export function LibraryHero({
             'leading-none whitespace-nowrap'
           )}
         >
-          STATUS: {statusBadge}
+          STATUS: {String(project.badge).toUpperCase()}
         </div>
       ) : null}
-      <h2 className="font-bold text-2xl max-w-md md:text-3xl lg:text-5xl lg:max-w-2xl">
-        {subtitle}
+      <h2 className="font-bold text-2xl max-w-md md:max-w-lg md:text-4xl lg:max-w-4xl text-balance">
+        {project.tagline}
       </h2>
-      {description ? (
+      {project.description ? (
         <p className="text opacity-90 max-w-sm lg:text-xl lg:max-w-2xl">
-          {description}
+          {project.description}
         </p>
       ) : null}
-      {cta ? (
+      {actions ? (
+        <div>{actions}</div>
+      ) : cta ? (
         <Link
           {...cta.linkProps}
           className={twMerge(

@@ -1,17 +1,13 @@
-import * as React from 'react'
-import { Link, getRouteApi } from '@tanstack/react-router'
+import { getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import { FaCheckCircle } from 'react-icons/fa'
 import { SponsorsSection } from '~/components/SponsorsSection'
 import { PartnersSection } from '~/components/PartnersSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { dbProject } from '~/libraries/db'
-import { Await } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { twMerge } from 'tailwind-merge'
+import { LibraryHero } from '~/components/LibraryHero'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import { partners } from '~/utils/partners'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
 
@@ -30,47 +26,22 @@ const library = getLibrary('db')
 
 export default function DBVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
-  const { version } = Route.useParams()
-
-  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-gradient-to-r ${dbProject.colorFrom} ${dbProject.colorTo}`
 
   return (
     <>
       <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
-        <div className="flex flex-col items-center gap-6 text-center px-4">
-          <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
-            <span>TanStack</span>
-            <span className={twMerge(gradientText)}>DB</span>
-          </h1>
-          <h2
-            className="font-bold text-2xl max-w-md
-            md:text-3xl
-            lg:text-5xl lg:max-w-2xl"
-          >
-            A{' '}
-            <span className="underline decoration-dashed decoration-gray-500 decoration-3 underline-offset-2">
-              reactive client store
-            </span>{' '}
-            for building{' '}
-            <span className="underline decoration-dashed decoration-gray-500 decoration-3 underline-offset-2">
-              super-fast
-            </span>{' '}
-            apps
-          </h2>
-          <p className="text opacity-90 max-w-[500px] lg:text-xl lg:max-w-[800px]">
-            TanStack DB extends TanStack Query with collections, live queries
-            and optimistic mutations that keep your app reactive, consistent
-            and&nbsp;blazing fast 🔥
-          </p>
-          <Link
-            from={'/$libraryId/$version'}
-            params={{ libraryId: library.id }}
-            to={'./docs'}
-            className={`py-2 px-4 bg-orange-500 rounded text-white uppercase font-extrabold`}
-          >
-            Get Started
-          </Link>
-        </div>
+        <LibraryHero
+          project={dbProject}
+          cta={{
+            linkProps: {
+              from: '/$libraryId/$version',
+              to: './docs',
+              params: { libraryId: library.id },
+            },
+            label: 'Get Started',
+            className: 'bg-orange-500 text-white',
+          }}
+        />
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />

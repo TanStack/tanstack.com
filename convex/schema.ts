@@ -6,11 +6,7 @@ const schema = defineSchema({
   ...authTables,
   users: defineTable({
     capabilities: v.array(v.string()),
-  }),
-  waitlist: defineTable({
-    email: v.string(),
-    requestedAt: v.number(),
-  }).index("by_email", ["email"]),
+  })
 });
 
 export default schema

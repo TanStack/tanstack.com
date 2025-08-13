@@ -1,5 +1,5 @@
 import { useUserSettingsStore } from '~/stores/userSettings'
-import { FaEnvelope, FaSignOutAlt } from 'react-icons/fa'
+import { FaSignOutAlt } from 'react-icons/fa'
 import {
   Authenticated,
   Unauthenticated,
@@ -19,7 +19,7 @@ function UserSettings() {
   const user = useQuery(api.auth.getCurrentUser)
   const adsDisabled = useUserSettingsStore((s) => s.settings.adsDisabled)
   const toggleAds = useUserSettingsStore((s) => s.toggleAds)
-
+  
   const signOut = async () => {
     await authClient.signOut()
     redirect({ to: '/login' })
@@ -32,7 +32,7 @@ function UserSettings() {
         <div className="dark:bg-black/30 bg-white rounded-lg shadow-lg p-4 flex flex-col gap-y-6 max-w-lg">
           <div>
             <h3 className="font-bold mb-2 text-lg text-gray-900 dark:text-white">
-              Profile
+              Connections
             </h3>
             <div className="flex flex-col gap-y-4 text-sm">
               <div className="flex flex-col gap-1">

@@ -11,7 +11,6 @@
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as stats from "../stats.js";
-import type * as waitlist from "../waitlist.js";
 
 import type {
   ApiFromModules,
@@ -31,7 +30,6 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   http: typeof http;
   stats: typeof stats;
-  waitlist: typeof waitlist;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 

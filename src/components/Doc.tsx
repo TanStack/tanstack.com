@@ -9,6 +9,7 @@ import { Toc } from './Toc'
 import { twMerge } from 'tailwind-merge'
 import { TocMobile } from './TocMobile'
 import { GamLeader } from './Gam'
+import { AdGate } from '~/contexts/AdsContext'
 import { useWidthToggle } from '~/components/DocsLayout'
 import {
   BsArrowsCollapseVertical,
@@ -120,17 +121,19 @@ export function Doc({
         <div
           className={twMerge(
             'flex overflow-auto flex-col w-full p-4 lg:p-6',
-            isTocVisible && '!pr-0'
+            isTocVisible && 'pr-0!'
           )}
         >
-          <GamLeader />
+          <AdGate>
+            <GamLeader />
+          </AdGate>
           {title ? (
             <div className="flex items-center justify-between gap-4">
               <DocTitle>{title}</DocTitle>
               {setIsFullWidth && (
                 <button
                   onClick={() => setIsFullWidth(!isFullWidth)}
-                  className="p-2 mr-4 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0 hidden [@media(min-width:1800px)]:inline-flex"
+                  className="p-2 mr-4 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors shrink-0 hidden [@media(min-width:1800px)]:inline-flex"
                   title={isFullWidth ? 'Constrain width' : 'Expand width'}
                 >
                   {isFullWidth ? (

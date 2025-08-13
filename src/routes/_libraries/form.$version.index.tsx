@@ -1,17 +1,17 @@
 import * as React from 'react'
 
-import { CgSpinner } from 'react-icons/cg'
-import { FaCheckCircle } from 'react-icons/fa'
-import { Await, Link, getRouteApi } from '@tanstack/react-router'
-import { Carbon } from '~/components/Carbon'
+import { Link, getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import { TbHeartHandshake } from 'react-icons/tb'
-import SponsorPack from '~/components/SponsorPack'
 import { formProject } from '~/libraries/form'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
+import { LibraryHero } from '~/components/LibraryHero'
+import { FeatureGrid } from '~/components/FeatureGrid'
+import { SponsorsSection } from '~/components/SponsorsSection'
+import { BottomCTA } from '~/components/BottomCTA'
+import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
 
@@ -34,97 +34,46 @@ export default function FormVersionIndex() {
   const { version } = Route.useParams()
   const branch = getBranch(formProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
-  const [isDark, setIsDark] = React.useState(true)
-
-  React.useEffect(() => {
-    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
-  }, [])
-
-  const gradientText = `pr-1 inline-block text-transparent bg-clip-text bg-gradient-to-r ${formProject.colorFrom} ${formProject.colorTo}`
+  const [isDark] = React.useState(true)
 
   return (
     <>
       <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
-        <div className="flex flex-col items-center gap-8 text-center px-4">
-          <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
-            <span>TanStack</span>
-            <span className={twMerge(gradientText)}>Form</span>
-          </h1>
-          <h2
-            className="font-bold text-2xl max-w-[600px]
-            md:text-3xl
-            lg:text-5xl lg:max-w-[800px]"
-          >
-            <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-              Headless, performant, and type-safe
-            </span>{' '}
-            form state management for TS/JS, React, Vue, Angular, Solid, Lit and
-            Svelte
-          </h2>
-          <p
-            className="text opacity-90 max-w-[500px]
-            lg:text-xl lg:max-w-[800px]"
-          >
-            Stop crying over your forms with a return to simplicity,
-            composability and type-safety with TanStack Form. Sporting a{' '}
-            <strong>
-              tiny footprint, zero dependencies, framework agnostic core and
-              granular type-safe APIs
-            </strong>
-            , TanStack Form is the perfect combination of simplicity and power
-            you need to build forms fast with peace of mind.
-          </p>
-          <Link
-            from={'/$libraryId/$version'}
-            params={{ libraryId: library.id }}
-            to={'./docs'}
-            className={`py-2 px-4 bg-yellow-400 text-black rounded uppercase font-extrabold`}
-          >
-            Get Started
-          </Link>
-        </div>
+        <LibraryHero
+          project={formProject}
+          cta={{
+            linkProps: {
+              from: '/$libraryId/$version',
+              to: './docs',
+              params: { libraryId: library.id },
+            },
+            label: 'Get Started',
+            className: 'bg-yellow-400 text-black',
+          }}
+        />
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />
 
-        <div className="px-4 sm:px-6 lg:px-8 mx-auto">
-          <div className=" sm:text-center pb-16">
-            <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-              No dependencies. All the Features.
-            </h3>
-            <p className="mt-4 text-xl max-w-3xl mx-auto leading-7 opacity-60">
-              With zero dependencies, TanStack Form is extremely lean given the
-              dense feature set it provides. From weekend hobbies all the way to
-              enterprise TanStack Form has the tools to help you succeed at the
-              speed of your creativity.
-            </p>
-          </div>
-          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-4  mx-auto">
-            {[
-              // A list of features that @tanstack/form provides for managing form state, validation, touched/dirty states, UI integration, etc.
-              'Framework agnostic design',
-              'First Class TypeScript Support',
-              'Headless',
-              'Tiny / Zero Deps',
-              'Granularly Reactive Components/Hooks',
-              'Extensibility and plugin architecture',
-              'Modular architecture',
-              'Form/Field validation',
-              'Async Validation',
-              'Built-in Async Validation Debouncing',
-              'Configurable Validation Events',
-              'Deeply Nested Object/Array Fields',
-            ].map((d, i) => {
-              return (
-                <span key={i} className="flex items-center gap-2">
-                  <FaCheckCircle className="text-green-500 " /> {d}
-                </span>
-              )
-            })}
-          </div>
-        </div>
+        <FeatureGrid
+          title="No dependencies. All the Features."
+          items={[
+            'Framework agnostic design',
+            'First Class TypeScript Support',
+            'Headless',
+            'Tiny / Zero Deps',
+            'Granularly Reactive Components/Hooks',
+            'Extensibility and plugin architecture',
+            'Modular architecture',
+            'Form/Field validation',
+            'Async Validation',
+            'Built-in Async Validation Debouncing',
+            'Configurable Validation Events',
+            'Deeply Nested Object/Array Fields',
+          ]}
+        />
 
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
           <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
             Partners
           </h3>
@@ -132,33 +81,7 @@ export default function FormVersionIndex() {
           <PartnershipCallout libraryName="Form" />
         </div>
 
-        <div className="relative text-lg overflow-hidden">
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-            Sponsors
-          </h3>
-          <div
-            className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
-            style={{
-              aspectRatio: '1/1',
-            }}
-          >
-            <Await
-              promise={sponsorsPromise}
-              fallback={<CgSpinner className="text-2xl animate-spin" />}
-              children={(sponsors) => {
-                return <SponsorPack sponsors={sponsors} />
-              }}
-            />
-          </div>
-          <div className="text-center">
-            <a
-              href="https://github.com/sponsors/tannerlinsley"
-              className="inline-block bg-green-500 px-4 py-2 text-xl mx-auto leading-tight font-extrabold tracking-tight text-white rounded-full"
-            >
-              Become a Sponsor!
-            </a>
-          </div>
-        </div>
+        <SponsorsSection sponsorsPromise={sponsorsPromise} />
 
         <LandingPageGad />
 
@@ -203,43 +126,23 @@ export default function FormVersionIndex() {
         </div>
 
         <div className="bg-white dark:bg-black">
-          <iframe
-            key={framework}
-            src={`https://stackblitz.com/github/${
-              formProject.repo
-            }/tree/${branch}/examples/${framework}/simple?embed=1&theme=${
-              isDark ? 'dark' : 'light'
-            }&preset=node`}
+          <StackBlitzEmbed
+            repo={formProject.repo}
+            branch={branch}
+            examplePath={`examples/${framework}/simple`}
             title={`tanstack//${framework}-form: simple`}
-            sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-            className="shadow-2xl max-h-[800px]"
-            loading="lazy"
-            style={{
-              width: '100%',
-              height: '80vh',
-              border: '0',
-            }}
-          ></iframe>
+          />
         </div>
 
-        <div className="flex flex-col gap-4 items-center">
-          <div className="font-extrabold text-xl lg:text-2xl">
-            Wow, you've come a long way!
-          </div>
-          <div className="italic font-sm opacity-70">
-            Only one thing left to do...
-          </div>
-          <div>
-            <Link
-              from={'/$libraryId/$version'}
-              params={{ libraryId: library.id }}
-              to={'./docs'}
-              className={`inline-block py-2 px-4 bg-yellow-500 rounded text-black uppercase font-extrabold`}
-            >
-              Get Started!
-            </Link>
-          </div>
-        </div>
+        <BottomCTA
+          linkProps={{
+            from: '/$libraryId/$version',
+            to: './docs',
+            params: { libraryId: library.id },
+          }}
+          label="Get Started!"
+          className="bg-yellow-500 text-black"
+        />
         <Footer />
       </div>
     </>

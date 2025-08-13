@@ -32,7 +32,7 @@ function SupportComp() {
             target="_blank"
             className="group bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none overflow-hidden hover:shadow-2xl transition-shadow duration-200"
           >
-            <div className="bg-gradient-to-br from-discord/60 to-discord p-6 text-white">
+            <div className="bg-linear-to-br from-discord/60 to-discord p-6 text-white">
               <h3 className="text-xl font-semibold mb-2">Discord</h3>
               <p className="text-sm text-white/80 mb-4">
                 Community support and real-time help
@@ -56,7 +56,7 @@ function SupportComp() {
             target="_blank"
             className="group bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none overflow-hidden hover:shadow-2xl transition-shadow duration-200"
           >
-            <div className="bg-gradient-to-br from-gray-600 to-gray-900 p-6 text-white">
+            <div className="bg-linear-to-br from-gray-600 to-gray-900 p-6 text-white">
               <h3 className="text-xl font-semibold mb-2">GitHub</h3>
               <p className="text-sm text-white/80 mb-4">
                 Issues, discussions, and source code
@@ -77,7 +77,7 @@ function SupportComp() {
             to="/paid-support"
             className="group bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none overflow-hidden hover:shadow-2xl transition-shadow duration-200 flex flex-column "
           >
-            <div className="bg-gradient-to-br from-green-600 to-cyan-600 p-6 text-white">
+            <div className="bg-linear-to-br from-green-600 to-cyan-600 p-6 text-white">
               <h3 className="text-xl font-semibold mb-2">Paid Support</h3>
               <p className="text-sm text-white/80 mb-4">
                 Expert consultation and enterprise support

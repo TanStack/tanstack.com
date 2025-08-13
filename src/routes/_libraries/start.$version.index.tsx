@@ -1,16 +1,15 @@
 import * as React from 'react'
 
-import { CgSpinner } from 'react-icons/cg'
 import { FaBook, FaGithub, FaTwitter } from 'react-icons/fa'
-import { Await, Link, getRouteApi } from '@tanstack/react-router'
-import { Carbon } from '~/components/Carbon'
+import { Link, getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import SponsorPack from '~/components/SponsorPack'
+import { SponsorsSection } from '~/components/SponsorsSection'
+import { BottomCTA } from '~/components/BottomCTA'
+import { LibraryHero } from '~/components/LibraryHero'
 import { startProject } from '~/libraries/start'
 import { seo } from '~/utils/seo'
 import { partners } from '~/utils/partners'
 import { VscPreview } from 'react-icons/vsc'
-import { twMerge } from 'tailwind-merge'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
@@ -41,71 +40,36 @@ export default function VersionIndex() {
     setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
   }, [isDark])
 
-  const gradientText = `pr-1 text-transparent bg-clip-text bg-gradient-to-r ${startProject.colorFrom} ${startProject.colorTo}`
-
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
-      <div className="flex flex-col items-center gap-8 text-center px-4">
-        <h1 className="font-black flex gap-3 items-center text-4xl md:text-6xl lg:text-7xl xl:text-8xl uppercase [letter-spacing:-.05em]">
-          <span>TanStack</span>
-          <span className={twMerge(gradientText)}>Start</span>
-        </h1>
-        {/* <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-[150%]"> */}
-        <div
-          className={twMerge(
-            'text-sm',
-            'md:text-base font-black',
-            'lg:text-lg align-super text-white animate-bounce uppercase',
-            'dark:text-black bg-black dark:bg-white shadow-xl shadow-black/30 px-2 py-1 rounded-md',
-            'leading-none whitespace-nowrap'
-          )}
-        >
-          STATUS: BETA
-          {/* {version === 'latest' ? latestVersion : version} */}
-        </div>
-        {/* </div> */}
-        <h2
-          className="font-bold text-2xl max-w-md
-            md:text-3xl
-            lg:text-5xl lg:max-w-2xl"
-        >
-          Full-stack React and Solid framework{' '}
-          <span className="underline decoration-dashed decoration-yellow-500 decoration-3 underline-offset-2">
-            powered by TanStack Router
-          </span>{' '}
-        </h2>
-        <p
-          className="text opacity-90 max-w-[500px]
-            lg:text-xl lg:max-w-[600px]"
-        >
-          SSR, Streaming, Server Functions, API Routes, bundling and more
-          powered by <strong>TanStack Router</strong> and <strong>Vite</strong>.
-          Ready to deploy to your favorite hosting provider.
-        </p>
-        <div className="flex justify-center gap-4 flex-wrap">
-          <Link
-            from={'/$libraryId/$version'}
-            to={'./docs/framework/$framework/$'}
-            params={{
-              libraryId: library.id,
-              framework: 'react',
-              _splat: 'quick-start',
-            }}
-            hash={'impatient'}
-            className={`py-2 px-4 bg-transparent text-cyan-600 dark:text-cyan-400 border-2 border-cyan-500 dark:border-cyan-600 rounded uppercase font-extrabold`}
-          >
-            Try it in 60 seconds
-          </Link>
-          <Link
-            from="/$libraryId/$version"
-            to="./docs"
-            params={{ libraryId: library.id }}
-            className={`py-2 px-4 bg-cyan-500 dark:bg-cyan-600 rounded text-white uppercase font-extrabold flex items-center`}
-          >
-            Get Started
-          </Link>
-        </div>
-      </div>
+      <LibraryHero
+        project={startProject}
+        actions={
+          <div className="flex justify-center gap-4 flex-wrap">
+            <Link
+              from={'/$libraryId/$version'}
+              to={'./docs/framework/$framework/$'}
+              params={{
+                libraryId: library.id,
+                framework: 'react',
+                _splat: 'quick-start',
+              }}
+              hash={'impatient'}
+              className={`py-2 px-4 bg-transparent text-cyan-600 dark:text-cyan-400 border-2 border-cyan-500 dark:border-cyan-600 rounded uppercase font-extrabold`}
+            >
+              Try it in 60 seconds
+            </Link>
+            <Link
+              from="/$libraryId/$version"
+              to="./docs"
+              params={{ libraryId: library.id }}
+              className={`py-2 px-4 bg-cyan-500 dark:bg-cyan-600 rounded text-white uppercase font-extrabold flex items-center`}
+            >
+              Get Started
+            </Link>
+          </div>
+        }
+      />
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
       <div className="space-y-8 px-4">
         <div className="font-black text-3xl mr-1 text-center">
@@ -314,7 +278,7 @@ export default function VersionIndex() {
         </marquee>
       </div> */}
 
-      <div className="px-4 lg:max-w-screen-lg md:mx-auto mx-auto">
+      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
         <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
           Partners
         </h3>
@@ -356,33 +320,7 @@ export default function VersionIndex() {
         </div>
       </div>
 
-      <div className="relative text-lg overflow-hidden">
-        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-          Sponsors
-        </h3>
-        <div
-          className="my-4 flex flex-wrap mx-auto max-w-screen-lg"
-          style={{
-            aspectRatio: '1/1',
-          }}
-        >
-          <Await
-            promise={sponsorsPromise}
-            fallback={<CgSpinner className="text-2xl animate-spin" />}
-            children={(sponsors) => {
-              return <SponsorPack sponsors={sponsors} />
-            }}
-          />
-        </div>
-        <div className="text-center">
-          <a
-            href="https://github.com/sponsors/tannerlinsley"
-            className="inline-block bg-green-500 px-4 py-2 text-xl mx-auto leading-tight font-extrabold tracking-tight text-white rounded-full"
-          >
-            Become a Sponsor!
-          </a>
-        </div>
-      </div>
+      <SponsorsSection sponsorsPromise={sponsorsPromise} />
 
       <LandingPageGad />
 
@@ -427,7 +365,7 @@ export default function VersionIndex() {
 
       {/* {[''].includes(framework) ? (
         <div className="px-2">
-          <div className="p-8 text-center text-lg w-full max-w-screen-lg mx-auto bg-black text-white rounded-xl">
+          <div className="p-8 text-center text-lg w-full max-w-(--breakpoint-lg) mx-auto bg-black text-white rounded-xl">
             Looking for the <strong>@tanstack/{framework}-query</strong>{' '}
             example? We could use your help to build the{' '}
             <strong>@tanstack/{framework}-query</strong> adapter! Join the{' '}
@@ -460,24 +398,15 @@ export default function VersionIndex() {
         </div>
       )} */}
 
-      <div className="flex flex-col gap-4 items-center">
-        <div className="font-extrabold text-xl lg:text-2xl">
-          Wow, you've come a long way!
-        </div>
-        <div className="italic font-sm opacity-70">
-          Only one thing left to do...
-        </div>
-        <div>
-          <Link
-            from="/$libraryId/$version"
-            to={'./docs'}
-            params={{ libraryId: library.id }}
-            className={`inline-block py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold`}
-          >
-            Get Started!
-          </Link>
-        </div>
-      </div>
+      <BottomCTA
+        linkProps={{
+          from: '/$libraryId/$version',
+          to: './docs',
+          params: { libraryId: library.id },
+        }}
+        label="Get Started!"
+        className="bg-cyan-500 text-white"
+      />
       <Footer />
     </div>
   )

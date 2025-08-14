@@ -55,9 +55,9 @@
   - Notes:
     - Route: `src/routes/state-of-tanstack.tsx`.
     - Include growth charts (npm downloads: reuse `NpmStatsChart.tsx` or embed portions of `stats/npm`), GitHub stars, contributors, dependents (available via Convex aggregation already powering `OpenSourceStats`).
-    - Community stats: Discord members (needs server function), newsletter subscribers (manual or vendor API), X/Twitter followers (manual or API), repository contributors (Convex or GitHub GraphQL on server).
-    - Ecosystem counts: integrations/partners (derive from `src/utils/partners.tsx`), plugins/tools (manual list or content collection).
-    - CTA to GitHub org.
+         - Community stats: Discord members (needs server function), newsletter subscribers (manual or vendor API), X/Twitter followers (manual or API), repository contributors (Convex or GitHub GraphQL on server).
+     - Ecosystem counts: partners (derive from `src/utils/partners.tsx`), plugins/tools (manual list or content collection).
+     - CTA to GitHub org.
   - Acceptance:
     - Page loads instantly with cached metrics; charts are responsive and accessible.
     - Sources and last-updated timestamps shown.
@@ -111,47 +111,14 @@
 
 ---
 
-## 3. Strategic Integrations Showcase
-**Goal:** Show tight ecosystem ties.
 
-### Audit snapshot
-- Partners/Integrations content exists: `src/utils/partners.tsx` with logos, copy, status flags.
-- Partners page exists: `src/routes/_libraries/partners.tsx` with filters and "previous partners" link.
-- `PartnersSection` component available to spotlight on pages.
-
-### Tasks
-- [ ] Build “Integrations Hub” page
-  - Status: Partial (Partners page exists)
-  - Notes:
-    - Decide whether to repurpose `partners` route as Integrations Hub or create `src/routes/integrations.tsx` displaying items from `partners`.
-    - For each integration: show logo, short benefit description, links to docs/examples.
-    - Ensure entries can link out to official docs (add `docsUrl` field to data if missing).
-  - Acceptance: Grid of integrations with filter by library; each card links to docs/examples.
-  - Links: `src/utils/partners.tsx`, `src/components/PartnersSection.tsx`, `src/routes/_libraries/partners.tsx`.
-
-- [ ] Integration Callouts in Docs
-  - Status: Backlog
-  - Notes:
-    - Create `components/IntegrationSpotlight.tsx` to render a small callout sourced from a central dataset.
-    - Data: add `src/data/integrations.ts` or reuse `partners` with an additional lightweight `spotlight` field.
-    - Inject into docs pages via `components/DocsLayout.tsx` or specific docs MDX where relevant.
-  - Acceptance: Callout appears on relevant docs pages with consistent styling and links.
-
-- [ ] Write blog posts highlighting integrations
-  - Status: Partial (e.g., `src/blog/ag-grid-partnership.md`, `src/blog/netlify-partnership.md` exist)
-  - Notes:
-    - Create one post per major integration explaining benefits and use cases; include code snippets and screenshots.
-    - Cross-link from Integration Hub and docs.
-  - Acceptance: Posts published and linked from integration cards.
-
----
 
 ## 4. Commercial Hooks
 **Goal:** Show monetizable pathways.
 
 ### Audit snapshot
 - Enterprise/Support: `src/routes/_libraries/paid-support.tsx` exists with HubSpot script and CTAs. Partial substitute for "Enterprise" page.
-- No dedicated Partner Program or Premium Tooling pages.
+- No dedicated Partner Program page.
 
 ### Tasks
 - [ ] “Enterprise” page
@@ -167,16 +134,10 @@
   - Notes:
     - Route: `src/routes/partners-program.tsx`.
     - Tiers: Integration Partner, Strategic Partner; benefits: co-marketing, spotlight, early access.
-    - Link to existing Partners/Integrations Hub.
+    - Link to Partners page.
   - Acceptance: Published page with clear application CTA.
 
-- [ ] Premium Tooling Teaser
-  - Status: Backlog
-  - Notes:
-    - Route: `src/routes/premium.tsx` with Coming Soon + waitlist form.
-    - Form: HubSpot or simple server action collecting email.
-    - Showcase conceptual offerings (dashboard, hosted version) as non-committal teasers.
-  - Acceptance: Waitlist form works and data captured.
+
 
 ---
 
@@ -254,7 +215,6 @@
 - Homepage: `src/routes/_libraries/index.tsx`
 - Metrics: `src/components/OpenSourceStats.tsx`, `convex/stats.ts`, `src/components/NpmStatsChart.tsx`, `src/routes/stats/npm/index.tsx`
 - Trusted By: `src/components/TrustedByMarquee.tsx`
-- Integrations: `src/utils/partners.tsx`, `src/components/PartnersSection.tsx`, `src/routes/_libraries/partners.tsx`
 - Team/Ethos: `src/routes/_libraries/ethos.tsx`, `src/routes/_libraries/maintainers.tsx`, `src/components/MaintainerCard.tsx`
 - SEO helper: `src/utils/seo`
 

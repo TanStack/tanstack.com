@@ -634,6 +634,7 @@ const prisma = (() => {
     sidebarImgDark: prismaDarkSvg,
     sidebarImgClass: 'py-4',
     status: 'active' as const,
+    libraries: ['db'] as const,
     homepageImg: (
       <div className="w-full h-full flex items-center justify-center px-4 py-12">
         <img

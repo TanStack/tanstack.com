@@ -1,6 +1,7 @@
-import { useUser } from '@clerk/tanstack-react-start'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { authClient } from '~/lib/auth-client'
+import { useEffect, useState } from 'react'
 
 export type UserSettings = {
   adsDisabled: boolean
@@ -42,10 +43,24 @@ export const useUserSettingsStore = create<UserSettingsState>()(
 )
 
 export function useAdsPreference() {
-  const { isSignedIn } = useUser()
+  const [isSignedIn, setIsSignedIn] = useState<boolean>(false)
   const { settings } = useUserSettingsStore((s) => ({
     settings: s.settings,
   }))
+
+  useEffect(() => {
+    // Check initial session
+    authClient.getSession().then((session) => {
+      setIsSignedIn(!!session.data?.user)
+    })
+
+    // Listen for auth state changes
+    const unsubscribe = authClient.onAuthStateChange((state) => {
+      setIsSignedIn(!!state.user)
+    })
+
+    return unsubscribe
+  }, [])
 
   const adsEnabled = isSignedIn ? !settings.adsDisabled : true
   return { adsEnabled }

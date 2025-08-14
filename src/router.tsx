@@ -7,7 +7,7 @@ import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import { GamOnPageChange } from './components/Gam'
-import { ClerkProvider } from '@clerk/tanstack-react-start'
+// Removed ClerkProvider - now using Better Auth
 
 export function createRouter() {
   const CONVEX_URL =
@@ -41,6 +41,8 @@ export function createRouter() {
       },
       context: {
         queryClient,
+        convexClient: convexQueryClient.convexClient,
+        convexQueryClient,
       },
       Wrap: ({ children }) => (
         <ConvexProvider client={convexQueryClient.convexClient}>

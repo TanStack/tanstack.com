@@ -58,6 +58,7 @@ import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes
 import { Route as LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.index'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.$'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.examples.$'
+import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth.$'
 import { ServerRoute as LibraryIdVersionDocsChar123Char125DotmdServerRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
 import { ServerRoute as LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.{$}[.]md'
 
@@ -290,6 +291,11 @@ const LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
     path: '/framework/$framework/examples/$',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
 const LibraryIdVersionDocsChar123Char125DotmdServerRoute =
   LibraryIdVersionDocsChar123Char125DotmdServerRouteImport.update({
     id: '/$libraryId/$version/docs/{$}.md',
@@ -572,34 +578,41 @@ export interface RootRouteChildren {
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
 }
 export interface FileServerRoutesByFullPath {
+  '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
 export interface FileServerRoutesByTo {
+  '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
+  '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
   fullPaths:
+    | '/api/auth/$'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   fileServerRoutesByTo: FileServerRoutesByTo
   to:
+    | '/api/auth/$'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   id:
     | '__root__'
+    | '/api/auth/$'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
+  ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute
   LibraryIdVersionDocsChar123Char125DotmdServerRoute: typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute: typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
@@ -752,6 +765,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/$'
       preLoaderRoute: typeof LibrariesBlogSplatRouteImport
       parentRoute: typeof LibrariesBlogRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: ''
+      fullPath: '/api/auth/$'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootRouteImport
     }
     '/_libraries/blog/': {
       id: '/_libraries/blog/'
@@ -1063,6 +1083,13 @@ declare module '@tanstack/react-start/server' {
       path: '/$'
       fullPath: '/blog/$'
       preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
     '/_libraries/blog/': {
@@ -1583,6 +1610,23 @@ declare module './routes/_libraries/blog.$' {
     ServerFileRoutesByPath['/_libraries/blog/$']['id'],
     ServerFileRoutesByPath['/_libraries/blog/$']['path'],
     ServerFileRoutesByPath['/_libraries/blog/$']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/api/auth.$' {
+  const createFileRoute: CreateFileRoute<
+    '/api/auth/$',
+    FileRoutesByPath['/api/auth/$']['parentRoute'],
+    FileRoutesByPath['/api/auth/$']['id'],
+    FileRoutesByPath['/api/auth/$']['path'],
+    FileRoutesByPath['/api/auth/$']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/api/auth/$']['parentRoute'],
+    ServerFileRoutesByPath['/api/auth/$']['id'],
+    ServerFileRoutesByPath['/api/auth/$']['path'],
+    ServerFileRoutesByPath['/api/auth/$']['fullPath'],
     unknown
   >
 }
@@ -2114,6 +2158,7 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
   LibraryIdVersionDocsChar123Char125DotmdServerRoute:
     LibraryIdVersionDocsChar123Char125DotmdServerRoute,
   LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute:

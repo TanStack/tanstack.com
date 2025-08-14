@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link, Outlet, useLocation } from '@tanstack/react-router'
-import { SignedIn, SignedOut, UserButton } from '@clerk/tanstack-react-start'
+import { SignedIn, SignedOut, UserButton } from '~/components/auth'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'

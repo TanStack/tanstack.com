@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
-import { getAuth } from '@clerk/tanstack-react-start/server'
 import { getWebRequest } from '@tanstack/react-start/server'
 import { redirect } from '@tanstack/react-router'
+import { fetchSession } from '~/lib/auth-server-utils'
 
 /**
- * Get the current authenticated user from Clerk
+ * Get the current authenticated user from Better Auth
  */
 export const getCurrentUser = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -13,18 +13,18 @@ export const getCurrentUser = createServerFn({ method: 'GET' }).handler(
       return { user: null, isAuthenticated: false }
     }
 
-    const { userId } = await getAuth(request)
+    const session = await fetchSession(request)
 
     return {
-      userId,
-      isAuthenticated: !!userId,
+      user: session?.user || null,
+      userId: session?.user?.id,
+      isAuthenticated: !!session?.user,
     }
   }
 )
 
 /**
  * Server function to check if the current user is authenticated
- * In Clerk's waitlist mode, if a user can authenticate, they have been approved from the waitlist
  */
 export const checkUserAccess = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -33,29 +33,27 @@ export const checkUserAccess = createServerFn({ method: 'GET' }).handler(
       return { allowed: false, reason: 'No request context' }
     }
 
-    const { userId } = await getAuth(request)
+    const session = await fetchSession(request)
 
-    if (!userId) {
+    if (!session?.user) {
       return {
         allowed: false,
-        reason:
-          'User not authenticated - please join waitlist or sign in if approved',
+        reason: 'User not authenticated - please sign in',
         isAuthenticated: false,
       }
     }
 
-    // In waitlist mode, if user is authenticated via Clerk, they have been approved from the waitlist
     return {
       allowed: true,
-      reason: 'User is authenticated and approved from waitlist',
+      reason: 'User is authenticated',
       isAuthenticated: true,
-      userId,
+      userId: session.user.id,
     }
   }
 )
 
 /**
- * Require authentication - redirects to waitlist for new users, login for approved users
+ * Require authentication - redirects to login for unauthenticated users
  * Use this in route loaders or beforeLoad hooks for protected routes
  */
 export const requireAuth = createServerFn({ method: 'GET' }).handler(
@@ -65,16 +63,15 @@ export const requireAuth = createServerFn({ method: 'GET' }).handler(
       throw redirect({ to: '/login' })
     }
 
-    const { userId } = await getAuth(request)
+    const session = await fetchSession(request)
 
-    if (!userId) {
-      // In login mode, unauthenticated users should go to login
+    if (!session?.user) {
       throw redirect({ to: '/login' })
     }
 
-    // In waitlist mode, authenticated users have been approved and have access
     return {
-      userId,
+      user: session.user,
+      userId: session.user.id,
       isAuthenticated: true,
       hasAccess: true,
     }

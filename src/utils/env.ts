@@ -4,11 +4,20 @@ import { z } from 'zod'
 const serverEnvSchema = z.object({
   GITHUB_AUTH_TOKEN: z.string().default('USE_A_REAL_KEY_IN_PRODUCTION'),
   AIRTABLE_API_KEY: z.string().optional(),
+  // Better Auth OAuth credentials
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  BETTER_AUTH_SECRET: z.string().optional(),
+  // Convex is used for auth database
+  CONVEX_URL: z.string().optional(),
 })
 
 // Define client schema
 const viteEnvSchema = z.object({
-  VITE_CLERK_PUBLISHABLE_KEY: z.string().optional(),
+  // Remove Clerk, add any Better Auth client vars if needed
+  // VITE_CLERK_PUBLISHABLE_KEY: z.string().optional(),
 })
 
 // Validate and parse environment variables

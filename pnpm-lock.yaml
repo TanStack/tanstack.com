@@ -66,8 +66,8 @@ importers:
         specifier: ^0.19.0
         version: 0.19.0(@babel/runtime@7.24.5)(@codemirror/autocomplete@6.18.6)(@codemirror/language@6.11.2)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.1)(@types/react-dom@18.3.1)(@types/react@18.3.12)(codemirror@6.0.2)(typescript@5.6.3)(use-sync-external-store@1.5.0(react@19.0.0))(vite@6.3.5(@types/node@24.2.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(tsx@4.20.3)(yaml@2.8.1))
       '@tanstack/cta-ui-base':
-        specifier: link:../create-tsrouter-app/packages/cta-ui-base
-        version: link:../create-tsrouter-app/packages/cta-ui-base
+        specifier: ^0.21.0
+        version: 0.21.0(@babel/runtime@7.24.5)(@codemirror/autocomplete@6.18.6)(@codemirror/language@6.11.2)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.1)(@types/react-dom@18.3.1)(@types/react@18.3.12)(codemirror@6.0.2)(use-sync-external-store@1.5.0(react@19.0.0))
       '@tanstack/react-pacer':
         specifier: ^0.7.0
         version: 0.7.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -3843,11 +3843,17 @@ packages:
   '@tanstack/cta-engine@0.19.0':
     resolution: {integrity: sha512-OI4avTAppctUqTvVPPDEzlkPUtx/9kF32s1IvHGCQbZ2DlVMY11p16dBCewdvdK3ZeWooi3u8Bc4jBBb+CW/4g==}
 
+  '@tanstack/cta-engine@0.20.0':
+    resolution: {integrity: sha512-6/uRMMA9WJEBqx78c+mwKOZWGKiniYOYORtj7L1cV727mektoa+C9ayphFI4lp61Wp5zvM/XMjDNkWapiYMPBw==}
+
   '@tanstack/cta-framework-react-cra@0.19.0':
     resolution: {integrity: sha512-4WHH3f+3hfKSd6VmEBzkAr2vb9yFAd8rAAz9WcVUYViATXSjVE8SguIkU5JZ7ezmVgCmPs6xW4H2ZgU2WOZwzw==}
 
   '@tanstack/cta-ui-base@0.19.0':
     resolution: {integrity: sha512-r1DmzKoleIbEU6lCz9Cz3xiuxGvRFg1zpKsKQpIJd12TsHjPKjkIMTs2iQ6cWcvTGvh1BG48zxGZVrSgvuYeWA==}
+
+  '@tanstack/cta-ui-base@0.21.0':
+    resolution: {integrity: sha512-MkvEzwbQ71nIEvuSB8koIx853qtkBdojpQzLTLOe7rZEizjkC63M0vryI80+XNfeIMVEIZPa1IgkZMiXhhNBsw==}
 
   '@tanstack/cta-ui@0.19.0':
     resolution: {integrity: sha512-HUmcybQNWHKqmhXnA4zuW7jdqnNAoyvvVY8hI8PSVDh3GEYHKGWN2vcJLv2tswFZGZqq8s84rxSdZ7yNVQkLyA==}
@@ -12817,6 +12823,17 @@ snapshots:
       rimraf: 6.0.1
       zod: 3.25.76
 
+  '@tanstack/cta-engine@0.20.0':
+    dependencies:
+      ejs: 3.1.10
+      execa: 9.6.0
+      ignore: 7.0.5
+      memfs: 4.36.0
+      parse-gitignore: 2.0.0
+      prettier: 3.6.2
+      rimraf: 6.0.1
+      zod: 3.25.76
+
   '@tanstack/cta-framework-react-cra@0.19.0':
     dependencies:
       '@tanstack/cta-engine': 0.19.0
@@ -12841,6 +12858,56 @@ snapshots:
       '@radix-ui/react-toggle-group': 1.1.10(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@radix-ui/react-tooltip': 1.2.7(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@tanstack/cta-engine': 0.19.0
+      '@tanstack/react-query': 5.84.2(react@19.0.0)
+      '@uiw/codemirror-theme-github': 4.24.2(@codemirror/language@6.11.2)(@codemirror/state@6.5.2)(@codemirror/view@6.38.1)
+      '@uiw/react-codemirror': 4.24.2(@babel/runtime@7.24.5)(@codemirror/autocomplete@6.18.6)(@codemirror/language@6.11.2)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.1)(codemirror@6.0.2)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      chalk: 5.5.0
+      class-variance-authority: 0.7.1
+      clsx: 2.1.1
+      embla-carousel-react: 8.6.0(react@19.0.0)
+      lucide-react: 0.476.0(react@19.0.0)
+      next-themes: 0.4.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react: 19.0.0
+      react-codemirror-merge: 4.24.2(@babel/runtime@7.24.5)(@codemirror/autocomplete@6.18.6)(@codemirror/language@6.11.2)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.1)(codemirror@6.0.2)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-dom: 19.0.0(react@19.0.0)
+      sonner: 2.0.7(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      tailwind-merge: 3.3.1
+      zustand: 5.0.7(@types/react@18.3.12)(react@19.0.0)(use-sync-external-store@1.5.0(react@19.0.0))
+    transitivePeerDependencies:
+      - '@babel/runtime'
+      - '@codemirror/autocomplete'
+      - '@codemirror/language'
+      - '@codemirror/lint'
+      - '@codemirror/search'
+      - '@codemirror/state'
+      - '@codemirror/theme-one-dark'
+      - '@codemirror/view'
+      - '@types/react'
+      - '@types/react-dom'
+      - codemirror
+      - immer
+      - use-sync-external-store
+
+  '@tanstack/cta-ui-base@0.21.0(@babel/runtime@7.24.5)(@codemirror/autocomplete@6.18.6)(@codemirror/language@6.11.2)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.1)(@types/react-dom@18.3.1)(@types/react@18.3.12)(codemirror@6.0.2)(use-sync-external-store@1.5.0(react@19.0.0))':
+    dependencies:
+      '@codemirror/lang-css': 6.3.1
+      '@codemirror/lang-html': 6.4.9
+      '@codemirror/lang-javascript': 6.2.4
+      '@codemirror/lang-json': 6.0.2
+      '@radix-ui/react-accordion': 1.2.11(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-checkbox': 1.3.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-dialog': 1.1.11(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-dropdown-menu': 2.1.12(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-label': 2.1.7(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-popover': 1.1.14(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-separator': 1.1.7(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-slot': 1.2.3(@types/react@18.3.12)(react@19.0.0)
+      '@radix-ui/react-switch': 1.2.5(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-tabs': 1.1.12(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-toggle': 1.1.9(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-toggle-group': 1.1.10(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@radix-ui/react-tooltip': 1.2.7(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@tanstack/cta-engine': 0.20.0
       '@tanstack/react-query': 5.84.2(react@19.0.0)
       '@uiw/codemirror-theme-github': 4.24.2(@codemirror/language@6.11.2)(@codemirror/state@6.5.2)(@codemirror/view@6.38.1)
       '@uiw/react-codemirror': 4.24.2(@babel/runtime@7.24.5)(@codemirror/autocomplete@6.18.6)(@codemirror/language@6.11.2)(@codemirror/lint@6.8.5)(@codemirror/search@6.5.11)(@codemirror/state@6.5.2)(@codemirror/theme-one-dark@6.1.3)(@codemirror/view@6.38.1)(codemirror@6.0.2)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)

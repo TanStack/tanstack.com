@@ -22,6 +22,8 @@ import unkeyBlackSvg from '~/images/unkey-black.svg'
 import unkeyWhiteSvg from '~/images/unkey-white.svg'
 import electricDarkSvg from '~/images/electric-dark.svg'
 import electricLightSvg from '~/images/electric-light.svg'
+import prismaLightSvg from '~/images/prisma-light.svg'
+import prismaDarkSvg from '~/images/prisma-dark.svg'
 import { Library } from '~/libraries'
 
 function LearnMoreButton() {
@@ -621,6 +623,47 @@ const vercel = (() => {
   }
 })()
 
+const prisma = (() => {
+  const href = 'https://www.prisma.io/?utm_source=tanstack&via=tanstack'
+
+  return {
+    name: 'Prisma',
+    id: 'prisma',
+    href,
+    sidebarImgLight: prismaLightSvg,
+    sidebarImgDark: prismaDarkSvg,
+    sidebarImgClass: 'py-4',
+    status: 'active' as const,
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-12">
+        <img
+          src={prismaLightSvg}
+          alt="Prisma"
+          className="w-[220px] max-w-full dark:hidden"
+        />
+        <img
+          src={prismaDarkSvg}
+          alt="Prisma"
+          className="w-[220px] max-w-full hidden dark:block"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          TanStack and Prisma Postgres: Skip the database setup, get to
+          building. Prisma Postgres provisions production-ready Postgres
+          databases in seconds—no resource config, no infrastructure planning,
+          no late-night "why is my connection pool maxed out?" debugging
+          sessions. Just connect your TanStack app and start building features
+          that matter.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 export const partners: Partner[] = [
   clerk,
   agGrid,
@@ -629,6 +672,7 @@ export const partners: Partner[] = [
   convex,
   electric,
   sentry,
+  prisma,
   unkey,
   uiDev,
   nozzle,

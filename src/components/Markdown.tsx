@@ -71,7 +71,9 @@ const markdownComponents: Record<string, React.FC> = {
     // eslint-disable-next-line jsx-a11y/alt-text
     <img
       {...props}
-      className="max-w-full h-auto rounded-lg shadow-md"
+      className={`max-w-full h-auto rounded-lg shadow-md ${
+        props.className ?? ''
+      }`}
       // loading="lazy"
       // decoding="async"
     />
@@ -107,7 +109,7 @@ export function CodeBlock({
       <pre ref={ref} className={`shiki github-light h-full`}>
         <code>{code}</code>
       </pre>
-      <pre className={`shiki tokyo-night h-full bg-gray-900 text-gray-400`}>
+      <pre className={`shiki tokyo-night`}>
         <code>{code}</code>
       </pre>
     </>

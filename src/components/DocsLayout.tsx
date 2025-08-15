@@ -400,9 +400,9 @@ export function DocsLayout({
           {group?.label}
         </LabelComp>
         <div className="h-2" />
-        <ul className="ml-2 text-[.85em] list-none">
+        <ul className="ml-2 text-[.85em] leading-6 list-none">
           {group?.children?.map((child, i) => {
-            const linkClasses = `cursor-pointer flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500 hover:bg-gray-500/10`
+            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500/10`
 
             return (
               <li key={i}>
@@ -422,7 +422,7 @@ export function DocsLayout({
                       includeHash: false,
                       includeSearch: false,
                     }}
-                    className="cursor-pointer! relative"
+                    className="relative"
                   >
                     {(props) => {
                       return (
@@ -503,11 +503,7 @@ export function DocsLayout({
             {logo}
           </div>
         </summary>
-        <div
-          className="flex flex-col gap-4 p-4 whitespace-nowrap h-[0vh] overflow-y-auto
-          border-t border-gray-500/20 bg-white/20 text-lg
-          dark:bg-black/20"
-        >
+        <div className="flex flex-col gap-4 p-4 whitespace-nowrap overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">
           <div className="flex gap-4">
             <FrameworkSelect
               label={frameworkConfig.label}
@@ -581,7 +577,7 @@ export function DocsLayout({
             {children}
           </div>
           <AdGate>
-            <div className="mb-8 py-0! mx-auto max-w-full overflow-x-hidden">
+            <div className="mb-8 !py-0! mx-auto max-w-full overflow-x-hidden">
               <GamFooter />
             </div>
           </AdGate>

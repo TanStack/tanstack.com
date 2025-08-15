@@ -1,5 +1,5 @@
 {
-  "extends": ["react-app"],
+  "extends": ["react-app", "plugin:@tanstack/eslint-plugin-router/recommended"],
   "parser": "@typescript-eslint/parser",
   "plugins": ["react-hooks"]
 }

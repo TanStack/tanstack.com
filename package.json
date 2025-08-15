@@ -12,8 +12,8 @@
     "dev:backend": "convex dev --tail-logs",
     "build": "vite build",
     "start": "vite start",
-    "lint": "prettier --check '**/*' --ignore-unknown && eslint --ext .ts,.tsx ./src",
-    "format": "prettier --write '**/*' --ignore-unknown",
+    "lint": "prettier --check 'src/**/*' --ignore-unknown && eslint --ext .ts,.tsx ./src",
+    "format": "prettier --write 'src/**/*' --ignore-unknown",
     "linkAll": "node scripts/link.js"
   },
   "dependencies": {
@@ -83,6 +83,7 @@
     "@content-collections/core": "^0.8.2",
     "@content-collections/vite": "^0.2.4",
     "@shikijs/transformers": "^1.10.3",
+    "@tanstack/eslint-plugin-router": "^1.131.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/remove-markdown": "^0.3.4",

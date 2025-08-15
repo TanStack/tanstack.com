@@ -27,6 +27,18 @@ import { ThemeProvider } from '~/components/ThemeProvider'
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
 }>()({
+  beforeLoad: async (ctx) => {
+    if (
+      ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)
+    ) {
+      throw redirect({
+        href: ctx.location.href.replace(
+          /\/docs\/(react|vue|angular|svelte|solid)\//gm,
+          '/docs/framework/$1/'
+        ),
+      })
+    }
+  },
   head: () => ({
     meta: [
       {
@@ -112,18 +124,6 @@ export const Route = createRootRouteWithContext<{
       },
     ],
   }),
-  beforeLoad: async (ctx) => {
-    if (
-      ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)
-    ) {
-      throw redirect({
-        href: ctx.location.href.replace(
-          /\/docs\/(react|vue|angular|svelte|solid)\//gm,
-          '/docs/framework/$1/'
-        ),
-      })
-    }
-  },
   staleTime: Infinity,
   errorComponent: (props) => {
     return (

@@ -230,6 +230,7 @@ function LibrariesLayout() {
         return (
           <Link
             to={item.to}
+            onClick={() => detailsRef.current.removeAttribute('open')}
             key={i}
             className={twMerge(linkClasses, 'font-normal')}
             activeProps={{

@@ -340,7 +340,7 @@ export function getPopularComparisons(): z.input<
           color: '#FF1493',
         },
         {
-          packages: [{ name: 'auto-animate' }],
+          packages: [{ name: '@formkit/auto-animate' }],
           color: '#FFD700',
         },
       ],

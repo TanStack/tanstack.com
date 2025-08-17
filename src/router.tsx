@@ -7,11 +7,11 @@ import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import { GamOnPageChange } from './components/Gam'
-import { ClerkProvider } from '@clerk/tanstack-react-start'
+import { env } from './utils/env'
 
 export function createRouter() {
   const CONVEX_URL =
-    (import.meta as any).env.VITE_CONVEX_URL ||
+    env.VITE_CONVEX_URL ||
     // Hardcoded production URL as fallback for local development
     // Currently set to an instance owned by Convex Devx
     // TODO: Replace with URL to an instance owned by the TanStack team
@@ -41,6 +41,8 @@ export function createRouter() {
       },
       context: {
         queryClient,
+        convexClient: convexQueryClient.convexClient,
+        convexQueryClient,
       },
       Wrap: ({ children }) => (
         <ConvexProvider client={convexQueryClient.convexClient}>

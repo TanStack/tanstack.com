@@ -6,19 +6,22 @@ const serverEnvSchema = z.object({
   AIRTABLE_API_KEY: z.string().optional(),
 })
 
-// Define client schema
-const viteEnvSchema = z.object({
-  VITE_CLERK_PUBLISHABLE_KEY: z.string().optional(),
+const clientEnvSchema = z.object({
+  VITE_CONVEX_URL: z.string(),
+  VITE_CONVEX_SITE_URL: z.string(),
 })
 
 // Validate and parse environment variables
 const parsedServerEnv = import.meta.env.SSR
   ? serverEnvSchema.parse(process.env)
   : {}
-const parsedClientEnv = viteEnvSchema.parse(import.meta.env)
+
+const parsedClientEnv = import.meta.env
+  ? clientEnvSchema.parse(import.meta.env)
+  : {}
 
 type ParsedServerEnv = z.infer<typeof serverEnvSchema>
-type ParsedClientEnv = z.infer<typeof viteEnvSchema>
+type ParsedClientEnv = z.infer<typeof clientEnvSchema>
 type ParsedEnv = ParsedServerEnv & ParsedClientEnv
 
 // Merge parsed environments, with server env hidden from client

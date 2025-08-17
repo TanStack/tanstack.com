@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { Link, Outlet, useLocation } from '@tanstack/react-router'
-import { SignedIn, SignedOut, UserButton } from '@clerk/tanstack-react-start'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
@@ -13,6 +12,7 @@ import {
   FaInstagram,
   FaSignInAlt,
   FaTshirt,
+  FaUser,
   FaUsers,
 } from 'react-icons/fa'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
@@ -22,6 +22,10 @@ import { ThemeToggle } from '~/components/ThemeToggle'
 import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { SearchButton } from '~/components/SearchButton'
+import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
+import { api } from 'convex/_generated/api'
+import { GiFlatHammer } from 'react-icons/gi'
+import { PiHammer, PiHammerFill } from 'react-icons/pi'
 
 export const Route = createFileRoute({
   staleTime: Infinity,
@@ -34,6 +38,8 @@ export const Route = createFileRoute({
 })
 
 function LibrariesLayout() {
+  const user = useQuery(api.auth.getCurrentUser);
+
   const activeLibrary = useLocation({
     select: (location) => {
       return libraries.find((library) => {
@@ -254,7 +260,7 @@ function LibrariesLayout() {
       </div>
 
       {/* Auth Section */}
-      <SignedOut>
+      <Unauthenticated>
         <Link
           to="/login"
           className={twMerge(linkClasses, 'font-normal')}
@@ -269,11 +275,11 @@ function LibrariesLayout() {
             <div>Login</div>
           </div>
         </Link>
-      </SignedOut>
+      </Unauthenticated>
 
-      <SignedIn>
-        <div className="flex items-center gap-3 px-2 py-1 rounded-lg">
-          <UserButton />
+      <Authenticated>
+        <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+          <FaUser />
           <Link
             to="/account/$"
             className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -281,7 +287,25 @@ function LibrariesLayout() {
             My Account
           </Link>
         </div>
-      </SignedIn>
+        {
+          user?.capabilities.includes('builder') && (
+            <Link
+              to="/builder"
+              className={twMerge(linkClasses, 'font-normal')}
+              activeProps={{
+                className: twMerge('font-bold! bg-gray-500/10 dark:bg-gray-500/30'),
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4 justify-between">
+                  <PiHammerFill />
+                </div>
+                <div>Builder</div>
+              </div>
+            </Link>
+          )
+        }
+      </Authenticated>
     </>
   )
 

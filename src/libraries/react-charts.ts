@@ -7,6 +7,9 @@ export const reactChartsProject = {
   to: 'https://react-charts.tanstack.com',
   tagline: `Simple, immersive & interactive charts for React`,
   description: `Flexible, declarative, and highly configurable charts designed to pragmatically display dynamic data.`,
-  bgStyle: 'bg-orange-500',
+  bgStyle: 'bg-orange-500/40 dark:bg-orange-500/30',
+  bgStyleAccent: 'bg-orange-500',
+  bgStyleAccentHover: 'hover:bg-orange-500/30 dark:hover:bg-orange-500/40',
+  bgStyleMuted: 'bg-orange-500/20',
   textStyle: 'text-orange-500',
 } as Library

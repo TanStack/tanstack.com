@@ -22,6 +22,7 @@ import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as LibrariesRouteRouteImport } from './routes/_libraries/route'
 import { Route as LibraryIdRouteRouteImport } from './routes/$libraryId/route'
 import { Route as StatsIndexRouteImport } from './routes/stats/index'
+import { Route as BuilderIndexRouteImport } from './routes/builder/index'
 import { Route as LibrariesIndexRouteImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as LibrariesTermsRouteImport } from './routes/_libraries/terms'
@@ -60,6 +61,8 @@ import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes
 import { Route as LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.index'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.$'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.examples.$'
+import { ServerRoute as ApiInitialPayloadServerRouteImport } from './routes/api/initial-payload'
+import { ServerRoute as ApiDryRunCreateAppServerRouteImport } from './routes/api/dry-run-create-app'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 import { ServerRoute as LibraryIdVersionDocsChar123Char125DotmdServerRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
 import { ServerRoute as LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.{$}[.]md'
@@ -94,6 +97,11 @@ const StatsIndexRoute = StatsIndexRouteImport.update({
   id: '/stats/',
   path: '/stats/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderIndexRoute = BuilderIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BuilderRoute,
 } as any)
 const LibrariesIndexRoute = LibrariesIndexRouteImport.update({
   id: '/',
@@ -303,6 +311,17 @@ const LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
     path: '/framework/$framework/examples/$',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const ApiInitialPayloadServerRoute = ApiInitialPayloadServerRouteImport.update({
+  id: '/api/initial-payload',
+  path: '/api/initial-payload',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
+const ApiDryRunCreateAppServerRoute =
+  ApiDryRunCreateAppServerRouteImport.update({
+    id: '/api/dry-run-create-app',
+    path: '/api/dry-run-create-app',
+    getParentRoute: () => rootServerRouteImport,
+  } as any)
 const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -325,7 +344,7 @@ const LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute =
 
 export interface FileRoutesByFullPath {
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
-  '/builder': typeof BuilderRoute
+  '/builder': typeof BuilderRouteWithChildren
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
@@ -343,6 +362,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof LibrariesTermsRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
+  '/builder/': typeof BuilderIndexRoute
   '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/blog/$': typeof LibrariesBlogSplatRoute
@@ -369,7 +389,6 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/framework/$framework/examples/$': typeof LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute
 }
 export interface FileRoutesByTo {
-  '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
@@ -386,6 +405,7 @@ export interface FileRoutesByTo {
   '/terms': typeof LibrariesTermsRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
+  '/builder': typeof BuilderIndexRoute
   '/stats': typeof StatsIndexRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/blog': typeof LibrariesBlogIndexRoute
@@ -414,7 +434,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
   '/_libraries': typeof LibrariesRouteRouteWithChildren
-  '/builder': typeof BuilderRoute
+  '/builder': typeof BuilderRouteWithChildren
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
@@ -432,6 +452,7 @@ export interface FileRoutesById {
   '/_libraries/terms': typeof LibrariesTermsRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/_libraries/': typeof LibrariesIndexRoute
+  '/builder/': typeof BuilderIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
@@ -479,6 +500,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/$libraryId/'
     | '/'
+    | '/builder/'
     | '/stats'
     | '/$libraryId/$version/docs'
     | '/blog/$'
@@ -505,7 +527,6 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/framework/$framework/examples/$'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/builder'
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
@@ -522,6 +543,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/$libraryId'
     | '/'
+    | '/builder'
     | '/stats'
     | '/blog/$'
     | '/blog'
@@ -567,6 +589,7 @@ export interface FileRouteTypes {
     | '/_libraries/terms'
     | '/$libraryId/'
     | '/_libraries/'
+    | '/builder/'
     | '/stats/'
     | '/$libraryId/$version/docs'
     | '/_libraries/blog/$'
@@ -596,24 +619,30 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   LibraryIdRouteRoute: typeof LibraryIdRouteRouteWithChildren
   LibrariesRouteRoute: typeof LibrariesRouteRouteWithChildren
-  BuilderRoute: typeof BuilderRoute
+  BuilderRoute: typeof BuilderRouteWithChildren
   MerchRoute: typeof MerchRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   StatsIndexRoute: typeof StatsIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
 }
 export interface FileServerRoutesByFullPath {
+  '/api/dry-run-create-app': typeof ApiDryRunCreateAppServerRoute
+  '/api/initial-payload': typeof ApiInitialPayloadServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
 export interface FileServerRoutesByTo {
+  '/api/dry-run-create-app': typeof ApiDryRunCreateAppServerRoute
+  '/api/initial-payload': typeof ApiInitialPayloadServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
+  '/api/dry-run-create-app': typeof ApiDryRunCreateAppServerRoute
+  '/api/initial-payload': typeof ApiInitialPayloadServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
@@ -621,22 +650,30 @@ export interface FileServerRoutesById {
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
   fullPaths:
+    | '/api/dry-run-create-app'
+    | '/api/initial-payload'
     | '/api/auth/$'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   fileServerRoutesByTo: FileServerRoutesByTo
   to:
+    | '/api/dry-run-create-app'
+    | '/api/initial-payload'
     | '/api/auth/$'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   id:
     | '__root__'
+    | '/api/dry-run-create-app'
+    | '/api/initial-payload'
     | '/api/auth/$'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
+  ApiDryRunCreateAppServerRoute: typeof ApiDryRunCreateAppServerRoute
+  ApiInitialPayloadServerRoute: typeof ApiInitialPayloadServerRoute
   ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute
   LibraryIdVersionDocsChar123Char125DotmdServerRoute: typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute: typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
@@ -770,6 +807,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesTermsRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
+    '/api/dry-run-create-app': {
+      id: '/api/dry-run-create-app'
+      path: ''
+      fullPath: '/api/dry-run-create-app'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/initial-payload': {
+      id: '/api/initial-payload'
+      path: ''
+      fullPath: '/api/initial-payload'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootRouteImport
+    }
     '/$libraryId/': {
       id: '/$libraryId/'
       path: '/'
@@ -783,6 +834,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof LibrariesIndexRouteImport
       parentRoute: typeof LibrariesRouteRoute
+    }
+    '/builder/': {
+      id: '/builder/'
+      path: '/'
+      fullPath: '/builder/'
+      preLoaderRoute: typeof BuilderIndexRouteImport
+      parentRoute: typeof BuilderRoute
     }
     '/stats/': {
       id: '/stats/'
@@ -1103,6 +1161,20 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
+    '/api/dry-run-create-app': {
+      id: '/api/dry-run-create-app'
+      path: '/api/dry-run-create-app'
+      fullPath: '/api/dry-run-create-app'
+      preLoaderRoute: typeof ApiDryRunCreateAppServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/api/initial-payload': {
+      id: '/api/initial-payload'
+      path: '/api/initial-payload'
+      fullPath: '/api/initial-payload'
+      preLoaderRoute: typeof ApiInitialPayloadServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
     '/$libraryId/': {
       id: '/$libraryId/'
       path: '/'
@@ -1114,6 +1186,13 @@ declare module '@tanstack/react-start/server' {
       id: '/_libraries/'
       path: '/'
       fullPath: '/'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/builder/': {
+      id: '/builder/'
+      path: '/'
+      fullPath: '/builder/'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1615,6 +1694,40 @@ declare module './routes/_libraries/terms' {
     unknown
   >
 }
+declare module './routes/api/dry-run-create-app' {
+  const createFileRoute: CreateFileRoute<
+    '/api/dry-run-create-app',
+    FileRoutesByPath['/api/dry-run-create-app']['parentRoute'],
+    FileRoutesByPath['/api/dry-run-create-app']['id'],
+    FileRoutesByPath['/api/dry-run-create-app']['path'],
+    FileRoutesByPath['/api/dry-run-create-app']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/api/dry-run-create-app']['parentRoute'],
+    ServerFileRoutesByPath['/api/dry-run-create-app']['id'],
+    ServerFileRoutesByPath['/api/dry-run-create-app']['path'],
+    ServerFileRoutesByPath['/api/dry-run-create-app']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/api/initial-payload' {
+  const createFileRoute: CreateFileRoute<
+    '/api/initial-payload',
+    FileRoutesByPath['/api/initial-payload']['parentRoute'],
+    FileRoutesByPath['/api/initial-payload']['id'],
+    FileRoutesByPath['/api/initial-payload']['path'],
+    FileRoutesByPath['/api/initial-payload']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/api/initial-payload']['parentRoute'],
+    ServerFileRoutesByPath['/api/initial-payload']['id'],
+    ServerFileRoutesByPath['/api/initial-payload']['path'],
+    ServerFileRoutesByPath['/api/initial-payload']['fullPath'],
+    unknown
+  >
+}
 declare module './routes/$libraryId/index' {
   const createFileRoute: CreateFileRoute<
     '/$libraryId/',
@@ -1646,6 +1759,23 @@ declare module './routes/_libraries/index' {
     ServerFileRoutesByPath['/_libraries/']['id'],
     ServerFileRoutesByPath['/_libraries/']['path'],
     ServerFileRoutesByPath['/_libraries/']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/builder/index' {
+  const createFileRoute: CreateFileRoute<
+    '/builder/',
+    FileRoutesByPath['/builder/']['parentRoute'],
+    FileRoutesByPath['/builder/']['id'],
+    FileRoutesByPath['/builder/']['path'],
+    FileRoutesByPath['/builder/']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/builder/']['parentRoute'],
+    ServerFileRoutesByPath['/builder/']['id'],
+    ServerFileRoutesByPath['/builder/']['path'],
+    ServerFileRoutesByPath['/builder/']['fullPath'],
     unknown
   >
 }
@@ -2235,10 +2365,21 @@ const LibrariesRouteRouteWithChildren = LibrariesRouteRoute._addFileChildren(
   LibrariesRouteRouteChildren,
 )
 
+interface BuilderRouteChildren {
+  BuilderIndexRoute: typeof BuilderIndexRoute
+}
+
+const BuilderRouteChildren: BuilderRouteChildren = {
+  BuilderIndexRoute: BuilderIndexRoute,
+}
+
+const BuilderRouteWithChildren =
+  BuilderRoute._addFileChildren(BuilderRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   LibraryIdRouteRoute: LibraryIdRouteRouteWithChildren,
   LibrariesRouteRoute: LibrariesRouteRouteWithChildren,
-  BuilderRoute: BuilderRoute,
+  BuilderRoute: BuilderRouteWithChildren,
   MerchRoute: MerchRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   StatsIndexRoute: StatsIndexRoute,
@@ -2248,6 +2389,8 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiDryRunCreateAppServerRoute: ApiDryRunCreateAppServerRoute,
+  ApiInitialPayloadServerRoute: ApiInitialPayloadServerRoute,
   ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
   LibraryIdVersionDocsChar123Char125DotmdServerRoute:
     LibraryIdVersionDocsChar123Char125DotmdServerRoute,

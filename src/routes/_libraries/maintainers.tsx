@@ -114,6 +114,10 @@ function MaintainersFilter({
     id: lib.id,
     name: lib.name,
     bgStyle: lib.bgStyle,
+    bgStyleAccent: lib.bgStyleAccent,
+    bgStyleMuted: lib.bgStyleMuted,
+    bgStyleAccentHover: lib.bgStyleAccentHover,
+    textStyle: lib.textStyle,
   }))
 
   const toggleLibrary = (libraryId: Library['id']) => {
@@ -288,7 +292,7 @@ function MaintainersFilter({
                         <button
                           key={library.id}
                           onClick={() => toggleLibrary(library.id)}
-                          className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                          className={`text-left px-3 py-2 rounded-md text-sm transition-colors cursor-pointer ${
                             isSelected
                               ? `${bgStyle} text-white`
                               : `${bgStyle}/30 text-green-900 dark:text-green-200 hover:${bgStyle}/40`

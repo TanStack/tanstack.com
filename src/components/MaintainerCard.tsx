@@ -47,7 +47,7 @@ function RoleBadge({
 
 function FrameworkChip({ framework }: { framework: Framework }) {
   const frameworkOption = frameworkOptions.find((f) => f.value === framework)
-  const bgColor = frameworkOption?.color || 'bg-gray-500'
+  const bgColor = frameworkOption?.colorMuted || 'bg-gray-500'
   return (
     <span
       className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${bgColor}/80 text-white gap-1`}

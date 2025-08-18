@@ -108,12 +108,7 @@ export default function TableVersionIndex() {
         ]}
       />
 
-      <PartnersSection
-        libraryId="table"
-        gridClassName="grid grid-cols-1 gap-6 max-w-[400px]"
-      />
-      <div className="h-8" />
-      <PartnershipCallout libraryName="Table" />
+      <PartnersSection libraryId="table" />
 
       <SponsorsSection sponsorsPromise={sponsorsPromise} />
 

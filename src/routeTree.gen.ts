@@ -763,13 +763,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesTermsRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
-    '/api/initial-payload': {
-      id: '/api/initial-payload'
-      path: ''
-      fullPath: '/api/initial-payload'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootRouteImport
-    }
     '/$libraryId/': {
       id: '/$libraryId/'
       path: '/'
@@ -1101,13 +1094,6 @@ declare module '@tanstack/react-start/server' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/initial-payload': {
-      id: '/api/initial-payload'
-      path: '/api/initial-payload'
-      fullPath: '/api/initial-payload'
-      preLoaderRoute: typeof ApiInitialPayloadServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
     '/$libraryId/': {
@@ -1609,23 +1595,6 @@ declare module './routes/_libraries/terms' {
     ServerFileRoutesByPath['/_libraries/terms']['id'],
     ServerFileRoutesByPath['/_libraries/terms']['path'],
     ServerFileRoutesByPath['/_libraries/terms']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/api/initial-payload' {
-  const createFileRoute: CreateFileRoute<
-    '/api/initial-payload',
-    FileRoutesByPath['/api/initial-payload']['parentRoute'],
-    FileRoutesByPath['/api/initial-payload']['id'],
-    FileRoutesByPath['/api/initial-payload']['path'],
-    FileRoutesByPath['/api/initial-payload']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/api/initial-payload']['parentRoute'],
-    ServerFileRoutesByPath['/api/initial-payload']['id'],
-    ServerFileRoutesByPath['/api/initial-payload']['path'],
-    ServerFileRoutesByPath['/api/initial-payload']['fullPath'],
     unknown
   >
 }

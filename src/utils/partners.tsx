@@ -669,7 +669,8 @@ const prisma = (() => {
 })()
 
 const codeRabbit = (() => {
-  const href = 'https://www.coderabbit.ai/?utm_source=tanstack&via=tanstack'
+  const href =
+    'https://coderabbit.link/tanstack?utm_source=tanstack&via=tanstack'
 
   return {
     name: 'Code Rabbit',

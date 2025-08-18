@@ -101,6 +101,8 @@ export type LibraryMenuItem = {
   to: string
 }
 
+export type LibraryId = Library['id']
+
 export const libraries = [
   startProject,
   routerProject,

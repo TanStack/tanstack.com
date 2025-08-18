@@ -106,21 +106,7 @@ export default function VersionIndex() {
 
           {/* Trusted Marquee intentionally left as-is for Query page content differences */}
 
-          <PartnersSection
-            libraryId="query"
-            gridClassName="grid grid-cols-1 gap-6 max-w-(--breakpoint-md) mx-auto"
-          />
-          <div className="h-8" />
-          <PartnershipCallout libraryName="Query" />
-          <div className="text-center mt-6">
-            <Link
-              to="/partners"
-              search={{ libraries: ['query'], status: 'inactive' }}
-              className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            >
-              View Previous Partners →
-            </Link>
-          </div>
+          <PartnersSection libraryId="query" />
 
           <SponsorsSection sponsorsPromise={sponsorsPromise} />
 

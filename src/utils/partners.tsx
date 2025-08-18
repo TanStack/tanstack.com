@@ -24,7 +24,9 @@ import electricDarkSvg from '~/images/electric-dark.svg'
 import electricLightSvg from '~/images/electric-light.svg'
 import prismaLightSvg from '~/images/prisma-light.svg'
 import prismaDarkSvg from '~/images/prisma-dark.svg'
-import { Library } from '~/libraries'
+import codeRabbitLightSvg from '~/images/coderabbit-light.svg'
+import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
+import { libraries, Library } from '~/libraries'
 
 function LearnMoreButton() {
   return (
@@ -666,11 +668,64 @@ const prisma = (() => {
   }
 })()
 
+const codeRabbit = (() => {
+  const href = 'https://www.coderabbit.ai/?utm_source=tanstack&via=tanstack'
+
+  return {
+    name: 'Code Rabbit',
+    id: 'coderabbit',
+    href,
+    sidebarImgLight: codeRabbitLightSvg,
+    sidebarImgDark: codeRabbitDarkSvg,
+    sidebarImgClass: 'py-5 scale-[1.2]',
+    status: 'active' as const,
+    libraries: libraries.map((l) => l.id),
+    startDate: 'Aug 2025',
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-12">
+        <img
+          src={codeRabbitLightSvg}
+          alt="Code Rabbit"
+          className="w-[350px] max-w-full dark:hidden"
+        />
+        <img
+          src={codeRabbitDarkSvg}
+          alt="Code Rabbit"
+          className="w-[350px] max-w-full hidden dark:block"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          TanStack leverages CodeRabbit to{' '}
+          <strong>
+            enhance our code review process, significantly reducing review times
+            and improving code quality
+          </strong>
+          . By integrating CodeRabbit's advanced AI capabilities, we ensure that
+          our pull requests are thoroughly analyzed for potential issues, from
+          readability to logic bugs. This allows our team to{' '}
+          <strong>
+            focus on meaningful code discussions and innovation, while
+            maintaining high standards of code quality and security
+          </strong>
+          . With CodeRabbit, we benefit from intelligent, automated reviews that
+          adapt to our workflows, making our development process faster and more
+          efficient.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 export const partners: Partner[] = [
-  clerk,
+  codeRabbit,
   agGrid,
   netlify,
   neon,
+  clerk,
   convex,
   electric,
   sentry,

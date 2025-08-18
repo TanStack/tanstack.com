@@ -7,9 +7,10 @@ import {
   useRouterState,
   HeadContent,
   Scripts,
+  useRouteContext,
 } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 import { QueryClient } from '@tanstack/react-query'
-import { ClerkProvider } from '@clerk/tanstack-react-start'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
@@ -23,9 +24,29 @@ import { BackgroundAnimation } from '~/components/BackgroundAnimation'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
 import { ThemeProvider } from '~/components/ThemeProvider'
+import { ConvexQueryClient } from '@convex-dev/react-query'
+import { ConvexReactClient } from 'convex/react'
+import { getCookie, getWebRequest } from '@tanstack/react-start/server'
+import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
+import { authClient } from '../libraries/auth-client'
+import { fetchSession, getCookieName } from '../libraries/server-auth-utils'
+
+// Server side session request
+const fetchAuth = createServerFn({ method: 'GET' }).handler(async () => {
+  const sessionCookieName = await getCookieName()
+  const token = getCookie(sessionCookieName)
+  const request = getWebRequest()
+  const { session } = await fetchSession(request)
+  return {
+    userId: session?.user.id,
+    token,
+  }
+})
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
+  convexClient: ConvexReactClient
+  convexQueryClient: ConvexQueryClient
 }>()({
   head: () => ({
     meta: [
@@ -123,6 +144,19 @@ export const Route = createRootRouteWithContext<{
         ),
       })
     }
+
+    // all queries, mutations and action made with TanStack Query will be
+    // authenticated by an identity token.
+    const auth = await fetchAuth()
+    const { userId, token } = auth
+
+    // During SSR only (the only time serverHttpClient exists),
+    // set the auth token for Convex to make HTTP queries with.
+    if (token) {
+      ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
+    }
+
+    return { userId, token }
   },
   staleTime: Infinity,
   errorComponent: (props) => {
@@ -143,15 +177,13 @@ export const Route = createRootRouteWithContext<{
 })
 
 function RootComponent() {
-  // Import your Publishable Key
-  const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-
-  if (!PUBLISHABLE_KEY) {
-    throw new Error('Add your Clerk Publishable Key to the .env file')
-  }
+  const context = useRouteContext({ from: Route.id })
 
   return (
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+    <ConvexBetterAuthProvider
+      client={context.convexClient}
+      authClient={authClient}
+    >
       <ThemeProvider>
         <SearchProvider>
           <RootDocument>
@@ -159,7 +191,7 @@ function RootComponent() {
           </RootDocument>
         </SearchProvider>
       </ThemeProvider>
-    </ClerkProvider>
+    </ConvexBetterAuthProvider>
   )
 }
 

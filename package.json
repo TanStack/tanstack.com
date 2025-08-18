@@ -17,7 +17,9 @@
     "linkAll": "node scripts/link.js"
   },
   "dependencies": {
-    "@clerk/tanstack-react-start": "^0.21.7",
+    "@auth/core": "0.37.0",
+    "@convex-dev/auth": "^0.0.88",
+    "@convex-dev/better-auth": "^0.7.14",
     "@convex-dev/react-query": "0.0.0-alpha.8",
     "@erquhart/convex-oss-stats": "^0.5.5",
     "@floating-ui/react": "^0.27.8",
@@ -50,8 +52,9 @@
     "airtable": "^0.12.2",
     "algoliasearch": "^5.23.4",
     "axios": "^1.6.7",
+    "better-auth": "^1.3.7",
     "cmdk": "^1.1.1",
-    "convex": "^1.17.2",
+    "convex": "^1.25.4",
     "d3": "^7.9.0",
     "date-fns": "^2.30.0",
     "downshift": "^9.0.9",
@@ -76,7 +79,7 @@
     "tailwind-merge": "^1.14.0",
     "tiny-invariant": "^1.3.3",
     "vite-tsconfig-paths": "^5.0.1",
-    "zod": "^3.23.8",
+    "zod": "^4.0.17",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

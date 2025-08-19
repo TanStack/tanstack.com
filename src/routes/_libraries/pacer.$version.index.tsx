@@ -86,12 +86,7 @@ export default function PacerVersionIndex() {
           />
         </div>
 
-        <PartnersSection
-          libraryId="pacer"
-          gridClassName="w-[500px] max-w-full mx-auto"
-        />
-        <div className="h-8" />
-        <PartnershipCallout libraryName="Pacer" />
+        <PartnersSection libraryId="pacer" />
 
         <SponsorsSection sponsorsPromise={sponsorsPromise} />
 

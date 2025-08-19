@@ -87,8 +87,6 @@ export default function DBVersionIndex() {
           libraryId="db"
           gridClassName="md:w-[500px] max-w-full mx-auto"
         />
-        <div className="h-8" />
-        <PartnershipCallout libraryName="DB" />
         <SponsorsSection sponsorsPromise={sponsorsPromise} />
         <LandingPageGad />
         <BottomCTA

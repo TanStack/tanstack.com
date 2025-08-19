@@ -58,6 +58,7 @@ import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes
 import { Route as LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.index'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.$'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.examples.$'
+import { ServerRoute as ApiInitialPayloadServerRouteImport } from './routes/api/initial-payload'
 import { ServerRoute as LibraryIdVersionDocsChar123Char125DotmdServerRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
 import { ServerRoute as LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.{$}[.]md'
 
@@ -290,6 +291,11 @@ const LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRoute =
     path: '/framework/$framework/examples/$',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const ApiInitialPayloadServerRoute = ApiInitialPayloadServerRouteImport.update({
+  id: '/api/initial-payload',
+  path: '/api/initial-payload',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
 const LibraryIdVersionDocsChar123Char125DotmdServerRoute =
   LibraryIdVersionDocsChar123Char125DotmdServerRouteImport.update({
     id: '/$libraryId/$version/docs/{$}.md',
@@ -572,34 +578,41 @@ export interface RootRouteChildren {
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
 }
 export interface FileServerRoutesByFullPath {
+  '/api/initial-payload': typeof ApiInitialPayloadServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
 export interface FileServerRoutesByTo {
+  '/api/initial-payload': typeof ApiInitialPayloadServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
+  '/api/initial-payload': typeof ApiInitialPayloadServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
   fullPaths:
+    | '/api/initial-payload'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   fileServerRoutesByTo: FileServerRoutesByTo
   to:
+    | '/api/initial-payload'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   id:
     | '__root__'
+    | '/api/initial-payload'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
+  ApiInitialPayloadServerRoute: typeof ApiInitialPayloadServerRoute
   LibraryIdVersionDocsChar123Char125DotmdServerRoute: typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute: typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
@@ -710,6 +723,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/terms'
       preLoaderRoute: typeof LibrariesTermsRouteImport
       parentRoute: typeof LibrariesRouteRoute
+    }
+    '/api/initial-payload': {
+      id: '/api/initial-payload'
+      path: ''
+      fullPath: '/api/initial-payload'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootRouteImport
     }
     '/$libraryId/': {
       id: '/$libraryId/'
@@ -1021,6 +1041,13 @@ declare module '@tanstack/react-start/server' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/api/initial-payload': {
+      id: '/api/initial-payload'
+      path: '/api/initial-payload'
+      fullPath: '/api/initial-payload'
+      preLoaderRoute: typeof ApiInitialPayloadServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
     '/$libraryId/': {
@@ -1481,6 +1508,23 @@ declare module './routes/_libraries/terms' {
     ServerFileRoutesByPath['/_libraries/terms']['id'],
     ServerFileRoutesByPath['/_libraries/terms']['path'],
     ServerFileRoutesByPath['/_libraries/terms']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/api/initial-payload' {
+  const createFileRoute: CreateFileRoute<
+    '/api/initial-payload',
+    FileRoutesByPath['/api/initial-payload']['parentRoute'],
+    FileRoutesByPath['/api/initial-payload']['id'],
+    FileRoutesByPath['/api/initial-payload']['path'],
+    FileRoutesByPath['/api/initial-payload']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/api/initial-payload']['parentRoute'],
+    ServerFileRoutesByPath['/api/initial-payload']['id'],
+    ServerFileRoutesByPath['/api/initial-payload']['path'],
+    ServerFileRoutesByPath['/api/initial-payload']['fullPath'],
     unknown
   >
 }
@@ -2114,6 +2158,7 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiInitialPayloadServerRoute: ApiInitialPayloadServerRoute,
   LibraryIdVersionDocsChar123Char125DotmdServerRoute:
     LibraryIdVersionDocsChar123Char125DotmdServerRoute,
   LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute:

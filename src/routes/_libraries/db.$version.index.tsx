@@ -83,12 +83,7 @@ export default function DBVersionIndex() {
             </div>
           </div>
         </div>
-        <PartnersSection
-          libraryId="db"
-          gridClassName="w-[500px] max-w-full mx-auto"
-        />
-        <div className="h-8" />
-        <PartnershipCallout libraryName="DB" />
+        <PartnersSection libraryId="db" />
         <SponsorsSection sponsorsPromise={sponsorsPromise} />
         <LandingPageGad />
         <BottomCTA

@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { useCurrentUser, useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { authClient } from '~/libraries/auth-client'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
 export type UserSettings = {
   adsDisabled: boolean

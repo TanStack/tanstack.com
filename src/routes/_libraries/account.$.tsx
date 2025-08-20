@@ -1,13 +1,7 @@
 import { useUserSettingsStore } from '~/stores/userSettings'
 import { FaSignOutAlt } from 'react-icons/fa'
-import {
-  Authenticated,
-  Unauthenticated,
-  useConvexAuth,
-  useQuery,
-} from 'convex/react'
+import { Authenticated, Unauthenticated, useConvexAuth } from 'convex/react'
 import { Link, redirect } from '@tanstack/react-router'
-import { api } from 'convex/_generated/api'
 import { authClient } from '~/libraries/auth-client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
@@ -16,7 +10,6 @@ export const Route = createFileRoute({
 })
 
 function UserSettings() {
-  const { isLoading } = useConvexAuth()
   const userQuery = useCurrentUserQuery()
   const adsDisabled = useUserSettingsStore((s) => s.settings.adsDisabled)
   const toggleAds = useUserSettingsStore((s) => s.toggleAds)
@@ -43,7 +36,7 @@ function UserSettings() {
                 <input
                   type="text"
                   className="border border-gray-300 rounded-md py-1 px-2 w-full max-w-xs"
-                  value={user?.email}
+                  value={userQuery.data.email}
                   disabled
                 />
               </div>
@@ -61,7 +54,7 @@ function UserSettings() {
                     className="h-4 w-4 accent-blue-600 my-1"
                     checked={adsDisabled}
                     onChange={toggleAds}
-                    disabled={isLoading}
+                    disabled={userQuery.isLoading}
                     aria-label="Disable Ads"
                   />
                   <div>

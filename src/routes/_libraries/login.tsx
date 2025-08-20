@@ -13,11 +13,7 @@ function SplashImage() {
   return (
     <div className="flex items-center justify-center mb-4">
       <img
-        src={
-          isDark
-            ? splashDarkImg
-            : splashLightImg
-        }
+        src={isDark ? splashDarkImg : splashLightImg}
         alt="Waitlist"
         className="w-48 h-48"
       />
@@ -33,21 +29,25 @@ function SignInForm() {
         Sign into your TanStack Account
       </h2>
       <button
-        onClick={() => authClient.signIn.social({ 
-          provider: 'github',
-          callbackURL: '/dashboard',
-        })}
+        onClick={() =>
+          authClient.signIn.social({
+            provider: 'github',
+            callbackURL: '/dashboard',
+          })
+        }
         className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
       >
         <FaGithub className="inline-block mr-2" /> Sign in with GitHub
       </button>
       <button
-        onClick={() => authClient.signIn.social({ 
-          provider: 'google',
-          callbackURL: '/dashboard',
-        })}
+        onClick={() =>
+          authClient.signIn.social({
+            provider: 'google',
+            callbackURL: '/dashboard',
+          })
+        }
         className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"
-        >
+      >
         <FaGoogle className="inline-block mr-2" /> Sign in with Google
       </button>
     </div>

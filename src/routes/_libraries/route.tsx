@@ -38,7 +38,7 @@ export const Route = createFileRoute({
 })
 
 function LibrariesLayout() {
-  const user = useQuery(api.auth.getCurrentUser);
+  const user = useQuery(api.auth.getCurrentUser)
 
   const activeLibrary = useLocation({
     select: (location) => {
@@ -260,7 +260,7 @@ function LibrariesLayout() {
       </div>
 
       {/* Auth Section */}
-      <Unauthenticated>
+      {/* <Unauthenticated>
         <Link
           to="/login"
           className={twMerge(linkClasses, 'font-normal')}
@@ -275,7 +275,7 @@ function LibrariesLayout() {
             <div>Login</div>
           </div>
         </Link>
-      </Unauthenticated>
+      </Unauthenticated> */}
 
       <Authenticated>
         <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
@@ -287,24 +287,24 @@ function LibrariesLayout() {
             My Account
           </Link>
         </div>
-        {
-          user?.capabilities.includes('builder') && (
-            <Link
-              to="/builder"
-              className={twMerge(linkClasses, 'font-normal')}
-              activeProps={{
-                className: twMerge('font-bold! bg-gray-500/10 dark:bg-gray-500/30'),
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-4 justify-between">
-                  <PiHammerFill />
-                </div>
-                <div>Builder</div>
+        {user?.capabilities.includes('builder') && (
+          <Link
+            to="/builder"
+            className={twMerge(linkClasses, 'font-normal')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4 justify-between">
+                <PiHammerFill />
               </div>
-            </Link>
-          )
-        }
+              <div>Builder</div>
+            </div>
+          </Link>
+        )}
       </Authenticated>
     </>
   )

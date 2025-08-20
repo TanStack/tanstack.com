@@ -1,6 +1,6 @@
 import { useUserSettingsStore } from '~/stores/userSettings'
 import { FaSignOutAlt } from 'react-icons/fa'
-import { Authenticated, Unauthenticated, useConvexAuth } from 'convex/react'
+import { Authenticated, Unauthenticated } from 'convex/react'
 import { Link, redirect } from '@tanstack/react-router'
 import { authClient } from '~/libraries/auth-client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
@@ -36,7 +36,7 @@ function UserSettings() {
                 <input
                   type="text"
                   className="border border-gray-300 rounded-md py-1 px-2 w-full max-w-xs"
-                  value={userQuery.data.email}
+                  value={userQuery.data?.email ?? ''}
                   disabled
                 />
               </div>

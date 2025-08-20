@@ -15,6 +15,7 @@ import { seo } from '~/utils/seo'
 import { twMerge } from 'tailwind-merge'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import { PartnersSection } from '~/components/PartnersSection'
 
 export const Route = createFileRoute({
   component: RouteComp,
@@ -115,13 +116,7 @@ export default function RouteComp() {
         </marquee>
       </div> */}
 
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
-        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-          Partners
-        </h3>
-        <div className="h-8" />
-        <PartnershipCallout libraryName="Virtual" />
-      </div>
+      <PartnersSection libraryId="virtual" />
 
       <SponsorsSection sponsorsPromise={sponsorsPromise} />
 

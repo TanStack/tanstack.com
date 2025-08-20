@@ -679,7 +679,7 @@ function RouteComponent() {
         }
       `}</style>
 
-      <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
+      <div className="flex flex-col w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
         <div className="flex-1 flex flex-col gap-16 w-full max-w-4xl mx-auto">
           <header className="text-center pt-8">
             <h1 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mb-6">

@@ -42,18 +42,26 @@ export const {
 // Feel free to edit, omit, etc.
 export const getCurrentUser = query({
   args: {},
-  handler: async (ctx) => {
+  handler: async (
+    ctx
+  ): Promise<null | {
+    email: string
+    name: string
+    image: string
+    capabilities: string[]
+  }> => {
     // Get user data from Better Auth - email, name, image, etc.
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx)
-    if (!userMetadata) {
+    const user = await betterAuthComponent.getAuthUser(ctx)
+
+    if (!user) {
       return null
     }
     // Get user data from your application's database
     // (skip this if you have no fields in your users table schema)
-    const user = await ctx.db.get(userMetadata.userId as Id<'users'>)
+    const userMetaData = await ctx.db.get(user.userId as Id<'users'>)
     return {
       ...user,
-      ...userMetadata,
+      ...userMetaData,
     }
   },
 })

@@ -4,7 +4,7 @@ import { FaCheckCircle } from 'react-icons/fa'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 
 export const Route = createFileRoute({
-  component: LoginComp,
+  component: LearnPage,
   head: () => ({
     meta: seo({
       title: 'Learn | TanStack',
@@ -14,7 +14,7 @@ export const Route = createFileRoute({
   }),
 })
 
-function LoginComp() {
+function LearnPage() {
   return (
     <div className="flex flex-col min-h-dvh max-w-full">
       <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 px-8">

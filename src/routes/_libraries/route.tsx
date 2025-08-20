@@ -10,7 +10,6 @@ import {
   FaDiscord,
   FaGithub,
   FaInstagram,
-  FaSignInAlt,
   FaTshirt,
   FaUser,
   FaUsers,
@@ -22,10 +21,9 @@ import { ThemeToggle } from '~/components/ThemeToggle'
 import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { SearchButton } from '~/components/SearchButton'
-import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
+import { Authenticated, useQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
-import { GiFlatHammer } from 'react-icons/gi'
-import { PiHammer, PiHammerFill } from 'react-icons/pi'
+import { PiHammerFill } from 'react-icons/pi'
 
 export const Route = createFileRoute({
   staleTime: Infinity,
@@ -34,10 +32,16 @@ export const Route = createFileRoute({
       sponsorsPromise: getSponsorsForSponsorPack(),
     }
   },
-  component: LibrariesLayout,
+  component: () => {
+    return (
+      <LibrariesLayout>
+        <Outlet />
+      </LibrariesLayout>
+    )
+  },
 })
 
-function LibrariesLayout() {
+export function LibrariesLayout({ children }: { children: React.ReactNode }) {
   const user = useQuery(api.auth.getCurrentUser)
 
   const activeLibrary = useLocation({
@@ -281,7 +285,7 @@ function LibrariesLayout() {
         <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
           <FaUser />
           <Link
-            to="/account/$"
+            to="/account"
             className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
           >
             My Account
@@ -402,7 +406,7 @@ function LibrariesLayout() {
       {smallMenu}
       {largeMenu}
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
-        <Outlet />
+        {children}
       </div>
       {activeLibrary?.scarfId ? <Scarf id={activeLibrary.scarfId} /> : null}
     </div>

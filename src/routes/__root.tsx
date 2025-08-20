@@ -30,6 +30,7 @@ import { getCookie, getWebRequest } from '@tanstack/react-start/server'
 import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
 import { authClient } from '../libraries/auth-client'
 import { fetchSession, getCookieName } from '../libraries/server-auth-utils'
+import { LibrariesLayout } from './_libraries/route'
 
 // Server side session request
 const fetchAuth = createServerFn({ method: 'GET' }).handler(async () => {
@@ -161,22 +162,30 @@ export const Route = createRootRouteWithContext<{
   staleTime: Infinity,
   errorComponent: (props) => {
     return (
-      <RootDocument>
+      <HtmlWrapper>
         <DefaultCatchBoundary {...props} />
-      </RootDocument>
+      </HtmlWrapper>
     )
   },
   notFoundComponent: () => {
     return (
-      <RootDocument>
-        <NotFound />
-      </RootDocument>
+      <DocumentWrapper>
+        <LibrariesLayout>
+          <NotFound />
+        </LibrariesLayout>
+      </DocumentWrapper>
     )
   },
-  component: RootComponent,
+  component: () => {
+    return (
+      <DocumentWrapper>
+        <Outlet />
+      </DocumentWrapper>
+    )
+  },
 })
 
-function RootComponent() {
+function DocumentWrapper({ children }: { children: React.ReactNode }) {
   const context = useRouteContext({ from: Route.id })
 
   return (
@@ -186,16 +195,14 @@ function RootComponent() {
     >
       <ThemeProvider>
         <SearchProvider>
-          <RootDocument>
-            <Outlet />
-          </RootDocument>
+          <HtmlWrapper>{children}</HtmlWrapper>
         </SearchProvider>
       </ThemeProvider>
     </ConvexBetterAuthProvider>
   )
 }
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function HtmlWrapper({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
 
   const isLoading = useRouterState({

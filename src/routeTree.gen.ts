@@ -35,11 +35,11 @@ import { Route as LibrariesLearnRouteImport } from './routes/_libraries/learn'
 import { Route as LibrariesEthosRouteImport } from './routes/_libraries/ethos'
 import { Route as LibrariesDashboardRouteImport } from './routes/_libraries/dashboard'
 import { Route as LibrariesBlogRouteImport } from './routes/_libraries/blog'
+import { Route as LibrariesAccountRouteImport } from './routes/_libraries/account'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
 import { Route as LibrariesBlogIndexRouteImport } from './routes/_libraries/blog.index'
 import { Route as LibrariesBlogSplatRouteImport } from './routes/_libraries/blog.$'
-import { Route as LibrariesAccountSplatRouteImport } from './routes/_libraries/account.$'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
 import { Route as LibrariesVirtualVersionIndexRouteImport } from './routes/_libraries/virtual.$version.index'
 import { Route as LibrariesTableVersionIndexRouteImport } from './routes/_libraries/table.$version.index'
@@ -160,6 +160,11 @@ const LibrariesBlogRoute = LibrariesBlogRouteImport.update({
   path: '/blog',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+const LibrariesAccountRoute = LibrariesAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
 const LibraryIdVersionRoute = LibraryIdVersionRouteImport.update({
   id: '/$version',
   path: '/$version',
@@ -179,11 +184,6 @@ const LibrariesBlogSplatRoute = LibrariesBlogSplatRouteImport.update({
   id: '/$',
   path: '/$',
   getParentRoute: () => LibrariesBlogRoute,
-} as any)
-const LibrariesAccountSplatRoute = LibrariesAccountSplatRouteImport.update({
-  id: '/account/$',
-  path: '/account/$',
-  getParentRoute: () => LibrariesRouteRoute,
 } as any)
 const LibraryIdVersionDocsRoute = LibraryIdVersionDocsRouteImport.update({
   id: '/docs',
@@ -329,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
+  '/account': typeof LibrariesAccountRoute
   '/blog': typeof LibrariesBlogRouteWithChildren
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
@@ -344,7 +345,6 @@ export interface FileRoutesByFullPath {
   '/': typeof LibrariesIndexRoute
   '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
-  '/account/$': typeof LibrariesAccountSplatRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/blog/': typeof LibrariesBlogIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
@@ -373,6 +373,7 @@ export interface FileRoutesByTo {
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
+  '/account': typeof LibrariesAccountRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
   '/learn': typeof LibrariesLearnRoute
@@ -386,7 +387,6 @@ export interface FileRoutesByTo {
   '/$libraryId': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
   '/stats': typeof StatsIndexRoute
-  '/account/$': typeof LibrariesAccountSplatRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/blog': typeof LibrariesBlogIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
@@ -418,6 +418,7 @@ export interface FileRoutesById {
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
+  '/_libraries/account': typeof LibrariesAccountRoute
   '/_libraries/blog': typeof LibrariesBlogRouteWithChildren
   '/_libraries/dashboard': typeof LibrariesDashboardRoute
   '/_libraries/ethos': typeof LibrariesEthosRoute
@@ -433,7 +434,6 @@ export interface FileRoutesById {
   '/_libraries/': typeof LibrariesIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
-  '/_libraries/account/$': typeof LibrariesAccountSplatRoute
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
@@ -465,6 +465,7 @@ export interface FileRouteTypes {
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
+    | '/account'
     | '/blog'
     | '/dashboard'
     | '/ethos'
@@ -480,7 +481,6 @@ export interface FileRouteTypes {
     | '/'
     | '/stats'
     | '/$libraryId/$version/docs'
-    | '/account/$'
     | '/blog/$'
     | '/blog/'
     | '/stats/npm'
@@ -509,6 +509,7 @@ export interface FileRouteTypes {
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
+    | '/account'
     | '/dashboard'
     | '/ethos'
     | '/learn'
@@ -522,7 +523,6 @@ export interface FileRouteTypes {
     | '/$libraryId'
     | '/'
     | '/stats'
-    | '/account/$'
     | '/blog/$'
     | '/blog'
     | '/stats/npm'
@@ -553,6 +553,7 @@ export interface FileRouteTypes {
     | '/merch'
     | '/sponsors-embed'
     | '/$libraryId/$version'
+    | '/_libraries/account'
     | '/_libraries/blog'
     | '/_libraries/dashboard'
     | '/_libraries/ethos'
@@ -568,7 +569,6 @@ export interface FileRouteTypes {
     | '/_libraries/'
     | '/stats/'
     | '/$libraryId/$version/docs'
-    | '/_libraries/account/$'
     | '/_libraries/blog/$'
     | '/_libraries/blog/'
     | '/stats/npm/'
@@ -686,6 +686,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionRouteImport
       parentRoute: typeof LibraryIdRouteRoute
     }
+    '/_libraries/account': {
+      id: '/_libraries/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof LibrariesAccountRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
     '/_libraries/blog': {
       id: '/_libraries/blog'
       path: '/blog'
@@ -790,13 +797,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version/docs'
       preLoaderRoute: typeof LibraryIdVersionDocsRouteImport
       parentRoute: typeof LibraryIdVersionRoute
-    }
-    '/_libraries/account/$': {
-      id: '/_libraries/account/$'
-      path: '/account/$'
-      fullPath: '/account/$'
-      preLoaderRoute: typeof LibrariesAccountSplatRouteImport
-      parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/blog/$': {
       id: '/_libraries/blog/$'
@@ -1019,6 +1019,13 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
+    '/_libraries/account': {
+      id: '/_libraries/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
     '/_libraries/blog': {
       id: '/_libraries/blog'
       path: '/blog'
@@ -1121,13 +1128,6 @@ declare module '@tanstack/react-start/server' {
       id: '/$libraryId/$version/docs'
       path: '/docs'
       fullPath: '/$libraryId/$version/docs'
-      preLoaderRoute: unknown
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/_libraries/account/$': {
-      id: '/_libraries/account/$'
-      path: '/account/$'
-      fullPath: '/account/$'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1411,6 +1411,23 @@ declare module './routes/$libraryId/$version' {
     unknown
   >
 }
+declare module './routes/_libraries/account' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/account',
+    FileRoutesByPath['/_libraries/account']['parentRoute'],
+    FileRoutesByPath['/_libraries/account']['id'],
+    FileRoutesByPath['/_libraries/account']['path'],
+    FileRoutesByPath['/_libraries/account']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/_libraries/account']['parentRoute'],
+    ServerFileRoutesByPath['/_libraries/account']['id'],
+    ServerFileRoutesByPath['/_libraries/account']['path'],
+    ServerFileRoutesByPath['/_libraries/account']['fullPath'],
+    unknown
+  >
+}
 declare module './routes/_libraries/blog' {
   const createFileRoute: CreateFileRoute<
     '/_libraries/blog',
@@ -1663,23 +1680,6 @@ declare module './routes/$libraryId/$version.docs' {
     ServerFileRoutesByPath['/$libraryId/$version/docs']['id'],
     ServerFileRoutesByPath['/$libraryId/$version/docs']['path'],
     ServerFileRoutesByPath['/$libraryId/$version/docs']['fullPath'],
-    unknown
-  >
-}
-declare module './routes/_libraries/account.$' {
-  const createFileRoute: CreateFileRoute<
-    '/_libraries/account/$',
-    FileRoutesByPath['/_libraries/account/$']['parentRoute'],
-    FileRoutesByPath['/_libraries/account/$']['id'],
-    FileRoutesByPath['/_libraries/account/$']['path'],
-    FileRoutesByPath['/_libraries/account/$']['fullPath']
-  >
-
-  const createServerFileRoute: CreateServerFileRoute<
-    ServerFileRoutesByPath['/_libraries/account/$']['parentRoute'],
-    ServerFileRoutesByPath['/_libraries/account/$']['id'],
-    ServerFileRoutesByPath['/_libraries/account/$']['path'],
-    ServerFileRoutesByPath['/_libraries/account/$']['fullPath'],
     unknown
   >
 }
@@ -2176,6 +2176,7 @@ const LibrariesBlogRouteWithChildren = LibrariesBlogRoute._addFileChildren(
 )
 
 interface LibrariesRouteRouteChildren {
+  LibrariesAccountRoute: typeof LibrariesAccountRoute
   LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
   LibrariesDashboardRoute: typeof LibrariesDashboardRoute
   LibrariesEthosRoute: typeof LibrariesEthosRoute
@@ -2188,7 +2189,6 @@ interface LibrariesRouteRouteChildren {
   LibrariesSupportRoute: typeof LibrariesSupportRoute
   LibrariesTermsRoute: typeof LibrariesTermsRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
-  LibrariesAccountSplatRoute: typeof LibrariesAccountSplatRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
   LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
   LibrariesDevtoolsVersionIndexRoute: typeof LibrariesDevtoolsVersionIndexRoute
@@ -2204,6 +2204,7 @@ interface LibrariesRouteRouteChildren {
 }
 
 const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
+  LibrariesAccountRoute: LibrariesAccountRoute,
   LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
   LibrariesDashboardRoute: LibrariesDashboardRoute,
   LibrariesEthosRoute: LibrariesEthosRoute,
@@ -2216,7 +2217,6 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesSupportRoute: LibrariesSupportRoute,
   LibrariesTermsRoute: LibrariesTermsRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
-  LibrariesAccountSplatRoute: LibrariesAccountSplatRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
   LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,
   LibrariesDevtoolsVersionIndexRoute: LibrariesDevtoolsVersionIndexRoute,

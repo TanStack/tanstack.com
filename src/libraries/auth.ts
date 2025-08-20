@@ -6,7 +6,7 @@ import { type GenericCtx } from '../../convex/_generated/server'
 import { env } from '~/utils/env'
 
 // You'll want to replace this with an environment variable
-const siteUrl = env.URL || 'http://localhost:3000'
+const siteUrl = process.env.BETTER_AUTH_BASE_URL || "http://localhost:3000";
 
 export const createAuth = (ctx: GenericCtx) =>
   // Configure your Better Auth instance here

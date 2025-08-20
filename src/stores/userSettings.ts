@@ -1,6 +1,6 @@
-import { useUser } from '@clerk/tanstack-react-start'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { authClient } from '~/libraries/auth-client'
 
 export type UserSettings = {
   adsDisabled: boolean
@@ -42,11 +42,11 @@ export const useUserSettingsStore = create<UserSettingsState>()(
 )
 
 export function useAdsPreference() {
-  const { isSignedIn } = useUser()
+  const { data } = authClient.useSession()
   const { settings } = useUserSettingsStore((s) => ({
     settings: s.settings,
   }))
 
-  const adsEnabled = isSignedIn ? !settings.adsDisabled : true
+  const adsEnabled = data?.user ? !settings.adsDisabled : true
   return { adsEnabled }
 }

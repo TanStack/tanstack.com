@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { useCurrentUser, useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { authClient } from '~/libraries/auth-client'
 
 export type UserSettings = {
@@ -42,11 +43,14 @@ export const useUserSettingsStore = create<UserSettingsState>()(
 )
 
 export function useAdsPreference() {
-  const { data } = authClient.useSession()
+  const userQuery = useCurrentUserQuery()
   const { settings } = useUserSettingsStore((s) => ({
     settings: s.settings,
   }))
 
-  const adsEnabled = data?.user ? !settings.adsDisabled : true
+  const adsEnabled = userQuery.data
+    ? userQuery.data.capabilities.includes('disableAds') &&
+      !settings.adsDisabled
+    : true
   return { adsEnabled }
 }

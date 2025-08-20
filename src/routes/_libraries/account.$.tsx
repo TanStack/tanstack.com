@@ -9,6 +9,7 @@ import {
 import { Link, redirect } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import { authClient } from '~/libraries/auth-client'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
 export const Route = createFileRoute({
   component: AccountPage,
@@ -16,10 +17,12 @@ export const Route = createFileRoute({
 
 function UserSettings() {
   const { isLoading } = useConvexAuth()
-  const user = useQuery(api.auth.getCurrentUser)
+  const userQuery = useCurrentUserQuery()
   const adsDisabled = useUserSettingsStore((s) => s.settings.adsDisabled)
   const toggleAds = useUserSettingsStore((s) => s.toggleAds)
-  
+
+  const canDisableAds = userQuery.data?.capabilities.includes('disableAds')
+
   const signOut = async () => {
     await authClient.signOut()
     redirect({ to: '/login' })
@@ -47,32 +50,36 @@ function UserSettings() {
             </div>
           </div>
           <div>
-            <h3 className="font-bold mb-2 text-lg text-gray-900 dark:text-white">Preferences</h3>
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 accent-blue-600 my-1"
-                  checked={adsDisabled}
-                  onChange={toggleAds}
-                  disabled={isLoading}
-                  aria-label="Disable Ads"
-                />
-                <div>
-                  <div className="font-medium">Disable Ads</div>
-                  <div className="text-sm opacity-70">
-                    Hide ads when you are signed in
+            <h3 className="font-bold mb-2 text-lg text-gray-900 dark:text-white">
+              Preferences
+            </h3>
+            {canDisableAds ? (
+              <div className="flex items-center justify-between text-sm">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-blue-600 my-1"
+                    checked={adsDisabled}
+                    onChange={toggleAds}
+                    disabled={isLoading}
+                    aria-label="Disable Ads"
+                  />
+                  <div>
+                    <div className="font-medium">Disable Ads</div>
+                    <div className="text-sm opacity-70">
+                      Hide ads when you are signed in
+                    </div>
                   </div>
-                </div>
-              </label>
-            </div>
+                </label>
+              </div>
+            ) : null}
           </div>
           <div className="">
             <button
               onClick={signOut}
               className="text-sm flex gap-2 items-center font-medium bg-black/80 hover:bg-black text-white dark:bg-white/95 dark:hover:bg-white dark:text-black py-1.5 px-2 rounded-md transition-colors my-4"
             >
-              <FaSignOutAlt /> Logout 
+              <FaSignOutAlt /> Logout
             </button>
           </div>
         </div>

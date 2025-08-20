@@ -1,6 +1,8 @@
 import { authClient } from '~/libraries/auth-client'
 import { useIsDark } from '~/hooks/useIsDark'
 import { FaGithub, FaGoogle } from 'react-icons/fa'
+import splashLightImg from '~/images/splash-light.png'
+import splashDarkImg from '~/images/splash-dark.png'
 
 export const Route = createFileRoute({
   component: LoginPage,
@@ -13,8 +15,8 @@ function SplashImage() {
       <img
         src={
           isDark
-            ? '/src/images/splash-dark.png'
-            : '/src/images/splash-light.png'
+            ? splashDarkImg
+            : splashLightImg
         }
         alt="Waitlist"
         className="w-48 h-48"

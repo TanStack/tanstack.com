@@ -147,11 +147,17 @@ export const librariesGroupNamesMap = {
   other: 'Other',
 }
 
-export function getLibrary(id: string) {
+export function getLibrary<TStrict>(
+  id: string,
+  opts: { strict?: TStrict } = {}
+): TStrict extends false ? Library | undefined : Library {
   const library = libraries.find((d) => d.id === id)
 
   if (!library) {
-    throw new Error(`Library with id "${id}" not found`)
+    if (opts.strict ?? true) {
+      throw new Error(`Library with id "${id}" not found!`)
+    }
+    console.error(`Library with id "${id}" not found!`)
   }
 
   return library as Library

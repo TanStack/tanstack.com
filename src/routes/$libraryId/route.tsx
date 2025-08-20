@@ -1,28 +1,44 @@
-import { Outlet } from '@tanstack/react-router'
+import { notFound, Outlet, redirect, rootRouteId } from '@tanstack/react-router'
 import { Scarf } from '~/components/Scarf'
 import { getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute({
   component: RouteForm,
+  beforeLoad: (ctx) => {
+    const { libraryId } = ctx.params
+    const library = getLibrary(libraryId, { strict: false })
+
+    if (!library) {
+      throw notFound({
+        routeId: rootRouteId,
+      })
+    }
+  },
   head: (ctx) => {
-    const library = getLibrary(ctx.params.libraryId)
+    const library = getLibrary(ctx.params.libraryId, { strict: false })
+
+    if (!library) {
+      return {
+        meta: seo({
+          title: 'Not Found',
+        }),
+      }
+    }
 
     return {
-      meta: seo({
-        title: library.name
-          ? `${library.name} | ${library.frameworks
-              .map(
-                (framework) =>
-                  `${framework.charAt(0).toUpperCase()}${framework.slice(
-                    1
-                  )} ${library.name.replace('TanStack ', '')}`
-              )
-              .join(', ')}`
-          : '',
-        description: library?.description,
-        image: library?.ogImage,
-      }),
+      title: library.name
+        ? `${library.name} | ${library.frameworks
+            .map(
+              (framework) =>
+                `${framework.charAt(0).toUpperCase()}${framework.slice(
+                  1
+                )} ${library.name.replace('TanStack ', '')}`
+            )
+            .join(', ')}`
+        : '',
+      description: library.description,
+      image: library.ogImage,
     }
   },
 })
@@ -34,7 +50,7 @@ export default function RouteForm() {
   return (
     <>
       <Outlet />
-      {library.scarfId ? <Scarf id={library.scarfId} /> : null}
+      {library?.scarfId ? <Scarf id={library.scarfId} /> : null}
     </>
   )
 }

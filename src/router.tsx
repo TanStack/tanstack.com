@@ -10,12 +10,7 @@ import { GamOnPageChange } from './components/Gam'
 import { env } from './utils/env'
 
 export function createRouter() {
-  const CONVEX_URL =
-    env.VITE_CONVEX_URL ||
-    // Hardcoded production URL as fallback for local development
-    // Currently set to an instance owned by Convex Devx
-    // TODO: Replace with URL to an instance owned by the TanStack team
-    'https://befitting-badger-629.convex.cloud'
+  const CONVEX_URL = env.VITE_CONVEX_URL
   const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
 
   const queryClient: QueryClient = new QueryClient({

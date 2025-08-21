@@ -1,12 +1,11 @@
 import { convexAdapter } from '@convex-dev/better-auth'
 import { convex } from '@convex-dev/better-auth/plugins'
 import { betterAuth } from 'better-auth'
+import { GenericCtx } from '../../convex/_generated/server'
 import { betterAuthComponent } from '../../convex/auth'
-import { type GenericCtx } from '../../convex/_generated/server'
 
 // You'll want to replace this with an environment variable
-const siteUrl =
-  process.env.BETTER_AUTH_BASE_URL || process.env.URL || 'http://localhost:3000'
+const siteUrl = process.env.URL
 
 export const createAuth = (ctx: GenericCtx) =>
   // Configure your Better Auth instance here

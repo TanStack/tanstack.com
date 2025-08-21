@@ -2,7 +2,7 @@ import { useUserSettingsStore } from '~/stores/userSettings'
 import { FaSignOutAlt } from 'react-icons/fa'
 import { Authenticated, Unauthenticated } from 'convex/react'
 import { Link, redirect } from '@tanstack/react-router'
-import { authClient } from '~/libraries/auth-client'
+import { authClient } from '~/utils/auth'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
 export const Route = createFileRoute({

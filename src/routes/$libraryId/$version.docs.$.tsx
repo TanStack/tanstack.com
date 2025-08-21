@@ -1,14 +1,19 @@
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
-import { getBranch, getLibrary } from '~/libraries'
+import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
+import { notFound } from '@tanstack/react-router'
 
 export const Route = createFileRoute({
   staleTime: 1000 * 60 * 5,
   loader: (ctx) => {
     const { _splat: docsPath, version, libraryId } = ctx.params
-    const library = getLibrary(libraryId)
+    const library = findLibrary(libraryId)
+
+    if (!library) {
+      throw notFound()
+    }
 
     return loadDocs({
       repo: library.repo,
@@ -20,7 +25,11 @@ export const Route = createFileRoute({
   },
   head: ({ loaderData, params }) => {
     const { libraryId } = params
-    const library = getLibrary(libraryId)
+    const library = findLibrary(libraryId)
+
+    if (!library) {
+      throw notFound()
+    }
 
     return {
       meta: seo({

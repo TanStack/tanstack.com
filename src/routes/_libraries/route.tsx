@@ -10,6 +10,8 @@ import {
   FaDiscord,
   FaGithub,
   FaInstagram,
+  FaSignInAlt,
+  FaSpinner,
   FaTshirt,
   FaUser,
   FaUsers,
@@ -21,7 +23,12 @@ import { ThemeToggle } from '~/components/ThemeToggle'
 import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { SearchButton } from '~/components/SearchButton'
-import { Authenticated, useQuery } from 'convex/react'
+import {
+  Authenticated,
+  AuthLoading,
+  Unauthenticated,
+  useQuery,
+} from 'convex/react'
 import { api } from 'convex/_generated/api'
 import { PiHammerFill } from 'react-icons/pi'
 
@@ -177,6 +184,28 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
       <div className="py-2">
         <div className="bg-gray-500/10 h-px" />
       </div>
+      <Authenticated>
+        {user?.capabilities.some((capability) =>
+          ['builder', 'admin'].includes(capability)
+        ) ? (
+          <Link
+            to="/builder"
+            className={twMerge(linkClasses, 'font-normal')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4 justify-between">
+                <PiHammerFill />
+              </div>
+              <div>Builder</div>
+            </div>
+          </Link>
+        ) : null}
+      </Authenticated>
       {[
         {
           label: 'Maintainers',
@@ -263,23 +292,33 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
         <div className="bg-gray-500/10 h-px" />
       </div>
 
-      {/* Auth Section */}
-      {/* <Unauthenticated>
-        <Link
-          to="/login"
-          className={twMerge(linkClasses, 'font-normal')}
-          activeProps={{
-            className: twMerge('font-bold! bg-gray-500/10 dark:bg-gray-500/30'),
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-4 justify-between">
-              <FaSignInAlt />
+      {(() => {
+        const loginEl = (
+          <Link
+            to="/login"
+            className={twMerge(linkClasses, 'font-normal')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4 justify-between">
+                <FaSignInAlt />
+              </div>
+              <div>Login</div>
             </div>
-            <div>Login</div>
-          </div>
-        </Link>
-      </Unauthenticated> */}
+          </Link>
+        )
+
+        return (
+          <>
+            <AuthLoading>{loginEl}</AuthLoading>
+            <Unauthenticated>{loginEl}</Unauthenticated>
+          </>
+        )
+      })()}
 
       <Authenticated>
         <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
@@ -291,24 +330,6 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
             My Account
           </Link>
         </div>
-        {user?.capabilities.includes('builder') && (
-          <Link
-            to="/builder"
-            className={twMerge(linkClasses, 'font-normal')}
-            activeProps={{
-              className: twMerge(
-                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
-              ),
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-4 justify-between">
-                <PiHammerFill />
-              </div>
-              <div>Builder</div>
-            </div>
-          </Link>
-        )}
       </Authenticated>
     </>
   )

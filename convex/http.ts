@@ -2,7 +2,7 @@ import { ossStats } from './stats'
 import { httpRouter } from 'convex/server'
 
 import { betterAuthComponent } from './auth'
-import { createAuth } from '../src/libraries/auth'
+import { createAuth } from '../src/utils/auth.isomorphic'
 
 const http = httpRouter()
 

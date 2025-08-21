@@ -1,11 +1,20 @@
-import { authClient } from '~/libraries/auth-client'
+import { authClient } from '~/utils/auth'
 import { useIsDark } from '~/hooks/useIsDark'
 import { FaGithub, FaGoogle } from 'react-icons/fa'
 import splashLightImg from '~/images/splash-light.png'
 import splashDarkImg from '~/images/splash-dark.png'
+import { fetchServerAuth } from '~/utils/auth'
+import { redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute({
   component: LoginPage,
+  loader: async () => {
+    const { token, userId } = await fetchServerAuth()
+
+    if (token) {
+      throw redirect({ to: '/account' })
+    }
+  },
 })
 
 function SplashImage() {
@@ -26,7 +35,7 @@ function SignInForm() {
     <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 w-[100vw] max-w-sm mx-auto">
       <SplashImage />
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">
-        Sign into your TanStack Account
+        Sign into TanStack
       </h2>
       <button
         onClick={() =>

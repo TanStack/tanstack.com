@@ -1,3 +1,5 @@
+import { formatNumber } from '@observablehq/plot'
+
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
@@ -132,4 +134,15 @@ export function multiSortBy<T>(
  */
 export function removeLeadingSlash(path: string): string {
   return path.replace(/^\//, '')
+}
+
+export async function logTime<T>(
+  lable: string,
+  fn: () => T
+): Promise<T extends Promise<infer U> ? U : T> {
+  const start = performance.now()
+  const result = await fn()
+  const end = performance.now()
+  console.log(`${lable}: ${(end - start).toLocaleString()} ms`)
+  return result as any
 }

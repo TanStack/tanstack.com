@@ -4,7 +4,6 @@ import { z } from 'zod'
 const serverEnvSchema = z.object({
   GITHUB_AUTH_TOKEN: z.string().default('USE_A_REAL_KEY_IN_PRODUCTION'),
   AIRTABLE_API_KEY: z.string().optional(),
-  VITE_CLERK_PUBLISHABLE_KEY: z.string().optional(),
   GITHUB_OAUTH_CLIENT_ID: z.string().optional(),
   GITHUB_OAUTH_CLIENT_SECRET: z.string().optional(),
   GOOGLE_OAUTH_CLIENT_ID: z.string().optional(),
@@ -12,8 +11,12 @@ const serverEnvSchema = z.object({
 })
 
 const clientEnvSchema = z.object({
-  VITE_CONVEX_URL: z.string(),
-  VITE_CONVEX_SITE_URL: z.string(),
+  VITE_CONVEX_SITE_URL: z
+    .string()
+    .default('http://upbeat-greyhound-631.convex.site'),
+  VITE_CONVEX_URL: z
+    .string()
+    .default('http://upbeat-greyhound-631.convex.cloud'),
   URL: z.string().default('http://localhost:3000'),
 })
 

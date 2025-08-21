@@ -1,12 +1,18 @@
-import { getBranch, getLibrary } from '~/libraries'
+import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { loadDocs } from '~/utils/docs'
+import { notFound } from '@tanstack/react-router'
 
 export const ServerRoute = createServerFileRoute().methods({
   GET: async ({ request, params }) => {
     const url = new URL(request.url)
 
     const { libraryId, version, framework, _splat: docsPath } = params
-    const library = getLibrary(libraryId)
+    const library = findLibrary(libraryId)
+
+    if (!library) {
+      throw notFound()
+    }
+
     const root = library.docsRoot || 'docs'
 
     const doc = await loadDocs({

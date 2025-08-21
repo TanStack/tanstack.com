@@ -9,7 +9,6 @@ import {
   Scripts,
   useRouteContext,
 } from '@tanstack/react-router'
-import { createServerFn } from '@tanstack/react-start'
 import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
@@ -26,23 +25,11 @@ import { SearchModal } from '~/components/SearchModal'
 import { ThemeProvider } from '~/components/ThemeProvider'
 import { ConvexQueryClient } from '@convex-dev/react-query'
 import { ConvexReactClient } from 'convex/react'
-import { getCookie, getWebRequest } from '@tanstack/react-start/server'
-import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
-import { authClient } from '../libraries/auth-client'
-import { fetchSession, getCookieName } from '../libraries/server-auth-utils'
-import { LibrariesLayout } from './_libraries/route'
 
-// Server side session request
-const fetchAuth = createServerFn({ method: 'GET' }).handler(async () => {
-  const sessionCookieName = await getCookieName()
-  const token = getCookie(sessionCookieName)
-  const request = getWebRequest()
-  const { session } = await fetchSession(request)
-  return {
-    userId: session?.user.id,
-    token,
-  }
-})
+import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
+import { authClient } from '../utils/auth'
+
+import { LibrariesLayout } from './_libraries/route'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -146,18 +133,11 @@ export const Route = createRootRouteWithContext<{
       })
     }
 
-    // all queries, mutations and action made with TanStack Query will be
-    // authenticated by an identity token.
-    const auth = await fetchAuth()
-    const { userId, token } = auth
-
-    // During SSR only (the only time serverHttpClient exists),
-    // set the auth token for Convex to make HTTP queries with.
-    if (token) {
-      ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
-    }
-
-    return { userId, token }
+    // // During SSR only (the only time serverHttpClient exists),
+    // // set the auth token for Convex to make HTTP queries with.
+    // if (token) {
+    //   ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
+    // }
   },
   staleTime: Infinity,
   errorComponent: (props) => {

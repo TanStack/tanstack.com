@@ -12,7 +12,6 @@ import {
   FaChevronRight,
 } from 'react-icons/fa'
 import type { Id } from 'convex/_generated/dataModel'
-import { fetchServerAuth } from '~/utils/auth.isomorphic'
 import {
   useReactTable,
   getCoreRowModel,
@@ -29,13 +28,6 @@ type User = {
 }
 
 export const Route = createFileRoute({
-  beforeLoad: async () => {
-    const { userId } = await fetchServerAuth()
-
-    if (!userId) {
-      throw redirect({ to: '/login' })
-    }
-  },
   component: UsersPage,
 })
 

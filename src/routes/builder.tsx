@@ -356,7 +356,7 @@ export const CustomAppSidebarActions = () => {
       <Button
         onClick={createGithubRepository}
         variant="secondary"
-        className="w-full cursor-pointer bg-black text-white hover:bg-black/80"
+        className="w-full cursor-pointer bg-black text-white hover:bg-black/80 mt-2"
         disabled={performingAction}
       >
         <FaGithub className="mr-2" /> {createRepoButtonText}

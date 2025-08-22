@@ -72,7 +72,6 @@ export function createRouter() {
       return
     }
 
-    console.log('onResolved')
     GamOnPageChange()
   })
 

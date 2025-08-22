@@ -3,15 +3,14 @@ import { useIsDark } from '~/hooks/useIsDark'
 import { FaGithub, FaGoogle } from 'react-icons/fa'
 import splashLightImg from '~/images/splash-light.png'
 import splashDarkImg from '~/images/splash-dark.png'
-import { fetchServerAuth } from '~/utils/auth.isomorphic'
 import { redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute({
   component: LoginPage,
-  loader: async () => {
-    const { token, userId } = await fetchServerAuth()
+  loader: async ({ context }) => {
+    const user = await context.ensureUser()
 
-    if (token) {
+    if (user) {
       throw redirect({ to: '/account' })
     }
   },

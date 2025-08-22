@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Link, LinkOptions, Outlet, redirect } from '@tanstack/react-router'
+import { Link, LinkOptions, Outlet } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { FaHome, FaLock, FaUser, FaUsers } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
@@ -7,15 +7,10 @@ import logoColor100w from '~/images/logo-color-100w.png'
 import { ThemeToggle } from '~/components/ThemeToggle'
 import { useQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
-import { fetchServerAuth } from '~/utils/auth.isomorphic'
 
 export const Route = createFileRoute({
-  beforeLoad: async () => {
-    const { userId } = await fetchServerAuth()
-
-    if (!userId) {
-      throw redirect({ to: '/login' })
-    }
+  beforeLoad: async ({ context }) => {
+    await context.ensureUser()
   },
   component: () => {
     return (

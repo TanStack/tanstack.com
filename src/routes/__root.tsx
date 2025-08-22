@@ -27,14 +27,16 @@ import { ConvexQueryClient } from '@convex-dev/react-query'
 import { ConvexReactClient } from 'convex/react'
 
 import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
-import { authClient } from '../utils/auth'
+import { authClient } from '../utils/auth.client'
 
 import { LibrariesLayout } from './_libraries/route'
+import { TanStackUser } from 'convex/auth'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
   convexClient: ConvexReactClient
   convexQueryClient: ConvexQueryClient
+  ensureUser: () => Promise<TanStackUser>
 }>()({
   head: () => ({
     meta: [

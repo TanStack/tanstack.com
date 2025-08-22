@@ -6,13 +6,8 @@ import { api } from 'convex/_generated/api'
 export const Route = createFileRoute({
   component: RouteComponent,
   loader: async (opts) => {
-    const user = await opts.context.queryClient.ensureQueryData(
-      convexQuery(api.auth.getCurrentUser, {})
-    )
-
-    if (!user) {
-      throw redirect({ to: '/login' })
-    }
+    const user = await opts.context.ensureUser()
+    return { user }
   },
 })
 

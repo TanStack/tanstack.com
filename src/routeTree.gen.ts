@@ -19,11 +19,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
 import { Route as MerchRouteImport } from './routes/merch'
 import { Route as BuilderRouteImport } from './routes/builder'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as LibrariesRouteRouteImport } from './routes/_libraries/route'
 import { Route as LibraryIdRouteRouteImport } from './routes/$libraryId/route'
 import { Route as StatsIndexRouteImport } from './routes/stats/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as LibrariesIndexRouteImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as LibrariesTermsRouteImport } from './routes/_libraries/terms'
 import { Route as LibrariesSupportRouteImport } from './routes/_libraries/support'
 import { Route as LibrariesPrivacyRouteImport } from './routes/_libraries/privacy'
@@ -81,6 +84,11 @@ const BuilderRoute = BuilderRouteImport.update({
   path: '/builder',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LibrariesRouteRoute = LibrariesRouteRouteImport.update({
   id: '/_libraries',
   getParentRoute: () => rootRouteImport,
@@ -95,6 +103,11 @@ const StatsIndexRoute = StatsIndexRouteImport.update({
   path: '/stats/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const LibrariesIndexRoute = LibrariesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -104,6 +117,11 @@ const LibraryIdIndexRoute = LibraryIdIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LibraryIdRouteRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const LibrariesTermsRoute = LibrariesTermsRouteImport.update({
   id: '/terms',
@@ -325,6 +343,7 @@ const LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute =
 
 export interface FileRoutesByFullPath {
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
+  '/admin': typeof AdminRouteRouteWithChildren
   '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
@@ -341,8 +360,10 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof LibrariesPrivacyRoute
   '/support': typeof LibrariesSupportRoute
   '/terms': typeof LibrariesTermsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/blog/$': typeof LibrariesBlogSplatRoute
@@ -384,8 +405,10 @@ export interface FileRoutesByTo {
   '/privacy': typeof LibrariesPrivacyRoute
   '/support': typeof LibrariesSupportRoute
   '/terms': typeof LibrariesTermsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
+  '/admin': typeof AdminIndexRoute
   '/stats': typeof StatsIndexRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/blog': typeof LibrariesBlogIndexRoute
@@ -414,6 +437,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
   '/_libraries': typeof LibrariesRouteRouteWithChildren
+  '/admin': typeof AdminRouteRouteWithChildren
   '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
@@ -430,8 +454,10 @@ export interface FileRoutesById {
   '/_libraries/privacy': typeof LibrariesPrivacyRoute
   '/_libraries/support': typeof LibrariesSupportRoute
   '/_libraries/terms': typeof LibrariesTermsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/_libraries/': typeof LibrariesIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
@@ -461,6 +487,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/$libraryId'
+    | '/admin'
     | '/builder'
     | '/merch'
     | '/sponsors-embed'
@@ -477,8 +504,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/support'
     | '/terms'
+    | '/admin/users'
     | '/$libraryId/'
     | '/'
+    | '/admin/'
     | '/stats'
     | '/$libraryId/$version/docs'
     | '/blog/$'
@@ -520,8 +549,10 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/support'
     | '/terms'
+    | '/admin/users'
     | '/$libraryId'
     | '/'
+    | '/admin'
     | '/stats'
     | '/blog/$'
     | '/blog'
@@ -549,6 +580,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/$libraryId'
     | '/_libraries'
+    | '/admin'
     | '/builder'
     | '/merch'
     | '/sponsors-embed'
@@ -565,8 +597,10 @@ export interface FileRouteTypes {
     | '/_libraries/privacy'
     | '/_libraries/support'
     | '/_libraries/terms'
+    | '/admin/users'
     | '/$libraryId/'
     | '/_libraries/'
+    | '/admin/'
     | '/stats/'
     | '/$libraryId/$version/docs'
     | '/_libraries/blog/$'
@@ -596,6 +630,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   LibraryIdRouteRoute: typeof LibraryIdRouteRouteWithChildren
   LibrariesRouteRoute: typeof LibrariesRouteRouteWithChildren
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   BuilderRoute: typeof BuilderRoute
   MerchRoute: typeof MerchRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
@@ -656,6 +691,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: ''
       preLoaderRoute: typeof LibrariesRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/builder': {
@@ -770,6 +812,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesTermsRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/$libraryId/': {
       id: '/$libraryId/'
       path: '/'
@@ -783,6 +832,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof LibrariesIndexRouteImport
       parentRoute: typeof LibrariesRouteRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/stats/': {
       id: '/stats/'
@@ -991,6 +1047,13 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
     '/builder': {
       id: '/builder'
       path: '/builder'
@@ -1103,6 +1166,13 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
     '/$libraryId/': {
       id: '/$libraryId/'
       path: '/'
@@ -1114,6 +1184,13 @@ declare module '@tanstack/react-start/server' {
       id: '/_libraries/'
       path: '/'
       fullPath: '/'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1340,6 +1417,23 @@ declare module './routes/_libraries/route' {
     ServerFileRoutesByPath['/_libraries']['id'],
     ServerFileRoutesByPath['/_libraries']['path'],
     ServerFileRoutesByPath['/_libraries']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/admin/route' {
+  const createFileRoute: CreateFileRoute<
+    '/admin',
+    FileRoutesByPath['/admin']['parentRoute'],
+    FileRoutesByPath['/admin']['id'],
+    FileRoutesByPath['/admin']['path'],
+    FileRoutesByPath['/admin']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/admin']['parentRoute'],
+    ServerFileRoutesByPath['/admin']['id'],
+    ServerFileRoutesByPath['/admin']['path'],
+    ServerFileRoutesByPath['/admin']['fullPath'],
     unknown
   >
 }
@@ -1615,6 +1709,23 @@ declare module './routes/_libraries/terms' {
     unknown
   >
 }
+declare module './routes/admin/users' {
+  const createFileRoute: CreateFileRoute<
+    '/admin/users',
+    FileRoutesByPath['/admin/users']['parentRoute'],
+    FileRoutesByPath['/admin/users']['id'],
+    FileRoutesByPath['/admin/users']['path'],
+    FileRoutesByPath['/admin/users']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/admin/users']['parentRoute'],
+    ServerFileRoutesByPath['/admin/users']['id'],
+    ServerFileRoutesByPath['/admin/users']['path'],
+    ServerFileRoutesByPath['/admin/users']['fullPath'],
+    unknown
+  >
+}
 declare module './routes/$libraryId/index' {
   const createFileRoute: CreateFileRoute<
     '/$libraryId/',
@@ -1646,6 +1757,23 @@ declare module './routes/_libraries/index' {
     ServerFileRoutesByPath['/_libraries/']['id'],
     ServerFileRoutesByPath['/_libraries/']['path'],
     ServerFileRoutesByPath['/_libraries/']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/admin/index' {
+  const createFileRoute: CreateFileRoute<
+    '/admin/',
+    FileRoutesByPath['/admin/']['parentRoute'],
+    FileRoutesByPath['/admin/']['id'],
+    FileRoutesByPath['/admin/']['path'],
+    FileRoutesByPath['/admin/']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/admin/']['parentRoute'],
+    ServerFileRoutesByPath['/admin/']['id'],
+    ServerFileRoutesByPath['/admin/']['path'],
+    ServerFileRoutesByPath['/admin/']['fullPath'],
     unknown
   >
 }
@@ -2235,9 +2363,24 @@ const LibrariesRouteRouteWithChildren = LibrariesRouteRoute._addFileChildren(
   LibrariesRouteRouteChildren,
 )
 
+interface AdminRouteRouteChildren {
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   LibraryIdRouteRoute: LibraryIdRouteRouteWithChildren,
   LibrariesRouteRoute: LibrariesRouteRouteWithChildren,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   BuilderRoute: BuilderRoute,
   MerchRoute: MerchRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,

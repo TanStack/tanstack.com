@@ -29,6 +29,7 @@ pnpm linkAll          # Link local TanStack packages (requires sibling repos)
 ## Architecture Overview
 
 ### Tech Stack
+
 - **Framework**: TanStack Router + TanStack Start (file-system based routing)
 - **Styling**: Tailwind CSS with custom design tokens
 - **Backend**: Convex (real-time backend service)
@@ -37,6 +38,7 @@ pnpm linkAll          # Link local TanStack packages (requires sibling repos)
 - **Build**: Vite
 
 ### Key Directory Structure
+
 - `src/routes/` - File-system based routing (TanStack Router)
 - `src/components/` - Shared React components
 - `src/libraries/` - Library configurations and metadata
@@ -45,25 +47,31 @@ pnpm linkAll          # Link local TanStack packages (requires sibling repos)
 - `scripts/` - Build and development scripts
 
 ### Routing System
+
 Uses TanStack Router's file-system routing. Key patterns:
+
 - `src/routes/__root.tsx` - Root layout
 - `src/routes/[framework]/[library]/*.tsx` - Dynamic library docs
 - Route files export `createFileRoute()` for route configuration
 - Layouts use `_layout.tsx` convention
 
 ### Content System
+
 Documentation is fetched from GitHub in production or read locally in development:
+
 - Library docs pulled from respective GitHub repos
 - Blog posts stored locally in `src/blog/`
 - Content processed via Content Collections
 - Supports multiple framework variations (React, Vue, Angular, Solid)
 
 ### State Management
+
 - **TanStack Query**: Server state and data fetching
 - **Zustand**: Client state (`src/stores/`)
 - **React Context**: Theme and auth providers
 
 ### Backend (Convex)
+
 - Functions in `convex/` directory
 - Real-time subscriptions and mutations
 - Handles user data, sponsors, authentication
@@ -71,11 +79,13 @@ Documentation is fetched from GitHub in production or read locally in developmen
 ## Development Setup Requirements
 
 1. **Environment Variables**: Create `.env` file with:
+
    - Clerk tokens (auth)
    - Convex deployment URL
    - Sentry DSN (optional)
 
-2. **Local Package Development**: 
+2. **Local Package Development**:
+
    - Parent directory must be named `tanstack/`
    - Sibling repos required for local docs: `tanstack/query`, `tanstack/router`, etc.
    - Run `pnpm linkAll` to link local packages
@@ -85,11 +95,13 @@ Documentation is fetched from GitHub in production or read locally in developmen
 ## Important Patterns
 
 ### Component Creation
+
 - Use TypeScript with explicit types
 - Follow existing component patterns in `src/components/`
 - Tailwind classes for styling (avoid inline styles)
 
 ### Route Creation
+
 ```tsx
 import { createFileRoute } from '@tanstack/react-router'
 
@@ -103,7 +115,9 @@ function RouteComponent() {
 ```
 
 ### API/Backend Calls
+
 Use Convex hooks:
+
 ```tsx
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '~/convex/_generated/api'
@@ -113,6 +127,7 @@ const mutate = useMutation(api.functions.myMutation)
 ```
 
 ### Content/Documentation Updates
+
 - Blog posts: Add Markdown files to `src/blog/`
 - Library metadata: Update `src/libraries/[library].tsx`
 - Documentation pulled from respective library repos (not edited here)

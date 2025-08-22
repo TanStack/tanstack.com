@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { createApp, createMemoryEnvironment, getFrameworkById, registerFramework } from "@tanstack/cta-engine"
+import { createApp, createMemoryEnvironment, finalizeAddOns, getFrameworkById, loadStarter, registerFramework, Starter } from "@tanstack/cta-engine"
 import { createFrameworkDefinition } from '@tanstack/cta-framework-react-cra'
 
 registerFramework(createFrameworkDefinition())
@@ -10,7 +10,7 @@ const requestOptionsSchema: z.ZodTypeAny = z.object({
   framework: z.enum(["react-cra", "solid"]),
   typescript: z.boolean(),
   tailwind: z.boolean(),
-  chosenAddOns: z.array(z.any()),
+  chosenAddOns: z.array(z.string()),
 })
 
 export const ServerRoute = createServerFileRoute().methods({
@@ -25,6 +25,8 @@ export const ServerRoute = createServerFileRoute().methods({
 
     const framework = getFrameworkById(validationResult.data.framework)!
     const { environment, output } = createMemoryEnvironment()
+
+    
     const createAppOptions = Object.assign({
       projectName: "dry-run-create-app",
       targetDir: "./",
@@ -36,7 +38,27 @@ export const ServerRoute = createServerFileRoute().methods({
       chosenAddOns: []
     }, validationResult.data, { framework })
 
-    await createApp(environment, createAppOptions)
+    
+    let starter: Starter | undefined
+    const addOns: Array<string> = [...createAppOptions.chosenAddOns]
+    if (createAppOptions.starter) {
+      starter = await loadStarter(createAppOptions.starter)
+      if (starter)
+        for (const addOn of starter.dependsOn ?? []) {
+          addOns.push(addOn)
+        }
+    }
+    
+    const chosenAddOns = await finalizeAddOns(
+      framework,
+      createAppOptions.mode,
+      addOns,
+    )
+
+    await createApp(environment, {
+      ...createAppOptions,
+      chosenAddOns,
+    })
 
     for (const [outputPath, content] of Object.entries(output.files)) {
       const normalizedOutputPath = outputPath.replace(process.cwd(), '.')

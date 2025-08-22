@@ -130,7 +130,9 @@ const forcePushAllFiles = async (
   )
 
   if (!commitResponse.ok) {
-    throw new Error('Failed to create commit')
+    const errorData = await commitResponse.json()
+    console.error('Commit creation failed:', errorData)
+    throw new Error(`Failed to create commit: ${errorData.message || commitResponse.status}`)
   }
 
   const commitData = await commitResponse.json()

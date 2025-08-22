@@ -9,7 +9,7 @@ import { serverOnly } from '@tanstack/react-start'
 // You'll want to replace this with an environment variable
 const siteUrl = process.env.URL
 
-export const createAuth = serverOnly((ctx: GenericCtx) =>
+export const createAuth = (ctx: GenericCtx) =>
   // Configure your Better Auth instance here
   betterAuth({
     // All auth requests will be proxied through your TanStack Start server
@@ -32,7 +32,6 @@ export const createAuth = serverOnly((ctx: GenericCtx) =>
       convex(),
     ],
   })
-)
 
 export const { fetchSession, reactStartHandler, getCookieName } =
   reactStartHelpers(createAuth, {

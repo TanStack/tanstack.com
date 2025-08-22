@@ -2,8 +2,8 @@ import { convexAdapter } from '@convex-dev/better-auth'
 import { convex } from '@convex-dev/better-auth/plugins'
 import { betterAuth } from 'better-auth'
 import { reactStartHelpers } from '@convex-dev/better-auth/react-start'
-import { GenericCtx } from 'convex/_generated/server'
-import { betterAuthComponent } from 'convex/auth'
+import { GenericCtx } from '../../convex/_generated/server'
+import { betterAuthComponent } from '../../convex/auth'
 
 // You'll want to replace this with an environment variable
 const siteUrl = process.env.URL

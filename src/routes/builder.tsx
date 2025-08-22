@@ -2,7 +2,7 @@ import styles from '~/styles/builder.css?url'
 import { seo } from '~/utils/seo'
 import App, { AppSidebar } from '@tanstack/cta-ui-base/src'
 import { Button } from '@tanstack/cta-ui-base/src/components/ui/button'
-import { useDryRun } from '@tanstack/cta-ui-base/src/store/project'
+import { useDryRun, useProjectOptions, useProjectStarter } from '@tanstack/cta-ui-base/src/store/project'
 import JSZip from 'jszip'
 import { FaFileArchive, FaGithub } from 'react-icons/fa'
 import { convexQuery } from '@convex-dev/react-query'
@@ -38,6 +38,8 @@ export const CustomAppSidebarActions = () => {
   const [performingAction, setPerformingAction] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const createRepository = useLocation().searchStr.includes('createRepository')
+  const [createRepoButtonText, setCreateRepoButtonText] = useState(createRepository ? 'Creating new repo...': 'Create Repository')
+  const projectOptions = useProjectOptions()
 
   const handleExportZip = async () => {
     if (performingAction) return
@@ -73,11 +75,17 @@ export const CustomAppSidebarActions = () => {
   }
 
   const createGithubRepository = useCallback(
-    async (opts: { name: string }) => {
+    async () => {
       if (performingAction) return
 
       setPerformingAction(true)
+      setCreateRepoButtonText('Creating new repository...')
       try {
+        if (!projectOptions?.projectName) {
+          setError('No project name found')
+          return
+        }
+
         const { data, error } = await authClient.getAccessToken({ providerId: 'github' })
         if (error) {
           console.error(error)
@@ -92,7 +100,7 @@ export const CustomAppSidebarActions = () => {
             Authorization: `Bearer ${data?.accessToken}`,
           },
           body: JSON.stringify({
-            name: opts.name,
+            name: projectOptions?.projectName,
           }),
         })
 
@@ -118,9 +126,10 @@ export const CustomAppSidebarActions = () => {
         setError(`Failed to create repository: ${(error as Error).message}`)
       } finally {
         setPerformingAction(false)
+        setCreateRepoButtonText('Create Repository')
       }
     },
-    [performingAction]
+    [performingAction, projectOptions?.projectName]
   )
 
   useEffect(() => {
@@ -128,30 +137,30 @@ export const CustomAppSidebarActions = () => {
       // remove from url
       const search = new URLSearchParams(window.location.search)
       search.delete('createRepository')
-      const newUrl = `${window.location.pathname}?${search.toString()}`
+      const searchStr = search.toString()
+      const newUrl = `${window.location.pathname}${searchStr ? `?${searchStr}` : ''}`
       window.history.replaceState(null, '', newUrl)
-      createGithubRepository({ name: 'tanstack-app' })
+      createGithubRepository()
     }
   }, [createGithubRepository, createRepository])
 
   return (
-    <div className="p-4 bg-background/40 rounded-xl">
+    <div className="p-4 bg-background rounded-xl">
       <Button
         onClick={handleExportZip}
         variant="secondary"
-        className="w-full cursor-pointer"
+        className="w-full cursor-pointer bg-gray-300 text-black hover:bg-gray-400"
         disabled={performingAction}
       >
         <FaFileArchive className="mr-2" /> Export ZIP
       </Button>
 
-      <Button
-        onClick={() => createGithubRepository({ name: 'tanstack-app' })}
+      <Button onClick={createGithubRepository}
         variant="secondary"
         className="w-full cursor-pointer bg-black text-white hover:bg-black/80"
         disabled={performingAction}
       >
-        <FaGithub className="mr-2" /> Create Repository
+        <FaGithub className="mr-2" /> {createRepoButtonText}
       </Button>
       {error && (
         <p className="text-red-500 mt-2">{error}</p>

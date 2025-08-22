@@ -22,7 +22,11 @@ import unkeyBlackSvg from '~/images/unkey-black.svg'
 import unkeyWhiteSvg from '~/images/unkey-white.svg'
 import electricDarkSvg from '~/images/electric-dark.svg'
 import electricLightSvg from '~/images/electric-light.svg'
-import { Library } from '~/libraries'
+import prismaLightSvg from '~/images/prisma-light.svg'
+import prismaDarkSvg from '~/images/prisma-dark.svg'
+import codeRabbitLightSvg from '~/images/coderabbit-light.svg'
+import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
+import { libraries, Library } from '~/libraries'
 
 function LearnMoreButton() {
   return (
@@ -621,14 +625,112 @@ const vercel = (() => {
   }
 })()
 
+const prisma = (() => {
+  const href = 'https://www.prisma.io/?utm_source=tanstack&via=tanstack'
+
+  return {
+    name: 'Prisma',
+    id: 'prisma',
+    href,
+    sidebarImgLight: prismaLightSvg,
+    sidebarImgDark: prismaDarkSvg,
+    sidebarImgClass: 'py-4',
+    status: 'active' as const,
+    libraries: ['db'] as const,
+    startDate: 'Aug 2025',
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-12">
+        <img
+          src={prismaLightSvg}
+          alt="Prisma"
+          className="w-[220px] max-w-full dark:hidden"
+        />
+        <img
+          src={prismaDarkSvg}
+          alt="Prisma"
+          className="w-[220px] max-w-full hidden dark:block"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          TanStack and Prisma Postgres: Skip the database setup, get to
+          building. Prisma Postgres provisions production-ready Postgres
+          databases in seconds—no resource config, no infrastructure planning,
+          no late-night "why is my connection pool maxed out?" debugging
+          sessions. Just connect your TanStack app and start building features
+          that matter.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const codeRabbit = (() => {
+  const href =
+    'https://coderabbit.link/tanstack?utm_source=tanstack&via=tanstack'
+
+  return {
+    name: 'Code Rabbit',
+    id: 'coderabbit',
+    href,
+    sidebarImgLight: codeRabbitLightSvg,
+    sidebarImgDark: codeRabbitDarkSvg,
+    sidebarImgClass: 'py-5 scale-[1.2]',
+    status: 'active' as const,
+    libraries: libraries.map((l) => l.id),
+    startDate: 'Aug 2025',
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-12">
+        <img
+          src={codeRabbitLightSvg}
+          alt="Code Rabbit"
+          className="w-[350px] max-w-full dark:hidden"
+        />
+        <img
+          src={codeRabbitDarkSvg}
+          alt="Code Rabbit"
+          className="w-[350px] max-w-full hidden dark:block"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          TanStack leverages CodeRabbit to{' '}
+          <strong>
+            enhance our code review process, significantly reducing review times
+            and improving code quality
+          </strong>
+          . By integrating CodeRabbit's advanced AI capabilities, we ensure that
+          our pull requests are thoroughly analyzed for potential issues, from
+          readability to logic bugs. This allows our team to{' '}
+          <strong>
+            focus on meaningful code discussions and innovation, while
+            maintaining high standards of code quality and security
+          </strong>
+          . With CodeRabbit, we benefit from intelligent, automated reviews that
+          adapt to our workflows, making our development process faster and more
+          efficient.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 export const partners: Partner[] = [
-  clerk,
+  codeRabbit,
   agGrid,
   netlify,
   neon,
+  clerk,
   convex,
   electric,
   sentry,
+  prisma,
   unkey,
   uiDev,
   nozzle,

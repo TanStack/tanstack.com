@@ -53,8 +53,6 @@ function RouterVersionIndex() {
       />
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
       <PartnersSection libraryId="router" />
-      <div className="h-8" />
-      <PartnershipCallout libraryName="Router" />
 
       <FeatureGrid
         title="Feature Rich and Lightweight"

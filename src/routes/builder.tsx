@@ -1,31 +1,45 @@
 import { convexQuery } from '@convex-dev/react-query'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { redirect } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 
 export const Route = createFileRoute({
   component: RouteComponent,
   loader: async (opts) => {
-    await opts.context.queryClient.ensureQueryData(
+    const user = await opts.context.queryClient.ensureQueryData(
       convexQuery(api.auth.getCurrentUser, {})
     )
+
+    if (!user) {
+      throw redirect({ to: '/login' })
+    }
   },
 })
 
 function RouteComponent() {
-  const { isLoading, data: user } = useSuspenseQuery(convexQuery(api.auth.getCurrentUser, {}))
-  const navigate = useNavigate()
-  if (isLoading) {
-    return null
-  }
-  if (!user?.capabilities.includes('builder')) {
-    navigate({ to: '/login' })
-    return null
-  }
+  const currentUserQuery = useSuspenseQuery(
+    convexQuery(api.auth.getCurrentUser, {})
+  )
+
+  const canAccess = currentUserQuery.data?.capabilities.includes('builder')
 
   return (
     <div className="flex items-center justify-center h-screen">
-      Hello "/builder"!
+      {canAccess ? (
+        <Builder />
+      ) : (
+        <div>
+          You are not authorized to access this page. Please contact support.
+        </div>
+      )}
+    </div>
+  )
+}
+
+function Builder() {
+  return (
+    <div>
+      <h1>Welcome to the builder!</h1>
     </div>
   )
 }

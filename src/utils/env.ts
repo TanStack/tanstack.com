@@ -17,7 +17,7 @@ const clientEnvSchema = z.object({
   VITE_CONVEX_URL: z
     .string()
     .default('http://upbeat-greyhound-631.convex.cloud'),
-  URL: z.string().default('http://localhost:3000'),
+  URL: z.string().optional(),
 })
 
 // Validate and parse environment variables

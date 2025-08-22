@@ -1,9 +1,9 @@
-import { authClient } from '~/utils/auth'
+import { authClient } from '~/utils/auth.client'
 import { useIsDark } from '~/hooks/useIsDark'
 import { FaGithub, FaGoogle } from 'react-icons/fa'
 import splashLightImg from '~/images/splash-light.png'
 import splashDarkImg from '~/images/splash-dark.png'
-import { fetchServerAuth } from '~/utils/auth'
+import { fetchServerAuth } from '~/utils/auth.isomorphic'
 import { redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute({
@@ -41,7 +41,6 @@ function SignInForm() {
         onClick={() =>
           authClient.signIn.social({
             provider: 'github',
-            callbackURL: '/dashboard',
           })
         }
         className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
@@ -52,7 +51,6 @@ function SignInForm() {
         onClick={() =>
           authClient.signIn.social({
             provider: 'google',
-            callbackURL: '/dashboard',
           })
         }
         className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"

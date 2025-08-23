@@ -1,11 +1,12 @@
 import styles from '~/styles/builder.css?url'
 import { seo } from '~/utils/seo'
-import App, { AppSidebar } from '@tanstack/cta-ui-base/src'
-import { Button } from '@tanstack/cta-ui-base/src/components/ui/button'
+import App from '~/cta/components/cta-ui'
+import { AppSidebar } from '~/cta/components/cta-sidebar'
+import { Button } from '~/cta/components/ui/button'
 import {
   useDryRun,
   useProjectOptions,
-} from '@tanstack/cta-ui-base/src/store/project'
+} from '~/cta/store/project'
 import JSZip from 'jszip'
 import { FaFileArchive, FaGithub } from 'react-icons/fa'
 import { convexQuery } from '@convex-dev/react-query'

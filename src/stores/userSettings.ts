@@ -43,13 +43,17 @@ export const useUserSettingsStore = create<UserSettingsState>()(
 
 export function useAdsPreference() {
   const userQuery = useCurrentUserQuery()
-  const { settings } = useUserSettingsStore((s) => ({
-    settings: s.settings,
-  }))
+  const settings = useUserSettingsStore((s) => s.settings)
 
+  const status = userQuery.isLoading ? 'unknown' : 'ready'
+  
+  // Show ads if:
+  // - User doesn't have the 'disableAds' capability (they haven't paid to disable ads), OR
+  // - User has the capability but hasn't disabled ads in settings
   const adsEnabled = userQuery.data
-    ? userQuery.data.capabilities.includes('disableAds') &&
+    ? !userQuery.data.capabilities.includes('disableAds') ||
       !settings.adsDisabled
     : true
-  return { adsEnabled }
+    
+  return { adsEnabled, status }
 }

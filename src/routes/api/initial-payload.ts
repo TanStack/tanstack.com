@@ -1,5 +1,5 @@
-import { generateInitialPayload } from "@tanstack/cta-ui/lib/engine-handling/generate-initial-payload"
-import { setServerEnvironment } from "@tanstack/cta-ui/lib/engine-handling/server-environment"
+import { generateInitialPayload } from "~/cta/lib/engine-handling/generate-initial-payload"
+import { setServerEnvironment } from "~/cta/lib/engine-handling/server-environment"
 
 setServerEnvironment({
   projectPath: process.cwd(),
@@ -18,7 +18,7 @@ setServerEnvironment({
 })
 
 export const ServerRoute = createServerFileRoute().methods({
-  GET: async ({ request }) => {
+  GET: async () => {
     const payload = await generateInitialPayload()
     return new Response(JSON.stringify(payload))
   },

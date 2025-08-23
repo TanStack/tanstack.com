@@ -1,4 +1,6 @@
 import { Await, Link, MatchRoute, getRouteApi } from '@tanstack/react-router'
+import { convexQuery } from '@convex-dev/react-query'
+import { api } from 'convex/_generated/api'
 import { twMerge } from 'tailwind-merge'
 import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
@@ -39,7 +41,20 @@ const courses = [
 ]
 
 export const Route = createFileRoute({
-  loader: () => {
+  loader: async ({ context: { queryClient } }) => {
+    const githubQuery = queryClient.ensureQueryData(
+      convexQuery(api.stats.getGithubOwner, {
+        owner: 'tanstack',
+      })
+    )
+    const npmQuery = queryClient.ensureQueryData(
+      convexQuery(api.stats.getNpmOrg, {
+        name: 'tanstack',
+      })
+    )
+
+    await Promise.all([githubQuery, npmQuery])
+
     return {
       randomNumber: Math.random(),
     }

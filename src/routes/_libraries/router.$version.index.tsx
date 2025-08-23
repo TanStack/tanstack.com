@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Link, getRouteApi } from '@tanstack/react-router'
+import { getRouteApi } from '@tanstack/react-router'
 import { routerProject } from '~/libraries/router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
@@ -10,11 +10,9 @@ import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { BottomCTA } from '~/components/BottomCTA'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
-import { partners } from '~/utils/partners'
-import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
+import OpenSourceStats from '~/components/OpenSourceStats'
 
 export const Route = createFileRoute({
   component: RouterVersionIndex,
@@ -51,6 +49,11 @@ function RouterVersionIndex() {
           className: 'bg-emerald-500 text-white',
         }}
       />
+
+      <div className="w-fit mx-auto px-4">
+        <OpenSourceStats library={library} />
+      </div>
+
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
       <PartnersSection libraryId="router" />
 

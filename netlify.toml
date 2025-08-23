@@ -1,2 +1,4 @@
 [context.production]
   command = "npx convex deploy --cmd 'pnpm run build'"
+[context.deploy-preview]
+  command = "npx convex deploy --cmd 'pnpm run build' --preview-run 'stats:sync'"

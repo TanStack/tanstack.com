@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Link, getRouteApi } from '@tanstack/react-router'
+import { getRouteApi } from '@tanstack/react-router'
 import { virtualProject } from '~/libraries/virtual'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
@@ -12,10 +12,9 @@ import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
-import { twMerge } from 'tailwind-merge'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
 import { PartnersSection } from '~/components/PartnersSection'
+import OpenSourceStats from '~/components/OpenSourceStats'
 
 export const Route = createFileRoute({
   component: RouteComp,
@@ -52,6 +51,10 @@ export default function RouteComp() {
           className: 'bg-purple-500 text-white',
         }}
       />
+
+      <div className="w-fit mx-auto px-4">
+        <OpenSourceStats library={library} />
+      </div>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
 

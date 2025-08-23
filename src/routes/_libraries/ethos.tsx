@@ -33,9 +33,9 @@ export default function RouteComp() {
             Independently Owned, Unbiased by Design
           </h2>
           <p>
-            TanStack LLC is <strong>100% privately owned</strong> by its
-            founder—no external investors, no controlling interests, and no
-            hidden agendas. Our funding comes from media and marketing
+            TanStack LLC is currently <strong>100% privately owned</strong> by
+            its founder with no external investors, no controlling interests,
+            and no hidden agendas. It's currently funded by media and marketing
             partnerships with companies that share our core values:{' '}
             <strong>
               the open web, open standards, and the freedom to compose and
@@ -48,17 +48,19 @@ export default function RouteComp() {
           <h2 className="text-2xl font-semibold">A Sustainable Future</h2>
           <p>
             TanStack is a lean, focused team: a full-time founder, several
-            prominent and well-sponsored maintainers and a thriving community of
-            users and contributors who share our core values.
+            prominent and well-sponsored maintainers, contractors and
+            contributors, and a thriving community of users who share our core
+            values.
           </p>
           <p className="">
-            Unlike venture-backed projects chasing growth at all costs,{' '}
+            Instead of chasing growth at all costs,{' '}
             <strong>
-              we don't need to "scale", "grow", or "expand" into a VC-funded,
-              acquisition-seeking, or freemium-grifting product.
+              we focus on sustainable growth that prioritizes developer
+              experience, community needs, and long-term value creation.
             </strong>{' '}
-            We're not obsessed with hitting the next 10x multiplier to satisfy
-            some parent company's lead-generating IPO ambitions.
+            Our goal is to build lasting tools that genuinely improve how
+            developers work, not to hit arbitrary metrics or satisfy external
+            investor demands.
           </p>
           <p className="">That means:</p>
           <ul className="list-disc pl-8 space-y-2">
@@ -109,23 +111,26 @@ export default function RouteComp() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-semibold">Open Sponsorships</h2>
+          <h2 className="text-2xl font-semibold">Open Partners</h2>
           <p>
-            Every sponsor we work with not only understands but actively upholds
-            our values:
+            Every partner we work with also actively upholds our values. They
+            acknowledge that TanStack's OSS is a platform for developers, not a
+            product to be leveraged:
           </p>
           <ul className="list-disc pl-8  space-y-2">
             <li>
-              No sponsor can dictate or influence TanStack's core technology in
+              No partner can dictate or influence TanStack's core technology in
               a way that biases it toward their platform.
             </li>
             <li>
               Our libraries are built to serve <strong>developers first</strong>
-              , not corporate interests.
+              , and when appropriate, integrate with high quality external
+              services that enhance the developer experience.
             </li>
             <li>
-              If a company supports us, it's because they believe in what we're
-              building—not because they expect preferential treatment.
+              Companies that support us do so first and foremost because they
+              believe in what we're building and want to see it succeed for many
+              years to come.
             </li>
           </ul>
         </section>

@@ -11,6 +11,7 @@ import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
 import { PartnersSection } from '~/components/PartnersSection'
+import OpenSourceStats from '~/components/OpenSourceStats'
 
 export const Route = createFileRoute({
   component: DevtoolsVersionIndex,
@@ -43,6 +44,10 @@ export default function DevtoolsVersionIndex() {
             className: 'bg-slate-500 hover:bg-slate-600 text-white',
           }}
         />
+
+        <div className="w-fit mx-auto px-4">
+          <OpenSourceStats library={library} />
+        </div>
 
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}

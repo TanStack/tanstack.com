@@ -271,6 +271,7 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
         return (
           <Link
             to={item.to}
+            onClick={() => detailsRef.current.removeAttribute('open')}
             key={i}
             className={twMerge(linkClasses, 'font-normal')}
             activeProps={{

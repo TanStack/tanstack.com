@@ -1,4 +1,4 @@
-import { useUserSettingsStore } from '~/stores/userSettings'
+import { useAdPreferenceQuery, useToggleAdPreference } from '~/hooks/useAdPreference'
 import { FaSignOutAlt } from 'react-icons/fa'
 import { Authenticated, Unauthenticated } from 'convex/react'
 import { Link, redirect } from '@tanstack/react-router'
@@ -11,10 +11,17 @@ export const Route = createFileRoute({
 
 function UserSettings() {
   const userQuery = useCurrentUserQuery()
-  const adsDisabled = useUserSettingsStore((s) => s.settings.adsDisabled)
-  const toggleAds = useUserSettingsStore((s) => s.toggleAds)
-
-  const canDisableAds = userQuery.data?.capabilities.includes('disableAds')
+  // Replace local storage-based state with Convex-based queries
+  const adPreferenceQuery = useAdPreferenceQuery()
+  const toggleAdPreferenceMutation = useToggleAdPreference()
+  
+  // Get values from the new queries
+  const adsDisabled = adPreferenceQuery.data?.adsDisabled ?? false
+  const canDisableAds = adPreferenceQuery.data?.canDisableAds ?? false
+  
+  const handleToggleAds = () => {
+    toggleAdPreferenceMutation.mutate()
+  }
 
   const signOut = async () => {
     await authClient.signOut()
@@ -53,8 +60,8 @@ function UserSettings() {
                     type="checkbox"
                     className="h-4 w-4 accent-blue-600 my-1"
                     checked={adsDisabled}
-                    onChange={toggleAds}
-                    disabled={userQuery.isLoading}
+                    onChange={handleToggleAds}
+                    disabled={adPreferenceQuery.isLoading || toggleAdPreferenceMutation.isPending}
                     aria-label="Disable Ads"
                   />
                   <div>

@@ -80,3 +80,71 @@ async function requireCapability(ctx: QueryCtx, capability: Capability) {
 
   return { currentUser }
 }
+
+// Get current user's ad preference
+export const getUserAdPreference = query({
+  args: {},
+  handler: async (ctx) => {
+    const currentUser = await getCurrentUserConvex(ctx)
+    if (!currentUser) {
+      throw new Error('Not authenticated')
+    }
+
+    return {
+      adsDisabled: currentUser.adsDisabled ?? false,
+      canDisableAds: currentUser.capabilities.includes('disableAds'),
+    }
+  },
+})
+
+// Toggle ad preference (only for users with disableAds capability)
+export const toggleAdPreference = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const currentUser = await getCurrentUserConvex(ctx)
+    if (!currentUser) {
+      throw new Error('Not authenticated')
+    }
+
+    // Check if user has capability to disable ads
+    if (!currentUser.capabilities.includes('disableAds')) {
+      throw new Error('User does not have permission to disable ads')
+    }
+
+    const currentAdsDisabled = currentUser.adsDisabled ?? false
+    
+    await ctx.db.patch(currentUser._id, {
+      adsDisabled: !currentAdsDisabled,
+    })
+
+    return {
+      adsDisabled: !currentAdsDisabled,
+    }
+  },
+})
+
+// Set ad preference (only for users with disableAds capability)
+export const setAdPreference = mutation({
+  args: {
+    adsDisabled: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const currentUser = await getCurrentUserConvex(ctx)
+    if (!currentUser) {
+      throw new Error('Not authenticated')
+    }
+
+    // Check if user has capability to disable ads
+    if (!currentUser.capabilities.includes('disableAds')) {
+      throw new Error('User does not have permission to disable ads')
+    }
+
+    await ctx.db.patch(currentUser._id, {
+      adsDisabled: args.adsDisabled,
+    })
+
+    return {
+      adsDisabled: args.adsDisabled,
+    }
+  },
+})

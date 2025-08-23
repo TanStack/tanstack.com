@@ -1,6 +1,6 @@
-import { useUser } from '@clerk/tanstack-react-start'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
 export type UserSettings = {
   adsDisabled: boolean
@@ -42,11 +42,14 @@ export const useUserSettingsStore = create<UserSettingsState>()(
 )
 
 export function useAdsPreference() {
-  const { isSignedIn } = useUser()
+  const userQuery = useCurrentUserQuery()
   const { settings } = useUserSettingsStore((s) => ({
     settings: s.settings,
   }))
 
-  const adsEnabled = isSignedIn ? !settings.adsDisabled : true
+  const adsEnabled = userQuery.data
+    ? userQuery.data.capabilities.includes('disableAds') &&
+      !settings.adsDisabled
+    : true
   return { adsEnabled }
 }

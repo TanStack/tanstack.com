@@ -1,4 +1,4 @@
-import { reactStartHandler } from 'src/utils/auth'
+import { reactStartHandler } from "~/server/auth.server"
 
 export const ServerRoute = createServerFileRoute().methods({
   GET: ({ request }) => {

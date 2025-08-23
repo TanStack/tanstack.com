@@ -139,7 +139,7 @@ export async function getSponsorsAndTiers() {
 }
 
 async function getGithubSponsors() {
-  let sponsors: Sponsor = []
+  let sponsors: Sponsor[] = []
   try {
     const fetchPage = async (cursor = '') => {
       const res = await graphqlWithAuth(
@@ -226,6 +226,10 @@ async function getGithubSponsors() {
   } catch (err: any) {
     if (err.status === 401) {
       console.error('Missing github credentials, returning mock data.')
+      return []
+    }
+    if (err.status === 403) {
+      console.error('GitHub rate limit exceeded, returning empty sponsors.')
       return []
     }
     throw err

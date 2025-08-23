@@ -1,8 +1,7 @@
 import { ossStats } from './stats'
 import { httpRouter } from 'convex/server'
-
 import { betterAuthComponent } from './auth'
-import { createAuth } from '../src/utils/auth.isomorphic'
+import { createAuth } from '../src/server/auth.server'
 
 const http = httpRouter()
 

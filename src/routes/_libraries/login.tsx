@@ -1,17 +1,20 @@
-import { authClient } from '~/utils/auth'
+import { authClient } from '~/utils/auth.client'
 import { useIsDark } from '~/hooks/useIsDark'
 import { FaGithub, FaGoogle } from 'react-icons/fa'
 import splashLightImg from '~/images/splash-light.png'
 import splashDarkImg from '~/images/splash-dark.png'
-import { fetchServerAuth } from '~/utils/auth'
 import { redirect } from '@tanstack/react-router'
+import { api } from 'convex/_generated/api'
+import { convexQuery } from '@convex-dev/react-query'
 
 export const Route = createFileRoute({
   component: LoginPage,
-  loader: async () => {
-    const { token, userId } = await fetchServerAuth()
+  loader: async ({ context }) => {
+    const user = await context.queryClient.ensureQueryData(
+      convexQuery(api.auth.getCurrentUser, {})
+    )
 
-    if (token) {
+    if (user) {
       throw redirect({ to: '/account' })
     }
   },
@@ -41,7 +44,6 @@ function SignInForm() {
         onClick={() =>
           authClient.signIn.social({
             provider: 'github',
-            callbackURL: '/dashboard',
           })
         }
         className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
@@ -52,7 +54,6 @@ function SignInForm() {
         onClick={() =>
           authClient.signIn.social({
             provider: 'google',
-            callbackURL: '/dashboard',
           })
         }
         className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"

@@ -1,6 +1,7 @@
 import { convexAdapter } from '@convex-dev/better-auth'
 import { convex } from '@convex-dev/better-auth/plugins'
 import { betterAuth } from 'better-auth'
+import { reactStartHelpers } from '@convex-dev/better-auth/react-start'
 import { GenericCtx } from '../../convex/_generated/server'
 import { betterAuthComponent } from '../../convex/auth'
 
@@ -8,7 +9,6 @@ import { betterAuthComponent } from '../../convex/auth'
 const siteUrl = process.env.URL
 
 export const createAuth = (ctx: GenericCtx) =>
-  // Configure your Better Auth instance here
   betterAuth({
     // All auth requests will be proxied through your TanStack Start server
     baseURL: siteUrl,
@@ -29,4 +29,9 @@ export const createAuth = (ctx: GenericCtx) =>
       // The Convex plugin is required
       convex(),
     ],
+  })
+
+export const { fetchSession, reactStartHandler, getCookieName } =
+  reactStartHelpers(createAuth, {
+    convexSiteUrl: process.env.VITE_CONVEX_SITE_URL!,
   })

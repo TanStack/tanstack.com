@@ -10,8 +10,8 @@ import {
   FaDiscord,
   FaGithub,
   FaInstagram,
+  FaLock,
   FaSignInAlt,
-  FaSpinner,
   FaTshirt,
   FaUser,
   FaUsers,
@@ -61,6 +61,8 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
 
   const detailsRef = React.useRef<HTMLElement>(null!)
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
+
+  const canAdmin = user?.capabilities.includes('admin')
 
   const items = (
     <>
@@ -330,6 +332,17 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
             My Account
           </Link>
         </div>
+        {canAdmin ? (
+          <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+            <FaLock />
+            <Link
+              to="/admin"
+              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            >
+              Admin
+            </Link>
+          </div>
+        ) : null}
       </Authenticated>
     </>
   )

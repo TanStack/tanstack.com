@@ -8,13 +8,12 @@ import { BottomCTA } from '~/components/BottomCTA'
 import { LibraryHero } from '~/components/LibraryHero'
 import { startProject } from '~/libraries/start'
 import { seo } from '~/utils/seo'
-import { partners } from '~/utils/partners'
 import { VscPreview } from 'react-icons/vsc'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
 import { PartnersSection } from '~/components/PartnersSection'
+import OpenSourceStats from '~/components/OpenSourceStats'
 
 export const Route = createFileRoute({
   component: VersionIndex,
@@ -71,7 +70,13 @@ export default function VersionIndex() {
           </div>
         }
       />
+
+      <div className="w-fit mx-auto px-4">
+        <OpenSourceStats library={library} />
+      </div>
+
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
+
       <div className="space-y-8 px-4">
         <div className="font-black text-3xl mr-1 text-center">
           When can I use it?

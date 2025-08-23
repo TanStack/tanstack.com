@@ -11,7 +11,7 @@ export default function LandingPageGad() {
             <GamFooter />
             <div
               className="text-xs bg-gray-500 bg-opacity-10 py-2 px-4 rounded text-gray-600 dark:text-gray-300
-                dark:bg-opacity-20 self-center text-center w-[500px] max-w-full space-y-2"
+                dark:bg-opacity-20 self-center text-center max-w-[500px] space-y-2"
             >
               <div>
                 <span className="font-medium italic">

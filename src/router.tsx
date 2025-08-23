@@ -1,21 +1,21 @@
-import { createRouter as TanStackCreateRouter } from '@tanstack/react-router'
+import {
+  redirect,
+  createRouter as TanStackCreateRouter,
+} from '@tanstack/react-router'
 import { routerWithQueryClient } from '@tanstack/react-router-with-query'
-import { ConvexQueryClient } from '@convex-dev/react-query'
+import { convexQuery, ConvexQueryClient } from '@convex-dev/react-query'
 import { ConvexProvider } from 'convex/react'
 import { routeTree } from './routeTree.gen'
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { QueryClient } from '@tanstack/react-query'
 import { GamOnPageChange } from './components/Gam'
-import { ClerkProvider } from '@clerk/tanstack-react-start'
+import { env } from './utils/env'
+import { api } from 'convex/_generated/api'
+import { Capability } from 'convex/schema'
 
 export function createRouter() {
-  const CONVEX_URL =
-    (import.meta as any).env.VITE_CONVEX_URL ||
-    // Hardcoded production URL as fallback for local development
-    // Currently set to an instance owned by Convex Devx
-    // TODO: Replace with URL to an instance owned by the TanStack team
-    'https://befitting-badger-629.convex.cloud'
+  const CONVEX_URL = env.VITE_CONVEX_URL
   const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
 
   const queryClient: QueryClient = new QueryClient({
@@ -41,6 +41,19 @@ export function createRouter() {
       },
       context: {
         queryClient,
+        convexClient: convexQueryClient.convexClient,
+        convexQueryClient,
+        ensureUser: async () => {
+          const user = await queryClient.ensureQueryData(
+            convexQuery(api.auth.getCurrentUser, {})
+          )
+
+          if (!user) {
+            throw redirect({ to: '/login' })
+          }
+
+          return user
+        },
       },
       Wrap: ({ children }) => (
         <ConvexProvider client={convexQueryClient.convexClient}>
@@ -59,7 +72,6 @@ export function createRouter() {
       return
     }
 
-    console.log('onResolved')
     GamOnPageChange()
   })
 

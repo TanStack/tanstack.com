@@ -28,12 +28,12 @@ export const loadDocs = async ({
   currentPath: string
   redirectPath: string
 }) => {
-  if (!branch) {
-    throw new Error('Invalid branch')
-  }
-
-  if (!docsPath) {
-    throw new Error('Invalid docPath')
+  if (!branch || !docsPath) {
+    throw notFound({
+      data: {
+        message: 'No doc was found here!',
+      },
+    })
   }
 
   const filePath = `${docsPath}.md`

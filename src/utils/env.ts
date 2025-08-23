@@ -4,21 +4,33 @@ import { z } from 'zod'
 const serverEnvSchema = z.object({
   GITHUB_AUTH_TOKEN: z.string().default('USE_A_REAL_KEY_IN_PRODUCTION'),
   AIRTABLE_API_KEY: z.string().optional(),
+  GITHUB_OAUTH_CLIENT_ID: z.string().optional(),
+  GITHUB_OAUTH_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_OAUTH_CLIENT_ID: z.string().optional(),
+  GOOGLE_OAUTH_CLIENT_SECRET: z.string().optional(),
 })
 
-// Define client schema
-const viteEnvSchema = z.object({
-  VITE_CLERK_PUBLISHABLE_KEY: z.string().optional(),
+const clientEnvSchema = z.object({
+  VITE_CONVEX_SITE_URL: z
+    .string()
+    .default('http://upbeat-greyhound-631.convex.site'),
+  VITE_CONVEX_URL: z
+    .string()
+    .default('http://upbeat-greyhound-631.convex.cloud'),
+  URL: z.string().optional(),
 })
 
 // Validate and parse environment variables
 const parsedServerEnv = import.meta.env.SSR
   ? serverEnvSchema.parse(process.env)
   : {}
-const parsedClientEnv = viteEnvSchema.parse(import.meta.env)
+
+const parsedClientEnv = import.meta.env
+  ? clientEnvSchema.parse(import.meta.env)
+  : {}
 
 type ParsedServerEnv = z.infer<typeof serverEnvSchema>
-type ParsedClientEnv = z.infer<typeof viteEnvSchema>
+type ParsedClientEnv = z.infer<typeof clientEnvSchema>
 type ParsedEnv = ParsedServerEnv & ParsedClientEnv
 
 // Merge parsed environments, with server env hidden from client

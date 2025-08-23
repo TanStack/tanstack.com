@@ -7,9 +7,9 @@ import {
   useRouterState,
   HeadContent,
   Scripts,
+  useRouteContext,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
-import { ClerkProvider } from '@clerk/tanstack-react-start'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
@@ -23,9 +23,20 @@ import { BackgroundAnimation } from '~/components/BackgroundAnimation'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
 import { ThemeProvider } from '~/components/ThemeProvider'
+import { ConvexQueryClient } from '@convex-dev/react-query'
+import { ConvexReactClient } from 'convex/react'
+
+import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
+import { authClient } from '../utils/auth.client'
+
+import { LibrariesLayout } from './_libraries/route'
+import { TanStackUser } from 'convex/auth'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
+  convexClient: ConvexReactClient
+  convexQueryClient: ConvexQueryClient
+  ensureUser: () => Promise<TanStackUser>
 }>()({
   head: () => ({
     meta: [
@@ -123,47 +134,57 @@ export const Route = createRootRouteWithContext<{
         ),
       })
     }
+
+    // // During SSR only (the only time serverHttpClient exists),
+    // // set the auth token for Convex to make HTTP queries with.
+    // if (token) {
+    //   ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
+    // }
   },
   staleTime: Infinity,
   errorComponent: (props) => {
     return (
-      <RootDocument>
+      <HtmlWrapper>
         <DefaultCatchBoundary {...props} />
-      </RootDocument>
+      </HtmlWrapper>
     )
   },
   notFoundComponent: () => {
     return (
-      <RootDocument>
-        <NotFound />
-      </RootDocument>
+      <DocumentWrapper>
+        <LibrariesLayout>
+          <NotFound />
+        </LibrariesLayout>
+      </DocumentWrapper>
     )
   },
-  component: RootComponent,
+  component: () => {
+    return (
+      <DocumentWrapper>
+        <Outlet />
+      </DocumentWrapper>
+    )
+  },
 })
 
-function RootComponent() {
-  // Import your Publishable Key
-  const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-
-  if (!PUBLISHABLE_KEY) {
-    throw new Error('Add your Clerk Publishable Key to the .env file')
-  }
+function DocumentWrapper({ children }: { children: React.ReactNode }) {
+  const context = useRouteContext({ from: Route.id })
 
   return (
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+    <ConvexBetterAuthProvider
+      client={context.convexClient}
+      authClient={authClient}
+    >
       <ThemeProvider>
         <SearchProvider>
-          <RootDocument>
-            <Outlet />
-          </RootDocument>
+          <HtmlWrapper>{children}</HtmlWrapper>
         </SearchProvider>
       </ThemeProvider>
-    </ClerkProvider>
+    </ConvexBetterAuthProvider>
   )
 }
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function HtmlWrapper({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
 
   const isLoading = useRouterState({

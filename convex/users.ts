@@ -81,22 +81,6 @@ async function requireCapability(ctx: QueryCtx, capability: Capability) {
   return { currentUser }
 }
 
-// Get current user's ad preference
-export const getUserAdPreference = query({
-  args: {},
-  handler: async (ctx) => {
-    const currentUser = await getCurrentUserConvex(ctx)
-    if (!currentUser) {
-      throw new Error('Not authenticated')
-    }
-
-    return {
-      adsDisabled: currentUser.adsDisabled ?? false,
-      canDisableAds: currentUser.capabilities.includes('disableAds'),
-    }
-  },
-})
-
 // Toggle ad preference (only for users with disableAds capability)
 export const toggleAdPreference = mutation({
   args: {},

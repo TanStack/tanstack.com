@@ -53,7 +53,7 @@ export default function FormVersionIndex() {
             className: 'bg-yellow-400 text-black',
           }}
         />
-        
+
         <div className="w-fit mx-auto px-4">
           <OpenSourceStats library={library} />
         </div>

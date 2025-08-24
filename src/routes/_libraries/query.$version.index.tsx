@@ -36,7 +36,6 @@ const librariesRouteApi = getRouteApi('/_libraries')
 const library = getLibrary('query')
 
 export default function VersionIndex() {
-  console.log('library', library)
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
   const { version } = Route.useParams()
   const branch = getBranch(queryProject, version)

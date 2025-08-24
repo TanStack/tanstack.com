@@ -22,8 +22,6 @@ export const updateUserCapabilities = mutation({
 
     let capabilities = args.capabilities
 
-    console.log('targetUser', targetUser)
-
     // Ensure that tannerlinsley@gmail.com always has the admin capability
     // as a fail safe
     if (targetUser.email === 'tannerlinsley@gmail.com') {
@@ -31,8 +29,6 @@ export const updateUserCapabilities = mutation({
         ...new Set<Capability>(['admin', ...capabilities]).values(),
       ]
     }
-
-    console.log(capabilities)
 
     // Validate capabilities using schema helper
     const validatedCapabilities = CapabilitySchema.array().parse(capabilities)

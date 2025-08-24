@@ -20,7 +20,7 @@ import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
 import { ThemeToggle } from '~/components/ThemeToggle'
-import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
+import { TbBrandBluesky, TbBrandX } from 'react-icons/tb'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { SearchButton } from '~/components/SearchButton'
 import {
@@ -362,9 +362,9 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
         <a
           href="https://x.com/tan_stack"
           className="opacity-70 hover:opacity-100"
-          aria-label="Follow TanStack on X (Twitter)"
+          aria-label="Follow TanStack on X.com"
         >
-          <TbBrandTwitter className="text-xl" />
+          <TbBrandX className="text-xl" />
         </a>
         <a
           href="https://bsky.app/profile/tanstack.com"

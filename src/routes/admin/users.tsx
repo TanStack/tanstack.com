@@ -363,7 +363,7 @@ function UsersPage() {
             </table>
           </div>
 
-          {(!usersQuery || usersQuery.data?.page.length === 0) && (
+          {(!usersQuery.data || usersQuery.data?.page.length === 0) && (
             <div className="text-center py-12">
               <FaUser className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -380,7 +380,9 @@ function UsersPage() {
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             Page {currentPageIndex + 1}
-            {usersQuery && <span> • {usersQuery.data?.page.length} users</span>}
+            {usersQuery.data && (
+              <span> • {usersQuery.data.page?.length} users</span>
+            )}
           </div>
           <div className="flex space-x-2">
             <button

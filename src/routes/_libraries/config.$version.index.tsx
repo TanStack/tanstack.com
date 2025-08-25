@@ -11,10 +11,15 @@ import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
 import { PartnersSection } from '~/components/PartnersSection'
-import OpenSourceStats from '~/components/OpenSourceStats'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const library = getLibrary('config')
 
 export const Route = createFileRoute({
   component: FormVersionIndex,
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
   head: () => ({
     meta: seo({
       title: configProject.name,
@@ -27,7 +32,6 @@ const librariesRouteApi = getRouteApi('/_libraries')
 
 export default function FormVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
-  const library = getLibrary('config')
 
   return (
     <>

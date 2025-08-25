@@ -15,7 +15,10 @@ import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
 import { PartnersSection } from '~/components/PartnersSection'
-import OpenSourceStats from '~/components/OpenSourceStats'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('form')
 
 export const Route = createFileRoute({
   component: FormVersionIndex,
@@ -25,11 +28,10 @@ export const Route = createFileRoute({
       description: formProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
-
-const librariesRouteApi = getRouteApi('/_libraries')
-
-const library = getLibrary('form')
 
 export default function FormVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
@@ -53,7 +55,7 @@ export default function FormVersionIndex() {
             className: 'bg-yellow-400 text-black',
           }}
         />
-        
+
         <div className="w-fit mx-auto px-4">
           <OpenSourceStats library={library} />
         </div>

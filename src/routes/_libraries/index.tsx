@@ -42,18 +42,7 @@ const courses = [
 
 export const Route = createFileRoute({
   loader: async ({ context: { queryClient } }) => {
-    const githubQuery = queryClient.ensureQueryData(
-      convexQuery(api.stats.getGithubOwner, {
-        owner: 'tanstack',
-      })
-    )
-    const npmQuery = queryClient.ensureQueryData(
-      convexQuery(api.stats.getNpmOrg, {
-        name: 'tanstack',
-      })
-    )
-
-    await Promise.all([githubQuery, npmQuery])
+    await queryClient.ensureQueryData(convexQuery(api.stats.getStats, {}))
 
     return {
       randomNumber: Math.random(),

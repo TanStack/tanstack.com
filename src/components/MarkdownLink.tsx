@@ -16,6 +16,14 @@ export function MarkdownLink({
 
   const [hrefWithoutHash, hash] = hrefProp?.split('#') ?? []
   let [to] = hrefWithoutHash?.split('.md') ?? []
+  
+  // Normalize relative paths that work in GitHub to work with our routing structure
+  // In GitHub: ./guides/foo.md works from docs/overview.md
+  // In our router: we need ../guides/foo because the current path is /lib/version/docs/overview (not overview/)
+  if (to?.startsWith('./')) {
+    // Convert ./path to ../path to account for the fact that we're at /docs/file not /docs/file/
+    to = '../' + to.slice(2)
+  }
 
   return (
     <Link

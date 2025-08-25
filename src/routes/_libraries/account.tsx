@@ -1,9 +1,9 @@
-import { useToggleAdPreference } from '~/hooks/useAdPreference'
 import { FaSignOutAlt } from 'react-icons/fa'
-import { Authenticated, Unauthenticated } from 'convex/react'
+import { Authenticated, Unauthenticated, useMutation } from 'convex/react'
 import { Link, redirect } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { api } from 'convex/_generated/api'
 
 export const Route = createFileRoute({
   component: AccountPage,
@@ -12,14 +12,28 @@ export const Route = createFileRoute({
 function UserSettings() {
   const userQuery = useCurrentUserQuery()
   // Use current user query directly instead of separate ad preference query
-  const toggleAdPreferenceMutation = useToggleAdPreference()
-  
+  const updateAdPreferenceMutation = useMutation(
+    api.users.updateAdPreference
+  ).withOptimisticUpdate((localStore, args) => {
+    const { adsDisabled } = args
+    const currentValue = localStore.getQuery(api.auth.getCurrentUser)
+    if (currentValue !== undefined) {
+      localStore.setQuery(api.auth.getCurrentUser, {}, {
+        ...currentValue,
+        adsDisabled: adsDisabled,
+      } as any)
+    }
+  })
+
   // Get values directly from the current user data
   const adsDisabled = userQuery.data?.adsDisabled ?? false
-  const canDisableAds = userQuery.data?.capabilities.includes('disableAds') ?? false
-  
-  const handleToggleAds = () => {
-    toggleAdPreferenceMutation.mutate()
+  const canDisableAds =
+    userQuery.data?.capabilities.includes('disableAds') ?? false
+
+  const handleToggleAds = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateAdPreferenceMutation({
+      adsDisabled: e.target.checked,
+    })
   }
 
   const signOut = async () => {
@@ -60,7 +74,7 @@ function UserSettings() {
                     className="h-4 w-4 accent-blue-600 my-1"
                     checked={adsDisabled}
                     onChange={handleToggleAds}
-                    disabled={userQuery.isLoading || toggleAdPreferenceMutation.isPending}
+                    disabled={userQuery.isLoading}
                     aria-label="Disable Ads"
                   />
                   <div>

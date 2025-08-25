@@ -2,6 +2,7 @@ import { v } from 'convex/values'
 import { mutation, query, QueryCtx } from './_generated/server'
 import { Capability, CapabilitySchema } from './schema'
 import { getCurrentUserConvex } from './auth'
+import { Id } from './_generated/dataModel'
 
 export const updateUserCapabilities = mutation({
   args: {
@@ -82,53 +83,19 @@ async function requireCapability(ctx: QueryCtx, capability: Capability) {
 }
 
 // Toggle ad preference (only for users with disableAds capability)
-export const toggleAdPreference = mutation({
-  args: {},
-  handler: async (ctx) => {
-    const currentUser = await getCurrentUserConvex(ctx)
-    if (!currentUser) {
-      throw new Error('Not authenticated')
-    }
-
-    // Check if user has capability to disable ads
-    if (!currentUser.capabilities.includes('disableAds')) {
-      throw new Error('User does not have permission to disable ads')
-    }
-
-    const currentAdsDisabled = currentUser.adsDisabled ?? false
-    
-    await ctx.db.patch(currentUser._id, {
-      adsDisabled: !currentAdsDisabled,
-    })
-
-    return {
-      adsDisabled: !currentAdsDisabled,
-    }
-  },
-})
-
-// Set ad preference (only for users with disableAds capability)
-export const setAdPreference = mutation({
+export const updateAdPreference = mutation({
   args: {
     adsDisabled: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const currentUser = await getCurrentUserConvex(ctx)
-    if (!currentUser) {
-      throw new Error('Not authenticated')
-    }
+    // Validate admin capability
+    const { currentUser } = await requireCapability(ctx, 'disableAds')
 
-    // Check if user has capability to disable ads
-    if (!currentUser.capabilities.includes('disableAds')) {
-      throw new Error('User does not have permission to disable ads')
-    }
-
-    await ctx.db.patch(currentUser._id, {
+    // Update target user's capabilities
+    await ctx.db.patch(currentUser.userId as Id<'users'>, {
       adsDisabled: args.adsDisabled,
     })
 
-    return {
-      adsDisabled: args.adsDisabled,
-    }
+    return { success: true }
   },
 })

@@ -14,8 +14,11 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
-import OpenSourceStats from '~/components/OpenSourceStats'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 import { TbBrandX } from 'react-icons/tb'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('start')
 
 export const Route = createFileRoute({
   component: VersionIndex,
@@ -25,11 +28,10 @@ export const Route = createFileRoute({
       description: startProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
-
-const librariesRouteApi = getRouteApi('/_libraries')
-
-const library = getLibrary('start')
 
 export default function VersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()

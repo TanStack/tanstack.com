@@ -3,7 +3,7 @@ import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { PartnersSection } from '~/components/PartnersSection'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { pacerProject } from '~/libraries/pacer'
 import { seo } from '~/utils/seo'
@@ -30,7 +30,7 @@ export const Route = createFileRoute({
 })
 
 export default function PacerVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
 
   return (
@@ -97,7 +97,7 @@ export default function PacerVersionIndex() {
 
         <PartnersSection libraryId="pacer" />
 
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <LazySponsorSection />
 
         <LandingPageGad />
 

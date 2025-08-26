@@ -1,6 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { LibraryHero } from '~/components/LibraryHero'
 import { storeProject } from '~/libraries/store'
@@ -29,7 +29,7 @@ export const Route = createFileRoute({
 })
 
 export default function StoreVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
 
   return (
     <>
@@ -56,7 +56,7 @@ export default function StoreVersionIndex() {
         />
         <PartnersSection libraryId="store" />
 
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <LazySponsorSection />
 
         <LandingPageGad />
 

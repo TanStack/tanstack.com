@@ -16,7 +16,7 @@ import {
   FaUser,
   FaUsers,
 } from 'react-icons/fa'
-import { getSponsorsForSponsorPack } from '~/server/sponsors'
+
 import { libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
 import { ThemeToggle } from '~/components/ThemeToggle'
@@ -35,9 +35,7 @@ import { PiHammerFill } from 'react-icons/pi'
 export const Route = createFileRoute({
   staleTime: Infinity,
   loader: async (ctx) => {
-    return {
-      sponsorsPromise: getSponsorsForSponsorPack(),
-    }
+    return {}
   },
   component: () => {
     return (

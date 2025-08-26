@@ -1,6 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { PartnersSection } from '~/components/PartnersSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { dbProject } from '~/libraries/db'
@@ -29,7 +29,7 @@ export const Route = createFileRoute({
 })
 
 export default function DBVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
 
   return (
     <>
@@ -91,7 +91,7 @@ export default function DBVersionIndex() {
           </div>
         </div>
         <PartnersSection libraryId="db" />
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <LazySponsorSection />
         <LandingPageGad />
         <BottomCTA
           linkProps={{

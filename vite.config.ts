@@ -4,6 +4,7 @@ import contentCollections from '@content-collections/vite'
 import tsConfigPaths from 'vite-tsconfig-paths'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
+import { analyzer } from 'vite-bundle-analyzer'
 
 export default defineConfig({
   server: {
@@ -27,5 +28,10 @@ export default defineConfig({
     }),
     contentCollections(),
     tailwindcss(),
+    analyzer({
+      enabled: false,
+      openAnalyzer: true,
+      defaultSizes: 'gzip',
+    }),
   ],
 })

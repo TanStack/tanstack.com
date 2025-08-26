@@ -1,6 +1,6 @@
 import { FaCheckCircle } from 'react-icons/fa'
 import { Footer } from '~/components/Footer'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { LibraryHero } from '~/components/LibraryHero'
 import { devtoolsProject } from '~/libraries/devtools'
@@ -30,7 +30,7 @@ export const Route = createFileRoute({
 })
 
 export default function DevtoolsVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const library = getLibrary('devtools')
 
   return (
@@ -91,7 +91,7 @@ export default function DevtoolsVersionIndex() {
 
         <PartnersSection libraryId="devtools" />
 
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <LazySponsorSection />
 
         <LandingPageGad />
 

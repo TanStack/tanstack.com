@@ -6,7 +6,7 @@ import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { PartnersSection } from '~/components/PartnersSection'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { BottomCTA } from '~/components/BottomCTA'
 import { Framework, getBranch, getLibrary } from '~/libraries'
@@ -34,7 +34,7 @@ export const Route = createFileRoute({
 })
 
 export default function TableVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(tableProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
@@ -117,7 +117,7 @@ export default function TableVersionIndex() {
 
       <PartnersSection libraryId="table" />
 
-      <SponsorsSection sponsorsPromise={sponsorsPromise} />
+      <LazySponsorSection />
 
       <LandingPageGad />
 

@@ -36,8 +36,7 @@ export const Route = createFileRoute({
   staleTime: Infinity,
   loader: async (ctx) => {
     return {
-      // sponsorsPromise: getSponsorsForSponsorPack(),
-      sponsorsPromise: Promise.resolve([]),
+      sponsorsPromise: getSponsorsForSponsorPack(),
     }
   },
   component: () => {

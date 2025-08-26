@@ -1,6 +1,6 @@
 import { Octokit } from '@octokit/rest'
 import { linkSponsorToken } from '~/server/discord'
-import { getSponsorsAndTiers } from '~/server/sponsors'
+import { getSponsors } from '~/server/sponsors'
 
 export async function linkGithubAndDiscordUser({ githubToken, discordToken }) {
   let login
@@ -21,7 +21,7 @@ export async function linkGithubAndDiscordUser({ githubToken, discordToken }) {
 
   let sponsor
   try {
-    const { sponsors } = await getSponsorsAndTiers()
+    const { sponsors } = await getSponsors()
 
     sponsor = sponsors.find((d) => d.login == login)
   } catch (err) {

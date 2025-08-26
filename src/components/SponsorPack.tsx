@@ -2,8 +2,17 @@ import React from 'react'
 import { Pack, hierarchy } from '@visx/hierarchy'
 import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
+import { getSponsorsForSponsorPack, Sponsor } from '~/server/sponsors'
 
-export default function SponsorPack({ sponsors }: { sponsors: any }) {
+type DisplaySponsor = Awaited<
+  ReturnType<typeof getSponsorsForSponsorPack>
+>[number]
+
+export default function SponsorPack({
+  sponsors,
+}: {
+  sponsors: DisplaySponsor[]
+}) {
   const pack = React.useMemo(
     () => ({
       children: sponsors,
@@ -17,20 +26,10 @@ export default function SponsorPack({ sponsors }: { sponsors: any }) {
   const root = React.useMemo(
     () =>
       hierarchy(pack)
-        .sum((d) => 1 + d?.tier?.monthlyPriceInDollars)
-        .sort(
-          (a, b) =>
-            (b.data.tier?.monthlyPriceInDollars ?? 0) -
-            (a.data.tier?.monthlyPriceInDollars ?? 0)
-        ),
+        .sum((d) => 0.0007 + d.size)
+        .sort((a, b) => (b.data.size ?? 0) - (a.data.size ?? 0)),
     [pack]
   )
-
-  // const [show, setShow] = React.useState(false)
-
-  // React.useEffect(() => {
-  //   setShow(true)
-  // }, [])
 
   return (
     <ParentSize>

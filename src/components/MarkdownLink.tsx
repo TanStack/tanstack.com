@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import type { HTMLProps } from 'react'
+import { normalizeMarkdownPath } from '~/utils/normalize-markdown-path'
 
 export function MarkdownLink({
   href: hrefProp,
@@ -16,21 +17,8 @@ export function MarkdownLink({
 
   const [hrefWithoutHash, hash] = hrefProp?.split('#') ?? []
   let [to] = hrefWithoutHash?.split('.md') ?? []
-
-  // Normalize relative paths that work in GitHub to work with our routing structure
-  // In GitHub: ./guides/foo.md works from docs/overview.md
-  // In our router: we need ../guides/foo because the current path is /lib/version/docs/overview (not overview/)
-  if (to?.startsWith('./')) {
-    // Convert ./path to ../path to account for the fact that we're at /docs/file not /docs/file/
-    to = '../' + to.slice(2)
-  } else if (to && !to.startsWith('/') && !to.startsWith('../')) {
-    // Handle bare relative paths like "foo" or "guides/foo"
-    // These should be treated as siblings, so prepend ../
-    // This handles:
-    // - "foo.md" (same directory) -> "../foo"
-    // - "guides/foo.md" (subdirectory) -> "../guides/foo"
-    to = '../' + to
-  }
+  
+  to = normalizeMarkdownPath(to)
 
   return (
     <Link

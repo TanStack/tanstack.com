@@ -1,17 +1,15 @@
 import * as React from 'react'
-import * as ReactDom from 'react-dom'
 import {
   Outlet,
-  ScriptOnce,
   createRootRouteWithContext,
   redirect,
   useMatches,
   useRouterState,
   HeadContent,
   Scripts,
+  useRouteContext,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
-import { ClerkProvider } from '@clerk/tanstack-react-start'
 import appCss from '~/styles/app.css?url'
 import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
@@ -20,14 +18,25 @@ import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
-import { getThemeCookie, useThemeStore } from '~/components/ThemeToggle'
 import { GamScripts } from '~/components/Gam'
 import { BackgroundAnimation } from '~/components/BackgroundAnimation'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
+import { ThemeProvider } from '~/components/ThemeProvider'
+import { ConvexQueryClient } from '@convex-dev/react-query'
+import { ConvexReactClient } from 'convex/react'
+
+import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
+import { authClient } from '../utils/auth.client'
+
+import { LibrariesLayout } from './_libraries/route'
+import { TanStackUser } from 'convex/auth'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
+  convexClient: ConvexReactClient
+  convexQueryClient: ConvexQueryClient
+  ensureUser: () => Promise<TanStackUser>
 }>()({
   head: () => ({
     meta: [
@@ -125,57 +134,57 @@ export const Route = createRootRouteWithContext<{
         ),
       })
     }
+
+    // // During SSR only (the only time serverHttpClient exists),
+    // // set the auth token for Convex to make HTTP queries with.
+    // if (token) {
+    //   ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
+    // }
   },
   staleTime: Infinity,
-  loader: async () => {
-    return {
-      themeCookie: await getThemeCookie(),
-    }
-  },
   errorComponent: (props) => {
     return (
-      <RootDocument>
+      <HtmlWrapper>
         <DefaultCatchBoundary {...props} />
-      </RootDocument>
+      </HtmlWrapper>
     )
   },
   notFoundComponent: () => {
     return (
-      <RootDocument>
-        <NotFound />
-      </RootDocument>
+      <DocumentWrapper>
+        <LibrariesLayout>
+          <NotFound />
+        </LibrariesLayout>
+      </DocumentWrapper>
     )
   },
-  component: RootComponent,
+  component: () => {
+    return (
+      <DocumentWrapper>
+        <Outlet />
+      </DocumentWrapper>
+    )
+  },
 })
 
-function RootComponent() {
-  // Import your Publishable Key
-  const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-
-  if (!PUBLISHABLE_KEY) {
-    throw new Error('Add your Clerk Publishable Key to the .env file')
-  }
+function DocumentWrapper({ children }: { children: React.ReactNode }) {
+  const context = useRouteContext({ from: Route.id })
 
   return (
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <SearchProvider>
-        <RootDocument>
-          <Outlet />
-        </RootDocument>
-      </SearchProvider>
-    </ClerkProvider>
+    <ConvexBetterAuthProvider
+      client={context.convexClient}
+      authClient={authClient}
+    >
+      <ThemeProvider>
+        <SearchProvider>
+          <HtmlWrapper>{children}</HtmlWrapper>
+        </SearchProvider>
+      </ThemeProvider>
+    </ConvexBetterAuthProvider>
   )
 }
 
-function RootDocument({ children }: { children: React.ReactNode }) {
-  const { themeCookie } = Route.useLoaderData()
-
-  React.useEffect(() => {
-    useThemeStore.setState({ mode: themeCookie })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
+function HtmlWrapper({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
 
   const isLoading = useRouterState({
@@ -200,17 +209,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
   const showDevtools = canShowLoading && isRouterPage
 
-  const themeClass = themeCookie === 'dark' ? 'dark' : ''
-
   return (
-    <html lang="en" className={themeClass}>
+    <html lang="en" suppressHydrationWarning>
       <head>
-        {/* If the theme is set to auto, inject a tiny script to set the proper class on html based on the user preference */}
-        {themeCookie === 'auto' ? (
-          <ScriptOnce
-            children={`window.matchMedia('(prefers-color-scheme: dark)').matches ? document.documentElement.classList.add('dark') : null`}
-          />
-        ) : null}
         <HeadContent />
         {matches.find((d) => d.staticData?.baseParent) ? (
           <base target="_parent" />
@@ -227,7 +228,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <div
             className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none
-        z-30 dark:h-[200px] dark:!bg-white/10 dark:rounded-[100%] ${
+        z-30 dark:h-[200px] dark:bg-white/10! dark:rounded-[100%] ${
           isLoading
             ? 'delay-500 opacity-1 -translate-y-1/2'
             : 'delay-0 opacity-0 -translate-y-full'

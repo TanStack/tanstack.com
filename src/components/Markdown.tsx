@@ -25,7 +25,7 @@ const CustomHeading = ({
     return (
       <a
         href={`#${id}`}
-        className={`anchor-heading [&>*]:scroll-my-[5rem] [&>*]:lg:scroll-my-4`}
+        className={`anchor-heading *:scroll-my-20 *:lg:scroll-my-4`}
       >
         <Comp id={id} {...props} />
       </a>
@@ -57,7 +57,7 @@ const markdownComponents: Record<string, React.FC> = {
   code: function Code({ className, ...rest }: HTMLProps<HTMLElement>) {
     return (
       <span
-        className={`border border-gray-500 border-opacity-20 bg-gray-500 bg-opacity-10 rounded px-1 py-0.5${
+        className={`border border-gray-500/20 bg-gray-500/10 rounded px-1 py-0.5${
           className ?? ` ${className}`
         }`}
         {...rest}
@@ -71,7 +71,9 @@ const markdownComponents: Record<string, React.FC> = {
     // eslint-disable-next-line jsx-a11y/alt-text
     <img
       {...props}
-      className="max-w-full h-auto rounded-lg shadow-md"
+      className={`max-w-full h-auto rounded-lg shadow-md ${
+        props.className ?? ''
+      }`}
       // loading="lazy"
       // decoding="async"
     />
@@ -104,10 +106,10 @@ export function CodeBlock({
 
   const [codeElement, setCodeElement] = React.useState(
     <>
-      <pre ref={ref} className={`shiki github-light`}>
+      <pre ref={ref} className={`shiki github-light h-full`}>
         <code>{code}</code>
       </pre>
-      <pre className={`shiki tokyo-night bg-gray-900 text-gray-400`}>
+      <pre className={`shiki tokyo-night`}>
         <code>{code}</code>
       </pre>
     </>

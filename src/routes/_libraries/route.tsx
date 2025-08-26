@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { Link, Outlet, useLocation } from '@tanstack/react-router'
-import { SignedIn, SignedOut, UserButton } from '@clerk/tanstack-react-start'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
@@ -11,17 +10,27 @@ import {
   FaDiscord,
   FaGithub,
   FaInstagram,
+  FaLock,
   FaSignInAlt,
   FaTshirt,
+  FaUser,
   FaUsers,
 } from 'react-icons/fa'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'
-import { ThemeToggle, useThemeStore } from '~/components/ThemeToggle'
-import { TbBrandBluesky, TbBrandTwitter } from 'react-icons/tb'
+import { ThemeToggle } from '~/components/ThemeToggle'
+import { TbBrandBluesky, TbBrandX } from 'react-icons/tb'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { SearchButton } from '~/components/SearchButton'
+import {
+  Authenticated,
+  AuthLoading,
+  Unauthenticated,
+  useQuery,
+} from 'convex/react'
+import { api } from 'convex/_generated/api'
+import { PiHammerFill } from 'react-icons/pi'
 
 export const Route = createFileRoute({
   staleTime: Infinity,
@@ -30,10 +39,18 @@ export const Route = createFileRoute({
       sponsorsPromise: getSponsorsForSponsorPack(),
     }
   },
-  component: LibrariesLayout,
+  component: () => {
+    return (
+      <LibrariesLayout>
+        <Outlet />
+      </LibrariesLayout>
+    )
+  },
 })
 
-function LibrariesLayout() {
+export function LibrariesLayout({ children }: { children: React.ReactNode }) {
+  const user = useQuery(api.auth.getCurrentUser)
+
   const activeLibrary = useLocation({
     select: (location) => {
       return libraries.find((library) => {
@@ -43,7 +60,9 @@ function LibrariesLayout() {
   })
 
   const detailsRef = React.useRef<HTMLElement>(null!)
-  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500 hover:bg-opacity-10 font-black`
+  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
+
+  const canAdmin = user?.capabilities.includes('admin')
 
   const items = (
     <>
@@ -167,6 +186,28 @@ function LibrariesLayout() {
       <div className="py-2">
         <div className="bg-gray-500/10 h-px" />
       </div>
+      <Authenticated>
+        {user?.capabilities.some((capability) =>
+          ['builder', 'admin'].includes(capability)
+        ) ? (
+          <Link
+            to="/builder"
+            className={twMerge(linkClasses, 'font-normal')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4 justify-between">
+                <PiHammerFill />
+              </div>
+              <div>Builder</div>
+            </div>
+          </Link>
+        ) : null}
+      </Authenticated>
       {[
         {
           label: 'Maintainers',
@@ -192,7 +233,7 @@ function LibrariesLayout() {
           label: (
             <span className="flex items-center gap-2">
               Stats
-              <span className="text-xs bg-transparent text-transparent bg-clip-text bg-gradient-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
+              <span className="text-xs bg-transparent text-transparent bg-clip-text bg-linear-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
                 BETA
               </span>
             </span>
@@ -230,11 +271,12 @@ function LibrariesLayout() {
         return (
           <Link
             to={item.to}
+            onClick={() => detailsRef.current.removeAttribute('open')}
             key={i}
             className={twMerge(linkClasses, 'font-normal')}
             activeProps={{
               className: twMerge(
-                '!font-bold bg-gray-500/10 dark:bg-gray-500/30'
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
               ),
             }}
             target={item.to.startsWith('http') ? '_blank' : undefined}
@@ -253,27 +295,37 @@ function LibrariesLayout() {
         <div className="bg-gray-500/10 h-px" />
       </div>
 
-      {/* Auth Section */}
-      <SignedOut>
-        <Link
-          to="/login"
-          className={twMerge(linkClasses, 'font-normal')}
-          activeProps={{
-            className: twMerge('!font-bold bg-gray-500/10 dark:bg-gray-500/30'),
-          }}
-        >
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-4 justify-between">
-              <FaSignInAlt />
+      {(() => {
+        const loginEl = (
+          <Link
+            to="/login"
+            className={twMerge(linkClasses, 'font-normal')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4 justify-between">
+                <FaSignInAlt />
+              </div>
+              <div>Login</div>
             </div>
-            <div>Login</div>
-          </div>
-        </Link>
-      </SignedOut>
+          </Link>
+        )
 
-      <SignedIn>
-        <div className="flex items-center gap-3 px-2 py-1 rounded-lg">
-          <UserButton />
+        return (
+          <>
+            <AuthLoading>{loginEl}</AuthLoading>
+            <Unauthenticated>{loginEl}</Unauthenticated>
+          </>
+        )
+      })()}
+
+      <Authenticated>
+        <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+          <FaUser />
           <Link
             to="/account"
             className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -281,7 +333,18 @@ function LibrariesLayout() {
             My Account
           </Link>
         </div>
-      </SignedIn>
+        {canAdmin ? (
+          <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+            <FaLock />
+            <Link
+              to="/admin"
+              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            >
+              Admin
+            </Link>
+          </div>
+        ) : null}
+      </Authenticated>
     </>
   )
 
@@ -299,9 +362,9 @@ function LibrariesLayout() {
         <a
           href="https://x.com/tan_stack"
           className="opacity-70 hover:opacity-100"
-          aria-label="Follow TanStack on X (Twitter)"
+          aria-label="Follow TanStack on X.com"
         >
-          <TbBrandTwitter className="text-xl" />
+          <TbBrandX className="text-xl" />
         </a>
         <a
           href="https://bsky.app/profile/tanstack.com"
@@ -329,7 +392,7 @@ function LibrariesLayout() {
       <details
         ref={detailsRef as any}
         id="docs-details"
-        className="border-b border-gray-500 border-opacity-20"
+        className="border-b border-gray-500/20"
       >
         <summary className="p-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
@@ -339,8 +402,8 @@ function LibrariesLayout() {
           </div>
         </summary>
         <div
-          className="flex flex-col gap-4 whitespace-nowrap h-[0vh] overflow-y-auto
-          border-t border-gray-500 border-opacity-20 text-lg bg-white/80 dark:bg-black/20"
+          className="flex flex-col gap-4 whitespace-nowrap overflow-y-auto
+          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
         >
           <div className="p-2 pb-0">
             <SearchButton />
@@ -363,7 +426,7 @@ function LibrariesLayout() {
           <SearchButton />
         </div>
         <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[50px]">
-          <div className="space-y-1 text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
+          <div className="flex flex-col gap-1 text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
             {items}
           </div>
         </div>
@@ -378,7 +441,7 @@ function LibrariesLayout() {
       {smallMenu}
       {largeMenu}
       <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
-        <Outlet />
+        {children}
       </div>
       {activeLibrary?.scarfId ? <Scarf id={activeLibrary.scarfId} /> : null}
     </div>

@@ -1,4 +1,6 @@
 import { Await, Link, MatchRoute, getRouteApi } from '@tanstack/react-router'
+import { convexQuery } from '@convex-dev/react-query'
+import { api } from 'convex/_generated/api'
 import { twMerge } from 'tailwind-merge'
 import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
@@ -39,7 +41,20 @@ const courses = [
 ]
 
 export const Route = createFileRoute({
-  loader: () => {
+  loader: async ({ context: { queryClient } }) => {
+    const githubQuery = queryClient.ensureQueryData(
+      convexQuery(api.stats.getGithubOwner, {
+        owner: 'tanstack',
+      })
+    )
+    const npmQuery = queryClient.ensureQueryData(
+      convexQuery(api.stats.getNpmOrg, {
+        name: 'tanstack',
+      })
+    )
+
+    await Promise.all([githubQuery, npmQuery])
+
     return {
       randomNumber: Math.random(),
     }
@@ -137,7 +152,7 @@ function Index() {
             <OpenSourceStats />
           </div>
         </div>
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto">
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>
 
           {Object.entries(librariesByGroup).map(
@@ -282,7 +297,7 @@ function Index() {
           )}
         </div>
 
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto">
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <h3 className={`text-4xl font-light mb-6`}>Partners</h3>
           <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
             {partners
@@ -317,7 +332,7 @@ function Index() {
           </div>
         </div>
 
-        <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
+        <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
           <h3 className={`text-4xl font-light mb-6`}>Courses</h3>
           <div className={`mt-4 grid grid-cols-1 gap-4`}>
             {courses.map((course) => (
@@ -351,7 +366,7 @@ function Index() {
           </div>
         </div>
 
-        <div className={`lg:max-w-screen-lg px-4 mx-auto`}>
+        <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
           <h3 className={`text-4xl font-light`}>OSS Sponsors</h3>
           <div className="h-6" />
           <div
@@ -380,7 +395,7 @@ function Index() {
             </div>
             <div className={`h-4`} />
             <p
-              className={`italic mx-auto max-w-screen-sm text-gray-500 dark:text-gray-300`}
+              className={`italic mx-auto max-w-(--breakpoint-sm) text-gray-500 dark:text-gray-300`}
             >
               Sponsors get special perks like{' '}
               <strong>
@@ -392,7 +407,7 @@ function Index() {
           </div>
         </div>
 
-        <div className="px-4 lg:max-w-screen-lg md:mx-auto">
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <h3 className={`text-4xl font-light mb-6`}>Core Maintainers</h3>
           <div className="grid gap-6 grid-cols-2 lg:grid-cols-3">
             {coreMaintainers.map((maintainer) => (
@@ -403,7 +418,7 @@ function Index() {
 
         <LandingPageGad />
 
-        <div className="px-4 mx-auto max-w-screen-lg">
+        <div className="px-4 mx-auto max-w-(--breakpoint-lg)">
           <div
             className={`
           rounded-md p-4 grid gap-6
@@ -445,7 +460,7 @@ function Index() {
           </div>
         </div>
         <div className="h-4" />
-        <div className="px-4 mx-auto max-w-screen-lg relative">
+        <div className="px-4 mx-auto max-w-(--breakpoint-lg) relative">
           <div className="rounded-md p-8 bg-white shadow-xl shadow-gray-900/10 md:p-14 dark:bg-black/40">
             {!bytesSignupMutation.submittedAt ? (
               <form

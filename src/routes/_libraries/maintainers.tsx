@@ -40,6 +40,7 @@ const librarySchema = z.enum([
   'config',
   'react-charts',
   'create-tsrouter-app',
+  'devtools',
 ])
 
 const viewModeSchema = z.enum(['compact', 'full', 'row'])
@@ -159,7 +160,7 @@ function MaintainersFilter({
     (sortBy !== 'none' ? 1 : 0)
 
   return (
-    <div className="mb-8">
+    <div>
       <div className="flex items-center gap-3 flex-wrap">
         {/* View Mode Toggle */}
         <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -281,18 +282,16 @@ function MaintainersFilter({
                       const isSelected =
                         selectedLibraries?.includes(library.id) || false
 
+                      const bgStyle = library.bgStyle ?? 'bg-gray-500'
+
                       return (
                         <button
                           key={library.id}
                           onClick={() => toggleLibrary(library.id)}
                           className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
                             isSelected
-                              ? `${
-                                  library.bgStyle ?? 'bg-gray-500'
-                                } bg-opacity-100 text-white`
-                              : `${
-                                  library.bgStyle ?? 'bg-gray-500'
-                                } bg-opacity-20 dark:bg-opacity-30 text-green-900 dark:text-green-200 hover:bg-opacity-30 dark:hover:bg-opacity-40`
+                              ? `${bgStyle} text-white`
+                              : `${bgStyle}/30 text-green-900 dark:text-green-200 hover:${bgStyle}/40`
                           }`}
                         >
                           {library.name}
@@ -312,17 +311,17 @@ function MaintainersFilter({
             const library = availableLibraries.find(
               (lib) => lib.id === libraryId
             )
+            const bgStyle = library?.bgStyle ?? 'bg-gray-500'
+
             return (
               <span
                 key={libraryId}
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${
-                  library?.bgStyle ?? 'bg-gray-500'
-                } bg-opacity-40 dark:bg-opacity-30`}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-green-900 dark:text-green-200 ${bgStyle}/40`}
               >
                 {library?.name || libraryId}
                 <button
                   onClick={() => toggleLibrary(libraryId)}
-                  className="hover:bg-black hover:bg-opacity-10 dark:hover:bg-white dark:hover:bg-opacity-10 rounded p-0.5 transition-colors"
+                  className="hover:bg-black/10 dark:hover:bg-white/10 rounded p-0.5 transition-colors"
                 >
                   <MdClose className="w-3 h-3" />
                 </button>
@@ -353,7 +352,7 @@ function MaintainerGrid({
   }>
 }) {
   return (
-    <div className="mb-8">
+    <div>
       {title && <h3 className="text-2xl font-semibold mb-4">{title}</h3>}
       <div
         className={`transition-all duration-300 ${
@@ -680,8 +679,8 @@ function RouteComponent() {
         }
       `}</style>
 
-      <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
-        <div className="flex-1 space-y-16 w-full max-w-4xl mx-auto">
+      <div className="flex flex-col w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
+        <div className="flex-1 flex flex-col gap-16 w-full max-w-4xl mx-auto">
           <header className="text-center pt-8">
             <h1 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mb-6">
               Maintainers & Contributors

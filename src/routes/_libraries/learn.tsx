@@ -4,7 +4,7 @@ import { FaCheckCircle } from 'react-icons/fa'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 
 export const Route = createFileRoute({
-  component: LoginComp,
+  component: LearnPage,
   head: () => ({
     meta: seo({
       title: 'Learn | TanStack',
@@ -14,9 +14,9 @@ export const Route = createFileRoute({
   }),
 })
 
-function LoginComp() {
+function LearnPage() {
   return (
-    <div className="flex flex-col min-h-[100dvh] max-w-full">
+    <div className="flex flex-col min-h-dvh max-w-full">
       <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 px-8">
         <div className="flex flex-col items-center space-y-12 text-center ">
           <div className="space-y-4">
@@ -55,7 +55,7 @@ function LoginComp() {
                   <div className="mt-2 text-xs italic">—Tanner Linsley</div>
                 </div>
 
-                <div className="grid max-w-screen-lg mx-auto text-xs gap-2 text-left">
+                <div className="grid max-w-(--breakpoint-lg) mx-auto text-xs gap-2 text-left">
                   <div className="flex items-start gap-2">
                     <span className="text-lg text-green-500">
                       <FaCheckCircle />
@@ -87,7 +87,7 @@ function LoginComp() {
             {/* <Link
               to={'https://github.com/tanstack' as string}
               target="_blank"
-              className="max-w-[300px] rounded-lg bg-gradient-to-br from-gray-500 to-gray-900 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
+              className="max-w-[300px] rounded-lg bg-linear-to-br from-gray-500 to-gray-900 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
             >
               <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
                 GitHub
@@ -105,7 +105,7 @@ function LoginComp() {
             </Link>
             <Link
               to="/paid-support"
-              className="max-w-[300px] rounded-lg bg-gradient-to-br from-green-500 to-sky-500 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
+              className="max-w-[300px] rounded-lg bg-linear-to-br from-green-500 to-sky-500 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
             >
               <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
                 Paid Support
@@ -116,7 +116,7 @@ function LoginComp() {
                     key={d}
                     className="text-sm bg-white/90 rounded-full py-1 px-2 shadow-lg font-bold"
                   >
-                    <div className="text-transparent bg-clip-text bg-gradient-to-r to-green-600 from-sky-600">
+                    <div className="text-transparent bg-clip-text bg-linear-to-r to-green-600 from-sky-600">
                       {d}
                     </div>
                   </div>

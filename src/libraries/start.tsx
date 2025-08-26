@@ -31,6 +31,7 @@ export const startProject = {
   textColor: 'text-cyan-600',
   embedEditor: 'codesandbox',
   frameworks: ['react', 'solid'],
+  defaultDocs: 'framework/react/overview',
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   showNetlifyUrl: true,
   // hide stackblitz until they support Async Local Storage

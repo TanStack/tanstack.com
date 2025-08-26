@@ -1,19 +1,21 @@
-import * as React from 'react'
-import { FaEdit } from 'react-icons/fa'
 import { marked } from 'marked'
 import markedAlert from 'marked-alert'
-import { gfmHeadingId, getHeadingList } from 'marked-gfm-heading-id'
-import { DocTitle } from '~/components/DocTitle'
-import { Markdown } from '~/components/Markdown'
-import { Toc } from './Toc'
-import { twMerge } from 'tailwind-merge'
-import { TocMobile } from './TocMobile'
-import { GamLeader } from './Gam'
-import { useWidthToggle } from '~/components/DocsLayout'
+import { getHeadingList, gfmHeadingId } from 'marked-gfm-heading-id'
+import * as React from 'react'
 import {
   BsArrowsCollapseVertical,
   BsArrowsExpandVertical,
 } from 'react-icons/bs'
+import { FaEdit } from 'react-icons/fa'
+import { twMerge } from 'tailwind-merge'
+import { useWidthToggle } from '~/components/DocsLayout'
+import { DocTitle } from '~/components/DocTitle'
+import { Markdown } from '~/components/Markdown'
+import { AdGate } from '~/contexts/AdsContext'
+import { CopyMarkdownButton } from './CopyMarkdownButton'
+import { GamLeader } from './Gam'
+import { Toc } from './Toc'
+import { TocMobile } from './TocMobile'
 
 type DocProps = {
   title: string
@@ -120,26 +122,36 @@ export function Doc({
         <div
           className={twMerge(
             'flex overflow-auto flex-col w-full p-4 lg:p-6',
-            isTocVisible && '!pr-0'
+            isTocVisible && 'pr-0!'
           )}
         >
-          <GamLeader />
+          <AdGate>
+            <GamLeader />
+          </AdGate>
           {title ? (
             <div className="flex items-center justify-between gap-4">
               <DocTitle>{title}</DocTitle>
-              {setIsFullWidth && (
-                <button
-                  onClick={() => setIsFullWidth(!isFullWidth)}
-                  className="p-2 mr-4 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0 hidden [@media(min-width:1800px)]:inline-flex"
-                  title={isFullWidth ? 'Constrain width' : 'Expand width'}
-                >
-                  {isFullWidth ? (
-                    <BsArrowsCollapseVertical className="w-4 h-4" />
-                  ) : (
-                    <BsArrowsExpandVertical className="w-4 h-4" />
-                  )}
-                </button>
-              )}
+              <div className="flex items-center gap-4">
+                <CopyMarkdownButton
+                  repo={repo}
+                  branch={branch}
+                  filePath={filePath}
+                />
+
+                {setIsFullWidth && (
+                  <button
+                    onClick={() => setIsFullWidth(!isFullWidth)}
+                    className="p-2 mr-4 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors shrink-0 hidden [@media(min-width:1800px)]:inline-flex"
+                    title={isFullWidth ? 'Constrain width' : 'Expand width'}
+                  >
+                    {isFullWidth ? (
+                      <BsArrowsCollapseVertical className="w-4 h-4" />
+                    ) : (
+                      <BsArrowsExpandVertical className="w-4 h-4" />
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           ) : null}
           <div className="h-4" />

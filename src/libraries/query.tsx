@@ -25,6 +25,7 @@ export const queryProject = {
   latestBranch: 'main',
   latestVersion: 'v5',
   availableVersions: ['v5', 'v4', 'v3'],
+  bgRadial: 'from-red-500 via-red-500/60 to-transparent',
   colorFrom: 'from-red-500',
   colorTo: 'to-amber-500',
   textColor: 'text-amber-500',

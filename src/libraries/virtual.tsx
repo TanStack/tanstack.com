@@ -24,6 +24,7 @@ export const virtualProject = {
   latestBranch: 'main',
   latestVersion: 'v3',
   availableVersions: ['v3'],
+  bgRadial: 'from-purple-500 via-violet-600/50 to-transparent',
   colorFrom: 'from-purple-500',
   colorTo: 'to-violet-600',
   textColor: 'text-purple-600',

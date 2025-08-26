@@ -26,6 +26,7 @@ export const rangerProject = {
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
+  bgRadial: 'from-pink-500 via-pink-600/50 to-transparent',
   colorFrom: 'from-pink-400',
   colorTo: 'to-pink-500',
   textColor: 'text-pink-500',

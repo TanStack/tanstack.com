@@ -49,7 +49,7 @@ export default function PacerVersionIndex() {
         <div className="w-fit mx-auto px-4">
           <OpenSourceStats library={library} />
         </div>
-        
+
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />

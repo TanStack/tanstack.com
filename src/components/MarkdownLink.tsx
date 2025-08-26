@@ -23,9 +23,12 @@ export function MarkdownLink({
   if (to?.startsWith('./')) {
     // Convert ./path to ../path to account for the fact that we're at /docs/file not /docs/file/
     to = '../' + to.slice(2)
-  } else if (to && !to.startsWith('/') && !to.startsWith('../') && to.includes('/')) {
-    // Handle bare relative paths like "guides/foo" that should be treated as "../guides/foo"
-    // This handles cases where markdown has "subfolder/file.md" instead of "./subfolder/file.md"
+  } else if (to && !to.startsWith('/') && !to.startsWith('../')) {
+    // Handle bare relative paths like "foo" or "guides/foo"
+    // These should be treated as siblings, so prepend ../
+    // This handles:
+    // - "foo.md" (same directory) -> "../foo"
+    // - "guides/foo.md" (subdirectory) -> "../guides/foo"
     to = '../' + to
   }
 

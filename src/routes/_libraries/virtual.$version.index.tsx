@@ -14,7 +14,10 @@ import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
-import OpenSourceStats from '~/components/OpenSourceStats'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('virtual')
 
 export const Route = createFileRoute({
   component: RouteComp,
@@ -24,11 +27,10 @@ export const Route = createFileRoute({
       description: virtualProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
-
-const librariesRouteApi = getRouteApi('/_libraries')
-
-const library = getLibrary('virtual')
 
 export default function RouteComp() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()

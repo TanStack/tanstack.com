@@ -11,7 +11,10 @@ import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
 import { PartnersSection } from '~/components/PartnersSection'
-import OpenSourceStats from '~/components/OpenSourceStats'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('devtools')
 
 export const Route = createFileRoute({
   component: DevtoolsVersionIndex,
@@ -21,9 +24,10 @@ export const Route = createFileRoute({
       description: devtoolsProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
-
-const librariesRouteApi = getRouteApi('/_libraries')
 
 export default function DevtoolsVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()

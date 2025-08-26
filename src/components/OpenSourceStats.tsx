@@ -61,18 +61,20 @@ const NpmDownloadCounter = ({
   return <StableCounter value={count} intervalMs={intervalMs} />
 }
 
+export function ossStatsQuery({ library }: { library?: Library } = {}) {
+  return convexQuery(api.stats.getStats, {
+    library: library
+      ? {
+          id: library.id,
+          repo: library.repo,
+          frameworks: library.frameworks,
+        }
+      : undefined,
+  })
+}
+
 export function _OssStats({ library }: { library?: Library }) {
-  const { data: stats } = useSuspenseQuery(
-    convexQuery(api.stats.getStats, {
-      library: library
-        ? {
-            id: library.id,
-            repo: library.repo,
-            frameworks: library.frameworks,
-          }
-        : undefined,
-    })
-  )
+  const { data: stats } = useSuspenseQuery(ossStatsQuery({ library }))
 
   return (
     <div>

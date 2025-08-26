@@ -15,7 +15,10 @@ import { getExampleStartingPath } from '~/utils/sandbox'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
-import OpenSourceStats from '~/components/OpenSourceStats'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('table')
 
 export const Route = createFileRoute({
   component: TableVersionIndex,
@@ -25,11 +28,10 @@ export const Route = createFileRoute({
       description: tableProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
-
-const librariesRouteApi = getRouteApi('/_libraries')
-
-const library = getLibrary('table')
 
 export default function TableVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()

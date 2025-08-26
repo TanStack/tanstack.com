@@ -25,6 +25,7 @@ export const tableProject = {
   latestBranch: 'main',
   latestVersion: 'v8',
   availableVersions: ['v8'],
+  bgRadial: 'from-cyan-500 via-blue-600/50 to-transparent',
   colorFrom: 'from-cyan-500',
   colorTo: 'to-blue-600',
   textColor: 'text-blue-600',

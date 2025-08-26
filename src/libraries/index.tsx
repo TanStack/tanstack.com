@@ -73,6 +73,7 @@ export type Library = {
   latestBranch: string
   latestVersion: string
   availableVersions: string[]
+  bgRadial: string
   colorFrom: string
   colorTo: string
   textColor: string

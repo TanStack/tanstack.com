@@ -19,7 +19,7 @@ import { NotFound } from '~/components/NotFound'
 import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { GamScripts } from '~/components/Gam'
-import { BackgroundAnimation } from '~/components/BackgroundAnimation'
+import { BackgroundGradient } from '~/components/BackgroundGradient'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
 import { ThemeProvider } from '~/components/ThemeProvider'
@@ -219,7 +219,7 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
         <GamScripts />
       </head>
       <body>
-        <BackgroundAnimation />
+        <BackgroundGradient />
         <React.Suspense fallback={null}>{children}</React.Suspense>
         {showDevtools ? (
           <TanStackRouterDevtoolsInProd position="bottom-right" />

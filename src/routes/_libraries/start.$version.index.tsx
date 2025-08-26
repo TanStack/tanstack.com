@@ -4,7 +4,7 @@ import { FaBook, FaGithub } from 'react-icons/fa'
 
 import { Link, getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { LibraryHero } from '~/components/LibraryHero'
 import { startProject } from '~/libraries/start'
@@ -34,7 +34,7 @@ export const Route = createFileRoute({
 })
 
 export default function VersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const [isDark, setIsDark] = React.useState(true)
 
   React.useEffect(() => {
@@ -290,7 +290,7 @@ export default function VersionIndex() {
 
       <PartnersSection libraryId="start" />
 
-      <SponsorsSection sponsorsPromise={sponsorsPromise} />
+      <LazySponsorSection />
 
       <LandingPageGad />
 

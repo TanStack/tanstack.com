@@ -1,6 +1,6 @@
 import { FaCheckCircle } from 'react-icons/fa'
 import { Footer } from '~/components/Footer'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryHero } from '~/components/LibraryHero'
 import { BottomCTA } from '~/components/BottomCTA'
 import { configProject } from '~/libraries/config'
@@ -31,7 +31,7 @@ export const Route = createFileRoute({
 const librariesRouteApi = getRouteApi('/_libraries')
 
 export default function FormVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
 
   return (
     <>
@@ -88,7 +88,7 @@ export default function FormVersionIndex() {
 
         <PartnersSection libraryId="config" />
 
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <LazySponsorSection />
 
         <LandingPageGad />
 

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { rangerProject } from '~/libraries/ranger'
 import { Footer } from '~/components/Footer'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { LibraryHero } from '~/components/LibraryHero'
@@ -30,7 +30,7 @@ export const Route = createFileRoute({
 })
 
 export default function VersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(rangerProject, version)
   const [framework] = React.useState<Framework>('react')
@@ -59,7 +59,7 @@ export default function VersionIndex() {
           featureHighlights={library.featureHighlights}
         />
 
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <LazySponsorSection />
 
         <PartnersSection libraryId="ranger" />
 

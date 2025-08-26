@@ -5,7 +5,7 @@ import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { PartnersSection } from '~/components/PartnersSection'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { BottomCTA } from '~/components/BottomCTA'
 import { Framework, getBranch, getLibrary } from '~/libraries'
@@ -31,7 +31,7 @@ export const Route = createFileRoute({
 })
 
 function RouterVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(routerProject, version)
   const [framework] = React.useState<Framework>('react')
@@ -82,7 +82,7 @@ function RouterVersionIndex() {
         ]}
       />
 
-      <SponsorsSection sponsorsPromise={sponsorsPromise} />
+      <LazySponsorSection />
 
       <LandingPageGad />
 

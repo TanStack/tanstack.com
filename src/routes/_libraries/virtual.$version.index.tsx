@@ -7,7 +7,7 @@ import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { Framework, getBranch } from '~/libraries'
@@ -33,7 +33,7 @@ export const Route = createFileRoute({
 })
 
 export default function RouteComp() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const [framework, setFramework] = React.useState<Framework>('react')
   const branch = getBranch(virtualProject, version)
@@ -123,7 +123,7 @@ export default function RouteComp() {
 
       <PartnersSection libraryId="virtual" />
 
-      <SponsorsSection sponsorsPromise={sponsorsPromise} />
+      <LazySponsorSection />
 
       <LandingPageGad />
 

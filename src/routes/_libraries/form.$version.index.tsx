@@ -9,7 +9,7 @@ import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import LandingPageGad from '~/components/LandingPageGad'
@@ -34,7 +34,7 @@ export const Route = createFileRoute({
 })
 
 export default function FormVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(formProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
@@ -84,7 +84,7 @@ export default function FormVersionIndex() {
 
         <PartnersSection libraryId="form" />
 
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <LazySponsorSection />
 
         <LandingPageGad />
 

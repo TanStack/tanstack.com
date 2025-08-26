@@ -105,6 +105,15 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
+    name: 'Jack Herrington',
+    isCoreMaintainer: true,
+    avatar: 'https://github.com/jherr.png',
+    github: 'jherr',
+    creatorOf: ['create-tsrouter-app'],
+    frameworkExpertise: ['react'],
+    specialties: ['Templates'],
+  },
+  {
     name: 'Sean Cassiere',
     isCoreMaintainer: true,
     avatar: 'https://github.com/seancassiere.png',
@@ -139,15 +148,6 @@ export const allMaintainers: Maintainer[] = [
     maintainerOf: ['virtual'],
     frameworkExpertise: ['react'],
     specialties: ['Virtualization', 'Performance'],
-  },
-  {
-    name: 'Jack Herrington',
-    isCoreMaintainer: true,
-    avatar: 'https://github.com/jherr.png',
-    github: 'jherr',
-    creatorOf: ['create-tsrouter-app'],
-    frameworkExpertise: ['react'],
-    specialties: ['Templates'],
   },
   {
     name: 'Kyle Mathews',

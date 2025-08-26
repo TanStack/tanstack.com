@@ -1,6 +1,7 @@
 import * as React from 'react'
 
-import { FaBook, FaGithub, FaTwitter } from 'react-icons/fa'
+import { FaBook, FaGithub } from 'react-icons/fa'
+
 import { Link, getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { SponsorsSection } from '~/components/SponsorsSection'
@@ -13,7 +14,11 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
-import OpenSourceStats from '~/components/OpenSourceStats'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+import { TbBrandX } from 'react-icons/tb'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('start')
 
 export const Route = createFileRoute({
   component: VersionIndex,
@@ -23,11 +28,10 @@ export const Route = createFileRoute({
       description: startProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
-
-const librariesRouteApi = getRouteApi('/_libraries')
-
-const library = getLibrary('start')
 
 export default function VersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()
@@ -126,7 +130,7 @@ export default function VersionIndex() {
             className="flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold"
             rel="noreferrer"
           >
-            <FaTwitter className="min-w-4" /> Tweet about it!
+            <TbBrandX className="min-w-4" /> Tweet about it!
           </a>{' '}
         </div>
       </div>

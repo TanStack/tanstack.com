@@ -10,7 +10,10 @@ import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
 import { PartnersSection } from '~/components/PartnersSection'
-import OpenSourceStats from '~/components/OpenSourceStats'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('store')
 
 export const Route = createFileRoute({
   component: StoreVersionIndex,
@@ -20,10 +23,10 @@ export const Route = createFileRoute({
       description: storeProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
-
-const librariesRouteApi = getRouteApi('/_libraries')
-const library = getLibrary('store')
 
 export default function StoreVersionIndex() {
   const { sponsorsPromise } = librariesRouteApi.useLoaderData()

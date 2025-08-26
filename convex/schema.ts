@@ -31,6 +31,7 @@ const schema = defineSchema({
     capabilities: v.array(
       v.union(...validCapabilities.map((cap) => v.literal(cap)))
     ),
+    adsDisabled: v.optional(v.boolean()),
   }),
 })
 

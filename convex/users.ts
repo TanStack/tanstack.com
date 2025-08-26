@@ -2,6 +2,7 @@ import { v } from 'convex/values'
 import { mutation, query, QueryCtx } from './_generated/server'
 import { Capability, CapabilitySchema } from './schema'
 import { getCurrentUserConvex } from './auth'
+import { Id } from './_generated/dataModel'
 
 export const updateUserCapabilities = mutation({
   args: {
@@ -22,8 +23,6 @@ export const updateUserCapabilities = mutation({
 
     let capabilities = args.capabilities
 
-    console.log('targetUser', targetUser)
-
     // Ensure that tannerlinsley@gmail.com always has the admin capability
     // as a fail safe
     if (targetUser.email === 'tannerlinsley@gmail.com') {
@@ -31,8 +30,6 @@ export const updateUserCapabilities = mutation({
         ...new Set<Capability>(['admin', ...capabilities]).values(),
       ]
     }
-
-    console.log(capabilities)
 
     // Validate capabilities using schema helper
     const validatedCapabilities = CapabilitySchema.array().parse(capabilities)
@@ -84,3 +81,21 @@ async function requireCapability(ctx: QueryCtx, capability: Capability) {
 
   return { currentUser }
 }
+
+// Toggle ad preference (only for users with disableAds capability)
+export const updateAdPreference = mutation({
+  args: {
+    adsDisabled: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    // Validate admin capability
+    const { currentUser } = await requireCapability(ctx, 'disableAds')
+
+    // Update target user's capabilities
+    await ctx.db.patch(currentUser.userId as Id<'users'>, {
+      adsDisabled: args.adsDisabled,
+    })
+
+    return { success: true }
+  },
+})

@@ -2,9 +2,9 @@ import { Link } from '@tanstack/react-router'
 
 const footerLinks = [
   { label: 'Blog', to: '/blog' },
-  { label: '@Tan_Stack Twitter', to: 'https://twitter.com/tan_stack' },
+  { label: '@Tan_Stack on X.com', to: 'https://x.com/tan_stack' },
   {
-    label: '@TannerLinsley Twitter',
+    label: '@TannerLinsley on X.com',
     to: 'https://twitter.com/tannerlinsley',
   },
   { label: 'GitHub', to: 'https://github.com/tanstack' },

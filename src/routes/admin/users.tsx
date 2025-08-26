@@ -1,5 +1,10 @@
 import { redirect, Link } from '@tanstack/react-router'
-import { useQuery, useMutation } from 'convex/react'
+import {
+  useQuery as useConvexQuery,
+  useMutation as useConvexMutation,
+  useConvex,
+} from 'convex/react'
+import { useQuery, useMutation, keepPreviousData } from '@tanstack/react-query'
 import { api } from 'convex/_generated/api'
 import { useState, useMemo, useCallback } from 'react'
 import {
@@ -18,6 +23,7 @@ import {
   flexRender,
   type ColumnDef,
 } from '@tanstack/react-table'
+import { convexQuery } from '@convex-dev/react-query'
 
 // User type for table
 type User = {
@@ -37,15 +43,20 @@ function UsersPage() {
   const [cursors, setCursors] = useState<string[]>(['']) // Track cursor history for navigation
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
 
-  const user = useQuery(api.auth.getCurrentUser)
-  const usersQuery = useQuery(api.users.listUsers, {
-    pagination: {
-      limit: 10,
-      cursor: cursors[currentPageIndex] || null,
-    },
+  const user = useConvexQuery(api.auth.getCurrentUser)
+  const usersQuery = useQuery({
+    ...convexQuery(api.users.listUsers, {
+      pagination: {
+        limit: 10,
+        cursor: cursors[currentPageIndex] || null,
+      },
+    }),
+    placeholderData: keepPreviousData,
   })
 
-  const updateUserCapabilities = useMutation(api.users.updateUserCapabilities)
+  const updateUserCapabilities = useConvexMutation(
+    api.users.updateUserCapabilities
+  )
 
   const availableCapabilities = useMemo(
     () => ['admin', 'disableAds', 'builder'],
@@ -210,12 +221,12 @@ function UsersPage() {
 
   // Pagination handlers
   const goToNextPage = () => {
-    if (usersQuery?.continueCursor) {
+    if (usersQuery?.data?.continueCursor) {
       const newPageIndex = currentPageIndex + 1
 
       // Add new cursor to history if we don't have it
       if (cursors.length <= newPageIndex) {
-        setCursors((prev) => [...prev, usersQuery.continueCursor!])
+        setCursors((prev) => [...prev, usersQuery.data.continueCursor!])
       }
 
       setCurrentPageIndex(newPageIndex)
@@ -229,11 +240,11 @@ function UsersPage() {
   }
 
   const canGoPrevious = currentPageIndex > 0
-  const canGoNext = !usersQuery?.isDone
+  const canGoNext = !usersQuery?.data?.isDone
 
   // Create table instance
   const table = useReactTable({
-    data: usersQuery?.page || [],
+    data: usersQuery?.data?.page || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
@@ -352,7 +363,7 @@ function UsersPage() {
             </table>
           </div>
 
-          {(!usersQuery || usersQuery.page.length === 0) && (
+          {(!usersQuery.data || usersQuery.data?.page.length === 0) && (
             <div className="text-center py-12">
               <FaUser className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -369,7 +380,9 @@ function UsersPage() {
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             Page {currentPageIndex + 1}
-            {usersQuery && <span> • {usersQuery.page.length} users</span>}
+            {usersQuery.data && (
+              <span> • {usersQuery.data.page?.length} users</span>
+            )}
           </div>
           <div className="flex space-x-2">
             <button

@@ -18,15 +18,20 @@ export function BackgroundGradient() {
 
   const library = findLibrary(libraryId as any)
 
-  console.log(library?.colorFrom, library?.colorTo)
-
   return (
     <div
       className={twMerge(
         'fixed inset-0 z-0 pointer-events-none',
         'transition-opacity duration-[2s] ease-linear',
         'bg-radial',
-        library?.bgRadial,
+        'to-transparent',
+        ...(library?.bgRadial
+          ? [library.bgRadial]
+          : [
+              'from-gray-300 via-gray-300/50',
+              'dark:from-gray-300 dark:via-gray-300/30',
+              'to-transparent',
+            ]),
         'opacity-20 dark:opacity-20'
       )}
     />

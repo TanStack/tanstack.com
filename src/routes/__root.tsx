@@ -38,6 +38,24 @@ export const Route = createRootRouteWithContext<{
   convexQueryClient: ConvexQueryClient
   ensureUser: () => Promise<TanStackUser>
 }>()({
+  beforeLoad: async (ctx) => {
+    if (
+      ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)
+    ) {
+      throw redirect({
+        href: ctx.location.href.replace(
+          /\/docs\/(react|vue|angular|svelte|solid)\//gm,
+          '/docs/framework/$1/'
+        ),
+      })
+    }
+
+    // // During SSR only (the only time serverHttpClient exists),
+    // // set the auth token for Convex to make HTTP queries with.
+    // if (token) {
+    //   ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
+    // }
+  },
   head: () => ({
     meta: [
       {
@@ -123,24 +141,6 @@ export const Route = createRootRouteWithContext<{
       },
     ],
   }),
-  beforeLoad: async (ctx) => {
-    if (
-      ctx.location.href.match(/\/docs\/(react|vue|angular|svelte|solid)\//gm)
-    ) {
-      throw redirect({
-        href: ctx.location.href.replace(
-          /\/docs\/(react|vue|angular|svelte|solid)\//gm,
-          '/docs/framework/$1/'
-        ),
-      })
-    }
-
-    // // During SSR only (the only time serverHttpClient exists),
-    // // set the auth token for Convex to make HTTP queries with.
-    // if (token) {
-    //   ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
-    // }
-  },
   staleTime: Infinity,
   errorComponent: (props) => {
     return (

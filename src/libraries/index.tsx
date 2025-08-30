@@ -120,6 +120,7 @@ export type Library = {
   latestBranch: string
   latestVersion: string
   availableVersions: string[]
+  bgRadial: string
   colorFrom: string
   colorTo: string
   textColor: string
@@ -147,6 +148,8 @@ export type LibraryMenuItem = {
   label: React.ReactNode
   to: string
 }
+
+export type LibraryId = Library['id']
 
 export const libraries = [
   startProject,
@@ -203,14 +206,22 @@ export const librariesGroupNamesMap = {
   other: 'Other',
 }
 
-export function getLibrary(id: string) {
-  const library = libraries.find((d) => d.id === id)
+export function getLibrary(id: LibraryId): Library {
+  const library = libraries.find((d) => d.id === id)!
 
   if (!library) {
-    throw new Error(`Library with id "${id}" not found`)
+    throw new Error(`Library with id "${id}" not found!`)
   }
 
-  return library as Library
+  return library
+}
+
+export function findLibrary(id: string): Library | undefined {
+  try {
+    return getLibrary(id as any)
+  } catch (error) {
+    return undefined
+  }
 }
 
 export function getFrameworkOptions(frameworkStrs: Framework[]) {

@@ -1,8 +1,11 @@
 import { Await, Link, MatchRoute, getRouteApi } from '@tanstack/react-router'
+import { convexQuery } from '@convex-dev/react-query'
+import { api } from 'convex/_generated/api'
 import { twMerge } from 'tailwind-merge'
 import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
 import SponsorPack from '~/components/SponsorPack'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import discordImage from '~/images/discord-logo-white.svg'
 import { useMutation } from '~/hooks/useMutation'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
@@ -39,7 +42,9 @@ const courses = [
 ]
 
 export const Route = createFileRoute({
-  loader: () => {
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(convexQuery(api.stats.getStats, {}))
+
     return {
       randomNumber: Math.random(),
     }
@@ -70,7 +75,7 @@ function Index() {
     fn: bytesSignupServerFn,
   })
 
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
 
   return (
     <>
@@ -352,44 +357,21 @@ function Index() {
         </div>
 
         <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
-          <h3 className={`text-4xl font-light`}>OSS Sponsors</h3>
-          <div className="h-6" />
-          <div
-            style={{
-              aspectRatio: '1/1',
-            }}
-            className="max-w-[1000px] mx-auto"
+          <LazySponsorSection
+            title="OSS Sponsors"
+            ctaClassName="inline-block p-4 bg-green-700 rounded text-white uppercase font-black"
+          />
+          <div className={`h-4`} />
+          <p
+            className={`italic mx-auto max-w-(--breakpoint-sm) text-gray-500 dark:text-gray-300 text-center`}
           >
-            <Await
-              promise={sponsorsPromise}
-              fallback={<CgSpinner className="text-2xl animate-spin mx-auto" />}
-              children={(sponsors) => {
-                return <SponsorPack sponsors={sponsors} />
-              }}
-            />
-          </div>
-          <div className={`h-8`} />
-          <div className={`text-center`}>
-            <div>
-              <a
-                href="https://github.com/sponsors/tannerlinsley"
-                className={`inline-block p-4 bg-green-700 rounded text-white uppercase font-black`}
-              >
-                Become a Sponsor!
-              </a>
-            </div>
-            <div className={`h-4`} />
-            <p
-              className={`italic mx-auto max-w-(--breakpoint-sm) text-gray-500 dark:text-gray-300`}
-            >
-              Sponsors get special perks like{' '}
-              <strong>
-                private discord channels, priority issue requests, direct
-                support and even course vouchers
-              </strong>
-              !
-            </p>
-          </div>
+            Sponsors get special perks like{' '}
+            <strong>
+              private discord channels, priority issue requests, direct support
+              and even course vouchers
+            </strong>
+            !
+          </p>
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">

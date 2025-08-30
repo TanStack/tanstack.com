@@ -6,7 +6,7 @@ import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { PartnersSection } from '~/components/PartnersSection'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { BottomCTA } from '~/components/BottomCTA'
 import { Framework, getBranch, getLibrary } from '~/libraries'
@@ -15,6 +15,10 @@ import { getExampleStartingPath } from '~/utils/sandbox'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('table')
 
 export const Route = createFileRoute({
   component: TableVersionIndex,
@@ -24,14 +28,13 @@ export const Route = createFileRoute({
       description: tableProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
 
-const librariesRouteApi = getRouteApi('/_libraries')
-
-const library = getLibrary('table')
-
 export default function TableVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(tableProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
@@ -51,6 +54,10 @@ export default function TableVersionIndex() {
           className: 'bg-blue-500 text-white',
         }}
       />
+
+      <div className="w-fit mx-auto px-4">
+        <OpenSourceStats library={library} />
+      </div>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
 
@@ -108,14 +115,9 @@ export default function TableVersionIndex() {
         ]}
       />
 
-      <PartnersSection
-        libraryId="table"
-        gridClassName="grid grid-cols-1 gap-6 max-w-[400px]"
-      />
-      <div className="h-8" />
-      <PartnershipCallout libraryName="Table" />
+      <PartnersSection libraryId="table" />
 
-      <SponsorsSection sponsorsPromise={sponsorsPromise} />
+      <LazySponsorSection />
 
       <LandingPageGad />
 

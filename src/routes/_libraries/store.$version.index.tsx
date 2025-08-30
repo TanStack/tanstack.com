@@ -1,6 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { LibraryHero } from '~/components/LibraryHero'
 import { storeProject } from '~/libraries/store'
@@ -9,6 +9,11 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import { PartnersSection } from '~/components/PartnersSection'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('store')
 
 export const Route = createFileRoute({
   component: StoreVersionIndex,
@@ -18,13 +23,13 @@ export const Route = createFileRoute({
       description: storeProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
 
-const librariesRouteApi = getRouteApi('/_libraries')
-const library = getLibrary('store')
-
 export default function StoreVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
 
   return (
     <>
@@ -41,18 +46,17 @@ export default function StoreVersionIndex() {
             className: 'bg-stone-600 text-white',
           }}
         />
+
+        <div className="w-fit mx-auto px-4">
+          <OpenSourceStats library={library} />
+        </div>
+
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-            Partners
-          </h3>
-          <div className="h-8" />
-          <PartnershipCallout libraryName="Store" />
-        </div>
+        <PartnersSection libraryId="store" />
 
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <LazySponsorSection />
 
         <LandingPageGad />
 

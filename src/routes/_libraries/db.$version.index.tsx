@@ -1,6 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { PartnersSection } from '~/components/PartnersSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { dbProject } from '~/libraries/db'
@@ -10,6 +10,10 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const library = getLibrary('db')
+const librariesRouteApi = getRouteApi('/_libraries')
 
 export const Route = createFileRoute({
   component: DBVersionIndex,
@@ -19,13 +23,13 @@ export const Route = createFileRoute({
       description: dbProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
 
-const librariesRouteApi = getRouteApi('/_libraries')
-const library = getLibrary('db')
-
 export default function DBVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
 
   return (
     <>
@@ -42,6 +46,9 @@ export default function DBVersionIndex() {
             className: 'bg-orange-500 text-white',
           }}
         />
+        <div className="w-fit mx-auto px-4">
+          <OpenSourceStats library={library} />
+        </div>
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />
@@ -83,13 +90,8 @@ export default function DBVersionIndex() {
             </div>
           </div>
         </div>
-        <PartnersSection
-          libraryId="db"
-          gridClassName="w-[500px] max-w-full mx-auto"
-        />
-        <div className="h-8" />
-        <PartnershipCallout libraryName="DB" />
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <PartnersSection libraryId="db" />
+        <LazySponsorSection />
         <LandingPageGad />
         <BottomCTA
           linkProps={{

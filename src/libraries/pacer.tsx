@@ -28,6 +28,7 @@ export const pacerProject = {
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
+  bgRadial: 'from-lime-500 via-lime-700/50 to-transparent',
   colorFrom: `from-lime-500`,
   colorTo: `to-lime-700`,
   textColor: `text-lime-700`,

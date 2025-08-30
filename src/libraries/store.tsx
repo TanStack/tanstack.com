@@ -26,6 +26,7 @@ export const storeProject = {
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
+  bgRadial: 'from-twine-500 via-twine-700/50 to-transparent',
   colorFrom: 'from-twine-500',
   colorTo: 'to-twine-700',
   textColor: 'text-twine-700',

@@ -33,6 +33,7 @@ export const routerProject = {
   latestVersion: 'v1',
   availableVersions: ['v1'],
   docsRoot: 'docs/router',
+  bgRadial: 'from-emerald-500 via-lime-600/50 to-transparent',
   colorFrom: 'from-emerald-500',
   colorTo: 'to-lime-600',
   textColor: textStyles,

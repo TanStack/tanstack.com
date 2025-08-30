@@ -705,7 +705,7 @@ function NpmStatsChart({
                 transform === 'normalize-y'
                   ? 'Downloads Growth'
                   : baselinePackage
-                  ? 'Downloads (% of baseline)'
+                  ? 'Downloads (baseline-adjusted)'
                   : 'Downloads',
               labelOffset: 35,
             },

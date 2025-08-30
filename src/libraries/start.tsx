@@ -29,6 +29,7 @@ export const startProject = {
   latestVersion: 'v0',
   availableVersions: ['v0'],
   docsRoot: 'docs/start',
+  bgRadial: 'from-cyan-500 via-teal-600/50 to-transparent',
   colorFrom: 'from-teal-500',
   colorTo: 'to-cyan-500',
   textColor: 'text-cyan-600',

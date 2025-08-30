@@ -6,7 +6,7 @@ import { Footer } from '~/components/Footer'
 import { TbHeartHandshake } from 'react-icons/tb'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { PartnersSection } from '~/components/PartnersSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
@@ -19,6 +19,11 @@ import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { partners } from '~/utils/partners'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('query')
+
 export const Route = createFileRoute({
   component: VersionIndex,
   head: () => ({
@@ -27,14 +32,13 @@ export const Route = createFileRoute({
       description: queryProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
 
-const librariesRouteApi = getRouteApi('/_libraries')
-
-const library = getLibrary('query')
-
 export default function VersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(queryProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
@@ -58,6 +62,10 @@ export default function VersionIndex() {
           />
           <div className="px-4">
             <QueryGGBanner />
+          </div>
+
+          <div className="w-fit mx-auto px-4">
+            <OpenSourceStats library={library} />
           </div>
           <LibraryFeatureHighlights
             featureHighlights={library.featureHighlights}
@@ -106,23 +114,9 @@ export default function VersionIndex() {
 
           {/* Trusted Marquee intentionally left as-is for Query page content differences */}
 
-          <PartnersSection
-            libraryId="query"
-            gridClassName="grid grid-cols-1 gap-6 max-w-(--breakpoint-md) mx-auto"
-          />
-          <div className="h-8" />
-          <PartnershipCallout libraryName="Query" />
-          <div className="text-center mt-6">
-            <Link
-              to="/partners"
-              search={{ libraries: ['query'], status: 'inactive' }}
-              className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            >
-              View Previous Partners →
-            </Link>
-          </div>
+          <PartnersSection libraryId="query" />
 
-          <SponsorsSection sponsorsPromise={sponsorsPromise} />
+          <LazySponsorSection />
 
           <LandingPageGad />
 

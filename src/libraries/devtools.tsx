@@ -27,6 +27,7 @@ export const devtoolsProject = {
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
+  bgRadial: 'from-slate-400 via-slate-600/50 to-transparent',
   colorFrom: 'from-slate-400',
   colorTo: 'to-slate-600',
   textColor: 'text-slate-600',

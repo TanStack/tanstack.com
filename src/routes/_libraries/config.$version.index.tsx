@@ -1,6 +1,6 @@
 import { FaCheckCircle } from 'react-icons/fa'
 import { Footer } from '~/components/Footer'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryHero } from '~/components/LibraryHero'
 import { BottomCTA } from '~/components/BottomCTA'
 import { configProject } from '~/libraries/config'
@@ -10,9 +10,16 @@ import { getRouteApi } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import { PartnersSection } from '~/components/PartnersSection'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const library = getLibrary('config')
 
 export const Route = createFileRoute({
   component: FormVersionIndex,
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
   head: () => ({
     meta: seo({
       title: configProject.name,
@@ -24,8 +31,7 @@ export const Route = createFileRoute({
 const librariesRouteApi = getRouteApi('/_libraries')
 
 export default function FormVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
-  const library = getLibrary('config')
+  // sponsorsPromise no longer needed - using lazy loading
 
   return (
     <>
@@ -41,6 +47,10 @@ export default function FormVersionIndex() {
             </a>
           }
         />
+
+        <div className="w-fit mx-auto px-4">
+          <OpenSourceStats library={library} />
+        </div>
 
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
@@ -76,15 +86,9 @@ export default function FormVersionIndex() {
           </div>
         </div>
 
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-            Partners
-          </h3>
-          <div className="h-8" />
-          <PartnershipCallout libraryName="Config" />
-        </div>
+        <PartnersSection libraryId="config" />
 
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <LazySponsorSection />
 
         <LandingPageGad />
 

@@ -27,6 +27,7 @@ export const dbProject = {
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
+  bgRadial: 'from-orange-500 via-orange-700/50 to-transparent',
   colorFrom: `from-orange-500`,
   colorTo: `to-orange-700`,
   textColor: `text-orange-700`,

@@ -1,20 +1,21 @@
 import * as React from 'react'
-import { Link, getRouteApi } from '@tanstack/react-router'
+import { getRouteApi } from '@tanstack/react-router'
 import { routerProject } from '~/libraries/router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { PartnersSection } from '~/components/PartnersSection'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { BottomCTA } from '~/components/BottomCTA'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
-import { partners } from '~/utils/partners'
-import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('router')
 
 export const Route = createFileRoute({
   component: RouterVersionIndex,
@@ -24,14 +25,13 @@ export const Route = createFileRoute({
       description: routerProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
 
-const librariesRouteApi = getRouteApi('/_libraries')
-
-const library = getLibrary('router')
-
 function RouterVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(routerProject, version)
   const [framework] = React.useState<Framework>('react')
@@ -51,10 +51,13 @@ function RouterVersionIndex() {
           className: 'bg-emerald-500 text-white',
         }}
       />
+
+      <div className="w-fit mx-auto px-4">
+        <OpenSourceStats library={library} />
+      </div>
+
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
       <PartnersSection libraryId="router" />
-      <div className="h-8" />
-      <PartnershipCallout libraryName="Router" />
 
       <FeatureGrid
         title="Feature Rich and Lightweight"
@@ -79,7 +82,7 @@ function RouterVersionIndex() {
         ]}
       />
 
-      <SponsorsSection sponsorsPromise={sponsorsPromise} />
+      <LazySponsorSection />
 
       <LandingPageGad />
 

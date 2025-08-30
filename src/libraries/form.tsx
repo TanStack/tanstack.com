@@ -26,6 +26,7 @@ export const formProject = {
   latestBranch: 'main',
   latestVersion: 'v1',
   availableVersions: ['v1'],
+  bgRadial: 'from-yellow-500 via-yellow-600/50 to-transparent',
   colorFrom: 'from-yellow-500',
   colorTo: 'to-yellow-600',
   textColor: 'text-yellow-600',

@@ -7,11 +7,11 @@ export default function LandingPageGad() {
     <AdGate>
       <div className={`lg:max-[400px] px-4 mx-auto`}>
         <div className="flex flex-col gap-4 items-center">
-          <div className="shadow-lg rounded-lg overflow-hidden bg-white dark:bg-gray-800 dark:text-white mx-auto">
+          <div className="shadow-lg rounded-lg overflow-hidden  mx-auto">
             <GamFooter />
             <div
-              className="text-xs bg-gray-500/10 py-2 px-4 rounded text-gray-600 dark:text-gray-300
-                dark:bg-gray-500/20 self-center text-center w-[500px] max-w-full space-y-2"
+              className="text-xs bg-white dark:bg-gray-800 py-2 px-4 rounded dark:text-gray-300
+                dark:bg-opacity-20 self-center text-center max-w-[500px] space-y-2"
             >
               <div>
                 <span className="font-medium italic">

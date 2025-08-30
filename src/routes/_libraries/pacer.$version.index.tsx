@@ -3,7 +3,7 @@ import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { PartnersSection } from '~/components/PartnersSection'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { pacerProject } from '~/libraries/pacer'
 import { seo } from '~/utils/seo'
@@ -11,6 +11,10 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnershipCallout } from '~/components/PartnershipCallout'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('pacer')
 
 export const Route = createFileRoute({
   component: PacerVersionIndex,
@@ -20,13 +24,13 @@ export const Route = createFileRoute({
       description: pacerProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
 
-const librariesRouteApi = getRouteApi('/_libraries')
-const library = getLibrary('pacer')
-
 export default function PacerVersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
 
   return (
@@ -44,6 +48,11 @@ export default function PacerVersionIndex() {
             className: 'bg-lime-600 hover:bg-lime-700 text-white',
           }}
         />
+
+        <div className="w-fit mx-auto px-4">
+          <OpenSourceStats library={library} />
+        </div>
+
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />
@@ -86,14 +95,9 @@ export default function PacerVersionIndex() {
           />
         </div>
 
-        <PartnersSection
-          libraryId="pacer"
-          gridClassName="w-[500px] max-w-full mx-auto"
-        />
-        <div className="h-8" />
-        <PartnershipCallout libraryName="Pacer" />
+        <PartnersSection libraryId="pacer" />
 
-        <SponsorsSection sponsorsPromise={sponsorsPromise} />
+        <LazySponsorSection />
 
         <LandingPageGad />
 

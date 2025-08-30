@@ -1,13 +1,19 @@
 import { fetchCached } from '~/utils/cache.server'
-import { getSponsorsTable } from '~/server/airtable'
-import { GITHUB_ORG, graphqlWithAuth, octokit } from '~/server/github'
-import {
-  getGithubTiersWithMeta,
-  getTierById,
-  updateTiersMeta,
-} from '~/server/tiers'
+import { graphqlWithAuth } from '~/server/github'
 import { createServerFn } from '@tanstack/react-start'
 import { getEvent, setHeaders } from '@tanstack/react-start/server'
+import sponsorMetaData from '~/utils/gh-sponsor-meta.json'
+import { extent, scaleLinear } from 'd3'
+
+export type SponsorMeta = {
+  login: string
+  name?: string
+  email?: string
+  imageUrl?: string
+  linkUrl?: string
+  private?: boolean
+  amount?: number
+}
 
 export type Sponsor = {
   login: string
@@ -15,98 +21,49 @@ export type Sponsor = {
   email: string
   imageUrl: string
   linkUrl: string
-  privacyLevel: string
-  tier: {
-    id: string
-    monthlyPriceInDollars: number
-    meta: {
-      githubTeamSlug: string
-    }
-  }
+  private: boolean
+  amount: number
   createdAt: string
 }
 
-// const teamsBySponsorType = {
-//   fan: 'Fan',
-//   supporter: 'Supporter',
-//   premierSponsor: 'Premier Sponsor',
-// }
-
-export async function sponsorCreated({ login, newTier }) {
-  // newTier = await getTierById(newTier.id)
-
-  await inviteAllSponsors()
-
-  // if (newTier.meta.githubTeamSlug) {
-  //   await octokit.teams.addOrUpdateMembershipForUserInOrg({
-  //     org: GITHUB_ORG,
-  //     team_slug: newTier.meta.githubTeamSlug,
-  //     username: login,
-  //   })
-
-  //   console.info(`invited user:${login} to team:${newTier.meta.githubTeamSlug}`)
-  // }
-}
-
-export async function sponsorEdited({ login, oldTier, newTier }) {
-  oldTier = await getTierById(oldTier.id)
-  // newTier = await getTierById(newTier.id)
-
-  await octokit.teams.removeMembershipForUserInOrg({
-    org: GITHUB_ORG,
-    team_slug: oldTier.meta.githubTeamSlug,
-    username: login,
+export const getSponsorsForSponsorPack = createServerFn({
+  method: 'GET',
+}).handler(async () => {
+  let sponsors = await fetchCached({
+    key: 'sponsors',
+    // ttl: process.env.NODE_ENV === 'development' ? 1 : 60 * 60 * 1000,
+    ttl: 60 * 1000,
+    fn: getSponsors,
   })
-  console.info(`removed user:${login} from team:${oldTier.meta.githubTeamSlug}`)
 
-  await inviteAllSponsors()
-  // await octokit.teams.addOrUpdateMembershipForUserInOrg({
-  //   org: GITHUB_ORG,
-  //   team_slug: newTier.meta.githubTeamSlug,
-  //   username: login,
-  // })
-  // console.info(`invited user:${login} to team:${newTier.meta.githubTeamSlug}`)
-}
-
-export async function sponsorCancelled({ login, oldTier }) {
-  oldTier = await getTierById(oldTier.id)
-  await octokit.teams.removeMembershipForUserInOrg({
-    org: GITHUB_ORG,
-    team_slug: oldTier.meta.githubTeamSlug,
-    username: login,
-  })
-  console.info(`removed user:${login} from team:${oldTier.meta.githubTeamSlug}`)
-}
-
-async function inviteAllSponsors() {
-  let { sponsors } = await getSponsorsAndTiers()
-
-  await Promise.all(
-    sponsors.map(async (sponsor) => {
-      await octokit.teams.addOrUpdateMembershipForUserInOrg({
-        org: GITHUB_ORG,
-        team_slug: sponsor.tier.meta.githubTeamSlug,
-        username: sponsor.login,
-      })
+  if (!getEvent().handled) {
+    setHeaders({
+      'cache-control': 'public, max-age=0, must-revalidate',
+      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
     })
-  )
-}
+  }
 
-export async function getSponsorsAndTiers() {
-  const tiers = await getGithubTiersWithMeta()
-  await updateTiersMeta(tiers)
+  const amountExtent = extent(sponsors, (d) => d.amount).map((d) => d!)
+  const scale = scaleLinear().domain(amountExtent).range([0, 1])
 
+  return sponsors
+    .filter((d) => !d.private)
+    .map((d) => ({
+      linkUrl: d.linkUrl,
+      login: d.login,
+      imageUrl: d.imageUrl,
+      name: d.name,
+      size: scale(d.amount),
+    }))
+})
+
+export async function getSponsors() {
   let [sponsors, sponsorsMeta] = await Promise.all([
     getGithubSponsors(),
-    getSponsorsMeta().then((all) => all.map((d) => d.fields)),
+    getSponsorsMeta(),
   ])
 
-  sponsors = sponsors.map((d) => ({
-    ...d,
-    tier: tiers.find((tier) => tier.id == d.tier.id),
-  }))
-
-  sponsorsMeta.forEach((sponsorMeta) => {
+  sponsorsMeta.forEach((sponsorMeta: SponsorMeta) => {
     const matchingSponsor = sponsors.find((d) => d.login == sponsorMeta.login)
 
     if (matchingSponsor) {
@@ -115,31 +72,32 @@ export async function getSponsorsAndTiers() {
         email: sponsorMeta.email ?? matchingSponsor.email,
         imageUrl: sponsorMeta.imageUrl ?? matchingSponsor.imageUrl,
         linkUrl: sponsorMeta.linkUrl ?? matchingSponsor.linkUrl,
-        privacyLevel: sponsorMeta.privacyLevel ?? matchingSponsor.privacyLevel,
+        private: sponsorMeta.private ?? matchingSponsor.private,
       })
-    } else {
-      const tier = tiers.find((d) => d.id === sponsorMeta.tierId?.[0])
+    } else if (sponsorMeta.amount) {
       sponsors.push({
-        ...sponsorMeta,
-        tier,
+        login: sponsorMeta.login,
+        name: sponsorMeta.name || '',
+        email: sponsorMeta.email || '',
+        imageUrl: sponsorMeta.imageUrl || '',
+        linkUrl: sponsorMeta.linkUrl || '',
+        private: sponsorMeta.private || false,
+        createdAt: new Date().toISOString(),
+        amount: sponsorMeta.amount || 0,
       })
     }
   })
 
   sponsors.sort(
     (a, b) =>
-      b.monthlyPriceInDollars - a.monthlyPriceInDollars ||
-      (b.createdAt > a.createdAt ? -1 : 1)
+      (b.amount || 0) - (a.amount || 0) || (b.createdAt > a.createdAt ? -1 : 1)
   )
 
-  return {
-    sponsors,
-    tiers,
-  }
+  return sponsors
 }
 
 async function getGithubSponsors() {
-  let sponsors: Sponsor = []
+  let sponsors: Sponsor[] = []
   try {
     const fetchPage = async (cursor = '') => {
       const res = await graphqlWithAuth(
@@ -167,7 +125,6 @@ async function getGithubSponsors() {
                   }
                 }
                 tier {
-                  id
                   monthlyPriceInDollars
                 }
                 privacyLevel
@@ -189,11 +146,11 @@ async function getGithubSponsors() {
             edges,
           },
         },
-      } = res
+      } = res as any
 
       sponsors = [
         ...sponsors,
-        ...edges.map((edge) => {
+        ...edges.map((edge: any) => {
           const {
             node: { createdAt, sponsorEntity, tier, privacyLevel },
           } = edge
@@ -208,9 +165,9 @@ async function getGithubSponsors() {
             name,
             login,
             email,
-            tier,
+            amount: tier?.monthlyPriceInDollars || 0,
             createdAt,
-            privacyLevel,
+            private: privacyLevel === 'PRIVATE',
           }
         }),
       ]
@@ -228,66 +185,19 @@ async function getGithubSponsors() {
       console.error('Missing github credentials, returning mock data.')
       return []
     }
-    throw err
-  }
-}
-
-async function getSponsorsMeta() {
-  try {
-    const sponsorsTable = await getSponsorsTable()
-
-    return new Promise((resolve, reject) => {
-      let allSponsors = []
-      sponsorsTable.select().eachPage(
-        function page(records, fetchNextPage) {
-          allSponsors = [...allSponsors, ...records]
-          fetchNextPage()
-        },
-        function done(err) {
-          if (err) {
-            reject(err)
-          } else {
-            resolve(allSponsors)
-          }
-        }
-      )
-    })
-  } catch (err: any) {
-    if (err.message === 'An API key is required to connect to Airtable') {
-      console.error('Missing airtable credentials, returning mock data.')
-
+    if (err.status === 403) {
+      console.error('GitHub rate limit exceeded, returning empty sponsors.')
       return []
     }
     throw err
   }
 }
 
-export const getSponsorsForSponsorPack = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  let { sponsors } = (await fetchCached({
-    key: 'sponsors',
-    // ttl: process.env.NODE_ENV === 'development' ? 1 : 60 * 60 * 1000,
-    ttl: 60 * 1000,
-    fn: getSponsorsAndTiers,
-  })) as { sponsors: Sponsor[] }
-
-  if (!getEvent().handled) {
-    setHeaders({
-      'cache-control': 'public, max-age=0, must-revalidate',
-      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-    })
+async function getSponsorsMeta(): Promise<SponsorMeta[]> {
+  try {
+    return sponsorMetaData.filter((sponsor) => !sponsor.private)
+  } catch (err: any) {
+    console.error('Error reading sponsor metadata from JSON file:', err)
+    return []
   }
-
-  return sponsors
-    .filter((d) => d.privacyLevel === 'PUBLIC')
-    .map((d) => ({
-      linkUrl: d.linkUrl,
-      login: d.login,
-      imageUrl: d.imageUrl,
-      name: d.name,
-      tier: {
-        monthlyPriceInDollars: d.tier?.monthlyPriceInDollars,
-      },
-    }))
-})
+}

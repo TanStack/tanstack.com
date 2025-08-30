@@ -1,19 +1,24 @@
 import * as React from 'react'
 
-import { FaBook, FaGithub, FaTwitter } from 'react-icons/fa'
+import { FaBook, FaGithub } from 'react-icons/fa'
+
 import { Link, getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { LibraryHero } from '~/components/LibraryHero'
 import { startProject } from '~/libraries/start'
 import { seo } from '~/utils/seo'
-import { partners } from '~/utils/partners'
 import { VscPreview } from 'react-icons/vsc'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
+import { PartnersSection } from '~/components/PartnersSection'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+import { TbBrandX } from 'react-icons/tb'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('start')
 
 export const Route = createFileRoute({
   component: VersionIndex,
@@ -23,14 +28,13 @@ export const Route = createFileRoute({
       description: startProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
 
-const librariesRouteApi = getRouteApi('/_libraries')
-
-const library = getLibrary('start')
-
 export default function VersionIndex() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const [isDark, setIsDark] = React.useState(true)
 
   React.useEffect(() => {
@@ -70,7 +74,13 @@ export default function VersionIndex() {
           </div>
         }
       />
+
+      <div className="w-fit mx-auto px-4">
+        <OpenSourceStats library={library} />
+      </div>
+
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
+
       <div className="space-y-8 px-4">
         <div className="font-black text-3xl mr-1 text-center">
           When can I use it?
@@ -120,7 +130,7 @@ export default function VersionIndex() {
             className="flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold"
             rel="noreferrer"
           >
-            <FaTwitter className="min-w-4" /> Tweet about it!
+            <TbBrandX className="min-w-4" /> Tweet about it!
           </a>{' '}
         </div>
       </div>
@@ -278,49 +288,9 @@ export default function VersionIndex() {
         </marquee>
       </div> */}
 
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
-        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-          Partners
-        </h3>
-        <div className="h-8" />
-        <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
-          {partners
-            .filter(
-              (d) => d.libraries?.includes('router') && d.status === 'active'
-            )
-            .map((partner) => {
-              return (
-                <a
-                  key={partner.name}
-                  href={partner.href}
-                  target="_blank"
-                  className="shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 bg-white dark:bg-black/40 dark:shadow-none group overflow-hidden grid"
-                  rel="noreferrer"
-                >
-                  <div className="z-0 row-start-1 col-start-1 flex items-center justify-center group-hover:blur-sm transition-all duration-200">
-                    {partner.homepageImg}
-                  </div>
-                  <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/70">
-                    {partner.content}
-                  </div>
-                </a>
-              )
-            })}
-        </div>
-        <div className="h-8" />
-        <PartnershipCallout libraryName="Start" />
-        <div className="text-center mt-6">
-          <Link
-            to="/partners"
-            search={{ libraries: ['start'], status: 'inactive' }}
-            className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-          >
-            View Previous Partners →
-          </Link>
-        </div>
-      </div>
+      <PartnersSection libraryId="start" />
 
-      <SponsorsSection sponsorsPromise={sponsorsPromise} />
+      <LazySponsorSection />
 
       <LandingPageGad />
 

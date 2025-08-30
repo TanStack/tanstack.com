@@ -1,20 +1,23 @@
 import * as React from 'react'
 
-import { Link, getRouteApi } from '@tanstack/react-router'
+import { getRouteApi } from '@tanstack/react-router'
 import { virtualProject } from '~/libraries/virtual'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
-import { SponsorsSection } from '~/components/SponsorsSection'
+import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
-import { twMerge } from 'tailwind-merge'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
+import { PartnersSection } from '~/components/PartnersSection'
+import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+
+const librariesRouteApi = getRouteApi('/_libraries')
+const library = getLibrary('virtual')
 
 export const Route = createFileRoute({
   component: RouteComp,
@@ -24,14 +27,13 @@ export const Route = createFileRoute({
       description: virtualProject.description,
     }),
   }),
+  loader: async ({ context: { queryClient } }) => {
+    await queryClient.ensureQueryData(ossStatsQuery({ library }))
+  },
 })
 
-const librariesRouteApi = getRouteApi('/_libraries')
-
-const library = getLibrary('virtual')
-
 export default function RouteComp() {
-  const { sponsorsPromise } = librariesRouteApi.useLoaderData()
+  // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const [framework, setFramework] = React.useState<Framework>('react')
   const branch = getBranch(virtualProject, version)
@@ -51,6 +53,10 @@ export default function RouteComp() {
           className: 'bg-purple-500 text-white',
         }}
       />
+
+      <div className="w-fit mx-auto px-4">
+        <OpenSourceStats library={library} />
+      </div>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
 
@@ -115,15 +121,9 @@ export default function RouteComp() {
         </marquee>
       </div> */}
 
-      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto">
-        <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-          Partners
-        </h3>
-        <div className="h-8" />
-        <PartnershipCallout libraryName="Virtual" />
-      </div>
+      <PartnersSection libraryId="virtual" />
 
-      <SponsorsSection sponsorsPromise={sponsorsPromise} />
+      <LazySponsorSection />
 
       <LandingPageGad />
 

@@ -4,6 +4,20 @@ import { FileSystemTree } from '@webcontainer/api'
 import { useWebContainer } from '../hooks/use-web-container'
 import { WebContainerState } from './web-container-provider'
 
+// Function to process terminal output and strip ANSI codes
+function processTerminalLine(text: string): string {
+  // Remove all ANSI escape sequences (including color codes)
+  const cleaned = text
+    .replace(/\x1B\[[0-9;]*m/g, '') // Remove color/style codes
+    .replace(/\x1B\[[0-9;]*[A-Za-z]/g, '') // Remove cursor movement codes
+    .replace(/\x1B\].*?\x07/g, '') // Remove OSC sequences
+    .replace(/\x1B[()][0-2]/g, '') // Remove character set codes
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '') // Remove control characters
+    .trim()
+  
+  return cleaned
+}
+
 export function BuilderPreview() {
   const dryRun = useDryRun()
   const webContainer = useWebContainer()
@@ -11,7 +25,10 @@ export function BuilderPreview() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isContainerSetup, setIsContainerSetup] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [terminalOutput, setTerminalOutput] = useState<string[]>([])
   const devProcessRef = useRef<any>(null)
+  const terminalRef = useRef<HTMLDivElement>(null)
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
@@ -28,6 +45,13 @@ export function BuilderPreview() {
       }
 
       try {
+        // Show updating overlay when container is already setup
+        if (isContainerSetup) {
+          setIsUpdating(true)
+          setTerminalOutput([]) // Clear previous output
+        } else {
+          setTerminalOutput([]) // Clear for initial setup
+        }
         setStatusMessage('Updating preview...')
         
         // If container is already setup, stop the existing dev server
@@ -73,14 +97,18 @@ export function BuilderPreview() {
         await webContainer?.mount(fileSystemTree)
         console.log('Files mounted successfully')
 
-        // Install dependencies
+        // Install dependencies (use CI mode for cleaner output)
         setStatusMessage('Installing dependencies...')
-        const installProcess = await webContainer!.spawn('npm', ['install'])
+        const installProcess = await webContainer!.spawn('npm', ['install', '--no-progress', '--loglevel=info', '--color=false'])
 
         installProcess.output.pipeTo(
           new WritableStream({
             write(data) {
               console.log('Install:', data)
+              const cleaned = processTerminalLine(data)
+              if (cleaned) {
+                setTerminalOutput(prev => [...prev, cleaned].slice(-50)) // Keep last 50 lines
+              }
             },
           })
         )
@@ -93,14 +121,24 @@ export function BuilderPreview() {
         console.log('Dependencies installed')
         setStatusMessage('Starting development server...')
 
-        // Start the dev server
-        const devProcess = await webContainer!.spawn('npm', ['run', 'dev'])
+        // Start the dev server with non-TTY environment
+        const devProcess = await webContainer!.spawn('npm', ['run', 'dev'], {
+          env: {
+            CI: 'true',
+            FORCE_COLOR: '0',
+            NO_COLOR: '1'
+          }
+        })
         devProcessRef.current = devProcess
 
         devProcess.output.pipeTo(
           new WritableStream({
             write(data) {
               console.log('Dev server:', data)
+              const cleaned = processTerminalLine(data)
+              if (cleaned) {
+                setTerminalOutput(prev => [...prev, cleaned].slice(-50)) // Keep last 50 lines
+              }
             },
           })
         )
@@ -112,6 +150,7 @@ export function BuilderPreview() {
             setPreviewUrl(url)
             setWebContainerStatus('ready')
             setStatusMessage('Preview ready!')
+            setIsUpdating(false)
           })
           setIsContainerSetup(true)
         } else {
@@ -119,6 +158,7 @@ export function BuilderPreview() {
           setTimeout(() => {
             setWebContainerStatus('ready')
             setStatusMessage('Preview ready!')
+            setIsUpdating(false)
           }, 2000)
         }
 
@@ -126,6 +166,7 @@ export function BuilderPreview() {
         console.error('WebContainer error:', error)
         setWebContainerStatus('error')
         setStatusMessage(`Error: ${(error as Error).message}`)
+        setIsUpdating(false)
       }
     }
 
@@ -138,38 +179,57 @@ export function BuilderPreview() {
     }
   }, [dryRun.files, webContainer, isContainerSetup])
 
-  return (
+  // Auto-scroll terminal output
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight
+    }
+  }, [terminalOutput])
 
-    <div className="relative h-full min-h-0 bg-gray-900">
-      {webContainerStatus !== 'ready' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm z-10">
-          <div className="text-center p-8">
-            {webContainerStatus !== 'error' && (
-              <div className="text-lg font-semibold mb-3">
-                {statusMessage}
-              </div>
-            )}
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent"></div>
-            {webContainerStatus === 'error' && (
-              <div className="text-red-500 mt-2">
-                Error: {statusMessage}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-      {previewUrl ? (
+  return (
+    <div className="relative h-full min-h-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      {previewUrl && (
         <iframe
           ref={iframeRef}
           src={previewUrl}
           title="Preview"
           className="w-full h-full border-0"
         />
-      ) : (
-        <div className="flex items-center justify-center h-full text-gray-500">
-          <div className="text-center">
-            <div className="text-lg mb-2">Preview will appear here</div>
-            <div className="text-sm">Configure your project to see a live preview</div>
+      )}
+      
+      {(webContainerStatus !== 'ready' || isUpdating) && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-sm z-10">
+          <div className="w-full max-w-3xl p-8 flex flex-col items-center">
+            {webContainerStatus !== 'error' && statusMessage && (
+              <div className="text-lg font-semibold mb-4 text-white">
+                {statusMessage}
+              </div>
+            )}
+            {webContainerStatus !== 'error' && (
+              <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-500 border-t-transparent mb-6"></div>
+            )}
+            
+            {/* Terminal Output */}
+            {terminalOutput.length > 0 && webContainerStatus !== 'error' && (
+              <div className="w-full bg-black/50 rounded-lg p-4 max-h-64 overflow-hidden">
+                <div 
+                  ref={terminalRef}
+                  className="font-mono text-xs text-green-400 overflow-y-auto max-h-56 space-y-1"
+                >
+                  {terminalOutput.map((line, i) => (
+                    <div key={i} className="whitespace-pre-wrap break-all opacity-90">
+                      {line}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {webContainerStatus === 'error' && (
+              <div className="text-red-400 font-semibold">
+                Error: {statusMessage}
+              </div>
+            )}
           </div>
         </div>
       )}

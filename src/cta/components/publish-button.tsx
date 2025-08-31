@@ -191,11 +191,12 @@ async function createZipFromWebContainer(webContainer: any): Promise<Blob> {
     console.log(`Found ${Object.keys(distFiles).length} files to zip`)
 
     for (const [path, content] of Object.entries(distFiles)) {
-      // Handle binary files properly
-      if (path.match(/\.(jpg|jpeg|png|gif|svg|ico|woff|woff2|ttf|eot|pdf)$/i)) {
-        // For binary files, we need to read as base64 and add as such
+      // Handle binary files properly (NOT svg - that's text/xml)
+      if (path.match(/\.(jpg|jpeg|png|gif|ico|woff|woff2|ttf|eot|pdf)$/i)) {
+        // For binary files, content is already base64 encoded
         zip.file(path, content, { base64: true })
       } else {
+        // For text files (js, css, html, svg, json, etc)
         zip.file(path, content as string)
       }
     }
@@ -232,9 +233,9 @@ async function readDistDirectory(
           await readDir(fullPath)
         } else {
           try {
-            // Check if it's a binary file
+            // Check if it's a binary file (NOT js/css - those are text!)
             const isBinary = fullPath.match(
-              /\.(jpg|jpeg|png|gif|svg|ico|woff|woff2|ttf|eot|pdf|js|css)$/i
+              /\.(jpg|jpeg|png|gif|ico|woff|woff2|ttf|eot|pdf)$/i
             )
 
             if (isBinary) {
@@ -243,7 +244,7 @@ async function readDistDirectory(
               const relativePath = fullPath.replace(/^dist\//, '')
               files[relativePath] = content
             } else {
-              // Read text files as UTF-8
+              // Read text files as UTF-8 (includes .js, .css, .html, .svg, etc)
               const content = await webContainer.fs.readFile(fullPath, 'utf-8')
               const relativePath = fullPath.replace(/^dist\//, '')
               files[relativePath] = content

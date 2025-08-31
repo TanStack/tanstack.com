@@ -1,6 +1,5 @@
 import Logo from './icons/tanstack'
-import { ZipExportAction } from './sidebar-items/zip-export-action'
-import { GitHubRepositoryAction } from './sidebar-items/github-repository-action'
+import { ExportDropdown } from './export-dropdown'
 
 export function BuilderHeader() {
   return (
@@ -29,9 +28,8 @@ export function BuilderHeader() {
         </div>
       </div>
       
-      <div className="flex items-center gap-2">
-        <ZipExportAction />
-        <GitHubRepositoryAction />
+      <div className="relative">
+        <ExportDropdown />
       </div>
     </div>
   )

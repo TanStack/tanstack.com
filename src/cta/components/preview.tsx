@@ -118,7 +118,7 @@ export function BuilderPreview() {
 
   return (
 
-    <div className="flex-1 relative bg-gray-900">
+    <div className="relative h-full min-h-0 bg-gray-900">
       {webContainerStatus !== 'ready' && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm z-10">
           <div className="text-center p-8">

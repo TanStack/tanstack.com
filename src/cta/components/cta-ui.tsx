@@ -1,4 +1,4 @@
-import { AppSidebar } from './cta-sidebar'
+import { BuilderSidebar } from './cta-sidebar'
 import { AppHeader } from './header'
 import { CTABackgroundAnimation } from './background-animation'
 import FileNavigator from './file-navigator'
@@ -6,24 +6,35 @@ import StartupDialog from './startup-dialog'
 import { CTAProvider } from './cta-provider'
 import { BuilderPreview } from './preview'
 import WebContainerProvider from './web-container-provider'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
 export default function BuilderRoot() {
   return (
     <CTAProvider>
       <WebContainerProvider>
-        <main className="min-w-[1280px]">
+        <main className="w-screen min-w-[1280px]">
           <CTABackgroundAnimation />
           <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4 @container">
             <AppHeader />
             <div className="flex flex-row">
               <div className="w-1/3 @8xl:w-1/4 pr-2">
-                <AppSidebar />
+                <BuilderSidebar />
               </div>
               <div className="w-2/3 @8xl:w-3/4 pl-2">
-                <FileNavigator />
+                <Tabs defaultValue="preview" className="h-full">
+                  <TabsList>
+                    <TabsTrigger value="preview">Preview</TabsTrigger>
+                    <TabsTrigger value="files">Files</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="files">
+                    <FileNavigator />
+                  </TabsContent>
+                  <TabsContent value="preview">
+                    <BuilderPreview />
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
-            <BuilderPreview />
           </div>
           <StartupDialog />
         </main>

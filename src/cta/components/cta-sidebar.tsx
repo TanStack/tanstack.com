@@ -1,11 +1,7 @@
-import {
-  useApplicationMode,
-  useReady,
-} from '../store/project'
+import { useApplicationMode, useReady } from '../store/project'
 
 import SelectedAddOns from './sidebar-items/add-ons'
 import RunAddOns from './sidebar-items/run-add-ons'
-import RunCreateApp from './sidebar-items/run-create-app'
 import ProjectName from './sidebar-items/project-name'
 import ModeSelector from './sidebar-items/mode-selector'
 import TypescriptSwitch from './sidebar-items/typescript-switch'
@@ -14,8 +10,7 @@ import SidebarGroup from './sidebar-items/sidebar-group'
 import { ZipExportAction } from './sidebar-items/zip-export-action'
 import { GitHubRepositoryAction } from './sidebar-items/github-repository-action'
 
-
-export function AppSidebar() {
+export function BuilderSidebar() {
   const ready = useReady()
   const mode = useApplicationMode()
 
@@ -41,12 +36,12 @@ export function AppSidebar() {
         </>
       )}
       <div className="mt-5">
-      <RunAddOns />
-    </div>
-    <div className="p-4 bg-background rounded-xl space-y-2">
-      <ZipExportAction />
-      <GitHubRepositoryAction />
-    </div>
+        <RunAddOns />
+      </div>
+      <div className="p-4 bg-background rounded-xl space-y-2">
+        <ZipExportAction />
+        <GitHubRepositoryAction />
+      </div>
     </div>
   )
 }

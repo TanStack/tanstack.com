@@ -1,5 +1,5 @@
 import { BuilderSidebar } from './cta-sidebar'
-import { AppHeader } from './header'
+import { BuilderHeader } from './header'
 import { CTABackgroundAnimation } from './background-animation'
 import FileNavigator from './file-navigator'
 import StartupDialog from './startup-dialog'
@@ -14,10 +14,10 @@ export default function BuilderRoot() {
       <WebContainerProvider>
         <main className="w-screen min-w-[1280px]">
           <CTABackgroundAnimation />
-          <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4 @container">
-            <AppHeader />
-            <div className="flex flex-row">
-              <div className="w-1/3 @8xl:w-1/4 pr-2">
+          <div className="h-dvh p-2 sm:p-4 flex flex-col gap-2 sm:gap-4 @container">
+            <BuilderHeader />
+            <div className="flex flex-row flex-1 min-h-0">
+              <div className="w-1/3 @8xl:w-1/4 pr-2 flex flex-col h-full">
                 <BuilderSidebar />
               </div>
               <div className="w-2/3 @8xl:w-3/4 pl-2">

@@ -69,10 +69,10 @@ export function ZipExportAction() {
       <Button
         onClick={handleExportZip}
         variant="secondary"
-        className="w-full cursor-pointer bg-gray-300 text-black hover:bg-gray-400"
+        className="cursor-pointer bg-gray-200 text-black hover:bg-gray-300 px-3 py-1.5 text-sm"
         disabled={performingAction}
       >
-        <FaFileArchive className="mr-2" /> Export ZIP
+        <FaFileArchive className="mr-2 h-4 w-4" /> Export ZIP
       </Button>
       {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
     </>

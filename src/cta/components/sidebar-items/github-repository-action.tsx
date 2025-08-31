@@ -287,10 +287,10 @@ export function GitHubRepositoryAction() {
       <Button
         onClick={createGithubRepository}
         variant="secondary"
-        className="w-full cursor-pointer bg-black text-white hover:bg-black/80"
+        className="cursor-pointer bg-black text-white hover:bg-black/80 px-3 py-1.5 text-sm"
         disabled={performingAction}
       >
-        <FaGithub className="mr-2" /> {createRepoButtonText}
+        <FaGithub className="mr-2 h-4 w-4" /> {createRepoButtonText}
       </Button>
       {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
     </>

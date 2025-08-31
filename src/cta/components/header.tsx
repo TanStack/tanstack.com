@@ -1,5 +1,6 @@
 import Logo from './icons/tanstack'
 import { ExportDropdown } from './export-dropdown'
+import { PublishButton } from './publish-button'
 
 export function BuilderHeader() {
   return (
@@ -28,7 +29,8 @@ export function BuilderHeader() {
         </div>
       </div>
       
-      <div className="relative">
+      <div className="flex items-center gap-2">
+        <PublishButton />
         <ExportDropdown />
       </div>
     </div>

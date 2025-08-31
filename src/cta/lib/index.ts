@@ -1,4 +1,4 @@
-import CreateTanstackAppUI from '../components/cta-ui'
+import BuilderRoot from '../components/cta-ui'
 
 import { AppSidebar } from '../lib/cta-sidebar'
 import { AppHeader } from '../lib/header'
@@ -41,4 +41,4 @@ export {
   useReady,
 }
 
-export default CreateTanstackAppUI
+export default BuilderRoot

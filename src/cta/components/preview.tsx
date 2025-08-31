@@ -10,6 +10,8 @@ export function BuilderPreview() {
   const [webContainerStatus, setWebContainerStatus] = useState<WebContainerState | 'idle' | 'error' | 'ready'>('idle')
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isContainerSetup, setIsContainerSetup] = useState(false)
+  const devProcessRef = useRef<any>(null)
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
@@ -26,7 +28,18 @@ export function BuilderPreview() {
       }
 
       try {
-
+        setStatusMessage('Updating preview...')
+        
+        // If container is already setup, stop the existing dev server
+        if (isContainerSetup && devProcessRef.current) {
+          console.log('Stopping existing dev server...')
+          try {
+            await devProcessRef.current.kill()
+            devProcessRef.current = null
+          } catch (killError) {
+            console.warn('Error killing dev process:', killError)
+          }
+        }
 
         // Build FileSystemTree from dry run files
         const fileSystemTree: FileSystemTree = {}
@@ -60,9 +73,8 @@ export function BuilderPreview() {
         await webContainer?.mount(fileSystemTree)
         console.log('Files mounted successfully')
 
-
-
         // Install dependencies
+        setStatusMessage('Installing dependencies...')
         const installProcess = await webContainer!.spawn('npm', ['install'])
 
         installProcess.output.pipeTo(
@@ -83,6 +95,7 @@ export function BuilderPreview() {
 
         // Start the dev server
         const devProcess = await webContainer!.spawn('npm', ['run', 'dev'])
+        devProcessRef.current = devProcess
 
         devProcess.output.pipeTo(
           new WritableStream({
@@ -92,13 +105,22 @@ export function BuilderPreview() {
           })
         )
 
-        // Wait for server ready event
-        webContainer!.on('server-ready', (port, url) => {
-          console.log(`Server ready on port ${port}, URL: ${url}`)
-          setPreviewUrl(url)
-          setWebContainerStatus('ready')
-          setStatusMessage('Preview ready!')
-        })
+        // Only set up the server-ready listener once
+        if (!isContainerSetup) {
+          webContainer!.on('server-ready', (port, url) => {
+            console.log(`Server ready on port ${port}, URL: ${url}`)
+            setPreviewUrl(url)
+            setWebContainerStatus('ready')
+            setStatusMessage('Preview ready!')
+          })
+          setIsContainerSetup(true)
+        } else {
+          // For subsequent updates, just wait a bit for the server to restart
+          setTimeout(() => {
+            setWebContainerStatus('ready')
+            setStatusMessage('Preview ready!')
+          }, 2000)
+        }
 
       } catch (error) {
         console.error('WebContainer error:', error)
@@ -114,7 +136,7 @@ export function BuilderPreview() {
       console.log('Waiting for web container or dry run files', webContainer, dryRun.files)
 
     }
-  }, [dryRun.files, webContainer])
+  }, [dryRun.files, webContainer, isContainerSetup])
 
   return (
 

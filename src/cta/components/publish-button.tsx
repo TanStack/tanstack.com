@@ -156,7 +156,7 @@ export function PublishButton() {
     <button
       onClick={handlePublish}
       disabled={isDeploying || status === 'building' || status === 'deploying'}
-      className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200"
+      className="bg-gradient-to-r to-blue-500 from-cyan-600 hover:to-blue-600 hover:from-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200"
     >
       <RocketIcon className="w-4 h-4" />
       {isDeploying ? 'Publishing...' : 'Publish'}

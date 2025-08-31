@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { FaFileArchive, FaGithub } from 'react-icons/fa'
 import { ChevronDown, Download } from 'lucide-react'
 import JSZip from 'jszip'
-import { useLocation } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth.client'
 import { useDryRun, useProjectOptions } from '../store/project'
 import {
@@ -11,7 +10,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from './ui/dialog'
 import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
 
 // Helper function to force push all files using Git Data API
 const forcePushAllFiles = async (
@@ -189,10 +197,10 @@ export function ExportDropdown() {
   const projectOptions = useProjectOptions()
   const [isExporting, setIsExporting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const createRepository = useLocation().searchStr.includes('createRepository')
-  const [createRepoButtonText, setCreateRepoButtonText] = useState(
-    createRepository ? 'Creating new repo...' : 'Create Repository'
-  )
+  const [showGitHubDialog, setShowGitHubDialog] = useState(false)
+  const [repoName, setRepoName] = useState(projectOptions?.projectName || '')
+  const [repoVisibility, setRepoVisibility] = useState<'private' | 'public'>('private')
+  const [isCreatingRepo, setIsCreatingRepo] = useState(false)
 
   const handleExportZip = async () => {
     if (isExporting) return
@@ -230,14 +238,13 @@ export function ExportDropdown() {
   }
 
   const createGithubRepository = async () => {
-    if (isExporting) return
+    if (isCreatingRepo) return
     setError(null)
+    setIsCreatingRepo(true)
 
-    setIsExporting(true)
-    setCreateRepoButtonText('Creating new repository...')
     try {
-      if (!projectOptions?.projectName) {
-        setError('No project name found')
+      if (!repoName) {
+        setError('Repository name is required')
         return
       }
 
@@ -256,8 +263,8 @@ export function ExportDropdown() {
           Authorization: `Bearer ${data?.accessToken}`,
         },
         body: JSON.stringify({
-          name: projectOptions?.projectName,
-          private: true,
+          name: repoName,
+          private: repoVisibility === 'private',
           auto_init: true, // Must be true to use createCommitOnBranch
         }),
       })
@@ -276,15 +283,18 @@ export function ExportDropdown() {
           return
         }
 
-        throw new Error(responseData.errors[0].message)
+        if (responseData.errors) {
+          throw new Error(responseData.errors[0].message)
+        } else if (responseData.message) {
+          throw new Error(responseData.message)
+        } else {
+          throw new Error('Failed to create repository')
+        }
       }
-
-      // Repository created successfully, now commit the add-on files
-      setCreateRepoButtonText('Committing files...')
 
       // Get the owner from the repository data
       const owner = responseData.owner.login
-      const repoName = responseData.name
+      const createdRepoName = responseData.name
 
       // Wait for GitHub to fully initialize the repository with auto_init
       await new Promise((resolve) => setTimeout(resolve, 2000))
@@ -295,39 +305,27 @@ export function ExportDropdown() {
           const commitResult = await forcePushAllFiles(
             data?.accessToken!,
             owner,
-            repoName,
+            createdRepoName,
             responseData.default_branch || 'main',
             dryRun.files
           )
           console.log('Files force pushed successfully:', commitResult)
-          setCreateRepoButtonText('Repository created!')
-
-          // Open the repository in a new tab
-          window.open(responseData.html_url, '_blank')
         } catch (commitError) {
           console.error('Error committing files:', commitError)
-          setError(
-            `Repository created but failed to commit files: ${
-              (commitError as Error).message
-            }`
-          )
-          setCreateRepoButtonText('Create Repository')
-          // Still open the repo even if file commit failed
-          window.open(responseData.html_url, '_blank')
+          // Don't show error for file commit failures, just open the repo
         }
-      } else {
-        // No files to commit, just open the repository
-        setCreateRepoButtonText('Repository created!')
-        window.open(responseData.html_url, '_blank')
       }
+
+      // Close dialog and open the repository in a new tab
+      setShowGitHubDialog(false)
+      window.open(responseData.html_url, '_blank')
 
       return responseData
     } catch (error) {
       console.error(error)
       setError(`Failed to create repository: ${(error as Error).message}`)
     } finally {
-      setIsExporting(false)
-      setCreateRepoButtonText('Create Repository')
+      setIsCreatingRepo(false)
     }
   }
 
@@ -354,7 +352,11 @@ export function ExportDropdown() {
             <span>Export as ZIP</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={createGithubRepository}
+            onClick={() => {
+              setRepoName(projectOptions?.projectName || '')
+              setError(null)
+              setShowGitHubDialog(true)
+            }}
             className="flex items-center gap-2 cursor-pointer"
           >
             <FaGithub className="h-4 w-4" />
@@ -362,11 +364,84 @@ export function ExportDropdown() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {error && (
-        <div className="absolute top-full right-0 mt-2 p-2 bg-red-100 text-red-700 text-xs rounded">
-          {error}
-        </div>
-      )}
+
+      <Dialog open={showGitHubDialog} onOpenChange={setShowGitHubDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create GitHub Repository</DialogTitle>
+            <DialogDescription>
+              Create a new GitHub repository with your project files
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="repo-name">Repository Name</Label>
+              <Input
+                id="repo-name"
+                value={repoName}
+                onChange={(e) => setRepoName(e.target.value)}
+                placeholder="my-awesome-project"
+                disabled={isCreatingRepo}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label>Visibility</Label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="visibility"
+                    value="private"
+                    checked={repoVisibility === 'private'}
+                    onChange={() => setRepoVisibility('private')}
+                    disabled={isCreatingRepo}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm">Private</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="visibility"
+                    value="public"
+                    checked={repoVisibility === 'public'}
+                    onChange={() => setRepoVisibility('public')}
+                    disabled={isCreatingRepo}
+                    className="w-4 h-4"
+                  />
+                  <span className="text-sm">Public</span>
+                </label>
+              </div>
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
+                {error}
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowGitHubDialog(false)}
+              disabled={isCreatingRepo}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={createGithubRepository}
+              disabled={isCreatingRepo || !repoName}
+              variant="default"
+            >
+              <FaGithub className="mr-2 h-4 w-4" />
+              {isCreatingRepo ? 'Creating...' : 'Create Repository'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

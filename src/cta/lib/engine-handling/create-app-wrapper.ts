@@ -3,7 +3,6 @@ import { resolve } from 'node:path'
 import {
   createApp,
   createDefaultEnvironment,
-  createMemoryEnvironment,
   finalizeAddOns,
   getFrameworkById,
   loadStarter,
@@ -22,6 +21,7 @@ import type {
 } from '@tanstack/cta-engine'
 
 import type { Response } from 'express'
+import { createMemoryEnvironment } from './memory-environment'
 
 export async function createAppWrapper(
   projectOptions: SerializedOptions,

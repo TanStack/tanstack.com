@@ -1,10 +1,12 @@
 import { z } from "zod"
-import { createApp, createMemoryEnvironment, finalizeAddOns, getFrameworkById, loadStarter, registerFramework, Starter } from "@tanstack/cta-engine"
+import { createApp, finalizeAddOns, getFrameworkById, loadStarter, registerFramework, Starter } from "@tanstack/cta-engine"
 import { createFrameworkDefinition } from '@tanstack/cta-framework-react-cra'
+import { createMemoryEnvironment } from "~/cta/lib/engine-handling/memory-environment"
 
 registerFramework(createFrameworkDefinition())
 
-const requestOptionsSchema: z.ZodTypeAny = z.object({
+const requestOptionsSchema = z.object({
+  starter: z.string().optional(),
   projectName: z.string(),
   mode: z.enum(["file-router", "code-router"]),
   framework: z.enum(["react-cra", "solid"]),
@@ -59,6 +61,9 @@ export const ServerRoute = createServerFileRoute().methods({
       ...createAppOptions,
       chosenAddOns,
     })
+
+    // Call finishRun to populate the output files
+    environment.finishRun()
 
     for (const [outputPath, content] of Object.entries(output.files)) {
       const normalizedOutputPath = outputPath.replace(process.cwd(), '.')

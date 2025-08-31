@@ -86,9 +86,13 @@ export function BuilderPreview() {
 
           // Add the file
           const fileName = pathParts[pathParts.length - 1]
+          
+          // Ensure content is a string
+          let fileContent = String(content)
+          
           current[fileName] = {
             file: {
-              contents: content as string
+              contents: fileContent
             }
           }
         })
@@ -104,7 +108,6 @@ export function BuilderPreview() {
         installProcess.output.pipeTo(
           new WritableStream({
             write(data) {
-              console.log('Install:', data)
               const cleaned = processTerminalLine(data)
               if (cleaned) {
                 setTerminalOutput(prev => [...prev, cleaned].slice(-50)) // Keep last 50 lines

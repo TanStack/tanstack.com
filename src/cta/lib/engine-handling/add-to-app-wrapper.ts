@@ -5,7 +5,6 @@ import {
   addToApp,
   createAppOptionsFromPersisted,
   createDefaultEnvironment,
-  createMemoryEnvironment,
   createSerializedOptionsFromPersisted,
   readConfigFile,
   recursivelyGatherFiles,
@@ -21,6 +20,7 @@ import { createAppWrapper } from './create-app-wrapper'
 import type { Environment } from '@tanstack/cta-engine'
 import type { Response } from 'express'
 import type { DryRunOutput } from '../types'
+import { createMemoryEnvironment } from './memory-environment'
 
 export async function addToAppWrapper(
   addOns: Array<string>,
@@ -61,7 +61,7 @@ export async function addToAppWrapper(
     if (opts.dryRun) {
       const { environment, output } = createMemoryEnvironment(projectPath)
 
-      const localFiles = await cleanUpFiles(
+      const localFiles = cleanUpFiles(
         await recursivelyGatherFiles(projectPath, false),
       )
       for (const file of Object.keys(localFiles)) {

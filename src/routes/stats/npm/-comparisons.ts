@@ -403,5 +403,34 @@ export function getPopularComparisons(): z.input<
         },
       ],
     },
+    {
+      title: 'Documentation',
+      packageGroups: [
+        {
+          packages: [{ name: 'vitepress' }],
+          color: '#a8b1ff',
+        },
+        {
+          packages: [{ name: '@docusaurus/core' }],
+          color: '#21b091',
+        },
+        {
+          packages: [{ name: 'vocs' }],
+          color: '#0090ff',
+        },
+        {
+          packages: [{ name: '@astrojs/starlight' }],
+          color: '#f97316',
+        },
+        {
+          packages: [{ name: 'nextra' }],
+          color: '#00CED1',
+        },
+        {
+          packages: [{ name: 'fumadocs-core' }],
+          color: '#DA70D6',
+        },
+      ],
+    },
   ] as const
 }

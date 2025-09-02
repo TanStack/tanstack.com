@@ -1,6 +1,8 @@
+import { BrandContextMenu } from '~/components/BrandContextMenu'
+
 export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
   return (
-    <div {...props}>
+    <BrandContextMenu {...props}>
       <svg
         className="w-full h-full"
         width="634px"
@@ -616,6 +618,6 @@ export function LogoColor(props: React.HTMLProps<HTMLDivElement>) {
           </g>
         </g>
       </svg>
-    </div>
+    </BrandContextMenu>
   )
 }

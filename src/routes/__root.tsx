@@ -22,6 +22,7 @@ import { GamScripts } from '~/components/Gam'
 import { BackgroundGradient } from '~/components/BackgroundGradient'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
+import { ToastProvider } from '~/components/ToastProvider'
 import { ThemeProvider } from '~/components/ThemeProvider'
 import { ConvexQueryClient } from '@convex-dev/react-query'
 import { ConvexReactClient } from 'convex/react'
@@ -220,7 +221,9 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <BackgroundGradient />
-        <React.Suspense fallback={null}>{children}</React.Suspense>
+        <ToastProvider>
+          <React.Suspense fallback={null}>{children}</React.Suspense>
+        </ToastProvider>
         {showDevtools ? (
           <TanStackRouterDevtoolsInProd position="bottom-right" />
         ) : null}

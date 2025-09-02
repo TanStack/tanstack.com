@@ -27,7 +27,7 @@ import {
 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { twMerge } from 'tailwind-merge'
-import logoColor100w from '~/images/logo-color-100w.png'
+// Using public asset URL
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -1285,9 +1285,9 @@ function RouteComponent() {
       <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex items-center gap-2 text-lg sm:text-xl shadow-xl">
         <Link to="/" className={twMerge(`flex items-center gap-1.5`)}>
           <img
-            src={logoColor100w}
+            src={'/images/logos/logo-color-100.png'}
             alt=""
-            className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
+            className="w-[30px]"
           />
           <div className="font-black text-xl uppercase">TanStack</div>
         </Link>

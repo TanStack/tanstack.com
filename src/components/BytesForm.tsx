@@ -1,8 +1,36 @@
 import useBytesSubmit from '~/components/useBytesSubmit'
 import bytesImage from '~/images/bytes.svg'
+import { useToast } from '~/components/ToastProvider'
+import { useEffect } from 'react'
 
 export default function BytesForm() {
   const { state, handleSubmit, error } = useBytesSubmit()
+  const { notify } = useToast()
+  useEffect(() => {
+    if (state === 'submitted') {
+      notify(
+        <div>
+          <div className="font-medium">Thanks for subscribing</div>
+          <div className="text-gray-500 dark:text-gray-400 text-xs">
+            Check your email to confirm your subscription
+          </div>
+        </div>
+      )
+    }
+  }, [state, notify])
+
+  useEffect(() => {
+    if (error) {
+      notify(
+        <div>
+          <div className="font-medium">Subscription failed</div>
+          <div className="text-gray-500 dark:text-gray-400 text-xs">
+            Please try again in a moment
+          </div>
+        </div>
+      )
+    }
+  }, [error, notify])
   if (state === 'submitted') {
     return (
       <p>Success! Please, check your email to confirm your subscription.</p>

@@ -13,6 +13,7 @@ import parse, {
 import { marked } from 'marked'
 import { gfmHeadingId } from 'marked-gfm-heading-id'
 import markedAlert from 'marked-alert'
+import { useToast } from '~/components/ToastProvider'
 
 const CustomHeading = ({
   Comp,
@@ -101,6 +102,7 @@ export function CodeBlock({
 
   const [copied, setCopied] = React.useState(false)
   const ref = React.useRef<any>(null)
+  const { notify } = useToast()
 
   const code = children?.props.children
 
@@ -172,6 +174,14 @@ export function CodeBlock({
             navigator.clipboard.writeText(copyContent)
             setCopied(true)
             setTimeout(() => setCopied(false), 2000)
+            notify(
+              <div>
+                <div className="font-medium">Copied code</div>
+                <div className="text-gray-500 dark:text-gray-400 text-xs">
+                  Code block copied to clipboard
+                </div>
+              </div>
+            )
           }}
           aria-label="Copy code to clipboard"
         >

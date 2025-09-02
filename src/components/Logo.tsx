@@ -1,6 +1,8 @@
+import { BrandContextMenu } from '~/components/BrandContextMenu'
+
 export function Logo(props: React.HTMLProps<HTMLDivElement>) {
   return (
-    <div {...props}>
+    <BrandContextMenu {...props}>
       <svg
         className="h-full w-full"
         width="633px"
@@ -380,6 +382,6 @@ export function Logo(props: React.HTMLProps<HTMLDivElement>) {
           </g>
         </g>
       </svg>
-    </div>
+    </BrandContextMenu>
   )
 }

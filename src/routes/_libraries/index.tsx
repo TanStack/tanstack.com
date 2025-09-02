@@ -1,10 +1,10 @@
-import { Await, Link, MatchRoute, getRouteApi } from '@tanstack/react-router'
+import { Link, MatchRoute } from '@tanstack/react-router'
 import { convexQuery } from '@convex-dev/react-query'
 import { api } from 'convex/_generated/api'
 import { twMerge } from 'tailwind-merge'
-import { CgSpinner } from 'react-icons/cg'
+// import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
-import SponsorPack from '~/components/SponsorPack'
+// import SponsorPack from '~/components/SponsorPack'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import discordImage from '~/images/discord-logo-white.svg'
 import { useMutation } from '~/hooks/useMutation'
@@ -12,11 +12,12 @@ import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
 import { partners } from '../../utils/partners'
 import OpenSourceStats from '~/components/OpenSourceStats'
-import splashLightImg from '~/images/splash-light.png'
-import splashDarkImg from '~/images/splash-dark.png'
+// Using public asset URLs for splash images
+import { BrandContextMenu } from '~/components/BrandContextMenu'
 import LandingPageGad from '~/components/LandingPageGad'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
+import { useToast } from '~/components/ToastProvider'
 
 export const textColors = [
   `text-rose-500`,
@@ -68,12 +69,11 @@ async function bytesSignupServerFn({ email }: { email: string }) {
   })
 }
 
-const librariesRouteApi = getRouteApi('/_libraries')
-
 function Index() {
   const bytesSignupMutation = useMutation({
     fn: bytesSignupServerFn,
   })
+  const { notify } = useToast()
 
   // sponsorsPromise no longer needed - using lazy loading
 
@@ -90,16 +90,18 @@ function Index() {
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
           <div className="flex flex-col xl:flex-row items-center gap-4 xl:pt-24 xl:justify-center">
-            <img
-              src={splashLightImg}
-              className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
-              alt="TanStack Logo"
-            />
-            <img
-              src={splashDarkImg}
-              className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
-              alt="TanStack Logo"
-            />
+            <BrandContextMenu className="cursor-pointer">
+              <img
+                src={'/images/logos/splash-light.png'}
+                className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
+                alt="TanStack Logo"
+              />
+              <img
+                src={'/images/logos/splash-dark.png'}
+                className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
+                alt="TanStack Logo"
+              />
+            </BrandContextMenu>
             <div className="flex flex-col items-center gap-6 text-center px-4 xl:text-left xl:items-start">
               <div className="flex gap-2 lg:gap-4 items-center">
                 <h1
@@ -431,13 +433,33 @@ function Index() {
           <div className="rounded-md p-8 bg-white shadow-xl shadow-gray-900/10 md:p-14 dark:bg-black/40">
             {!bytesSignupMutation.submittedAt ? (
               <form
-                onSubmit={(e) => {
+                onSubmit={async (e) => {
                   e.preventDefault()
                   const formData = new FormData(e.currentTarget)
+                  const email = formData.get('email_address')?.toString() || ''
 
-                  bytesSignupMutation.mutate({
-                    email: formData.get('email_address')?.toString() || '',
-                  })
+                  const result = await bytesSignupMutation.mutate({ email })
+                  if (result?.ok) {
+                    notify(
+                      <div>
+                        <div className="font-medium">
+                          Thanks for subscribing
+                        </div>
+                        <div className="text-gray-500 dark:text-gray-400 text-xs">
+                          Check your email to confirm your subscription
+                        </div>
+                      </div>
+                    )
+                  } else if (bytesSignupMutation.status === 'error') {
+                    notify(
+                      <div>
+                        <div className="font-medium">Subscription failed</div>
+                        <div className="text-gray-500 dark:text-gray-400 text-xs">
+                          Please try again in a moment
+                        </div>
+                      </div>
+                    )
+                  }
                 }}
               >
                 <div>

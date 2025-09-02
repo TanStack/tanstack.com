@@ -3,7 +3,7 @@ import { Link, LinkOptions, Outlet } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { FaHome, FaLock, FaUser, FaUsers } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
-import logoColor100w from '~/images/logo-color-100w.png'
+// Using public asset URL
 import { ThemeToggle } from '~/components/ThemeToggle'
 import { useQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
@@ -85,7 +85,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     <div className="flex-1 flex items-center gap-4 justify-between">
       <Link to="/" className={twMerge(`flex items-center gap-1.5`)}>
         <img
-          src={logoColor100w}
+          src={'/images/logos/logo-color-100.png'}
           alt=""
           className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
         />

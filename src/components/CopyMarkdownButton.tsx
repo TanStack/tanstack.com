@@ -3,6 +3,7 @@ import { useState, useTransition } from 'react'
 import { FaCheck, FaCopy } from 'react-icons/fa'
 
 import { type MouseEventHandler, useEffect, useRef } from 'react'
+import { useToast } from '~/components/ToastProvider'
 
 export function useCopyButton(
   onCopy: () => void | Promise<void>
@@ -46,6 +47,7 @@ export function CopyMarkdownButton({
   filePath,
 }: CopyMarkdownButtonProps) {
   const [isLoading, startTransition] = useTransition()
+  const { notify } = useToast()
   const [checked, onClick] = useCopyButton(async () => {
     startTransition(() => {
       const url = `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`
@@ -53,6 +55,14 @@ export function CopyMarkdownButton({
 
       if (cached) {
         navigator.clipboard.writeText(cached)
+        notify(
+          <div>
+            <div className="font-medium">Copied markdown</div>
+            <div className="text-gray-500 dark:text-gray-400 text-xs">
+              Source content copied from cache
+            </div>
+          </div>
+        )
       } else {
         fetch(url)
           .then((response) => response.text())
@@ -60,12 +70,32 @@ export function CopyMarkdownButton({
             cache.set(url, content)
             return navigator.clipboard.writeText(content)
           })
+          .then(() => {
+            notify(
+              <div>
+                <div className="font-medium">Copied markdown</div>
+                <div className="text-gray-500 dark:text-gray-400 text-xs">
+                  Source content copied from GitHub
+                </div>
+              </div>
+            )
+          })
           .catch(() => {
             // fallback: try to copy current page content if available
             const pageContent =
               document.querySelector('.styled-markdown-content')?.textContent ||
               ''
             return navigator.clipboard.writeText(pageContent)
+          })
+          .then(() => {
+            notify(
+              <div>
+                <div className="font-medium">Copied markdown</div>
+                <div className="text-gray-500 dark:text-gray-400 text-xs">
+                  Fallback: copied rendered page content
+                </div>
+              </div>
+            )
           })
       }
     })

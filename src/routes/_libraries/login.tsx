@@ -1,8 +1,8 @@
 import { authClient } from '~/utils/auth.client'
 import { useIsDark } from '~/hooks/useIsDark'
 import { FaGithub, FaGoogle } from 'react-icons/fa'
-import splashLightImg from '~/images/splash-light.png'
-import splashDarkImg from '~/images/splash-dark.png'
+// Using public asset URLs for splash images
+import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { redirect } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import { convexQuery } from '@convex-dev/react-query'
@@ -22,13 +22,20 @@ export const Route = createFileRoute({
 
 function SplashImage() {
   const isDark = useIsDark()
+
   return (
     <div className="flex items-center justify-center mb-4">
-      <img
-        src={isDark ? splashDarkImg : splashLightImg}
-        alt="Waitlist"
-        className="w-48 h-48"
-      />
+      <BrandContextMenu className="cursor-pointer">
+        <img
+          src={
+            isDark
+              ? '/images/logos/splash-dark.png'
+              : '/images/logos/splash-light.png'
+          }
+          alt="Waitlist"
+          className="w-48 h-48"
+        />
+      </BrandContextMenu>
     </div>
   )
 }

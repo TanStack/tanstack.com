@@ -4,7 +4,7 @@ import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { sortBy } from '~/utils/utils'
-import logoColor100w from '~/images/logo-color-100w.png'
+// Using public asset URL
 import {
   FaCode,
   FaDiscord,
@@ -31,6 +31,7 @@ import {
 } from 'convex/react'
 import { api } from 'convex/_generated/api'
 import { PiHammerFill } from 'react-icons/pi'
+import { BrandContextMenu } from '~/components/BrandContextMenu'
 
 export const Route = createFileRoute({
   staleTime: Infinity,
@@ -348,14 +349,31 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
 
   const logo = (
     <div className="flex-1 flex items-center gap-4 justify-between">
-      <Link to="/" className={twMerge(`flex items-center gap-1.5`)}>
-        <img
-          src={logoColor100w}
-          alt=""
-          className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
-        />
-        <div className="font-black text-xl uppercase">TanStack</div>
-      </Link>
+      <BrandContextMenu className={twMerge(`flex items-center gap-1.5 group`)}>
+        <Link
+          to="/"
+          className={twMerge(`inline-flex items-center gap-1.5 cursor-pointer`)}
+        >
+          <div className="inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity">
+            <img
+              src={'/images/logos/logo-color-100.png'}
+              alt=""
+              className="row-start-1 col-start-1 w-[30px] group-hover:opacity-0"
+            />
+            <img
+              src={'/images/logos/logo-black.svg'}
+              alt=""
+              className="row-start-1 col-start-1 w-[30px] dark:opacity-0 opacity-0 group-hover:opacity-100"
+            />
+            <img
+              src={'/images/logos/logo-white.svg'}
+              alt=""
+              className="row-start-1 col-start-1 w-[30px] light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
+            />
+          </div>
+          <div className="font-black text-xl uppercase">TanStack</div>
+        </Link>
+      </BrandContextMenu>
       <div className="flex items-center gap-1">
         <a
           href="https://x.com/tan_stack"

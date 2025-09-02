@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { ThemeToggle } from './ThemeToggle'
+import { BrandContextMenu } from '~/components/BrandContextMenu'
 
 type Props = {
   name: string
@@ -17,12 +18,13 @@ export const DocsLogo = ({
   libraryId,
 }: Props) => {
   const gradientText = `inline-block text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
-
   return (
     <>
-      <Link to="/" className="font-light">
-        TanStack
-      </Link>
+      <BrandContextMenu className="inline-block">
+        <Link to="/" className="font-light">
+          TanStack
+        </Link>
+      </BrandContextMenu>
       <Link
         to={`/$libraryId`}
         className="font-bold whitespace-nowrap"

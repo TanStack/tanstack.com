@@ -11,12 +11,8 @@ const serverEnvSchema = z.object({
 })
 
 const clientEnvSchema = z.object({
-  VITE_CONVEX_SITE_URL: z
-    .string()
-    .default('http://upbeat-greyhound-631.convex.site'),
-  VITE_CONVEX_URL: z
-    .string()
-    .default('http://upbeat-greyhound-631.convex.cloud'),
+  VITE_CONVEX_SITE_URL: z.string().optional(),
+  VITE_CONVEX_URL: z.string().optional(),
   URL: z.string().optional(),
 })
 

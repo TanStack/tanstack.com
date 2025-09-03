@@ -11,6 +11,7 @@ import {
   FaGithub,
   FaInstagram,
   FaLock,
+  FaPaintRoller,
   FaSignInAlt,
   FaTshirt,
   FaUser,
@@ -265,6 +266,11 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
           label: 'Ethos',
           icon: <BiSolidCheckShield />,
           to: '/ethos',
+        },
+        {
+          label: 'Brand Guide',
+          icon: <FaPaintRoller />,
+          to: '/brand-guide',
         },
       ].map((item, i) => {
         return (

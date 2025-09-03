@@ -30,7 +30,7 @@ import {
   useQuery,
 } from 'convex/react'
 import { api } from 'convex/_generated/api'
-import { PiHammerFill } from 'react-icons/pi'
+import { PiHammerFill, PiSparkleFill } from 'react-icons/pi'
 
 export const Route = createFileRoute({
   staleTime: Infinity,
@@ -188,22 +188,40 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
         {user?.capabilities.some((capability) =>
           ['builder', 'admin'].includes(capability)
         ) ? (
-          <Link
-            to="/builder"
-            className={twMerge(linkClasses, 'font-normal')}
-            activeProps={{
-              className: twMerge(
-                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
-              ),
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-4 justify-between">
-                <PiHammerFill />
+          <>
+            <Link
+              to="/builder"
+              className={twMerge(linkClasses, 'font-normal')}
+              activeProps={{
+                className: twMerge(
+                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                ),
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4 justify-between">
+                  <PiHammerFill />
+                </div>
+                <div>Builder</div>
               </div>
-              <div>Builder</div>
-            </div>
-          </Link>
+            </Link>
+            <Link
+              to="/forge"
+              className={twMerge(linkClasses, 'font-normal')}
+              activeProps={{
+                className: twMerge(
+                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                ),
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4 justify-between">
+                  <PiSparkleFill />
+                </div>
+                <div>Forge</div>
+              </div>
+            </Link>
+          </>
         ) : null}
       </Authenticated>
       {[

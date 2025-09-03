@@ -31,8 +31,8 @@ function deserializeMessage(message: {
 }
 
 export const Route = createFileRoute({
-  component: App,
-  loader: async ({ params }) => {
+  component: AuthenticationWrapper,
+  loader: async ({ params }: { params: { projectId: string } }) => {
     const chatMessages = await getChatMessages({
       data: { projectId: params.projectId },
     })
@@ -95,9 +95,60 @@ function AIApp({
     projectId,
   })
   const projects = useQuery(api.forge.getProjects)
+  const llmKeys = useQuery(api.llmKeys.listMyLLMKeysForDisplay)
 
   const onSetCheckpoint = () => {
     setLastCheckpoint(convertToRecord(projectFiles ?? []))
+  }
+
+  // Check if user has any active LLM keys
+  const hasActiveKeys = llmKeys?.some((key) => key.isActive) ?? false
+
+  // Show loading state while checking keys
+  if (llmKeys === undefined) {
+    return (
+      <div className="flex h-screen bg-background w-full">
+        <Sidebar projects={projects} />
+        <main className="flex-1 min-w-0">
+          <Header />
+          <div className="h-[calc(100vh-73px)] flex items-center justify-center">
+            <div className="text-center">Loading...</div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  // Show key requirement message if no active keys
+  if (!hasActiveKeys) {
+    return (
+      <div className="flex h-screen bg-background w-full">
+        <Sidebar projects={projects} />
+        <main className="flex-1 min-w-0">
+          <Header />
+          <div className="h-[calc(100vh-73px)] flex items-center justify-center p-8">
+            <div className="w-full max-w-2xl space-y-4 text-center">
+              <div className="text-6xl mb-4">🔑</div>
+              <h1 className="text-2xl font-bold text-foreground">
+                LLM API Keys Required
+              </h1>
+              <p className="text-muted-foreground">
+                To use the Forge, you need to add your own LLM API keys. We
+                support OpenAI and Anthropic.
+              </p>
+              <div className="flex justify-center">
+                <Link
+                  to="/account"
+                  className="px-6 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
+                >
+                  Add API Keys
+                </Link>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -113,6 +164,7 @@ function AIApp({
                 initialMessages={chatMessages}
                 onSetCheckpoint={onSetCheckpoint}
                 projectDescription={projectDescription}
+                llmKeys={llmKeys}
               />
             </div>
             <div className="w-2/3 @8xl:w-3/4 pl-2 h-full overflow-y-auto">
@@ -129,16 +181,22 @@ function AIApp({
 }
 
 function App() {
-  const projectId = Route.useParams().projectId as Id<'forge_projects'>
+  const { projectId } = Route.useParams()
   const { chatMessages, projectFiles, projectDescription } =
     Route.useLoaderData()
 
   return (
     <AIApp
-      projectId={projectId}
+      projectId={projectId as Id<'forge_projects'>}
       initialFiles={projectFiles}
       chatMessages={chatMessages.map(deserializeMessage)}
       projectDescription={projectDescription}
     />
   )
+}
+
+function AuthenticationWrapper() {
+  const user = useQuery(api.auth.getCurrentUser)
+
+  return <>{user ? <App /> : <div>Loading...</div>}</>
 }

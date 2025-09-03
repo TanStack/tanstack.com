@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import { ConvexHttpClient } from 'convex/browser'
 import { anthropic } from '@ai-sdk/anthropic'
+import { openai } from '@ai-sdk/openai'
 import {
   convertToModelMessages,
   createIdGenerator,
@@ -65,11 +66,18 @@ async function saveChat(projectId: Id<'forge_projects'>, messages: Array<UIMessa
 export const ServerRoute = createServerFileRoute().methods({
   POST: async ({ request }) => {
     try {
-      const { messages, projectId } = await request.json()
+      const { messages, projectId, model } = await request.json()
 
       if (!projectId || typeof projectId !== 'string') {
         return new Response(
           JSON.stringify({ error: 'Project ID is required' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (!model || typeof model !== 'string') {
+        return new Response(
+          JSON.stringify({ error: 'Model is required' }),
           { status: 400, headers: { 'Content-Type': 'application/json' } }
         )
       }
@@ -86,11 +94,52 @@ export const ServerRoute = createServerFileRoute().methods({
       // This part is not a hack, we do need to set the auth token for the convex client
       convex.setAuth(sessionToken!)
 
+      // Get user's LLM keys
+      const userKeys = await convex.query(api.llmKeys.listMyLLMKeys)
+      
+      // Determine which provider to use based on the model
+      const isAnthropicModel = model.startsWith('claude-')
+      const isOpenAIModel = model.startsWith('gpt-')
+      
+      let apiProvider
+      let apiKey
+      
+      if (isAnthropicModel) {
+        const anthropicKey = userKeys.find(key => key.provider === 'anthropic' && key.isActive)
+        if (!anthropicKey) {
+          return new Response(
+            JSON.stringify({ error: 'No active Anthropic API key found' }),
+            { status: 400, headers: { 'Content-Type': 'application/json' } }
+          )
+        }
+        apiKey = anthropicKey.apiKey
+        // Set the API key as environment variable for this request
+        process.env.ANTHROPIC_API_KEY = apiKey
+        apiProvider = anthropic(model)
+      } else if (isOpenAIModel) {
+        const openaiKey = userKeys.find(key => key.provider === 'openai' && key.isActive)
+        if (!openaiKey) {
+          return new Response(
+            JSON.stringify({ error: 'No active OpenAI API key found' }),
+            { status: 400, headers: { 'Content-Type': 'application/json' } }
+          )
+        }
+        apiKey = openaiKey.apiKey
+        // Set the API key as environment variable for this request
+        process.env.OPENAI_API_KEY = apiKey
+        apiProvider = openai(model)
+      } else {
+        return new Response(
+          JSON.stringify({ error: 'Unsupported model' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        )
+      }
+
       const { listDirectory, readFile, writeFile, deleteFile, fileTreeText } =
         await getTools(convex, projectId)
 
       const result = await streamText({
-        model: anthropic('claude-3-5-sonnet-latest'),
+        model: apiProvider,
         messages: convertToModelMessages(messages),
         temperature: 0.7,
         stopWhen: stepCountIs(30),

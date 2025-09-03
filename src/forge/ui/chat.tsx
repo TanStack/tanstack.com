@@ -70,17 +70,49 @@ export default function Chat({
   initialMessages,
   onSetCheckpoint,
   projectDescription,
+  llmKeys,
 }: {
   projectId: string
   initialMessages: Array<UIMessage>
   onSetCheckpoint: () => void
   projectDescription: string
+  llmKeys:
+    | Array<{ provider: string; keyName: string; isActive: boolean }>
+    | undefined
 }) {
+  // Get available models based on active keys
+  const activeKeys = llmKeys?.filter((key) => key.isActive) ?? []
+  const hasOpenAI = activeKeys.some((key) => key.provider === 'openai')
+  const hasAnthropic = activeKeys.some((key) => key.provider === 'anthropic')
+
+  // Build available models list
+  const availableModels = []
+  if (hasAnthropic) {
+    availableModels.push({
+      value: 'claude-3-5-sonnet-latest',
+      label: 'Claude 3.5 Sonnet',
+      provider: 'anthropic',
+    })
+  }
+  if (hasOpenAI) {
+    availableModels.push(
+      { value: 'gpt-4', label: 'GPT-4', provider: 'openai' },
+      { value: 'gpt-4-mini', label: 'GPT-4 Mini', provider: 'openai' }
+    )
+  }
+
+  // Default to Sonnet if available, otherwise first available model
+  const defaultModel = hasAnthropic
+    ? 'claude-3-5-sonnet-latest'
+    : availableModels[0]?.value ?? ''
+  const [selectedModel, setSelectedModel] = useState(defaultModel)
+
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: '/api/forge/chat',
       body: {
         projectId,
+        model: selectedModel,
       },
     }),
     messages: initialMessages,
@@ -191,7 +223,30 @@ export default function Chat({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="bg-gray-800 border-t border-gray-700 p-4">
+      <div className="bg-gray-800 border-t border-gray-700 p-4 space-y-3">
+        {/* Model Selector */}
+        <div className="flex items-center space-x-3">
+          <label
+            htmlFor="model-select"
+            className="text-sm font-medium text-gray-300"
+          >
+            Model:
+          </label>
+          <select
+            id="model-select"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            className="bg-gray-700 text-gray-100 border border-gray-600 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            {availableModels.map((model) => (
+              <option key={model.value} value={model.value}>
+                {model.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Chat Input */}
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -205,6 +260,7 @@ export default function Chat({
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
               className="w-full bg-gray-700 text-gray-100 placeholder-gray-400 border border-gray-600 rounded-lg px-4 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>

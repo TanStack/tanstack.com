@@ -1,6 +1,7 @@
 import { useQuery } from 'convex/react'
 import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 
 import { api } from 'convex/_generated/api'
 
@@ -8,14 +9,18 @@ import Sidebar from '~/forge/ui/sidebar'
 
 export const Route = createFileRoute({
   ssr: false,
-  component: App,
+  component: AuthenticationWrapper,
 })
 
 function App() {
   const projects = useQuery(api.forge.getProjects)
+  const llmKeys = useQuery(api.llmKeys.listMyLLMKeysForDisplay)
   const [description, setDescription] = useState('')
 
   const router = useRouter()
+
+  // Check if user has any active LLM keys
+  const hasActiveKeys = llmKeys?.some((key) => key.isActive) ?? false
 
   const handleGetStarted = async () => {
     const res = await fetch('/api/forge/new-project', {
@@ -34,6 +39,47 @@ function App() {
       e.preventDefault()
       handleGetStarted()
     }
+  }
+
+  // Show loading state while checking keys
+  if (llmKeys === undefined) {
+    return (
+      <div className="flex flex-col md:flex-row h-screen bg-background w-full">
+        <Sidebar projects={projects} />
+        <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
+          <div className="text-center">Loading...</div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show key requirement message if no active keys
+  if (!hasActiveKeys) {
+    return (
+      <div className="flex flex-col md:flex-row h-screen bg-background w-full">
+        <Sidebar projects={projects} />
+        <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
+          <div className="w-full max-w-2xl space-y-4 md:space-y-6 text-center">
+            <div className="text-6xl mb-4">🔑</div>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+              LLM API Keys Required
+            </h1>
+            <p className="text-muted-foreground">
+              To use the Forge, you need to add your own LLM API keys. We
+              support OpenAI and Anthropic.
+            </p>
+            <div className="flex justify-center">
+              <Link
+                to="/account"
+                className="px-6 md:px-8 py-2 md:py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors text-sm md:text-base"
+              >
+                Add API Keys
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -66,4 +112,10 @@ function App() {
       </div>
     </div>
   )
+}
+
+function AuthenticationWrapper() {
+  const user = useQuery(api.auth.getCurrentUser)
+
+  return <>{user ? <App /> : <div>Loading...</div>}</>
 }

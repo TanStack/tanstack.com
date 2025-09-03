@@ -33,6 +33,29 @@ const schema = defineSchema({
     ),
     adsDisabled: v.optional(v.boolean()),
   }),
+  forge_projects: defineTable({
+    name: v.string(),
+    description: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }),
+  forge_chatMessages: defineTable({
+    projectId: v.string(),
+    messageId: v.string(),
+    role: v.union(v.literal('user'), v.literal('assistant')),
+    content: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index('by_projectId', ['projectId'])
+    .index('by_projectId_messageId', ['projectId', 'messageId']),
+  forge_projectFiles: defineTable({
+    projectId: v.string(),
+    path: v.string(),
+    content: v.string(),
+  })
+    .index('by_projectId_path', ['projectId', 'path'])
+    .index('by_projectId', ['projectId']),
 })
 
 export default schema

@@ -41,6 +41,7 @@ import { Route as LibrariesBlogRouteImport } from './routes/_libraries/blog'
 import { Route as LibrariesAccountRouteImport } from './routes/_libraries/account'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
+import { Route as LibrariesForgeIndexRouteImport } from './routes/_libraries/forge.index'
 import { Route as LibrariesBlogIndexRouteImport } from './routes/_libraries/blog.index'
 import { Route as LibrariesBlogSplatRouteImport } from './routes/_libraries/blog.$'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
@@ -57,6 +58,7 @@ import { Route as LibrariesDevtoolsVersionIndexRouteImport } from './routes/_lib
 import { Route as LibrariesDbVersionIndexRouteImport } from './routes/_libraries/db.$version.index'
 import { Route as LibrariesConfigVersionIndexRouteImport } from './routes/_libraries/config.$version.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
+import { Route as LibrariesForgeEditorProjectIdRouteImport } from './routes/_libraries/forge.editor.$projectId'
 import { Route as LibraryIdVersionDocsContributorsRouteImport } from './routes/$libraryId/$version.docs.contributors'
 import { Route as LibraryIdVersionDocsSplatRouteImport } from './routes/$libraryId/$version.docs.$'
 import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.index'
@@ -65,6 +67,8 @@ import { Route as LibraryIdVersionDocsFrameworkFrameworkSplatRouteImport } from 
 import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.examples.$'
 import { ServerRoute as ApiInitialPayloadServerRouteImport } from './routes/api/initial-payload'
 import { ServerRoute as ApiDryRunCreateAppServerRouteImport } from './routes/api/dry-run-create-app'
+import { ServerRoute as ApiForgeNewProjectServerRouteImport } from './routes/api/forge.new-project'
+import { ServerRoute as ApiForgeChatServerRouteImport } from './routes/api/forge.chat'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 import { ServerRoute as LibraryIdVersionDocsChar123Char125DotmdServerRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
 import { ServerRoute as LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.{$}[.]md'
@@ -195,6 +199,11 @@ const StatsNpmIndexRoute = StatsNpmIndexRouteImport.update({
   path: '/stats/npm/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibrariesForgeIndexRoute = LibrariesForgeIndexRouteImport.update({
+  id: '/forge/',
+  path: '/forge/',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
 const LibrariesBlogIndexRoute = LibrariesBlogIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -287,6 +296,12 @@ const LibraryIdVersionDocsIndexRoute =
     path: '/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const LibrariesForgeEditorProjectIdRoute =
+  LibrariesForgeEditorProjectIdRouteImport.update({
+    id: '/forge/editor/$projectId',
+    path: '/forge/editor/$projectId',
+    getParentRoute: () => LibrariesRouteRoute,
+  } as any)
 const LibraryIdVersionDocsContributorsRoute =
   LibraryIdVersionDocsContributorsRouteImport.update({
     id: '/contributors',
@@ -334,6 +349,17 @@ const ApiDryRunCreateAppServerRoute =
     path: '/api/dry-run-create-app',
     getParentRoute: () => rootServerRouteImport,
   } as any)
+const ApiForgeNewProjectServerRoute =
+  ApiForgeNewProjectServerRouteImport.update({
+    id: '/api/forge/new-project',
+    path: '/api/forge/new-project',
+    getParentRoute: () => rootServerRouteImport,
+  } as any)
+const ApiForgeChatServerRoute = ApiForgeChatServerRouteImport.update({
+  id: '/api/forge/chat',
+  path: '/api/forge/chat',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
 const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -381,9 +407,11 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/blog/': typeof LibrariesBlogIndexRoute
+  '/forge': typeof LibrariesForgeIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
+  '/forge/editor/$projectId': typeof LibrariesForgeEditorProjectIdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
   '/db/$version': typeof LibrariesDbVersionIndexRoute
@@ -425,9 +453,11 @@ export interface FileRoutesByTo {
   '/stats': typeof StatsIndexRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/blog': typeof LibrariesBlogIndexRoute
+  '/forge': typeof LibrariesForgeIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
+  '/forge/editor/$projectId': typeof LibrariesForgeEditorProjectIdRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
   '/db/$version': typeof LibrariesDbVersionIndexRoute
@@ -475,9 +505,11 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
+  '/_libraries/forge/': typeof LibrariesForgeIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
+  '/_libraries/forge/editor/$projectId': typeof LibrariesForgeEditorProjectIdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/_libraries/config/$version/': typeof LibrariesConfigVersionIndexRoute
   '/_libraries/db/$version/': typeof LibrariesDbVersionIndexRoute
@@ -525,9 +557,11 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/blog/$'
     | '/blog/'
+    | '/forge'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/contributors'
+    | '/forge/editor/$projectId'
     | '/$libraryId/$version/docs/'
     | '/config/$version'
     | '/db/$version'
@@ -569,9 +603,11 @@ export interface FileRouteTypes {
     | '/stats'
     | '/blog/$'
     | '/blog'
+    | '/forge'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/contributors'
+    | '/forge/editor/$projectId'
     | '/$libraryId/$version/docs'
     | '/config/$version'
     | '/db/$version'
@@ -618,9 +654,11 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/_libraries/blog/$'
     | '/_libraries/blog/'
+    | '/_libraries/forge/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/contributors'
+    | '/_libraries/forge/editor/$projectId'
     | '/$libraryId/$version/docs/'
     | '/_libraries/config/$version/'
     | '/_libraries/db/$version/'
@@ -654,6 +692,8 @@ export interface FileServerRoutesByFullPath {
   '/api/dry-run-create-app': typeof ApiDryRunCreateAppServerRoute
   '/api/initial-payload': typeof ApiInitialPayloadServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
+  '/api/forge/chat': typeof ApiForgeChatServerRoute
+  '/api/forge/new-project': typeof ApiForgeNewProjectServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
@@ -661,6 +701,8 @@ export interface FileServerRoutesByTo {
   '/api/dry-run-create-app': typeof ApiDryRunCreateAppServerRoute
   '/api/initial-payload': typeof ApiInitialPayloadServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
+  '/api/forge/chat': typeof ApiForgeChatServerRoute
+  '/api/forge/new-project': typeof ApiForgeNewProjectServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
@@ -669,6 +711,8 @@ export interface FileServerRoutesById {
   '/api/dry-run-create-app': typeof ApiDryRunCreateAppServerRoute
   '/api/initial-payload': typeof ApiInitialPayloadServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
+  '/api/forge/chat': typeof ApiForgeChatServerRoute
+  '/api/forge/new-project': typeof ApiForgeNewProjectServerRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   '/$libraryId/$version/docs/framework/$framework/{$}.md': typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
@@ -678,6 +722,8 @@ export interface FileServerRouteTypes {
     | '/api/dry-run-create-app'
     | '/api/initial-payload'
     | '/api/auth/$'
+    | '/api/forge/chat'
+    | '/api/forge/new-project'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   fileServerRoutesByTo: FileServerRoutesByTo
@@ -685,6 +731,8 @@ export interface FileServerRouteTypes {
     | '/api/dry-run-create-app'
     | '/api/initial-payload'
     | '/api/auth/$'
+    | '/api/forge/chat'
+    | '/api/forge/new-project'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   id:
@@ -692,6 +740,8 @@ export interface FileServerRouteTypes {
     | '/api/dry-run-create-app'
     | '/api/initial-payload'
     | '/api/auth/$'
+    | '/api/forge/chat'
+    | '/api/forge/new-project'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/framework/$framework/{$}.md'
   fileServerRoutesById: FileServerRoutesById
@@ -700,6 +750,8 @@ export interface RootServerRouteChildren {
   ApiDryRunCreateAppServerRoute: typeof ApiDryRunCreateAppServerRoute
   ApiInitialPayloadServerRoute: typeof ApiInitialPayloadServerRoute
   ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute
+  ApiForgeChatServerRoute: typeof ApiForgeChatServerRoute
+  ApiForgeNewProjectServerRoute: typeof ApiForgeNewProjectServerRoute
   LibraryIdVersionDocsChar123Char125DotmdServerRoute: typeof LibraryIdVersionDocsChar123Char125DotmdServerRoute
   LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute: typeof LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute
 }
@@ -909,12 +961,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: unknown
       parentRoute: typeof rootRouteImport
     }
+    '/api/forge/chat': {
+      id: '/api/forge/chat'
+      path: ''
+      fullPath: '/api/forge/chat'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/forge/new-project': {
+      id: '/api/forge/new-project'
+      path: ''
+      fullPath: '/api/forge/new-project'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootRouteImport
+    }
     '/_libraries/blog/': {
       id: '/_libraries/blog/'
       path: '/'
       fullPath: '/blog/'
       preLoaderRoute: typeof LibrariesBlogIndexRouteImport
       parentRoute: typeof LibrariesBlogRoute
+    }
+    '/_libraries/forge/': {
+      id: '/_libraries/forge/'
+      path: '/forge'
+      fullPath: '/forge'
+      preLoaderRoute: typeof LibrariesForgeIndexRouteImport
+      parentRoute: typeof LibrariesRouteRoute
     }
     '/stats/npm/': {
       id: '/stats/npm/'
@@ -943,6 +1016,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$libraryId/$version/docs/{$}.md'
       preLoaderRoute: unknown
       parentRoute: typeof rootRouteImport
+    }
+    '/_libraries/forge/editor/$projectId': {
+      id: '/_libraries/forge/editor/$projectId'
+      path: '/forge/editor/$projectId'
+      fullPath: '/forge/editor/$projectId'
+      preLoaderRoute: typeof LibrariesForgeEditorProjectIdRouteImport
+      parentRoute: typeof LibrariesRouteRoute
     }
     '/$libraryId/$version/docs/': {
       id: '/$libraryId/$version/docs/'
@@ -1277,10 +1357,31 @@ declare module '@tanstack/react-start/server' {
       preLoaderRoute: typeof ApiAuthSplatServerRouteImport
       parentRoute: typeof rootServerRouteImport
     }
+    '/api/forge/chat': {
+      id: '/api/forge/chat'
+      path: '/api/forge/chat'
+      fullPath: '/api/forge/chat'
+      preLoaderRoute: typeof ApiForgeChatServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/api/forge/new-project': {
+      id: '/api/forge/new-project'
+      path: '/api/forge/new-project'
+      fullPath: '/api/forge/new-project'
+      preLoaderRoute: typeof ApiForgeNewProjectServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
     '/_libraries/blog/': {
       id: '/_libraries/blog/'
       path: '/'
       fullPath: '/blog/'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/_libraries/forge/': {
+      id: '/_libraries/forge/'
+      path: '/forge'
+      fullPath: '/forge'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1310,6 +1411,13 @@ declare module '@tanstack/react-start/server' {
       path: '/$libraryId/$version/docs/{$}.md'
       fullPath: '/$libraryId/$version/docs/{$}.md'
       preLoaderRoute: typeof LibraryIdVersionDocsChar123Char125DotmdServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/_libraries/forge/editor/$projectId': {
+      id: '/_libraries/forge/editor/$projectId'
+      path: '/forge/editor/$projectId'
+      fullPath: '/forge/editor/$projectId'
+      preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
     '/$libraryId/$version/docs/': {
@@ -1934,6 +2042,40 @@ declare module './routes/api/auth/$' {
     unknown
   >
 }
+declare module './routes/api/forge.chat' {
+  const createFileRoute: CreateFileRoute<
+    '/api/forge/chat',
+    FileRoutesByPath['/api/forge/chat']['parentRoute'],
+    FileRoutesByPath['/api/forge/chat']['id'],
+    FileRoutesByPath['/api/forge/chat']['path'],
+    FileRoutesByPath['/api/forge/chat']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/api/forge/chat']['parentRoute'],
+    ServerFileRoutesByPath['/api/forge/chat']['id'],
+    ServerFileRoutesByPath['/api/forge/chat']['path'],
+    ServerFileRoutesByPath['/api/forge/chat']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/api/forge.new-project' {
+  const createFileRoute: CreateFileRoute<
+    '/api/forge/new-project',
+    FileRoutesByPath['/api/forge/new-project']['parentRoute'],
+    FileRoutesByPath['/api/forge/new-project']['id'],
+    FileRoutesByPath['/api/forge/new-project']['path'],
+    FileRoutesByPath['/api/forge/new-project']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/api/forge/new-project']['parentRoute'],
+    ServerFileRoutesByPath['/api/forge/new-project']['id'],
+    ServerFileRoutesByPath['/api/forge/new-project']['path'],
+    ServerFileRoutesByPath['/api/forge/new-project']['fullPath'],
+    unknown
+  >
+}
 declare module './routes/_libraries/blog.index' {
   const createFileRoute: CreateFileRoute<
     '/_libraries/blog/',
@@ -1948,6 +2090,23 @@ declare module './routes/_libraries/blog.index' {
     ServerFileRoutesByPath['/_libraries/blog/']['id'],
     ServerFileRoutesByPath['/_libraries/blog/']['path'],
     ServerFileRoutesByPath['/_libraries/blog/']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/_libraries/forge.index' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/forge/',
+    FileRoutesByPath['/_libraries/forge/']['parentRoute'],
+    FileRoutesByPath['/_libraries/forge/']['id'],
+    FileRoutesByPath['/_libraries/forge/']['path'],
+    FileRoutesByPath['/_libraries/forge/']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/_libraries/forge/']['parentRoute'],
+    ServerFileRoutesByPath['/_libraries/forge/']['id'],
+    ServerFileRoutesByPath['/_libraries/forge/']['path'],
+    ServerFileRoutesByPath['/_libraries/forge/']['fullPath'],
     unknown
   >
 }
@@ -2016,6 +2175,23 @@ declare module './routes/$libraryId/$version.docs.{$}[.]md' {
     ServerFileRoutesByPath['/$libraryId/$version/docs/{$}.md']['id'],
     ServerFileRoutesByPath['/$libraryId/$version/docs/{$}.md']['path'],
     ServerFileRoutesByPath['/$libraryId/$version/docs/{$}.md']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/_libraries/forge.editor.$projectId' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/forge/editor/$projectId',
+    FileRoutesByPath['/_libraries/forge/editor/$projectId']['parentRoute'],
+    FileRoutesByPath['/_libraries/forge/editor/$projectId']['id'],
+    FileRoutesByPath['/_libraries/forge/editor/$projectId']['path'],
+    FileRoutesByPath['/_libraries/forge/editor/$projectId']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/_libraries/forge/editor/$projectId']['parentRoute'],
+    ServerFileRoutesByPath['/_libraries/forge/editor/$projectId']['id'],
+    ServerFileRoutesByPath['/_libraries/forge/editor/$projectId']['path'],
+    ServerFileRoutesByPath['/_libraries/forge/editor/$projectId']['fullPath'],
     unknown
   >
 }
@@ -2406,6 +2582,8 @@ interface LibrariesRouteRouteChildren {
   LibrariesSupportRoute: typeof LibrariesSupportRoute
   LibrariesTermsRoute: typeof LibrariesTermsRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
+  LibrariesForgeIndexRoute: typeof LibrariesForgeIndexRoute
+  LibrariesForgeEditorProjectIdRoute: typeof LibrariesForgeEditorProjectIdRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
   LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
   LibrariesDevtoolsVersionIndexRoute: typeof LibrariesDevtoolsVersionIndexRoute
@@ -2434,6 +2612,8 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesSupportRoute: LibrariesSupportRoute,
   LibrariesTermsRoute: LibrariesTermsRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
+  LibrariesForgeIndexRoute: LibrariesForgeIndexRoute,
+  LibrariesForgeEditorProjectIdRoute: LibrariesForgeEditorProjectIdRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
   LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,
   LibrariesDevtoolsVersionIndexRoute: LibrariesDevtoolsVersionIndexRoute,
@@ -2483,6 +2663,8 @@ const rootServerRouteChildren: RootServerRouteChildren = {
   ApiDryRunCreateAppServerRoute: ApiDryRunCreateAppServerRoute,
   ApiInitialPayloadServerRoute: ApiInitialPayloadServerRoute,
   ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
+  ApiForgeChatServerRoute: ApiForgeChatServerRoute,
+  ApiForgeNewProjectServerRoute: ApiForgeNewProjectServerRoute,
   LibraryIdVersionDocsChar123Char125DotmdServerRoute:
     LibraryIdVersionDocsChar123Char125DotmdServerRoute,
   LibraryIdVersionDocsFrameworkFrameworkChar123Char125DotmdServerRoute:

@@ -32,7 +32,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
       className={twMerge(
         `rounded-lg shadow-lg overflow-hidden`,
         bg === 'dark'
-          ? 'bg-black/60 text-white'
+          ? 'bg-black/80 text-white'
           : bg === 'light'
           ? 'bg-white text-black'
           : 'bg-gray-500/20'

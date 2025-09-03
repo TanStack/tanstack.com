@@ -59,14 +59,13 @@ export const listUsers = query({
     const limit = args.pagination.limit
     const cursor = args.pagination.cursor ?? null
 
-    if (args.emailFilter && args.emailFilter.length > 0) {
-      const start = args.emailFilter
-      const end = start + '\uffff'
+    const emailFilter = args.emailFilter ?? ''
+
+    if (emailFilter && emailFilter.length > 0) {
       // Prefix range over email using index
       return await ctx.db
         .query('users')
-        // .withIndex('by_email', (q) => q.gte('email', start))
-        .filter((q) => q.lt(q.field('email'), end))
+        .withSearchIndex('search_email', (q) => q.search('email', emailFilter))
         .paginate({
           numItems: limit,
           cursor,
@@ -91,20 +90,19 @@ export const countUsers = query({
 
     const total = (await ctx.db.query('users').collect()).length
 
-    if (args.emailFilter && args.emailFilter.length > 0) {
-      const start = args.emailFilter
-      const end = start + '\uffff'
+    const emailFilter = args.emailFilter ?? ''
+
+    if (emailFilter && emailFilter.length > 0) {
       const filtered = (
         await ctx.db
           .query('users')
-          // .withIndex('by_email', (q) => q.gte('email', start))
-          .filter((q) => q.lt(q.field('email'), end))
+          .withSearchIndex('search_email', (q) =>
+            q.search('email', emailFilter)
+          )
           .collect()
       ).length
       return { total, filtered }
     }
-
-    return { total, filtered: total }
   },
 })
 

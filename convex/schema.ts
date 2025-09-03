@@ -32,6 +32,8 @@ const schema = defineSchema({
       v.union(...validCapabilities.map((cap) => v.literal(cap)))
     ),
     adsDisabled: v.optional(v.boolean()),
+  }).searchIndex('search_email', {
+    searchField: 'email',
   }),
   // .index('by_email', ['email']),
 })

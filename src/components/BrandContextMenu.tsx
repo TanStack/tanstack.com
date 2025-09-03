@@ -67,7 +67,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
         <DropdownMenu.Content
           sideOffset={4}
           align="start"
-          className="z-50 min-w-48 rounded-md border border-gray-200 bg-white p-1 text-sm shadow-lg dark:border-gray-700 dark:bg-gray-800"
+          className="z-50 min-w-48 rounded-md border border-gray-200 bg-white p-1 text-sm shadow-lg dark:border-gray-700 dark:bg-gray-900/50 backdrop-blur-md"
         >
           {[
             {
@@ -92,10 +92,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
             <DropdownMenu.Item
               key={label}
               className={twMerge(
-                'flex cursor-pointer select-none items-center gap-2 rounded px-3 py-2 outline-none hover:bg-gray-100',
-                darkBg
-                  ? 'bg-gray-800 text-white hover:bg-gray-700'
-                  : 'bg-white hover:bg-gray-100'
+                'flex cursor-pointer select-none items-center gap-2 rounded px-3 py-1 outline-none hover:bg-gray-500/20'
               )}
               onSelect={async () => {
                 try {
@@ -108,7 +105,14 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
               }}
             >
               {label}
-              <div>
+              <div
+                className={twMerge(
+                  'p-1 rounded-full',
+                  darkBg
+                    ? 'bg-black text-white shadow-lg shadow-white/20'
+                    : 'bg-white text-black shadow-lg'
+                )}
+              >
                 <img src={url} alt={label} className="h-6" />
               </div>
             </DropdownMenu.Item>
@@ -118,7 +122,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
             className="flex cursor-pointer select-none items-center gap-2 rounded px-3 py-2 outline-none hover:bg-gray-100 dark:hover:bg-gray-700"
             onSelect={() => navigate({ to: '/brand-guide' })}
           >
-            Brand Guidelines
+            Brand Guide & All Assets
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>

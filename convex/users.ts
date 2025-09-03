@@ -50,19 +50,61 @@ export const listUsers = query({
       limit: v.number(),
       cursor: v.optional(v.union(v.string(), v.null())),
     }),
+    emailFilter: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Validate admin capability
     await requireCapability(ctx, 'admin')
 
-    // Return paginated users
-    return await ctx.db
-      .query('users')
-      .order('desc')
-      .paginate({
-        numItems: args.pagination.limit,
-        cursor: args.pagination.cursor ?? null,
-      })
+    const limit = args.pagination.limit
+    const cursor = args.pagination.cursor ?? null
+
+    if (args.emailFilter && args.emailFilter.length > 0) {
+      const start = args.emailFilter
+      const end = start + '\uffff'
+      // Prefix range over email using index
+      return await ctx.db
+        .query('users')
+        .withIndex('by_email', (q) => q.gte('email', start))
+        .filter((q) => q.lt(q.field('email'), end))
+        .paginate({
+          numItems: limit,
+          cursor,
+        })
+    }
+
+    // Return paginated users without filter
+    return await ctx.db.query('users').order('desc').paginate({
+      numItems: limit,
+      cursor,
+    })
+  },
+})
+
+export const countUsers = query({
+  args: {
+    emailFilter: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    // Validate admin capability
+    await requireCapability(ctx, 'admin')
+
+    const total = (await ctx.db.query('users').collect()).length
+
+    if (args.emailFilter && args.emailFilter.length > 0) {
+      const start = args.emailFilter
+      const end = start + '\uffff'
+      const filtered = (
+        await ctx.db
+          .query('users')
+          .withIndex('by_email', (q) => q.gte('email', start))
+          .filter((q) => q.lt(q.field('email'), end))
+          .collect()
+      ).length
+      return { total, filtered }
+    }
+
+    return { total, filtered: total }
   },
 })
 

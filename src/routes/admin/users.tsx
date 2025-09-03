@@ -46,14 +46,25 @@ function UsersPage() {
   const [updatingAdsUserId, setUpdatingAdsUserId] = useState<string | null>(
     null
   )
+  const [emailFilter, setEmailFilter] = useState('')
 
   const user = useConvexQuery(api.auth.getCurrentUser)
+  const pageSize = 10
   const usersQuery = useQuery({
     ...convexQuery(api.users.listUsers, {
       pagination: {
-        limit: 10,
+        limit: pageSize,
         cursor: cursors[currentPageIndex] || null,
       },
+      emailFilter: emailFilter || undefined,
+    }),
+    placeholderData: keepPreviousData,
+  })
+  // Cast to any to avoid transient type mismatch until Convex codegen runs
+  const countUsersRef: any = (api as any).users?.countUsers
+  const countsQuery = useQuery({
+    ...convexQuery(countUsersRef, {
+      emailFilter: emailFilter || undefined,
     }),
     placeholderData: keepPreviousData,
   })
@@ -353,6 +364,19 @@ function UsersPage() {
           <p className="text-gray-600 dark:text-gray-400">
             Manage user accounts and their capabilities.
           </p>
+          <div className="mt-4">
+            <input
+              type="text"
+              value={emailFilter}
+              onChange={(e) => {
+                setEmailFilter(e.target.value)
+                setCurrentPageIndex(0)
+                setCursors([''])
+              }}
+              placeholder="Filter by email"
+              className="w-full max-w-md px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+            />
+          </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
@@ -413,10 +437,22 @@ function UsersPage() {
         {/* Cursor-based pagination controls */}
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            Page {currentPageIndex + 1}
-            {usersQuery.data && (
-              <span> • {usersQuery.data.page?.length} users</span>
-            )}
+            {(() => {
+              const filtered = countsQuery?.data?.filtered ?? 0
+              const total = countsQuery?.data?.total ?? 0
+              const totalPages = Math.max(1, Math.ceil(filtered / pageSize))
+              const showing = usersQuery.data?.page?.length ?? 0
+              return (
+                <>
+                  Page {currentPageIndex + 1} of {totalPages}
+                  <span>
+                    {' '}
+                    • showing {showing} of {filtered} users
+                  </span>
+                  {emailFilter ? <span> (from {total} total)</span> : null}
+                </>
+              )
+            })()}
           </div>
           <div className="flex space-x-2">
             <button

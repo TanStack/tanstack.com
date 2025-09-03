@@ -65,7 +65,7 @@ export const listUsers = query({
       // Prefix range over email using index
       return await ctx.db
         .query('users')
-        .withIndex('by_email', (q) => q.gte('email', start))
+        // .withIndex('by_email', (q) => q.gte('email', start))
         .filter((q) => q.lt(q.field('email'), end))
         .paginate({
           numItems: limit,
@@ -97,7 +97,7 @@ export const countUsers = query({
       const filtered = (
         await ctx.db
           .query('users')
-          .withIndex('by_email', (q) => q.gte('email', start))
+          // .withIndex('by_email', (q) => q.gte('email', start))
           .filter((q) => q.lt(q.field('email'), end))
           .collect()
       ).length

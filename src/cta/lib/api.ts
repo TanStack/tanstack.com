@@ -1,11 +1,6 @@
 import type { SerializedOptions } from '@tanstack/cta-engine'
 
-import type {
-  AddOnInfo,
-  DryRunOutput,
-  InitialData,
-  StarterInfo,
-} from './types'
+import type { AddOnInfo, DryRunOutput, InitialData, StarterInfo } from './types'
 
 // @ts-ignore - import.meta.env is not available in the browser
 const baseUrl = import.meta.env.VITE_API_BASE_URL || ''
@@ -13,7 +8,7 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL || ''
 export async function createAppStreaming(
   options: SerializedOptions,
   chosenAddOns: Array<string>,
-  projectStarter?: StarterInfo,
+  projectStarter?: StarterInfo
 ) {
   return await fetch(`${baseUrl}/api/create-app`, {
     method: 'POST',
@@ -68,7 +63,7 @@ export async function loadInitialData() {
 export async function dryRunCreateApp(
   options: SerializedOptions,
   chosenAddOns: Array<string>,
-  projectStarter?: StarterInfo,
+  projectStarter?: StarterInfo
 ) {
   const outputReq = await fetch(`${baseUrl}/api/dry-run-create-app`, {
     method: 'POST',

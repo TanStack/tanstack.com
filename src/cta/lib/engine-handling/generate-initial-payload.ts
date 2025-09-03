@@ -84,17 +84,14 @@ export async function generateInitialPayload() {
 
   const framework = await getFrameworkById(serializedOptions.framework)
 
-  const addOns = Object.keys(framework!.supportedModes).reduce(
-    (acc, mode) => {
-      acc[mode] = getAllAddOns(framework!, mode).map(convertAddOnToAddOnInfo)
-      return acc
-    },
-    {} as Record<string, Array<AddOnInfo>>,
-  )
+  const addOns = Object.keys(framework!.supportedModes).reduce((acc, mode) => {
+    acc[mode] = getAllAddOns(framework!, mode).map(convertAddOnToAddOnInfo)
+    return acc
+  }, {} as Record<string, Array<AddOnInfo>>)
 
   for (const addOnInfo of registryAddOns) {
     const addOnFramework = rawRegistry?.['add-ons']?.find(
-      (addOn) => addOn.url === addOnInfo.id,
+      (addOn) => addOn.url === addOnInfo.id
     )
     if (addOnFramework?.framework === serializedOptions.framework) {
       for (const mode of addOnInfo.modes) {
@@ -106,7 +103,7 @@ export async function generateInitialPayload() {
   const serializedRegistry = {
     ['add-ons']: [],
     starters: (rawRegistry?.starters || []).filter(
-      (starter) => starter.framework === serializedOptions.framework,
+      (starter) => starter.framework === serializedOptions.framework
     ),
   }
 

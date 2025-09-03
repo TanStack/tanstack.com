@@ -19,7 +19,7 @@ export const getFileClass = (
   tree: Record<string, string>,
   originalTree: Record<string, string>,
   localTree: Record<string, string>,
-  deletedFiles: Array<string>,
+  deletedFiles: Array<string>
 ): FileClassAndInfo => {
   if (localTree[file]) {
     if (deletedFiles.includes(file)) {

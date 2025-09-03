@@ -115,7 +115,7 @@ export function useAddOns() {
     return getAddOnStatus(
       availableAddOns,
       userSelectedAddOns,
-      Array.from(originalAddOns),
+      Array.from(originalAddOns)
     )
   }, [
     ready,
@@ -129,7 +129,7 @@ export function useAddOns() {
   const chosenAddOns = useMemo(() => {
     if (!ready) return []
     const addOns = new Set(
-      Object.keys(addOnState).filter((addOn) => addOnState[addOn].selected),
+      Object.keys(addOnState).filter((addOn) => addOnState[addOn].selected)
     )
     for (const addOn of forcedAddOns || []) {
       addOns.add(addOn)
@@ -144,7 +144,7 @@ export function useAddOns() {
         if (addOnState[addOnId].selected) {
           useMutableAddOns.setState((state) => ({
             userSelectedAddOns: state.userSelectedAddOns.filter(
-              (addOn) => addOn !== addOnId,
+              (addOn) => addOn !== addOnId
             ),
           }))
         } else {
@@ -154,7 +154,7 @@ export function useAddOns() {
         }
       }
     },
-    [ready, addOnState],
+    [ready, addOnState]
   )
 
   return {
@@ -214,7 +214,7 @@ export function useFilters() {
           : [...state.includeFiles, filter],
       }))
     },
-    [ready],
+    [ready]
   )
 
   return {
@@ -279,12 +279,14 @@ export const useStartupDialog = create<StartupDialogState>()(
     }),
     {
       name: 'startup-dialog',
-      storage: createJSONStorage(() => 
-        typeof window !== 'undefined' ? localStorage : {
-          getItem: () => null,
-          setItem: () => {},
-          removeItem: () => {},
-        }
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined'
+          ? localStorage
+          : {
+              getItem: () => null,
+              setItem: () => {},
+              removeItem: () => {},
+            }
       ),
       partialize: (state) => ({
         dontShowAgain: state.dontShowAgain,
@@ -300,8 +302,8 @@ export const useStartupDialog = create<StartupDialogState>()(
         }
         return currentState
       },
-    },
-  ),
+    }
+  )
 )
 
 export const setProjectName = (projectName: string) =>
@@ -344,7 +346,7 @@ export function useManager() {
   useEffect(() => {
     // Only run on client side
     if (typeof window === 'undefined') return
-    
+
     if (ready && data?.options) {
       useProjectOptions.setState((state) => {
         // Only update if not already initialized to prevent loops
@@ -357,5 +359,10 @@ export function useManager() {
         return state
       })
     }
-  }, [ready, data?.options?.framework, data?.options?.mode, data?.options?.projectName])
+  }, [
+    ready,
+    data?.options?.framework,
+    data?.options?.mode,
+    data?.options?.projectName,
+  ])
 }

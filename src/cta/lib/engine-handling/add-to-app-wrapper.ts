@@ -28,7 +28,7 @@ export async function addToAppWrapper(
     dryRun?: boolean
     response?: Response
     environmentFactory?: () => Environment
-  },
+  }
 ) {
   const projectPath = getProjectPath()
 
@@ -62,7 +62,7 @@ export async function addToAppWrapper(
       const { environment, output } = createMemoryEnvironment(projectPath)
 
       const localFiles = cleanUpFiles(
-        await recursivelyGatherFiles(projectPath, false),
+        await recursivelyGatherFiles(projectPath, false)
       )
       for (const file of Object.keys(localFiles)) {
         environment.writeFile(resolve(projectPath, file), localFiles[file])
@@ -98,7 +98,7 @@ export async function addToAppWrapper(
           id,
           type,
           message,
-        }) + '\n',
+        }) + '\n'
       )
     }
     environment.finishStep = (id: string, message: string) => {
@@ -107,7 +107,7 @@ export async function addToAppWrapper(
           msgType: 'finish',
           id,
           message,
-        }) + '\n',
+        }) + '\n'
       )
     }
 
@@ -121,7 +121,7 @@ export async function addToAppWrapper(
     environment.startRun()
     environment.writeFile(
       resolve(projectPath, CONFIG_FILE),
-      JSON.stringify(persistedOptions, null, 2),
+      JSON.stringify(persistedOptions, null, 2)
     )
     await addToApp(environment, newAddons, projectPath, {
       forced: true,

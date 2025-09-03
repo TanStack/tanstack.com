@@ -28,7 +28,7 @@ export function BuilderHeader() {
           </span>
         </div>
       </div>
-      
+
       <div className="flex items-center gap-2">
         <PublishButton />
         <ExportDropdown />

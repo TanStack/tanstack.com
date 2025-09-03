@@ -109,12 +109,12 @@ export function CTABackgroundAnimation() {
           currentBlobs[i].x = interpolate(
             startBlob.x,
             targetBlob.x,
-            easedProgress,
+            easedProgress
           )
           currentBlobs[i].y = interpolate(
             startBlob.y,
             targetBlob.y,
-            easedProgress,
+            easedProgress
           )
 
           const gradient = ctx.createRadialGradient(
@@ -123,32 +123,32 @@ export function CTABackgroundAnimation() {
             0,
             currentBlobs[i].x,
             currentBlobs[i].y,
-            currentBlobs[i].r,
+            currentBlobs[i].r
           )
 
           currentBlobs[i].colorH = interpolate(
             startBlob.colorH,
             targetBlob.colorH,
-            easedProgress,
+            easedProgress
           )
           currentBlobs[i].colorS = interpolate(
             startBlob.colorS,
             targetBlob.colorS,
-            easedProgress,
+            easedProgress
           )
           currentBlobs[i].colorL = interpolate(
             startBlob.colorL,
             targetBlob.colorL,
-            easedProgress,
+            easedProgress
           )
 
           gradient.addColorStop(
             0,
-            `hsla(${currentBlobs[i].colorH}, ${currentBlobs[i].colorS}%, ${currentBlobs[i].colorL}%, 1)`,
+            `hsla(${currentBlobs[i].colorH}, ${currentBlobs[i].colorS}%, ${currentBlobs[i].colorL}%, 1)`
           )
           gradient.addColorStop(
             1,
-            `hsla(${currentBlobs[i].colorH}, ${currentBlobs[i].colorS}%, ${currentBlobs[i].colorL}%, 0)`,
+            `hsla(${currentBlobs[i].colorH}, ${currentBlobs[i].colorS}%, ${currentBlobs[i].colorL}%, 0)`
           )
 
           ctx.fillStyle = gradient
@@ -158,7 +158,7 @@ export function CTABackgroundAnimation() {
             currentBlobs[i].y,
             currentBlobs[i].r,
             0,
-            Math.PI * 2,
+            Math.PI * 2
           )
           ctx.fill()
         })
@@ -199,7 +199,7 @@ export function CTABackgroundAnimation() {
           ? isHomePage
             ? 'opacity-10 dark:opacity-20'
             : 'opacity-10 dark:opacity-20'
-          : 'opacity-0',
+          : 'opacity-0'
       )}
     >
       <canvas ref={canvasRef} />

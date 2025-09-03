@@ -33,7 +33,7 @@ export function ZipExportAction() {
     if (performingAction) return
     setPerformingAction(true)
     setError(null)
-    
+
     try {
       const zip = await generateZipFromDryRun(dryRun)
 

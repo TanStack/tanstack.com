@@ -57,6 +57,17 @@ const schema = defineSchema({
   })
     .index('by_projectId_path', ['projectId', 'path'])
     .index('by_projectId', ['projectId']),
+  llm_keys: defineTable({
+    userId: v.id('users'),
+    provider: v.string(), // e.g., 'openai', 'anthropic', 'google', 'mistral', etc.
+    keyName: v.string(), // user-friendly name for the key
+    apiKey: v.string(), // encrypted/hashed API key
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index('by_userId', ['userId'])
+    .index('by_userId_provider', ['userId', 'provider']),
 })
 
 export default schema

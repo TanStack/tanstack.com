@@ -1,4 +1,4 @@
-export function RocketIcon({ className = "w-5 h-5" }: { className?: string }) {
+export function RocketIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
     <svg
       className={className}

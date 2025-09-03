@@ -17,7 +17,7 @@ export type FileClassAndInfo = {
 export const getFileClass = (
   file: string,
   tree: Record<string, string>,
-  originalTree: Record<string, string>,
+  originalTree: Record<string, string>
 ): FileClassAndInfo => {
   if (tree[file] && !originalTree[file]) {
     return {

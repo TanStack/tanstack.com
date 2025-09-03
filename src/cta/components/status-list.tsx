@@ -12,7 +12,11 @@ export default function StatusList({
       {streamItems.map((item, index) => (
         <div key={item.id} className="flex items-center gap-2">
           <item.icon
-            className={`w-4 h-4 ${index === streamItems.length - 1 && !finished ? 'text-green-500 animate-spin' : ''}`}
+            className={`w-4 h-4 ${
+              index === streamItems.length - 1 && !finished
+                ? 'text-green-500 animate-spin'
+                : ''
+            }`}
           />
           {item.message}
         </div>

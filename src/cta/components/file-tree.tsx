@@ -20,7 +20,7 @@ export default function FileTree({
       'src/components/ui',
       'src/lib',
     ],
-    [],
+    []
   )
 
   return (

@@ -101,7 +101,7 @@ function generateFileTree(projectFilesObj: Record<string, string>): string {
     node: any,
     prefix: string = '',
     isLast: boolean = true,
-    name: string = '.',
+    name: string = '.'
   ): string {
     let result = ''
 
@@ -132,7 +132,7 @@ function generateFileTree(projectFilesObj: Record<string, string>): string {
             return aNode.type === 'directory' ? -1 : 1
           }
           return a.localeCompare(b)
-        },
+        }
       )
 
       entries.forEach(([childName, childNode], index) => {

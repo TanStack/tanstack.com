@@ -3,7 +3,7 @@ import type { AddOnInfo } from '../lib/types'
 export function getAddOnStatus(
   availableAddOns: Array<AddOnInfo>,
   chosenAddOns: Array<string>,
-  originalAddOns: Array<string>,
+  originalAddOns: Array<string>
 ) {
   const addOnMap = new Map<
     string,
@@ -31,7 +31,7 @@ export function getAddOnStatus(
       }
       visited.add(addOnId)
       const selectedAddOn = availableAddOns.find(
-        (addOn) => addOn.id === addOnId,
+        (addOn) => addOn.id === addOnId
       )
       if (selectedAddOn) {
         for (const dependsOnId of selectedAddOn.dependsOn || []) {
@@ -76,6 +76,6 @@ export function getAddOnStatus(
         enabled: addOn.enabled,
         selected: addOn.selected,
       },
-    ]),
+    ])
   )
 }

@@ -11,10 +11,10 @@ interface DevServerState {
 export const useDevServerStore = create<DevServerState>((set, get) => ({
   devProcess: null,
   isRunning: false,
-  
+
   setDevProcess: (process) => set({ devProcess: process }),
   setIsRunning: (running) => set({ isRunning: running }),
-  
+
   stopDevServer: async () => {
     const { devProcess } = get()
     if (devProcess) {
@@ -23,11 +23,11 @@ export const useDevServerStore = create<DevServerState>((set, get) => ({
         await devProcess.kill()
         set({ devProcess: null, isRunning: false })
         // Wait a bit for the process to fully terminate
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise((resolve) => setTimeout(resolve, 1000))
         console.log('Dev server stopped')
       } catch (error) {
         console.warn('Error stopping dev server:', error)
       }
     }
-  }
+  },
 }))

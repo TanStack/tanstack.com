@@ -9,8 +9,10 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as encryption from "../encryption.js";
 import type * as forge from "../forge.js";
 import type * as http from "../http.js";
+import type * as llmKeys from "../llmKeys.js";
 import type * as netlifyDeploy from "../netlifyDeploy.js";
 import type * as stats from "../stats.js";
 import type * as users from "../users.js";
@@ -31,8 +33,10 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  encryption: typeof encryption;
   forge: typeof forge;
   http: typeof http;
+  llmKeys: typeof llmKeys;
   netlifyDeploy: typeof netlifyDeploy;
   stats: typeof stats;
   users: typeof users;

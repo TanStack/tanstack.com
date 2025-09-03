@@ -87,7 +87,7 @@ export function Filters() {
 
 export default function FileNavigator() {
   const [selectedFile, setSelectedFile] = useState<string | null>(
-    './package.json',
+    './package.json'
   )
 
   const projectFiles = useOriginalOutput()
@@ -118,7 +118,7 @@ export default function FileNavigator() {
         ...Object.keys(tree),
         ...Object.keys(localTree),
         ...Object.keys(originalTree),
-      ]),
+      ])
     )
 
     allFileSet.sort().forEach((file) => {
@@ -136,7 +136,7 @@ export default function FileNavigator() {
             tree,
             originalTree,
             localTree,
-            deletedFiles,
+            deletedFiles
           )
 
           if (

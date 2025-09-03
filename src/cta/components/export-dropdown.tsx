@@ -199,14 +199,16 @@ export function ExportDropdown() {
   const [error, setError] = useState<string | null>(null)
   const [showGitHubDialog, setShowGitHubDialog] = useState(false)
   const [repoName, setRepoName] = useState(projectOptions?.projectName || '')
-  const [repoVisibility, setRepoVisibility] = useState<'private' | 'public'>('private')
+  const [repoVisibility, setRepoVisibility] = useState<'private' | 'public'>(
+    'private'
+  )
   const [isCreatingRepo, setIsCreatingRepo] = useState(false)
 
   const handleExportZip = async () => {
     if (isExporting) return
     setIsExporting(true)
     setError(null)
-    
+
     try {
       const zip = await generateZipFromDryRun(dryRun)
 
@@ -373,7 +375,7 @@ export function ExportDropdown() {
               Create a new GitHub repository with your project files
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="repo-name">Repository Name</Label>
@@ -385,7 +387,7 @@ export function ExportDropdown() {
                 disabled={isCreatingRepo}
               />
             </div>
-            
+
             <div className="grid gap-2">
               <Label>Visibility</Label>
               <div className="flex gap-4">

@@ -22,9 +22,9 @@ export const Route = createFileRoute({
   headers(ctx) {
     return {
       'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin'
+      'Cross-Origin-Opener-Policy': 'same-origin',
     }
-  }
+  },
 })
 
 function BuilderComponent() {

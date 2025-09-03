@@ -29,7 +29,7 @@ export async function createAppWrapper(
     dryRun?: boolean
     response?: Response
     environmentFactory?: () => Environment
-  },
+  }
 ) {
   const framework = getFrameworkById(projectOptions.framework)!
   if (!framework) {
@@ -48,15 +48,15 @@ export async function createAppWrapper(
   const chosenAddOns = await finalizeAddOns(
     framework,
     projectOptions.mode,
-    addOns,
+    addOns
   )
 
   const projectPath = getProjectPath()
   const targetDir = opts.dryRun
     ? TMP_TARGET_DIR
     : getApplicationMode() === 'add'
-      ? projectOptions.targetDir
-      : resolve(projectPath, projectOptions.projectName)
+    ? projectOptions.targetDir
+    : resolve(projectPath, projectOptions.projectName)
 
   const options: Options = {
     ...projectOptions,
@@ -91,7 +91,7 @@ export async function createAppWrapper(
           id,
           type,
           message,
-        }) + '\n',
+        }) + '\n'
       )
     }
     environment.finishStep = (id, message) => {
@@ -100,7 +100,7 @@ export async function createAppWrapper(
           msgType: 'finish',
           id,
           message,
-        }) + '\n',
+        }) + '\n'
       )
     }
 

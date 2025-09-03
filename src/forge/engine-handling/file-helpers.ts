@@ -4,7 +4,7 @@ import { CONFIG_FILE } from '@tanstack/cta-engine'
 
 export function cleanUpFiles(
   files: Record<string, string>,
-  targetDir?: string,
+  targetDir?: string
 ) {
   return Object.keys(files).reduce<Record<string, string>>((acc, file) => {
     const content = files[file].startsWith('base64::')

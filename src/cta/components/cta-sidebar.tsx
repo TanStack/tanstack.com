@@ -16,7 +16,8 @@ export function BuilderSidebar() {
   const mode = useApplicationMode()
   const [activeTab, setActiveTab] = useState<TabType>('addons')
   const deploymentStatus = useDeploymentStore((state) => state.status)
-  const isDeploying = deploymentStatus === 'building' || deploymentStatus === 'deploying'
+  const isDeploying =
+    deploymentStatus === 'building' || deploymentStatus === 'deploying'
 
   if (!ready) {
     return (
@@ -27,7 +28,11 @@ export function BuilderSidebar() {
   }
 
   return (
-    <div className={`flex flex-col h-full bg-white dark:bg-gray-900 rounded-lg shadow-xl ${isDeploying ? 'opacity-50 pointer-events-none' : ''}`}>
+    <div
+      className={`flex flex-col h-full bg-white dark:bg-gray-900 rounded-lg shadow-xl ${
+        isDeploying ? 'opacity-50 pointer-events-none' : ''
+      }`}
+    >
       {/* Tab Headers */}
       <div className="flex border-b border-gray-200 dark:border-gray-700">
         {mode === 'setup' && (
@@ -87,14 +92,10 @@ export function BuilderSidebar() {
             <TypescriptSwitch />
           </div>
         )}
-        
-        {activeTab === 'addons' && (
-          <SelectedAddOns />
-        )}
-        
-        {activeTab === 'starter' && mode === 'setup' && (
-          <StarterDialog />
-        )}
+
+        {activeTab === 'addons' && <SelectedAddOns />}
+
+        {activeTab === 'starter' && mode === 'setup' && <StarterDialog />}
       </div>
 
       {/* Bottom Action */}

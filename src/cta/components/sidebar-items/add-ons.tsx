@@ -66,7 +66,7 @@ export default function SelectedAddOns() {
                           {addOn.smallLogo && (
                             <img
                               src={`data:image/svg+xml,${encodeURIComponent(
-                                addOn.smallLogo,
+                                addOn.smallLogo
                               )}`}
                               alt={addOn.name}
                               className="w-5"

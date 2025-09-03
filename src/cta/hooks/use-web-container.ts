@@ -1,10 +1,10 @@
-"use client";
+'use client'
 
-import { useContext } from "react";
-import { WebContainerContext } from "../components/web-container-provider";
+import { useContext } from 'react'
+import { WebContainerContext } from '../components/web-container-provider'
 
 export function useWebContainer() {
-  const webContainer = useContext(WebContainerContext);
+  const webContainer = useContext(WebContainerContext)
 
-  return webContainer;
+  return webContainer
 }

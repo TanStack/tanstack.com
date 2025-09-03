@@ -99,3 +99,28 @@ export const updateAdPreference = mutation({
     return { success: true }
   },
 })
+
+// Admin override to set a user's adsDisabled flag
+export const adminSetAdsDisabled = mutation({
+  args: {
+    userId: v.id('users'),
+    adsDisabled: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    // Validate admin capability
+    await requireCapability(ctx, 'admin')
+
+    // Validate that target user exists
+    const targetUser = await ctx.db.get(args.userId)
+    if (!targetUser) {
+      throw new Error('Target user not found')
+    }
+
+    // Update target user's adsDisabled flag
+    await ctx.db.patch(args.userId, {
+      adsDisabled: args.adsDisabled,
+    })
+
+    return { success: true }
+  },
+})

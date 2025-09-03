@@ -13,6 +13,7 @@ import { api } from 'convex/_generated/api'
 import type { UIMessage } from 'ai'
 
 import { getTools } from '~/forge/tools'
+import { Id } from 'convex/_generated/dataModel'
 
 const convex = new ConvexHttpClient(process.env.CONVEX_URL!)
 
@@ -46,7 +47,7 @@ function serializeMessage(message: UIMessage) {
 }
 
 // Function to save complete chat messages
-async function saveChat(projectId: string, messages: Array<UIMessage>) {
+async function saveChat(projectId: Id<'forge_projects'>, messages: Array<UIMessage>) {
   try {
     await convex.mutation(api.forge.addChatMessages, {
       projectId,
@@ -73,8 +74,20 @@ export const ServerRoute = createServerFileRoute().methods({
         )
       }
 
+      // This is a total hack, but it works
+      const cookies = request.headers.get('cookie')
+      let sessionToken: string | null = null
+      if (cookies) {
+        const match = cookies.match(/better-auth.convex_jwt=([^;]+)/)
+        if (match) {
+          sessionToken = match[1]
+        }
+      }
+      // This part is not a hack, we do need to set the auth token for the convex client
+      convex.setAuth(sessionToken!)
+
       const { listDirectory, readFile, writeFile, deleteFile, fileTreeText } =
-        await getTools(projectId)
+        await getTools(convex, projectId)
 
       const result = await streamText({
         model: anthropic('claude-3-5-sonnet-latest'),
@@ -104,7 +117,7 @@ export const ServerRoute = createServerFileRoute().methods({
         }),
         onFinish: async ({ messages: completeMessages }) => {
           // Save the complete conversation including the new assistant response
-          await saveChat(projectId, completeMessages)
+          await saveChat(projectId as Id<'forge_projects'>, completeMessages)
         },
       })
     } catch (error) {

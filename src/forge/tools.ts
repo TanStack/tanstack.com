@@ -8,8 +8,6 @@ import type { Id } from 'convex/_generated/dataModel'
 
 import { generateFileTree } from '~/forge/file-tree-generator'
 
-const convex = new ConvexHttpClient(process.env.CONVEX_URL!)
-
 function checkPath(path: string) {
   if (path.startsWith('/')) {
     return '.' + path
@@ -17,7 +15,7 @@ function checkPath(path: string) {
   return path
 }
 
-export const getTools = async (projectId: string) => {
+export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
   const projectFiles = await convex.query(api.forge.getProjectFiles, {
     projectId: projectId as Id<'forge_projects'>,
   })

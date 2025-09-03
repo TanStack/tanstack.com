@@ -1,5 +1,39 @@
 import { v } from 'convex/values'
-import { mutation, query } from './_generated/server'
+import { mutation, query, QueryCtx } from './_generated/server'
+import { Capability } from './schema'
+import { getCurrentUserConvex } from './auth'
+import { Id } from './_generated/dataModel'
+
+// Helper function to validate user capability
+async function requireCapability(ctx: QueryCtx, capability: Capability) {
+  // Get the current user (caller)
+  const currentUser = await getCurrentUserConvex(ctx)
+  if (!currentUser) {
+    throw new Error('Not authenticated')
+  }
+
+  // Validate that caller has the required capability
+  if (!currentUser.capabilities.includes(capability)) {
+    throw new Error(`${capability} capability required`)
+  }
+
+  return { currentUser }
+}
+
+async function checkIfUserHasAccess(
+  ctx: QueryCtx,
+  projectId: Id<'forge_projects'>
+) {
+  const currentUser = await getCurrentUserConvex(ctx)
+  if (!currentUser) {
+    throw new Error('Not authenticated')
+  }
+  const project = await ctx.db.get(projectId)
+  if (project?.userId !== currentUser.userId) {
+    throw new Error('You do not have access to this project')
+  }
+  return true
+}
 
 export const deleteFile = mutation({
   args: {
@@ -7,6 +41,9 @@ export const deleteFile = mutation({
     path: v.string(),
   },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     const existing = await ctx.db
       .query('forge_projectFiles')
       .withIndex('by_projectId_path', (q) =>
@@ -26,6 +63,9 @@ export const updateFile = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     const existing = await ctx.db
       .query('forge_projectFiles')
       .withIndex('by_projectId_path', (q) =>
@@ -59,11 +99,14 @@ export const createProject = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    const { currentUser } = await requireCapability(ctx, 'admin')
+
     const projectId = await ctx.db.insert('forge_projects', {
       name: args.name,
       description: args.description,
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      userId: currentUser.userId as Id<'users'>,
     })
     for (const file of args.files) {
       await ctx.db.insert('forge_projectFiles', {
@@ -78,7 +121,7 @@ export const createProject = mutation({
 
 export const addChatMessages = mutation({
   args: {
-    projectId: v.string(),
+    projectId: v.id('forge_projects'),
     messages: v.array(
       v.object({
         content: v.string(),
@@ -88,6 +131,9 @@ export const addChatMessages = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     // Delete all existing messages for the project
     const messages = await ctx.db
       .query('forge_chatMessages')
@@ -119,6 +165,9 @@ export const addChatMessage = mutation({
     role: v.union(v.literal('user'), v.literal('assistant')),
   },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     return await ctx.db.insert('forge_chatMessages', {
       projectId: args.projectId,
       messageId: args.messageId,
@@ -133,6 +182,9 @@ export const addChatMessage = mutation({
 export const renameProject = mutation({
   args: { projectId: v.id('forge_projects'), name: v.string() },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     await ctx.db.patch(args.projectId, { name: args.name })
   },
 })
@@ -140,6 +192,9 @@ export const renameProject = mutation({
 export const deleteProject = mutation({
   args: { projectId: v.id('forge_projects') },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     const project = await ctx.db.get(args.projectId)
     if (project) {
       await ctx.db.delete(project._id)
@@ -164,6 +219,9 @@ export const deleteProject = mutation({
 export const deleteChatMessages = mutation({
   args: { projectId: v.id('forge_projects') },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     const messages = await ctx.db
       .query('forge_chatMessages')
       .withIndex('by_projectId', (q) => q.eq('projectId', args.projectId))
@@ -177,6 +235,9 @@ export const deleteChatMessages = mutation({
 export const getProjectFiles = query({
   args: { projectId: v.id('forge_projects') },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     const files = await ctx.db
       .query('forge_projectFiles')
       .withIndex('by_projectId', (q) => q.eq('projectId', args.projectId))
@@ -191,6 +252,9 @@ export const getProjectFiles = query({
 export const getChatMessages = query({
   args: { projectId: v.id('forge_projects') },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     const messages = await ctx.db
       .query('forge_chatMessages')
       .withIndex('by_projectId', (q) => q.eq('projectId', args.projectId))
@@ -206,12 +270,17 @@ export const getChatMessages = query({
 export const getProject = query({
   args: { projectId: v.id('forge_projects') },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     return await ctx.db.get(args.projectId)
   },
 })
 
 export const getProjects = query({
   handler: async (ctx) => {
+    await requireCapability(ctx, 'admin')
+
     return await ctx.db.query('forge_projects').collect()
   },
 })
@@ -219,6 +288,9 @@ export const getProjects = query({
 export const getProjectDescription = query({
   args: { projectId: v.id('forge_projects') },
   handler: async (ctx, args) => {
+    await requireCapability(ctx, 'admin')
+    await checkIfUserHasAccess(ctx, args.projectId)
+
     return (await ctx.db.get(args.projectId))?.description ?? ''
   },
 })

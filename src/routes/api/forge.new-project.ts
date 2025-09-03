@@ -13,6 +13,18 @@ export const ServerRoute = createServerFileRoute().methods({
   POST: async (ctx) => {
     const { description } = await ctx.request.json()
 
+    // This is a total hack, but it works
+    const cookies = ctx.request.headers.get('cookie')
+    let sessionToken: string | null = null
+    if (cookies) {
+      const match = cookies.match(/better-auth.convex_jwt=([^;]+)/)
+      if (match) {
+        sessionToken = match[1]
+      }
+    }
+    // This part is not a hack, we do need to set the auth token for the convex client
+    convex.setAuth(sessionToken!)
+
     initialize()
 
     const output = await generateInitialPayload()

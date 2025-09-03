@@ -34,11 +34,12 @@ const schema = defineSchema({
     adsDisabled: v.optional(v.boolean()),
   }),
   forge_projects: defineTable({
+    userId: v.id('users'),
     name: v.string(),
     description: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }),
+  }).index('by_userId', ['userId']),
   forge_chatMessages: defineTable({
     projectId: v.string(),
     messageId: v.string(),

@@ -32,7 +32,7 @@ const schema = defineSchema({
       v.union(...validCapabilities.map((cap) => v.literal(cap)))
     ),
     adsDisabled: v.optional(v.boolean()),
-  }),
+  }).index('by_email', ['email']),
 })
 
 export default schema

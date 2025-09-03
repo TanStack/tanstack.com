@@ -9,10 +9,13 @@ import type { Id } from 'convex/_generated/dataModel'
 import { generateFileTree } from '~/forge/file-tree-generator'
 
 function checkPath(path: string) {
+  if (path.startsWith('./')) {
+    return path
+  }
   if (path.startsWith('/')) {
     return '.' + path
   }
-  return path
+  return './' + path
 }
 
 export const getTools = async (convex: ConvexHttpClient, projectId: string) => {

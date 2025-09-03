@@ -7,11 +7,8 @@ export function cleanUpFiles(
   targetDir?: string
 ) {
   return Object.keys(files).reduce<Record<string, string>>((acc, file) => {
-    const content = files[file].startsWith('base64::')
-      ? '<binary file>'
-      : files[file]
     if (basename(file) !== CONFIG_FILE) {
-      acc[targetDir ? file.replace(targetDir, '.') : file] = content
+      acc[targetDir ? file.replace(targetDir, '.') : file] = files[file]
     }
     return acc
   }, {})

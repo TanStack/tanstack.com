@@ -112,12 +112,10 @@ async function getGithubSponsors() {
                   ... on User {
                     name
                     login
-                    // email
                   }
                   ... on Organization {
                     name
                     login
-                    // email
                   }
                 }
                 tier {

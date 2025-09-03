@@ -31,6 +31,7 @@ type User = {
   email: string
   image?: string
   capabilities?: string[]
+  adsDisabled?: boolean
 }
 
 export const Route = createFileRoute({
@@ -42,6 +43,9 @@ function UsersPage() {
   const [editingCapabilities, setEditingCapabilities] = useState<string[]>([])
   const [cursors, setCursors] = useState<string[]>(['']) // Track cursor history for navigation
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
+  const [updatingAdsUserId, setUpdatingAdsUserId] = useState<string | null>(
+    null
+  )
 
   const user = useConvexQuery(api.auth.getCurrentUser)
   const usersQuery = useQuery({
@@ -57,6 +61,7 @@ function UsersPage() {
   const updateUserCapabilities = useConvexMutation(
     api.users.updateUserCapabilities
   )
+  const adminSetAdsDisabled = useConvexMutation(api.users.adminSetAdsDisabled)
 
   const availableCapabilities = useMemo(
     () => ['admin', 'disableAds', 'builder'],
@@ -102,6 +107,16 @@ function UsersPage() {
       }
     },
     [editingCapabilities]
+  )
+
+  const handleToggleAdsDisabled = useCallback(
+    async (userId: string, nextValue: boolean) => {
+      adminSetAdsDisabled({
+        userId: userId as Id<'users'>,
+        adsDisabled: nextValue,
+      })
+    },
+    [adminSetAdsDisabled]
   )
 
   // Define columns using the column helper
@@ -174,6 +189,25 @@ function UsersPage() {
                 </span>
               )}
             </div>
+          )
+        },
+      },
+      {
+        id: 'adsDisabled',
+        header: 'Ads Disabled',
+        cell: ({ row }) => {
+          const user = row.original
+          const checked = Boolean(user.adsDisabled)
+          return (
+            <input
+              type="checkbox"
+              checked={checked}
+              onChange={(e) =>
+                handleToggleAdsDisabled(user._id, e.target.checked)
+              }
+              disabled={updatingAdsUserId === user._id}
+              className="h-4 w-4 accent-blue-600"
+            />
           )
         },
       },

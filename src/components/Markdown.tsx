@@ -2,7 +2,7 @@ import * as React from 'react'
 import { FaRegCopy } from 'react-icons/fa'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
-import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
+import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-full.mjs'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import parse, {
   attributesToProps,
@@ -13,6 +13,7 @@ import parse, {
 import { marked } from 'marked'
 import { gfmHeadingId } from 'marked-gfm-heading-id'
 import markedAlert from 'marked-alert'
+import mermaid from 'mermaid'
 import { useToast } from '~/components/ToastProvider'
 
 const CustomHeading = ({
@@ -81,6 +82,30 @@ const markdownComponents: Record<string, React.FC> = {
   ),
 }
 
+export function extractPreAttributes(html: string): {
+  class: string | null
+  style: string | null
+} {
+  const match = html.match(/<pre\b([^>]*)>/i)
+  if (!match) {
+    return { class: null, style: null }
+  }
+
+  const attributes = match[1]
+
+  const classMatch = attributes.match(/\bclass\s*=\s*["']([^"']*)["']/i)
+  const styleMatch = attributes.match(/\bstyle\s*=\s*["']([^"']*)["']/i)
+
+  return {
+    class: classMatch ? classMatch[1] : null,
+    style: styleMatch ? styleMatch[1] : null,
+  }
+}
+
+const genSvgMap = new Map<string, string>()
+
+mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
+
 export function CodeBlock({
   isEmbedded,
   ...props
@@ -126,13 +151,26 @@ export function CodeBlock({
       const highlighter = await getHighlighter(lang, themes)
 
       const htmls = await Promise.all(
-        themes.map((theme) =>
-          highlighter.codeToHtml(code, {
+        themes.map(async (theme) => {
+          const output = highlighter.codeToHtml(code, {
             lang,
             theme,
             transformers: [transformerNotationDiff()],
           })
-        )
+
+          if (lang === 'mermaid') {
+            const preAttributes = extractPreAttributes(output)
+            let svgHtml = genSvgMap.get(code || '')
+            if (!svgHtml) {
+              const { svg } = await mermaid.render('foo', code || '')
+              genSvgMap.set(code || '', svg)
+              svgHtml = svg
+            }
+            return `<div class='${preAttributes.class} py-4 bg-neutral-50'>${svgHtml}</div>`
+          }
+
+          return output
+        })
       )
 
       setCodeElement(
@@ -153,41 +191,43 @@ export function CodeBlock({
       className={`${props.className} w-full max-w-full relative not-prose`}
       style={props.style}
     >
-      <div
-        className={`absolute flex items-stretch bg-white text-sm z-10 border border-gray-500/20 rounded-md ${
-          isEmbedded ? 'top-2 right-4' : '-top-3 right-2'
-        } dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20`}
-      >
-        {lang ? <div className="px-2">{lang}</div> : null}
-        <button
-          className="px-2 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
-          onClick={() => {
-            let copyContent =
-              typeof ref.current?.innerText === 'string'
-                ? ref.current.innerText
-                : ''
-
-            if (copyContent.endsWith('\n')) {
-              copyContent = copyContent.slice(0, -1)
-            }
-
-            navigator.clipboard.writeText(copyContent)
-            setCopied(true)
-            setTimeout(() => setCopied(false), 2000)
-            notify(
-              <div>
-                <div className="font-medium">Copied code</div>
-                <div className="text-gray-500 dark:text-gray-400 text-xs">
-                  Code block copied to clipboard
-                </div>
-              </div>
-            )
-          }}
-          aria-label="Copy code to clipboard"
+      {lang !== 'mermaid' ? (
+        <div
+          className={`absolute flex items-stretch bg-white text-sm z-10 border border-gray-500/20 rounded-md ${
+            isEmbedded ? 'top-2 right-4' : '-top-3 right-2'
+          } dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20`}
         >
-          {copied ? <span className="text-xs">Copied!</span> : <FaRegCopy />}
-        </button>
-      </div>
+          {lang ? <div className="px-2">{lang}</div> : null}
+          <button
+            className="px-2 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
+            onClick={() => {
+              let copyContent =
+                typeof ref.current?.innerText === 'string'
+                  ? ref.current.innerText
+                  : ''
+
+              if (copyContent.endsWith('\n')) {
+                copyContent = copyContent.slice(0, -1)
+              }
+
+              navigator.clipboard.writeText(copyContent)
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
+              notify(
+                <div>
+                  <div className="font-medium">Copied code</div>
+                  <div className="text-gray-500 dark:text-gray-400 text-xs">
+                    Code block copied to clipboard
+                  </div>
+                </div>
+              )
+            }}
+            aria-label="Copy code to clipboard"
+          >
+            {copied ? <span className="text-xs">Copied!</span> : <FaRegCopy />}
+          </button>
+        </div>
+      ) : null}
       {codeElement}
     </div>
   )
@@ -210,6 +250,7 @@ const highlighterPromise = shikiGetHighlighter({} as any)
 
 const getHighlighter = cache(async (language: string, themes: string[]) => {
   const highlighter = await highlighterPromise
+
   const loadedLanguages = highlighter.getLoadedLanguages()
   const loadedThemes = highlighter.getLoadedThemes()
 

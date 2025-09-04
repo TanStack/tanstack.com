@@ -2,7 +2,7 @@ import * as React from 'react'
 import { FaRegCopy } from 'react-icons/fa'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
-import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-full.mjs'
+import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import parse, {
   attributesToProps,
@@ -139,10 +139,10 @@ export function CodeBlock({
   const [codeElement, setCodeElement] = React.useState(
     <>
       <pre ref={ref} className={`shiki github-light h-full`}>
-        <code>{code}</code>
+        <code>{lang === 'mermaid' ? <svg /> : code}</code>
       </pre>
       <pre className={`shiki tokyo-night`}>
-        <code>{code}</code>
+        <code>{lang === 'mermaid' ? <svg /> : code}</code>
       </pre>
     </>
   )
@@ -158,7 +158,7 @@ export function CodeBlock({
       const htmls = await Promise.all(
         themes.map(async (theme) => {
           const output = highlighter.codeToHtml(code, {
-            lang,
+            lang: lang === 'mermaid' ? 'plaintext' : lang,
             theme,
             transformers: [transformerNotationDiff()],
           })
@@ -267,7 +267,11 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
 
   let promises = []
   if (!loadedLanguages.includes(language as any)) {
-    promises.push(highlighter.loadLanguage(language as any))
+    promises.push(
+      highlighter.loadLanguage(
+        language === 'mermaid' ? 'plaintext' : (language as any)
+      )
+    )
   }
 
   for (const theme of themes) {

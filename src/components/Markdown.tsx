@@ -2,7 +2,7 @@ import * as React from 'react'
 import { FaRegCopy } from 'react-icons/fa'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
-import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
+import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-full.mjs'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import parse, {
   attributesToProps,
@@ -13,6 +13,7 @@ import parse, {
 import { marked } from 'marked'
 import { gfmHeadingId } from 'marked-gfm-heading-id'
 import markedAlert from 'marked-alert'
+import mermaid from 'mermaid'
 import { useToast } from '~/components/ToastProvider'
 import { twMerge } from 'tailwind-merge'
 
@@ -82,6 +83,30 @@ const markdownComponents: Record<string, React.FC> = {
   ),
 }
 
+export function extractPreAttributes(html: string): {
+  class: string | null
+  style: string | null
+} {
+  const match = html.match(/<pre\b([^>]*)>/i)
+  if (!match) {
+    return { class: null, style: null }
+  }
+
+  const attributes = match[1]
+
+  const classMatch = attributes.match(/\bclass\s*=\s*["']([^"']*)["']/i)
+  const styleMatch = attributes.match(/\bstyle\s*=\s*["']([^"']*)["']/i)
+
+  return {
+    class: classMatch ? classMatch[1] : null,
+    style: styleMatch ? styleMatch[1] : null,
+  }
+}
+
+const genSvgMap = new Map<string, string>()
+
+mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
+
 export function CodeBlock({
   isEmbedded,
   showTypeCopyButton,
@@ -131,13 +156,26 @@ export function CodeBlock({
       const highlighter = await getHighlighter(lang, themes)
 
       const htmls = await Promise.all(
-        themes.map((theme) =>
-          highlighter.codeToHtml(code, {
+        themes.map(async (theme) => {
+          const output = highlighter.codeToHtml(code, {
             lang,
             theme,
             transformers: [transformerNotationDiff()],
           })
-        )
+
+          if (lang === 'mermaid') {
+            const preAttributes = extractPreAttributes(output)
+            let svgHtml = genSvgMap.get(code || '')
+            if (!svgHtml) {
+              const { svg } = await mermaid.render('foo', code || '')
+              genSvgMap.set(code || '', svg)
+              svgHtml = svg
+            }
+            return `<div class='${preAttributes.class} py-4 bg-neutral-50'>${svgHtml}</div>`
+          }
+
+          return output
+        })
       )
 
       setCodeElement(
@@ -223,6 +261,7 @@ const highlighterPromise = shikiGetHighlighter({} as any)
 
 const getHighlighter = cache(async (language: string, themes: string[]) => {
   const highlighter = await highlighterPromise
+
   const loadedLanguages = highlighter.getLoadedLanguages()
   const loadedThemes = highlighter.getLoadedThemes()
 

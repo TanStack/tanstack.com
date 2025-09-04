@@ -1,9 +1,10 @@
 import { useQuery } from 'convex/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 
 import { api } from 'convex/_generated/api'
+import { getLLMKeys, hasActiveKeys } from '~/utils/llmKeys'
 
 import Sidebar from '~/forge/ui/sidebar'
 
@@ -14,18 +15,25 @@ export const Route = createFileRoute({
 
 function App() {
   const projects = useQuery(api.forge.getProjects)
-  const llmKeys = useQuery(api.llmKeys.listMyLLMKeysForDisplay)
   const [description, setDescription] = useState('')
+  const [llmKeys, setLlmKeys] = useState<any[]>([])
+  const [keysLoaded, setKeysLoaded] = useState(false)
 
   const router = useRouter()
 
+  // Load LLM keys from localStorage
+  useEffect(() => {
+    setLlmKeys(getLLMKeys())
+    setKeysLoaded(true)
+  }, [])
+
   // Check if user has any active LLM keys
-  const hasActiveKeys = llmKeys?.some((key) => key.isActive) ?? false
+  const hasActiveKeysCheck = keysLoaded && hasActiveKeys()
 
   const handleGetStarted = async () => {
     const res = await fetch('/api/forge/new-project', {
       method: 'POST',
-      body: JSON.stringify({ description }),
+      body: JSON.stringify({ description, llmKeys }),
     })
     const { projectId } = await res.json()
     router.navigate({
@@ -42,7 +50,7 @@ function App() {
   }
 
   // Show loading state while checking keys
-  if (llmKeys === undefined) {
+  if (!keysLoaded) {
     return (
       <div className="flex flex-col md:flex-row h-screen bg-background w-full">
         <Sidebar projects={projects} />
@@ -54,7 +62,7 @@ function App() {
   }
 
   // Show key requirement message if no active keys
-  if (!hasActiveKeys) {
+  if (!hasActiveKeysCheck) {
     return (
       <div className="flex flex-col md:flex-row h-screen bg-background w-full">
         <Sidebar projects={projects} />

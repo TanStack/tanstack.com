@@ -76,12 +76,15 @@ export default function Chat({
   initialMessages: Array<UIMessage>
   onSetCheckpoint: () => void
   projectDescription: string
-  llmKeys:
-    | Array<{ provider: string; keyName: string; isActive: boolean }>
-    | undefined
+  llmKeys: Array<{
+    provider: string
+    keyName: string
+    isActive: boolean
+    apiKey: string
+  }>
 }) {
   // Get available models based on active keys
-  const activeKeys = llmKeys?.filter((key) => key.isActive) ?? []
+  const activeKeys = llmKeys.filter((key) => key.isActive)
   const hasOpenAI = activeKeys.some((key) => key.provider === 'openai')
   const hasAnthropic = activeKeys.some((key) => key.provider === 'anthropic')
 
@@ -113,6 +116,7 @@ export default function Chat({
       body: {
         projectId,
         model: selectedModel,
+        llmKeys,
       },
     }),
     messages: initialMessages,

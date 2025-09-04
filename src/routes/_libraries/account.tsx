@@ -7,25 +7,27 @@ import {
   FaToggleOff,
   FaKey,
 } from 'react-icons/fa'
-import {
-  Authenticated,
-  Unauthenticated,
-  useMutation,
-  useQuery,
-} from 'convex/react'
+import { Authenticated, Unauthenticated, useMutation } from 'convex/react'
 import { Link, redirect } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { api } from 'convex/_generated/api'
-import { Id } from 'convex/_generated/dataModel'
 import * as React from 'react'
+import {
+  getLLMKeysForDisplay,
+  createLLMKey,
+  updateLLMKey,
+  deleteLLMKey,
+  toggleLLMKeyStatus,
+  type LLMKey,
+} from '~/utils/llmKeys'
 
 export const Route = createFileRoute({
   component: AccountPage,
 })
 
 interface LLMKeyForm {
-  provider: string
+  provider: 'openai' | 'anthropic'
   keyName: string
   apiKey: string
   isActive: boolean
@@ -34,27 +36,29 @@ interface LLMKeyForm {
 function LLMKeysSection() {
   const [showCreateModal, setShowCreateModal] = React.useState(false)
   const [showEditModal, setShowEditModal] = React.useState(false)
-  const [editingKey, setEditingKey] = React.useState<any>(null)
+  const [editingKey, setEditingKey] = React.useState<LLMKey | null>(null)
   const [formData, setFormData] = React.useState<LLMKeyForm>({
     provider: 'openai',
     keyName: '',
     apiKey: '',
     isActive: true,
   })
+  const [llmKeys, setLlmKeys] = React.useState<
+    Array<Omit<LLMKey, 'apiKey'> & { apiKey: string }>
+  >([])
+  const [refreshTrigger, setRefreshTrigger] = React.useState(0)
 
-  // Queries
-  const llmKeys = useQuery(api.llmKeys.listMyLLMKeysForDisplay)
+  // Load keys from localStorage
+  React.useEffect(() => {
+    setLlmKeys(getLLMKeysForDisplay())
+  }, [refreshTrigger])
 
-  // Mutations
-  const createLLMKey = useMutation(api.llmKeys.createMyLLMKey)
-  const updateLLMKey = useMutation(api.llmKeys.updateMyLLMKey)
-  const deleteLLMKey = useMutation(api.llmKeys.deleteMyLLMKey)
-  const toggleLLMKeyStatus = useMutation(api.llmKeys.toggleMyLLMKeyStatus)
+  const refreshKeys = () => setRefreshTrigger((prev) => prev + 1)
 
   const handleCreateKey = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await createLLMKey({
+      createLLMKey({
         provider: formData.provider,
         keyName: formData.keyName,
         apiKey: formData.apiKey,
@@ -62,6 +66,7 @@ function LLMKeysSection() {
       })
       setShowCreateModal(false)
       resetForm()
+      refreshKeys()
     } catch (error) {
       console.error('Error creating LLM key:', error)
       alert('Failed to create LLM key')
@@ -73,8 +78,7 @@ function LLMKeysSection() {
     if (!editingKey) return
 
     try {
-      await updateLLMKey({
-        keyId: editingKey._id,
+      updateLLMKey(editingKey.id, {
         provider: formData.provider,
         keyName: formData.keyName,
         apiKey: formData.apiKey || undefined,
@@ -83,33 +87,36 @@ function LLMKeysSection() {
       setShowEditModal(false)
       setEditingKey(null)
       resetForm()
+      refreshKeys()
     } catch (error) {
       console.error('Error updating LLM key:', error)
       alert('Failed to update LLM key')
     }
   }
 
-  const handleDeleteKey = async (keyId: Id<'llm_keys'>) => {
+  const handleDeleteKey = async (keyId: string) => {
     if (!confirm('Are you sure you want to delete this LLM key?')) return
 
     try {
-      await deleteLLMKey({ keyId })
+      deleteLLMKey(keyId)
+      refreshKeys()
     } catch (error) {
       console.error('Error deleting LLM key:', error)
       alert('Failed to delete LLM key')
     }
   }
 
-  const handleToggleStatus = async (keyId: Id<'llm_keys'>) => {
+  const handleToggleStatus = async (keyId: string) => {
     try {
-      await toggleLLMKeyStatus({ keyId })
+      toggleLLMKeyStatus(keyId)
+      refreshKeys()
     } catch (error) {
       console.error('Error toggling LLM key status:', error)
       alert('Failed to toggle LLM key status')
     }
   }
 
-  const openEditModal = (key: any) => {
+  const openEditModal = (key: LLMKey) => {
     setEditingKey(key)
     setFormData({
       provider: key.provider,
@@ -163,9 +170,7 @@ function LLMKeysSection() {
       </div>
 
       {/* Keys List */}
-      {llmKeys === undefined ? (
-        <div className="text-center py-4 text-gray-500">Loading...</div>
-      ) : llmKeys.length === 0 ? (
+      {llmKeys.length === 0 ? (
         <div className="text-center py-8 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 rounded-lg">
           No API keys configured yet. Add one to get started.
         </div>
@@ -173,7 +178,7 @@ function LLMKeysSection() {
         <div className="space-y-3">
           {llmKeys.map((key) => (
             <div
-              key={key._id}
+              key={key.id}
               className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-600 rounded-lg"
             >
               <div className="flex-1">
@@ -200,7 +205,7 @@ function LLMKeysSection() {
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => handleToggleStatus(key._id)}
+                  onClick={() => handleToggleStatus(key.id)}
                   className={`p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 ${
                     key.isActive ? 'text-green-600' : 'text-red-600'
                   }`}
@@ -209,14 +214,14 @@ function LLMKeysSection() {
                   {key.isActive ? <FaToggleOn /> : <FaToggleOff />}
                 </button>
                 <button
-                  onClick={() => openEditModal(key)}
+                  onClick={() => openEditModal(key as LLMKey)}
                   className="p-1 text-blue-600 hover:text-blue-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                   title="Edit"
                 >
                   <FaEdit />
                 </button>
                 <button
-                  onClick={() => handleDeleteKey(key._id)}
+                  onClick={() => handleDeleteKey(key.id)}
                   className="p-1 text-red-600 hover:text-red-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                   title="Delete"
                 >

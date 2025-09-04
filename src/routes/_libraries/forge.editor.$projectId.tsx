@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery } from 'convex/react'
 
 import { Link } from '@tanstack/react-router'
@@ -7,6 +7,7 @@ import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 
 import type { UIMessage } from 'ai'
+import { getLLMKeys, hasActiveKeys } from '~/utils/llmKeys'
 
 import {
   getChatMessages,
@@ -95,17 +96,24 @@ function AIApp({
     projectId,
   })
   const projects = useQuery(api.forge.getProjects)
-  const llmKeys = useQuery(api.llmKeys.listMyLLMKeysForDisplay)
+  const [llmKeys, setLlmKeys] = useState<any[]>([])
+  const [keysLoaded, setKeysLoaded] = useState(false)
+
+  // Load LLM keys from localStorage
+  useEffect(() => {
+    setLlmKeys(getLLMKeys())
+    setKeysLoaded(true)
+  }, [])
 
   const onSetCheckpoint = () => {
     setLastCheckpoint(convertToRecord(projectFiles ?? []))
   }
 
   // Check if user has any active LLM keys
-  const hasActiveKeys = llmKeys?.some((key) => key.isActive) ?? false
+  const hasActiveKeysCheck = keysLoaded && hasActiveKeys()
 
   // Show loading state while checking keys
-  if (llmKeys === undefined) {
+  if (!keysLoaded) {
     return (
       <div className="flex h-screen bg-background w-full">
         <Sidebar projects={projects} />
@@ -120,7 +128,7 @@ function AIApp({
   }
 
   // Show key requirement message if no active keys
-  if (!hasActiveKeys) {
+  if (!hasActiveKeysCheck) {
     return (
       <div className="flex h-screen bg-background w-full">
         <Sidebar projects={projects} />

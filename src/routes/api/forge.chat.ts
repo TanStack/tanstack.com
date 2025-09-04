@@ -66,7 +66,7 @@ async function saveChat(projectId: Id<'forge_projects'>, messages: Array<UIMessa
 export const ServerRoute = createServerFileRoute().methods({
   POST: async ({ request }) => {
     try {
-      const { messages, projectId, model } = await request.json()
+      const { messages, projectId, model, llmKeys } = await request.json()
 
       if (!projectId || typeof projectId !== 'string') {
         return new Response(
@@ -78,6 +78,13 @@ export const ServerRoute = createServerFileRoute().methods({
       if (!model || typeof model !== 'string') {
         return new Response(
           JSON.stringify({ error: 'Model is required' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        )
+      }
+
+      if (!llmKeys || !Array.isArray(llmKeys)) {
+        return new Response(
+          JSON.stringify({ error: 'LLM keys are required' }),
           { status: 400, headers: { 'Content-Type': 'application/json' } }
         )
       }
@@ -94,9 +101,6 @@ export const ServerRoute = createServerFileRoute().methods({
       // This part is not a hack, we do need to set the auth token for the convex client
       convex.setAuth(sessionToken!)
 
-      // Get user's LLM keys
-      const userKeys = await convex.query(api.llmKeys.listMyLLMKeys)
-      
       // Determine which provider to use based on the model
       const isAnthropicModel = model.startsWith('claude-')
       const isOpenAIModel = model.startsWith('gpt-')
@@ -105,7 +109,7 @@ export const ServerRoute = createServerFileRoute().methods({
       let apiKey
       
       if (isAnthropicModel) {
-        const anthropicKey = userKeys.find(key => key.provider === 'anthropic' && key.isActive)
+        const anthropicKey = llmKeys.find((key: any) => key.provider === 'anthropic' && key.isActive)
         if (!anthropicKey) {
           return new Response(
             JSON.stringify({ error: 'No active Anthropic API key found' }),
@@ -117,7 +121,7 @@ export const ServerRoute = createServerFileRoute().methods({
         process.env.ANTHROPIC_API_KEY = apiKey
         apiProvider = anthropic(model)
       } else if (isOpenAIModel) {
-        const openaiKey = userKeys.find(key => key.provider === 'openai' && key.isActive)
+        const openaiKey = llmKeys.find((key: any) => key.provider === 'openai' && key.isActive)
         if (!openaiKey) {
           return new Response(
             JSON.stringify({ error: 'No active OpenAI API key found' }),

@@ -46,7 +46,7 @@ export function ForgeDeployButton({
       // Deploy to Netlify via Convex
       const deployResult = await deployToNetlify({
         zipBase64,
-        siteName: projectName || 'forge-project',
+        siteName: projectName?.replace(/\s+/g, '_') || 'forge-project',
       })
 
       setDeployedUrl(deployResult.url)

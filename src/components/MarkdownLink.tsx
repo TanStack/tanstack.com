@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import type { HTMLProps } from 'react'
+import { normalizeMarkdownPath } from '~/utils/normalize-markdown-path'
 
 export function MarkdownLink({
   href: hrefProp,
@@ -16,6 +17,8 @@ export function MarkdownLink({
 
   const [hrefWithoutHash, hash] = hrefProp?.split('#') ?? []
   let [to] = hrefWithoutHash?.split('.md') ?? []
+  
+  to = normalizeMarkdownPath(to)
 
   return (
     <Link

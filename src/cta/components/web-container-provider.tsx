@@ -1,5 +1,3 @@
-'use client'
-
 import { WebContainer } from '@webcontainer/api'
 import { createContext, useEffect, useRef, useState } from 'react'
 

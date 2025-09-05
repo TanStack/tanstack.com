@@ -17,6 +17,8 @@ import {
 import FileNavigator from '~/forge/ui/file-navigator'
 import Chat from '~/forge/ui/chat'
 import Sidebar from '~/forge/ui/sidebar'
+import { ForgeExportDropdown } from '~/forge/ui/export-dropdown'
+import { ForgeDeployButton } from '~/forge/ui/deploy-button'
 
 function deserializeMessage(message: {
   content: string
@@ -63,7 +65,13 @@ function convertToRecord(files: Array<{ path: string; content: string }>) {
   return Object.fromEntries(addDotsToKeys(files))
 }
 
-function Header() {
+function Header({
+  projectFiles,
+  projectName,
+}: {
+  projectFiles?: Array<{ path: string; content: string }>
+  projectName?: string
+}) {
   return (
     <div className="flex items-center justify-between p-4 border-b border-border bg-background">
       <div className="flex items-center gap-4">
@@ -73,6 +81,21 @@ function Header() {
         >
           ← Back to projects
         </Link>
+      </div>
+
+      <div className="flex items-center gap-2">
+        {projectFiles && projectFiles.length > 0 && (
+          <>
+            <ForgeDeployButton
+              projectFiles={projectFiles}
+              projectName={projectName}
+            />
+            <ForgeExportDropdown
+              projectFiles={projectFiles}
+              projectName={projectName}
+            />
+          </>
+        )}
       </div>
     </div>
   )
@@ -96,6 +119,9 @@ function AIApp({
     projectId,
   })
   const projects = useQuery(api.forge.getProjects)
+  const projectData = useQuery(api.forge.getProject, {
+    projectId,
+  })
   const [llmKeys, setLlmKeys] = useState<any[]>([])
   const [keysLoaded, setKeysLoaded] = useState(false)
 
@@ -133,7 +159,10 @@ function AIApp({
       <div className="flex h-screen bg-background w-full">
         <Sidebar projects={projects} />
         <main className="flex-1 min-w-0">
-          <Header />
+          <Header
+            projectFiles={projectFiles ?? []}
+            projectName={projectData?.name}
+          />
           <div className="h-[calc(100vh-73px)] flex items-center justify-center p-8">
             <div className="w-full max-w-2xl space-y-4 text-center">
               <div className="text-6xl mb-4">🔑</div>
@@ -163,7 +192,10 @@ function AIApp({
     <div className="flex h-screen bg-background w-full">
       <Sidebar projects={projects} />
       <main className="flex-1 min-w-0">
-        <Header />
+        <Header
+          projectFiles={projectFiles ?? []}
+          projectName={projectData?.name}
+        />
         <div className="h-[calc(100vh-73px)] @container">
           <div className="flex flex-row h-full">
             <div className="w-1/3">

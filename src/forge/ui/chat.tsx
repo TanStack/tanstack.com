@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
+import ReactMarkdown from 'react-markdown'
+import rehypeHighlight from 'rehype-highlight'
+import CodeMirror from '@uiw/react-codemirror'
+import { javascript } from '@codemirror/lang-javascript'
+import { json } from '@codemirror/lang-json'
+import { css } from '@codemirror/lang-css'
+import { html } from '@codemirror/lang-html'
+import { githubDarkInit } from '@uiw/codemirror-theme-github'
 import {
   Bot,
   Send,
@@ -10,9 +18,273 @@ import {
   Trash2,
   FileText,
   Edit,
+  Copy,
+  Check,
 } from 'lucide-react'
 
 import type { DynamicToolUIPart, UIMessage } from 'ai'
+
+// CodeMirror theme configuration
+const codeMirrorTheme = githubDarkInit({
+  settings: {
+    background: 'rgb(3, 7, 18)', // bg-gray-950
+    foreground: '#c9d1d9',
+    gutterBackground: 'rgb(31, 41, 55)', // bg-gray-800
+    gutterForeground: '#6b7280',
+    selection: '#264f78',
+    selectionMatch: '#264f78',
+  },
+})
+
+// Language detection for CodeMirror
+function getCodeMirrorLanguage(language: string) {
+  switch (language.toLowerCase()) {
+    case 'javascript':
+    case 'js':
+      return javascript({ jsx: false })
+    case 'jsx':
+      return javascript({ jsx: true })
+    case 'typescript':
+    case 'ts':
+      return javascript({ typescript: true, jsx: false })
+    case 'tsx':
+      return javascript({ typescript: true, jsx: true })
+    case 'json':
+      return json()
+    case 'css':
+      return css()
+    case 'html':
+      return html()
+    default:
+      return javascript() // Default fallback
+  }
+}
+
+function CodeBlock({ children, className, ...props }: any) {
+  const [copied, setCopied] = useState(false)
+  const match = /language-(\w+)/.exec(className || '')
+  const language = match?.[1] || 'text'
+  const codeContent = String(children).replace(/\n$/, '')
+
+  const copyToClipboard = async () => {
+    await navigator.clipboard.writeText(codeContent)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="relative group mb-4">
+      <div className="flex items-center justify-between bg-gray-800 px-4 py-2 rounded-t-lg border-b border-gray-700">
+        <span className="text-sm text-gray-400 font-mono">{language}</span>
+        <button
+          onClick={copyToClipboard}
+          className="flex items-center space-x-1 text-gray-400 hover:text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity"
+          type="button"
+        >
+          {copied ? (
+            <>
+              <Check className="w-4 h-4" />
+              <span className="text-xs">Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-4 h-4" />
+              <span className="text-xs">Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+      <div className="rounded-b-lg overflow-hidden">
+        <CodeMirror
+          value={codeContent}
+          theme={codeMirrorTheme}
+          extensions={[getCodeMirrorLanguage(language)]}
+          editable={false}
+          basicSetup={{
+            lineNumbers: true,
+            foldGutter: false,
+            dropCursor: false,
+            allowMultipleSelections: false,
+            indentOnInput: false,
+            bracketMatching: true,
+            closeBrackets: false,
+            autocompletion: false,
+            highlightSelectionMatches: false,
+            searchKeymap: false,
+          }}
+          style={{
+            fontSize: '14px',
+            fontFamily:
+              'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+// Enhanced markdown processing to handle GFM-like features manually
+function preprocessMarkdown(content: string): string {
+  // Handle strikethrough text (~~text~~)
+  content = content.replace(/~~(.+?)~~/g, '<del>$1</del>')
+
+  // Handle task lists (- [ ] and - [x])
+  content = content.replace(
+    /^(\s*)- \[ \] (.+)$/gm,
+    '$1- <input type="checkbox" disabled class="mr-2" /> $2'
+  )
+  content = content.replace(
+    /^(\s*)- \[x\] (.+)$/gm,
+    '$1- <input type="checkbox" disabled checked class="mr-2" /> $2'
+  )
+
+  // Handle tables (basic support)
+  content = content.replace(/\|(.+)\|/g, (match, tableContent) => {
+    const cells = tableContent.split('|').map((cell: string) => cell.trim())
+    return `<div class="table-row">${cells
+      .map((cell: string) => `<span class="table-cell">${cell}</span>`)
+      .join('')}</div>`
+  })
+
+  return content
+}
+
+function MarkdownMessage({ content }: { content: string }) {
+  const processedContent = preprocessMarkdown(content)
+
+  return (
+    <ReactMarkdown
+      rehypePlugins={[rehypeHighlight as any]}
+      className="prose prose-invert prose-sm max-w-none"
+      components={{
+        code({ node, className, children, ...props }) {
+          const hasLang = /language-(\w+)/.exec(className || '')
+          return hasLang?.[1] ? (
+            <CodeBlock className={className} {...props}>
+              {children}
+            </CodeBlock>
+          ) : (
+            <code
+              className="bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono"
+              {...props}
+            >
+              {children}
+            </code>
+          )
+        },
+        pre({ children }) {
+          return <>{children}</>
+        },
+        p({ children }) {
+          return <p className="mb-4 last:mb-0">{children}</p>
+        },
+        ul({ children }) {
+          return (
+            <ul className="list-disc list-inside mb-4 space-y-1">{children}</ul>
+          )
+        },
+        ol({ children }) {
+          return (
+            <ol className="list-decimal list-inside mb-4 space-y-1">
+              {children}
+            </ol>
+          )
+        },
+        li({ children }) {
+          return <li className="ml-0">{children}</li>
+        },
+        h1({ children }) {
+          return <h1 className="text-xl font-bold mb-4">{children}</h1>
+        },
+        h2({ children }) {
+          return <h2 className="text-lg font-bold mb-3">{children}</h2>
+        },
+        h3({ children }) {
+          return <h3 className="text-base font-bold mb-2">{children}</h3>
+        },
+        h4({ children }) {
+          return <h4 className="text-sm font-bold mb-2">{children}</h4>
+        },
+        h5({ children }) {
+          return <h5 className="text-xs font-bold mb-1">{children}</h5>
+        },
+        h6({ children }) {
+          return <h6 className="text-xs font-bold mb-1">{children}</h6>
+        },
+        blockquote({ children }) {
+          return (
+            <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-300 mb-4">
+              {children}
+            </blockquote>
+          )
+        },
+        a({ children, href }) {
+          return (
+            <a
+              href={href}
+              className="text-blue-400 hover:text-blue-300 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {children}
+            </a>
+          )
+        },
+        del({ children }) {
+          return <del className="line-through text-gray-400">{children}</del>
+        },
+        table({ children }) {
+          return (
+            <div className="overflow-x-auto mb-4">
+              <table className="min-w-full border border-gray-600 rounded-lg">
+                {children}
+              </table>
+            </div>
+          )
+        },
+        thead({ children }) {
+          return <thead className="bg-gray-800">{children}</thead>
+        },
+        tbody({ children }) {
+          return <tbody className="bg-gray-900">{children}</tbody>
+        },
+        tr({ children }) {
+          return <tr className="border-b border-gray-600">{children}</tr>
+        },
+        th({ children }) {
+          return (
+            <th className="px-4 py-2 text-left font-semibold text-gray-200 border-r border-gray-600 last:border-r-0">
+              {children}
+            </th>
+          )
+        },
+        td({ children }) {
+          return (
+            <td className="px-4 py-2 text-gray-300 border-r border-gray-600 last:border-r-0">
+              {children}
+            </td>
+          )
+        },
+        input({ type, checked, disabled, className }) {
+          if (type === 'checkbox') {
+            return (
+              <input
+                type="checkbox"
+                checked={checked}
+                disabled={disabled}
+                className="mr-2 accent-blue-500"
+                readOnly
+              />
+            )
+          }
+          return null
+        },
+      }}
+    >
+      {processedContent}
+    </ReactMarkdown>
+  )
+}
 
 function CollapsibleSection({
   title,
@@ -41,7 +313,7 @@ function CollapsibleSection({
 
 function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
   const [open, setOpen] = useState(false)
-  const toolName = part.type.split('-')[1]
+  const toolName = part.type?.split('-')?.[1] || part.type || 'unknown'
 
   // Get tool-specific icon and display info
   const getToolIcon = (name: string) => {
@@ -112,10 +384,33 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
     )
   }
 
-  // For writeFile, show streaming content
+  // For writeFile, show streaming content with CodeMirror
   if (toolName === 'writeFile') {
     const path = (part.input as any)?.path || 'unknown path'
     const content = (part.input as any)?.content || ''
+
+    // Detect language from file extension
+    const getLanguageFromPath = (filePath: string): string => {
+      const extension = filePath.split('.').pop()?.toLowerCase() || ''
+      switch (extension) {
+        case 'js':
+          return 'javascript'
+        case 'jsx':
+          return 'jsx'
+        case 'ts':
+          return 'typescript'
+        case 'tsx':
+          return 'tsx'
+        case 'json':
+          return 'json'
+        case 'css':
+          return 'css'
+        case 'html':
+          return 'html'
+        default:
+          return 'javascript'
+      }
+    }
 
     return (
       <div className="border rounded-lg bg-gray-900 mb-4">
@@ -126,10 +421,31 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
           </span>
           <span className="text-gray-400 text-sm font-mono flex-1">{path}</span>
         </div>
-        <div className="px-4 py-3">
-          <div className="bg-gray-950 rounded p-3 text-xs font-mono overflow-x-auto max-h-96 overflow-y-auto">
-            <pre className="whitespace-pre-wrap text-gray-300">{content}</pre>
-          </div>
+        <div className="p-0 overflow-hidden">
+          <CodeMirror
+            value={content}
+            theme={codeMirrorTheme}
+            extensions={[getCodeMirrorLanguage(getLanguageFromPath(path))]}
+            editable={false}
+            basicSetup={{
+              lineNumbers: true,
+              foldGutter: false,
+              dropCursor: false,
+              allowMultipleSelections: false,
+              indentOnInput: false,
+              bracketMatching: true,
+              closeBrackets: false,
+              autocompletion: false,
+              highlightSelectionMatches: false,
+              searchKeymap: false,
+            }}
+            style={{
+              fontSize: '14px',
+              fontFamily:
+                'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+              maxHeight: '400px',
+            }}
+          />
         </div>
       </div>
     )
@@ -247,7 +563,7 @@ export default function Chat({
         text: projectDescription,
       })
     }
-  }, [messages, initialMessages, sendMessage])
+  }, [messages, initialMessages, sendMessage, projectDescription])
 
   useEffect(() => {
     scrollToBottom()
@@ -283,10 +599,16 @@ export default function Chat({
                   : 'bg-gray-800 text-gray-100 border border-gray-700'
               }`}
             >
-              <div className="whitespace-pre-wrap break-words">
+              <div className="break-words">
                 {message.parts.map((part, index) => {
                   if (part.type === 'text') {
-                    return <span key={index}>{part.text}</span>
+                    return message.role === 'user' ? (
+                      <span key={index} className="whitespace-pre-wrap">
+                        {part.text}
+                      </span>
+                    ) : (
+                      <MarkdownMessage key={index} content={part.text} />
+                    )
                   }
                   if (part.type.startsWith('tool-')) {
                     return (
@@ -312,19 +634,24 @@ export default function Chat({
         {(status === 'submitted' || status === 'streaming') && (
           <div className="flex items-start space-x-3">
             <div className="flex-shrink-0">
-              <Bot className="w-8 h-8 text-blue-400 bg-gray-800 rounded-full p-1.5" />
+              <Bot className="w-8 h-8 text-blue-400 bg-gray-800 rounded-full p-1.5 animate-pulse" />
             </div>
-            <div className="bg-gray-800 text-gray-100 border border-gray-700 max-w-xs lg:max-w-2xl px-4 py-2 rounded-lg">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                <div
-                  className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
-                  style={{ animationDelay: '0.1s' }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
-                  style={{ animationDelay: '0.2s' }}
-                ></div>
+            <div className="bg-gray-800 text-gray-100 border border-gray-700 max-w-xs lg:max-w-2xl px-4 py-3 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                  <div
+                    className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                    style={{ animationDelay: '0.1s' }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                    style={{ animationDelay: '0.2s' }}
+                  ></div>
+                </div>
+                <span className="text-sm text-gray-400 ml-2">
+                  {status === 'streaming' ? 'Responding...' : 'Thinking...'}
+                </span>
               </div>
             </div>
           </div>
@@ -371,7 +698,22 @@ export default function Chat({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message..."
-              className="w-full bg-gray-700 text-gray-100 placeholder-gray-400 border border-gray-600 rounded-lg px-4 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gray-700 text-gray-100 placeholder-gray-400 border border-gray-600 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  if (
+                    input.trim() &&
+                    status !== 'submitted' &&
+                    status !== 'streaming'
+                  ) {
+                    sendMessage({ text: input })
+                    setInput('')
+                    onSetCheckpoint()
+                  }
+                }
+              }}
+              disabled={status === 'submitted' || status === 'streaming'}
             />
           </div>
           <button
@@ -379,10 +721,20 @@ export default function Chat({
             disabled={
               status === 'submitted' || status === 'streaming' || !input.trim()
             }
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center space-x-2"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-2 font-medium"
           >
-            <Send className="w-4 h-4" />
-            <span>Send</span>
+            <Send
+              className={`w-4 h-4 ${
+                status === 'submitted' || status === 'streaming'
+                  ? 'animate-pulse'
+                  : ''
+              }`}
+            />
+            <span>
+              {status === 'submitted' || status === 'streaming'
+                ? 'Sending...'
+                : 'Send'}
+            </span>
           </button>
         </form>
       </div>

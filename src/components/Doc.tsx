@@ -129,7 +129,7 @@ export function Doc({
             <GamLeader />
           </AdGate>
           {title ? (
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-4 pr-4">
               <DocTitle>{title}</DocTitle>
               <div className="flex items-center gap-4">
                 <CopyMarkdownButton

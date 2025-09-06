@@ -27,12 +27,12 @@ import type { DynamicToolUIPart, UIMessage } from 'ai'
 // CodeMirror theme configuration
 const codeMirrorTheme = githubDarkInit({
   settings: {
-    background: 'rgb(3, 7, 18)', // bg-gray-950
-    foreground: '#c9d1d9',
-    gutterBackground: 'rgb(31, 41, 55)', // bg-gray-800
-    gutterForeground: '#6b7280',
-    selection: '#264f78',
-    selectionMatch: '#264f78',
+    background: 'rgb(15, 23, 42)', // bg-slate-800
+    foreground: '#e2e8f0',
+    gutterBackground: 'rgb(30, 41, 59)', // bg-slate-700
+    gutterForeground: '#64748b',
+    selection: '#3b82f6',
+    selectionMatch: '#3b82f6',
   },
 })
 
@@ -73,28 +73,35 @@ function CodeBlock({ children, className, ...props }: any) {
   }
 
   return (
-    <div className="relative group mb-4">
-      <div className="flex items-center justify-between bg-gray-800 px-4 py-2 rounded-t-lg border-b border-gray-700">
-        <span className="text-sm text-gray-400 font-mono">{language}</span>
+    <div className="relative group mb-6">
+      <div className="flex items-center justify-between bg-slate-800 px-6 py-3 rounded-t-2xl border-b border-slate-700">
+        <div className="flex items-center gap-3">
+          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+          <span className="text-sm text-slate-400 font-mono ml-3">
+            {language}
+          </span>
+        </div>
         <button
           onClick={copyToClipboard}
-          className="flex items-center space-x-1 text-gray-400 hover:text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="flex items-center space-x-2 text-slate-400 hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-all duration-200 px-3 py-1.5 rounded-lg hover:bg-slate-700"
           type="button"
         >
           {copied ? (
             <>
               <Check className="w-4 h-4" />
-              <span className="text-xs">Copied!</span>
+              <span className="text-sm font-medium">Copied!</span>
             </>
           ) : (
             <>
               <Copy className="w-4 h-4" />
-              <span className="text-xs">Copy</span>
+              <span className="text-sm font-medium">Copy</span>
             </>
           )}
         </button>
       </div>
-      <div className="rounded-b-lg overflow-hidden">
+      <div className="rounded-b-2xl overflow-hidden border border-t-0 border-slate-700">
         <CodeMirror
           value={codeContent}
           theme={codeMirrorTheme}
@@ -165,7 +172,7 @@ function MarkdownMessage({ content }: { content: string }) {
             </CodeBlock>
           ) : (
             <code
-              className="bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono"
+              className="bg-slate-800 px-2 py-1 rounded-lg text-sm font-mono text-blue-300"
               {...props}
             >
               {children}
@@ -297,16 +304,18 @@ function CollapsibleSection({
 }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className="border rounded mb-2 bg-gray-800">
+    <div className="border border-slate-700 rounded-xl mb-3 bg-slate-900/50 backdrop-blur-sm">
       <button
-        className="w-full flex justify-between items-center px-3 py-2 text-left font-semibold hover:bg-gray-700 focus:outline-none"
+        className="w-full flex justify-between items-center px-4 py-3 text-left font-medium text-slate-200 hover:bg-slate-800/50 focus:outline-none transition-colors rounded-t-xl"
         onClick={() => setOpen((o) => !o)}
         type="button"
       >
         <span>{title}</span>
-        <span>{open ? '▾' : '▸'}</span>
+        <span className="text-slate-400">{open ? '▾' : '▸'}</span>
       </button>
-      {open && <div className="px-4 py-2">{children}</div>}
+      {open && (
+        <div className="px-4 py-3 border-t border-slate-700">{children}</div>
+      )}
     </div>
   )
 }
@@ -570,40 +579,52 @@ export default function Chat({
   }, [messages])
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 text-gray-100">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex flex-col h-full bg-slate-950 text-slate-100">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {messages.length === 0 && (
-          <div className="text-center py-12">
-            <Bot className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-            <p className="text-gray-500 text-sm">Let's customize your app!</p>
+          <div className="text-center py-16">
+            <div className="p-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-6 inline-block">
+              <Bot className="w-12 h-12 text-white" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              Ready to build something amazing?
+            </h3>
+            <p className="text-slate-400">
+              Let's bring your ideas to life with AI assistance!
+            </p>
           </div>
         )}
 
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex items-start space-x-3 ${
+            className={`flex items-start space-x-4 ${
               message.role === 'user' ? 'justify-end' : 'justify-start'
             }`}
           >
             {message.role === 'assistant' && (
               <div className="flex-shrink-0">
-                <Bot className="w-8 h-8 text-blue-400 bg-gray-800 rounded-full p-1.5" />
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
+                  <Bot className="w-5 h-5 text-white" />
+                </div>
               </div>
             )}
 
             <div
-              className={`max-w-xs lg:max-w-2xl px-4 py-2 rounded-lg ${
+              className={`max-w-xs lg:max-w-3xl ${
                 message.role === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-800 text-gray-100 border border-gray-700'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-2xl shadow-lg'
+                  : 'bg-slate-900/50 backdrop-blur-sm border border-slate-800 px-6 py-4 rounded-2xl'
               }`}
             >
               <div className="break-words">
                 {message.parts.map((part, index) => {
                   if (part.type === 'text') {
                     return message.role === 'user' ? (
-                      <span key={index} className="whitespace-pre-wrap">
+                      <span
+                        key={index}
+                        className="whitespace-pre-wrap font-medium"
+                      >
                         {part.text}
                       </span>
                     ) : (
@@ -625,19 +646,23 @@ export default function Chat({
 
             {message.role === 'user' && (
               <div className="flex-shrink-0">
-                <User className="w-8 h-8 text-green-400 bg-gray-800 rounded-full p-1.5" />
+                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl">
+                  <User className="w-5 h-5 text-white" />
+                </div>
               </div>
             )}
           </div>
         ))}
 
         {(status === 'submitted' || status === 'streaming') && (
-          <div className="flex items-start space-x-3">
+          <div className="flex items-start space-x-4">
             <div className="flex-shrink-0">
-              <Bot className="w-8 h-8 text-blue-400 bg-gray-800 rounded-full p-1.5 animate-pulse" />
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl animate-pulse">
+                <Bot className="w-5 h-5 text-white" />
+              </div>
             </div>
-            <div className="bg-gray-800 text-gray-100 border border-gray-700 max-w-xs lg:max-w-2xl px-4 py-3 rounded-lg">
-              <div className="flex items-center space-x-2">
+            <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-800 max-w-xs lg:max-w-3xl px-6 py-4 rounded-2xl">
+              <div className="flex items-center space-x-3">
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
                   <div
@@ -649,8 +674,10 @@ export default function Chat({
                     style={{ animationDelay: '0.2s' }}
                   ></div>
                 </div>
-                <span className="text-sm text-gray-400 ml-2">
-                  {status === 'streaming' ? 'Responding...' : 'Thinking...'}
+                <span className="text-sm text-slate-400 font-medium">
+                  {status === 'streaming'
+                    ? 'AI is responding...'
+                    : 'AI is thinking...'}
                 </span>
               </div>
             </div>
@@ -660,27 +687,30 @@ export default function Chat({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="bg-gray-800 border-t border-gray-700 p-4 space-y-3">
+      <div className="bg-slate-900/80 backdrop-blur-sm border-t border-slate-800 p-6 space-y-4">
         {/* Model Selector */}
-        <div className="flex items-center space-x-3">
-          <label
-            htmlFor="model-select"
-            className="text-sm font-medium text-gray-300"
-          >
-            Model:
-          </label>
-          <select
-            id="model-select"
-            value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
-            className="bg-gray-700 text-gray-100 border border-gray-600 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {availableModels.map((model) => (
-              <option key={model.value} value={model.value}>
-                {model.label}
-              </option>
-            ))}
-          </select>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <label
+              htmlFor="model-select"
+              className="text-sm font-medium text-slate-300"
+            >
+              AI Model:
+            </label>
+            <select
+              id="model-select"
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className="bg-slate-800 text-slate-100 border border-slate-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+            >
+              {availableModels.map((model) => (
+                <option key={model.value} value={model.value}>
+                  {model.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="text-xs text-slate-500">Press Enter to send</div>
         </div>
 
         {/* Chat Input */}
@@ -691,14 +721,14 @@ export default function Chat({
             setInput('')
             onSetCheckpoint()
           }}
-          className="flex space-x-3"
+          className="flex space-x-4"
         >
           <div className="flex-1 relative">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
-              className="w-full bg-gray-700 text-gray-100 placeholder-gray-400 border border-gray-600 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              placeholder="Ask me to modify your app, add features, or fix issues..."
+              className="w-full bg-slate-800 text-slate-100 placeholder-slate-500 border border-slate-700 rounded-2xl px-6 py-4 pr-16 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-base"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
@@ -721,10 +751,10 @@ export default function Chat({
             disabled={
               status === 'submitted' || status === 'streaming' || !input.trim()
             }
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-2 font-medium"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-2xl hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-3 font-semibold shadow-2xl shadow-blue-500/25"
           >
             <Send
-              className={`w-4 h-4 ${
+              className={`w-5 h-5 ${
                 status === 'submitted' || status === 'streaming'
                   ? 'animate-pulse'
                   : ''

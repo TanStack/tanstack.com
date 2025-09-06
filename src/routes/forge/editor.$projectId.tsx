@@ -16,9 +16,9 @@ import {
 } from '~/forge/engine-handling/server-functions'
 import { TabbedViewer } from '~/forge/ui/tabbed-viewer'
 import Chat from '~/forge/ui/chat'
-import Sidebar from '~/forge/ui/sidebar'
 import { ForgeExportDropdown } from '~/forge/ui/export-dropdown'
 import WebContainerProvider from '~/forge/ui/web-container-provider'
+import { Sparkles } from 'lucide-react'
 
 function deserializeMessage(message: {
   content: string
@@ -79,11 +79,21 @@ function Header({
   projectName?: string
 }) {
   return (
-    <div className="flex items-center justify-between p-4 border-b border-border bg-background">
-      <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950">
+      <div className="flex items-center gap-6">
+        {/* TanStack Forge Branding */}
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-white">TanStack Forge</h1>
+            <p className="text-xs text-slate-400">AI Development Studio</p>
+          </div>
+        </div>
         <Link
           to="/forge"
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="text-sm text-slate-400 hover:text-white transition-colors"
         >
           ← Back to projects
         </Link>
@@ -118,7 +128,6 @@ function AIApp({
   const projectFiles = useQuery(api.forge.getProjectFiles, {
     projectId,
   })
-  const projects = useQuery(api.forge.getProjects)
   const projectData = useQuery(api.forge.getProject, {
     projectId,
   })
@@ -141,14 +150,14 @@ function AIApp({
   // Show loading state while checking keys
   if (!keysLoaded) {
     return (
-      <div className="flex h-screen bg-background w-full">
-        <Sidebar projects={projects} />
-        <main className="flex-1 min-w-0">
-          <Header />
-          <div className="h-[calc(100vh-73px)] flex items-center justify-center">
-            <div className="text-center">Loading...</div>
+      <div className="h-screen bg-slate-950 w-full">
+        <Header />
+        <div className="h-[calc(100vh-73px)] flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div className="text-slate-400">Loading project...</div>
           </div>
-        </main>
+        </div>
       </div>
     )
   }
@@ -156,69 +165,65 @@ function AIApp({
   // Show key requirement message if no active keys
   if (!hasActiveKeysCheck) {
     return (
-      <div className="flex h-screen bg-background w-full">
-        <Sidebar projects={projects} />
-        <main className="flex-1 min-w-0">
-          <Header
-            projectFiles={projectFiles ?? []}
-            projectName={projectData?.name}
-          />
-          <div className="h-[calc(100vh-73px)] flex items-center justify-center p-8">
-            <div className="w-full max-w-2xl space-y-4 text-center">
-              <div className="text-6xl mb-4">🔑</div>
-              <h1 className="text-2xl font-bold text-foreground">
-                LLM API Keys Required
-              </h1>
-              <p className="text-muted-foreground">
-                To use the Forge, you need to add your own LLM API keys. We
-                support OpenAI and Anthropic.
-              </p>
-              <div className="flex justify-center">
-                <Link
-                  to="/account"
-                  className="px-6 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
-                >
-                  Add API Keys
-                </Link>
+      <div className="h-screen bg-slate-950 w-full">
+        <Header
+          projectFiles={projectFiles ?? []}
+          projectName={projectData?.name}
+        />
+        <div className="h-[calc(100vh-73px)] flex items-center justify-center p-8">
+          <div className="w-full max-w-2xl space-y-8 text-center">
+            <div className="p-6 bg-slate-900/50 backdrop-blur-sm border border-slate-800 rounded-2xl">
+              <div className="p-4 bg-amber-500/10 rounded-xl mb-6 inline-block">
+                <div className="text-4xl">🔑</div>
               </div>
+              <h1 className="text-3xl font-bold text-white mb-4">
+                AI Models Setup Required
+              </h1>
+              <p className="text-slate-400 text-lg mb-8">
+                To use the Forge, you need to configure your API keys. We
+                support OpenAI and Anthropic models.
+              </p>
+              <Link
+                to="/account"
+                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-950 transition-all duration-200 text-lg shadow-2xl shadow-blue-500/25"
+              >
+                Configure API Keys
+              </Link>
             </div>
           </div>
-        </main>
+        </div>
       </div>
     )
   }
 
   return (
     <WebContainerProvider>
-      <div className="flex h-screen bg-background w-full">
-        <Sidebar projects={projects} />
-        <main className="flex-1 min-w-0">
-          <Header
-            projectFiles={projectFiles ?? []}
-            projectName={projectData?.name}
-          />
-          <div className="h-[calc(100vh-73px)] @container">
-            <div className="flex flex-row h-full">
-              <div className="w-1/3">
-                <Chat
-                  projectId={projectId}
-                  initialMessages={chatMessages}
-                  onSetCheckpoint={onSetCheckpoint}
-                  projectDescription={projectDescription}
-                  llmKeys={llmKeys}
-                />
-              </div>
-              <div className="w-2/3 @8xl:w-3/4 pl-2 h-full overflow-hidden">
-                <TabbedViewer
-                  originalTree={lastCheckpoint}
-                  projectFiles={convertToRecord(projectFiles ?? [])}
-                  projectFilesArray={projectFiles ?? []}
-                  projectName={projectData?.name}
-                />
-              </div>
+      <div className="h-screen bg-slate-950 w-full">
+        <Header
+          projectFiles={projectFiles ?? []}
+          projectName={projectData?.name}
+        />
+        <div className="h-[calc(100vh-73px)] @container">
+          <div className="flex flex-row h-full">
+            <div className="w-2/5 h-full">
+              <Chat
+                projectId={projectId}
+                initialMessages={chatMessages}
+                onSetCheckpoint={onSetCheckpoint}
+                projectDescription={projectDescription}
+                llmKeys={llmKeys}
+              />
+            </div>
+            <div className="w-3/5 h-full overflow-hidden border-l border-slate-800">
+              <TabbedViewer
+                originalTree={lastCheckpoint}
+                projectFiles={convertToRecord(projectFiles ?? [])}
+                projectFilesArray={projectFiles ?? []}
+                projectName={projectData?.name}
+              />
             </div>
           </div>
-        </main>
+        </div>
       </div>
     </WebContainerProvider>
   )

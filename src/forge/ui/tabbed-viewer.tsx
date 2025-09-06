@@ -22,17 +22,17 @@ export function TabbedViewer({
 
   const getTabClasses = (tab: Tab) => {
     const baseClasses =
-      'px-4 py-2 text-sm font-medium border-b-2 transition-colors cursor-pointer'
+      'px-6 py-3 text-sm font-medium border-b-2 transition-all duration-200 cursor-pointer'
     if (activeTab === tab) {
-      return `${baseClasses} border-blue-500 text-blue-600 dark:text-blue-400`
+      return `${baseClasses} border-blue-500 text-blue-400 bg-blue-500/10`
     }
-    return `${baseClasses} border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300`
+    return `${baseClasses} border-transparent text-slate-400 hover:text-white hover:bg-slate-800/50`
   }
 
   return (
     <div className="h-full flex flex-col">
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <div className="border-b border-slate-800 bg-slate-950">
         <div className="flex">
           <button
             onClick={() => setActiveTab('files')}
@@ -107,9 +107,9 @@ export function TabbedViewer({
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden bg-slate-950">
         {activeTab === 'files' && (
-          <div className="h-full overflow-y-auto">
+          <div className="h-full p-4">
             <FileNavigator
               originalTree={originalTree}
               projectFiles={projectFiles}

@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
-import { Bot, Send, User } from 'lucide-react'
+import {
+  Bot,
+  Send,
+  User,
+  Folder,
+  File,
+  Trash2,
+  FileText,
+  Edit,
+} from 'lucide-react'
 
 import type { DynamicToolUIPart, UIMessage } from 'ai'
 
@@ -32,7 +41,101 @@ function CollapsibleSection({
 
 function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
   const [open, setOpen] = useState(false)
+  const toolName = part.type.split('-')[1]
 
+  // Get tool-specific icon and display info
+  const getToolIcon = (name: string) => {
+    switch (name) {
+      case 'listDirectory':
+        return <Folder className="w-4 h-4 text-blue-400" />
+      case 'readFile':
+        return <FileText className="w-4 h-4 text-green-400" />
+      case 'writeFile':
+        return <Edit className="w-4 h-4 text-orange-400" />
+      case 'deleteFile':
+        return <Trash2 className="w-4 h-4 text-red-400" />
+      default:
+        return <File className="w-4 h-4 text-gray-400" />
+    }
+  }
+
+  const getToolColor = (name: string) => {
+    switch (name) {
+      case 'listDirectory':
+        return 'text-blue-300'
+      case 'readFile':
+        return 'text-green-300'
+      case 'writeFile':
+        return 'text-orange-300'
+      case 'deleteFile':
+        return 'text-red-300'
+      default:
+        return 'text-gray-300'
+    }
+  }
+
+  // For simple tools (listDirectory, readFile, deleteFile), show a compact display
+  const isSimpleTool = ['listDirectory', 'readFile', 'deleteFile'].includes(
+    toolName
+  )
+
+  if (isSimpleTool) {
+    const path = (part.input as any)?.path || 'unknown path'
+    return (
+      <div className="relative">
+        <div className="flex items-center space-x-3 py-2 px-3 bg-gray-800 rounded-lg mb-2 border border-gray-700">
+          {getToolIcon(toolName)}
+          <span className={`text-sm ${getToolColor(toolName)} font-medium`}>
+            {toolName}
+          </span>
+          <span className="text-gray-400 text-sm font-mono flex-1">{path}</span>
+          <button
+            className="text-gray-500 hover:text-gray-300 text-xs"
+            onClick={() => setOpen((o) => !o)}
+            type="button"
+          >
+            {open ? 'Hide' : 'Details'}
+          </button>
+        </div>
+        {open && (
+          <div className="bg-gray-900 border border-gray-600 rounded-lg p-3 mb-2">
+            <CollapsibleSection title="Output" defaultOpen={true}>
+              <pre className="bg-gray-950 rounded p-2 text-xs overflow-x-auto">
+                {typeof part.output === 'object'
+                  ? JSON.stringify(part.output, null, 2)
+                  : String(part.output)}
+              </pre>
+            </CollapsibleSection>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // For writeFile, show streaming content
+  if (toolName === 'writeFile') {
+    const path = (part.input as any)?.path || 'unknown path'
+    const content = (part.input as any)?.content || ''
+
+    return (
+      <div className="border rounded-lg bg-gray-900 mb-4">
+        <div className="flex items-center space-x-3 px-4 py-3 border-b border-gray-700">
+          {getToolIcon(toolName)}
+          <span className={`font-medium ${getToolColor(toolName)}`}>
+            Writing file
+          </span>
+          <span className="text-gray-400 text-sm font-mono flex-1">{path}</span>
+        </div>
+        <div className="px-4 py-3">
+          <div className="bg-gray-950 rounded p-3 text-xs font-mono overflow-x-auto max-h-96 overflow-y-auto">
+            <pre className="whitespace-pre-wrap text-gray-300">{content}</pre>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Default tool display for other tools
   return (
     <div className="border rounded-lg bg-gray-900 mb-4">
       <button
@@ -40,8 +143,11 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
         onClick={() => setOpen((o) => !o)}
         type="button"
       >
-        <span>
-          🛠️ Tool: <span className="font-mono">{part.type.split('-')[1]}</span>
+        <span className="flex items-center space-x-2">
+          {getToolIcon(toolName)}
+          <span>
+            Tool: <span className="font-mono">{toolName}</span>
+          </span>
         </span>
         <span>{open ? '▾' : '▸'}</span>
       </button>

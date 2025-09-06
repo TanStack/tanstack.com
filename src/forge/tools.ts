@@ -8,7 +8,17 @@ import type { Id } from 'convex/_generated/dataModel'
 
 import { generateFileTree } from '~/forge/file-tree-generator'
 
-function checkPath(path: string) {
+function enforceFSPath(path: string) {
+  if (path.startsWith('./')) {
+    return path.replace('./', '/')
+  }
+  if (path.startsWith('/')) {
+    return path
+  }
+  return '/' + path
+}
+
+function enforceStoredPath(path: string) {
   if (path.startsWith('./')) {
     return path
   }
@@ -43,9 +53,11 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
         .describe('The path to the directory to read (/ for the root)'),
     }),
     execute: ({ path }: { path: string }) => {
-      return files.vol.readdirSync(path, 'utf8').map((file) => ({
+      return files.vol.readdirSync(enforceFSPath(path), 'utf8').map((file) => ({
         name: file,
-        type: files.vol.statSync(path).isDirectory() ? 'directory' : 'file',
+        type: files.vol.statSync(enforceFSPath(path)).isDirectory()
+          ? 'directory'
+          : 'file',
       }))
     },
   })
@@ -56,7 +68,7 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
       path: z.string().describe('The path to the file to read'),
     }),
     execute: ({ path }: { path: string }) => {
-      const content = files.vol.readFileSync(path, 'utf8')
+      const content = files.vol.readFileSync(enforceFSPath(path), 'utf8')
       return content
     },
   })
@@ -68,10 +80,10 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
       content: z.string().describe('The content to write to the file'),
     }),
     execute: async ({ path, content }: { path: string; content: string }) => {
-      files.vol.writeFileSync(path, content)
+      files.vol.writeFileSync(enforceFSPath(path), content)
       await convex.mutation(api.forge.updateFile, {
         projectId: projectId as Id<'forge_projects'>,
-        path: checkPath(path),
+        path: enforceStoredPath(path),
         content,
       })
       return {
@@ -89,9 +101,9 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
     execute: async ({ path }: { path: string }) => {
       await convex.mutation(api.forge.deleteFile, {
         projectId: projectId as Id<'forge_projects'>,
-        path: checkPath(path),
+        path: enforceStoredPath(path),
       })
-      files.vol.unlinkSync(path)
+      files.vol.unlinkSync(enforceFSPath(path))
       return {
         type: 'success',
         message: `File ${path} deleted successfully`,

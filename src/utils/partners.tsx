@@ -26,6 +26,8 @@ import prismaLightSvg from '~/images/prisma-light.svg'
 import prismaDarkSvg from '~/images/prisma-dark.svg'
 import codeRabbitLightSvg from '~/images/coderabbit-light.svg'
 import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
+import strapiLightSvg from '~/images/strapi-light.svg'
+import strapiDarkSvg from '~/images/strapi-dark.svg'
 import { libraries, Library } from '~/libraries'
 
 function LearnMoreButton() {
@@ -721,6 +723,50 @@ const codeRabbit = (() => {
   }
 })()
 
+const strapi = (() => {
+  const href = 'https://strapi.link/tanstack-start'
+
+  return {
+    name: 'Strapi',
+    id: 'strapi',
+    libraries: ['start', 'router'] as const,
+    sidebarImgLight: strapiLightSvg,
+    sidebarImgDark: strapiDarkSvg,
+    sidebarImgClass: 'py-4',
+    status: 'active' as const,
+    href,
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-6">
+        <img
+          src={strapiLightSvg}
+          alt="Strapi"
+          className="w-[240px] max-w-full dark:hidden"
+        />
+        <img
+          src={strapiDarkSvg}
+          alt="Strapi"
+          className="w-[240px] max-w-full hidden dark:block"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          Build modern websites with the{' '}
+          <strong>most customizable Headless CMS</strong>. Strapi is the{' '}
+          <strong>open-source Headless CMS</strong> that makes API creation
+          easy, and with <strong>Strapi 5</strong> you get{' '}
+          <strong>100% TypeScript support</strong>, a
+          <strong> fully customizable API</strong>, Draft/Publish, i18n, RBAC,
+          and a rich plugin ecosystem—perfect for TanStack Start apps in the
+          cloud or on your own servers.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 export const partners: Partner[] = [
   codeRabbit,
   agGrid,
@@ -731,6 +777,7 @@ export const partners: Partner[] = [
   electric,
   sentry,
   prisma,
+  strapi,
   unkey,
   uiDev,
   nozzle,

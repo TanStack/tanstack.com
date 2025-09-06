@@ -18,7 +18,6 @@ import { TabbedViewer } from '~/forge/ui/tabbed-viewer'
 import Chat from '~/forge/ui/chat'
 import Sidebar from '~/forge/ui/sidebar'
 import { ForgeExportDropdown } from '~/forge/ui/export-dropdown'
-import { ForgeDeployButton } from '~/forge/ui/deploy-button'
 import WebContainerProvider from '~/forge/ui/web-container-provider'
 
 function deserializeMessage(message: {
@@ -92,16 +91,10 @@ function Header({
 
       <div className="flex items-center gap-2">
         {projectFiles && projectFiles.length > 0 && (
-          <>
-            <ForgeDeployButton
-              projectFiles={projectFiles}
-              projectName={projectName}
-            />
-            <ForgeExportDropdown
-              projectFiles={projectFiles}
-              projectName={projectName}
-            />
-          </>
+          <ForgeExportDropdown
+            projectFiles={projectFiles}
+            projectName={projectName}
+          />
         )}
       </div>
     </div>
@@ -220,6 +213,7 @@ function AIApp({
                   originalTree={lastCheckpoint}
                   projectFiles={convertToRecord(projectFiles ?? [])}
                   projectFilesArray={projectFiles ?? []}
+                  projectName={projectData?.name}
                 />
               </div>
             </div>

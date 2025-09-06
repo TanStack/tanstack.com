@@ -342,7 +342,6 @@ export function BuilderPreview() {
                     </div>
 
                     <div className="space-y-4">
-                      {/* Deployed URL */}
                       <div>
                         <div className="text-white mb-1">
                           Your site is live at:

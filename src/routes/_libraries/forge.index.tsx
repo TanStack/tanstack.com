@@ -11,6 +11,12 @@ import Sidebar from '~/forge/ui/sidebar'
 export const Route = createFileRoute({
   ssr: false,
   component: AuthenticationWrapper,
+  headers(ctx) {
+    return {
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Opener-Policy': 'same-origin',
+    }
+  },
 })
 
 function App() {

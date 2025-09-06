@@ -14,11 +14,12 @@ import {
   getProjectDescription,
   getProjectFiles,
 } from '~/forge/engine-handling/server-functions'
-import FileNavigator from '~/forge/ui/file-navigator'
+import { TabbedViewer } from '~/forge/ui/tabbed-viewer'
 import Chat from '~/forge/ui/chat'
 import Sidebar from '~/forge/ui/sidebar'
 import { ForgeExportDropdown } from '~/forge/ui/export-dropdown'
 import { ForgeDeployButton } from '~/forge/ui/deploy-button'
+import WebContainerProvider from '~/forge/ui/web-container-provider'
 
 function deserializeMessage(message: {
   content: string
@@ -35,6 +36,12 @@ function deserializeMessage(message: {
 
 export const Route = createFileRoute({
   component: AuthenticationWrapper,
+  headers(ctx) {
+    return {
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Opener-Policy': 'same-origin',
+    }
+  },
   loader: async ({ params }: { params: { projectId: string } }) => {
     const chatMessages = await getChatMessages({
       data: { projectId: params.projectId },
@@ -189,34 +196,37 @@ function AIApp({
   }
 
   return (
-    <div className="flex h-screen bg-background w-full">
-      <Sidebar projects={projects} />
-      <main className="flex-1 min-w-0">
-        <Header
-          projectFiles={projectFiles ?? []}
-          projectName={projectData?.name}
-        />
-        <div className="h-[calc(100vh-73px)] @container">
-          <div className="flex flex-row h-full">
-            <div className="w-1/3">
-              <Chat
-                projectId={projectId}
-                initialMessages={chatMessages}
-                onSetCheckpoint={onSetCheckpoint}
-                projectDescription={projectDescription}
-                llmKeys={llmKeys}
-              />
-            </div>
-            <div className="w-2/3 @8xl:w-3/4 pl-2 h-full overflow-y-auto">
-              <FileNavigator
-                originalTree={lastCheckpoint}
-                projectFiles={convertToRecord(projectFiles ?? [])}
-              />
+    <WebContainerProvider>
+      <div className="flex h-screen bg-background w-full">
+        <Sidebar projects={projects} />
+        <main className="flex-1 min-w-0">
+          <Header
+            projectFiles={projectFiles ?? []}
+            projectName={projectData?.name}
+          />
+          <div className="h-[calc(100vh-73px)] @container">
+            <div className="flex flex-row h-full">
+              <div className="w-1/3">
+                <Chat
+                  projectId={projectId}
+                  initialMessages={chatMessages}
+                  onSetCheckpoint={onSetCheckpoint}
+                  projectDescription={projectDescription}
+                  llmKeys={llmKeys}
+                />
+              </div>
+              <div className="w-2/3 @8xl:w-3/4 pl-2 h-full overflow-hidden">
+                <TabbedViewer
+                  originalTree={lastCheckpoint}
+                  projectFiles={convertToRecord(projectFiles ?? [])}
+                  projectFilesArray={projectFiles ?? []}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </WebContainerProvider>
   )
 }
 

@@ -141,7 +141,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const navbar = (
     <div
       className={twMerge(
-        'w-full p-2 lg:px-4 sticky top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-blur-lg shadow-xl shadow-black/3',
+        'w-full p-2 sticky top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-blur-lg shadow-xl shadow-black/3',
         'flex items-center justify-between gap-4',
         'dark:border-b border-gray-500/20'
       )}
@@ -149,27 +149,27 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     >
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 font-black text-xl uppercase">
-          <button
-            className={twMerge(
-              'transition-all duration-300 h-8 px-2 py-1',
-              'lg:-mr-2',
-              Title
-                ? 'lg:w-9 lg:opacity-100 lg:translate-x-0 lg:pl-2 lg:-ml-2'
-                : 'lg:w-0 lg:opacity-0 lg:-translate-x-full'
-            )}
-            onClick={toggleMenu}
-            onPointerEnter={() => {
-              if (window.innerWidth < 1024) {
-                return
-              }
-              setShowMenu(true)
-            }}
-          >
-            {showMenu ? <CgClose /> : <CgMenuLeft />}
-          </button>
           <BrandContextMenu
             className={twMerge(`flex items-center gap-1.5 group`)}
           >
+            <button
+              className={twMerge(
+                'flex items-center justify-center',
+                'transition-all duration-300 h-8 px-2 py-1 lg:px-0',
+                Title
+                  ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
+                  : 'lg:w-0 lg:opacity-0 lg:-translate-x-full'
+              )}
+              onClick={toggleMenu}
+              onPointerEnter={() => {
+                if (window.innerWidth < 1024) {
+                  return
+                }
+                setShowMenu(true)
+              }}
+            >
+              {showMenu ? <CgClose /> : <CgMenuLeft />}
+            </button>
             <Link
               to="/"
               className={twMerge(

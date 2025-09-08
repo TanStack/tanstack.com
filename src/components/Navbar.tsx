@@ -72,10 +72,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         const loginEl = (
           <Link
             to="/login"
-            className="flex items-center gap-2 bg-gray-500/30 rounded-lg py-1 px-2 opacity-80 hover:opacity-100 whitespace-nowrap"
+            className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
+            hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
           >
-            <MdPerson />
-            <div className="text-sm">Log In</div>
+            <MdPerson className="scale-125" />
+            <div className="">Log In</div>
           </Link>
         )
 
@@ -202,7 +203,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <SearchButton />
         </div>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         <div className="hidden sm:block">{socialLinks}</div>
         <div className="ml-auto">
           <ThemeToggle />

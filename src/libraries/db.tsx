@@ -31,6 +31,8 @@ export const dbProject = {
   frameworks: ['react', 'vue', 'solid', 'svelte', 'vanilla'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
+  showNetlifyUrl: true,
+  showCloudflareUrl: true,
   menu: [
     {
       icon: <BiBookAlt />,

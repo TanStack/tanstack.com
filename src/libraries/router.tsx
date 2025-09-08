@@ -40,6 +40,7 @@ export const routerProject = {
   hideCodesandboxUrl: true,
   showVercelUrl: false,
   showNetlifyUrl: true,
+  showCloudflareUrl: true,
   menu: [
     {
       icon: <BiBookAlt />,

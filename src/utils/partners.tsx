@@ -29,6 +29,8 @@ import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
 import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
 import { libraries, Library } from '~/libraries'
+import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
+import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
 
 function LearnMoreButton() {
   return (
@@ -253,11 +255,6 @@ const netlify = (() => {
     sidebarImgLight: netlifyLightSvg,
     sidebarImgDark: netlifyDarkSvg,
     sidebarImgClass: 'pt-2 scale-[.9]',
-    sidebarAfterImg: (
-      <div className="text-[10px] rounded-xl m-1 mx-auto w-fit text-center py-px px-2 bg-[#03bdba] text-white uppercase font-bold">
-        Official Deployment Partner
-      </div>
-    ),
     status: 'active' as const,
     href,
     homepageImg: (
@@ -274,12 +271,7 @@ const netlify = (() => {
             className="w-[280px] max-w-full hidden dark:block"
           />
         </div>
-        <div
-          className="w-auto text-xs text-center
-        py-1 px-3 rounded-xl uppercase font-bold bg-linear-to-r from-[#03bdba] to-[#00aaba] text-white "
-        >
-          Official Deployment Partner
-        </div>
+        {/* Netlify badge removed */}
       </div>
     ),
     content: (
@@ -296,6 +288,50 @@ const netlify = (() => {
           that help teams build and ship faster. Our partnership ensures
           TanStack applications can take full advantage of Netlify's powerful
           platform features.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const cloudflare = (() => {
+  const href = 'https://www.cloudflare.com?utm_source=tanstack'
+
+  return {
+    name: 'Cloudflare',
+    id: 'cloudflare',
+    href,
+    // Show on every repo
+    libraries: libraries.map((l) => l.id),
+    sidebarImgLight: cloudflareBlackSvg,
+    sidebarImgDark: cloudflareWhiteSvg,
+    sidebarImgClass: 'py-4',
+    status: 'active' as const,
+    startDate: 'Sep 2025',
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-12">
+        <img
+          src={cloudflareBlackSvg}
+          alt="Cloudflare"
+          className="w-[340px] max-w-full dark:hidden"
+        />
+        <img
+          src={cloudflareWhiteSvg}
+          alt="Cloudflare"
+          className="w-[340px] max-w-full hidden dark:block"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          Cloudflare and TanStack are partnering to bring
+          <strong> global edge performance</strong>,
+          <strong> serverless compute</strong>, and
+          <strong> robust security</strong> to modern apps built with TanStack.
+          From Workers and KV to CDN and security, Cloudflare helps TanStack
+          developers ship faster and scale effortlessly.
         </div>
         <LearnMoreButton />
       </>
@@ -769,6 +805,7 @@ const strapi = (() => {
 
 export const partners: Partner[] = [
   codeRabbit,
+  cloudflare,
   agGrid,
   netlify,
   neon,

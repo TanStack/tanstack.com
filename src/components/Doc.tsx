@@ -161,6 +161,7 @@ export function Doc({
             ref={markdownContainerRef}
             className={twMerge(
               'prose prose-gray dark:prose-invert max-w-none',
+              '[font-size:14px]',
               isTocVisible && 'pr-4 lg:pr-6',
               'styled-markdown-content'
             )}

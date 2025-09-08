@@ -392,7 +392,7 @@ export function SearchModal() {
     <Dialog
       open={isOpen}
       onClose={closeSearch}
-      className="fixed inset-0 z-50 overflow-y-auto"
+      className="fixed inset-0 z-1000 overflow-y-auto"
       ref={containerRef}
       onKeyDown={handleKeyDown}
     >

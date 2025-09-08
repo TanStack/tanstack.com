@@ -104,7 +104,7 @@ export function CopyMarkdownButton({
   return (
     <button
       disabled={isLoading}
-      className="py-1 px-2 text-sm bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/10 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
+      className="py-1 px-2 text-sm bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/10 flex items-center justify-center backdrop-blur-sm rounded-lg overflow-hidden"
       onClick={onClick}
       title="Copy markdown source"
     >

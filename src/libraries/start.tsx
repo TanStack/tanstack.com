@@ -35,6 +35,7 @@ export const startProject = {
   defaultDocs: 'framework/react/overview',
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   showNetlifyUrl: true,
+  showCloudflareUrl: true,
   // hide stackblitz until they support Async Local Storage
   hideStackblitzUrl: true,
   menu: [

@@ -23,6 +23,8 @@ export const configProject = {
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
+  showNetlifyUrl: true,
+  showCloudflareUrl: true,
   bgRadial: 'from-gray-500 via-gray-700/50 to-transparent',
   colorFrom: 'from-gray-500',
   colorTo: 'to-gray-700',

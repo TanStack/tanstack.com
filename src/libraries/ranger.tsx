@@ -32,6 +32,8 @@ export const rangerProject = {
   textColor: 'text-pink-500',
   frameworks: ['react'],
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
+  showNetlifyUrl: true,
+  showCloudflareUrl: true,
   menu: [
     {
       icon: <BiBookAlt />,

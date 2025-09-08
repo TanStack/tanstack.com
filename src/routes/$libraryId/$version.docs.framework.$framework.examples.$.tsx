@@ -208,6 +208,16 @@ function PageComponent() {
             {capitalize(framework)} Example: {slugToTitle(_splat!)}
           </span>
           <div className="flex items-center gap-4 flex-wrap font-normal text-xs">
+            {library.showCloudflareUrl ? (
+              <a
+                href={`https://deploy.workers.cloudflare.com/?url=${githubUrl}`}
+              >
+                <img
+                  src="https://deploy.workers.cloudflare.com/button"
+                  alt="Deploy to Cloudflare"
+                />
+              </a>
+            ) : null}
             {library.showNetlifyUrl ? (
               <a
                 href={`https://app.netlify.com/start/deploy?repository=${repoUrl}&create_from_path=${githubExamplePath}`}

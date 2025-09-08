@@ -610,8 +610,15 @@ const electric = (() => {
     content: (
       <>
         <div className="text-xs">
-          Electric and TanStack are teaming up on TanStack DB to bring sync to
-          mainstream application developers.
+          Electric and TanStack are teaming up on TanStack DB to bring
+          <strong>robust real-time sync</strong> to mainstream apps. ElectricSQL
+          delivers <strong>offline-first</strong> data,{' '}
+          <strong>conflict resolution</strong>, and{' '}
+          <strong>low-latency replication</strong>
+          backed by Postgres—no bespoke plumbing required. Paired with TanStack
+          DB's <strong>type-safe APIs</strong> and developer experience, teams
+          can ship collaborative features faster and keep UIs consistent across
+          clients and the edge.
         </div>
         <LearnMoreButton />
       </>
@@ -737,21 +744,11 @@ const codeRabbit = (() => {
     content: (
       <>
         <div className="text-xs">
-          TanStack leverages CodeRabbit to{' '}
-          <strong>
-            enhance our code review process, significantly reducing review times
-            and improving code quality
-          </strong>
-          . By integrating CodeRabbit's advanced AI capabilities, we ensure that
-          our pull requests are thoroughly analyzed for potential issues, from
-          readability to logic bugs. This allows our team to{' '}
-          <strong>
-            focus on meaningful code discussions and innovation, while
-            maintaining high standards of code quality and security
-          </strong>
-          . With CodeRabbit, we benefit from intelligent, automated reviews that
-          adapt to our workflows, making our development process faster and more
-          efficient.
+          TanStack uses CodeRabbit to streamline reviews and elevate code
+          quality. Its AI flags readability, correctness, and security issues on
+          pull requests, reducing back-and-forth and review time. That lets us
+          focus on architectural decisions and ship with confidence—fewer
+          regressions, faster cycles.
         </div>
         <LearnMoreButton />
       </>

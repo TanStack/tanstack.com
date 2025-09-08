@@ -4,7 +4,6 @@ import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { FaHome, FaLock, FaUser, FaUsers } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
-import { ThemeToggle } from '~/components/ThemeToggle'
 import { useQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
 
@@ -18,6 +17,15 @@ export const Route = createFileRoute({
         <Outlet />
       </AdminLayout>
     )
+  },
+  staticData: {
+    Title: () => {
+      return (
+        <Link to="." className="hover:text-blue-500">
+          Admin
+        </Link>
+      )
+    },
   },
 })
 
@@ -81,24 +89,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       },
     ]
 
-  const logo = (
-    <div className="flex-1 flex items-center gap-4 justify-between">
-      <Link to="/" className={twMerge(`flex items-center gap-1.5`)}>
-        <img
-          src={'/images/logos/logo-color-100.png'}
-          alt=""
-          className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
-        />
-        <div className="font-black text-xl uppercase">
-          TanStack <span className="font-light">Admin</span>
-        </div>
-      </Link>
-      <div className="ml-auto">
-        <ThemeToggle />
-      </div>
-    </div>
-  )
-
   const menuItems = (
     <>
       {adminItems.map((item, i) => (
@@ -123,44 +113,41 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   )
 
   const smallMenu = (
-    <div className="lg:hidden bg-white/50 dark:bg-black/60 sticky top-0 z-20 backdrop-blur-[20px]">
+    <div
+      className="lg:hidden bg-white/50 sticky top-[var(--navbar-height)]
+    max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto z-20 dark:bg-black/60 backdrop-blur-lg"
+    >
       <details
         ref={detailsRef as any}
-        id="admin-details"
+        id="docs-details"
         className="border-b border-gray-500/20"
       >
-        <summary className="p-4 flex gap-2 items-center justify-between">
-          <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
-            <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
-            <CgClose className="icon-close mr-2 cursor-pointer" />
-            {logo}
+        <summary className="py-2 px-4 flex gap-2 items-center justify-between">
+          <div className="flex-1 flex gap-4 items-center">
+            <CgMenuLeft className="icon-open cursor-pointer" />
+            <CgClose className="icon-close cursor-pointer" />
+            Documentation
           </div>
         </summary>
-        <div
-          className="flex flex-col gap-4 whitespace-nowrap overflow-y-auto
-          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
-        >
-          <div className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
-            {menuItems}
-          </div>
+        <div className="flex flex-col gap-4 p-4 whitespace-nowrap overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">
+          {menuItems}
         </div>
       </details>
     </div>
   )
 
   const largeMenu = (
-    <>
-      <div className="min-w-[250px] hidden lg:flex flex-col h-screen sticky top-0 z-20 bg-white/50 dark:bg-black/30 shadow-xl dark:border-r border-gray-500/20">
-        <div className="p-4 flex gap-2 items-center text-2xl border-b border-gray-500/10 dark:border-gray-500/20">
-          {logo}
-        </div>
-        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[50px]">
-          <div className="flex flex-col gap-1 text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
-            {menuItems}
-          </div>
-        </div>
+    <div
+      className="bg-white/50 dark:bg-black/30 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px]
+      hidden lg:flex flex-col gap-4 sticky
+      h-[calc(100dvh-var(--navbar-height))] lg:top-[var(--navbar-height)]
+      z-20 dark:border-r
+      border-gray-500/20 transition-all duration-500 py-2"
+    >
+      <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-8">
+        {menuItems}
       </div>
-    </>
+    </div>
   )
 
   return (

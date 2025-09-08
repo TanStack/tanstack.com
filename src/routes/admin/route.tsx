@@ -126,10 +126,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <div className="flex-1 flex gap-4 items-center">
             <CgMenuLeft className="icon-open cursor-pointer" />
             <CgClose className="icon-close cursor-pointer" />
-            Documentation
+            Admin Menu
           </div>
         </summary>
-        <div className="flex flex-col gap-4 p-4 whitespace-nowrap overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">
+        <div className="flex flex-col gap-1 p-4 whitespace-nowrap overflow-y-auto border-t border-gray-500/20 bg-white/20 text-base dark:bg-black/20">
           {menuItems}
         </div>
       </details>
@@ -144,7 +144,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       z-20 dark:border-r
       border-gray-500/20 transition-all duration-500 py-2"
     >
-      <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-8">
+      <div className="flex-1 flex flex-col gap-1 text-sm px-4 whitespace-nowrap overflow-y-auto pb-8">
         {menuItems}
       </div>
     </div>

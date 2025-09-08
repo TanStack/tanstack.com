@@ -66,6 +66,78 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     setShowMenu((prev) => !prev)
   }
 
+  const loginButton = (
+    <>
+      {(() => {
+        const loginEl = (
+          <Link
+            to="/login"
+            className="flex items-center gap-2 bg-gray-500/30 rounded-lg py-1 px-2 opacity-80 hover:opacity-100 whitespace-nowrap"
+          >
+            <MdPerson />
+            <div className="text-sm">Log In</div>
+          </Link>
+        )
+
+        return (
+          <>
+            <AuthLoading>{loginEl}</AuthLoading>
+            <Unauthenticated>{loginEl}</Unauthenticated>
+          </>
+        )
+      })()}
+
+      <Authenticated>
+        <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+          <FaUser />
+          <Link
+            to="/account"
+            className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
+          >
+            My Account
+          </Link>
+        </div>
+        {canAdmin ? (
+          <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+            <FaLock />
+            <Link
+              to="/admin"
+              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            >
+              Admin
+            </Link>
+          </div>
+        ) : null}
+      </Authenticated>
+    </>
+  )
+
+  const socialLinks = (
+    <div className="flex items-center gap-1">
+      <a
+        href="https://x.com/tan_stack"
+        className="opacity-70 hover:opacity-100"
+        aria-label="Follow TanStack on X.com"
+      >
+        <TbBrandX className="text-xl" />
+      </a>
+      <a
+        href="https://bsky.app/profile/tanstack.com"
+        className="opacity-70 hover:opacity-100"
+        aria-label="Follow TanStack on Bluesky"
+      >
+        <TbBrandBluesky className="text-xl" />
+      </a>
+      <a
+        href="https://instagram.com/tan_stack"
+        className="opacity-70 hover:opacity-100"
+        aria-label="Follow TanStack on Instagram"
+      >
+        <FaInstagram className="text-xl" />
+      </a>
+    </div>
+  )
+
   const navbar = (
     <div
       className={twMerge(
@@ -75,127 +147,69 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       )}
       ref={containerRef}
     >
-      <div className="flex items-center gap-2 font-black text-xl uppercase">
-        <button
-          className={twMerge(
-            'transition-all duration-300 h-8',
-            'lg:-mr-2',
-            Title
-              ? 'lg:w-9 lg:opacity-100 lg:translate-x-0 lg:pl-2 lg:-ml-2'
-              : 'lg:w-0 lg:opacity-0 lg:-translate-x-full'
-          )}
-          onClick={toggleMenu}
-          onPointerEnter={() => {
-            if (window.innerWidth < 1024) {
-              return
-            }
-            setShowMenu(true)
-          }}
-        >
-          {showMenu ? <CgClose /> : <CgMenuLeft />}
-        </button>
-        <BrandContextMenu
-          className={twMerge(`flex items-center gap-1.5 group`)}
-        >
-          <Link
-            to="/"
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 font-black text-xl uppercase">
+          <button
             className={twMerge(
-              `inline-flex items-center gap-1.5 cursor-pointer`
+              'transition-all duration-300 h-8',
+              'lg:-mr-2',
+              Title
+                ? 'lg:w-9 lg:opacity-100 lg:translate-x-0 lg:pl-2 lg:-ml-2'
+                : 'lg:w-0 lg:opacity-0 lg:-translate-x-full'
             )}
+            onClick={toggleMenu}
+            onPointerEnter={() => {
+              if (window.innerWidth < 1024) {
+                return
+              }
+              setShowMenu(true)
+            }}
           >
-            <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
-              <img
-                src={'/images/logos/logo-color-100.png'}
-                alt=""
-                className="row-start-1 col-start-1 w-full group-hover:opacity-0"
-              />
-              <img
-                src={'/images/logos/logo-black.svg'}
-                alt=""
-                className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
-              />
-              <img
-                src={'/images/logos/logo-white.svg'}
-                alt=""
-                className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
-              />
-            </div>
-            <div>TanStack</div>
-          </Link>
-        </BrandContextMenu>
-        {Title ? <Title /> : null}
-        <div className="ml-4 flex-1 max-w-[180px] font-normal">
+            {showMenu ? <CgClose /> : <CgMenuLeft />}
+          </button>
+          <BrandContextMenu
+            className={twMerge(`flex items-center gap-1.5 group`)}
+          >
+            <Link
+              to="/"
+              className={twMerge(
+                `inline-flex items-center gap-1.5 cursor-pointer`
+              )}
+            >
+              <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
+                <img
+                  src={'/images/logos/logo-color-100.png'}
+                  alt=""
+                  className="row-start-1 col-start-1 w-full group-hover:opacity-0"
+                />
+                <img
+                  src={'/images/logos/logo-black.svg'}
+                  alt=""
+                  className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
+                />
+                <img
+                  src={'/images/logos/logo-white.svg'}
+                  alt=""
+                  className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
+                />
+              </div>
+              <div>TanStack</div>
+            </Link>
+          </BrandContextMenu>
+          {Title ? <Title /> : null}
+        </div>
+        <div className="flex-1 max-w-[180px] font-normal hidden lg:block">
           <SearchButton />
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1">
-          <a
-            href="https://x.com/tan_stack"
-            className="opacity-70 hover:opacity-100"
-            aria-label="Follow TanStack on X.com"
-          >
-            <TbBrandX className="text-xl" />
-          </a>
-          <a
-            href="https://bsky.app/profile/tanstack.com"
-            className="opacity-70 hover:opacity-100"
-            aria-label="Follow TanStack on Bluesky"
-          >
-            <TbBrandBluesky className="text-xl" />
-          </a>
-          <a
-            href="https://instagram.com/tan_stack"
-            className="opacity-70 hover:opacity-100"
-            aria-label="Follow TanStack on Instagram"
-          >
-            <FaInstagram className="text-xl" />
-          </a>
-        </div>
+        <div className="hidden sm:block">{socialLinks}</div>
         <div className="ml-auto">
           <ThemeToggle />
         </div>
-        {(() => {
-          const loginEl = (
-            <Link
-              to="/login"
-              className="flex items-center gap-2 bg-gray-500/30 rounded-lg py-1 px-2 opacity-80 hover:opacity-100"
-            >
-              <MdPerson />
-              <div className="text-sm">Log In</div>
-            </Link>
-          )
-
-          return (
-            <>
-              <AuthLoading>{loginEl}</AuthLoading>
-              <Unauthenticated>{loginEl}</Unauthenticated>
-            </>
-          )
-        })()}
-
-        <Authenticated>
-          <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <FaUser />
-            <Link
-              to="/account"
-              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-            >
-              My Account
-            </Link>
-          </div>
-          {canAdmin ? (
-            <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-              <FaLock />
-              <Link
-                to="/admin"
-                className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                Admin
-              </Link>
-            </div>
-          ) : null}
-        </Authenticated>
+        <div className="hidden sm:flex items-center gap-2 flex-wrap">
+          {loginButton}
+        </div>
       </div>
     </div>
   )
@@ -451,11 +465,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     "
     >
       <div
-        className="flex flex-col gap-4 whitespace-nowrap overflow-y-auto
+        className="flex flex-col whitespace-nowrap overflow-y-auto
           border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
       >
-        <div className="p-2 pb-0">
-          <SearchButton />
+        <div className="flex items-center justify-between p-2 gap-2">
+          <div className="flex-1">
+            <SearchButton />
+          </div>
+          <div className="sm:hidden">{loginButton}</div>
         </div>
         <div
           className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20"
@@ -468,6 +485,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         >
           {items}
         </div>
+        <div className="p-4 sm:hidden">{socialLinks}</div>
       </div>
     </div>
   ) : null

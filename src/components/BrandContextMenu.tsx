@@ -68,7 +68,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
           <DropdownMenu.Content
             sideOffset={4}
             align="start"
-            className="relative z-[50] min-w-48 rounded-md border border-gray-200 bg-white p-1 text-sm shadow-lg dark:border-gray-700 dark:bg-gray-900/50 backdrop-blur-md"
+            className="relative z-[1000] min-w-48 rounded-md border border-gray-200 bg-white p-1 text-sm shadow-lg dark:border-gray-700 dark:bg-gray-900/50 backdrop-blur-md"
           >
             {[
               {

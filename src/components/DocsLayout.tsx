@@ -13,11 +13,10 @@ import {
   useNavigate,
   useParams,
 } from '@tanstack/react-router'
-import { FrameworkSelect } from '~/components/FrameworkSelect'
+import { Select } from '~/components/Select'
 import { useLocalStorage } from '~/utils/useLocalStorage'
-import { DocsLogo } from '~/components/DocsLogo'
 import { last } from '~/utils/utils'
-import type { SelectOption } from '~/components/FrameworkSelect'
+import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { create } from 'zustand'
 import { Framework, getFrameworkOptions } from '~/libraries'
@@ -28,6 +27,8 @@ import { partners } from '~/utils/partners'
 import { GamFooter, GamLeftRailSquare, GamRightRailSquare } from './Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { SearchButton } from './SearchButton'
+import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
+import { VersionSelect } from './VersionSelect'
 
 // Create context for width toggle state
 const WidthToggleContext = React.createContext<{
@@ -41,143 +42,6 @@ export const useWidthToggle = () => {
     throw new Error('useWidthToggle must be used within a WidthToggleProvider')
   }
   return context
-}
-
-// Let's use zustand to wrap the local storage logic. This way
-// we'll get subscriptions for free and we can use it in other
-// components if we need to.
-const useLocalCurrentFramework = create<{
-  currentFramework?: string
-  setCurrentFramework: (framework: string) => void
-}>((set) => ({
-  currentFramework:
-    typeof document !== 'undefined'
-      ? localStorage.getItem('framework') || undefined
-      : undefined,
-  setCurrentFramework: (framework: string) => {
-    localStorage.setItem('framework', framework)
-    set({ currentFramework: framework })
-  },
-}))
-
-/**
- * Use framework in URL path
- * Otherwise use framework in localStorage if it exists for this project
- * Otherwise fallback to react
- */
-function useCurrentFramework(frameworks: Framework[]) {
-  const navigate = useNavigate()
-
-  const { framework: paramsFramework } = useParams({
-    strict: false,
-  })
-
-  const localCurrentFramework = useLocalCurrentFramework()
-
-  let framework = (paramsFramework ||
-    localCurrentFramework.currentFramework ||
-    'react') as Framework
-
-  framework = frameworks.includes(framework) ? framework : 'react'
-
-  const setFramework = React.useCallback(
-    (framework: string) => {
-      navigate({
-        params: (prev) => ({
-          ...prev,
-          framework,
-        }),
-      })
-      localCurrentFramework.setCurrentFramework(framework)
-    },
-    [localCurrentFramework, navigate]
-  )
-
-  React.useEffect(() => {
-    // Set the framework in localStorage if it doesn't exist
-    if (!localCurrentFramework.currentFramework) {
-      localCurrentFramework.setCurrentFramework(framework)
-    }
-
-    // Set the framework in localStorage if it doesn't match the URL
-    if (
-      paramsFramework &&
-      paramsFramework !== localCurrentFramework.currentFramework
-    ) {
-      localCurrentFramework.setCurrentFramework(paramsFramework)
-    }
-  })
-
-  return {
-    framework,
-    setFramework,
-  }
-}
-
-// Let's use zustand to wrap the local storage logic. This way
-// we'll get subscriptions for free and we can use it in other
-// components if we need to.
-const useLocalCurrentVersion = create<{
-  currentVersion?: string
-  setCurrentVersion: (version: string) => void
-}>((set) => ({
-  currentVersion:
-    typeof document !== 'undefined'
-      ? localStorage.getItem('version') || undefined
-      : undefined,
-  setCurrentVersion: (version: string) => {
-    localStorage.setItem('version', version)
-    set({ currentVersion: version })
-  },
-}))
-
-/**
- * Use framework in URL path
- * Otherwise use framework in localStorage if it exists for this project
- * Otherwise fallback to react
- */
-function useCurrentVersion(versions: string[]) {
-  const navigate = useNavigate()
-
-  const { version: paramsVersion } = useParams({
-    strict: false,
-  })
-
-  const localCurrentVersion = useLocalCurrentVersion()
-
-  let version = paramsVersion || localCurrentVersion.currentVersion || 'latest'
-
-  version = versions.includes(version) ? version : 'latest'
-
-  const setVersion = React.useCallback(
-    (version: string) => {
-      navigate({
-        params: (prev: Record<string, string>) => ({
-          ...prev,
-          version,
-        }),
-      })
-      localCurrentVersion.setCurrentVersion(version)
-    },
-    [localCurrentVersion, navigate]
-  )
-
-  React.useEffect(() => {
-    // Set the version in localStorage if it doesn't exist
-    if (!localCurrentVersion.currentVersion) {
-      localCurrentVersion.setCurrentVersion(version)
-    }
-
-    // Set the version in localStorage if it doesn't match the URL
-    if (paramsVersion && paramsVersion !== localCurrentVersion.currentVersion) {
-      localCurrentVersion.setCurrentVersion(paramsVersion)
-    }
-  })
-
-  return {
-    version,
-    setVersion,
-  }
 }
 
 const useMenuConfig = ({
@@ -260,60 +124,6 @@ const useMenuConfig = ({
   ].filter((item) => item !== undefined)
 }
 
-const useFrameworkConfig = ({ frameworks }: { frameworks: Framework[] }) => {
-  const currentFramework = useCurrentFramework(frameworks)
-
-  const frameworkConfig = React.useMemo(() => {
-    return {
-      label: 'Framework',
-      selected: frameworks.includes(currentFramework.framework)
-        ? currentFramework.framework
-        : 'react',
-      available: getFrameworkOptions(frameworks),
-      onSelect: (option: { label: string; value: string }) => {
-        currentFramework.setFramework(option.value)
-      },
-    }
-  }, [frameworks, currentFramework])
-
-  return frameworkConfig
-}
-
-const useVersionConfig = ({ versions }: { versions: string[] }) => {
-  const currentVersion = useCurrentVersion(versions)
-
-  const versionConfig = React.useMemo(() => {
-    const available = versions.reduce(
-      (acc: SelectOption[], version) => {
-        acc.push({
-          label: version,
-          value: version,
-        })
-        return acc
-      },
-      [
-        {
-          label: 'Latest',
-          value: 'latest',
-        },
-      ]
-    )
-
-    return {
-      label: 'Version',
-      selected: versions.includes(currentVersion.version)
-        ? currentVersion.version
-        : 'latest',
-      available,
-      onSelect: (option: { label: string; value: string }) => {
-        currentVersion.setVersion(option.value)
-      },
-    }
-  }, [currentVersion, versions])
-
-  return versionConfig
-}
-
 type DocsLayoutProps = {
   name: string
   version: string
@@ -343,8 +153,8 @@ export function DocsLayout({
     from: '/$libraryId/$version/docs',
   })
   const { _splat } = useParams({ strict: false })
-  const frameworkConfig = useFrameworkConfig({ frameworks })
-  const versionConfig = useVersionConfig({ versions })
+  // const frameworkConfig = useFrameworkConfig({ frameworks })
+  // const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
 
   const matches = useMatches()
@@ -479,16 +289,6 @@ export function DocsLayout({
     )
   })
 
-  const logo = (
-    <DocsLogo
-      name={name}
-      libraryId={libraryId}
-      version={version}
-      colorFrom={colorFrom}
-      colorTo={colorTo}
-    />
-  )
-
   const smallMenu = (
     <div className="lg:hidden bg-white/50 sticky top-0 z-20 dark:bg-black/60 backdrop-blur-lg">
       <details
@@ -500,23 +300,13 @@ export function DocsLayout({
           <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
             <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
             <CgClose className="icon-close mr-2 cursor-pointer" />
-            {logo}
+            {/* {logo} */}
           </div>
         </summary>
         <div className="flex flex-col gap-4 p-4 whitespace-nowrap overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">
           <div className="flex gap-4">
-            <FrameworkSelect
-              label={frameworkConfig.label}
-              selected={frameworkConfig.selected}
-              available={frameworkConfig.available}
-              onSelect={frameworkConfig.onSelect}
-            />
-            <FrameworkSelect
-              label={versionConfig.label}
-              selected={versionConfig.selected!}
-              available={versionConfig.available}
-              onSelect={versionConfig.onSelect}
-            />
+            <FrameworkSelect libraryId={libraryId} />
+            <VersionSelect libraryId={libraryId} />
           </div>
           <SearchButton />
           {menuItems}
@@ -526,33 +316,16 @@ export function DocsLayout({
   )
 
   const largeMenu = (
-    <div className="bg-white/50 dark:bg-black/30 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px] hidden lg:flex flex-col gap-4 h-screen sticky top-0 z-20 dark:border-r border-gray-500/20 transition-all duration-500">
-      <div
-        className="px-4 pt-4 flex gap-2 items-center text-2xl"
-        style={{
-          viewTransitionName: `library-name`,
-        }}
-      >
-        {logo}
-      </div>
-      <div className="px-4">
-        <SearchButton />
-      </div>
+    <div
+      className="bg-white/50 dark:bg-black/30 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px]
+      hidden lg:flex flex-col gap-4 sticky
+      h-[calc(100dvh-var(--navbar-height))] lg:top-[var(--navbar-height)]
+      z-20 dark:border-r
+      border-gray-500/20 transition-all duration-500 py-2"
+    >
       <div className="flex gap-2 px-4">
-        <FrameworkSelect
-          className="flex-[3_1_0%]"
-          label={frameworkConfig.label}
-          selected={frameworkConfig.selected}
-          available={frameworkConfig.available}
-          onSelect={frameworkConfig.onSelect}
-        />
-        <FrameworkSelect
-          className="flex-[2_1_0%]"
-          label={versionConfig.label}
-          selected={versionConfig.selected!}
-          available={versionConfig.available}
-          onSelect={versionConfig.onSelect}
-        />
+        <FrameworkSelect libraryId={libraryId} />
+        <VersionSelect libraryId={libraryId} />
       </div>
       <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-8">
         {menuItems}
@@ -563,7 +336,10 @@ export function DocsLayout({
   return (
     <WidthToggleContext.Provider value={{ isFullWidth, setIsFullWidth }}>
       <div
-        className={`min-h-screen flex flex-col lg:flex-row w-full transition-all duration-300`}
+        className={`
+          min-h-[calc(100dvh-var(--navbar-height))]
+          flex flex-col lg:flex-row
+          w-full transition-all duration-300`}
       >
         {smallMenu}
         {largeMenu}
@@ -616,9 +392,13 @@ export function DocsLayout({
             </div>
           </div>
         </div>
-        <div className="-ml-2 pl-2 w-full lg:w-[340px] shrink-0 lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto lg:overflow-x-hidden">
+        <div
+          className="-ml-2 pl-2 w-full lg:w-[340px] shrink-0 lg:sticky
+        lg:max-h-[calc(100dvh-var(--navbar-height))] lg:top-[var(--navbar-height)]
+        lg:overflow-y-auto lg:overflow-x-hidden"
+        >
           <div className="ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-4">
-            <div className="min-w-[250px] bg-white dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
+            <div className="min-w-[250px] bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
               <div className="uppercase font-black text-center p-3 opacity-50">
                 Our Partners
               </div>
@@ -684,19 +464,19 @@ export function DocsLayout({
               )}
             </div>
             {libraryId === 'query' ? (
-              <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+              <div className="p-4 bg-white/70 dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
                 <DocsCalloutQueryGG />
               </div>
             ) : null}
 
             <AdGate>
-              <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
+              <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
                 <GamRightRailSquare />
               </div>
             </AdGate>
 
             <AdGate>
-              <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
+              <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
                 <GamLeftRailSquare />
               </div>
             </AdGate>
@@ -706,7 +486,7 @@ export function DocsLayout({
             </div> */}
 
             {libraryId !== 'query' ? (
-              <div className="p-4 bg-white dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+              <div className="p-4 bg-white/70 dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
                 <DocsCalloutBytes />
               </div>
             ) : null}

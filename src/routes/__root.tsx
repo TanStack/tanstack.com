@@ -26,6 +26,7 @@ import { ToastProvider } from '~/components/ToastProvider'
 import { ThemeProvider } from '~/components/ThemeProvider'
 import { ConvexQueryClient } from '@convex-dev/react-query'
 import { ConvexReactClient } from 'convex/react'
+import { Navbar } from '~/components/Navbar'
 
 import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
 import { authClient } from '../utils/auth.client'
@@ -219,10 +220,12 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
         ) : null}
         <GamScripts />
       </head>
-      <body>
+      <body style={{ '--navbar-height': '48px' } as any}>
         <ToastProvider>
           <BackgroundGradient />
-          <React.Suspense fallback={null}>{children}</React.Suspense>
+          <React.Suspense fallback={null}>
+            <Navbar>{children}</Navbar>
+          </React.Suspense>
           {showDevtools ? (
             <TanStackRouterDevtoolsInProd position="bottom-right" />
           ) : null}

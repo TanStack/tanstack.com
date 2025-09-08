@@ -1,0 +1,524 @@
+import * as React from 'react'
+import { twMerge } from 'tailwind-merge'
+import { BrandContextMenu } from './BrandContextMenu'
+import { Link, useLocation, useMatches } from '@tanstack/react-router'
+import { TbBrandX, TbBrandBluesky } from 'react-icons/tb'
+import {
+  FaCode,
+  FaDiscord,
+  FaGithub,
+  FaInstagram,
+  FaLock,
+  FaPaintRoller,
+  FaTshirt,
+  FaUser,
+  FaUsers,
+} from 'react-icons/fa'
+import { ThemeToggle } from './ThemeToggle'
+import { SearchButton } from './SearchButton'
+import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
+import { AuthLoading } from 'convex/react'
+import { api } from 'convex/_generated/api'
+import {
+  MdLibraryBooks,
+  MdLineAxis,
+  MdMenu,
+  MdPerson,
+  MdSupport,
+} from 'react-icons/md'
+import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
+import { BiSolidCheckShield } from 'react-icons/bi'
+import { PiHammerFill } from 'react-icons/pi'
+import { libraries } from '~/libraries'
+import { sortBy } from '~/utils/utils'
+
+export function Navbar({ children }: { children: React.ReactNode }) {
+  const user = useQuery(api.auth.getCurrentUser)
+  const matches = useMatches()
+
+  const Title =
+    [...matches].reverse().find((m) => m.staticData.Title)?.staticData.Title ??
+    null
+
+  const canAdmin = user?.capabilities.includes('admin')
+
+  const containerRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const updateContainerHeight = () => {
+      if (containerRef.current) {
+        const height = containerRef.current.offsetHeight
+        document.body.style.setProperty('--navbar-height', `${height}px`)
+      }
+    }
+
+    updateContainerHeight() // Initial call to set the height
+
+    window.addEventListener('resize', updateContainerHeight)
+    return () => {
+      window.removeEventListener('resize', updateContainerHeight)
+    }
+  }, [])
+
+  const [showMenu, setShowMenu] = React.useState(false)
+
+  const toggleMenu = () => {
+    setShowMenu((prev) => !prev)
+  }
+
+  const navbar = (
+    <div
+      className={twMerge(
+        'w-full py-2 px-4 sticky top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-blur-lg shadow-xl shadow-black/3',
+        'flex items-center justify-between gap-4',
+        'dark:border-b border-gray-500/20'
+      )}
+      ref={containerRef}
+    >
+      <div className="flex items-center gap-2 font-black text-xl uppercase">
+        <button
+          className={twMerge(
+            '-mr-2 transition-all duration-300 h-8',
+            Title
+              ? 'w-9 opacity-100 translate-x-0 pl-2 -ml-2'
+              : 'w-0 opacity-0 -translate-x-full'
+          )}
+          onClick={toggleMenu}
+          onPointerEnter={() => {
+            setShowMenu(true)
+          }}
+        >
+          <MdMenu />
+        </button>
+        <BrandContextMenu
+          className={twMerge(`flex items-center gap-1.5 group`)}
+        >
+          <Link
+            to="/"
+            className={twMerge(
+              `inline-flex items-center gap-1.5 cursor-pointer`
+            )}
+          >
+            <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
+              <img
+                src={'/images/logos/logo-color-100.png'}
+                alt=""
+                className="row-start-1 col-start-1 w-full group-hover:opacity-0"
+              />
+              <img
+                src={'/images/logos/logo-black.svg'}
+                alt=""
+                className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
+              />
+              <img
+                src={'/images/logos/logo-white.svg'}
+                alt=""
+                className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
+              />
+            </div>
+            <div>TanStack</div>
+          </Link>
+        </BrandContextMenu>
+        {Title ? <Title /> : null}
+        <div className="ml-4 flex-1 max-w-[180px] font-normal">
+          <SearchButton />
+        </div>
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1">
+          <a
+            href="https://x.com/tan_stack"
+            className="opacity-70 hover:opacity-100"
+            aria-label="Follow TanStack on X.com"
+          >
+            <TbBrandX className="text-xl" />
+          </a>
+          <a
+            href="https://bsky.app/profile/tanstack.com"
+            className="opacity-70 hover:opacity-100"
+            aria-label="Follow TanStack on Bluesky"
+          >
+            <TbBrandBluesky className="text-xl" />
+          </a>
+          <a
+            href="https://instagram.com/tan_stack"
+            className="opacity-70 hover:opacity-100"
+            aria-label="Follow TanStack on Instagram"
+          >
+            <FaInstagram className="text-xl" />
+          </a>
+        </div>
+        <div className="ml-auto">
+          <ThemeToggle />
+        </div>
+        {(() => {
+          const loginEl = (
+            <Link
+              to="/login"
+              className="flex items-center gap-2 bg-gray-500/30 rounded-lg py-1 px-2 opacity-80 hover:opacity-100"
+            >
+              <MdPerson />
+              <div className="text-sm">Log In</div>
+            </Link>
+          )
+
+          return (
+            <>
+              <AuthLoading>{loginEl}</AuthLoading>
+              <Unauthenticated>{loginEl}</Unauthenticated>
+            </>
+          )
+        })()}
+
+        <Authenticated>
+          <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+            <FaUser />
+            <Link
+              to="/account"
+              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            >
+              My Account
+            </Link>
+          </div>
+          {canAdmin ? (
+            <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+              <FaLock />
+              <Link
+                to="/admin"
+                className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              >
+                Admin
+              </Link>
+            </div>
+          ) : null}
+        </Authenticated>
+      </div>
+    </div>
+  )
+
+  const activeLibrary = useLocation({
+    select: (location) => {
+      return libraries.find((library) => {
+        return location.pathname.startsWith(library.to!)
+      })
+    },
+  })
+
+  const detailsRef = React.useRef<HTMLElement>(null!)
+  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
+
+  const items = (
+    <>
+      {sortBy(
+        libraries.filter((d) => d.to),
+        (d) => !d.name.includes('TanStack')
+      ).map((library, i) => {
+        const [prefix, name] = library.name.split(' ')
+
+        return (
+          <div key={i}>
+            {library.to?.startsWith('http') ? (
+              <a href={library.to} className={linkClasses}>
+                <span>
+                  <span className="font-light dark:font-bold dark:opacity-40">
+                    {prefix}
+                  </span>{' '}
+                  <span className={library.textStyle}>{name}</span>
+                </span>
+              </a>
+            ) : (
+              <div>
+                <Link
+                  to={library.to}
+                  onClick={() => {
+                    detailsRef.current.removeAttribute('open')
+                  }}
+                >
+                  {(props) => {
+                    return (
+                      <div
+                        className={twMerge(
+                          linkClasses,
+                          props.isActive
+                            ? 'bg-gray-500/10 dark:bg-gray-500/30'
+                            : ''
+                        )}
+                      >
+                        <span
+                          style={{
+                            viewTransitionName: `library-name-${library.id}`,
+                          }}
+                        >
+                          <span
+                            className={twMerge(
+                              'font-light dark:font-bold dark:opacity-40',
+                              props.isActive ? `font-bold dark:opacity-100` : ''
+                            )}
+                          >
+                            {prefix}
+                          </span>{' '}
+                          <span
+                            className={twMerge(
+                              library.textStyle
+                              // isPending &&
+                              //   `[view-transition-name:library-name]`
+                            )}
+                          >
+                            {name}
+                          </span>
+                        </span>
+                        {library.badge ? (
+                          <span
+                            className={twMerge(
+                              `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
+                              // library.badge === 'new'
+                              //   ? 'text-green-500'
+                              //   : library.badge === 'soon'
+                              //   ? 'text-cyan-500'
+                              //   : '',
+                              library.textStyle
+                            )}
+                          >
+                            {library.badge}
+                          </span>
+                        ) : null}
+                      </div>
+                    )
+                  }}
+                </Link>
+                <div
+                  className={twMerge(
+                    library.to === activeLibrary?.to ? 'block' : 'hidden'
+                  )}
+                >
+                  {library.menu?.map((item, i) => {
+                    return (
+                      <Link
+                        to={item.to}
+                        key={i}
+                        className={twMerge(
+                          'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
+                          'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                        )}
+                      >
+                        {item.icon}
+                        {item.label}
+                      </Link>
+                    )
+                  })}
+                  <Link
+                    to={`/$libraryId/$version/docs/contributors`}
+                    params={{
+                      libraryId: library.id,
+                      version: 'latest',
+                    }}
+                    className={twMerge(
+                      'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
+                      'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                    )}
+                  >
+                    <FaUsers />
+                    Contributors
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })}
+      <div className="py-2">
+        <div className="bg-gray-500/10 h-px" />
+      </div>
+      <Authenticated>
+        {user?.capabilities.some((capability) =>
+          ['builder', 'admin'].includes(capability)
+        ) ? (
+          <Link
+            to="/builder"
+            className={twMerge(linkClasses, 'font-normal')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4 justify-between">
+                <PiHammerFill />
+              </div>
+              <div>Builder</div>
+            </div>
+          </Link>
+        ) : null}
+      </Authenticated>
+      {[
+        {
+          label: 'Maintainers',
+          icon: <FaCode />,
+          to: '/maintainers',
+        },
+        {
+          label: 'Partners',
+          icon: <FaUsers />,
+          to: '/partners',
+        },
+        {
+          label: 'Support',
+          icon: <MdSupport />,
+          to: '/support',
+        },
+        {
+          label: 'Learn',
+          icon: <MdLibraryBooks />,
+          to: '/learn',
+        },
+        {
+          label: (
+            <span className="flex items-center gap-2">
+              Stats
+              <span className="text-xs bg-transparent text-transparent bg-clip-text bg-linear-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
+                BETA
+              </span>
+            </span>
+          ),
+          icon: <MdLineAxis />,
+          to: '/stats/npm',
+        },
+        {
+          label: 'Discord',
+          icon: <FaDiscord />,
+          to: 'https://tlinz.com/discord',
+          target: '_blank',
+        },
+        {
+          label: 'Merch',
+          icon: <FaTshirt />,
+          to: 'https://cottonbureau.com/people/tanstack',
+        },
+        {
+          label: 'Blog',
+          icon: <CgMusicSpeaker />,
+          to: '/blog',
+        },
+        {
+          label: 'GitHub',
+          icon: <FaGithub />,
+          to: 'https://github.com/tanstack',
+        },
+        {
+          label: 'Ethos',
+          icon: <BiSolidCheckShield />,
+          to: '/ethos',
+        },
+        {
+          label: 'Brand Guide',
+          icon: <FaPaintRoller />,
+          to: '/brand-guide',
+        },
+      ].map((item, i) => {
+        return (
+          <Link
+            to={item.to}
+            onClick={() => detailsRef.current.removeAttribute('open')}
+            key={i}
+            className={twMerge(linkClasses, 'font-normal')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+              ),
+            }}
+            target={item.to.startsWith('http') ? '_blank' : undefined}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4 justify-between">
+                {item.icon}
+              </div>
+              <div>{item.label}</div>
+            </div>
+          </Link>
+        )
+      })}
+    </>
+  )
+
+  const smallMenu = (
+    <div className="lg:hidden bg-white/50 dark:bg-black/60 sticky top-0 z-20 backdrop-blur-[20px]">
+      <details
+        ref={detailsRef as any}
+        id="docs-details"
+        className="border-b border-gray-500/20"
+      >
+        <summary className="p-4 flex gap-2 items-center justify-between">
+          <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
+            <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
+            <CgClose className="icon-close mr-2 cursor-pointer" />
+            {/* {logo} */}
+          </div>
+        </summary>
+        <div
+          className="flex flex-col gap-4 whitespace-nowrap overflow-y-auto
+          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
+        >
+          <div className="p-2 pb-0">
+            <SearchButton />
+          </div>
+          <div className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
+            {items}
+          </div>
+        </div>
+      </details>
+    </div>
+  )
+
+  const inlineMenu = !Title
+
+  const leaveTimer = React.useRef<NodeJS.Timeout | undefined>(undefined)
+
+  const largeMenu = (
+    <>
+      <div
+        className={twMerge(
+          `min-w-[250px] hidden lg:flex flex-col
+      h-[calc(100dvh-var(--navbar-height))] sticky top-[var(--navbar-height)] z-20
+      bg-white/50 dark:bg-black/30 shadow-xl dark:border-r border-gray-500/20`,
+          'transition-all duration-300',
+          'z-50',
+          inlineMenu
+            ? ''
+            : [
+                'absolute bg-white/70 dark:bg-black/50 backdrop-blur-lg -translate-x-full',
+                showMenu && 'translate-x-0',
+              ]
+        )}
+        onPointerEnter={() => {
+          clearTimeout(leaveTimer.current)
+        }}
+        onPointerLeave={() => {
+          leaveTimer.current = setTimeout(() => {
+            setShowMenu(false)
+          }, 300)
+        }}
+      >
+        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[50px]">
+          <div className="flex flex-col gap-1 text-sm p-2">{items}</div>
+        </div>
+      </div>
+    </>
+  )
+
+  return (
+    <>
+      {navbar}
+      <div
+        className={twMerge(
+          `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col
+          min-w-0 lg:flex-row w-full transition-all duration-300`
+        )}
+      >
+        {/* {smallMenu} */}
+        {largeMenu}
+        <div className="flex flex-col w-full min-h-0">{children}</div>
+      </div>
+    </>
+  )
+}

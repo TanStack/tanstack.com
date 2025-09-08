@@ -29,8 +29,6 @@ export const formProject = {
   textColor: 'text-yellow-600',
   frameworks: ['react', 'vue', 'angular', 'solid', 'lit', 'svelte'],
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
-  showNetlifyUrl: true,
-  showCloudflareUrl: true,
   menu: [
     {
       icon: <BiBookAlt />,

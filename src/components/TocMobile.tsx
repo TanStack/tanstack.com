@@ -19,10 +19,11 @@ export function TocMobile({ headings }: TocMobileProps) {
   }
 
   return (
-    <div className="lg:hidden flex -mx-2 -mt-2 md:-mx-6 md:-mt-6 pb-3 md:pb-5">
-      <details className="w-full" onToggle={handleToggle}>
+    <div className="lg:hidden flex -mt-2 md:-mt-4 mb-2 bg-white/50 dark:bg-black/30 backdrop-blur-lg rounded-b-xl">
+      <details className="flex-1" onToggle={handleToggle}>
         <summary
-          className="px-4 py-3 text-sm font-medium w-full flex content-start items-center gap-2 bg-white/50 dark:bg-black/60 backdrop-blur-lg border-b border-gray-500/20"
+          className="px-4 py-3 text-sm font-medium w-full flex content-start items-center gap-2
+          rounded-b-xl"
           aria-expanded={isOpen}
         >
           <span>{isOpen ? <FaCaretDown /> : <FaCaretRight />}</span>

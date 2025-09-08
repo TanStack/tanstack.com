@@ -290,17 +290,20 @@ export function DocsLayout({
   })
 
   const smallMenu = (
-    <div className="lg:hidden bg-white/50 sticky top-0 z-20 dark:bg-black/60 backdrop-blur-lg">
+    <div
+      className="lg:hidden bg-white/50 sticky top-[var(--navbar-height)]
+    max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto z-20 dark:bg-black/60 backdrop-blur-lg"
+    >
       <details
         ref={detailsRef as any}
         id="docs-details"
         className="border-b border-gray-500/20"
       >
-        <summary className="p-4 flex gap-2 items-center justify-between">
-          <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
-            <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
-            <CgClose className="icon-close mr-2 cursor-pointer" />
-            {/* {logo} */}
+        <summary className="py-2 px-4 flex gap-2 items-center justify-between">
+          <div className="flex-1 flex gap-4 items-center">
+            <CgMenuLeft className="icon-open cursor-pointer" />
+            <CgClose className="icon-close cursor-pointer" />
+            Documentation
           </div>
         </summary>
         <div className="flex flex-col gap-4 p-4 whitespace-nowrap overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">

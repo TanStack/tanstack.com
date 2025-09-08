@@ -78,17 +78,21 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <div className="flex items-center gap-2 font-black text-xl uppercase">
         <button
           className={twMerge(
-            '-mr-2 transition-all duration-300 h-8',
+            'transition-all duration-300 h-8',
+            'lg:-mr-2',
             Title
-              ? 'w-9 opacity-100 translate-x-0 pl-2 -ml-2'
-              : 'w-0 opacity-0 -translate-x-full'
+              ? 'lg:w-9 lg:opacity-100 lg:translate-x-0 lg:pl-2 lg:-ml-2'
+              : 'lg:w-0 lg:opacity-0 lg:-translate-x-full'
           )}
           onClick={toggleMenu}
           onPointerEnter={() => {
+            if (window.innerWidth < 1024) {
+              return
+            }
             setShowMenu(true)
           }}
         >
-          <MdMenu />
+          {showMenu ? <CgClose /> : <CgMenuLeft />}
         </button>
         <BrandContextMenu
           className={twMerge(`flex items-center gap-1.5 group`)}
@@ -204,271 +208,269 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     },
   })
 
-  const detailsRef = React.useRef<HTMLElement>(null!)
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
 
   const items = (
-    <>
-      {sortBy(
-        libraries.filter((d) => d.to),
-        (d) => !d.name.includes('TanStack')
-      ).map((library, i) => {
-        const [prefix, name] = library.name.split(' ')
+    <div className="md:flex gap-2 [&>*]:flex-1 lg:block">
+      <div>
+        {sortBy(
+          libraries.filter((d) => d.to),
+          (d) => !d.name.includes('TanStack')
+        ).map((library, i) => {
+          const [prefix, name] = library.name.split(' ')
 
-        return (
-          <div key={i}>
-            {library.to?.startsWith('http') ? (
-              <a href={library.to} className={linkClasses}>
-                <span>
-                  <span className="font-light dark:font-bold dark:opacity-40">
-                    {prefix}
-                  </span>{' '}
-                  <span className={library.textStyle}>{name}</span>
-                </span>
-              </a>
-            ) : (
-              <div>
-                <Link
-                  to={library.to}
-                  onClick={() => {
-                    detailsRef.current.removeAttribute('open')
-                  }}
-                >
-                  {(props) => {
-                    return (
-                      <div
-                        className={twMerge(
-                          linkClasses,
-                          props.isActive
-                            ? 'bg-gray-500/10 dark:bg-gray-500/30'
-                            : ''
-                        )}
-                      >
-                        <span
-                          style={{
-                            viewTransitionName: `library-name-${library.id}`,
-                          }}
+          return (
+            <div key={i}>
+              {library.to?.startsWith('http') ? (
+                <a href={library.to} className={linkClasses}>
+                  <span>
+                    <span className="font-light dark:font-bold dark:opacity-40">
+                      {prefix}
+                    </span>{' '}
+                    <span className={library.textStyle}>{name}</span>
+                  </span>
+                </a>
+              ) : (
+                <div>
+                  <Link to={library.to}>
+                    {(props) => {
+                      return (
+                        <div
+                          className={twMerge(
+                            linkClasses,
+                            props.isActive
+                              ? 'bg-gray-500/10 dark:bg-gray-500/30'
+                              : ''
+                          )}
                         >
                           <span
-                            className={twMerge(
-                              'font-light dark:font-bold dark:opacity-40',
-                              props.isActive ? `font-bold dark:opacity-100` : ''
-                            )}
+                            style={{
+                              viewTransitionName: `library-name-${library.id}`,
+                            }}
                           >
-                            {prefix}
-                          </span>{' '}
-                          <span
-                            className={twMerge(
-                              library.textStyle
-                              // isPending &&
-                              //   `[view-transition-name:library-name]`
-                            )}
-                          >
-                            {name}
+                            <span
+                              className={twMerge(
+                                'font-light dark:font-bold dark:opacity-40',
+                                props.isActive
+                                  ? `font-bold dark:opacity-100`
+                                  : ''
+                              )}
+                            >
+                              {prefix}
+                            </span>{' '}
+                            <span
+                              className={twMerge(
+                                library.textStyle
+                                // isPending &&
+                                //   `[view-transition-name:library-name]`
+                              )}
+                            >
+                              {name}
+                            </span>
                           </span>
-                        </span>
-                        {library.badge ? (
-                          <span
-                            className={twMerge(
-                              `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
-                              // library.badge === 'new'
-                              //   ? 'text-green-500'
-                              //   : library.badge === 'soon'
-                              //   ? 'text-cyan-500'
-                              //   : '',
-                              library.textStyle
-                            )}
-                          >
-                            {library.badge}
-                          </span>
-                        ) : null}
-                      </div>
-                    )
-                  }}
-                </Link>
-                <div
-                  className={twMerge(
-                    library.to === activeLibrary?.to ? 'block' : 'hidden'
-                  )}
-                >
-                  {library.menu?.map((item, i) => {
-                    return (
-                      <Link
-                        to={item.to}
-                        key={i}
-                        className={twMerge(
-                          'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
-                          'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
-                        )}
-                      >
-                        {item.icon}
-                        {item.label}
-                      </Link>
-                    )
-                  })}
-                  <Link
-                    to={`/$libraryId/$version/docs/contributors`}
-                    params={{
-                      libraryId: library.id,
-                      version: 'latest',
+                          {library.badge ? (
+                            <span
+                              className={twMerge(
+                                `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
+                                // library.badge === 'new'
+                                //   ? 'text-green-500'
+                                //   : library.badge === 'soon'
+                                //   ? 'text-cyan-500'
+                                //   : '',
+                                library.textStyle
+                              )}
+                            >
+                              {library.badge}
+                            </span>
+                          ) : null}
+                        </div>
+                      )
                     }}
+                  </Link>
+                  <div
                     className={twMerge(
-                      'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
-                      'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                      library.to === activeLibrary?.to ? 'block' : 'hidden'
                     )}
                   >
-                    <FaUsers />
-                    Contributors
-                  </Link>
+                    {library.menu?.map((item, i) => {
+                      return (
+                        <Link
+                          to={item.to}
+                          key={i}
+                          className={twMerge(
+                            'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
+                            'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                          )}
+                        >
+                          {item.icon}
+                          {item.label}
+                        </Link>
+                      )
+                    })}
+                    <Link
+                      to={`/$libraryId/$version/docs/contributors`}
+                      params={{
+                        libraryId: library.id,
+                        version: 'latest',
+                      }}
+                      className={twMerge(
+                        'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
+                        'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                      )}
+                    >
+                      <FaUsers />
+                      Contributors
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )
-      })}
-      <div className="py-2">
-        <div className="bg-gray-500/10 h-px" />
-      </div>
-      <Authenticated>
-        {user?.capabilities.some((capability) =>
-          ['builder', 'admin'].includes(capability)
-        ) ? (
-          <Link
-            to="/builder"
-            className={twMerge(linkClasses, 'font-normal')}
-            activeProps={{
-              className: twMerge(
-                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
-              ),
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-4 justify-between">
-                <PiHammerFill />
-              </div>
-              <div>Builder</div>
+              )}
             </div>
-          </Link>
-        ) : null}
-      </Authenticated>
-      {[
-        {
-          label: 'Maintainers',
-          icon: <FaCode />,
-          to: '/maintainers',
-        },
-        {
-          label: 'Partners',
-          icon: <FaUsers />,
-          to: '/partners',
-        },
-        {
-          label: 'Support',
-          icon: <MdSupport />,
-          to: '/support',
-        },
-        {
-          label: 'Learn',
-          icon: <MdLibraryBooks />,
-          to: '/learn',
-        },
-        {
-          label: (
-            <span className="flex items-center gap-2">
-              Stats
-              <span className="text-xs bg-transparent text-transparent bg-clip-text bg-linear-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
-                BETA
-              </span>
-            </span>
-          ),
-          icon: <MdLineAxis />,
-          to: '/stats/npm',
-        },
-        {
-          label: 'Discord',
-          icon: <FaDiscord />,
-          to: 'https://tlinz.com/discord',
-          target: '_blank',
-        },
-        {
-          label: 'Merch',
-          icon: <FaTshirt />,
-          to: 'https://cottonbureau.com/people/tanstack',
-        },
-        {
-          label: 'Blog',
-          icon: <CgMusicSpeaker />,
-          to: '/blog',
-        },
-        {
-          label: 'GitHub',
-          icon: <FaGithub />,
-          to: 'https://github.com/tanstack',
-        },
-        {
-          label: 'Ethos',
-          icon: <BiSolidCheckShield />,
-          to: '/ethos',
-        },
-        {
-          label: 'Brand Guide',
-          icon: <FaPaintRoller />,
-          to: '/brand-guide',
-        },
-      ].map((item, i) => {
-        return (
-          <Link
-            to={item.to}
-            onClick={() => detailsRef.current.removeAttribute('open')}
-            key={i}
-            className={twMerge(linkClasses, 'font-normal')}
-            activeProps={{
-              className: twMerge(
-                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
-              ),
-            }}
-            target={item.to.startsWith('http') ? '_blank' : undefined}
-          >
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-4 justify-between">
-                {item.icon}
-              </div>
-              <div>{item.label}</div>
-            </div>
-          </Link>
-        )
-      })}
-    </>
-  )
-
-  const smallMenu = (
-    <div className="lg:hidden bg-white/50 dark:bg-black/60 sticky top-0 z-20 backdrop-blur-[20px]">
-      <details
-        ref={detailsRef as any}
-        id="docs-details"
-        className="border-b border-gray-500/20"
-      >
-        <summary className="p-4 flex gap-2 items-center justify-between">
-          <div className="flex-1 flex gap-2 items-center text-xl md:text-2xl">
-            <CgMenuLeft className="icon-open mr-2 cursor-pointer" />
-            <CgClose className="icon-close mr-2 cursor-pointer" />
-            {/* {logo} */}
-          </div>
-        </summary>
-        <div
-          className="flex flex-col gap-4 whitespace-nowrap overflow-y-auto
-          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
-        >
-          <div className="p-2 pb-0">
-            <SearchButton />
-          </div>
-          <div className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20">
-            {items}
-          </div>
+          )
+        })}
+        <div className="py-2">
+          <div className="bg-gray-500/10 h-px" />
         </div>
-      </details>
+      </div>
+      <div>
+        <Authenticated>
+          {user?.capabilities.some((capability) =>
+            ['builder', 'admin'].includes(capability)
+          ) ? (
+            <Link
+              to="/builder"
+              className={twMerge(linkClasses, 'font-normal')}
+              activeProps={{
+                className: twMerge(
+                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                ),
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4 justify-between">
+                  <PiHammerFill />
+                </div>
+                <div>Builder</div>
+              </div>
+            </Link>
+          ) : null}
+        </Authenticated>
+        {[
+          {
+            label: 'Maintainers',
+            icon: <FaCode />,
+            to: '/maintainers',
+          },
+          {
+            label: 'Partners',
+            icon: <FaUsers />,
+            to: '/partners',
+          },
+          {
+            label: 'Support',
+            icon: <MdSupport />,
+            to: '/support',
+          },
+          {
+            label: 'Learn',
+            icon: <MdLibraryBooks />,
+            to: '/learn',
+          },
+          {
+            label: (
+              <span className="flex items-center gap-2">
+                Stats
+                <span className="text-xs bg-transparent text-transparent bg-clip-text bg-linear-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
+                  BETA
+                </span>
+              </span>
+            ),
+            icon: <MdLineAxis />,
+            to: '/stats/npm',
+          },
+          {
+            label: 'Discord',
+            icon: <FaDiscord />,
+            to: 'https://tlinz.com/discord',
+            target: '_blank',
+          },
+          {
+            label: 'Merch',
+            icon: <FaTshirt />,
+            to: 'https://cottonbureau.com/people/tanstack',
+          },
+          {
+            label: 'Blog',
+            icon: <CgMusicSpeaker />,
+            to: '/blog',
+          },
+          {
+            label: 'GitHub',
+            icon: <FaGithub />,
+            to: 'https://github.com/tanstack',
+          },
+          {
+            label: 'Ethos',
+            icon: <BiSolidCheckShield />,
+            to: '/ethos',
+          },
+          {
+            label: 'Brand Guide',
+            icon: <FaPaintRoller />,
+            to: '/brand-guide',
+          },
+        ].map((item, i) => {
+          return (
+            <Link
+              to={item.to}
+              key={i}
+              className={twMerge(linkClasses, 'font-normal')}
+              activeProps={{
+                className: twMerge(
+                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                ),
+              }}
+              target={item.to.startsWith('http') ? '_blank' : undefined}
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4 justify-between">
+                  {item.icon}
+                </div>
+                <div>{item.label}</div>
+              </div>
+            </Link>
+          )
+        })}
+      </div>
     </div>
   )
+
+  const smallMenu = showMenu ? (
+    <div
+      className="lg:hidden bg-white/50 dark:bg-black/60 backdrop-blur-[20px] z-50
+    sticky top-[var(--navbar-height)] max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto
+    "
+    >
+      <div
+        className="flex flex-col gap-4 whitespace-nowrap overflow-y-auto
+          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
+      >
+        <div className="p-2 pb-0">
+          <SearchButton />
+        </div>
+        <div
+          className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20"
+          onClick={(event) => {
+            const target = event.target as HTMLElement
+            if (target.closest('a')) {
+              setShowMenu(false)
+            }
+          }}
+        >
+          {items}
+        </div>
+      </div>
+    </div>
+  ) : null
 
   const inlineMenu = !Title
 
@@ -486,7 +488,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           inlineMenu
             ? ''
             : [
-                'absolute bg-white/70 dark:bg-black/50 backdrop-blur-lg -translate-x-full',
+                'fixed bg-white/70 dark:bg-black/50 backdrop-blur-lg -translate-x-full',
                 showMenu && 'translate-x-0',
               ]
         )}
@@ -515,7 +517,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           min-w-0 lg:flex-row w-full transition-all duration-300`
         )}
       >
-        {/* {smallMenu} */}
+        {smallMenu}
         {largeMenu}
         <div className="flex flex-col w-full min-h-0">{children}</div>
       </div>

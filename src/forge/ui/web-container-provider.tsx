@@ -1,50 +1,39 @@
-import { createContext, useEffect, useRef, useState } from 'react'
-import { WebContainer } from '@webcontainer/api'
+import { createContext, useEffect, useState } from 'react'
+import { useStore } from 'zustand'
+import createWebContainerStore from '../webcontainer-store'
 
-type WebContainerState = 'none' | 'booting' | 'ready'
-
-export const WebContainerContext = createContext<WebContainer | null>(null)
-
-const crossOriginIsolatedErrorMessage = `Failed to execute 'postMessage' on 'Worker': SharedArrayBuffer transfer requires self.crossOriginIsolated.`
+export const WebContainerContext = createContext<ReturnType<
+  typeof createWebContainerStore
+> | null>(null)
 
 export default function WebContainerProvider({
   children,
+  projectFiles,
 }: {
   children: React.ReactNode
+  projectFiles: Array<{ path: string; content: string }>
 }) {
-  const [webContainer, setWebContainer] = useState<WebContainer | null>(null)
-  const webContainerStatus = useRef<WebContainerState>('none')
+  const [containerStore] = useState(() => createWebContainerStore(true))
 
-  const ready = webContainerStatus.current === 'ready'
+  const updateProjectFiles = useStore(
+    containerStore,
+    (state) => state.updateProjectFiles
+  )
 
   useEffect(() => {
-    if (webContainerStatus.current === 'none') {
-      webContainerStatus.current = 'booting'
-      WebContainer.boot()
-        .then((webContainer) => {
-          setWebContainer(webContainer)
-          webContainerStatus.current = 'ready'
-        })
-        .catch((error) => {
-          if (!(error instanceof Error)) return
-          if (error.message === crossOriginIsolatedErrorMessage) {
-            error.message += `\n\nSee https://webcontainers.io/guides/quickstart#cross-origin-isolation for more information.
-              \nTo fix this error, please set the following headers in your server:\nCross-Origin-Embedder-Policy: require-corp\nCross-Origin-Opener-Policy: same-origin`
-            throw error
-          }
-        })
-    }
+    updateProjectFiles(projectFiles)
+  }, [updateProjectFiles, projectFiles])
 
-    return () => {
-      if (ready) {
-        webContainer?.teardown()
-        webContainerStatus.current = 'none'
-      }
-    }
-  }, [ready, webContainer])
+  const teardown = useStore(containerStore, (state) => state.teardown)
+
+  // useEffect(() => {
+  //   return () => {
+  //     teardown()
+  //   }
+  // }, [])
 
   return (
-    <WebContainerContext.Provider value={webContainer}>
+    <WebContainerContext.Provider value={containerStore}>
       {children}
     </WebContainerContext.Provider>
   )

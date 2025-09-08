@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from 'convex/react'
-
 import { Link } from '@tanstack/react-router'
+
+import { Sparkles } from 'lucide-react'
 
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 
 import type { UIMessage } from 'ai'
+
 import { getLLMKeys, hasActiveKeys } from '~/utils/llmKeys'
 
 import {
@@ -18,7 +20,6 @@ import { TabbedViewer } from '~/forge/ui/tabbed-viewer'
 import Chat from '~/forge/ui/chat'
 import { ForgeExportDropdown } from '~/forge/ui/export-dropdown'
 import WebContainerProvider from '~/forge/ui/web-container-provider'
-import { Sparkles } from 'lucide-react'
 
 function deserializeMessage(message: {
   content: string
@@ -196,8 +197,12 @@ function AIApp({
     )
   }
 
+  if (projectFiles?.length === 0) {
+    return <div className="h-screen bg-slate-950 w-full">Loading Files...</div>
+  }
+
   return (
-    <WebContainerProvider>
+    <WebContainerProvider projectFiles={projectFiles ?? initialFiles ?? []}>
       <div className="h-screen bg-slate-950 w-full">
         <Header
           projectFiles={projectFiles ?? []}

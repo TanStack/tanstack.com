@@ -141,7 +141,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const navbar = (
     <div
       className={twMerge(
-        'w-full py-2 px-4 sticky top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-blur-lg shadow-xl shadow-black/3',
+        'w-full p-2 lg:px-4 sticky top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-blur-lg shadow-xl shadow-black/3',
         'flex items-center justify-between gap-4',
         'dark:border-b border-gray-500/20'
       )}
@@ -151,7 +151,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-2 font-black text-xl uppercase">
           <button
             className={twMerge(
-              'transition-all duration-300 h-8',
+              'transition-all duration-300 h-8 px-2 py-1',
               'lg:-mr-2',
               Title
                 ? 'lg:w-9 lg:opacity-100 lg:translate-x-0 lg:pl-2 lg:-ml-2'

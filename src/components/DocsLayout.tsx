@@ -203,14 +203,14 @@ export function DocsLayout({
     return (
       <WrapperComp
         key={`group-${i}`}
-        className="[&>summary]:before:mr-[0.4rem] [&>summary]:marker:text-[0.8em] [&>summary]:marker:-ml-[0.3rem] [&>summary]:marker:leading-4 [&>div.ts-sidebar-label]:ml-4 relative select-none"
+        className="[&>summary]:before:mr-1 [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 relative select-none"
         {...detailsProps}
       >
         <LabelComp className="text-[.8em] uppercase font-black leading-4 ts-sidebar-label">
           {group?.label}
         </LabelComp>
         <div className="h-2" />
-        <ul className="ml-2 text-[.85em] leading-6 list-none">
+        <ul className="text-[.85em] leading-6 list-none">
           {group?.children?.map((child, i) => {
             const linkClasses = `flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500/10`
 

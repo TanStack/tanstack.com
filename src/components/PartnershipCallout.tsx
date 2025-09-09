@@ -10,8 +10,8 @@ export function PartnershipCallout({ libraryId }: PartnershipCalloutProps) {
 
   return (
     <div
-      className="flex-1 flex flex-col items-center text-sm text-center
-                  bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg
+      className="relative flex-1 flex flex-col items-center text-sm text-center
+                  bg-white/50 shadow-xl shadow-gray-500/20 rounded-lg
                     divide-y-2 divide-gray-500/10 overflow-hidden
                     dark:bg-black/40 dark:shadow-none w-[500px] max-w-full mx-auto"
     >

@@ -41,7 +41,7 @@ export function PartnersSection({
                 key={partner.name}
                 href={partner.href}
                 target="_blank"
-                className="shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 bg-white dark:bg-black/40 dark:shadow-none group overflow-hidden grid"
+                className="relative shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 bg-white/50 dark:bg-black/40 dark:shadow-none group overflow-hidden grid"
                 rel="noreferrer"
               >
                 <div className="z-0 row-start-1 col-start-1 flex items-center justify-center group-hover:blur-sm transition-all duration-200">

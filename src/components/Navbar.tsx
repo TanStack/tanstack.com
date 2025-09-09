@@ -538,7 +538,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       >
         {smallMenu}
         {largeMenu}
-        <div className="flex flex-col w-full min-h-0">{children}</div>
+        <div className="flex-1 min-w-0 flex flex-col w-full min-h-0">
+          {children}
+        </div>
       </div>
     </>
   )

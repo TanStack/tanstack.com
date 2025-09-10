@@ -4,8 +4,8 @@ import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
+import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import { LibraryHero } from '~/components/LibraryHero'
-import { getRouteApi } from '@tanstack/react-router'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
@@ -13,7 +13,6 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
-const librariesRouteApi = getRouteApi('/_libraries')
 const library = getLibrary('ranger')
 
 export const Route = createFileRoute({
@@ -33,7 +32,7 @@ export default function VersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(rangerProject, version)
-  const [framework] = React.useState<Framework>('react')
+  const [framework, setFramework] = React.useState<Framework>('react')
 
   return (
     <>
@@ -42,9 +41,8 @@ export default function VersionIndex() {
           project={rangerProject}
           cta={{
             linkProps: {
-              from: '/$libraryId/$version',
-              to: './docs',
-              params: { libraryId: library.id },
+              to: '/$libraryId/$version/docs',
+              params: { libraryId: library.id, version },
             },
             label: 'Get Started',
             className: 'bg-pink-500 text-white',
@@ -76,19 +74,27 @@ export default function VersionIndex() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-black">
-          <StackBlitzEmbed
-            repo={rangerProject.repo}
-            branch={branch}
-            examplePath={`examples/${framework}/basic`}
-            title="tannerlinsley/react-ranger: basic"
-          />
+        <div className="px-4">
+          <div className="relative w-full bg-white/50 dark:bg-black/50 rounded-lg overflow-hidden shadow-xl">
+            <div className="">
+              <FrameworkIconTabs
+                frameworks={rangerProject.frameworks}
+                value={framework}
+                onChange={setFramework}
+              />
+            </div>
+            <StackBlitzEmbed
+              repo={rangerProject.repo}
+              branch={branch}
+              examplePath={`examples/${framework}/basic`}
+              title="tannerlinsley/react-ranger: basic"
+            />
+          </div>
         </div>
         <BottomCTA
           linkProps={{
-            from: '/$libraryId/$version',
-            to: './docs',
-            params: { libraryId: library.id },
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version },
           }}
           label="Get Started!"
           className="bg-pink-500 text-white"

@@ -765,7 +765,7 @@ const strapi = (() => {
     libraries: ['start', 'router'] as const,
     sidebarImgLight: strapiLightSvg,
     sidebarImgDark: strapiDarkSvg,
-    sidebarImgClass: 'py-4',
+    sidebarImgClass: 'py-4 scale-[0.9]',
     status: 'active' as const,
     href,
     homepageImg: (

@@ -13,7 +13,6 @@ import { PartnershipCallout } from '~/components/PartnershipCallout'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
 const library = getLibrary('db')
-const librariesRouteApi = getRouteApi('/_libraries')
 
 export const Route = createFileRoute({
   component: DBVersionIndex,

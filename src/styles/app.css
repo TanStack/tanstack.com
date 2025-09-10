@@ -207,14 +207,14 @@ button {
 /* https://github.com/shikijs/twoslash/tree/main/packages/remark-shiki-twoslash#plugin-setup */
 pre {
   /* All code samples get a grey border, twoslash ones get a different color */
-  @apply bg-white text-black p-2 border border-gray-500/30 mb-4 rounded-md;
+  @apply text-black p-2;
   @apply overflow-x-auto relative leading-tight;
 }
 pre.shiki {
   overflow-x: auto;
 
   &.tokyo-night {
-    @apply bg-gray-900 text-gray-400;
+    @apply text-gray-400;
   }
 }
 pre.shiki:hover .dim {

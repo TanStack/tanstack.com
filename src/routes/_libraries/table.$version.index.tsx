@@ -379,16 +379,14 @@ table.getRowModel().rows.forEach((row) => {
               </CodeBlock>
             )
           })()}
-          <div className="mt-4 text-center">
-            <Link
-              to="/$libraryId/$version/docs"
-              params={{ libraryId: library.id, version }}
-              className="inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors bg-blue-500 text-white"
-            >
-              Get Started
-            </Link>
-          </div>
         </div>
+        <Link
+          to="/$libraryId/$version/docs"
+          params={{ libraryId: library.id, version }}
+          className="inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors bg-blue-500 text-white"
+        >
+          Get Started
+        </Link>
       </div>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />

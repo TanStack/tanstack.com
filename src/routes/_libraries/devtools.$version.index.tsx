@@ -6,14 +6,11 @@ import { LibraryHero } from '~/components/LibraryHero'
 import { devtoolsProject } from '~/libraries/devtools'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import { getRouteApi } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
 import { PartnersSection } from '~/components/PartnersSection'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
-const librariesRouteApi = getRouteApi('/_libraries')
 const library = getLibrary('devtools')
 
 export const Route = createFileRoute({

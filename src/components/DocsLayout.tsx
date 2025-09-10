@@ -396,7 +396,7 @@ export function DocsLayout({
           </div>
         </div>
         <div
-          className="-ml-2 pl-2 w-full lg:w-[340px] shrink-0 lg:sticky
+          className="-ml-2 pl-2 w-full lg:w-[280px] shrink-0 lg:sticky
         lg:max-h-[calc(100dvh-var(--navbar-height))] lg:top-[var(--navbar-height)]
         lg:overflow-y-auto lg:overflow-x-hidden"
         >

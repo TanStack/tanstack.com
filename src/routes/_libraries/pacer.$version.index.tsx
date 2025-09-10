@@ -1,4 +1,3 @@
-import { Link, getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
@@ -10,10 +9,8 @@ import { seo } from '~/utils/seo'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
-const librariesRouteApi = getRouteApi('/_libraries')
 const library = getLibrary('pacer')
 
 export const Route = createFileRoute({

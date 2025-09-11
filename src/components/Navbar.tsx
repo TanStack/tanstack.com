@@ -19,16 +19,10 @@ import { SearchButton } from './SearchButton'
 import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { AuthLoading } from 'convex/react'
 import { api } from 'convex/_generated/api'
-import {
-  MdLibraryBooks,
-  MdLineAxis,
-  MdMenu,
-  MdPerson,
-  MdSupport,
-} from 'react-icons/md'
+import { MdLibraryBooks, MdLineAxis, MdPerson, MdSupport } from 'react-icons/md'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { BiSolidCheckShield } from 'react-icons/bi'
-import { PiHammerFill } from 'react-icons/pi'
+import { PiHammerFill, PiSparkleFill } from 'react-icons/pi'
 import { libraries } from '~/libraries'
 import { sortBy } from '~/utils/utils'
 
@@ -351,22 +345,40 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           {user?.capabilities.some((capability) =>
             ['builder', 'admin'].includes(capability)
           ) ? (
-            <Link
-              to="/builder"
-              className={twMerge(linkClasses, 'font-normal')}
-              activeProps={{
-                className: twMerge(
-                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
-                ),
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-4 justify-between">
-                  <PiHammerFill />
+            <>
+              <Link
+                to="/forge"
+                className={twMerge(linkClasses, 'font-normal')}
+                activeProps={{
+                  className: twMerge(
+                    'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                  ),
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-4 justify-between">
+                    <PiSparkleFill />
+                  </div>
+                  <div>Forge</div>
                 </div>
-                <div>Builder</div>
-              </div>
-            </Link>
+              </Link>
+              <Link
+                to="/builder"
+                className={twMerge(linkClasses, 'font-normal')}
+                activeProps={{
+                  className: twMerge(
+                    'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                  ),
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-4 justify-between">
+                    <PiHammerFill />
+                  </div>
+                  <div>Builder</div>
+                </div>
+              </Link>
+            </>
           ) : null}
         </Authenticated>
         {[

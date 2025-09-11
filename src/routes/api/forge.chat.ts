@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import { ConvexHttpClient } from 'convex/browser'
 import { anthropic } from '@ai-sdk/anthropic'
 import { openai } from '@ai-sdk/openai'
@@ -14,15 +13,11 @@ import { api } from 'convex/_generated/api'
 import type { UIMessage } from 'ai'
 
 import { getTools } from '~/forge/tools'
+import recipes from '~/forge/data/tanstack-start-react-recipes'
+
 import { Id } from 'convex/_generated/dataModel'
 
 const convex = new ConvexHttpClient(process.env.CONVEX_URL!)
-
-const recipes = fs.readFileSync(
-  new URL('../../../public/tanstack-start-react-recipes.md', import.meta.url)
-    .pathname,
-  'utf8'
-)
 
 const SYSTEM_PROMPT = `You are a coding assistant. Your job is to enhance an existing TanStack Start project based on the user's requests.
 

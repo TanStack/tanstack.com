@@ -10,7 +10,7 @@ const siteUrl = process.env.URL
 const convexSiteUrl =
   process.env.NODE_ENV === 'production'
     ? process.env.VITE_CONVEX_SITE_URL!
-    : 'http://upbeat-greyhound-631.convex.site'
+    : 'http://judicious-chickadee-952.convex.site'
 
 export const createAuth = (ctx: GenericCtx) =>
   betterAuth({

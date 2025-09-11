@@ -6,10 +6,8 @@ import { BottomCTA } from '~/components/BottomCTA'
 import { configProject } from '~/libraries/config'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import { getRouteApi } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
 import { PartnersSection } from '~/components/PartnersSection'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
@@ -27,8 +25,6 @@ export const Route = createFileRoute({
     }),
   }),
 })
-
-const librariesRouteApi = getRouteApi('/_libraries')
 
 export default function FormVersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading

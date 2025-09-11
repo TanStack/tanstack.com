@@ -13,6 +13,8 @@ import parse, {
 import { marked } from 'marked'
 import { gfmHeadingId } from 'marked-gfm-heading-id'
 import markedAlert from 'marked-alert'
+import { useToast } from '~/components/ToastProvider'
+import { twMerge } from 'tailwind-merge'
 
 const CustomHeading = ({
   Comp,
@@ -82,8 +84,12 @@ const markdownComponents: Record<string, React.FC> = {
 
 export function CodeBlock({
   isEmbedded,
+  showTypeCopyButton,
   ...props
-}: React.HTMLProps<HTMLPreElement> & { isEmbedded?: boolean }) {
+}: React.HTMLProps<HTMLPreElement> & {
+  isEmbedded?: boolean
+  showTypeCopyButton?: boolean
+}) {
   // @ts-ignore
   let lang = props?.children?.props?.className?.replace('language-', '')
 
@@ -101,6 +107,7 @@ export function CodeBlock({
 
   const [copied, setCopied] = React.useState(false)
   const ref = React.useRef<any>(null)
+  const { notify } = useToast()
 
   const code = children?.props.children
 
@@ -136,9 +143,9 @@ export function CodeBlock({
       setCodeElement(
         <div
           // className={`m-0 text-sm rounded-md w-full border border-gray-500/20 dark:border-gray-500/30`}
-          className={`${
+          className={twMerge(
             isEmbedded ? 'h-full [&>pre]:h-full [&>pre]:rounded-none' : ''
-          } `}
+          )}
           dangerouslySetInnerHTML={{ __html: htmls.join('') }}
           ref={ref}
         />
@@ -148,36 +155,52 @@ export function CodeBlock({
 
   return (
     <div
-      className={`${props.className} w-full max-w-full relative not-prose`}
+      className={twMerge(
+        'w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md',
+        props.className
+      )}
       style={props.style}
     >
-      <div
-        className={`absolute flex items-stretch bg-white text-sm z-10 border border-gray-500/20 rounded-md ${
-          isEmbedded ? 'top-2 right-4' : '-top-3 right-2'
-        } dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20`}
-      >
-        {lang ? <div className="px-2">{lang}</div> : null}
-        <button
-          className="px-2 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
-          onClick={() => {
-            let copyContent =
-              typeof ref.current?.innerText === 'string'
-                ? ref.current.innerText
-                : ''
-
-            if (copyContent.endsWith('\n')) {
-              copyContent = copyContent.slice(0, -1)
-            }
-
-            navigator.clipboard.writeText(copyContent)
-            setCopied(true)
-            setTimeout(() => setCopied(false), 2000)
-          }}
-          aria-label="Copy code to clipboard"
+      {showTypeCopyButton ? (
+        <div
+          className={twMerge(
+            `absolute flex items-stretch bg-white text-sm z-10 rounded-md`,
+            `dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20`,
+            'shadow-md',
+            isEmbedded ? 'top-2 right-4' : '-top-3 right-2'
+          )}
         >
-          {copied ? <span className="text-xs">Copied!</span> : <FaRegCopy />}
-        </button>
-      </div>
+          {lang ? <div className="px-2">{lang}</div> : null}
+          <button
+            className="px-2 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
+            onClick={() => {
+              let copyContent =
+                typeof ref.current?.innerText === 'string'
+                  ? ref.current.innerText
+                  : ''
+
+              if (copyContent.endsWith('\n')) {
+                copyContent = copyContent.slice(0, -1)
+              }
+
+              navigator.clipboard.writeText(copyContent)
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
+              notify(
+                <div>
+                  <div className="font-medium">Copied code</div>
+                  <div className="text-gray-500 dark:text-gray-400 text-xs">
+                    Code block copied to clipboard
+                  </div>
+                </div>
+              )
+            }}
+            aria-label="Copy code to clipboard"
+          >
+            {copied ? <span className="text-xs">Copied!</span> : <FaRegCopy />}
+          </button>
+        </div>
+      ) : null}
       {codeElement}
     </div>
   )

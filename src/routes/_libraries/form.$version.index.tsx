@@ -1,23 +1,22 @@
 import * as React from 'react'
 
-import { Link, getRouteApi } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { formProject } from '~/libraries/form'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
-import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
+import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
 import { PartnersSection } from '~/components/PartnersSection'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+import { CodeBlock } from '~/components/Markdown'
+import { Link } from '@tanstack/react-router'
 
-const librariesRouteApi = getRouteApi('/_libraries')
 const library = getLibrary('form')
 
 export const Route = createFileRoute({
@@ -47,9 +46,8 @@ export default function FormVersionIndex() {
           project={formProject}
           cta={{
             linkProps: {
-              from: '/$libraryId/$version',
-              to: './docs',
-              params: { libraryId: library.id },
+              to: '/$libraryId/$version/docs',
+              params: { libraryId: library.id, version },
             },
             label: 'Get Started',
             className: 'bg-yellow-400 text-black',
@@ -63,6 +61,147 @@ export default function FormVersionIndex() {
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />
+
+        {/* Minimal code example card */}
+        <div className="px-4 space-y-4 flex flex-col items-center ">
+          <div className="text-3xl font-black">Just a quick look...</div>
+          <div className="relative group bg-white/50 dark:bg-black/40 rounded-lg overflow-hidden shadow-xl max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
+            <div>
+              <FrameworkIconTabs
+                frameworks={formProject.frameworks}
+                value={framework}
+                onChange={setFramework}
+              />
+            </div>
+            {(() => {
+              const codeByFramework: Partial<
+                Record<Framework, { lang: string; code: string }>
+              > = {
+                react: {
+                  lang: 'tsx',
+                  code: `import { useForm } from '@tanstack/react-form'
+
+const form = useForm({
+  defaultValues: { name: '' },
+  onSubmit: async ({ value }) => console.log(value),
+})
+// Bind inputs to form.state and form.handleSubmit`,
+                },
+                vue: {
+                  lang: 'vue',
+                  code: `<script setup lang="ts">
+import { useForm } from '@tanstack/vue-form'
+
+const form = useForm({
+  defaultValues: { name: '' },
+  onSubmit: async ({ value }) => console.log(value),
+})
+</script>
+
+<template>
+  <form @submit.prevent="form.handleSubmit">
+    <input v-model="form.state.values.name" />
+    <button type="submit">Submit</button>
+  </form>
+</template>`,
+                },
+                angular: {
+                  lang: 'ts',
+                  code: `import { Component } from '@angular/core'
+import { createAngularForm } from '@tanstack/angular-form'
+
+@Component({
+  standalone: true,
+  selector: 'app-form',
+  template: '<form (submit)="form.handleSubmit($event)"><input [value]="form.state().values.name" (input)="form.setFieldValue(\"name\", $any($event.target).value)" /><button type="submit">Submit</button></form>',
+})
+export class AppComponent {
+  form = createAngularForm(() => ({
+    defaultValues: { name: '' },
+    onSubmit: async ({ value }) => console.log(value),
+  }))
+}`,
+                },
+                solid: {
+                  lang: 'tsx',
+                  code: `import { createForm } from '@tanstack/solid-form'
+
+export default function SimpleForm() {
+  const form = createForm({
+    defaultValues: { name: '' },
+    onSubmit: async ({ value }) => console.log(value),
+  })
+
+  return (
+    <form onSubmit={form.handleSubmit}>
+      <input value={form.state.values.name} onInput={(e) => form.setFieldValue('name', e.currentTarget.value)} />
+      <button type="submit">Submit</button>
+    </form>
+  )
+}`,
+                },
+                svelte: {
+                  lang: 'svelte',
+                  code: `<script lang="ts">
+  import { createForm } from '@tanstack/svelte-form'
+  const form = createForm({
+    defaultValues: { name: '' },
+    onSubmit: async ({ value }) => console.log(value),
+  })
+</script>
+
+<form on:submit|preventDefault={form.handleSubmit}>
+  <input bind:value={form.state.values.name} />
+  <button type="submit">Submit</button>
+</form>`,
+                },
+                lit: {
+                  lang: 'ts',
+                  code: `import { LitElement, customElement, html } from 'lit'
+import { createLitForm } from '@tanstack/lit-form'
+
+@customElement('simple-form')
+export class SimpleForm extends LitElement {
+  form = createLitForm({
+    defaultValues: { name: '' },
+    onSubmit: async ({ value }) => console.log(value),
+  })
+
+  override render() {
+    return html\`<form @submit=\${(e: Event) => { e.preventDefault(); this.form.handleSubmit(e); }}>
+      <input .value=\${this.form.state.values.name} @input=\${(e: any) => this.form.setFieldValue('name', e.target.value)} />
+      <button type="submit">Submit</button>
+    </form>\`
+  }
+}`,
+                },
+              }
+
+              const selected =
+                codeByFramework[framework] || codeByFramework.react!
+
+              return (
+                <>
+                  <CodeBlock
+                    className="mt-0 border-0"
+                    showTypeCopyButton={false as any}
+                  >
+                    <code className={`language-${selected.lang}`}>
+                      {selected.code}
+                    </code>
+                  </CodeBlock>
+                </>
+              )
+            })()}
+          </div>
+          <Link
+            to="/$libraryId/$version/docs"
+            params={{ libraryId: library.id, version }}
+            className="inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors bg-yellow-500 text-black"
+          >
+            Get Started
+          </Link>
+        </div>
 
         <FeatureGrid
           title="No dependencies. All the Features."
@@ -102,46 +241,31 @@ export default function FormVersionIndex() {
               deeper control over your UI. Try it out with one of the examples
               below!
             </p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {(
-                [
-                  { label: 'React', value: 'react' },
-                  { label: 'Vue', value: 'vue' },
-                  { label: 'Angular', value: 'angular' },
-                  { label: 'Solid', value: 'solid' },
-                  { label: 'Lit', value: 'lit' },
-                ] as const
-              ).map((item) => (
-                <button
-                  key={item.value}
-                  className={`inline-block py-2 px-4 rounded text-black uppercase font-extrabold ${
-                    item.value === framework
-                      ? 'bg-yellow-500'
-                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-yellow-400'
-                  }`}
-                  onClick={() => setFramework(item.value)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-black">
-          <StackBlitzEmbed
-            repo={formProject.repo}
-            branch={branch}
-            examplePath={`examples/${framework}/simple`}
-            title={`tanstack//${framework}-form: simple`}
-          />
+        <div className="px-4">
+          <div className="relative w-full bg-white/50 dark:bg-black/50 rounded-lg overflow-hidden shadow-xl">
+            <div className="">
+              <FrameworkIconTabs
+                frameworks={formProject.frameworks}
+                value={framework}
+                onChange={setFramework}
+              />
+            </div>
+            <StackBlitzEmbed
+              repo={formProject.repo}
+              branch={branch}
+              examplePath={`examples/${framework}/simple`}
+              title={`tanstack//${framework}-form: simple`}
+            />
+          </div>
         </div>
 
         <BottomCTA
           linkProps={{
-            from: '/$libraryId/$version',
-            to: './docs',
-            params: { libraryId: library.id },
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version },
           }}
           label="Get Started!"
           className="bg-yellow-500 text-black"

@@ -1,9 +1,6 @@
 import * as React from 'react'
 
-import { Link, getRouteApi } from '@tanstack/react-router'
-import { Carbon } from '~/components/Carbon'
 import { Footer } from '~/components/Footer'
-import { TbHeartHandshake } from 'react-icons/tb'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -14,14 +11,14 @@ import { QueryGGBanner } from '~/components/QueryGGBanner'
 import { queryProject } from '~/libraries/query'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
-import { twMerge } from 'tailwind-merge'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
-import { partners } from '~/utils/partners'
 import LandingPageGad from '~/components/LandingPageGad'
-import { PartnershipCallout } from '~/components/PartnershipCallout'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+import { CodeBlock } from '~/components/Markdown'
+import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
+import { Link } from '@tanstack/react-router'
+import { twMerge } from 'tailwind-merge'
 
-const librariesRouteApi = getRouteApi('/_libraries')
 const library = getLibrary('query')
 
 export const Route = createFileRoute({
@@ -42,7 +39,6 @@ export default function VersionIndex() {
   const { version } = Route.useParams()
   const branch = getBranch(queryProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
-  const [isDark] = React.useState(true)
 
   return (
     <div className="flex flex-1 flex-col min-h-0 relative overflow-x-hidden">
@@ -52,9 +48,8 @@ export default function VersionIndex() {
             project={queryProject}
             cta={{
               linkProps: {
-                from: '/$libraryId/$version',
-                to: './docs',
-                params: { libraryId: library.id },
+                to: '/$libraryId/$version/docs',
+                params: { libraryId: library.id, version },
               },
               label: 'Read the Docs',
               className: 'bg-red-500 text-white',
@@ -66,6 +61,153 @@ export default function VersionIndex() {
 
           <div className="w-fit mx-auto px-4">
             <OpenSourceStats library={library} />
+          </div>
+          {/* Minimal code example card */}
+          <div className="px-4 space-y-4 flex flex-col items-center ">
+            <div className="text-3xl font-black">Just a quick look...</div>
+            <div
+              className={twMerge(
+                `group bg-white/60 dark:bg-black/40 rounded-lg overflow-hidden shadow-xl
+            max-w-full mx-auto
+            [&_pre]:bg-transparent! [&_pre]:p-4!`
+              )}
+            >
+              <div>
+                <FrameworkIconTabs
+                  frameworks={queryProject.frameworks}
+                  value={framework}
+                  onChange={setFramework}
+                />
+                {(() => {
+                  const codeByFramework: Partial<
+                    Record<Framework, { lang: string; code: string }>
+                  > = {
+                    react: {
+                      lang: 'tsx',
+                      code: `import { useQuery } from '@tanstack/react-query'
+
+function Todos() {
+  const { data, isPending, error } = useQuery({
+    queryKey: ['todos'],
+    queryFn: () => fetch('/api/todos').then(r => r.json()),
+  })
+
+  if (isPending) return <span>Loading...</span>
+  if (error) return <span>Oops!</span>
+
+  return <ul>{data.map(t => <li key={t.id}>{t.title}</li>)}</ul>
+}
+
+export default Todos`,
+                    },
+                    solid: {
+                      lang: 'tsx',
+                      code: `import { createQuery } from '@tanstack/solid-query'
+
+function Todos() {
+  const todos = createQuery(() => ({
+    queryKey: ['todos'],
+    queryFn: () => fetch('/api/todos').then(r => r.json()),
+  }))
+
+  return <ul>{todos.data?.map((t) => <li>{t.title}</li>)}</ul>
+}
+
+export default Todos`,
+                    },
+                    vue: {
+                      lang: 'vue',
+                      code: `<script setup lang="ts">
+import { useQuery } from '@tanstack/vue-query'
+
+const { data, isPending, error } = useQuery({
+  queryKey: ['todos'],
+  queryFn: () => fetch('/api/todos').then(r => r.json()),
+})
+</script>
+
+<template>
+  <ul v-if="data">
+    <li v-for="t in data" :key="t.id">{{ t.title }}</li>
+  </ul>
+  <span v-else-if="isPending">Loading...</span>
+  <span v-else>Oops!</span>
+</template>`,
+                    },
+                    svelte: {
+                      lang: 'svelte',
+                      code: `<script lang="ts">
+  import { createQuery } from '@tanstack/svelte-query'
+  const todos = createQuery({
+    queryKey: ['todos'],
+    queryFn: () => fetch('/api/todos').then(r => r.json()),
+  })
+</script>
+
+{#if $todos.isPending}
+  Loading...
+{:else if $todos.error}
+  Oops!
+{:else}
+  <ul>
+    {#each $todos.data as t}
+      <li>{t.title}</li>
+    {/each}
+  </ul>
+{/if}`,
+                    },
+                    angular: {
+                      lang: 'ts',
+                      code: `import { Component } from '@angular/core'
+import { injectQuery } from '@tanstack/angular-query-experimental'
+
+@Component({
+  selector: 'todos',
+  standalone: true,
+  template: \`
+    <ng-container *ngIf="todos.isPending()">
+      Loading...
+    </ng-container>
+    <ul *ngIf="todos.data() as data">
+      <li *ngFor="let t of data">
+        {{ t.title }}
+      </li>
+    </ul>
+  \`,
+})
+export class TodosComponent {
+  todos = injectQuery(() => ({
+    queryKey: ['todos'],
+    queryFn: () => fetch('/api/todos').then(r => r.json()),
+  }))
+}
+`,
+                    },
+                  }
+
+                  const selected =
+                    codeByFramework[framework] || codeByFramework.react!
+
+                  return (
+                    <CodeBlock
+                      className="mt-0 border-0"
+                      showTypeCopyButton={false}
+                    >
+                      <code className={`language-${selected.lang}`}>
+                        {selected.code}
+                      </code>
+                    </CodeBlock>
+                  )
+                })()}
+              </div>
+            </div>
+            <Link
+              to="/$libraryId/$version/docs"
+              params={{ libraryId: library.id, version }}
+              className="inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors bg-red-500 text-white"
+            >
+              Get Started
+            </Link>
           </div>
           <LibraryFeatureHighlights
             featureHighlights={library.featureHighlights}
@@ -133,49 +275,17 @@ export default function VersionIndex() {
                 much code you're deleting when you use TanStack Query. Try it
                 out with one of the examples below!
               </p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {(
-                  [
-                    { label: 'Angular', value: 'angular' },
-                    { label: 'React', value: 'react' },
-                    { label: 'Solid', value: 'solid' },
-                    { label: 'Svelte', value: 'svelte' },
-                    { label: 'Vue', value: 'vue' },
-                  ] as const
-                ).map((item) => (
-                  <button
-                    key={item.value}
-                    className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold ${
-                      item.value === framework
-                        ? 'bg-red-500'
-                        : 'bg-gray-300 dark:bg-gray-700 hover:bg-red-300'
-                    }`}
-                    onClick={() => setFramework(item.value)}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
-
-          {[''].includes(framework) ? (
-            <div className="px-2">
-              <div className="p-8 text-center text-lg w-full max-w-(--breakpoint-lg) mx-auto bg-black text-white rounded-xl">
-                Looking for the <strong>@tanstack/{framework}-query</strong>{' '}
-                example? We could use your help to build the{' '}
-                <strong>@tanstack/{framework}-query</strong> adapter! Join the{' '}
-                <a
-                  href="https://tlinz.com/discord"
-                  className="text-teal-500 font-bold"
-                >
-                  TanStack Discord Server
-                </a>{' '}
-                and let's get to work!
+          <div className="px-4">
+            <div className="relative w-full bg-white/50 dark:bg-black/50 rounded-lg overflow-hidden shadow-xl">
+              <div className="">
+                <FrameworkIconTabs
+                  frameworks={queryProject.frameworks}
+                  value={framework}
+                  onChange={setFramework}
+                />
               </div>
-            </div>
-          ) : (
-            <div className="bg-white dark:bg-black">
               <StackBlitzEmbed
                 repo={queryProject.repo}
                 branch={branch}
@@ -183,13 +293,12 @@ export default function VersionIndex() {
                 title={`tannerlinsley/${framework}-query: basic`}
               />
             </div>
-          )}
+          </div>
 
           <BottomCTA
             linkProps={{
-              from: '/$libraryId/$version',
-              to: './docs',
-              params: { libraryId: library.id },
+              to: '/$libraryId/$version/docs',
+              params: { libraryId: library.id, version },
             }}
             label="Read the Docs!"
             className="bg-red-500 text-white"

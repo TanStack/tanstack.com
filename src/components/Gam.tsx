@@ -1,6 +1,8 @@
 import { Link } from '@tanstack/react-router'
+import { ParentSize } from '@visx/responsive'
 import React from 'react'
 import { twMerge } from 'tailwind-merge'
+import { useResizeObserver } from '~/hooks/useResizeObserver'
 import { libraries } from '~/libraries'
 
 declare global {
@@ -74,14 +76,36 @@ const gamDivs = {
 function GamAd({
   name,
   children,
+  adClassName,
   ...props
-}: { name: keyof typeof gamDivs } & React.HTMLAttributes<HTMLDivElement>) {
+}: { name: keyof typeof gamDivs } & React.HTMLAttributes<HTMLDivElement> & {
+    adClassName?: string
+  }) {
   const gamId = gamDivs[name]
 
+  const ref = React.useRef<HTMLDivElement>(null!)
+  const [size, setSize] = React.useState({
+    width: 0,
+    height: 0,
+  })
+
+  useResizeObserver({
+    ref,
+    selector: (el) => el?.querySelector('iframe'),
+    onResize: (rect) => {
+      if (rect.width === 0 || rect.height === 0) return
+      setSize({
+        width: rect.width,
+        height: rect.height,
+      })
+    },
+  })
+
   return (
-    <div {...props} className="grid *:col-start-1 *:row-start-1">
-      {/* <div className="flex items-center justify-center">{children}</div> */}
-      <div data-fuse={gamId} className="w-full min-h-[200px]" />
+    <div style={size}>
+      <div {...props}>
+        <div data-fuse={gamId} className={adClassName} ref={ref} />
+      </div>
     </div>
   )
 }
@@ -94,99 +118,23 @@ export function GamFooter() {
   return <GamAd name="incontent_footer" style={{ maxWidth: '728px' }} />
 }
 
-const supportedLibraries = libraries.filter(
-  (d) => d.id && d.name && d.description && d.description.length > 0
-)
-
-const libraryHalfIndex = Math.ceil(supportedLibraries.length / 2)
-
 export function GamRightRailSquare() {
-  const randomLibrary = React.useMemo(() => {
-    const sampledLibraries = supportedLibraries.slice(0, libraryHalfIndex)
-    const seed = Math.floor(Date.now() / (1000 * 60 * 5)) // Change seed every 5 minutes
-    return sampledLibraries[seed % sampledLibraries.length]
-  }, [])
-
   return (
     <GamAd
       name="mrec_1"
-      className="aspect-250/250 xl:aspect-300/250 flex items-center justify-center"
-    >
-      <Link
-        to={`/${randomLibrary.id}` as any}
-        className="flex flex-col justify-center items-center h-[250px] w-[250px] gap-4 group"
-      >
-        <div className="flex items-center gap-2 flex-wrap justify-center text-3xl font-black uppercase tracking-tighter leading-none">
-          <span>TanStack</span>
-          <span
-            className={twMerge(
-              'text-transparent bg-clip-text bg-linear-to-r',
-              randomLibrary.colorFrom,
-              randomLibrary.colorTo
-            )}
-          >
-            {randomLibrary.name.replace('TanStack ', '')}
-          </span>
-        </div>
-        <div className="text-sm text-center">{randomLibrary.description}</div>
-        <div>
-          <button
-            className={twMerge(
-              'text-sm px-2 py-1 rounded-lg text-white font-black uppercase tracking-tighter transition-transform duration-700 group-hover:scale-[1.2]',
-              randomLibrary.bgStyle
-            )}
-          >
-            Learn More
-          </button>
-        </div>
-      </Link>
-    </GamAd>
+      className="w-[320px]"
+      adClassName="scale-[.8] origin-top-left"
+    />
   )
 }
 
 export function GamLeftRailSquare() {
-  const randomRemainingLibrary = React.useMemo(() => {
-    const remainingLibraries = supportedLibraries.slice(libraryHalfIndex)
-    const seed = Math.floor(Date.now() / (1000 * 60 * 5)) // Change seed every 5 minutes
-    return remainingLibraries[seed % remainingLibraries.length]
-  }, [])
-
   return (
     <GamAd
       name="mrec_2"
-      className="aspect-250/250 xl:aspect-300/250 flex items-center justify-center"
-    >
-      <Link
-        to={`/${randomRemainingLibrary.id}` as any}
-        className="flex flex-col justify-center items-center h-[250px] w-[250px] gap-4 group"
-      >
-        <div className="flex items-center gap-2 flex-wrap justify-center text-3xl font-black uppercase tracking-tighter leading-none">
-          <span>TanStack</span>
-          <span
-            className={twMerge(
-              'text-transparent bg-clip-text bg-linear-to-r',
-              randomRemainingLibrary.colorFrom,
-              randomRemainingLibrary.colorTo
-            )}
-          >
-            {randomRemainingLibrary.name.replace('TanStack ', '')}
-          </span>
-        </div>
-        <div className="text-sm text-center">
-          {randomRemainingLibrary.description}
-        </div>
-        <div>
-          <button
-            className={twMerge(
-              'text-sm px-2 py-1 rounded-lg text-white font-black uppercase tracking-tighter transition-transform duration-700 group-hover:scale-[1.2]',
-              randomRemainingLibrary.bgStyle
-            )}
-          >
-            Learn More
-          </button>
-        </div>
-      </Link>
-    </GamAd>
+      className="w-[320px]"
+      adClassName="scale-[.8] origin-top-left"
+    />
   )
 }
 

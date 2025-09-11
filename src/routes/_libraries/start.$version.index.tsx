@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import { FaBook, FaGithub } from 'react-icons/fa'
 
-import { Link, getRouteApi } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
@@ -17,7 +17,6 @@ import { PartnersSection } from '~/components/PartnersSection'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 import { TbBrandX } from 'react-icons/tb'
 
-const librariesRouteApi = getRouteApi('/_libraries')
 const library = getLibrary('start')
 
 export const Route = createFileRoute({

@@ -1,6 +1,5 @@
 import * as React from 'react'
 
-import { getRouteApi } from '@tanstack/react-router'
 import { virtualProject } from '~/libraries/virtual'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
@@ -10,13 +9,15 @@ import { FeatureGrid } from '~/components/FeatureGrid'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
+import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+import { CodeBlock } from '~/components/Markdown'
+import { Link } from '@tanstack/react-router'
 
-const librariesRouteApi = getRouteApi('/_libraries')
 const library = getLibrary('virtual')
 
 export const Route = createFileRoute({
@@ -45,9 +46,8 @@ export default function RouteComp() {
         project={virtualProject}
         cta={{
           linkProps: {
-            from: '/$libraryId/$version',
-            to: './docs',
-            params: { libraryId: library.id },
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version },
           },
           label: 'Get Started',
           className: 'bg-purple-500 text-white',
@@ -56,6 +56,148 @@ export default function RouteComp() {
 
       <div className="w-fit mx-auto px-4">
         <OpenSourceStats library={library} />
+      </div>
+
+      {/* Minimal code example card */}
+      <div className="px-4 space-y-4 flex flex-col items-center ">
+        <div className="text-3xl font-black">Just a quick look...</div>
+        <div className="relative group bg-white/50 dark:bg-black/40 rounded-lg overflow-hidden shadow-xl max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
+          <div>
+            <FrameworkIconTabs
+              frameworks={virtualProject.frameworks}
+              value={framework}
+              onChange={setFramework}
+            />
+          </div>
+          {(() => {
+            const codeByFramework: Partial<
+              Record<Framework, { lang: string; code: string }>
+            > = {
+              react: {
+                lang: 'tsx',
+                code: `import { useVirtualizer } from '@tanstack/react-virtual'
+
+const rowVirtualizer = useVirtualizer({
+  count: 1000,
+  getScrollElement: () => parentRef.current,
+  estimateSize: () => 36,
+})
+// Map virtual rows to your UI`,
+              },
+              solid: {
+                lang: 'tsx',
+                code: `import { createVirtualizer } from '@tanstack/solid-virtual'
+
+const parentRef: HTMLElement | undefined = undefined
+
+const rowVirtualizer = createVirtualizer({
+  count: 1000,
+  getScrollElement: () => parentRef!,
+  estimateSize: () => 36,
+})
+// Map rowVirtualizer.getVirtualItems() to your UI`,
+              },
+              vue: {
+                lang: 'vue',
+                code: `<script setup lang="ts">
+import { ref } from 'vue'
+import { useVirtualizer } from '@tanstack/vue-virtual'
+
+const parentRef = ref<HTMLElement | null>(null)
+
+const rowVirtualizer = useVirtualizer({
+  count: 1000,
+  getScrollElement: () => parentRef.value!,
+  estimateSize: () => 36,
+})
+</script>
+
+<template>
+  <div ref="parentRef" style="overflow: auto; height: 300px">
+    <!-- Render rowVirtualizer.getVirtualItems() -->
+  </div>
+</template>`,
+              },
+              svelte: {
+                lang: 'svelte',
+                code: `<script lang="ts">
+  import { createVirtualizer } from '@tanstack/svelte-virtual'
+  let parentRef: HTMLDivElement
+  const rowVirtualizer = createVirtualizer({
+    count: 1000,
+    getScrollElement: () => parentRef,
+    estimateSize: () => 36,
+  })
+</script>
+
+<div bind:this={parentRef} style="overflow:auto; height:300px">
+  <!-- Render $rowVirtualizer.getVirtualItems() -->
+</div>`,
+              },
+              angular: {
+                lang: 'ts',
+                code: `import { Component, ElementRef, viewChild } from '@angular/core'
+import { createAngularVirtualizer } from '@tanstack/angular-virtual'
+
+@Component({
+  standalone: true,
+  selector: 'virtual-list',
+  template: '<div #parent style="overflow:auto; height:300px"></div>',
+})
+export class VirtualListComponent {
+  parent = viewChild.required<ElementRef<HTMLDivElement>>('parent')
+  virtualizer = createAngularVirtualizer(() => ({
+    count: 1000,
+    getScrollElement: () => this.parent().nativeElement,
+    estimateSize: () => 36,
+  }))
+}`,
+              },
+              lit: {
+                lang: 'ts',
+                code: `import { LitElement, customElement, html } from 'lit'
+import { createLitVirtualizer } from '@tanstack/lit-virtual'
+
+@customElement('virtual-list')
+export class VirtualList extends LitElement {
+  private parent?: HTMLDivElement
+  virtualizer = createLitVirtualizer({
+    count: 1000,
+    getScrollElement: () => this.parent!,
+    estimateSize: () => 36,
+  })
+
+  render() {
+    return html\`<div style="overflow:auto; height:300px"></div>\`
+  }
+}`,
+              },
+            }
+
+            const selected =
+              codeByFramework[framework] || codeByFramework.react!
+
+            return (
+              <>
+                <CodeBlock
+                  className="mt-0 border-0"
+                  showTypeCopyButton={false as any}
+                >
+                  <code className={`language-${selected.lang}`}>
+                    {selected.code}
+                  </code>
+                </CodeBlock>
+              </>
+            )
+          })()}
+        </div>
+        <Link
+          to="/$libraryId/$version/docs"
+          params={{ libraryId: library.id, version }}
+          className="inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors bg-purple-500 text-white"
+        >
+          Get Started
+        </Link>
       </div>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
@@ -137,64 +279,46 @@ export default function RouteComp() {
             your way to creating an extremely powerful virtualization
             experience.
           </p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {(
-              [
-                { label: 'React', value: 'react' },
-                { label: 'Solid', value: 'solid' },
-                { label: 'Lit', value: 'lit' },
-                { label: 'Svelte', value: 'svelte' },
-                { label: 'Vue', value: 'vue' },
-                { label: 'Angular', value: 'angular' },
-              ] as const
-            ).map((item) => (
-              <button
-                key={item.value}
-                className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold ${
-                  item.value === framework
-                    ? 'bg-purple-500'
-                    : 'bg-gray-300 dark:bg-gray-700 hover:bg-teal-300'
-                }`}
-                onClick={() => setFramework(item.value)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
-      {['vue', 'solid', 'svelte'].includes(framework) ? (
-        <div className="px-2">
-          <div className="p-8 text-center text-lg w-full max-w-(--breakpoint-lg) mx-auto bg-black text-white rounded-xl">
-            Looking for the <strong>@tanstack/{framework}-virtual</strong>{' '}
-            example? We could use your help to build the{' '}
-            <strong>@tanstack/{framework}-virtual</strong> adapter! Join the{' '}
-            <a
-              href="https://tlinz.com/discord"
-              className="text-teal-500 font-bold"
-            >
-              TanStack Discord Server
-            </a>{' '}
-            and let's get to work!
+      <div className="px-4">
+        <div className="relative w-full bg-white/50 dark:bg-black/50 rounded-lg overflow-hidden shadow-xl">
+          <div className="">
+            <FrameworkIconTabs
+              frameworks={virtualProject.frameworks}
+              value={framework}
+              onChange={setFramework}
+            />
           </div>
+          {['vue', 'solid', 'svelte'].includes(framework) ? (
+            <div className="p-6 text-center text-lg w-full bg-black text-white">
+              Looking for the <strong>@tanstack/{framework}-virtual</strong>{' '}
+              example? We could use your help to build the{' '}
+              <strong>@tanstack/{framework}-virtual</strong> adapter! Join the{' '}
+              <a
+                href="https://tlinz.com/discord"
+                className="text-teal-500 font-bold"
+              >
+                TanStack Discord Server
+              </a>{' '}
+              and let's get to work!
+            </div>
+          ) : (
+            <StackBlitzEmbed
+              repo={virtualProject.repo}
+              branch={branch}
+              examplePath={`examples/${framework}/fixed`}
+              title="tannerlinsley/react-virtual: fixed"
+            />
+          )}
         </div>
-      ) : (
-        <div className="bg-white dark:bg-black">
-          <StackBlitzEmbed
-            repo={virtualProject.repo}
-            branch={branch}
-            examplePath={`examples/${framework}/fixed`}
-            title="tannerlinsley/react-virtual: fixed"
-          />
-        </div>
-      )}
+      </div>
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
-          params: { libraryId: library.id },
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-purple-500 text-white"

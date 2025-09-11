@@ -38,6 +38,7 @@ import { Route as LibrariesLoginRouteImport } from './routes/_libraries/login'
 import { Route as LibrariesLearnRouteImport } from './routes/_libraries/learn'
 import { Route as LibrariesEthosRouteImport } from './routes/_libraries/ethos'
 import { Route as LibrariesDashboardRouteImport } from './routes/_libraries/dashboard'
+import { Route as LibrariesBrandGuideRouteImport } from './routes/_libraries/brand-guide'
 import { Route as LibrariesBlogRouteImport } from './routes/_libraries/blog'
 import { Route as LibrariesAccountRouteImport } from './routes/_libraries/account'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
@@ -182,6 +183,11 @@ const LibrariesEthosRoute = LibrariesEthosRouteImport.update({
 const LibrariesDashboardRoute = LibrariesDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
+const LibrariesBrandGuideRoute = LibrariesBrandGuideRouteImport.update({
+  id: '/brand-guide',
+  path: '/brand-guide',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
 const LibrariesBlogRoute = LibrariesBlogRouteImport.update({
@@ -388,6 +394,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/account': typeof LibrariesAccountRoute
   '/blog': typeof LibrariesBlogRouteWithChildren
+  '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
   '/learn': typeof LibrariesLearnRoute
@@ -435,6 +442,7 @@ export interface FileRoutesByTo {
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/account': typeof LibrariesAccountRoute
+  '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
   '/learn': typeof LibrariesLearnRoute
@@ -486,6 +494,7 @@ export interface FileRoutesById {
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/_libraries/account': typeof LibrariesAccountRoute
   '/_libraries/blog': typeof LibrariesBlogRouteWithChildren
+  '/_libraries/brand-guide': typeof LibrariesBrandGuideRoute
   '/_libraries/dashboard': typeof LibrariesDashboardRoute
   '/_libraries/ethos': typeof LibrariesEthosRoute
   '/_libraries/learn': typeof LibrariesLearnRoute
@@ -538,6 +547,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version'
     | '/account'
     | '/blog'
+    | '/brand-guide'
     | '/dashboard'
     | '/ethos'
     | '/learn'
@@ -585,6 +595,7 @@ export interface FileRouteTypes {
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/account'
+    | '/brand-guide'
     | '/dashboard'
     | '/ethos'
     | '/learn'
@@ -635,6 +646,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version'
     | '/_libraries/account'
     | '/_libraries/blog'
+    | '/_libraries/brand-guide'
     | '/_libraries/dashboard'
     | '/_libraries/ethos'
     | '/_libraries/learn'
@@ -820,6 +832,13 @@ declare module '@tanstack/react-router' {
       path: '/blog'
       fullPath: '/blog'
       preLoaderRoute: typeof LibrariesBlogRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
+    '/_libraries/brand-guide': {
+      id: '/_libraries/brand-guide'
+      path: '/brand-guide'
+      fullPath: '/brand-guide'
+      preLoaderRoute: typeof LibrariesBrandGuideRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/dashboard': {
@@ -1215,6 +1234,13 @@ declare module '@tanstack/react-start/server' {
       id: '/_libraries/blog'
       path: '/blog'
       fullPath: '/blog'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/_libraries/brand-guide': {
+      id: '/_libraries/brand-guide'
+      path: '/brand-guide'
+      fullPath: '/brand-guide'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1700,6 +1726,23 @@ declare module './routes/_libraries/blog' {
     ServerFileRoutesByPath['/_libraries/blog']['id'],
     ServerFileRoutesByPath['/_libraries/blog']['path'],
     ServerFileRoutesByPath['/_libraries/blog']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/_libraries/brand-guide' {
+  const createFileRoute: CreateFileRoute<
+    '/_libraries/brand-guide',
+    FileRoutesByPath['/_libraries/brand-guide']['parentRoute'],
+    FileRoutesByPath['/_libraries/brand-guide']['id'],
+    FileRoutesByPath['/_libraries/brand-guide']['path'],
+    FileRoutesByPath['/_libraries/brand-guide']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/_libraries/brand-guide']['parentRoute'],
+    ServerFileRoutesByPath['/_libraries/brand-guide']['id'],
+    ServerFileRoutesByPath['/_libraries/brand-guide']['path'],
+    ServerFileRoutesByPath['/_libraries/brand-guide']['fullPath'],
     unknown
   >
 }
@@ -2572,6 +2615,7 @@ const LibrariesBlogRouteWithChildren = LibrariesBlogRoute._addFileChildren(
 interface LibrariesRouteRouteChildren {
   LibrariesAccountRoute: typeof LibrariesAccountRoute
   LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
+  LibrariesBrandGuideRoute: typeof LibrariesBrandGuideRoute
   LibrariesDashboardRoute: typeof LibrariesDashboardRoute
   LibrariesEthosRoute: typeof LibrariesEthosRoute
   LibrariesLearnRoute: typeof LibrariesLearnRoute
@@ -2600,6 +2644,7 @@ interface LibrariesRouteRouteChildren {
 const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesAccountRoute: LibrariesAccountRoute,
   LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
+  LibrariesBrandGuideRoute: LibrariesBrandGuideRoute,
   LibrariesDashboardRoute: LibrariesDashboardRoute,
   LibrariesEthosRoute: LibrariesEthosRoute,
   LibrariesLearnRoute: LibrariesLearnRoute,

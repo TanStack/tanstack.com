@@ -26,7 +26,11 @@ import prismaLightSvg from '~/images/prisma-light.svg'
 import prismaDarkSvg from '~/images/prisma-dark.svg'
 import codeRabbitLightSvg from '~/images/coderabbit-light.svg'
 import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
+import strapiLightSvg from '~/images/strapi-light.svg'
+import strapiDarkSvg from '~/images/strapi-dark.svg'
 import { libraries, Library } from '~/libraries'
+import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
+import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
 
 function LearnMoreButton() {
   return (
@@ -251,11 +255,6 @@ const netlify = (() => {
     sidebarImgLight: netlifyLightSvg,
     sidebarImgDark: netlifyDarkSvg,
     sidebarImgClass: 'pt-2 scale-[.9]',
-    sidebarAfterImg: (
-      <div className="text-[10px] rounded-xl m-1 mx-auto w-fit text-center py-px px-2 bg-[#03bdba] text-white uppercase font-bold">
-        Official Deployment Partner
-      </div>
-    ),
     status: 'active' as const,
     href,
     homepageImg: (
@@ -272,12 +271,7 @@ const netlify = (() => {
             className="w-[280px] max-w-full hidden dark:block"
           />
         </div>
-        <div
-          className="w-auto text-xs text-center
-        py-1 px-3 rounded-xl uppercase font-bold bg-linear-to-r from-[#03bdba] to-[#00aaba] text-white "
-        >
-          Official Deployment Partner
-        </div>
+        {/* Netlify badge removed */}
       </div>
     ),
     content: (
@@ -294,6 +288,50 @@ const netlify = (() => {
           that help teams build and ship faster. Our partnership ensures
           TanStack applications can take full advantage of Netlify's powerful
           platform features.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const cloudflare = (() => {
+  const href = 'https://www.cloudflare.com?utm_source=tanstack'
+
+  return {
+    name: 'Cloudflare',
+    id: 'cloudflare',
+    href,
+    // Show on every repo
+    libraries: libraries.map((l) => l.id),
+    sidebarImgLight: cloudflareBlackSvg,
+    sidebarImgDark: cloudflareWhiteSvg,
+    sidebarImgClass: 'py-4',
+    status: 'active' as const,
+    startDate: 'Sep 2025',
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-12">
+        <img
+          src={cloudflareBlackSvg}
+          alt="Cloudflare"
+          className="w-[340px] max-w-full dark:hidden"
+        />
+        <img
+          src={cloudflareWhiteSvg}
+          alt="Cloudflare"
+          className="w-[340px] max-w-full hidden dark:block"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          Cloudflare and TanStack are partnering to bring
+          <strong> global edge performance</strong>,
+          <strong> serverless compute</strong>, and
+          <strong> robust security</strong> to modern apps built with TanStack.
+          From Workers and KV to CDN and security, Cloudflare helps TanStack
+          developers ship faster and scale effortlessly.
         </div>
         <LearnMoreButton />
       </>
@@ -572,8 +610,15 @@ const electric = (() => {
     content: (
       <>
         <div className="text-xs">
-          Electric and TanStack are teaming up on TanStack DB to bring sync to
-          mainstream application developers.
+          Electric and TanStack are teaming up on TanStack DB to bring
+          <strong>robust real-time sync</strong> to mainstream apps. ElectricSQL
+          delivers <strong>offline-first</strong> data,{' '}
+          <strong>conflict resolution</strong>, and{' '}
+          <strong>low-latency replication</strong>
+          backed by Postgres—no bespoke plumbing required. Paired with TanStack
+          DB's <strong>type-safe APIs</strong> and developer experience, teams
+          can ship collaborative features faster and keep UIs consistent across
+          clients and the edge.
         </div>
         <LearnMoreButton />
       </>
@@ -636,7 +681,7 @@ const prisma = (() => {
     sidebarImgDark: prismaDarkSvg,
     sidebarImgClass: 'py-4',
     status: 'active' as const,
-    libraries: ['db'] as const,
+    libraries: ['db', 'start'] as const,
     startDate: 'Aug 2025',
     homepageImg: (
       <div className="w-full h-full flex items-center justify-center px-4 py-12">
@@ -699,21 +744,55 @@ const codeRabbit = (() => {
     content: (
       <>
         <div className="text-xs">
-          TanStack leverages CodeRabbit to{' '}
-          <strong>
-            enhance our code review process, significantly reducing review times
-            and improving code quality
-          </strong>
-          . By integrating CodeRabbit's advanced AI capabilities, we ensure that
-          our pull requests are thoroughly analyzed for potential issues, from
-          readability to logic bugs. This allows our team to{' '}
-          <strong>
-            focus on meaningful code discussions and innovation, while
-            maintaining high standards of code quality and security
-          </strong>
-          . With CodeRabbit, we benefit from intelligent, automated reviews that
-          adapt to our workflows, making our development process faster and more
-          efficient.
+          TanStack uses CodeRabbit to streamline reviews and elevate code
+          quality. Its AI flags readability, correctness, and security issues on
+          pull requests, reducing back-and-forth and review time. That lets us
+          focus on architectural decisions and ship with confidence—fewer
+          regressions, faster cycles.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const strapi = (() => {
+  const href = 'https://strapi.link/tanstack-start'
+
+  return {
+    name: 'Strapi',
+    id: 'strapi',
+    libraries: ['start', 'router'] as const,
+    sidebarImgLight: strapiLightSvg,
+    sidebarImgDark: strapiDarkSvg,
+    sidebarImgClass: 'py-4 scale-[0.9]',
+    status: 'active' as const,
+    href,
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-6">
+        <img
+          src={strapiLightSvg}
+          alt="Strapi"
+          className="w-[240px] max-w-full dark:hidden"
+        />
+        <img
+          src={strapiDarkSvg}
+          alt="Strapi"
+          className="w-[240px] max-w-full hidden dark:block"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          Build modern websites with the{' '}
+          <strong>most customizable Headless CMS</strong>. Strapi is the{' '}
+          <strong>open-source Headless CMS</strong> that makes API creation
+          easy, and with <strong>Strapi 5</strong> you get{' '}
+          <strong>100% TypeScript support</strong>, a
+          <strong> fully customizable API</strong>, Draft/Publish, i18n, RBAC,
+          and a rich plugin ecosystem—perfect for TanStack Start apps in the
+          cloud or on your own servers.
         </div>
         <LearnMoreButton />
       </>
@@ -723,6 +802,7 @@ const codeRabbit = (() => {
 
 export const partners: Partner[] = [
   codeRabbit,
+  cloudflare,
   agGrid,
   netlify,
   neon,
@@ -731,6 +811,7 @@ export const partners: Partner[] = [
   electric,
   sentry,
   prisma,
+  strapi,
   unkey,
   uiDev,
   nozzle,

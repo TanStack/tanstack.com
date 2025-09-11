@@ -8,7 +8,6 @@ import { extent, scaleLinear } from 'd3'
 export type SponsorMeta = {
   login: string
   name?: string
-  email?: string
   imageUrl?: string
   linkUrl?: string
   private?: boolean
@@ -18,7 +17,6 @@ export type SponsorMeta = {
 export type Sponsor = {
   login: string
   name: string
-  email: string
   imageUrl: string
   linkUrl: string
   private: boolean
@@ -69,7 +67,6 @@ export async function getSponsors() {
     if (matchingSponsor) {
       Object.assign(matchingSponsor, {
         name: sponsorMeta.name ?? matchingSponsor.name,
-        email: sponsorMeta.email ?? matchingSponsor.email,
         imageUrl: sponsorMeta.imageUrl ?? matchingSponsor.imageUrl,
         linkUrl: sponsorMeta.linkUrl ?? matchingSponsor.linkUrl,
         private: sponsorMeta.private ?? matchingSponsor.private,
@@ -78,7 +75,6 @@ export async function getSponsors() {
       sponsors.push({
         login: sponsorMeta.login,
         name: sponsorMeta.name || '',
-        email: sponsorMeta.email || '',
         imageUrl: sponsorMeta.imageUrl || '',
         linkUrl: sponsorMeta.linkUrl || '',
         private: sponsorMeta.private || false,
@@ -116,12 +112,10 @@ async function getGithubSponsors() {
                   ... on User {
                     name
                     login
-                    email
                   }
                   ... on Organization {
                     name
                     login
-                    email
                   }
                 }
                 tier {
@@ -159,12 +153,11 @@ async function getGithubSponsors() {
             return null
           }
 
-          const { name, login, email } = sponsorEntity
+          const { name, login } = sponsorEntity
 
           return {
             name,
             login,
-            email,
             amount: tier?.monthlyPriceInDollars || 0,
             createdAt,
             private: privacyLevel === 'PRIVATE',
@@ -183,7 +176,25 @@ async function getGithubSponsors() {
   } catch (err: any) {
     if (err.status === 401) {
       console.error('Missing github credentials, returning mock data.')
-      return []
+      return [
+        'tannerlinsley',
+        'tkdodo',
+        'crutchcorn',
+        'kevinvandy',
+        'jherr',
+        'seancassiere',
+        'schiller-manuel',
+      ].flatMap((d, i1) =>
+        new Array(20).fill(d).map((d, i2) => ({
+          login: d,
+          name: d,
+          amount: (20 - i2) / 20 + Math.random(),
+          createdAt: new Date().toISOString(),
+          private: false,
+          linkUrl: `https://github.com/${d}`,
+          imageUrl: `https://github.com/${d}.png`,
+        }))
+      )
     }
     if (err.status === 403) {
       console.error('GitHub rate limit exceeded, returning empty sponsors.')

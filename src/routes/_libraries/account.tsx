@@ -21,6 +21,7 @@ import {
   toggleLLMKeyStatus,
   type LLMKey,
 } from '~/utils/llmKeys'
+import { useToast } from '~/components/ToastProvider'
 
 export const Route = createFileRoute({
   component: AccountPage,
@@ -421,6 +422,7 @@ function LLMKeysSection() {
 
 function UserSettings() {
   const userQuery = useCurrentUserQuery()
+  const { notify } = useToast()
   // Use current user query directly instead of separate ad preference query
   const updateAdPreferenceMutation = useMutation(
     api.users.updateAdPreference
@@ -444,11 +446,27 @@ function UserSettings() {
     updateAdPreferenceMutation({
       adsDisabled: e.target.checked,
     })
+    notify(
+      <div>
+        <div className="font-medium">Preferences updated</div>
+        <div className="text-gray-500 dark:text-gray-400 text-xs">
+          Ad visibility preference saved
+        </div>
+      </div>
+    )
   }
 
   const signOut = async () => {
     await authClient.signOut()
     redirect({ to: '/login' })
+    notify(
+      <div>
+        <div className="font-medium">Signed out</div>
+        <div className="text-gray-500 dark:text-gray-400 text-xs">
+          You have been logged out
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -22,9 +22,11 @@ import { GamScripts } from '~/components/Gam'
 import { BackgroundGradient } from '~/components/BackgroundGradient'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
+import { ToastProvider } from '~/components/ToastProvider'
 import { ThemeProvider } from '~/components/ThemeProvider'
 import { ConvexQueryClient } from '@convex-dev/react-query'
 import { ConvexReactClient } from 'convex/react'
+import { Navbar } from '~/components/Navbar'
 
 import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
 import { authClient } from '../utils/auth.client'
@@ -218,34 +220,38 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
         ) : null}
         <GamScripts />
       </head>
-      <body>
-        <BackgroundGradient />
-        <React.Suspense fallback={null}>{children}</React.Suspense>
-        {showDevtools ? (
-          <TanStackRouterDevtoolsInProd position="bottom-right" />
-        ) : null}
-        {canShowLoading ? (
-          <div
-            className={`fixed top-0 left-0 h-[300px] w-full
+      <body style={{ '--navbar-height': '48px' } as any}>
+        <ToastProvider>
+          <BackgroundGradient />
+          <React.Suspense fallback={null}>
+            <Navbar>{children}</Navbar>
+          </React.Suspense>
+          {showDevtools ? (
+            <TanStackRouterDevtoolsInProd position="bottom-right" />
+          ) : null}
+          {canShowLoading ? (
+            <div
+              className={`fixed top-0 left-0 h-[300px] w-full
         transition-all duration-300 pointer-events-none
         z-30 dark:h-[200px] dark:bg-white/10! dark:rounded-[100%] ${
           isLoading
             ? 'delay-500 opacity-1 -translate-y-1/2'
             : 'delay-0 opacity-0 -translate-y-full'
         }`}
-            style={{
-              background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
-            }}
-          >
-            <div
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
-        rounded-lg shadow-lg`}
+              style={{
+                background: `radial-gradient(closest-side, rgba(0,10,40,0.2) 0%, rgba(0,0,0,0) 100%)`,
+              }}
             >
-              <CgSpinner className="text-3xl animate-spin" />
+              <div
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
+        rounded-lg shadow-lg`}
+              >
+                <CgSpinner className="text-3xl animate-spin" />
+              </div>
             </div>
-          </div>
-        ) : null}
-        <SearchModal />
+          ) : null}
+          <SearchModal />
+        </ToastProvider>
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-5N57KQT4"

@@ -1,12 +1,12 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { Link } from '@tanstack/react-router'
+import { Link, LinkProps } from '@tanstack/react-router'
 import type { Library } from '~/libraries'
 
 type LibraryHeroProps = {
   project: Library
   cta?: {
-    linkProps: React.ComponentProps<typeof Link>
+    linkProps: LinkProps
     label: string
     className?: string
   }

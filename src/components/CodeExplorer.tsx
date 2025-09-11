@@ -5,6 +5,7 @@ import { InteractiveSandbox } from './InteractiveSandbox'
 import { CodeExplorerTopBar } from './CodeExplorerTopBar'
 import type { GitHubFileNode } from '~/utils/documents.server'
 import type { Library } from '~/libraries'
+import { twMerge } from 'tailwind-merge'
 
 function overrideExtension(ext: string | undefined) {
   if (!ext) return 'txt'
@@ -87,7 +88,9 @@ export function CodeExplorer({
   return (
     <div
       className={`flex flex-col min-h-[60dvh] sm:min-h-[80dvh] border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden ${
-        isFullScreen ? 'fixed inset-0 z-50 bg-white dark:bg-gray-900 p-4' : ''
+        isFullScreen
+          ? 'fixed inset-0 top-[var(--navbar-height)] z-50 bg-white dark:bg-gray-900'
+          : ''
       }`}
     >
       <CodeExplorerTopBar
@@ -116,9 +119,10 @@ export function CodeExplorer({
           <div className="flex-1 overflow-auto relative">
             <CodeBlock
               isEmbedded
-              className={`h-full ${
+              className={twMerge(
+                'h-full border-0',
                 isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]'
-              }`}
+              )}
             >
               <code
                 className={`language-${overrideExtension(

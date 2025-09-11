@@ -78,7 +78,11 @@ export function _OssStats({ library }: { library?: Library }) {
 
   return (
     <div>
-      <div className="p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center justify-center xl:place-items-center bg-white/50 dark:bg-gray-700/30 dark:shadow-none rounded-xl shadow-xl">
+      <div
+        className="relative p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center
+      justify-center xl:place-items-center bg-white/50 dark:bg-black/40
+      dark:shadow-none rounded-xl shadow-xl"
+      >
         <a
           href="https://www.npmjs.com/org/tanstack"
           target="_blank"

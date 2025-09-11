@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { getRouteApi } from '@tanstack/react-router'
 import { routerProject } from '~/libraries/router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
@@ -7,6 +6,9 @@ import { FeatureGrid } from '~/components/FeatureGrid'
 import { PartnersSection } from '~/components/PartnersSection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
+import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
+import { CodeBlock } from '~/components/Markdown'
+import { Link } from '@tanstack/react-router'
 import { BottomCTA } from '~/components/BottomCTA'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
@@ -14,7 +16,6 @@ import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
-const librariesRouteApi = getRouteApi('/_libraries')
 const library = getLibrary('router')
 
 export const Route = createFileRoute({
@@ -34,8 +35,7 @@ function RouterVersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(routerProject, version)
-  const [framework] = React.useState<Framework>('react')
-  const [isDark] = React.useState(true) // deprecated – using StackBlitzEmbed theme
+  const [framework, setFramework] = React.useState<Framework>('react')
 
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
@@ -43,9 +43,8 @@ function RouterVersionIndex() {
         project={routerProject}
         cta={{
           linkProps: {
-            from: '/$libraryId/$version',
-            to: './docs',
-            params: { libraryId: library.id },
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version },
           },
           label: 'Get Started',
           className: 'bg-emerald-500 text-white',
@@ -54,6 +53,83 @@ function RouterVersionIndex() {
 
       <div className="w-fit mx-auto px-4">
         <OpenSourceStats library={library} />
+      </div>
+
+      {/* Minimal code example card */}
+      <div className="px-4 space-y-4 flex flex-col items-center ">
+        <div className="text-3xl font-black">Just a quick look...</div>
+        <div className="group relative bg-white/50 dark:bg-black/40 rounded-lg overflow-hidden shadow-xl max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
+          <div>
+            <FrameworkIconTabs
+              frameworks={routerProject.frameworks}
+              value={framework}
+              onChange={setFramework}
+            />
+          </div>
+          {(() => {
+            const codeByFramework: Partial<
+              Record<Framework, { lang: string; code: string }>
+            > = {
+              react: {
+                lang: 'tsx',
+                code: `import { createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/react-router'
+
+const rootRoute = createRootRoute()
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: () => <div>Hello World</div>,
+})
+const routeTree = rootRoute.addChildren([indexRoute])
+const router = createRouter({ routeTree })
+
+export default function App() {
+  return <RouterProvider router={router} />
+}`,
+              },
+              solid: {
+                lang: 'tsx',
+                code: `import { createRootRoute, createRoute, createRouter, RouterProvider } from '@tanstack/solid-router'
+
+const rootRoute = createRootRoute()
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: () => <div>Hello World</div>,
+})
+const routeTree = rootRoute.addChildren([indexRoute])
+const router = createRouter({ routeTree })
+
+export default function App() {
+  return <RouterProvider router={router} />
+}`,
+              },
+            }
+
+            const selected =
+              codeByFramework[framework] || codeByFramework.react!
+
+            return (
+              <CodeBlock
+                className="mt-0 border-0"
+                showTypeCopyButton={false as any}
+              >
+                <code className={`language-${selected.lang}`}>
+                  {selected.code}
+                </code>
+              </CodeBlock>
+            )
+          })()}
+          <div className="mt-4 text-center">
+            <Link
+              to="/$libraryId/$version/docs"
+              params={{ libraryId: library.id, version }}
+              className="inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors bg-emerald-500 text-white"
+            >
+              Get Started
+            </Link>
+          </div>
+        </div>
       </div>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
@@ -121,38 +197,30 @@ function RouterVersionIndex() {
           </div>
         </div>
 
-        {/* {['preact', 'vue', 'solid', 'svelte'].includes(framework) ? (
-        <div className="px-2">
-          <div className="p-8 text-center text-lg w-full max-w-(--breakpoint-lg) mx-auto bg-black text-white rounded-xl">
-            Looking for the <strong>@tanstack/{framework}-router</strong>{' '}
-            example? The <strong>@tanstack/{framework}-router</strong> adapter
-            is currently under development! Join the{' '}
-            <a
-              href="https://tlinz.com/discord"
-              className="text-teal-500 font-bold"
-            >
-              TanStack Discord Server
-            </a>{' '}
-            and help us make routing in {framework} a better place!
+        <div className="px-4">
+          <div className="relative w-full bg-white/50 dark:bg-black/50 rounded-lg overflow-hidden shadow-xl">
+            <div className="">
+              <FrameworkIconTabs
+                frameworks={routerProject.frameworks}
+                value={framework}
+                onChange={setFramework}
+              />
+            </div>
+            <StackBlitzEmbed
+              repo={routerProject.repo}
+              branch={branch}
+              examplePath={`examples/${framework}/kitchen-sink-file-based`}
+              file={'src/main.tsx'}
+              title="tannerlinsley/router: kitchen-sink"
+            />
           </div>
-        </div>
-      ) : ( */}
-        <div className="bg-white dark:bg-black">
-          <StackBlitzEmbed
-            repo={routerProject.repo}
-            branch={branch}
-            examplePath={`examples/${framework}/kitchen-sink-file-based`}
-            file={'src/main.tsx'}
-            title="tannerlinsley/router: kitchen-sink"
-          />
         </div>
       </div>
 
       <BottomCTA
         linkProps={{
-          from: '/$libraryId/$version',
-          to: './docs',
-          params: { libraryId: library.id },
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version },
         }}
         label="Get Started!"
         className="bg-emerald-500 text-white"

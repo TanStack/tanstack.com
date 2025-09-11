@@ -50,19 +50,59 @@ export const listUsers = query({
       limit: v.number(),
       cursor: v.optional(v.union(v.string(), v.null())),
     }),
+    emailFilter: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Validate admin capability
     await requireCapability(ctx, 'admin')
 
-    // Return paginated users
-    return await ctx.db
-      .query('users')
-      .order('desc')
-      .paginate({
-        numItems: args.pagination.limit,
-        cursor: args.pagination.cursor ?? null,
-      })
+    const limit = args.pagination.limit
+    const cursor = args.pagination.cursor ?? null
+
+    const emailFilter = args.emailFilter ?? ''
+
+    if (emailFilter && emailFilter.length > 0) {
+      // Prefix range over email using index
+      return await ctx.db
+        .query('users')
+        .withSearchIndex('search_email', (q) => q.search('email', emailFilter))
+        .paginate({
+          numItems: limit,
+          cursor,
+        })
+    }
+
+    // Return paginated users without filter
+    return await ctx.db.query('users').order('desc').paginate({
+      numItems: limit,
+      cursor,
+    })
+  },
+})
+
+export const countUsers = query({
+  args: {
+    emailFilter: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    // Validate admin capability
+    await requireCapability(ctx, 'admin')
+
+    const total = (await ctx.db.query('users').collect()).length
+
+    const emailFilter = args.emailFilter ?? ''
+
+    if (emailFilter && emailFilter.length > 0) {
+      const filtered = (
+        await ctx.db
+          .query('users')
+          .withSearchIndex('search_email', (q) =>
+            q.search('email', emailFilter)
+          )
+          .collect()
+      ).length
+      return { total, filtered }
+    }
   },
 })
 
@@ -93,6 +133,31 @@ export const updateAdPreference = mutation({
 
     // Update target user's capabilities
     await ctx.db.patch(currentUser.userId as Id<'users'>, {
+      adsDisabled: args.adsDisabled,
+    })
+
+    return { success: true }
+  },
+})
+
+// Admin override to set a user's adsDisabled flag
+export const adminSetAdsDisabled = mutation({
+  args: {
+    userId: v.id('users'),
+    adsDisabled: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    // Validate admin capability
+    await requireCapability(ctx, 'admin')
+
+    // Validate that target user exists
+    const targetUser = await ctx.db.get(args.userId)
+    if (!targetUser) {
+      throw new Error('Target user not found')
+    }
+
+    // Update target user's adsDisabled flag
+    await ctx.db.patch(args.userId, {
       adsDisabled: args.adsDisabled,
     })
 

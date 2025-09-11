@@ -12,10 +12,10 @@ import { QueryClient } from '@tanstack/react-query'
 import { GamOnPageChange } from './components/Gam'
 import { env } from './utils/env'
 import { api } from 'convex/_generated/api'
-import { Capability } from 'convex/schema'
+import React from 'react'
 
 export function createRouter() {
-  const CONVEX_URL = env.VITE_CONVEX_URL
+  const CONVEX_URL = env.VITE_CONVEX_URL!
   const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
 
   const queryClient: QueryClient = new QueryClient({
@@ -60,6 +60,7 @@ export function createRouter() {
           {children}
         </ConvexProvider>
       ),
+      scrollToTopSelectors: ['.scroll-to-top'],
     }),
     queryClient
   )
@@ -84,5 +85,6 @@ declare module '@tanstack/react-router' {
   }
   interface StaticDataRouteOption {
     baseParent?: boolean
+    Title?: () => any
   }
 }

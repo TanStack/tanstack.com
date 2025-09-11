@@ -132,6 +132,7 @@ export type Library = {
   hideStackblitzUrl?: true
   showVercelUrl?: boolean
   showNetlifyUrl?: boolean
+  showCloudflareUrl?: boolean
   menu: LibraryMenuItem[]
   featureHighlights?: {
     title: string

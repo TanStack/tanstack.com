@@ -129,7 +129,7 @@ export function Doc({
             <GamLeader />
           </AdGate>
           {title ? (
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-4 pr-4">
               <DocTitle>{title}</DocTitle>
               <div className="flex items-center gap-4">
                 <CopyMarkdownButton
@@ -161,6 +161,7 @@ export function Doc({
             ref={markdownContainerRef}
             className={twMerge(
               'prose prose-gray dark:prose-invert max-w-none',
+              '[font-size:14px]',
               isTocVisible && 'pr-4 lg:pr-6',
               'styled-markdown-content'
             )}

@@ -27,7 +27,7 @@ import {
 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { twMerge } from 'tailwind-merge'
-import logoColor100w from '~/images/logo-color-100w.png'
+// Using public asset URL
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -99,6 +99,18 @@ export const Route = createFileRoute({
     }),
   }),
   component: RouteComponent,
+  staticData: {
+    Title: () => {
+      return (
+        <Link
+          to="."
+          className="hover:text-blue-500 flex items-center gap-2 text-gray-500"
+        >
+          NPM Stats
+        </Link>
+      )
+    },
+  },
 })
 
 const timeRanges = [
@@ -1282,23 +1294,6 @@ function RouteComponent() {
 
   return (
     <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4">
-      <div className="bg-white dark:bg-black/50 rounded-lg p-2 sm:p-4 flex items-center gap-2 text-lg sm:text-xl shadow-xl">
-        <Link to="/" className={twMerge(`flex items-center gap-1.5`)}>
-          <img
-            src={logoColor100w}
-            alt=""
-            className="w-[30px] rounded-full overflow-hidden border-2 border-black dark:border-none"
-          />
-          <div className="font-black text-xl uppercase">TanStack</div>
-        </Link>
-        <FaAngleRight />
-        <Link to="." className="hover:text-blue-500 flex items-center gap-2">
-          NPM Stats{' '}
-          <span className="bg-linear-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold px-2 py-0.5 rounded">
-            BETA
-          </span>
-        </Link>
-      </div>
       <div className="flex gap-4">
         <div className="flex-1 bg-white dark:bg-black/50 rounded-lg space-y-4 p-4 shadow-xl max-w-full">
           <div className="flex gap-2 flex-wrap">

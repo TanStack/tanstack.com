@@ -1,5 +1,5 @@
 import { useQuery } from 'convex/react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import {
@@ -17,14 +17,14 @@ import {
 } from 'lucide-react'
 
 import { api } from 'convex/_generated/api'
-import { getLLMKeys, hasActiveKeys } from '~/utils/llmKeys'
+import { hasActiveKeys } from '~/utils/llmKeysConvex'
 
 import Sidebar from '~/forge/ui/sidebar'
 
 export const Route = createFileRoute({
   ssr: false,
   component: AuthenticationWrapper,
-  headers(ctx) {
+  headers(ctx: any) {
     return {
       'Cross-Origin-Embedder-Policy': 'require-corp',
       'Cross-Origin-Opener-Policy': 'same-origin',
@@ -34,25 +34,18 @@ export const Route = createFileRoute({
 
 function App() {
   const projects = useQuery(api.forge.getProjects)
+  const llmKeys = useQuery(api.llmKeys.listMyLLMKeys)
   const [description, setDescription] = useState('')
-  const [llmKeys, setLlmKeys] = useState<any[]>([])
-  const [keysLoaded, setKeysLoaded] = useState(false)
 
   const router = useRouter()
 
-  // Load LLM keys from localStorage
-  useEffect(() => {
-    setLlmKeys(getLLMKeys())
-    setKeysLoaded(true)
-  }, [])
-
   // Check if user has any active LLM keys
-  const hasActiveKeysCheck = keysLoaded && hasActiveKeys()
+  const hasActiveKeysCheck = llmKeys !== undefined && hasActiveKeys(llmKeys)
 
   const handleGetStarted = async () => {
     const res = await fetch('/api/forge/new-project', {
       method: 'POST',
-      body: JSON.stringify({ description, llmKeys }),
+      body: JSON.stringify({ description }),
     })
     const { projectId } = await res.json()
     router.navigate({
@@ -69,7 +62,7 @@ function App() {
   }
 
   // Show loading state while checking keys
-  if (!keysLoaded) {
+  if (llmKeys === undefined) {
     return (
       <div className="flex flex-col md:flex-row h-screen bg-slate-950 w-full">
         <Sidebar projects={projects} />

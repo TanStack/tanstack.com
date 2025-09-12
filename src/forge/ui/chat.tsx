@@ -547,7 +547,6 @@ export default function Chat({
       body: {
         projectId,
         model: selectedModel,
-        llmKeys,
       },
     }),
     messages: initialMessages,

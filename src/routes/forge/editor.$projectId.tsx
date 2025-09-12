@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useQuery } from 'convex/react'
 import { Link } from '@tanstack/react-router'
 
@@ -9,7 +9,7 @@ import type { Id } from 'convex/_generated/dataModel'
 
 import type { UIMessage } from 'ai'
 
-import { getLLMKeys, hasActiveKeys } from '~/utils/llmKeys'
+import { hasActiveKeys } from '~/utils/llmKeysConvex'
 
 import {
   getChatMessages,
@@ -36,7 +36,7 @@ function deserializeMessage(message: {
 
 export const Route = createFileRoute({
   component: AuthenticationWrapper,
-  headers(ctx) {
+  headers(ctx: any) {
     return {
       'Cross-Origin-Embedder-Policy': 'require-corp',
       'Cross-Origin-Opener-Policy': 'same-origin',
@@ -132,24 +132,17 @@ function AIApp({
   const projectData = useQuery(api.forge.getProject, {
     projectId,
   })
-  const [llmKeys, setLlmKeys] = useState<any[]>([])
-  const [keysLoaded, setKeysLoaded] = useState(false)
-
-  // Load LLM keys from localStorage
-  useEffect(() => {
-    setLlmKeys(getLLMKeys())
-    setKeysLoaded(true)
-  }, [])
+  const llmKeys = useQuery(api.llmKeys.listMyLLMKeys)
 
   const onSetCheckpoint = () => {
     setLastCheckpoint(convertToRecord(projectFiles ?? []))
   }
 
   // Check if user has any active LLM keys
-  const hasActiveKeysCheck = keysLoaded && hasActiveKeys()
+  const hasActiveKeysCheck = llmKeys !== undefined && hasActiveKeys(llmKeys)
 
   // Show loading state while checking keys
-  if (!keysLoaded) {
+  if (llmKeys === undefined) {
     return (
       <div className="h-screen bg-slate-950 w-full">
         <Header />

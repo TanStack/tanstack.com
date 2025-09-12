@@ -7,10 +7,11 @@ import { betterAuthComponent } from '../../convex/auth'
 
 // You'll want to replace this with an environment variable
 const siteUrl = process.env.SITE_URL
-const convexSiteUrl = process.env.VITE_CONVEX_SITE_URL!
+const convexSiteUrl = process.env.CONVEX_SITE_URL!
 
 export const createAuth = (ctx: GenericCtx) =>
   betterAuth({
+    trustedOrigins: ['http://localhost:3000', 'https://tanstack.com'],
     // All auth requests will be proxied through your TanStack Start server
     baseURL: siteUrl,
     database: convexAdapter(ctx, betterAuthComponent),

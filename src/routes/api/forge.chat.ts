@@ -59,9 +59,9 @@ async function saveChat(projectId: Id<'forge_projects'>, messages: Array<UIMessa
 }
 
 export const ServerRoute = createServerFileRoute().methods({
-  POST: async ({ request }) => {
+  POST: async ({ request }: { request: Request }) => {
     try {
-      const { messages, projectId, model, llmKeys } = await request.json()
+      const { messages, projectId, model } = await request.json()
 
       if (!projectId || typeof projectId !== 'string') {
         return new Response(
@@ -77,13 +77,6 @@ export const ServerRoute = createServerFileRoute().methods({
         )
       }
 
-      if (!llmKeys || !Array.isArray(llmKeys)) {
-        return new Response(
-          JSON.stringify({ error: 'LLM keys are required' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
-        )
-      }
-
       // This is a total hack, but it works
       const cookies = request.headers.get('cookie')
       let sessionToken: string | null = null
@@ -95,6 +88,16 @@ export const ServerRoute = createServerFileRoute().methods({
       }
       // This part is not a hack, we do need to set the auth token for the convex client
       convex.setAuth(sessionToken!)
+
+      // Fetch LLM keys from Convex for the authenticated user
+      const llmKeys = await convex.query(api.llmKeys.listMyLLMKeys)
+
+      if (!llmKeys || !Array.isArray(llmKeys)) {
+        return new Response(
+          JSON.stringify({ error: 'LLM keys are required' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        )
+      }
 
       // Determine which provider to use based on the model
       const isAnthropicModel = model.startsWith('claude-')

@@ -13,14 +13,7 @@ const convex = new ConvexHttpClient(process.env.CONVEX_URL!)
 export const ServerRoute = createServerFileRoute().methods({
   POST: async (ctx) => {
     try {
-      const { description, llmKeys } = await ctx.request.json()
-
-      if (!llmKeys || !Array.isArray(llmKeys)) {
-        return new Response(
-          JSON.stringify({ error: 'LLM keys are required' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
-        )
-      }
+      const { description } = await ctx.request.json()
 
       // This is a total hack, but it works
       const cookies = ctx.request.headers.get('cookie')
@@ -34,7 +27,17 @@ export const ServerRoute = createServerFileRoute().methods({
       // This part is not a hack, we do need to set the auth token for the convex client
       convex.setAuth(sessionToken!)
 
-      // Find active keys from provided LLM keys - prefer Anthropic, fallback to OpenAI
+      // Fetch LLM keys from Convex for the authenticated user
+      const llmKeys = await convex.query(api.llmKeys.listMyLLMKeys)
+
+      if (!llmKeys || !Array.isArray(llmKeys)) {
+        return new Response(
+          JSON.stringify({ error: 'LLM keys are required' }),
+          { status: 400, headers: { 'Content-Type': 'application/json' } }
+        )
+      }
+
+      // Find active keys from user's LLM keys - prefer Anthropic, fallback to OpenAI
       const anthropicKey = llmKeys.find((key: any) => key.provider === 'anthropic' && key.isActive)
       const openaiKey = llmKeys.find((key: any) => key.provider === 'openai' && key.isActive)
       

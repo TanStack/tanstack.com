@@ -63,8 +63,6 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
     webContainer = WebContainer.boot()
   }
 
-  console.log('>>> createWebContainerStore', shouldShimALS, webContainer)
-
   const store = createStore<WebContainerStore>((set, get) => ({
     webContainer,
     ready: false,
@@ -77,7 +75,6 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
     projectFiles: [],
 
     teardown: () => {
-      console.log('>>> teardown', webContainer)
       set({ webContainer: null, ready: false })
     },
     addTerminalOutput: (output: string) => {

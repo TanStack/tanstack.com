@@ -1,6 +1,7 @@
 node_modules
 package-lock.json
 yarn.lock
+convex/generated
 
 .tanstack
 .DS_Store

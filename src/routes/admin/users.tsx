@@ -1,10 +1,9 @@
-import { redirect, Link } from '@tanstack/react-router'
+import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import {
   useQuery as useConvexQuery,
   useMutation as useConvexMutation,
-  useConvex,
 } from 'convex/react'
-import { useQuery, useMutation, keepPreviousData } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { api } from 'convex/_generated/api'
 import { useState, useMemo, useCallback } from 'react'
 import {
@@ -24,6 +23,7 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table'
 import { convexQuery } from '@convex-dev/react-query'
+import { z } from 'zod'
 
 // User type for table
 type User = {
@@ -36,38 +36,44 @@ type User = {
 
 export const Route = createFileRoute({
   component: UsersPage,
+  validateSearch: z.object({
+    email: z.string().optional(),
+    cap: z.string().optional(),
+    ads: z.enum(['all', 'true', 'false']).optional(),
+    page: z.number().int().nonnegative().optional(),
+  }),
 })
 
 function UsersPage() {
   const [editingUserId, setEditingUserId] = useState<string | null>(null)
   const [editingCapabilities, setEditingCapabilities] = useState<string[]>([])
-  const [cursors, setCursors] = useState<string[]>(['']) // Track cursor history for navigation
-  const [currentPageIndex, setCurrentPageIndex] = useState(0)
-  const [updatingAdsUserId, setUpdatingAdsUserId] = useState<string | null>(
-    null
-  )
-  const [emailFilter, setEmailFilter] = useState('')
+  const [updatingAdsUserId] = useState<string | null>(null)
+
+  const navigate = Route.useNavigate()
+  const search = Route.useSearch()
+  const emailFilter = search.email ?? ''
+  const capabilityFilter = search.cap ?? ''
+  const adsDisabledFilter = (search.ads ?? 'all') as 'all' | 'true' | 'false'
+  const currentPageIndex = search.page ?? 0
 
   const user = useConvexQuery(api.auth.getCurrentUser)
   const pageSize = 10
+  // Cast to any to avoid transient type mismatch until Convex codegen runs
+  const listUsersRef: any = (api as any).users?.listUsers
   const usersQuery = useQuery({
-    ...convexQuery(api.users.listUsers, {
+    ...convexQuery(listUsersRef, {
       pagination: {
         limit: pageSize,
-        cursor: cursors[currentPageIndex] || null,
+        page: currentPageIndex,
       },
       emailFilter: emailFilter || undefined,
+      capabilityFilter: capabilityFilter || undefined,
+      adsDisabledFilter:
+        adsDisabledFilter === 'all' ? undefined : adsDisabledFilter === 'true',
     }),
     placeholderData: keepPreviousData,
   })
-  // Cast to any to avoid transient type mismatch until Convex codegen runs
-  const countUsersRef: any = (api as any).users?.countUsers
-  const countsQuery = useQuery({
-    ...convexQuery(countUsersRef, {
-      emailFilter: emailFilter || undefined,
-    }),
-    placeholderData: keepPreviousData,
-  })
+  // counts now come from listUsers response
 
   const updateUserCapabilities = useConvexMutation(
     api.users.updateUserCapabilities
@@ -261,26 +267,25 @@ function UsersPage() {
       handleCancelEdit,
       handleEditUser,
       toggleCapability,
+      handleToggleAdsDisabled,
+      updatingAdsUserId,
     ]
   )
 
-  // Pagination handlers
+  // Pagination handlers via search state
   const goToNextPage = () => {
-    if (usersQuery?.data?.continueCursor) {
-      const newPageIndex = currentPageIndex + 1
-
-      // Add new cursor to history if we don't have it
-      if (cursors.length <= newPageIndex) {
-        setCursors((prev) => [...prev, usersQuery.data.continueCursor!])
-      }
-
-      setCurrentPageIndex(newPageIndex)
+    if (!usersQuery?.data?.isDone) {
+      navigate({
+        search: (prev) => ({ ...prev, page: currentPageIndex + 1 }),
+      })
     }
   }
 
   const goToPreviousPage = () => {
     if (currentPageIndex > 0) {
-      setCurrentPageIndex(currentPageIndex - 1)
+      navigate({
+        search: (prev) => ({ ...prev, page: currentPageIndex - 1 }),
+      })
     }
   }
 
@@ -364,18 +369,62 @@ function UsersPage() {
           <p className="text-gray-600 dark:text-gray-400">
             Manage user accounts and their capabilities.
           </p>
-          <div className="mt-4">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 max-w-4xl">
             <input
               type="text"
               value={emailFilter}
               onChange={(e) => {
-                setEmailFilter(e.target.value)
-                setCurrentPageIndex(0)
-                setCursors([''])
+                const value = e.target.value
+                navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    email: value || undefined,
+                    page: 0,
+                  }),
+                })
               }}
               placeholder="Filter by email"
-              className="w-full max-w-md px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
             />
+            <select
+              value={capabilityFilter}
+              onChange={(e) => {
+                const value = e.target.value
+                navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    cap: value || undefined,
+                    page: 0,
+                  }),
+                })
+              }}
+              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="">All capabilities</option>
+              {availableCapabilities.map((cap) => (
+                <option key={cap} value={cap}>
+                  {cap}
+                </option>
+              ))}
+            </select>
+            <select
+              value={adsDisabledFilter}
+              onChange={(e) => {
+                const value = e.target.value as 'all' | 'true' | 'false'
+                navigate({
+                  search: (prev) => ({
+                    ...prev,
+                    ads: value,
+                    page: 0,
+                  }),
+                })
+              }}
+              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="all">All ad statuses</option>
+              <option value="true">Ads disabled</option>
+              <option value="false">Ads enabled</option>
+            </select>
           </div>
         </div>
 
@@ -438,10 +487,14 @@ function UsersPage() {
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {(() => {
-              const filtered = countsQuery?.data?.filtered ?? 0
-              const total = countsQuery?.data?.total ?? 0
+              const filtered = usersQuery?.data?.counts?.filtered ?? 0
+              const total = usersQuery?.data?.counts?.total ?? 0
               const totalPages = Math.max(1, Math.ceil(filtered / pageSize))
               const showing = usersQuery.data?.page?.length ?? 0
+              const hasAnyFilter =
+                Boolean(emailFilter) ||
+                Boolean(capabilityFilter) ||
+                adsDisabledFilter !== 'all'
               return (
                 <>
                   Page {currentPageIndex + 1} of {totalPages}
@@ -449,7 +502,7 @@ function UsersPage() {
                     {' '}
                     • showing {showing} of {filtered} users
                   </span>
-                  {emailFilter ? <span> (from {total} total)</span> : null}
+                  {hasAnyFilter ? <span> (from {total} total)</span> : null}
                 </>
               )
             })()}

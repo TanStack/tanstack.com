@@ -93,7 +93,7 @@ _[Try out the TanStack DB Starter](https://github.com/TanStack/db/tree/main/exam
 
 TanStack DB keeps a **normalized collection store** in memory, then uses **differential dataflow** to update query results incrementally. Think of it like Materialize-style streaming SQL—except embedded in the browser and hooked straight into React Query’s cache.
 
-- **Collections** wrap your existing `useQuery` calls (REST, tRPC, GraphQL, WebSocket—doesn’t matter). Do you sync data some other way? [Build a custom collection](https://tanstack.com/db/latest/docs/collection-options-creator).
+- **Collections** wrap your existing `useQuery` calls (REST, tRPC, GraphQL, WebSocket—doesn’t matter). Do you sync data some other way? [Build a custom collection](https://tanstack.com/db/latest/docs/guides/collection-options-creator).
 - **Transactions** let you mutate those collections optimistically; failures roll back automatically.
 - **Live queries** declare _what_ data you need; TanStack DB streams only the rows that change, in < 1 ms.
 
@@ -344,7 +344,7 @@ While TanStack DB works great with REST and GraphQL, it really shines when paire
 
 **Load far more data efficiently** — It's far cheaper to update data in the client when using sync engines. Instead of re-loading entire collections after each change, sync engines send only the actual changed items. This makes it practical to load far more data upfront, enabling the "load everything once" pattern that makes apps like Linear feel so fast.
 
-TanStack DB was designed from the ground up to support sync engines. [When you define a collection, you're provided with an API for writing synced transactions](https://tanstack.com/db/latest/docs/collection-options-creator) from the backend into your local collections. Try out collection implementations for [Electric](https://tanstack.com/db/latest/docs/installation#electric-collection), [Trailblaze](https://tanstack.com/db/latest/docs/installation#trailbase-collection), and [(soon) Firebase](https://github.com/TanStack/db/pull/323)!
+TanStack DB was designed from the ground up to support sync engines. [When you define a collection, you're provided with an API for writing synced transactions](https://tanstack.com/db/latest/docs/guides/collection-options-creator) from the backend into your local collections. Try out collection implementations for [Electric](https://tanstack.com/db/latest/docs/installation#electric-collection), [Trailblaze](https://tanstack.com/db/latest/docs/installation#trailbase-collection), and [(soon) Firebase](https://github.com/TanStack/db/pull/323)!
 
 DB gives you a common interface for your components to query data, which means you can easily switch between data loading strategies as needed without changing client code. Start with REST, switch to a sync engine later as needed—your components don't need to know the difference.
 

@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearch } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import {
   useQuery as useConvexQuery,
   useMutation as useConvexMutation,
@@ -41,6 +41,7 @@ export const Route = createFileRoute({
     cap: z.string().optional(),
     ads: z.enum(['all', 'true', 'false']).optional(),
     page: z.number().int().nonnegative().optional(),
+    pageSize: z.number().int().positive().optional(),
   }),
 })
 
@@ -57,7 +58,7 @@ function UsersPage() {
   const currentPageIndex = search.page ?? 0
 
   const user = useConvexQuery(api.auth.getCurrentUser)
-  const pageSize = 10
+  const pageSize = search.pageSize ?? 10
   // Cast to any to avoid transient type mismatch until Convex codegen runs
   const listUsersRef: any = (api as any).users?.listUsers
   const usersQuery = useQuery({
@@ -353,7 +354,7 @@ function UsersPage() {
 
   return (
     <div className="min-h-screen p-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="w-full">
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <Link
@@ -369,7 +370,7 @@ function UsersPage() {
           <p className="text-gray-600 dark:text-gray-400">
             Manage user accounts and their capabilities.
           </p>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 max-w-4xl">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
             <input
               type="text"
               value={emailFilter}
@@ -490,24 +491,37 @@ function UsersPage() {
               const filtered = usersQuery?.data?.counts?.filtered ?? 0
               const total = usersQuery?.data?.counts?.total ?? 0
               const totalPages = Math.max(1, Math.ceil(filtered / pageSize))
-              const showing = usersQuery.data?.page?.length ?? 0
-              const hasAnyFilter =
-                Boolean(emailFilter) ||
-                Boolean(capabilityFilter) ||
-                adsDisabledFilter !== 'all'
               return (
                 <>
-                  Page {currentPageIndex + 1} of {totalPages}
+                  Showing {filtered} of {total} users
                   <span>
                     {' '}
-                    • showing {showing} of {filtered} users
+                    • Page {currentPageIndex + 1} of {totalPages}
                   </span>
-                  {hasAnyFilter ? <span> (from {total} total)</span> : null}
                 </>
               )
             })()}
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 items-center">
+            <label className="text-sm text-gray-500 dark:text-gray-400">
+              Per page:
+            </label>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                const next = parseInt(e.target.value, 10)
+                navigate({
+                  search: (prev) => ({ ...prev, pageSize: next, page: 0 }),
+                })
+              }}
+              className="px-2 py-1 text-sm border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+            >
+              {[10, 25, 50, 100].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
             <button
               onClick={goToPreviousPage}
               disabled={!canGoPrevious}

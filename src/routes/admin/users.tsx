@@ -277,6 +277,7 @@ function UsersPage() {
   const goToNextPage = () => {
     if (!usersQuery?.data?.isDone) {
       navigate({
+        resetScroll: false,
         search: (prev) => ({ ...prev, page: currentPageIndex + 1 }),
       })
     }
@@ -285,6 +286,7 @@ function UsersPage() {
   const goToPreviousPage = () => {
     if (currentPageIndex > 0) {
       navigate({
+        resetScroll: false,
         search: (prev) => ({ ...prev, page: currentPageIndex - 1 }),
       })
     }
@@ -353,192 +355,197 @@ function UsersPage() {
   }
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="w-full">
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Link
-              to="/admin"
-              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              ← Admin Dashboard
-            </Link>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            User Management
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage user accounts and their capabilities.
-          </p>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-            <input
-              type="text"
-              value={emailFilter}
-              onChange={(e) => {
-                const value = e.target.value
-                navigate({
-                  search: (prev) => ({
-                    ...prev,
-                    email: value || undefined,
-                    page: 0,
-                  }),
-                })
-              }}
-              placeholder="Filter by email"
-              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
-            />
-            <select
-              value={capabilityFilter}
-              onChange={(e) => {
-                const value = e.target.value
-                navigate({
-                  search: (prev) => ({
-                    ...prev,
-                    cap: value || undefined,
-                    page: 0,
-                  }),
-                })
-              }}
-              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="">All capabilities</option>
-              {availableCapabilities.map((cap) => (
-                <option key={cap} value={cap}>
-                  {cap}
-                </option>
+    <div className="w-full p-4 space-y-4">
+      <div className="">
+        <div className="flex items-center gap-4 mb-4">
+          <Link
+            to="/admin"
+            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            ← Admin Dashboard
+          </Link>
+        </div>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          User Management
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Manage user accounts and their capabilities.
+        </p>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <input
+            type="text"
+            value={emailFilter}
+            onChange={(e) => {
+              const value = e.target.value
+              navigate({
+                resetScroll: false,
+                search: (prev) => ({
+                  ...prev,
+                  email: value || undefined,
+                  page: 0,
+                }),
+              })
+            }}
+            placeholder="Filter by email"
+            className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+          />
+          <select
+            value={capabilityFilter}
+            onChange={(e) => {
+              const value = e.target.value
+              navigate({
+                resetScroll: false,
+                search: (prev) => ({
+                  ...prev,
+                  cap: value || undefined,
+                  page: 0,
+                }),
+              })
+            }}
+            className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+          >
+            <option value="">All capabilities</option>
+            {availableCapabilities.map((cap) => (
+              <option key={cap} value={cap}>
+                {cap}
+              </option>
+            ))}
+          </select>
+          <select
+            value={adsDisabledFilter}
+            onChange={(e) => {
+              const value = e.target.value as 'all' | 'true' | 'false'
+              navigate({
+                resetScroll: false,
+                search: (prev) => ({
+                  ...prev,
+                  ads: value,
+                  page: 0,
+                }),
+              })
+            }}
+            className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+          >
+            <option value="all">All ad statuses</option>
+            <option value="true">Ads disabled</option>
+            <option value="false">Ads enabled</option>
+          </select>
+        </div>
+      </div>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th
+                      key={header.id}
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </th>
+                  ))}
+                </tr>
               ))}
-            </select>
-            <select
-              value={adsDisabledFilter}
-              onChange={(e) => {
-                const value = e.target.value as 'all' | 'true' | 'false'
-                navigate({
-                  search: (prev) => ({
-                    ...prev,
-                    ads: value,
-                    page: 0,
-                  }),
-                })
-              }}
-              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="all">All ad statuses</option>
-              <option value="true">Ads disabled</option>
-              <option value="false">Ads enabled</option>
-            </select>
-          </div>
+            </thead>
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+              {table.getRowModel().rows.map((row) => (
+                <tr
+                  key={row.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <th
-                        key={header.id}
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
-                {table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {(!usersQuery.data || usersQuery.data?.page.length === 0) && (
+          <div className="text-center py-12">
+            <FaUser className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+              No users found
+            </h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              There are currently no users in the system.
+            </p>
           </div>
+        )}
+      </div>
 
-          {(!usersQuery.data || usersQuery.data?.page.length === 0) && (
-            <div className="text-center py-12">
-              <FaUser className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                No users found
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                There are currently no users in the system.
-              </p>
-            </div>
-          )}
+      {/* Cursor-based pagination controls */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          {(() => {
+            const filtered = usersQuery?.data?.counts?.filtered ?? 0
+            const total = usersQuery?.data?.counts?.total ?? 0
+            const totalPages = Math.max(1, Math.ceil(filtered / pageSize))
+            return (
+              <>
+                Showing {filtered} of {total} users
+                <span>
+                  {' '}
+                  • Page {currentPageIndex + 1} of {totalPages}
+                </span>
+              </>
+            )
+          })()}
         </div>
-
-        {/* Cursor-based pagination controls */}
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {(() => {
-              const filtered = usersQuery?.data?.counts?.filtered ?? 0
-              const total = usersQuery?.data?.counts?.total ?? 0
-              const totalPages = Math.max(1, Math.ceil(filtered / pageSize))
-              return (
-                <>
-                  Showing {filtered} of {total} users
-                  <span>
-                    {' '}
-                    • Page {currentPageIndex + 1} of {totalPages}
-                  </span>
-                </>
-              )
-            })()}
-          </div>
-          <div className="flex space-x-2 items-center">
-            <label className="text-sm text-gray-500 dark:text-gray-400">
-              Per page:
-            </label>
-            <select
-              value={pageSize}
-              onChange={(e) => {
-                const next = parseInt(e.target.value, 10)
-                navigate({
-                  search: (prev) => ({ ...prev, pageSize: next, page: 0 }),
-                })
-              }}
-              className="px-2 py-1 text-sm border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
-            >
-              {[10, 25, 50, 100].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={goToPreviousPage}
-              disabled={!canGoPrevious}
-              className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <FaChevronLeft className="w-3 h-3 mr-1" />
-              Previous
-            </button>
-            <button
-              onClick={goToNextPage}
-              disabled={!canGoNext}
-              className="flex items-center px-3 py-2 ml-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-              <FaChevronRight className="w-3 h-3 ml-1" />
-            </button>
-          </div>
+        <div className="flex gap-2 items-center">
+          <label className="text-sm text-gray-500 dark:text-gray-400">
+            Per page:
+          </label>
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              const next = parseInt(e.target.value, 10)
+              navigate({
+                resetScroll: false,
+                search: (prev) => ({ ...prev, pageSize: next, page: 0 }),
+              })
+            }}
+            className="px-2 py-1 text-sm border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+          >
+            {[10, 25, 50, 100].map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={goToPreviousPage}
+            disabled={!canGoPrevious}
+            className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 
+            rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 
+            dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed gap-2"
+          >
+            <FaChevronLeft />
+            Previous
+          </button>
+          <button
+            onClick={goToNextPage}
+            disabled={!canGoNext}
+            className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 
+            rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 
+            dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed gap-2"
+          >
+            Next
+            <FaChevronRight />
+          </button>
         </div>
       </div>
     </div>

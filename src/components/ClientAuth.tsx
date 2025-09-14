@@ -2,6 +2,7 @@ import { convexQuery } from '@convex-dev/react-query'
 import { useQuery, UseQueryResult } from '@tanstack/react-query'
 import { ErrorComponent } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
+import { Authenticated } from 'convex/react'
 import React from 'react'
 import { FaSpinner } from 'react-icons/fa'
 import { SignInForm } from '~/routes/_libraries/login'
@@ -74,7 +75,5 @@ function UserQuery(props: {
     )
   }
 
-  console.log('userQuery', userQuery.data)
-
-  return props.children(userQuery)
+  return <Authenticated>{props.children(userQuery)}</Authenticated>
 }

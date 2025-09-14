@@ -21,7 +21,7 @@ export function ClientAuth({
         if (!userQuery.data) {
           return (
             <div className={baseClasses}>
-              You are not authorized to access this page
+              You are not authorized to access this page.
               <SignInForm />
             </div>
           )
@@ -42,8 +42,7 @@ export function ClientAdminAuth({ children }: { children: React.ReactNode }) {
         if (!canAdmin) {
           return (
             <div className={baseClasses}>
-              You are not authorized to access this page. Please contact support
-              if you think this is an error.
+              You do not have sufficient permissions to access this page.
             </div>
           )
         }
@@ -58,6 +57,7 @@ function UserQuery(props: {
   children: (userQuery: UseQueryResult<any>) => React.ReactNode
 }) {
   const userQuery = useQuery(convexQuery(api.auth.getCurrentUser, {}))
+
   if (userQuery.isLoading) {
     return (
       <div className={baseClasses}>
@@ -73,6 +73,8 @@ function UserQuery(props: {
       </div>
     )
   }
+
+  console.log('userQuery', userQuery.data)
 
   return props.children(userQuery)
 }

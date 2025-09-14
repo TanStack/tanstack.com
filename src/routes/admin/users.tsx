@@ -422,6 +422,29 @@ function UsersPage() {
         </div>
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        {/* Top compact page controls (no totals or page size) */}
+        <div className="flex items-center justify-end p-2">
+          <div className="flex gap-1 items-center">
+            <button
+              onClick={goToPreviousPage}
+              disabled={!canGoPrevious}
+              aria-label="Previous page"
+              className="flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed gap-1"
+            >
+              <FaChevronLeft className="w-3 h-3" />
+              <span className="hidden sm:inline">Prev</span>
+            </button>
+            <button
+              onClick={goToNextPage}
+              disabled={!canGoNext}
+              aria-label="Next page"
+              className="flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed gap-1"
+            >
+              <span className="hidden sm:inline">Next</span>
+              <FaChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
@@ -494,7 +517,7 @@ function UsersPage() {
             )
           })()}
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-1 items-center">
           <label className="text-sm text-gray-500 dark:text-gray-400">
             Per page:
           </label>
@@ -518,22 +541,18 @@ function UsersPage() {
           <button
             onClick={goToPreviousPage}
             disabled={!canGoPrevious}
-            className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 
-            rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 
-            dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed gap-2"
+            className="flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed gap-1"
           >
-            <FaChevronLeft />
-            Previous
+            <FaChevronLeft className="w-3 h-3" />
+            <span className="hidden sm:inline">Prev</span>
           </button>
           <button
             onClick={goToNextPage}
             disabled={!canGoNext}
-            className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 
-            rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 
-            dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed gap-2"
+            className="flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed gap-1"
           >
-            Next
-            <FaChevronRight />
+            <span className="hidden sm:inline">Next</span>
+            <FaChevronRight className="w-3 h-3" />
           </button>
         </div>
       </div>

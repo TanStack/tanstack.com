@@ -1,21 +1,19 @@
 import * as React from 'react'
 import { Link, LinkOptions, Outlet } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { FaHome, FaLock, FaUser, FaUsers } from 'react-icons/fa'
+import { FaHome, FaUser, FaUsers } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
-import { useQuery } from 'convex/react'
-import { api } from 'convex/_generated/api'
+import { ClientAdminAuth } from '~/components/ClientAuth'
 
 export const Route = createFileRoute({
-  beforeLoad: async ({ context }) => {
-    await context.ensureUser()
-  },
   component: () => {
     return (
-      <AdminLayout>
-        <Outlet />
-      </AdminLayout>
+      <ClientAdminAuth>
+        <AdminLayout>
+          <Outlet />
+        </AdminLayout>
+      </ClientAdminAuth>
     )
   },
   staticData: {
@@ -30,42 +28,9 @@ export const Route = createFileRoute({
 })
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const user = useQuery(api.auth.getCurrentUser)
   const detailsRef = React.useRef<HTMLElement>(null!)
 
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
-
-  const canAdmin = user?.capabilities.includes('admin')
-
-  // If not authenticated, show loading
-  if (user === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    )
-  }
-
-  // If authenticated but no admin capability, show unauthorized
-  if (user && !canAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <FaLock className="text-4xl text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            You don't have permission to access the admin area.
-          </p>
-          <Link
-            to="/"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-          >
-            Back to Home
-          </Link>
-        </div>
-      </div>
-    )
-  }
 
   const adminItems: (LinkOptions & { label: string; icon: React.ReactNode })[] =
     [

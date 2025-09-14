@@ -40,7 +40,7 @@ function SplashImage() {
   )
 }
 
-function SignInForm() {
+export function SignInForm() {
   return (
     <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 w-[100vw] max-w-sm mx-auto">
       <SplashImage />

@@ -11,13 +11,13 @@ const baseClasses = 'p-4 flex flex-col items-center justify-center gap-4'
 export function ClientAuth({
   children,
 }: {
-  children: React.ReactNode | (() => React.ReactNode)
+  children:
+    | React.ReactNode
+    | ((userQuery: UseQueryResult<any>) => React.ReactNode)
 }) {
-  const userQuery = useQuery(convexQuery(api.auth.getCurrentUser, {}))
-
   return (
-    <AuthLoadingOrError userQuery={userQuery}>
-      {() => {
+    <UserQuery>
+      {(userQuery) => {
         if (!userQuery.data) {
           return (
             <div className={baseClasses}>
@@ -27,18 +27,16 @@ export function ClientAuth({
           )
         }
 
-        return typeof children === 'function' ? children() : children
+        return typeof children === 'function' ? children(userQuery) : children
       }}
-    </AuthLoadingOrError>
+    </UserQuery>
   )
 }
 
 export function ClientAdminAuth({ children }: { children: React.ReactNode }) {
-  const userQuery = useQuery(convexQuery(api.auth.getCurrentUser, {}))
-
   return (
     <ClientAuth>
-      {() => {
+      {(userQuery) => {
         const canAdmin = userQuery.data?.capabilities.includes('admin')
 
         if (!canAdmin) {
@@ -56,11 +54,11 @@ export function ClientAdminAuth({ children }: { children: React.ReactNode }) {
   )
 }
 
-function AuthLoadingOrError(props: {
-  userQuery: UseQueryResult<any>
-  children: React.ReactNode | (() => React.ReactNode)
+function UserQuery(props: {
+  children: (userQuery: UseQueryResult<any>) => React.ReactNode
 }) {
-  if (props.userQuery.isLoading) {
+  const userQuery = useQuery(convexQuery(api.auth.getCurrentUser, {}))
+  if (userQuery.isLoading) {
     return (
       <div className={baseClasses}>
         <FaSpinner className="animate-spin" />
@@ -68,15 +66,13 @@ function AuthLoadingOrError(props: {
     )
   }
 
-  if (props.userQuery.isError) {
+  if (userQuery.isError) {
     return (
       <div className={baseClasses}>
-        <ErrorComponent error={props.userQuery.error} />
+        <ErrorComponent error={userQuery.error} />
       </div>
     )
   }
 
-  return typeof props.children === 'function'
-    ? props.children()
-    : props.children
+  return props.children(userQuery)
 }

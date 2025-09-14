@@ -75,5 +75,5 @@ function UserQuery(props: {
     )
   }
 
-  return <Authenticated>{props.children(userQuery)}</Authenticated>
+  return props.children(userQuery)
 }

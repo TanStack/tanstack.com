@@ -57,13 +57,6 @@ export const {
   },
 })
 
-export type TanStackUser = Awaited<ReturnType<typeof getBetterAuthUser>> &
-  Infer<typeof schema.tables.users.validator>
-
-function getBetterAuthUser(ctx: QueryCtx) {
-  return betterAuthComponent.getAuthUser(ctx)
-}
-
 // Example function for getting the current user
 // Feel free to edit, omit, etc.
 export const getCurrentUser = query({
@@ -87,4 +80,11 @@ export async function getCurrentUserConvex(ctx: QueryCtx) {
     ...user,
     ...userMetaData,
   } as TanStackUser
+}
+
+export type TanStackUser = Awaited<ReturnType<typeof getBetterAuthUser>> &
+  Infer<typeof schema.tables.users.validator>
+
+function getBetterAuthUser(ctx: QueryCtx) {
+  return betterAuthComponent.getAuthUser(ctx)
 }

@@ -357,20 +357,9 @@ function UsersPage() {
   return (
     <div className="w-full p-4 space-y-4">
       <div className="">
-        <div className="flex items-center gap-4 mb-4">
-          <Link
-            to="/admin"
-            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            ← Admin Dashboard
-          </Link>
-        </div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          User Management
+          Manage Users
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Manage user accounts and their capabilities.
-        </p>
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
           <input
             type="text"

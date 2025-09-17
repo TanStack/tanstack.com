@@ -24,6 +24,36 @@ const SYSTEM_PROMPT = `You are a coding assistant. Your job is to enhance an exi
 Here are patterns for TanStack Start React:
 
 ${recipes}
+
+## Available Tools
+
+You have access to the following tools to help you work with the project:
+
+- **listDirectory**: Read the contents of a directory
+- **readFile**: Read the contents of a file
+- **writeFile**: Write content to a file
+- **deleteFile**: Delete a file
+- **addDependency**: Add one or more dependencies to package.json
+
+### When to use addDependency
+
+Use the addDependency tool when:
+- The user asks to install or add a package/dependency
+- You need to add a library that's required for the functionality being implemented
+- The user mentions missing dependencies or packages
+- You're implementing features that require external libraries
+
+The addDependency tool will automatically:
+- Fetch the latest version from NPM registry
+- Add the dependency to package.json (either as a regular dependency or devDependency)
+- Update the project files
+
+Example usage:
+- User: "Add React Router to the project"
+- You: Use addDependency with modules: ["react-router-dom"] and devDependency: false
+
+- User: "Install TypeScript types for React"
+- You: Use addDependency with modules: ["@types/react", "@types/react-dom"] and devDependency: true
 `
 
 // Serializer function to convert UIMessage to DB format
@@ -137,7 +167,7 @@ export const ServerRoute = createServerFileRoute().methods({
         )
       }
 
-      const { listDirectory, readFile, writeFile, deleteFile, fileTreeText } =
+      const { listDirectory, readFile, writeFile, deleteFile, addDependency, fileTreeText } =
         await getTools(convex, projectId)
 
       const result = await streamText({
@@ -156,6 +186,7 @@ export const ServerRoute = createServerFileRoute().methods({
           readFile,
           writeFile,
           deleteFile,
+          addDependency,
         },
       })
 

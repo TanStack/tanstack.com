@@ -111,11 +111,121 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
     },
   })
 
+  const addDependency = tool({
+    description: 'Add one or more dependencies to package.json',
+    inputSchema: z.object({
+      modules: z
+        .array(z.string())
+        .describe('Array of module names to add as dependencies'),
+      devDependency: z
+        .boolean()
+        .describe(
+          'Whether to add as devDependencies (true) or dependencies (false)'
+        ),
+    }),
+    execute: async ({
+      modules,
+      devDependency,
+    }: {
+      modules: string[]
+      devDependency: boolean
+    }) => {
+      try {
+        // Read current package.json
+        const packageJsonPath = '/package.json'
+        let packageJsonContent: string
+        let packageJson: any
+
+        try {
+          packageJsonContent = files.vol.readFileSync(packageJsonPath, 'utf8')
+          packageJson = JSON.parse(packageJsonContent)
+        } catch (error) {
+          return {
+            type: 'error',
+            message: 'Could not read package.json file',
+            error: String(error),
+          }
+        }
+
+        // Fetch latest versions from NPM for each module
+        const dependencyVersions: Record<string, string> = {}
+        const errors: string[] = []
+
+        for (const module of modules) {
+          try {
+            const response = await fetch(
+              `https://registry.npmjs.org/${module}/latest`
+            )
+            if (response.ok) {
+              const data = await response.json()
+              dependencyVersions[module] = `^${data.version}`
+            } else {
+              errors.push(
+                `Failed to fetch version for ${module}: ${response.status}`
+              )
+            }
+          } catch (error) {
+            errors.push(
+              `Error fetching version for ${module}: ${String(error)}`
+            )
+          }
+        }
+
+        if (errors.length > 0) {
+          return {
+            type: 'error',
+            message: 'Some modules could not be fetched from NPM',
+            errors,
+          }
+        }
+
+        // Add dependencies to package.json
+        const dependencyType = devDependency
+          ? 'devDependencies'
+          : 'dependencies'
+
+        if (!packageJson[dependencyType]) {
+          packageJson[dependencyType] = {}
+        }
+
+        for (const [module, version] of Object.entries(dependencyVersions)) {
+          packageJson[dependencyType][module] = version
+        }
+
+        // Write updated package.json
+        const updatedContent = JSON.stringify(packageJson, null, 2)
+        files.vol.writeFileSync(packageJsonPath, updatedContent)
+
+        await convex.mutation(api.forge.updateFile, {
+          projectId: projectId as Id<'forge_projects'>,
+          path: './package.json',
+          content: updatedContent,
+        })
+
+        return {
+          type: 'success',
+          message: `Successfully added ${modules.length} ${
+            devDependency ? 'dev ' : ''
+          }dependencies`,
+          addedDependencies: dependencyVersions,
+          dependencyType,
+        }
+      } catch (error) {
+        return {
+          type: 'error',
+          message: 'Failed to add dependencies',
+          error: String(error),
+        }
+      }
+    },
+  })
+
   return {
     listDirectory,
     readFile,
     writeFile,
     deleteFile,
+    addDependency,
     fileTreeText,
   }
 }

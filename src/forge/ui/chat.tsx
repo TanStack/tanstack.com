@@ -20,6 +20,7 @@ import {
   Edit,
   Copy,
   Check,
+  Package,
 } from 'lucide-react'
 
 import type { DynamicToolUIPart, UIMessage } from 'ai'
@@ -335,6 +336,8 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
         return <Edit className="w-4 h-4 text-orange-400" />
       case 'deleteFile':
         return <Trash2 className="w-4 h-4 text-red-400" />
+      case 'addDependency':
+        return <Package className="w-4 h-4 text-purple-400" />
       default:
         return <File className="w-4 h-4 text-gray-400" />
     }
@@ -350,6 +353,8 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
         return 'text-orange-300'
       case 'deleteFile':
         return 'text-red-300'
+      case 'addDependency':
+        return 'text-purple-300'
       default:
         return 'text-gray-300'
     }
@@ -455,6 +460,97 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
               maxHeight: '400px',
             }}
           />
+        </div>
+      </div>
+    )
+  }
+
+  // For addDependency, show a specialized UI
+  if (toolName === 'addDependency') {
+    const modules = (part.input as any)?.modules || []
+    const devDependency = (part.input as any)?.devDependency || false
+    const output = part.output as any
+
+    return (
+      <div className="border rounded-lg bg-gray-900 mb-4">
+        <div className="flex items-center space-x-3 px-4 py-3 border-b border-gray-700">
+          {getToolIcon(toolName)}
+          <span className={`font-medium ${getToolColor(toolName)}`}>
+            Adding {devDependency ? 'dev ' : ''}dependencies
+          </span>
+          <span className="text-gray-400 text-sm flex-1">
+            {modules.length} package{modules.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+        <div className="p-4">
+          <div className="space-y-3">
+            <div>
+              <h4 className="text-sm font-medium text-gray-300 mb-2">
+                Packages to add:
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {modules.map((module: string, index: number) => (
+                  <span
+                    key={index}
+                    className="px-2 py-1 bg-purple-900/30 text-purple-300 rounded text-sm font-mono"
+                  >
+                    {module}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {output && (
+              <div>
+                <h4 className="text-sm font-medium text-gray-300 mb-2">
+                  Result:
+                </h4>
+                {output.type === 'success' ? (
+                  <div className="space-y-2">
+                    <div className="text-green-400 text-sm">
+                      {output.message}
+                    </div>
+                    {output.addedDependencies && (
+                      <div>
+                        <div className="text-xs text-gray-400 mb-1">
+                          Added versions:
+                        </div>
+                        <div className="space-y-1">
+                          {Object.entries(output.addedDependencies).map(
+                            ([module, version]) => (
+                              <div
+                                key={module}
+                                className="flex items-center space-x-2 text-sm"
+                              >
+                                <span className="text-purple-300 font-mono">
+                                  {module}
+                                </span>
+                                <span className="text-gray-400">→</span>
+                                <span className="text-green-300 font-mono">
+                                  {version}
+                                </span>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-red-400 text-sm">
+                    {output.message}
+                    {output.errors && (
+                      <div className="mt-2 text-xs text-red-300">
+                        {output.errors.map((error: string, index: number) => (
+                          <div key={index}>• {error}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )

@@ -736,3 +736,15 @@ mark {
   font-weight: 900;
   src: url('/fonts/inter-v19-latin-900italic.woff2') format('woff2');
 }
+
+@keyframes pulseScale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(var(--scale-factor, 1.1));
+  }
+  100% {
+    transform: scale(1);
+  }
+}

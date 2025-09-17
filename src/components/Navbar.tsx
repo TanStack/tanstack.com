@@ -286,13 +286,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                           {library.badge ? (
                             <span
                               className={twMerge(
-                                `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
-                                // library.badge === 'new'
-                                //   ? 'text-green-500'
-                                //   : library.badge === 'soon'
-                                //   ? 'text-cyan-500'
-                                //   : '',
-                                library.textStyle
+                                `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/30 rounded-md text-[.7rem] text-white`,
+                                'opacity-50 group-hover:opacity-100 transition-opacity',
+                                'bg-gradient-to-r',
+                                library.colorFrom,
+                                library.colorTo,
+                                'text-[.6rem]'
                               )}
                             >
                               {library.badge}

@@ -270,5 +270,11 @@
     "name": "Toyokumo",
     "imageUrl": "https://www.toyokumo.co.jp/logo-en.svg",
     "linkUrl": "https://www.toyokumo.co.jp/en?utm_source=tanstack"
+  },
+    {
+    "login": "promptmonitor",
+    "name": "Promptmonitor",
+    "imageUrl": "https://bvatwanklwlvzlcxrcxn.supabase.co/storage/v1/object/public/assets/promptmonitor-icon-brandfill.png",
+    "linkUrl": "https://www.promptmonitor.io/?utm_source=tanstack"
   }
 ]

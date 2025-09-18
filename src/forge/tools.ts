@@ -2,6 +2,7 @@ import { ConvexHttpClient } from 'convex/browser'
 import { memfs } from 'memfs'
 import { tool } from 'ai'
 import { z } from 'zod/v4'
+import { dirname } from 'path'
 
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
@@ -84,13 +85,21 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
   })
 
   const writeFile = tool({
-    description: 'Write to a file',
+    description: 'Write to a file (creates parent directories if they don\'t exist)',
     inputSchema: z.object({
       path: z.string().describe('The path to the file to write to'),
       content: z.string().describe('The content to write to the file'),
     }),
     execute: async ({ path, content }: { path: string; content: string }) => {
-      files.vol.writeFileSync(enforceFSPath(path), content)
+      const fsPath = enforceFSPath(path)
+      const dirPath = dirname(fsPath)
+      
+      // Create parent directories if they don't exist
+      if (!files.vol.existsSync(dirPath)) {
+        files.vol.mkdirSync(dirPath, { recursive: true })
+      }
+      
+      files.vol.writeFileSync(fsPath, content)
       await convex.mutation(api.forge.updateFile, {
         projectId: projectId as Id<'forge_projects'>,
         path: enforceStoredPath(path),
@@ -356,8 +365,15 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
                 .replace(/^\//, '')
                 .replace(/^\.\//, '')
 
+              // Ensure parent directories exist
+              const fsPath = enforceFSPath(path)
+              const dirPath = dirname(fsPath)
+              if (!files.vol.existsSync(dirPath)) {
+                files.vol.mkdirSync(dirPath, { recursive: true })
+              }
+
               // Update memfs
-              files.vol.writeFileSync(enforceFSPath(path), content)
+              files.vol.writeFileSync(fsPath, content)
 
               // Update Convex storage
               await convex.mutation(api.forge.updateFile, {

@@ -91,6 +91,7 @@ export const createProject = mutation({
   args: {
     name: v.string(),
     description: v.string(),
+    selectedAddOns: v.optional(v.array(v.string())),
     files: v.array(
       v.object({
         path: v.string(),
@@ -104,6 +105,7 @@ export const createProject = mutation({
     const projectId = await ctx.db.insert('forge_projects', {
       name: args.name,
       description: args.description,
+      selectedAddOns: args.selectedAddOns,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       userId: currentUser.userId as Id<'users'>,

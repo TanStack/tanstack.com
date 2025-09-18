@@ -47,7 +47,13 @@ function App() {
       method: 'POST',
       body: JSON.stringify({ description }),
     })
-    const { projectId } = await res.json()
+    const { projectId, selectedAddOns } = await res.json()
+
+    // Log selected add-ons for debugging
+    if (selectedAddOns && selectedAddOns.length > 0) {
+      console.log('AI selected these add-ons for your project:', selectedAddOns)
+    }
+
     router.navigate({
       to: '/forge/editor/$projectId',
       params: { projectId },

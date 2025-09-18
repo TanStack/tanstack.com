@@ -7,6 +7,8 @@ import { api } from 'convex/_generated/api'
 
 import { initialize } from '~/forge/engine-handling/initialize'
 import { generateInitialPayload } from '~/forge/engine-handling/generate-initial-payload'
+import { setServerEnvironment } from '~/forge/engine-handling/server-environment'
+import { getFrameworkById, getAllAddOns } from '@tanstack/cta-engine'
 
 const convex = new ConvexHttpClient(process.env.CONVEX_URL!)
 
@@ -60,19 +62,81 @@ export const ServerRoute = createServerFileRoute().methods({
 
       initialize()
 
-      const output = await generateInitialPayload()
+      // Get available add-ons for the framework
+      const framework = await getFrameworkById('react-cra')
+      const availableAddOns = getAllAddOns(framework!, 'file-router')
+      
+      // Prepare add-on information for the AI
+      const addOnDescriptions = availableAddOns
+        .filter(addon => addon.id !== 'start') // Exclude 'start' as it's always included
+        .map(addon => `- ${addon.id}: ${addon.name} - ${addon.description}`)
+        .join('\n')
+      
+      // Have AI select appropriate add-ons based on the project description
+      const addOnSelectionPrompt = `Based on the following project description, select the most relevant TanStack add-ons that would be helpful for this project.
 
-      const nameResult = await generateText({
-        model: apiProvider,
-        prompt: `Summarize the following project description into a short, clear project name (max 5 words):\n\n"${description}"`,
-        temperature: 0.5,
-      })
+Project Description: "${description}"
+
+Available Add-ons:
+${addOnDescriptions}
+
+Respond with a JSON array of add-on IDs that would be most beneficial for this project. Only include add-ons that are clearly relevant to the described functionality.
+For example: ["tanstack-query", "tanstack-form"]
+If no add-ons are clearly relevant, respond with an empty array: []
+
+Consider:
+- If the project involves data fetching, API calls, or server state: include "tanstack-query"
+- If the project involves forms, user input, or validation: include "tanstack-form"
+- If the project involves complex tables or data grids: include "tanstack-table"
+- If the project involves virtualized lists or infinite scrolling: include "tanstack-virtual"
+
+Response (JSON array only):`
+      
+      const [nameResult, addOnResult] = await Promise.all([
+        generateText({
+          model: apiProvider,
+          prompt: `Summarize the following project description into a short, clear project name (max 5 words):\n\n"${description}"`,
+          temperature: 0.5,
+        }),
+        generateText({
+          model: apiProvider,
+          prompt: addOnSelectionPrompt,
+          temperature: 0.3, // Lower temperature for more deterministic selection
+        }),
+      ])
+      
       const name =
         nameResult.text.trim().replace(/^["']|["']$/g, '') || description
+      
+      // Parse the selected add-ons
+      let selectedAddOns: string[] = ['start'] // Always include 'start'
+      try {
+        const parsedAddOns = JSON.parse(addOnResult.text.trim())
+        if (Array.isArray(parsedAddOns)) {
+          // Validate that selected add-ons exist in available add-ons
+          const validAddOns = parsedAddOns.filter(id => 
+            availableAddOns.some(addon => addon.id === id)
+          )
+          selectedAddOns = ['start', ...validAddOns]
+        }
+      } catch (error) {
+        console.error('Failed to parse AI-selected add-ons:', error)
+        // Fall back to just 'start' if parsing fails
+      }
+      
+      console.log('AI selected add-ons:', selectedAddOns)
+      
+      // Set the selected add-ons as forced add-ons
+      setServerEnvironment({
+        forcedAddOns: selectedAddOns,
+      })
+      
+      const output = await generateInitialPayload()
 
       const projectId = await convex.mutation(api.forge.createProject, {
         name,
         description,
+        selectedAddOns: selectedAddOns.filter(id => id !== 'start'), // Store add-ons except 'start'
         files: Object.entries(
           (output.output as { files: Record<string, string> }).files
         ).map(([path, content]) => ({
@@ -81,7 +145,10 @@ export const ServerRoute = createServerFileRoute().methods({
         })),
       })
 
-      return Response.json({ projectId: projectId.toString() })
+      return Response.json({ 
+        projectId: projectId.toString(),
+        selectedAddOns: selectedAddOns.filter(id => id !== 'start'), // Return add-ons except 'start' for UI feedback
+      })
     } catch (error) {
       console.error('New project API error:', error)
       return new Response(

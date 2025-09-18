@@ -33,27 +33,50 @@ You have access to the following tools to help you work with the project:
 - **readFile**: Read the contents of a file
 - **writeFile**: Write content to a file
 - **deleteFile**: Delete a file
+- **listAddOns**: List available TanStack add-ons for the project
+- **addAddOn**: Add TanStack add-ons with proper integration
 - **addDependency**: Add one or more dependencies to package.json
 
-### When to use addDependency
+### IMPORTANT: Prefer TanStack Add-ons Over Manual Installation
 
-Use the addDependency tool when:
-- The user asks to install or add a package/dependency
-- You need to add a library that's required for the functionality being implemented
-- The user mentions missing dependencies or packages
-- You're implementing features that require external libraries
+**When the user requests functionality that involves TanStack libraries, ALWAYS check for and use available add-ons first:**
 
-The addDependency tool will automatically:
-- Fetch the latest version from NPM registry
-- Add the dependency to package.json (either as a regular dependency or devDependency)
-- Update the project files
+1. **Check for Add-ons First**: Use \`listAddOns\` to see available TanStack add-ons
+2. **Use Add-ons When Available**: If a TanStack library has an add-on (e.g., tanstack-query, tanstack-form, tanstack-table, tanstack-virtual), use \`addAddOn\` instead of manual installation
+3. **Benefits of Add-ons**: Add-ons provide:
+   - Proper integration with TanStack Start
+   - Automatic configuration
+   - Type safety setup
+   - Best practices implementation
+   - Required dependencies and peer dependencies
 
-Example usage:
-- User: "Add React Router to the project"
-- You: Use addDependency with modules: ["react-router-dom"] and devDependency: false
+### When to use addAddOn vs addDependency
 
-- User: "Install TypeScript types for React"
-- You: Use addDependency with modules: ["@types/react", "@types/react-dom"] and devDependency: true
+**Use addAddOn for TanStack libraries:**
+- User: "Add data fetching to the project" → Use \`addAddOn\` with ["tanstack-query"]
+- User: "I need form handling" → Use \`addAddOn\` with ["tanstack-form"]
+- User: "Add a data table" → Use \`addAddOn\` with ["tanstack-table"]
+- User: "Implement virtual scrolling" → Use \`addAddOn\` with ["tanstack-virtual"]
+
+**Use addDependency for non-TanStack libraries:**
+- User: "Add React Router to the project" → Use \`addDependency\` with ["react-router-dom"]
+- User: "Install lodash" → Use \`addDependency\` with ["lodash"]
+- User: "Add TypeScript types for React" → Use \`addDependency\` with ["@types/react", "@types/react-dom"] as devDependencies
+
+### Add-on Workflow
+
+1. When functionality requires TanStack libraries:
+   - First check available add-ons: \`listAddOns { includeInstalled: false }\`
+   - Preview changes: \`addAddOn { addOnIds: ["addon-id"], mode: "preview" }\`
+   - Apply if no conflicts: \`addAddOn { addOnIds: ["addon-id"], mode: "apply" }\`
+
+2. The addAddOn tool will:
+   - Properly integrate the library with your TanStack Start app
+   - Set up all necessary configuration
+   - Handle dependencies automatically
+   - Ensure compatibility with existing code
+
+Remember: TanStack add-ons provide superior integration compared to manual installation. Always prefer them when available.
 `
 
 // Serializer function to convert UIMessage to DB format
@@ -167,7 +190,7 @@ export const ServerRoute = createServerFileRoute().methods({
         )
       }
 
-      const { listDirectory, readFile, writeFile, deleteFile, addDependency, fileTreeText } =
+      const { listDirectory, readFile, writeFile, deleteFile, addDependency, listAddOns, addAddOn, fileTreeText } =
         await getTools(convex, projectId)
 
       const result = await streamText({
@@ -187,6 +210,8 @@ export const ServerRoute = createServerFileRoute().methods({
           writeFile,
           deleteFile,
           addDependency,
+          listAddOns,
+          addAddOn,
         },
       })
 

@@ -21,6 +21,10 @@ import {
   Copy,
   Check,
   Package,
+  Puzzle,
+  AlertCircle,
+  CheckCircle,
+  List,
 } from 'lucide-react'
 
 import type { DynamicToolUIPart, UIMessage } from 'ai'
@@ -338,6 +342,10 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
         return <Trash2 className="w-4 h-4 text-red-400" />
       case 'addDependency':
         return <Package className="w-4 h-4 text-purple-400" />
+      case 'addAddOn':
+        return <Puzzle className="w-4 h-4 text-indigo-400" />
+      case 'listAddOns':
+        return <List className="w-4 h-4 text-cyan-400" />
       default:
         return <File className="w-4 h-4 text-gray-400" />
     }
@@ -355,18 +363,33 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
         return 'text-red-300'
       case 'addDependency':
         return 'text-purple-300'
+      case 'addAddOn':
+        return 'text-indigo-300'
+      case 'listAddOns':
+        return 'text-cyan-300'
       default:
         return 'text-gray-300'
     }
   }
 
-  // For simple tools (listDirectory, readFile, deleteFile), show a compact display
-  const isSimpleTool = ['listDirectory', 'readFile', 'deleteFile'].includes(
-    toolName
-  )
+  // For simple tools (listDirectory, readFile, deleteFile, listAddOns), show a compact display
+  const isSimpleTool = [
+    'listDirectory',
+    'readFile',
+    'deleteFile',
+    'listAddOns',
+  ].includes(toolName)
 
   if (isSimpleTool) {
-    const path = (part.input as any)?.path || 'unknown path'
+    const displayText =
+      toolName === 'listAddOns'
+        ? `Checking available add-ons${
+            (part.input as any)?.includeInstalled
+              ? ' (including installed)'
+              : ''
+          }`
+        : (part.input as any)?.path || 'unknown path'
+
     return (
       <div className="relative">
         <div className="flex items-center space-x-3 py-2 px-3 bg-gray-800 rounded-lg mb-2 border border-gray-700">
@@ -374,7 +397,9 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
           <span className={`text-sm ${getToolColor(toolName)} font-medium`}>
             {toolName}
           </span>
-          <span className="text-gray-400 text-sm font-mono flex-1">{path}</span>
+          <span className="text-gray-400 text-sm font-mono flex-1">
+            {displayText}
+          </span>
           <button
             className="text-gray-500 hover:text-gray-300 text-xs"
             onClick={() => setOpen((o) => !o)}
@@ -465,6 +490,182 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
     )
   }
 
+  // For addAddOn, show specialized UI
+  if (toolName === 'addAddOn') {
+    const addOnIds = (part.input as any)?.addOnIds || []
+    const mode = (part.input as any)?.mode || 'preview'
+    const output = part.output as any
+
+    return (
+      <div className="border rounded-lg bg-gray-900 mb-4">
+        <div className="flex items-center space-x-3 px-4 py-3 border-b border-gray-700">
+          {getToolIcon(toolName)}
+          <span className={`font-medium ${getToolColor(toolName)}`}>
+            {mode === 'preview' ? 'Previewing' : 'Installing'} TanStack Add-ons
+          </span>
+          <span className="text-gray-400 text-sm flex-1">
+            {addOnIds.length} add-on{addOnIds.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+        <div className="p-4">
+          <div className="space-y-3">
+            <div>
+              <h4 className="text-sm font-medium text-gray-300 mb-2">
+                Add-ons to {mode === 'preview' ? 'install' : 'installing'}:
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {addOnIds.map((id: string, index: number) => (
+                  <span
+                    key={index}
+                    className="px-2 py-1 bg-indigo-900/30 text-indigo-300 rounded text-sm font-mono"
+                  >
+                    {id}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {output && (
+              <div>
+                {output.type === 'success' && output.status === 'preview' && (
+                  <div className="space-y-3">
+                    {output.summary && (
+                      <div className="bg-gray-800 rounded-lg p-3">
+                        <h4 className="text-sm font-medium text-gray-300 mb-2">
+                          Preview Summary:
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">
+                              Total Changes:
+                            </span>
+                            <span className="text-gray-200">
+                              {output.summary.totalChanges}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">
+                              Safe to Apply:
+                            </span>
+                            <span className="text-green-300">
+                              {output.summary.safeToApply}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Conflicts:</span>
+                            <span
+                              className={
+                                output.summary.conflicts > 0
+                                  ? 'text-yellow-300'
+                                  : 'text-gray-200'
+                              }
+                            >
+                              {output.summary.conflicts}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Unchanged:</span>
+                            <span className="text-gray-200">
+                              {output.summary.unchanged}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {output.recommendation && (
+                      <div
+                        className={`flex items-start space-x-2 p-3 rounded-lg ${
+                          output.summary?.conflicts > 0
+                            ? 'bg-yellow-900/20 border border-yellow-700'
+                            : 'bg-green-900/20 border border-green-700'
+                        }`}
+                      >
+                        {output.summary?.conflicts > 0 ? (
+                          <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5" />
+                        ) : (
+                          <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
+                        )}
+                        <span
+                          className={`text-sm ${
+                            output.summary?.conflicts > 0
+                              ? 'text-yellow-300'
+                              : 'text-green-300'
+                          }`}
+                        >
+                          {output.recommendation}
+                        </span>
+                      </div>
+                    )}
+
+                    {output.analysis?.conflicts?.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-yellow-300 mb-2">
+                          Conflicts Detected:
+                        </h4>
+                        <div className="space-y-2">
+                          {output.analysis.conflicts
+                            .slice(0, 3)
+                            .map((conflict: any, index: number) => (
+                              <div
+                                key={index}
+                                className="bg-yellow-900/20 rounded p-2 text-xs"
+                              >
+                                <span className="text-yellow-300 font-mono">
+                                  {conflict.path}
+                                </span>
+                                <span className="text-gray-400 ml-2">
+                                  ({conflict.fileType})
+                                </span>
+                              </div>
+                            ))}
+                          {output.analysis.conflicts.length > 3 && (
+                            <div className="text-xs text-gray-400">
+                              ...and {output.analysis.conflicts.length - 3} more
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {output.type === 'success' && output.status === 'applied' && (
+                  <div className="bg-green-900/20 border border-green-700 rounded-lg p-3">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="w-5 h-5 text-green-400" />
+                      <span className="text-green-300 text-sm">
+                        {output.message}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {output.type === 'error' && (
+                  <div className="bg-red-900/20 border border-red-700 rounded-lg p-3">
+                    <div className="flex items-start space-x-2">
+                      <AlertCircle className="w-5 h-5 text-red-400 mt-0.5" />
+                      <div>
+                        <span className="text-red-300 text-sm">
+                          {output.message}
+                        </span>
+                        {output.error && (
+                          <div className="text-xs text-red-200 mt-1 font-mono">
+                            {output.error}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // For addDependency, show a specialized UI
   if (toolName === 'addDependency') {
     const modules = (part.input as any)?.modules || []
@@ -527,7 +728,7 @@ function ToolInvocation({ part }: { part: DynamicToolUIPart }) {
                                 </span>
                                 <span className="text-gray-400">→</span>
                                 <span className="text-green-300 font-mono">
-                                  {version}
+                                  {String(version)}
                                 </span>
                               </div>
                             )
@@ -597,12 +798,14 @@ export default function Chat({
   initialMessages,
   onSetCheckpoint,
   projectDescription,
+  selectedAddOns = [],
   llmKeys,
 }: {
   projectId: string
   initialMessages: Array<UIMessage>
   onSetCheckpoint: () => void
   projectDescription: string
+  selectedAddOns?: string[]
   llmKeys: Array<{
     provider: string
     keyName: string
@@ -657,17 +860,61 @@ export default function Chat({
 
   const sentBootMessage = useRef(false)
   useEffect(() => {
-    if (
-      messages.length === 0 &&
-      initialMessages.length === 0 &&
-      !sentBootMessage.current
-    ) {
+    // Check if there are any user messages
+    const hasUserMessages =
+      messages.some((msg) => msg.role === 'user') ||
+      initialMessages.some((msg) => msg.role === 'user')
+
+    if (!hasUserMessages && !sentBootMessage.current) {
       sentBootMessage.current = true
+
+      // Create an informative initial message
+      let initialPrompt = projectDescription
+
+      // If add-ons were selected, create a summary message
+      if (selectedAddOns && selectedAddOns.length > 0) {
+        const addOnsList = selectedAddOns
+          .map((addon) => {
+            // Format add-on names nicely
+            const formattedName = addon
+              .replace('tanstack-', 'TanStack ')
+              .replace(/-/g, ' ')
+              .replace(/\b\w/g, (c) => c.toUpperCase())
+            return `• ${formattedName}`
+          })
+          .join('\n')
+
+        initialPrompt = `Project Setup Summary:
+
+**User Request:** ${projectDescription}
+
+**AI-Selected Add-ons:**
+Based on your project description, I've automatically included the following TanStack add-ons to enhance your application:
+
+${addOnsList}
+
+These add-ons were selected to provide the best foundation for your project's requirements. The project is now ready with all necessary configurations.
+
+Feel free to ask me to:
+- Add new features
+- Modify existing functionality  
+- Explain any part of the code
+- Add additional libraries or tools
+
+What would you like to work on first?`
+      }
+
       sendMessage({
-        text: projectDescription,
+        text: initialPrompt,
       })
     }
-  }, [messages, initialMessages, sendMessage, projectDescription])
+  }, [
+    messages,
+    initialMessages,
+    sendMessage,
+    projectDescription,
+    selectedAddOns,
+  ])
 
   useEffect(() => {
     scrollToBottom()

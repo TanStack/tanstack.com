@@ -15,6 +15,7 @@ import {
   getChatMessages,
   getProjectDescription,
   getProjectFiles,
+  getProjectData,
 } from '~/forge/engine-handling/server-functions'
 import { TabbedViewer } from '~/forge/ui/tabbed-viewer'
 import Chat from '~/forge/ui/chat'
@@ -52,10 +53,14 @@ export const Route = createFileRoute({
     const projectDescription = await getProjectDescription({
       data: { projectId: params.projectId },
     })
+    const projectData = await getProjectData({
+      data: { projectId: params.projectId },
+    })
     return {
       chatMessages,
       projectFiles,
       projectDescription,
+      projectData,
     }
   },
 })
@@ -117,11 +122,13 @@ function AIApp({
   chatMessages,
   initialFiles,
   projectDescription,
+  selectedAddOns,
 }: {
   projectId: Id<'forge_projects'>
   chatMessages: Array<UIMessage>
   initialFiles: Array<{ path: string; content: string }>
   projectDescription: string
+  selectedAddOns: string[]
 }) {
   const [lastCheckpoint, setLastCheckpoint] = useState(
     convertToRecord(initialFiles)
@@ -209,6 +216,7 @@ function AIApp({
                 initialMessages={chatMessages}
                 onSetCheckpoint={onSetCheckpoint}
                 projectDescription={projectDescription}
+                selectedAddOns={selectedAddOns}
                 llmKeys={llmKeys}
               />
             </div>
@@ -229,7 +237,7 @@ function AIApp({
 
 function App() {
   const { projectId } = Route.useParams()
-  const { chatMessages, projectFiles, projectDescription } =
+  const { chatMessages, projectFiles, projectDescription, projectData } =
     Route.useLoaderData()
 
   return (
@@ -238,6 +246,7 @@ function App() {
       initialFiles={projectFiles}
       chatMessages={chatMessages.map(deserializeMessage)}
       projectDescription={projectDescription}
+      selectedAddOns={projectData?.selectedAddOns || []}
     />
   )
 }

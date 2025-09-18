@@ -68,3 +68,20 @@ export const getProjectDescription = createServerFn({
     )
     return projectDescription
   })
+
+export const getProjectData = createServerFn({
+  method: 'GET',
+})
+  .middleware([authMiddleware])
+  .validator(({ projectId }) => ({
+    projectId,
+  }))
+  .handler(async (ctx) => {
+    const { projectId } = ctx.data
+    const convex = new ConvexHttpClient(process.env.CONVEX_URL!)
+    convex.setAuth(ctx.context.sessionToken!)
+    const projectData = await convex.query(api.forge.getProject, {
+      projectId,
+    })
+    return projectData
+  })

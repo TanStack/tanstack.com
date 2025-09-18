@@ -39,6 +39,7 @@ const schema = defineSchema({
     userId: v.id('users'),
     name: v.string(),
     description: v.string(),
+    selectedAddOns: v.optional(v.array(v.string())),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index('by_userId', ['userId']),

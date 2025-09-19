@@ -21,25 +21,69 @@ import { dbProject } from './db'
 import { devtoolsProject } from './devtools'
 
 export const frameworkOptions = [
-  { label: 'React', value: 'react', logo: reactLogo, color: 'bg-blue-500' },
-  { label: 'Preact', value: 'preact', logo: preactLogo, color: 'bg-blue-400' },
-  { label: 'Vue', value: 'vue', logo: vueLogo, color: 'bg-green-500' },
+  {
+    label: 'React',
+    value: 'react',
+    logo: reactLogo,
+    color: 'bg-blue-500',
+    colorMuted: 'bg-blue-500/80',
+  },
+  {
+    label: 'Preact',
+    value: 'preact',
+    logo: preactLogo,
+    color: 'bg-blue-400',
+    colorMuted: 'bg-blue-400/80',
+  },
+  {
+    label: 'Vue',
+    value: 'vue',
+    logo: vueLogo,
+    color: 'bg-green-500',
+    colorMuted: 'bg-green-500/80',
+  },
   {
     label: 'Angular',
     value: 'angular',
     logo: angularLogo,
     color: 'bg-red-500',
+    colorMuted: 'bg-red-500/80',
   },
-  { label: 'Solid', value: 'solid', logo: solidLogo, color: 'bg-blue-600' },
-  { label: 'Lit', value: 'lit', logo: litLogo, color: 'bg-orange-500' },
+  {
+    label: 'Solid',
+    value: 'solid',
+    logo: solidLogo,
+    color: 'bg-blue-600',
+    colorMuted: 'bg-blue-600/80',
+  },
+  {
+    label: 'Lit',
+    value: 'lit',
+    logo: litLogo,
+    color: 'bg-orange-500',
+    colorMuted: 'bg-orange-500/80',
+  },
   {
     label: 'Svelte',
     value: 'svelte',
     logo: svelteLogo,
     color: 'bg-orange-600',
+    colorMuted: 'bg-orange-600/80',
   },
-  { label: 'Qwik', value: 'qwik', logo: qwikLogo, color: 'bg-purple-500' },
-  { label: 'Vanilla', value: 'vanilla', logo: jsLogo, color: 'bg-yellow-500' },
+  {
+    label: 'Qwik',
+    value: 'qwik',
+    logo: qwikLogo,
+    color: 'bg-purple-500',
+    colorMuted: 'bg-purple-500/80',
+  },
+  {
+    label: 'Vanilla',
+    value: 'vanilla',
+    logo: jsLogo,
+    color: 'bg-yellow-500',
+    colorMuted: 'bg-yellow-500/80',
+  },
 ] as const
 
 export type Framework = (typeof frameworkOptions)[number]['value']
@@ -67,6 +111,9 @@ export type Library = {
   description: string
   ogImage?: string
   bgStyle: string
+  bgStyleMuted: string
+  bgStyleAccent: string
+  bgStyleAccentHover: string
   textStyle: string
   badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh'
   repo: string
@@ -122,11 +169,22 @@ export const libraries = [
     id: 'react-charts',
     name: 'React Charts',
     repo: 'tanstack/react-charts',
+    bgStyle: 'bg-transparent',
+    bgStyleMuted: 'bg-transparent',
+    bgStyleAccent: 'bg-transparent',
+    bgStyleAccentHover: 'bg-transparent',
+    textStyle: 'text-gray-500',
   } as Library,
   {
     id: 'create-tsrouter-app',
     name: 'Create TS Router App',
     repo: 'tanstack/create-tsrouter-app',
+    bgStyle: 'bg-transparent',
+    bgStyleMuted: 'bg-transparent',
+    bgStyleAccent: 'bg-transparent',
+    bgStyleAccentHover: 'bg-transparent',
+    textStyle: 'text-gray-500',
+    frameworks: ['react', 'solid'],
   } as Library,
 ] satisfies Library[]
 

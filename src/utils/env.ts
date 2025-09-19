@@ -2,16 +2,36 @@ import { z } from 'zod'
 
 // Define server-only schema
 const serverEnvSchema = z.object({
-  GITHUB_AUTH_TOKEN: z.string().default('USE_A_REAL_KEY_IN_PRODUCTION'),
-  AIRTABLE_API_KEY: z.string().optional(),
+  // Core application
+  CONVEX_URL: z.string().url('CONVEX_URL must be a valid URL'),
+  CONVEX_SITE_URL: z
+    .string()
+    .url('CONVEX_SITE_URL must be a valid URL')
+    .optional(),
+  SITE_URL: z.string().url('SITE_URL must be a valid URL').optional(),
+
+  // Authentication
   GITHUB_OAUTH_CLIENT_ID: z.string().optional(),
   GITHUB_OAUTH_CLIENT_SECRET: z.string().optional(),
   GOOGLE_OAUTH_CLIENT_ID: z.string().optional(),
   GOOGLE_OAUTH_CLIENT_SECRET: z.string().optional(),
+
+  // External APIs
+  GITHUB_AUTH_TOKEN: z.string().default('USE_A_REAL_KEY_IN_PRODUCTION'),
+  AIRTABLE_API_KEY: z.string().optional(),
+  NETLIFY_TOKEN: z.string().optional(),
+
+  // Security
+  KEY_ENCRYPTION: z
+    .string()
+    .min(64, 'KEY_ENCRYPTION must be at least 64 hex characters (32 bytes)'),
+
+  // AI APIs (dynamically set by application, not required in env)
+  ANTHROPIC_API_KEY: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
 })
 
 const clientEnvSchema = z.object({
-  VITE_CONVEX_SITE_URL: z.string().optional(),
   VITE_CONVEX_URL: z.string().optional(),
   URL: z.string().optional(),
 })

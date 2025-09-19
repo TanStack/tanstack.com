@@ -18,7 +18,10 @@ export const devtoolsProject = {
   ogImage:
     'https://github.com/tanstack/devtools/raw/main/media/repo-header.png',
   badge: 'alpha',
-  bgStyle: 'bg-slate-400',
+  bgStyle: 'bg-slate-400/40 dark:bg-slate-400/30',
+  bgStyleAccent: 'bg-slate-400',
+  bgStyleMuted: 'bg-slate-400/20',
+  bgStyleAccentHover: 'hover:bg-slate-400/30 dark:hover:bg-slate-400/40',
   textStyle: 'text-slate-400',
   repo,
   latestBranch: 'main',

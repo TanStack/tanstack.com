@@ -112,7 +112,7 @@ export function CodeExplorer({
             currentPath={currentPath}
             githubContents={githubContents}
             isSidebarOpen={isSidebarOpen}
-            libraryColor={library.bgStyle}
+            libraryColor={library.bgStyleMuted}
             prefetchFileContent={prefetchFileContent}
             setCurrentPath={setCurrentPath}
           />

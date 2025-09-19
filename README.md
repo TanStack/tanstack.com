@@ -19,6 +19,85 @@ pnpm dev
 
 This starts your app in development mode, rebuilding assets on file changes.
 
+## Environment Variables
+
+The application requires several environment variables to function properly. Create a `.env` file in the root directory with the following variables:
+
+### Required Variables
+
+| Variable         | Description                             | Example                                                 | Required |
+| ---------------- | --------------------------------------- | ------------------------------------------------------- | -------- |
+| `CONVEX_URL`     | Convex backend URL                      | `https://your-deployment.convex.cloud`                  | ✅       |
+| `KEY_ENCRYPTION` | 256-bit encryption key for LLM API keys | Generate with `node scripts/generate-encryption-key.js` | ✅       |
+
+### Optional Variables
+
+#### Core Application
+
+| Variable          | Description              | Example                               | Required |
+| ----------------- | ------------------------ | ------------------------------------- | -------- |
+| `CONVEX_SITE_URL` | Convex site URL for auth | `https://your-deployment.convex.site` | ❌       |
+| `SITE_URL`        | Application site URL     | `https://tanstack.com`                | ❌       |
+
+#### Authentication (OAuth)
+
+| Variable                     | Description                    | Example                                    | Required |
+| ---------------------------- | ------------------------------ | ------------------------------------------ | -------- |
+| `GITHUB_OAUTH_CLIENT_ID`     | GitHub OAuth app client ID     | `Ov23liABC123...`                          | ❌       |
+| `GITHUB_OAUTH_CLIENT_SECRET` | GitHub OAuth app client secret | `1234567890abcdef...`                      | ❌       |
+| `GOOGLE_OAUTH_CLIENT_ID`     | Google OAuth app client ID     | `123456789-abc.apps.googleusercontent.com` | ❌       |
+| `GOOGLE_OAUTH_CLIENT_SECRET` | Google OAuth app client secret | `GOCSPX-abc123...`                         | ❌       |
+
+#### External APIs
+
+| Variable            | Description                        | Example         | Required |
+| ------------------- | ---------------------------------- | --------------- | -------- |
+| `GITHUB_AUTH_TOKEN` | GitHub API token for fetching docs | `ghp_abc123...` | ❌\*     |
+| `AIRTABLE_API_KEY`  | Airtable API key                   | `keyABC123...`  | ❌       |
+| `NETLIFY_TOKEN`     | Netlify API token for deployments  | `abc123...`     | ❌       |
+
+#### Client-side Variables (Vite)
+
+| Variable               | Description                       | Example                                | Required |
+| ---------------------- | --------------------------------- | -------------------------------------- | -------- |
+| `VITE_CONVEX_SITE_URL` | Client-accessible Convex site URL | `https://your-deployment.convex.site`  | ❌       |
+| `VITE_CONVEX_URL`      | Client-accessible Convex URL      | `https://your-deployment.convex.cloud` | ❌       |
+
+\*Defaults to `'USE_A_REAL_KEY_IN_PRODUCTION'` for development
+
+### Generating the Encryption Key
+
+To generate a secure encryption key for `KEY_ENCRYPTION`:
+
+```sh
+node scripts/generate-encryption-key.js
+```
+
+This will output a 256-bit hex key that you can add to your `.env` file.
+
+### LLM API Keys
+
+**Note**: `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` are **not** set as environment variables. Instead, users manage their own API keys through the application's account settings at `/account`. These keys are:
+
+- Stored encrypted in the Convex database
+- Scoped to individual users
+- Used dynamically by the Forge feature for AI-powered code generation
+
+### Example .env File
+
+```env
+# Required
+CONVEX_URL=https://your-deployment.convex.cloud
+KEY_ENCRYPTION=a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456
+
+# Optional - Authentication
+GITHUB_OAUTH_CLIENT_ID=Ov23liABC123...
+GITHUB_OAUTH_CLIENT_SECRET=1234567890abcdef...
+
+# Optional - External APIs
+GITHUB_AUTH_TOKEN=ghp_abc123...
+```
+
 ## Editing and previewing the docs of TanStack projects locally
 
 The documentations for all TanStack projects except for `React Charts` are hosted on [https://tanstack.com](https://tanstack.com), powered by this TanStack Router app.

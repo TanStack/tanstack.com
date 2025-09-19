@@ -1,40 +1,50 @@
-import { convexQuery } from '@convex-dev/react-query'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { redirect } from '@tanstack/react-router'
-import { api } from 'convex/_generated/api'
+import styles from '~/styles/builder.css?url'
+import { seo } from '~/utils/seo'
+import BuilderRoot from '~/cta/components/cta-ui'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { Authenticated } from 'convex/react'
 
 export const Route = createFileRoute({
-  component: RouteComponent,
-  loader: async (opts) => {
-    const user = await opts.context.ensureUser()
-    return { user }
+  ssr: true,
+  component: BuilderComponent,
+  head: () => ({
+    links: [
+      {
+        rel: 'stylesheet',
+        href: styles,
+      },
+    ],
+    meta: seo({
+      title: 'TanStack Builder',
+      description: 'Build amazing applications with TanStack',
+    }),
+  }),
+  headers(ctx) {
+    return {
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Opener-Policy': 'same-origin',
+    }
   },
 })
 
-function RouteComponent() {
-  const currentUserQuery = useSuspenseQuery(
-    convexQuery(api.auth.getCurrentUser, {})
-  )
+function BuilderComponent() {
+  const { isLoading, data: user } = useCurrentUserQuery()
 
-  const canAccess = currentUserQuery.data?.capabilities.includes('builder')
+  if (isLoading) {
+    return null
+  }
+
+  if (!user?.capabilities.includes('builder')) {
+    return null
+  }
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      {canAccess ? (
-        <Builder />
-      ) : (
-        <div>
-          You are not authorized to access this page. Please contact support.
+    <Authenticated>
+      <div className="flex h-screen">
+        <div className="flex-1 flex">
+          <BuilderRoot />
         </div>
-      )}
-    </div>
-  )
-}
-
-function Builder() {
-  return (
-    <div>
-      <h1>Welcome to the builder!</h1>
-    </div>
+      </div>
+    </Authenticated>
   )
 }

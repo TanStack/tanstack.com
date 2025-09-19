@@ -32,52 +32,52 @@ Optionally:
 ## Create A Simple Page Route
 
 ```ts
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  return <div>Hello World</div>;
+  return <div>Hello World</div>
 }
 ```
 
 ## Create A Lazily Imported Route
 
 ```ts
-import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
+import { createFileRoute, lazyRouteComponent } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/")({
-  component: lazyRouteComponent(() => import("./Post")),
-});
+export const Route = createFileRoute('/')({
+  component: lazyRouteComponent(() => import('./Post')),
+})
 
 function PageComponent() {
-  return <div>Hello World</div>;
+  return <div>Hello World</div>
 }
 ```
 
 ## Create An Authenticated Route
 
 ```ts
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/_authenticated")({
+export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ location }) => {
     if (!isAuthenticated()) {
       throw redirect({
-        to: "/login",
+        to: '/login',
         search: {
           redirect: location.href,
         },
-      });
+      })
     }
   },
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  return <div>Hello World</div>;
+  return <div>Hello World</div>
 }
 ```
 
@@ -116,33 +116,33 @@ function PageComponent() {
 ### Create A Parameterized Page Route
 
 ```ts
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/posts/$postId")({
+export const Route = createFileRoute('/posts/$postId')({
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  const { postId } = Route.useParams();
-  return <div>Post: {postId}</div>;
+  const { postId } = Route.useParams()
+  return <div>Post: {postId}</div>
 }
 ```
 
 ### Create A Parameterized Page Route (with a selector)
 
 ```ts
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, useParams } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/posts/$postId")({
+export const Route = createFileRoute('/posts/$postId')({
   component: PageComponent,
-});
+})
 
 function PageComponent() {
   const postId = useParams({
-    from: "/posts/$postId",
+    from: '/posts/$postId',
     select: (params) => params.postId,
-  });
-  return <div>Post: {postId}</div>;
+  })
+  return <div>Post: {postId}</div>
 }
 ```
 
@@ -227,17 +227,17 @@ function Component() {
 ### Loading a Page With Sychronous Data
 
 ```ts
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/names")({
-  loader: () => ({ names: ["Jack"] }),
+export const Route = createFileRoute('/names')({
+  loader: () => ({ names: ['Jack'] }),
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  const { names } = route.useLoaderData();
+  const { names } = route.useLoaderData()
 
-  return <div>{JSON.stringify(names)}</div>;
+  return <div>{JSON.stringify(names)}</div>
 }
 ```
 
@@ -287,51 +287,51 @@ export const Route = createFileRoute('/posts')({
 ### Wrap Promise Returned From Page Loader with Component
 
 ```ts
-import { createFileRoute, Await } from "@tanstack/react-router";
+import { createFileRoute, Await } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   loader: () => {
-    const deferredPromise = defer(fetch("/api/data"));
-    return { deferredPromise };
+    const deferredPromise = defer(fetch('/api/data'))
+    return { deferredPromise }
   },
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  const { deferredPromise } = route.useLoaderData();
+  const { deferredPromise } = route.useLoaderData()
 
   return (
     <Await promise={deferredPromise}>
       {(data) => <div>{JSON.stringify(data)}</div>}
     </Await>
-  );
+  )
 }
 ```
 
 ### Get Data Returned From Promise In Loader Using a Hook
 
 ```ts
-import { createFileRoutem, useAwaited } from "@tanstack/react-router";
+import { createFileRoutem, useAwaited } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   loader: () => {
-    const deferredPromise = defer(fetch("/api/data"));
-    return { deferredPromise };
+    const deferredPromise = defer(fetch('/api/data'))
+    return { deferredPromise }
   },
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  const { deferredPromise } = route.useLoaderData();
+  const { deferredPromise } = route.useLoaderData()
 
   /*
   - Throws an error if the promise is rejected.
   - Suspends (throws a promise) if the promise is pending.
   - Returns the resolved value of a deferred promise if the promise is resolved.
   */
-  const data = useAwaited({ promise: myDeferredPromise });
+  const data = useAwaited({ promise: myDeferredPromise })
 
-  return <div>{JSON.stringify(data)}</div>;
+  return <div>{JSON.stringify(data)}</div>
 }
 ```
 
@@ -537,8 +537,8 @@ export const streamEvents = createServerFn({
         // Send a data chunk
         controller.enqueue(
           new TextEncoder().encode(
-            `Event ${++count}: ${new Date().toISOString()}\n`,
-          ),
+            `Event ${++count}: ${new Date().toISOString()}\n`
+          )
         )
 
         // End after 10 events
@@ -589,7 +589,7 @@ export const abortableServerFn = createServerFn().handler(
       }
       signal.addEventListener('abort', onAbort, { once: true })
     })
-  },
+  }
 )
 
 // Usage
@@ -629,19 +629,19 @@ export function Time() {
 ### Server Functions From Loaders
 
 ```ts
-import { createServerFn } from "@tanstack/react-start";
-import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from '@tanstack/react-start'
+import { createFileRoute } from '@tanstack/react-router'
 
-const getUsers = createServerFn(async () => await db.getUsers());
+const getUsers = createServerFn(async () => await db.getUsers())
 
-export const Route = createFileRoute("/posts")({
+export const Route = createFileRoute('/posts')({
   loader: () => getUsers(),
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  const users = Route.useLoaderData();
-  return <div>Hello World</div>;
+  const users = Route.useLoaderData()
+  return <div>Hello World</div>
 }
 ```
 
@@ -678,7 +678,7 @@ export const ServerRoute = createServerFileRoute('/hello').methods({
 import { createServerFileRoute } from '@tanstack/react-start'
 
 export const ServerRoute = createServerFileRoute(
-  '/users/$id/posts/$postId',
+  '/users/$id/posts/$postId'
 ).methods({
   GET: async ({ params }) => {
     const { id, postId } = params
@@ -753,8 +753,8 @@ export const ServerRoute = createServerFileRoute().methods({
           // Send a data chunk
           controller.enqueue(
             new TextEncoder().encode(
-              `Event ${++count}: ${new Date().toISOString()}\n`,
-            ),
+              `Event ${++count}: ${new Date().toISOString()}\n`
+            )
           )
 
           // End after 10 events

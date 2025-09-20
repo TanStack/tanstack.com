@@ -16,31 +16,25 @@ import {
 } from 'react-icons/fa'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
-import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
-import { AuthLoading } from 'convex/react'
 import { api } from 'convex/_generated/api'
-import {
-  MdLibraryBooks,
-  MdLineAxis,
-  MdMenu,
-  MdPerson,
-  MdSupport,
-} from 'react-icons/md'
+import { MdLibraryBooks, MdLineAxis, MdPerson, MdSupport } from 'react-icons/md'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { PiHammerFill } from 'react-icons/pi'
 import { libraries } from '~/libraries'
 import { sortBy } from '~/utils/utils'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { convexQuery } from '@convex-dev/react-query'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
-  const user = useQuery(api.auth.getCurrentUser)
+  const user = useSuspenseQuery(convexQuery(api.auth.getCurrentUser, {}))
   const matches = useMatches()
 
   const Title =
     [...matches].reverse().find((m) => m.staticData.Title)?.staticData.Title ??
     null
 
-  const canAdmin = user?.capabilities.includes('admin')
+  const canAdmin = user.data?.capabilities.includes('admin')
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -66,6 +60,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     setShowMenu((prev) => !prev)
   }
 
+  const isAuthenticated = Boolean(user.data)
+
   const loginButton = (
     <>
       {(() => {
@@ -80,36 +76,37 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           </Link>
         )
 
-        return (
-          <>
-            <AuthLoading>{loginEl}</AuthLoading>
-            <Unauthenticated>{loginEl}</Unauthenticated>
-          </>
-        )
+        if (!isAuthenticated) {
+          return loginEl
+        }
       })()}
 
-      <Authenticated>
-        <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-          <FaUser />
-          <Link
-            to="/account"
-            className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
-          >
-            My Account
-          </Link>
-        </div>
-        {canAdmin ? (
+      {isAuthenticated && (
+        <>
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <FaLock />
+            <FaUser />
             <Link
-              to="/admin"
-              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              to="/account"
+              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
             >
-              Admin
+              My Account
             </Link>
           </div>
-        ) : null}
-      </Authenticated>
+          <>
+            {canAdmin ? (
+              <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+                <FaLock />
+                <Link
+                  to="/admin"
+                  className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                >
+                  Admin
+                </Link>
+              </div>
+            ) : null}
+          </>
+        </>
+      )}
     </>
   )
 
@@ -286,13 +283,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                           {library.badge ? (
                             <span
                               className={twMerge(
-                                `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/20 rounded-full text-[.7rem] group-hover:opacity-100 transition-opacity text-white animate-pulse`,
-                                // library.badge === 'new'
-                                //   ? 'text-green-500'
-                                //   : library.badge === 'soon'
-                                //   ? 'text-cyan-500'
-                                //   : '',
-                                library.textStyle
+                                `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/30 rounded-md text-[.7rem] text-white`,
+                                'opacity-50 group-hover:opacity-100 transition-opacity',
+                                'bg-gradient-to-r',
+                                library.colorFrom,
+                                library.colorTo,
+                                'text-[.6rem]'
                               )}
                             >
                               {library.badge}
@@ -347,28 +343,27 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <div>
-        <Authenticated>
-          {user?.capabilities.some((capability) =>
-            ['builder', 'admin'].includes(capability)
-          ) ? (
-            <Link
-              to="/builder"
-              className={twMerge(linkClasses, 'font-normal')}
-              activeProps={{
-                className: twMerge(
-                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
-                ),
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-4 justify-between">
-                  <PiHammerFill />
-                </div>
-                <div>Builder</div>
+        {isAuthenticated &&
+        user.data?.capabilities.some((capability) =>
+          ['builder', 'admin'].includes(capability)
+        ) ? (
+          <Link
+            to="/builder"
+            className={twMerge(linkClasses, 'font-normal')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4 justify-between">
+                <PiHammerFill />
               </div>
-            </Link>
-          ) : null}
-        </Authenticated>
+              <div>Builder</div>
+            </div>
+          </Link>
+        ) : null}
         {[
           {
             label: 'Maintainers',

@@ -1,10 +1,12 @@
 import { FaSignOutAlt } from 'react-icons/fa'
-import { Authenticated, Unauthenticated, useMutation } from 'convex/react'
+import { useMutation } from 'convex/react'
 import { Link, redirect } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { api } from 'convex/_generated/api'
 import { useToast } from '~/components/ToastProvider'
+import { convexQuery } from '@convex-dev/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 export const Route = createFileRoute({
   component: AccountPage,
@@ -120,12 +122,12 @@ function UserSettings() {
 }
 
 function AccountPage() {
+  const user = useSuspenseQuery(convexQuery(api.auth.getCurrentUser, {}))
+  const isAuthenticated = Boolean(user.data)
   return (
     <div className="min-h-screen mx-auto p-4 md:p-8 w-full">
-      <Authenticated>
-        <UserSettings />
-      </Authenticated>
-      <Unauthenticated>
+      {isAuthenticated && <UserSettings />}
+      {!isAuthenticated && (
         <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 text-center w-[100vw] max-w-sm mx-auto">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Sign In Required
@@ -139,7 +141,7 @@ function AccountPage() {
             </button>
           </Link>
         </div>
-      </Unauthenticated>
+      )}
     </div>
   )
 }

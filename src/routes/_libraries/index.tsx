@@ -173,7 +173,7 @@ function Index() {
                           bg-white/90 dark:bg-black/40 backdrop-blur-sm
                           dark:border-gray-800/50`,
                           'hover:shadow-lg',
-                          'relative overflow-hidden group',
+                          'relative group',
                           'min-h-[250px] xl:min-h-[220px]',
                           library.cardStyles
                         )}
@@ -259,26 +259,27 @@ function Index() {
                         </div>
                         {/* Badge */}
                         {library.badge ? (
-                          <div
-                            className={twMerge(`absolute top-0 right-0 z-20`)}
-                          >
+                          <>
                             <div
                               className={twMerge(
-                                `w-[100px] h-[100px] rounded-full translate-x-1/2 -translate-y-1/2`,
-                                library.bgStyle
+                                `absolute -top-2 -right-2 z-20 px-2 py-1 rounded-md`,
+                                [
+                                  'bg-gradient-to-r',
+                                  library.colorFrom,
+                                  library.colorTo,
+                                ],
+                                'uppercase text-white font-black italic text-xs'
                               )}
-                            />
-                            <span
-                              className={twMerge(
-                                'inline-block transform rotate-45 uppercase text-white font-black italic animate-pulse text-xs',
-                                library.badge.length > 4
-                                  ? 'absolute top-[16px] right-[-2px]'
-                                  : 'absolute top-[14px] right-[5px]'
-                              )}
+                              style={{
+                                animation: 'pulseScale 3s infinite',
+                                animationTimingFunction: 'ease-in-out',
+                                animationDelay: `${i * 0.5}s`,
+                                ['--scale-factor' as any]: '1.1',
+                              }}
                             >
-                              {library.badge}
-                            </span>
-                          </div>
+                              <span>{library.badge}</span>
+                            </div>
+                          </>
                         ) : null}
                       </Link>
                     )

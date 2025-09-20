@@ -1,4 +1,4 @@
-import { reactStartHandler } from "~/server/auth.server"
+import { reactStartHandler } from '@convex-dev/better-auth/react-start'
 
 export const ServerRoute = createServerFileRoute().methods({
   GET: ({ request }) => {

@@ -24,7 +24,7 @@ import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
 import { ToastProvider } from '~/components/ToastProvider'
 import { ThemeProvider } from '~/components/ThemeProvider'
-import { convexQuery, ConvexQueryClient } from '@convex-dev/react-query'
+import { ConvexQueryClient } from '@convex-dev/react-query'
 import { ConvexReactClient } from 'convex/react'
 import { Navbar } from '~/components/Navbar'
 
@@ -33,25 +33,6 @@ import { authClient } from '../utils/auth.client'
 
 import { LibrariesLayout } from './_libraries/route'
 import { TanStackUser } from 'convex/auth'
-import { createServerFn } from '@tanstack/react-start'
-import { getCookie, getWebRequest } from '@tanstack/react-start/server'
-import {
-  fetchSession,
-  getCookieName,
-} from '@convex-dev/better-auth/react-start'
-import { api } from 'convex/_generated/api'
-
-// Get auth information for SSR using available cookies
-const fetchAuth = createServerFn({ method: 'GET' }).handler(async () => {
-  const { createAuth } = await import('convex/auth')
-  const { session } = await fetchSession(getWebRequest())
-  const sessionCookieName = getCookieName(createAuth)
-  const token = getCookie(sessionCookieName)
-  return {
-    userId: session?.user.id,
-    token,
-  }
-})
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -156,18 +137,11 @@ export const Route = createRootRouteWithContext<{
       })
     }
 
-    const { userId, token } = await fetchAuth()
-
-    // During SSR only (the only time serverHttpClient exists),
-    // set the auth token to make HTTP queries with.
-    if (token) {
-      ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
-    }
-
-    return {
-      userId,
-      token,
-    }
+    // // During SSR only (the only time serverHttpClient exists),
+    // // set the auth token for Convex to make HTTP queries with.
+    // if (token) {
+    //   ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
+    // }
   },
   staleTime: Infinity,
   errorComponent: (props) => {
@@ -191,11 +165,6 @@ export const Route = createRootRouteWithContext<{
       <DocumentWrapper>
         <Outlet />
       </DocumentWrapper>
-    )
-  },
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      convexQuery(api.auth.getCurrentUser, {})
     )
   },
 })

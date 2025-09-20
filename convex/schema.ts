@@ -1,5 +1,4 @@
 import { defineSchema, defineTable } from 'convex/server'
-import { authTables } from '@convex-dev/auth/server'
 import { v } from 'convex/values'
 import { z } from 'zod'
 
@@ -20,7 +19,6 @@ export function validateCapability(
 const validCapabilities = VALID_CAPABILITIES
 
 const schema = defineSchema({
-  ...authTables,
   users: defineTable({
     displayUsername: v.optional(v.string()),
     createdAt: v.number(),

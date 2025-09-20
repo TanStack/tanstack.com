@@ -5,7 +5,8 @@ import { v } from 'convex/values'
 
 export const ossStats = new OssStats(components.ossStats, {
   githubOwners: ['tanstack'],
-  npmOrgs: ['tanstack', 'tannerlinsley'],
+  npmOrgs: ['tanstack'],
+  npmPackages: ['react-query', 'react-table'],
 })
 
 export const getStats = query({

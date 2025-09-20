@@ -7,5 +7,6 @@ convex/_generated
 convex/README.md
 src/blog/tanstack-db-0.1-the-embedded-client-database-for-tanstack-query.md
 .content-collections
-dist
-src/utils/gh-sponsor-meta.json
+dist/
+.tanstack/
+.output/

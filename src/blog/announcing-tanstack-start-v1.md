@@ -5,6 +5,8 @@ authors:
   - Tanner Linsley
 ---
 
+![TanStack Start v1 Release Candidate](/blog-assets/announcing-tanstack-start-v1/header.jpg)
+
 TanStack Start has officially reached a **v1.0 Release Candidate**. This is the build we expect to ship as 1.0, pending your final feedback, docs polish, and a few last-mile fixes. Now’s the perfect time to kick the tires and help us validate the final stretch. When 1.0 ships, we’ll update this post (same URL) with any final notes.
 
 ## Why this matters

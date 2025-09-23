@@ -85,7 +85,8 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
   })
 
   const writeFile = tool({
-    description: 'Write to a file (creates parent directories if they don\'t exist)',
+    description:
+      "Write to a file (creates parent directories if they don't exist)",
     inputSchema: z.object({
       path: z.string().describe('The path to the file to write to'),
       content: z.string().describe('The content to write to the file'),
@@ -93,12 +94,12 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
     execute: async ({ path, content }: { path: string; content: string }) => {
       const fsPath = enforceFSPath(path)
       const dirPath = dirname(fsPath)
-      
+
       // Create parent directories if they don't exist
       if (!files.vol.existsSync(dirPath)) {
         files.vol.mkdirSync(dirPath, { recursive: true })
       }
-      
+
       files.vol.writeFileSync(fsPath, content)
       await convex.mutation(api.forge.updateFile, {
         projectId: projectId as Id<'forge_projects'>,

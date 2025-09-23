@@ -1,5 +1,5 @@
-import SponsorPack from '~/components/SponsorPack'
-import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import { partners } from '~/utils/partners'
+import { PartnersGrid } from '~/components/PartnersGrid'
 
 const cacheHeaders = {
   'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
@@ -7,7 +7,6 @@ const cacheHeaders = {
 
 export const Route = createFileRoute({
   staleTime: Infinity,
-  loader: () => getSponsorsForSponsorPack(),
   headers: () => {
     // Cache the entire HTML response for 5 minutes
     return cacheHeaders
@@ -16,16 +15,18 @@ export const Route = createFileRoute({
     baseParent: true,
     showNavbar: false,
   },
-  component: SponsorsEmbed,
+  component: PartnersEmbed,
 })
 
-function SponsorsEmbed() {
-  const sponsors = Route.useLoaderData()
+function PartnersEmbed() {
+  const activePartners = partners.filter(
+    (partner) => partner.status === 'active'
+  )
 
   return (
     <>
       <div
-        className={`h-screen w-screen flex items-center justify-center overflow-hidden`}
+        className={`min-h-screen w-screen flex items-start justify-center overflow-hidden`}
       >
         <style
           dangerouslySetInnerHTML={{
@@ -36,7 +37,9 @@ function SponsorsEmbed() {
 `,
           }}
         />
-        <SponsorPack sponsors={sponsors} />
+        <div className="px-4 w-full">
+          <PartnersGrid partnersList={activePartners} />
+        </div>
       </div>
     </>
   )

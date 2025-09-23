@@ -1,10 +1,11 @@
 import { ossStats } from './stats'
 import { httpRouter } from 'convex/server'
-import { authComponent, createAuth } from './auth'
+import { betterAuthComponent } from './auth'
+import { createAuth } from '../src/server/auth.server'
 
 const http = httpRouter()
 
 ossStats.registerRoutes(http)
-authComponent.registerRoutes(http, createAuth)
+betterAuthComponent.registerRoutes(http, createAuth)
 
 export default http

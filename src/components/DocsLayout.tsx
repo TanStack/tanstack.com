@@ -222,6 +222,7 @@ export function DocsLayout({
                   </a>
                 ) : (
                   <Link
+                    from='/$libraryId/$version/docs'
                     to={child.to}
                     params
                     onClick={() => {

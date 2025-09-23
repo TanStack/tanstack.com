@@ -13,7 +13,7 @@ export function PartnersGrid({ partnersList }: PartnersGridProps) {
   )
 
   return (
-    <div className={`flex flex-wrap gap-6 justify-center relative`}>
+    <div className={`flex flex-wrap gap-6 justify-center relative max-w-full`}>
       {items.map((partner) => {
         return (
           <a
@@ -22,10 +22,10 @@ export function PartnersGrid({ partnersList }: PartnersGridProps) {
             target="_blank"
             rel="noreferrer"
             className="bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none
-              flex grow-1 justify-center p-8 hover:scale-[1.05] transition-all duration-100 ease-out"
+              flex grow-1 justify-center p-8 hover:scale-[1.05] transition-all duration-100 ease-out max-w-full"
           >
             <div
-              className="z-0 row-start-1 col-start-1 flex items-center justify-center transition-all duration-200"
+              className="z-0 row-start-1 col-start-1 flex items-center justify-center transition-all duration-200 max-w-full"
               style={{
                 width: Math.max(Math.round(100 + 300 * partner.score), 150),
               }}

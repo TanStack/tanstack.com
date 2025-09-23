@@ -31,6 +31,8 @@ import strapiDarkSvg from '~/images/strapi-dark.svg'
 import { libraries, Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
+import workosBlackSvg from '~/images/workos-black.svg'
+import workosWhiteSvg from '~/images/workos-white.svg'
 
 function LearnMoreButton() {
   return (
@@ -183,6 +185,47 @@ const clerk = (() => {
           TanStack's no-nonsense routing and tooling, you'll be equipped to
           effortlessly deliver top-notch experiences that your users can trust
           and your developers can rely on.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
+const workos = (() => {
+  const href = 'https://workos.com?utm_source=tanstack'
+
+  return {
+    name: 'WorkOS',
+    id: 'workos',
+    href,
+    libraries: ['start', 'router'] as const,
+    sidebarImgLight: workosBlackSvg,
+    sidebarImgDark: workosWhiteSvg,
+    sidebarImgClass: 'py-4',
+    status: 'active' as const,
+    homepageImg: (
+      <div className="w-full h-full flex items-center justify-center px-4 py-12">
+        <img
+          src={workosBlackSvg}
+          alt="WorkOS"
+          className="w-[220px] max-w-full dark:hidden"
+        />
+        <img
+          src={workosWhiteSvg}
+          alt="WorkOS"
+          className="w-[220px] max-w-full hidden dark:block"
+        />
+      </div>
+    ),
+    content: (
+      <>
+        <div className="text-xs">
+          WorkOS and TanStack are partnering to deliver
+          <strong> enterprise-ready authentication</strong>—including
+          <strong> SSO (SAML/OIDC)</strong>, <strong>Directory Sync</strong>,
+          <strong> MFA</strong>, and <strong>Audit Logs</strong>—paired with
+          TanStack's developer-first routing and app tooling.
         </div>
         <LearnMoreButton />
       </>
@@ -806,6 +849,7 @@ export const partners: Partner[] = [
   agGrid,
   netlify,
   neon,
+  workos,
   clerk,
   convex,
   electric,

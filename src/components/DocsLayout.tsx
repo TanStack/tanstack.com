@@ -184,7 +184,7 @@ export function DocsLayout({
   const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
   const activePartners = partners.filter(
-    (d) => d.libraries?.includes(libraryId as any) && d.status === 'active'
+    (d) => d.status === 'active' && d.name !== 'Nozzle.io'
   )
 
   const menuItems = menuConfig.map((group, i) => {
@@ -396,75 +396,48 @@ export function DocsLayout({
           </div>
         </div>
         <div
-          className="-ml-2 pl-2 w-full lg:w-[280px] shrink-0 lg:sticky
+          className="lg:-ml-2 lg:pl-2 w-full lg:w-[300px] [@media(min-width:1600px)]:w-[350px] shrink-0 lg:sticky
         lg:max-h-[calc(100dvh-var(--navbar-height))] lg:top-[var(--navbar-height)]
-        lg:overflow-y-auto lg:overflow-x-hidden"
+        lg:overflow-y-auto lg:overflow-x-hidden relative"
         >
           <div className="ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-4">
-            <div className="min-w-[250px] bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
-              <div className="uppercase font-black text-center p-3 opacity-50">
-                Our Partners
-              </div>
-              {!activePartners?.length ? (
-                <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
-                  <a
-                    href={`mailto:partners@tanstack.com?subject=TanStack ${
-                      repo.split('/')[1]
-                    } Partnership`}
-                    className="p-2 block text-xs"
-                  >
-                    <span className="opacity-50 italic">
-                      Wow, it looks like you could be our first partner for this
-                      library!
-                    </span>{' '}
-                    <span className="text-blue-500 font-black">
-                      Chat with us!
-                    </span>
-                  </a>
-                </div>
-              ) : (
-                activePartners
+            <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
+              <Link
+                className="uppercase font-black text-center p-2 opacity-60 hover:opacity-100 text-sm"
+                to="/partners"
+              >
+                Partners
+              </Link>
+              <div className="flex flex-wrap justify-center gap-x-2 gap-y-8 p-4">
+                {activePartners
                   .filter((d) => d.sidebarImgLight)
                   .map((partner) => {
                     return (
-                      <div
+                      <a
                         key={partner.name}
-                        className="overflow-hidden hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors"
+                        href={partner.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex grow-1 justify-center"
                       >
-                        <a
-                          href={partner.href}
-                          target="_blank"
-                          className="px-4 flex flex-col items-center justify-center cursor-pointer gap-1"
-                          rel="noreferrer"
+                        <div
+                          className="z-0 flex items-center justify-center [@media(min-width:1600px)]:scale-[1.1]"
+                          style={{
+                            width: Math.max(
+                              50 + Math.round(200 * partner.score),
+                              100
+                            ),
+                          }}
                         >
-                          <div className="mx-auto max-w-[150px]">
-                            <img
-                              src={partner.sidebarImgLight}
-                              alt={partner.name}
-                              className={twMerge(
-                                'w-full',
-                                partner.sidebarImgClass,
-                                'dark:hidden'
-                              )}
-                            />
-                            <img
-                              src={
-                                partner.sidebarImgDark ||
-                                partner.sidebarImgLight
-                              }
-                              alt={partner.name}
-                              className={twMerge(
-                                'w-full',
-                                partner.sidebarImgClass,
-                                'hidden dark:block'
-                              )}
-                            />
-                          </div>
-                        </a>
-                      </div>
+                          {partner.homepageImg}
+                        </div>
+                        {/* <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/80">
+                      {partner.content}
+                    </div> */}
+                      </a>
                     )
-                  })
-              )}
+                  })}
+              </div>
             </div>
             {libraryId === 'query' ? (
               <div className="p-4 bg-white/70 dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">

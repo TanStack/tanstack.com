@@ -1,84 +1,64 @@
-import { components, internal } from './_generated/api'
+import {
+  BetterAuth,
+  type AuthFunctions,
+  type PublicAuthFunctions,
+} from '@convex-dev/better-auth'
+import { api, components, internal } from './_generated/api'
 import { query, QueryCtx } from './_generated/server'
 import type { Id, DataModel } from './_generated/dataModel'
 import schema from './schema'
-import type { Infer } from 'convex/values'
-import { betterAuth } from 'better-auth'
-import {
-  type AuthFunctions,
-  type GenericCtx,
-  createClient,
-} from '@convex-dev/better-auth'
-import { convex } from '@convex-dev/better-auth/plugins'
+
+import { Infer } from 'convex/values'
 
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth
+const publicAuthFunctions: PublicAuthFunctions = api.auth
 
 // Initialize the component
-export const authComponent = createClient<DataModel>(components.betterAuth, {
+export const betterAuthComponent = new BetterAuth(components.betterAuth, {
   authFunctions,
-  triggers: {
-    user: {
-      onCreate: async (ctx, authUser) => {
-        const userId = await ctx.db.insert('users', {
-          createdAt: authUser.createdAt,
-          email: authUser.email,
-          updatedAt: authUser.updatedAt,
-          displayUsername: authUser.displayUsername ?? '',
-          image: authUser.image ?? '',
-          name: authUser.name,
-          capabilities: [],
-        })
-        await authComponent.setUserId(ctx, authUser._id, userId)
-      },
-      onUpdate: async (ctx, _, authUser) => {
-        await ctx.db.patch(authUser.userId as Id<'users'>, {
-          email: authUser.email,
-          updatedAt: authUser.updatedAt,
-          displayUsername: authUser.displayUsername ?? '',
-          image: authUser.image ?? '',
-          name: authUser.name,
-        })
-      },
-      onDelete: async (ctx, authUser) => {
-        await ctx.db.delete(authUser.userId as Id<'users'>)
-      },
-    },
+  publicAuthFunctions,
+})
+
+// These are required named exports
+export const {
+  createUser,
+  updateUser,
+  deleteUser,
+  createSession,
+  isAuthenticated,
+} = betterAuthComponent.createAuthFunctions<DataModel>({
+  // Must create a user and return the user id
+  onCreateUser: async (ctx, user) => {
+    return ctx.db.insert('users', {
+      createdAt: user.createdAt,
+      email: user.email,
+      updatedAt: user.updatedAt,
+      displayUsername: user.displayUsername ?? '',
+      image: user.image ?? '',
+      name: user.name,
+      capabilities: [],
+    })
+  },
+
+  // Delete the user when they are deleted from Better Auth
+  onDeleteUser: async (ctx, userId) => {
+    await ctx.db.delete(userId as Id<'users'>)
+  },
+
+  onUpdateUser: async (ctx, user) => {
+    await ctx.db.patch(user.userId as Id<'users'>, {
+      email: user.email,
+      updatedAt: user.updatedAt,
+      displayUsername: user.displayUsername ?? '',
+      image: user.image ?? '',
+      name: user.name,
+    })
   },
 })
 
-export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi()
-
-export const createAuth = (
-  ctx: GenericCtx<DataModel>,
-  { optionsOnly } = { optionsOnly: false }
-) =>
-  betterAuth({
-    // All auth requests will be proxied through your TanStack Start server
-    baseURL: process.env.URL,
-    database: authComponent.adapter(ctx),
-
-    logger: {
-      disabled: optionsOnly,
-    },
-
-    // Simple non-verified email/password to get started
-    socialProviders: {
-      github: {
-        clientId: process.env.GITHUB_OAUTH_CLIENT_ID as string,
-        clientSecret: process.env.GITHUB_OAUTH_CLIENT_SECRET as string,
-      },
-      google: {
-        clientId: process.env.GOOGLE_OAUTH_CLIENT_ID as string,
-        clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET as string,
-      },
-    },
-    plugins: [
-      // The Convex plugin is required
-      convex(),
-    ],
-  })
-
+// Example function for getting the current user
+// Feel free to edit, omit, etc.
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
@@ -106,5 +86,5 @@ export type TanStackUser = Awaited<ReturnType<typeof getBetterAuthUser>> &
   Infer<typeof schema.tables.users.validator>
 
 function getBetterAuthUser(ctx: QueryCtx) {
-  return authComponent.safeGetAuthUser(ctx)
+  return betterAuthComponent.getAuthUser(ctx)
 }

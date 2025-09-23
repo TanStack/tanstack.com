@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useState } from 'react'
 import * as React from 'react'
@@ -47,7 +48,7 @@ const viewModeSchema = z.enum(['compact', 'full', 'row'])
 const groupBySchema = z.enum(['none', 'core', 'library', 'role'])
 const sortBySchema = z.enum(['none', 'name', 'role', 'contributions'])
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/maintainers')({
   component: RouteComponent,
   validateSearch: z.object({
     libraries: z.array(librarySchema).optional().catch(undefined),

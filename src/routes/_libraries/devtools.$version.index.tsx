@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { FaCheckCircle } from 'react-icons/fa'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -13,7 +14,7 @@ import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
 const library = getLibrary('devtools')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/devtools/$version/')({
   component: DevtoolsVersionIndex,
   head: () => ({
     meta: seo({
@@ -26,7 +27,7 @@ export const Route = createFileRoute({
   },
 })
 
-export default function DevtoolsVersionIndex() {
+function DevtoolsVersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
   const library = getLibrary('devtools')
 

@@ -7,7 +7,7 @@ import removeMarkdown from 'remove-markdown'
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { setHeader } from '@tanstack/react-start/server'
+import { setResponseHeader } from '@tanstack/react-start/server'
 // import {
 //   getContributorStats,
 //   getContributorStatsForLibrary,
@@ -50,7 +50,7 @@ export const loadDocs = async ({
 }
 
 export const fetchDocs = createServerFn({ method: 'GET' })
-  .validator(
+  .inputValidator(
     z.object({ repo: z.string(), branch: z.string(), filePath: z.string() })
   )
   .handler(async ({ data: { repo, branch, filePath } }) => {
@@ -74,8 +74,8 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
     // Cache for 5 minutes on shared cache
     // Revalidate in the background
-    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setHeader(
+    setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setResponseHeader(
       'CDN-Cache-Control',
       'max-age=300, stale-while-revalidate=300, durable'
     )
@@ -89,7 +89,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
   })
 
 export const fetchFile = createServerFn({ method: 'GET' })
-  .validator(
+  .inputValidator(
     z.object({ repo: z.string(), branch: z.string(), filePath: z.string() })
   )
   .handler(async ({ data: { repo, branch, filePath } }) => {
@@ -101,8 +101,8 @@ export const fetchFile = createServerFn({ method: 'GET' })
 
     // Cache for 60 minutes on shared cache
     // Revalidate in the background
-    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setHeader(
+    setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setResponseHeader(
       'CDN-Cache-Control',
       'max-age=3600, stale-while-revalidate=3600, durable'
     )
@@ -113,7 +113,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
 export const fetchRepoDirectoryContents = createServerFn({
   method: 'GET',
 })
-  .validator(
+  .inputValidator(
     z.object({
       repo: z.string(),
       branch: z.string(),
@@ -125,8 +125,8 @@ export const fetchRepoDirectoryContents = createServerFn({
 
     // Cache for 60 minutes on shared cache
     // Revalidate in the background
-    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setHeader(
+    setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setResponseHeader(
       'CDN-Cache-Control',
       'max-age=3600, stale-while-revalidate=3600, durable'
     )
@@ -137,14 +137,14 @@ export const fetchRepoDirectoryContents = createServerFn({
 // GitHub contribution stats server functions - commented out due to performance/accuracy concerns
 /*
 export const fetchContributorStats = createServerFn({ method: 'GET' })
-  .validator(z.object({ username: z.string() }))
+  .inputValidator(z.object({ username: z.string() }))
   .handler(async ({ data: { username } }) => {
     const stats = await getContributorStats(username)
 
     // Cache for 30 minutes on shared cache
     // Revalidate in the background
-    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setHeader(
+    setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setResponseHeader(
       'CDN-Cache-Control',
       'max-age=1800, stale-while-revalidate=1800, durable'
     )
@@ -153,7 +153,7 @@ export const fetchContributorStats = createServerFn({ method: 'GET' })
   })
 
 export const fetchContributorStatsForLibrary = createServerFn({ method: 'GET' })
-  .validator(
+  .inputValidator(
     z.object({
       username: z.string(),
       libraryRepo: z.string(),
@@ -164,8 +164,8 @@ export const fetchContributorStatsForLibrary = createServerFn({ method: 'GET' })
 
     // Cache for 30 minutes on shared cache
     // Revalidate in the background
-    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setHeader(
+    setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setResponseHeader(
       'CDN-Cache-Control',
       'max-age=1800, stale-while-revalidate=1800, durable'
     )
@@ -174,14 +174,14 @@ export const fetchContributorStatsForLibrary = createServerFn({ method: 'GET' })
   })
 
 export const fetchBatchContributorStats = createServerFn({ method: 'GET' })
-  .validator(z.object({ usernames: z.array(z.string()) }))
+  .inputValidator(z.object({ usernames: z.array(z.string()) }))
   .handler(async ({ data: { usernames } }) => {
     const stats = await getBatchContributorStats(usernames)
 
     // Cache for 30 minutes on shared cache
     // Revalidate in the background
-    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setHeader(
+    setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setResponseHeader(
       'CDN-Cache-Control',
       'max-age=1800, stale-while-revalidate=1800, durable'
     )
@@ -202,8 +202,8 @@ export const fetchAllMaintainerStats = createServerFn({
 
     // Cache for 30 minutes on shared cache
     // Revalidate in the background
-    setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
-    setHeader(
+    setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+    setResponseHeader(
       'CDN-Cache-Control',
       'max-age=1800, stale-while-revalidate=1800, durable'
     )

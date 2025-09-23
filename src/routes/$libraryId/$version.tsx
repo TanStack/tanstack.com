@@ -1,8 +1,8 @@
-import { Outlet, redirect } from '@tanstack/react-router'
+import { Outlet, redirect, createFileRoute } from '@tanstack/react-router'
 import { RedirectVersionBanner } from '~/components/RedirectVersionBanner'
 import { getLibrary } from '~/libraries'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/$libraryId/$version')({
   beforeLoad: (ctx) => {
     const { libraryId, version } = ctx.params
     const library = getLibrary(libraryId)

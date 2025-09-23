@@ -16,12 +16,12 @@ import LandingPageGad from '~/components/LandingPageGad'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 import { CodeBlock } from '~/components/Markdown'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 
 const library = getLibrary('query')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/query/$version/')({
   component: VersionIndex,
   head: () => ({
     meta: seo({
@@ -34,7 +34,7 @@ export const Route = createFileRoute({
   },
 })
 
-export default function VersionIndex() {
+function VersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(queryProject, version)

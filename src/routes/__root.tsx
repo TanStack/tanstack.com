@@ -211,6 +211,10 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
 
   const showDevtools = canShowLoading && isRouterPage
 
+  const hideNavbar = useMatches({
+    select: (s) => s.some((d) => d.staticData?.showNavbar === false),
+  })
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -224,7 +228,7 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
         <ToastProvider>
           <BackgroundGradient />
           <React.Suspense fallback={null}>
-            <Navbar>{children}</Navbar>
+            {hideNavbar ? children : <Navbar>{children}</Navbar>}
           </React.Suspense>
           {showDevtools ? (
             <TanStackRouterDevtoolsInProd position="bottom-right" />

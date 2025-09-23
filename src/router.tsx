@@ -86,5 +86,6 @@ declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
     baseParent?: boolean
     Title?: () => any
+    showNavbar?: boolean
   }
 }

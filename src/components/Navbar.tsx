@@ -16,25 +16,31 @@ import {
 } from 'react-icons/fa'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
+import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
+import { AuthLoading } from 'convex/react'
 import { api } from 'convex/_generated/api'
-import { MdLibraryBooks, MdLineAxis, MdPerson, MdSupport } from 'react-icons/md'
+import {
+  MdLibraryBooks,
+  MdLineAxis,
+  MdMenu,
+  MdPerson,
+  MdSupport,
+} from 'react-icons/md'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { PiHammerFill } from 'react-icons/pi'
 import { libraries } from '~/libraries'
 import { sortBy } from '~/utils/utils'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
-  const user = useSuspenseQuery(convexQuery(api.auth.getCurrentUser, {}))
+  const user = useQuery(api.auth.getCurrentUser)
   const matches = useMatches()
 
   const Title =
     [...matches].reverse().find((m) => m.staticData.Title)?.staticData.Title ??
     null
 
-  const canAdmin = user.data?.capabilities.includes('admin')
+  const canAdmin = user?.capabilities.includes('admin')
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -60,8 +66,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     setShowMenu((prev) => !prev)
   }
 
-  const isAuthenticated = Boolean(user.data)
-
   const loginButton = (
     <>
       {(() => {
@@ -76,37 +80,36 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           </Link>
         )
 
-        if (!isAuthenticated) {
-          return loginEl
-        }
+        return (
+          <>
+            <AuthLoading>{loginEl}</AuthLoading>
+            <Unauthenticated>{loginEl}</Unauthenticated>
+          </>
+        )
       })()}
 
-      {isAuthenticated && (
-        <>
+      <Authenticated>
+        <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+          <FaUser />
+          <Link
+            to="/account"
+            className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
+          >
+            My Account
+          </Link>
+        </div>
+        {canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <FaUser />
+            <FaLock />
             <Link
-              to="/account"
-              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
+              to="/admin"
+              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
             >
-              My Account
+              Admin
             </Link>
           </div>
-          <>
-            {canAdmin ? (
-              <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-                <FaLock />
-                <Link
-                  to="/admin"
-                  className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                >
-                  Admin
-                </Link>
-              </div>
-            ) : null}
-          </>
-        </>
-      )}
+        ) : null}
+      </Authenticated>
     </>
   )
 
@@ -343,27 +346,28 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <div>
-        {isAuthenticated &&
-        user.data?.capabilities.some((capability) =>
-          ['builder', 'admin'].includes(capability)
-        ) ? (
-          <Link
-            to="/builder"
-            className={twMerge(linkClasses, 'font-normal')}
-            activeProps={{
-              className: twMerge(
-                'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
-              ),
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-4 justify-between">
-                <PiHammerFill />
+        <Authenticated>
+          {user?.capabilities.some((capability) =>
+            ['builder', 'admin'].includes(capability)
+          ) ? (
+            <Link
+              to="/builder"
+              className={twMerge(linkClasses, 'font-normal')}
+              activeProps={{
+                className: twMerge(
+                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                ),
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4 justify-between">
+                  <PiHammerFill />
+                </div>
+                <div>Builder</div>
               </div>
-              <div>Builder</div>
-            </div>
-          </Link>
-        ) : null}
+            </Link>
+          ) : null}
+        </Authenticated>
         {[
           {
             label: 'Maintainers',

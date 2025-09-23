@@ -16,11 +16,11 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 import { CodeBlock } from '~/components/Markdown'
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
 const library = getLibrary('virtual')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/virtual/$version/')({
   component: RouteComp,
   head: () => ({
     meta: seo({
@@ -33,7 +33,7 @@ export const Route = createFileRoute({
   },
 })
 
-export default function RouteComp() {
+function RouteComp() {
   // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const [framework, setFramework] = React.useState<Framework>('react')

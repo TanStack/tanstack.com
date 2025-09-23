@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Link, Outlet, useLocation } from '@tanstack/react-router'
+import { Link, Outlet, useLocation, createFileRoute } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { MdLibraryBooks, MdLineAxis, MdSupport } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
@@ -34,7 +34,7 @@ import { api } from 'convex/_generated/api'
 import { PiHammerFill } from 'react-icons/pi'
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries')({
   staleTime: Infinity,
   loader: async (ctx) => {
     return {}

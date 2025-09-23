@@ -1,7 +1,8 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/terms')({
   component: RouteComp,
   head: () => ({
     meta: seo({
@@ -11,7 +12,7 @@ export const Route = createFileRoute({
   }),
 })
 
-export default function RouteComp() {
+function RouteComp() {
   return (
     <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
       <div className="flex-1 space-y-12 w-full max-w-3xl mx-auto">

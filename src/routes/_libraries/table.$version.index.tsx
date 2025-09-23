@@ -9,7 +9,7 @@ import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import { CodeBlock } from '~/components/Markdown'
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { BottomCTA } from '~/components/BottomCTA'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
@@ -20,7 +20,7 @@ import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
 const library = getLibrary('table')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/table/$version/')({
   component: TableVersionIndex,
   head: () => ({
     meta: seo({
@@ -33,7 +33,7 @@ export const Route = createFileRoute({
   },
 })
 
-export default function TableVersionIndex() {
+function TableVersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(tableProject, version)

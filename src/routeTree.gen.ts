@@ -17,6 +17,7 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
+import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
 import { Route as MerchRouteImport } from './routes/merch'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
@@ -73,6 +74,11 @@ const rootServerRouteImport = createServerRootRoute()
 const SponsorsEmbedRoute = SponsorsEmbedRouteImport.update({
   id: '/sponsors-embed',
   path: '/sponsors-embed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersEmbedRoute = PartnersEmbedRouteImport.update({
+  id: '/partners-embed',
+  path: '/partners-embed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MerchRoute = MerchRouteImport.update({
@@ -352,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteRouteWithChildren
   '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
+  '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/account': typeof LibrariesAccountRoute
@@ -399,6 +406,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
+  '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/account': typeof LibrariesAccountRoute
@@ -448,6 +456,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteRouteWithChildren
   '/builder': typeof BuilderRoute
   '/merch': typeof MerchRoute
+  '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/_libraries/account': typeof LibrariesAccountRoute
@@ -499,6 +508,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/builder'
     | '/merch'
+    | '/partners-embed'
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/account'
@@ -546,6 +556,7 @@ export interface FileRouteTypes {
   to:
     | '/builder'
     | '/merch'
+    | '/partners-embed'
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/account'
@@ -594,6 +605,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/builder'
     | '/merch'
+    | '/partners-embed'
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/_libraries/account'
@@ -645,6 +657,7 @@ export interface RootRouteChildren {
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
   BuilderRoute: typeof BuilderRoute
   MerchRoute: typeof MerchRoute
+  PartnersEmbedRoute: typeof PartnersEmbedRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   StatsIndexRoute: typeof StatsIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
@@ -724,6 +737,13 @@ declare module '@tanstack/react-router' {
       path: '/merch'
       fullPath: '/merch'
       preLoaderRoute: typeof MerchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partners-embed': {
+      id: '/partners-embed'
+      path: '/partners-embed'
+      fullPath: '/partners-embed'
+      preLoaderRoute: typeof PartnersEmbedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sponsors-embed': {
@@ -1084,6 +1104,13 @@ declare module '@tanstack/react-start/server' {
       id: '/merch'
       path: '/merch'
       fullPath: '/merch'
+      preLoaderRoute: unknown
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/partners-embed': {
+      id: '/partners-embed'
+      path: '/partners-embed'
+      fullPath: '/partners-embed'
       preLoaderRoute: unknown
       parentRoute: typeof rootServerRouteImport
     }
@@ -1494,6 +1521,23 @@ declare module './routes/merch' {
     ServerFileRoutesByPath['/merch']['id'],
     ServerFileRoutesByPath['/merch']['path'],
     ServerFileRoutesByPath['/merch']['fullPath'],
+    unknown
+  >
+}
+declare module './routes/partners-embed' {
+  const createFileRoute: CreateFileRoute<
+    '/partners-embed',
+    FileRoutesByPath['/partners-embed']['parentRoute'],
+    FileRoutesByPath['/partners-embed']['id'],
+    FileRoutesByPath['/partners-embed']['path'],
+    FileRoutesByPath['/partners-embed']['fullPath']
+  >
+
+  const createServerFileRoute: CreateServerFileRoute<
+    ServerFileRoutesByPath['/partners-embed']['parentRoute'],
+    ServerFileRoutesByPath['/partners-embed']['id'],
+    ServerFileRoutesByPath['/partners-embed']['path'],
+    ServerFileRoutesByPath['/partners-embed']['fullPath'],
     unknown
   >
 }
@@ -2428,6 +2472,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRouteRoute: AdminRouteRouteWithChildren,
   BuilderRoute: BuilderRoute,
   MerchRoute: MerchRoute,
+  PartnersEmbedRoute: PartnersEmbedRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   StatsIndexRoute: StatsIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,

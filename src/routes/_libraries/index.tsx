@@ -11,6 +11,7 @@ import { useMutation } from '~/hooks/useMutation'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
 import { partners } from '../../utils/partners'
+import { PartnersGrid } from '~/components/PartnersGrid'
 import OpenSourceStats from '~/components/OpenSourceStats'
 // Using public asset URLs for splash images
 import { BrandContextMenu } from '~/components/BrandContextMenu'
@@ -292,28 +293,7 @@ function Index() {
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <h3 className={`text-4xl font-light mb-6`}>Partners</h3>
-          <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
-            {partners
-              .filter((partner) => partner.status === 'active')
-              .map((partner) => {
-                return (
-                  <a
-                    key={partner.name}
-                    href={partner.href}
-                    target="_blank"
-                    className="bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none group overflow-hidden grid"
-                    rel="noreferrer"
-                  >
-                    <div className="z-0 row-start-1 col-start-1 flex items-center justify-center group-hover:blur-md transition-all duration-200 p-4">
-                      {partner.homepageImg}
-                    </div>
-                    <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/80">
-                      {partner.content}
-                    </div>
-                  </a>
-                )
-              })}
-          </div>
+          <PartnersGrid />
           <div className="text-center mt-6">
             <Link
               to="/partners"

@@ -209,12 +209,12 @@ const workos = (() => {
         <img
           src={workosBlackSvg}
           alt="WorkOS"
-          className="w-[220px] max-w-full dark:hidden"
+          className="w-[270px] max-w-full dark:hidden"
         />
         <img
           src={workosWhiteSvg}
           alt="WorkOS"
-          className="w-[220px] max-w-full hidden dark:block"
+          className="w-[270px] max-w-full hidden dark:block"
         />
       </div>
     ),

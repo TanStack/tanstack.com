@@ -14,6 +14,7 @@ export interface Maintainer {
   social?: {
     twitter?: string
     bluesky?: string
+    linkedIn?: string
     website?: string
   }
 }
@@ -163,6 +164,7 @@ export const allMaintainers: Maintainer[] = [
     avatar: 'https://github.com/AlemTuzlak.png',
     github: 'AlemTuzlak',
     creatorOf: ['devtools'],
+    contributorOf: ['pacer', 'form'],
     frameworkExpertise: ['react'],
     specialties: ['DevTools', 'Routers', 'Vite Plugins'],
     social: {
@@ -240,9 +242,9 @@ export const allMaintainers: Maintainer[] = [
     contributorOf: ['devtools'],
     frameworkExpertise: ['react'],
     social: {
-         linkedIn: https://www.linkedin.com/in/harry-whorlow/
-         website: harry-whorlow.dev
-     },
+      linkedIn: 'https://www.linkedin.com/in/harry-whorlow/',
+      website: 'harry-whorlow.dev',
+    },
   },
   {
     name: 'Luca Jakob',

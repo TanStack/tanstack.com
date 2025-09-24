@@ -239,7 +239,10 @@ export const allMaintainers: Maintainer[] = [
     maintainerOf: ['form'],
     contributorOf: ['devtools'],
     frameworkExpertise: ['react'],
-    social: {},
+    social: {
+         linkedIn: https://www.linkedin.com/in/harry-whorlow/
+         website: harry-whorlow.dev
+     },
   },
   {
     name: 'Luca Jakob',

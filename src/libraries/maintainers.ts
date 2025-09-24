@@ -170,6 +170,7 @@ export const allMaintainers: Maintainer[] = [
     social: {
       twitter: 'https://x.com/AlemTuzlak',
       bluesky: 'https://bsky.app/profile/alem.forge42.dev',
+      website: 'https://www.forge42.dev',
     },
   },
   {
@@ -388,6 +389,18 @@ export const allMaintainers: Maintainer[] = [
     maintainerOf: ['db'],
     frameworkExpertise: ['react'],
     specialties: ['Sync Engines', 'Incremental View Maintenance'],
+  },
+  {
+    name: 'Shruti Kapoor',
+    avatar: 'https://github.com/shrutikapoor08.png',
+    github: 'shrutikapoor08',
+    contributorOf: ['start'],
+    frameworkExpertise: ['react'],
+    specialties: ['Education', 'Documentation'],
+    social: {
+      twitter: 'https://x.com/shrutikapoor08',
+      bluesky: 'https://bsky.app/profile/shrutikapoor08.bsky.social',
+    },
   },
 ]
 

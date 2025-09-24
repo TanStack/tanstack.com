@@ -159,6 +159,18 @@ export const allMaintainers: Maintainer[] = [
     specialties: ['Sync Engines'],
   },
   {
+    name: 'Alem Tuzlak',
+    avatar: 'https://github.com/AlemTuzlak.png',
+    github: 'AlemTuzlak',
+    creatorOf: ['devtools'],
+    frameworkExpertise: ['react'],
+    specialties: ['DevTools', 'Routers', 'Vite Plugins'],
+    social: {
+      twitter: 'https://x.com/AlemTuzlak',
+      bluesky: 'https://bsky.app/profile/alem.forge42.dev',
+    },
+  },
+  {
     name: 'Lachlan Collins',
     isCoreMaintainer: true,
     avatar: 'https://github.com/lachlancollins.png',
@@ -219,6 +231,15 @@ export const allMaintainers: Maintainer[] = [
     social: {
       twitter: 'https://x.com/swagdoctor19',
     },
+  },
+  {
+    name: 'Harry Whorlow',
+    avatar: 'https://github.com/harry-whorlow.png',
+    github: 'harry-whorlow',
+    maintainerOf: ['form'],
+    contributorOf: ['devtools'],
+    frameworkExpertise: ['react'],
+    social: {},
   },
   {
     name: 'Luca Jakob',

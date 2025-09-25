@@ -25,9 +25,11 @@ export const getStats = query({
     const npmData = args.library
       ? await ossStats.getNpmPackages(
           ctx,
-          args.library.frameworks.map(
-            (framework) => `@tanstack/${framework}-${args.library?.id}`
-          )
+          args.library.frameworks.length > 0
+            ? args.library.frameworks.map(
+                (framework) => `@tanstack/${framework}-${args.library?.id}`
+              )
+            : [`@tanstack/${args.library.id}`] // For libraries like @tanstack/config
         )
       : await ossStats.getNpmOrg(ctx, 'tanstack')
     return {

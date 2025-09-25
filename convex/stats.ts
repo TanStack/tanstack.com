@@ -29,7 +29,7 @@ export const getStats = query({
             ? args.library.frameworks.map(
                 (framework) => `@tanstack/${framework}-${args.library?.id}`
               )
-            : [`@tanstack/${args.library.id}`] // For libraries like @tanstack/config
+            : [`@tanstack/${args.library.id}`]
         )
       : await ossStats.getNpmOrg(ctx, 'tanstack')
     return {

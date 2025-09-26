@@ -295,6 +295,19 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
+    name: 'Brooke Holmes',
+    avatar: 'https://github.com/brhx.png',
+    github: 'brhx',
+    maintainerOf: ['start', 'router'],
+    frameworkExpertise: ['react'],
+    specialties: ['TypeScript'],
+    social: {
+      twitter: 'https://x.com/brooke_lune',
+      linkedIn: 'https://www.linkedin.com/in/brooke-holmes/',
+      website: 'https://brooke.me',
+    },
+  },
+  {
     name: 'Arnoud de Vries',
     avatar: 'https://github.com/arnoud-dv.png',
     github: 'arnoud-dv',

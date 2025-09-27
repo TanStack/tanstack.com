@@ -173,7 +173,7 @@ function Index() {
                           `border-2 border-transparent rounded-xl shadow-md p-8 transition-all duration-300
                           bg-white/90 dark:bg-black/40 backdrop-blur-sm
                           dark:border-gray-800/50`,
-                          'hover:shadow-lg',
+                          'hover:shadow-2xl hover:shadow-current/20 hover:-translate-y-2 hover:border-current/30',
                           'relative group',
                           'min-h-[250px] xl:min-h-[220px]',
                           library.cardStyles
@@ -263,7 +263,7 @@ function Index() {
                           <>
                             <div
                               className={twMerge(
-                                `absolute -top-2 -right-2 z-20 px-2 py-1 rounded-md`,
+                                `absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md`,
                                 [
                                   'bg-gradient-to-r',
                                   library.colorFrom,

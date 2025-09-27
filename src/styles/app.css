@@ -53,6 +53,11 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
   }
+
+  :root {
+    --navbar-height: 50px;
+    scroll-padding-top: var(--navbar-height);
+  }
 }
 
 button {

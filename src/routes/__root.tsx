@@ -224,7 +224,7 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
         ) : null}
         <GamScripts />
       </head>
-      <body style={{ '--navbar-height': '48px' } as any}>
+      <body>
         <ToastProvider>
           <BackgroundGradient />
           <React.Suspense fallback={null}>

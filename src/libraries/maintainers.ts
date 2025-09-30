@@ -239,8 +239,7 @@ export const allMaintainers: Maintainer[] = [
     name: 'Harry Whorlow',
     avatar: 'https://github.com/harry-whorlow.png',
     github: 'harry-whorlow',
-    maintainerOf: ['form'],
-    contributorOf: ['devtools'],
+    maintainerOf: ['form', 'devtools'],
     frameworkExpertise: ['react'],
     social: {
       linkedIn: 'https://www.linkedin.com/in/harry-whorlow/',

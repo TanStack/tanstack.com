@@ -14,6 +14,7 @@ export interface Maintainer {
   social?: {
     twitter?: string
     bluesky?: string
+    linkedIn?: string
     website?: string
   }
 }
@@ -159,6 +160,20 @@ export const allMaintainers: Maintainer[] = [
     specialties: ['Sync Engines'],
   },
   {
+    name: 'Alem Tuzlak',
+    avatar: 'https://github.com/AlemTuzlak.png',
+    github: 'AlemTuzlak',
+    creatorOf: ['devtools'],
+    contributorOf: ['pacer', 'form'],
+    frameworkExpertise: ['react'],
+    specialties: ['DevTools', 'Routers', 'Vite Plugins'],
+    social: {
+      twitter: 'https://x.com/AlemTuzlak',
+      bluesky: 'https://bsky.app/profile/alem.forge42.dev',
+      website: 'https://www.forge42.dev',
+    },
+  },
+  {
     name: 'Lachlan Collins',
     isCoreMaintainer: true,
     avatar: 'https://github.com/lachlancollins.png',
@@ -221,6 +236,17 @@ export const allMaintainers: Maintainer[] = [
     },
   },
   {
+    name: 'Harry Whorlow',
+    avatar: 'https://github.com/harry-whorlow.png',
+    github: 'harry-whorlow',
+    maintainerOf: ['form', 'devtools'],
+    frameworkExpertise: ['react'],
+    social: {
+      linkedIn: 'https://www.linkedin.com/in/harry-whorlow/',
+      website: 'harry-whorlow.dev',
+    },
+  },
+  {
     name: 'Luca Jakob',
     avatar: 'https://github.com/LeCarbonator.png',
     github: 'LeCarbonator',
@@ -265,6 +291,19 @@ export const allMaintainers: Maintainer[] = [
     social: {
       twitter: 'https://x.com/birkskyum',
       bluesky: 'https://bsky.app/profile/bskyum.bsky.social',
+    },
+  },
+  {
+    name: 'Brooke Holmes',
+    avatar: 'https://github.com/brhx.png',
+    github: 'brhx',
+    maintainerOf: ['start', 'router'],
+    frameworkExpertise: ['react'],
+    specialties: ['TypeScript'],
+    social: {
+      twitter: 'https://x.com/brooke_lune',
+      linkedIn: 'https://www.linkedin.com/in/brooke-holmes/',
+      website: 'https://brooke.me',
     },
   },
   {
@@ -362,6 +401,18 @@ export const allMaintainers: Maintainer[] = [
     maintainerOf: ['db'],
     frameworkExpertise: ['react'],
     specialties: ['Sync Engines', 'Incremental View Maintenance'],
+  },
+  {
+    name: 'Shruti Kapoor',
+    avatar: 'https://github.com/shrutikapoor08.png',
+    github: 'shrutikapoor08',
+    contributorOf: ['start'],
+    frameworkExpertise: ['react'],
+    specialties: ['Education', 'Documentation'],
+    social: {
+      twitter: 'https://x.com/shrutikapoor08',
+      bluesky: 'https://bsky.app/profile/shrutikapoor08.bsky.social',
+    },
   },
 ]
 

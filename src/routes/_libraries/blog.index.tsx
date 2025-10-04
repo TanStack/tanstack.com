@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { formatAuthors } from '~/utils/blog'
 import { DocTitle } from '~/components/DocTitle'
@@ -8,11 +8,11 @@ import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { allPosts } from 'content-collections'
-import { setHeaders } from '@tanstack/react-start/server'
+import { setResponseHeaders } from '@tanstack/react-start/server'
 
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   async () => {
-    setHeaders({
+    setResponseHeaders({
       'cache-control': 'public, max-age=0, must-revalidate',
       'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
       'Netlify-Vary': 'query=payload',
@@ -40,7 +40,7 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   }
 )
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/blog/')({
   staleTime: Infinity,
   loader: () => fetchFrontMatters(),
   notFoundComponent: () => <PostNotFound />,

@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { partners } from '~/utils/partners'
 import { PartnersGrid } from '~/components/PartnersGrid'
 
@@ -5,7 +6,7 @@ const cacheHeaders = {
   'Cache-Control': 'max-age=300, s-maxage=3600, stale-while-revalidate',
 }
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/partners-embed')({
   staleTime: Infinity,
   headers: () => {
     // Cache the entire HTML response for 5 minutes

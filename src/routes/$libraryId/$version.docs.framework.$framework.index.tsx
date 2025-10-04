@@ -1,5 +1,5 @@
 import { seo } from '~/utils/seo'
-import { redirect } from '@tanstack/react-router'
+import { redirect, createFileRoute } from '@tanstack/react-router'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 import {
@@ -13,7 +13,7 @@ import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
 import { twMerge } from 'tailwind-merge'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/$libraryId/$version/docs/framework/$framework/')({
   staleTime: 1000 * 60 * 5,
   loader: (ctx) => {
     const { framework, version, libraryId } = ctx.params

@@ -1,8 +1,9 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { FaArrowRight } from 'react-icons/fa'
 import { PiHandWavingLight } from 'react-icons/pi'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/dashboard')({
   component: Dashboard,
 })
 

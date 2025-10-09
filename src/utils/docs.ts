@@ -216,3 +216,42 @@ export const fetchAllMaintainerStats = createServerFn({
   }
 })
 */
+
+// Helper function to check if the Accept header prefers markdown
+export function prefersMarkdown(acceptHeader: string | null): boolean {
+  if (!acceptHeader) return false
+
+  const accepts = acceptHeader.split(',').map(type => {
+    const [mediaType, ...params] = type.trim().split(';')
+    const quality = params.find(p => p.trim().startsWith('q='))
+    const q = quality ? parseFloat(quality.split('=')[1]) : 1.0
+    return { mediaType: mediaType.toLowerCase(), q }
+  })
+
+  const markdownQ = accepts.find(a =>
+    a.mediaType === 'text/markdown' || a.mediaType === 'text/plain'
+  )?.q || 0
+
+  const htmlQ = accepts.find(a =>
+    a.mediaType === 'text/html' || a.mediaType === '*/*'
+  )?.q || 0
+
+  return markdownQ > 0 && markdownQ > htmlQ
+}
+
+// Helper function to create markdown response
+export function createMarkdownResponse(
+  title: string,
+  content: string
+): Response {
+  const markdownContent = `# ${title}\n${content}`
+
+  return new Response(markdownContent, {
+    headers: {
+      'Content-Type': 'text/markdown; charset=utf-8',
+      'Cache-Control': 'public, max-age=0, must-revalidate',
+      'Cdn-Cache-Control': 'max-age=300, stale-while-revalidate=300, durable',
+      'Vary': 'Accept',
+    },
+  })
+}

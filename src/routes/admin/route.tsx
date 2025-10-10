@@ -1,5 +1,10 @@
 import * as React from 'react'
-import { Link, LinkOptions, Outlet, createFileRoute } from '@tanstack/react-router'
+import {
+  Link,
+  LinkOptions,
+  Outlet,
+  createFileRoute,
+} from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import { FaHome, FaUser, FaUsers } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'

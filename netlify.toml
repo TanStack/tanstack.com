@@ -1,7 +1,7 @@
 [context.production]
 command = "npx convex deploy --cmd 'pnpm run build'"
 [context.deploy-preview]
-command = "npx convex deploy --cmd 'pnpm run build' --preview-run"
+command = "npx convex deploy --cmd 'pnpm run build'"
 [build]
 command = "vite build"
 publish = "dist/client"

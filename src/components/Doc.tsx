@@ -170,7 +170,7 @@ export function Doc({
           </div>
           <div className="h-12" />
           <div className="w-full h-px bg-gray-500 opacity-30" />
-          <div className="py-4 opacity-70">
+          <div className="flex py-4 opacity-70">
             <a
               href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
               className="flex items-center gap-2"

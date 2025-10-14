@@ -4,7 +4,7 @@ import { Footer } from '~/components/Footer'
 import { useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
-import { FaRegCopy } from 'react-icons/fa'
+import { FaRegCopy, FaDownload } from 'react-icons/fa'
 
 export const Route = createFileRoute('/_libraries/brand-guide')({
   component: RouteComponent,
@@ -28,6 +28,31 @@ interface AssetCardProps {
 function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
   const { notify } = useToast()
   const isSvg = !!url && url.toLowerCase().endsWith('.svg')
+  const handleDirectDownload = async () => {
+    try {
+      if (!url) return
+      const absoluteUrl = url.startsWith('http')
+        ? url
+        : new URL(url, window.location.origin).toString()
+      const filename = absoluteUrl.split('/').pop() || 'asset'
+      const link = document.createElement('a')
+      link.href = absoluteUrl
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } catch (err) {
+      console.error('Failed to download asset', err)
+      notify(
+        <div>
+          <div className="font-medium">Download failed</div>
+          <div className="text-gray-500 dark:text-gray-400 text-xs">
+            Try again or use Copy URL
+          </div>
+        </div>
+      )
+    }
+  }
   return (
     <div
       className={twMerge(
@@ -51,6 +76,14 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
         <p className="text-sm mb-4">{description}</p>
         {url ? (
           <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={handleDirectDownload}
+              className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-700"
+              aria-label="Download asset"
+            >
+              <FaDownload className="h-3 w-3" />
+              Download
+            </button>
             <button
               onClick={async () => {
                 try {

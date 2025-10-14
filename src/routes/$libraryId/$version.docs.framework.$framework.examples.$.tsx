@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import {
   queryOptions,
   useQuery,
@@ -44,7 +45,9 @@ const repoDirApiContentsQueryOptions = (
     staleTime: Infinity, // We can cache this forever. A refresh can invalidate the cache if necessary.
   })
 
-export const Route = createFileRoute({
+export const Route = createFileRoute(
+  '/$libraryId/$version/docs/framework/$framework/examples/$'
+)({
   component: RouteComponent,
   validateSearch: z.object({
     path: z.string().optional(),

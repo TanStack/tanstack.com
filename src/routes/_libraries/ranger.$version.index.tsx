@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import * as React from 'react'
 import { rangerProject } from '~/libraries/ranger'
 import { Footer } from '~/components/Footer'
@@ -15,7 +16,7 @@ import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
 const library = getLibrary('ranger')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/ranger/$version/')({
   component: VersionIndex,
   head: () => ({
     meta: seo({
@@ -28,7 +29,7 @@ export const Route = createFileRoute({
   },
 })
 
-export default function VersionIndex() {
+function VersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
   const branch = getBranch(rangerProject, version)

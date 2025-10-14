@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Footer } from '~/components/Footer'
 import { useMemo } from 'react'
@@ -5,7 +6,7 @@ import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
 import { FaRegCopy, FaDownload } from 'react-icons/fa'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/brand-guide')({
   component: RouteComponent,
   head: () => ({
     meta: seo({
@@ -157,7 +158,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
   )
 }
 
-export default function RouteComponent() {
+function RouteComponent() {
   const sections = useMemo(
     () => [
       {

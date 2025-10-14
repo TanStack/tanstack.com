@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
@@ -12,7 +13,7 @@ import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
 const library = getLibrary('store')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/store/$version/')({
   component: StoreVersionIndex,
   head: () => ({
     meta: seo({
@@ -25,7 +26,7 @@ export const Route = createFileRoute({
   },
 })
 
-export default function StoreVersionIndex() {
+function StoreVersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
 
   return (

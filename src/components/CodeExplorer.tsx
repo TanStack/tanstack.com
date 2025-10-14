@@ -118,7 +118,6 @@ export function CodeExplorer({
           />
           <div className="flex-1 overflow-auto relative">
             <CodeBlock
-              showTypeCopyButton={true}
               isEmbedded
               className={twMerge(
                 'h-full border-0',

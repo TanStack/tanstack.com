@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import {
   useQuery as useConvexQuery,
   useMutation as useConvexMutation,
@@ -34,7 +34,7 @@ type User = {
   adsDisabled?: boolean
 }
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/admin/users')({
   component: UsersPage,
   validateSearch: z.object({
     email: z.string().optional(),

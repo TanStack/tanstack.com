@@ -1,4 +1,4 @@
-import { getRouteApi } from '@tanstack/react-router'
+import { getRouteApi, createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { PartnersSection } from '~/components/PartnersSection'
@@ -14,7 +14,7 @@ import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
 const library = getLibrary('db')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/db/$version/')({
   component: DBVersionIndex,
   head: () => ({
     meta: seo({
@@ -27,7 +27,7 @@ export const Route = createFileRoute({
   },
 })
 
-export default function DBVersionIndex() {
+function DBVersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
 
   return (

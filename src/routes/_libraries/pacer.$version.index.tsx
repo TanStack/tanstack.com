@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
@@ -13,7 +14,7 @@ import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
 const library = getLibrary('pacer')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/pacer/$version/')({
   component: PacerVersionIndex,
   head: () => ({
     meta: seo({
@@ -26,7 +27,7 @@ export const Route = createFileRoute({
   },
 })
 
-export default function PacerVersionIndex() {
+function PacerVersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
   const { version } = Route.useParams()
 

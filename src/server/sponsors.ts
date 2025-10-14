@@ -1,7 +1,7 @@
 import { fetchCached } from '~/utils/cache.server'
 import { graphqlWithAuth } from '~/server/github'
 import { createServerFn } from '@tanstack/react-start'
-import { getEvent, setHeaders } from '@tanstack/react-start/server'
+import { setResponseHeaders } from '@tanstack/react-start/server'
 import sponsorMetaData from '~/utils/gh-sponsor-meta.json'
 import { extent, scaleLinear } from 'd3'
 
@@ -34,12 +34,12 @@ export const getSponsorsForSponsorPack = createServerFn({
     fn: getSponsors,
   })
 
-  if (!getEvent().handled) {
-    setHeaders({
-      'cache-control': 'public, max-age=0, must-revalidate',
-      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-    })
-  }
+  // In recent @tanstack/react-start versions, getEvent is no longer exported.
+  // Headers can be set unconditionally here; framework will merge appropriately.
+  setResponseHeaders({
+    'cache-control': 'public, max-age=0, must-revalidate',
+    'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+  })
 
   const amountExtent = extent(sponsors, (d) => d.amount).map((d) => d!)
   const scale = scaleLinear().domain(amountExtent).range([0, 1])

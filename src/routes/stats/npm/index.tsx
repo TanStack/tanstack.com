@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useDebouncedValue, useThrottledCallback } from '@tanstack/react-pacer'
 import {
@@ -56,7 +56,7 @@ export const packageComparisonSchema = z.object({
 const transformModeSchema = z.enum(['none', 'normalize-y'])
 const binTypeSchema = z.enum(['yearly', 'monthly', 'weekly', 'daily'])
 const showDataModeSchema = z.enum(['all', 'complete'])
-export const Route = createFileRoute({
+export const Route = createFileRoute('/stats/npm/')({
   validateSearch: z.object({
     packageGroups: z
       .array(packageGroupSchema)

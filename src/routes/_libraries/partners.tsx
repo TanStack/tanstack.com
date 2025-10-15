@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { partners } from '~/utils/partners'
 import { seo } from '~/utils/seo'
@@ -51,7 +52,7 @@ const librarySchema = z.enum([
 
 const statusSchema = z.enum(['active', 'inactive'])
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/partners')({
   component: RouteComp,
   validateSearch: z.object({
     libraries: z.array(librarySchema).optional().catch(undefined),
@@ -259,7 +260,7 @@ function PartnersFilter({
   )
 }
 
-export default function RouteComp() {
+function RouteComp() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
 

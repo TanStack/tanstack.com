@@ -8,9 +8,7 @@ import { betterAuthComponent } from '../../convex/auth'
 // You'll want to replace this with an environment variable
 const siteUrl = process.env.URL
 const convexSiteUrl =
-  process.env.NODE_ENV === 'production'
-    ? process.env.VITE_CONVEX_SITE_URL!
-    : 'http://upbeat-greyhound-631.convex.site'
+  process.env.VITE_CONVEX_SITE_URL || 'http://upbeat-greyhound-631.convex.site'
 
 export const createAuth = (ctx: GenericCtx) =>
   betterAuth({

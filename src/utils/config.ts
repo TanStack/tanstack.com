@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { fetchRepoFile } from './documents.server'
 import { createServerFn } from '@tanstack/react-start'
-import { setHeaders } from '@tanstack/react-start/server'
+import { setResponseHeaders } from '@tanstack/react-start/server'
 
 export type MenuItem = {
   label: string | React.ReactNode
@@ -52,7 +52,7 @@ export type ConfigSchema = z.infer<typeof configSchema>
   Fetch the config file for the project and validate it.
   */
 export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
-  .validator(
+  .inputValidator(
     z.object({ repo: z.string(), branch: z.string(), docsRoot: z.string() })
   )
   .handler(async ({ data: { repo, branch, docsRoot } }) => {
@@ -74,7 +74,7 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
         throw new Error('Zod validation failed')
       }
 
-      setHeaders({
+      setResponseHeaders({
         'cache-control': 'public, max-age=0, must-revalidate',
         'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
         'Netlify-Vary': 'query=payload',
@@ -82,6 +82,7 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
 
       return validationResult.data
     } catch (e) {
-      throw new Error('Invalid docs/config.json file')
+      console.error(e)
+      throw new Error('Invalid docs/config.json file', { cause: e })
     }
   })

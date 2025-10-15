@@ -3,11 +3,11 @@ import { useIsDark } from '~/hooks/useIsDark'
 import { FaGithub, FaGoogle } from 'react-icons/fa'
 // Using public asset URLs for splash images
 import { BrandContextMenu } from '~/components/BrandContextMenu'
-import { redirect } from '@tanstack/react-router'
+import { redirect, createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import { convexQuery } from '@convex-dev/react-query'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/login')({
   component: LoginPage,
   loader: async ({ context }) => {
     const user = await context.queryClient.ensureQueryData(

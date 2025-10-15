@@ -1,4 +1,4 @@
-import { Link, MatchRoute } from '@tanstack/react-router'
+import { Link, MatchRoute, createFileRoute } from '@tanstack/react-router'
 import { convexQuery } from '@convex-dev/react-query'
 import { api } from 'convex/_generated/api'
 import { twMerge } from 'tailwind-merge'
@@ -43,7 +43,7 @@ const courses = [
   },
 ]
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/')({
   loader: async ({ context: { queryClient } }) => {
     await queryClient.ensureQueryData(convexQuery(api.stats.getStats, {}))
 

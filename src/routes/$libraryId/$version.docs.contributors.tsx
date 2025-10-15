@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
@@ -13,7 +14,7 @@ import {
 import { MdViewList, MdViewModule, MdFormatListBulleted } from 'react-icons/md'
 import { useState } from 'react'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/$libraryId/$version/docs/contributors')({
   component: RouteComponent,
 })
 

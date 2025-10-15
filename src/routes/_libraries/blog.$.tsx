@@ -1,4 +1,4 @@
-import { Link, notFound } from '@tanstack/react-router'
+import { Link, notFound, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'
@@ -8,11 +8,11 @@ import { format } from 'date-fns'
 import { z } from 'zod'
 import { FaArrowLeft } from 'react-icons/fa'
 import { DocContainer } from '~/components/DocContainer'
-import { setHeaders } from '@tanstack/react-start/server'
+import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 
 const fetchBlogPost = createServerFn({ method: 'GET' })
-  .validator(z.string().optional())
+  .inputValidator(z.string().optional())
   .handler(async ({ data: docsPath }) => {
     if (!docsPath) {
       throw new Error('Invalid docs path')
@@ -26,7 +26,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
       throw notFound()
     }
 
-    setHeaders({
+    setResponseHeaders({
       'cache-control': 'public, max-age=0, must-revalidate',
       'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
       'Netlify-Vary': 'query=payload',
@@ -42,7 +42,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
     }
   })
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/blog/$')({
   staleTime: Infinity,
   loader: ({ params }) => fetchBlogPost({ data: params._splat }),
   head: ({ loaderData }) => {
@@ -67,7 +67,7 @@ export const Route = createFileRoute({
   component: BlogPost,
 })
 
-export default function BlogPost() {
+function BlogPost() {
   const { title, content, filePath, authors, published } = Route.useLoaderData()
 
   const blogContent = `_by ${formatAuthors(authors)} on ${format(

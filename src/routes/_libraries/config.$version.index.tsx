@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { FaCheckCircle } from 'react-icons/fa'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -13,7 +14,7 @@ import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
 const library = getLibrary('config')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/config/$version/')({
   component: FormVersionIndex,
   loader: async ({ context: { queryClient } }) => {
     await queryClient.ensureQueryData(ossStatsQuery({ library }))
@@ -26,7 +27,7 @@ export const Route = createFileRoute({
   }),
 })
 
-export default function FormVersionIndex() {
+function FormVersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
 
   return (

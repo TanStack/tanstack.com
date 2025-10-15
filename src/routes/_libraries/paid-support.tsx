@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { HiOutlineMail } from 'react-icons/hi'
 import { MdViewList, MdViewModule, MdFormatListBulleted } from 'react-icons/md'
@@ -10,7 +11,7 @@ import {
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/paid-support')({
   component: PaidSupportComp,
   staleTime: Infinity,
   head: () => ({

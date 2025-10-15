@@ -163,16 +163,20 @@ import { injectQuery } from '@tanstack/angular-query-experimental'
 
 @Component({
   selector: 'todos',
-  standalone: true,
   template: \`
-    <ng-container *ngIf="todos.isPending()">
+    @if (todos.isPending()) {
       Loading...
-    </ng-container>
-    <ul *ngIf="todos.data() as data">
-      <li *ngFor="let t of data">
-        {{ t.title }}
-      </li>
-    </ul>
+    } @else if (todos.isError()) {
+      Oops!
+    } @else {
+      <ul>
+        @for (t of todos.data(); track t.id) {
+          <li>
+            {{ t.title }}
+          </li>
+        }
+      </ul>
+    }
   \`,
 })
 export class TodosComponent {

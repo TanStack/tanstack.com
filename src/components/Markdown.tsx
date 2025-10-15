@@ -109,7 +109,7 @@ mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
 
 export function CodeBlock({
   isEmbedded,
-  showTypeCopyButton,
+  showTypeCopyButton = true,
   ...props
 }: React.HTMLProps<HTMLPreElement> & {
   isEmbedded?: boolean

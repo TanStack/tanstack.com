@@ -222,6 +222,7 @@ export function DocsLayout({
                   </a>
                 ) : (
                   <Link
+                    from="/$libraryId/$version/docs"
                     to={child.to}
                     params
                     onClick={() => {
@@ -364,6 +365,7 @@ export function DocsLayout({
             <div className="w-1/2 px-1 flex justify-end flex-wrap">
               {prevItem ? (
                 <Link
+                  from="/$libraryId/$version/docs"
                   to={prevItem.to}
                   params
                   className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
@@ -378,6 +380,7 @@ export function DocsLayout({
             <div className="w-1/2 px-1 flex justify-start flex-wrap">
               {nextItem ? (
                 <Link
+                  from="/$libraryId/$version/docs"
                   to={nextItem.to}
                   params
                   className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"

@@ -8,7 +8,7 @@ import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import { CodeBlock } from '~/components/Markdown'
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { BottomCTA } from '~/components/BottomCTA'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
@@ -18,7 +18,7 @@ import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 
 const library = getLibrary('router')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/router/$version/')({
   component: RouterVersionIndex,
   head: () => ({
     meta: seo({

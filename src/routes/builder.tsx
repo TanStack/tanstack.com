@@ -1,9 +1,9 @@
 import { convexQuery } from '@convex-dev/react-query'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { redirect } from '@tanstack/react-router'
+import { redirect, createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/builder')({
   component: RouteComponent,
   loader: async (opts) => {
     const user = await opts.context.ensureUser()

@@ -1,9 +1,9 @@
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { FaLock, FaUsers, FaChartBar } from 'react-icons/fa'
 import { useQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/admin/')({
   component: AdminPage,
 })
 

@@ -3,7 +3,6 @@
   "private": true,
   "sideEffects": false,
   "repository": "https://github.com/TanStack/tanstack.com.git",
-  "packageManager": "pnpm@9.4.0",
   "type": "module",
   "scripts": {
     "dev": "npm-run-all --parallel dev:frontend dev:backend",

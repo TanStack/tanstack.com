@@ -141,9 +141,9 @@ function Index() {
               </p>
             </div>
           </div>
-        <div className="w-fit mx-auto px-4">
-          <OpenSourceStats />
-        </div>
+          <div className="w-fit mx-auto px-4">
+            <OpenSourceStats />
+          </div>
         </div>
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>

@@ -170,10 +170,9 @@ function Index() {
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `border-2 border-transparent rounded-xl shadow-md p-8 transition-all duration-300
-                          bg-white/90 dark:bg-black/40 backdrop-blur-sm
-                          dark:border-gray-800/50`,
-                          'hover:shadow-lg',
+                          `border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-8 transition-all duration-300
+                          bg-white/90 dark:bg-black/40 backdrop-blur-sm`,
+                          'hover:shadow-2xl hover:shadow-current/20 hover:border-current/50 hover:-translate-y-1',
                           'relative group',
                           'min-h-[250px] xl:min-h-[220px]',
                           library.cardStyles
@@ -227,7 +226,7 @@ function Index() {
 
                         {/* Foreground content that appears on hover */}
                         <div
-                          className="absolute inset-0 z-30 bg-white/95 dark:bg-black/95 p-6
+                          className="absolute inset-0 z-30 bg-white/95 dark:bg-black/95 p-6 rounded-xl
                           backdrop-blur-sm flex flex-col justify-center opacity-0 group-hover:opacity-100
                           transition-opacity duration-300"
                         >
@@ -263,7 +262,7 @@ function Index() {
                           <>
                             <div
                               className={twMerge(
-                                `absolute -top-2 -right-2 z-20 px-2 py-1 rounded-md`,
+                                `absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md`,
                                 [
                                   'bg-gradient-to-r',
                                   library.colorFrom,

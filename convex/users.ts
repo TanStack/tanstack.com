@@ -48,63 +48,70 @@ export const listUsers = query({
   args: {
     pagination: v.object({
       limit: v.number(),
-      cursor: v.optional(v.union(v.string(), v.null())),
+      page: v.optional(v.number()),
     }),
     emailFilter: v.optional(v.string()),
+    capabilityFilter: v.optional(
+      v.union(v.literal('admin'), v.literal('disableAds'), v.literal('builder'))
+    ),
+    adsDisabledFilter: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     // Validate admin capability
     await requireCapability(ctx, 'admin')
 
     const limit = args.pagination.limit
-    const cursor = args.pagination.cursor ?? null
+    const pageIndex = args.pagination.page ?? 0
 
     const emailFilter = args.emailFilter ?? ''
 
-    if (emailFilter && emailFilter.length > 0) {
-      // Prefix range over email using index
-      return await ctx.db
-        .query('users')
-        .withSearchIndex('search_email', (q) => q.search('email', emailFilter))
-        .paginate({
-          numItems: limit,
-          cursor,
-        })
-    }
+    // Collect users (email search when provided), then filter/sort in-memory
+    const candidates =
+      emailFilter && emailFilter.length > 0
+        ? await ctx.db
+            .query('users')
+            .withSearchIndex('search_email', (q2) =>
+              q2.search('email', emailFilter)
+            )
+            .collect()
+        : await ctx.db.query('users').collect()
 
-    // Return paginated users without filter
-    return await ctx.db.query('users').order('desc').paginate({
-      numItems: limit,
-      cursor,
+    // Stable newest-first ordering
+    candidates.sort((a: any, b: any) => b._creationTime - a._creationTime)
+
+    const filtered = candidates.filter((user: any) => {
+      if (args.capabilityFilter) {
+        if (
+          !Array.isArray(user.capabilities) ||
+          !user.capabilities.includes(args.capabilityFilter)
+        ) {
+          return false
+        }
+      }
+      if (typeof args.adsDisabledFilter === 'boolean') {
+        if (Boolean(user.adsDisabled) !== args.adsDisabledFilter) return false
+      }
+      return true
     })
-  },
-})
 
-export const countUsers = query({
-  args: {
-    emailFilter: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    // Validate admin capability
-    await requireCapability(ctx, 'admin')
+    const start = Math.max(0, pageIndex * limit)
+    const end = start + limit
+    const page = filtered.slice(start, end)
+    const hasMore = end < filtered.length
 
-    const total = (await ctx.db.query('users').collect()).length
-
-    const emailFilter = args.emailFilter ?? ''
-
-    if (emailFilter && emailFilter.length > 0) {
-      const filtered = (
-        await ctx.db
-          .query('users')
-          .withSearchIndex('search_email', (q) =>
-            q.search('email', emailFilter)
-          )
-          .collect()
-      ).length
-      return { total, filtered }
+    return {
+      page,
+      isDone: !hasMore,
+      counts: {
+        total: (await ctx.db.query('users').collect()).length,
+        filtered: filtered.length,
+        pages: Math.max(1, Math.ceil(filtered.length / limit)),
+      },
     }
   },
 })
+
+// countUsers removed; counts are included in listUsers response
 
 // Helper function to validate user capability
 async function requireCapability(ctx: QueryCtx, capability: Capability) {

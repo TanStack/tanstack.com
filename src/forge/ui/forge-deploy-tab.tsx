@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useAction } from 'convex/react'
 import { api } from 'convex/_generated/api'
-import { useWebContainer } from '~/forge/hooks/use-web-container'
-import type { FileSystemTree } from '@webcontainer/api'
 
 interface ForgeDeployTabProps {
   projectFiles: Array<{ path: string; content: string }>
@@ -11,24 +9,36 @@ interface ForgeDeployTabProps {
 
 type DeploymentStep =
   | 'idle'
-  | 'mounting'
-  | 'installing'
-  | 'building'
+  | 'preparing'
   | 'deploying'
+  | 'checking'
   | 'success'
   | 'error'
+
+type DeploymentResult = {
+  url: string
+  adminUrl?: string
+  claimUrl?: string
+  siteId?: string
+  deployId?: string
+  buildId?: string
+  siteName?: string
+  buildStatus?: string
+}
 
 export function ForgeDeployTab({
   projectFiles,
   projectName,
 }: ForgeDeployTabProps) {
-  const webContainer = useWebContainer()
   const [deploymentStep, setDeploymentStep] = useState<DeploymentStep>('idle')
   const [statusMessage, setStatusMessage] = useState<string>('')
   const [terminalOutput, setTerminalOutput] = useState<string[]>([])
-  const [deployedUrl, setDeployedUrl] = useState<string | null>(null)
+  const [deploymentResult, setDeploymentResult] =
+    useState<DeploymentResult | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const deployToNetlify = useAction(api.netlifyDeploy.deployToNetlify)
+  const checkBuildStatus = useAction(api.netlifyDeploy.checkBuildStatus)
+  const [isClaimable, setIsClaimable] = useState(false)
 
   // Use ref to prevent race conditions from double useEffect calls
   const isDeploying = useRef(false)
@@ -49,34 +59,10 @@ export function ForgeDeployTab({
     }
   }, [terminalOutput])
 
-  const processTerminalLine = (data: string): string => {
-    // Simple clean up of terminal output - remove common ANSI codes
-    let cleaned = data
-
-    // Remove common ANSI escape sequences
-    cleaned = cleaned.replace(/\u001b\[[\d;]*m/g, '') // Color codes
-    cleaned = cleaned.replace(/\u001b\[[\d;]*[A-Za-z]/g, '') // Cursor/display codes
-    cleaned = cleaned.replace(/\u001b\][\d;]*;[^\u0007]*\u0007/g, '') // Title codes
-
-    // Remove non-printable characters except newlines and tabs
-    cleaned = cleaned.replace(
-      /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/g,
-      ''
-    )
-
-    return cleaned.trim()
-  }
-
   const handleDeploy = async () => {
     if (!projectFiles || projectFiles.length === 0) {
       console.error('No project files to deploy')
       setErrorMessage('No project files to deploy')
-      return
-    }
-
-    if (!webContainer) {
-      console.error('WebContainer not ready')
-      setErrorMessage('WebContainer not ready. Please try again.')
       return
     }
 
@@ -86,58 +72,128 @@ export function ForgeDeployTab({
     }
 
     isDeploying.current = true
-    setDeploymentStep('mounting')
-    setDeployedUrl(null)
+    setDeploymentStep('preparing')
+    setDeploymentResult(null)
     setErrorMessage(null)
     setTerminalOutput([])
+    setIsClaimable(false)
 
     try {
-      // Step 1: Set up webcontainer with project files
-      setStatusMessage('Setting up project files...')
-      addTerminalOutput('📁 Setting up project files...')
-      await setupWebContainerFiles(webContainer, projectFiles)
-
-      // Step 2: Install dependencies
-      setDeploymentStep('installing')
-      setStatusMessage('Installing dependencies...')
-      addTerminalOutput('📦 Installing dependencies...')
-      await installDependencies(
-        webContainer,
-        addTerminalOutput,
-        processTerminalLine
+      // Step 1: Create ZIP from source files (excluding node_modules)
+      setStatusMessage('Preparing deployment package...')
+      addTerminalOutput('📦 Creating deployment package from source files...')
+      const zipBlob = await createZipFromSourceFiles(projectFiles)
+      console.log('ZIP created, size:', zipBlob.size)
+      addTerminalOutput(
+        `✅ Package created: ${(zipBlob.size / 1024 / 1024).toFixed(2)} MB`
       )
 
-      // Step 3: Build the project
-      setDeploymentStep('building')
-      setStatusMessage('Building project...')
-      addTerminalOutput('🔨 Building project...')
-      await buildProject(webContainer, addTerminalOutput, processTerminalLine)
-
-      // Step 4: Create ZIP from build output
+      // Step 2: Convert blob to base64 for Convex
       setDeploymentStep('deploying')
-      setStatusMessage('Creating deployment package...')
-      addTerminalOutput('📦 Creating deployment package...')
-      const zipBlob = await createZipFromWebContainer(webContainer)
-      console.log('ZIP created, size:', zipBlob.size)
-
-      // Step 5: Convert blob to base64 for Convex
       addTerminalOutput('🔄 Converting to base64...')
       const zipBase64 = await blobToBase64(zipBlob)
 
-      // Step 6: Deploy to Netlify via Convex
-      addTerminalOutput('🚀 Deploying to Netlify...')
+      // Step 3: Deploy to Netlify via Convex using Build API
+      setStatusMessage('Deploying to Netlify...')
+      addTerminalOutput('🚀 Uploading to Netlify and triggering build...')
       const deployResult = await deployToNetlify({
         zipBase64,
         siteName: projectName?.replace(/\s+/g, '_') || 'forge-project',
+        deployTitle: `${
+          projectName || 'TanStack Forge Project'
+        } - ${new Date().toLocaleString()}`,
       })
 
-      setDeployedUrl(deployResult.url)
-      setDeploymentStep('success')
-      setStatusMessage('Deployment successful!')
-      addTerminalOutput(`✅ Deployment successful! URL: ${deployResult.url}`)
+      setDeploymentResult(deployResult)
 
-      // Open deployed site in new tab
-      window.open(deployResult.url, '_blank')
+      // Check if the site is claimable (has a claim URL)
+      if (deployResult.claimUrl) {
+        setIsClaimable(true)
+        addTerminalOutput(`🔗 Site can be claimed at: ${deployResult.claimUrl}`)
+      }
+
+      // Step 4: Poll for build completion if we have the necessary IDs
+      if (deployResult.siteId && deployResult.deployId) {
+        setDeploymentStep('checking')
+        setStatusMessage('Checking build status...')
+        addTerminalOutput('⏳ Waiting for build to complete...')
+
+        // Poll for build status
+        let attempts = 0
+        const maxAttempts = 30 // 30 seconds max
+        const pollInterval = 1000 // 1 second
+
+        const checkStatus = async () => {
+          try {
+            const status = await checkBuildStatus({
+              siteId: deployResult.siteId!,
+              deployId: deployResult.deployId!,
+            })
+
+            if (status.state === 'ready') {
+              setDeploymentStep('success')
+              setStatusMessage('Deployment successful!')
+              addTerminalOutput(
+                `✅ Build completed! Site is live at: ${
+                  status.url || deployResult.url
+                }`
+              )
+              if (status.url) {
+                setDeploymentResult((prev) => ({ ...prev!, url: status.url }))
+              }
+              // Open deployed site in new tab
+              window.open(status.url || deployResult.url, '_blank')
+              return true
+            } else if (status.state === 'error') {
+              throw new Error(status.errorMessage || 'Build failed')
+            } else {
+              addTerminalOutput(`⏳ Build status: ${status.state}`)
+              return false
+            }
+          } catch (error) {
+            console.error('Error checking build status:', error)
+            // If we can't check status, assume success after initial deploy
+            if (attempts > 5) {
+              setDeploymentStep('success')
+              setStatusMessage('Deployment initiated successfully!')
+              addTerminalOutput(
+                `✅ Deployment initiated! URL: ${deployResult.url}`
+              )
+              window.open(deployResult.url, '_blank')
+              return true
+            }
+            return false
+          }
+        }
+
+        // Initial check
+        const isReady = await checkStatus()
+        if (!isReady && attempts < maxAttempts) {
+          // Continue polling
+          const pollTimer = setInterval(async () => {
+            attempts++
+            const ready = await checkStatus()
+            if (ready || attempts >= maxAttempts) {
+              clearInterval(pollTimer)
+              if (attempts >= maxAttempts && !ready) {
+                // Timeout - show success anyway since deploy was initiated
+                setDeploymentStep('success')
+                setStatusMessage('Deployment initiated successfully!')
+                addTerminalOutput(
+                  `✅ Deployment initiated! The build may still be processing.`
+                )
+                window.open(deployResult.url, '_blank')
+              }
+            }
+          }, pollInterval)
+        }
+      } else {
+        // No status checking available, just show success
+        setDeploymentStep('success')
+        setStatusMessage('Deployment successful!')
+        addTerminalOutput(`✅ Deployment successful! URL: ${deployResult.url}`)
+        window.open(deployResult.url, '_blank')
+      }
     } catch (error) {
       console.error('Deployment error:', error)
       setDeploymentStep('error')
@@ -152,14 +208,12 @@ export function ForgeDeployTab({
     switch (step) {
       case 'idle':
         return '🚀'
-      case 'mounting':
-        return '📁'
-      case 'installing':
+      case 'preparing':
         return '📦'
-      case 'building':
-        return '🔨'
       case 'deploying':
         return '🚀'
+      case 'checking':
+        return '⏳'
       case 'success':
         return '✅'
       case 'error':
@@ -182,14 +236,12 @@ export function ForgeDeployTab({
 
   const getButtonText = () => {
     switch (deploymentStep) {
-      case 'mounting':
-        return 'Setting up files...'
-      case 'installing':
-        return 'Installing dependencies...'
-      case 'building':
-        return 'Building...'
+      case 'preparing':
+        return 'Preparing files...'
       case 'deploying':
         return 'Deploying...'
+      case 'checking':
+        return 'Checking build status...'
       case 'success':
         return 'Deploy Again'
       case 'error':
@@ -215,19 +267,6 @@ export function ForgeDeployTab({
       default:
         return `${baseClass} bg-gradient-to-r to-blue-500 from-cyan-600 hover:to-blue-600 hover:from-cyan-600 text-white`
     }
-  }
-
-  if (!webContainer) {
-    return (
-      <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="text-4xl mb-4">⏳</div>
-          <div className="text-lg font-medium text-gray-700 dark:text-gray-300">
-            Initializing WebContainer...
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -266,16 +305,54 @@ export function ForgeDeployTab({
             </div>
           )}
 
-          {deploymentStep === 'success' && deployedUrl && (
-            <div className="mt-3">
+          {deploymentStep === 'success' && deploymentResult && (
+            <div className="mt-3 space-y-2">
               <a
-                href={deployedUrl}
+                href={deploymentResult.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-green-600 hover:text-green-700 hover:underline"
+                className="block text-sm text-green-600 hover:text-green-700 hover:underline"
               >
                 🌐 View deployed site →
               </a>
+              {isClaimable && deploymentResult.claimUrl && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                  <p className="text-xs text-blue-700 dark:text-blue-400 mb-2">
+                    This site can be claimed to your Netlify account:
+                  </p>
+                  <a
+                    href={deploymentResult.claimUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                    Claim this site on Netlify
+                  </a>
+                </div>
+              )}
+              {deploymentResult.adminUrl && (
+                <a
+                  href={deploymentResult.adminUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-xs text-gray-600 dark:text-gray-400 hover:underline"
+                >
+                  View in Netlify Admin →
+                </a>
+              )}
             </div>
           )}
 
@@ -292,49 +369,34 @@ export function ForgeDeployTab({
             <div className="flex justify-center gap-8 text-sm">
               <div
                 className={`flex items-center gap-2 ${
-                  deploymentStep === 'mounting'
-                    ? 'text-blue-500'
-                    : deploymentStep === 'installing' ||
-                      deploymentStep === 'building' ||
-                      deploymentStep === 'deploying' ||
-                      deploymentStep === 'success'
-                    ? 'text-green-500'
-                    : 'text-gray-400'
-                }`}
-              >
-                <div className="w-3 h-3 rounded-full bg-current"></div>
-                Setup Files
-              </div>
-              <div
-                className={`flex items-center gap-2 ${
-                  deploymentStep === 'installing'
-                    ? 'text-blue-500'
-                    : deploymentStep === 'building' ||
-                      deploymentStep === 'deploying' ||
-                      deploymentStep === 'success'
-                    ? 'text-green-500'
-                    : 'text-gray-400'
-                }`}
-              >
-                <div className="w-3 h-3 rounded-full bg-current"></div>
-                Install Dependencies
-              </div>
-              <div
-                className={`flex items-center gap-2 ${
-                  deploymentStep === 'building'
+                  deploymentStep === 'preparing'
                     ? 'text-blue-500'
                     : deploymentStep === 'deploying' ||
+                      deploymentStep === 'checking' ||
                       deploymentStep === 'success'
                     ? 'text-green-500'
                     : 'text-gray-400'
                 }`}
               >
                 <div className="w-3 h-3 rounded-full bg-current"></div>
-                Build Project
+                Prepare Package
               </div>
               <div
                 className={`flex items-center gap-2 ${
                   deploymentStep === 'deploying'
+                    ? 'text-blue-500'
+                    : deploymentStep === 'checking' ||
+                      deploymentStep === 'success'
+                    ? 'text-green-500'
+                    : 'text-gray-400'
+                }`}
+              >
+                <div className="w-3 h-3 rounded-full bg-current"></div>
+                Upload to Netlify
+              </div>
+              <div
+                className={`flex items-center gap-2 ${
+                  deploymentStep === 'checking'
                     ? 'text-blue-500'
                     : deploymentStep === 'success'
                     ? 'text-green-500'
@@ -342,7 +404,17 @@ export function ForgeDeployTab({
                 }`}
               >
                 <div className="w-3 h-3 rounded-full bg-current"></div>
-                Deploy to Netlify
+                Building on Netlify
+              </div>
+              <div
+                className={`flex items-center gap-2 ${
+                  deploymentStep === 'success'
+                    ? 'text-green-500'
+                    : 'text-gray-400'
+                }`}
+              >
+                <div className="w-3 h-3 rounded-full bg-current"></div>
+                Live
               </div>
             </div>
           </div>
@@ -384,137 +456,67 @@ export function ForgeDeployTab({
   )
 }
 
-// Helper function to set up webcontainer with project files
-async function setupWebContainerFiles(
-  webContainer: any,
+// Helper function to create ZIP from source files (excluding node_modules)
+async function createZipFromSourceFiles(
   projectFiles: Array<{ path: string; content: string }>
-): Promise<void> {
-  // Build FileSystemTree from project files
-  const fileSystemTree: FileSystemTree = {}
+): Promise<Blob> {
+  try {
+    console.log('Loading JSZip...')
+    const JSZip = (await import('jszip')).default
+    const zip = new JSZip()
 
-  projectFiles.forEach(({ path, content }) => {
-    // Clean and split the path
-    const cleanPath = path.replace(/^\.?\//, '')
-    const pathParts = cleanPath.split('/')
+    console.log(`Creating zip from ${projectFiles.length} source files...`)
 
-    // Navigate to the correct location in the tree
-    let current: any = fileSystemTree
+    // Filter out files we don't want to deploy
+    const filesToZip = projectFiles.filter(({ path }) => {
+      // Exclude node_modules and other build artifacts
+      if (path.includes('node_modules/')) return false
+      if (path.includes('.git/')) return false
+      if (path.includes('dist/')) return false
+      if (path.includes('.output/')) return false
+      if (path.includes('.cache/')) return false
+      if (path.includes('.tmp/')) return false
 
-    for (let i = 0; i < pathParts.length - 1; i++) {
-      const part = pathParts[i]
-      if (!current[part]) {
-        current[part] = { directory: {} }
+      // Include everything else
+      return true
+    })
+
+    console.log(
+      `Zipping ${filesToZip.length} files (excluded node_modules and build artifacts)`
+    )
+
+    for (const { path, content } of filesToZip) {
+      // Clean up path (remove leading ./ or /)
+      const cleanPath = path.replace(/^\.?\//, '')
+
+      // Handle binary files that are base64 encoded
+      if (content.startsWith('base64::')) {
+        zip.file(cleanPath, content.replace('base64::', ''), { base64: true })
+      } else {
+        // Text files
+        zip.file(cleanPath, content)
       }
-      current = current[part].directory
     }
 
-    // Add the file
-    const fileName = pathParts[pathParts.length - 1]
-    if (content.startsWith('base64::')) {
-      current[fileName] = {
-        file: {
-          contents: content.replace('base64::', ''),
-          encoding: 'base64',
-        },
-      }
-    } else {
-      current[fileName] = {
-        file: {
-          contents: String(content),
-        },
-      }
-    }
-  })
-
-  // Mount the files to the webcontainer
-  await webContainer.mount(fileSystemTree)
-  console.log('Files mounted successfully')
-}
-
-// Helper function to install dependencies
-async function installDependencies(
-  webContainer: any,
-  addTerminalOutput: (message: string) => void,
-  processTerminalLine: (data: string) => string
-): Promise<void> {
-  const installProcess = await webContainer.spawn('pnpm', ['install'])
-
-  installProcess.output.pipeTo(
-    new WritableStream({
-      write(data) {
-        const cleaned = processTerminalLine(data)
-        if (cleaned) {
-          addTerminalOutput(cleaned)
-        }
+    console.log('Generating ZIP blob...')
+    const blob = await zip.generateAsync({
+      type: 'blob',
+      compression: 'DEFLATE',
+      compressionOptions: {
+        level: 6, // Balanced compression
       },
     })
-  )
 
-  const installExitCode = await installProcess.exit
-  if (installExitCode !== 0) {
-    throw new Error(`pnpm install failed with exit code ${installExitCode}`)
-  }
-  console.log('Dependencies installed')
-}
-
-// Helper function to build the project
-async function buildProject(
-  webContainer: any,
-  addTerminalOutput: (message: string) => void,
-  processTerminalLine: (data: string) => string
-): Promise<void> {
-  const buildProcess = await webContainer.spawn('npm', ['run', 'build'], {
-    env: {
-      CI: 'true',
-      FORCE_COLOR: '0',
-      NO_COLOR: '1',
-    },
-  })
-
-  let buildCompleted = false
-  const buildPromise = new Promise<void>((resolve, reject) => {
-    buildProcess.output.pipeTo(
-      new WritableStream({
-        write(data) {
-          const cleaned = processTerminalLine(data)
-          if (cleaned) {
-            addTerminalOutput(cleaned)
-          }
-          console.log(
-            'cleaned',
-            cleaned,
-            cleaned.includes('successfully built')
-          )
-
-          if (cleaned && cleaned.includes('successfully built')) {
-            console.log('Resolved promise')
-            buildCompleted = true
-            resolve()
-          }
-        },
-      })
+    console.log(
+      `ZIP blob generated successfully: ${(blob.size / 1024 / 1024).toFixed(
+        2
+      )} MB`
     )
-  })
-
-  // Wait for build to complete or timeout
-  await Promise.race([
-    buildPromise,
-    new Promise((_, reject) => {
-      setTimeout(() => {
-        if (!buildCompleted) {
-          reject(new Error('Build process timed out'))
-        }
-      }, 60000) // 60 second timeout
-    }),
-  ])
-
-  console.log('Got to the end of the build promise')
-
-  // const buildExitCode = await buildProcess.exit
-  // if (buildExitCode !== 0) {
-  //   throw new Error(`Build failed with exit code ${buildExitCode}`)
-  // }
-  console.log('Build completed successfully')
+    return blob
+  } catch (error) {
+    console.error('Error creating ZIP:', error)
+    throw error
+  }
 }
 
 // Helper function to convert blob to base64
@@ -528,94 +530,6 @@ async function blobToBase64(blob: Blob): Promise<string> {
     reader.onerror = reject
     reader.readAsDataURL(blob)
   })
-}
-
-// Helper function to create ZIP from webcontainer build output
-async function createZipFromWebContainer(webContainer: any): Promise<Blob> {
-  try {
-    console.log('Loading JSZip...')
-    const JSZip = (await import('jszip')).default
-    const zip = new JSZip()
-
-    console.log('Reading dist directory...')
-    // Read the dist directory from the web container
-    const distFiles = await readDistDirectory(webContainer)
-
-    console.log(`Found ${Object.keys(distFiles).length} files to zip`)
-
-    for (const [path, content] of Object.entries(distFiles)) {
-      // Handle binary files properly (NOT svg - that's text/xml)
-      if (path.match(/\.(jpg|jpeg|png|gif|ico|woff|woff2|ttf|eot|pdf)$/i)) {
-        // For binary files, content is already base64 encoded
-        zip.file(path, content, { base64: true })
-      } else {
-        // For text files (js, css, html, svg, json, etc)
-        zip.file(path, content as string)
-      }
-    }
-
-    console.log('Generating ZIP blob...')
-    const blob = await zip.generateAsync({
-      type: 'blob',
-      compression: 'DEFLATE',
-    })
-    console.log('ZIP blob generated successfully')
-    return blob
-  } catch (error) {
-    console.error('Error creating ZIP:', error)
-    throw error
-  }
-}
-
-// Helper function to read the dist directory from webcontainer
-async function readDistDirectory(
-  webContainer: any
-): Promise<Record<string, string | ArrayBuffer>> {
-  const files: Record<string, string | ArrayBuffer> = {}
-
-  // Read all files in the dist directory
-  async function readDir(path: string) {
-    try {
-      const dirContents = await webContainer.fs.readdir(path, {
-        withFileTypes: true,
-      })
-
-      for (const item of dirContents) {
-        const fullPath = `${path}/${item.name}`
-
-        if (item.isDirectory()) {
-          await readDir(fullPath)
-        } else {
-          try {
-            // Check if it's a binary file (NOT js/css - those are text!)
-            const isBinary = fullPath.match(
-              /\.(jpg|jpeg|png|gif|ico|woff|woff2|ttf|eot|pdf)$/i
-            )
-
-            if (isBinary) {
-              // Read binary files as base64
-              const content = await webContainer.fs.readFile(fullPath, 'base64')
-              const relativePath = fullPath.replace(/^dist\//, '')
-              files[relativePath] = content
-            } else {
-              // Read text files as UTF-8 (includes .js, .css, .html, .svg, etc)
-              const content = await webContainer.fs.readFile(fullPath, 'utf-8')
-              const relativePath = fullPath.replace(/^dist\//, '')
-              files[relativePath] = content
-            }
-          } catch (fileError) {
-            console.error(`Error reading file ${fullPath}:`, fileError)
-          }
-        }
-      }
-    } catch (dirError) {
-      console.error(`Error reading directory ${path}:`, dirError)
-      throw dirError
-    }
-  }
-
-  await readDir('.output')
-  return files
 }
 
 // Simple rocket icon component

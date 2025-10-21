@@ -1,7 +1,13 @@
+/**
+ * Uppercases the first character of a string and returns the result.
+ */
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
+/**
+ * Converts a kebab-case slug (eg. "my-example") into a Title Case string.
+ */
 export function slugToTitle(str: string) {
   return str
     .split('-')
@@ -18,11 +24,18 @@ export function slugToTitle(str: string) {
 //   },
 // }
 
+/**
+ * Returns the last element from an array.
+ */
 export function last<T>(arr: T[]) {
   return arr[arr.length - 1]
 }
 
-// Generates path replacing tokens with params
+/**
+ * Generates a route path by replacing token segments in an id with params.
+ * The id uses dot-notation which is converted to slashes; `$param` tokens are
+ * replaced from `params`, and `$*` is treated as the catch-all segment.
+ */
 export function generatePath(
   id: string,
   params: Record<string, string | undefined>
@@ -36,6 +49,9 @@ export function generatePath(
   return result
 }
 
+/**
+ * Returns a shallow-copied array with items shuffled.
+ */
 export function shuffle<T>(arr: T[]) {
   const random = Math.random()
   const result = arr.slice()
@@ -50,10 +66,18 @@ export function shuffle<T>(arr: T[]) {
   return result
 }
 
+/**
+ * Returns a single random element from an array. Accepts an optional
+ * `random` function for deterministic tests.
+ */
 export function sample(arr: any[], random = Math.random()) {
   return arr[Math.floor(random * arr.length)]
 }
 
+/**
+ * Sorts an array by a computed value. Undefined values are ordered last and
+ * numeric strings are coerced to numbers for intuitive sorting.
+ */
 export function sortBy<T>(arr: T[], accessor: (d: T) => any = (d) => d): T[] {
   return arr
     .map((d: any, i: any) => [d, i])
@@ -76,6 +100,9 @@ export function sortBy<T>(arr: T[], accessor: (d: T) => any = (d) => d): T[] {
     .map((d: any) => d[0])
 }
 
+/**
+ * Returns true if the string fully represents a number (no extra characters).
+ */
 export function isNumericString(str: string): boolean {
   if (typeof str !== 'string') {
     return false // we only process strings!
@@ -134,6 +161,10 @@ export function removeLeadingSlash(path: string): string {
   return path.replace(/^\//, '')
 }
 
+/**
+ * Measures and logs the execution time of the provided function and returns
+ * its result. Works with both sync and async functions.
+ */
 export async function logTime<T>(
   lable: string,
   fn: () => T

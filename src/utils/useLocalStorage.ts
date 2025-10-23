@@ -22,6 +22,13 @@ function getWithExpiry<T>(key: string) {
   }
 }
 
+/**
+ * React state that persists to `localStorage` (with optional TTL).
+ *
+ * - `key`: localStorage key to read/write
+ * - `defaultValue`: initial value if no stored value
+ * - `ttl` (ms): optional time-to-live; expired values are cleared and ignored
+ */
 export function useLocalStorage<T>(
   key: string,
   defaultValue: T,

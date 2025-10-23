@@ -4,11 +4,12 @@ const KEY_LENGTH = 32
 
 // Helper function to convert hex string to Uint8Array
 function hexToUint8Array(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2)
+  const buffer = new ArrayBuffer(hex.length / 2)
+  const bytes = new Uint8Array(buffer)
   for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.substr(i, 2), 16)
+    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16)
   }
-  return bytes
+  return bytes as Uint8Array
 }
 
 // Helper function to convert Uint8Array to hex string
@@ -37,7 +38,7 @@ async function getEncryptionKey(): Promise<CryptoKey> {
 
   return await crypto.subtle.importKey(
     'raw',
-    keyBytes,
+    keyBytes as BufferSource,
     { name: ALGORITHM },
     false,
     ['encrypt', 'decrypt']
@@ -46,7 +47,8 @@ async function getEncryptionKey(): Promise<CryptoKey> {
 
 export async function encryptApiKey(apiKey: string): Promise<string> {
   const key = await getEncryptionKey()
-  const iv = crypto.getRandomValues(new Uint8Array(12)) // 12 bytes for GCM
+  const ivBuffer = new ArrayBuffer(12)
+  const iv = crypto.getRandomValues(new Uint8Array(ivBuffer)) // 12 bytes for GCM
   const encoder = new TextEncoder()
   const data = encoder.encode(apiKey)
 
@@ -79,10 +81,10 @@ export async function decryptApiKey(encryptedData: string): Promise<string> {
   const decrypted = await crypto.subtle.decrypt(
     {
       name: ALGORITHM,
-      iv: iv,
+      iv: iv as BufferSource,
     },
     key,
-    encrypted
+    encrypted as BufferSource
   )
 
   const decoder = new TextDecoder()

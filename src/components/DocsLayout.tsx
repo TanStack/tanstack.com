@@ -74,6 +74,14 @@ const useMenuConfig = ({
         label: 'Contributors',
         to: '/$libraryId/$version/docs/contributors',
       },
+      ...(config.sections.find((d) => d.label === 'Community Resources')
+        ? [
+            {
+              label: 'Community Resources',
+              to: '/$libraryId/$version/docs/community-resources',
+            },
+          ]
+        : []),
       {
         label: (
           <div className="flex items-center gap-2">

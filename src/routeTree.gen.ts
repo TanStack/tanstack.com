@@ -61,6 +61,7 @@ import { Route as LibrariesConfigVersionIndexRouteImport } from './routes/_libra
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
 import { Route as LibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryIdVersionDocsContributorsRouteImport } from './routes/$libraryId/$version.docs.contributors'
+import { Route as LibraryIdVersionDocsCommunityResourcesDotmdRouteImport } from './routes/$libraryId/$version.docs.community-resources[.]md'
 import { Route as LibraryIdVersionDocsSplatRouteImport } from './routes/$libraryId/$version.docs.$'
 import { Route as LibraryIdVersionDocsFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.index'
 import { Route as LibraryIdVersionDocsFrameworkFrameworkIndexRouteImport } from './routes/$libraryId/$version.docs.framework.$framework.index'
@@ -341,6 +342,12 @@ const LibraryIdVersionDocsContributorsRoute =
     path: '/contributors',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const LibraryIdVersionDocsCommunityResourcesDotmdRoute =
+  LibraryIdVersionDocsCommunityResourcesDotmdRouteImport.update({
+    id: '/community-resources.md',
+    path: '/community-resources.md',
+    getParentRoute: () => LibraryIdVersionDocsRoute,
+  } as any)
 const LibraryIdVersionDocsSplatRoute =
   LibraryIdVersionDocsSplatRouteImport.update({
     id: '/$',
@@ -416,6 +423,7 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof LibrariesBlogIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
+  '/$libraryId/$version/docs/community-resources.md': typeof LibraryIdVersionDocsCommunityResourcesDotmdRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
@@ -471,6 +479,7 @@ export interface FileRoutesByTo {
   '/blog': typeof LibrariesBlogIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
+  '/$libraryId/$version/docs/community-resources.md': typeof LibraryIdVersionDocsCommunityResourcesDotmdRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
@@ -532,6 +541,7 @@ export interface FileRoutesById {
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
+  '/$libraryId/$version/docs/community-resources.md': typeof LibraryIdVersionDocsCommunityResourcesDotmdRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
@@ -593,6 +603,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
+    | '/$libraryId/$version/docs/community-resources.md'
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/'
@@ -648,6 +659,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
+    | '/$libraryId/$version/docs/community-resources.md'
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs'
@@ -708,6 +720,7 @@ export interface FileRouteTypes {
     | '/_libraries/blog/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
+    | '/$libraryId/$version/docs/community-resources.md'
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/'
@@ -1115,6 +1128,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionDocsContributorsRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
     }
+    '/$libraryId/$version/docs/community-resources.md': {
+      id: '/$libraryId/$version/docs/community-resources.md'
+      path: '/community-resources.md'
+      fullPath: '/$libraryId/$version/docs/community-resources.md'
+      preLoaderRoute: typeof LibraryIdVersionDocsCommunityResourcesDotmdRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRoute
+    }
     '/$libraryId/$version/docs/$': {
       id: '/$libraryId/$version/docs/$'
       path: '/$'
@@ -1162,6 +1182,7 @@ declare module '@tanstack/react-router' {
 
 interface LibraryIdVersionDocsRouteChildren {
   LibraryIdVersionDocsSplatRoute: typeof LibraryIdVersionDocsSplatRoute
+  LibraryIdVersionDocsCommunityResourcesDotmdRoute: typeof LibraryIdVersionDocsCommunityResourcesDotmdRoute
   LibraryIdVersionDocsContributorsRoute: typeof LibraryIdVersionDocsContributorsRoute
   LibraryIdVersionDocsChar123Char125DotmdRoute: typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   LibraryIdVersionDocsIndexRoute: typeof LibraryIdVersionDocsIndexRoute
@@ -1174,6 +1195,8 @@ interface LibraryIdVersionDocsRouteChildren {
 
 const LibraryIdVersionDocsRouteChildren: LibraryIdVersionDocsRouteChildren = {
   LibraryIdVersionDocsSplatRoute: LibraryIdVersionDocsSplatRoute,
+  LibraryIdVersionDocsCommunityResourcesDotmdRoute:
+    LibraryIdVersionDocsCommunityResourcesDotmdRoute,
   LibraryIdVersionDocsContributorsRoute: LibraryIdVersionDocsContributorsRoute,
   LibraryIdVersionDocsChar123Char125DotmdRoute:
     LibraryIdVersionDocsChar123Char125DotmdRoute,

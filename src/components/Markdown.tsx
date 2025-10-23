@@ -13,6 +13,7 @@ import parse, {
 import { marked } from 'marked'
 import { gfmHeadingId } from 'marked-gfm-heading-id'
 import markedAlert from 'marked-alert'
+import mermaid from 'mermaid'
 import { useToast } from '~/components/ToastProvider'
 import { twMerge } from 'tailwind-merge'
 
@@ -82,9 +83,33 @@ const markdownComponents: Record<string, React.FC> = {
   ),
 }
 
+export function extractPreAttributes(html: string): {
+  class: string | null
+  style: string | null
+} {
+  const match = html.match(/<pre\b([^>]*)>/i)
+  if (!match) {
+    return { class: null, style: null }
+  }
+
+  const attributes = match[1]
+
+  const classMatch = attributes.match(/\bclass\s*=\s*["']([^"']*)["']/i)
+  const styleMatch = attributes.match(/\bstyle\s*=\s*["']([^"']*)["']/i)
+
+  return {
+    class: classMatch ? classMatch[1] : null,
+    style: styleMatch ? styleMatch[1] : null,
+  }
+}
+
+const genSvgMap = new Map<string, string>()
+
+mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
+
 export function CodeBlock({
   isEmbedded,
-  showTypeCopyButton,
+  showTypeCopyButton = true,
   ...props
 }: React.HTMLProps<HTMLPreElement> & {
   isEmbedded?: boolean
@@ -114,10 +139,10 @@ export function CodeBlock({
   const [codeElement, setCodeElement] = React.useState(
     <>
       <pre ref={ref} className={`shiki github-light h-full`}>
-        <code>{code}</code>
+        <code>{lang === 'mermaid' ? <svg /> : code}</code>
       </pre>
       <pre className={`shiki tokyo-night`}>
-        <code>{code}</code>
+        <code>{lang === 'mermaid' ? <svg /> : code}</code>
       </pre>
     </>
   )
@@ -131,13 +156,26 @@ export function CodeBlock({
       const highlighter = await getHighlighter(lang, themes)
 
       const htmls = await Promise.all(
-        themes.map((theme) =>
-          highlighter.codeToHtml(code, {
-            lang,
+        themes.map(async (theme) => {
+          const output = highlighter.codeToHtml(code, {
+            lang: lang === 'mermaid' ? 'plaintext' : lang,
             theme,
             transformers: [transformerNotationDiff()],
           })
-        )
+
+          if (lang === 'mermaid') {
+            const preAttributes = extractPreAttributes(output)
+            let svgHtml = genSvgMap.get(code || '')
+            if (!svgHtml) {
+              const { svg } = await mermaid.render('foo', code || '')
+              genSvgMap.set(code || '', svg)
+              svgHtml = svg
+            }
+            return `<div class='${preAttributes.class} py-4 bg-neutral-50'>${svgHtml}</div>`
+          }
+
+          return output
+        })
       )
 
       setCodeElement(
@@ -223,12 +261,17 @@ const highlighterPromise = shikiGetHighlighter({} as any)
 
 const getHighlighter = cache(async (language: string, themes: string[]) => {
   const highlighter = await highlighterPromise
+
   const loadedLanguages = highlighter.getLoadedLanguages()
   const loadedThemes = highlighter.getLoadedThemes()
 
   let promises = []
   if (!loadedLanguages.includes(language as any)) {
-    promises.push(highlighter.loadLanguage(language as any))
+    promises.push(
+      highlighter.loadLanguage(
+        language === 'mermaid' ? 'plaintext' : (language as any)
+      )
+    )
   }
 
   for (const theme of themes) {

@@ -3,26 +3,23 @@ import { v } from 'convex/values'
 
 // Simple JWT implementation that works in Convex environment
 function base64UrlEncode(str: string): string {
-  return btoa(str)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '')
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
 }
 
 function createSimpleJWT(payload: any, secret: string): string {
   const header = {
     alg: 'HS256',
-    typ: 'JWT'
+    typ: 'JWT',
   }
-  
+
   const encodedHeader = base64UrlEncode(JSON.stringify(header))
   const encodedPayload = base64UrlEncode(JSON.stringify(payload))
-  
+
   // Create signature using a simple HMAC-like approach
   // Note: This is a simplified version for the Convex environment
   const data = `${encodedHeader}.${encodedPayload}`
   const signature = base64UrlEncode(secret + data)
-  
+
   return `${encodedHeader}.${encodedPayload}.${signature}`
 }
 
@@ -96,16 +93,20 @@ export const deployToNetlify = action({
     const oauthClientId = process.env.NETLIFY_OAUTH_CLIENT_ID
     const oauthClientSecret = process.env.NETLIFY_OAUTH_CLIENT_SECRET
     const netlifyTeamSlug = process.env.NETLIFY_TEAM_SLUG
-    
+
     if (!netlifyToken) {
       throw new Error('NETLIFY_TOKEN not configured')
     }
     if (!oauthClientId || !oauthClientSecret) {
-      throw new Error('NETLIFY_OAUTH_CLIENT_ID and NETLIFY_OAUTH_CLIENT_SECRET must be configured for claimable sites')
+      throw new Error(
+        'NETLIFY_OAUTH_CLIENT_ID and NETLIFY_OAUTH_CLIENT_SECRET must be configured for claimable sites'
+      )
     }
 
     // Generate a unique session ID for this deployment
-    const sessionId = `forge-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    const sessionId = `forge-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)}`
 
     try {
       // Step 1: Create a new site with metadata for claimable sites
@@ -175,13 +176,13 @@ export const deployToNetlify = action({
       // Step 3: Create a signed JWT claim URL
       // The JWT contains the OAuth client ID and session ID
       const claimToken = createSimpleJWT(
-        { 
+        {
           client_id: oauthClientId,
-          session_id: sessionId 
-        }, 
+          session_id: sessionId,
+        },
         oauthClientSecret!
       )
-      
+
       // The claim URL uses a hash fragment with the JWT token
       const claimUrl = `https://app.netlify.com/claim#${claimToken}`
 

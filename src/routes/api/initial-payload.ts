@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { generateInitialPayload } from "~/cta/lib/engine-handling/generate-initial-payload"
 import { setServerEnvironment } from "~/cta/lib/engine-handling/server-environment"
 
@@ -17,9 +18,14 @@ setServerEnvironment({
   mode: 'setup',
 })
 
-export const ServerRoute = createServerFileRoute().methods({
-  GET: async () => {
-    const payload = await generateInitialPayload()
-    return new Response(JSON.stringify(payload))
+export const Route = createFileRoute("/api/initial-payload")({
+  server: {
+    handlers: {
+      GET: async () => {
+        const payload = await generateInitialPayload()
+        return new Response(JSON.stringify(payload))
+      },
+    },
   },
 })
+  

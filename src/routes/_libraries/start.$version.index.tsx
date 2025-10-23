@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import { FaBook, FaGithub } from 'react-icons/fa'
 
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
@@ -19,7 +19,7 @@ import { TbBrandX } from 'react-icons/tb'
 
 const library = getLibrary('start')
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/start/$version/')({
   component: VersionIndex,
   head: () => ({
     meta: seo({
@@ -32,7 +32,7 @@ export const Route = createFileRoute({
   },
 })
 
-export default function VersionIndex() {
+function VersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
   const [isDark, setIsDark] = React.useState(true)
 

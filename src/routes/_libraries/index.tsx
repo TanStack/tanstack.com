@@ -1,4 +1,4 @@
-import { Link, MatchRoute } from '@tanstack/react-router'
+import { Link, MatchRoute, createFileRoute } from '@tanstack/react-router'
 import { convexQuery } from '@convex-dev/react-query'
 import { api } from 'convex/_generated/api'
 import { twMerge } from 'tailwind-merge'
@@ -11,6 +11,7 @@ import { useMutation } from '~/hooks/useMutation'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
 import { partners } from '../../utils/partners'
+import { PartnersGrid } from '~/components/PartnersGrid'
 import OpenSourceStats from '~/components/OpenSourceStats'
 // Using public asset URLs for splash images
 import { BrandContextMenu } from '~/components/BrandContextMenu'
@@ -42,7 +43,7 @@ const courses = [
   },
 ]
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/')({
   loader: async ({ context: { queryClient } }) => {
     await queryClient.ensureQueryData(convexQuery(api.stats.getStats, {}))
 
@@ -169,10 +170,9 @@ function Index() {
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `border-2 border-transparent rounded-xl shadow-md p-8 transition-all duration-300
-                          bg-white/90 dark:bg-black/40 backdrop-blur-sm
-                          dark:border-gray-800/50`,
-                          'hover:shadow-lg',
+                          `border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-8 transition-all duration-300
+                          bg-white/90 dark:bg-black/40 backdrop-blur-sm`,
+                          'hover:shadow-2xl hover:shadow-current/20 hover:border-current/50 hover:-translate-y-1',
                           'relative group',
                           'min-h-[250px] xl:min-h-[220px]',
                           library.cardStyles
@@ -226,7 +226,7 @@ function Index() {
 
                         {/* Foreground content that appears on hover */}
                         <div
-                          className="absolute inset-0 z-30 bg-white/95 dark:bg-black/95 p-6
+                          className="absolute inset-0 z-30 bg-white/95 dark:bg-black/95 p-6 rounded-xl
                           backdrop-blur-sm flex flex-col justify-center opacity-0 group-hover:opacity-100
                           transition-opacity duration-300"
                         >
@@ -262,7 +262,7 @@ function Index() {
                           <>
                             <div
                               className={twMerge(
-                                `absolute -top-2 -right-2 z-20 px-2 py-1 rounded-md`,
+                                `absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md`,
                                 [
                                   'bg-gradient-to-r',
                                   library.colorFrom,
@@ -292,28 +292,7 @@ function Index() {
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <h3 className={`text-4xl font-light mb-6`}>Partners</h3>
-          <div className={`grid grid-cols-1 gap-6 sm:grid-cols-2`}>
-            {partners
-              .filter((partner) => partner.status === 'active')
-              .map((partner) => {
-                return (
-                  <a
-                    key={partner.name}
-                    href={partner.href}
-                    target="_blank"
-                    className="bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none group overflow-hidden grid"
-                    rel="noreferrer"
-                  >
-                    <div className="z-0 row-start-1 col-start-1 flex items-center justify-center group-hover:blur-md transition-all duration-200 p-4">
-                      {partner.homepageImg}
-                    </div>
-                    <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/80">
-                      {partner.content}
-                    </div>
-                  </a>
-                )
-              })}
-          </div>
+          <PartnersGrid />
           <div className="text-center mt-6">
             <Link
               to="/partners"

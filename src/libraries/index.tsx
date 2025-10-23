@@ -115,7 +115,7 @@ export type Library = {
   bgStyleAccent: string
   bgStyleAccentHover: string
   textStyle: string
-  badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh'
+  badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh' | 'RC'
   repo: string
   latestBranch: string
   latestVersion: string

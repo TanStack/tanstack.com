@@ -1,6 +1,6 @@
 import { useQuery } from 'convex/react'
 import { useState } from 'react'
-import { useRouter } from '@tanstack/react-router'
+import { useRouter, createFileRoute } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
 import {
   Code2,
@@ -21,7 +21,7 @@ import { hasActiveKeys } from '~/utils/llmKeysConvex'
 
 import Sidebar from '~/forge/ui/sidebar'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/forge/')({
   ssr: false,
   component: AuthenticationWrapper,
   headers(ctx: any) {

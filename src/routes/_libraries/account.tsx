@@ -1,19 +1,6 @@
-import {
-  FaSignOutAlt,
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaToggleOn,
-  FaToggleOff,
-  FaKey,
-} from 'react-icons/fa'
-import {
-  Authenticated,
-  Unauthenticated,
-  useMutation,
-  useQuery,
-} from 'convex/react'
-import { Link, redirect } from '@tanstack/react-router'
+import { FaSignOutAlt } from 'react-icons/fa'
+import { Authenticated, Unauthenticated, useMutation } from 'convex/react'
+import { Link, redirect, createFileRoute } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { api } from 'convex/_generated/api'
@@ -21,7 +8,7 @@ import { Id } from 'convex/_generated/dataModel'
 import * as React from 'react'
 import { useToast } from '~/components/ToastProvider'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/account')({
   component: AccountPage,
 })
 

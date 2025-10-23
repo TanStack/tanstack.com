@@ -63,7 +63,7 @@ We’re fortunate to build alongside an incredible lineup of partners whose supp
 
 ### Special thanks to Cloudflare and Netlify
 
-Their collaboration is a pivotal force driving the open web forward. Explore their announcement to see how we’re building the modern web together: [Cloudflare, Astro, and TanStack: building the modern web together](https://blog.cloudflare.com/cloudflare-astro-tanstack).
+Their collaboration is a pivotal force driving the open web forward. Explore their announcements to see how we’re building the modern web together: [Cloudflare, Astro, and TanStack: building the modern web together](https://blog.cloudflare.com/cloudflare-astro-tanstack) and [Supporting an Open Web with Netlify + Cloudflare](https://www.netlify.com/blog/supporting-an-open-web-with-netlify-cloudflare/).
 
 ## Your feedback counts
 

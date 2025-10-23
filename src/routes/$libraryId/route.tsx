@@ -1,10 +1,10 @@
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { notFound, Outlet, useParams } from '@tanstack/react-router'
 import { Scarf } from '~/components/Scarf'
 import { findLibrary, getLibrary, LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/$libraryId')({
   params: {
     parse: (params) => {
       return params as { libraryId: LibraryId }
@@ -78,7 +78,7 @@ export const Route = createFileRoute({
   },
 })
 
-export default function RouteForm() {
+function RouteForm() {
   const { libraryId } = Route.useParams()
   const library = getLibrary(libraryId as any)
 

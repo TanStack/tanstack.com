@@ -1,3 +1,4 @@
+import { createFileRoute } from '@tanstack/react-router'
 import { ConvexHttpClient } from 'convex/browser'
 import { anthropic } from '@ai-sdk/anthropic'
 import { openai } from '@ai-sdk/openai'
@@ -111,7 +112,9 @@ async function saveChat(projectId: Id<'forge_projects'>, messages: Array<UIMessa
   }
 }
 
-export const ServerRoute = createServerFileRoute().methods({
+export const Route = createFileRoute("/api/forge/chat")({
+  server: {
+    handlers: {
   POST: async ({ request }: { request: Request }) => {
     try {
       const { messages, projectId, model } = await request.json()
@@ -237,5 +240,7 @@ export const ServerRoute = createServerFileRoute().methods({
         }
       )
     }
+    }
   },
+}
 })

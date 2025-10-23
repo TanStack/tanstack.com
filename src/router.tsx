@@ -1,7 +1,5 @@
-import {
-  redirect,
-  createRouter as TanStackCreateRouter,
-} from '@tanstack/react-router'
+import React from 'react'
+import { redirect, createRouter } from '@tanstack/react-router'
 import { routerWithQueryClient } from '@tanstack/react-router-with-query'
 import { convexQuery, ConvexQueryClient } from '@convex-dev/react-query'
 import { ConvexProvider } from 'convex/react'
@@ -12,9 +10,8 @@ import { QueryClient } from '@tanstack/react-query'
 import { GamOnPageChange } from './components/Gam'
 import { env } from './utils/env'
 import { api } from 'convex/_generated/api'
-import React from 'react'
 
-export function createRouter() {
+export function getRouter() {
   const CONVEX_URL = env.VITE_CONVEX_URL!
   const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
 
@@ -30,7 +27,7 @@ export function createRouter() {
   convexQueryClient.connect(queryClient)
 
   const router = routerWithQueryClient(
-    TanStackCreateRouter({
+    createRouter({
       routeTree,
       defaultPreload: 'intent',
       defaultErrorComponent: DefaultCatchBoundary,
@@ -80,11 +77,9 @@ export function createRouter() {
 }
 
 declare module '@tanstack/react-router' {
-  interface Register {
-    router: ReturnType<typeof createRouter>
-  }
   interface StaticDataRouteOption {
     baseParent?: boolean
     Title?: () => any
+    showNavbar?: boolean
   }
 }

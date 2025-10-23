@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from 'convex/react'
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { Sparkles } from 'lucide-react'
 
@@ -35,7 +35,7 @@ function deserializeMessage(message: {
   }
 }
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/forge/editor/$projectId')({
   component: AuthenticationWrapper,
   headers(ctx: any) {
     return {

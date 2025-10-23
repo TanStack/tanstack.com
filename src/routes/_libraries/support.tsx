@@ -1,7 +1,7 @@
-import { Link } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 
-export const Route = createFileRoute({
+export const Route = createFileRoute('/_libraries/support')({
   component: SupportComp,
   head: () => ({
     meta: seo({

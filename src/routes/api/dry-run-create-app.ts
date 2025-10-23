@@ -1,3 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router"
 import { z } from "zod"
 import { createApp, finalizeAddOns, getFrameworkById, loadStarter, registerFramework, Starter } from "@tanstack/cta-engine"
 import { createFrameworkDefinition } from '@tanstack/cta-framework-react-cra'
@@ -15,62 +16,67 @@ const requestOptionsSchema = z.object({
   chosenAddOns: z.array(z.string()),
 })
 
-export const ServerRoute = createServerFileRoute().methods({
-  POST: async ({ request }) => {
-    const body = await request.json()
-    const validationResult = requestOptionsSchema.safeParse(body.options)
-    if (!validationResult.success) {
-      return new Response(JSON.stringify(validationResult.error), {
-        status: 400,
-      })
-    }
-
-    const framework = getFrameworkById(validationResult.data.framework)!
-    const { environment, output } = createMemoryEnvironment()
-
-    
-    const createAppOptions = Object.assign({
-      projectName: "dry-run-create-app",
-      targetDir: "./",
-      mode: "file-router",
-      typescript: false,
-      tailwind: false,
-      packageManager: "pnpm",
-      git: false,
-      chosenAddOns: []
-    }, validationResult.data, { framework })
-
-    
-    let starter: Starter | undefined
-    const addOns: Array<string> = [...createAppOptions.chosenAddOns]
-    if (createAppOptions.starter) {
-      starter = await loadStarter(createAppOptions.starter)
-      if (starter)
-        for (const addOn of starter.dependsOn ?? []) {
-          addOns.push(addOn)
+export const Route = createFileRoute(
+  "/api/dry-run-create-app"
+)({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const body = await request.json()
+        const validationResult = requestOptionsSchema.safeParse(body.options)
+        if (!validationResult.success) {
+          return new Response(JSON.stringify(validationResult.error), {
+            status: 400,
+          })
         }
-    }
-    
-    const chosenAddOns = await finalizeAddOns(
-      framework,
-      createAppOptions.mode,
-      addOns,
-    )
 
-    await createApp(environment, {
-      ...createAppOptions,
-      chosenAddOns,
-    })
+        const framework = getFrameworkById(validationResult.data.framework)!
+        const { environment, output } = createMemoryEnvironment()
+        
+        const createAppOptions = Object.assign({
+          projectName: "dry-run-create-app",
+          targetDir: "./",
+          mode: "file-router",
+          typescript: false,
+          tailwind: false,
+          packageManager: "pnpm",
+          git: false,
+          chosenAddOns: []
+        }, validationResult.data, { framework })
 
-    // Call finishRun to populate the output files
-    environment.finishRun()
+        
+        let starter: Starter | undefined
+        const addOns: Array<string> = [...createAppOptions.chosenAddOns]
+        if (createAppOptions.starter) {
+          starter = await loadStarter(createAppOptions.starter)
+          if (starter)
+            for (const addOn of starter.dependsOn ?? []) {
+              addOns.push(addOn)
+            }
+        }
+        
+        const chosenAddOns = await finalizeAddOns(
+          framework,
+          createAppOptions.mode,
+          addOns,
+        )
 
-    for (const [outputPath, content] of Object.entries(output.files)) {
-      const normalizedOutputPath = outputPath.replace(process.cwd(), '.')
-      output.files[normalizedOutputPath] = content
-      delete output.files[outputPath]
-    }
+        await createApp(environment, {
+          ...createAppOptions,
+          chosenAddOns,
+        })
 
-    return new Response(JSON.stringify(output))
+        // Call finishRun to populate the output files
+        environment.finishRun()
+
+        for (const [outputPath, content] of Object.entries(output.files)) {
+          const normalizedOutputPath = outputPath.replace(process.cwd(), '.')
+          output.files[normalizedOutputPath] = content
+          delete output.files[outputPath]
+        }
+
+        return new Response(JSON.stringify(output))
+      },
+    },
   },
 })

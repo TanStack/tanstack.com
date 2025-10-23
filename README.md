@@ -104,76 +104,76 @@ The TanStack.com application uses TanStack Router's file-system routing. Here's 
 
 ### Main Application Routes
 
-| Route | Path | Description |
-|-------|------|-------------|
-| **Home** | `/` | Main landing page showcasing TanStack libraries, sponsors, and community |
-| **Blog** | `/blog` | Blog listing page |
-| **Blog Post** | `/blog/$slug` | Individual blog post pages |
-| **Account** | `/account` | User account settings, LLM API key management, preferences |
-| **Login** | `/login` | Authentication page with GitHub/Google OAuth |
-| **Support** | `/support` | Support information and contact options |
-| **Paid Support** | `/paid-support` | Enterprise support and consulting information |
-| **Partners** | `/partners` | Partner program information |
-| **Maintainers** | `/maintainers` | Core maintainer profiles |
-| **Brand Guide** | `/brand-guide` | TanStack brand guidelines and assets |
-| **Ethos** | `/ethos` | TanStack mission and values |
-| **Learn** | `/learn` | Learning resources and courses |
-| **Privacy** | `/privacy` | Privacy policy |
-| **Terms** | `/terms` | Terms of service |
+| Route            | Path            | Description                                                              |
+| ---------------- | --------------- | ------------------------------------------------------------------------ |
+| **Home**         | `/`             | Main landing page showcasing TanStack libraries, sponsors, and community |
+| **Blog**         | `/blog`         | Blog listing page                                                        |
+| **Blog Post**    | `/blog/$slug`   | Individual blog post pages                                               |
+| **Account**      | `/account`      | User account settings, LLM API key management, preferences               |
+| **Login**        | `/login`        | Authentication page with GitHub/Google OAuth                             |
+| **Support**      | `/support`      | Support information and contact options                                  |
+| **Paid Support** | `/paid-support` | Enterprise support and consulting information                            |
+| **Partners**     | `/partners`     | Partner program information                                              |
+| **Maintainers**  | `/maintainers`  | Core maintainer profiles                                                 |
+| **Brand Guide**  | `/brand-guide`  | TanStack brand guidelines and assets                                     |
+| **Ethos**        | `/ethos`        | TanStack mission and values                                              |
+| **Learn**        | `/learn`        | Learning resources and courses                                           |
+| **Privacy**      | `/privacy`      | Privacy policy                                                           |
+| **Terms**        | `/terms`        | Terms of service                                                         |
 
 ### Library Documentation Routes
 
-| Route | Path | Description |
-|-------|------|-------------|
-| **Library Home** | `/$libraryId` | Redirects to latest version of library docs |
-| **Library Version** | `/$libraryId/$version` | Specific version of library documentation |
-| **Library Docs** | `/$libraryId/$version/docs` | Library documentation index |
-| **Doc Page** | `/$libraryId/$version/docs/$slug` | Individual documentation pages |
-| **Framework Docs** | `/$libraryId/$version/docs/framework/$framework` | Framework-specific documentation |
-| **Framework Doc Page** | `/$libraryId/$version/docs/framework/$framework/$slug` | Framework-specific doc pages |
-| **Examples** | `/$libraryId/$version/docs/framework/$framework/examples/$slug` | Code examples |
-| **Contributors** | `/$libraryId/$version/docs/contributors` | Library contributors page |
+| Route                  | Path                                                            | Description                                 |
+| ---------------------- | --------------------------------------------------------------- | ------------------------------------------- |
+| **Library Home**       | `/$libraryId`                                                   | Redirects to latest version of library docs |
+| **Library Version**    | `/$libraryId/$version`                                          | Specific version of library documentation   |
+| **Library Docs**       | `/$libraryId/$version/docs`                                     | Library documentation index                 |
+| **Doc Page**           | `/$libraryId/$version/docs/$slug`                               | Individual documentation pages              |
+| **Framework Docs**     | `/$libraryId/$version/docs/framework/$framework`                | Framework-specific documentation            |
+| **Framework Doc Page** | `/$libraryId/$version/docs/framework/$framework/$slug`          | Framework-specific doc pages                |
+| **Examples**           | `/$libraryId/$version/docs/framework/$framework/examples/$slug` | Code examples                               |
+| **Contributors**       | `/$libraryId/$version/docs/contributors`                        | Library contributors page                   |
 
 ### Specialized Application Routes
 
-| Route | Path | Description |
-|-------|------|-------------|
-| **Forge** | `/forge` | AI-powered application builder (requires authentication) |
-| **Forge Editor** | `/forge/editor/$projectId` | Project editor interface |
-| **Builder** | `/builder` | TanStack Builder tool (requires builder capability) |
-| **Dashboard** | `/dashboard` | User dashboard (if applicable) |
+| Route            | Path                       | Description                                              |
+| ---------------- | -------------------------- | -------------------------------------------------------- |
+| **Forge**        | `/forge`                   | AI-powered application builder (requires authentication) |
+| **Forge Editor** | `/forge/editor/$projectId` | Project editor interface                                 |
+| **Builder**      | `/builder`                 | TanStack Builder tool (requires builder capability)      |
+| **Dashboard**    | `/dashboard`               | User dashboard (if applicable)                           |
 
 ### Administrative Routes
 
-| Route | Path | Description |
-|-------|------|-------------|
-| **Admin** | `/admin` | Admin dashboard (requires admin capability) |
-| **Admin Users** | `/admin/users` | User management interface |
+| Route           | Path           | Description                                 |
+| --------------- | -------------- | ------------------------------------------- |
+| **Admin**       | `/admin`       | Admin dashboard (requires admin capability) |
+| **Admin Users** | `/admin/users` | User management interface                   |
 
 ### Statistics & Analytics Routes
 
-| Route | Path | Description |
-|-------|------|-------------|
-| **Stats** | `/stats` | Redirects to NPM stats |
-| **NPM Stats** | `/stats/npm` | NPM package download statistics |
-| **NPM Comparisons** | `/stats/npm/comparisons` | Package comparison analytics |
+| Route               | Path                     | Description                     |
+| ------------------- | ------------------------ | ------------------------------- |
+| **Stats**           | `/stats`                 | Redirects to NPM stats          |
+| **NPM Stats**       | `/stats/npm`             | NPM package download statistics |
+| **NPM Comparisons** | `/stats/npm/comparisons` | Package comparison analytics    |
 
 ### API Routes
 
-| Route | Path | Description |
-|-------|------|-------------|
-| **Auth API** | `/api/auth/$` | Authentication API endpoints |
-| **Forge New Project** | `/api/forge/new-project` | Create new AI-generated project |
-| **Forge Chat** | `/api/forge.chat` | AI chat functionality |
-| **Initial Payload** | `/api/initial-payload` | Initial data loading |
-| **Dry Run Create App** | `/api/dry-run-create-app` | App creation validation |
+| Route                  | Path                      | Description                     |
+| ---------------------- | ------------------------- | ------------------------------- |
+| **Auth API**           | `/api/auth/$`             | Authentication API endpoints    |
+| **Forge New Project**  | `/api/forge/new-project`  | Create new AI-generated project |
+| **Forge Chat**         | `/api/forge.chat`         | AI chat functionality           |
+| **Initial Payload**    | `/api/initial-payload`    | Initial data loading            |
+| **Dry Run Create App** | `/api/dry-run-create-app` | App creation validation         |
 
 ### External Redirects
 
-| Route | Path | Description |
-|-------|------|-------------|
-| **Merchandise** | `/merch` | Redirects to Cotton Bureau store |
-| **Sponsors Embed** | `/sponsors-embed` | Embeddable sponsors widget |
+| Route              | Path              | Description                      |
+| ------------------ | ----------------- | -------------------------------- |
+| **Merchandise**    | `/merch`          | Redirects to Cotton Bureau store |
+| **Sponsors Embed** | `/sponsors-embed` | Embeddable sponsors widget       |
 
 ### Route Parameters
 

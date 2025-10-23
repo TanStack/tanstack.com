@@ -42,7 +42,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     const updateContainerHeight = () => {
       if (containerRef.current) {
         const height = containerRef.current.offsetHeight
-        document.body.style.setProperty('--navbar-height', `${height}px`)
+        document.documentElement.style.setProperty(
+          '--navbar-height',
+          `${height}px`
+        )
       }
     }
 

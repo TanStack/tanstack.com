@@ -23,7 +23,7 @@ export const startProject = {
   bgStyleAccentHover: 'hover:bg-cyan-500/30 dark:hover:bg-cyan-500/40',
   bgStyleMuted: 'bg-cyan-500/20',
   textStyle: 'text-cyan-500',
-  badge: 'beta',
+  badge: 'RC',
   repo,
   latestBranch: 'main',
   latestVersion: 'v0',

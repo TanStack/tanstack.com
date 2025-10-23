@@ -1,13 +1,13 @@
 import { ConvexHttpClient } from 'convex/browser'
 import { createServerFn, createMiddleware } from '@tanstack/react-start'
-import { getCookie, getEvent } from '@tanstack/react-start/server'
+import { getCookie } from '@tanstack/react-start/server'
 
 import { api } from 'convex/_generated/api'
 
 export const authMiddleware = createMiddleware({
   type: 'function',
 }).server(async ({ next }) => {
-  const sessionToken = await getCookie(getEvent(), 'better-auth.convex_jwt')
+  const sessionToken = await getCookie('better-auth.convex_jwt')
   return await next({
     context: {
       sessionToken,
@@ -19,7 +19,7 @@ export const getChatMessages = createServerFn({
   method: 'GET',
 })
   .middleware([authMiddleware])
-  .validator(({ projectId }) => ({
+  .inputValidator(({ projectId }) => ({
     projectId,
   }))
   .handler(async (ctx) => {
@@ -36,7 +36,7 @@ export const getProjectFiles = createServerFn({
   method: 'GET',
 })
   .middleware([authMiddleware])
-  .validator(({ projectId }) => ({
+  .inputValidator(({ projectId }) => ({
     projectId,
   }))
   .handler(async (ctx) => {
@@ -53,7 +53,7 @@ export const getProjectDescription = createServerFn({
   method: 'GET',
 })
   .middleware([authMiddleware])
-  .validator(({ projectId }) => ({
+  .inputValidator(({ projectId }) => ({
     projectId,
   }))
   .handler(async (ctx) => {
@@ -73,7 +73,7 @@ export const getProjectData = createServerFn({
   method: 'GET',
 })
   .middleware([authMiddleware])
-  .validator(({ projectId }) => ({
+  .inputValidator(({ projectId }) => ({
     projectId,
   }))
   .handler(async (ctx) => {

@@ -37,12 +37,8 @@ export const Route = createFileRoute(
     const doc = (loaderData as any)?.doc
     return {
       meta: seo({
-        title:
-          (doc?.frontmatter?.title as string | undefined) ||
-          `${library.name} Community Resources`,
-        description:
-          (doc?.frontmatter?.description as string | undefined) ||
-          `A curated list of community resources for ${library.name}.`,
+        title: `${library.name} Community Resources`,
+        description: `A collection of community resources for ${library.name}.`,
       }),
     }
   },

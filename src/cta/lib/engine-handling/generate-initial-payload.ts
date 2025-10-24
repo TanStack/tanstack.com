@@ -36,6 +36,10 @@ export async function generateInitialPayload() {
     getProjectPath,
     getRegistry: getRegistryURL,
   } = await import('./server-environment')
+  const { ensureFrameworkRegistered } = await import('./framework-registry')
+
+  // Ensure framework is registered
+  await ensureFrameworkRegistered()
 
   const projectPath = getProjectPath()
   const applicationMode = getApplicationMode()

@@ -22,6 +22,10 @@ export async function createAppWrapper(
   const { getApplicationMode, getProjectPath } = await import(
     './server-environment'
   )
+  const { ensureFrameworkRegistered } = await import('./framework-registry')
+
+  // Ensure framework is registered
+  await ensureFrameworkRegistered()
 
   const framework = getFrameworkById(projectOptions.framework)!
   if (!framework) {

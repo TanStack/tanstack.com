@@ -24,8 +24,12 @@ export const Route = createFileRoute('/api/forge/new-project')({
         const { setServerEnvironment } = await import(
           '~/forge/engine-handling/server-environment'
         )
+        const { ensureFrameworkRegistered } = await import(
+          '~/forge/engine-handling/framework-registry'
+        )
 
         try {
+          await ensureFrameworkRegistered()
           const { description } = await ctx.request.json()
 
           // This is a total hack, but it works

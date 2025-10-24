@@ -1,5 +1,18 @@
-import { FaSignOutAlt } from 'react-icons/fa'
-import { Authenticated, Unauthenticated, useMutation } from 'convex/react'
+import {
+  FaSignOutAlt,
+  FaKey,
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaToggleOn,
+  FaToggleOff,
+} from 'react-icons/fa'
+import {
+  Authenticated,
+  Unauthenticated,
+  useMutation,
+  useQuery,
+} from 'convex/react'
 import { Link, redirect, createFileRoute } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'

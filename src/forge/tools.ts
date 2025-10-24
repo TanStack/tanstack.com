@@ -47,6 +47,12 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
   const { setServerEnvironment } = await import(
     '~/forge/engine-handling/server-environment'
   )
+  const { ensureFrameworkRegistered } = await import(
+    '~/forge/engine-handling/framework-registry'
+  )
+
+  // Ensure framework is registered
+  await ensureFrameworkRegistered()
 
   const projectFiles = await convex.query(api.forge.getProjectFiles, {
     projectId: projectId as Id<'forge_projects'>,

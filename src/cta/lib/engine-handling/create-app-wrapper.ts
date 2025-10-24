@@ -23,6 +23,10 @@ export async function createAppWrapper(
     './server-environment'
   )
   const { createMemoryEnvironment } = await import('./memory-environment')
+  const { ensureFrameworkRegistered } = await import('./framework-registry')
+
+  // Ensure framework is registered
+  await ensureFrameworkRegistered()
 
   const framework = getFrameworkById(projectOptions.framework)!
   if (!framework) {

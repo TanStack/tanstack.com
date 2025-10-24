@@ -21,17 +21,16 @@ export const Route = createFileRoute('/api/dry-run-create-app')({
           finalizeAddOns,
           getFrameworkById,
           loadStarter,
-          registerFramework,
           Starter,
         } = await import('@tanstack/cta-engine')
-        const { createFrameworkDefinition } = await import(
-          '@tanstack/cta-framework-react-cra'
-        )
         const { createMemoryEnvironment } = await import(
           '~/cta/lib/engine-handling/memory-environment'
         )
+        const { ensureFrameworkRegistered } = await import(
+          '~/cta/lib/engine-handling/framework-registry'
+        )
 
-        registerFramework(createFrameworkDefinition())
+        await ensureFrameworkRegistered()
 
         const body = await request.json()
         const validationResult = requestOptionsSchema.safeParse(body.options)

@@ -1,24 +1,5 @@
 import { resolve } from 'node:path'
-
-import {
-  CONFIG_FILE,
-  addToApp,
-  createAppOptionsFromPersisted,
-  createDefaultEnvironment,
-  createMemoryEnvironment,
-  createSerializedOptionsFromPersisted,
-  readConfigFile,
-  recursivelyGatherFiles,
-  writeConfigFileToEnvironment,
-} from '@tanstack/cta-engine'
-
 import { TMP_TARGET_DIR } from '~/forge/constants'
-
-import { cleanUpFileArray, cleanUpFiles } from './file-helpers'
-import { getProjectPath } from './server-environment'
-import { createAppWrapper } from './create-app-wrapper'
-
-import type { Environment } from '@tanstack/cta-engine'
 import type { DryRunOutput } from '~/forge/types'
 
 export async function addToAppWrapper(
@@ -26,9 +7,25 @@ export async function addToAppWrapper(
   opts: {
     dryRun?: boolean
     stream?: boolean
-    environmentFactory?: () => Environment
+    environmentFactory?: () => any
   }
 ) {
+  // Dynamically import CTA engine to prevent client bundling
+  const {
+    CONFIG_FILE,
+    addToApp,
+    createAppOptionsFromPersisted,
+    createDefaultEnvironment,
+    createMemoryEnvironment,
+    createSerializedOptionsFromPersisted,
+    readConfigFile,
+    recursivelyGatherFiles,
+    writeConfigFileToEnvironment,
+  } = await import('@tanstack/cta-engine')
+  const { cleanUpFileArray, cleanUpFiles } = await import('./file-helpers')
+  const { getProjectPath } = await import('./server-environment')
+  const { createAppWrapper } = await import('./create-app-wrapper')
+
   const projectPath = getProjectPath()
 
   const persistedOptions = await readConfigFile(projectPath)

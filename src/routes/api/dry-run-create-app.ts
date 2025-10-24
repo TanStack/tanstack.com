@@ -1,27 +1,38 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { z } from "zod"
-import { createApp, finalizeAddOns, getFrameworkById, loadStarter, registerFramework, Starter } from "@tanstack/cta-engine"
-import { createFrameworkDefinition } from '@tanstack/cta-framework-react-cra'
-import { createMemoryEnvironment } from "~/cta/lib/engine-handling/memory-environment"
-
-registerFramework(createFrameworkDefinition())
+import { createFileRoute } from '@tanstack/react-router'
+import { z } from 'zod'
 
 const requestOptionsSchema = z.object({
   starter: z.string().optional(),
   projectName: z.string(),
-  mode: z.enum(["file-router", "code-router"]),
-  framework: z.enum(["react-cra", "solid"]),
+  mode: z.enum(['file-router', 'code-router']),
+  framework: z.enum(['react-cra', 'solid']),
   typescript: z.boolean(),
   tailwind: z.boolean(),
   chosenAddOns: z.array(z.string()),
 })
 
-export const Route = createFileRoute(
-  "/api/dry-run-create-app"
-)({
+export const Route = createFileRoute('/api/dry-run-create-app')({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        // Import server-only modules inside the handler to prevent client bundling
+        const {
+          createApp,
+          finalizeAddOns,
+          getFrameworkById,
+          loadStarter,
+          registerFramework,
+          Starter,
+        } = await import('@tanstack/cta-engine')
+        const { createFrameworkDefinition } = await import(
+          '@tanstack/cta-framework-react-cra'
+        )
+        const { createMemoryEnvironment } = await import(
+          '~/cta/lib/engine-handling/memory-environment'
+        )
+
+        registerFramework(createFrameworkDefinition())
+
         const body = await request.json()
         const validationResult = requestOptionsSchema.safeParse(body.options)
         if (!validationResult.success) {
@@ -32,19 +43,22 @@ export const Route = createFileRoute(
 
         const framework = getFrameworkById(validationResult.data.framework)!
         const { environment, output } = createMemoryEnvironment()
-        
-        const createAppOptions = Object.assign({
-          projectName: "dry-run-create-app",
-          targetDir: "./",
-          mode: "file-router",
-          typescript: false,
-          tailwind: false,
-          packageManager: "pnpm",
-          git: false,
-          chosenAddOns: []
-        }, validationResult.data, { framework })
 
-        
+        const createAppOptions = Object.assign(
+          {
+            projectName: 'dry-run-create-app',
+            targetDir: './',
+            mode: 'file-router',
+            typescript: false,
+            tailwind: false,
+            packageManager: 'pnpm',
+            git: false,
+            chosenAddOns: [],
+          },
+          validationResult.data,
+          { framework }
+        )
+
         let starter: Starter | undefined
         const addOns: Array<string> = [...createAppOptions.chosenAddOns]
         if (createAppOptions.starter) {
@@ -54,11 +68,11 @@ export const Route = createFileRoute(
               addOns.push(addOn)
             }
         }
-        
+
         const chosenAddOns = await finalizeAddOns(
           framework,
           createAppOptions.mode,
-          addOns,
+          addOns
         )
 
         await createApp(environment, {

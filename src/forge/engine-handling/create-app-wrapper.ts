@@ -1,34 +1,28 @@
 import { resolve } from 'node:path'
-
-import {
-  createApp,
-  createDefaultEnvironment,
-  createMemoryEnvironment,
-  finalizeAddOns,
-  getFrameworkById,
-  loadStarter,
-} from '@tanstack/cta-engine'
-
 import { TMP_TARGET_DIR } from '~/forge/constants'
 
-import { cleanUpFileArray, cleanUpFiles } from './file-helpers'
-import { getApplicationMode, getProjectPath } from './server-environment'
-
-import type {
-  Environment,
-  Options,
-  SerializedOptions,
-  Starter,
-} from '@tanstack/cta-engine'
-
 export async function createAppWrapper(
-  projectOptions: SerializedOptions,
+  projectOptions: any,
   opts: {
     dryRun?: boolean
     stream?: boolean
-    environmentFactory?: () => Environment
+    environmentFactory?: () => any
   }
 ) {
+  // Dynamically import CTA engine to prevent client bundling
+  const {
+    createApp,
+    createDefaultEnvironment,
+    createMemoryEnvironment,
+    finalizeAddOns,
+    getFrameworkById,
+    loadStarter,
+  } = await import('@tanstack/cta-engine')
+  const { cleanUpFileArray, cleanUpFiles } = await import('./file-helpers')
+  const { getApplicationMode, getProjectPath } = await import(
+    './server-environment'
+  )
+
   const framework = getFrameworkById(projectOptions.framework)!
   if (!framework) {
     throw new Error(`Framework ${projectOptions.framework} not found`)

@@ -12,8 +12,12 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-  resolve: {
-    conditions: ['node', 'import', 'module', 'browser', 'default'],
+  ssr: {
+    noExternal: [],
+    external: ['@tanstack/cta-engine', '@tanstack/cta-framework-react-cra'],
+  },
+  optimizeDeps: {
+    exclude: ['@tanstack/cta-engine', '@tanstack/cta-framework-react-cra'],
   },
   plugins: [
     tsConfigPaths({

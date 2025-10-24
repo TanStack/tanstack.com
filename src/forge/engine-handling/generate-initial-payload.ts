@@ -1,30 +1,7 @@
 import { basename, resolve } from 'node:path'
-
-import {
-  createSerializedOptionsFromPersisted,
-  getAllAddOns,
-  getFrameworkById,
-  getRawRegistry,
-  getRegistryAddOns,
-  readConfigFile,
-  recursivelyGatherFiles,
-} from '@tanstack/cta-engine'
-
-import { cleanUpFiles } from './file-helpers'
-import { createAppWrapper } from './create-app-wrapper'
-import {
-  getApplicationMode,
-  getForcedAddOns,
-  getForcedRouterMode,
-  getProjectOptions,
-  getProjectPath,
-  getRegistry as getRegistryURL,
-} from './server-environment'
-
-import type { AddOn, SerializedOptions } from '@tanstack/cta-engine'
 import type { AddOnInfo } from '~/forge/types'
 
-function convertAddOnToAddOnInfo(addOn: AddOn): AddOnInfo {
+function convertAddOnToAddOnInfo(addOn: any): AddOnInfo {
   return {
     id: addOn.id,
     name: addOn.name,
@@ -39,6 +16,27 @@ function convertAddOnToAddOnInfo(addOn: AddOn): AddOnInfo {
 }
 
 export async function generateInitialPayload() {
+  // Dynamically import CTA engine modules to prevent client bundling
+  const {
+    createSerializedOptionsFromPersisted,
+    getAllAddOns,
+    getFrameworkById,
+    getRawRegistry,
+    getRegistryAddOns,
+    readConfigFile,
+    recursivelyGatherFiles,
+  } = await import('@tanstack/cta-engine')
+  const { cleanUpFiles } = await import('./file-helpers')
+  const { createAppWrapper } = await import('./create-app-wrapper')
+  const {
+    getApplicationMode,
+    getForcedAddOns,
+    getForcedRouterMode,
+    getProjectOptions,
+    getProjectPath,
+    getRegistry: getRegistryURL,
+  } = await import('./server-environment')
+
   const projectPath = getProjectPath()
   const applicationMode = getApplicationMode()
 

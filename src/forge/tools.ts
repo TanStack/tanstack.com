@@ -8,15 +8,6 @@ import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 
 import { generateFileTree } from '~/forge/file-tree-generator'
-import {
-  createSerializedOptionsFromPersisted,
-  getFrameworkById,
-  getAllAddOns,
-  createDefaultEnvironment,
-} from '@tanstack/cta-engine'
-import { addToAppWrapper } from '~/forge/engine-handling/add-to-app-wrapper'
-import { createAppWrapper } from '~/forge/engine-handling/create-app-wrapper'
-import { setServerEnvironment } from '~/forge/engine-handling/server-environment'
 import type { DryRunOutput } from '~/forge/types'
 
 function enforceFSPath(path: string) {
@@ -40,6 +31,23 @@ function enforceStoredPath(path: string) {
 }
 
 export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
+  // Dynamically import CTA engine modules to prevent client bundling
+  const {
+    createSerializedOptionsFromPersisted,
+    getFrameworkById,
+    getAllAddOns,
+    createDefaultEnvironment,
+  } = await import('@tanstack/cta-engine')
+  const { addToAppWrapper } = await import(
+    '~/forge/engine-handling/add-to-app-wrapper'
+  )
+  const { createAppWrapper } = await import(
+    '~/forge/engine-handling/create-app-wrapper'
+  )
+  const { setServerEnvironment } = await import(
+    '~/forge/engine-handling/server-environment'
+  )
+
   const projectFiles = await convex.query(api.forge.getProjectFiles, {
     projectId: projectId as Id<'forge_projects'>,
   })

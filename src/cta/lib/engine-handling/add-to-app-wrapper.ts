@@ -1,7 +1,13 @@
 import { resolve } from 'node:path'
 import { TMP_TARGET_DIR } from '../constants'
+import { cleanUpFileArray, cleanUpFiles } from './file-helpers'
+import { getProjectPath } from './server-environment'
+import { createAppWrapper } from './create-app-wrapper'
+import { createMemoryEnvironment } from './memory-environment'
+
 import type { Response } from 'express'
 import type { DryRunOutput } from '../types'
+import type { Environment } from '@tanstack/cta-engine'
 
 export async function addToAppWrapper(
   addOns: Array<string>,
@@ -22,10 +28,6 @@ export async function addToAppWrapper(
     recursivelyGatherFiles,
     writeConfigFileToEnvironment,
   } = await import('@tanstack/cta-engine')
-  const { cleanUpFileArray, cleanUpFiles } = await import('./file-helpers')
-  const { getProjectPath } = await import('./server-environment')
-  const { createAppWrapper } = await import('./create-app-wrapper')
-  const { createMemoryEnvironment } = await import('./memory-environment')
 
   const projectPath = getProjectPath()
 

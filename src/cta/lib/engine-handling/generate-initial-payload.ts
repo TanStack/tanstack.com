@@ -1,4 +1,17 @@
 import { basename, resolve } from 'node:path'
+
+import { ensureFrameworkRegistered } from './framework-registry'
+import { cleanUpFiles } from './file-helpers'
+import { createAppWrapper } from './create-app-wrapper'
+import {
+  getApplicationMode,
+  getForcedAddOns,
+  getForcedRouterMode,
+  getProjectOptions,
+  getProjectPath,
+  getRegistry as getRegistryURL,
+} from './server-environment'
+
 import type { AddOnInfo } from '../types'
 
 function convertAddOnToAddOnInfo(addOn: any): AddOnInfo {
@@ -26,20 +39,9 @@ export async function generateInitialPayload() {
     readConfigFile,
     recursivelyGatherFiles,
   } = await import('@tanstack/cta-engine')
-  const { cleanUpFiles } = await import('./file-helpers')
-  const { createAppWrapper } = await import('./create-app-wrapper')
-  const {
-    getApplicationMode,
-    getForcedAddOns,
-    getForcedRouterMode,
-    getProjectOptions,
-    getProjectPath,
-    getRegistry: getRegistryURL,
-  } = await import('./server-environment')
-  const { ensureFrameworkRegistered } = await import('./framework-registry')
 
   // Ensure framework is registered
-  await ensureFrameworkRegistered()
+  ensureFrameworkRegistered()
 
   const projectPath = getProjectPath()
   const applicationMode = getApplicationMode()

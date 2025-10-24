@@ -1,6 +1,9 @@
 import { resolve } from 'node:path'
 import { TMP_TARGET_DIR } from '~/forge/constants'
 import type { DryRunOutput } from '~/forge/types'
+import { cleanUpFileArray, cleanUpFiles } from './file-helpers'
+import { getProjectPath } from './server-environment'
+import { createAppWrapper } from './create-app-wrapper'
 
 export async function addToAppWrapper(
   addOns: Array<string>,
@@ -22,9 +25,6 @@ export async function addToAppWrapper(
     recursivelyGatherFiles,
     writeConfigFileToEnvironment,
   } = await import('@tanstack/cta-engine')
-  const { cleanUpFileArray, cleanUpFiles } = await import('./file-helpers')
-  const { getProjectPath } = await import('./server-environment')
-  const { createAppWrapper } = await import('./create-app-wrapper')
 
   const projectPath = getProjectPath()
 

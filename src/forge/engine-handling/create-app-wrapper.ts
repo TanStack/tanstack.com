@@ -1,5 +1,8 @@
 import { resolve } from 'node:path'
 import { TMP_TARGET_DIR } from '~/forge/constants'
+import { ensureFrameworkRegistered } from './framework-registry'
+import { cleanUpFileArray, cleanUpFiles } from './file-helpers'
+import { getApplicationMode, getProjectPath } from './server-environment'
 
 export async function createAppWrapper(
   projectOptions: any,
@@ -18,14 +21,9 @@ export async function createAppWrapper(
     getFrameworkById,
     loadStarter,
   } = await import('@tanstack/cta-engine')
-  const { cleanUpFileArray, cleanUpFiles } = await import('./file-helpers')
-  const { getApplicationMode, getProjectPath } = await import(
-    './server-environment'
-  )
-  const { ensureFrameworkRegistered } = await import('./framework-registry')
 
   // Ensure framework is registered
-  await ensureFrameworkRegistered()
+  ensureFrameworkRegistered()
 
   const framework = getFrameworkById(projectOptions.framework)!
   if (!framework) {

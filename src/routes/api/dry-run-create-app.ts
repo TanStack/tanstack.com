@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
+import { ensureFrameworkRegistered } from '~/cta/lib/engine-handling/framework-registry'
 
 const requestOptionsSchema = z.object({
   starter: z.string().optional(),
@@ -26,11 +27,8 @@ export const Route = createFileRoute('/api/dry-run-create-app')({
         const { createMemoryEnvironment } = await import(
           '~/cta/lib/engine-handling/memory-environment'
         )
-        const { ensureFrameworkRegistered } = await import(
-          '~/cta/lib/engine-handling/framework-registry'
-        )
 
-        await ensureFrameworkRegistered()
+        ensureFrameworkRegistered()
 
         const body = await request.json()
         const validationResult = requestOptionsSchema.safeParse(body.options)

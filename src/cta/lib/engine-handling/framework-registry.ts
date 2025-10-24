@@ -1,14 +1,12 @@
+import { registerFramework } from '@tanstack/cta-engine'
+import { createFrameworkDefinition } from '@tanstack/cta-framework-react-cra'
+
 let frameworkRegistered = false
 
-export async function ensureFrameworkRegistered() {
+export function ensureFrameworkRegistered() {
   if (frameworkRegistered) {
     return
   }
-
-  const { registerFramework } = await import('@tanstack/cta-engine')
-  const { createFrameworkDefinition } = await import(
-    '@tanstack/cta-framework-react-cra'
-  )
 
   registerFramework(createFrameworkDefinition())
   frameworkRegistered = true

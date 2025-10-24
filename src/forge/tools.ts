@@ -9,6 +9,10 @@ import type { Id } from 'convex/_generated/dataModel'
 
 import { generateFileTree } from '~/forge/file-tree-generator'
 import type { DryRunOutput } from '~/forge/types'
+import { ensureFrameworkRegistered } from '~/forge/engine-handling/framework-registry'
+import { setServerEnvironment } from '~/forge/engine-handling/server-environment'
+import { addToAppWrapper } from '~/forge/engine-handling/add-to-app-wrapper'
+import { createAppWrapper } from '~/forge/engine-handling/create-app-wrapper'
 
 function enforceFSPath(path: string) {
   if (path.startsWith('./')) {
@@ -38,21 +42,9 @@ export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
     getAllAddOns,
     createDefaultEnvironment,
   } = await import('@tanstack/cta-engine')
-  const { addToAppWrapper } = await import(
-    '~/forge/engine-handling/add-to-app-wrapper'
-  )
-  const { createAppWrapper } = await import(
-    '~/forge/engine-handling/create-app-wrapper'
-  )
-  const { setServerEnvironment } = await import(
-    '~/forge/engine-handling/server-environment'
-  )
-  const { ensureFrameworkRegistered } = await import(
-    '~/forge/engine-handling/framework-registry'
-  )
 
   // Ensure framework is registered
-  await ensureFrameworkRegistered()
+  ensureFrameworkRegistered()
 
   const projectFiles = await convex.query(api.forge.getProjectFiles, {
     projectId: projectId as Id<'forge_projects'>,

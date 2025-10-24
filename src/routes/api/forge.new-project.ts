@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { ConvexHttpClient } from 'convex/browser'
 import { api } from 'convex/_generated/api'
+import { ensureFrameworkRegistered } from '~/forge/engine-handling/framework-registry'
 
 const convex = new ConvexHttpClient(process.env.CONVEX_URL!)
 
@@ -24,12 +25,9 @@ export const Route = createFileRoute('/api/forge/new-project')({
         const { setServerEnvironment } = await import(
           '~/forge/engine-handling/server-environment'
         )
-        const { ensureFrameworkRegistered } = await import(
-          '~/forge/engine-handling/framework-registry'
-        )
 
         try {
-          await ensureFrameworkRegistered()
+          ensureFrameworkRegistered()
           const { description } = await ctx.request.json()
 
           // This is a total hack, but it works

@@ -59,6 +59,45 @@ Why are we walking into the same trap again?
 
 ---
 
+### “Isn’t this just a Babel plugin/macro with different syntax?”
+
+Functionally, yes — both directives and custom transforms can change behavior at compile time. The issue isn’t capability; it’s surface and optics.
+
+- Directives look like the platform. No import, no owner, no explicit source. They signal “this is JavaScript.”
+- APIs/macros point to an owner. Imports provide provenance, versioning, and discoverability.
+
+At best, a directive is equivalent to calling a global, importless function like `window.useCache()` at the top of your file. That’s exactly why it’s risky: it hides the provider and smuggles framework semantics into what looks like language.
+
+Examples:
+
+```js
+'use cache'
+const fn = () => 'value'
+```
+
+```js
+// explicit API (imported, ownable, discoverable)
+import { createServerFn } from '@acme/runtime'
+export const fn = createServerFn(() => 'value')
+```
+
+```js
+// global magic (importless, hidden provider)
+window.useCache()
+const fn = () => 'value'
+```
+
+Why this matters:
+
+- Ownership and provenance: imports tell you who provides the behavior; directives do not.
+- Tooling ergonomics: APIs live in package space; directives require ecosystem-wide special-casing.
+- Portability and migration: replacing an imported API is straightforward; unwinding directive semantics across files is costly and ambiguous.
+- Education and expectations: directives blur the platform boundary; APIs make the boundary explicit.
+
+So while a custom Babel plugin or macro can implement the same underlying feature, the import-based API keeps it clearly in framework space. Directives move that same behavior into what looks like language space, which is the core concern of this post.
+
+---
+
 ### Directives Create an Ecosystem Arms Race
 
 Once directives become a competitive surface, the incentives shift:

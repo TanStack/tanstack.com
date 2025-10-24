@@ -5,7 +5,7 @@ authors:
   - Tanner Linsley
 ---
 
-![Directives Are Becoming the New Framework Lock In - A Quiet Problem in the JavaScript Ecosystem](/blog-assets/directives-the-new-framework-lock-in/header.jpg)
+![Directives Are Becoming the New Framework Lock In - A Quiet Problem in the JavaScript Ecosystem](/blog-assets/directives-the-new-framework-lock-in/header.png)
 
 For years, JavaScript has had exactly one meaningful directive, `"use strict"`. It is standardized, enforced by runtimes, and behaves the same in every environment. It represents a clear contract between the language, the engines, and developers.
 

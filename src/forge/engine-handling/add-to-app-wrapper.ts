@@ -5,6 +5,8 @@ import {
   createSerializedOptionsFromPersisted,
   readConfigFile,
   writeConfigFileToEnvironment,
+  createAppOptionsFromPersisted,
+  recursivelyGatherFiles,
 } from '@tanstack/cta-engine'
 
 import { TMP_TARGET_DIR } from '~/forge/constants'
@@ -22,12 +24,9 @@ export async function addToAppWrapper(
   }
 ) {
   // Dynamically import only the heavy file operation stuff
-  const {
-    addToApp,
-    createAppOptionsFromPersisted,
-    createMemoryEnvironment,
-    recursivelyGatherFiles,
-  } = await import('@tanstack/cta-engine')
+  const { addToApp, createMemoryEnvironment } = await import(
+    '@tanstack/cta-engine'
+  )
 
   const projectPath = getProjectPath()
 

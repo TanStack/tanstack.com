@@ -6,6 +6,7 @@ import {
   getRawRegistry,
   getRegistryAddOns,
   readConfigFile,
+  recursivelyGatherFiles,
 } from '@tanstack/cta-engine'
 
 import type { AddOnInfo } from '~/forge/types'
@@ -36,9 +37,6 @@ function convertAddOnToAddOnInfo(addOn: any): AddOnInfo {
 }
 
 export async function generateInitialPayload() {
-  // Dynamically import only the heavy file operation stuff
-  const { recursivelyGatherFiles } = await import('@tanstack/cta-engine')
-
   // Ensure framework is registered
   ensureFrameworkRegistered()
 

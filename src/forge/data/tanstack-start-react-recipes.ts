@@ -30,64 +30,73 @@ Optionally:
 │   ├── lib/                              # Shared business logic modules
 \`\`\`
 
+# Important Considerations
+
+- \`createFileRoute\` is auto-imported, you don't need to import it. ALL other helper functions MUST be imported.
+- At the top of many example code blocks is a comment with the name of the route. That is for your reference. It should NOT go into the file.
+
+# Local File System access
+
+- The entry point to ANY code that MUST be run on the server MUST be a server function or an API endpoint.
+- File system requests MUST be wrapped in server functions or API endpoints.
+
 # Page Routes
 
 ## Create A Simple Page Route
 
 \`\`\`ts
-import { createFileRoute } from "@tanstack/react-router";
-
-export const Route = createFileRoute("/")({
+// routes/index.tsx
+export const Route = createFileRoute('/')({
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  return <div>Hello World</div>;
+  return <div>Hello World</div>
 }
 \`\`\`
 
 ## Create A Lazily Imported Route
 
 \`\`\`ts
-import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
+// routes/index.tsx
+import { lazyRouteComponent } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/")({
-  component: lazyRouteComponent(() => import("./Post")),
-});
+export const Route = createFileRoute('/')({
+  component: lazyRouteComponent(() => import('./Post')),
+})
 
 function PageComponent() {
-  return <div>Hello World</div>;
+  return <div>Hello World</div>
 }
 \`\`\`
 
 ## Create An Authenticated Route
 
 \`\`\`ts
-import { createFileRoute } from "@tanstack/react-router";
-
-export const Route = createFileRoute("/_authenticated")({
+// routes/authenticated.tsx
+export const Route = createFileRoute('/authenticated')({
   beforeLoad: async ({ location }) => {
     if (!isAuthenticated()) {
       throw redirect({
-        to: "/login",
+        to: '/login',
         search: {
           redirect: location.href,
         },
-      });
+      })
     }
   },
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  return <div>Hello World</div>;
+  return <div>Hello World</div>
 }
 \`\`\`
 
 ### Page with Error Handler
 
 \`\`\`tsx
-import { createFileRoute } from '@tanstack/react-router'
+// routes/posts.tsx
 
 export const Route = createFileRoute('/posts')({
   loader: () => fetchPosts(),
@@ -119,33 +128,33 @@ function PageComponent() {
 ### Create A Parameterized Page Route
 
 \`\`\`ts
-import { createFileRoute } from "@tanstack/react-router";
-
-export const Route = createFileRoute("/posts/$postId")({
+// routes/posts/$postId.tsx
+export const Route = createFileRoute('/posts/$postId')({
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  const { postId } = Route.useParams();
-  return <div>Post: {postId}</div>;
+  const { postId } = Route.useParams()
+  return <div>Post: {postId}</div>
 }
 \`\`\`
 
 ### Create A Parameterized Page Route (with a selector)
 
 \`\`\`ts
-import { createFileRoute, useParams } from "@tanstack/react-router";
+// routes/posts/$postId.tsx
+import { useParams } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/posts/$postId")({
+export const Route = createFileRoute('/posts/$postId')({
   component: PageComponent,
-});
+})
 
 function PageComponent() {
   const postId = useParams({
-    from: "/posts/$postId",
+    from: '/posts/$postId',
     select: (params) => params.postId,
-  });
-  return <div>Post: {postId}</div>;
+  })
+  return <div>Post: {postId}</div>
 }
 \`\`\`
 
@@ -227,38 +236,42 @@ function Component() {
 
 ## Loaders
 
+Loaders are used to request data on the server before the page is rendered during Server Side Rendering (SSR).
+
+If a \`loader\` is requesting data from a file system or fetching from an external URL those calls MUST be wrapped in server functions.
+
 ### Loading a Page With Sychronous Data
 
 \`\`\`ts
-import { createFileRoute } from "@tanstack/react-router";
+// routes/names.tsx
 
-export const Route = createFileRoute("/names")({
-  loader: () => ({ names: ["Jack"] }),
+export const Route = createFileRoute('/names')({
+  loader: () => ({ names: ['Jack'] }),
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  const { names } = route.useLoaderData();
+  const { names } = route.useLoaderData()
 
-  return <div>{JSON.stringify(names)}</div>;
+  return <div>{JSON.stringify(names)}</div>
 }
 \`\`\`
 
 ### Loader With Path Parameters
 
 \`\`\`ts
-import { createFileRoute } from '@tanstack/react-router'
+// routes/posts/$postId.tsx
 
 export const Route = createFileRoute('/posts/$postId')({
   loader: ({ params: { postId } }) => fetchPostById(postId),
+  component: () => <div>Hello</div>,
 })
 \`\`\`
 
 ### Loader With Search Parameters
 
 \`\`\`ts
-import { createFileRoute } from '@tanstack/react-router'
-
+// routes/posts.tsx
 export const Route = createFileRoute('/posts')({
   validateSearch: (search) =>
     search as {
@@ -271,13 +284,14 @@ export const Route = createFileRoute('/posts')({
       offset,
       limit,
     }),
+  component: () => <div>Hello</div>,
 })
 \`\`\`
 
 ### Loader With Abort Signal
 
 \`\`\`tsx
-import { createFileRoute } from '@tanstack/react-router'
+// routes/posts.tsx
 
 export const Route = createFileRoute('/posts')({
   loader: ({ abortController }) =>
@@ -290,51 +304,54 @@ export const Route = createFileRoute('/posts')({
 ### Wrap Promise Returned From Page Loader with Component
 
 \`\`\`ts
-import { createFileRoute, Await } from "@tanstack/react-router";
+// routes/index.tsx
+import { Await } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   loader: () => {
-    const deferredPromise = defer(fetch("/api/data"));
-    return { deferredPromise };
+    const deferredPromise = defer(fetch('/api/data'))
+    return { deferredPromise }
   },
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  const { deferredPromise } = route.useLoaderData();
+  const { deferredPromise } = route.useLoaderData()
 
   return (
     <Await promise={deferredPromise}>
       {(data) => <div>{JSON.stringify(data)}</div>}
     </Await>
-  );
+  )
 }
 \`\`\`
 
 ### Get Data Returned From Promise In Loader Using a Hook
 
 \`\`\`ts
-import { createFileRoutem, useAwaited } from "@tanstack/react-router";
+// routes/index.tsx
 
-export const Route = createFileRoute("/")({
+import { useAwaited } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/')({
   loader: () => {
-    const deferredPromise = defer(fetch("/api/data"));
-    return { deferredPromise };
+    const deferredPromise = defer(fetch('/api/data'))
+    return { deferredPromise }
   },
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  const { deferredPromise } = route.useLoaderData();
+  const { deferredPromise } = route.useLoaderData()
 
   /*
   - Throws an error if the promise is rejected.
   - Suspends (throws a promise) if the promise is pending.
   - Returns the resolved value of a deferred promise if the promise is resolved.
   */
-  const data = useAwaited({ promise: myDeferredPromise });
+  const data = useAwaited({ promise: myDeferredPromise })
 
-  return <div>{JSON.stringify(data)}</div>;
+  return <div>{JSON.stringify(data)}</div>
 }
 \`\`\`
 
@@ -375,7 +392,7 @@ function Component() {
 ### With A Loader
 
 \`\`\`tsx
-import { createFileRoute } from '@tanstack/react-router'
+// routes/posts.tsx
 import { queryOptions } from '@tanstack/react-query'
 
 const postsQueryOptions = queryOptions({
@@ -408,6 +425,7 @@ function PageComponent() {
 ### Disabling Server Side Rendering
 
 \`\`\`tsx
+// routes/posts/$postId.tsx
 export const Route = createFileRoute('/posts/$postId')({
   ssr: false,
   beforeLoad: () => {
@@ -444,7 +462,7 @@ import { createServerFn } from '@tanstack/react-start'
 export const greet = createServerFn({
   method: 'GET',
 })
-  .validator((data: string) => data)
+  .inputValidator((data: string) => data)
   .handler(async (ctx) => {
     return \`Hello, \${ctx.data}!\`
   })
@@ -467,7 +485,7 @@ const Person = z.object({
 })
 
 export const greet = createServerFn({ method: 'GET' })
-  .validator((person: unknown) => {
+  .inputValidator((person: unknown) => {
     return Person.parse(person)
   })
   .handler(async (ctx) => {
@@ -540,8 +558,8 @@ export const streamEvents = createServerFn({
         // Send a data chunk
         controller.enqueue(
           new TextEncoder().encode(
-            \`Event \${++count}: \${new Date().toISOString()}\\n\`,
-          ),
+            \`Event \${++count}: \${new Date().toISOString()}\\n\`
+          )
         )
 
         // End after 10 events
@@ -592,7 +610,7 @@ export const abortableServerFn = createServerFn().handler(
       }
       signal.addEventListener('abort', onAbort, { once: true })
     })
-  },
+  }
 )
 
 // Usage
@@ -632,19 +650,27 @@ export function Time() {
 ### Server Functions From Loaders
 
 \`\`\`ts
-import { createServerFn } from "@tanstack/react-start";
-import { createFileRoute } from "@tanstack/react-router";
+// routes/posts.tsx
+import { createServerFn } from '@tanstack/react-start'
+import fs from 'node:fs'
+import path from 'node:path'
 
-const getUsers = createServerFn(async () => await db.getUsers());
+const getNames = createServerFn({
+  method: 'GET',
+}).handler(async () => {
+  const filePath = path.join(process.cwd(), 'names.json')
+  const data = fs.readFileSync(filePath, 'utf8')
+  return JSON.parse(data) as { names: string[] }
+})
 
-export const Route = createFileRoute("/posts")({
-  loader: () => getUsers(),
+export const Route = createFileRoute('/posts')({
+  loader: () => getNames(),
   component: PageComponent,
-});
+})
 
 function PageComponent() {
-  const users = Route.useLoaderData();
-  return <div>Hello World</div>;
+  const { names } = Route.useLoaderData()
+  return <div>Hello World</div>
 }
 \`\`\`
 
@@ -653,11 +679,14 @@ function PageComponent() {
 ### Simple Server Route
 
 \`\`\`tsx
-import { createServerFileRoute } from '@tanstack/react-start'
-
-export const ServerRoute = createServerFileRoute('/hello').methods({
-  GET: async ({ request }) => {
-    return new Response('Hello, World! from ' + request.url)
+// routes/hello.ts
+export const Route = createFileRoute('/hello')({
+  server: {
+    handlers: {
+      GET: async ({ request }) => {
+        return new Response('Hello, World! from ' + request.url)
+      },
+    },
   },
 })
 \`\`\`
@@ -665,12 +694,15 @@ export const ServerRoute = createServerFileRoute('/hello').methods({
 ### Server Route on POST with JSON message body
 
 \`\`\`tsx
-import { createServerFileRoute } from '@tanstack/react-start'
-
-export const ServerRoute = createServerFileRoute('/hello').methods({
-  POST: async ({ request }) => {
-    const body = await request.json()
-    return Response.json({ message: \`Hello, \${body.name}!\` })
+// routes/hello.ts
+export const Route = createFileRoute('/hello')({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const body = await request.json()
+        return Response.json({ message: \`Hello, \${body.name}!\` })
+      },
+    },
   },
 })
 \`\`\`
@@ -678,14 +710,15 @@ export const ServerRoute = createServerFileRoute('/hello').methods({
 ### Server Route with Route Parameters
 
 \`\`\`tsx
-import { createServerFileRoute } from '@tanstack/react-start'
-
-export const ServerRoute = createServerFileRoute(
-  '/users/$id/posts/$postId',
-).methods({
-  GET: async ({ params }) => {
-    const { id, postId } = params
-    return new Response(\`User ID: \${id}, Post ID: \${postId}\`)
+// routes/users/$id/posts/$postId.ts
+export const Route = createFileRoute('/users/$id/posts/$postId')({
+  server: {
+    handlers: {
+      GET: async ({ params }) => {
+        const { id, postId } = params
+        return new Response(\`User ID: \${id}, Post ID: \${postId}\`)
+      },
+    },
   },
 })
 \`\`\`
@@ -694,40 +727,61 @@ export const ServerRoute = createServerFileRoute(
 
 \`\`\`tsx
 // routes/hello.ts
-export const ServerRoute = createServerFileRoute('/hello').methods((api) => ({
-  GET: api.middleware([loggerMiddleware]).handler(async ({ request }) => {
-    return new Response('Hello, World! from ' + request.url)
-  }),
-}))
+export const Route = createFileRoute('/hello')({
+  server: {
+    handlers: ({ createHandlers }) =>
+      createHandlers({
+        GET: {
+          middleware: [loggerMiddleware],
+          handler: async ({ request }) => {
+            return new Response('Hello, World! from ' + request.url)
+          },
+        },
+      }),
+  },
+})
 \`\`\`
 
 ### Responding With JSON
 
+In order to use the \`json\` method you MUST import the \`json\` method from \`@tanstack/react-start\`.
+
 \`\`\`tsx
+// routes/hello.ts
 import { json } from '@tanstack/react-start'
 
-export const ServerRoute = createServerFileRoute().methods({
-  GET: async ({ request }) => {
-    return json({ message: 'Hello, World!' })
+export const Route = createFileRoute('/hello')({
+  server: {
+    handlers: {
+      GET: async () => {
+        return json({ message: 'Hello, World!' })
+      },
+    },
   },
 })
 \`\`\`
 
 ### Responding With A Status Code
 
+In order to use the \`json\` method you MUST import the \`json\` method from \`@tanstack/react-start\`.
+
 \`\`\`ts
 // routes/hello.ts
 import { json } from '@tanstack/react-start'
 
-export const ServerRoute = createServerFileRoute().methods({
-  GET: async ({ request, params }) => {
-    const user = await findUser(params.id)
-    if (!user) {
-      return new Response('User not found', {
-        status: 404,
-      })
-    }
-    return json(user)
+export const Route = createFileRoute('/hello')({
+  server: {
+    handlers: {
+      GET: async ({ params }) => {
+        const user = await findUser(params.id)
+        if (!user) {
+          return new Response('User not found', {
+            status: 404,
+          })
+        }
+        return json(user)
+      },
+    },
   },
 })
 \`\`\`
@@ -735,54 +789,60 @@ export const ServerRoute = createServerFileRoute().methods({
 ### Responding With A Stream
 
 \`\`\`tsx
-import { json } from '@tanstack/react-start'
+// routes/hello.ts
 
-export const ServerRoute = createServerFileRoute().methods({
-  GET: async ({ request }) => {
-    const stream = new ReadableStream({
-      async start(controller) {
-        // Send initial response immediately
-        controller.enqueue(new TextEncoder().encode('Connection established\\n'))
+export const Route = createFileRoute('/hello')({
+  server: {
+    handlers: {
+      GET: async () => {
+        const stream = new ReadableStream({
+          async start(controller) {
+            // Send initial response immediately
+            controller.enqueue(
+              new TextEncoder().encode('Connection established\\n')
+            )
 
-        let count = 0
-        const interval = setInterval(() => {
-          // Check if the client disconnected
-          if (signal.aborted) {
-            clearInterval(interval)
-            controller.close()
-            return
-          }
+            let count = 0
+            const interval = setInterval(() => {
+              // Check if the client disconnected
+              if (signal.aborted) {
+                clearInterval(interval)
+                controller.close()
+                return
+              }
 
-          // Send a data chunk
-          controller.enqueue(
-            new TextEncoder().encode(
-              \`Event \${++count}: \${new Date().toISOString()}\\n\`,
-            ),
-          )
+              // Send a data chunk
+              controller.enqueue(
+                new TextEncoder().encode(
+                  \`Event \${++count}: \${new Date().toISOString()}\\n\`
+                )
+              )
 
-          // End after 10 events
-          if (count >= 10) {
-            clearInterval(interval)
-            controller.close()
-          }
-        }, 1000)
+              // End after 10 events
+              if (count >= 10) {
+                clearInterval(interval)
+                controller.close()
+              }
+            }, 1000)
 
-        // Ensure we clean up if the request is aborted
-        signal.addEventListener('abort', () => {
-          clearInterval(interval)
-          controller.close()
+            // Ensure we clean up if the request is aborted
+            signal.addEventListener('abort', () => {
+              clearInterval(interval)
+              controller.close()
+            })
+          },
+        })
+
+        // Return a streaming response
+        return new Response(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            Connection: 'keep-alive',
+          },
         })
       },
-    })
-
-    // Return a streaming response
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
-      },
-    })
+    },
   },
 })
 \`\`\`
@@ -791,17 +851,15 @@ export const ServerRoute = createServerFileRoute().methods({
 
 \`\`\`tsx
 // routes/hello.tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { createServerFileRoute } from '@tanstack/react-start'
-
-export const ServerRoute = createServerFileRoute('/hello').methods({
-  POST: async ({ request }) => {
-    const body = await request.json()
-    return new Response(JSON.stringify({ message: \`Hello, \${body.name}!\` }))
-  },
-})
-
 export const Route = createFileRoute('/hello')({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const body = await request.json()
+        return new Response(JSON.stringify({ message: \`Hello, \${body.name}!\` }))
+      },
+    },
+  },
   component: HelloComponent,
 })
 
@@ -829,4 +887,4 @@ function HelloComponent() {
   )
 }
 \`\`\`
-`
+`;

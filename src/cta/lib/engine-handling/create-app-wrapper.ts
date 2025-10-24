@@ -1,4 +1,10 @@
 import { resolve } from 'node:path'
+import {
+  createDefaultEnvironment,
+  finalizeAddOns,
+  getFrameworkById,
+  loadStarter,
+} from '@tanstack/cta-engine'
 
 import { TMP_TARGET_DIR } from '../constants'
 
@@ -17,14 +23,8 @@ export async function createAppWrapper(
     environmentFactory?: () => any
   }
 ) {
-  // Dynamically import CTA engine to prevent client bundling
-  const {
-    createApp,
-    createDefaultEnvironment,
-    finalizeAddOns,
-    getFrameworkById,
-    loadStarter,
-  } = await import('@tanstack/cta-engine')
+  // Dynamically import only the heavy file operation stuff
+  const { createApp } = await import('@tanstack/cta-engine')
 
   // Ensure framework is registered
   ensureFrameworkRegistered()

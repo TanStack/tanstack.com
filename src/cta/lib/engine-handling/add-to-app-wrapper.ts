@@ -1,4 +1,12 @@
 import { resolve } from 'node:path'
+import {
+  CONFIG_FILE,
+  createDefaultEnvironment,
+  createSerializedOptionsFromPersisted,
+  readConfigFile,
+  writeConfigFileToEnvironment,
+} from '@tanstack/cta-engine'
+
 import { TMP_TARGET_DIR } from '../constants'
 import { cleanUpFileArray, cleanUpFiles } from './file-helpers'
 import { getProjectPath } from './server-environment'
@@ -17,17 +25,9 @@ export async function addToAppWrapper(
     environmentFactory?: () => any
   }
 ) {
-  // Dynamically import CTA engine to prevent client bundling
-  const {
-    CONFIG_FILE,
-    addToApp,
-    createAppOptionsFromPersisted,
-    createDefaultEnvironment,
-    createSerializedOptionsFromPersisted,
-    readConfigFile,
-    recursivelyGatherFiles,
-    writeConfigFileToEnvironment,
-  } = await import('@tanstack/cta-engine')
+  // Dynamically import only the heavy file operation stuff
+  const { addToApp, createAppOptionsFromPersisted, recursivelyGatherFiles } =
+    await import('@tanstack/cta-engine')
 
   const projectPath = getProjectPath()
 

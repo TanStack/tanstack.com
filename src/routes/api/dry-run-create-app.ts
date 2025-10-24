@@ -1,5 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
+import {
+  finalizeAddOns,
+  getFrameworkById,
+  loadStarter,
+} from '@tanstack/cta-engine'
+
 import { ensureFrameworkRegistered } from '~/cta/lib/engine-handling/framework-registry'
 
 const requestOptionsSchema = z.object({
@@ -16,14 +22,8 @@ export const Route = createFileRoute('/api/dry-run-create-app')({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // Import server-only modules inside the handler to prevent client bundling
-        const {
-          createApp,
-          finalizeAddOns,
-          getFrameworkById,
-          loadStarter,
-          Starter,
-        } = await import('@tanstack/cta-engine')
+        // Dynamically import only the heavy file operation stuff
+        const { createApp } = await import('@tanstack/cta-engine')
         const { createMemoryEnvironment } = await import(
           '~/cta/lib/engine-handling/memory-environment'
         )
@@ -56,7 +56,7 @@ export const Route = createFileRoute('/api/dry-run-create-app')({
           { framework }
         )
 
-        let starter: Starter | undefined
+        let starter: any | undefined
         const addOns: Array<string> = [...createAppOptions.chosenAddOns]
         if (createAppOptions.starter) {
           starter = await loadStarter(createAppOptions.starter)

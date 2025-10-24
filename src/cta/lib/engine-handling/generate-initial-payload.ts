@@ -1,4 +1,12 @@
 import { basename, resolve } from 'node:path'
+import {
+  createSerializedOptionsFromPersisted,
+  getAllAddOns,
+  getFrameworkById,
+  getRawRegistry,
+  getRegistryAddOns,
+  readConfigFile,
+} from '@tanstack/cta-engine'
 
 import { ensureFrameworkRegistered } from './framework-registry'
 import { cleanUpFiles } from './file-helpers'
@@ -29,16 +37,8 @@ function convertAddOnToAddOnInfo(addOn: any): AddOnInfo {
 }
 
 export async function generateInitialPayload() {
-  // Dynamically import CTA engine modules to prevent client bundling
-  const {
-    createSerializedOptionsFromPersisted,
-    getAllAddOns,
-    getFrameworkById,
-    getRawRegistry,
-    getRegistryAddOns,
-    readConfigFile,
-    recursivelyGatherFiles,
-  } = await import('@tanstack/cta-engine')
+  // Dynamically import only the heavy file operation stuff
+  const { recursivelyGatherFiles } = await import('@tanstack/cta-engine')
 
   // Ensure framework is registered
   ensureFrameworkRegistered()

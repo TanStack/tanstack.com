@@ -7,6 +7,13 @@ import { dirname } from 'path'
 import { api } from 'convex/_generated/api'
 import type { Id } from 'convex/_generated/dataModel'
 
+import {
+  createSerializedOptionsFromPersisted,
+  getFrameworkById,
+  getAllAddOns,
+  createDefaultEnvironment,
+} from '@tanstack/cta-engine'
+
 import { generateFileTree } from '~/forge/file-tree-generator'
 import type { DryRunOutput } from '~/forge/types'
 import { ensureFrameworkRegistered } from '~/forge/engine-handling/framework-registry'
@@ -35,14 +42,6 @@ function enforceStoredPath(path: string) {
 }
 
 export const getTools = async (convex: ConvexHttpClient, projectId: string) => {
-  // Dynamically import CTA engine modules to prevent client bundling
-  const {
-    createSerializedOptionsFromPersisted,
-    getFrameworkById,
-    getAllAddOns,
-    createDefaultEnvironment,
-  } = await import('@tanstack/cta-engine')
-
   // Ensure framework is registered
   ensureFrameworkRegistered()
 

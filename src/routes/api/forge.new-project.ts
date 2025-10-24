@@ -1,5 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { ConvexHttpClient } from 'convex/browser'
+import { getFrameworkById, getAllAddOns } from '@tanstack/cta-engine'
+
 import { api } from 'convex/_generated/api'
 import { ensureFrameworkRegistered } from '~/forge/engine-handling/framework-registry'
 
@@ -9,13 +11,10 @@ export const Route = createFileRoute('/api/forge/new-project')({
   server: {
     handlers: {
       POST: async (ctx) => {
-        // Import server-only modules inside the handler to prevent client bundling
+        // Dynamically import only the heavy AI and file operation stuff
         const { anthropic } = await import('@ai-sdk/anthropic')
         const { openai } = await import('@ai-sdk/openai')
         const { generateText } = await import('ai')
-        const { getFrameworkById, getAllAddOns } = await import(
-          '@tanstack/cta-engine'
-        )
         const { initialize } = await import(
           '~/forge/engine-handling/initialize'
         )

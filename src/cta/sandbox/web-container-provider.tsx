@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from 'react'
 import { useStore } from 'zustand'
-import createWebContainerStore from '../webcontainer-store'
+import createWebContainerStore from './use-webcontainer-store'
 
 export const WebContainerContext = createContext<ReturnType<
   typeof createWebContainerStore
@@ -9,11 +9,20 @@ export const WebContainerContext = createContext<ReturnType<
 export default function WebContainerProvider({
   children,
   projectFiles,
+  shouldShimALS = true,
 }: {
   children: React.ReactNode
   projectFiles: Array<{ path: string; content: string }>
+  shouldShimALS?: boolean
 }) {
-  const [containerStore] = useState(() => createWebContainerStore(true))
+  console.log(
+    'WebContainerProvider rendering with',
+    projectFiles.length,
+    'files'
+  )
+  const [containerStore] = useState(() =>
+    createWebContainerStore(shouldShimALS)
+  )
 
   const updateProjectFiles = useStore(
     containerStore,
@@ -21,16 +30,13 @@ export default function WebContainerProvider({
   )
 
   useEffect(() => {
+    console.log(
+      'WebContainerProvider useEffect triggered with',
+      projectFiles.length,
+      'files'
+    )
     updateProjectFiles(projectFiles)
   }, [updateProjectFiles, projectFiles])
-
-  const teardown = useStore(containerStore, (state) => state.teardown)
-
-  // useEffect(() => {
-  //   return () => {
-  //     teardown()
-  //   }
-  // }, [])
 
   return (
     <WebContainerContext.Provider value={containerStore}>

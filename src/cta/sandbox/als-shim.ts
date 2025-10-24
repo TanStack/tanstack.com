@@ -1,7 +1,7 @@
 const ALS_RESOLVER = `resolve: {
   alias: {
-    'node:async_hooks': '\0virtual:async_hooks',
-    async_hooks: '\0virtual:async_hooks',
+    'node:async_hooks': '\\0virtual:async_hooks',
+    async_hooks: '\\0virtual:async_hooks',
   },
 },`
 
@@ -94,19 +94,17 @@ function alsShim(): PluginOption {
         resolve: {
           alias: {
             // catch both forms
-            'node:async_hooks': '\0virtual:async_hooks',
-            async_hooks: '\0virtual:async_hooks',
+            'node:async_hooks': '\\0virtual:async_hooks',
+            async_hooks: '\\0virtual:async_hooks',
           },
         },
       };
     },
     resolveId(id) {
-      if (id === '\0virtual:async_hooks') return id;
+      if (id === '\\0virtual:async_hooks') return id;
     },
     load(id) {
-      if (id !== '\0virtual:async_hooks') return null;
-
-      console.log('loaded!', id);
+      if (id !== '\\0virtual:async_hooks') return null;
 
       return \`${ALS_SHIM}\`;
     },

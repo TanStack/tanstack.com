@@ -1,8 +1,8 @@
 import { useContext } from 'react'
 import { useStore } from 'zustand'
 
-import { SetupStep } from '~/forge/webcontainer-store'
-import { WebContainerContext } from './web-container-provider'
+import type { SetupStep } from '~/cta/sandbox/use-webcontainer-store'
+import { WebContainerContext } from '~/cta/sandbox/web-container-provider'
 
 export function WebContainerPreview() {
   const containerStore = useContext(WebContainerContext)
@@ -22,6 +22,10 @@ export function WebContainerPreview() {
   const startDevServer = useStore(
     containerStore,
     (state) => state.startDevServer
+  )
+  const setTerminalOutput = useStore(
+    containerStore,
+    (state) => state.setTerminalOutput
   )
 
   const getStepIcon = (step: SetupStep) => {

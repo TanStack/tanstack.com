@@ -8,6 +8,20 @@ import { analyzer } from 'vite-bundle-analyzer'
 import viteReact from '@vitejs/plugin-react'
 import netlify from '@netlify/vite-plugin-tanstack-start'
 
+// Plugin to add Cross-Origin headers for WebContainer support
+function crossOriginIsolation() {
+  return {
+    name: 'cross-origin-isolation',
+    configureServer(server) {
+      server.middlewares.use((_req, res, next) => {
+        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
+        next()
+      })
+    },
+  }
+}
+
 export default defineConfig({
   server: {
     port: 3000,
@@ -20,6 +34,7 @@ export default defineConfig({
     exclude: ['@tanstack/cta-engine', '@tanstack/cta-framework-react-cra'],
   },
   plugins: [
+    crossOriginIsolation(),
     tsConfigPaths({
       projects: ['./tsconfig.json'],
     }),

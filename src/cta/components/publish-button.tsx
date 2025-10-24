@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useDeploymentStore } from '../store/deployment'
 import { useDryRun, useProjectName } from '../store/project'
-import { useWebContainer } from '../hooks/use-web-container'
+import { useSandboxWebContainerResolved } from '../sandbox/use-sandbox-webcontainer'
 import { useDevServerStore } from '../store/dev-server'
 import { RocketIcon } from './icons/rocket'
 import { useAction } from 'convex/react'
@@ -13,7 +13,7 @@ export function PublishButton() {
   const [isDeploying, setIsDeploying] = useState(false)
   const dryRun = useDryRun()
   const projectName = useProjectName()
-  const webContainer = useWebContainer()
+  const webContainer = useSandboxWebContainerResolved()
   const deployToNetlify = useAction(api.netlifyDeploy.deployToNetlify)
   const { stopDevServer, setDevProcess, setIsRunning } = useDevServerStore()
   const {

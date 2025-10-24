@@ -1,17 +1,31 @@
+import { useMemo } from 'react'
 import { BuilderSidebar } from './cta-sidebar'
 import { BuilderHeader } from './header'
 import { CTABackgroundAnimation } from './background-animation'
 import FileNavigator from './file-navigator'
 import StartupDialog from './startup-dialog'
 import { CTAProvider } from './cta-provider'
-import { BuilderPreview } from './preview'
-import WebContainerProvider from './web-container-provider'
+import { BuilderPreview } from './builder-preview'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
+import { useDryRun } from '../store/project'
+import WebContainerProvider from '../sandbox/web-container-provider'
 
 export default function BuilderRoot() {
+  const dryRun = useDryRun()
+
+  // Convert dryRun.files (Record<string, string>) to projectFiles array
+  const projectFiles = useMemo(() => {
+    if (!dryRun?.files) return []
+
+    return Object.entries(dryRun.files).map(([path, content]) => ({
+      path: path.startsWith('./') ? path : `./${path}`,
+      content: String(content),
+    }))
+  }, [dryRun.files])
+
   return (
     <CTAProvider>
-      <WebContainerProvider>
+      <WebContainerProvider projectFiles={projectFiles} shouldShimALS={true}>
         <main className="w-screen min-w-[1280px]">
           <CTABackgroundAnimation />
           <div className="h-dvh p-2 sm:p-4 flex flex-col gap-2 sm:gap-4 @container">

@@ -20,7 +20,7 @@ import {
 import { TabbedViewer } from '~/forge/ui/tabbed-viewer'
 import Chat from '~/forge/ui/chat'
 import { ForgeExportDropdown } from '~/forge/ui/export-dropdown'
-import WebContainerProvider from '~/forge/ui/web-container-provider'
+import WebContainerProvider from '~/cta/sandbox/web-container-provider'
 
 function deserializeMessage(message: {
   content: string

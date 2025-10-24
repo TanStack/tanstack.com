@@ -96,6 +96,31 @@ Why this matters:
 
 So while a custom Babel plugin or macro can implement the same underlying feature, the import-based API keeps it clearly in framework space. Directives move that same behavior into what looks like language space, which is the core concern of this post.
 
+### “Does namespacing fix it?” (e.g., "use next.js cache")
+
+Namespacing helps human discoverability, but it doesn’t address the core problems:
+
+- It still looks like the platform. A top-level string literal implies language, not library.
+- It still lacks provenance and versioning at the module level. Imports encode both; strings do not.
+- It still requires special-casing across the toolchain (bundlers, linters, IDEs), rather than leveraging normal import resolution.
+- It still encourages pseudo-standardization of syntax without a spec, just with vendor prefixes.
+- It still increases migration cost compared to swapping an imported API.
+
+Examples:
+
+```js
+'use next.js cache'
+const fn = () => 'value'
+```
+
+```js
+// explicit, ownable API with provenance and versioning
+import { cache } from 'next/cache'
+export const fn = cache(() => 'value')
+```
+
+If the goal is provenance, imports already solve that cleanly and work with today’s ecosystem. If the goal is a shared cross-framework primitive, that needs a real spec, not vendor strings that look like syntax.
+
 ---
 
 ### Directives Create an Ecosystem Arms Race

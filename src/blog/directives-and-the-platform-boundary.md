@@ -192,6 +192,64 @@ Even durable tasks, caching strategies, and execution locations are now being en
 
 ---
 
+### Considering APIs instead of directives for option‑rich features
+
+Durable execution is a good example (e.g., `'use workflow'`, `'use step'`), but the point is general: directives can collapse behavior to a boolean, while many features benefit from options and room to evolve. Compilers and transforms can support either surface; this is about choosing the right one for longevity and clarity.
+
+```js
+'use workflow'
+'use step'
+```
+
+One option: an explicit API with provenance and options:
+
+```js
+import { workflow, step } from '@workflows/workflow'
+
+export const sendEmail = workflow(
+  async (input) => {
+    /* ... */
+  },
+  { retries: 3, timeout: '1m' }
+)
+
+export const handle = step(
+  'fetchUser',
+  async () => {
+    /* ... */
+  },
+  { cache: 60 }
+)
+```
+
+Function forms can be just as AST/transform‑friendly as directives, and they carry provenance (imports) and type‑safety.
+
+Another option is to inject a global once and type it:
+
+```ts
+// bootstrap once
+globalThis.workflow = createWorkflow()
+// global types (e.g., global.d.ts)
+declare global {
+  var workflow: typeof import('@workflows/workflow').workflow
+}
+```
+
+Usage stays API‑shaped, without directives:
+
+```ts
+export const task = workflow(
+  async () => {
+    /* ... */
+  },
+  { retries: 5 }
+)
+```
+
+Compilers that extend ergonomics are great. Just look at JSX is a useful precedent! We just need to do it carefully and responsibly: extend via APIs with clear provenance and types, not top‑level strings that look like the language. These are options, not prescriptions.
+
+---
+
 ### Subtle forms of lock‑in can emerge
 
 Even when there is no bad intent, directives create lock in by design:
@@ -222,7 +280,7 @@ If multiple frameworks truly want shared primitives, a responsible path is:
 - Propose primitives to TC39 when appropriate
 - Keep non standard features clearly scoped to API space, not language space
 
-Directives should be rare, stable, and standardized—used judiciously rather than proliferating across vendors.
+Directives should be rare, stable, standardized and especially used judiciously rather than proliferating across vendors.
 
 ---
 
@@ -234,7 +292,7 @@ It’s tempting to compare criticism of directives to the early skepticism aroun
 
 ### The bottom line
 
-Framework directives might feel like DX magic today, but the current trend risks a more fragmented future—dialects defined not by standards, but by tools.
+Framework directives might feel like DX magic today, but the current trend risks a more fragmented future consisting of dialects defined not by standards, but by tools.
 
 We can aim for clearer boundaries.
 

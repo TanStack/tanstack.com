@@ -229,10 +229,6 @@ Directives should be rare, stable, and standardized, not multiplied by every ven
 
 ---
 
-### Respectfully: this is not a critique of the React core team
-
-I don’t want to offend the React team. Their vision for Server Components extends beyond React-the-library, and directives were a deliberate part of that design. For their base case, the solution works. My critique is about how this pattern generalizes across the ecosystem: it’s underpowered and overly trusting when others lean on directives for capabilities that really require explicit, ownable APIs with options.
-
 ### This is not the JSX/virtual DOM moment
 
 It’s tempting to compare criticism of directives to the early skepticism around React’s JSX or the virtual DOM. I get the sentiment, but the failure modes are different. JSX and the VDOM did not masquerade as language features; they came with explicit imports, provenance, and tooling boundaries. Directives, by contrast, live at the top-level of files and look like the platform, which creates ecosystem expectations and tooling burdens without a shared spec.

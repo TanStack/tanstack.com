@@ -17,7 +17,7 @@ There is just one problem.
 
 **They are not JavaScript.**
 
-They are not standardized. Browsers do not understand them. They have no governing specification. And each framework is free to define its own meaning, its own rules, and its own edge cases.
+They are not standardized. Runtimes don't understand them. They have no governing specification. And each framework is free to define its own meaning, its own rules, and its own edge cases.
 
 This might feel harmless or ergonomic today, but it carries long term consequences for the ecosystem, consequences we have seen before.
 

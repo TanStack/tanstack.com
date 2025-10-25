@@ -85,6 +85,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       description,
       filePath,
       content: frontMatter.content,
+      frontmatter: frontMatter.data,
     }
   })
 

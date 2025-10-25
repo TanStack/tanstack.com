@@ -16,7 +16,7 @@ But now we are watching a new trend emerge. Frameworks are inventing their own t
 
 There is an important distinction: these are not standardized JavaScript features. Runtimes don't understand them, there is no governing specification, and each framework is free to define its own meaning, rules, and edge cases.
 
-This can feel ergonomic today, but it also increases confusion, complicates debugging, and imposes costs on tooling and portability—patterns we’ve seen before.
+This can feel ergonomic today, but it also increases confusion, complicates debugging, and imposes costs on tooling and portability, patterns we’ve seen before.
 
 ---
 
@@ -77,7 +77,7 @@ export const action = server(
 )
 ```
 
-APIs carry provenance (imports), versioning (packages), composition (functions), and testability. Directives typically don’t — and trying to encode options into them can quickly become a design smell.
+APIs carry provenance (imports), versioning (packages), composition (functions), and testability. Directives typically don’t, and trying to encode options into them can quickly become a design smell.
 
 ---
 
@@ -104,7 +104,7 @@ An example of where we've seen these struggles before is with decorators. TypeSc
 
 ### “Isn’t this just a Babel plugin/macro with different syntax?”
 
-Functionally, yes — both directives and custom transforms can change behavior at compile time. The issue isn’t capability; it’s surface and optics.
+Functionally, yes. Both directives and custom transforms can change behavior at compile time. The issue isn’t capability; it’s surface and optics.
 
 - Directives look like the platform. No import, no owner, no explicit source. They signal “this is JavaScript.”
 - APIs/macros point to an owner. Imports provide provenance, versioning, and discoverability.

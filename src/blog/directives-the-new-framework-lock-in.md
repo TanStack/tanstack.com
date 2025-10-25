@@ -36,6 +36,50 @@ We are already seeing confusion in the wild. Many developers now believe `use cl
 
 ---
 
+### Credit where it's due: `use server` and `use client`
+
+Some directives exist because multiple tools needed a single, simple coordination point. In practice, `use server` and `use client` are pragmatic shims that tell bundlers and runtimes where code is allowed to execute in an RSC world. They have seen relatively broad support across bundlers precisely because the scope is narrow: execution location.
+
+That said, even these show the limits of directives once real-world needs appear. At scale, you often need parameters and policies that matter deeply to correctness and security: HTTP method, headers, middleware, auth context, tracing, caching behaviors, and more. Directives have no natural place to carry those options, which means they are frequently ignored, bolted on elsewhere, or re-encoded as new directive variants.
+
+### The real offenders: option-laden directives and directive-adjacent APIs
+
+When a directive immediately, or soon after creation, needs options or spawns siblings (e.g., `'use cache:remote'`) and helper calls like `cacheLife(...)`, that’s a strong signal the feature wants to be an API, not a string at the top of a file. If you know you need a function anyway, just use a function for all of it.
+
+Examples:
+
+```js
+'use cache:remote'
+const fn = () => 'value'
+```
+
+```js
+// explicit API with provenance and options
+import { cache } from 'next/cache'
+export const fn = cache(() => 'value', {
+  strategy: 'remote',
+  ttl: 60,
+})
+```
+
+And for server behavior where details matter:
+
+```js
+import { server } from '@acme/runtime'
+
+export const action = server(async (req) => {
+  return new Response('ok')
+}, {
+  method: 'POST',
+  headers: { 'x-foo': 'bar' },
+  middleware: [requireAuth()],
+})
+```
+
+APIs carry provenance (imports), versioning (packages), composition (functions), and testability. Directives don’t — and trying to smuggle options into them quickly becomes a design smell.
+
+---
+
 ### A Shared Syntax Without a Shared Spec Is a Fragile Foundation
 
 Once multiple frameworks start adopting directives, we end up in the worst possible state:
@@ -182,6 +226,12 @@ If multiple frameworks truly want shared primitives, the responsible path is:
 - Keep non standard features clearly scoped to API space, not language space
 
 Directives should be rare, stable, and standardized, not multiplied by every vendor with a new idea.
+
+---
+
+### This is not the JSX/virtual DOM moment
+
+It’s tempting to compare criticism of directives to the early skepticism around React’s JSX or the virtual DOM. I get the sentiment, but the failure modes are different. JSX and the VDOM did not masquerade as language features; they came with explicit imports, provenance, and tooling boundaries. Directives, by contrast, live at the top-level of files and look like the platform, which creates ecosystem expectations and tooling burdens without a shared spec.
 
 ---
 

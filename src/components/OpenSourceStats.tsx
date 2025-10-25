@@ -58,6 +58,9 @@ const NpmDownloadCounter = ({
   npmData: Parameters<typeof useNpmDownloadCounter>[0]
 }) => {
   const { count, intervalMs } = useNpmDownloadCounter(npmData)
+  if (!Number.isFinite(count)) { // this returns true for NaN, Infinty / -Infinty, null, undefined
+    return '-'
+  }
   return <StableCounter value={count} intervalMs={intervalMs} />
 }
 

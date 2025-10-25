@@ -1,4 +1,9 @@
-import { Link, notFound, createFileRoute } from '@tanstack/react-router'
+import {
+  Link,
+  notFound,
+  createFileRoute,
+  redirect,
+} from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { PostNotFound } from './blog'
@@ -11,12 +16,22 @@ import { DocContainer } from '~/components/DocContainer'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 
+function handleRedirects(docsPath: string) {
+  if (docsPath.includes('directives-the-new-framework-lock-in')) {
+    throw redirect({
+      href: '/blog/directives-and-the-platform-boundary',
+    })
+  }
+}
+
 const fetchBlogPost = createServerFn({ method: 'GET' })
   .inputValidator(z.string().optional())
   .handler(async ({ data: docsPath }) => {
     if (!docsPath) {
       throw new Error('Invalid docs path')
     }
+
+    handleRedirects(docsPath)
 
     const filePath = `src/blog/${docsPath}.md`
 
@@ -26,11 +41,13 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
       throw notFound()
     }
 
-    setResponseHeaders({
-      'cache-control': 'public, max-age=0, must-revalidate',
-      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-      'Netlify-Vary': 'query=payload',
-    })
+    setResponseHeaders(
+      new Headers({
+        'cache-control': 'public, max-age=0, must-revalidate',
+        'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+        'Netlify-Vary': 'query=payload',
+      })
+    )
 
     return {
       title: post.title,

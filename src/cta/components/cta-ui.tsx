@@ -17,16 +17,19 @@ export default function BuilderRoot() {
   const projectFiles = useMemo(() => {
     if (!dryRun?.files) return []
 
-    return Object.entries(dryRun.files).map(([path, content]) => ({
-      path: path.startsWith('./') ? path : `./${path}`,
-      content: String(content),
-    }))
+    return Object.entries(dryRun.files).map(([path, content]) => {
+      const normalizedPath = path.startsWith('./') ? path : `./${path}`
+      return {
+        path: normalizedPath,
+        content,
+      }
+    })
   }, [dryRun.files])
 
   return (
     <CTAProvider>
       <WebContainerProvider projectFiles={projectFiles} shouldShimALS={true}>
-        <main className="w-screen min-w-[1280px]">
+        <main className="w-full max-w-full overflow-x-hidden">
           <CTABackgroundAnimation />
           <div className="h-dvh p-2 sm:p-4 flex flex-col gap-2 sm:gap-4 @container">
             <BuilderHeader />

@@ -21,6 +21,7 @@ type WebContainerStore = {
   previewUrl: string | null
   error: string | null
   devProcess: WebContainerProcess | null
+  installProcess: WebContainerProcess | null
   projectFiles: Array<{ path: string; content: string }>
   isInstalling: boolean
 
@@ -63,6 +64,19 @@ const processTerminalLine = (data: string): string => {
   return cleaned.length > 0 ? cleaned : ''
 }
 
+// Helper to extract dependencies from package.json content
+const getDependencies = (packageJsonContent: string): string => {
+  try {
+    const pkg = JSON.parse(packageJsonContent)
+    return JSON.stringify({
+      dependencies: pkg.dependencies || {},
+      devDependencies: pkg.devDependencies || {},
+    })
+  } catch {
+    return '{}'
+  }
+}
+
 let webContainer: Promise<WebContainer> | null = null
 
 export default function createWebContainerStore(shouldShimALS: boolean) {
@@ -79,6 +93,7 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
     previewUrl: null,
     error: null,
     devProcess: null,
+    installProcess: null,
     projectFiles: [],
     isInstalling: false,
 
@@ -95,6 +110,7 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
     },
     startDevServer: async () => {
       const { devProcess, webContainer, addTerminalOutput } = get()
+
       if (!webContainer) {
         throw new Error('WebContainer not found')
       }
@@ -172,6 +188,11 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
         webContainer,
       } = get()
 
+      console.log(
+        `🔄 updateProjectFiles called with ${projectFiles.length} files`
+      )
+      console.log(`   Previous file count: ${originalProjectFiles.length}`)
+
       if (!webContainer) {
         console.error('WebContainer not found in updateProjectFiles')
         throw new Error('WebContainer not found')
@@ -197,7 +218,10 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
 
       let packageJSONChanged = false
       const binaryFiles: Record<string, Uint8Array> = {}
-      if (originalProjectFiles.length === 0) {
+      const isInitialMount = originalProjectFiles.length === 0
+
+      if (isInitialMount) {
+        console.log('📦 Initial mount - creating file system')
         const fileSystemTree: FileSystemTree = {}
         let base64FileCount = 0
 
@@ -252,8 +276,9 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
         for (const [path, bytes] of Object.entries(binaryFiles)) {
           await container.fs.writeFile(path, bytes)
         }
-        packageJSONChanged = true
+        packageJSONChanged = true // Always install on initial mount
       } else {
+        console.log('📝 Checking for file changes...')
         const originalMap = new Map<string, string>()
         for (const { path, content } of originalProjectFiles) {
           originalMap.set(path, content)
@@ -266,8 +291,10 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
         const changedOrNewFiles: Array<{ path: string; content: string }> = []
         for (const { path, content } of projectFiles) {
           if (!originalMap.has(path)) {
+            console.log(`   ➕ New file: ${path}`)
             changedOrNewFiles.push({ path, content })
           } else if (originalMap.get(path) !== content) {
+            console.log(`   📝 Changed file: ${path}`)
             changedOrNewFiles.push({ path, content })
           }
         }
@@ -292,6 +319,20 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
           }
 
           for (const { path, content } of changedOrNewFiles) {
+            // Ensure parent directories exist before writing file
+            const pathParts = path.replace(/^\.?\//, '').split('/')
+            if (pathParts.length > 1) {
+              // Create parent directories if they don't exist
+              let currentPath = ''
+              for (let i = 0; i < pathParts.length - 1; i++) {
+                currentPath += (currentPath ? '/' : '') + pathParts[i]
+                try {
+                  await container.fs.mkdir(currentPath, { recursive: true })
+                } catch (err) {
+                  // Directory might already exist, that's ok
+                }
+              }
+            }
             await container.fs.writeFile(path, content)
           }
 
@@ -301,19 +342,68 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
 
           addTerminalOutput('📁 Files updated successfully')
 
-          if (changedOrNewFiles.some(({ path }) => path === './package.json')) {
-            packageJSONChanged = true
+          // Check if dependencies actually changed in package.json
+          const packageJsonFile = changedOrNewFiles.find(
+            ({ path }) => path === './package.json'
+          )
+          if (packageJsonFile) {
+            const oldPackageJson = originalMap.get('./package.json')
+            const oldDeps = oldPackageJson
+              ? getDependencies(oldPackageJson)
+              : '{}'
+            const newDeps = getDependencies(packageJsonFile.content)
+
+            console.log('📦 Checking package.json for dependency changes')
+            console.log('   Old dependencies:', oldDeps)
+            console.log('   New dependencies:', newDeps)
+            console.log('   Are they equal?', oldDeps === newDeps)
+
+            if (oldDeps !== newDeps) {
+              console.log(
+                '✅ Dependencies changed in package.json - will reinstall'
+              )
+              packageJSONChanged = true
+            } else {
+              console.log(
+                '📝 Package.json changed but dependencies are the same, skipping reinstall'
+              )
+            }
+          } else {
+            console.log('📝 Package.json not in changed files')
           }
         }
       }
 
       set({ projectFiles })
 
+      console.log(
+        `📦 packageJSONChanged: ${packageJSONChanged}, isInitialMount: ${isInitialMount}`
+      )
+
       if (packageJSONChanged) {
-        addTerminalOutput(
-          '📦 Package.json changed, reinstalling dependencies...'
+        const { isInstalling, installProcess } = get()
+        console.log(
+          `   isInstalling: ${isInstalling}, installProcess exists: ${!!installProcess}`
         )
-        await installDependencies()
+
+        // Don't kill install on initial mount - let it complete
+        if (!isInitialMount && isInstalling && installProcess) {
+          // Kill the current install and restart (only on updates, not initial mount)
+          console.log(
+            '🔄 Killing current install to restart with new dependencies'
+          )
+          addTerminalOutput('🔄 Dependencies changed, restarting install...')
+          installProcess.kill()
+          set({ isInstalling: false, installProcess: null })
+          // Wait a bit for the process to fully terminate
+          await new Promise((resolve) => setTimeout(resolve, 100))
+          // Now start fresh install
+          await installDependencies()
+        } else if (!isInstalling) {
+          // Only start install if nothing is currently installing
+          await installDependencies()
+        }
+        // If isInitialMount && isInstalling, let the initial install complete
       }
     },
     installDependencies: async () => {
@@ -329,12 +419,13 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
         throw new Error('WebContainer not found')
       }
 
+      console.log('📦 Setting isInstalling = true')
       set({ isInstalling: true })
 
       try {
         const container = await webContainer
         if (!container) {
-          set({ isInstalling: false })
+          set({ isInstalling: false, installProcess: null })
           throw new Error('WebContainer not found')
         }
 
@@ -350,9 +441,11 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
         let installProcess
         try {
           installProcess = await container.spawn('npm', ['install'])
+          set({ installProcess }) // Store the process so it can be killed if needed
           console.log('npm install process spawned successfully')
         } catch (spawnError) {
           console.error('Failed to spawn npm install:', spawnError)
+          set({ installProcess: null })
           throw spawnError
         }
 
@@ -407,6 +500,15 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
         console.log('Total output lines:', outputCount)
 
         if (installExitCode !== 0) {
+          // Exit code 143 means the process was killed (SIGTERM) - this is expected when we restart
+          if (installExitCode === 143) {
+            console.log(
+              'Install was terminated (likely restarting with new dependencies)'
+            )
+            addTerminalOutput('⏹️  Install terminated')
+            return // Exit gracefully without error
+          }
+
           // Show all output for debugging
           console.error('[INSTALL ERROR] All output:', allOutput.join('\n'))
           const errorMsg = `npm install failed with exit code ${installExitCode}`
@@ -417,7 +519,6 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
         }
 
         addTerminalOutput('✅ Dependencies installed successfully')
-
         await startDevServer()
       } catch (error) {
         console.error('Install error:', error)
@@ -425,7 +526,8 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
         set({ error: (error as Error).message, setupStep: 'error' })
         throw error
       } finally {
-        set({ isInstalling: false })
+        console.log('📦 Setting isInstalling = false (finally block)')
+        set({ isInstalling: false, installProcess: null })
       }
     },
   }))

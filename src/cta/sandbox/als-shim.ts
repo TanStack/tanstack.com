@@ -1,10 +1,3 @@
-const ALS_RESOLVER = `resolve: {
-  alias: {
-    'node:async_hooks': '\\0virtual:async_hooks',
-    async_hooks: '\\0virtual:async_hooks',
-  },
-},`
-
 const ALS_SHIM = `export class AsyncLocalStorage {
   constructor() {
     // queue: array of { store, fn, resolve, reject }
@@ -118,7 +111,7 @@ export default function shimALS(fileName: string, content: string) {
     adjustedContent += ALS_SHIM_LOADER
     adjustedContent = adjustedContent.replace(
       'plugins: [',
-      `${ALS_RESOLVER}plugins: [alsShim(),`
+      'plugins: [alsShim(),'
     )
   }
   return adjustedContent

@@ -184,12 +184,13 @@ export function WebContainerPreview() {
   return (
     <div className="flex flex-col h-full">
       {/* iframe with the running app */}
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col">
         {previewUrl ? (
           <iframe
             src={previewUrl}
-            className="w-full h-full border-0"
+            className="w-full flex-1 border-0"
             title="Application Preview"
+            allow="cross-origin-isolated"
             onLoad={() => console.log('Iframe loaded successfully')}
             onError={(e) => console.error('Iframe load error:', e)}
           />
@@ -234,6 +235,7 @@ export function WebContainerPreview() {
               <button
                 onClick={() => window.open(previewUrl, '_blank')}
                 className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                title="Open in new tab"
               >
                 Open in New Tab
               </button>

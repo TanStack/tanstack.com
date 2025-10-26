@@ -26,9 +26,19 @@ export default function BuilderRoot() {
     })
   }, [dryRun.files])
 
+  // Detect Firefox - disable ALS shim for Firefox as it may cause issues
+  const isFirefox =
+    typeof navigator !== 'undefined' && navigator.userAgent.includes('Firefox')
+  console.log(
+    `🌐 Browser detected - Firefox: ${isFirefox}, ALS Shim: ${!isFirefox}`
+  )
+
   return (
     <CTAProvider>
-      <WebContainerProvider projectFiles={projectFiles} shouldShimALS={true}>
+      <WebContainerProvider
+        projectFiles={projectFiles}
+        shouldShimALS={!isFirefox}
+      >
         <main className="w-full max-w-full overflow-x-hidden">
           <CTABackgroundAnimation />
           <div className="h-dvh p-2 sm:p-4 flex flex-col gap-2 sm:gap-4 @container">

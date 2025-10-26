@@ -79,9 +79,43 @@ const getDependencies = (packageJsonContent: string): string => {
 
 let webContainer: Promise<WebContainer> | null = null
 
+// Detect Firefox for specific handling
+const isFirefox =
+  typeof navigator !== 'undefined' && navigator.userAgent.includes('Firefox')
+
 export default function createWebContainerStore(shouldShimALS: boolean) {
   if (!webContainer) {
-    webContainer = WebContainer.boot()
+    console.log(`🌐 Initializing WebContainer (Firefox: ${isFirefox})`)
+
+    // Firefox-specific boot with timeout and error handling
+    webContainer = Promise.race([
+      WebContainer.boot({
+        coep: isFirefox ? 'require-corp' : 'credentialless',
+      } as any),
+      new Promise<never>((_, reject) => {
+        const timeout = isFirefox ? 15000 : 10000
+        setTimeout(() => {
+          reject(
+            new Error(
+              isFirefox
+                ? 'WebContainer boot timeout. Please check Firefox privacy settings (Enhanced Tracking Protection may block Service Workers)'
+                : 'WebContainer boot timeout'
+            )
+          )
+        }, timeout)
+      }),
+    ]).catch((err) => {
+      console.error('WebContainer boot failed:', err)
+      if (isFirefox) {
+        console.warn(
+          'Firefox users: Check that Enhanced Tracking Protection is not blocking Service Workers'
+        )
+        console.warn(
+          'Firefox users: Service Workers are not available in Private Browsing mode'
+        )
+      }
+      throw err
+    })
   }
 
   const store = createStore<WebContainerStore>((set, get) => ({
@@ -134,8 +168,9 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
 
         // Wait for server to be ready (set up listener first)
         container.on('server-ready', (port, url) => {
-          console.log('Server ready on port', port, 'at', url)
+          console.log('🌐 Server ready on port', port, 'at', url)
           const currentState = get()
+          console.log('🌐 Setting previewUrl:', url)
           set({
             previewUrl: url,
             setupStep: 'ready',
@@ -145,6 +180,7 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
               `✅ Server ready at ${url}`,
             ],
           })
+          console.log('🌐 Preview URL set successfully')
         })
 
         // Start the dev server
@@ -168,14 +204,28 @@ export default function createWebContainerStore(shouldShimALS: boolean) {
 
         // Check exit code
         const exitCode = await newDevProcess.exit
+        console.log('⚠️ Dev server process exited with code:', exitCode)
         if (exitCode !== 0) {
           addTerminalOutput(`❌ Dev server exited with code ${exitCode}`)
-          set({ error: `Dev server exited with code ${exitCode}` })
+          console.log('❌ Clearing preview URL due to dev server exit')
+          set({
+            error: `Dev server exited with code ${exitCode}`,
+            previewUrl: null,
+            setupStep: 'error',
+          })
+        } else {
+          console.log('ℹ️ Dev server exited cleanly (code 0)')
+          set({ previewUrl: null, devProcess: null })
         }
       } catch (error) {
         console.error('Dev server start error:', error)
         addTerminalOutput(`❌ Dev server error: ${(error as Error).message}`)
-        set({ error: (error as Error).message, setupStep: 'error' })
+        console.log('❌ Clearing preview URL due to dev server error')
+        set({
+          error: (error as Error).message,
+          setupStep: 'error',
+          previewUrl: null,
+        })
       }
     },
     updateProjectFiles: async (

@@ -78,11 +78,13 @@ export default AsyncLocalStorage
 `
 
 const ALS_SHIM_LOADER = `
-function alsShim(): PluginOption {
+function alsShim() {
+  console.log('🔧 ALS Shim plugin loaded');
   return {
-    enforce: 'pre',
+    enforce: 'pre' as const,
     name: 'virtual-async-hooks',
     config() {
+      console.log('🔧 ALS Shim: Configuring virtual async_hooks aliases');
       return {
         resolve: {
           alias: {
@@ -93,12 +95,15 @@ function alsShim(): PluginOption {
         },
       };
     },
-    resolveId(id) {
-      if (id === '\\0virtual:async_hooks') return id;
+    resolveId(id: string) {
+      if (id === '\\0virtual:async_hooks') {
+        console.log('🔧 ALS Shim: Resolving virtual async_hooks module');
+        return id;
+      }
     },
-    load(id) {
+    load(id: string) {
       if (id !== '\\0virtual:async_hooks') return null;
-
+      console.log('🔧 ALS Shim: Loading virtual async_hooks module');
       return \`${ALS_SHIM}\`;
     },
   };

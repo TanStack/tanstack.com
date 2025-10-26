@@ -3,8 +3,6 @@
 import { useState } from 'react'
 import { useDeploymentStore } from '../store/deployment'
 import { useDryRun, useProjectName } from '../store/project'
-import { useSandboxWebContainerResolved } from '../sandbox/use-sandbox-webcontainer'
-import { useDevServerStore } from '../store/dev-server'
 import { RocketIcon } from './icons/rocket'
 import { useAction } from 'convex/react'
 import { api } from 'convex/_generated/api'
@@ -13,9 +11,7 @@ export function PublishButton() {
   const [isDeploying, setIsDeploying] = useState(false)
   const dryRun = useDryRun()
   const projectName = useProjectName()
-  const webContainer = useSandboxWebContainerResolved()
   const deployToNetlify = useAction(api.netlifyDeploy.deployToNetlify)
-  const { stopDevServer, setDevProcess, setIsRunning } = useDevServerStore()
   const {
     setStatus,
     setMessage,
@@ -28,84 +24,37 @@ export function PublishButton() {
   } = useDeploymentStore()
 
   const handlePublish = async () => {
-    if (!webContainer || !dryRun?.files) {
-      console.error('WebContainer or files not ready')
+    if (!dryRun?.files) {
+      console.error('Project files not ready')
       return
     }
 
     setIsDeploying(true)
     clearTerminalOutput()
-    setStatus('building')
-    setMessage('Stopping dev server...')
+    setStatus('deploying')
+    setMessage('Preparing deployment package...')
     setDeployedUrl(null)
     setClaimUrl(null)
     setErrorMessage(null)
 
     try {
-      // Stop the dev server before building
-      await stopDevServer()
+      addTerminalOutput('📦 Creating deployment package from source files...')
 
-      setMessage('Building App...')
-      // Build the app in the web container
-      const buildProcess = await webContainer.spawn('npm', ['run', 'build'], {
-        env: {
-          CI: 'true',
-          FORCE_COLOR: '0',
-          NO_COLOR: '1',
-        },
-      })
-
-      let buildPromise = new Promise<void>((resolve) => {
-        // Capture build output
-        buildProcess.output.pipeTo(
-          new WritableStream({
-            write(data) {
-              const cleaned = data
-                .replace(/\x1B\[[0-9;]*m/g, '')
-                .replace(/\x1B\[[0-9;]*[A-Za-z]/g, '')
-                .replace(/\x1B\].*?\x07/g, '')
-                .replace(/\x1B[()][0-2]/g, '')
-                .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
-                .trim()
-
-              if (cleaned) {
-                addTerminalOutput(cleaned)
-              }
-
-              if (cleaned.includes('✓ built in')) {
-                resolve()
-              }
-            },
-          })
-        )
-      })
-
-      await Promise.race([
-        buildPromise,
-        new Promise((_, reject) => {
-          setTimeout(() => {
-            reject(new Error('Build process timed out'))
-          }, 30000)
-        }),
-      ])
-
-      console.log('Build completed successfully, creating ZIP...')
-
-      // After successful build, create ZIP and deploy
-      setStatus('deploying')
-      setMessage('Creating deployment package...')
-
-      // Create ZIP from build output
-      const zipBlob = await createZipFromWebContainer(webContainer)
+      // Create ZIP from source files (let Netlify build it)
+      const zipBlob = await createZipFromSourceFiles(dryRun.files)
+      addTerminalOutput(
+        `✅ Package created: ${(zipBlob.size / 1024 / 1024).toFixed(2)} MB`
+      )
 
       console.log('ZIP created, size:', zipBlob.size)
 
       setMessage('Deploying to Netlify...')
+      addTerminalOutput('🚀 Uploading to Netlify and triggering build...')
 
       // Convert blob to base64 for Convex
       const zipBase64 = await blobToBase64(zipBlob)
 
-      // Deploy to Netlify via Convex
+      // Deploy to Netlify via Convex (uploads source, Netlify builds it)
       const deployResult = await deployToNetlify({
         zipBase64,
         siteName: projectName || 'tanstack-app',
@@ -114,39 +63,21 @@ export function PublishButton() {
       setDeployedUrl(deployResult.url)
       setClaimUrl(deployResult.claimUrl)
       setStatus('success')
-      setMessage('Publish Complete!')
+      setMessage('Deployed! Netlify is building your app...')
+      addTerminalOutput('✅ Source code uploaded successfully')
+      addTerminalOutput('🏗️  Netlify is now building your application...')
+      addTerminalOutput(`🌐 Site URL: ${deployResult.url}`)
 
-      // Restart the dev server after successful deployment
-      console.log('Restarting dev server...')
-      const devProcess = await webContainer.spawn('npm', ['run', 'dev'], {
-        env: {
-          CI: 'true',
-          FORCE_COLOR: '0',
-          NO_COLOR: '1',
-        },
-      })
-      setDevProcess(devProcess)
-      setIsRunning(true)
+      if (deployResult.claimUrl) {
+        addTerminalOutput(`🔗 Claim your site at: ${deployResult.claimUrl}`)
+      } else if (deployResult.adminUrl) {
+        addTerminalOutput(`⚙️  Manage your site at: ${deployResult.adminUrl}`)
+      }
     } catch (error) {
       console.error('Deployment error:', error)
       setStatus('error')
       setErrorMessage((error as Error).message)
-
-      // Restart dev server even on error
-      try {
-        console.log('Restarting dev server after error...')
-        const devProcess = await webContainer.spawn('npm', ['run', 'dev'], {
-          env: {
-            CI: 'true',
-            FORCE_COLOR: '0',
-            NO_COLOR: '1',
-          },
-        })
-        setDevProcess(devProcess)
-        setIsRunning(true)
-      } catch (restartError) {
-        console.error('Failed to restart dev server:', restartError)
-      }
+      addTerminalOutput(`❌ Deployment failed: ${(error as Error).message}`)
     } finally {
       setIsDeploying(false)
     }
@@ -155,7 +86,7 @@ export function PublishButton() {
   return (
     <button
       onClick={handlePublish}
-      disabled={isDeploying || status === 'building' || status === 'deploying'}
+      disabled={isDeploying || status === 'deploying'}
       className="bg-gradient-to-r to-blue-500 from-cyan-600 hover:to-blue-600 hover:from-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200"
     >
       <RocketIcon className="w-4 h-4" />
@@ -177,27 +108,46 @@ async function blobToBase64(blob: Blob): Promise<string> {
   })
 }
 
-// Helper function to create ZIP from web container
-async function createZipFromWebContainer(webContainer: any): Promise<Blob> {
+// Helper function to create ZIP from source files (excluding node_modules and build artifacts)
+async function createZipFromSourceFiles(
+  projectFiles: Record<string, string>
+): Promise<Blob> {
   try {
     console.log('Loading JSZip...')
     const JSZip = (await import('jszip')).default
     const zip = new JSZip()
 
-    console.log('Reading dist directory...')
-    // Read the dist directory from the web container
-    const distFiles = await readDistDirectory(webContainer)
+    const fileEntries = Object.entries(projectFiles)
+    console.log(`Creating zip from ${fileEntries.length} source files...`)
 
-    console.log(`Found ${Object.keys(distFiles).length} files to zip`)
+    // Filter out files we don't want to deploy
+    const filesToZip = fileEntries.filter(([path]) => {
+      // Exclude node_modules and other build artifacts
+      if (path.includes('node_modules/')) return false
+      if (path.includes('.git/')) return false
+      if (path.includes('dist/')) return false
+      if (path.includes('.output/')) return false
+      if (path.includes('.cache/')) return false
+      if (path.includes('.tmp/')) return false
 
-    for (const [path, content] of Object.entries(distFiles)) {
-      // Handle binary files properly (NOT svg - that's text/xml)
-      if (path.match(/\.(jpg|jpeg|png|gif|ico|woff|woff2|ttf|eot|pdf)$/i)) {
-        // For binary files, content is already base64 encoded
-        zip.file(path, content, { base64: true })
+      // Include everything else
+      return true
+    })
+
+    console.log(
+      `Zipping ${filesToZip.length} files (excluded node_modules and build artifacts)`
+    )
+
+    for (const [path, content] of filesToZip) {
+      // Clean up path (remove leading ./ or /)
+      const cleanPath = path.replace(/^\.?\//, '')
+
+      // Handle binary files that are base64 encoded
+      if (content.startsWith('base64::')) {
+        zip.file(cleanPath, content.replace('base64::', ''), { base64: true })
       } else {
-        // For text files (js, css, html, svg, json, etc)
-        zip.file(path, content as string)
+        // Text files
+        zip.file(cleanPath, content)
       }
     }
 
@@ -205,61 +155,19 @@ async function createZipFromWebContainer(webContainer: any): Promise<Blob> {
     const blob = await zip.generateAsync({
       type: 'blob',
       compression: 'DEFLATE',
+      compressionOptions: {
+        level: 6, // Balanced compression
+      },
     })
-    console.log('ZIP blob generated successfully')
+
+    console.log(
+      `ZIP blob generated successfully: ${(blob.size / 1024 / 1024).toFixed(
+        2
+      )} MB`
+    )
     return blob
   } catch (error) {
     console.error('Error creating ZIP:', error)
     throw error
   }
-}
-
-async function readDistDirectory(
-  webContainer: any
-): Promise<Record<string, string | ArrayBuffer>> {
-  const files: Record<string, string | ArrayBuffer> = {}
-
-  // Read all files in the dist directory
-  async function readDir(path: string) {
-    try {
-      const dirContents = await webContainer.fs.readdir(path, {
-        withFileTypes: true,
-      })
-
-      for (const item of dirContents) {
-        const fullPath = `${path}/${item.name}`
-
-        if (item.isDirectory()) {
-          await readDir(fullPath)
-        } else {
-          try {
-            // Check if it's a binary file (NOT js/css - those are text!)
-            const isBinary = fullPath.match(
-              /\.(jpg|jpeg|png|gif|ico|woff|woff2|ttf|eot|pdf)$/i
-            )
-
-            if (isBinary) {
-              // Read binary files as base64
-              const content = await webContainer.fs.readFile(fullPath, 'base64')
-              const relativePath = fullPath.replace(/^dist\//, '')
-              files[relativePath] = content
-            } else {
-              // Read text files as UTF-8 (includes .js, .css, .html, .svg, etc)
-              const content = await webContainer.fs.readFile(fullPath, 'utf-8')
-              const relativePath = fullPath.replace(/^dist\//, '')
-              files[relativePath] = content
-            }
-          } catch (fileError) {
-            console.error(`Error reading file ${fullPath}:`, fileError)
-          }
-        }
-      }
-    } catch (dirError) {
-      console.error(`Error reading directory ${path}:`, dirError)
-      throw dirError
-    }
-  }
-
-  await readDir('dist')
-  return files
 }

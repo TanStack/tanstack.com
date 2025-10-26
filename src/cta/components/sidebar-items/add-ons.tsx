@@ -14,17 +14,12 @@ import type { AddOnInfo } from '../../lib/types'
 const addOnTypeLabels: Record<string, string> = {
   toolchain: 'Toolchain',
   'add-on': 'Add-on',
+  host: 'Host Service',
   example: 'Example',
 }
 
 export default function SelectedAddOns() {
   const { availableAddOns, addOnState, toggleAddOn } = useAddOns()
-
-  const sortedAddOns = useMemo(() => {
-    return availableAddOns.sort((a, b) => {
-      return a.name.localeCompare(b.name)
-    })
-  }, [availableAddOns])
 
   const [infoAddOn, setInfoAddOn] = useState<AddOnInfo>()
 
@@ -36,14 +31,15 @@ export default function SelectedAddOns() {
       />
       {Object.keys(addOnTypeLabels).map((type) => (
         <Fragment key={type}>
-          {sortedAddOns.filter((addOn) => addOn.type === type).length > 0 && (
+          {availableAddOns.filter((addOn) => addOn.type === type).length >
+            0 && (
             <div
               key={`${type}-add-ons`}
               className="block p-4 bg-gray-500/10 hover:bg-gray-500/20 rounded-lg transition-colors space-y-4 active"
             >
               <h3 className="font-medium">{addOnTypeLabels[type]}</h3>
               <div className="flex flex-row flex-wrap">
-                {sortedAddOns
+                {availableAddOns
                   .filter((addOn) => addOn.type === type)
                   .map((addOn) => (
                     <div

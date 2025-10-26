@@ -1,28 +1,6 @@
 import { action } from './_generated/server'
 import { v } from 'convex/values'
 
-// Simple JWT implementation that works in Convex environment
-function base64UrlEncode(str: string): string {
-  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-}
-
-function createSimpleJWT(payload: any, secret: string): string {
-  const header = {
-    alg: 'HS256',
-    typ: 'JWT',
-  }
-
-  const encodedHeader = base64UrlEncode(JSON.stringify(header))
-  const encodedPayload = base64UrlEncode(JSON.stringify(payload))
-
-  // Create signature using a simple HMAC-like approach
-  // Note: This is a simplified version for the Convex environment
-  const data = `${encodedHeader}.${encodedPayload}`
-  const signature = base64UrlEncode(secret + data)
-
-  return `${encodedHeader}.${encodedPayload}.${signature}`
-}
-
 // Helper function to convert base64 to Uint8Array (works in Convex)
 function base64ToUint8Array(base64: string): Uint8Array {
   const binaryString = atob(base64)
@@ -90,27 +68,24 @@ export const deployToNetlify = action({
 
     // Get Netlify credentials from environment
     const netlifyToken = process.env.NETLIFY_TOKEN
-    const oauthClientId = process.env.NETLIFY_OAUTH_CLIENT_ID
-    const oauthClientSecret = process.env.NETLIFY_OAUTH_CLIENT_SECRET
     const netlifyTeamSlug = process.env.NETLIFY_TEAM_SLUG
 
     if (!netlifyToken) {
       throw new Error('NETLIFY_TOKEN not configured')
     }
-    if (!oauthClientId || !oauthClientSecret) {
-      throw new Error(
-        'NETLIFY_OAUTH_CLIENT_ID and NETLIFY_OAUTH_CLIENT_SECRET must be configured for claimable sites'
-      )
-    }
-
-    // Generate a unique session ID for this deployment
-    const sessionId = `forge-${Date.now()}-${Math.random()
-      .toString(36)
-      .substr(2, 9)}`
 
     try {
-      // Step 1: Create a new site with metadata for claimable sites
-      // Using created_via and session_id allows users to claim the site later
+      // Step 1: Create a new site
+      const sitePayload: any = {
+        name: `${args.siteName}-${Date.now()}`,
+        custom_domain: null,
+      }
+
+      // Optional: specify team
+      if (netlifyTeamSlug) {
+        sitePayload.account_slug = netlifyTeamSlug
+      }
+
       const createSiteResponse = await fetch(
         'https://api.netlify.com/api/v1/sites',
         {
@@ -119,13 +94,7 @@ export const deployToNetlify = action({
             Authorization: `Bearer ${netlifyToken}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            name: `${args.siteName}-${Date.now()}`,
-            custom_domain: null,
-            created_via: 'TanStack Forge', // Important for claimable sites
-            session_id: sessionId, // Session ID that will be used in the JWT
-            account_slug: netlifyTeamSlug, // Optional: specify team
-          }),
+          body: JSON.stringify(sitePayload),
         }
       )
 
@@ -173,32 +142,49 @@ export const deployToNetlify = action({
 
       console.log('Build triggered successfully:', build)
 
-      // Step 3: Create a signed JWT claim URL
-      // The JWT contains the OAuth client ID and session ID
-      const claimToken = createSimpleJWT(
-        {
-          client_id: oauthClientId,
-          session_id: sessionId,
-        },
-        oauthClientSecret!
-      )
+      // Step 3: Generate a claim URL using the Netlify API
+      // Note: The PAT used here must be associated with an OAuth app to generate claim URLs
+      let claimUrl: string | undefined = undefined
 
-      // The claim URL uses a hash fragment with the JWT token
-      const claimUrl = `https://app.netlify.com/claim#${claimToken}`
+      try {
+        const claimResponse = await fetch(
+          `https://api.netlify.com/api/v1/sites/${siteId}/claim`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${netlifyToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({}),
+          }
+        )
 
-      console.log('Claimable site created with signed claim URL')
+        if (claimResponse.ok) {
+          const claimData = await claimResponse.json()
+          claimUrl = claimData.claim_url
+          console.log('Claimable site created with claim URL')
+        } else {
+          const error = await claimResponse.text()
+          console.log(
+            'Could not generate claim URL (PAT may not be associated with an OAuth app):',
+            error
+          )
+        }
+      } catch (error) {
+        console.log('Failed to generate claim URL:', error)
+      }
 
       // Return the deployed site URL and build information
       return {
         url: site.ssl_url || site.url || `https://${site.name}.netlify.app`,
         adminUrl: site.admin_url,
-        claimUrl: claimUrl, // Signed JWT URL for users to claim the site
+        claimUrl: claimUrl, // URL for users to claim the site (or undefined if claim endpoint failed)
         siteId: siteId,
         deployId: build.deploy_id,
         buildId: build.id,
         siteName: site.name,
         buildStatus: build.state, // 'building', 'ready', 'error'
-        isClaimable: true, // Indicates this is a claimable site
+        isClaimable: !!claimUrl, // Indicates if claim URL was successfully generated
       }
     } catch (error) {
       console.error('Netlify deployment error:', error)

@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useState } from 'react'
 import { InfoIcon } from 'lucide-react'
 
 import { Switch } from '../ui/switch'

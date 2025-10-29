@@ -414,6 +414,19 @@ export const allMaintainers: Maintainer[] = [
       bluesky: 'https://bsky.app/profile/shrutikapoor08.bsky.social',
     },
   },
+  {
+    name: 'Nicolas Beaussart',
+    avatar: 'https://github.com/beaussan.png',
+    github: 'beaussan',
+    maintainerOf: ['router'],
+    frameworkExpertise: ['react'],
+    specialties: ['Monorepo', 'Architecture', 'Typescript'],
+    social: {
+      twitter: 'https://x.com/beaussan',
+      bluesky: 'https://bsky.app/profile/beaussan.io',
+      website: 'https://beaussan.io/'
+    },
+  },
 ]
 
 export const coreMaintainers = allMaintainers.filter(

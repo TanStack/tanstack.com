@@ -16,8 +16,7 @@ import {
 } from 'react-icons/fa'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
-import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
-import { AuthLoading } from 'convex/react'
+import { Authenticated, useQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
 import { MdLibraryBooks, MdLineAxis, MdPerson, MdSupport } from 'react-icons/md'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
@@ -25,9 +24,13 @@ import { BiSolidCheckShield } from 'react-icons/bi'
 import { PiHammerFill, PiSparkleFill } from 'react-icons/pi'
 import { libraries } from '~/libraries'
 import { sortBy } from '~/utils/utils'
+import { convexQuery } from '@convex-dev/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
-  const user = useQuery(api.auth.getCurrentUser)
+  const { data: user } = useSuspenseQuery(
+    convexQuery(api.auth.getCurrentUser, {})
+  )
   const matches = useMatches()
 
   const Title =
@@ -65,48 +68,40 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   const loginButton = (
     <>
-      {(() => {
-        const loginEl = (
-          <Link
-            to="/login"
-            className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
+      {!user && (
+        <Link
+          to="/login"
+          className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
             hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
-          >
-            <MdPerson className="scale-125" />
-            <div className="">Log In</div>
-          </Link>
-        )
-
-        return (
-          <>
-            <AuthLoading>{loginEl}</AuthLoading>
-            <Unauthenticated>{loginEl}</Unauthenticated>
-          </>
-        )
-      })()}
-
-      <Authenticated>
-        <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-          <FaUser />
-          <Link
-            to="/account"
-            className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
-          >
-            My Account
-          </Link>
-        </div>
-        {canAdmin ? (
+        >
+          <MdPerson className="scale-125" />
+          <div className="">Log In</div>
+        </Link>
+      )}
+      {user && (
+        <>
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <FaLock />
+            <FaUser />
             <Link
-              to="/admin"
-              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              to="/account"
+              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
             >
-              Admin
+              My Account
             </Link>
           </div>
-        ) : null}
-      </Authenticated>
+          {canAdmin && (
+            <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+              <FaLock />
+              <Link
+                to="/admin"
+                className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              >
+                Admin
+              </Link>
+            </div>
+          )}
+        </>
+      )}
     </>
   )
 

@@ -4,6 +4,7 @@ import { seo } from '~/utils/seo'
 import BuilderRoot from '~/cta/components/cta-ui'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { Authenticated } from 'convex/react'
+import { requireAuth } from '~/utils/utils'
 
 export const Route = createFileRoute('/builder')({
   ssr: true,
@@ -20,15 +21,18 @@ export const Route = createFileRoute('/builder')({
       description: 'Build amazing applications with TanStack',
     }),
   }),
+  beforeLoad: async (ctx) => {
+    requireAuth(ctx)
+  },
+  loader: async (opts) => {
+    const user = await opts.context.ensureUser()
+    return { user }
+  },
   headers(ctx) {
     return {
       'Cross-Origin-Embedder-Policy': 'require-corp',
       'Cross-Origin-Opener-Policy': 'same-origin',
     }
-  },
-  loader: async (opts) => {
-    const user = await opts.context.ensureUser()
-    return { user }
   },
 })
 

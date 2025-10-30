@@ -7,22 +7,30 @@ import {
   FaToggleOn,
   FaToggleOff,
 } from 'react-icons/fa'
-import {
-  Authenticated,
-  Unauthenticated,
-  useMutation,
-  useQuery,
-} from 'convex/react'
-import { Link, redirect, createFileRoute } from '@tanstack/react-router'
+import { useMutation } from 'convex/react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth.client'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { api } from 'convex/_generated/api'
 import { Id } from 'convex/_generated/dataModel'
 import * as React from 'react'
 import { useToast } from '~/components/ToastProvider'
+import { convexQuery } from '@convex-dev/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { requireAuth } from '~/utils/utils'
 
 export const Route = createFileRoute('/_libraries/account')({
   component: AccountPage,
+  beforeLoad: async (ctx) => {
+    requireAuth(ctx)
+  },
+  loader: async (ctx) => {
+    await ctx.context.queryClient.ensureQueryData(
+      convexQuery(api.auth.getCurrentUser, {})
+    )
+    await ctx.context.queryClient.ensureQueryData(
+      convexQuery(api.llmKeys.listMyLLMKeysForDisplay, {})
+    )
+  },
 })
 
 interface LLMKeyForm {
@@ -44,7 +52,9 @@ function LLMKeysSection() {
   })
 
   // Queries
-  const llmKeys = useQuery(api.llmKeys.listMyLLMKeysForDisplay)
+  const { data: llmKeys } = useSuspenseQuery(
+    convexQuery(api.llmKeys.listMyLLMKeysForDisplay, {})
+  )
 
   // Mutations
   const createLLMKey = useMutation(api.llmKeys.createMyLLMKey)
@@ -91,7 +101,7 @@ function LLMKeysSection() {
   }
 
   const handleDeleteKey = async (keyId: Id<'llm_keys'>) => {
-    if (!confirm('Are you sure you want to delete this LLM key?')) return
+    if (!window.confirm('Are you sure you want to delete this LLM key?')) return
 
     try {
       await deleteLLMKey({ keyId })
@@ -416,8 +426,9 @@ function LLMKeysSection() {
 }
 
 function UserSettings() {
-  const userQuery = useCurrentUserQuery()
+  const userQuery = useSuspenseQuery(convexQuery(api.auth.getCurrentUser, {}))
   const { notify } = useToast()
+  const navigate = useNavigate()
   // Use current user query directly instead of separate ad preference query
   const updateAdPreferenceMutation = useMutation(
     api.users.updateAdPreference
@@ -453,7 +464,6 @@ function UserSettings() {
 
   const signOut = async () => {
     await authClient.signOut()
-    redirect({ to: '/login' })
     notify(
       <div>
         <div className="font-medium">Signed out</div>
@@ -462,6 +472,7 @@ function UserSettings() {
         </div>
       </div>
     )
+    navigate({ to: '/login' })
   }
 
   return (
@@ -532,24 +543,7 @@ function UserSettings() {
 function AccountPage() {
   return (
     <div className="min-h-screen mx-auto p-4 md:p-8 w-full">
-      <Authenticated>
-        <UserSettings />
-      </Authenticated>
-      <Unauthenticated>
-        <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 text-center w-[100vw] max-w-sm mx-auto">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            Sign In Required
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
-            Please sign in to access your account settings.
-          </p>
-          <Link to="/login">
-            <button className="text-sm font-medium bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white  py-2 px-4 rounded-md transition-colors">
-              Sign In
-            </button>
-          </Link>
-        </div>
-      </Unauthenticated>
+      <UserSettings />
     </div>
   )
 }

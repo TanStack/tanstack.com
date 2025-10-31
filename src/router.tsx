@@ -2,7 +2,7 @@ import React from 'react'
 import { redirect, createRouter } from '@tanstack/react-router'
 import { routerWithQueryClient } from '@tanstack/react-router-with-query'
 import { convexQuery, ConvexQueryClient } from '@convex-dev/react-query'
-import { ConvexProvider, ConvexReactClient } from 'convex/react'
+import { ConvexProvider } from 'convex/react'
 import { routeTree } from './routeTree.gen'
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
@@ -13,8 +13,7 @@ import { api } from 'convex/_generated/api'
 
 export function getRouter() {
   const CONVEX_URL = env.VITE_CONVEX_URL!
-  const convexClient = new ConvexReactClient(CONVEX_URL, { expectAuth: true })
-  const convexQueryClient = new ConvexQueryClient(convexClient)
+  const convexQueryClient = new ConvexQueryClient(CONVEX_URL)
 
   const queryClient: QueryClient = new QueryClient({
     defaultOptions: {

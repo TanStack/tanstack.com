@@ -7,7 +7,7 @@ import { seo } from '~/utils/seo'
 import { loadDocs } from '~/utils/docs'
 
 export const Route = createFileRoute(
-  '/$libraryId/$version/docs/community-resources.md'
+  '/$libraryId/$version/docs/community-resources'
 )({
   staleTime: 1000 * 60 * 5,
   loader: async (ctx) => {
@@ -32,9 +32,8 @@ export const Route = createFileRoute(
       return { doc: null as null | any }
     }
   },
-  head: ({ params, loaderData }) => {
+  head: ({ params }) => {
     const library = getLibrary(params.libraryId)
-    const doc = (loaderData as any)?.doc
     return {
       meta: seo({
         title: `${library.name} Community Resources`,
@@ -56,7 +55,8 @@ type Resource = {
 function RouteComponent() {
   const { libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
-  const data = Route.useLoaderData().doc?.frontmatter
+  const data = Route.useLoaderData()
+  const frontmatter = data.doc?.frontmatter
 
   return (
     <DocContainer>
@@ -67,54 +67,40 @@ function RouteComponent() {
       >
         <div className="p-4 lg:p-6 flex flex-col space-y-4 w-full">
           <div className={twMerge('flex overflow-auto flex-col w-full')}>
-            <DocTitle>
-              {(data?.title as string | undefined) ||
-                `${library.name} Community Resources`}
-            </DocTitle>
+            <DocTitle>Community Resources</DocTitle>
             <div className="h-4" />
             <div className="h-px bg-gray-500 opacity-20" />
           </div>
           <span>
-            {(data?.frontmatter?.description as string | undefined) || (
-              <>
-                Discover resources created by the{' '}
-                <strong>{library.name}</strong> community. Have something to
-                share?{' '}
-                <a
-                  href={`https://github.com/${libraryId}/edit/main/docs/community-resources.md`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline"
-                >
-                  Submit a PR on GitHub
-                </a>{' '}
-                to contribute to this list.
-              </>
-            )}
+            Discover resources created by the <strong>{library.name}</strong>{' '}
+            community. Have something to share?{' '}
+            <a
+              href={`https://github.com/${libraryId}/edit/main/docs/community-resources.md`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Submit a PR on GitHub
+            </a>{' '}
+            to contribute to this list.
           </span>
-          {data?.frontmatter?.articles > 1 && (
+          {frontmatter?.articles && (
             <CommunitySection
               type="article"
-              resources={data.frontmatter.articles as Resource[]}
+              resources={frontmatter?.articles}
             />
           )}
-          {data?.frontmatter?.media > 1 && (
-            <CommunitySection
-              type="media"
-              resources={data.frontmatter.media as Resource[]}
-            />
+          {frontmatter?.media && (
+            <CommunitySection type="media" resources={frontmatter?.media} />
           )}
-          {data?.frontmatter?.utilities > 1 && (
+          {frontmatter?.utilities && (
             <CommunitySection
               type="utility"
-              resources={data.frontmatter.utilities as Resource[]}
+              resources={frontmatter?.utilities}
             />
           )}
-          {data?.frontmatter?.others > 1 && (
-            <CommunitySection
-              type="other"
-              resources={data.frontmatter.others as Resource[]}
-            />
+          {frontmatter?.others && (
+            <CommunitySection type="other" resources={frontmatter?.others} />
           )}
         </div>
       </div>

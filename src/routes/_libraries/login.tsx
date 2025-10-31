@@ -6,17 +6,22 @@ import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
 import { convexQuery } from '@convex-dev/react-query'
+import { z } from 'zod'
 
 export const Route = createFileRoute('/_libraries/login')({
   component: LoginPage,
-  loader: async ({ context }) => {
-    const user = await context.queryClient.ensureQueryData(
-      convexQuery(api.auth.getCurrentUser, {})
-    )
-
-    if (user) {
+  validateSearch: z.object({
+    redirectTo: z.string().optional(),
+  }),
+  beforeLoad: async ({ context }) => {
+    if (context.userId) {
       throw redirect({ to: '/account' })
     }
+  },
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      convexQuery(api.auth.getCurrentUser, {})
+    )
   },
 })
 
@@ -41,6 +46,7 @@ function SplashImage() {
 }
 
 export function SignInForm() {
+  const { redirectTo = '/account' } = Route.useSearch()
   return (
     <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 w-[100vw] max-w-sm mx-auto">
       <SplashImage />
@@ -51,6 +57,7 @@ export function SignInForm() {
         onClick={() =>
           authClient.signIn.social({
             provider: 'github',
+            callbackURL: redirectTo,
           })
         }
         className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
@@ -61,6 +68,7 @@ export function SignInForm() {
         onClick={() =>
           authClient.signIn.social({
             provider: 'google',
+            callbackURL: redirectTo,
           })
         }
         className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"

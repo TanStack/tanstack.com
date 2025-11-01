@@ -54,48 +54,52 @@ export function CopyMarkdownButton({
       const cached = cache.get(url)
 
       if (cached) {
-        navigator.clipboard.writeText(cached)
-        notify(
-          <div>
-            <div className="font-medium">Copied markdown</div>
-            <div className="text-gray-500 dark:text-gray-400 text-xs">
-              Source content copied from cache
+        navigator.clipboard.writeText(cached).then(() => {
+          notify(
+            <div>
+              <div className="font-medium">Copied markdown</div>
+              <div className="text-gray-500 dark:text-gray-400 text-xs">
+                Source content copied from cache
+              </div>
             </div>
-          </div>
-        )
+          )
+        })
       } else {
         fetch(url)
-          .then((response) => response.text())
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Fetch failed')
+            }
+            return response.text()
+          })
           .then((content) => {
             cache.set(url, content)
-            return navigator.clipboard.writeText(content)
-          })
-          .then(() => {
-            notify(
-              <div>
-                <div className="font-medium">Copied markdown</div>
-                <div className="text-gray-500 dark:text-gray-400 text-xs">
-                  Source content copied from GitHub
+            return navigator.clipboard.writeText(content).then(() => {
+              notify(
+                <div>
+                  <div className="font-medium">Copied markdown</div>
+                  <div className="text-gray-500 dark:text-gray-400 text-xs">
+                    Source content copied from GitHub
+                  </div>
                 </div>
-              </div>
-            )
+              )
+            })
           })
           .catch(() => {
             // fallback: try to copy current page content if available
             const pageContent =
               document.querySelector('.styled-markdown-content')?.textContent ||
               ''
-            return navigator.clipboard.writeText(pageContent)
-          })
-          .then(() => {
-            notify(
-              <div>
-                <div className="font-medium">Copied markdown</div>
-                <div className="text-gray-500 dark:text-gray-400 text-xs">
-                  Fallback: copied rendered page content
+            navigator.clipboard.writeText(pageContent).then(() => {
+              notify(
+                <div>
+                  <div className="font-medium">Copied markdown</div>
+                  <div className="text-gray-500 dark:text-gray-400 text-xs">
+                    Fallback: copied rendered page content
+                  </div>
                 </div>
-              </div>
-            )
+              )
+            })
           })
       }
     })

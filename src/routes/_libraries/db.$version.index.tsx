@@ -56,7 +56,7 @@ function DBVersionIndex() {
             <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
               Blazing fast apps 🔥
             </h3>
-            <p className="mt-6 text-xl w-3xl mx-auto leading-7 opacity-75 max-w-[500px] lg:max-w-[800px]">
+            <p className="mt-6 text-xl mx-auto leading-7 opacity-75 max-w-[90vw] sm:max-w-[500px] lg:max-w-[800px]">
               Built on a{' '}
               <a
                 href="https://github.com/electric-sql/d2ts"
@@ -70,7 +70,7 @@ function DBVersionIndex() {
               apps.
             </p>
           </div>
-          <div className="grid grid-flow-row grid-cols-2 gap-x-10 lg:gap-x-12 gap-y-4 mx-auto max-w-[500px] lg:max-w-[650px]">
+          <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-10 lg:gap-x-12 gap-y-4 mx-auto max-w-[90vw] sm:max-w-[500px] lg:max-w-[650px]">
             <div>
               <h4 className="text-xl my-2">🔥 Blazing fast query engine</h4>
               <p>For sub-millisecond live queries.</p>

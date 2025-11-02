@@ -424,7 +424,7 @@ export const allMaintainers: Maintainer[] = [
     social: {
       twitter: 'https://x.com/beaussan',
       bluesky: 'https://bsky.app/profile/beaussan.io',
-      website: 'https://beaussan.io/'
+      website: 'https://beaussan.io/',
     },
   },
 ]

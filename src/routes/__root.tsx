@@ -26,6 +26,11 @@ import { ToastProvider } from '~/components/ToastProvider'
 import { ThemeProvider } from '~/components/ThemeProvider'
 import { ConvexQueryClient } from '@convex-dev/react-query'
 import { ConvexReactClient } from 'convex/react'
+import {
+  getCookieNames,
+  fetchAuth,
+  getAuthFromCookie,
+} from '@convex-dev/better-auth/react-start'
 import { Navbar } from '~/components/Navbar'
 
 import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
@@ -33,6 +38,20 @@ import { authClient } from '../utils/auth.client'
 
 import { LibrariesLayout } from './_libraries/route'
 import { TanStackUser } from 'convex/auth'
+import { getCookie, getRequest } from '@tanstack/react-start/server'
+import { createServerFn } from '@tanstack/react-start'
+
+const getAuth = createServerFn({ method: 'GET' }).handler(async () => {
+  const { createAuth } = await import('../../convex/auth')
+  const cookieNames = getCookieNames(createAuth)
+  const cookieAuth = getAuthFromCookie(getCookie(cookieNames.convexJwt))
+  if (cookieAuth) {
+    return cookieAuth
+  }
+  if (getCookie(cookieNames.sessionToken)) {
+    return await fetchAuth(getRequest())
+  }
+})
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -137,11 +156,20 @@ export const Route = createRootRouteWithContext<{
       })
     }
 
-    // // During SSR only (the only time serverHttpClient exists),
-    // // set the auth token for Convex to make HTTP queries with.
-    // if (token) {
-    //   ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
-    // }
+    const authData = await getAuth()
+
+    // all queries, mutations and actions through TanStack Query will be
+    // authenticated during SSR if we have a valid token
+    if (authData?.token) {
+      // During SSR only (the only time serverHttpClient exists),
+      // set the auth token to make HTTP queries with.
+      ctx.context.convexQueryClient.serverHttpClient?.setAuth(authData.token)
+    }
+
+    return {
+      userId: authData?.userId,
+      token: authData?.token,
+    }
   },
   staleTime: Infinity,
   errorComponent: (props) => {

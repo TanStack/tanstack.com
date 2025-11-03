@@ -1,3 +1,5 @@
+import { redirect, RouteContext } from '@tanstack/react-router'
+
 /**
  * Uppercases the first character of a string and returns the result.
  */
@@ -174,4 +176,15 @@ export async function logTime<T>(
   const end = performance.now()
   console.log(`${lable}: ${(end - start).toLocaleString()} ms`)
   return result as any
+}
+
+export function requireAuth(ctx: {
+  context: { userId?: string }
+  location: { href: string }
+}) {
+  if (!ctx.context.userId) {
+    throw redirect({
+      to: '/login?redirectTo=' + encodeURIComponent(ctx.location.href),
+    })
+  }
 }

@@ -33,6 +33,7 @@ import { authClient } from '../utils/auth.client'
 
 import { LibrariesLayout } from './_libraries/route'
 import { TanStackUser } from 'convex/auth'
+import { THEME_COLORS } from '~/utils/utils'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -48,6 +49,16 @@ export const Route = createRootRouteWithContext<{
       {
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
+      },
+      {
+        name: 'theme-color',
+        content: THEME_COLORS.light,
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        name: 'theme-color',
+        content: THEME_COLORS.dark,
+        media: '(prefers-color-scheme: dark)',
       },
       ...seo({
         title:

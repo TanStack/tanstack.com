@@ -3,6 +3,7 @@ import { createClientOnlyFn, createIsomorphicFn } from '@tanstack/react-start'
 import * as React from 'react'
 import { createContext, ReactNode, useEffect, useState } from 'react'
 import { z } from 'zod'
+import { THEME_COLORS } from '~/utils/utils'
 
 const themeModeSchema = z.enum(['light', 'dark', 'auto'])
 const resolvedThemeSchema = z.enum(['light', 'dark'])
@@ -45,6 +46,14 @@ const updateThemeClass = createClientOnlyFn((themeMode: ThemeMode) => {
 
   if (themeMode === 'auto') {
     root.classList.add('auto')
+  }
+
+  const metaThemeColor = document.querySelector('meta[name="theme-color"]')
+  if (metaThemeColor) {
+    metaThemeColor.setAttribute(
+      'content',
+      newTheme === 'dark' ? THEME_COLORS.dark : THEME_COLORS.light
+    )
   }
 })
 

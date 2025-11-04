@@ -184,8 +184,6 @@ This is how you get:
 'use cache'
 'use cache:remote'
 'use workflow'
-'use streaming'
-'use edge'
 ```
 
 Even durable tasks, caching strategies, and execution locations are now being encoded as directives. These are runtime semantics, not syntax semantics. Encoding them as directives sets direction outside the standards process and merits caution.

@@ -48,6 +48,14 @@ export const queryProject = {
       '/query/v5',
       'from=reactQueryV3'
     )
+
+    handleRedirects(
+      queryCommunityLinks,
+      href,
+      '/query/latest',
+      '/query/latest',
+      'from=communityLinks'
+    )
   },
   menu: [
     {
@@ -238,4 +246,39 @@ const reactQueryV3RemovedInV5List = [
     {from: "guides/custom-logger", to: "docs/framework/react/guides/migrating-to-v5#the-deprecated-custom-logger-has-been-removed"},
     {from: "plugins/createWebStoragePersister", to: "docs/framework/react/guides/migrating-to-react-query-4#persistqueryclient-and-the-corresponding-persister-plugins-are-no-longer-experimental-and-have-been-renamed"},
     {from: "plugins/createAsyncStoragePersister", to: "docs/framework/react/guides/migrating-to-react-query-4#persistqueryclient-and-the-corresponding-persister-plugins-are-no-longer-experimental-and-have-been-renamed"},
+]
+
+/*
+Community resources section to new location
+*/
+// prettier-ignore
+const queryCommunityLinks = [
+  {
+    from: 'docs/framework/react/community/tkdodos-blog',
+    to: 'docs/community-resources',
+  },
+  {
+    from: 'docs/framework/react/community/community-projects',
+    to: 'docs/community-resources',
+  },
+  {
+    from: 'docs/framework/solid/community/tkdodos-blog',
+    to: 'docs/community-resources',
+  },
+  {
+    from: 'docs/framework/solid/community/community-projects',
+    to: 'docs/community-resources',
+  },
+  {
+    from: 'docs/framework/vue/community/tkdodos-blog',
+    to: 'docs/community-resources',
+  },
+  {
+    from: 'docs/framework/vue/community/community-projects',
+    to: 'docs/community-resources',
+  },
+  {
+    from: 'docs/framework/react/videos',
+    to: 'docs/community-resources',
+  },
 ]

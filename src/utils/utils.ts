@@ -175,3 +175,10 @@ export async function logTime<T>(
   console.log(`${lable}: ${(end - start).toLocaleString()} ms`)
   return result as any
 }
+
+export const THEME_COLORS = {
+  light: '#f9fafb', // Tailwind gray-50
+  dark: '#101828', // Tailwind gray-900
+} as const
+
+export type ThemeColor = keyof typeof THEME_COLORS

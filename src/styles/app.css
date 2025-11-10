@@ -2,7 +2,7 @@
 
 @plugin "@tailwindcss/typography";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark, .dark *));
 @custom-variant light (&:is(.light, .light *));
 @custom-variant auto (&:is(.auto, .auto *));
 @custom-variant aria-current (&[aria-current="location"]);
@@ -68,7 +68,6 @@ button {
   html,
   body {
     @apply text-gray-900 bg-gray-50 dark:bg-gray-900 dark:text-gray-200;
-    overscroll-behavior: none;
   }
 
   .using-mouse * {

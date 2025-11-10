@@ -19,13 +19,7 @@ import { SearchButton } from './SearchButton'
 import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { AuthLoading } from 'convex/react'
 import { api } from 'convex/_generated/api'
-import {
-  MdLibraryBooks,
-  MdLineAxis,
-  MdMenu,
-  MdPerson,
-  MdSupport,
-} from 'react-icons/md'
+import { MdLibraryBooks, MdLineAxis, MdPerson, MdSupport } from 'react-icons/md'
 import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
 import { BiSolidCheckShield } from 'react-icons/bi'
 import { PiHammerFill } from 'react-icons/pi'
@@ -232,7 +226,21 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     <div className="md:flex gap-2 [&>*]:flex-1 lg:block">
       <div>
         {sortBy(
-          libraries.filter((d) => d.to),
+          libraries.filter((d) => {
+            const sidebarLibraryIds = [
+              'start',
+              'router',
+              'query',
+              'table',
+              'form',
+              'db',
+              'virtual',
+              'pacer',
+              'store',
+              'devtools',
+            ]
+            return d.to && sidebarLibraryIds.includes(d.id)
+          }),
           (d) => !d.name.includes('TanStack')
         ).map((library, i) => {
           const [prefix, name] = library.name.split(' ')
@@ -344,6 +352,32 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             </div>
           )
         })}
+        <Link
+          to="/libraries"
+          className={twMerge(linkClasses, 'font-normal')}
+          activeProps={{
+            className: twMerge('font-bold! bg-gray-500/10 dark:bg-gray-500/30'),
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4 justify-between">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
+            <div>More Libraries</div>
+          </div>
+        </Link>
         <div className="py-2">
           <div className="bg-gray-500/10 h-px" />
         </div>

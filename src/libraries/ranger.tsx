@@ -9,27 +9,27 @@ import { twMerge } from 'tailwind-merge'
 
 const repo = 'tanstack/ranger'
 
-const textStyles = 'text-pink-600 dark:text-pink-400'
+const textStyles = 'text-gray-700 dark:text-gray-500'
 
 export const rangerProject = {
   id: 'ranger',
   name: 'TanStack Ranger',
-  cardStyles: `shadow-xl shadow-pink-700/20 dark:shadow-lg dark:shadow-pink-500/30 text-pink-500 border-2 border-transparent hover:border-current`,
+  cardStyles: `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-500 border-2 border-transparent hover:border-current`,
   to: '/ranger',
   tagline: `Headless range and multi-range slider utilities.`,
   description: `Headless, lightweight, and extensible primitives for building range and multi-range sliders.`,
   ogImage: 'https://github.com/tanstack/ranger/raw/main/media/headerv1.png',
   badge: undefined,
-  bgStyle: 'bg-pink-500',
-  textStyle: 'text-pink-500',
+  bgStyle: 'bg-slate-500',
+  textStyle: 'text-slate-500',
   repo,
   latestBranch: 'main',
   latestVersion: 'v0',
   availableVersions: ['v0'],
-  bgRadial: 'from-pink-500 via-pink-600/50 to-transparent',
-  colorFrom: 'from-pink-400',
-  colorTo: 'to-pink-500',
-  textColor: 'text-pink-500',
+  bgRadial: 'from-gray-500 via-gray-700/50 to-transparent',
+  colorFrom: 'from-gray-500',
+  colorTo: 'to-gray-700',
+  textColor: 'text-gray-700',
   frameworks: ['react'],
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
   menu: [

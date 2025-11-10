@@ -46,7 +46,7 @@ function VersionIndex() {
               params: { libraryId: library.id, version },
             },
             label: 'Get Started',
-            className: 'bg-pink-500 text-white',
+            className: 'bg-slate-500 text-white',
           }}
         />
 
@@ -98,7 +98,7 @@ function VersionIndex() {
             params: { libraryId: library.id, version },
           }}
           label="Get Started!"
-          className="bg-pink-500 text-white"
+          className="bg-slate-500 text-white"
         />
         <Footer />
       </div>

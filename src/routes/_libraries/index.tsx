@@ -10,7 +10,6 @@ import discordImage from '~/images/discord-logo-white.svg'
 import { useMutation } from '~/hooks/useMutation'
 import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
-import { partners } from '../../utils/partners'
 import { PartnersGrid } from '~/components/PartnersGrid'
 import OpenSourceStats from '~/components/OpenSourceStats'
 // Using public asset URLs for splash images
@@ -170,7 +169,7 @@ function Index() {
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-8 transition-all duration-300
+                          `border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-8 transition-all duration-300 ease-out
                           bg-white/90 dark:bg-black/40 backdrop-blur-sm`,
                           'hover:shadow-2xl hover:shadow-current/20 hover:border-current/50 hover:-translate-y-1',
                           'relative group',
@@ -179,10 +178,11 @@ function Index() {
                         )}
                         style={{
                           zIndex: i,
+                          willChange: 'transform',
                         }}
                       >
                         {/* Background content that will blur on hover */}
-                        <div className="z-0 relative group-hover:blur-[0.5px] transition-[filter] duration-200">
+                        <div className="z-0 relative group-hover:blur-[0.5px] transition-[filter] duration-300 ease-out">
                           <div className="flex gap-2 justify-between items-center">
                             <MatchRoute
                               pending
@@ -228,7 +228,7 @@ function Index() {
                         <div
                           className="absolute inset-0 z-30 bg-white/95 dark:bg-black/95 p-6 rounded-xl
                           backdrop-blur-sm flex flex-col justify-center opacity-0 group-hover:opacity-100
-                          transition-opacity duration-300"
+                          transition-opacity duration-300 ease-out pointer-events-none group-hover:pointer-events-auto"
                         >
                           <div
                             className={`text-sm text-gray-800 dark:text-gray-200 leading-relaxed`}
@@ -288,6 +288,28 @@ function Index() {
               </div>
             )
           )}
+        </div>
+
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 text-center">
+          <Link
+            to="/libraries"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-black/40 backdrop-blur-sm shadow-md hover:shadow-xl hover:border-gray-400/70 dark:hover:border-gray-600/70 hover:-translate-y-1 transition-all duration-300 text-gray-900 dark:text-gray-100 font-medium"
+          >
+            <span>More Libraries</span>
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </Link>
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">

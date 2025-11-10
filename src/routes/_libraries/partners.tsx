@@ -446,6 +446,34 @@ function RouteComp() {
             Get in Touch
           </a>
         </div>
+
+        <div className="text-center py-8 border-t border-gray-200 dark:border-gray-700">
+          <a
+            href="#total-support-share"
+            className="anchor-heading *:scroll-my-20 *:lg:scroll-my-4"
+          >
+            <h2
+              id="total-support-share"
+              className="text-2xl font-semibold mb-4"
+            >
+              Total Support Share
+            </h2>
+          </a>
+          <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-xl mx-auto">
+            This chart is a percentage-based visualization of the total support
+            each partner has rendered to TanStack ever. It is updated every 6
+            months.
+          </p>
+          <div className="flex justify-center">
+            <img
+              src="/images/total-support-share.png"
+              alt="Total Support Share chart showing percentage-based contribution of partners to TanStack"
+              className="rounded-lg shadow-lg"
+              width={600}
+              height={706}
+            />
+          </div>
+        </div>
       </div>
       <Footer />
     </div>

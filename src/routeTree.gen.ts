@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
 import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
 import { Route as MerchRouteImport } from './routes/merch'
+import { Route as LibrariesRouteImport } from './routes/libraries'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as LibrariesRouteRouteImport } from './routes/_libraries/route'
@@ -76,6 +77,11 @@ const PartnersEmbedRoute = PartnersEmbedRouteImport.update({
 const MerchRoute = MerchRouteImport.update({
   id: '/merch',
   path: '/merch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibrariesRoute = LibrariesRouteImport.update({
+  id: '/libraries',
+  path: '/libraries',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuilderRoute = BuilderRouteImport.update({
@@ -353,6 +359,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId': typeof LibraryIdRouteRouteWithChildren
   '/admin': typeof AdminRouteRouteWithChildren
   '/builder': typeof BuilderRoute
+  '/libraries': typeof LibrariesRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
@@ -405,6 +412,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/builder': typeof BuilderRoute
+  '/libraries': typeof LibrariesRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
@@ -459,6 +467,7 @@ export interface FileRoutesById {
   '/_libraries': typeof LibrariesRouteRouteWithChildren
   '/admin': typeof AdminRouteRouteWithChildren
   '/builder': typeof BuilderRoute
+  '/libraries': typeof LibrariesRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
@@ -515,6 +524,7 @@ export interface FileRouteTypes {
     | '/$libraryId'
     | '/admin'
     | '/builder'
+    | '/libraries'
     | '/merch'
     | '/partners-embed'
     | '/sponsors-embed'
@@ -567,6 +577,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/builder'
+    | '/libraries'
     | '/merch'
     | '/partners-embed'
     | '/sponsors-embed'
@@ -620,6 +631,7 @@ export interface FileRouteTypes {
     | '/_libraries'
     | '/admin'
     | '/builder'
+    | '/libraries'
     | '/merch'
     | '/partners-embed'
     | '/sponsors-embed'
@@ -676,6 +688,7 @@ export interface RootRouteChildren {
   LibrariesRouteRoute: typeof LibrariesRouteRouteWithChildren
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
   BuilderRoute: typeof BuilderRoute
+  LibrariesRoute: typeof LibrariesRoute
   MerchRoute: typeof MerchRoute
   PartnersEmbedRoute: typeof PartnersEmbedRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
@@ -705,6 +718,13 @@ declare module '@tanstack/react-router' {
       path: '/merch'
       fullPath: '/merch'
       preLoaderRoute: typeof MerchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/libraries': {
+      id: '/libraries'
+      path: '/libraries'
+      fullPath: '/libraries'
+      preLoaderRoute: typeof LibrariesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/builder': {
@@ -1216,6 +1236,7 @@ const rootRouteChildren: RootRouteChildren = {
   LibrariesRouteRoute: LibrariesRouteRouteWithChildren,
   AdminRouteRoute: AdminRouteRouteWithChildren,
   BuilderRoute: BuilderRoute,
+  LibrariesRoute: LibrariesRoute,
   MerchRoute: MerchRoute,
   PartnersEmbedRoute: PartnersEmbedRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,

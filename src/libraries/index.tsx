@@ -139,7 +139,7 @@ export const librariesByGroup = {
     storeProject,
     pacerProject,
   ],
-  headlessUI: [tableProject, formProject, virtualProject, rangerProject],
+  headlessUI: [tableProject, formProject, virtualProject],
   other: [devtoolsProject, configProject],
 }
 

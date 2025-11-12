@@ -17,7 +17,7 @@ const { data: projectTodos } = useLiveQuery((q) =>
   q
     .from({ todos })
     .join({ projects }, (t, p) => eq(t.projectId, p.id))
-    .where(({ todos }) => eq(todos.status, 'active')),
+    .where(({ todos }) => eq(todos.status, 'active'))
 )
 
 // ...becomes these precise API calls automatically:
@@ -50,7 +50,7 @@ function TodoList({ filter }) {
       q
         .from({ todos: todoCollection })
         .where(({ todos }) => eq(todos.status, filter)),
-    [filter],
+    [filter]
   )
   return todos.map((t) => <TodoItem todo={t} />)
 }
@@ -114,7 +114,7 @@ const productsCollection = createCollection(
       return api.getProducts(params)
     },
     syncMode: 'on-demand', // ← New!
-  }),
+  })
 )
 ```
 
@@ -125,10 +125,10 @@ const { data: electronics } = useLiveQuery((q) =>
   q
     .from({ product: productsCollection })
     .where(({ product }) =>
-      and(eq(product.category, 'electronics'), lt(product.price, 100)),
+      and(eq(product.category, 'electronics'), lt(product.price, 100))
     )
     .orderBy(({ product }) => product.price, 'asc')
-    .limit(10),
+    .limit(10)
 )
 ```
 
@@ -157,12 +157,12 @@ Multiple components requesting the same data trigger exactly one network call:
 ```tsx
 // Component A
 const { data: active } = useLiveQuery((q) =>
-  q.from({ todos }).where(({ todos }) => eq(todos.status, 'active')),
+  q.from({ todos }).where(({ todos }) => eq(todos.status, 'active'))
 )
 
 // Component B (same query, different component)
 const { data: active } = useLiveQuery((q) =>
-  q.from({ todos }).where(({ todos }) => eq(todos.status, 'active')),
+  q.from({ todos }).where(({ todos }) => eq(todos.status, 'active'))
 )
 
 // Result: ONE network request
@@ -204,7 +204,7 @@ const { data } = useLiveQuery((q) =>
   q
     .from({ todos })
     .join({ projects }, (t, p) => eq(t.projectId, p.id))
-    .where(({ todos }) => eq(todos.status, 'active')),
+    .where(({ todos }) => eq(todos.status, 'active'))
 )
 
 // Network calls:
@@ -244,7 +244,7 @@ You get TanStack Query's sophisticated caching plus DB's intelligent subset trac
 
 ## Progressive sync: Fast initial paint + instant client queries
 
-On-demand mode is great for search interfaces and catalogs where you'll never touch most of the data. But what about collaborative apps where you *want* the full dataset client-side for instant queries and offline access, but also want fast first paint?
+On-demand mode is great for search interfaces and catalogs where you'll never touch most of the data. But what about collaborative apps where you _want_ the full dataset client-side for instant queries and offline access, but also want fast first paint?
 
 That's progressive mode: load what you need immediately, sync everything in the background.
 
@@ -253,14 +253,14 @@ const todoCollection = createCollection(
   electricCollection({
     table: 'todos',
     syncMode: 'progressive',
-  }),
+  })
 )
 
 // First query loads immediately (on-demand)
 const { data: urgentTodos } = useLiveQuery((q) =>
   q
     .from({ todos: todoCollection })
-    .where(({ todos }) => eq(todos.priority, 'urgent')),
+    .where(({ todos }) => eq(todos.priority, 'urgent'))
 )
 // ~100ms: Network request for urgent todos only
 
@@ -297,18 +297,21 @@ We provide helper functions to make this straightforward:
 ```tsx
 queryFn: async (ctx) => {
   // Parse expression trees into a simple format
-  const { filters, sorts, limit } = parseLoadSubsetOptions(ctx.meta?.loadSubsetOptions)
+  const { filters, sorts, limit } = parseLoadSubsetOptions(
+    ctx.meta?.loadSubsetOptions
+  )
 
   // Map to your REST API's query parameters
   const params = new URLSearchParams()
   filters.forEach(({ field, operator, value }) => {
     if (operator === 'eq') params.set(field.join('.'), String(value))
-    else if (operator === 'lt') params.set(`${field.join('.')}_lt`, String(value))
+    else if (operator === 'lt')
+      params.set(`${field.join('.')}_lt`, String(value))
     // Map other operators as needed
   })
   if (limit) params.set('limit', String(limit))
 
-  return fetch(`/api/products?${params}`).then(r => r.json())
+  return fetch(`/api/products?${params}`).then((r) => r.json())
 }
 ```
 
@@ -324,7 +327,7 @@ queryFn: async (ctx) => {
       eq: (field, value) => ({ [field.join('_')]: { _eq: value } }),
       lt: (field, value) => ({ [field.join('_')]: { _lt: value } }),
       and: (...conditions) => ({ _and: conditions }),
-    }
+    },
   })
 
   // Use whereClause in your GraphQL query...

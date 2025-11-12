@@ -7,6 +7,8 @@ authors:
   - Kyle Mathews
 ---
 
+![Query-Driven Sync](/blog-assets/tanstack-db-0.5-query-driven-sync/header.png)
+
 You don't need a new API for every component. With 0.5, the component's query _is_ the API call.
 
 ```tsx

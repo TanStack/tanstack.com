@@ -339,7 +339,7 @@ You write this mapping once per collection. After that, every query automaticall
 
 **Can't modify your API?** Your mapping doesn't need to be precise. Many queries can map to a single broad API call—for example, any product search query with category "hardware" could map to `GET /api/products?category=hardware`. TanStack DB will apply the remainder of the query client-side. As your API evolves to support more predicates, your client code doesn't change—just update the mapping to push down more filters. Start broad, optimize incrementally.
 
-[Full Query Collection predicate mapping documentation →](https://tanstack.com/db/latest/docs/collections/query-collection#queryFn-and-predicate-push-down)
+[Full Query Collection predicate mapping documentation →](https://tanstack.com/db/latest/docs/collections/query-collection#queryfn-and-predicate-push-down)
 
 ## Shipping toward 1.0
 

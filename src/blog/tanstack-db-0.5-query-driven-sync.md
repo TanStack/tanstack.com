@@ -289,7 +289,7 @@ For example, Electric translates your client query directly into Postgres querie
 
 Collections abstract the data source. Start with REST. Upgrade to sync when you need real-time.
 
-## How Query Collection predicate parsing works
+## How Query Collection predicate mapping works
 
 Query Collection is designed for REST, GraphQL, tRPC, and any other API-based backend. When you enable `syncMode: 'on-demand'`, TanStack DB automatically passes your query predicates (where clauses, orderBy, limit) to your `queryFn` as expression trees in `ctx.meta.loadSubsetOptions`. You write the mapping logic once to translate these into your API's format.
 
@@ -339,7 +339,7 @@ You write this mapping once per collection. After that, every query automaticall
 
 **Can't modify your API?** Your mapping doesn't need to be precise. Many queries can map to a single broad API call—for example, any product search query with category "hardware" could map to `GET /api/products?category=hardware`. TanStack DB will apply the remainder of the query client-side. As your API evolves to support more predicates, your client code doesn't change—just update the mapping to push down more filters. Start broad, optimize incrementally.
 
-[Full Query Collection predicate parsing documentation →](https://tanstack.com/db/latest/docs/collections/query-collection#queryFn-and-predicate-push-down)
+[Full Query Collection predicate mapping documentation →](https://tanstack.com/db/latest/docs/collections/query-collection#queryFn-and-predicate-push-down)
 
 ## Shipping toward 1.0
 

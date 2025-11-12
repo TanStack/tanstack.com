@@ -518,8 +518,10 @@ html.dark .shiki.github-light {
 /* Improve comment contrast in dark mode */
 html.dark .shiki.tokyo-night .token.comment,
 html.dark .shiki.tokyo-night span[style*='color:#565F89'],
-html.dark .shiki.tokyo-night span[style*='color: #565F89'] {
-  color: #8b93b8 !important;
+html.dark .shiki.tokyo-night span[style*='color: #565F89'],
+html.dark .shiki.tokyo-night span[style*='color:#51597D'],
+html.dark .shiki.tokyo-night span[style*='color: #51597D'] {
+  color: #9099c0 !important;
 }
 
 /* TanStack Router Devtools */

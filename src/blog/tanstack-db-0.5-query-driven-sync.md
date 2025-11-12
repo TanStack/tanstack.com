@@ -65,7 +65,7 @@ TanStack DB is a client-first store for your API powered by [differential datafl
 
 This isn't just fast filtering. It's **live queries** that incrementally maintain themselves as data changes. **Effortless optimistic mutations** that instantly update all affected queries, then reconcile with the server. And a **normalized collection store** that eliminates duplicate data and keeps everything coherent.
 
-[When we released 0.1](/blog/tanstack-db-0.1-the-embedded-client-database-for-tanstack-query), we described the two options teams face and that TanStack DB enables a new Option, C:
+[When we released TanStack DB 0.1](/blog/tanstack-db-0.1-the-embedded-client-database-for-tanstack-query) in July, we described the two options teams face and that TanStack DB enables a new Option, C:
 
 > **Option A. View-specific APIs** (fast render, slow network, endless endpoint sprawl)
 >
@@ -75,7 +75,7 @@ This isn't just fast filtering. It's **live queries** that incrementally maintai
 
 ## The problem we kept hearing about
 
-Since [we released TanStack DB 0.1](/blog/tanstack-db-0.1) in July, we've gotten the same question over and over:
+Since we released the first beta in July, we've gotten the same question over and over:
 
 > This looks great for loading normalized data once, but what if my `users` table has 100,000 rows? I can't load everything.
 
@@ -346,6 +346,8 @@ You write this mapping once per collection. After that, every query automaticall
 Query-Driven Sync (0.5) completes the core vision: intelligent loading that adapts to your queries, instant client-side updates via differential dataflow, and seamless persistence back to your backend. We're targeting 1.0 for December 2025, focusing on API stability and comprehensive docs.
 
 **This is new—we need early adopters.** Query-Driven Sync works and ships today, but it's fresh. If you try it, we'd love your feedback on rough edges or API improvements. Join us in [Discord](https://discord.gg/tanstack) or open [GitHub issues](https://github.com/TanStack/db/issues).
+
+If you have ideas for new collection types based on Query-Driven Sync, please reach out. The interface is very powerful and we have lots of interesting ideas for how it can be used.
 
 ### Try it today
 

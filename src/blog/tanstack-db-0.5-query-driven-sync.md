@@ -337,7 +337,7 @@ queryFn: async (ctx) => {
 
 You write this mapping once per collection. After that, every query automatically generates the right API calls.
 
-**Can't modify your API?** Your mapping doesn't need to be precise. Many queries can map to a single broad API call—for example, any product search query could map to `GET /api/products` which returns all products. TanStack DB filters client-side. As your API evolves to support more predicates, your client code doesn't change—just update the mapping to push down more filters. Start broad, optimize incrementally.
+**Can't modify your API?** Your mapping doesn't need to be precise. Many queries can map to a single broad API call—for example, any product search query with category "hardware" could map to `GET /api/products?category=hardware`. TanStack DB will apply the remainder of the query client-side. As your API evolves to support more predicates, your client code doesn't change—just update the mapping to push down more filters. Start broad, optimize incrementally.
 
 [Full Query Collection predicate parsing documentation →](https://tanstack.com/db/latest/docs/collections/query-collection#queryFn-and-predicate-push-down)
 

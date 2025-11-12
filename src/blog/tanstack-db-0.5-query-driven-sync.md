@@ -65,7 +65,7 @@ TanStack DB is a client-first store for your API powered by [differential datafl
 
 This isn't just fast filtering. It's **live queries** that incrementally maintain themselves as data changes. **Effortless optimistic mutations** that instantly update all affected queries, then reconcile with the server. And a **normalized collection store** that eliminates duplicate data and keeps everything coherent.
 
-[When we released 0.1](/blog/tanstack-db-0.1), we described three options teams face and that TanStack DB enables a new Option, C:
+[When we released 0.1](/blog/tanstack-db-0.1-the-embedded-client-database-for-tanstack-query), we described three options teams face and that TanStack DB enables a new Option, C:
 
 > **Option A. View-specific APIs** (fast render, slow network, endless endpoint sprawl)
 >

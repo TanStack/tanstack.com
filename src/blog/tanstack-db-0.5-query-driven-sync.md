@@ -18,6 +18,7 @@ const { data: projectTodos } = useLiveQuery((q) =>
     .from({ todos })
     .join({ projects }, (t, p) => eq(t.projectId, p.id))
     .where(({ todos }) => eq(todos.status, 'active'))
+    .where(({ projects }) => eq(projects.id, 123))
 )
 
 // ...becomes these precise API calls automatically:
@@ -76,7 +77,7 @@ This isn't just fast filtering. It's **live queries** that incrementally maintai
 
 Since [we released TanStack DB 0.1](/blog/tanstack-db-0.1) in July, we've gotten the same question over and over:
 
-> "This looks great for loading normalized data once, but what if my `users` table has 100,000 rows? I can't load everything."
+> This looks great for loading normalized data once, but what if my `users` table has 100,000 rows? I can't load everything.
 
 They're right. Before 0.5, collections loaded their entire dataset upfront. That works beautifully for many apps with datasets in the thousands of rows, but it's not a one-size-fits-all solution.
 

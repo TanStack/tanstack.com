@@ -23,7 +23,7 @@ import { Framework, getFrameworkOptions } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { twMerge } from 'tailwind-merge'
-import { partners } from '~/utils/partners'
+import { partners, PartnerImage } from '~/utils/partners'
 import { GamFooter, GamLeftRailSquare, GamRightRailSquare } from './Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { SearchButton } from './SearchButton'
@@ -329,7 +329,7 @@ export function DocsLayout({
 
   const largeMenu = (
     <div
-      className="bg-white/50 dark:bg-black/30 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px]
+      className="bg-white/50 dark:bg-black/30 shadow-xl max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]
       hidden lg:flex flex-col gap-4 sticky
       h-[calc(100dvh-var(--navbar-height))] lg:top-[var(--navbar-height)]
       z-20 dark:border-r
@@ -407,11 +407,11 @@ export function DocsLayout({
           </div>
         </div>
         <div
-          className="lg:-ml-2 lg:pl-2 w-full lg:w-[300px] [@media(min-width:1600px)]:w-[350px] shrink-0 lg:sticky
+          className="lg:-ml-2 lg:pl-2 w-full lg:w-[300px] [@media(min-width:1600px)]:w-[350px]  [@media(min-width:1920px)]:w-[400px] shrink-0 lg:sticky
         lg:max-h-[calc(100dvh-var(--navbar-height))] lg:top-[var(--navbar-height)]
         lg:overflow-y-auto lg:overflow-x-hidden relative"
         >
-          <div className="ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-4">
+          <div className="ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-2">
             <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
               <Link
                 className="uppercase font-black text-center p-2 opacity-60 hover:opacity-100 text-sm"
@@ -419,9 +419,16 @@ export function DocsLayout({
               >
                 Partners
               </Link>
-              <div className="flex flex-wrap justify-center gap-x-2 gap-y-8 p-4">
+              <div
+                className="flex flex-wrap justify-center px-4 py-2
+                gap-x-3
+                gap-y-3
+                [@media(min-width:1600px)]:gap-y-4
+                [@media(min-width:1920px)]:gap-y-6
+              "
+              >
                 {activePartners
-                  .filter((d) => d.sidebarImgLight)
+                  .filter((d) => d.id !== 'ui-dev')
                   .map((partner) => {
                     return (
                       <a
@@ -432,7 +439,7 @@ export function DocsLayout({
                         className="flex grow-1 justify-center"
                       >
                         <div
-                          className="z-0 flex items-center justify-center [@media(min-width:1600px)]:scale-[1.1]"
+                          className="z-0 flex items-center justify-center max-w-full"
                           style={{
                             width: Math.max(
                               50 + Math.round(200 * partner.score),
@@ -440,91 +447,33 @@ export function DocsLayout({
                             ),
                           }}
                         >
-                          {partner.homepageImg}
+                          <PartnerImage
+                            config={partner.image}
+                            alt={partner.name}
+                          />
                         </div>
-                        {/* <div className="z-10 row-start-1 col-start-1 max-w-full p-4 text-sm flex flex-col gap-4 items-start justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/70 dark:bg-gray-800/80">
-                      {partner.content}
-                    </div> */}
                       </a>
                     )
                   })}
               </div>
             </div>
-            {libraryId === 'query' ? (
-              <div className="p-4 bg-white/70 dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
-                <DocsCalloutQueryGG />
-              </div>
-            ) : null}
-
             <AdGate>
               <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
                 <GamRightRailSquare />
               </div>
             </AdGate>
-
             <AdGate>
               <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
                 <GamLeftRailSquare />
               </div>
             </AdGate>
-
-            {/* <div className="bg-white dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-4 space-y-2 rounded-l-lg">
-              <Carbon />
-            </div> */}
-
-            {libraryId !== 'query' ? (
+            {libraryId === 'query' ? (
               <div className="p-4 bg-white/70 dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
-                <DocsCalloutBytes />
+                <DocsCalloutQueryGG />
               </div>
             ) : null}
           </div>
         </div>
-        {showBytes ? (
-          <div className="w-[300px] max-w-[350px] fixed md:hidden top-1/2 right-2 z-30 -translate-y-1/2 shadow-lg print:hidden">
-            <div className="bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10 p-4 md:p-6 rounded-lg">
-              {libraryId === 'query' ? (
-                <DocsCalloutQueryGG />
-              ) : (
-                <DocsCalloutBytes />
-              )}
-              <button
-                className="absolute top-0 right-0 p-2 hover:text-red-500 opacity:30 hover:opacity-100"
-                onClick={() => {
-                  setShowBytes(false)
-                }}
-              >
-                <FaTimes />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <button
-            className="right-0 top-1/2 -translate-y-[50px] fixed lg:hidden print:hidden"
-            onClick={() => {
-              setShowBytes(true)
-            }}
-          >
-            <div
-              className="origin-bottom-right -rotate-90 text-xs bg-white dark:bg-gray-800 border border-gray-100
-              hover:bg-rose-600 hover:text-white p-1 px-2 rounded-t-md shadow-md dark:border-0"
-            >
-              {libraryId === 'query' ? (
-                <>
-                  <strong>
-                    <span role="img" aria-label="crystal ball">
-                      &#128302;
-                    </span>{' '}
-                    Skip the docs?
-                  </strong>
-                </>
-              ) : (
-                <>
-                  Subscribe to <strong>Bytes</strong>
-                </>
-              )}
-            </div>
-          </button>
-        )}
       </div>
     </WidthToggleContext.Provider>
   )

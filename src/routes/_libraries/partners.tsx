@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import { partners } from '~/utils/partners'
+import { partners, PartnerImage } from '~/utils/partners'
 import { seo } from '~/utils/seo'
 import { z } from 'zod'
 import { Library } from '~/libraries'
@@ -374,7 +374,10 @@ function RouteComp() {
                   >
                     <div className="p-6">
                       <div className="mb-4 h-24 flex items-center justify-center">
-                        {partner.homepageImg}
+                        <PartnerImage
+                          config={partner.image}
+                          alt={partner.name}
+                        />
                       </div>
                       <h3 className="text-center text-xl font-semibold mb-4">
                         {partner.name}

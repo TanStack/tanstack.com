@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { partners as allPartners } from '~/utils/partners'
+import { partners as allPartners, PartnerImage } from '~/utils/partners'
 
 type PartnerItem = (typeof allPartners)[number]
 
@@ -30,7 +30,7 @@ export function PartnersGrid({ partnersList }: PartnersGridProps) {
                 width: Math.max(Math.round(100 + 300 * partner.score), 150),
               }}
             >
-              {partner.homepageImg}
+              <PartnerImage config={partner.image} alt={partner.name} />
             </div>
           </a>
         )

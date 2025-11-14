@@ -413,12 +413,22 @@ export function DocsLayout({
         >
           <div className="ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-2">
             <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
-              <Link
-                className="uppercase font-black text-center p-2 opacity-60 hover:opacity-100 text-sm"
-                to="/partners"
-              >
-                Partners
-              </Link>
+              <div className="px-2 w-full flex gap-2 justify-between">
+                <Link
+                  className="uppercase font-black text-center pt-2 pb-1 opacity-60 hover:opacity-100 text-xs"
+                  to="/partners"
+                >
+                  Partners
+                </Link>
+                <a
+                  href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="uppercase font-black text-center pt-2 pb-1 opacity-60 hover:opacity-100 text-xs block hover:underline"
+                >
+                  Become a Partner
+                </a>
+              </div>
               <div
                 className="flex flex-wrap justify-center px-4 py-2
                 gap-x-3

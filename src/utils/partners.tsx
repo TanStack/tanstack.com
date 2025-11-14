@@ -1,8 +1,6 @@
 import agGridDarkSvg from '~/images/ag-grid-dark.svg'
 import agGridLightSvg from '~/images/ag-grid-light.svg'
 import nozzleImage from '~/images/nozzle.png'
-import nozzleDarkSvg from '~/images/nozzle-dark.svg'
-import nozzleLightSvg from '~/images/nozzle-light.svg'
 import bytesUidotdevImage from '~/images/bytes-uidotdev.png'
 import vercelLightSvg from '~/images/vercel-light.svg'
 import vercelDarkSvg from '~/images/vercel-dark.svg'
@@ -42,16 +40,55 @@ function LearnMoreButton() {
   )
 }
 
+type PartnerImageConfig =
+  | { light: string; dark: string; scale?: number }
+  | { src: string; scale?: number }
+
+export function PartnerImage({
+  config,
+  alt,
+}: {
+  config: PartnerImageConfig
+  alt: string
+}) {
+  const scaleStyle = config.scale ? { transform: `scale(${config.scale})` } : {}
+
+  if ('light' in config && 'dark' in config) {
+    return (
+      <div
+        className="w-full flex items-center justify-center"
+        style={scaleStyle}
+      >
+        <img
+          src={config.light}
+          alt={alt}
+          className="w-full dark:hidden"
+          width={200}
+        />
+        <img
+          src={config.dark}
+          alt={alt}
+          className="w-full hidden dark:block"
+          width={200}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="w-full flex items-center justify-center" style={scaleStyle}>
+      <img src={config.src} alt={alt} className="w-full" width={200} />
+    </div>
+  )
+}
+
 type Partner = {
   name: string
   id: string
   libraries?: Library['id'][]
-  sidebarImgLight?: string
-  sidebarImgDark?: string
   href: string
-  homepageImg: JSX.Element
+  image: PartnerImageConfig
   content: JSX.Element
-  sidebarImgClass?: string
   status?: 'active' | 'inactive'
   startDate?: string
   endDate?: string
@@ -65,22 +102,13 @@ const neon = (() => {
     name: 'Neon',
     id: 'neon',
     libraries: ['start', 'router'],
-    sidebarImgLight: neonLightSvg,
-    sidebarImgDark: neonDarkSvg,
-    sidebarImgClass: 'py-3 scale-[1]',
     status: 'active' as const,
     score: 0.297,
     href,
-    homepageImg: (
-      <div className="w-full flex items-center justify-center">
-        <img src={neonLightSvg} alt="Neon" className="w-full dark:hidden" />
-        <img
-          src={neonDarkSvg}
-          alt="Neon"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: neonLightSvg,
+      dark: neonDarkSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -107,22 +135,13 @@ const convex = (() => {
     name: 'Convex',
     id: 'convex',
     libraries: ['start', 'router'],
-    sidebarImgLight: convexColorSvg,
-    sidebarImgDark: convexWhiteSvg,
-    sidebarImgClass: 'py-5 scale-[1.1]',
     status: 'active' as const,
     score: 0.286,
     href,
-    homepageImg: (
-      <div className="w-full flex items-center justify-center">
-        <img src={convexColorSvg} alt="Convex" className="w-full dark:hidden" />
-        <img
-          src={convexWhiteSvg}
-          alt="Convex"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: convexColorSvg,
+      dark: convexWhiteSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -149,21 +168,13 @@ const clerk = (() => {
     id: 'clerk',
     href,
     libraries: ['start', 'router'],
-    sidebarImgLight: clerkLightSvg,
-    sidebarImgDark: clerkDarkSvg,
-    sidebarImgClass: 'py-4',
     status: 'active' as const,
     score: 0.286,
-    homepageImg: (
-      <div className="w-full flex items-center justify-center scale-[0.85]">
-        <img src={clerkLightSvg} alt="Clerk" className="w-full dark:hidden" />
-        <img
-          src={clerkDarkSvg}
-          alt="Clerk"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: clerkLightSvg,
+      dark: clerkDarkSvg,
+      scale: 0.85,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -188,21 +199,12 @@ const workos = (() => {
     id: 'workos',
     href,
     libraries: ['start', 'router'] as const,
-    sidebarImgLight: workosBlackSvg,
-    sidebarImgDark: workosWhiteSvg,
-    sidebarImgClass: 'py-4',
     status: 'active' as const,
     score: 0.314,
-    homepageImg: (
-      <div className="w-full flex items-center justify-center">
-        <img src={workosBlackSvg} alt="WorkOS" className="w-full dark:hidden" />
-        <img
-          src={workosWhiteSvg}
-          alt="WorkOS"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: workosBlackSvg,
+      dark: workosWhiteSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -226,26 +228,14 @@ const agGrid = (() => {
     name: 'AG Grid',
     id: 'ag-grid',
     libraries: ['table'] as const,
-    sidebarImgLight: agGridDarkSvg,
-    sidebarImgDark: agGridLightSvg,
-    sidebarImgClass: 'py-5 scale-[1.1]',
     status: 'active' as const,
     score: 0.497,
     href,
-    homepageImg: (
-      <div className="scale-[1.1] py-2">
-        <img
-          src={agGridDarkSvg}
-          alt="AG Grid"
-          className="w-full max-w-full dark:hidden"
-        />
-        <img
-          src={agGridLightSvg}
-          alt="AG Grid"
-          className="w-full max-w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: agGridDarkSvg,
+      dark: agGridLightSvg,
+      scale: 1.1,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -277,29 +267,13 @@ const netlify = (() => {
     name: 'Netlify',
     id: 'netlify',
     libraries: ['start', 'router'],
-    sidebarImgLight: netlifyLightSvg,
-    sidebarImgDark: netlifyDarkSvg,
-    sidebarImgClass: 'pt-2 scale-[.9]',
     status: 'active' as const,
     score: 0.343,
     href,
-    homepageImg: (
-      <div className="flex flex-col justify-center items-center gap-2 relative w-full h-full space-y-2">
-        <div className="w-full flex items-center justify-center ">
-          <img
-            src={netlifyLightSvg}
-            alt="Netlify"
-            className="w-full dark:hidden"
-          />
-          <img
-            src={netlifyDarkSvg}
-            alt="Netlify"
-            className="w-full hidden dark:block"
-          />
-        </div>
-        {/* Netlify badge removed */}
-      </div>
-    ),
+    image: {
+      light: netlifyLightSvg,
+      dark: netlifyDarkSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -330,26 +304,13 @@ const cloudflare = (() => {
     href,
     // Show on every repo
     libraries: libraries.map((l) => l.id),
-    sidebarImgLight: cloudflareBlackSvg,
-    sidebarImgDark: cloudflareWhiteSvg,
-    sidebarImgClass: 'py-4',
     status: 'active' as const,
     score: 0.857,
     startDate: 'Sep 2025',
-    homepageImg: (
-      <div className="w-full flex items-center justify-center">
-        <img
-          src={cloudflareBlackSvg}
-          alt="Cloudflare"
-          className="w-full dark:hidden"
-        />
-        <img
-          src={cloudflareWhiteSvg}
-          alt="Cloudflare"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: cloudflareBlackSvg,
+      dark: cloudflareWhiteSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -373,26 +334,13 @@ const sentry = (() => {
     name: 'Sentry',
     id: 'sentry',
     libraries: ['start', 'router'],
-    sidebarImgLight: sentryWordMarkDarkSvg,
-    sidebarImgDark: sentryWordMarkLightSvg,
-    sidebarImgClass: 'py-4 scale-[1.1]',
     status: 'active' as const,
     score: 0.229,
     href,
-    homepageImg: (
-      <div className="w-full flex items-center justify-center scale-[1.1]">
-        <img
-          src={sentryWordMarkDarkSvg}
-          alt="Sentry"
-          className="w-full dark:hidden"
-        />
-        <img
-          src={sentryWordMarkLightSvg}
-          alt="Sentry"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: sentryWordMarkDarkSvg,
+      dark: sentryWordMarkLightSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -419,11 +367,9 @@ const uiDev = (() => {
     status: 'active' as const,
     score: 0.014,
     href,
-    homepageImg: (
-      <div className="">
-        <img src={bytesUidotdevImage} alt="UI.dev" className="w-full" />
-      </div>
-    ),
+    image: {
+      src: bytesUidotdevImage,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -473,16 +419,11 @@ const nozzle = (() => {
     name: 'Nozzle.io',
     id: 'nozzle',
     href,
-    sidebarImgLight: nozzleDarkSvg,
-    sidebarImgDark: nozzleLightSvg,
-    sidebarImgClass: 'w-[150px] py-4',
     status: 'active' as const,
     score: 0.014,
-    homepageImg: (
-      <div className="">
-        <img src={nozzleImage} alt="Nozzle.io" className="w-full" />
-      </div>
-    ),
+    image: {
+      src: nozzleImage,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -510,27 +451,14 @@ const speakeasy = (() => {
     name: 'Speakeasy',
     id: 'speakeasy',
     href,
-    sidebarImgLight: speakeasyLightSvg,
-    sidebarImgDark: speakeasyDarkSvg,
-    sidebarImgClass: 'w-[150px] py-4',
     libraries: ['query'] as const,
     status: 'inactive' as const,
     startDate: 'Feb 2025',
     endDate: 'Jul 2025',
-    homepageImg: (
-      <div className="py-6">
-        <img
-          src={speakeasyLightSvg}
-          alt="Speakeasy"
-          className="w-full my-2 dark:hidden"
-        />
-        <img
-          src={speakeasyDarkSvg}
-          alt="Speakeasy"
-          className="w-full my-2 hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: speakeasyLightSvg,
+      dark: speakeasyDarkSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -555,22 +483,14 @@ const unkey = (() => {
     name: 'Unkey',
     id: 'unkey',
     libraries: ['pacer'] as const,
-    sidebarImgLight: unkeyBlackSvg,
-    sidebarImgDark: unkeyWhiteSvg,
-    sidebarImgClass: 'py-4 scale-[1]',
     status: 'active' as const,
     score: 0.051,
     href,
-    homepageImg: (
-      <div className="w-full flex items-center justify-center scale-[0.8]">
-        <img src={unkeyBlackSvg} alt="Unkey" className="w-full dark:hidden" />
-        <img
-          src={unkeyWhiteSvg}
-          alt="Unkey"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: unkeyBlackSvg,
+      dark: unkeyWhiteSvg,
+      scale: 0.7,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -595,26 +515,13 @@ const electric = (() => {
     name: 'Electric',
     id: 'electric',
     libraries: ['db'] as const,
-    sidebarImgLight: electricLightSvg,
-    sidebarImgDark: electricDarkSvg,
-    sidebarImgClass: 'py-4 scale-[1.1]',
     status: 'active' as const,
     score: 0.283,
     href,
-    homepageImg: (
-      <div className="w-full flex items-center justify-center">
-        <img
-          src={electricLightSvg}
-          alt="Electric"
-          className="w-full dark:hidden"
-        />
-        <img
-          src={electricDarkSvg}
-          alt="Electric"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: electricLightSvg,
+      dark: electricDarkSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -642,22 +549,13 @@ const vercel = (() => {
     id: 'vercel',
     href,
     libraries: ['start', 'router'] as const,
-    sidebarImgLight: vercelLightSvg,
-    sidebarImgDark: vercelDarkSvg,
-    sidebarImgClass: 'py-4',
     status: 'inactive' as const,
     startDate: 'May 2024',
     endDate: 'Oct 2024',
-    homepageImg: (
-      <div className="w-full flex items-center justify-center">
-        <img src={vercelLightSvg} alt="Vercel" className="w-full dark:hidden" />
-        <img
-          src={vercelDarkSvg}
-          alt="Vercel"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: vercelLightSvg,
+      dark: vercelDarkSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -681,23 +579,14 @@ const prisma = (() => {
     name: 'Prisma',
     id: 'prisma',
     href,
-    sidebarImgLight: prismaLightSvg,
-    sidebarImgDark: prismaDarkSvg,
-    sidebarImgClass: 'py-4',
     status: 'active' as const,
     libraries: ['db', 'start'] as const,
     startDate: 'Aug 2025',
     score: 0.143,
-    homepageImg: (
-      <div className="w-full flex items-center justify-center">
-        <img src={prismaLightSvg} alt="Prisma" className="w-full dark:hidden" />
-        <img
-          src={prismaDarkSvg}
-          alt="Prisma"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: prismaLightSvg,
+      dark: prismaDarkSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -722,27 +611,14 @@ const codeRabbit = (() => {
     name: 'Code Rabbit',
     id: 'coderabbit',
     href,
-    sidebarImgLight: codeRabbitLightSvg,
-    sidebarImgDark: codeRabbitDarkSvg,
-    sidebarImgClass: 'py-5 scale-[1.2]',
     status: 'active' as const,
     libraries: libraries.map((l) => l.id),
     startDate: 'Aug 2025',
     score: 1,
-    homepageImg: (
-      <div className="w-full flex items-center justify-center">
-        <img
-          src={codeRabbitLightSvg}
-          alt="Code Rabbit"
-          className="w-full dark:hidden"
-        />
-        <img
-          src={codeRabbitDarkSvg}
-          alt="Code Rabbit"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: codeRabbitLightSvg,
+      dark: codeRabbitDarkSvg,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -765,22 +641,14 @@ const strapi = (() => {
     name: 'Strapi',
     id: 'strapi',
     libraries: ['start', 'router'] as const,
-    sidebarImgLight: strapiLightSvg,
-    sidebarImgDark: strapiDarkSvg,
-    sidebarImgClass: 'py-4 scale-[0.9]',
     status: 'active' as const,
     score: 0.069,
     href,
-    homepageImg: (
-      <div className="w-full flex items-center justify-center scale-[0.85]">
-        <img src={strapiLightSvg} alt="Strapi" className="w-full dark:hidden" />
-        <img
-          src={strapiDarkSvg}
-          alt="Strapi"
-          className="w-full hidden dark:block"
-        />
-      </div>
-    ),
+    image: {
+      light: strapiLightSvg,
+      dark: strapiDarkSvg,
+      scale: 0.8,
+    },
     content: (
       <>
         <div className="text-xs">
@@ -818,14 +686,3 @@ export const partners: Partner[] = [
   vercel,
   speakeasy,
 ] as any
-
-if (typeof window !== 'undefined') {
-  ;(window as any).githubPartnersSnippet = partners
-    .filter((d) => d.href && (d.sidebarImgLight || d.sidebarImgDark))
-    .map((partner) => {
-      return `<div><a href="${partner.href}">
-  <img alt="${partner.name}" src="https://raw.githubusercontent.com/tannerlinsley/files/master/partners/${partner.id}.svg" 
-</a></div><br />`
-    })
-    .join('\n')
-}

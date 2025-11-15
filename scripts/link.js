@@ -10,8 +10,7 @@ const packages = {
   '@tanstack/virtual-file-routes': 'router/packages/virtual-file-routes',
   '@tanstack/router-plugin': 'router/packages/router-plugin',
   '@tanstack/router-vite-plugin': 'router/packages/router-vite-plugin',
-  '@tanstack/react-router-with-query':
-    'router/packages/react-router-with-query',
+  '@tanstack/react-router-ssr-query': 'router/packages/react-router-ssr-query',
   '@tanstack/zod-adapter': 'router/packages/zod-adapter',
   '@tanstack/valibot-adapter': 'router/packages/valibot-adapter',
   '@tanstack/arktype-adapter': 'router/packages/arktype-adapter',

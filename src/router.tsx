@@ -1,6 +1,5 @@
-import React from 'react'
 import { redirect, createRouter } from '@tanstack/react-router'
-import { routerWithQueryClient } from '@tanstack/react-router-with-query'
+import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import { convexQuery, ConvexQueryClient } from '@convex-dev/react-query'
 import { ConvexProvider } from 'convex/react'
 import { routeTree } from './routeTree.gen'
@@ -26,41 +25,39 @@ export function getRouter() {
 
   convexQueryClient.connect(queryClient)
 
-  const router = routerWithQueryClient(
-    createRouter({
-      routeTree,
-      defaultPreload: 'intent',
-      defaultErrorComponent: DefaultCatchBoundary,
-      scrollRestoration: true,
-      defaultStaleTime: 1,
-      defaultNotFoundComponent: () => {
-        return <NotFound />
-      },
-      context: {
-        queryClient,
-        convexClient: convexQueryClient.convexClient,
-        convexQueryClient,
-        ensureUser: async () => {
-          const user = await queryClient.ensureQueryData(
-            convexQuery(api.auth.getCurrentUser, {})
-          )
+  const router = createRouter({
+    routeTree,
+    defaultPreload: 'intent',
+    defaultErrorComponent: DefaultCatchBoundary,
+    scrollRestoration: true,
+    defaultStaleTime: 1,
+    defaultNotFoundComponent: () => {
+      return <NotFound />
+    },
+    context: {
+      queryClient,
+      convexClient: convexQueryClient.convexClient,
+      convexQueryClient,
+      ensureUser: async () => {
+        const user = await queryClient.ensureQueryData(
+          convexQuery(api.auth.getCurrentUser, {})
+        )
 
-          if (!user) {
-            throw redirect({ to: '/login' })
-          }
+        if (!user) {
+          throw redirect({ to: '/login' })
+        }
 
-          return user
-        },
+        return user
       },
-      Wrap: ({ children }) => (
-        <ConvexProvider client={convexQueryClient.convexClient}>
-          {children}
-        </ConvexProvider>
-      ),
-      scrollToTopSelectors: ['.scroll-to-top'],
-    }),
-    queryClient
-  )
+    },
+    Wrap: ({ children }) => (
+      <ConvexProvider client={convexQueryClient.convexClient}>
+        {children}
+      </ConvexProvider>
+    ),
+    scrollToTopSelectors: ['.scroll-to-top'],
+  })
+  setupRouterSsrQueryIntegration({ router, queryClient })
 
   let firstRender = true
 

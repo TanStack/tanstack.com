@@ -1,5 +1,5 @@
 ---
-title: Performant Route Matching in TanStack Router
+title: How we accidentally made route matching more performant by aiming for correctness
 published: 2025-11-18
 authors:
   - Florian Pellet

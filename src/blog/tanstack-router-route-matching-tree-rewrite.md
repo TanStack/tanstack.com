@@ -7,7 +7,7 @@ authors:
 
 ![Big performance number](/blog-assets/tanstack-router-route-matching-tree-rewrite/header.png)
 
-We achieved a 20,000× performance improvement in route matching in TanStack Router. Let's be honest, this is *definitely* cherry-picked, but the number is real and comes from a real production application. More importantly, it shows that matching a pathname to a route is no longer bottlenecked by the number of routes in your application.
+We achieved a 20,000× performance improvement in route matching in TanStack Router. Let's be honest, this is _definitely_ cherry-picked, but the number is real and comes from a real production application. More importantly, it shows that matching a pathname to a route is no longer bottlenecked by the number of routes in your application.
 
 ## The Real Problem: correctness, not speed
 
@@ -24,6 +24,7 @@ We now parse the route tree into a segment trie, and matching is done by travers
 A trie ([wikipedia](https://en.wikipedia.org/wiki/Trie)) is a tree structure where each node corresponds to the common string prefix shared by all of the node's children. The concept maps very well to a representation of the routes in an app, where each node is a URL pathname segment.
 
 Given a single route `/users/$id`, our segment trie would look like this:
+
 ```
 root
 └── users
@@ -31,13 +32,16 @@ root
 ```
 
 We can add more routes to get a complete picture:
+
 ```
 /users/$id
 /users/$id/posts
 /users/profile
 /posts/$slug
 ```
+
 This yields the following tree:
+
 ```
 root
 ├── users
@@ -49,6 +53,7 @@ root
 ```
 
 To match `/users/123`, we:
+
 1. Start at root, look for "users" → found
 2. Move to users node, look for "123" → matches $id pattern
 3. Check if this node has a route → yes, return `/users/$id`
@@ -60,11 +65,11 @@ The reason we can get such a massive performance boost is because we've changed 
 - Old approach: `O(N)` where `N` is the number of routes in the tree.
 - New approach: `O(M)` where `M` is the number of segments in the pathname.
 
-(This is very simplified, it's probably more something like `O(N * M)` vs. `O(M * log(N))`, but the point stands: we're scaling differently now.)
+(This is simplified, in practice it's more like `O(N * M)` vs. `O(M * log(N))` in the average case, but the point is that we've changed which variable dominates the complexity.)
 
 Using this new tree structure, each check eliminates a large number of possible routes, allowing us to quickly zero in on the correct match.
 
-For example, imagine we have a route tree with 450 routes (fairly large app) and the tree can only eliminate 50% of routes at each segment check (this is unusually low, it's often much higher). With this bad setup, we have found a match in 9 checks (`2**9 > 450`). By contrast, the old approach *could* have found the match on the first check, but in the worst case it would have had to check all 450 routes, which yields an average of 225 checks. Even in this simplified case, we are looking at a 25× performance improvement.
+For example, imagine we have a route tree with 450 routes (fairly large app) and the tree can only eliminate 50% of routes at each segment check (this is unusually low, it's often much higher). With this bad setup, we have found a match in 9 checks (`2**9 > 450`). By contrast, the old approach _could_ have found the match on the first check, but in the worst case it would have had to check all 450 routes, which yields an average of 225 checks. Even in this simplified case, we are looking at a 25× performance improvement.
 
 This is what makes tree structures so powerful.
 
@@ -85,7 +90,7 @@ We use a stack to manage our traversal of the tree, because the presence of dyna
 
 The ideal algorithm would be depth-first search (DFS) in order of highest priority, so that we can return as soon as we find a match. In practice, we have very few possibilities of early exit; but a fully static path should still be able to return immediately.
 
-To accomplish this, we use an array as the stack. We know that `.push()` and `.pop()` at the end of an array are O(1) operations, while `.shift()` and `.unshift()` from the start are O(N), and we want to avoid the latter entirely. At each segment, we iterate candidates in *reverse* order of priority, pushing them onto the stack. This way, when we pop from the stack, we get the highest priority candidates first.
+To accomplish this, we use an array as the stack. We know that `.push()` and `.pop()` at the end of an array are O(1) operations, while `.shift()` and `.unshift()` from the start are O(N), and we want to avoid the latter entirely. At each segment, we iterate candidates in _reverse_ order of priority, pushing them onto the stack. This way, when we pop from the stack, we get the highest priority candidates first.
 
 ```ts
 const stack = [
@@ -144,7 +149,7 @@ The downside is that this limits us to 32 segments, because in JavaScript bitwis
 
 ### Reusing Typed Arrays for Segment Parsing
 
-When building the segment trie, we need to parse each route (e.g., `/users/$userId/{-$maybe}`) into its constituent segments (e.g. `static:user`, `dynamic:userId`, `optional:maybe`). Doing this is basically running the same parsing algorithms hundreds of times, every time extracting the same structured data (i.e. segment type, value, prefix, suffix, where the next segment starts, etc).
+When building the segment trie, we need to parse each route (e.g., `/users/$userId/{-$maybe}`) into its constituent segments (e.g. `static:users`, `dynamic:userId`, `optional:maybe`). Doing this is basically running the same parsing algorithms hundreds of times, every time extracting the same structured data (i.e. segment type, value, prefix, suffix, where the next segment starts, etc).
 
 Instead of re-creating a new object every time, we can reuse the same object across all parsing operations to avoid allocations in the hot path.
 

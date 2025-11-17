@@ -15,7 +15,43 @@ One big responsibility of a router is to match a given URL pathname (e.g., `/use
 
 Our previous route matching algorithm would look through every route in the route tree, and through a mix of pattern matching, manual look-aheads, and recursion, find the best match. As we added more features like optional segments and wildcards, the algorithm became increasingly complex and slow, and we started receiving reports of incorrect matches.
 
-We opted for a complete rewrite: we now parse the route tree into a segment trie, and matching is done by traversing this trie. This makes it much simpler to implement exact matching rules while ensuring high performance.
+We opted for a complete rewrite.
+
+## A Segment Trie
+
+We now parse the route tree into a segment trie, and matching is done by traversing this trie. This makes it much simpler to implement exact matching rules while ensuring high performance.
+
+A trie ([wikipedia](https://en.wikipedia.org/wiki/Trie)) is a tree structure where each node corresponds to the common string prefix shared by all of the node's children. The concept maps very well to a representation of the routes in an app, where each node is a URL pathname segment.
+
+Given a single route `/users/$id`, our segment trie would look like this:
+```
+root
+└── users
+    └── $id => match /users/$id
+```
+
+We can add more routes to get a complete picture:
+```
+/users/$id
+/users/$id/posts
+/users/profile
+/posts/$slug
+```
+This yields the following tree:
+```
+root
+├── users
+│   ├── $id       => match /users/$id
+│   │   └── posts => match /users/$id/posts
+│   └── profile   => match /users/profile
+└── posts
+    └── $slug     => match /posts/$slug
+```
+
+To match `/users/123`, we:
+1. Start at root, look for "users" → found
+2. Move to users node, look for "123" → matches $id pattern
+3. Check if this node has a route → yes, return `/users/$id`
 
 ## Algorithmic Complexity
 
@@ -26,9 +62,9 @@ The reason we can get such a massive performance boost is because we've changed 
 
 (This is very simplified, it's probably more something like `O(N * M)` vs. `O(M * log(N))`, but the point stands: we're scaling differently now.)
 
-Using this new trie structure, each check eliminates a large number of possible routes, allowing us to quickly zero in on the correct match.
+Using this new tree structure, each check eliminates a large number of possible routes, allowing us to quickly zero in on the correct match.
 
-For example, imagine we have a route tree with 450 routes (fairly large app) and the tree can only eliminate 50% of routes at each segment check (this is unusually bad, it's often much higher). With this bad setup, we have found a match in 9 checks (`2**9 > 450`). By contrast, the old approach *could* have found the match on the first check, but in the worst case it would have had to check all 450 routes, which yields an average of 225 checks. Even in this simplified case, we are looking at a 25× performance improvement.
+For example, imagine we have a route tree with 450 routes (fairly large app) and the tree can only eliminate 50% of routes at each segment check (this is unusually low, it's often much higher). With this bad setup, we have found a match in 9 checks (`2**9 > 450`). By contrast, the old approach *could* have found the match on the first check, but in the worst case it would have had to check all 450 routes, which yields an average of 225 checks. Even in this simplified case, we are looking at a 25× performance improvement.
 
 This is what makes tree structures so powerful.
 
@@ -45,11 +81,11 @@ Beyond choosing the right data structures, working on performance is usually abo
 
 ### Backwards Stack Processing
 
-We use a stack to manage our traversal of the trie, because the presence of dynamic segments (`/$required`, `/{-$optional}`, `/$` wildcards) means we may have multiple possible paths to explore at each segment.
+We use a stack to manage our traversal of the tree, because the presence of dynamic segments (`/$required`, `/{-$optional}`, `/$` wildcards) means we may have multiple possible paths to explore at each segment.
 
 The ideal algorithm would be depth-first search (DFS) in order of highest priority, so that we can return as soon as we find a match. In practice, we have very few possibilities of early exit; but a fully static path should still be able to return immediately.
 
-To accomplish this, we use an array as the stack. Since pushing and popping at the end of an array are O(1) operations, while shifting from the start is O(N), we avoid the latter entirely. At each segment, we iterate candidates in *reverse* order of priority, pushing them onto the stack. This way, when we pop from the stack, we get the highest priority candidate first.
+To accomplish this, we use an array as the stack. We know that `.push()` and `.pop()` at the end of an array are O(1) operations, while `.shift()` and `.unshift()` from the start are O(N), and we want to avoid the latter entirely. At each segment, we iterate candidates in *reverse* order of priority, pushing them onto the stack. This way, when we pop from the stack, we get the highest priority candidates first.
 
 ```ts
 const stack = [
@@ -79,9 +115,9 @@ while (stack.length) {
 
 ### Bitmasking for Optional Segments
 
-Optional segments introduce additional complexity, as they can be present or absent in the URL. While walking the trie, we need to track which optional segments were skipped (i.e. an array of booleans).
+Optional segments introduce additional complexity, as they can be present or absent in the URL. While walking the tree, we need to track which optional segments were skipped (i.e. we need an array of booleans).
 
-Every time we push onto the stack, we need to store the "state at which to pick up from" including which optional segments were skipped. But we don't want to have to `[...copy]` an array of booleans every time we push onto the stack as it would imply many short-lived allocations.
+Every time we push onto the stack, we need to store the "state at which to pick up from" including which optional segments were skipped. But we don't want to have to `[...copy]` an array of booleans every time we push onto the stack as it would create many short-lived allocations.
 
 To avoid this overhead, we use bitmasking to represent skipped optional segments.
 
@@ -104,7 +140,7 @@ And to read from the bitmask:
 if (skipped & (1 << depth)) // segment at 'depth' was skipped
 ```
 
-The downside is that this limits us to 32 segments. Optional segments beyond that point will never be considered skipped. We could switch to a `BigInt` if needed, but for now, this feels reasonable.
+The downside is that this limits us to 32 segments, because in JavaScript bitwise operations cast a number into a 32-bit integer. Optional segments beyond that point will never be considered skipped. We could switch to a `BigInt` if needed, but for now, this feels reasonable.
 
 ### Reusing Typed Arrays for Segment Parsing
 
@@ -136,7 +172,7 @@ function parseSegment(
   path: string,
   cursor: number,
   data: Uint16Array = new Uint16Array(6)
-): Segment {}
+): Segment
 ```
 
 ### Least Recently Used (LRU) Caching
@@ -166,7 +202,7 @@ This data structure performs about half as well as a regular `Object` for writes
 
 ## The full story
 
-The numbers we've presented so far are impressive. They're also cherry-picked from the biggest apps we tested, which is biased in favor of the new algorithm. They're also comparisons against the old, uncached algorithm. In reality, we've added caching a while ago. We can see the full progression over the last 4 months:
+The numbers we've presented so far are impressive. They're also cherry-picked from the biggest apps we tested, which is biased in favor of the new algorithm. And they're comparisons against the old, uncached algorithm. In reality, we've added caching a while ago. We can see the full progression over the last 4 months:
 
 ![route matching performance over 4 evolutions of the algorithm](/blog-assets/tanstack-router-route-matching-tree-rewrite/matching-evolution-benchmark.png)
 
@@ -174,7 +210,7 @@ And besides that, they also focus on a small part of the router's performance pr
 
 ![buildLocation performance over 4 evolutions of the algorithm](/blog-assets/tanstack-router-route-matching-tree-rewrite/buildlocation-evolution-benchmark.png)
 
-Even the smallest apps see some improvement here, but it might not feel as dramatic. We will continue to optimize the other parts of the router to make it feel as snappy as we can. The good news is route matching is no longer a bottleneck!
+Even the smallest apps see some improvement here, but it might not feel as dramatic. We will continue to optimize the other parts of the router to make it feel as snappy as we can. The good news is route matching is no longer a bottleneck.
 
 ## Going even further
 

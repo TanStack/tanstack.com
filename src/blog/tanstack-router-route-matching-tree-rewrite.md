@@ -98,7 +98,7 @@ And to read from the bitmask:
 if (skipped & (1 << depth)) // segment at 'depth' was skipped
 ```
 
-The downside is that this limits us to 32 segments, beyond what optional segments will never be considered skipped. We could extend this to a `BigInt` if needed, but for now, it's feels reasonable.
+The downside is that this limits us to 32 segments, beyond which optional segments will never be considered skipped. We could extend this to a `BigInt` if needed, but for now, it's feels reasonable.
 
 
 ### Reusing Typed Arrays for Segment Parsing

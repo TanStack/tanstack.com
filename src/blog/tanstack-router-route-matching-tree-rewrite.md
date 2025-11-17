@@ -7,13 +7,13 @@ authors:
 
 ![Big performance number](/blog-assets/tanstack-router-route-matching-tree-rewrite/header.png)
 
-We achieved a 20,000× performance improvement in route matching in TanStack Router. Let's be honest, this is _definitely_ cherry-picked, but it's a real number using a real production application. And it demonstrates something important: matching a pathname to a route is no longer bottlenecked by the number of routes in your application.
+We achieved a 20,000× performance improvement in route matching in TanStack Router. Let's be honest, this is *definitely* cherry-picked, but the number is real and comes from a real production application. More importantly, it shows that matching a pathname to a route is no longer bottlenecked by the number of routes in your application.
 
 ## The Real Problem: correctness, not speed
 
 One big responsibility of a router is to match a given URL pathname (e.g., `/users/123`) to a route definition (e.g., `/users/$userId`). This is deceptively complex when you consider all the different types of route segments (static, dynamic, optional, wildcard) and the priority rules that govern which route should match first.
 
-We used to have a route matching algorithm that would look through every route in the route tree, and through a mix of pattern matching, manual look-aheads, and recursion, find the best match. With the introduction of more features like optional segments and wildcards, the algorithm became increasingly complex and slow, and we started getting reports of incorrect matches.
+Our previous route matching algorithm would look through every route in the route tree, and through a mix of pattern matching, manual look-aheads, and recursion, find the best match. As we added more features like optional segments and wildcards, the algorithm became increasingly complex and slow, and we started receiving reports of incorrect matches.
 
 We opted for a complete rewrite: we now parse the route tree into a segment trie, and matching is done by traversing this trie. This makes it much simpler to implement exact matching rules while ensuring high performance.
 
@@ -28,7 +28,7 @@ The reason we can get such a massive performance boost is because we've changed 
 
 Using this new trie structure, each check eliminates a large number of possible routes, allowing us to quickly zero in on the correct match.
 
-Say for example we have a route tree with 450 routes (pretty big app) and the tree can only eliminate 50% of routes at each segment check (this is unusually bad, it's often much higher). In 9 checks we have found a match (`2**9 > 450`). By contrast, the old approach _could_ have found the match on the first check, but in the worst case it would have had to check all 450 routes, which yields an average of 225 checks. Even in this bad, simplified, and very unusual case, we are looking at a 25× performance improvement.
+For example, imagine we have a route tree with 450 routes (fairly large app) and the tree can only eliminate 50% of routes at each segment check (this is unusually bad, it's often much higher). With this bad setup, we have found a match in 9 checks (`2**9 > 450`). By contrast, the old approach *could* have found the match on the first check, but in the worst case it would have had to check all 450 routes, which yields an average of 225 checks. Even in this simplified case, we are looking at a 25× performance improvement.
 
 This is what makes tree structures so powerful.
 
@@ -37,11 +37,11 @@ In practice, we've observed:
 - Small apps (10 routes): 60× faster
 - Big apps (450 routes): 10,000× faster
 
-These are lower than 20,000×, but they are still insane numbers. Yet they still aren't the full story.
+These are lower than 20,000×, but they are still insane numbers.
 
 ## Fun Implementation Details
 
-Beyond choosing the right data structures, working on performance is usually about avoiding death by a thousand cuts: avoiding memory allocations, skipping work, ... Here are some of the fun implementation details that helped us get to these numbers.
+Beyond choosing the right data structures, working on performance is usually about avoiding death by a thousand cuts: avoiding memory allocations, skipping work, … Here are some of the fun implementation details that helped us get to these numbers.
 
 ### Backwards Stack Processing
 
@@ -49,7 +49,7 @@ We use a stack to manage our traversal of the trie, because the presence of dyna
 
 The ideal algorithm would be depth-first search (DFS) in order of highest priority, so that we can return as soon as we find a match. In practice, we have very few possibilities of early exit; but a fully static path should still be able to return immediately.
 
-To accomplish this, we use an array as the stack. But we know that pushing to and popping from the end of an array is O(1), while shifting and unshifting from the start is O(N). So we iterate candidates in reverse order of priority at each segment, pushing them onto the stack. This way, when we pop from the stack, we get the highest priority candidate first.
+To accomplish this, we use an array as the stack. Since pushing and popping at the end of an array are O(1) operations, while shifting from the start is O(N), we avoid the latter entirely. At each segment, we iterate candidates in *reverse* order of priority, pushing them onto the stack. This way, when we pop from the stack, we get the highest priority candidate first.
 
 ```ts
 const stack = [
@@ -83,7 +83,7 @@ Optional segments introduce additional complexity, as they can be present or abs
 
 Every time we push onto the stack, we need to store the "state at which to pick up from" including which optional segments were skipped. But we don't want to have to `[...copy]` an array of booleans every time we push onto the stack as it would imply many short-lived allocations.
 
-To efficiently handle this, we use bitmasking to represent the presence or absence of each optional segment.
+To avoid this overhead, we use bitmasking to represent skipped optional segments.
 
 For example, consider a route with two optional segments: `/{-$users}/{-$id}`. We can represent the presence of these segments with a bitmask:
 
@@ -104,7 +104,7 @@ And to read from the bitmask:
 if (skipped & (1 << depth)) // segment at 'depth' was skipped
 ```
 
-The downside is that this limits us to 32 segments. After the 32nd segment, optional segments can never be skipped. We could extend this to a `BigInt` if needed, but for now, it's feels reasonable.
+The downside is that this limits us to 32 segments. Optional segments beyond that point will never be considered skipped. We could switch to a `BigInt` if needed, but for now, this feels reasonable.
 
 ### Reusing Typed Arrays for Segment Parsing
 
@@ -156,7 +156,7 @@ function match(pathname: string): MatchResult {
 
 With a cache, we only need to do the expensive matching operation once per unique pathname. Subsequent requests for the same pathname will be served from the cache, which is O(1).
 
-However, as we've seen before, some apps can have a very large number of unique routes, which means even more unique pathnames (e.g., route `/user/$id` is matched by `/user/1`, `/user/2`, etc). To prevent unbounded memory growth, we implement a Least Recently Used (LRU) cache that automatically evicts the least recently used entries when the cache reaches a certain size.
+However, as we've seen before, some apps can have a very large number of unique routes, which means even more unique pathnames (e.g., route `/user/$id` is matched by `/user/1`, `/user/2`, etc). To prevent unbounded memory growth, we implement a Least Recently Used (LRU) cache. When the cache reaches a certain size, it automatically evicts the least recently used entries.
 
 [See implementation.](https://github.com/TanStack/router/blob/f830dffb7403819ea984017bb919b4a8708f24a5/packages/router-core/src/lru-cache.ts)
 
@@ -170,11 +170,11 @@ The numbers we've presented so far are impressive. They're also cherry-picked fr
 
 ![route matching performance over 4 evolutions of the algorithm](/blog-assets/tanstack-router-route-matching-tree-rewrite/matching-evolution-benchmark.png)
 
-And besides that, they also focus on a small part of the router's performance profile. Matching a pathname to a route is only one part of the job. If we look at a "fuller" functionality, for example `buildLocation`, which involves matching, building the location object, interpolating the path, passing the validation functions, running the middlewares, etc, we see a more modest but still significant improvement:
+And besides that, they also focus on a small part of the router's performance profile. Matching a pathname to a route is only one part of the job. If we look at a more "complete" operation, for example `buildLocation`, which involves matching, building the location object, interpolating the path, passing the validation functions, running the middlewares, etc, we see a more modest but still significant improvement:
 
 ![buildLocation performance over 4 evolutions of the algorithm](/blog-assets/tanstack-router-route-matching-tree-rewrite/buildlocation-evolution-benchmark.png)
 
-Even the smallest apps see some improvement here, but it might not feel as dramatic. We will continue to optimize the other parts of the router to make it feel as snappy as we can. But at least route matching is no longer a bottleneck!
+Even the smallest apps see some improvement here, but it might not feel as dramatic. We will continue to optimize the other parts of the router to make it feel as snappy as we can. The good news is route matching is no longer a bottleneck!
 
 ## Going even further
 
@@ -186,4 +186,4 @@ While we are very happy with these results (and are probably done optimizing rou
 
 ---
 
-This wasn't a "let's make it faster" project, it was a "let's make it correct" project that happened to yield massive performance improvements as a side effect. I rarely have the opportunity to see such big numbers when I benchmark stuff, so I hope you didn't mind my cherry-picking a bit for this post.
+This wasn't a "let's make it faster" project, it was a "let's make it correct" project that happened to yield massive performance improvements as a side effect. I rarely see numbers this large in real benchmarks, so I hope you’ll forgive a bit of cherry-picking in this post.

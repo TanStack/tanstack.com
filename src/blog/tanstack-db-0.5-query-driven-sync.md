@@ -105,7 +105,7 @@ With 0.5, you add one line to your collection:
 
 ```tsx
 const productsCollection = createCollection(
-  queryCollection({
+  queryCollectionOptions({
     queryKey: ['products'],
     queryFn: async (ctx) => {
       // Parse your query predicates into API parameters
@@ -222,7 +222,7 @@ DB analyzes the join to determine exactly which related records are needed, then
 Query Collection integrates with TanStack Query's `staleTime` and `gcTime`:
 
 ```tsx
-const productsCollection = createCollection(queryCollection({
+const productsCollection = createCollection(queryCollectionOptions({
   queryKey: ['products'],
   queryFn: fetchProducts,
   staleTime: 5 * 60 * 1000, // 5 minutes
@@ -352,7 +352,7 @@ If you have ideas for new collection types based on Query-Driven Sync, please re
 ### Try it today
 
 ```bash
-npm install @tanstack/react-db@0.5.0
+npm install @tanstack/db@0.5.0
 ```
 
 ---

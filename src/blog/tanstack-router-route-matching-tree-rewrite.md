@@ -7,7 +7,7 @@ authors:
 
 ![Big performance number](/blog-assets/tanstack-router-route-matching-tree-rewrite/header.png)
 
-We achieved a 20,000× performance improvement in route matching in TanStack Router. Let's be honest, this is *definitely* cherry-picked, but it's a real number using a real production application. And it demonstrates something important: matching a pathname to a route is no longer bottlenecked by the number of routes in your application.
+We achieved a 20,000× performance improvement in route matching in TanStack Router. Let's be honest, this is _definitely_ cherry-picked, but it's a real number using a real production application. And it demonstrates something important: matching a pathname to a route is no longer bottlenecked by the number of routes in your application.
 
 ## The Real Problem: correctness, not speed
 
@@ -28,11 +28,12 @@ The reason we can get such a massive performance boost is because we've changed 
 
 Using this new trie structure, each check eliminates a large number of possible routes, allowing us to quickly zero in on the correct match.
 
-Say for example we have a route tree with 450 routes (pretty big app) and the tree can only eliminate 50% of routes at each segment check (this is unusually bad, it's often much higher). In 9 checks we have found a match (`2**9 > 450`). By contrast, the old approach *could* have found the match on the first check, but in the worst case it would have had to check all 450 routes, which yields an average of 225 checks. Even in this bad, simplified, and very unusual case, we are looking at a 25× performance improvement.
+Say for example we have a route tree with 450 routes (pretty big app) and the tree can only eliminate 50% of routes at each segment check (this is unusually bad, it's often much higher). In 9 checks we have found a match (`2**9 > 450`). By contrast, the old approach _could_ have found the match on the first check, but in the worst case it would have had to check all 450 routes, which yields an average of 225 checks. Even in this bad, simplified, and very unusual case, we are looking at a 25× performance improvement.
 
 This is what makes tree structures so powerful.
 
 In practice, we've observed:
+
 - Small apps (10 routes): 60× faster
 - Big apps (450 routes): 10,000× faster
 
@@ -52,27 +53,27 @@ To accomplish this, we use an array as the stack. But we know that pushing to an
 
 ```ts
 const stack = [
-	{/*initial frame*/}
+  {/*initial frame*/}
 ]
 while (stack.length) {
-	const frame = stack.pop()
+  const frame = stack.pop()
 
-	// search through lowest priority children first (wildcards)
-	// search through them in reverse order
-	for (let i = frame.wildcards.length - 1; i >= 0; i--) {
-		if (matches(...)) {
-			stack.push({/*next frame*/})
-		}
-	}
+  // search through lowest priority children first (wildcards)
+  // search through them in reverse order
+  for (let i = frame.wildcards.length - 1; i >= 0; i--) {
+    if (matches(...)) {
+      stack.push({/*next frame*/})
+    }
+  }
 
-	// then optional segments
-	for (let i = frame.optionals.length - 1; i >= 0; i--) {
-		if (matches(...)) {
-			stack.push({/*next frame*/})
-		}
-	}
+  // then optional segments
+  for (let i = frame.optionals.length - 1; i >= 0; i--) {
+    if (matches(...)) {
+      stack.push({/*next frame*/})
+    }
+  }
 
-	// ... static segments last
+  // ... static segments last
 }
 ```
 
@@ -85,23 +86,25 @@ Every time we push onto the stack, we need to store the "state at which to pick 
 To efficiently handle this, we use bitmasking to represent the presence or absence of each optional segment.
 
 For example, consider a route with two optional segments: `/{-$users}/{-$id}`. We can represent the presence of these segments with a bitmask:
+
 - `00`: no segments skipped
 - `01`: only `{-$users}` skipped
 - `10`: only `{-$id}` skipped
 - `11`: both segments skipped
 
 To write to the bitmask, we use bitwise operators:
+
 ```ts
 const next = skipped | (1 << depth) // mark segment at 'depth' as skipped
 ```
 
 And to read from the bitmask:
+
 ```ts
 if (skipped & (1 << depth)) // segment at 'depth' was skipped
 ```
 
 The downside is that this limits us to 32 segments. After the 32nd segment, optional segments can never be skipped. We could extend this to a `BigInt` if needed, but for now, it's feels reasonable.
-
 
 ### Reusing Typed Arrays for Segment Parsing
 
@@ -112,8 +115,8 @@ Instead of re-creating a new object every time, we can reuse the same object acr
 ```tsx
 const data = { kind: 0, prefixEnd: 0, suffixStart: 0, nextCursor: 0 }
 do {
-	parseSegment(path, data)
-	// ...
+  parseSegment(path, data)
+  // ...
 } while (data.nextCursor)
 ```
 
@@ -123,16 +126,16 @@ Technically, we can push this even further by using a `Uint16Array` to store the
 let data
 let cursor = 0
 while (cursor < path.length) {
-	data = parseSegment(path, cursor, data)
-	cursor = data[5]
-	//       ^? let data: Segment
+  data = parseSegment(path, cursor, data)
+  cursor = data[5]
+  //       ^? let data: Segment
 }
 
 type Segment = Uint16Array & {0: SegmentKind, 1: number, 2: number, ... }
 function parseSegment(
-	path: string,
-	cursor: number,
-	data: Uint16Array = new Uint16Array(6)
+  path: string,
+  cursor: number,
+  data: Uint16Array = new Uint16Array(6)
 ): Segment {}
 ```
 
@@ -143,11 +146,11 @@ Because the route tree is static after initialization, a URL pathname will alway
 ```ts
 const cache = new Map<string, MatchResult>()
 function match(pathname: string): MatchResult {
-	const cached = cache.get(pathname)
-	if (cached) return cached
-	const result = performMatch(pathname)
-	cache.set(pathname, result)
-	return result
+  const cached = cache.get(pathname)
+  if (cached) return cached
+  const result = performMatch(pathname)
+  cache.set(pathname, result)
+  return result
 }
 ```
 

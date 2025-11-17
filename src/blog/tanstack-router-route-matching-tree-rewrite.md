@@ -24,6 +24,8 @@ The reason we can get such a massive performance boost is because we've changed 
 - Old approach: `O(N)` where `N` is the number of routes in the tree.
 - New approach: `O(M)` where `M` is the number of segments in the pathname.
 
+(This is very simplified, it's probably more something like `O(N * M)` vs. `O(M * log(N))`, but the point stands: we're scaling differently now.)
+
 Using this new trie structure, each check eliminates a large number of possible routes, allowing us to quickly zero in on the correct match.
 
 Say for example we have a route tree with 450 routes (pretty big app) and the tree can only eliminate 50% of routes at each segment check (this is unusually bad, it's often much higher). In 9 checks we have found a match (`2**9 > 450`). By contrast, the old approach *could* have found the match on the first check, but in the worst case it would have had to check all 450 routes, which yields an average of 225 checks. Even in this bad, simplified, and very unusual case, we are looking at a 25× performance improvement.
@@ -98,7 +100,7 @@ And to read from the bitmask:
 if (skipped & (1 << depth)) // segment at 'depth' was skipped
 ```
 
-The downside is that this limits us to 32 segments, beyond which optional segments will never be considered skipped. We could extend this to a `BigInt` if needed, but for now, it's feels reasonable.
+The downside is that this limits us to 32 segments. After the 32nd segment, optional segments can never be skipped. We could extend this to a `BigInt` if needed, but for now, it's feels reasonable.
 
 
 ### Reusing Typed Arrays for Segment Parsing

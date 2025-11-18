@@ -13,7 +13,7 @@ We achieved a 20,000× performance improvement in route matching in TanStack Rou
 
 One big responsibility of a router is to match a given URL pathname (e.g., `/users/123`) to a route definition (e.g., `/users/$userId`). This is deceptively complex when you consider all the different types of route segments (static, dynamic, optional, wildcard) and the priority rules that govern which route should match first.
 
-Our previous route matching algorithm would look through every route in the route tree, and through a mix of pattern matching, manual look-aheads, and recursion, find the best match. As we added more features like optional segments and wildcards, the algorithm became increasingly complex and slow, and we started receiving reports of incorrect matches.
+Our previous route matching algorithm was based on a sorted flat list of all routes, iterating through each to find a match. As we added more features like optional segments and wildcards, the algorithm became increasingly complex and slow, and we started receiving reports of incorrect matches. Our sorting did not adhere to a strict weak ordering, the sorting logic was not well-defined and even behaved differently between Chrome and Firefox.
 
 We opted for a complete rewrite.
 
@@ -60,12 +60,12 @@ To match `/users/123`, we:
 
 ## Algorithmic Complexity
 
-The reason we can get such a massive performance boost is because we've changed which variable drives the complexity of the algorithm. The bigger the route tree, the bigger the performance gain.
+The reason we can get such a massive performance boost is because we changed which variable drives the complexity of the algorithm. The bigger the route tree, the bigger the performance gain.
 
 - Old approach: `O(N)` where `N` is the number of routes in the tree.
 - New approach: `O(M)` where `M` is the number of segments in the pathname.
 
-(This is simplified, in practice it's more like `O(N * M)` vs. `O(M * log(N))` in the average case, but the point is that we've changed which variable dominates the complexity.)
+(This is simplified, in practice it's more like `O(N * M)` vs. `O(M * log(N))` in the average case, but the point is that we changed which variable dominates the complexity.)
 
 Using this new tree structure, each check eliminates a large number of possible routes, allowing us to quickly zero in on the correct match.
 
@@ -73,7 +73,7 @@ For example, imagine we have a route tree with 450 routes (fairly large app) and
 
 This is what makes tree structures so powerful.
 
-In practice, we've observed:
+In practice, we have observed:
 
 - Small apps (10 routes): 60× faster
 - Big apps (450 routes): 10,000× faster
@@ -197,7 +197,7 @@ function match(pathname: string): MatchResult {
 
 With a cache, we only need to do the expensive matching operation once per unique pathname. Subsequent requests for the same pathname will be served from the cache, which is O(1).
 
-However, as we've seen before, some apps can have a very large number of unique routes, which means even more unique pathnames (e.g., route `/user/$id` is matched by `/user/1`, `/user/2`, etc). To prevent unbounded memory growth, we implement a Least Recently Used (LRU) cache. When the cache reaches a certain size, it automatically evicts the least recently used entries.
+However, as we have seen before, some apps can have a very large number of unique routes, which means even more unique pathnames (e.g., route `/user/$id` is matched by `/user/1`, `/user/2`, etc). To prevent unbounded memory growth, we implement a Least Recently Used (LRU) cache. When the cache reaches a certain size, it automatically evicts the least recently used entries.
 
 [See implementation.](https://github.com/TanStack/router/blob/f830dffb7403819ea984017bb919b4a8708f24a5/packages/router-core/src/lru-cache.ts)
 
@@ -207,7 +207,7 @@ This data structure performs about half as well as a regular `Object` for writes
 
 ## The full story
 
-The numbers we've presented so far are impressive. They're also cherry-picked from the biggest apps we tested, which is biased in favor of the new algorithm. And they're comparisons against the old, uncached algorithm. In reality, we've added caching a while ago. We can see the full progression over the last 4 months:
+The numbers we have presented so far are impressive. They are also cherry-picked from the biggest apps we tested, which is biased in favor of the new algorithm. And they are comparisons against the old, uncached algorithm. In reality, we added caching a while ago. We can see the full progression over the last 4 months:
 
 ![route matching performance over 4 evolutions of the algorithm](/blog-assets/tanstack-router-route-matching-tree-rewrite/matching-evolution-benchmark.png)
 
@@ -227,4 +227,4 @@ While we are very happy with these results (and are probably done optimizing rou
 
 ---
 
-This wasn't a "let's make it faster" project, it was a "let's make it correct" project that happened to yield massive performance improvements as a side effect. I rarely see numbers this large in real benchmarks, so I hope you’ll forgive a bit of cherry-picking in this post.
+This wasn't a "let's make it faster" project, it was a "let's make it correct" project that happened to yield massive performance improvements as a side effect. We rarely see numbers this large in real benchmarks, so we hope you’ll forgive a bit of cherry-picking in this post.

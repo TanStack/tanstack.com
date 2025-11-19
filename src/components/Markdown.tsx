@@ -80,7 +80,7 @@ const markdownComponents: Record<string, React.FC> = {
       // loading="lazy"
       // decoding="async"
     />
-  ),
+  )
 }
 
 export function extractPreAttributes(html: string): {
@@ -288,6 +288,43 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
 const options: HTMLReactParserOptions = {
   replace: (domNode) => {
     if (domNode instanceof Element && domNode.attribs) {
+      if (domNode.name === 'md-comment-component') {
+        const componentName = domNode.attribs['data-component']
+        const rawAttributes = domNode.attribs['data-attributes']
+        const attributes: Record<string, any> = {}
+        try {
+          Object.assign(attributes, JSON.parse(rawAttributes))
+        } catch {
+          // ignore JSON parse errors and fall back to empty props
+        }
+
+        switch (componentName?.toLowerCase()) {
+          case 'tabs': {
+            const tabs = attributes.tabs;
+            const panelElements = domNode.children?.filter(
+              (child): child is Element =>
+                child instanceof Element && child.name === 'md-tab-panel'
+            )
+
+            const children = panelElements?.map((panel) =>
+              domToReact(panel.children as any, options)
+            )
+
+            return <Tabs tabs={tabs} children={children as any} />
+          }
+          case 'alert': {
+            const variant = attributes.variant ?? 'note'
+            return (
+              <Alert variant={variant}>
+                {domToReact(domNode.children as any, options)}
+              </Alert>
+            )
+          }
+          default:
+            return <div>{domToReact(domNode.children as any, options)}</div>
+        }
+      }
+
       const replacer = markdownComponents[domNode.name]
       if (replacer) {
         return React.createElement(

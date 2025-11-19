@@ -1,8 +1,6 @@
 import { unified } from 'unified'
-import type { Plugin } from 'unified'
 import rehypeParse from 'rehype-parse'
 import { visit } from 'unist-util-visit'
-import type { Root, Comment, Element, Content } from 'hast'
 import { toString } from 'hast-util-to-string'
 import { isElement } from 'hast-util-is-element'
 
@@ -15,7 +13,7 @@ const componentParser = unified().use(rehypeParse, { fragment: true })
 const normalizeComponentName = (name: string) => name.toLowerCase()
 
 function parseDescriptor(descriptor: string) {
-  const tree = componentParser.parse(`<${descriptor} />`) as Root
+  const tree = componentParser.parse(`<${descriptor} />`)
   const node = tree.children[0]
   if (!node || node.type !== 'element') {
     return null
@@ -35,7 +33,7 @@ function parseDescriptor(descriptor: string) {
   return { component, attributes }
 }
 
-const isCommentNode = (value: unknown): value is Comment =>
+const isCommentNode = (value: unknown) =>
   Boolean(
     value &&
     typeof value === 'object' &&
@@ -59,7 +57,7 @@ const slugify = (value: string, fallback: string) => {
   )
 }
 
-export const rehypeParseCommentComponents: Plugin<[], Root> = () => {
+export const rehypeParseCommentComponents = () => {
   return (tree) => {
     visit(tree, 'comment', (node, index, parent) => {
       if (!isCommentNode(node) || parent == null || typeof index !== 'number') {
@@ -123,12 +121,12 @@ export const rehypeParseCommentComponents: Plugin<[], Root> = () => {
   }
 }
 
-const isHeading = (node: Content): node is Element =>
+const isHeading = (node) =>
   isElement(node) && /^h[1-6]$/.test(node.tagName)
 
-const headingLevel = (node: Element) => Number(node.tagName.substring(1))
+const headingLevel = (node) => Number(node.tagName.substring(1))
 
-function extractTabPanels(node: Element) {
+function extractTabPanels(node) {
   const children = node.children ?? []
   const headings = children.filter(isHeading)
   if (headings.length === 0) {
@@ -146,9 +144,9 @@ function extractTabPanels(node: Element) {
     name: string
     headers: Array<string>
   }> = []
-  const panels: Array<Array<Content>> = []
+  const panels = []
 
-  let currentPanel: Array<Content> | null = null
+  let currentPanel = null;
 
   children.forEach((child) => {
     if (isHeading(child)) {
@@ -237,7 +235,7 @@ function transformTabsComponent(node: Element) {
   node.children = panelElements
 }
 
-export const rehypeTransformCommentComponents: Plugin<[], Root> = () => {
+export const rehypeTransformCommentComponents = () => {
   return (tree) => {
     visit(tree, 'element', (node) => {
       if (!isElement(node) || node.tagName !== 'md-comment-component') {
@@ -256,8 +254,6 @@ export const rehypeTransformCommentComponents: Plugin<[], Root> = () => {
   }
 }
 
-export type { Element as CommentComponentNode }
-
 const CALLOUT_REGEX = /^\[!(?<type>[A-Z]+)]\s*/
 const SUPPORTED_CALLOUTS: Record<string, string> = {
   note: 'note',
@@ -269,7 +265,7 @@ const SUPPORTED_CALLOUTS: Record<string, string> = {
   important: 'important',
 }
 
-export const rehypeCallouts: Plugin<[], Root> = () => {
+export const rehypeCallouts = () => {
   return (tree) => {
     visit(tree, 'element', (node, index, parent) => {
       if (!parent || typeof index !== 'number') {

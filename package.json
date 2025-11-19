@@ -3,7 +3,7 @@
   "private": true,
   "sideEffects": false,
   "repository": "https://github.com/TanStack/tanstack.com.git",
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@10.22.0",
   "type": "module",
   "scripts": {
     "dev": "npm-run-all --parallel dev:frontend dev:backend",
@@ -70,6 +70,7 @@
     "html-react-parser": "^5.1.10",
     "import-meta-resolve": "^4.0.0",
     "lru-cache": "^7.13.1",
+    "mdast": "^3.0.0",
     "mdast-util-definitions": "^6.0.0",
     "mdast-util-to-string": "^4.0.0",
     "mermaid": "^11.11.0",

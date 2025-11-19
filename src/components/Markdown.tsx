@@ -16,6 +16,7 @@ import { twMerge } from 'tailwind-merge'
 import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
 import { renderMarkdown } from '~/utils/markdown'
 import { Tabs } from '~/components/Tabs'
+import { Alert } from '~/components/Alert'
 
 const CustomHeading = ({
   Comp,
@@ -246,7 +247,7 @@ export function CodeBlock({
 
 const cache = <T extends (...args: any[]) => any>(fn: T) => {
   const cache = new Map<string, any>()
-  return async (...args: Parameters<T>) => {
+  return async (...args) => {
     const key = JSON.stringify(args)
     if (cache.has(key)) {
       return cache.get(key)
@@ -363,13 +364,11 @@ export function Markdown({ rawContent, htmlMarkup }: MarkdownProps) {
     setHeadings(rendered.headings)
   }, [rendered.headings, setHeadings])
 
-  const parsedContent = React.useMemo(() => {
+   return React.useMemo(() => {
     if (!rendered.markup) {
       return null
     }
 
     return parse(rendered.markup, options)
   }, [rendered.markup])
-
-  return parsedContent
 }

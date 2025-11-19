@@ -38,12 +38,12 @@ export function Alert({
     <div
       {...rest}
       className={twMerge(
-        'markdown-alert',
-        `markdown-alert-${variant}`,
+        `markdown-alert markdown-alert-${variant}`,
         className
       )}
     >
-      <p className="markdown-alert-title">svg
+      <div className="markdown-alert-title">
+        <svg
           className="octicon octicon-info mr-2"
           viewBox="0 0 16 16"
           width="16"
@@ -52,8 +52,10 @@ export function Alert({
         >
           <path d={iconPath} />
         </svg>
-        {label}
-      </p>
+        <span>
+          {label}
+        </span>
+      </div>
       {children}
     </div>
   )

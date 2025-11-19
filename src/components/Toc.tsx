@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { HeadingData } from 'marked-gfm-heading-id'
+import { MarkdownHeading } from '~/utils/markdown/processor'
 
 const headingLevels: Record<number, string> = {
   1: 'pl-0.5 lg:pl-1 xl:pl-1.5 2xl:pl-2',
@@ -12,18 +12,18 @@ const headingLevels: Record<number, string> = {
 }
 
 type TocProps = {
-  headings: HeadingData[]
+  headings: MarkdownHeading[]
   colorFrom?: string
   colorTo?: string
   activeHeadings: Array<string>
 }
 
 export function Toc({
-  headings,
-  colorFrom,
-  colorTo,
-  activeHeadings,
-}: TocProps) {
+                      headings,
+                      colorFrom,
+                      colorTo,
+                      activeHeadings,
+                    }: TocProps) {
   return (
     <nav className="flex flex-col sticky top-[var(--navbar-height)] max-h-[calc(100dvh-var(--navbar-height))] divide-y divide-gray-500/20">
       <div className="p-0.5 lg:p-1 xl:p-1.5 2xl:p-2">

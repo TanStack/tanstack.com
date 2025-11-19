@@ -31,7 +31,7 @@ root
     └── $id => match /users/$id
 ```
 
-We can add more routes to get a complete picture:
+Adding more routes gives a more complete picture:
 
 ```
 /users/$id
@@ -153,7 +153,7 @@ When building the segment trie, we need to parse each route (e.g., `/users/$user
 
 Instead of re-creating a new object every time, we can reuse the same object across all parsing operations to avoid allocations in the hot path.
 
-```tsx
+```ts
 const data = { kind: 0, prefixEnd: 0, suffixStart: 0, nextCursor: 0 }
 do {
   parseSegment(path, data)

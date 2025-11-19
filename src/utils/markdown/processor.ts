@@ -8,9 +8,6 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeStringify from 'rehype-stringify'
 import { visit } from 'unist-util-visit'
 import { toString } from 'hast-util-to-string'
-import type { Root as MdastRoot } from 'mdast'
-import type { Root as HastRoot } from 'hast'
-import type { VFileCompatible } from 'vfile'
 
 import {
   rehypeParseCommentComponents,
@@ -34,13 +31,12 @@ export type MarkdownProcessorOptions = {
 }
 
 export function renderMarkdown(
-  content: VFileCompatible,
+  content: any,
   { rehypePlugins = [] }: MarkdownProcessorOptions = {}
 ): MarkdownRenderResult {
   const headings: MarkdownHeading[] = []
 
-  const processor = unified<MdastRoot>()
-    .use(remarkParse)
+  const processor = unified().use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
@@ -55,7 +51,7 @@ export function renderMarkdown(
       },
     })
     .use(() => (tree, file) => {
-      visit(tree as HastRoot, 'element', (node) => {
+      visit(tree, 'element', (node) => {
         if (!('tagName' in node)) return
         if (!/^h[1-6]$/.test(String(node.tagName))) {
           return

@@ -1,10 +1,10 @@
 import React from 'react'
 import { Link } from '@tanstack/react-router'
-import type { HeadingData } from 'marked-gfm-heading-id'
 import { FaCaretRight, FaCaretDown } from 'react-icons/fa6'
+import { MarkdownHeading } from '~/utils/markdown/processor'
 
 interface TocMobileProps {
-  headings: Array<HeadingData>
+  headings: Array<MarkdownHeading>
 }
 
 export function TocMobile({ headings }: TocMobileProps) {

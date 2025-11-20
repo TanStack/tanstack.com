@@ -1,5 +1,6 @@
 import { LogoQueryGGSmall } from '~/components/LogoQueryGGSmall'
 import { useQueryGGPPPDiscount } from '~/hooks/useQueryGGPPPDiscount'
+import CountdownTimerSmall from '~/components/CountdownTimerSmall'
 
 export function DocsCalloutQueryGG() {
   const ppp = useQueryGGPPPDiscount()
@@ -17,14 +18,23 @@ export function DocsCalloutQueryGG() {
         </h6>
         <LogoQueryGGSmall className="w-full" />
 
-        <blockquote className="text-sm -indent-[.45em] pl-2">
+        {/* <blockquote className="text-sm -indent-[.45em] pl-2">
           “If you’re serious about *really* understanding React Query, there’s
           no better way than with query.gg”
           <cite className="italic block text-right">—Tanner Linsley</cite>
-        </blockquote>
+        </blockquote> */}
 
-        <div className="grid justify-center bg-gray-800 dark:bg-gray-100 text-gray-100 dark:text-gray-800 z-10"></div>
-
+        {/* <div className="grid justify-center bg-gray-800 dark:bg-gray-100 text-gray-100 dark:text-gray-800 z-10"></div> */}
+        <div className="p-2 uppercase text-center place-self-center">
+          <h2 className="mt-1 mb-1 px-2 text-md font-semibold">
+            Black Friday Sale
+          </h2>
+          <p className="normal-case mb-4 text-sm text-balance">
+            Get 30% off through December 6th
+          </p>
+          <CountdownTimerSmall targetDate="2025-12-06" />
+        </div>
+  
         {ppp && (
           <>
             <p className="text-sm pl-2 py-2">

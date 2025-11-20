@@ -18,7 +18,7 @@ export const pacerProject = {
   tagline: `Framework agnostic debouncing, throttling, rate limiting, queuing, and batching utilities`,
   description: `Optimize your application's performance with TanStack Pacer's core primitives: Debouncing, Throttling, Rate Limiting, Queuing, and Batching.`,
   ogImage: 'https://github.com/tanstack/pacer/raw/main/media/repo-header.png',
-  badge: 'alpha',
+  badge: 'beta',
   bgStyle: `bg-lime-700`,
   textStyle: `text-lime-500`,
   repo,
@@ -91,8 +91,8 @@ export const pacerProject = {
           Choose between async or sync execution for each utility based on your
           needs.{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            Track success and error states with comprehensive event handling and
-            status reporting
+            Take advantage of optional built-in error handling, retries, abort
+            controllers, and status reporting
           </span>
           . Perfect for handling both simple synchronous operations and complex
           task pooling workflows with or without concurrency control.

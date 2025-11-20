@@ -19,10 +19,10 @@ import { Tabs } from '~/components/Tabs'
 import { Alert } from '~/components/Alert'
 
 const CustomHeading = ({
-  Comp,
-  id,
-  ...props
-}: HTMLProps<HTMLHeadingElement> & {
+                         Comp,
+                         id,
+                         ...props
+                       }: HTMLProps<HTMLHeadingElement> & {
   Comp: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 }) => {
   if (id) {
@@ -40,14 +40,14 @@ const CustomHeading = ({
 
 const makeHeading =
   (type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
-  (props: HTMLProps<HTMLHeadingElement>) =>
-    (
-      <CustomHeading
-        Comp={type}
-        {...props}
-        className={`${props.className ?? ''} block`}
-      />
-    )
+    (props: HTMLProps<HTMLHeadingElement>) =>
+      (
+        <CustomHeading
+          Comp={type}
+          {...props}
+          className={`${props.className ?? ''} block`}
+        />
+      )
 
 const markdownComponents: Record<string, React.FC> = {
   a: MarkdownLink,
@@ -81,7 +81,7 @@ const markdownComponents: Record<string, React.FC> = {
       // loading="lazy"
       // decoding="async"
     />
-  )
+  ),
 }
 
 export function extractPreAttributes(html: string): {
@@ -109,10 +109,10 @@ const genSvgMap = new Map<string, string>()
 mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
 
 export function CodeBlock({
-  isEmbedded,
-  showTypeCopyButton = true,
-  ...props
-}: React.HTMLProps<HTMLPreElement> & {
+                            isEmbedded,
+                            showTypeCopyButton = true,
+                            ...props
+                          }: React.HTMLProps<HTMLPreElement> & {
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
 }) {
@@ -126,10 +126,10 @@ export function CodeBlock({
   const children = props.children as
     | undefined
     | {
-        props: {
-          children: string
-        }
-      }
+    props: {
+      children: string
+    }
+  }
 
   const [copied, setCopied] = React.useState(false)
   const ref = React.useRef<any>(null)
@@ -150,7 +150,7 @@ export function CodeBlock({
 
   React[
     typeof document !== 'undefined' ? 'useLayoutEffect' : 'useEffect'
-  ](() => {
+    ](() => {
     ;(async () => {
       const themes = ['github-light', 'tokyo-night']
 
@@ -195,7 +195,7 @@ export function CodeBlock({
   return (
     <div
       className={twMerge(
-        'w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md',
+        'w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md [*[data-tab]_&]:only:border-0',
         props.className
       )}
       style={props.style}
@@ -301,7 +301,20 @@ const options: HTMLReactParserOptions = {
 
         switch (componentName?.toLowerCase()) {
           case 'tabs': {
-            const tabs = attributes.tabs;
+            const tabs = attributes.tabs
+            const panelElements = domNode.children?.filter(
+              (child): child is Element =>
+                child instanceof Element && child.name === 'md-tab-panel'
+            )
+
+            const children = panelElements?.map((panel) =>
+              domToReact(panel.children as any, options)
+            )
+
+            return <Tabs tabs={tabs} children={children as any} />
+          }
+          case 'codetabs': {
+            const tabs = attributes.tabs
             const panelElements = domNode.children?.filter(
               (child): child is Element =>
                 child instanceof Element && child.name === 'md-tab-panel'
@@ -364,7 +377,7 @@ export function Markdown({ rawContent, htmlMarkup }: MarkdownProps) {
     setHeadings(rendered.headings)
   }, [rendered.headings, setHeadings])
 
-   return React.useMemo(() => {
+  return React.useMemo(() => {
     if (!rendered.markup) {
       return null
     }

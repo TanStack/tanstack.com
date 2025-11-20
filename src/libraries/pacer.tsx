@@ -91,7 +91,8 @@ export const pacerProject = {
           Choose between async or sync execution for each utility based on your
           needs.{' '}
           <span className={twMerge('font-semibold', textStyles)}>
-            Take advantage of optional built-in error handling, retries, abort controllers, and status reporting
+            Take advantage of optional built-in error handling, retries, abort
+            controllers, and status reporting
           </span>
           . Perfect for handling both simple synchronous operations and complex
           task pooling workflows with or without concurrency control.

@@ -36,7 +36,8 @@ export function renderMarkdown(
 ): MarkdownRenderResult {
   const headings: MarkdownHeading[] = []
 
-  const processor = unified().use(remarkParse)
+  const processor = unified()
+    .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)

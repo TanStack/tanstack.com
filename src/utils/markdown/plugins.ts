@@ -121,17 +121,13 @@ export const rehypeParseCommentComponents = () => {
   }
 }
 
-const isHeading = (node) =>
-  isElement(node) && /^h[1-6]$/.test(node.tagName)
+const isHeading = (node) => isElement(node) && /^h[1-6]$/.test(node.tagName)
 
 const headingLevel = (node) => Number(node.tagName.substring(1))
 
-function extractTabPanels(node) {
+function extractSmartTabPanels(node) {
   const children = node.children ?? []
   const headings = children.filter(isHeading)
-  if (headings.length === 0) {
-    return null
-  }
 
   let sectionStarted = false
   let largestHeadingLevel = Infinity
@@ -146,7 +142,7 @@ function extractTabPanels(node) {
   }> = []
   const panels = []
 
-  let currentPanel = null;
+  let currentPanel = null
 
   children.forEach((child) => {
     if (isHeading(child)) {
@@ -211,7 +207,7 @@ function extractTabPanels(node) {
 }
 
 function transformTabsComponent(node: Element) {
-  const result = extractTabPanels(node)
+  const result = extractSmartTabPanels(node)
   if (!result) {
     return
   }
@@ -234,6 +230,7 @@ function transformTabsComponent(node: Element) {
   }
   node.children = panelElements
 }
+
 
 export const rehypeTransformCommentComponents = () => {
   return (tree) => {

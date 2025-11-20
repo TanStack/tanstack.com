@@ -80,7 +80,7 @@ export const rehypeParseCommentComponents = () => {
       }
 
       const componentName = parsed.component
-      const element: Element = {
+      const element = {
         type: 'element',
         tagName: 'md-comment-component',
         properties: {
@@ -194,7 +194,7 @@ function extractSmartTabPanels(node) {
     visit(
       { type: 'root', children: panelChildren },
       'element',
-      (child: Element) => {
+      (child) => {
         if (isHeading(child) && typeof child.properties?.id === 'string') {
           nestedHeadings.push(String(child.properties.id))
         }
@@ -206,7 +206,7 @@ function extractSmartTabPanels(node) {
   return { tabs, panels }
 }
 
-function transformTabsComponent(node: Element) {
+function transformTabsComponent(node) {
   const result = extractSmartTabPanels(node)
   if (!result) {
     return
@@ -247,64 +247,6 @@ export const rehypeTransformCommentComponents = () => {
         default:
           break
       }
-    })
-  }
-}
-
-const CALLOUT_REGEX = /^\[!(?<type>[A-Z]+)]\s*/
-const SUPPORTED_CALLOUTS: Record<string, string> = {
-  note: 'note',
-  tip: 'tip',
-  success: 'tip',
-  warning: 'warning',
-  caution: 'caution',
-  danger: 'important',
-  important: 'important',
-}
-
-export const rehypeCallouts = () => {
-  return (tree) => {
-    visit(tree, 'element', (node, index, parent) => {
-      if (!parent || typeof index !== 'number') {
-        return
-      }
-
-      if (!isElement(node) || node.tagName !== 'blockquote') {
-        return
-      }
-
-      const firstChild = node.children?.[0]
-      if (!isElement(firstChild) || firstChild.tagName !== 'p') {
-        return
-      }
-
-      const textNode = firstChild.children?.[0]
-      if (!textNode || textNode.type !== 'text') {
-        return
-      }
-
-      const match = CALLOUT_REGEX.exec(textNode.value ?? '')
-      if (!match?.groups?.type) {
-        return
-      }
-
-      const variantKey = match.groups.type.toLowerCase()
-      const variant = SUPPORTED_CALLOUTS[variantKey]
-      if (!variant) {
-        return
-      }
-
-      textNode.value = textNode.value.slice(match[0].length)
-
-      parent.children.splice(index, 1, {
-        type: 'element',
-        tagName: 'md-comment-component',
-        properties: {
-          'data-component': 'alert',
-          'data-attributes': JSON.stringify({ variant }),
-        },
-        children: node.children,
-      })
     })
   }
 }

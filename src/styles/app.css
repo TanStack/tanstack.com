@@ -588,7 +588,7 @@ html.dark .shiki.tokyo-night span[style*='color: #51597D'] {
 }
 
 .markdown-alert .markdown-alert-title {
-  @apply flex justify-start items-center font-medium mb-1.5;
+  @apply flex justify-start items-center font-medium;
 }
 
 .bg-clip-text {

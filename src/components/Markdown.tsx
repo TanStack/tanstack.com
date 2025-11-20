@@ -16,7 +16,6 @@ import { twMerge } from 'tailwind-merge'
 import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
 import { renderMarkdown } from '~/utils/markdown'
 import { Tabs } from '~/components/Tabs'
-import { Alert } from '~/components/Alert'
 
 const CustomHeading = ({
                          Comp,

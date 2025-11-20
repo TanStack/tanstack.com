@@ -1,7 +1,8 @@
-import { unified, type PluggableList } from 'unified'
+import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
+import rehypeCallouts from 'rehype-callouts'
 import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
@@ -12,7 +13,6 @@ import { toString } from 'hast-util-to-string'
 import {
   rehypeParseCommentComponents,
   rehypeTransformCommentComponents,
-  rehypeCallouts,
 } from './plugins'
 
 export type MarkdownHeading = {
@@ -26,14 +26,7 @@ export type MarkdownRenderResult = {
   headings: MarkdownHeading[]
 }
 
-export type MarkdownProcessorOptions = {
-  rehypePlugins?: PluggableList
-}
-
-export function renderMarkdown(
-  content: any,
-  { rehypePlugins = [] }: MarkdownProcessorOptions = {}
-): MarkdownRenderResult {
+export function renderMarkdown(content): MarkdownRenderResult {
   const headings: MarkdownHeading[] = []
 
   const processor = unified()
@@ -42,7 +35,38 @@ export function renderMarkdown(
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
     .use(rehypeParseCommentComponents)
-    .use(rehypeCallouts)
+    .use(rehypeCallouts, {
+      theme: 'github',
+      props: {
+        containerProps(node,type) {
+          return {
+            className: `markdown-alert markdown-alert-${type}`,
+            children: node.children,
+          }
+        },
+        titleIconProps() {
+          return {
+            className: 'octicon octicon-info mr-2'
+          }
+        },
+        titleProps() {
+          return {
+            className: 'markdown-alert-title',
+          }
+        },
+        titleTextProps() {
+          return {
+            className: 'markdown-alert-title',
+
+          }
+        },
+        contentProps() {
+          return {
+            className: 'markdown-alert-content',
+          }
+        },
+      }
+    })
     .use(rehypeSlug)
     .use(rehypeTransformCommentComponents)
     .use(rehypeAutolinkHeadings, {
@@ -74,14 +98,6 @@ export function renderMarkdown(
 
       file.data.headings = headings
     })
-
-  rehypePlugins.forEach((plugin) => {
-    if (Array.isArray(plugin)) {
-      processor.use(plugin[0] as any, ...(plugin.slice(1) as any))
-    } else {
-      processor.use(plugin as any)
-    }
-  })
 
   const file = processor.use(rehypeStringify).processSync(content)
 

@@ -25,7 +25,6 @@
     "@erquhart/convex-oss-stats": "^0.8.1",
     "@floating-ui/react": "^0.27.8",
     "@headlessui/react": "1.7.18",
-    "@microflash/remark-callout-directives": "^5.0.0",
     "@netlify/vite-plugin-tanstack-start": "^1.0.2",
     "@number-flow/react": "^0.4.1",
     "@observablehq/plot": "^0.6.17",

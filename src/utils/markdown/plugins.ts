@@ -36,9 +36,9 @@ function parseDescriptor(descriptor: string) {
 const isCommentNode = (value: unknown) =>
   Boolean(
     value &&
-    typeof value === 'object' &&
-    'type' in value &&
-    value.type === 'comment'
+      typeof value === 'object' &&
+      'type' in value &&
+      value.type === 'comment'
   )
 
 const slugify = (value: string, fallback: string) => {
@@ -101,7 +101,7 @@ export const rehypeParseCommentComponents = () => {
         if (
           isCommentNode(candidate) &&
           candidate.value.trim().toLowerCase() ===
-          `${END_PREFIX}${normalizeComponentName(componentName)}`
+            `${END_PREFIX}${normalizeComponentName(componentName)}`
         ) {
           endIndex = cursor
           break
@@ -191,15 +191,11 @@ function extractSmartTabPanels(node) {
 
   panels.forEach((panelChildren, index) => {
     const nestedHeadings: Array<string> = []
-    visit(
-      { type: 'root', children: panelChildren },
-      'element',
-      (child) => {
-        if (isHeading(child) && typeof child.properties?.id === 'string') {
-          nestedHeadings.push(String(child.properties.id))
-        }
+    visit({ type: 'root', children: panelChildren }, 'element', (child) => {
+      if (isHeading(child) && typeof child.properties?.id === 'string') {
+        nestedHeadings.push(String(child.properties.id))
       }
-    )
+    })
     tabs[index]!.headers = nestedHeadings
   })
 
@@ -230,7 +226,6 @@ function transformTabsComponent(node) {
   }
   node.children = panelElements
 }
-
 
 export const rehypeTransformCommentComponents = () => {
   return (tree) => {

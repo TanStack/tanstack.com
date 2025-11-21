@@ -10,8 +10,8 @@ const MarkdownHeadingContext = React.createContext<{
 })
 
 export function MarkdownHeadingProvider({
-                                          children,
-                                        }: {
+  children,
+}: {
   children: React.ReactNode
 }) {
   const [headings, setHeadings] = React.useState<MarkdownHeading[]>([])

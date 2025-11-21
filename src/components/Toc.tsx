@@ -19,11 +19,11 @@ type TocProps = {
 }
 
 export function Toc({
-                      headings,
-                      colorFrom,
-                      colorTo,
-                      activeHeadings,
-                    }: TocProps) {
+  headings,
+  colorFrom,
+  colorTo,
+  activeHeadings,
+}: TocProps) {
   return (
     <nav className="flex flex-col sticky top-[var(--navbar-height)] max-h-[calc(100dvh-var(--navbar-height))] divide-y divide-gray-500/20">
       <div className="p-0.5 lg:p-1 xl:p-1.5 2xl:p-2">

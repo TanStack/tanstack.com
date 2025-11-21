@@ -541,6 +541,10 @@ html.dark .shiki.tokyo-night span[style*='color: #51597D'] {
 /* Markdown Alerts */
 .markdown-alert {
   @apply border-l-4 pl-4 py-1.5 my-2 dark:bg-gray-900 rounded-r-sm;
+
+  p {
+    @apply my-2;
+  }
 }
 
 .markdown-alert > * {

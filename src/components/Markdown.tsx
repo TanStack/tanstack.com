@@ -18,10 +18,10 @@ import { renderMarkdown } from '~/utils/markdown'
 import { Tabs } from '~/components/Tabs'
 
 const CustomHeading = ({
-                         Comp,
-                         id,
-                         ...props
-                       }: HTMLProps<HTMLHeadingElement> & {
+  Comp,
+  id,
+  ...props
+}: HTMLProps<HTMLHeadingElement> & {
   Comp: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 }) => {
   if (id) {
@@ -39,14 +39,14 @@ const CustomHeading = ({
 
 const makeHeading =
   (type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
-    (props: HTMLProps<HTMLHeadingElement>) =>
-      (
-        <CustomHeading
-          Comp={type}
-          {...props}
-          className={`${props.className ?? ''} block`}
-        />
-      )
+  (props: HTMLProps<HTMLHeadingElement>) =>
+    (
+      <CustomHeading
+        Comp={type}
+        {...props}
+        className={`${props.className ?? ''} block`}
+      />
+    )
 
 const markdownComponents: Record<string, React.FC> = {
   a: MarkdownLink,
@@ -108,10 +108,10 @@ const genSvgMap = new Map<string, string>()
 mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
 
 export function CodeBlock({
-                            isEmbedded,
-                            showTypeCopyButton = true,
-                            ...props
-                          }: React.HTMLProps<HTMLPreElement> & {
+  isEmbedded,
+  showTypeCopyButton = true,
+  ...props
+}: React.HTMLProps<HTMLPreElement> & {
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
 }) {
@@ -125,10 +125,10 @@ export function CodeBlock({
   const children = props.children as
     | undefined
     | {
-    props: {
-      children: string
-    }
-  }
+        props: {
+          children: string
+        }
+      }
 
   const [copied, setCopied] = React.useState(false)
   const ref = React.useRef<any>(null)
@@ -149,7 +149,7 @@ export function CodeBlock({
 
   React[
     typeof document !== 'undefined' ? 'useLayoutEffect' : 'useEffect'
-    ](() => {
+  ](() => {
     ;(async () => {
       const themes = ['github-light', 'tokyo-night']
 

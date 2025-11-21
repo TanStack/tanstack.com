@@ -38,7 +38,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
     .use(rehypeCallouts, {
       theme: 'github',
       props: {
-        containerProps(node,type) {
+        containerProps(node, type) {
           return {
             className: `markdown-alert markdown-alert-${type}`,
             children: node.children,
@@ -46,7 +46,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
         },
         titleIconProps() {
           return {
-            className: 'octicon octicon-info mr-2'
+            className: 'octicon octicon-info mr-2',
           }
         },
         titleProps() {
@@ -57,7 +57,6 @@ export function renderMarkdown(content): MarkdownRenderResult {
         titleTextProps() {
           return {
             className: 'markdown-alert-title',
-
           }
         },
         contentProps() {
@@ -65,7 +64,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
             className: 'markdown-alert-content',
           }
         },
-      }
+      },
     })
     .use(rehypeSlug)
     .use(rehypeTransformCommentComponents)

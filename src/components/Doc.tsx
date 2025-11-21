@@ -8,7 +8,10 @@ import { twMerge } from 'tailwind-merge'
 import { useWidthToggle } from '~/components/DocsLayout'
 import { DocTitle } from '~/components/DocTitle'
 import { Markdown } from '~/components/Markdown'
-import { MarkdownHeadingProvider, useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
+import {
+  MarkdownHeadingProvider,
+  useMarkdownHeadings,
+} from '~/components/MarkdownHeadingContext'
 import { AdGate } from '~/contexts/AdsContext'
 import { CopyMarkdownButton } from './CopyMarkdownButton'
 import { GamLeader } from './Gam'
@@ -27,15 +30,15 @@ type DocProps = {
 }
 
 function DocContent({
-                      title,
-                      content,
-                      repo,
-                      branch,
-                      filePath,
-                      shouldRenderToc = false,
-                      colorFrom,
-                      colorTo,
-                    }: DocProps) {
+  title,
+  content,
+  repo,
+  branch,
+  filePath,
+  shouldRenderToc = false,
+  colorFrom,
+  colorTo,
+}: DocProps) {
   const { headings } = useMarkdownHeadings()
 
   const isTocVisible = shouldRenderToc && headings && headings.length > 1

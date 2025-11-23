@@ -145,7 +145,22 @@ function Index() {
           </div>
         </div>
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>
+          <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+            <h3 id="libraries" className={`text-4xl font-light scroll-mt-24`}>
+              <a
+                href="#libraries"
+                className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+              >
+                Open Source Libraries
+              </a>
+            </h3>
+            <Link
+              to="/tenets"
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors underline"
+            >
+              Read our product tenets →
+            </Link>
+          </div>
 
           {Object.entries(librariesByGroup).map(
             ([groupName, groupLibraries]: [string, Library[]]) => (
@@ -313,7 +328,14 @@ function Index() {
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 className={`text-4xl font-light mb-6`}>Partners</h3>
+          <h3 id="partners" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+            <a
+              href="#partners"
+              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+            >
+              Partners
+            </a>
+          </h3>
           <PartnersGrid />
           <div className="text-center mt-6">
             <Link
@@ -327,7 +349,14 @@ function Index() {
         </div>
 
         <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
-          <h3 className={`text-4xl font-light mb-6`}>Courses</h3>
+          <h3 id="courses" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+            <a
+              href="#courses"
+              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+            >
+              Courses
+            </a>
+          </h3>
           <div className={`mt-4 grid grid-cols-1 gap-4`}>
             {courses.map((course) => (
               <a
@@ -361,10 +390,19 @@ function Index() {
         </div>
 
         <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
-          <LazySponsorSection
-            title="OSS Sponsors"
-            ctaClassName="inline-block p-4 bg-green-700 rounded text-white uppercase font-black"
-          />
+          <div id="sponsors" className="scroll-mt-24">
+            <LazySponsorSection
+              title={
+                <a
+                  href="#sponsors"
+                  className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+                >
+                  OSS Sponsors
+                </a>
+              }
+              ctaClassName="inline-block p-4 bg-green-700 rounded text-white uppercase font-black"
+            />
+          </div>
           <div className={`h-4`} />
           <p
             className={`italic mx-auto max-w-(--breakpoint-sm) text-gray-500 dark:text-gray-300 text-center`}
@@ -379,7 +417,14 @@ function Index() {
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 className={`text-4xl font-light mb-6`}>Core Maintainers</h3>
+          <h3 id="maintainers" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+            <a
+              href="#maintainers"
+              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+            >
+              Core Maintainers
+            </a>
+          </h3>
           <div className="grid gap-6 grid-cols-2 lg:grid-cols-3">
             {coreMaintainers.map((maintainer) => (
               <MaintainerCard key={maintainer.github} maintainer={maintainer} />
@@ -410,7 +455,14 @@ function Index() {
               />
             </div>
             <div className={`sm:col-span-2`}>
-              <h3 className={`text-3xl`}>TanStack on Discord</h3>
+              <h3 id="discord" className={`text-3xl scroll-mt-24`}>
+                <a
+                  href="#discord"
+                  className="hover:underline decoration-white/50"
+                >
+                  TanStack on Discord
+                </a>
+              </h3>
               <p className={`mt-4`}>
                 The official TanStack community to ask questions, network and
                 make new friends and get lightning fast news about what's coming
@@ -466,7 +518,14 @@ function Index() {
               >
                 <div>
                   <div className={`relative inline-block`}>
-                    <h3 className={`text-3xl`}>Subscribe to Bytes</h3>
+                    <h3 id="bytes" className={`text-3xl scroll-mt-24`}>
+                      <a
+                        href="#bytes"
+                        className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+                      >
+                        Subscribe to Bytes
+                      </a>
+                    </h3>
                     <figure className={`absolute top-0 right-[-48px]`}>
                       <img
                         src={bytesImage}

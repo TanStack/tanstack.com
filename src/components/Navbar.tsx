@@ -465,6 +465,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             to: '/ethos',
           },
           {
+            label: 'Tenets',
+            icon: <MdLibraryBooks />,
+            to: '/tenets',
+          },
+          {
             label: 'Brand Guide',
             icon: <FaPaintRoller />,
             to: '/brand-guide',

@@ -447,7 +447,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           {
             label: 'Merch',
             icon: <FaTshirt />,
-            to: 'https://cottonbureau.com/people/tanstack',
+            to: '/merch',
           },
           {
             label: 'Blog',

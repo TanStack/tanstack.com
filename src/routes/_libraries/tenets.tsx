@@ -18,7 +18,7 @@ function RouteComp() {
     <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
       <div className="flex-1 space-y-12 w-full max-w-3xl mx-auto">
         <header className="">
-          <h1 className="text-4xl font-bold">TanStack Product Tenets</h1>
+          <h1 className="text-3xl font-black">TanStack Product Tenets</h1>
         </header>
 
         <section className="">

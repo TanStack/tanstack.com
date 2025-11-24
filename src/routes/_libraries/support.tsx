@@ -16,11 +16,9 @@ function SupportComp() {
   return (
     <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
       <div className="flex-1 space-y-16 w-full max-w-4xl mx-auto">
-        <header className="text-center pt-8">
-          <h1 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mb-6">
-            Support
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
+        <header className="">
+          <h1 className="text-3xl font-black">Support</h1>
+          <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
             Whether you're a solo developer or a large enterprise, we have
             solutions that will fit your needs perfectly
           </p>

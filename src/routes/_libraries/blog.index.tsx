@@ -1,7 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { formatAuthors } from '~/utils/blog'
-import { DocTitle } from '~/components/DocTitle'
 import { Markdown } from '~/components/Markdown'
 import { format } from 'date-fns'
 import { Footer } from '~/components/Footer'
@@ -58,13 +57,15 @@ function BlogIndex() {
   const frontMatters = Route.useLoaderData()
 
   return (
-    <div>
-      <div className="p-4 lg:p-6 min-h-screen">
-        <div>
-          <DocTitle>Blog</DocTitle>
-          <div className="h-6" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+    <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
+      <div className="flex-1 space-y-12 w-full max-w-4xl mx-auto">
+        <header className="">
+          <h1 className="text-3xl font-black">Blog</h1>
+          <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
+            The latest news and blog posts from TanStack
+          </p>
+        </header>
+        <section className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
           {frontMatters.map(({ slug, title, published, excerpt, authors }) => {
             return (
               <Link
@@ -108,8 +109,7 @@ function BlogIndex() {
               </Link>
             )
           })}
-        </div>
-        <div className="h-24" />
+        </section>
       </div>
       <Footer />
     </div>

@@ -7,7 +7,7 @@ import SponsorPack from './SponsorPack'
 import PlaceholderSponsorPack from './PlaceholderSponsorPack'
 
 type LazySponsorSectionProps = {
-  title?: string
+  title?: React.ReactNode
   aspectRatio?: string
   showCTA?: boolean
   ctaClassName?: string

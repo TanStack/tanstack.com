@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 
@@ -18,7 +18,7 @@ function RouteComp() {
     <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
       <div className="flex-1 space-y-12 w-full max-w-3xl mx-auto">
         <header className="">
-          <h1 className="text-4xl font-bold">TanStack Ethos</h1>
+          <h1 className="text-3xl font-black">TanStack Ethos</h1>
         </header>
 
         <section className="">
@@ -154,6 +154,20 @@ function RouteComp() {
             <br />
             Founder, TanStack LLC
           </div>
+        </section>
+
+        <section className="space-y-4 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg border-2 border-gray-300 dark:border-gray-700">
+          <h2 className="text-xl font-semibold">Product & Library Tenets</h2>
+          <p>
+            Our organizational ethos above covers our business values and
+            independence. For the technical principles that guide every TanStack
+            library and product—including how we evaluate contributions and
+            features—see our{' '}
+            <Link to="/tenets" className="underline font-semibold">
+              Product Tenets
+            </Link>
+            .
+          </p>
         </section>
       </div>
       <Footer />

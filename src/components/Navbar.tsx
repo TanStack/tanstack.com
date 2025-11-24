@@ -3,26 +3,28 @@ import { twMerge } from 'tailwind-merge'
 import { BrandContextMenu } from './BrandContextMenu'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import { TbBrandX, TbBrandBluesky } from 'react-icons/tb'
+import { FaDiscord, FaGithub, FaInstagram } from 'react-icons/fa'
 import {
-  FaCode,
-  FaDiscord,
-  FaGithub,
-  FaInstagram,
-  FaLock,
-  FaPaintRoller,
-  FaTshirt,
-  FaUser,
-  FaUsers,
-} from 'react-icons/fa'
+  LuCode,
+  LuUsers,
+  LuMusic,
+  LuHelpCircle,
+  LuBookOpen,
+  LuTrendingUp,
+  LuShirt,
+  LuShieldCheck,
+  LuPaintbrush,
+  LuHammer,
+  LuUser,
+  LuLock,
+  LuX,
+  LuMenu,
+} from 'react-icons/lu'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
 import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { AuthLoading } from 'convex/react'
 import { api } from 'convex/_generated/api'
-import { MdLibraryBooks, MdLineAxis, MdPerson, MdSupport } from 'react-icons/md'
-import { CgClose, CgMenuLeft, CgMusicSpeaker } from 'react-icons/cg'
-import { BiSolidCheckShield } from 'react-icons/bi'
-import { PiHammerFill } from 'react-icons/pi'
 import { libraries } from '~/libraries'
 import { sortBy } from '~/utils/utils'
 
@@ -72,7 +74,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
             hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
           >
-            <MdPerson className="scale-125" />
+            <LuUser className="scale-125" />
             <div className="">Log In</div>
           </Link>
         )
@@ -87,7 +89,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
       <Authenticated>
         <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-          <FaUser />
+          <LuUser />
           <Link
             to="/account"
             className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
@@ -97,7 +99,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </div>
         {canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <FaLock />
+            <LuLock />
             <Link
               to="/admin"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -133,6 +135,13 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       >
         <FaInstagram className="text-xl" />
       </a>
+      <a
+        href="https://tlinz.com/discord"
+        className="opacity-70 hover:opacity-100"
+        aria-label="Join TanStack Discord"
+      >
+        <FaDiscord className="text-xl" />
+      </a>
     </div>
   )
 
@@ -166,7 +175,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 setShowMenu(true)
               }}
             >
-              {showMenu ? <CgClose /> : <CgMenuLeft />}
+              {showMenu ? <LuX /> : <LuMenu />}
             </button>
             <Link
               to="/"
@@ -343,7 +352,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                         'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
                       )}
                     >
-                      <FaUsers />
+                      <LuUsers />
                       Contributors
                     </Link>
                   </div>
@@ -398,7 +407,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             >
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-4 justify-between">
-                  <PiHammerFill />
+                  <LuHammer />
                 </div>
                 <div>Builder</div>
               </div>
@@ -408,22 +417,27 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         {[
           {
             label: 'Maintainers',
-            icon: <FaCode />,
+            icon: <LuCode />,
             to: '/maintainers',
           },
           {
             label: 'Partners',
-            icon: <FaUsers />,
+            icon: <LuUsers />,
             to: '/partners',
           },
           {
+            label: 'Blog',
+            icon: <LuMusic />,
+            to: '/blog',
+          },
+          {
             label: 'Support',
-            icon: <MdSupport />,
+            icon: <LuHelpCircle />,
             to: '/support',
           },
           {
             label: 'Learn',
-            icon: <MdLibraryBooks />,
+            icon: <LuBookOpen />,
             to: '/learn',
           },
           {
@@ -435,7 +449,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 </span>
               </span>
             ),
-            icon: <MdLineAxis />,
+            icon: <LuTrendingUp />,
             to: '/stats/npm',
           },
           {
@@ -446,13 +460,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: 'Merch',
-            icon: <FaTshirt />,
-            to: 'https://cottonbureau.com/people/tanstack',
-          },
-          {
-            label: 'Blog',
-            icon: <CgMusicSpeaker />,
-            to: '/blog',
+            icon: <LuShirt />,
+            to: '/merch',
           },
           {
             label: 'GitHub',
@@ -461,12 +470,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: 'Ethos',
-            icon: <BiSolidCheckShield />,
+            icon: <LuShieldCheck />,
             to: '/ethos',
           },
           {
+            label: 'Tenets',
+            icon: <LuBookOpen />,
+            to: '/tenets',
+          },
+          {
             label: 'Brand Guide',
-            icon: <FaPaintRoller />,
+            icon: <LuPaintbrush />,
             to: '/brand-guide',
           },
         ].map((item, i) => {

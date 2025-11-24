@@ -7,7 +7,8 @@ import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { PartnersSection } from '~/components/PartnersSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
-import { QueryGGBanner } from '~/components/QueryGGBanner'
+// import { QueryGGBanner } from '~/components/QueryGGBanner'
+import { QueryGGBannerSale } from '~/components/QueryGGBannerSale'
 import { queryProject } from '~/libraries/query'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
@@ -56,7 +57,8 @@ function VersionIndex() {
             }}
           />
           <div className="px-4">
-            <QueryGGBanner />
+            {/* <QueryGGBanner /> */}
+            <QueryGGBannerSale />
           </div>
 
           <div className="w-fit mx-auto px-4">

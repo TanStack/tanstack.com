@@ -391,51 +391,58 @@ function Index() {
               </a>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {recentPosts.map(({ slug, title, published, excerpt, authors }) => {
-                return (
-                  <Link
-                    key={slug}
-                    to="/blog/$"
-                    params={{ _splat: slug }}
-                    className={`flex flex-col gap-3 justify-between
+              {recentPosts.map(
+                ({ slug, title, published, excerpt, authors }) => {
+                  return (
+                    <Link
+                      key={slug}
+                      to="/blog/$"
+                      params={{ _splat: slug }}
+                      className={`flex flex-col gap-3 justify-between
                       border-2 border-transparent rounded-lg p-4
                       transition-all bg-white/90 dark:bg-black/40
                       shadow-md dark:shadow-lg dark:shadow-blue-500/20
                       hover:border-blue-500 hover:shadow-xl
                     `}
-                  >
-                    <div>
-                      <div className={`text-base font-bold`}>{title}</div>
-                      <div className={`text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400`}>
-                        <p>
-                          by {formatAuthors(authors)}
-                          {published ? (
-                            <time
-                              dateTime={published}
-                              title={format(new Date(published), 'MMM dd, yyyy')}
-                            >
-                              {' '}
-                              on {format(new Date(published), 'MMM dd, yyyy')}
-                            </time>
-                          ) : null}
-                        </p>
-                      </div>
-                      {excerpt && (
+                    >
+                      <div>
+                        <div className={`text-base font-bold`}>{title}</div>
                         <div
-                          className={`text-xs mt-3 text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed`}
+                          className={`text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400`}
                         >
-                          <Markdown rawContent={excerpt} />
+                          <p>
+                            by {formatAuthors(authors)}
+                            {published ? (
+                              <time
+                                dateTime={published}
+                                title={format(
+                                  new Date(published),
+                                  'MMM dd, yyyy'
+                                )}
+                              >
+                                {' '}
+                                on {format(new Date(published), 'MMM dd, yyyy')}
+                              </time>
+                            ) : null}
+                          </p>
                         </div>
-                      )}
-                    </div>
-                    <div>
-                      <div className="text-blue-500 uppercase font-bold text-xs">
-                        Read More →
+                        {excerpt && (
+                          <div
+                            className={`text-xs mt-3 text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed`}
+                          >
+                            <Markdown rawContent={excerpt} />
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </Link>
-                )
-              })}
+                      <div>
+                        <div className="text-blue-500 uppercase font-bold text-xs">
+                          Read More →
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                }
+              )}
             </div>
             <div className="text-center mt-6">
               <Link
@@ -517,7 +524,10 @@ function Index() {
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 id="maintainers" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+          <h3
+            id="maintainers"
+            className={`text-4xl font-light mb-6 scroll-mt-24`}
+          >
             <a
               href="#maintainers"
               className="hover:underline decoration-gray-400 dark:decoration-gray-600"

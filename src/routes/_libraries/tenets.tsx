@@ -200,10 +200,10 @@ function RouteComp() {
             4. Predictable, Explicit, Type-Safe Behavior
           </h2>
           <p>
-            We minimize magic and maximize clarity. State, side effects, and data
-            flow should be understandable from code, not guessed from hidden
-            behavior. Type safety should guide correct usage without drowning
-            users in generics.
+            We minimize magic and maximize clarity. State, side effects, and
+            data flow should be understandable from code, not guessed from
+            hidden behavior. Type safety should guide correct usage without
+            drowning users in generics.
           </p>
           <ul className="list-disc pl-8 space-y-2">
             <li>
@@ -247,15 +247,13 @@ function RouteComp() {
 
         <section className="space-y-4">
           <h2 className="text-2xl font-semibold">How to Use These Tenets</h2>
-          <p>
-            These tenets serve multiple purposes for different audiences:
-          </p>
+          <p>These tenets serve multiple purposes for different audiences:</p>
           <ul className="list-disc pl-8 space-y-2">
             <li>
               <strong>For developers evaluating TanStack:</strong> These tenets
-              define what you can expect from our libraries—quality, portability,
-              and a commitment to your freedom to compose and deploy however you
-              see fit.
+              define what you can expect from our libraries—quality,
+              portability, and a commitment to your freedom to compose and
+              deploy however you see fit.
             </li>
             <li>
               <strong>For contributors:</strong> When proposing features or
@@ -292,4 +290,3 @@ function RouteComp() {
     </div>
   )
 }
-

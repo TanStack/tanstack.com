@@ -431,24 +431,24 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             to: '/blog',
           },
           {
+            label: (
+              <span className="flex items-center gap-2">
+                Learn
+                <span className="text-xs bg-transparent text-transparent bg-clip-text bg-linear-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
+                  NEW
+                </span>
+              </span>
+            ),
+            icon: <LuBookOpen />,
+            to: '/learn',
+          },
+          {
             label: 'Support',
             icon: <LuHelpCircle />,
             to: '/support',
           },
           {
-            label: 'Learn',
-            icon: <LuBookOpen />,
-            to: '/learn',
-          },
-          {
-            label: (
-              <span className="flex items-center gap-2">
-                Stats
-                <span className="text-xs bg-transparent text-transparent bg-clip-text bg-linear-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
-                  BETA
-                </span>
-              </span>
-            ),
+            label: 'Stats',
             icon: <LuTrendingUp />,
             to: '/stats/npm',
           },

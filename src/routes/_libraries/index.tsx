@@ -49,11 +49,13 @@ const courses = [
 ]
 
 const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(async () => {
-  setResponseHeaders({
-    'cache-control': 'public, max-age=0, must-revalidate',
-    'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-    'Netlify-Vary': 'query=payload',
-  })
+  setResponseHeaders(
+    new Headers({
+      'cache-control': 'public, max-age=0, must-revalidate',
+      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+      'Netlify-Vary': 'query=payload',
+    })
+  )
 
   return allPosts
     .sort((a, b) => {
@@ -77,7 +79,6 @@ export const Route = createFileRoute('/_libraries/')({
     const recentPosts = await fetchRecentPosts()
 
     return {
-      randomNumber: Math.random(),
       recentPosts,
     }
   },

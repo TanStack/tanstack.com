@@ -1,9 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { HiOutlineMail } from 'react-icons/hi'
 import { MdViewList, MdViewModule, MdFormatListBulleted } from 'react-icons/md'
 import { useState } from 'react'
-import { useScript } from '~/hooks/useScript'
 import { coreMaintainers } from '~/libraries/maintainers'
 import {
   CompactMaintainerCard,
@@ -16,7 +15,7 @@ export const Route = createFileRoute('/_libraries/paid-support')({
   staleTime: Infinity,
   head: () => ({
     meta: seo({
-      title: 'Paid Support | TanStack',
+      title: 'Enterprise Support | TanStack',
       description: `Private consultation and enterprise paid support for projects of any size.`,
       // Keywords to target support for all sizes of companies, including consulting and enterprise paid support
       keywords:
@@ -29,13 +28,6 @@ function PaidSupportComp() {
   const [viewMode, setViewMode] = useState<'compact' | 'full' | 'row'>(
     'compact'
   )
-
-  useScript({
-    id: 'hs-script-loader',
-    async: true,
-    defer: true,
-    src: '//js-na1.hs-scripts.com/45982155.js',
-  })
 
   return (
     <>
@@ -56,7 +48,7 @@ function PaidSupportComp() {
         <div className="flex-1 flex flex-col gap-16 w-full max-w-4xl mx-auto">
           <header className="text-center pt-8">
             <h1 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mb-6">
-              Paid Support
+              Enterprise Support
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
               Private consultation and enterprise paid support for projects of
@@ -134,6 +126,24 @@ function PaidSupportComp() {
             </div>
           </div>
 
+          <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-6 border border-blue-200 dark:border-blue-800">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-2">
+                Looking for Team Training?
+              </h3>
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+                We also offer professional workshops on TanStack libraries,
+                delivered remotely or in-person by our creators and maintainers.
+              </p>
+              <Link
+                to="/workshops"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all duration-200"
+              >
+                Learn More About Workshops
+              </Link>
+            </div>
+          </div>
+
           <div className="text-center py-8 border-t border-gray-200 dark:border-gray-700">
             <h2 className="text-2xl font-semibold mb-4">
               Get Unblocked, Fix Bugs, Accelerate Success
@@ -144,7 +154,7 @@ function PaidSupportComp() {
               knowledge.
             </p>
             <a
-              href="mailto:support@tanstack.com?subject=Paid%20Support%20Inquiry"
+              href="mailto:support@tanstack.com?subject=Enterprise%20Support%20Inquiry"
               className="inline-flex items-center gap-3 px-6 py-3 bg-linear-to-r from-green-600 to-cyan-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-lg hover:scale-105"
             >
               <HiOutlineMail className="w-5 h-5" />

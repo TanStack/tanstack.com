@@ -75,10 +75,10 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
           )}
 
           <div className={`${unit} grid grid-cols-2 gap-x-1 gap-y-1.5`}>
-            <span className="h-[2.3rem] aspect-[6/7] grid place-content-center rounded-sm bg-[rgba(249,244,218,0.1)] font-semibold">
+            <span className="h-[2.3rem] aspect-[6/7] grid place-content-center rounded-sm bg-[#f9f4da] bg-opacity-10 font-semibold">
               {formatNumber(timeLeft[unit as keyof TimeLeft]).charAt(0)}
             </span>
-            <span className="h-[2.3rem] aspect-[6/7] grid place-content-center rounded-sm bg-[rgba(249,244,218,0.1)] font-semibold">
+            <span className="h-[2.3rem] aspect-[6/7] grid place-content-center rounded-sm bg-[#f9f4da] bg-opacity-10 font-semibold">
               {formatNumber(timeLeft[unit as keyof TimeLeft]).charAt(1)}
             </span>
             <p className="col-span-full text-xs">{unit}</p>

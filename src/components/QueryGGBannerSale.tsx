@@ -8,7 +8,7 @@ export function QueryGGBannerSale(props: React.HTMLProps<HTMLDivElement>) {
   return (
     <aside
       {...props}
-      className="mx-auto w-full max-w-[1200px] p-8 -mt-32 flex justify-between items-center"
+      className="mx-auto w-full max-w-[1200px] p-8 flex justify-between items-center"
     >
       <div className="w-full xl:flex xl:gap-6 bg-[#f9f4da] border-4 border-[#231f20]">
         <a

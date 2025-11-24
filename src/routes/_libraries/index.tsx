@@ -18,6 +18,12 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
 import { useToast } from '~/components/ToastProvider'
+import { allPosts } from 'content-collections'
+import { formatAuthors } from '~/utils/blog'
+import { format } from 'date-fns'
+import { Markdown } from '~/components/Markdown'
+import { createServerFn } from '@tanstack/react-start'
+import { setResponseHeaders } from '@tanstack/react-start/server'
 
 export const textColors = [
   `text-rose-500`,
@@ -42,12 +48,37 @@ const courses = [
   },
 ]
 
+const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(async () => {
+  setResponseHeaders({
+    'cache-control': 'public, max-age=0, must-revalidate',
+    'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+    'Netlify-Vary': 'query=payload',
+  })
+
+  return allPosts
+    .sort((a, b) => {
+      return new Date(b.published).getTime() - new Date(a.published).getTime()
+    })
+    .slice(0, 3)
+    .map((post) => {
+      return {
+        slug: post.slug,
+        title: post.title,
+        published: post.published,
+        excerpt: post.excerpt,
+        authors: post.authors,
+      }
+    })
+})
+
 export const Route = createFileRoute('/_libraries/')({
   loader: async ({ context: { queryClient } }) => {
     await queryClient.ensureQueryData(convexQuery(api.stats.getStats, {}))
+    const recentPosts = await fetchRecentPosts()
 
     return {
       randomNumber: Math.random(),
+      recentPosts,
     }
   },
   component: Index,
@@ -74,6 +105,7 @@ function Index() {
     fn: bytesSignupServerFn,
   })
   const { notify } = useToast()
+  const { recentPosts } = Route.useLoaderData()
 
   // sponsorsPromise no longer needed - using lazy loading
 
@@ -145,7 +177,22 @@ function Index() {
           </div>
         </div>
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 className={`text-4xl font-light`}>Open Source Libraries</h3>
+          <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+            <h3 id="libraries" className={`text-4xl font-light scroll-mt-24`}>
+              <a
+                href="#libraries"
+                className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+              >
+                Open Source Libraries
+              </a>
+            </h3>
+            <Link
+              to="/tenets"
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors underline"
+            >
+              Read our product tenets →
+            </Link>
+          </div>
 
           {Object.entries(librariesByGroup).map(
             ([groupName, groupLibraries]: [string, Library[]]) => (
@@ -313,7 +360,14 @@ function Index() {
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 className={`text-4xl font-light mb-6`}>Partners</h3>
+          <h3 id="partners" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+            <a
+              href="#partners"
+              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+            >
+              Partners
+            </a>
+          </h3>
           <PartnersGrid />
           <div className="text-center mt-6">
             <Link
@@ -326,8 +380,83 @@ function Index() {
           </div>
         </div>
 
+        {recentPosts && recentPosts.length > 0 && (
+          <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+            <h3 id="blog" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+              <a
+                href="#blog"
+                className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+              >
+                Latest Blog Posts
+              </a>
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {recentPosts.map(({ slug, title, published, excerpt, authors }) => {
+                return (
+                  <Link
+                    key={slug}
+                    to="/blog/$"
+                    params={{ _splat: slug }}
+                    className={`flex flex-col gap-3 justify-between
+                      border-2 border-transparent rounded-lg p-4
+                      transition-all bg-white/90 dark:bg-black/40
+                      shadow-md dark:shadow-lg dark:shadow-blue-500/20
+                      hover:border-blue-500 hover:shadow-xl
+                    `}
+                  >
+                    <div>
+                      <div className={`text-base font-bold`}>{title}</div>
+                      <div className={`text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400`}>
+                        <p>
+                          by {formatAuthors(authors)}
+                          {published ? (
+                            <time
+                              dateTime={published}
+                              title={format(new Date(published), 'MMM dd, yyyy')}
+                            >
+                              {' '}
+                              on {format(new Date(published), 'MMM dd, yyyy')}
+                            </time>
+                          ) : null}
+                        </p>
+                      </div>
+                      {excerpt && (
+                        <div
+                          className={`text-xs mt-3 text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed`}
+                        >
+                          <Markdown rawContent={excerpt} />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-blue-500 uppercase font-bold text-xs">
+                        Read More →
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+            <div className="text-center mt-6">
+              <Link
+                to="/blog"
+                className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              >
+                View All Posts →
+              </Link>
+            </div>
+          </div>
+        )}
+
         <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
-          <h3 className={`text-4xl font-light mb-6`}>Courses</h3>
+          <h3 id="courses" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+            <a
+              href="#courses"
+              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+            >
+              Courses
+            </a>
+          </h3>
           <div className={`mt-4 grid grid-cols-1 gap-4`}>
             {courses.map((course) => (
               <a
@@ -361,10 +490,19 @@ function Index() {
         </div>
 
         <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
-          <LazySponsorSection
-            title="OSS Sponsors"
-            ctaClassName="inline-block p-4 bg-green-700 rounded text-white uppercase font-black"
-          />
+          <div id="sponsors" className="scroll-mt-24">
+            <LazySponsorSection
+              title={
+                <a
+                  href="#sponsors"
+                  className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+                >
+                  OSS Sponsors
+                </a>
+              }
+              ctaClassName="inline-block p-4 bg-green-700 rounded text-white uppercase font-black"
+            />
+          </div>
           <div className={`h-4`} />
           <p
             className={`italic mx-auto max-w-(--breakpoint-sm) text-gray-500 dark:text-gray-300 text-center`}
@@ -379,11 +517,26 @@ function Index() {
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 className={`text-4xl font-light mb-6`}>Core Maintainers</h3>
+          <h3 id="maintainers" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+            <a
+              href="#maintainers"
+              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+            >
+              Core Maintainers
+            </a>
+          </h3>
           <div className="grid gap-6 grid-cols-2 lg:grid-cols-3">
             {coreMaintainers.map((maintainer) => (
               <MaintainerCard key={maintainer.github} maintainer={maintainer} />
             ))}
+          </div>
+          <div className="text-center mt-6">
+            <Link
+              to="/maintainers"
+              className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            >
+              View All Maintainers →
+            </Link>
           </div>
         </div>
 
@@ -410,7 +563,14 @@ function Index() {
               />
             </div>
             <div className={`sm:col-span-2`}>
-              <h3 className={`text-3xl`}>TanStack on Discord</h3>
+              <h3 id="discord" className={`text-3xl scroll-mt-24`}>
+                <a
+                  href="#discord"
+                  className="hover:underline decoration-white/50"
+                >
+                  TanStack on Discord
+                </a>
+              </h3>
               <p className={`mt-4`}>
                 The official TanStack community to ask questions, network and
                 make new friends and get lightning fast news about what's coming
@@ -466,7 +626,14 @@ function Index() {
               >
                 <div>
                   <div className={`relative inline-block`}>
-                    <h3 className={`text-3xl`}>Subscribe to Bytes</h3>
+                    <h3 id="bytes" className={`text-3xl scroll-mt-24`}>
+                      <a
+                        href="#bytes"
+                        className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+                      >
+                        Subscribe to Bytes
+                      </a>
+                    </h3>
                     <figure className={`absolute top-0 right-[-48px]`}>
                       <img
                         src={bytesImage}

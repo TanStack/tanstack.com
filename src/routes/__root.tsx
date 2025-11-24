@@ -34,6 +34,7 @@ import { authClient } from '../utils/auth.client'
 import { LibrariesLayout } from './_libraries/route'
 import { TanStackUser } from 'convex/auth'
 import { THEME_COLORS } from '~/utils/utils'
+import { useHubSpotChat } from '~/hooks/useHubSpotChat'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
@@ -199,6 +200,9 @@ function DocumentWrapper({ children }: { children: React.ReactNode }) {
 
 function HtmlWrapper({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
+
+  // HubSpot chat loads on configured pages (see useHubSpotChat hook)
+  useHubSpotChat()
 
   const isLoading = useRouterState({
     select: (s) => s.status === 'pending',

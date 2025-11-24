@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { FaCheckCircle } from 'react-icons/fa'
+import { LuUsers, LuVideo, LuMapPin, LuStar } from 'react-icons/lu'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 
 export const Route = createFileRoute('/_libraries/learn')({
@@ -19,7 +20,7 @@ function LearnPage() {
     <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
       <div className="flex-1 space-y-12 w-full max-w-4xl mx-auto">
         <header className="">
-          <h1 className="text-3xl font-black">Educational Resources</h1>
+          <h1 className="text-3xl font-black">Learn TanStack</h1>
           <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
             Whether you're just getting started or looking to level up as an
             individual or team, we have resources that will help you succeed.
@@ -27,9 +28,49 @@ function LearnPage() {
         </header>
         <div className="flex items-stretch flex-wrap gap-4 max-w-full w-[900px] justify-center">
           <Link
+            to="/workshops"
+            className="min-w-[300px] max-w-[300px] rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 block relative overflow-visible"
+          >
+            <div className="absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 uppercase text-white font-black italic text-xs">
+              NEW
+            </div>
+            <div className="p-4 lg:p-8">
+              <div className="flex items-center gap-3 mb-4">
+                <LuUsers className="w-8 h-8" />
+                <h2 className="text-xl font-bold">Professional Workshops</h2>
+              </div>
+              <p className="text-sm mb-4 opacity-90">
+                Learn directly from TanStack creators and maintainers. Remote and
+                in-person options available.
+              </p>
+              <div className="grid gap-2 text-xs text-left">
+                <div className="flex items-start gap-2">
+                  <LuVideo className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>Remote workshops worldwide</div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <LuMapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>Premium in-person options</div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <LuStar className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>From maintainers & creators</div>
+                </div>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/30">
+                <div className="text-xs opacity-75 text-center mb-2">
+                  Contact us for a custom quote
+                </div>
+                <div className="text-xs opacity-90 text-center font-medium">
+                  Click to learn more →
+                </div>
+              </div>
+            </div>
+          </Link>
+          <Link
             to={'https://query.gg?s=tanstack' as string}
             target="_blank"
-            className="min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800 shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 overflow-hidden block"
+            className="min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800 shadow-black/20 shadow-md hover:shadow-lg hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 overflow-hidden block opacity-80"
           >
             <LogoQueryGG className="w-full" />
             <div className="flex flex-col gap-6 pt-2 p-4 lg:p-8 ">
@@ -71,11 +112,6 @@ function LearnPage() {
               </div>
             </div>
           </Link>
-          <div className="flex items-center min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800/60 shadow-lg divide-y divide-white/30 overflow-hidden justify-center p-4">
-            <div className="opacity-20 font-black text-3xl rotate-[-5deg]">
-              More Coming Soon!
-            </div>
-          </div>
           {/* <Link
               to={'https://github.com/tanstack' as string}
               target="_blank"

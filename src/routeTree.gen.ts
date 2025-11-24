@@ -22,6 +22,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as LibrariesIndexRouteImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as LibrariesWorkshopsRouteImport } from './routes/_libraries/workshops'
 import { Route as LibrariesTermsRouteImport } from './routes/_libraries/terms'
 import { Route as LibrariesTenetsRouteImport } from './routes/_libraries/tenets'
 import { Route as LibrariesSupportRouteImport } from './routes/_libraries/support'
@@ -128,6 +129,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
   getParentRoute: () => AdminRouteRoute,
+} as any)
+const LibrariesWorkshopsRoute = LibrariesWorkshopsRouteImport.update({
+  id: '/workshops',
+  path: '/workshops',
+  getParentRoute: () => LibrariesRouteRoute,
 } as any)
 const LibrariesTermsRoute = LibrariesTermsRouteImport.update({
   id: '/terms',
@@ -384,6 +390,7 @@ export interface FileRoutesByFullPath {
   '/support': typeof LibrariesSupportRoute
   '/tenets': typeof LibrariesTenetsRoute
   '/terms': typeof LibrariesTermsRoute
+  '/workshops': typeof LibrariesWorkshopsRoute
   '/admin/users': typeof AdminUsersRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
@@ -437,6 +444,7 @@ export interface FileRoutesByTo {
   '/support': typeof LibrariesSupportRoute
   '/tenets': typeof LibrariesTenetsRoute
   '/terms': typeof LibrariesTermsRoute
+  '/workshops': typeof LibrariesWorkshopsRoute
   '/admin/users': typeof AdminUsersRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
@@ -494,6 +502,7 @@ export interface FileRoutesById {
   '/_libraries/support': typeof LibrariesSupportRoute
   '/_libraries/tenets': typeof LibrariesTenetsRoute
   '/_libraries/terms': typeof LibrariesTermsRoute
+  '/_libraries/workshops': typeof LibrariesWorkshopsRoute
   '/admin/users': typeof AdminUsersRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/_libraries/': typeof LibrariesIndexRoute
@@ -552,6 +561,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/tenets'
     | '/terms'
+    | '/workshops'
     | '/admin/users'
     | '/$libraryId/'
     | '/'
@@ -605,6 +615,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/tenets'
     | '/terms'
+    | '/workshops'
     | '/admin/users'
     | '/$libraryId'
     | '/'
@@ -661,6 +672,7 @@ export interface FileRouteTypes {
     | '/_libraries/support'
     | '/_libraries/tenets'
     | '/_libraries/terms'
+    | '/_libraries/workshops'
     | '/admin/users'
     | '/$libraryId/'
     | '/_libraries/'
@@ -801,6 +813,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRouteRoute
+    }
+    '/_libraries/workshops': {
+      id: '/_libraries/workshops'
+      path: '/workshops'
+      fullPath: '/workshops'
+      preLoaderRoute: typeof LibrariesWorkshopsRouteImport
+      parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/terms': {
       id: '/_libraries/terms'
@@ -1189,6 +1208,7 @@ interface LibrariesRouteRouteChildren {
   LibrariesSupportRoute: typeof LibrariesSupportRoute
   LibrariesTenetsRoute: typeof LibrariesTenetsRoute
   LibrariesTermsRoute: typeof LibrariesTermsRoute
+  LibrariesWorkshopsRoute: typeof LibrariesWorkshopsRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
   LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
@@ -1219,6 +1239,7 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesSupportRoute: LibrariesSupportRoute,
   LibrariesTenetsRoute: LibrariesTenetsRoute,
   LibrariesTermsRoute: LibrariesTermsRoute,
+  LibrariesWorkshopsRoute: LibrariesWorkshopsRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
   LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,

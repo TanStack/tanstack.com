@@ -1,20 +1,20 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from 'react'
 
 interface CountdownProps {
-  targetDate: string; // YYYY-MM-DD format
+  targetDate: string // YYYY-MM-DD format
 }
 
 interface TimeLeft {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
+  days: number
+  hours: number
+  minutes: number
+  seconds: number
 }
 
 function calculateTimeLeft(targetDate: string): TimeLeft {
-  const target = new Date(`${targetDate}T00:00:00-08:00`);
-  const now = new Date();
-  const difference = +target - +now;
+  const target = new Date(`${targetDate}T00:00:00-08:00`)
+  const now = new Date()
+  const difference = +target - +now
 
   if (difference <= 0) {
     return {
@@ -22,7 +22,7 @@ function calculateTimeLeft(targetDate: string): TimeLeft {
       hours: 0,
       minutes: 0,
       seconds: 0,
-    };
+    }
   }
 
   return {
@@ -30,32 +30,32 @@ function calculateTimeLeft(targetDate: string): TimeLeft {
     hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
     minutes: Math.floor((difference / 1000 / 60) % 60),
     seconds: Math.floor((difference / 1000) % 60),
-  };
+  }
 }
 
-const formatNumber = (number: number) => number.toString().padStart(2, "0");
+const formatNumber = (number: number) => number.toString().padStart(2, '0')
 
 const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(
-    calculateTimeLeft(targetDate),
-  );
+    calculateTimeLeft(targetDate)
+  )
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const newTimeLeft = calculateTimeLeft(targetDate);
-      setTimeLeft(newTimeLeft);
+      const newTimeLeft = calculateTimeLeft(targetDate)
+      setTimeLeft(newTimeLeft)
       if (
         newTimeLeft.days === 0 &&
         newTimeLeft.hours === 0 &&
         newTimeLeft.minutes === 0 &&
         newTimeLeft.seconds === 0
       ) {
-        clearInterval(timer);
+        clearInterval(timer)
       }
-    }, 1000);
+    }, 1000)
 
-    return () => clearInterval(timer);
-  }, [targetDate]);
+    return () => clearInterval(timer)
+  }, [targetDate])
 
   if (
     timeLeft.days === 0 &&
@@ -63,14 +63,16 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
     timeLeft.minutes === 0 &&
     timeLeft.seconds === 0
   ) {
-    return null;
+    return null
   }
 
   return (
     <div className="flex gap-2 justify-center">
-      {["days", "hours", "minutes", "seconds"].map((unit, index) => (
+      {['days', 'hours', 'minutes', 'seconds'].map((unit, index) => (
         <Fragment key={unit}>
-          {index > 0 && <span className="h-[2rem] grid place-content-center">:</span>}
+          {index > 0 && (
+            <span className="h-[2rem] grid place-content-center">:</span>
+          )}
 
           <div className={`${unit} grid grid-cols-2 gap-x-1 gap-y-1.5`}>
             <span className="h-[2.3rem] aspect-[6/7] grid place-content-center rounded-sm bg-[#f9f4da] bg-opacity-10 font-semibold">
@@ -84,7 +86,7 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
         </Fragment>
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default Countdown;
+export default Countdown

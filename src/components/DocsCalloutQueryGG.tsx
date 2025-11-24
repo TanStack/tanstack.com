@@ -34,7 +34,7 @@ export function DocsCalloutQueryGG() {
           </p>
           <CountdownTimerSmall targetDate="2025-12-06" />
         </div>
-  
+
         {ppp && (
           <>
             <p className="text-sm pl-2 py-2">

@@ -553,7 +553,11 @@ function InstructorsSection({ instructors }: { instructors: Maintainer[] }) {
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto text-left mb-8">
         {instructors.map((instructor) => (
-          <MaintainerCard key={instructor.github} maintainer={instructor} />
+          <MaintainerCard
+            key={instructor.github}
+            maintainer={instructor}
+            hideLibraries
+          />
         ))}
       </div>
       <div className="text-center">

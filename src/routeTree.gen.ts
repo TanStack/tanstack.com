@@ -36,6 +36,7 @@ import { Route as LibrariesEthosRouteImport } from './routes/_libraries/ethos'
 import { Route as LibrariesDashboardRouteImport } from './routes/_libraries/dashboard'
 import { Route as LibrariesBrandGuideRouteImport } from './routes/_libraries/brand-guide'
 import { Route as LibrariesBlogRouteImport } from './routes/_libraries/blog'
+import { Route as LibrariesAdsRouteImport } from './routes/_libraries/ads'
 import { Route as LibrariesAccountRouteImport } from './routes/_libraries/account'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
@@ -198,6 +199,11 @@ const LibrariesBrandGuideRoute = LibrariesBrandGuideRouteImport.update({
 const LibrariesBlogRoute = LibrariesBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
+const LibrariesAdsRoute = LibrariesAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
 const LibrariesAccountRoute = LibrariesAccountRouteImport.update({
@@ -377,6 +383,7 @@ export interface FileRoutesByFullPath {
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/account': typeof LibrariesAccountRoute
+  '/ads': typeof LibrariesAdsRoute
   '/blog': typeof LibrariesBlogRouteWithChildren
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
@@ -432,6 +439,7 @@ export interface FileRoutesByTo {
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/account': typeof LibrariesAccountRoute
+  '/ads': typeof LibrariesAdsRoute
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
@@ -489,6 +497,7 @@ export interface FileRoutesById {
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/_libraries/account': typeof LibrariesAccountRoute
+  '/_libraries/ads': typeof LibrariesAdsRoute
   '/_libraries/blog': typeof LibrariesBlogRouteWithChildren
   '/_libraries/brand-guide': typeof LibrariesBrandGuideRoute
   '/_libraries/dashboard': typeof LibrariesDashboardRoute
@@ -548,6 +557,7 @@ export interface FileRouteTypes {
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/account'
+    | '/ads'
     | '/blog'
     | '/brand-guide'
     | '/dashboard'
@@ -603,6 +613,7 @@ export interface FileRouteTypes {
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/account'
+    | '/ads'
     | '/brand-guide'
     | '/dashboard'
     | '/ethos'
@@ -659,6 +670,7 @@ export interface FileRouteTypes {
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/_libraries/account'
+    | '/_libraries/ads'
     | '/_libraries/blog'
     | '/_libraries/brand-guide'
     | '/_libraries/dashboard'
@@ -910,6 +922,13 @@ declare module '@tanstack/react-router' {
       path: '/blog'
       fullPath: '/blog'
       preLoaderRoute: typeof LibrariesBlogRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
+    '/_libraries/ads': {
+      id: '/_libraries/ads'
+      path: '/ads'
+      fullPath: '/ads'
+      preLoaderRoute: typeof LibrariesAdsRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/account': {
@@ -1195,6 +1214,7 @@ const LibrariesBlogRouteWithChildren = LibrariesBlogRoute._addFileChildren(
 
 interface LibrariesRouteRouteChildren {
   LibrariesAccountRoute: typeof LibrariesAccountRoute
+  LibrariesAdsRoute: typeof LibrariesAdsRoute
   LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
   LibrariesBrandGuideRoute: typeof LibrariesBrandGuideRoute
   LibrariesDashboardRoute: typeof LibrariesDashboardRoute
@@ -1226,6 +1246,7 @@ interface LibrariesRouteRouteChildren {
 
 const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesAccountRoute: LibrariesAccountRoute,
+  LibrariesAdsRoute: LibrariesAdsRoute,
   LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
   LibrariesBrandGuideRoute: LibrariesBrandGuideRoute,
   LibrariesDashboardRoute: LibrariesDashboardRoute,

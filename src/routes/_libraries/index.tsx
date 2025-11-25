@@ -24,6 +24,8 @@ import { format } from 'date-fns'
 import { Markdown } from '~/components/Markdown'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
+import { AdGate } from '~/contexts/AdsContext'
+import { GamHeader } from '~/components/Gam'
 
 export const textColors = [
   `text-rose-500`,
@@ -177,6 +179,10 @@ function Index() {
             <OpenSourceStats />
           </div>
         </div>
+        <AdGate>
+          <GamHeader />
+        </AdGate>
+
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
             <h3 id="libraries" className={`text-4xl font-light scroll-mt-24`}>

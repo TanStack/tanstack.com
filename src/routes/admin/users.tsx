@@ -32,6 +32,7 @@ type User = {
   image?: string
   capabilities?: string[]
   adsDisabled?: boolean
+  interestedInHidingAds?: boolean
 }
 
 export const Route = createFileRoute('/admin/users')({
@@ -40,6 +41,7 @@ export const Route = createFileRoute('/admin/users')({
     email: z.string().optional(),
     cap: z.string().optional(),
     ads: z.enum(['all', 'true', 'false']).optional(),
+    waitlist: z.enum(['all', 'true', 'false']).optional(),
     page: z.number().int().nonnegative().optional(),
     pageSize: z.number().int().positive().optional(),
   }),
@@ -55,6 +57,7 @@ function UsersPage() {
   const emailFilter = search.email ?? ''
   const capabilityFilter = search.cap ?? ''
   const adsDisabledFilter = (search.ads ?? 'all') as 'all' | 'true' | 'false'
+  const waitlistFilter = (search.waitlist ?? 'all') as 'all' | 'true' | 'false'
   const currentPageIndex = search.page ?? 0
 
   const user = useConvexQuery(api.auth.getCurrentUser)
@@ -71,6 +74,8 @@ function UsersPage() {
       capabilityFilter: capabilityFilter || undefined,
       adsDisabledFilter:
         adsDisabledFilter === 'all' ? undefined : adsDisabledFilter === 'true',
+      interestedInHidingAdsFilter:
+        waitlistFilter === 'all' ? undefined : waitlistFilter === 'true',
     }),
     placeholderData: keepPreviousData,
   })
@@ -230,6 +235,25 @@ function UsersPage() {
         },
       },
       {
+        id: 'waitlist',
+        header: 'On Ads Waitlist',
+        cell: ({ row }) => {
+          const user = row.original
+          const onWaitlist = Boolean(user.interestedInHidingAds)
+          return (
+            <span
+              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                onWaitlist
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                  : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+              }`}
+            >
+              {onWaitlist ? 'Yes' : 'No'}
+            </span>
+          )
+        },
+      },
+      {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => {
@@ -360,7 +384,7 @@ function UsersPage() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           Manage Users
         </h1>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           <input
             type="text"
             value={emailFilter}
@@ -418,6 +442,25 @@ function UsersPage() {
             <option value="all">All ad statuses</option>
             <option value="true">Ads disabled</option>
             <option value="false">Ads enabled</option>
+          </select>
+          <select
+            value={waitlistFilter}
+            onChange={(e) => {
+              const value = e.target.value as 'all' | 'true' | 'false'
+              navigate({
+                resetScroll: false,
+                search: (prev) => ({
+                  ...prev,
+                  waitlist: value,
+                  page: 0,
+                }),
+              })
+            }}
+            className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+          >
+            <option value="all">All ads waitlist statuses</option>
+            <option value="true">On ads waitlist</option>
+            <option value="false">Not on ads waitlist</option>
           </select>
         </div>
       </div>

@@ -1,30 +1,15 @@
 import * as React from 'react'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import {
-  FaArrowLeft,
-  FaArrowRight,
-  FaDiscord,
-  FaGithub,
-  FaTimes,
-} from 'react-icons/fa'
-import {
-  Link,
-  useMatches,
-  useNavigate,
-  useParams,
-} from '@tanstack/react-router'
-import { Select } from '~/components/Select'
+import { FaArrowLeft, FaArrowRight, FaDiscord, FaGithub } from 'react-icons/fa'
+import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { last } from '~/utils/utils'
-import type { SelectOption } from '~/components/Select'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
-import { create } from 'zustand'
-import { Framework, getFrameworkOptions } from '~/libraries'
+import { Framework } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
-import { DocsCalloutBytes } from '~/components/DocsCalloutBytes'
 import { twMerge } from 'tailwind-merge'
 import { partners, PartnerImage } from '~/utils/partners'
-import { GamFooter, GamLeftRailSquare, GamRightRailSquare } from './Gam'
+import { GamFooter, GamVrec1 } from './Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
@@ -365,8 +350,10 @@ export function DocsLayout({
             {children}
           </div>
           <AdGate>
-            <div className="mb-8 !py-0! mx-auto max-w-full overflow-x-hidden">
-              <GamFooter />
+            <div className="px-2 xl:px-4">
+              <div className="mb-8 !py-0! mx-auto max-w-full">
+                <GamFooter popupPosition="top" />
+              </div>
             </div>
           </AdGate>
           <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
@@ -407,11 +394,11 @@ export function DocsLayout({
           </div>
         </div>
         <div
-          className="lg:-ml-2 lg:pl-2 w-full lg:w-[300px] [@media(min-width:1600px)]:w-[350px]  [@media(min-width:1920px)]:w-[400px] shrink-0 lg:sticky
-        lg:max-h-[calc(100dvh-var(--navbar-height))] lg:top-[var(--navbar-height)]
-        lg:overflow-y-auto lg:overflow-x-hidden relative"
+          className="lg:-ml-2 lg:pl-2 w-full lg:w-[300px] shrink-0 lg:sticky
+        lg:top-[var(--navbar-height)]
+        "
         >
-          <div className="ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-2">
+          <div className="lg:sticky lg:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-2">
             <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
               <div className="px-2 w-full flex gap-2 justify-between">
                 <Link
@@ -468,14 +455,7 @@ export function DocsLayout({
               </div>
             </div>
             <AdGate>
-              <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
-                <GamRightRailSquare />
-              </div>
-            </AdGate>
-            <AdGate>
-              <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl flex flex-col border-t border-l border-b p-2 space-y-2 rounded-l-lg">
-                <GamLeftRailSquare />
-              </div>
+              <GamVrec1 popupPosition="top" />
             </AdGate>
             {libraryId === 'query' ? (
               <div className="p-4 bg-white/70 dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">

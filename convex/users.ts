@@ -55,6 +55,7 @@ export const listUsers = query({
       v.union(v.literal('admin'), v.literal('disableAds'), v.literal('builder'))
     ),
     adsDisabledFilter: v.optional(v.boolean()),
+    interestedInHidingAdsFilter: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     // Validate admin capability
@@ -90,6 +91,9 @@ export const listUsers = query({
       }
       if (typeof args.adsDisabledFilter === 'boolean') {
         if (Boolean(user.adsDisabled) !== args.adsDisabledFilter) return false
+      }
+      if (typeof args.interestedInHidingAdsFilter === 'boolean') {
+        if (Boolean(user.interestedInHidingAds) !== args.interestedInHidingAdsFilter) return false
       }
       return true
     })
@@ -166,6 +170,26 @@ export const adminSetAdsDisabled = mutation({
     // Update target user's adsDisabled flag
     await ctx.db.patch(args.userId, {
       adsDisabled: args.adsDisabled,
+    })
+
+    return { success: true }
+  },
+})
+
+// Set interest in hiding ads (for opt-in waitlist)
+export const setInterestedInHidingAds = mutation({
+  args: {
+    interested: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const user = await getCurrentUserConvex(ctx)
+    if (!user) {
+      throw new Error('Not authenticated')
+    }
+
+    // Update user's interestedInHidingAds flag
+    await ctx.db.patch(user.userId as Id<'users'>, {
+      interestedInHidingAds: args.interested,
     })
 
     return { success: true }

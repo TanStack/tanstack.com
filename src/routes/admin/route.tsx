@@ -6,7 +6,7 @@ import {
   createFileRoute,
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { FaHome, FaUser, FaUsers } from 'react-icons/fa'
+import { FaHome, FaUser, FaUsers, FaRss } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
@@ -51,6 +51,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         label: 'Users',
         icon: <FaUsers />,
         to: '/admin/users',
+      },
+      {
+        label: 'Feed',
+        icon: <FaRss />,
+        to: '/admin/feed',
       },
       {
         label: 'My Account',

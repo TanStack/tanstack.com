@@ -9,6 +9,16 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as feed_actions from "../feed/actions.js";
+import type * as feed_blog from "../feed/blog.js";
+import type * as feed_crons from "../feed/crons.js";
+import type * as feed_crypto from "../feed/crypto.js";
+import type * as feed_github from "../feed/github.js";
+import type * as feed_http from "../feed/http.js";
+import type * as feed_manual from "../feed/manual.js";
+import type * as feed_mutations from "../feed/mutations.js";
+import type * as feed_queries from "../feed/queries.js";
+import type * as feed_timestamps from "../feed/timestamps.js";
 import type * as http from "../http.js";
 import type * as stats from "../stats.js";
 import type * as users from "../users.js";
@@ -29,6 +39,16 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  "feed/actions": typeof feed_actions;
+  "feed/blog": typeof feed_blog;
+  "feed/crons": typeof feed_crons;
+  "feed/crypto": typeof feed_crypto;
+  "feed/github": typeof feed_github;
+  "feed/http": typeof feed_http;
+  "feed/manual": typeof feed_manual;
+  "feed/mutations": typeof feed_mutations;
+  "feed/queries": typeof feed_queries;
+  "feed/timestamps": typeof feed_timestamps;
   http: typeof http;
   stats: typeof stats;
   users: typeof users;

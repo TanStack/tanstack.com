@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { FaLock, FaUsers, FaChartBar } from 'react-icons/fa'
+import { FaLock, FaUsers, FaChartBar, FaRss } from 'react-icons/fa'
 import { useQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
 
@@ -85,20 +85,23 @@ function AdminDashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <FaLock className="text-gray-600 dark:text-gray-400 text-xl" />
+                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                  <FaRss className="text-green-600 dark:text-green-400 text-xl" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Coming Soon
+                  Feed Management
                 </h3>
               </div>
             </div>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Additional admin features will be added here.
+              Manage feed entries, sync GitHub releases and blog posts, and create manual announcements.
             </p>
-            <div className="inline-flex items-center px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400 rounded-lg cursor-not-allowed">
-              Coming Soon
-            </div>
+            <Link
+              to="/admin/feed"
+              className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              Manage Feed
+            </Link>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">

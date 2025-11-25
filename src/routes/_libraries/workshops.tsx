@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { createServerFn } from '@tanstack/react-start'
 import { seo } from '~/utils/seo'
 import { HiOutlineMail } from 'react-icons/hi'
 import {
@@ -16,18 +17,22 @@ import * as React from 'react'
 import { Footer } from '~/components/Footer'
 import { allMaintainers, Maintainer } from '~/libraries/maintainers'
 import { MaintainerCard } from '~/components/MaintainerCard'
-import { getDateSeed, shuffleWithSeed } from '~/utils/utils'
+import { shuffleWithSeed } from '~/utils/utils'
+
+// Server function to get the seed based on 10-second intervals
+// This ensures consistency between server and client
+const getWorkshopSeed = createServerFn({ method: 'GET' }).handler(async () => {
+  const now = Date.now()
+  const tenSecondInterval = Math.floor(now / 10000) // Round down to 10-second intervals
+  return tenSecondInterval.toString()
+})
 
 export const Route = createFileRoute('/_libraries/workshops')({
   component: WorkshopsPage,
-  loader: () => {
-    const instructors = allMaintainers.filter((m) => m.workshopsAvailable)
-    const seed = getDateSeed()
-    const shuffled = shuffleWithSeed(instructors, seed, (m) => m.name)
-
-    return {
-      instructors: shuffled.slice(0, 4),
-    }
+  staleTime: 0, // Always re-run loader to get fresh instructors
+  loader: async () => {
+    const seed = await getWorkshopSeed({ data: undefined })
+    return { seed }
   },
   head: () => ({
     meta: seo({
@@ -39,7 +44,13 @@ export const Route = createFileRoute('/_libraries/workshops')({
 })
 
 function WorkshopsPage() {
-  const { instructors } = Route.useLoaderData()
+  const { seed } = Route.useLoaderData()
+  // Calculate instructors on client side using the seed
+  const availableInstructors = allMaintainers.filter(
+    (m) => m.workshopsAvailable
+  )
+  const shuffled = shuffleWithSeed(availableInstructors, seed, (m) => m.name)
+  const instructors = shuffled.slice(0, 4) as Maintainer[]
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -133,15 +144,12 @@ function WorkshopsPage() {
 
           {/* Why Choose TanStack Workshops */}
           <div
-            className="relative bg-gray-50 dark:bg-gray-900 py-32 px-8"
+            className="relative bg-gray-50 dark:bg-gray-900 py-32 w-screen -mx-[calc(50vw-50%)] md:w-[calc(100vw-250px)] md:mx-[calc(-50vw+50%+125px)]"
             style={{
-              width: 'calc(100vw - 250px)',
-              marginLeft: 'calc(-50vw + 50% + 125px)',
-              marginRight: 'calc(-50vw + 50% + 125px)',
               boxShadow: '0 0 80px rgba(0, 0, 0, 0.04)',
             }}
           >
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-5xl mx-auto px-4 md:px-8">
               <h2 className="text-2xl font-black mb-6 text-center">
                 Why Learn from TanStack?
               </h2>
@@ -234,11 +242,8 @@ function WorkshopsPage() {
 
           {/* Instructors Section */}
           <div
-            className="relative bg-gray-50 dark:bg-gray-900 py-20"
+            className="relative bg-gray-50 dark:bg-gray-900 py-20 w-screen -mx-[calc(50vw-50%)] md:w-[calc(100vw-250px)] md:mx-[calc(-50vw+50%+125px)]"
             style={{
-              width: 'calc(100vw - 250px)',
-              marginLeft: 'calc(-50vw + 50% + 125px)',
-              marginRight: 'calc(-50vw + 50% + 125px)',
               boxShadow: '0 0 80px rgba(0, 0, 0, 0.04)',
             }}
           >
@@ -320,15 +325,12 @@ function WorkshopsPage() {
 
           {/* Topics Covered */}
           <div
-            className="relative bg-gray-50 dark:bg-gray-900 py-20 px-8"
+            className="relative bg-gray-50 dark:bg-gray-900 py-20 w-screen -mx-[calc(50vw-50%)] md:w-[calc(100vw-250px)] md:mx-[calc(-50vw+50%+125px)]"
             style={{
-              width: 'calc(100vw - 250px)',
-              marginLeft: 'calc(-50vw + 50% + 125px)',
-              marginRight: 'calc(-50vw + 50% + 125px)',
               boxShadow: '0 0 80px rgba(0, 0, 0, 0.04)',
             }}
           >
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-5xl mx-auto px-4 md:px-8">
               <h2 className="text-2xl font-black mb-6 text-center">
                 Workshop Topics Available
               </h2>
@@ -399,11 +401,8 @@ function WorkshopsPage() {
 
           {/* Testimonials Section */}
           <div
-            className="relative bg-gray-50 dark:bg-gray-900 py-20"
+            className="relative bg-gray-50 dark:bg-gray-900 py-20 w-screen -mx-[calc(50vw-50%)] md:w-[calc(100vw-250px)] md:mx-[calc(-50vw+50%+125px)]"
             style={{
-              width: 'calc(100vw - 250px)',
-              marginLeft: 'calc(-50vw + 50% + 125px)',
-              marginRight: 'calc(-50vw + 50% + 125px)',
               boxShadow: '0 0 80px rgba(0, 0, 0, 0.04)',
             }}
           >

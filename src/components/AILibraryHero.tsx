@@ -59,6 +59,9 @@ const MESSAGES = [
   },
 ]
 
+const BOX_FONT_SIZE = 18
+const BOX_FONT_WEIGHT = 700
+
 export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
   const isDark = useIsDark()
   const strokeColor = isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)'
@@ -107,12 +110,131 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
       return index
     }
 
+    const selectFrameworkServiceServer = (onComplete: () => void) => {
+      // Phase 2: DESELECTING
+      setPhase(AnimationPhase.DESELECTING)
+      addTimeoutHelper(() => {
+        // Phase 3: SELECTING_FRAMEWORK
+        setPhase(AnimationPhase.SELECTING_FRAMEWORK)
+        const targetFramework = getRandomIndex(FRAMEWORKS.length)
+        let currentIndex = Math.floor(Math.random() * FRAMEWORKS.length)
+        const rotationCount = 8 + Math.floor(Math.random() * 4) // 8-11 rotations
+
+        const rotateFramework = (iteration: number) => {
+          if (iteration < rotationCount - 1) {
+            setRotatingFramework(currentIndex)
+            currentIndex = (currentIndex + 1) % FRAMEWORKS.length
+            const delay =
+              iteration < rotationCount - 4
+                ? 100
+                : 150 + (iteration - (rotationCount - 4)) * 50
+            addTimeoutHelper(() => rotateFramework(iteration + 1), delay)
+          } else {
+            // Final iteration - ensure we land on target
+            setRotatingFramework(targetFramework)
+            addTimeoutHelper(() => {
+              setSelectedFramework(targetFramework)
+              setRotatingFramework(null)
+              addTimeoutHelper(() => {
+                // Phase 4: SELECTING_SERVICE
+                setPhase(AnimationPhase.SELECTING_SERVICE)
+                // Always pick a different service so it has to scroll
+                const currentSelectedService = getStoreState().selectedService
+                const targetService = getRandomIndex(
+                  SERVICES.length,
+                  currentSelectedService ?? undefined
+                )
+                let currentServiceIndex = Math.floor(
+                  Math.random() * SERVICES.length
+                )
+                const serviceRotationCount = 6 + Math.floor(Math.random() * 3)
+
+                const rotateService = (iteration: number) => {
+                  if (iteration < serviceRotationCount - 1) {
+                    setRotatingService(currentServiceIndex)
+                    currentServiceIndex =
+                      (currentServiceIndex + 1) % SERVICES.length
+                    const delay =
+                      iteration < serviceRotationCount - 3
+                        ? 120
+                        : 180 + (iteration - (serviceRotationCount - 3)) * 60
+                    addTimeoutHelper(() => rotateService(iteration + 1), delay)
+                  } else {
+                    // Final iteration - ensure we land on target
+                    setRotatingService(targetService)
+                    addTimeoutHelper(() => {
+                      setSelectedService(targetService)
+                      setRotatingService(null)
+                      // Calculate offset to center the selected service
+                      const centerX = 300 // Center position in SVG
+                      const servicePositions = [170, 300, 435, 570] // x positions of services
+                      const targetX = servicePositions[targetService]
+                      setServiceOffset(centerX - targetX)
+
+                      addTimeoutHelper(() => {
+                        // Phase 5: SELECTING_SERVER
+                        setPhase(AnimationPhase.SELECTING_SERVER)
+                        const targetServer = getRandomIndex(SERVERS.length)
+                        let currentServerIndex = Math.floor(
+                          Math.random() * SERVERS.length
+                        )
+                        const serverRotationCount =
+                          8 + Math.floor(Math.random() * 4)
+
+                        const rotateServer = (iteration: number) => {
+                          if (iteration < serverRotationCount - 1) {
+                            setRotatingServer(currentServerIndex)
+                            currentServerIndex =
+                              (currentServerIndex + 1) % SERVERS.length
+                            const delay =
+                              iteration < serverRotationCount - 4
+                                ? 100
+                                : 150 +
+                                  (iteration - (serverRotationCount - 4)) * 50
+                            addTimeoutHelper(
+                              () => rotateServer(iteration + 1),
+                              delay
+                            )
+                          } else {
+                            // Final iteration - ensure we land on target
+                            setRotatingServer(targetServer)
+                            addTimeoutHelper(() => {
+                              setSelectedServer(targetServer)
+                              setRotatingServer(null)
+                              addTimeoutHelper(() => {
+                                // Selection complete, call callback
+                                onComplete()
+                              }, 800)
+                            }, 1000)
+                          }
+                        }
+                        rotateServer(0)
+                      }, 1000)
+                    }, 800)
+                  }
+                }
+                rotateService(0)
+              }, 800)
+            }, 500)
+          }
+        }
+        rotateFramework(0)
+      }, 500)
+    }
+
     const processNextMessage = (messageIndex: number) => {
       if (messageIndex >= MESSAGES.length) {
         // All messages shown, clear and restart
         clearMessages()
         addTimeoutHelper(() => {
-          startAnimationSequence()
+          // Phase 1: STARTING (initial state)
+          setPhase(AnimationPhase.STARTING)
+          addTimeoutHelper(() => {
+            // Start first message with selection
+            selectFrameworkServiceServer(() => {
+              processNextMessage(0)
+            })
+          }, 1000)
         }, 1000)
         return
       }
@@ -153,8 +275,11 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 // Phase 9: HOLDING - brief pause before next message
                 setPhase(AnimationPhase.HOLDING)
                 addTimeoutHelper(() => {
-                  // Move to next message
-                  processNextMessage(messageIndex + 1)
+                  // Select new combination for next message
+                  selectFrameworkServiceServer(() => {
+                    // Move to next message
+                    processNextMessage(messageIndex + 1)
+                  })
                 }, 2000)
               }, 500)
             }
@@ -168,118 +293,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
       // Phase 1: STARTING (initial state)
       setPhase(AnimationPhase.STARTING)
       addTimeoutHelper(() => {
-        // Phase 2: DESELECTING
-        setPhase(AnimationPhase.DESELECTING)
-        addTimeoutHelper(() => {
-          // Phase 3: SELECTING_FRAMEWORK
-          setPhase(AnimationPhase.SELECTING_FRAMEWORK)
-          const targetFramework = getRandomIndex(FRAMEWORKS.length)
-          let currentIndex = Math.floor(Math.random() * FRAMEWORKS.length)
-          const rotationCount = 8 + Math.floor(Math.random() * 4) // 8-11 rotations
-
-          const rotateFramework = (iteration: number) => {
-            if (iteration < rotationCount - 1) {
-              setRotatingFramework(currentIndex)
-              currentIndex = (currentIndex + 1) % FRAMEWORKS.length
-              const delay =
-                iteration < rotationCount - 4
-                  ? 100
-                  : 150 + (iteration - (rotationCount - 4)) * 50
-              addTimeoutHelper(() => rotateFramework(iteration + 1), delay)
-            } else {
-              // Final iteration - ensure we land on target
-              setRotatingFramework(targetFramework)
-              addTimeoutHelper(() => {
-                setSelectedFramework(targetFramework)
-                setRotatingFramework(null)
-                addTimeoutHelper(() => {
-                  // Phase 4: SELECTING_SERVICE
-                  setPhase(AnimationPhase.SELECTING_SERVICE)
-                  // Always pick a different service so it has to scroll
-                  const currentSelectedService = getStoreState().selectedService
-                  const targetService = getRandomIndex(
-                    SERVICES.length,
-                    currentSelectedService ?? undefined
-                  )
-                  let currentServiceIndex = Math.floor(
-                    Math.random() * SERVICES.length
-                  )
-                  const serviceRotationCount = 6 + Math.floor(Math.random() * 3)
-
-                  const rotateService = (iteration: number) => {
-                    if (iteration < serviceRotationCount - 1) {
-                      setRotatingService(currentServiceIndex)
-                      currentServiceIndex =
-                        (currentServiceIndex + 1) % SERVICES.length
-                      const delay =
-                        iteration < serviceRotationCount - 3
-                          ? 120
-                          : 180 + (iteration - (serviceRotationCount - 3)) * 60
-                      addTimeoutHelper(
-                        () => rotateService(iteration + 1),
-                        delay
-                      )
-                    } else {
-                      // Final iteration - ensure we land on target
-                      setRotatingService(targetService)
-                      addTimeoutHelper(() => {
-                        setSelectedService(targetService)
-                        setRotatingService(null)
-                        // Calculate offset to center the selected service
-                        const centerX = 300 // Center position in SVG
-                        const servicePositions = [170, 300, 435, 570] // x positions of services
-                        const targetX = servicePositions[targetService]
-                        setServiceOffset(centerX - targetX)
-
-                        addTimeoutHelper(() => {
-                          // Phase 5: SELECTING_SERVER
-                          setPhase(AnimationPhase.SELECTING_SERVER)
-                          const targetServer = getRandomIndex(SERVERS.length)
-                          let currentServerIndex = Math.floor(
-                            Math.random() * SERVERS.length
-                          )
-                          const serverRotationCount =
-                            8 + Math.floor(Math.random() * 4)
-
-                          const rotateServer = (iteration: number) => {
-                            if (iteration < serverRotationCount - 1) {
-                              setRotatingServer(currentServerIndex)
-                              currentServerIndex =
-                                (currentServerIndex + 1) % SERVERS.length
-                              const delay =
-                                iteration < serverRotationCount - 4
-                                  ? 100
-                                  : 150 +
-                                    (iteration - (serverRotationCount - 4)) * 50
-                              addTimeoutHelper(
-                                () => rotateServer(iteration + 1),
-                                delay
-                              )
-                            } else {
-                              // Final iteration - ensure we land on target
-                              setRotatingServer(targetServer)
-                              addTimeoutHelper(() => {
-                                setSelectedServer(targetServer)
-                                setRotatingServer(null)
-                                addTimeoutHelper(() => {
-                                  // Start processing messages from index 0
-                                  processNextMessage(0)
-                                }, 800)
-                              }, 1000)
-                            }
-                          }
-                          rotateServer(0)
-                        }, 1000)
-                      }, 800)
-                    }
-                  }
-                  rotateService(0)
-                }, 800)
-              }, 500)
-            }
-          }
-          rotateFramework(0)
-        }, 500)
+        // Start first message with selection
+        selectFrameworkServiceServer(() => {
+          processNextMessage(0)
+        })
       }, 1000)
     }
 
@@ -428,9 +445,11 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
             }
             .animate-pulse-down {
               animation: pulse-down 1s ease-in-out infinite;
+              stroke-width: 5;
             }
             .animate-pulse-up {
               animation: pulse-up 1s ease-in-out infinite;
+              stroke-width: 5;
             }
           `,
         }}
@@ -446,7 +465,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
         {/* Diagram and Chat Panel Container */}
         <div
           className="relative z-10 w-full max-w-7xl mx-auto mt-16 flex flex-row flex-wrap gap-8 lg:gap-12"
-          style={{ height: '432px' }}
+          style={{ height: 432 }}
         >
           {/* SVG Diagram */}
           <div className="relative w-full lg:flex-1 overflow-visible h-full">
@@ -633,7 +652,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 }
               />
 
-              {/* Lines from @tanstack/ai to servers */}
+              {/* Lines from TanStack AI to servers */}
               <path
                 id="server-line-0"
                 d="M 60 370 Q 60 350 151.26 350 Q 242.52 350 242.5 320"
@@ -737,7 +756,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   y="34"
                   fill={textColor}
                   fontFamily="Helvetica"
-                  fontSize="12"
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
                   textAnchor="middle"
                   opacity={getOpacity(0, selectedFramework, rotatingFramework)}
                 >
@@ -766,7 +786,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   y="34"
                   fill={textColor}
                   fontFamily="Helvetica"
-                  fontSize="12"
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
                   textAnchor="middle"
                   opacity={getOpacity(1, selectedFramework, rotatingFramework)}
                 >
@@ -795,7 +816,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   y="34"
                   fill={textColor}
                   fontFamily="Helvetica"
-                  fontSize="12"
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
                   textAnchor="middle"
                   opacity={getOpacity(2, selectedFramework, rotatingFramework)}
                 >
@@ -825,7 +847,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   y="34"
                   fill={textColor}
                   fontFamily="Helvetica"
-                  fontSize="12"
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
                   textAnchor="middle"
                   opacity={getOpacity(3, selectedFramework, rotatingFramework)}
                 >
@@ -835,9 +858,9 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
 
               {/* @tanstack/ai-client box */}
               <rect
-                x="190"
+                x="150"
                 y="100"
-                width="210"
+                width="280"
                 height="60"
                 rx="9"
                 fill="url(#glassGradientLarge)"
@@ -847,23 +870,23 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 opacity="0.9"
               />
               <text
-                x="295"
-                y="135"
+                x="290"
+                y="140"
                 fill={textColor}
                 fontFamily="Helvetica"
-                fontSize="16"
-                fontWeight="bold"
+                fontSize={25}
+                fontWeight={900}
                 textAnchor="middle"
                 opacity="0.95"
               >
                 @tanstack/ai-client
               </text>
 
-              {/* Large @tanstack/ai container box */}
+              {/* Large TanStack AI container box */}
               <rect
-                x="190"
+                x="150"
                 y="210"
-                width="210"
+                width="280"
                 height="110"
                 rx="16.5"
                 fill="url(#glassGradientLarge)"
@@ -891,7 +914,13 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                       : 'rgba(255, 255, 240, 0.95)'
                     : strokeColor
                 }
-                strokeWidth="2.5"
+                strokeWidth={
+                  phase === AnimationPhase.PULSING_CONNECTIONS ||
+                  phase === AnimationPhase.STREAMING_RESPONSE ||
+                  phase === AnimationPhase.SHOWING_CHAT
+                    ? 5
+                    : 2.5
+                }
                 strokeMiterlimit="10"
                 opacity={
                   // Explicitly check for non-highlighting phases first
@@ -919,13 +948,13 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 }
               />
 
-              {/* @tanstack/ai label */}
+              {/* TanStack AI label */}
               <text
-                x="295"
-                y="240"
+                x="290"
+                y="242"
                 fill={textColor}
                 fontFamily="Helvetica"
-                fontSize="17"
+                fontSize="25"
                 fontWeight="bold"
                 textAnchor="middle"
                 opacity="0.95"
@@ -959,7 +988,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     y="284"
                     fill={textColor}
                     fontFamily="Helvetica"
-                    fontSize="12"
+                    fontSize={BOX_FONT_SIZE}
+                    fontWeight={BOX_FONT_WEIGHT}
                     textAnchor="middle"
                     opacity={getServiceOpacity(0)}
                   >
@@ -988,7 +1018,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     y="284"
                     fill={textColor}
                     fontFamily="Helvetica"
-                    fontSize="12"
+                    fontSize={BOX_FONT_SIZE}
+                    fontWeight={BOX_FONT_WEIGHT}
                     textAnchor="middle"
                     opacity={getServiceOpacity(1)}
                   >
@@ -1017,7 +1048,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     y="284"
                     fill={textColor}
                     fontFamily="Helvetica"
-                    fontSize="12"
+                    fontSize={BOX_FONT_SIZE}
+                    fontWeight={BOX_FONT_WEIGHT}
                     textAnchor="middle"
                     opacity={getServiceOpacity(2)}
                   >
@@ -1046,7 +1078,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     y="284"
                     fill={textColor}
                     fontFamily="Helvetica"
-                    fontSize="12"
+                    fontSize={BOX_FONT_SIZE}
+                    fontWeight={BOX_FONT_WEIGHT}
                     textAnchor="middle"
                     opacity={getServiceOpacity(3)}
                   >
@@ -1077,7 +1110,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   y="404"
                   fill={textColor}
                   fontFamily="Helvetica"
-                  fontSize="12"
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
                   textAnchor="middle"
                   opacity={getOpacity(0, selectedServer, rotatingServer)}
                 >
@@ -1106,7 +1140,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   y="404"
                   fill={textColor}
                   fontFamily="Helvetica"
-                  fontSize="12"
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
                   textAnchor="middle"
                   opacity={getOpacity(1, selectedServer, rotatingServer)}
                 >
@@ -1135,7 +1170,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   y="404"
                   fill={textColor}
                   fontFamily="Helvetica"
-                  fontSize="12"
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
                   textAnchor="middle"
                   opacity={getOpacity(2, selectedServer, rotatingServer)}
                 >
@@ -1165,7 +1201,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   y="404"
                   fill={textColor}
                   fontFamily="Helvetica"
-                  fontSize="12"
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
                   textAnchor="middle"
                   opacity={getOpacity(3, selectedServer, rotatingServer)}
                 >

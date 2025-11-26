@@ -4,6 +4,13 @@ import { Link, LinkProps } from '@tanstack/react-router'
 import type { Library } from '~/libraries'
 import { useIsDark } from '~/hooks/useIsDark'
 import { ChatPanel } from './ChatPanel'
+import {
+  useAILibraryHeroAnimationStore,
+  AnimationPhase,
+} from '~/stores/aiLibraryHeroAnimation'
+
+// Get the store instance for accessing getState in closures
+const getStoreState = () => useAILibraryHeroAnimationStore.getState()
 
 type AILibraryHeroProps = {
   project: Library
@@ -13,18 +20,6 @@ type AILibraryHeroProps = {
     className?: string
   }
   actions?: React.ReactNode
-}
-
-enum AnimationPhase {
-  STARTING = 'STARTING',
-  DESELECTING = 'DESELECTING',
-  SELECTING_FRAMEWORK = 'SELECTING_FRAMEWORK',
-  SELECTING_SERVICE = 'SELECTING_SERVICE',
-  SELECTING_SERVER = 'SELECTING_SERVER',
-  SHOWING_CHAT = 'SHOWING_CHAT',
-  PULSING_CONNECTIONS = 'PULSING_CONNECTIONS',
-  STREAMING_RESPONSE = 'STREAMING_RESPONSE',
-  HOLDING = 'HOLDING',
 }
 
 const FRAMEWORKS = ['vanilla', 'react', 'solid', '?'] as const
@@ -69,52 +64,40 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
   const strokeColor = isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)'
   const textColor = isDark ? '#ffffff' : '#000000'
 
-  const [phase, setPhase] = React.useState<AnimationPhase>(
-    AnimationPhase.STARTING
-  )
-  const [selectedFramework, setSelectedFramework] = React.useState<
-    number | null
-  >(null)
-  const [selectedService, setSelectedService] = React.useState<number | null>(
-    null
-  )
-  const [selectedServer, setSelectedServer] = React.useState<number | null>(
-    null
-  )
-  const [rotatingFramework, setRotatingFramework] = React.useState<
-    number | null
-  >(null)
-  const [rotatingServer, setRotatingServer] = React.useState<number | null>(
-    null
-  )
-  const [rotatingService, setRotatingService] = React.useState<number | null>(
-    null
-  )
-  const [serviceOffset, setServiceOffset] = React.useState(0)
-  const [userMessage, setUserMessage] = React.useState<string | null>(null)
-  const [assistantMessage, setAssistantMessage] = React.useState<string | null>(
-    null
-  )
-  const [isStreaming, setIsStreaming] = React.useState(false)
-  const [connectionPulseDirection, setConnectionPulseDirection] =
-    React.useState<'down' | 'up'>('down')
-
-  const timeoutRefs = React.useRef<NodeJS.Timeout[]>([])
-  const selectedServiceRef = React.useRef<number | null>(null)
+  const {
+    phase,
+    selectedFramework,
+    selectedService,
+    selectedServer,
+    rotatingFramework,
+    rotatingServer,
+    rotatingService,
+    serviceOffset,
+    userMessage,
+    assistantMessage,
+    isStreaming,
+    connectionPulseDirection,
+    setPhase,
+    setSelectedFramework,
+    setSelectedService,
+    setSelectedServer,
+    setRotatingFramework,
+    setRotatingServer,
+    setRotatingService,
+    setServiceOffset,
+    setUserMessage,
+    setAssistantMessage,
+    setIsStreaming,
+    setConnectionPulseDirection,
+    addTimeout,
+    clearTimeouts,
+    reset,
+  } = useAILibraryHeroAnimationStore()
 
   React.useEffect(() => {
-    selectedServiceRef.current = selectedService
-  }, [selectedService])
-
-  React.useEffect(() => {
-    const clearTimeouts = () => {
-      timeoutRefs.current.forEach(clearTimeout)
-      timeoutRefs.current = []
-    }
-
-    const addTimeout = (fn: () => void, delay: number) => {
+    const addTimeoutHelper = (fn: () => void, delay: number) => {
       const timeout = setTimeout(fn, delay)
-      timeoutRefs.current.push(timeout)
+      addTimeout(timeout)
       return timeout
     }
 
@@ -129,10 +112,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     const startAnimationSequence = () => {
       // Phase 1: STARTING (initial state)
       setPhase(AnimationPhase.STARTING)
-      addTimeout(() => {
+      addTimeoutHelper(() => {
         // Phase 2: DESELECTING
         setPhase(AnimationPhase.DESELECTING)
-        addTimeout(() => {
+        addTimeoutHelper(() => {
           // Phase 3: SELECTING_FRAMEWORK
           setPhase(AnimationPhase.SELECTING_FRAMEWORK)
           const targetFramework = getRandomIndex(FRAMEWORKS.length)
@@ -147,20 +130,21 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 iteration < rotationCount - 4
                   ? 100
                   : 150 + (iteration - (rotationCount - 4)) * 50
-              addTimeout(() => rotateFramework(iteration + 1), delay)
+              addTimeoutHelper(() => rotateFramework(iteration + 1), delay)
             } else {
               // Final iteration - ensure we land on target
               setRotatingFramework(targetFramework)
-              addTimeout(() => {
+              addTimeoutHelper(() => {
                 setSelectedFramework(targetFramework)
                 setRotatingFramework(null)
-                addTimeout(() => {
+                addTimeoutHelper(() => {
                   // Phase 4: SELECTING_SERVICE
                   setPhase(AnimationPhase.SELECTING_SERVICE)
                   // Always pick a different service so it has to scroll
+                  const currentSelectedService = getStoreState().selectedService
                   const targetService = getRandomIndex(
                     SERVICES.length,
-                    selectedServiceRef.current ?? undefined
+                    currentSelectedService ?? undefined
                   )
                   let currentServiceIndex = Math.floor(
                     Math.random() * SERVICES.length
@@ -176,11 +160,14 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                         iteration < serviceRotationCount - 3
                           ? 120
                           : 180 + (iteration - (serviceRotationCount - 3)) * 60
-                      addTimeout(() => rotateService(iteration + 1), delay)
+                      addTimeoutHelper(
+                        () => rotateService(iteration + 1),
+                        delay
+                      )
                     } else {
                       // Final iteration - ensure we land on target
                       setRotatingService(targetService)
-                      addTimeout(() => {
+                      addTimeoutHelper(() => {
                         setSelectedService(targetService)
                         setRotatingService(null)
                         // Calculate offset to center the selected service
@@ -189,7 +176,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                         const targetX = servicePositions[targetService]
                         setServiceOffset(centerX - targetX)
 
-                        addTimeout(() => {
+                        addTimeoutHelper(() => {
                           // Phase 5: SELECTING_SERVER
                           setPhase(AnimationPhase.SELECTING_SERVER)
                           const targetServer = getRandomIndex(SERVERS.length)
@@ -209,17 +196,17 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                                   ? 100
                                   : 150 +
                                     (iteration - (serverRotationCount - 4)) * 50
-                              addTimeout(
+                              addTimeoutHelper(
                                 () => rotateServer(iteration + 1),
                                 delay
                               )
                             } else {
                               // Final iteration - ensure we land on target
                               setRotatingServer(targetServer)
-                              addTimeout(() => {
+                              addTimeoutHelper(() => {
                                 setSelectedServer(targetServer)
                                 setRotatingServer(null)
-                                addTimeout(() => {
+                                addTimeoutHelper(() => {
                                   // Phase 6: SHOWING_CHAT
                                   setPhase(AnimationPhase.SHOWING_CHAT)
                                   const randomMessage =
@@ -229,11 +216,11 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                                       )
                                     ]
                                   setUserMessage(randomMessage.user)
-                                  addTimeout(() => {
+                                  addTimeoutHelper(() => {
                                     // Phase 7: PULSING_CONNECTIONS
                                     setPhase(AnimationPhase.PULSING_CONNECTIONS)
                                     setConnectionPulseDirection('down')
-                                    addTimeout(() => {
+                                    addTimeoutHelper(() => {
                                       // Phase 8: STREAMING_RESPONSE
                                       setPhase(
                                         AnimationPhase.STREAMING_RESPONSE
@@ -260,24 +247,15 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                                           // Random delay between 20ms and 80ms
                                           const delay =
                                             20 + Math.floor(Math.random() * 60)
-                                          addTimeout(streamChunk, delay)
+                                          addTimeoutHelper(streamChunk, delay)
                                         } else {
                                           setIsStreaming(false)
-                                          addTimeout(() => {
+                                          addTimeoutHelper(() => {
                                             // Phase 9: HOLDING
                                             setPhase(AnimationPhase.HOLDING)
-                                            addTimeout(() => {
+                                            addTimeoutHelper(() => {
                                               // Reset and loop
-                                              setPhase(AnimationPhase.STARTING)
-                                              setUserMessage(null)
-                                              setAssistantMessage(null)
-                                              setSelectedFramework(null)
-                                              setSelectedService(null)
-                                              setSelectedServer(null)
-                                              // Don't reset serviceOffset - keep service in place until new selection
-                                              setConnectionPulseDirection(
-                                                'down'
-                                              )
+                                              reset()
                                               startAnimationSequence()
                                             }, 5000)
                                           }, 500)

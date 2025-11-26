@@ -22,11 +22,15 @@ export function ChatPanel({ messages }: ChatPanelProps) {
               {/* User message - right aligned */}
               <div className="flex justify-end">
                 <div
-                  className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                    isDark ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
+                  className={`max-w-[80%] px-4 py-2 rounded-lg text-align-left ${
+                    isDark
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-blue-500 text-white text-align-right'
                   }`}
                 >
-                  <p className="text-base">{message.user}</p>
+                  <p className="text-base whitespace-pre-wrap text-left">
+                    {message.user}
+                  </p>
                 </div>
               </div>
               {/* Assistant message - left aligned, appears below user message */}

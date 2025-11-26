@@ -31,19 +31,37 @@ const FRAMEWORKS = ['vanilla', 'react', 'solid', '?'] as const
 const SERVICES = ['ollama', 'openai', 'anthropic', 'gemini'] as const
 const SERVERS = ['typescript', 'php', 'python', '?'] as const
 
-const USER_MESSAGES = [
-  'Hello!',
-  'How does this work?',
-  'Show me an example',
-  'What can you do?',
-  'Tell me more',
-]
-
-const ASSISTANT_MESSAGES = [
-  'I can help you integrate AI into your application using TanStack AI. The selected framework connects to the client, which communicates with the service, and finally reaches your server.',
-  'TanStack AI provides a unified interface across multiple AI providers. You can switch between providers at runtime without code changes.',
-  'The architecture is framework-agnostic, working with React, Solid, or vanilla JavaScript. Choose your preferred stack and start building!',
-  'With TanStack AI, you get type-safe AI interactions, automatic tool execution, and zero vendor lock-in. Perfect for modern applications.',
+const MESSAGES = [
+  {
+    user: 'What makes TanStack AI different?',
+    assistant:
+      'TanStack AI is completely agnostic - server agnostic, client agnostic, and service agnostic. Use any backend (TypeScript, PHP, Python), any client (vanilla JS, React, Solid), and any AI service (OpenAI, Anthropic, Gemini, Ollama). We provide the libraries and standards, you choose your stack.',
+  },
+  {
+    user: 'Do you support tools?',
+    assistant:
+      'Yes! We have full support for both client and server tooling, including tool approvals. You can execute tools on either side with complete type safety and control.',
+  },
+  {
+    user: 'What about thinking models?',
+    assistant:
+      "We fully support thinking and reasoning models. All thinking and reasoning tokens are sent to the client, giving you complete visibility into the model's reasoning process.",
+  },
+  {
+    user: 'How type-safe is it?',
+    assistant:
+      'We have total type safety across providers, models, and model options. Every interaction is fully typed from end to end, catching errors at compile time.',
+  },
+  {
+    user: 'What about developer experience?',
+    assistant:
+      'We have next-generation dev tools that show you everything happening with your AI connection in real-time. Debug, inspect, and optimize with complete visibility.',
+  },
+  {
+    user: 'Is this a service I have to pay for?',
+    assistant:
+      "No! TanStack AI is pure open source software. We don't have a service to promote or charge for. This is an ecosystem of libraries and standards connecting you with the services you choose - completely community supported.",
+  },
 ]
 
 export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
@@ -54,9 +72,15 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
   const [phase, setPhase] = React.useState<AnimationPhase>(
     AnimationPhase.STARTING
   )
-  const [selectedFramework, setSelectedFramework] = React.useState<number>(1) // React
-  const [selectedService, setSelectedService] = React.useState<number>(1) // OpenAI
-  const [selectedServer, setSelectedServer] = React.useState<number>(0) // TypeScript
+  const [selectedFramework, setSelectedFramework] = React.useState<
+    number | null
+  >(null)
+  const [selectedService, setSelectedService] = React.useState<number | null>(
+    null
+  )
+  const [selectedServer, setSelectedServer] = React.useState<number | null>(
+    null
+  )
   const [rotatingFramework, setRotatingFramework] = React.useState<
     number | null
   >(null)
@@ -76,6 +100,11 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     React.useState<'down' | 'up'>('down')
 
   const timeoutRefs = React.useRef<NodeJS.Timeout[]>([])
+  const selectedServiceRef = React.useRef<number | null>(null)
+
+  React.useEffect(() => {
+    selectedServiceRef.current = selectedService
+  }, [selectedService])
 
   React.useEffect(() => {
     const clearTimeouts = () => {
@@ -128,7 +157,11 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 addTimeout(() => {
                   // Phase 4: SELECTING_SERVICE
                   setPhase(AnimationPhase.SELECTING_SERVICE)
-                  const targetService = getRandomIndex(SERVICES.length)
+                  // Always pick a different service so it has to scroll
+                  const targetService = getRandomIndex(
+                    SERVICES.length,
+                    selectedServiceRef.current ?? undefined
+                  )
                   let currentServiceIndex = Math.floor(
                     Math.random() * SERVICES.length
                   )
@@ -189,13 +222,13 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                                 addTimeout(() => {
                                   // Phase 6: SHOWING_CHAT
                                   setPhase(AnimationPhase.SHOWING_CHAT)
-                                  const randomUserMessage =
-                                    USER_MESSAGES[
+                                  const randomMessage =
+                                    MESSAGES[
                                       Math.floor(
-                                        Math.random() * USER_MESSAGES.length
+                                        Math.random() * MESSAGES.length
                                       )
                                     ]
-                                  setUserMessage(randomUserMessage)
+                                  setUserMessage(randomMessage.user)
                                   addTimeout(() => {
                                     // Phase 7: PULSING_CONNECTIONS
                                     setPhase(AnimationPhase.PULSING_CONNECTIONS)
@@ -206,29 +239,28 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                                         AnimationPhase.STREAMING_RESPONSE
                                       )
                                       setConnectionPulseDirection('up')
-                                      const randomAssistantMessage =
-                                        ASSISTANT_MESSAGES[
-                                          Math.floor(
-                                            Math.random() *
-                                              ASSISTANT_MESSAGES.length
-                                          )
-                                        ]
+                                      const fullMessage =
+                                        randomMessage.assistant
                                       setIsStreaming(true)
-                                      let charIndex = 0
+                                      let currentIndex = 0
 
-                                      const streamChar = () => {
-                                        if (
-                                          charIndex <
-                                          randomAssistantMessage.length
-                                        ) {
-                                          setAssistantMessage(
-                                            randomAssistantMessage.slice(
-                                              0,
-                                              charIndex + 1
-                                            )
+                                      const streamChunk = () => {
+                                        if (currentIndex < fullMessage.length) {
+                                          // Random chunk size between 2 and 8 characters
+                                          const chunkSize =
+                                            2 + Math.floor(Math.random() * 7)
+                                          const nextIndex = Math.min(
+                                            currentIndex + chunkSize,
+                                            fullMessage.length
                                           )
-                                          charIndex++
-                                          addTimeout(streamChar, 30)
+                                          setAssistantMessage(
+                                            fullMessage.slice(0, nextIndex)
+                                          )
+                                          currentIndex = nextIndex
+                                          // Random delay between 20ms and 80ms
+                                          const delay =
+                                            20 + Math.floor(Math.random() * 60)
+                                          addTimeout(streamChunk, delay)
                                         } else {
                                           setIsStreaming(false)
                                           addTimeout(() => {
@@ -236,9 +268,13 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                                             setPhase(AnimationPhase.HOLDING)
                                             addTimeout(() => {
                                               // Reset and loop
+                                              setPhase(AnimationPhase.STARTING)
                                               setUserMessage(null)
                                               setAssistantMessage(null)
-                                              setServiceOffset(0)
+                                              setSelectedFramework(null)
+                                              setSelectedService(null)
+                                              setSelectedServer(null)
+                                              // Don't reset serviceOffset - keep service in place until new selection
                                               setConnectionPulseDirection(
                                                 'down'
                                               )
@@ -247,7 +283,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                                           }, 500)
                                         }
                                       }
-                                      streamChar()
+                                      streamChunk()
                                     }, 2000)
                                   }, 500)
                                 }, 800)
@@ -274,36 +310,63 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     return () => {
       clearTimeouts()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getOpacity = (
     index: number,
-    selectedIndex: number,
+    selectedIndex: number | null,
     rotatingIndex: number | null
   ) => {
     if (rotatingIndex !== null && rotatingIndex === index) {
       return 1.0
     }
-    if (selectedIndex === index) {
+    if (selectedIndex !== null && selectedIndex === index) {
       return 1.0
     }
-    return phase === AnimationPhase.STARTING ? 0.9 : 0.3
+    return 0.3
   }
 
   const getServiceOpacity = (index: number) => {
     if (rotatingService !== null && rotatingService === index) {
       return 1.0
     }
-    if (selectedService === index) {
+    if (selectedService !== null && selectedService === index) {
       return 1.0
     }
-    return phase === AnimationPhase.STARTING ? 0.9 : 0.3
+    return 0.3
   }
 
   const getConnectionOpacity = (
     frameworkIndex: number,
     serverIndex: number
   ) => {
+    const isFrameworkSelected =
+      selectedFramework !== null && selectedFramework === frameworkIndex
+    const isServerSelected =
+      selectedServer !== null && selectedServer === serverIndex
+    const isHighlighting =
+      phase === AnimationPhase.SHOWING_CHAT ||
+      phase === AnimationPhase.PULSING_CONNECTIONS ||
+      phase === AnimationPhase.STREAMING_RESPONSE
+
+    // Active path: selected framework -> client -> ai -> selected server
+    if (isHighlighting && isFrameworkSelected && isServerSelected) {
+      return 1.0
+    }
+    // Unused lines should be low opacity
+    return 0.3
+  }
+
+  const getConnectionStrokeColor = (
+    frameworkIndex: number,
+    serverIndex: number
+  ) => {
+    // If no selections, always return original stroke color
+    if (selectedFramework === null || selectedServer === null) {
+      return strokeColor
+    }
+
     const isFrameworkSelected = selectedFramework === frameworkIndex
     const isServerSelected = selectedServer === serverIndex
     const isHighlighting =
@@ -311,13 +374,12 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
       phase === AnimationPhase.PULSING_CONNECTIONS ||
       phase === AnimationPhase.STREAMING_RESPONSE
 
+    // Active path: selected framework -> client -> ai -> selected server
     if (isHighlighting && isFrameworkSelected && isServerSelected) {
-      return 1.0
+      // Off-white color when active
+      return isDark ? 'rgba(255, 255, 240, 0.95)' : 'rgba(255, 255, 240, 0.95)'
     }
-    if (isFrameworkSelected || isServerSelected) {
-      return 0.85
-    }
-    return 0.7
+    return strokeColor
   }
 
   const getConnectionPulse = () => {
@@ -330,6 +392,18 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     return null
   }
 
+  const getScaleTransform = (
+    index: number,
+    selectedIndex: number | null,
+    centerX: number,
+    centerY: number
+  ) => {
+    if (selectedIndex === index) {
+      return `translate(${centerX}, ${centerY}) scale(1.1) translate(-${centerX}, -${centerY})`
+    }
+    return ''
+  }
+
   return (
     <>
       <style
@@ -337,42 +411,42 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
           __html: `
             @keyframes pulse-down {
               0% {
-                stroke-opacity: 0.7;
-                filter: brightness(1);
+                opacity: 0.6;
+                filter: brightness(1) drop-shadow(0 0 2px currentColor);
               }
               50% {
-                stroke-opacity: 1;
-                filter: brightness(1.5);
+                opacity: 1;
+                filter: brightness(1.8) drop-shadow(0 0 8px currentColor);
               }
               100% {
-                stroke-opacity: 0.7;
-                filter: brightness(1);
+                opacity: 0.6;
+                filter: brightness(1) drop-shadow(0 0 2px currentColor);
               }
             }
             @keyframes pulse-up {
               0% {
-                stroke-opacity: 0.7;
-                filter: brightness(1);
+                opacity: 0.6;
+                filter: brightness(1) drop-shadow(0 0 2px currentColor);
               }
               50% {
-                stroke-opacity: 1;
-                filter: brightness(1.5);
+                opacity: 1;
+                filter: brightness(1.8) drop-shadow(0 0 8px currentColor);
               }
               100% {
-                stroke-opacity: 0.7;
-                filter: brightness(1);
+                opacity: 0.6;
+                filter: brightness(1) drop-shadow(0 0 2px currentColor);
               }
             }
             .animate-pulse-down {
-              animation: pulse-down 0.8s ease-in-out infinite;
+              animation: pulse-down 1s ease-in-out infinite;
             }
             .animate-pulse-up {
-              animation: pulse-up 0.8s ease-in-out infinite;
+              animation: pulse-up 1s ease-in-out infinite;
             }
           `,
         }}
       />
-      <div className="relative flex flex-col items-center gap-8 text-center px-4 min-h-[600px] md:min-h-[800px] overflow-hidden">
+      <div className="relative flex flex-col items-center gap-8 text-center px-4 min-h-[600px] md:min-h-[800px] overflow-visible">
         {/* Background dimmed text */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <h1 className="font-black text-[120px] md:text-[180px] lg:text-[240px] xl:text-[300px] uppercase [letter-spacing:-.05em] leading-none opacity-10 dark:opacity-5 text-pink-500 dark:text-pink-400">
@@ -381,13 +455,14 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
         </div>
 
         {/* Diagram and Chat Panel Container */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto mt-16 flex flex-col lg:flex-row items-start gap-8 lg:gap-12">
+        <div className="relative z-10 w-full max-w-7xl mx-auto mt-16 flex flex-row flex-wrap items-start gap-8 lg:gap-12">
           {/* SVG Diagram */}
-          <div className="relative w-full lg:flex-1">
+          <div className="relative w-full lg:flex-1 overflow-visible">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="w-full h-auto"
               viewBox="0 0 632 432"
+              style={{ overflow: 'visible' }}
             >
               <defs>
                 {/* Glass effect filter with blur and opacity */}
@@ -491,13 +566,15 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 id="framework-line-0"
                 d="M 60 60 Q 60 80 151.26 80 Q 242.52 80 242.5 100"
                 fill="none"
-                stroke={strokeColor}
+                stroke={getConnectionStrokeColor(0, selectedServer ?? -1)}
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(0, selectedServer)}
+                opacity={getConnectionOpacity(0, selectedServer ?? -1)}
                 className={
-                  selectedFramework === 0 && getConnectionPulse()
+                  selectedFramework === 0 &&
+                  selectedServer !== null &&
+                  getConnectionPulse()
                     ? getConnectionPulse() === 'down'
                       ? 'animate-pulse-down'
                       : 'animate-pulse-up'
@@ -508,13 +585,15 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 id="framework-line-1"
                 d="M 220 60 Q 220 80 257.5 80 Q 295 80 295 100"
                 fill="none"
-                stroke={strokeColor}
+                stroke={getConnectionStrokeColor(1, selectedServer ?? -1)}
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(1, selectedServer)}
+                opacity={getConnectionOpacity(1, selectedServer ?? -1)}
                 className={
-                  selectedFramework === 1 && getConnectionPulse()
+                  selectedFramework === 1 &&
+                  selectedServer !== null &&
+                  getConnectionPulse()
                     ? getConnectionPulse() === 'down'
                       ? 'animate-pulse-down'
                       : 'animate-pulse-up'
@@ -525,13 +604,15 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 id="framework-line-2"
                 d="M 380 60 Q 380 80 337.5 80 Q 295 80 295 100"
                 fill="none"
-                stroke={strokeColor}
+                stroke={getConnectionStrokeColor(2, selectedServer ?? -1)}
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(2, selectedServer)}
+                opacity={getConnectionOpacity(2, selectedServer ?? -1)}
                 className={
-                  selectedFramework === 2 && getConnectionPulse()
+                  selectedFramework === 2 &&
+                  selectedServer !== null &&
+                  getConnectionPulse()
                     ? getConnectionPulse() === 'down'
                       ? 'animate-pulse-down'
                       : 'animate-pulse-up'
@@ -542,13 +623,15 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 id="framework-line-3"
                 d="M 540 60 Q 540 80 443.76 80 Q 347.52 80 347.5 100"
                 fill="none"
-                stroke={strokeColor}
+                stroke={getConnectionStrokeColor(3, selectedServer ?? -1)}
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(3, selectedServer)}
+                opacity={getConnectionOpacity(3, selectedServer ?? -1)}
                 className={
-                  selectedFramework === 3 && getConnectionPulse()
+                  selectedFramework === 3 &&
+                  selectedServer !== null &&
+                  getConnectionPulse()
                     ? getConnectionPulse() === 'down'
                       ? 'animate-pulse-down'
                       : 'animate-pulse-up'
@@ -561,13 +644,15 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 id="server-line-0"
                 d="M 60 370 Q 60 350 151.26 350 Q 242.52 350 242.5 320"
                 fill="none"
-                stroke={strokeColor}
+                stroke={getConnectionStrokeColor(selectedFramework ?? -1, 0)}
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(selectedFramework, 0)}
+                opacity={getConnectionOpacity(selectedFramework ?? -1, 0)}
                 className={
-                  selectedServer === 0 && getConnectionPulse()
+                  selectedServer === 0 &&
+                  selectedFramework !== null &&
+                  getConnectionPulse()
                     ? getConnectionPulse() === 'down'
                       ? 'animate-pulse-down'
                       : 'animate-pulse-up'
@@ -578,13 +663,15 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 id="server-line-1"
                 d="M 220 370 Q 220 345 257.5 345 Q 295 345 295 320"
                 fill="none"
-                stroke={strokeColor}
+                stroke={getConnectionStrokeColor(selectedFramework ?? -1, 1)}
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(selectedFramework, 1)}
+                opacity={getConnectionOpacity(selectedFramework ?? -1, 1)}
                 className={
-                  selectedServer === 1 && getConnectionPulse()
+                  selectedServer === 1 &&
+                  selectedFramework !== null &&
+                  getConnectionPulse()
                     ? getConnectionPulse() === 'down'
                       ? 'animate-pulse-down'
                       : 'animate-pulse-up'
@@ -595,13 +682,15 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 id="server-line-2"
                 d="M 380 370 Q 380 345 337.5 345 Q 295 345 295 320"
                 fill="none"
-                stroke={strokeColor}
+                stroke={getConnectionStrokeColor(selectedFramework ?? -1, 2)}
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(selectedFramework, 2)}
+                opacity={getConnectionOpacity(selectedFramework ?? -1, 2)}
                 className={
-                  selectedServer === 2 && getConnectionPulse()
+                  selectedServer === 2 &&
+                  selectedFramework !== null &&
+                  getConnectionPulse()
                     ? getConnectionPulse() === 'down'
                       ? 'animate-pulse-down'
                       : 'animate-pulse-up'
@@ -612,13 +701,15 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 id="server-line-3"
                 d="M 540 370 Q 540 350 443.76 350 Q 347.52 350 347.5 320"
                 fill="none"
-                stroke={strokeColor}
+                stroke={getConnectionStrokeColor(selectedFramework ?? -1, 3)}
                 strokeWidth="1.5"
                 strokeMiterlimit="10"
                 filter="url(#lineGlow)"
-                opacity={getConnectionOpacity(selectedFramework, 3)}
+                opacity={getConnectionOpacity(selectedFramework ?? -1, 3)}
                 className={
-                  selectedServer === 3 && getConnectionPulse()
+                  selectedServer === 3 &&
+                  selectedFramework !== null &&
+                  getConnectionPulse()
                     ? getConnectionPulse() === 'down'
                       ? 'animate-pulse-down'
                       : 'animate-pulse-up'
@@ -627,7 +718,14 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               />
 
               {/* Top layer: Frameworks */}
-              <g className="transition-opacity duration-300">
+              <g
+                className="transition-all duration-300"
+                transform={
+                  selectedFramework === 0
+                    ? 'translate(60, 30) scale(1.1) translate(-60, -30)'
+                    : ''
+                }
+              >
                 <rect
                   x="0"
                   y="0"
@@ -653,7 +751,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 </text>
               </g>
 
-              <g className="transition-opacity duration-300">
+              <g
+                className="transition-all duration-300"
+                transform={getScaleTransform(1, selectedFramework, 220, 30)}
+              >
                 <rect
                   x="160"
                   y="0"
@@ -679,7 +780,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 </text>
               </g>
 
-              <g className="transition-opacity duration-300">
+              <g
+                className="transition-all duration-300"
+                transform={getScaleTransform(2, selectedFramework, 380, 30)}
+              >
                 <rect
                   x="320"
                   y="0"
@@ -705,7 +809,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 </text>
               </g>
 
-              <g className="transition-opacity duration-300">
+              <g
+                className="transition-all duration-300"
+                transform={getScaleTransform(3, selectedFramework, 540, 30)}
+              >
                 <rect
                   x="480"
                   y="0"
@@ -777,15 +884,27 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 id="client-to-ai-line"
                 d="M 295 160 L 295 210"
                 fill="none"
-                stroke={strokeColor}
+                stroke={
+                  selectedFramework !== null &&
+                  selectedServer !== null &&
+                  (phase === AnimationPhase.SHOWING_CHAT ||
+                    phase === AnimationPhase.PULSING_CONNECTIONS ||
+                    phase === AnimationPhase.STREAMING_RESPONSE)
+                    ? isDark
+                      ? 'rgba(255, 255, 240, 0.95)'
+                      : 'rgba(255, 255, 240, 0.95)'
+                    : strokeColor
+                }
                 strokeWidth="2.5"
                 strokeMiterlimit="10"
                 opacity={
-                  phase === AnimationPhase.SHOWING_CHAT ||
-                  phase === AnimationPhase.PULSING_CONNECTIONS ||
-                  phase === AnimationPhase.STREAMING_RESPONSE
+                  selectedFramework !== null &&
+                  selectedServer !== null &&
+                  (phase === AnimationPhase.SHOWING_CHAT ||
+                    phase === AnimationPhase.PULSING_CONNECTIONS ||
+                    phase === AnimationPhase.STREAMING_RESPONSE)
                     ? 1.0
-                    : 0.9
+                    : 0.3
                 }
                 className={
                   getConnectionPulse()
@@ -807,7 +926,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 textAnchor="middle"
                 opacity="0.95"
               >
-                @tanstack/ai
+                TanStack AI
               </text>
 
               {/* Provider layer */}
@@ -815,7 +934,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 transform={`translate(${serviceOffset}, 0)`}
                 className="transition-transform duration-500 ease-out"
               >
-                <g className="transition-opacity duration-300">
+                <g
+                  className="transition-all duration-300"
+                  transform={getScaleTransform(0, selectedService, 170, 280)}
+                >
                   <rect
                     x="110"
                     y="260"
@@ -841,7 +963,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   </text>
                 </g>
 
-                <g className="transition-opacity duration-300">
+                <g
+                  className="transition-all duration-300"
+                  transform={getScaleTransform(1, selectedService, 300, 280)}
+                >
                   <rect
                     x="240"
                     y="260"
@@ -867,7 +992,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   </text>
                 </g>
 
-                <g className="transition-opacity duration-300">
+                <g
+                  className="transition-all duration-300"
+                  transform={getScaleTransform(2, selectedService, 435, 280)}
+                >
                   <rect
                     x="375"
                     y="260"
@@ -893,7 +1021,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   </text>
                 </g>
 
-                <g className="transition-opacity duration-300">
+                <g
+                  className="transition-all duration-300"
+                  transform={getScaleTransform(3, selectedService, 570, 280)}
+                >
                   <rect
                     x="510"
                     y="260"
@@ -921,7 +1052,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               </g>
 
               {/* Server layer */}
-              <g className="transition-opacity duration-300">
+              <g
+                className="transition-all duration-300"
+                transform={getScaleTransform(0, selectedServer, 60, 400)}
+              >
                 <rect
                   x="0"
                   y="370"
@@ -947,7 +1081,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 </text>
               </g>
 
-              <g className="transition-opacity duration-300">
+              <g
+                className="transition-all duration-300"
+                transform={getScaleTransform(1, selectedServer, 220, 400)}
+              >
                 <rect
                   x="160"
                   y="370"
@@ -973,7 +1110,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 </text>
               </g>
 
-              <g className="transition-opacity duration-300">
+              <g
+                className="transition-all duration-300"
+                transform={getScaleTransform(2, selectedServer, 380, 400)}
+              >
                 <rect
                   x="320"
                   y="370"
@@ -999,7 +1139,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 </text>
               </g>
 
-              <g className="transition-opacity duration-300">
+              <g
+                className="transition-all duration-300"
+                transform={getScaleTransform(3, selectedServer, 540, 400)}
+              >
                 <rect
                   x="480"
                   y="370"
@@ -1029,11 +1172,19 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
           </div>
 
           {/* Chat Panel */}
-          <div className="w-full lg:w-auto lg:flex-shrink-0">
+          <div className="w-full md:w-[400px] flex-shrink-0">
             <ChatPanel
               userMessage={userMessage}
               assistantMessage={assistantMessage}
               isStreaming={isStreaming}
+              opacity={
+                phase === AnimationPhase.SHOWING_CHAT ||
+                phase === AnimationPhase.PULSING_CONNECTIONS ||
+                phase === AnimationPhase.STREAMING_RESPONSE ||
+                phase === AnimationPhase.HOLDING
+                  ? 1.0
+                  : 0.3
+              }
             />
           </div>
         </div>

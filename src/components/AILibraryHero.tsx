@@ -256,7 +256,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                                             addTimeoutHelper(() => {
                                               // Reset and loop
                                               reset()
-                                              startAnimationSequence()
+                                              // Small delay to ensure React re-renders with reset values
+                                              addTimeoutHelper(() => {
+                                                startAnimationSequence()
+                                              }, 50)
                                             }, 5000)
                                           }, 500)
                                         }
@@ -340,29 +343,34 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     frameworkIndex: number,
     serverIndex: number
   ) => {
+    // If no selections, ALWAYS return original stroke color (highest priority check)
+    if (selectedFramework === null || selectedServer === null) {
+      return strokeColor
+    }
+
+    // Only highlight during specific phases
     const isHighlighting =
       phase === AnimationPhase.SHOWING_CHAT ||
       phase === AnimationPhase.PULSING_CONNECTIONS ||
       phase === AnimationPhase.STREAMING_RESPONSE
 
-    // If not highlighting, always return original stroke color
+    // If not in a highlighting phase, always return original stroke color
     if (!isHighlighting) {
       return strokeColor
     }
 
-    // If no selections, always return original stroke color
-    if (selectedFramework === null || selectedServer === null) {
-      return strokeColor
-    }
-
+    // Now check if this is the active path
     const isFrameworkSelected = selectedFramework === frameworkIndex
     const isServerSelected = selectedServer === serverIndex
 
     // Active path: selected framework -> client -> ai -> selected server
+    // Only return off-white if we're in a highlighting phase AND this is the active path
     if (isFrameworkSelected && isServerSelected) {
       // Off-white color when active
       return isDark ? 'rgba(255, 255, 240, 0.95)' : 'rgba(255, 255, 240, 0.95)'
     }
+
+    // Not the active path, return original color
     return strokeColor
   }
 
@@ -432,9 +440,9 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
       />
       <div className="relative flex flex-col items-center gap-8 text-center px-4 min-h-[600px] md:min-h-[800px] overflow-visible">
         {/* Background dimmed text */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <h1 className="font-black text-[120px] md:text-[180px] lg:text-[240px] xl:text-[300px] uppercase [letter-spacing:-.05em] leading-none opacity-10 dark:opacity-5 text-pink-500 dark:text-pink-400">
-            TANSTACK
+        <div className="absolute top-[-150px] inset-0 flex items-center justify-center pointer-events-none">
+          <h1 className="text-nowrap font-black text-[120px] md:text-[120px] lg:text-[200px] xl:text-[250px] uppercase [letter-spacing:-.05em] leading-none opacity-20 dark:opacity-15 text-pink-500 dark:text-pink-400">
+            TANSTACK AI
           </h1>
         </div>
 
@@ -443,6 +451,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
           {/* SVG Diagram */}
           <div className="relative w-full lg:flex-1 overflow-visible">
             <svg
+              key={`${phase}-${selectedFramework}-${selectedServer}`}
               xmlns="http://www.w3.org/2000/svg"
               className="w-full h-auto"
               viewBox="0 0 632 432"
@@ -869,11 +878,13 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 d="M 295 160 L 295 210"
                 fill="none"
                 stroke={
-                  selectedFramework !== null &&
-                  selectedServer !== null &&
-                  (phase === AnimationPhase.SHOWING_CHAT ||
-                    phase === AnimationPhase.PULSING_CONNECTIONS ||
-                    phase === AnimationPhase.STREAMING_RESPONSE)
+                  // If no selections, ALWAYS return original stroke color (highest priority check)
+                  selectedFramework === null || selectedServer === null
+                    ? strokeColor
+                    : // Only highlight during specific phases
+                    phase === AnimationPhase.SHOWING_CHAT ||
+                      phase === AnimationPhase.PULSING_CONNECTIONS ||
+                      phase === AnimationPhase.STREAMING_RESPONSE
                     ? isDark
                       ? 'rgba(255, 255, 240, 0.95)'
                       : 'rgba(255, 255, 240, 0.95)'
@@ -882,11 +893,19 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 strokeWidth="2.5"
                 strokeMiterlimit="10"
                 opacity={
-                  selectedFramework !== null &&
-                  selectedServer !== null &&
-                  (phase === AnimationPhase.SHOWING_CHAT ||
-                    phase === AnimationPhase.PULSING_CONNECTIONS ||
-                    phase === AnimationPhase.STREAMING_RESPONSE)
+                  // Explicitly check for non-highlighting phases first
+                  phase === AnimationPhase.STARTING ||
+                  phase === AnimationPhase.DESELECTING ||
+                  phase === AnimationPhase.SELECTING_FRAMEWORK ||
+                  phase === AnimationPhase.SELECTING_SERVICE ||
+                  phase === AnimationPhase.SELECTING_SERVER ||
+                  phase === AnimationPhase.HOLDING ||
+                  selectedFramework === null ||
+                  selectedServer === null
+                    ? 0.3
+                    : phase === AnimationPhase.SHOWING_CHAT ||
+                      phase === AnimationPhase.PULSING_CONNECTIONS ||
+                      phase === AnimationPhase.STREAMING_RESPONSE
                     ? 1.0
                     : 0.3
                 }

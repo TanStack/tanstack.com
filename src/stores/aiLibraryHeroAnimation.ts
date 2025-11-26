@@ -30,6 +30,7 @@ type AILibraryHeroAnimationState = {
   serviceOffset: number
   messages: ChatMessage[]
   currentMessageIndex: number
+  typingUserMessage: string
   connectionPulseDirection: 'down' | 'up'
   timeoutRefs: NodeJS.Timeout[]
 }
@@ -48,6 +49,8 @@ type AILibraryHeroAnimationActions = {
   setCurrentMessageStreaming: (streaming: boolean) => void
   setCurrentMessageIndex: (index: number) => void
   clearMessages: () => void
+  setTypingUserMessage: (message: string) => void
+  clearTypingUserMessage: () => void
   setConnectionPulseDirection: (direction: 'down' | 'up') => void
   addTimeout: (timeout: NodeJS.Timeout) => void
   clearTimeouts: () => void
@@ -68,6 +71,7 @@ export const useAILibraryHeroAnimationStore = create<
   serviceOffset: 0,
   messages: [],
   currentMessageIndex: -1,
+  typingUserMessage: '',
   connectionPulseDirection: 'down',
   timeoutRefs: [],
 
@@ -122,7 +126,10 @@ export const useAILibraryHeroAnimationStore = create<
       return {}
     }),
   setCurrentMessageIndex: (index) => set({ currentMessageIndex: index }),
-  clearMessages: () => set({ messages: [], currentMessageIndex: -1 }),
+  clearMessages: () =>
+    set({ messages: [], currentMessageIndex: -1, typingUserMessage: '' }),
+  setTypingUserMessage: (message) => set({ typingUserMessage: message }),
+  clearTypingUserMessage: () => set({ typingUserMessage: '' }),
   setConnectionPulseDirection: (direction) =>
     set({ connectionPulseDirection: direction }),
   addTimeout: (timeout) =>

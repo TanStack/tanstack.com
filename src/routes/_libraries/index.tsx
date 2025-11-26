@@ -24,6 +24,8 @@ import { format } from 'date-fns'
 import { Markdown } from '~/components/Markdown'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
+import { AdGate } from '~/contexts/AdsContext'
+import { GamHeader } from '~/components/Gam'
 
 export const textColors = [
   `text-rose-500`,
@@ -49,11 +51,13 @@ const courses = [
 ]
 
 const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(async () => {
-  setResponseHeaders({
-    'cache-control': 'public, max-age=0, must-revalidate',
-    'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-    'Netlify-Vary': 'query=payload',
-  })
+  setResponseHeaders(
+    new Headers({
+      'cache-control': 'public, max-age=0, must-revalidate',
+      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+      'Netlify-Vary': 'query=payload',
+    })
+  )
 
   return allPosts
     .sort((a, b) => {
@@ -77,7 +81,6 @@ export const Route = createFileRoute('/_libraries/')({
     const recentPosts = await fetchRecentPosts()
 
     return {
-      randomNumber: Math.random(),
       recentPosts,
     }
   },
@@ -176,6 +179,10 @@ function Index() {
             <OpenSourceStats />
           </div>
         </div>
+        <AdGate>
+          <GamHeader />
+        </AdGate>
+
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
           <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
             <h3 id="libraries" className={`text-4xl font-light scroll-mt-24`}>

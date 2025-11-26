@@ -17,6 +17,7 @@ export interface Maintainer {
     linkedIn?: string
     website?: string
   }
+  workshopsAvailable?: boolean
 }
 
 // order matters
@@ -45,6 +46,7 @@ export const allMaintainers: Maintainer[] = [
       bluesky: 'https://bsky.app/profile/tannerlinsley.com',
       website: 'https://tannerlinsley.com',
     },
+    workshopsAvailable: false,
   },
   {
     name: 'Dominik Dorfmeister',
@@ -104,6 +106,7 @@ export const allMaintainers: Maintainer[] = [
       bluesky: 'https://bsky.app/profile/kevinvancott.dev',
       website: 'https://kevinvancott.dev',
     },
+    workshopsAvailable: true,
   },
   {
     name: 'Jack Herrington',
@@ -113,6 +116,7 @@ export const allMaintainers: Maintainer[] = [
     creatorOf: ['create-tsrouter-app'],
     frameworkExpertise: ['react'],
     specialties: ['Templates'],
+    workshopsAvailable: true,
   },
   {
     name: 'Sean Cassiere',
@@ -172,6 +176,7 @@ export const allMaintainers: Maintainer[] = [
       bluesky: 'https://bsky.app/profile/alem.forge42.dev',
       website: 'https://www.forge42.dev',
     },
+    workshopsAvailable: true,
   },
   {
     name: 'Lachlan Collins',
@@ -211,6 +216,7 @@ export const allMaintainers: Maintainer[] = [
       twitter: 'https://x.com/Balastrong',
       bluesky: 'https://bsky.app/profile/leonardomontini.dev',
     },
+    workshopsAvailable: true,
   },
   {
     name: 'Fredrik Höglund',
@@ -323,6 +329,7 @@ export const allMaintainers: Maintainer[] = [
       bluesky: 'https://bsky.app/profile/arnoud.dev',
       website: 'https://www.linkedin.com/in/arnouddv/',
     },
+    workshopsAvailable: true,
   },
   {
     name: 'Fülöp Kovács',
@@ -413,6 +420,7 @@ export const allMaintainers: Maintainer[] = [
       twitter: 'https://x.com/shrutikapoor08',
       bluesky: 'https://bsky.app/profile/shrutikapoor08.bsky.social',
     },
+    workshopsAvailable: true,
   },
   {
     name: 'Nicolas Beaussart',
@@ -426,6 +434,7 @@ export const allMaintainers: Maintainer[] = [
       bluesky: 'https://bsky.app/profile/beaussan.io',
       website: 'https://beaussan.io/',
     },
+    workshopsAvailable: true,
   },
 ]
 

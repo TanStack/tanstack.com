@@ -12,19 +12,23 @@ export function ChatPanel({ messages, typingUserMessage }: ChatPanelProps) {
 
   return (
     <div
-      className={`flex flex-col w-full md:w-[400px] h-full rounded-lg border overflow-hidden ${
-        isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'
+      className={`flex flex-col w-full md:w-[400px] h-full rounded-xl overflow-hidden shadow-2xl ${
+        isDark
+          ? 'bg-gradient-to-b from-gray-900/95 to-gray-950/95 border border-gray-800/50 backdrop-blur-sm'
+          : 'bg-gradient-to-b from-white/95 to-gray-50/95 border border-gray-200/50 backdrop-blur-sm'
       }`}
     >
       {/* Header */}
       <div
-        className={`px-4 py-3 border-b ${
-          isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
+        className={`px-5 py-3.5 border-b ${
+          isDark
+            ? 'bg-gradient-to-r from-gray-900/50 to-gray-800/50 border-gray-800/50'
+            : 'bg-gradient-to-r from-white/50 to-gray-50/50 border-gray-200/50'
         }`}
       >
         <h3
-          className={`text-sm font-semibold ${
-            isDark ? 'text-gray-200' : 'text-gray-900'
+          className={`text-[10px] font-semibold uppercase tracking-widest text-center ${
+            isDark ? 'text-gray-500' : 'text-gray-400'
           }`}
         >
           Chat Panel
@@ -32,34 +36,38 @@ export function ChatPanel({ messages, typingUserMessage }: ChatPanelProps) {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-hidden flex flex-col justify-end gap-3 p-4 bg-gray-50 dark:bg-gray-800/50">
-        <div className="flex flex-col gap-3">
+      <div className="flex-1 overflow-hidden flex flex-col justify-end gap-3.5 p-5">
+        <div className="flex flex-col gap-3.5">
           {messages.map((message) => (
             <React.Fragment key={message.id}>
               {/* User message - right aligned */}
               <div className="flex justify-end">
                 <div
-                  className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                    isDark ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
+                  className={`max-w-[85%] px-4 py-2.5 rounded-2xl shadow-md ${
+                    isDark
+                      ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white'
+                      : 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
                   }`}
                 >
-                  <p className="text-base">{message.user}</p>
+                  <p className="text-sm leading-relaxed text-left">
+                    {message.user}
+                  </p>
                 </div>
               </div>
               {/* Assistant message - left aligned, appears below user message */}
               {message.assistant && (
                 <div className="flex justify-start items-start">
                   <div
-                    className={`max-w-[80%] px-4 py-2 rounded-lg text-left ${
+                    className={`max-w-[85%] px-4 py-2.5 rounded-2xl shadow-md ${
                       isDark
-                        ? 'bg-gray-700 text-gray-100'
-                        : 'bg-gray-100 text-gray-900'
+                        ? 'bg-gray-800/60 text-gray-100 border border-gray-700/50 backdrop-blur-sm'
+                        : 'bg-white/60 text-gray-900 border border-gray-200 backdrop-blur-sm'
                     }`}
                   >
-                    <p className="text-base whitespace-pre-wrap text-left">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap text-left">
                       {message.assistant}
                       {message.isStreaming && (
-                        <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse" />
+                        <span className="inline-block w-1.5 h-4 ml-1.5 bg-blue-500 animate-pulse rounded-sm" />
                       )}
                     </p>
                   </div>
@@ -72,21 +80,39 @@ export function ChatPanel({ messages, typingUserMessage }: ChatPanelProps) {
 
       {/* Input field at bottom */}
       <div
-        className={`border-t px-4 py-3 ${
-          isDark ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-200'
+        className={`border-t px-5 py-4 ${
+          isDark
+            ? 'bg-gradient-to-r from-gray-900/50 to-gray-800/50 border-gray-800/50'
+            : 'bg-gradient-to-r from-white/50 to-gray-50/50 border-gray-200/50'
         }`}
       >
-        <input
-          type="text"
-          readOnly
-          value={typingUserMessage}
-          placeholder=""
-          className={`w-full px-4 py-2 rounded-lg border ${
+        <div
+          className={`relative px-4 py-3 rounded-xl transition-all duration-200 ${
             isDark
-              ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400'
-              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'
-          } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-        />
+              ? 'bg-gray-800/40 border border-gray-700/40'
+              : 'bg-white/40 border border-gray-200/40'
+          } ${
+            typingUserMessage
+              ? isDark
+                ? 'ring-1 ring-blue-500/30 bg-gray-800/60'
+                : 'ring-1 ring-blue-500/30 bg-white/60'
+              : ''
+          }`}
+        >
+          <p
+            className={`text-sm min-h-[20px] text-left ${
+              typingUserMessage
+                ? isDark
+                  ? 'text-gray-200'
+                  : 'text-gray-900'
+                : isDark
+                ? 'text-gray-600 italic'
+                : 'text-gray-400 italic'
+            }`}
+          >
+            {typingUserMessage || 'Type a message...'}
+          </p>
+        </div>
       </div>
     </div>
   )

@@ -53,31 +53,72 @@ function AIVersionIndex() {
         <div className="px-4 sm:px-6 lg:px-8 mx-auto">
           <div className=" sm:text-center pb-16">
             <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-              No vendor lock-in, just clean TypeScript
+              A complete AI ecosystem, not a vendor platform
             </h3>
             <p className="mt-6 text-xl mx-auto leading-7 opacity-75 max-w-[90vw] sm:max-w-[500px] lg:max-w-[800px]">
-              TanStack AI provides a unified interface across multiple AI
-              providers. Switch between OpenAI, Anthropic, Ollama, and Google
-              Gemini at runtime without code changes. Built with TypeScript
-              first principles and zero lock-in.
+              TanStack AI is a pure open-source ecosystem of libraries and
+              standards—not a service. We connect you directly to the AI
+              providers you choose, with no middleman, no service fees, and no
+              vendor lock-in. Just powerful, type-safe tools built by and for
+              the community.
             </p>
           </div>
-          <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-10 lg:gap-x-12 gap-y-4 mx-auto max-w-[90vw] sm:max-w-[500px] lg:max-w-[650px]">
+          <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-10 lg:gap-x-12 gap-y-6 mx-auto max-w-[90vw] sm:max-w-[600px] lg:max-w-[900px]">
             <div>
-              <h4 className="text-xl my-2">🔌 Multi-Provider Support</h4>
-              <p>OpenAI, Anthropic, Ollama, and Google Gemini.</p>
+              <h4 className="text-xl my-2">🖥️ Server Agnostic</h4>
+              <p className="opacity-90">
+                Use any backend server you want. Well-documented protocol with
+                libraries for TypeScript, PHP, Python, and more.
+              </p>
             </div>
             <div>
-              <h4 className="text-xl my-2">⚡ Automatic Tool Execution</h4>
-              <p>No manual tool management needed.</p>
+              <h4 className="text-xl my-2">📱 Client Agnostic</h4>
+              <p className="opacity-90">
+                Vanilla client library (@tanstack/ai-client) or framework
+                integrations for React, Solid, and more coming soon.
+              </p>
             </div>
             <div>
-              <h4 className="text-xl my-2">🎯 Type-Safe by Default</h4>
-              <p>Full type inference from adapters.</p>
+              <h4 className="text-xl my-2">🔌 Service Agnostic</h4>
+              <p className="opacity-90">
+                Connect to OpenAI, Anthropic, Gemini, and Ollama out of the box.
+                Create custom adapters for any provider.
+              </p>
             </div>
             <div>
-              <h4 className="text-xl my-2">🌟 Framework Agnostic</h4>
-              <p>Works with React, Solid, and vanilla JS.</p>
+              <h4 className="text-xl my-2">🛠️ Full Tooling Support</h4>
+              <p className="opacity-90">
+                Complete support for client and server tools, including tool
+                approvals and execution control.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-xl my-2">🧠 Thinking & Reasoning</h4>
+              <p className="opacity-90">
+                Full support for thinking and reasoning models with
+                thinking/reasoning tokens streamed to clients.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-xl my-2">🎯 Fully Type-Safe</h4>
+              <p className="opacity-90">
+                Complete type safety across providers, models, and model options
+                from end to end.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-xl my-2">🔍 Next-Gen DevTools</h4>
+              <p className="opacity-90">
+                Amazing developer tools that show you everything happening with
+                your AI connections in real-time.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-xl my-2">💚 Pure Open Source</h4>
+              <p className="opacity-90">
+                No hidden service, no fees, no upsells. Community-supported
+                software connecting you directly to your chosen providers.
+              </p>
             </div>
           </div>
         </div>

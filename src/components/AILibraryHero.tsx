@@ -73,9 +73,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     rotatingServer,
     rotatingService,
     serviceOffset,
-    userMessage,
-    assistantMessage,
-    isStreaming,
+    messages,
     connectionPulseDirection,
     setPhase,
     setSelectedFramework,
@@ -85,13 +83,13 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     setRotatingServer,
     setRotatingService,
     setServiceOffset,
-    setUserMessage,
-    setAssistantMessage,
-    setIsStreaming,
+    addMessage,
+    updateCurrentAssistantMessage,
+    setCurrentMessageStreaming,
+    clearMessages,
     setConnectionPulseDirection,
     addTimeout,
     clearTimeouts,
-    reset,
   } = useAILibraryHeroAnimationStore()
 
   React.useEffect(() => {
@@ -107,6 +105,63 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
         index = Math.floor(Math.random() * length)
       } while (exclude !== undefined && index === exclude)
       return index
+    }
+
+    const processNextMessage = (messageIndex: number) => {
+      if (messageIndex >= MESSAGES.length) {
+        // All messages shown, clear and restart
+        clearMessages()
+        addTimeoutHelper(() => {
+          startAnimationSequence()
+        }, 1000)
+        return
+      }
+
+      const message = MESSAGES[messageIndex]
+
+      // Phase 6: SHOWING_CHAT - Add user message
+      setPhase(AnimationPhase.SHOWING_CHAT)
+      addMessage(message.user)
+      addTimeoutHelper(() => {
+        // Phase 7: PULSING_CONNECTIONS
+        setPhase(AnimationPhase.PULSING_CONNECTIONS)
+        setConnectionPulseDirection('down')
+        addTimeoutHelper(() => {
+          // Phase 8: STREAMING_RESPONSE
+          setPhase(AnimationPhase.STREAMING_RESPONSE)
+          setConnectionPulseDirection('up')
+          const fullMessage = message.assistant
+          setCurrentMessageStreaming(true)
+          let currentIndex = 0
+
+          const streamChunk = () => {
+            if (currentIndex < fullMessage.length) {
+              // Random chunk size between 2 and 8 characters
+              const chunkSize = 2 + Math.floor(Math.random() * 7)
+              const nextIndex = Math.min(
+                currentIndex + chunkSize,
+                fullMessage.length
+              )
+              updateCurrentAssistantMessage(fullMessage.slice(0, nextIndex))
+              currentIndex = nextIndex
+              // Random delay between 20ms and 80ms
+              const delay = 20 + Math.floor(Math.random() * 60)
+              addTimeoutHelper(streamChunk, delay)
+            } else {
+              setCurrentMessageStreaming(false)
+              addTimeoutHelper(() => {
+                // Phase 9: HOLDING - brief pause before next message
+                setPhase(AnimationPhase.HOLDING)
+                addTimeoutHelper(() => {
+                  // Move to next message
+                  processNextMessage(messageIndex + 1)
+                }, 2000)
+              }, 500)
+            }
+          }
+          streamChunk()
+        }, 2000)
+      }, 500)
     }
 
     const startAnimationSequence = () => {
@@ -207,66 +262,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                                 setSelectedServer(targetServer)
                                 setRotatingServer(null)
                                 addTimeoutHelper(() => {
-                                  // Phase 6: SHOWING_CHAT
-                                  setPhase(AnimationPhase.SHOWING_CHAT)
-                                  const randomMessage =
-                                    MESSAGES[
-                                      Math.floor(
-                                        Math.random() * MESSAGES.length
-                                      )
-                                    ]
-                                  setUserMessage(randomMessage.user)
-                                  addTimeoutHelper(() => {
-                                    // Phase 7: PULSING_CONNECTIONS
-                                    setPhase(AnimationPhase.PULSING_CONNECTIONS)
-                                    setConnectionPulseDirection('down')
-                                    addTimeoutHelper(() => {
-                                      // Phase 8: STREAMING_RESPONSE
-                                      setPhase(
-                                        AnimationPhase.STREAMING_RESPONSE
-                                      )
-                                      setConnectionPulseDirection('up')
-                                      const fullMessage =
-                                        randomMessage.assistant
-                                      setIsStreaming(true)
-                                      let currentIndex = 0
-
-                                      const streamChunk = () => {
-                                        if (currentIndex < fullMessage.length) {
-                                          // Random chunk size between 2 and 8 characters
-                                          const chunkSize =
-                                            2 + Math.floor(Math.random() * 7)
-                                          const nextIndex = Math.min(
-                                            currentIndex + chunkSize,
-                                            fullMessage.length
-                                          )
-                                          setAssistantMessage(
-                                            fullMessage.slice(0, nextIndex)
-                                          )
-                                          currentIndex = nextIndex
-                                          // Random delay between 20ms and 80ms
-                                          const delay =
-                                            20 + Math.floor(Math.random() * 60)
-                                          addTimeoutHelper(streamChunk, delay)
-                                        } else {
-                                          setIsStreaming(false)
-                                          addTimeoutHelper(() => {
-                                            // Phase 9: HOLDING
-                                            setPhase(AnimationPhase.HOLDING)
-                                            addTimeoutHelper(() => {
-                                              // Reset and loop
-                                              reset()
-                                              // Small delay to ensure React re-renders with reset values
-                                              addTimeoutHelper(() => {
-                                                startAnimationSequence()
-                                              }, 50)
-                                            }, 5000)
-                                          }, 500)
-                                        }
-                                      }
-                                      streamChunk()
-                                    }, 2000)
-                                  }, 500)
+                                  // Start processing messages from index 0
+                                  processNextMessage(0)
                                 }, 800)
                               }, 1000)
                             }
@@ -438,7 +435,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
           `,
         }}
       />
-      <div className="relative flex flex-col items-center gap-8 text-center px-4 min-h-[600px] md:min-h-[800px] overflow-visible">
+      <div className="relative flex flex-col items-center gap-8 text-center px-4 overflow-visible">
         {/* Background dimmed text */}
         <div className="absolute top-[-150px] inset-0 flex items-center justify-center pointer-events-none">
           <h1 className="text-nowrap font-black text-[120px] md:text-[120px] lg:text-[200px] xl:text-[250px] uppercase [letter-spacing:-.05em] leading-none opacity-20 dark:opacity-15 text-pink-500 dark:text-pink-400">
@@ -447,15 +444,19 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
         </div>
 
         {/* Diagram and Chat Panel Container */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto mt-16 flex flex-row flex-wrap items-start gap-8 lg:gap-12">
+        <div
+          className="relative z-10 w-full max-w-7xl mx-auto mt-16 flex flex-row flex-wrap gap-8 lg:gap-12"
+          style={{ height: '432px' }}
+        >
           {/* SVG Diagram */}
-          <div className="relative w-full lg:flex-1 overflow-visible">
+          <div className="relative w-full lg:flex-1 overflow-visible h-full">
             <svg
               key={`${phase}-${selectedFramework}-${selectedServer}`}
               xmlns="http://www.w3.org/2000/svg"
-              className="w-full h-auto"
+              className="w-full h-full"
               viewBox="0 0 632 432"
               style={{ overflow: 'visible' }}
+              preserveAspectRatio="xMidYMid meet"
             >
               <defs>
                 {/* Glass effect filter with blur and opacity */}
@@ -509,7 +510,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     offset="0%"
                     stopColor={
                       isDark
-                        ? 'rgba(255, 255, 255, 0.12)'
+                        ? 'rgba(255, 255, 255, 0.55)'
                         : 'rgba(255, 255, 255, 0.8)'
                     }
                     stopOpacity="1"
@@ -518,7 +519,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     offset="100%"
                     stopColor={
                       isDark
-                        ? 'rgba(255, 255, 255, 0.06)'
+                        ? 'rgba(255, 255, 255, 0.55)'
                         : 'rgba(255, 255, 255, 0.6)'
                     }
                     stopOpacity="1"
@@ -537,7 +538,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     offset="0%"
                     stopColor={
                       isDark
-                        ? 'rgba(255, 255, 255, 0.1)'
+                        ? 'rgba(255, 255, 255, 0.55)'
                         : 'rgba(255, 255, 255, 0.75)'
                     }
                     stopOpacity="1"
@@ -546,7 +547,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     offset="100%"
                     stopColor={
                       isDark
-                        ? 'rgba(255, 255, 255, 0.05)'
+                        ? 'rgba(255, 255, 255, 0.55)'
                         : 'rgba(255, 255, 255, 0.55)'
                     }
                     stopOpacity="1"
@@ -1175,20 +1176,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
           </div>
 
           {/* Chat Panel */}
-          <div className="w-full md:w-[400px] flex-shrink-0">
-            <ChatPanel
-              userMessage={userMessage}
-              assistantMessage={assistantMessage}
-              isStreaming={isStreaming}
-              opacity={
-                phase === AnimationPhase.SHOWING_CHAT ||
-                phase === AnimationPhase.PULSING_CONNECTIONS ||
-                phase === AnimationPhase.STREAMING_RESPONSE ||
-                phase === AnimationPhase.HOLDING
-                  ? 1.0
-                  : 0.3
-              }
-            />
+          <div className="w-full md:w-[400px] flex-shrink-0 h-full">
+            <ChatPanel messages={messages} />
           </div>
         </div>
 

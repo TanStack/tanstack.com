@@ -51,9 +51,13 @@ export const listUsers = query({
       page: v.optional(v.number()),
     }),
     emailFilter: v.optional(v.string()),
+    nameFilter: v.optional(v.string()),
     capabilityFilter: v.optional(
-      v.union(v.literal('admin'), v.literal('disableAds'), v.literal('builder'))
+      v.array(
+        v.union(v.literal('admin'), v.literal('disableAds'), v.literal('builder'))
+      )
     ),
+    noCapabilitiesFilter: v.optional(v.boolean()),
     adsDisabledFilter: v.optional(v.boolean()),
     interestedInHidingAdsFilter: v.optional(v.boolean()),
   },
@@ -81,10 +85,29 @@ export const listUsers = query({
     candidates.sort((a: any, b: any) => b._creationTime - a._creationTime)
 
     const filtered = candidates.filter((user: any) => {
-      if (args.capabilityFilter) {
+      // Name filter (in-memory search on name and displayUsername)
+      if (args.nameFilter && args.nameFilter.length > 0) {
+        const name = (user.name || user.displayUsername || '').toLowerCase()
+        const searchTerm = args.nameFilter.toLowerCase()
+        if (!name.includes(searchTerm)) {
+          return false
+        }
+      }
+
+      // No capabilities filter
+      if (args.noCapabilitiesFilter === true) {
         if (
           !Array.isArray(user.capabilities) ||
-          !user.capabilities.includes(args.capabilityFilter)
+          user.capabilities.length > 0
+        ) {
+          return false
+        }
+      }
+
+      if (args.capabilityFilter && args.capabilityFilter.length > 0) {
+        if (
+          !Array.isArray(user.capabilities) ||
+          !args.capabilityFilter.some((cap) => user.capabilities.includes(cap))
         ) {
           return false
         }

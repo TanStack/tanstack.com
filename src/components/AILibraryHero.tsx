@@ -77,6 +77,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     rotatingService,
     serviceOffset,
     messages,
+    typingUserMessage,
     connectionPulseDirection,
     setPhase,
     setSelectedFramework,
@@ -90,6 +91,8 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     updateCurrentAssistantMessage,
     setCurrentMessageStreaming,
     clearMessages,
+    setTypingUserMessage,
+    clearTypingUserMessage,
     setConnectionPulseDirection,
     addTimeout,
     clearTimeouts,
@@ -241,52 +244,72 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
 
       const message = MESSAGES[messageIndex]
 
-      // Phase 6: SHOWING_CHAT - Add user message
+      // Phase 6: SHOWING_CHAT - Type user message in input field first
       setPhase(AnimationPhase.SHOWING_CHAT)
-      addMessage(message.user)
-      addTimeoutHelper(() => {
-        // Phase 7: PULSING_CONNECTIONS
-        setPhase(AnimationPhase.PULSING_CONNECTIONS)
-        setConnectionPulseDirection('down')
-        addTimeoutHelper(() => {
-          // Phase 8: STREAMING_RESPONSE
-          setPhase(AnimationPhase.STREAMING_RESPONSE)
-          setConnectionPulseDirection('up')
-          const fullMessage = message.assistant
-          setCurrentMessageStreaming(true)
-          let currentIndex = 0
+      clearTypingUserMessage()
 
-          const streamChunk = () => {
-            if (currentIndex < fullMessage.length) {
-              // Random chunk size between 2 and 8 characters
-              const chunkSize = 2 + Math.floor(Math.random() * 7)
-              const nextIndex = Math.min(
-                currentIndex + chunkSize,
-                fullMessage.length
-              )
-              updateCurrentAssistantMessage(fullMessage.slice(0, nextIndex))
-              currentIndex = nextIndex
-              // Random delay between 20ms and 80ms
-              const delay = 20 + Math.floor(Math.random() * 60)
-              addTimeoutHelper(streamChunk, delay)
-            } else {
-              setCurrentMessageStreaming(false)
+      // Type the user message character by character in the input field
+      let typingIndex = 0
+      const typeUserMessage = () => {
+        if (typingIndex < message.user.length) {
+          setTypingUserMessage(message.user.slice(0, typingIndex + 1))
+          typingIndex++
+          const delay = 30 + Math.floor(Math.random() * 40) // 30-70ms per character
+          addTimeoutHelper(typeUserMessage, delay)
+        } else {
+          // Typing complete, wait a moment then clear input and show as bubble
+          addTimeoutHelper(() => {
+            clearTypingUserMessage()
+            addMessage(message.user)
+            addTimeoutHelper(() => {
+              // Phase 7: PULSING_CONNECTIONS
+              setPhase(AnimationPhase.PULSING_CONNECTIONS)
+              setConnectionPulseDirection('down')
               addTimeoutHelper(() => {
-                // Phase 9: HOLDING - brief pause before next message
-                setPhase(AnimationPhase.HOLDING)
-                addTimeoutHelper(() => {
-                  // Select new combination for next message
-                  selectFrameworkServiceServer(() => {
-                    // Move to next message
-                    processNextMessage(messageIndex + 1)
-                  })
-                }, 2000)
-              }, 500)
-            }
-          }
-          streamChunk()
-        }, 2000)
-      }, 500)
+                // Phase 8: STREAMING_RESPONSE
+                setPhase(AnimationPhase.STREAMING_RESPONSE)
+                setConnectionPulseDirection('up')
+                const fullMessage = message.assistant
+                setCurrentMessageStreaming(true)
+                let currentIndex = 0
+
+                const streamChunk = () => {
+                  if (currentIndex < fullMessage.length) {
+                    // Random chunk size between 2 and 8 characters
+                    const chunkSize = 2 + Math.floor(Math.random() * 7)
+                    const nextIndex = Math.min(
+                      currentIndex + chunkSize,
+                      fullMessage.length
+                    )
+                    updateCurrentAssistantMessage(
+                      fullMessage.slice(0, nextIndex)
+                    )
+                    currentIndex = nextIndex
+                    // Random delay between 20ms and 80ms
+                    const delay = 20 + Math.floor(Math.random() * 60)
+                    addTimeoutHelper(streamChunk, delay)
+                  } else {
+                    setCurrentMessageStreaming(false)
+                    addTimeoutHelper(() => {
+                      // Phase 9: HOLDING - brief pause before next message
+                      setPhase(AnimationPhase.HOLDING)
+                      addTimeoutHelper(() => {
+                        // Select new combination for next message
+                        selectFrameworkServiceServer(() => {
+                          // Move to next message
+                          processNextMessage(messageIndex + 1)
+                        })
+                      }, 2000)
+                    }, 500)
+                  }
+                }
+                streamChunk()
+              }, 2000)
+            }, 500)
+          }, 300)
+        }
+      }
+      typeUserMessage()
     }
 
     const startAnimationSequence = () => {
@@ -1214,7 +1237,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
 
           {/* Chat Panel */}
           <div className="w-full md:w-[400px] flex-shrink-0 h-full">
-            <ChatPanel messages={messages} />
+            <ChatPanel
+              messages={messages}
+              typingUserMessage={typingUserMessage}
+            />
           </div>
         </div>
 

@@ -22,8 +22,10 @@ import { seo } from '~/utils/seo'
 import { getPopularComparisons } from './-comparisons'
 import {
   GamFooter,
+  GamHeader,
   GamLeftRailSquare,
   GamRightRailSquare,
+  GamVrec1,
 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { twMerge } from 'tailwind-merge'
@@ -2144,47 +2146,17 @@ function RouteComponent() {
         </div>
         <div className="hidden lg:block w-[290px] xl:w-[332px] shrink-0">
           <div className="sticky top-4 space-y-4">
-            <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col rounded-lg p-4 space-y-2">
-              <div className="uppercase font-black text-center opacity-50">
-                Our Partners
-              </div>
-              <div className="hover:bg-gray-500/10 dark:hover:bg-gray-500/10 transition-colors">
-                <a
-                  href="mailto:partners@tanstack.com?subject=TanStack NPM Stats Partnership"
-                  className="p-2 block text-xs"
-                >
-                  <span className="opacity-50 italic">
-                    Wow, it looks like you could be our first partner for this
-                    tool!
-                  </span>{' '}
-                  <span className="text-blue-500 font-black">
-                    Chat with us!
-                  </span>
-                </a>
-              </div>
-            </div>
             <AdGate>
-              <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
-                <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
-                  <GamRightRailSquare />
-                </div>
-              </div>
-            </AdGate>
-
-            <AdGate>
-              <div className="bg-white dark:bg-black/40 shadow-xl flex flex-col p-4 space-y-2 rounded-lg">
-                <div className="w-[258px] xl:w-[300px] overflow-x-hidden">
-                  <GamLeftRailSquare />
-                </div>
-              </div>
+              <GamVrec1
+                className="flex justify-center rounded-xl overflow-hidden shadow-xl shadow-black/5 max-w-full"
+                adClassName="rounded-xl overflow-hidden"
+              />
             </AdGate>
           </div>
         </div>
       </div>
       <AdGate>
-        <div className="mt-24! mx-auto max-w-full overflow-x-hidden">
-          <GamFooter />
-        </div>
+        <GamHeader />
       </AdGate>
     </div>
   )

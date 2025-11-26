@@ -11,6 +11,8 @@ import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+import { AdGate } from '~/contexts/AdsContext'
+import { GamHeader } from '~/components/Gam'
 
 const library = getLibrary('devtools')
 
@@ -50,6 +52,9 @@ function DevtoolsVersionIndex() {
         <div className="w-fit mx-auto px-4">
           <OpenSourceStats library={library} />
         </div>
+        <AdGate>
+          <GamHeader />
+        </AdGate>
 
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}

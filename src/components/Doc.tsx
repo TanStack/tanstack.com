@@ -14,7 +14,7 @@ import {
 } from '~/components/MarkdownHeadingContext'
 import { AdGate } from '~/contexts/AdsContext'
 import { CopyMarkdownButton } from './CopyMarkdownButton'
-import { GamLeader } from './Gam'
+import { GamHeader, GamLeader } from './Gam'
 import { Toc } from './Toc'
 import { TocMobile } from './TocMobile'
 
@@ -101,8 +101,13 @@ function DocContent({
   }, [headings])
 
   return (
-    <React.Fragment>
+    <div className="flex-1 min-h-0 flex flex-col">
       {shouldRenderToc ? <TocMobile headings={headings} /> : null}
+      <AdGate>
+        <div className="mb-2 xl:mb-4 max-w-full">
+          <GamHeader />
+        </div>
+      </AdGate>
       <div
         className={twMerge(
           'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]',
@@ -116,9 +121,6 @@ function DocContent({
             isTocVisible && 'pr-0!'
           )}
         >
-          <AdGate>
-            <GamLeader />
-          </AdGate>
           {title ? (
             <div className="flex items-center justify-between gap-4 pr-2 lg:pr-4">
               <DocTitle>{title}</DocTitle>
@@ -183,7 +185,7 @@ function DocContent({
           </div>
         )}
       </div>
-    </React.Fragment>
+    </div>
   )
 }
 

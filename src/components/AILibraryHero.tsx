@@ -362,6 +362,16 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     frameworkIndex: number,
     serverIndex: number
   ) => {
+    const isHighlighting =
+      phase === AnimationPhase.SHOWING_CHAT ||
+      phase === AnimationPhase.PULSING_CONNECTIONS ||
+      phase === AnimationPhase.STREAMING_RESPONSE
+
+    // If not highlighting, always return original stroke color
+    if (!isHighlighting) {
+      return strokeColor
+    }
+
     // If no selections, always return original stroke color
     if (selectedFramework === null || selectedServer === null) {
       return strokeColor
@@ -369,13 +379,9 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
 
     const isFrameworkSelected = selectedFramework === frameworkIndex
     const isServerSelected = selectedServer === serverIndex
-    const isHighlighting =
-      phase === AnimationPhase.SHOWING_CHAT ||
-      phase === AnimationPhase.PULSING_CONNECTIONS ||
-      phase === AnimationPhase.STREAMING_RESPONSE
 
     // Active path: selected framework -> client -> ai -> selected server
-    if (isHighlighting && isFrameworkSelected && isServerSelected) {
+    if (isFrameworkSelected && isServerSelected) {
       // Off-white color when active
       return isDark ? 'rgba(255, 255, 240, 0.95)' : 'rgba(255, 255, 240, 0.95)'
     }

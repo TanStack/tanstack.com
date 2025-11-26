@@ -18,6 +18,7 @@ import { rangerProject } from './ranger'
 import { storeProject } from './store'
 import { pacerProject } from './pacer'
 import { dbProject } from './db'
+import { aiProject } from './ai'
 import { devtoolsProject } from './devtools'
 
 export const frameworkOptions = [
@@ -56,6 +57,7 @@ export type Library = {
     | 'store'
     | 'pacer'
     | 'db'
+    | 'ai'
     | 'config'
     | 'devtools'
     | 'react-charts'
@@ -112,6 +114,7 @@ export const libraries = [
   tableProject,
   formProject,
   dbProject,
+  aiProject,
   virtualProject,
   pacerProject,
   storeProject,
@@ -136,6 +139,7 @@ export const librariesByGroup = {
     routerProject,
     queryProject,
     dbProject,
+    aiProject,
     storeProject,
     pacerProject,
   ],

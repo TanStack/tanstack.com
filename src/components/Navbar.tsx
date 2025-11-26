@@ -234,6 +234,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
               'table',
               'form',
               'db',
+              'ai',
               'virtual',
               'pacer',
               'store',

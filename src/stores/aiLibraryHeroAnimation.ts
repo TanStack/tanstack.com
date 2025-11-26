@@ -96,6 +96,7 @@ export const useAILibraryHeroAnimationStore = create<
       rotatingService: null,
       userMessage: null,
       assistantMessage: null,
+      isStreaming: false,
       connectionPulseDirection: 'down',
       // Don't reset serviceOffset - keep service in place until new selection
     }),

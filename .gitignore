@@ -2,6 +2,7 @@ node_modules
 package-lock.json
 yarn.lock
 convex/generated
+assets
 
 .tanstack
 .DS_Store

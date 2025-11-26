@@ -53,6 +53,7 @@ import { Route as LibrariesFormVersionIndexRouteImport } from './routes/_librari
 import { Route as LibrariesDevtoolsVersionIndexRouteImport } from './routes/_libraries/devtools.$version.index'
 import { Route as LibrariesDbVersionIndexRouteImport } from './routes/_libraries/db.$version.index'
 import { Route as LibrariesConfigVersionIndexRouteImport } from './routes/_libraries/config.$version.index'
+import { Route as LibrariesAiVersionIndexRouteImport } from './routes/_libraries/ai.$version.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
 import { Route as LibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryIdVersionDocsContributorsRouteImport } from './routes/$libraryId/$version.docs.contributors'
@@ -294,6 +295,11 @@ const LibrariesConfigVersionIndexRoute =
     path: '/config/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+const LibrariesAiVersionIndexRoute = LibrariesAiVersionIndexRouteImport.update({
+  id: '/ai/$version/',
+  path: '/ai/$version/',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
 const LibraryIdVersionDocsIndexRoute =
   LibraryIdVersionDocsIndexRouteImport.update({
     id: '/',
@@ -392,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
+  '/ai/$version': typeof LibrariesAiVersionIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
   '/db/$version': typeof LibrariesDbVersionIndexRoute
   '/devtools/$version': typeof LibrariesDevtoolsVersionIndexRoute
@@ -443,6 +450,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
+  '/ai/$version': typeof LibrariesAiVersionIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
   '/db/$version': typeof LibrariesDbVersionIndexRoute
   '/devtools/$version': typeof LibrariesDevtoolsVersionIndexRoute
@@ -500,6 +508,7 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
+  '/_libraries/ai/$version/': typeof LibrariesAiVersionIndexRoute
   '/_libraries/config/$version/': typeof LibrariesConfigVersionIndexRoute
   '/_libraries/db/$version/': typeof LibrariesDbVersionIndexRoute
   '/_libraries/devtools/$version/': typeof LibrariesDevtoolsVersionIndexRoute
@@ -557,6 +566,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/'
+    | '/ai/$version'
     | '/config/$version'
     | '/db/$version'
     | '/devtools/$version'
@@ -608,6 +618,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs'
+    | '/ai/$version'
     | '/config/$version'
     | '/db/$version'
     | '/devtools/$version'
@@ -664,6 +675,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/{$}.md'
     | '/$libraryId/$version/docs/'
+    | '/_libraries/ai/$version/'
     | '/_libraries/config/$version/'
     | '/_libraries/db/$version/'
     | '/_libraries/devtools/$version/'
@@ -1007,6 +1019,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesConfigVersionIndexRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
+    '/_libraries/ai/$version/': {
+      id: '/_libraries/ai/$version/'
+      path: '/ai/$version'
+      fullPath: '/ai/$version'
+      preLoaderRoute: typeof LibrariesAiVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
     '/$libraryId/$version/docs/': {
       id: '/$libraryId/$version/docs/'
       path: '/'
@@ -1170,6 +1189,7 @@ interface LibrariesRouteRouteChildren {
   LibrariesSupportRoute: typeof LibrariesSupportRoute
   LibrariesTermsRoute: typeof LibrariesTermsRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
+  LibrariesAiVersionIndexRoute: typeof LibrariesAiVersionIndexRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
   LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
   LibrariesDevtoolsVersionIndexRoute: typeof LibrariesDevtoolsVersionIndexRoute
@@ -1199,6 +1219,7 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesSupportRoute: LibrariesSupportRoute,
   LibrariesTermsRoute: LibrariesTermsRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
+  LibrariesAiVersionIndexRoute: LibrariesAiVersionIndexRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
   LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,
   LibrariesDevtoolsVersionIndexRoute: LibrariesDevtoolsVersionIndexRoute,

@@ -13,6 +13,7 @@ import { queryProject } from '~/libraries/query'
 import { tableProject } from '~/libraries/table'
 import { configProject } from '~/libraries/config'
 import { dbProject } from '~/libraries/db'
+import { aiProject } from '~/libraries/ai'
 import { formProject } from '~/libraries/form'
 import { pacerProject } from '~/libraries/pacer'
 import { rangerProject } from '~/libraries/ranger'
@@ -30,6 +31,7 @@ const availableLibraries = [
   storeProject,
   pacerProject,
   dbProject,
+  aiProject,
   configProject,
 ]
 
@@ -44,6 +46,7 @@ const librarySchema = z.enum([
   'store',
   'pacer',
   'db',
+  'ai',
   'config',
   'react-charts',
   'devtools',

@@ -13,8 +13,6 @@ import { z } from 'zod'
 import { FaArrowLeft, FaEdit } from 'react-icons/fa'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
-import { marked } from 'marked'
-import markedAlert from 'marked-alert'
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { DocTitle } from '~/components/DocTitle'
@@ -100,10 +98,6 @@ function BlogPost() {
   )}._
 ${content}`
 
-  const markup = React.useMemo(() => {
-    return marked.use({ gfm: true }, markedAlert())(blogContent) as string
-  }, [blogContent])
-
   const repo = 'tanstack/tanstack.com'
   const branch = 'main'
 
@@ -164,7 +158,7 @@ ${content}`
                           'styled-markdown-content'
                         )}
                       >
-                        <Markdown htmlMarkup={markup} />
+                        <Markdown rawContent={blogContent} />
                       </div>
                       <div className="h-12" />
                       <div className="w-full h-px bg-gray-500 opacity-30" />

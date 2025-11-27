@@ -22,7 +22,9 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as LibrariesIndexRouteImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as LibrariesWorkshopsRouteImport } from './routes/_libraries/workshops'
 import { Route as LibrariesTermsRouteImport } from './routes/_libraries/terms'
+import { Route as LibrariesTenetsRouteImport } from './routes/_libraries/tenets'
 import { Route as LibrariesSupportRouteImport } from './routes/_libraries/support'
 import { Route as LibrariesPrivacyRouteImport } from './routes/_libraries/privacy'
 import { Route as LibrariesPartnersRouteImport } from './routes/_libraries/partners'
@@ -34,6 +36,7 @@ import { Route as LibrariesEthosRouteImport } from './routes/_libraries/ethos'
 import { Route as LibrariesDashboardRouteImport } from './routes/_libraries/dashboard'
 import { Route as LibrariesBrandGuideRouteImport } from './routes/_libraries/brand-guide'
 import { Route as LibrariesBlogRouteImport } from './routes/_libraries/blog'
+import { Route as LibrariesAdsRouteImport } from './routes/_libraries/ads'
 import { Route as LibrariesAccountRouteImport } from './routes/_libraries/account'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
@@ -129,9 +132,19 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const LibrariesWorkshopsRoute = LibrariesWorkshopsRouteImport.update({
+  id: '/workshops',
+  path: '/workshops',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
 const LibrariesTermsRoute = LibrariesTermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
+const LibrariesTenetsRoute = LibrariesTenetsRouteImport.update({
+  id: '/tenets',
+  path: '/tenets',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
 const LibrariesSupportRoute = LibrariesSupportRouteImport.update({
@@ -187,6 +200,11 @@ const LibrariesBrandGuideRoute = LibrariesBrandGuideRouteImport.update({
 const LibrariesBlogRoute = LibrariesBlogRouteImport.update({
   id: '/blog',
   path: '/blog',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
+const LibrariesAdsRoute = LibrariesAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
 const LibrariesAccountRoute = LibrariesAccountRouteImport.update({
@@ -371,6 +389,7 @@ export interface FileRoutesByFullPath {
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/account': typeof LibrariesAccountRoute
+  '/ads': typeof LibrariesAdsRoute
   '/blog': typeof LibrariesBlogRouteWithChildren
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
@@ -382,7 +401,9 @@ export interface FileRoutesByFullPath {
   '/partners': typeof LibrariesPartnersRoute
   '/privacy': typeof LibrariesPrivacyRoute
   '/support': typeof LibrariesSupportRoute
+  '/tenets': typeof LibrariesTenetsRoute
   '/terms': typeof LibrariesTermsRoute
+  '/workshops': typeof LibrariesWorkshopsRoute
   '/admin/users': typeof AdminUsersRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
@@ -425,6 +446,7 @@ export interface FileRoutesByTo {
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/account': typeof LibrariesAccountRoute
+  '/ads': typeof LibrariesAdsRoute
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
@@ -435,7 +457,9 @@ export interface FileRoutesByTo {
   '/partners': typeof LibrariesPartnersRoute
   '/privacy': typeof LibrariesPrivacyRoute
   '/support': typeof LibrariesSupportRoute
+  '/tenets': typeof LibrariesTenetsRoute
   '/terms': typeof LibrariesTermsRoute
+  '/workshops': typeof LibrariesWorkshopsRoute
   '/admin/users': typeof AdminUsersRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
@@ -481,6 +505,7 @@ export interface FileRoutesById {
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/_libraries/account': typeof LibrariesAccountRoute
+  '/_libraries/ads': typeof LibrariesAdsRoute
   '/_libraries/blog': typeof LibrariesBlogRouteWithChildren
   '/_libraries/brand-guide': typeof LibrariesBrandGuideRoute
   '/_libraries/dashboard': typeof LibrariesDashboardRoute
@@ -492,7 +517,9 @@ export interface FileRoutesById {
   '/_libraries/partners': typeof LibrariesPartnersRoute
   '/_libraries/privacy': typeof LibrariesPrivacyRoute
   '/_libraries/support': typeof LibrariesSupportRoute
+  '/_libraries/tenets': typeof LibrariesTenetsRoute
   '/_libraries/terms': typeof LibrariesTermsRoute
+  '/_libraries/workshops': typeof LibrariesWorkshopsRoute
   '/admin/users': typeof AdminUsersRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/_libraries/': typeof LibrariesIndexRoute
@@ -539,6 +566,7 @@ export interface FileRouteTypes {
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/account'
+    | '/ads'
     | '/blog'
     | '/brand-guide'
     | '/dashboard'
@@ -550,7 +578,9 @@ export interface FileRouteTypes {
     | '/partners'
     | '/privacy'
     | '/support'
+    | '/tenets'
     | '/terms'
+    | '/workshops'
     | '/admin/users'
     | '/$libraryId/'
     | '/'
@@ -593,6 +623,7 @@ export interface FileRouteTypes {
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/account'
+    | '/ads'
     | '/brand-guide'
     | '/dashboard'
     | '/ethos'
@@ -603,7 +634,9 @@ export interface FileRouteTypes {
     | '/partners'
     | '/privacy'
     | '/support'
+    | '/tenets'
     | '/terms'
+    | '/workshops'
     | '/admin/users'
     | '/$libraryId'
     | '/'
@@ -648,6 +681,7 @@ export interface FileRouteTypes {
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/_libraries/account'
+    | '/_libraries/ads'
     | '/_libraries/blog'
     | '/_libraries/brand-guide'
     | '/_libraries/dashboard'
@@ -659,7 +693,9 @@ export interface FileRouteTypes {
     | '/_libraries/partners'
     | '/_libraries/privacy'
     | '/_libraries/support'
+    | '/_libraries/tenets'
     | '/_libraries/terms'
+    | '/_libraries/workshops'
     | '/admin/users'
     | '/$libraryId/'
     | '/_libraries/'
@@ -802,11 +838,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_libraries/workshops': {
+      id: '/_libraries/workshops'
+      path: '/workshops'
+      fullPath: '/workshops'
+      preLoaderRoute: typeof LibrariesWorkshopsRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
     '/_libraries/terms': {
       id: '/_libraries/terms'
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof LibrariesTermsRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
+    '/_libraries/tenets': {
+      id: '/_libraries/tenets'
+      path: '/tenets'
+      fullPath: '/tenets'
+      preLoaderRoute: typeof LibrariesTenetsRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/support': {
@@ -884,6 +934,13 @@ declare module '@tanstack/react-router' {
       path: '/blog'
       fullPath: '/blog'
       preLoaderRoute: typeof LibrariesBlogRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
+    '/_libraries/ads': {
+      id: '/_libraries/ads'
+      path: '/ads'
+      fullPath: '/ads'
+      preLoaderRoute: typeof LibrariesAdsRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/account': {
@@ -1176,6 +1233,7 @@ const LibrariesBlogRouteWithChildren = LibrariesBlogRoute._addFileChildren(
 
 interface LibrariesRouteRouteChildren {
   LibrariesAccountRoute: typeof LibrariesAccountRoute
+  LibrariesAdsRoute: typeof LibrariesAdsRoute
   LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
   LibrariesBrandGuideRoute: typeof LibrariesBrandGuideRoute
   LibrariesDashboardRoute: typeof LibrariesDashboardRoute
@@ -1187,7 +1245,9 @@ interface LibrariesRouteRouteChildren {
   LibrariesPartnersRoute: typeof LibrariesPartnersRoute
   LibrariesPrivacyRoute: typeof LibrariesPrivacyRoute
   LibrariesSupportRoute: typeof LibrariesSupportRoute
+  LibrariesTenetsRoute: typeof LibrariesTenetsRoute
   LibrariesTermsRoute: typeof LibrariesTermsRoute
+  LibrariesWorkshopsRoute: typeof LibrariesWorkshopsRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
   LibrariesAiVersionIndexRoute: typeof LibrariesAiVersionIndexRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
@@ -1206,6 +1266,7 @@ interface LibrariesRouteRouteChildren {
 
 const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesAccountRoute: LibrariesAccountRoute,
+  LibrariesAdsRoute: LibrariesAdsRoute,
   LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
   LibrariesBrandGuideRoute: LibrariesBrandGuideRoute,
   LibrariesDashboardRoute: LibrariesDashboardRoute,
@@ -1217,7 +1278,9 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesPartnersRoute: LibrariesPartnersRoute,
   LibrariesPrivacyRoute: LibrariesPrivacyRoute,
   LibrariesSupportRoute: LibrariesSupportRoute,
+  LibrariesTenetsRoute: LibrariesTenetsRoute,
   LibrariesTermsRoute: LibrariesTermsRoute,
+  LibrariesWorkshopsRoute: LibrariesWorkshopsRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
   LibrariesAiVersionIndexRoute: LibrariesAiVersionIndexRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,

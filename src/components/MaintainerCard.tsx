@@ -258,6 +258,7 @@ function GitHubStats({
 interface MaintainerCardProps {
   maintainer: Maintainer
   libraryId?: Library['id']
+  hideLibraries?: boolean
 }
 
 interface CompactMaintainerCardProps {
@@ -418,7 +419,11 @@ export function MaintainerRowCard({
   )
 }
 
-export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
+export function MaintainerCard({
+  maintainer,
+  libraryId,
+  hideLibraries,
+}: MaintainerCardProps) {
   const libraries = getPersonsMaintainerOf(maintainer)
   const [showAllLibraries, setShowAllLibraries] = useState(false)
 
@@ -481,7 +486,7 @@ export function MaintainerCard({ maintainer, libraryId }: MaintainerCardProps) {
             )}
           </div>
         </div>
-        {!libraryId && libraries.length > 0 && (
+        {!hideLibraries && !libraryId && libraries.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pt-1">
             {libraries
               .slice(0, showAllLibraries ? undefined : 2)

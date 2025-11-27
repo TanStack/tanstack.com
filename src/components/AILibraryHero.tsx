@@ -8,6 +8,35 @@ import {
   useAILibraryHeroAnimationStore,
   AnimationPhase,
 } from '~/stores/aiLibraryHeroAnimation'
+import { AILibraryHeroCard } from './AILibraryHeroCard'
+import { AILibraryHeroBox } from './AILibraryHeroBox'
+import { AILibraryHeroServiceCard } from './AILibraryHeroServiceCard'
+import tsLogo from '~/images/ts-logo.svg'
+import reactLogo from '~/images/react-logo.svg'
+import solidLogo from '~/images/solid-logo.svg'
+import pythonLogo from '~/images/python.svg'
+import phpLightLogo from '~/images/php-light.svg'
+import phpDarkLogo from '~/images/php-dark.svg'
+import ollamaLightLogo from '~/images/ollama-light.svg'
+import ollamaDarkLogo from '~/images/ollama-dark.svg'
+import openaiLightLogo from '~/images/openai-light.svg'
+import openaiDarkLogo from '~/images/openai-dark.svg'
+import anthropicLightLogo from '~/images/anthropic-light.svg'
+import anthropicDarkLogo from '~/images/anthropic-dark.svg'
+import geminiLogo from '~/images/gemini.svg'
+
+import {
+  SVG_WIDTH,
+  SVG_HEIGHT,
+  BOX_FONT_SIZE,
+  BOX_FONT_WEIGHT,
+  SERVICE_WIDTH,
+  SERVICE_GUTTER,
+  SERVICE_LOCATIONS,
+  SERVICE_Y_OFFSET,
+  SERVICE_Y_CENTER,
+  SERVICE_HEIGHT,
+} from '~/stores/aiLibraryHeroAnimation'
 
 // Get the store instance for accessing getState in closures
 const getStoreState = () => useAILibraryHeroAnimationStore.getState()
@@ -58,9 +87,6 @@ const MESSAGES = [
       "No! TanStack AI is pure open source software. We don't have a service to promote or charge for. This is an ecosystem of libraries and standards connecting you with the services you choose - completely community supported.",
   },
 ]
-
-const BOX_FONT_SIZE = 18
-const BOX_FONT_WEIGHT = 700
 
 export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
   const isDark = useIsDark()
@@ -168,11 +194,12 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     addTimeoutHelper(() => {
                       setSelectedService(targetService)
                       setRotatingService(null)
-                      // Calculate offset to center the selected service
-                      const centerX = 300 // Center position in SVG
-                      const servicePositions = [170, 300, 435, 570] // x positions of services
-                      const targetX = servicePositions[targetService]
-                      setServiceOffset(centerX - targetX)
+                      const targetX =
+                        0 -
+                        SERVICE_WIDTH / 2 -
+                        SERVICE_GUTTER / 2 -
+                        targetService * (SERVICE_WIDTH + SERVICE_GUTTER)
+                      setServiceOffset(targetX)
 
                       addTimeoutHelper(() => {
                         // Phase 5: SELECTING_SERVER
@@ -478,17 +505,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
         }}
       />
       <div className="relative flex flex-col items-center gap-8 text-center px-4 overflow-visible">
-        {/* Background dimmed text */}
-        <div className="absolute top-[-150px] inset-0 flex items-center justify-center pointer-events-none">
-          <h1 className="text-nowrap font-black text-[120px] md:text-[120px] lg:text-[200px] xl:text-[250px] uppercase [letter-spacing:-.05em] leading-none opacity-20 dark:opacity-15 text-pink-500 dark:text-pink-400">
-            TANSTACK AI
-          </h1>
-        </div>
-
         {/* Diagram and Chat Panel Container */}
         <div
           className="relative z-10 w-full max-w-7xl mx-auto mt-16 flex flex-row flex-wrap gap-8 lg:gap-12"
-          style={{ height: 432 }}
+          style={{ height: SVG_HEIGHT }}
         >
           {/* SVG Diagram */}
           <div className="relative w-full lg:flex-1 overflow-visible h-full">
@@ -496,7 +516,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               key={`${phase}-${selectedFramework}-${selectedServer}`}
               xmlns="http://www.w3.org/2000/svg"
               className="w-full h-full"
-              viewBox="0 0 632 432"
+              viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
               style={{ overflow: 'visible' }}
               preserveAspectRatio="xMidYMid meet"
             >
@@ -600,7 +620,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               {/* Lines from frameworks to ai-client */}
               <path
                 id="framework-line-0"
-                d="M 60 60 Q 60 80 151.26 80 Q 242.52 80 242.5 100"
+                d="M 60 60 Q 60 80 151.26 80 Q 262.52 80 310 100"
                 fill="none"
                 stroke={getConnectionStrokeColor(0, selectedServer ?? -1)}
                 strokeWidth="1.5"
@@ -619,7 +639,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               />
               <path
                 id="framework-line-1"
-                d="M 220 60 Q 220 80 257.5 80 Q 295 80 295 100"
+                d="M 220 60 Q 220 80 265 80 Q 310 80 310 100"
                 fill="none"
                 stroke={getConnectionStrokeColor(1, selectedServer ?? -1)}
                 strokeWidth="1.5"
@@ -638,7 +658,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               />
               <path
                 id="framework-line-2"
-                d="M 380 60 Q 380 80 337.5 80 Q 295 80 295 100"
+                d="M 380 60 Q 380 80 355 80 Q 310 80 310 100"
                 fill="none"
                 stroke={getConnectionStrokeColor(2, selectedServer ?? -1)}
                 strokeWidth="1.5"
@@ -657,7 +677,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               />
               <path
                 id="framework-line-3"
-                d="M 540 60 Q 540 80 443.76 80 Q 347.52 80 347.5 100"
+                d="M 540 60 Q 540 80 450 80 Q 358 80 310 100"
                 fill="none"
                 stroke={getConnectionStrokeColor(3, selectedServer ?? -1)}
                 strokeWidth="1.5"
@@ -678,7 +698,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               {/* Lines from TanStack AI to servers */}
               <path
                 id="server-line-0"
-                d="M 60 370 Q 60 350 151.26 350 Q 242.52 350 242.5 320"
+                d="M 60 370 Q 60 350 151.26 350 Q 262.52 350 310 320"
                 fill="none"
                 stroke={getConnectionStrokeColor(selectedFramework ?? -1, 0)}
                 strokeWidth="1.5"
@@ -697,7 +717,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               />
               <path
                 id="server-line-1"
-                d="M 220 370 Q 220 345 257.5 345 Q 295 345 295 320"
+                d="M 220 370 Q 220 345 265 345 Q 310 345 310 320"
                 fill="none"
                 stroke={getConnectionStrokeColor(selectedFramework ?? -1, 1)}
                 strokeWidth="1.5"
@@ -716,7 +736,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               />
               <path
                 id="server-line-2"
-                d="M 380 370 Q 380 345 337.5 345 Q 295 345 295 320"
+                d="M 380 370 Q 380 345 355 345 Q 310 345 310 320"
                 fill="none"
                 stroke={getConnectionStrokeColor(selectedFramework ?? -1, 2)}
                 strokeWidth="1.5"
@@ -735,7 +755,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               />
               <path
                 id="server-line-3"
-                d="M 540 370 Q 540 350 443.76 350 Q 347.52 350 347.5 320"
+                d="M 540 370 Q 540 350 450 350 Q 358 350 310 320"
                 fill="none"
                 stroke={getConnectionStrokeColor(selectedFramework ?? -1, 3)}
                 strokeWidth="1.5"
@@ -754,175 +774,105 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               />
 
               {/* Top layer: Frameworks */}
-              <g
-                className="transition-all duration-300"
+              <AILibraryHeroCard
+                x={0}
+                y={0}
+                width={120}
+                height={60}
+                label="Vanilla"
+                opacity={getOpacity(0, selectedFramework, rotatingFramework)}
+                textColor={textColor}
+                strokeColor={strokeColor}
+                fontSize={BOX_FONT_SIZE}
+                fontWeight={BOX_FONT_WEIGHT}
+                logo={tsLogo}
                 transform={
                   selectedFramework === 0
                     ? 'translate(60, 30) scale(1.1) translate(-60, -30)'
                     : ''
                 }
-              >
-                <rect
-                  x="0"
-                  y="0"
-                  width="120"
-                  height="60"
-                  rx="9"
-                  fill="url(#glassGradient)"
-                  stroke={strokeColor}
-                  strokeWidth="1.5"
-                  filter="url(#glass)"
-                  opacity={getOpacity(0, selectedFramework, rotatingFramework)}
-                />
-                <text
-                  x="60"
-                  y="34"
-                  fill={textColor}
-                  fontFamily="Helvetica"
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  textAnchor="middle"
-                  opacity={getOpacity(0, selectedFramework, rotatingFramework)}
-                >
-                  Vanilla
-                </text>
-              </g>
+              />
 
-              <g
-                className="transition-all duration-300"
+              <AILibraryHeroCard
+                x={160}
+                y={0}
+                width={120}
+                height={60}
+                label="React"
+                opacity={getOpacity(1, selectedFramework, rotatingFramework)}
+                textColor={textColor}
+                strokeColor={strokeColor}
+                fontSize={BOX_FONT_SIZE}
+                fontWeight={BOX_FONT_WEIGHT}
+                logo={reactLogo}
                 transform={getScaleTransform(1, selectedFramework, 220, 30)}
-              >
-                <rect
-                  x="160"
-                  y="0"
-                  width="120"
-                  height="60"
-                  rx="9"
-                  fill="url(#glassGradient)"
-                  stroke={strokeColor}
-                  strokeWidth="1.5"
-                  filter="url(#glass)"
-                  opacity={getOpacity(1, selectedFramework, rotatingFramework)}
-                />
-                <text
-                  x="220"
-                  y="34"
-                  fill={textColor}
-                  fontFamily="Helvetica"
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  textAnchor="middle"
-                  opacity={getOpacity(1, selectedFramework, rotatingFramework)}
-                >
-                  React
-                </text>
-              </g>
+              />
 
-              <g
-                className="transition-all duration-300"
+              <AILibraryHeroCard
+                x={320}
+                y={0}
+                width={120}
+                height={60}
+                label="Solid"
+                opacity={getOpacity(2, selectedFramework, rotatingFramework)}
+                textColor={textColor}
+                strokeColor={strokeColor}
+                fontSize={BOX_FONT_SIZE}
+                fontWeight={BOX_FONT_WEIGHT}
+                logo={solidLogo}
                 transform={getScaleTransform(2, selectedFramework, 380, 30)}
-              >
-                <rect
-                  x="320"
-                  y="0"
-                  width="120"
-                  height="60"
-                  rx="9"
-                  fill="url(#glassGradient)"
-                  stroke={strokeColor}
-                  strokeWidth="1.5"
-                  filter="url(#glass)"
-                  opacity={getOpacity(2, selectedFramework, rotatingFramework)}
-                />
-                <text
-                  x="380"
-                  y="34"
-                  fill={textColor}
-                  fontFamily="Helvetica"
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  textAnchor="middle"
-                  opacity={getOpacity(2, selectedFramework, rotatingFramework)}
-                >
-                  Solid
-                </text>
-              </g>
+              />
 
-              <g
-                className="transition-all duration-300"
+              <AILibraryHeroCard
+                x={480}
+                y={0}
+                width={120}
+                height={60}
+                label="?"
+                opacity={getOpacity(3, selectedFramework, rotatingFramework)}
+                textColor={textColor}
+                strokeColor={strokeColor}
+                fontSize={BOX_FONT_SIZE}
+                fontWeight={BOX_FONT_WEIGHT}
+                isDashed={true}
                 transform={getScaleTransform(3, selectedFramework, 540, 30)}
-              >
-                <rect
-                  x="480"
-                  y="0"
-                  width="120"
-                  height="60"
-                  rx="9"
-                  fill="url(#glassGradient)"
-                  stroke={strokeColor}
-                  strokeWidth="1.5"
-                  strokeDasharray="8 8"
-                  filter="url(#glass)"
-                  opacity={getOpacity(3, selectedFramework, rotatingFramework)}
-                />
-                <text
-                  x="540"
-                  y="34"
-                  fill={textColor}
-                  fontFamily="Helvetica"
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  textAnchor="middle"
-                  opacity={getOpacity(3, selectedFramework, rotatingFramework)}
-                >
-                  ?
-                </text>
-              </g>
+              />
 
               {/* @tanstack/ai-client box */}
-              <rect
-                x="150"
-                y="100"
-                width="280"
-                height="60"
-                rx="9"
-                fill="url(#glassGradientLarge)"
-                stroke={strokeColor}
-                strokeWidth="3"
-                filter="url(#glass)"
-                opacity="0.9"
-              />
-              <text
-                x="290"
-                y="140"
-                fill={textColor}
-                fontFamily="Helvetica"
+              <AILibraryHeroBox
+                x={150}
+                y={100}
+                width={320}
+                height={60}
+                label="@tanstack/ai-client"
+                textColor={textColor}
+                strokeColor={strokeColor}
                 fontSize={25}
                 fontWeight={900}
-                textAnchor="middle"
-                opacity="0.95"
-              >
-                @tanstack/ai-client
-              </text>
+                opacity={0.9}
+                logoSize={32}
+              />
 
               {/* Large TanStack AI container box */}
-              <rect
-                x="150"
-                y="210"
-                width="280"
-                height="110"
-                rx="16.5"
-                fill="url(#glassGradientLarge)"
-                stroke={strokeColor}
-                strokeWidth="3"
-                filter="url(#glass)"
-                opacity="0.85"
+              <AILibraryHeroBox
+                x={150}
+                y={210}
+                width={320}
+                height={110}
+                label="TanStack AI"
+                textColor={textColor}
+                strokeColor={strokeColor}
+                fontSize={25}
+                fontWeight={900}
+                rx={16.5}
+                opacity={0.85}
+                logoSize={32}
               />
 
               {/* Line from ai-client to @tanstack/ai - drawn after boxes to be on top */}
               <path
                 id="client-to-ai-line"
-                d="M 295 160 L 295 210"
+                d="M 310 160 L 310 210"
                 fill="none"
                 stroke={
                   // If no selections, ALWAYS return original stroke color (highest priority check)
@@ -971,267 +921,156 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 }
               />
 
-              {/* TanStack AI label */}
-              <text
-                x="290"
-                y="242"
-                fill={textColor}
-                fontFamily="Helvetica"
-                fontSize="25"
-                fontWeight="bold"
-                textAnchor="middle"
-                opacity="0.95"
-              >
-                TanStack AI
-              </text>
-
               {/* Provider layer */}
               <g
                 transform={`translate(${serviceOffset}, 0)`}
                 className="transition-transform duration-500 ease-out"
               >
-                <g
-                  className="transition-all duration-300"
-                  transform={getScaleTransform(0, selectedService, 170, 280)}
-                >
-                  <rect
-                    x="110"
-                    y="260"
-                    width="120"
-                    height="40"
-                    rx="6"
-                    fill="url(#glassGradient)"
-                    stroke={strokeColor}
-                    strokeWidth="1.5"
-                    filter="url(#glass)"
-                    opacity={getServiceOpacity(0)}
-                  />
-                  <text
-                    x="170"
-                    y="284"
-                    fill={textColor}
-                    fontFamily="Helvetica"
-                    fontSize={BOX_FONT_SIZE}
-                    fontWeight={BOX_FONT_WEIGHT}
-                    textAnchor="middle"
-                    opacity={getServiceOpacity(0)}
-                  >
-                    Ollama
-                  </text>
-                </g>
+                <AILibraryHeroServiceCard
+                  x={SERVICE_LOCATIONS[0]}
+                  y={SERVICE_Y_OFFSET}
+                  width={SERVICE_WIDTH}
+                  height={SERVICE_HEIGHT}
+                  label="Ollama"
+                  opacity={getServiceOpacity(0)}
+                  textColor={textColor}
+                  strokeColor={strokeColor}
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
+                  logoLight={ollamaLightLogo}
+                  logoDark={ollamaDarkLogo}
+                  transform={getScaleTransform(
+                    0,
+                    selectedService,
+                    SERVICE_LOCATIONS[0] + SERVICE_WIDTH / 2,
+                    SERVICE_Y_CENTER
+                  )}
+                />
 
-                <g
-                  className="transition-all duration-300"
-                  transform={getScaleTransform(1, selectedService, 300, 280)}
-                >
-                  <rect
-                    x="240"
-                    y="260"
-                    width="120"
-                    height="40"
-                    rx="6"
-                    fill="url(#glassGradient)"
-                    stroke={strokeColor}
-                    strokeWidth="1.5"
-                    filter="url(#glass)"
-                    opacity={getServiceOpacity(1)}
-                  />
-                  <text
-                    x="300"
-                    y="284"
-                    fill={textColor}
-                    fontFamily="Helvetica"
-                    fontSize={BOX_FONT_SIZE}
-                    fontWeight={BOX_FONT_WEIGHT}
-                    textAnchor="middle"
-                    opacity={getServiceOpacity(1)}
-                  >
-                    OpenAI
-                  </text>
-                </g>
+                <AILibraryHeroServiceCard
+                  x={SERVICE_LOCATIONS[1]}
+                  y={SERVICE_Y_OFFSET}
+                  width={SERVICE_WIDTH}
+                  height={SERVICE_HEIGHT}
+                  label="OpenAI"
+                  opacity={getServiceOpacity(1)}
+                  textColor={textColor}
+                  strokeColor={strokeColor}
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
+                  logoLight={openaiLightLogo}
+                  logoDark={openaiDarkLogo}
+                  transform={getScaleTransform(
+                    1,
+                    selectedService,
+                    SERVICE_LOCATIONS[1] + SERVICE_WIDTH / 2,
+                    SERVICE_Y_CENTER
+                  )}
+                />
 
-                <g
-                  className="transition-all duration-300"
-                  transform={getScaleTransform(2, selectedService, 435, 280)}
-                >
-                  <rect
-                    x="375"
-                    y="260"
-                    width="120"
-                    height="40"
-                    rx="6"
-                    fill="url(#glassGradient)"
-                    stroke={strokeColor}
-                    strokeWidth="1.5"
-                    filter="url(#glass)"
-                    opacity={getServiceOpacity(2)}
-                  />
-                  <text
-                    x="435"
-                    y="284"
-                    fill={textColor}
-                    fontFamily="Helvetica"
-                    fontSize={BOX_FONT_SIZE}
-                    fontWeight={BOX_FONT_WEIGHT}
-                    textAnchor="middle"
-                    opacity={getServiceOpacity(2)}
-                  >
-                    Anthropic
-                  </text>
-                </g>
+                <AILibraryHeroServiceCard
+                  x={SERVICE_LOCATIONS[2]}
+                  y={SERVICE_Y_OFFSET}
+                  width={SERVICE_WIDTH}
+                  height={SERVICE_HEIGHT}
+                  label="Anthropic"
+                  opacity={getServiceOpacity(2)}
+                  textColor={textColor}
+                  strokeColor={strokeColor}
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
+                  logoLight={anthropicLightLogo}
+                  logoDark={anthropicDarkLogo}
+                  transform={getScaleTransform(
+                    2,
+                    selectedService,
+                    SERVICE_LOCATIONS[2] + SERVICE_WIDTH / 2,
+                    SERVICE_Y_CENTER
+                  )}
+                />
 
-                <g
-                  className="transition-all duration-300"
-                  transform={getScaleTransform(3, selectedService, 570, 280)}
-                >
-                  <rect
-                    x="510"
-                    y="260"
-                    width="120"
-                    height="40"
-                    rx="6"
-                    fill="url(#glassGradient)"
-                    stroke={strokeColor}
-                    strokeWidth="1.5"
-                    filter="url(#glass)"
-                    opacity={getServiceOpacity(3)}
-                  />
-                  <text
-                    x="570"
-                    y="284"
-                    fill={textColor}
-                    fontFamily="Helvetica"
-                    fontSize={BOX_FONT_SIZE}
-                    fontWeight={BOX_FONT_WEIGHT}
-                    textAnchor="middle"
-                    opacity={getServiceOpacity(3)}
-                  >
-                    Gemini
-                  </text>
-                </g>
+                <AILibraryHeroServiceCard
+                  x={SERVICE_LOCATIONS[3]}
+                  y={SERVICE_Y_OFFSET}
+                  width={SERVICE_WIDTH}
+                  height={SERVICE_HEIGHT}
+                  label="Gemini"
+                  opacity={getServiceOpacity(3)}
+                  textColor={textColor}
+                  strokeColor={strokeColor}
+                  fontSize={BOX_FONT_SIZE}
+                  fontWeight={BOX_FONT_WEIGHT}
+                  logo={geminiLogo}
+                  transform={getScaleTransform(
+                    3,
+                    selectedService,
+                    SERVICE_LOCATIONS[3] + SERVICE_WIDTH / 2,
+                    SERVICE_Y_CENTER
+                  )}
+                />
               </g>
 
               {/* Server layer */}
-              <g
-                className="transition-all duration-300"
+              <AILibraryHeroCard
+                x={0}
+                y={370}
+                width={120}
+                height={60}
+                label="TypeScript"
+                opacity={getOpacity(0, selectedServer, rotatingServer)}
+                textColor={textColor}
+                strokeColor={strokeColor}
+                fontSize={16}
+                fontWeight={BOX_FONT_WEIGHT}
+                logo={tsLogo}
                 transform={getScaleTransform(0, selectedServer, 60, 400)}
-              >
-                <rect
-                  x="0"
-                  y="370"
-                  width="120"
-                  height="60"
-                  rx="9"
-                  fill="url(#glassGradient)"
-                  stroke={strokeColor}
-                  strokeWidth="1.5"
-                  filter="url(#glass)"
-                  opacity={getOpacity(0, selectedServer, rotatingServer)}
-                />
-                <text
-                  x="60"
-                  y="404"
-                  fill={textColor}
-                  fontFamily="Helvetica"
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  textAnchor="middle"
-                  opacity={getOpacity(0, selectedServer, rotatingServer)}
-                >
-                  TypeScript
-                </text>
-              </g>
+              />
 
-              <g
-                className="transition-all duration-300"
+              <AILibraryHeroCard
+                x={160}
+                y={370}
+                width={120}
+                height={60}
+                label="PHP"
+                opacity={getOpacity(1, selectedServer, rotatingServer)}
+                textColor={textColor}
+                strokeColor={strokeColor}
+                fontSize={BOX_FONT_SIZE}
+                fontWeight={BOX_FONT_WEIGHT}
+                logoLight={phpLightLogo}
+                logoDark={phpDarkLogo}
                 transform={getScaleTransform(1, selectedServer, 220, 400)}
-              >
-                <rect
-                  x="160"
-                  y="370"
-                  width="120"
-                  height="60"
-                  rx="9"
-                  fill="url(#glassGradient)"
-                  stroke={strokeColor}
-                  strokeWidth="1.5"
-                  filter="url(#glass)"
-                  opacity={getOpacity(1, selectedServer, rotatingServer)}
-                />
-                <text
-                  x="220"
-                  y="404"
-                  fill={textColor}
-                  fontFamily="Helvetica"
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  textAnchor="middle"
-                  opacity={getOpacity(1, selectedServer, rotatingServer)}
-                >
-                  PHP
-                </text>
-              </g>
+              />
 
-              <g
-                className="transition-all duration-300"
+              <AILibraryHeroCard
+                x={320}
+                y={370}
+                width={120}
+                height={60}
+                label="Python"
+                opacity={getOpacity(2, selectedServer, rotatingServer)}
+                textColor={textColor}
+                strokeColor={strokeColor}
+                fontSize={BOX_FONT_SIZE}
+                fontWeight={BOX_FONT_WEIGHT}
+                logo={pythonLogo}
                 transform={getScaleTransform(2, selectedServer, 380, 400)}
-              >
-                <rect
-                  x="320"
-                  y="370"
-                  width="120"
-                  height="60"
-                  rx="9"
-                  fill="url(#glassGradient)"
-                  stroke={strokeColor}
-                  strokeWidth="1.5"
-                  filter="url(#glass)"
-                  opacity={getOpacity(2, selectedServer, rotatingServer)}
-                />
-                <text
-                  x="380"
-                  y="404"
-                  fill={textColor}
-                  fontFamily="Helvetica"
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  textAnchor="middle"
-                  opacity={getOpacity(2, selectedServer, rotatingServer)}
-                >
-                  Python
-                </text>
-              </g>
+              />
 
-              <g
-                className="transition-all duration-300"
+              <AILibraryHeroCard
+                x={480}
+                y={370}
+                width={120}
+                height={60}
+                label="?"
+                opacity={getOpacity(3, selectedServer, rotatingServer)}
+                textColor={textColor}
+                strokeColor={strokeColor}
+                fontSize={BOX_FONT_SIZE}
+                fontWeight={BOX_FONT_WEIGHT}
+                isDashed={true}
                 transform={getScaleTransform(3, selectedServer, 540, 400)}
-              >
-                <rect
-                  x="480"
-                  y="370"
-                  width="120"
-                  height="60"
-                  rx="9"
-                  fill="url(#glassGradient)"
-                  stroke={strokeColor}
-                  strokeWidth="1.5"
-                  strokeDasharray="8 8"
-                  filter="url(#glass)"
-                  opacity={getOpacity(3, selectedServer, rotatingServer)}
-                />
-                <text
-                  x="540"
-                  y="404"
-                  fill={textColor}
-                  fontFamily="Helvetica"
-                  fontSize={BOX_FONT_SIZE}
-                  fontWeight={BOX_FONT_WEIGHT}
-                  textAnchor="middle"
-                  opacity={getOpacity(3, selectedServer, rotatingServer)}
-                >
-                  ?
-                </text>
-              </g>
+              />
             </svg>
           </div>
 

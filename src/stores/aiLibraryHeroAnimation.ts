@@ -12,6 +12,22 @@ export enum AnimationPhase {
   HOLDING = 'HOLDING',
 }
 
+export const SVG_WIDTH = 632
+export const SVG_HEIGHT = 432
+export const BOX_FONT_SIZE = 18
+export const BOX_FONT_WEIGHT = 700
+export const SERVICE_WIDTH = 160
+export const SERVICE_GUTTER = 20
+export const SERVICE_LOCATIONS = [0, 1, 2, 3].map(
+  (index) =>
+    SERVICE_WIDTH * 2 +
+    index * (SERVICE_WIDTH + SERVICE_GUTTER) +
+    SERVICE_GUTTER / 2
+)
+export const SERVICE_Y_OFFSET = 265
+export const SERVICE_HEIGHT = 40
+export const SERVICE_Y_CENTER = SERVICE_Y_OFFSET + SERVICE_HEIGHT / 2
+
 export type ChatMessage = {
   id: string
   user: string
@@ -68,7 +84,7 @@ export const useAILibraryHeroAnimationStore = create<
   rotatingFramework: null,
   rotatingServer: null,
   rotatingService: null,
-  serviceOffset: 0,
+  serviceOffset: 0 - SERVICE_WIDTH / 2 - SERVICE_GUTTER / 2,
   messages: [],
   currentMessageIndex: -1,
   typingUserMessage: '',

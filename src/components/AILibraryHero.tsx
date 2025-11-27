@@ -36,6 +36,13 @@ import {
   SERVICE_Y_OFFSET,
   SERVICE_Y_CENTER,
   SERVICE_HEIGHT,
+  LIBRARY_CARD_WIDTH,
+  LIBRARY_CARD_HEIGHT,
+  LIBRARY_CARD_LOCATIONS,
+  SERVER_CARD_Y_OFFSET,
+  SERVER_CARD_LOCATIONS,
+  SERVER_CARD_WIDTH,
+  SERVER_CARD_HEIGHT,
 } from '~/stores/aiLibraryHeroAnimation'
 
 // Get the store instance for accessing getState in closures
@@ -507,7 +514,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
       <div className="relative flex flex-col items-center gap-8 text-center px-4 overflow-visible">
         {/* Diagram and Chat Panel Container */}
         <div
-          className="relative z-10 w-full max-w-7xl mx-auto mt-16 flex flex-row flex-wrap gap-8 lg:gap-12"
+          className="relative z-10 w-full max-w-7xl mx-auto flex flex-row flex-wrap gap-8 lg:gap-12"
           style={{ height: SVG_HEIGHT }}
         >
           {/* SVG Diagram */}
@@ -775,10 +782,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
 
               {/* Top layer: Frameworks */}
               <AILibraryHeroCard
-                x={0}
+                x={LIBRARY_CARD_LOCATIONS[0]}
                 y={0}
-                width={120}
-                height={60}
+                width={LIBRARY_CARD_WIDTH}
+                height={LIBRARY_CARD_HEIGHT}
                 label="Vanilla"
                 opacity={getOpacity(0, selectedFramework, rotatingFramework)}
                 textColor={textColor}
@@ -786,18 +793,19 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 fontSize={BOX_FONT_SIZE}
                 fontWeight={BOX_FONT_WEIGHT}
                 logo={tsLogo}
-                transform={
-                  selectedFramework === 0
-                    ? 'translate(60, 30) scale(1.1) translate(-60, -30)'
-                    : ''
-                }
+                transform={getScaleTransform(
+                  0,
+                  selectedFramework,
+                  LIBRARY_CARD_LOCATIONS[0] + LIBRARY_CARD_WIDTH / 2,
+                  LIBRARY_CARD_HEIGHT / 2
+                )}
               />
 
               <AILibraryHeroCard
-                x={160}
+                x={LIBRARY_CARD_LOCATIONS[1]}
                 y={0}
-                width={120}
-                height={60}
+                width={LIBRARY_CARD_WIDTH}
+                height={LIBRARY_CARD_HEIGHT}
                 label="React"
                 opacity={getOpacity(1, selectedFramework, rotatingFramework)}
                 textColor={textColor}
@@ -805,14 +813,19 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 fontSize={BOX_FONT_SIZE}
                 fontWeight={BOX_FONT_WEIGHT}
                 logo={reactLogo}
-                transform={getScaleTransform(1, selectedFramework, 220, 30)}
+                transform={getScaleTransform(
+                  1,
+                  selectedFramework,
+                  LIBRARY_CARD_LOCATIONS[1] + LIBRARY_CARD_WIDTH / 2,
+                  LIBRARY_CARD_HEIGHT / 2
+                )}
               />
 
               <AILibraryHeroCard
-                x={320}
+                x={LIBRARY_CARD_LOCATIONS[2]}
                 y={0}
-                width={120}
-                height={60}
+                width={LIBRARY_CARD_WIDTH}
+                height={LIBRARY_CARD_HEIGHT}
                 label="Solid"
                 opacity={getOpacity(2, selectedFramework, rotatingFramework)}
                 textColor={textColor}
@@ -820,14 +833,19 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 fontSize={BOX_FONT_SIZE}
                 fontWeight={BOX_FONT_WEIGHT}
                 logo={solidLogo}
-                transform={getScaleTransform(2, selectedFramework, 380, 30)}
+                transform={getScaleTransform(
+                  2,
+                  selectedFramework,
+                  LIBRARY_CARD_LOCATIONS[2] + LIBRARY_CARD_WIDTH / 2,
+                  LIBRARY_CARD_HEIGHT / 2
+                )}
               />
 
               <AILibraryHeroCard
-                x={480}
+                x={LIBRARY_CARD_LOCATIONS[3]}
                 y={0}
-                width={120}
-                height={60}
+                width={LIBRARY_CARD_WIDTH}
+                height={LIBRARY_CARD_HEIGHT}
                 label="?"
                 opacity={getOpacity(3, selectedFramework, rotatingFramework)}
                 textColor={textColor}
@@ -835,7 +853,12 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 fontSize={BOX_FONT_SIZE}
                 fontWeight={BOX_FONT_WEIGHT}
                 isDashed={true}
-                transform={getScaleTransform(3, selectedFramework, 540, 30)}
+                transform={getScaleTransform(
+                  3,
+                  selectedFramework,
+                  LIBRARY_CARD_LOCATIONS[3] + LIBRARY_CARD_WIDTH / 2,
+                  LIBRARY_CARD_HEIGHT / 2
+                )}
               />
 
               {/* @tanstack/ai-client box */}
@@ -1012,10 +1035,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
 
               {/* Server layer */}
               <AILibraryHeroCard
-                x={0}
-                y={370}
-                width={120}
-                height={60}
+                x={SERVER_CARD_LOCATIONS[0]}
+                y={SERVER_CARD_Y_OFFSET}
+                width={SERVER_CARD_WIDTH}
+                height={SERVER_CARD_HEIGHT}
                 label="TypeScript"
                 opacity={getOpacity(0, selectedServer, rotatingServer)}
                 textColor={textColor}
@@ -1023,14 +1046,19 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 fontSize={16}
                 fontWeight={BOX_FONT_WEIGHT}
                 logo={tsLogo}
-                transform={getScaleTransform(0, selectedServer, 60, 400)}
+                transform={getScaleTransform(
+                  0,
+                  selectedServer,
+                  SERVER_CARD_LOCATIONS[0] + SERVER_CARD_WIDTH / 2,
+                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2
+                )}
               />
 
               <AILibraryHeroCard
-                x={160}
-                y={370}
-                width={120}
-                height={60}
+                x={SERVER_CARD_LOCATIONS[1]}
+                y={SERVER_CARD_Y_OFFSET}
+                width={SERVER_CARD_WIDTH}
+                height={SERVER_CARD_HEIGHT}
                 label="PHP"
                 opacity={getOpacity(1, selectedServer, rotatingServer)}
                 textColor={textColor}
@@ -1039,14 +1067,19 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 fontWeight={BOX_FONT_WEIGHT}
                 logoLight={phpLightLogo}
                 logoDark={phpDarkLogo}
-                transform={getScaleTransform(1, selectedServer, 220, 400)}
+                transform={getScaleTransform(
+                  1,
+                  selectedServer,
+                  SERVER_CARD_LOCATIONS[1] + SERVER_CARD_WIDTH / 2,
+                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2
+                )}
               />
 
               <AILibraryHeroCard
-                x={320}
-                y={370}
-                width={120}
-                height={60}
+                x={SERVER_CARD_LOCATIONS[2]}
+                y={SERVER_CARD_Y_OFFSET}
+                width={SERVER_CARD_WIDTH}
+                height={SERVER_CARD_HEIGHT}
                 label="Python"
                 opacity={getOpacity(2, selectedServer, rotatingServer)}
                 textColor={textColor}
@@ -1054,14 +1087,19 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 fontSize={BOX_FONT_SIZE}
                 fontWeight={BOX_FONT_WEIGHT}
                 logo={pythonLogo}
-                transform={getScaleTransform(2, selectedServer, 380, 400)}
+                transform={getScaleTransform(
+                  2,
+                  selectedServer,
+                  SERVER_CARD_LOCATIONS[2] + SERVER_CARD_WIDTH / 2,
+                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2
+                )}
               />
 
               <AILibraryHeroCard
-                x={480}
-                y={370}
-                width={120}
-                height={60}
+                x={SERVER_CARD_LOCATIONS[3]}
+                y={SERVER_CARD_Y_OFFSET}
+                width={SERVER_CARD_WIDTH}
+                height={SERVER_CARD_HEIGHT}
                 label="?"
                 opacity={getOpacity(3, selectedServer, rotatingServer)}
                 textColor={textColor}
@@ -1069,7 +1107,12 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 fontSize={BOX_FONT_SIZE}
                 fontWeight={BOX_FONT_WEIGHT}
                 isDashed={true}
-                transform={getScaleTransform(3, selectedServer, 540, 400)}
+                transform={getScaleTransform(
+                  3,
+                  selectedServer,
+                  SERVER_CARD_LOCATIONS[3] + SERVER_CARD_WIDTH / 2,
+                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2
+                )}
               />
             </svg>
           </div>
@@ -1081,31 +1124,6 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
               typingUserMessage={typingUserMessage}
             />
           </div>
-        </div>
-
-        {/* Content overlay */}
-        <div className="relative z-10 flex flex-col items-center gap-6 mt-8">
-          <h2 className="font-bold text-2xl md:text-4xl max-w-xl xl:max-w-4xl text-balance [letter-spacing:-0.03em]">
-            {project.tagline}
-          </h2>
-          {project.description ? (
-            <p className="text opacity-90 max-w-lg xl:max-w-2xl lg:text-base text-balance">
-              {project.description}
-            </p>
-          ) : null}
-          {actions ? (
-            <div>{actions}</div>
-          ) : cta ? (
-            <Link
-              {...cta.linkProps}
-              className={twMerge(
-                'inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors',
-                cta.className
-              )}
-            >
-              {cta.label}
-            </Link>
-          ) : null}
         </div>
       </div>
     </>

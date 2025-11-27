@@ -28,6 +28,29 @@ export const SERVICE_Y_OFFSET = 265
 export const SERVICE_HEIGHT = 40
 export const SERVICE_Y_CENTER = SERVICE_Y_OFFSET + SERVICE_HEIGHT / 2
 
+export const LIBRARY_CARD_WIDTH = 140
+export const LIBRARY_CARD_HEIGHT = 60
+export const LIBRARY_CARD_GUTTER = 20
+const LIBRARY_CARD_START_X = -20
+export const LIBRARY_CARD_LOCATIONS = [0, 1, 2, 3].map(
+  (index) =>
+    LIBRARY_CARD_START_X +
+    index * (LIBRARY_CARD_WIDTH + LIBRARY_CARD_GUTTER) +
+    LIBRARY_CARD_GUTTER / 2
+)
+
+export const SERVER_CARD_WIDTH = 140
+export const SERVER_CARD_HEIGHT = 60
+export const SERVER_CARD_GUTTER = 20
+const SERVER_CARD_START_X = -20
+export const SERVER_CARD_LOCATIONS = [0, 1, 2, 3].map(
+  (index) =>
+    SERVER_CARD_START_X +
+    index * (SERVER_CARD_WIDTH + SERVER_CARD_GUTTER) +
+    SERVER_CARD_GUTTER / 2
+)
+export const SERVER_CARD_Y_OFFSET = 370
+
 export type ChatMessage = {
   id: string
   user: string

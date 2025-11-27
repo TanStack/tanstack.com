@@ -10,6 +10,7 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+import { LibraryHero } from '~/components/LibraryHero'
 
 const library = getLibrary('ai')
 
@@ -33,6 +34,17 @@ function AIVersionIndex() {
   return (
     <>
       <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
+        <LibraryHero
+          project={aiProject}
+          cta={{
+            linkProps: {
+              to: '/$libraryId/$version/docs',
+              params: { libraryId: library.id, version },
+            },
+            label: 'Get Started',
+            className: 'bg-pink-500 text-white',
+          }}
+        />
         <AILibraryHero
           project={aiProject}
           cta={{

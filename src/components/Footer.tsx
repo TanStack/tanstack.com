@@ -17,6 +17,14 @@ const footerLinks = [
     to: 'https://nozzle.io',
   },
   {
+    label: 'Ethos',
+    to: '/ethos',
+  },
+  {
+    label: 'Tenets',
+    to: '/tenets',
+  },
+  {
     label: 'Privacy Policy',
     to: '/privacy',
   },

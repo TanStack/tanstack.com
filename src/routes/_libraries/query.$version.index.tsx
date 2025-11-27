@@ -7,7 +7,8 @@ import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { PartnersSection } from '~/components/PartnersSection'
 import { BottomCTA } from '~/components/BottomCTA'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
-import { QueryGGBanner } from '~/components/QueryGGBanner'
+// import { QueryGGBanner } from '~/components/QueryGGBanner'
+import { QueryGGBannerSale } from '~/components/QueryGGBannerSale'
 import { queryProject } from '~/libraries/query'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
@@ -15,6 +16,8 @@ import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
 import { CodeBlock } from '~/components/Markdown'
+import { AdGate } from '~/contexts/AdsContext'
+import { GamHeader } from '~/components/Gam'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
@@ -56,12 +59,16 @@ function VersionIndex() {
             }}
           />
           <div className="px-4">
-            <QueryGGBanner />
+            {/* <QueryGGBanner /> */}
+            <QueryGGBannerSale />
           </div>
 
           <div className="w-fit mx-auto px-4">
             <OpenSourceStats library={library} />
           </div>
+          <AdGate>
+            <GamHeader />
+          </AdGate>
           {/* Minimal code example card */}
           <div className="px-4 space-y-4 flex flex-col items-center ">
             <div className="text-3xl font-black">Just a quick look...</div>

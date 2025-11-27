@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { FaCheckCircle } from 'react-icons/fa'
+import { LuUsers, LuVideo, LuMapPin, LuStar } from 'react-icons/lu'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
 
 export const Route = createFileRoute('/_libraries/learn')({
@@ -16,75 +17,102 @@ export const Route = createFileRoute('/_libraries/learn')({
 
 function LearnPage() {
   return (
-    <div className="flex flex-col min-h-dvh max-w-full">
-      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 px-8">
-        <div className="flex flex-col items-center space-y-12 text-center ">
-          <div className="space-y-4">
-            <h1 className="space-y-2">
-              <div className="text-3xl font-black tracking-tight sm:text-4xl md:text-5xl lg:text-6xl/none text-pretty">
-                Educational Resources
+    <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
+      <div className="flex-1 space-y-12 w-full max-w-4xl mx-auto">
+        <header className="">
+          <h1 className="text-3xl font-black">Learn TanStack</h1>
+          <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
+            Whether you're just getting started or looking to level up as an
+            individual or team, we have resources that will help you succeed.
+          </p>
+        </header>
+        <div className="flex items-stretch flex-wrap gap-4 max-w-full w-[900px] justify-center">
+          <Link
+            to="/workshops"
+            className="min-w-[300px] max-w-[300px] rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 block relative overflow-visible"
+          >
+            <div className="absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 uppercase text-white font-black italic text-xs">
+              NEW
+            </div>
+            <div className="p-4 lg:p-8">
+              <div className="flex items-center gap-3 mb-4">
+                <LuUsers className="w-8 h-8" />
+                <h2 className="text-xl font-bold">Professional Workshops</h2>
               </div>
-              <div className="text-xl font-normal tracking-tight sm:text-2xl md:text-3xl lg:text-4xl/none text-pretty">
-                for TanStack Libraries
-              </div>
-            </h1>
-            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400 text-pretty">
-              Whether you're just getting started or looking to level up as an
-              individual or team, we have resources that will help you succeed.
-            </p>
-          </div>
-          <div className="flex items-stretch flex-wrap gap-4 max-w-full w-[900px] justify-center">
-            <Link
-              to={'https://query.gg?s=tanstack' as string}
-              target="_blank"
-              className="min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800 shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 overflow-hidden block"
-            >
-              <LogoQueryGG className="w-full" />
-              <div className="flex flex-col gap-6 pt-2 p-4 lg:p-8 ">
-                <div className="text-center">
-                  <div className="text-sm opacity-70 mt-2">
-                    Created by{' '}
-                    <span className="font-bold">Dominik Dorfmeister</span> and{' '}
-                    <span className="font-bold">ui.dev</span>
-                  </div>
+              <p className="text-sm mb-4 opacity-90">
+                Learn directly from TanStack creators and maintainers. Remote
+                and in-person options available.
+              </p>
+              <div className="grid gap-2 text-xs text-left">
+                <div className="flex items-start gap-2">
+                  <LuVideo className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>Remote workshops worldwide</div>
                 </div>
-
-                <div className="text-sm max-w-full text-center font-bold">
-                  “This is the best way to learn how to use React Query in
-                  real-world applications.”
-                  <div className="mt-2 text-xs italic">—Tanner Linsley</div>
+                <div className="flex items-start gap-2">
+                  <LuMapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>Premium in-person options</div>
                 </div>
-
-                <div className="grid max-w-(--breakpoint-lg) mx-auto text-xs gap-2 text-left">
-                  <div className="flex items-start gap-2">
-                    <span className="text-lg text-green-500">
-                      <FaCheckCircle />
-                    </span>
-                    <div>Save time by learning with a guided approach</div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-lg text-green-500">
-                      <FaCheckCircle />
-                    </span>
-                    <div>
-                      Get hands-on experience building a real-world application
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <span className="text-lg text-green-500">
-                      <FaCheckCircle />
-                    </span>
-                    <div>Never worry about data fetching again</div>
-                  </div>
+                <div className="flex items-start gap-2">
+                  <LuStar className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>From maintainers & creators</div>
                 </div>
               </div>
-            </Link>
-            <div className="flex items-center min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800/60 shadow-lg divide-y divide-white/30 overflow-hidden justify-center p-4">
-              <div className="opacity-20 font-black text-3xl rotate-[-5deg]">
-                More Coming Soon!
+              <div className="mt-6 pt-4 border-t border-white/30">
+                <div className="text-xs opacity-75 text-center mb-2">
+                  Contact us for a custom quote
+                </div>
+                <div className="text-xs opacity-90 text-center font-medium">
+                  Click to learn more →
+                </div>
               </div>
             </div>
-            {/* <Link
+          </Link>
+          <Link
+            to={'https://query.gg?s=tanstack' as string}
+            target="_blank"
+            className="min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800 shadow-black/20 shadow-md hover:shadow-lg hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 overflow-hidden block opacity-80"
+          >
+            <LogoQueryGG className="w-full" />
+            <div className="flex flex-col gap-6 pt-2 p-4 lg:p-8 ">
+              <div className="text-center">
+                <div className="text-sm opacity-70 mt-2">
+                  Created by{' '}
+                  <span className="font-bold">Dominik Dorfmeister</span> and{' '}
+                  <span className="font-bold">ui.dev</span>
+                </div>
+              </div>
+
+              <div className="text-sm max-w-full text-center font-bold">
+                “This is the best way to learn how to use React Query in
+                real-world applications.”
+                <div className="mt-2 text-xs italic">—Tanner Linsley</div>
+              </div>
+
+              <div className="grid max-w-(--breakpoint-lg) mx-auto text-xs gap-2 text-left">
+                <div className="flex items-start gap-2">
+                  <span className="text-lg text-green-500">
+                    <FaCheckCircle />
+                  </span>
+                  <div>Save time by learning with a guided approach</div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-lg text-green-500">
+                    <FaCheckCircle />
+                  </span>
+                  <div>
+                    Get hands-on experience building a real-world application
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-lg text-green-500">
+                    <FaCheckCircle />
+                  </span>
+                  <div>Never worry about data fetching again</div>
+                </div>
+              </div>
+            </div>
+          </Link>
+          {/* <Link
               to={'https://github.com/tanstack' as string}
               target="_blank"
               className="max-w-[300px] rounded-lg bg-linear-to-br from-gray-500 to-gray-900 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
@@ -123,9 +151,8 @@ function LearnPage() {
                 ))}
               </div>
             </Link> */}
-          </div>
         </div>
-      </section>
+      </div>
     </div>
   )
 }

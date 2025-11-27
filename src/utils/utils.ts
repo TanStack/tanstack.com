@@ -50,6 +50,56 @@ export function generatePath(
 }
 
 /**
+ * Generates a date-based seed string (YYYY-MM-DD) that is stable between
+ * SSR and hydration for the same day. Useful for deterministic shuffling.
+ */
+export function getDateSeed(): string {
+  return new Date().toISOString().split('T')[0]
+}
+
+/**
+ * Simple hash function for deterministic shuffling
+ * Uses a better mixing algorithm to avoid collisions
+ */
+function hashString(str: string): number {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash = hash | 0 // Convert to 32-bit integer
+    // Additional mixing
+    hash = hash + (hash << 10)
+    hash = hash ^ (hash >> 6)
+  }
+  // Final mixing
+  hash = hash + (hash << 3)
+  hash = hash ^ (hash >> 11)
+  hash = hash + (hash << 15)
+  return hash | 0
+}
+
+/**
+ * Shuffles an array deterministically based on a seed string. The same seed
+ * will produce the same shuffle order, making it stable between SSR and hydration.
+ *
+ * @param arr Array to shuffle
+ * @param seed Seed string for deterministic shuffling
+ * @param keyAccessor Function to extract a key from each item to use in hashing
+ * @returns Shuffled array (shallow copy)
+ */
+export function shuffleWithSeed<T>(
+  arr: T[],
+  seed: string,
+  keyAccessor: (item: T) => string
+): T[] {
+  return [...arr].sort((a, b) => {
+    const hashA = hashString(keyAccessor(a) + seed)
+    const hashB = hashString(keyAccessor(b) + seed)
+    return hashA - hashB
+  })
+}
+
+/**
  * Returns a shallow-copied array with items shuffled.
  */
 export function shuffle<T>(arr: T[]) {

@@ -80,7 +80,7 @@ const markdownComponents: Record<string, React.FC> = {
       // loading="lazy"
       // decoding="async"
     />
-  )
+  ),
 }
 
 export function extractPreAttributes(html: string): {
@@ -300,7 +300,7 @@ const options: HTMLReactParserOptions = {
 
         switch (componentName?.toLowerCase()) {
           case 'tabs': {
-            const tabs = attributes.tabs;
+            const tabs = attributes.tabs
             const panelElements = domNode.children?.filter(
               (child): child is Element =>
                 child instanceof Element && child.name === 'md-tab-panel'

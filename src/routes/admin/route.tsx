@@ -6,7 +6,7 @@ import {
   createFileRoute,
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { FaHome, FaUser, FaUsers, FaRss } from 'react-icons/fa'
+import { FaHome, FaUser, FaUsers, FaRss, FaShieldAlt } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
@@ -51,6 +51,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         label: 'Users',
         icon: <FaUsers />,
         to: '/admin/users',
+      },
+      {
+        label: 'Roles',
+        icon: <FaShieldAlt />,
+        to: '/admin/roles',
       },
       {
         label: 'Feed',
@@ -131,7 +136,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     >
       {smallMenu}
       {largeMenu}
-      <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden">
+      <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden bg-gray-50 dark:bg-gray-900">
         {children}
       </div>
     </div>

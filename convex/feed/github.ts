@@ -23,42 +23,41 @@ const REPO_TO_LIBRARY_ID: Record<string, string> = {
 }
 
 /**
- * Parse semantic version to determine release type and priority
+ * Parse semantic version to determine release type
  */
 function parseVersion(version: string): {
-  releaseType: 'major' | 'minor' | 'patch' | 'prerelease'
-  priority: number
+  releaseType: 'major' | 'minor' | 'patch'
+  isPrerelease: boolean
 } {
   // Remove 'v' prefix if present
   const cleanVersion = version.replace(/^v/i, '')
 
   // Check for prerelease markers
-  if (
+  const isPrerelease =
     cleanVersion.includes('-') ||
     cleanVersion.includes('alpha') ||
     cleanVersion.includes('beta') ||
     cleanVersion.includes('rc')
-  ) {
-    return { releaseType: 'prerelease', priority: 10 }
-  }
 
-  const parts = cleanVersion.split('.').map(Number)
+  // Extract base version (before prerelease markers)
+  const baseVersion = cleanVersion.split('-')[0].split('+')[0]
+  const parts = baseVersion.split('.').map(Number)
 
   if (parts.length < 2) {
-    return { releaseType: 'patch', priority: 20 }
+    return { releaseType: 'patch', isPrerelease }
   }
 
   const [major, minor, patch] = parts
 
   if (major > 0 && minor === 0 && (!patch || patch === 0)) {
-    return { releaseType: 'major', priority: 80 }
+    return { releaseType: 'major', isPrerelease }
   }
 
   if (minor > 0 && (!patch || patch === 0)) {
-    return { releaseType: 'minor', priority: 60 }
+    return { releaseType: 'minor', isPrerelease }
   }
 
-  return { releaseType: 'patch', priority: 20 }
+  return { releaseType: 'patch', isPrerelease }
 }
 
 /**
@@ -86,11 +85,10 @@ export function normalizeGitHubRelease(release: {
   tags: string[]
   category: 'release' | 'announcement' | 'blog' | 'partner' | 'update' | 'other'
   isVisible: boolean
-  priority: number
   featured?: boolean
   autoSynced: boolean
 } {
-  const { releaseType, priority } = parseVersion(release.tag_name)
+  const { releaseType, isPrerelease } = parseVersion(release.tag_name)
   const libraryId = REPO_TO_LIBRARY_ID[release.repo]
 
   // Generate unique ID
@@ -104,14 +102,17 @@ export function normalizeGitHubRelease(release: {
     .replace(/\n/g, ' ')
 
   // Build tags
+  // Always include the base release type (major/minor/patch)
+  // Also include prerelease tag if it's a prerelease
   const tags = [
     `release:${releaseType}`,
+    ...(isPrerelease ? ['release:prerelease'] : []),
     `source:github`,
     ...(libraryId ? [`library:${libraryId}`] : []),
   ]
 
-  // Default: hide patch releases unless manually featured
-  const isVisible = releaseType !== 'patch'
+  // All releases are visible by default; filtering by release level handles hiding patch releases
+  const isVisible = true
 
   return {
     id,
@@ -125,6 +126,7 @@ export function normalizeGitHubRelease(release: {
       releaseId: release.id.toString(),
       version: release.tag_name,
       releaseType,
+      isPrerelease,
       url: release.html_url,
       author: release.author?.login,
     },
@@ -132,7 +134,6 @@ export function normalizeGitHubRelease(release: {
     tags,
     category: 'release',
     isVisible,
-    priority,
     autoSynced: true,
   }
 }
@@ -178,7 +179,7 @@ async function fetchRepoReleases(
 
   const response = await fetch(url, {
     headers: {
-      Authorization: `token ${token}`,
+      Authorization: `Bearer ${token}`,
       Accept: 'application/vnd.github.v3+json',
       'User-Agent': 'TanStack-Feed',
     },
@@ -189,9 +190,20 @@ async function fetchRepoReleases(
       // Repo doesn't exist or has no releases
       return []
     }
-    throw new Error(
-      `GitHub API error: ${response.status} ${response.statusText}`
-    )
+    // Get error details from response body if available
+    let errorMessage = `GitHub API error: ${response.status} ${response.statusText}`
+    try {
+      const errorBody = await response.text()
+      if (errorBody) {
+        const errorJson = JSON.parse(errorBody)
+        if (errorJson.message) {
+          errorMessage += ` - ${errorJson.message}`
+        }
+      }
+    } catch {
+      // Ignore parse errors
+    }
+    throw new Error(errorMessage)
   }
 
   const releases = await response.json()
@@ -211,7 +223,7 @@ async function fetchRepoReleases(
  */
 export const syncGitHubReleases = action({
   args: {
-    // Optional: number of days to look back for initial sync (default: 30 days)
+    // Optional: number of days to look back for initial sync (default: 2 days / 48 hours)
     // Only used if no previous sync timestamp exists for a repo
     // Set to 0 or undefined to sync all releases on first run
     daysBack: v.optional(v.number()),
@@ -226,7 +238,7 @@ export const syncGitHubReleases = action({
 
     const repos = Object.keys(REPO_TO_LIBRARY_ID)
     const now = Date.now()
-    const defaultDaysBack = args.daysBack ?? 30
+    const defaultDaysBack = args.daysBack ?? 2
     let syncedCount = 0
     let errorCount = 0
     let skippedCount = 0
@@ -285,7 +297,6 @@ export const syncGitHubReleases = action({
                 metadata: normalized.metadata,
                 libraryIds: normalized.libraryIds,
                 tags: normalized.tags,
-                priority: normalized.priority,
                 lastSyncedAt: now,
               })
             } else {

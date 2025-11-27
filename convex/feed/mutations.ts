@@ -1,19 +1,12 @@
 import { mutation } from '../_generated/server'
 import { v } from 'convex/values'
 import { QueryCtx } from '../_generated/server'
-import { getCurrentUserConvex } from '../auth'
 import { validatePublishedAt } from './timestamps'
+import { requireCapability } from '../users'
 
-// Helper function to validate admin capability
+// Helper function to validate admin capability (reuses requireCapability)
 async function requireAdmin(ctx: QueryCtx) {
-  const currentUser = await getCurrentUserConvex(ctx)
-  if (!currentUser) {
-    throw new Error('Not authenticated')
-  }
-  if (!currentUser.capabilities.includes('admin')) {
-    throw new Error('Admin capability required')
-  }
-  return { currentUser }
+  return await requireCapability(ctx, 'admin')
 }
 
 export const createFeedEntry = mutation({
@@ -37,7 +30,6 @@ export const createFeedEntry = mutation({
       v.literal('other')
     ),
     isVisible: v.boolean(),
-    priority: v.optional(v.number()),
     featured: v.optional(v.boolean()),
     autoSynced: v.boolean(),
   },
@@ -81,7 +73,6 @@ export const createFeedEntry = mutation({
       tags: args.tags,
       category: args.category,
       isVisible: args.isVisible,
-      priority: args.priority,
       featured: args.featured,
       autoSynced: args.autoSynced,
       lastSyncedAt: args.autoSynced ? now : undefined,
@@ -113,7 +104,6 @@ export const updateFeedEntry = mutation({
       )
     ),
     isVisible: v.optional(v.boolean()),
-    priority: v.optional(v.number()),
     featured: v.optional(v.boolean()),
     lastSyncedAt: v.optional(v.number()),
   },
@@ -152,7 +142,6 @@ export const updateFeedEntry = mutation({
     if (args.tags !== undefined) updates.tags = args.tags
     if (args.category !== undefined) updates.category = args.category
     if (args.isVisible !== undefined) updates.isVisible = args.isVisible
-    if (args.priority !== undefined) updates.priority = args.priority
     if (args.featured !== undefined) updates.featured = args.featured
     if (args.lastSyncedAt !== undefined)
       updates.lastSyncedAt = args.lastSyncedAt
@@ -269,5 +258,55 @@ export const setFeedConfig = mutation({
     }
 
     return { success: true }
+  },
+})
+
+/**
+ * Migration: Remove priority field and update manual source to announcement
+ * Run this once to clean up existing entries
+ */
+export const migrateFeedEntries = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx)
+    const entries = await ctx.db.query('feedEntries').collect()
+    let updated = 0
+
+    for (const entry of entries) {
+      const updates: any = {}
+      let needsUpdate = false
+
+      // Check if entry has priority field (needs removal)
+      const hasPriority = 'priority' in entry
+
+      // Check if source needs updating
+      if (entry.source === 'manual') {
+        updates.source = 'announcement'
+        needsUpdate = true
+      }
+
+      if (hasPriority || needsUpdate) {
+        // For entries with priority, we need to replace them without that field
+        if (hasPriority) {
+          // Extract all fields except priority
+          const { priority, _id, _creationTime, ...entryWithoutPriority } =
+            entry as any
+          await ctx.db.replace(entry._id, {
+            ...entryWithoutPriority,
+            ...updates,
+            updatedAt: Date.now(),
+          })
+        } else {
+          // Just update source
+          await ctx.db.patch(entry._id, {
+            ...updates,
+            updatedAt: Date.now(),
+          })
+        }
+        updated++
+      }
+    }
+
+    return { success: true, updated }
   },
 })

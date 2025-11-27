@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { FaLock, FaUsers, FaChartBar, FaRss } from 'react-icons/fa'
+import { FaLock, FaUsers, FaChartBar, FaRss, FaShieldAlt } from 'react-icons/fa'
 import { useQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
 
@@ -20,7 +20,10 @@ function AdminPage() {
   }
 
   // If authenticated but no admin capability, show unauthorized
-  const canAdmin = user?.capabilities.includes('admin')
+  // Check effective capabilities (direct + role-based)
+  const effectiveCapabilities =
+    (user as any)?.effectiveCapabilities || user?.capabilities || []
+  const canAdmin = effectiveCapabilities.includes('admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -85,6 +88,29 @@ function AdminDashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                  <FaShieldAlt className="text-purple-600 dark:text-purple-400 text-xl" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Role Management
+                </h3>
+              </div>
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Create and manage roles, assign capabilities to roles, and view
+              users by role.
+            </p>
+            <Link
+              to="/admin/roles"
+              className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Manage Roles
+            </Link>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
                   <FaRss className="text-green-600 dark:text-green-400 text-xl" />
                 </div>
@@ -94,7 +120,8 @@ function AdminDashboard() {
               </div>
             </div>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Manage feed entries, sync GitHub releases and blog posts, and create manual announcements.
+              Manage feed entries, sync GitHub releases and blog posts, and
+              create manual announcements.
             </p>
             <Link
               to="/admin/feed"

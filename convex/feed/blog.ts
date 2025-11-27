@@ -25,7 +25,6 @@ export function normalizeBlogPost(post: {
   tags: string[]
   category: 'blog'
   isVisible: boolean
-  priority: number
   featured?: boolean
   autoSynced: boolean
 } {
@@ -48,7 +47,6 @@ export function normalizeBlogPost(post: {
     tags: ['source:blog', 'category:blog'],
     category: 'blog',
     isVisible: true,
-    priority: 50, // Default priority for blog posts
     autoSynced: true,
   }
 }
@@ -100,7 +98,6 @@ export const syncBlogPosts = action({
             metadata: normalized.metadata,
             libraryIds: normalized.libraryIds,
             tags: normalized.tags,
-            priority: normalized.priority,
             lastSyncedAt: now,
           })
         } else {

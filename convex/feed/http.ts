@@ -92,7 +92,6 @@ export const handleGitHubWebhook = httpAction(async (ctx, request) => {
       metadata: normalized.metadata,
       libraryIds: normalized.libraryIds,
       tags: normalized.tags,
-      priority: normalized.priority,
       lastSyncedAt: now,
     })
   } else {

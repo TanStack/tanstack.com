@@ -3,6 +3,7 @@ import { mutation, query, QueryCtx } from './_generated/server'
 import { Capability, CapabilitySchema } from './schema'
 import { getCurrentUserConvex } from './auth'
 import { Id } from './_generated/dataModel'
+import { getEffectiveCapabilities } from './capabilities'
 
 export const updateUserCapabilities = mutation({
   args: {
@@ -146,15 +147,21 @@ export const listUsers = query({
 // countUsers removed; counts are included in listUsers response
 
 // Helper function to validate user capability
-async function requireCapability(ctx: QueryCtx, capability: Capability) {
+export async function requireCapability(ctx: QueryCtx, capability: Capability) {
   // Get the current user (caller)
   const currentUser = await getCurrentUserConvex(ctx)
   if (!currentUser) {
     throw new Error('Not authenticated')
   }
 
+  // Get effective capabilities (direct + role-based)
+  const effectiveCapabilities = await getEffectiveCapabilities(
+    ctx,
+    currentUser.userId as Id<'users'>
+  )
+
   // Validate that caller has the required capability
-  if (!currentUser.capabilities.includes(capability)) {
+  if (!effectiveCapabilities.includes(capability)) {
     throw new Error(`${capability} capability required`)
   }
 
@@ -221,5 +228,49 @@ export const setInterestedInHidingAds = mutation({
     })
 
     return { success: true }
+  },
+})
+
+// Bulk update capabilities for multiple users (admin only)
+export const bulkUpdateUserCapabilities = mutation({
+  args: {
+    userIds: v.array(v.id('users')),
+    capabilities: v.array(
+      v.union(v.literal('admin'), v.literal('disableAds'), v.literal('builder'))
+    ),
+  },
+  handler: async (ctx, args) => {
+    // Validate admin capability
+    await requireCapability(ctx, 'admin')
+
+    // Validate capabilities
+    const validatedCapabilities = CapabilitySchema.array().parse(
+      args.capabilities
+    )
+
+    // Update all users
+    const updates = await Promise.all(
+      args.userIds.map(async (userId) => {
+        const targetUser = await ctx.db.get(userId)
+        if (!targetUser) {
+          throw new Error(`User ${userId} not found`)
+        }
+
+        let capabilities = validatedCapabilities
+
+        // Ensure that tannerlinsley@gmail.com always has the admin capability
+        if (targetUser.email === 'tannerlinsley@gmail.com') {
+          capabilities = [
+            ...new Set<Capability>(['admin', ...capabilities]).values(),
+          ]
+        }
+
+        await ctx.db.patch(userId, {
+          capabilities,
+        })
+      })
+    )
+
+    return { success: true, updated: updates.length }
   },
 })

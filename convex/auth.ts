@@ -11,6 +11,7 @@ import schema from './schema'
 import { Infer } from 'convex/values'
 import { betterAuth } from 'better-auth'
 import { convex } from '@convex-dev/better-auth/plugins'
+import { getEffectiveCapabilities } from './capabilities'
 
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth
@@ -104,10 +105,18 @@ export async function getCurrentUserConvex(ctx: QueryCtx) {
   // Get user data from your application's database
   // (skip this if you have no fields in your users table schema)
   const userMetaData = await ctx.db.get(user.userId as Id<'users'>)
+
+  // Get effective capabilities (direct + role-based)
+  const effectiveCapabilities = await getEffectiveCapabilities(
+    ctx,
+    user.userId as Id<'users'>
+  )
+
   return {
     ...user,
     ...userMetaData,
-  } as TanStackUser
+    effectiveCapabilities,
+  } as TanStackUser & { effectiveCapabilities: string[] }
 }
 
 export type TanStackUser = Awaited<ReturnType<typeof getBetterAuthUser>> &

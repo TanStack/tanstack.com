@@ -57,7 +57,6 @@ export function FeedEntryEditor({
     entry?.partnerIds || []
   )
   const [tags, setTags] = useState<string>(entry?.tags.join(', ') || '')
-  const [priority, setPriority] = useState<number>(entry?.priority ?? 50)
   const [isVisible, setIsVisible] = useState(entry?.isVisible ?? true)
   const [featured, setFeatured] = useState(entry?.featured ?? false)
   const [showPreview, setShowPreview] = useState(false)
@@ -89,7 +88,7 @@ export function FeedEntryEditor({
         console.log('Creating entry with ID:', entryId)
         const result = await createEntry({
           id: entryId,
-          source: 'manual',
+          source: 'announcement',
           title,
           content,
           excerpt: excerpt || undefined,
@@ -103,7 +102,6 @@ export function FeedEntryEditor({
           tags: tagArray,
           category,
           isVisible,
-          priority,
           featured,
           autoSynced: false,
         })
@@ -122,7 +120,6 @@ export function FeedEntryEditor({
           tags: tagArray,
           category,
           isVisible,
-          priority,
           featured,
         })
         console.log('Entry updated successfully:', result)
@@ -316,21 +313,6 @@ export function FeedEntryEditor({
               onChange={(e) => setTags(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
               placeholder="tag1, tag2, tag3"
-            />
-          </div>
-
-          {/* Priority */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Priority: {priority}
-            </label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={priority}
-              onChange={(e) => setPriority(Number(e.target.value))}
-              className="w-full"
             />
           </div>
 

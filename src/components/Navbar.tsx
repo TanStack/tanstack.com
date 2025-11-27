@@ -19,9 +19,11 @@ import {
   LuLock,
   LuX,
   LuMenu,
+  LuRss,
 } from 'react-icons/lu'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
+import { FeedTicker } from './FeedTicker'
 import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { AuthLoading } from 'convex/react'
 import { api } from 'convex/_generated/api'
@@ -208,6 +210,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <div className="flex-1 max-w-[180px] font-normal hidden lg:block">
           <SearchButton />
         </div>
+      </div>
+      <div className="hidden lg:block">
+        <FeedTicker />
       </div>
       <div className="flex items-center gap-2">
         <div className="hidden sm:block">{socialLinks}</div>
@@ -416,6 +421,19 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </Authenticated>
         {[
           {
+            label: (
+              <>
+                <span>Feed</span>
+                <span className="px-1.5 py-0.5 text-xs font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-md uppercase">
+                  Alpha
+                </span>
+              </>
+            ),
+            icon: <LuRss />,
+            to: '/feed',
+            requiresCapability: 'feed',
+          },
+          {
             label: 'Maintainers',
             icon: <LuCode />,
             to: '/maintainers',
@@ -432,12 +450,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: (
-              <span className="flex items-center gap-2">
-                Learn
-                <span className="text-xs bg-transparent text-transparent bg-clip-text bg-linear-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
+              <>
+                <span>Learn</span>
+                <span className="px-1.5 py-0.5 text-xs font-bold bg-gradient-to-r from-green-400 to-green-600 text-white rounded-md uppercase">
                   NEW
                 </span>
-              </span>
+              </>
             ),
             icon: <LuBookOpen />,
             to: '/learn',
@@ -483,28 +501,43 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             icon: <LuPaintbrush />,
             to: '/brand-guide',
           },
-        ].map((item, i) => {
-          return (
-            <Link
-              to={item.to}
-              key={i}
-              className={twMerge(linkClasses, 'font-normal')}
-              activeProps={{
-                className: twMerge(
-                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
-                ),
-              }}
-              target={item.to.startsWith('http') ? '_blank' : undefined}
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-4 justify-between">
-                  {item.icon}
+        ]
+          .filter((item) => {
+            // Filter out items that require capabilities the user doesn't have
+            if (item.requiresCapability) {
+              const effectiveCapabilities =
+                (user as any)?.effectiveCapabilities || user?.capabilities || []
+              return (
+                effectiveCapabilities.includes(item.requiresCapability) ||
+                effectiveCapabilities.includes('admin')
+              )
+            }
+            return true
+          })
+          .map((item, i) => {
+            return (
+              <Link
+                to={item.to}
+                key={i}
+                className={twMerge(linkClasses, 'font-normal')}
+                activeProps={{
+                  className: twMerge(
+                    'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                  ),
+                }}
+                target={item.to.startsWith('http') ? '_blank' : undefined}
+              >
+                <div className="flex items-center gap-2 w-full">
+                  <div className="flex items-center gap-4 justify-between">
+                    {item.icon}
+                  </div>
+                  <div className="flex items-center justify-between flex-1 gap-2">
+                    {typeof item.label === 'string' ? item.label : item.label}
+                  </div>
                 </div>
-                <div>{item.label}</div>
-              </div>
-            </Link>
-          )
-        })}
+              </Link>
+            )
+          })}
       </div>
     </div>
   )

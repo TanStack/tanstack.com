@@ -1,16 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { convexQuery } from '@convex-dev/react-query'
-import { useQuery } from '@tanstack/react-query'
-import { api } from 'convex/_generated/api'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useState, useEffect } from 'react'
 import { useMounted } from '~/hooks/useMounted'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
-import { FeedList } from '~/components/FeedList'
-import { FeedFilters } from '~/components/FeedFilters'
-import { libraries } from '~/libraries'
-import { partners } from '~/utils/partners'
+import { FeedPageLayout } from '~/components/FeedPageLayout'
+import { useFeedQuery } from '~/hooks/useFeedQuery'
+import { useQuery } from 'convex/react'
+import { api } from 'convex/_generated/api'
+import { FaLock } from 'react-icons/fa'
 
 const librarySchema = z.enum([
   'start',
@@ -38,19 +36,47 @@ const categorySchema = z.enum([
   'other',
 ])
 
+const releaseLevelSchema = z.enum(['major', 'minor', 'patch'])
+
 export const Route = createFileRoute('/_libraries/feed')({
   component: FeedPage,
-  validateSearch: z.object({
-    sources: z.array(z.string()).optional().catch(undefined),
-    libraries: z.array(librarySchema).optional().catch(undefined),
-    categories: z.array(categorySchema).optional().catch(undefined),
-    partners: z.array(z.string()).optional().catch(undefined),
-    tags: z.array(z.string()).optional().catch(undefined),
-    hidePatch: z.boolean().optional().default(true).catch(true),
-    featured: z.boolean().optional().catch(undefined),
-    search: z.string().optional().catch(undefined),
-    page: z.number().optional().default(1).catch(1),
-  }),
+  validateSearch: (search) => {
+    // Check if releaseLevels exists in raw search params
+    // If it exists (even as empty array), use it as-is
+    // If it doesn't exist, apply defaults
+    const hasReleaseLevels = 'releaseLevels' in search
+    const releaseLevelsValue = search.releaseLevels
+
+    const parsed = z
+      .object({
+        sources: z.array(z.string()).optional().catch(undefined),
+        libraries: z.array(librarySchema).optional().catch(undefined),
+        categories: z.array(categorySchema).optional().catch(undefined),
+        partners: z.array(z.string()).optional().catch(undefined),
+        tags: z.array(z.string()).optional().catch(undefined),
+        releaseLevels: hasReleaseLevels
+          ? // If key exists, use the value (even if empty array)
+            z
+              .array(releaseLevelSchema)
+              .catch(
+                Array.isArray(releaseLevelsValue) ? releaseLevelsValue : []
+              )
+          : // If key doesn't exist, apply defaults
+            z
+              .array(releaseLevelSchema)
+              .optional()
+              .default(['major', 'minor'])
+              .catch(['major', 'minor']),
+        includePrerelease: z.boolean().optional().default(true).catch(true),
+        featured: z.boolean().optional().catch(undefined),
+        search: z.string().optional().catch(undefined),
+        page: z.number().optional().default(1).catch(1),
+        pageSize: z.number().int().positive().optional().default(20).catch(20),
+      })
+      .parse(search)
+
+    return parsed
+  },
   head: () => ({
     meta: seo({
       title: 'Feed',
@@ -64,6 +90,43 @@ function FeedPage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
   const mounted = useMounted()
+  const user = useQuery(api.auth.getCurrentUser)
+
+  // Check if user has feed access capability
+  const canAccessFeed =
+    user?.capabilities?.includes('feed') ||
+    user?.capabilities?.includes('admin') ||
+    false
+
+  // Show loading while checking auth
+  if (user === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    )
+  }
+
+  // Show access denied if user doesn't have capability
+  if (!canAccessFeed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <FaLock className="text-4xl text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            You don't have permission to access the feed.
+          </p>
+          <Link
+            to="/"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg inline-block"
+          >
+            Back to Home
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   // Load saved filter preferences from localStorage (only on client)
   const [savedFilters, setSavedFilters] = useState<typeof search | null>(null)
@@ -87,26 +150,23 @@ function FeedPage() {
     ...search,
   }
 
-  const feedQuery = useQuery(
-    convexQuery(api.feed.queries.listFeedEntries, {
-      pagination: {
-        limit: 20,
-        page: effectiveFilters.page ? effectiveFilters.page - 1 : 0,
-      },
-      filters: {
-        sources: effectiveFilters.sources,
-        libraries: effectiveFilters.libraries,
-        categories: effectiveFilters.categories,
-        partners: effectiveFilters.partners,
-        tags: effectiveFilters.tags,
-        hidePatch: effectiveFilters.hidePatch ?? true,
-        featured: effectiveFilters.featured,
-        search: effectiveFilters.search,
-      },
-    })
-  )
+  const feedQuery = useFeedQuery({
+    page: effectiveFilters.page ?? 1,
+    pageSize: effectiveFilters.pageSize ?? 20,
+    filters: {
+      sources: effectiveFilters.sources,
+      libraries: effectiveFilters.libraries,
+      categories: effectiveFilters.categories,
+      partners: effectiveFilters.partners,
+      tags: effectiveFilters.tags,
+      releaseLevels: effectiveFilters.releaseLevels,
+      includePrerelease: effectiveFilters.includePrerelease,
+      featured: effectiveFilters.featured,
+      search: effectiveFilters.search,
+    },
+  })
 
-  const handleFiltersChange = (newFilters: Partial<typeof search>) => {
+  const handleFiltersChange = (newFilters: Partial<typeof search>): void => {
     navigate({
       search: (s) => ({
         ...s,
@@ -127,8 +187,10 @@ function FeedPage() {
   const handleClearFilters = () => {
     navigate({
       search: {
-        hidePatch: true,
+        releaseLevels: ['major', 'minor'],
+        includePrerelease: true,
         page: 1,
+        pageSize: effectiveFilters.pageSize ?? 20,
       },
       replace: true,
     })
@@ -139,52 +201,46 @@ function FeedPage() {
     }
   }
 
+  const handlePageSizeChange = (newPageSize: number) => {
+    navigate({
+      search: (s) => ({
+        ...s,
+        pageSize: newPageSize,
+        page: 1,
+      }),
+      replace: true,
+      resetScroll: false,
+    })
+  }
+
   return (
-    <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
-      <div className="flex-1 space-y-12 w-full max-w-7xl mx-auto">
-        <header className="">
-          <h1 className="text-3xl font-black">Feed</h1>
-          <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
-            Stay up to date with all TanStack updates, releases, announcements,
-            and blog posts
-          </p>
-        </header>
-
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <aside className="lg:w-64 flex-shrink-0">
-            <FeedFilters
-              libraries={libraries}
-              partners={partners}
-              selectedSources={effectiveFilters.sources}
-              selectedLibraries={effectiveFilters.libraries}
-              selectedCategories={effectiveFilters.categories}
-              selectedPartners={effectiveFilters.partners}
-              selectedTags={effectiveFilters.tags}
-              hidePatch={effectiveFilters.hidePatch ?? true}
-              featured={effectiveFilters.featured}
-              search={effectiveFilters.search}
-              onFiltersChange={handleFiltersChange}
-              onClearFilters={handleClearFilters}
-            />
-          </aside>
-
-          {/* Feed Content */}
-          <main className="flex-1">
-            <FeedList
-              query={feedQuery}
-              currentPage={effectiveFilters.page ?? 1}
-              onPageChange={(page) => {
-                navigate({
-                  search: (s) => ({ ...s, page }),
-                  replace: true,
-                })
-              }}
-            />
-          </main>
-        </div>
+    <FeedPageLayout.Root
+      feedQuery={feedQuery}
+      currentPage={effectiveFilters.page ?? 1}
+      pageSize={effectiveFilters.pageSize ?? 20}
+      filters={effectiveFilters as any}
+      onFiltersChange={handleFiltersChange as any}
+      onClearFilters={handleClearFilters}
+      onPageChange={(page) => {
+        navigate({
+          search: (s) => ({ ...s, page }),
+          replace: true,
+          resetScroll: false,
+        })
+      }}
+      onPageSizeChange={handlePageSizeChange}
+    >
+      <FeedPageLayout.Header
+        title="Feed"
+        description="Stay up to date with all TanStack updates, releases, announcements, and blog posts"
+      />
+      <div className="flex flex-col lg:flex-row gap-8">
+        <FeedPageLayout.Filters />
+        <FeedPageLayout.Content />
       </div>
-      <Footer />
-    </div>
+      <FeedPageLayout.Footer>
+        <Footer />
+      </FeedPageLayout.Footer>
+    </FeedPageLayout.Root>
   )
 }

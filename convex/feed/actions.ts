@@ -21,11 +21,11 @@ export const syncAllSources = action({
       blog: { success: false, error: null as string | null },
     }
 
-    // Sync GitHub releases (last 30 days)
+    // Sync GitHub releases (last 48 hours / 2 days)
     try {
       const githubResult: { success: boolean } = await ctx.runAction(
         api.feed.github.syncGitHubReleases,
-        { daysBack: 30 }
+        {} // Uses default of 2 days
       )
       results.github.success = githubResult.success
     } catch (error) {

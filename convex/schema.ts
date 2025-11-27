@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 // Zod schema for valid capabilities
 // Valid capabilities list (exported for use throughout the app)
-export const VALID_CAPABILITIES = ['admin', 'disableAds', 'builder'] as const
+export const VALID_CAPABILITIES = ['admin', 'disableAds', 'builder', 'feed'] as const
 export const CapabilitySchema = z.enum(VALID_CAPABILITIES)
 export type Capability = z.infer<typeof CapabilitySchema>
 
@@ -65,7 +65,6 @@ const schema = defineSchema({
     ),
     // Display control
     isVisible: v.boolean(), // Can hide entries without deleting
-    priority: v.optional(v.number()), // Unified priority level (higher = more prominent)
     featured: v.optional(v.boolean()), // Featured entries
     // Auto-sync metadata
     autoSynced: v.boolean(), // Whether this was auto-created
@@ -85,6 +84,27 @@ const schema = defineSchema({
     value: v.any(), // JSON value
     updatedAt: v.number(),
   }).index('by_key', ['key']),
+  roles: defineTable({
+    name: v.string(),
+    description: v.optional(v.string()),
+    capabilities: v.array(
+      v.union(...validCapabilities.map((cap) => v.literal(cap)))
+    ),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index('by_name', ['name'])
+    .searchIndex('search_name', {
+      searchField: 'name',
+    }),
+  roleAssignments: defineTable({
+    userId: v.id('users'),
+    roleId: v.id('roles'),
+    createdAt: v.number(),
+  })
+    .index('by_user', ['userId'])
+    .index('by_role', ['roleId'])
+    .index('by_user_role', ['userId', 'roleId']),
 })
 
 export default schema

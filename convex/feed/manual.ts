@@ -13,30 +13,28 @@ export interface NormalizedFeedEntry {
   libraryIds: string[]
   partnerIds?: string[]
   tags: string[]
-  category:
-    | 'release'
-    | 'announcement'
-    | 'blog'
-    | 'partner'
-    | 'update'
-    | 'other'
+  category: 'release' | 'announcement' | 'blog' | 'partner' | 'update' | 'other'
   isVisible: boolean
-  priority?: number
   featured?: boolean
   autoSynced: boolean
 }
 
 /**
- * Generate a unique ID for a manual feed entry
+ * Generate a unique ID for an announcement feed entry
  */
 export function generateManualEntryId(): string {
-  return `manual:${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+  return `announcement:${Date.now()}-${Math.random()
+    .toString(36)
+    .substring(2, 9)}`
 }
 
 /**
  * Auto-generate excerpt from content if not provided
  */
-export function generateExcerpt(content: string, maxLength: number = 200): string {
+export function generateExcerpt(
+  content: string,
+  maxLength: number = 200
+): string {
   // Remove markdown headers, links, etc. for a cleaner excerpt
   const plainText = content
     .replace(/^#+\s+/gm, '') // Remove headers
@@ -62,9 +60,7 @@ export function generateExcerpt(content: string, maxLength: number = 200): strin
 /**
  * Validate and normalize a manual feed entry
  */
-export function validateManualEntry(
-  entry: Partial<NormalizedFeedEntry>
-): {
+export function validateManualEntry(entry: Partial<NormalizedFeedEntry>): {
   valid: boolean
   normalized?: NormalizedFeedEntry
   errors?: string[]
@@ -97,7 +93,7 @@ export function validateManualEntry(
 
   const normalized: NormalizedFeedEntry = {
     id: entry.id || generateManualEntryId(),
-    source: entry.source || 'manual',
+    source: entry.source || 'announcement',
     title: entry.title!.trim(),
     content: entry.content!.trim(),
     excerpt: entry.excerpt || generateExcerpt(entry.content!),
@@ -108,11 +104,9 @@ export function validateManualEntry(
     tags: entry.tags || [],
     category: entry.category!,
     isVisible: entry.isVisible ?? true,
-    priority: entry.priority,
     featured: entry.featured ?? false,
     autoSynced: false,
   }
 
   return { valid: true, normalized }
 }
-

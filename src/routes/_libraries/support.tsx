@@ -79,7 +79,9 @@ function SupportComp() {
               NEW
             </div>
             <div className="bg-linear-to-br from-blue-600 to-purple-600 p-6 text-white rounded-lg h-full w-full">
-              <h3 className="text-xl font-semibold mb-2">Professional Workshops</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Professional Workshops
+              </h3>
               <p className="text-sm text-white/80 mb-4">
                 Learn from TanStack creators and maintainers
               </p>

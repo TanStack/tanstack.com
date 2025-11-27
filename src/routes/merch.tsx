@@ -17,7 +17,8 @@ export const Route = createFileRoute('/merch')({
   head: () => ({
     meta: seo({
       title: 'TanStack Merch',
-      description: 'Official TanStack merchandise including apparel and stickers.',
+      description:
+        'Official TanStack merchandise including apparel and stickers.',
     }),
   }),
 })
@@ -25,7 +26,8 @@ export const Route = createFileRoute('/merch')({
 const merchItems = [
   {
     name: 'Apparel',
-    description: 'T-shirts, sweatshirts, hoodies, onesies, hats, totes, and phone cases featuring TanStack designs',
+    description:
+      'T-shirts, sweatshirts, hoodies, onesies, hats, totes, and phone cases featuring TanStack designs',
     icons: [
       { Icon: LuShirt, label: 'T-shirts' },
       { Icon: PiBaseballCapBold, label: 'Hats' },
@@ -39,7 +41,8 @@ const merchItems = [
   },
   {
     name: 'Stickers & Buttons',
-    description: 'High-quality vinyl stickers and small buttons for your laptop, water bottle, and more',
+    description:
+      'High-quality vinyl stickers and small buttons for your laptop, water bottle, and more',
     icons: [
       { Icon: LuTag, label: 'Stickers' },
       { Icon: LuCircle, label: 'Buttons' },

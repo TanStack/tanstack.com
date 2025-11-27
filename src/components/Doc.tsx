@@ -1,6 +1,3 @@
-import { marked } from 'marked'
-import markedAlert from 'marked-alert'
-import { getHeadingList, gfmHeadingId } from 'marked-gfm-heading-id'
 import * as React from 'react'
 import {
   BsArrowsCollapseVertical,
@@ -11,6 +8,10 @@ import { twMerge } from 'tailwind-merge'
 import { useWidthToggle } from '~/components/DocsLayout'
 import { DocTitle } from '~/components/DocTitle'
 import { Markdown } from '~/components/Markdown'
+import {
+  MarkdownHeadingProvider,
+  useMarkdownHeadings,
+} from '~/components/MarkdownHeadingContext'
 import { AdGate } from '~/contexts/AdsContext'
 import { CopyMarkdownButton } from './CopyMarkdownButton'
 import { GamHeader, GamLeader } from './Gam'
@@ -28,7 +29,7 @@ type DocProps = {
   colorTo?: string
 }
 
-export function Doc({
+function DocContent({
   title,
   content,
   repo,
@@ -38,17 +39,7 @@ export function Doc({
   colorFrom,
   colorTo,
 }: DocProps) {
-  const { markup, headings } = React.useMemo(() => {
-    const markup = marked.use(
-      { gfm: true },
-      gfmHeadingId(),
-      markedAlert()
-    )(content) as string
-
-    const headings = getHeadingList()
-
-    return { markup, headings }
-  }, [content])
+  const { headings } = useMarkdownHeadings()
 
   const isTocVisible = shouldRenderToc && headings && headings.length > 1
 
@@ -107,7 +98,7 @@ export function Doc({
     headingElements.forEach((el) => observer.observe(el))
 
     return () => observer.disconnect()
-  }, [])
+  }, [headings])
 
   return (
     <div className="flex-1 min-h-0 flex flex-col">
@@ -168,7 +159,7 @@ export function Doc({
               'styled-markdown-content'
             )}
           >
-            <Markdown htmlMarkup={markup} />
+            <Markdown rawContent={content} />
           </div>
           <div className="h-12" />
           <div className="w-full h-px bg-gray-500 opacity-30" />
@@ -195,5 +186,13 @@ export function Doc({
         )}
       </div>
     </div>
+  )
+}
+
+export function Doc(props: DocProps) {
+  return (
+    <MarkdownHeadingProvider>
+      <DocContent {...props} />
+    </MarkdownHeadingProvider>
   )
 }

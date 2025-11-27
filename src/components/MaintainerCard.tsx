@@ -419,7 +419,11 @@ export function MaintainerRowCard({
   )
 }
 
-export function MaintainerCard({ maintainer, libraryId, hideLibraries }: MaintainerCardProps) {
+export function MaintainerCard({
+  maintainer,
+  libraryId,
+  hideLibraries,
+}: MaintainerCardProps) {
   const libraries = getPersonsMaintainerOf(maintainer)
   const [showAllLibraries, setShowAllLibraries] = useState(false)
 

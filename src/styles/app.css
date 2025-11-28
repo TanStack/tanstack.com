@@ -539,8 +539,16 @@ html.dark .shiki.tokyo-night span[style*='color: #51597D'] {
 }
 
 /* Markdown Alerts */
+
+.not-prose .markdown-alert {
+  @apply pt-2 pb-4 px-3 flex flex-col gap-2;
+  p {
+    @apply my-2;
+  }
+}
+
 .markdown-alert {
-  @apply border-l-4 pl-4 py-1.5 my-2 dark:bg-gray-900 rounded-r-sm;
+  @apply border-l-4 pl-4 py-1.5 my-2 bg-white dark:bg-gray-900 rounded-r-sm;
 }
 
 .markdown-alert > * {
@@ -588,11 +596,31 @@ html.dark .shiki.tokyo-night span[style*='color: #51597D'] {
 }
 
 .markdown-alert .markdown-alert-title {
-  @apply flex justify-start items-center font-medium mb-1.5;
+  @apply flex justify-start items-center font-medium;
 }
 
 .bg-clip-text {
   @apply print:text-gray-800;
+}
+
+[data-tab] {
+  @apply text-sm leading-normal;
+}
+
+[data-tab] a {
+  @apply underline font-[500];
+}
+
+[data-tab] .markdown-alert {
+  @apply bg-gray-100 dark:bg-gray-900;
+}
+
+[data-tab] > .codeblock:not(:only-child) pre {
+  @apply dark:bg-white/5! bg-black/5!;
+}
+
+[data-tab] > .markdown-alert [aria-label] svg {
+  @apply stroke-current fill-current;
 }
 
 mark {

@@ -1,3 +1,4 @@
+import { getRouteApi } from '@tanstack/react-router'
 import * as React from 'react'
 import { getFrameworkOptions } from '~/libraries'
 
@@ -13,8 +14,11 @@ export type TabsProps = {
 }
 
 export function Tabs({ tabs, children }: TabsProps) {
+  const Route = getRouteApi()
+  const { framework } = Route.useParams()
+
   const [activeSlug, setActiveSlug] = React.useState(
-    () => tabs[0]?.slug ?? 'tab'
+    () => tabs.find((tab) => tab.slug === framework)?.slug || tabs[0].slug
   )
 
   return (

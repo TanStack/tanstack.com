@@ -194,7 +194,7 @@ export function CodeBlock({
   return (
     <div
       className={twMerge(
-        'w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md [*[data-tab]_&]:only:border-0',
+        'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md [*[data-tab]_&]:only:border-0',
         props.className
       )}
       style={props.style}
@@ -311,14 +311,6 @@ const options: HTMLReactParserOptions = {
             )
 
             return <Tabs tabs={tabs} children={children as any} />
-          }
-          case 'alert': {
-            const variant = attributes.variant ?? 'note'
-            return (
-              <Alert variant={variant}>
-                {domToReact(domNode.children as any, options)}
-              </Alert>
-            )
           }
           default:
             return <div>{domToReact(domNode.children as any, options)}</div>

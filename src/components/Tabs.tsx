@@ -1,3 +1,4 @@
+import { getRouteApi } from '@tanstack/react-router'
 import * as React from 'react'
 import { getFrameworkOptions } from '~/libraries'
 
@@ -13,12 +14,15 @@ export type TabsProps = {
 }
 
 export function Tabs({ tabs, children }: TabsProps) {
+  const Route = getRouteApi()
+  const { framework } = Route.useParams()
+
   const [activeSlug, setActiveSlug] = React.useState(
-    () => tabs[0]?.slug ?? 'tab'
+    () => tabs.find((tab) => tab.slug === framework)?.slug || tabs[0].slug
   )
 
   return (
-    <div className="not-prose">
+    <div className="not-prose my-4">
       <div className="flex items-center justify-start gap-2 rounded-t-md border-b border-gray-200 dark:border-gray-700 overflow-x-auto scrollbar-hide bg-white dark:bg-[#1a1b26]">
         {tabs.map((tab) => {
           return (

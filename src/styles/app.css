@@ -607,6 +607,10 @@ html.dark .shiki.tokyo-night span[style*='color: #51597D'] {
   @apply text-sm leading-normal;
 }
 
+[data-tab] a {
+  @apply underline font-[500];
+}
+
 [data-tab] .markdown-alert {
   @apply bg-gray-100 dark:bg-gray-900;
 }

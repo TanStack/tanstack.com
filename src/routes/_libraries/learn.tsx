@@ -40,8 +40,8 @@ function LearnPage() {
                 <h2 className="text-xl font-bold">Professional Workshops</h2>
               </div>
               <p className="text-sm mb-4 opacity-90">
-                Learn directly from TanStack creators and maintainers. Remote and
-                in-person options available.
+                Learn directly from TanStack creators and maintainers. Remote
+                and in-person options available.
               </p>
               <div className="grid gap-2 text-xs text-left">
                 <div className="flex items-start gap-2">

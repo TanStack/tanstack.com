@@ -54,7 +54,11 @@ export const listUsers = query({
     nameFilter: v.optional(v.string()),
     capabilityFilter: v.optional(
       v.array(
-        v.union(v.literal('admin'), v.literal('disableAds'), v.literal('builder'))
+        v.union(
+          v.literal('admin'),
+          v.literal('disableAds'),
+          v.literal('builder')
+        )
       )
     ),
     noCapabilitiesFilter: v.optional(v.boolean()),
@@ -96,10 +100,7 @@ export const listUsers = query({
 
       // No capabilities filter
       if (args.noCapabilitiesFilter === true) {
-        if (
-          !Array.isArray(user.capabilities) ||
-          user.capabilities.length > 0
-        ) {
+        if (!Array.isArray(user.capabilities) || user.capabilities.length > 0) {
           return false
         }
       }
@@ -116,7 +117,11 @@ export const listUsers = query({
         if (Boolean(user.adsDisabled) !== args.adsDisabledFilter) return false
       }
       if (typeof args.interestedInHidingAdsFilter === 'boolean') {
-        if (Boolean(user.interestedInHidingAds) !== args.interestedInHidingAdsFilter) return false
+        if (
+          Boolean(user.interestedInHidingAds) !==
+          args.interestedInHidingAdsFilter
+        )
+          return false
       }
       return true
     })

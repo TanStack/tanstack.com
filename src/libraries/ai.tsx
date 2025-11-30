@@ -79,4 +79,3 @@ export const aiProject = {
     },
   ],
 } satisfies Library
-

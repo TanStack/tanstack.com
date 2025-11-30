@@ -139,18 +139,19 @@ export const librariesByGroup = {
     routerProject,
     queryProject,
     dbProject,
-    aiProject,
     storeProject,
-    pacerProject,
+    aiProject,
   ],
-  headlessUI: [tableProject, formProject, virtualProject],
-  other: [devtoolsProject, configProject],
+  headlessUI: [tableProject, formProject],
+  performance: [virtualProject, pacerProject],
+  tooling: [devtoolsProject, configProject],
 }
 
 export const librariesGroupNamesMap = {
   state: 'Data and State Management',
   headlessUI: 'Headless UI',
-  other: 'Other',
+  performance: 'Performance',
+  tooling: 'Tooling',
 }
 
 export function getLibrary(id: LibraryId): Library {

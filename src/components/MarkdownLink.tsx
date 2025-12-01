@@ -15,7 +15,7 @@ export function MarkdownLink({
   }
 
   const [hrefWithoutHash, hash] = hrefProp?.split('#') ?? []
-  let [to] = hrefWithoutHash?.split('.md') ?? []
+  const [to] = hrefWithoutHash?.split('.md') ?? []
 
   return (
     <Link

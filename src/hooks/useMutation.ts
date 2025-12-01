@@ -26,7 +26,7 @@ export function useBaseMutation<TVariables, TData, TError = Error>(
     'idle' | 'pending' | 'success' | 'error'
   >('idle')
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   const mutate = React.useCallback(
     (async (variables: TVariables): Promise<TData | undefined> => {
       setStatus('pending')

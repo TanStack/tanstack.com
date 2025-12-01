@@ -17,28 +17,45 @@ import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
 import { renderMarkdown } from '~/utils/markdown'
 import { Tabs } from '~/components/Tabs'
 
+type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+
 const CustomHeading = ({
   Comp,
   id,
+  children,
   ...props
 }: HTMLProps<HTMLHeadingElement> & {
-  Comp: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  Comp: HeadingLevel
 }) => {
+  // Convert children to array and strip any inner anchor (native 'a' or MarkdownLink)
+  const childrenArray = React.Children.toArray(children)
+  const sanitizedChildren = childrenArray.map((child) => {
+    if (React.isValidElement(child) && (child.type === 'a' || child.type === MarkdownLink)) {
+      // replace anchor child with its own children so outer anchor remains the only link
+      return child.props.children ?? null
+    }
+    return child
+  })
+
+  const heading = (
+    <Comp id={id} {...props}>
+      {sanitizedChildren}
+    </Comp>
+  )
+
   if (id) {
     return (
-      <a
-        href={`#${id}`}
-        className={`anchor-heading *:scroll-my-20 *:lg:scroll-my-4`}
-      >
-        <Comp id={id} {...props} />
+      <a href={`#${id}`} className={`anchor-heading *:scroll-my-20 *:lg:scroll-my-4`}>
+        {heading}
       </a>
     )
   }
-  return <Comp {...props} />
+
+  return heading
 }
 
 const makeHeading =
-  (type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
+  (type: HeadingLevel) =>
   (props: HTMLProps<HTMLHeadingElement>) =>
     (
       <CustomHeading

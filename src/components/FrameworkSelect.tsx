@@ -14,6 +14,7 @@ export function FrameworkSelect({ libraryId }: { libraryId: LibraryId }) {
   const frameworkConfig = useFrameworkConfig({ frameworks: library.frameworks })
   return (
     <Select
+      className="min-w-[120px]"
       label={frameworkConfig.label}
       selected={frameworkConfig.selected}
       available={frameworkConfig.available}

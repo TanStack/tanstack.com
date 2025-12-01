@@ -201,8 +201,14 @@ function FeedPageLayoutHeader({
 }
 
 function FeedPageLayoutFilters() {
-  const { filters, onFiltersChange, onClearFilters, facetCountsQuery, viewMode = 'table', onViewModeChange } =
-    useFeedPageLayout()
+  const {
+    filters,
+    onFiltersChange,
+    onClearFilters,
+    facetCountsQuery,
+    viewMode = 'table',
+    onViewModeChange,
+  } = useFeedPageLayout()
 
   return (
     <aside className="lg:w-64 flex-shrink-0">

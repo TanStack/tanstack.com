@@ -233,7 +233,7 @@ function Index() {
                             <MatchRoute
                               pending
                               to={library.to}
-                              children={(isPending) => {
+                              children={() => {
                                 return (
                                   <div
                                     className={twMerge(

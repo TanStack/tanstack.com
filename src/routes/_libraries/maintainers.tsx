@@ -698,7 +698,7 @@ function RouteComponent() {
                 </p>
               )}
 
-              {groupedMaintainers.map((group, index) => (
+              {groupedMaintainers.map((group) => (
                 <MaintainerGrid
                   key={group.title || 'all'}
                   maintainers={group.maintainers}

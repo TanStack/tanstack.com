@@ -184,7 +184,7 @@ async function getGithubSponsors() {
         'jherr',
         'seancassiere',
         'schiller-manuel',
-      ].flatMap((d, i1) =>
+      ].flatMap((d) =>
         new Array(20).fill(d).map((d, i2) => ({
           login: d,
           name: d,

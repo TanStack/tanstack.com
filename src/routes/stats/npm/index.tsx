@@ -166,19 +166,6 @@ const binningOptionsByType = binningOptions.reduce((acc, option) => {
 
 type TransformMode = z.infer<typeof transformModeSchema>
 
-type NpmPackage = {
-  name: string
-  description: string
-  version: string
-  publisher: {
-    username: string
-  }
-  time?: {
-    created: string
-    modified: string
-  }
-}
-
 const defaultColors = [
   '#1f77b4', // blue
   '#ff7f0e', // orange
@@ -1012,59 +999,6 @@ function RouteComponent() {
       range,
     })
   )
-
-  const handleCombineSelect = (selectedPackage: NpmPackage) => {
-    if (!combiningPackage) return
-
-    // Find the package group that contains the combining package
-    const packageGroup = packageGroups.find((pkg) =>
-      pkg.packages.some((p) => p.name === combiningPackage)
-    )
-
-    if (packageGroup) {
-      // Update existing package group
-      const newPackages = packageGroups.map((pkg) =>
-        pkg === packageGroup
-          ? {
-              ...pkg,
-              packages: [
-                ...pkg.packages,
-                { name: selectedPackage.name, hidden: true },
-              ],
-            }
-          : pkg
-      )
-
-      navigate({
-        to: '.',
-        search: (prev) => ({
-          ...prev,
-          packageGroups: newPackages,
-        }),
-        resetScroll: false,
-      })
-    } else {
-      // Create new package group
-      navigate({
-        to: '.',
-        search: (prev) => ({
-          ...prev,
-          packageGroups: [
-            ...packageGroups,
-            {
-              packages: [
-                { name: combiningPackage },
-                { name: selectedPackage.name },
-              ],
-            },
-          ],
-        }),
-        resetScroll: false,
-      })
-    }
-
-    setCombiningPackage(null)
-  }
 
   const handleRemoveFromGroup = (mainPackage: string, subPackage: string) => {
     // Find the package group

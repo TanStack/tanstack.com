@@ -22,10 +22,14 @@ function UserSettings() {
     const { adsDisabled } = args
     const currentValue = localStore.getQuery(api.auth.getCurrentUser)
     if (currentValue !== undefined) {
-      localStore.setQuery(api.auth.getCurrentUser, {}, {
-        ...currentValue,
-        adsDisabled: adsDisabled,
-      })
+      localStore.setQuery(
+        api.auth.getCurrentUser,
+        {},
+        {
+          ...currentValue,
+          adsDisabled: adsDisabled,
+        }
+      )
     }
   })
 

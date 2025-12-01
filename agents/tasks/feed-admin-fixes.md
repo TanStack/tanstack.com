@@ -3,36 +3,43 @@
 ## Issues Found and Fixed
 
 ### 1. Route Navigation - ✅ FIXED
+
 **File**: `src/routes/admin/feed.tsx`
 **Issue**: Using `/admin/feed/new` which doesn't exist as a route
 **Fix**: Changed to `/admin/feed/$id` with `params={{ id: 'new' }}`
 
 ### 2. Navigation Search Params - ✅ FIXED
+
 **File**: `src/routes/admin/feed.tsx`
 **Issue**: Direct object assignment to search params
 **Fix**: Updated to use function form: `search: (s) => ({ ...s, ...updates })`
 
 ### 3. Window Confirm - ✅ FIXED
+
 **File**: `src/routes/admin/feed.tsx`
 **Issue**: Using `confirm()` without `window.` prefix
 **Fix**: Changed to `window.confirm()`
 
 ### 4. Type Error in FeedEntryEditor - ✅ FIXED
+
 **File**: `src/routes/admin/feed.$id.tsx`
 **Issue**: `entryQuery` could be `undefined` but type expects `FeedEntry | null`
 **Fix**: Added null coalescing: `entryQuery ?? null`
 
 ### 5. Unused Imports - ✅ FIXED
+
 **Files**: Multiple admin files
 **Issue**: Unused imports causing warnings
 **Fix**: Removed unused imports (`useState`, `useEffect`, `validateManualEntry`)
 
 ### 6. Library Filter Property - ✅ FIXED
+
 **File**: `src/components/admin/FeedEntryEditor.tsx`
 **Issue**: Accessing `lib.visible` property that doesn't exist
 **Fix**: Removed filter for non-existent property
 
 ### 7. Actions Export - ✅ FIXED
+
 **File**: `src/components/admin/FeedSyncStatus.tsx`
 **Issue**: `api.feed.actions` doesn't exist in generated API
 **Fix**: Removed `syncAllSources` button and updated to use `useAction` hook. GitHub sync works via `api.feed.github.syncGitHubReleases`.
@@ -41,11 +48,13 @@
 ## Remaining Issues
 
 ### 1. Actions Not Exported
+
 **File**: `convex/feed/actions.ts`
 **Issue**: Actions file exists but `api.feed.actions` is not available
 **Status**: Need to verify Convex file structure. Actions may need to be in root `convex/` directory or registered differently.
 
 ### 2. Route Search Params Type Errors - ✅ FIXED
+
 **File**: `src/routes/admin/feed.tsx`
 **Issue**: TypeScript errors with search param updates
 **Fix**: Changed from `useNavigate()` to `Route.useNavigate()` and updated search param updates to use object spread instead of function form
@@ -69,4 +78,3 @@
    - Delete post
    - Toggle visibility
    - Toggle featured
-

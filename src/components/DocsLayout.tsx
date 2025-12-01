@@ -5,7 +5,7 @@ import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
-import { Framework } from '~/libraries'
+import { Framework, frameworkOptions } from '~/libraries'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { twMerge } from 'tailwind-merge'
 import { partners, PartnerImage } from '~/utils/partners'
@@ -248,23 +248,9 @@ export function DocsLayout({
                               className={`text-xs ${
                                 props.isActive ? 'opacity-100' : 'opacity-40'
                               } group-hover:opacity-100 font-bold transition-opacity ${
-                                child.badge === 'react'
-                                  ? 'text-sky-500'
-                                  : child.badge === 'solid'
-                                  ? 'text-blue-500'
-                                  : child.badge === 'svelte'
-                                  ? 'text-orange-500'
-                                  : child.badge === 'vue'
-                                  ? 'text-green-500'
-                                  : child.badge === 'angular'
-                                  ? 'text-fuchsia-500'
-                                  : child.badge === 'qwik'
-                                  ? 'text-indigo-500'
-                                  : child.badge === 'lit'
-                                  ? 'text-emerald-500'
-                                  : child.badge === 'vanilla'
-                                  ? 'text-yellow-500'
-                                  : 'text-gray-500'
+                                frameworkOptions.find(
+                                  (f) => f.value === child.badge
+                                )?.fontColor ?? 'text-gray-500'
                               }`}
                             >
                               {child.badge}

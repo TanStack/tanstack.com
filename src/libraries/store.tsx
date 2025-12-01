@@ -1,6 +1,6 @@
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
+import { FaGithub } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
 import { twMerge } from 'tailwind-merge'
 
@@ -27,7 +27,7 @@ export const storeProject = {
   colorFrom: 'from-twine-500',
   colorTo: 'to-twine-700',
   textColor: 'text-twine-700',
-  frameworks: ['react', 'solid', 'svelte', 'vue', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
   menu: [
@@ -54,8 +54,8 @@ export const storeProject = {
       description: (
         <div>
           TanStack Store is widely adopted across the TanStack ecosystem,
-          powering libraries like TanStack Form, TanStack Router, and more. It
-          has been{' '}
+          powering libraries like TanStack Form, TanStack Router, TanStack
+          Pacer, and more. It has been{' '}
           <span className={twMerge('font-semibold', textStyles)}>
             battle-tested in production environments, ensuring reliability and
             performance
@@ -88,12 +88,12 @@ export const storeProject = {
           <span className={twMerge('font-semibold', textStyles)}>
             framework agnostic
           </span>
-          , with adapters available for popular frameworks like React, Vue,
-          Angular, Solid, and Svelte. This flexibility allows developers to use
-          the store in their preferred framework without being locked into a
+          , with adapters available for popular frameworks like React, Preact,
+          Vue, Angular, Solid, and Svelte. This flexibility allows developers to
+          use the store in their preferred framework without being locked into a
           specific ecosystem.
         </div>
       ),
     },
   ],
-}
+} satisfies Library

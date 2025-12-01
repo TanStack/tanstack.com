@@ -467,7 +467,9 @@ export const getFeedFacetCounts = query({
 
     // Count featured
     const featuredEntries = applyFiltersExcept(entries, 'featured')
-    const featuredCount = featuredEntries.filter((entry) => entry.featured).length
+    const featuredCount = featuredEntries.filter(
+      (entry) => entry.featured
+    ).length
 
     return {
       sources: sourceCounts,

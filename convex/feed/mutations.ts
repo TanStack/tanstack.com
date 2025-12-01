@@ -3,6 +3,7 @@ import { v } from 'convex/values'
 import { QueryCtx } from '../_generated/server'
 import { validatePublishedAt } from './timestamps'
 import { requireCapability } from '../users'
+import { feedCategoryValidator } from './schema'
 
 // Helper function to validate admin capability (reuses requireCapability)
 async function requireAdmin(ctx: QueryCtx) {

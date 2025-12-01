@@ -10,6 +10,7 @@ export const Route = createFileRoute('/admin/')({
 
 function AdminPage() {
   const user = useQuery(api.auth.getCurrentUser)
+  const capabilities = useCapabilities()
 
   // If not authenticated, show loading
   if (user === undefined) {
@@ -21,7 +22,6 @@ function AdminPage() {
   }
 
   // If authenticated but no admin capability, show unauthorized
-  const capabilities = useCapabilities()
   const canAdmin = capabilities.includes('admin')
   if (user && !canAdmin) {
     return (
@@ -129,7 +129,6 @@ function AdminDashboard() {
               Manage Feed
             </Link>
           </div>
-
         </div>
 
         <div className="mt-8">

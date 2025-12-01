@@ -15,7 +15,12 @@ import {
   FaSpinner,
 } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
-import { FilterBar, FilterSearch, FilterCheckbox, FilterSection } from '~/components/FilterComponents'
+import {
+  FilterBar,
+  FilterSearch,
+  FilterCheckbox,
+  FilterSection,
+} from '~/components/FilterComponents'
 import {
   Table,
   TableHeader,
@@ -169,7 +174,9 @@ function UsersPage() {
   const [updatingAdsUserId] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [bulkActionRoleId, setBulkActionRoleId] = useState<string | null>(null)
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
     capabilities: true,
     ads: true,
   })

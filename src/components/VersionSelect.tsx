@@ -11,6 +11,7 @@ export function VersionSelect({ libraryId }: { libraryId: LibraryId }) {
   })
   return (
     <Select
+      className="max-w-[93px]"
       label={versionConfig.label}
       selected={versionConfig.selected}
       available={versionConfig.available}

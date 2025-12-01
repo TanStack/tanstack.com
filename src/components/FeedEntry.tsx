@@ -253,7 +253,7 @@ export function FeedEntry({
             className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             {entry.title}
-            </Link>
+          </Link>
         </TableCell>
 
         {/* Excerpt */}

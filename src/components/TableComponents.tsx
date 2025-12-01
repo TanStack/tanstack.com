@@ -24,7 +24,9 @@ interface TableHeaderProps {
 
 export function TableHeader({ children, className = '' }: TableHeaderProps) {
   return (
-    <thead className={`hidden md:table-header-group border-b border-gray-200 dark:border-gray-800 bg-white ${className}`}>
+    <thead
+      className={`hidden md:table-header-group border-b border-gray-200 dark:border-gray-800 bg-white ${className}`}
+    >
       {children}
     </thead>
   )
@@ -41,7 +43,9 @@ export function TableHeaderRow({
   className = '',
 }: TableHeaderRowProps) {
   return (
-    <tr className={`border-b border-gray-200 dark:border-gray-800 bg-white ${className}`}>
+    <tr
+      className={`border-b border-gray-200 dark:border-gray-800 bg-white ${className}`}
+    >
       {children}
     </tr>
   )
@@ -67,8 +71,8 @@ export function TableHeaderCell({
     align === 'right'
       ? 'text-right'
       : align === 'center'
-        ? 'text-center'
-        : 'text-left'
+      ? 'text-center'
+      : 'text-left'
   const paddingClass = compact ? 'px-2 py-1.5' : 'px-4 py-2'
   const textSizeClass = compact ? 'text-[10px]' : 'text-xs'
   return (
@@ -98,14 +102,12 @@ interface TableRowProps {
   onClick?: () => void
 }
 
-export function TableRow({
-  children,
-  className = '',
-  onClick,
-}: TableRowProps) {
+export function TableRow({ children, className = '', onClick }: TableRowProps) {
   return (
     <tr
-      className={`border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 ${
+        onClick ? 'cursor-pointer' : ''
+      } ${className}`}
       onClick={onClick}
     >
       {children}
@@ -135,8 +137,8 @@ export function TableCell({
     align === 'right'
       ? 'text-right'
       : align === 'center'
-        ? 'text-center'
-        : 'text-left'
+      ? 'text-center'
+      : 'text-left'
   const paddingClass = compact ? 'px-2 py-2' : 'px-4 py-3'
   return (
     <td
@@ -148,4 +150,3 @@ export function TableCell({
     </td>
   )
 }
-

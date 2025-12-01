@@ -1,5 +1,10 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { FilterBar, FilterSearch, FilterCheckbox, FilterSection } from '~/components/FilterComponents'
+import {
+  FilterBar,
+  FilterSearch,
+  FilterCheckbox,
+  FilterSection,
+} from '~/components/FilterComponents'
 import {
   Table,
   TableHeader,
@@ -71,7 +76,9 @@ function RolesPage() {
     [search.cap]
   )
 
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
     capabilities: true,
   })
 
@@ -135,7 +142,9 @@ function RolesPage() {
             }),
           })
         }}
-        isAllSelected={capabilityFilters.length === availableCapabilities.length}
+        isAllSelected={
+          capabilityFilters.length === availableCapabilities.length
+        }
         isSomeSelected={
           capabilityFilters.length > 0 &&
           capabilityFilters.length < availableCapabilities.length

@@ -100,4 +100,4 @@ export const pacerProject = {
       ),
     },
   ],
-} satisfies Library
+}

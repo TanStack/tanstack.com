@@ -64,26 +64,6 @@ export const Route = createFileRoute('/_libraries/maintainers')({
       keywords: 'tanstack,maintainers,contributors,open source,developers',
     }),
   }),
-  // loader: async ({ context: { queryClient } }) => {
-  //   try {
-  //     // Fetch GitHub stats for all maintainers
-  //     const stats = await queryClient.ensureQueryData({
-  //       queryKey: ['maintainerStats'],
-  //       queryFn: () => fetchAllMaintainerStats(),
-  //       staleTime: 1000 * 60 * 30, // 30 minutes
-  //     })
-
-  //     return {
-  //       stats,
-  //     }
-  //   } catch (error) {
-  //     console.error('Error loading maintainer stats:', error)
-  //     // Return empty stats array if there's an error
-  //     return {
-  //       stats: [],
-  //     }
-  //   }
-  // },
 })
 
 interface FilterProps {
@@ -393,8 +373,6 @@ function MaintainerGrid({
 function RouteComponent() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
-  // const loaderData = Route.useLoaderData()
-  // const stats = loaderData?.stats || []
   const stats: any[] = [] // Empty array since stats are commented out
 
   const updateFilters = (updates: {

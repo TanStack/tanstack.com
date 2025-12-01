@@ -26,7 +26,6 @@ export function useBaseMutation<TVariables, TData, TError = Error>(
     'idle' | 'pending' | 'success' | 'error'
   >('idle')
 
-   
   const mutate = React.useCallback(
     (async (variables: TVariables): Promise<TData | undefined> => {
       setStatus('pending')

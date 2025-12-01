@@ -49,43 +49,6 @@ export default function CookieConsent() {
       ? JSON.parse(localStorage.getItem('cookie_consent') || '{}')
       : { analytics: false, ads: false }
 
-  useEffect(() => {
-    const checkLocationAndSetConsent = async () => {
-      // Only check location if no consent has been set yet
-      if (!consentSettings.analytics && !consentSettings.ads) {
-        try {
-          const response = await fetch(
-            'https://www.cloudflare.com/cdn-cgi/trace'
-          )
-          const data = await response.text()
-          const country = data.match(/loc=(\w+)/)?.[1]
-          const isEU = country ? EU_COUNTRIES.includes(country) : false
-
-          if (isEU) {
-            // Set default denied consent for EU users
-            const euConsent = { analytics: false, ads: false }
-            localStorage.setItem('cookie_consent', JSON.stringify(euConsent))
-            updateGTMConsent(euConsent)
-            setShowBanner(true)
-          } else {
-            // For non-EU users, set default accepted consent and don't show banner
-            const nonEuConsent = { analytics: true, ads: true }
-            localStorage.setItem('cookie_consent', JSON.stringify(nonEuConsent))
-            updateGTMConsent(nonEuConsent)
-            setShowBanner(false)
-          }
-        } catch (error) {
-          console.error('Error checking location:', error)
-          setShowBanner(true)
-        }
-      } else {
-        updateGTMConsent(consentSettings)
-      }
-    }
-
-    checkLocationAndSetConsent()
-  }, [])
-
   const updateGTMConsent = (settings: { analytics: boolean; ads: boolean }) => {
     window.dataLayer = window.dataLayer || []
     window.dataLayer.push({
@@ -126,9 +89,6 @@ export default function CookieConsent() {
     setShowBanner(false)
   }
 
-  const openSettings = () => setShowSettings(true)
-  const closeSettings = () => setShowSettings(false)
-
   const blockGoogleScripts = () => {
     document.querySelectorAll('script').forEach((script) => {
       if (
@@ -152,6 +112,46 @@ export default function CookieConsent() {
       document.body.appendChild(script)
     }
   }
+
+  useEffect(() => {
+    const checkLocationAndSetConsent = async () => {
+      // Only check location if no consent has been set yet
+      if (!consentSettings.analytics && !consentSettings.ads) {
+        try {
+          const response = await fetch(
+            'https://www.cloudflare.com/cdn-cgi/trace'
+          )
+          const data = await response.text()
+          const country = data.match(/loc=(\w+)/)?.[1]
+          const isEU = country ? EU_COUNTRIES.includes(country) : false
+
+          if (isEU) {
+            // Set default denied consent for EU users
+            const euConsent = { analytics: false, ads: false }
+            localStorage.setItem('cookie_consent', JSON.stringify(euConsent))
+            updateGTMConsent(euConsent)
+            setShowBanner(true)
+          } else {
+            // For non-EU users, set default accepted consent and don't show banner
+            const nonEuConsent = { analytics: true, ads: true }
+            localStorage.setItem('cookie_consent', JSON.stringify(nonEuConsent))
+            updateGTMConsent(nonEuConsent)
+            setShowBanner(false)
+          }
+        } catch (error) {
+          console.error('Error checking location:', error)
+          setShowBanner(true)
+        }
+      } else {
+        updateGTMConsent(consentSettings)
+      }
+    }
+
+    checkLocationAndSetConsent()
+  }, [])
+
+  const openSettings = () => setShowSettings(true)
+  const closeSettings = () => setShowSettings(false)
 
   return (
     <>

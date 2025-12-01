@@ -114,14 +114,6 @@ function Index() {
 
   return (
     <>
-      {/* <img
-        src={waves}
-        className="-bottom-[50px] -left-[10px] z-0 fixed opacity-20"
-      />
-      <img
-        src={toyPalmChair}
-        className="-bottom-[50px] -right-[100px] z-0 fixed opacity-20"
-      /> */}
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
           <div className="flex flex-col xl:flex-row items-center gap-4 xl:pt-24 xl:justify-center">

@@ -2,7 +2,7 @@ import React from 'react'
 import { Pack, hierarchy } from '@visx/hierarchy'
 import { ParentSize } from '@visx/responsive'
 import { twMerge } from 'tailwind-merge'
-import { getSponsorsForSponsorPack, Sponsor } from '~/server/sponsors'
+import { getSponsorsForSponsorPack } from '~/server/sponsors'
 
 type DisplaySponsor = Awaited<
   ReturnType<typeof getSponsorsForSponsorPack>

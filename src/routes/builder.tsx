@@ -1,4 +1,4 @@
-import { redirect, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useCapabilities } from '~/hooks/useCapabilities'
 
 export const Route = createFileRoute('/builder')({

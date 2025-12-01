@@ -1,5 +1,5 @@
 import { twMerge } from 'tailwind-merge'
-import { useMatch, useMatches, useParams } from '@tanstack/react-router'
+import { useMatches, useParams } from '@tanstack/react-router'
 import { findLibrary } from '~/libraries'
 
 export function BackgroundGradient() {

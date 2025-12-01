@@ -16,17 +16,11 @@ import * as Plot from '@observablehq/plot'
 import { ParentSize } from '@visx/responsive'
 import { Tooltip } from '~/components/Tooltip'
 import * as d3 from 'd3'
-import { FaAngleRight, FaSpinner } from 'react-icons/fa'
+import { FaSpinner } from 'react-icons/fa'
 import { HexColorPicker } from 'react-colorful'
 import { seo } from '~/utils/seo'
 import { getPopularComparisons } from './-comparisons'
-import {
-  GamFooter,
-  GamHeader,
-  GamLeftRailSquare,
-  GamRightRailSquare,
-  GamVrec1,
-} from '~/components/Gam'
+import { GamHeader, GamVrec1 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL

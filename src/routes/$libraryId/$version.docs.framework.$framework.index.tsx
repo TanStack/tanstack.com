@@ -1,13 +1,6 @@
 import { seo } from '~/utils/seo'
-import { redirect, createFileRoute } from '@tanstack/react-router'
-import { Doc } from '~/components/Doc'
-import { loadDocs } from '~/utils/docs'
-import {
-  Framework,
-  getBranch,
-  getFrameworkOptions,
-  getLibrary,
-} from '~/libraries'
+import { createFileRoute } from '@tanstack/react-router'
+import { Framework, getFrameworkOptions, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
@@ -18,8 +11,7 @@ export const Route = createFileRoute(
 )({
   staleTime: 1000 * 60 * 5,
   loader: (ctx) => {
-    const { framework, version, libraryId } = ctx.params
-
+    const { framework } = ctx.params
     const [frameworkOption] = getFrameworkOptions([framework as Framework])
 
     return {
@@ -43,7 +35,7 @@ export const Route = createFileRoute(
 })
 
 function Comp() {
-  const { framework, version, libraryId } = Route.useParams()
+  const { framework, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
   const [frameworkOption] = getFrameworkOptions([framework as Framework])
 

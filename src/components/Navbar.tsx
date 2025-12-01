@@ -24,15 +24,13 @@ import {
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
 import { FeedTicker } from './FeedTicker'
-import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
+import { Authenticated, Unauthenticated } from 'convex/react'
 import { AuthLoading } from 'convex/react'
-import { api } from 'convex/_generated/api'
 import { libraries } from '~/libraries'
 import { sortBy } from '~/utils/utils'
 import { useCapabilities } from '~/hooks/useCapabilities'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
-  const user = useQuery(api.auth.getCurrentUser)
   const matches = useMatches()
   const capabilities = useCapabilities()
 

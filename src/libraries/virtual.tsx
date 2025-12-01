@@ -97,4 +97,4 @@ export const virtualProject = {
       ),
     },
   ],
-} satisfies Library
+}

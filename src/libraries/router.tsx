@@ -133,4 +133,4 @@ export const routerProject = {
       })
     }
   },
-} satisfies Library
+}

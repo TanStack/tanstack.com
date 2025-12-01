@@ -1,4 +1,5 @@
 import { useCurrentUserQuery } from './useCurrentUser'
+import { useCapabilities } from './useCapabilities'
 import * as React from 'react'
 
 const STORAGE_KEY = 'tanstack-ads-preference'
@@ -12,6 +13,7 @@ function getStoredPreference(): boolean | null {
 // Legacy hook for backward compatibility - now uses current user query
 export function useAdsPreference() {
   const userQuery = useCurrentUserQuery()
+  const capabilities = useCapabilities()
   const [storedPreference] = React.useState(() => getStoredPreference())
 
   let adsEnabled: boolean
@@ -21,7 +23,7 @@ export function useAdsPreference() {
   } else {
     const user = userQuery.data
     const adsDisabled = user.adsDisabled ?? false
-    const canDisableAds = user.capabilities.includes('disableAds')
+    const canDisableAds = capabilities.includes('disableAds')
     adsEnabled = !canDisableAds || !adsDisabled
   }
 

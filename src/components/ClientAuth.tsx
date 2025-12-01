@@ -1,20 +1,20 @@
 import { convexQuery } from '@convex-dev/react-query'
-import { useQuery, UseQueryResult } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { ErrorComponent } from '@tanstack/react-router'
 import { api } from 'convex/_generated/api'
-import { Authenticated } from 'convex/react'
 import React from 'react'
 import { FaSpinner } from 'react-icons/fa'
 import { SignInForm } from '~/routes/_libraries/login'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
 const baseClasses = 'p-4 flex flex-col items-center justify-center gap-4'
+
+type UserQueryResult = ReturnType<typeof useCurrentUserQuery>
 
 export function ClientAuth({
   children,
 }: {
-  children:
-    | React.ReactNode
-    | ((userQuery: UseQueryResult<any>) => React.ReactNode)
+  children: React.ReactNode | ((userQuery: UserQueryResult) => React.ReactNode)
 }) {
   return (
     <UserQuery>
@@ -38,7 +38,8 @@ export function ClientAdminAuth({ children }: { children: React.ReactNode }) {
   return (
     <ClientAuth>
       {(userQuery) => {
-        const canAdmin = userQuery.data?.capabilities.includes('admin')
+        const capabilities = userQuery.data?.capabilities || []
+        const canAdmin = capabilities.includes('admin')
 
         if (!canAdmin) {
           return (
@@ -55,7 +56,7 @@ export function ClientAdminAuth({ children }: { children: React.ReactNode }) {
 }
 
 function UserQuery(props: {
-  children: (userQuery: UseQueryResult<any>) => React.ReactNode
+  children: (userQuery: UserQueryResult) => React.ReactNode
 }) {
   const userQuery = useQuery(convexQuery(api.auth.getCurrentUser, {}))
 

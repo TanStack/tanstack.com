@@ -3,6 +3,7 @@ import { Authenticated, Unauthenticated, useMutation } from 'convex/react'
 import { Link, redirect, createFileRoute } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { useCapabilities } from '~/hooks/useCapabilities'
 import { api } from 'convex/_generated/api'
 import { useToast } from '~/components/ToastProvider'
 
@@ -12,6 +13,7 @@ export const Route = createFileRoute('/_libraries/account')({
 
 function UserSettings() {
   const userQuery = useCurrentUserQuery()
+  const capabilities = useCapabilities()
   const { notify } = useToast()
   // Use current user query directly instead of separate ad preference query
   const updateAdPreferenceMutation = useMutation(
@@ -23,14 +25,13 @@ function UserSettings() {
       localStore.setQuery(api.auth.getCurrentUser, {}, {
         ...currentValue,
         adsDisabled: adsDisabled,
-      } as any)
+      })
     }
   })
 
   // Get values directly from the current user data
   const adsDisabled = userQuery.data?.adsDisabled ?? false
-  const canDisableAds =
-    userQuery.data?.capabilities.includes('disableAds') ?? false
+  const canDisableAds = capabilities.includes('disableAds')
 
   const handleToggleAds = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateAdPreferenceMutation({
@@ -80,11 +81,11 @@ function UserSettings() {
               </div>
             </div>
           </div>
-          <div>
-            <h3 className="font-bold mb-2 text-lg text-gray-900 dark:text-white">
-              Preferences
-            </h3>
-            {canDisableAds ? (
+          {canDisableAds && (
+            <div>
+              <h3 className="font-bold mb-2 text-lg text-gray-900 dark:text-white">
+                Preferences
+              </h3>
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
@@ -103,8 +104,8 @@ function UserSettings() {
                   </div>
                 </label>
               </div>
-            ) : null}
-          </div>
+            </div>
+          )}
           <div className="">
             <button
               onClick={signOut}

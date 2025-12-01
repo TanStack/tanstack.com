@@ -96,4 +96,4 @@ export const storeProject = {
       ),
     },
   ],
-} satisfies Library
+}

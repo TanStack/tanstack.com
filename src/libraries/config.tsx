@@ -93,4 +93,4 @@ export const configProject = {
       ),
     },
   ],
-} satisfies Library
+}

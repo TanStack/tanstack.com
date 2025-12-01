@@ -83,4 +83,4 @@ export const dbProject = {
       ),
     },
   ],
-} satisfies Library
+}

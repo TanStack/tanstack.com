@@ -11,7 +11,6 @@ import {
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
-import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
 import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
@@ -73,10 +72,6 @@ export const Route = createRootRouteWithContext<{
     links: [
       { rel: 'stylesheet', href: appCss },
       {
-        rel: 'stylesheet',
-        href: carbonStyles,
-      },
-      {
         rel: 'apple-touch-icon',
         sizes: '180x180',
         href: '/apple-touch-icon.png',
@@ -99,7 +94,7 @@ export const Route = createRootRouteWithContext<{
         rel: 'preload',
         href: '/fonts/Inter.woff2',
         as: 'font',
-        type: 'font/woff2-variations',
+        type: 'font/woff2',
         crossOrigin: '',
       },
     ],

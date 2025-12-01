@@ -29,7 +29,6 @@ export const getSponsorsForSponsorPack = createServerFn({
 }).handler(async () => {
   const sponsors = await fetchCached({
     key: 'sponsors',
-    // ttl: process.env.NODE_ENV === 'development' ? 1 : 60 * 60 * 1000,
     ttl: 60 * 1000,
     fn: getSponsors,
   })

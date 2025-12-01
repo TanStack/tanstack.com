@@ -1805,12 +1805,6 @@ function RouteComponent() {
                         <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Downloads last {binOption.single}
                         </th>
-                        {/* <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Period Growth
-                        </th>
-                        <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Period Growth %
-                        </th> */}
                       </tr>
                     </thead>
                     <tbody className="bg-gray-500/5 divide-y divide-gray-500/10">
@@ -1824,20 +1818,7 @@ function RouteComponent() {
                             return null
                           }
 
-                          // const flooredStartData =
-                          //   binOption.bin.floor(startDate)
-
                           const firstPackage = packageGroupDownloads.packages[0]
-
-                          // const rangeFilteredDownloads =
-                          //   packageGroupDownloads.packages.map((p) => {
-                          //     return {
-                          //       ...p,
-                          //       downloads: p.downloads.filter(
-                          //         (d) => d.day >= startDate
-                          //       ),
-                          //     }
-                          //   })
 
                           // Sort downloads by date
                           const sortedDownloads = packageGroupDownloads.packages
@@ -1961,42 +1942,6 @@ function RouteComponent() {
                             <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
                               {formatNumber(stat!.binDownloads)}
                             </td>
-                            {/* <td
-                              className={`px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-right ${
-                                stat!.growth > 0
-                                  ? 'text-green-500'
-                                  : stat!.growth < 0
-                                  ? 'text-red-500'
-                                  : 'text-gray-500'
-                              }`}
-                            >
-                              <div className="inline-flex items-center gap-1">
-                                {stat!.growth > 0 ? (
-                                  <MdArrowUpward />
-                                ) : (
-                                  <MdArrowDownward />
-                                )}
-                                {formatNumber(Math.abs(stat!.growth))}
-                              </div>
-                            </td>
-                            <td
-                              className={`px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-right ${
-                                stat!.growthPercentage > 0
-                                  ? 'text-green-500'
-                                  : stat!.growthPercentage < 0
-                                  ? 'text-red-500'
-                                  : 'text-gray-500'
-                              }`}
-                            >
-                              <div className="inline-flex items-center gap-1">
-                                {stat!.growthPercentage > 0 ? (
-                                  <MdArrowUpward />
-                                ) : (
-                                  <MdArrowDownward />
-                                )}
-                                {Math.abs(stat!.growthPercentage).toFixed(1)}%
-                              </div>
-                            </td> */}
                           </tr>
                         ))}
                     </tbody>

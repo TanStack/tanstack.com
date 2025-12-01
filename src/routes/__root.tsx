@@ -148,12 +148,6 @@ export const Route = createRootRouteWithContext<{
         ),
       })
     }
-
-    // // During SSR only (the only time serverHttpClient exists),
-    // // set the auth token for Convex to make HTTP queries with.
-    // if (token) {
-    //   ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
-    // }
   },
   staleTime: Infinity,
   errorComponent: (props) => {

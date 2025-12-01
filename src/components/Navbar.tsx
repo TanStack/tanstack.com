@@ -302,13 +302,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                             >
                               {prefix}
                             </span>{' '}
-                            <span
-                              className={twMerge(
-                                library.textStyle
-                                // isPending &&
-                                //   `[view-transition-name:library-name]`
-                              )}
-                            >
+                            <span className={twMerge(library.textStyle)}>
                               {name}
                             </span>
                           </span>

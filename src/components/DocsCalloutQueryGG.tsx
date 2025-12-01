@@ -17,14 +17,6 @@ export function DocsCalloutQueryGG() {
           Want to Skip the Docs?
         </h6>
         <LogoQueryGGSmall className="w-full" />
-
-        {/* <blockquote className="text-sm -indent-[.45em] pl-2">
-          “If you’re serious about *really* understanding React Query, there’s
-          no better way than with query.gg”
-          <cite className="italic block text-right">—Tanner Linsley</cite>
-        </blockquote> */}
-
-        {/* <div className="grid justify-center bg-gray-800 dark:bg-gray-100 text-gray-100 dark:text-gray-800 z-10"></div> */}
         <div className="p-2 uppercase text-center place-self-center">
           <h2 className="mt-1 mb-1 px-2 text-md font-semibold">
             Black Friday Sale

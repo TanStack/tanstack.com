@@ -30,12 +30,6 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
           authors: post.authors,
         }
       })
-
-    // return json(frontMatters, {
-    //   headers: {
-    //     'Cache-Control': 'public, max-age=300, s-maxage=3600',
-    //   },
-    // })
   }
 )
 

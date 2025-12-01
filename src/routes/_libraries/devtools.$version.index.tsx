@@ -30,7 +30,6 @@ export const Route = createFileRoute('/_libraries/devtools/$version/')({
 })
 
 function DevtoolsVersionIndex() {
-  // sponsorsPromise no longer needed - using lazy loading
   const library = getLibrary('devtools')
 
   return (

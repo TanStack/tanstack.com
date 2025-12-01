@@ -15,15 +15,6 @@ export function slugToTitle(str: string) {
     .join(' ')
 }
 
-// export const tw = {
-//   group: (prefix: string, tokens: string) => {
-//     return tokens
-//       .split(' ')
-//       .map((d) => `${prefix}${d}`)
-//       .join(' ')
-//   },
-// }
-
 /**
  * Returns the last element from an array.
  */

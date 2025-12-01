@@ -234,7 +234,6 @@ const reactQueryV3List = [
     {from: "reference/useQuery", to: "docs/framework/react/reference/useQuery"},
     {from: "reference/QueryClient", to: "docs/reference/QueryClient"},
     {from: "examples/basic", to: "docs/framework/react/examples/basic"},
-    // {from: '',to: ''},
   ]
 
 /**

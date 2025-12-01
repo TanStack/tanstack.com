@@ -2,9 +2,7 @@ import { Link, MatchRoute, createFileRoute } from '@tanstack/react-router'
 import { convexQuery } from '@convex-dev/react-query'
 import { api } from 'convex/_generated/api'
 import { twMerge } from 'tailwind-merge'
-// import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
-// import SponsorPack from '~/components/SponsorPack'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import discordImage from '~/images/discord-logo-white.svg'
 import { useMutation } from '~/hooks/useMutation'
@@ -109,8 +107,6 @@ function Index() {
   })
   const { notify } = useToast()
   const { recentPosts } = Route.useLoaderData()
-
-  // sponsorsPromise no longer needed - using lazy loading
 
   return (
     <>

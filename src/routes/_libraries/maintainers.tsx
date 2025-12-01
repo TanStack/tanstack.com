@@ -25,7 +25,6 @@ import {
   getRoleForFilteredLibraries,
 } from '~/libraries/maintainers'
 import { Library, libraries } from '~/libraries'
-// import { fetchAllMaintainerStats } from '~/utils/docs'
 
 const librarySchema = z.enum([
   'start',
@@ -319,18 +318,10 @@ function MaintainerGrid({
   maintainers,
   viewMode,
   title,
-  stats,
 }: {
   maintainers: Maintainer[]
   viewMode: 'compact' | 'full' | 'row'
   title?: string
-  stats?: Array<{
-    username: string
-    totalCommits: number
-    totalPullRequests: number
-    totalIssues: number
-    totalReviews: number
-  }>
 }) {
   return (
     <div>
@@ -356,10 +347,7 @@ function MaintainerGrid({
             {viewMode === 'compact' ? (
               <CompactMaintainerCard maintainer={maintainer} />
             ) : viewMode === 'row' ? (
-              <MaintainerRowCard
-                maintainer={maintainer}
-                stats={stats?.find((s) => s.username === maintainer.github)}
-              />
+              <MaintainerRowCard maintainer={maintainer} />
             ) : (
               <MaintainerCard maintainer={maintainer} />
             )}
@@ -373,7 +361,6 @@ function MaintainerGrid({
 function RouteComponent() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
-  const stats: any[] = [] // Empty array since stats are commented out
 
   const updateFilters = (updates: {
     libraries?: Library['id'][] | undefined
@@ -704,7 +691,6 @@ function RouteComponent() {
                   maintainers={group.maintainers}
                   viewMode={search.viewMode}
                   title={group.title}
-                  stats={stats}
                 />
               ))}
             </div>

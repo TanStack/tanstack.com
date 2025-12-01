@@ -148,7 +148,7 @@ export const queryProject = {
       ),
     },
   ],
-} satisfies Library
+}
 
 // Redirect old query v3 docs
 // prettier-ignore

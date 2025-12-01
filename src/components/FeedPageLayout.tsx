@@ -10,10 +10,34 @@ import { useQuery } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
 import { api } from 'convex/_generated/api'
 
+export type LibraryId =
+  | 'start'
+  | 'router'
+  | 'query'
+  | 'table'
+  | 'form'
+  | 'virtual'
+  | 'ranger'
+  | 'store'
+  | 'pacer'
+  | 'db'
+  | 'config'
+  | 'react-charts'
+  | 'devtools'
+  | 'create-tsrouter-app'
+
+export type Category =
+  | 'release'
+  | 'announcement'
+  | 'blog'
+  | 'partner'
+  | 'update'
+  | 'other'
+
 export interface FeedFiltersState {
   sources?: string[]
-  libraries?: (string | readonly string[])[]
-  categories?: (string | readonly string[])[]
+  libraries?: LibraryId[]
+  categories?: Category[]
   partners?: string[]
   tags?: string[]
   releaseLevels?: ('major' | 'minor' | 'patch')[]
@@ -32,6 +56,10 @@ interface FeedPageLayoutContextValue {
   onClearFilters: () => void
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
+  viewMode?: 'table' | 'timeline'
+  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
+  expandedIds?: string[]
+  onExpandedChange?: (expandedIds: string[]) => void
   adminActions?: {
     onEdit?: (entry: FeedEntry) => void
     onToggleVisibility?: (entry: FeedEntry, isVisible: boolean) => void
@@ -63,6 +91,10 @@ interface FeedPageLayoutRootProps {
   onClearFilters: () => void
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
+  viewMode?: 'table' | 'timeline'
+  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
+  expandedIds?: string[]
+  onExpandedChange?: (expandedIds: string[]) => void
   adminActions?: {
     onEdit?: (entry: FeedEntry) => void
     onToggleVisibility?: (entry: FeedEntry, isVisible: boolean) => void
@@ -81,6 +113,10 @@ function FeedPageLayoutRoot({
   onClearFilters,
   onPageChange,
   onPageSizeChange,
+  viewMode = 'table',
+  onViewModeChange,
+  expandedIds,
+  onExpandedChange,
   adminActions,
   children,
 }: FeedPageLayoutRootProps) {
@@ -88,13 +124,9 @@ function FeedPageLayoutRoot({
   const facetCountsQuery = useQuery({
     ...convexQuery(api.feed.queries.getFeedFacetCounts, {
       filters: {
-        sources: filters.sources as string[] | undefined,
-        libraries: Array.isArray(filters.libraries)
-          ? (filters.libraries as string[])
-          : undefined,
-        categories: Array.isArray(filters.categories)
-          ? (filters.categories as string[])
-          : undefined,
+        sources: filters.sources,
+        libraries: filters.libraries,
+        categories: filters.categories,
         partners: filters.partners,
         tags: filters.tags,
         releaseLevels: filters.releaseLevels,
@@ -118,11 +150,15 @@ function FeedPageLayoutRoot({
         onClearFilters,
         onPageChange,
         onPageSizeChange,
+        viewMode,
+        onViewModeChange,
+        expandedIds,
+        onExpandedChange,
         adminActions,
       }}
     >
-      <div className="flex-1 flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
-        <div className="flex-1 space-y-12 w-full max-w-7xl mx-auto">
+      <div className="flex-1 flex flex-col max-w-full min-h-screen gap-2 sm:gap-4 p-2 sm:p-4 pb-0">
+        <div className="flex-1 space-y-2 sm:space-y-4 w-full max-w-7xl mx-auto">
           {children}
         </div>
       </div>
@@ -165,7 +201,7 @@ function FeedPageLayoutHeader({
 }
 
 function FeedPageLayoutFilters() {
-  const { filters, onFiltersChange, onClearFilters, facetCountsQuery } =
+  const { filters, onFiltersChange, onClearFilters, facetCountsQuery, viewMode = 'table', onViewModeChange } =
     useFeedPageLayout()
 
   return (
@@ -174,8 +210,8 @@ function FeedPageLayoutFilters() {
         libraries={libraries}
         partners={partners}
         selectedSources={filters.sources}
-        selectedLibraries={filters.libraries as string[] | undefined}
-        selectedCategories={filters.categories as string[] | undefined}
+        selectedLibraries={filters.libraries}
+        selectedCategories={filters.categories}
         selectedPartners={filters.partners}
         selectedTags={filters.tags}
         selectedReleaseLevels={filters.releaseLevels}
@@ -183,6 +219,8 @@ function FeedPageLayoutFilters() {
         featured={filters.featured}
         search={filters.search}
         facetCounts={facetCountsQuery.data}
+        viewMode={viewMode}
+        onViewModeChange={onViewModeChange}
         onFiltersChange={onFiltersChange}
         onClearFilters={onClearFilters}
       />
@@ -197,6 +235,9 @@ function FeedPageLayoutContent({ children }: { children?: ReactNode }) {
     pageSize,
     onPageChange,
     onPageSizeChange,
+    viewMode = 'table',
+    expandedIds,
+    onExpandedChange,
     adminActions,
   } = useFeedPageLayout()
 
@@ -208,6 +249,9 @@ function FeedPageLayoutContent({ children }: { children?: ReactNode }) {
         pageSize={pageSize}
         onPageChange={onPageChange}
         onPageSizeChange={onPageSizeChange}
+        viewMode={viewMode}
+        expandedIds={expandedIds}
+        onExpandedChange={onExpandedChange}
         adminActions={adminActions}
       />
       {children}

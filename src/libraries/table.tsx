@@ -119,7 +119,7 @@ export const tableProject = {
       ),
     },
   ],
-} satisfies Library
+}
 
 // prettier-ignore
 export const reactTableV7List = [

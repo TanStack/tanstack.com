@@ -212,9 +212,8 @@ function RoleDetailPage() {
     )
   }
 
-  const effectiveCapabilities =
-    (user as any)?.effectiveCapabilities || user?.capabilities || []
-  const canAdmin = effectiveCapabilities.includes('admin')
+  const capabilities = user?.capabilities || []
+  const canAdmin = capabilities.includes('admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">

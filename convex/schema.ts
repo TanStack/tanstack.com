@@ -2,6 +2,7 @@ import { defineSchema, defineTable } from 'convex/server'
 import { authTables } from '@convex-dev/auth/server'
 import { v } from 'convex/values'
 import { z } from 'zod'
+import { feedCategoryValidator } from './feed/schema'
 
 // Zod schema for valid capabilities
 // Valid capabilities list (exported for use throughout the app)
@@ -55,14 +56,7 @@ const schema = defineSchema({
     libraryIds: v.array(v.string()), // Library IDs (e.g., ['query', 'router'])
     partnerIds: v.optional(v.array(v.string())), // Partner IDs if applicable
     tags: v.array(v.string()), // Custom tags (e.g., ['announcement', 'breaking-change', 'release:patch'])
-    category: v.union(
-      v.literal('release'),
-      v.literal('announcement'),
-      v.literal('blog'),
-      v.literal('partner'),
-      v.literal('update'),
-      v.literal('other')
-    ),
+    category: feedCategoryValidator,
     // Display control
     isVisible: v.boolean(), // Can hide entries without deleting
     featured: v.optional(v.boolean()), // Featured entries

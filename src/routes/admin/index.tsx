@@ -1,7 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { FaLock, FaUsers, FaChartBar, FaRss, FaShieldAlt } from 'react-icons/fa'
+import { FaLock, FaUsers, FaRss, FaShieldAlt } from 'react-icons/fa'
 import { useQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
+import { useCapabilities } from '~/hooks/useCapabilities'
 
 export const Route = createFileRoute('/admin/')({
   component: AdminPage,
@@ -20,10 +21,8 @@ function AdminPage() {
   }
 
   // If authenticated but no admin capability, show unauthorized
-  // Check effective capabilities (direct + role-based)
-  const effectiveCapabilities =
-    (user as any)?.effectiveCapabilities || user?.capabilities || []
-  const canAdmin = effectiveCapabilities.includes('admin')
+  const capabilities = useCapabilities()
+  const canAdmin = capabilities.includes('admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -131,24 +130,6 @@ function AdminDashboard() {
             </Link>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <FaChartBar className="text-gray-600 dark:text-gray-400 text-xl" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Analytics
-                </h3>
-              </div>
-            </div>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              View platform statistics and analytics (coming soon).
-            </p>
-            <div className="inline-flex items-center px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400 rounded-lg cursor-not-allowed">
-              Coming Soon
-            </div>
-          </div>
         </div>
 
         <div className="mt-8">

@@ -29,16 +29,18 @@ import { AuthLoading } from 'convex/react'
 import { api } from 'convex/_generated/api'
 import { libraries } from '~/libraries'
 import { sortBy } from '~/utils/utils'
+import { useCapabilities } from '~/hooks/useCapabilities'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const user = useQuery(api.auth.getCurrentUser)
   const matches = useMatches()
+  const capabilities = useCapabilities()
 
   const Title =
     [...matches].reverse().find((m) => m.staticData.Title)?.staticData.Title ??
     null
 
-  const canAdmin = user?.capabilities.includes('admin')
+  const canAdmin = capabilities.includes('admin')
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -90,15 +92,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       })()}
 
       <Authenticated>
-        <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-          <LuUser />
-          <Link
-            to="/account"
-            className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
-          >
-            My Account
-          </Link>
-        </div>
+        {!canAdmin ? (
+          <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+            <LuUser />
+            <Link
+              to="/account"
+              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
+            >
+              My Account
+            </Link>
+          </div>
+        ) : null}
         {canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
             <LuLock />
@@ -211,8 +215,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <SearchButton />
         </div>
       </div>
-      <div className="hidden lg:block">
-        <FeedTicker />
+      <div className="hidden lg:flex flex-1 justify-end min-w-0">
+        {capabilities.includes('feed') || capabilities.includes('admin') ? (
+          <FeedTicker />
+        ) : null}
       </div>
       <div className="flex items-center gap-2">
         <div className="hidden sm:block">{socialLinks}</div>
@@ -398,8 +404,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       </div>
       <div>
         <Authenticated>
-          {user?.capabilities.some((capability) =>
-            ['builder', 'admin'].includes(capability)
+          {capabilities.some((capability) =>
+            (['builder', 'admin'] as const).includes(
+              capability as 'builder' | 'admin'
+            )
           ) ? (
             <Link
               to="/builder"
@@ -424,14 +432,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: (
               <>
                 <span>Feed</span>
-                <span className="px-1.5 py-0.5 text-xs font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-md uppercase">
                   Alpha
                 </span>
               </>
             ),
             icon: <LuRss />,
             to: '/feed',
-            requiresCapability: 'feed',
+            requiresCapability: 'feed' as const,
           },
           {
             label: 'Maintainers',
@@ -452,7 +460,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: (
               <>
                 <span>Learn</span>
-                <span className="px-1.5 py-0.5 text-xs font-bold bg-gradient-to-r from-green-400 to-green-600 text-white rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-green-400 to-green-600 text-white rounded-md uppercase">
                   NEW
                 </span>
               </>
@@ -505,11 +513,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           .filter((item) => {
             // Filter out items that require capabilities the user doesn't have
             if (item.requiresCapability) {
-              const effectiveCapabilities =
-                (user as any)?.effectiveCapabilities || user?.capabilities || []
               return (
-                effectiveCapabilities.includes(item.requiresCapability) ||
-                effectiveCapabilities.includes('admin')
+                capabilities.includes(item.requiresCapability) ||
+                capabilities.includes('admin')
               )
             }
             return true

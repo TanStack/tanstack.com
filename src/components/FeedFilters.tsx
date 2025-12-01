@@ -1,14 +1,23 @@
 import * as React from 'react'
 import { useState } from 'react'
-import {
-  MdClose,
-  MdFilterList,
-  MdExpandMore,
-  MdExpandLess,
-} from 'react-icons/md'
+import { LuHelpCircle } from 'react-icons/lu'
 import { useDebouncedValue } from '@tanstack/react-pacer'
-import { Library } from '~/libraries'
+import { Library, type LibraryId } from '~/libraries'
 import { partners } from '~/utils/partners'
+import { Tooltip } from '~/components/Tooltip'
+import {
+  FEED_CATEGORIES,
+  RELEASE_LEVELS,
+  type FeedCategory,
+  type ReleaseLevel,
+} from '~/utils/feedSchema'
+import {
+  FilterSection,
+  FilterCheckbox,
+  FilterSearch,
+  FilterBar,
+  ViewModeToggle,
+} from '~/components/FilterComponents'
 
 export interface FeedFacetCounts {
   sources?: Record<string, number>
@@ -17,6 +26,7 @@ export interface FeedFacetCounts {
   partners?: Record<string, number>
   releaseLevels?: Record<string, number>
   prerelease?: number
+  featured?: number
 }
 
 interface FeedFiltersProps {
@@ -27,40 +37,20 @@ interface FeedFiltersProps {
   selectedCategories?: string[]
   selectedPartners?: string[]
   selectedTags?: string[]
-  selectedReleaseLevels?: ('major' | 'minor' | 'patch')[]
+  selectedReleaseLevels?: ReleaseLevel[]
   includePrerelease?: boolean
   featured?: boolean
   search?: string
   facetCounts?: FeedFacetCounts
+  viewMode?: 'table' | 'timeline'
+  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
   onFiltersChange: (filters: {
     sources?: string[]
-    libraries?: (
-      | 'start'
-      | 'router'
-      | 'query'
-      | 'table'
-      | 'form'
-      | 'virtual'
-      | 'ranger'
-      | 'store'
-      | 'pacer'
-      | 'db'
-      | 'config'
-      | 'react-charts'
-      | 'devtools'
-      | 'create-tsrouter-app'
-    )[]
-    categories?: (
-      | 'release'
-      | 'announcement'
-      | 'blog'
-      | 'partner'
-      | 'update'
-      | 'other'
-    )[]
+    libraries?: LibraryId[]
+    categories?: FeedCategory[]
     partners?: string[]
     tags?: string[]
-    releaseLevels?: ('major' | 'minor' | 'patch')[]
+    releaseLevels?: ReleaseLevel[]
     includePrerelease?: boolean
     featured?: boolean
     search?: string
@@ -69,15 +59,6 @@ interface FeedFiltersProps {
 }
 
 const SOURCES = ['github', 'blog', 'announcement'] as const
-const CATEGORIES = [
-  'release',
-  'announcement',
-  'blog',
-  'partner',
-  'update',
-  'other',
-] as const
-const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
 
 export function FeedFilters({
   libraries,
@@ -87,11 +68,13 @@ export function FeedFilters({
   selectedCategories,
   selectedPartners,
   selectedTags,
-  selectedReleaseLevels = ['major', 'minor'], // Default: exclude patch
-  includePrerelease = true, // Default: include prerelease
+  selectedReleaseLevels,
+  includePrerelease,
   featured,
   search,
   facetCounts,
+  viewMode = 'table',
+  onViewModeChange,
   onFiltersChange,
   onClearFilters,
 }: FeedFiltersProps) {
@@ -103,7 +86,7 @@ export function FeedFilters({
     categories: true,
     releaseLevels: true,
     prerelease: true,
-    partners: false,
+    partners: true,
     tags: false,
   })
 
@@ -128,17 +111,17 @@ export function FeedFilters({
       ? current.filter((id) => id !== libraryId)
       : [...current, libraryId]
     onFiltersChange({
-      libraries: updated.length > 0 ? (updated as any) : undefined,
+      libraries: updated.length > 0 ? (updated as Library['id'][]) : undefined,
     })
   }
 
-  const toggleCategory = (category: string) => {
+  const toggleCategory = (category: FeedCategory) => {
     const current = selectedCategories || []
     const updated = current.includes(category)
       ? current.filter((c) => c !== category)
       : [...current, category]
     onFiltersChange({
-      categories: updated.length > 0 ? (updated as any) : undefined,
+      categories: updated.length > 0 ? (updated as FeedCategory[]) : undefined,
     })
   }
 
@@ -149,6 +132,14 @@ export function FeedFilters({
       : [...current, partnerId]
     onFiltersChange({
       partners: updated.length > 0 ? updated : undefined,
+    })
+  }
+
+  const toggleTag = (tag: string) => {
+    const current = selectedTags || []
+    const updated = current.filter((t) => t !== tag)
+    onFiltersChange({
+      tags: updated.length > 0 ? updated : undefined,
     })
   }
 
@@ -174,17 +165,14 @@ export function FeedFilters({
     setSearchInput(value)
   }
 
-  const toggleReleaseLevel = (
-    level: 'major' | 'minor' | 'patch'
-  ) => {
+  const toggleReleaseLevel = (level: 'major' | 'minor' | 'patch') => {
     const current = selectedReleaseLevels || []
     const updated = current.includes(level)
       ? current.filter((l) => l !== level)
       : [...current, level]
-    // Always pass the array, even if empty, so we can distinguish between
-    // "not set" (should use defaults) and "explicitly empty" (show no releases)
+    // Pass undefined when empty to show all entries
     onFiltersChange({
-      releaseLevels: updated,
+      releaseLevels: updated.length > 0 ? updated : undefined,
     })
   }
 
@@ -199,12 +187,12 @@ export function FeedFilters({
   }
 
   // Check if release levels differ from default (all except patch)
-  const defaultReleaseLevels = ['major', 'minor']
+  const defaultReleaseLevels: ReleaseLevel[] = ['major', 'minor']
   const releaseLevelsDiffer =
     !selectedReleaseLevels ||
     selectedReleaseLevels.length !== defaultReleaseLevels.length ||
     !defaultReleaseLevels.every((level) =>
-      selectedReleaseLevels.includes(level as any)
+      selectedReleaseLevels.includes(level)
     )
 
   const hasActiveFilters =
@@ -218,116 +206,22 @@ export function FeedFilters({
     releaseLevelsDiffer ||
     (includePrerelease !== undefined && includePrerelease !== true)
 
-  const FilterSection = ({
-    title,
-    sectionKey,
-    children,
-    onSelectAll,
-    onSelectNone,
-    isAllSelected,
-    isSomeSelected,
-  }: {
-    title: string
-    sectionKey: string
-    children: React.ReactNode
-    onSelectAll?: () => void
-    onSelectNone?: () => void
-    isAllSelected?: boolean
-    isSomeSelected?: boolean
-  }) => {
-    const isExpanded = expandedSections[sectionKey] ?? true
-    const checkboxRef = React.useRef<HTMLInputElement>(null)
 
-    React.useEffect(() => {
-      if (checkboxRef.current) {
-        checkboxRef.current.indeterminate = isSomeSelected === true
-      }
-    }, [isSomeSelected])
-
-    const handleCheckboxChange = () => {
-      if (isAllSelected) {
-        onSelectNone?.()
-      } else {
-        onSelectAll?.()
-      }
-    }
-
-    return (
-      <div className="mb-4">
-        <div className="flex items-center gap-2">
-          {(onSelectAll || onSelectNone) && (
-            <input
-              ref={checkboxRef}
-              type="checkbox"
-              checked={isAllSelected ?? false}
-              onChange={(e) => {
-                e.stopPropagation()
-                handleCheckboxChange()
-              }}
-              onClick={(e) => e.stopPropagation()}
-              className="rounded cursor-pointer"
-            />
-          )}
-          <button
-            onClick={() => toggleSection(sectionKey)}
-            className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex-1"
-          >
-            <span>{title}</span>
-            {isExpanded ? (
-              <MdExpandLess className="w-4 h-4" />
-            ) : (
-              <MdExpandMore className="w-4 h-4" />
-            )}
-          </button>
-        </div>
-        {isExpanded && (
-          <div className="mt-2 space-y-2 pl-6">{children}</div>
-        )}
-      </div>
-    )
-  }
-
-  return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sticky top-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold flex items-center gap-2">
-          <MdFilterList className="w-5 h-5" />
-          Filters
-        </h2>
-        {hasActiveFilters && (
-          <button
-            onClick={onClearFilters}
-            className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-          >
-            Reset
-          </button>
-        )}
-      </div>
-
-      {/* Search */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchInput}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      {/* Quick Filters */}
-      <div className="mb-4 space-y-2">
-        <label className="flex items-center gap-2 text-sm cursor-pointer">
-          <input
-            type="checkbox"
+  // Render filter content (shared between mobile and desktop)
+  const renderFilterContent = () => (
+    <>
+      {/* Featured */}
+      <div className="mb-2">
+        <div className="flex items-center gap-1.5">
+          <FilterCheckbox
+            label="Featured"
             checked={featured ?? false}
-            onChange={(e) =>
-              handleFeaturedChange(e.target.checked || undefined)
+            onChange={() =>
+              handleFeaturedChange(featured ? undefined : true)
             }
-            className="rounded"
+            count={facetCounts?.featured}
           />
-          <span>Featured only</span>
-        </label>
+        </div>
       </div>
 
       {/* Release Levels */}
@@ -338,7 +232,7 @@ export function FeedFilters({
           onFiltersChange({ releaseLevels: ['major', 'minor', 'patch'] })
         }}
         onSelectNone={() => {
-          onFiltersChange({ releaseLevels: [] })
+          onFiltersChange({ releaseLevels: undefined })
         }}
         isAllSelected={
           selectedReleaseLevels?.length === RELEASE_LEVELS.length
@@ -348,58 +242,28 @@ export function FeedFilters({
           selectedReleaseLevels.length > 0 &&
           selectedReleaseLevels.length < RELEASE_LEVELS.length
         }
+        expandedSections={expandedSections}
+        onToggleSection={toggleSection}
       >
         {RELEASE_LEVELS.map((level) => {
           const count = facetCounts?.releaseLevels?.[level]
           return (
-            <label
+            <FilterCheckbox
               key={level}
-              className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 py-1 rounded"
-            >
-              <input
-                type="checkbox"
-                checked={selectedReleaseLevels?.includes(level) ?? false}
-                onChange={() => toggleReleaseLevel(level)}
-                className="rounded"
-              />
-              <span className="capitalize">{level}</span>
-              {count !== undefined && (
-                <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                  {count}
-                </span>
-              )}
-            </label>
+              label={level}
+              checked={selectedReleaseLevels?.includes(level) ?? false}
+              onChange={() => toggleReleaseLevel(level)}
+              count={count}
+              capitalize
+            />
           )
         })}
-      </FilterSection>
-
-      {/* Include Prerelease */}
-      <FilterSection
-        title="Options"
-        sectionKey="prerelease"
-        onSelectAll={() => {
-          onFiltersChange({ includePrerelease: true })
-        }}
-        onSelectNone={() => {
-          onFiltersChange({ includePrerelease: false })
-        }}
-        isAllSelected={includePrerelease === true}
-        isSomeSelected={false}
-      >
-        <label className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 py-1 rounded">
-          <input
-            type="checkbox"
-            checked={includePrerelease ?? false}
-            onChange={togglePrerelease}
-            className="rounded"
-          />
-          <span>Include Prerelease</span>
-          {facetCounts?.prerelease !== undefined && (
-            <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-              {facetCounts.prerelease}
-            </span>
-          )}
-        </label>
+        <FilterCheckbox
+          label="Include Prerelease"
+          checked={includePrerelease ?? false}
+          onChange={togglePrerelease}
+          count={facetCounts?.prerelease}
+        />
       </FilterSection>
 
       {/* Sources */}
@@ -421,27 +285,20 @@ export function FeedFilters({
           selectedSources.length > 0 &&
           selectedSources.length < SOURCES.length
         }
+        expandedSections={expandedSections}
+        onToggleSection={toggleSection}
       >
         {SOURCES.map((source) => {
           const count = facetCounts?.sources?.[source]
           return (
-            <label
+            <FilterCheckbox
               key={source}
-              className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 py-1 rounded"
-            >
-              <input
-                type="checkbox"
-                checked={selectedSources?.includes(source) ?? false}
-                onChange={() => toggleSource(source)}
-                className="rounded"
-              />
-              <span className="capitalize">{source}</span>
-              {count !== undefined && (
-                <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                  {count}
-                </span>
-              )}
-            </label>
+              label={source}
+              checked={selectedSources?.includes(source) ?? false}
+              onChange={() => toggleSource(source)}
+              count={count}
+              capitalize
+            />
           )
         })}
       </FilterSection>
@@ -451,41 +308,34 @@ export function FeedFilters({
         title="Categories"
         sectionKey="categories"
         onSelectAll={() => {
-          onFiltersChange({ categories: [...CATEGORIES] as any })
+          onFiltersChange({ categories: [...FEED_CATEGORIES] })
         }}
         onSelectNone={() => {
           onFiltersChange({ categories: undefined })
         }}
         isAllSelected={
           selectedCategories !== undefined &&
-          selectedCategories.length === CATEGORIES.length
+          selectedCategories.length === FEED_CATEGORIES.length
         }
         isSomeSelected={
           selectedCategories !== undefined &&
           selectedCategories.length > 0 &&
-          selectedCategories.length < CATEGORIES.length
+          selectedCategories.length < FEED_CATEGORIES.length
         }
+        expandedSections={expandedSections}
+        onToggleSection={toggleSection}
       >
-        {CATEGORIES.map((category) => {
+        {FEED_CATEGORIES.map((category) => {
           const count = facetCounts?.categories?.[category]
           return (
-            <label
+            <FilterCheckbox
               key={category}
-              className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 py-1 rounded"
-            >
-              <input
-                type="checkbox"
-                checked={selectedCategories?.includes(category) ?? false}
-                onChange={() => toggleCategory(category)}
-                className="rounded"
-              />
-              <span className="capitalize">{category}</span>
-              {count !== undefined && (
-                <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                  {count}
-                </span>
-              )}
-            </label>
+              label={category}
+              checked={selectedCategories?.includes(category) ?? false}
+              onChange={() => toggleCategory(category)}
+              count={count}
+              capitalize
+            />
           )
         })}
       </FilterSection>
@@ -498,7 +348,7 @@ export function FeedFilters({
           const visibleLibraries = libraries
             .filter((lib) => lib.visible !== false)
             .map((lib) => lib.id)
-          onFiltersChange({ libraries: visibleLibraries as any })
+          onFiltersChange({ libraries: visibleLibraries })
         }}
         onSelectNone={() => {
           onFiltersChange({ libraries: undefined })
@@ -514,29 +364,21 @@ export function FeedFilters({
           selectedLibraries.length <
             libraries.filter((lib) => lib.visible !== false).length
         }
+        expandedSections={expandedSections}
+        onToggleSection={toggleSection}
       >
         {libraries
           .filter((lib) => lib.visible !== false)
-          .map((library) => {
-            const count = facetCounts?.libraries?.[library.id]
+          .map((lib) => {
+            const count = facetCounts?.libraries?.[lib.id]
             return (
-              <label
-                key={library.id}
-                className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 py-1 rounded"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedLibraries?.includes(library.id) ?? false}
-                  onChange={() => toggleLibrary(library.id)}
-                  className="rounded"
-                />
-                <span>{library.name}</span>
-                {count !== undefined && (
-                  <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                    {count}
-                  </span>
-                )}
-              </label>
+              <FilterCheckbox
+                key={lib.id}
+                label={lib.name}
+                checked={selectedLibraries?.includes(lib.id) ?? false}
+                onChange={() => toggleLibrary(lib.id)}
+                count={count}
+              />
             )
           })}
       </FilterSection>
@@ -546,110 +388,121 @@ export function FeedFilters({
         title="Partners"
         sectionKey="partners"
         onSelectAll={() => {
-          const activePartnerIds = partners
-            .filter((p) => p.status === 'active')
-            .map((p) => p.id)
-          onFiltersChange({ partners: activePartnerIds })
+          onFiltersChange({ partners: partners.map((p) => p.id) })
         }}
         onSelectNone={() => {
           onFiltersChange({ partners: undefined })
         }}
         isAllSelected={
           selectedPartners !== undefined &&
-          selectedPartners.length ===
-            partners.filter((p) => p.status === 'active').length
+          selectedPartners.length === partners.length
         }
         isSomeSelected={
           selectedPartners !== undefined &&
           selectedPartners.length > 0 &&
-          selectedPartners.length <
-            partners.filter((p) => p.status === 'active').length
+          selectedPartners.length < partners.length
         }
+        expandedSections={expandedSections}
+        onToggleSection={toggleSection}
       >
-        {partners
-          .filter((p) => p.status === 'active')
-          .map((partner) => (
-            <label
+        {partners.map((partner) => {
+          const count = facetCounts?.partners?.[partner.id]
+          return (
+            <FilterCheckbox
               key={partner.id}
-              className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 py-1 rounded"
-            >
-              <input
-                type="checkbox"
-                checked={selectedPartners?.includes(partner.id) ?? false}
-                onChange={() => togglePartner(partner.id)}
-                className="rounded"
-              />
-              <span>{partner.name}</span>
-            </label>
-          ))}
+              label={partner.name}
+              checked={selectedPartners?.includes(partner.id) ?? false}
+              onChange={() => togglePartner(partner.id)}
+              count={count}
+            />
+          )
+        })}
       </FilterSection>
 
-      {/* Active Filter Chips */}
-      {hasActiveFilters && (
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Active Filters:
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {selectedSources?.map((source) => (
-              <span
-                key={source}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-xs"
-              >
-                {source}
-                <button
-                  onClick={() => toggleSource(source)}
-                  className="hover:text-blue-600 dark:hover:text-blue-300"
-                >
-                  <MdClose className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
-            {selectedLibraries?.map((libId) => {
-              const lib = libraries.find((l) => l.id === libId)
-              return lib ? (
-                <span
-                  key={libId}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-xs"
-                >
-                  {lib.name}
-                  <button
-                    onClick={() => toggleLibrary(libId)}
-                    className="hover:text-blue-600 dark:hover:text-blue-300"
-                  >
-                    <MdClose className="w-3 h-3" />
-                  </button>
-                </span>
-              ) : null
-            })}
-            {selectedCategories?.map((cat) => (
-              <span
-                key={cat}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded text-xs"
-              >
-                {cat}
-                <button
-                  onClick={() => toggleCategory(cat)}
-                  className="hover:text-purple-600 dark:hover:text-purple-300"
-                >
-                  <MdClose className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
-            {search && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded text-xs">
-                Search: {search}
-                <button
-                  onClick={() => handleSearchChange('')}
-                  className="hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  <MdClose className="w-3 h-3" />
-                </button>
-              </span>
-            )}
-          </div>
-        </div>
+      {/* Tags */}
+      {selectedTags && selectedTags.length > 0 && (
+        <FilterSection
+          title="Tags"
+          sectionKey="tags"
+          onSelectNone={() => {
+            onFiltersChange({ tags: undefined })
+          }}
+          expandedSections={expandedSections}
+          onToggleSection={toggleSection}
+        >
+          {selectedTags.map((tag) => (
+            <FilterCheckbox
+              key={tag}
+              label={tag}
+              checked={true}
+              onChange={() => toggleTag(tag)}
+            />
+          ))}
+        </FilterSection>
       )}
+    </>
+  )
+
+  const mobileControls = (
+    <>
+      {onViewModeChange && (
+        <ViewModeToggle
+          viewMode={viewMode}
+          onViewModeChange={onViewModeChange}
+          compact
+        />
+      )}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="flex-shrink-0"
+      >
+        <FilterSearch
+          value={searchInput}
+          onChange={handleSearchChange}
+          className="px-1.5 sm:px-2 py-1 text-xs max-w-[120px] sm:max-w-[180px]"
+          placeholder="Search..."
+        />
+      </div>
+    </>
+  )
+
+  const desktopHeader = onViewModeChange && (
+    <div className="flex items-center gap-2">
+      <Tooltip
+        content={
+          <div className="max-w-xs">
+            <div className="font-semibold mb-1">Feed</div>
+            <div className="text-gray-300">
+              Stay up to date with all TanStack updates, releases,
+              announcements, and blog posts
+            </div>
+          </div>
+        }
+        placement="right"
+      >
+        <LuHelpCircle className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
+      </Tooltip>
+      <ViewModeToggle
+        viewMode={viewMode}
+        onViewModeChange={onViewModeChange}
+      />
     </div>
+  )
+
+  return (
+    <FilterBar
+      title="Filters"
+      onClearFilters={onClearFilters}
+      hasActiveFilters={hasActiveFilters}
+      mobileControls={mobileControls}
+      desktopHeader={desktopHeader}
+    >
+      {/* Search - Desktop */}
+      <div className={`mb-2 lg:block hidden ${viewMode === 'table' ? 'max-w-xs lg:max-w-none lg:w-full' : 'w-full'}`}>
+        <FilterSearch value={searchInput} onChange={handleSearchChange} className="w-full" />
+      </div>
+
+      {renderFilterContent()}
+    </FilterBar>
   )
 }

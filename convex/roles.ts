@@ -19,7 +19,8 @@ export const listRoles = query({
         v.union(
           v.literal('admin'),
           v.literal('disableAds'),
-          v.literal('builder')
+          v.literal('builder'),
+          v.literal('feed')
         )
       )
     ),
@@ -73,7 +74,12 @@ export const createRole = mutation({
     name: v.string(),
     description: v.optional(v.string()),
     capabilities: v.array(
-      v.union(v.literal('admin'), v.literal('disableAds'), v.literal('builder'))
+      v.union(
+        v.literal('admin'),
+        v.literal('disableAds'),
+        v.literal('builder'),
+        v.literal('feed')
+      )
     ),
   },
   handler: async (ctx, args) => {
@@ -118,7 +124,8 @@ export const updateRole = mutation({
         v.union(
           v.literal('admin'),
           v.literal('disableAds'),
-          v.literal('builder')
+          v.literal('builder'),
+          v.literal('feed')
         )
       )
     ),

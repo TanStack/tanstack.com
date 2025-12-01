@@ -21,14 +21,7 @@ export const createFeedEntry = mutation({
     libraryIds: v.array(v.string()),
     partnerIds: v.optional(v.array(v.string())),
     tags: v.array(v.string()),
-    category: v.union(
-      v.literal('release'),
-      v.literal('announcement'),
-      v.literal('blog'),
-      v.literal('partner'),
-      v.literal('update'),
-      v.literal('other')
-    ),
+    category: feedCategoryValidator,
     isVisible: v.boolean(),
     featured: v.optional(v.boolean()),
     autoSynced: v.boolean(),
@@ -93,16 +86,7 @@ export const updateFeedEntry = mutation({
     libraryIds: v.optional(v.array(v.string())),
     partnerIds: v.optional(v.array(v.string())),
     tags: v.optional(v.array(v.string())),
-    category: v.optional(
-      v.union(
-        v.literal('release'),
-        v.literal('announcement'),
-        v.literal('blog'),
-        v.literal('partner'),
-        v.literal('update'),
-        v.literal('other')
-      )
-    ),
+    category: v.optional(feedCategoryValidator),
     isVisible: v.optional(v.boolean()),
     featured: v.optional(v.boolean()),
     lastSyncedAt: v.optional(v.number()),

@@ -223,9 +223,11 @@ async function fetchRepoReleases(
  */
 export const syncGitHubReleases = action({
   args: {
-    // Optional: number of days to look back for initial sync (default: 2 days / 48 hours)
-    // Only used if no previous sync timestamp exists for a repo
-    // Set to 0 or undefined to sync all releases on first run
+    // Optional: number of days to look back
+    // - If provided and > 0, will override lastSyncTime and look back this many days
+    // - If not provided and lastSyncTime exists, will only fetch releases after lastSyncTime
+    // - If not provided and no lastSyncTime, defaults to 2 days for initial sync
+    // - Set to 0 to sync all releases (ignores lastSyncTime)
     daysBack: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -238,7 +240,6 @@ export const syncGitHubReleases = action({
 
     const repos = Object.keys(REPO_TO_LIBRARY_ID)
     const now = Date.now()
-    const defaultDaysBack = args.daysBack ?? 2
     let syncedCount = 0
     let errorCount = 0
     let skippedCount = 0
@@ -249,13 +250,24 @@ export const syncGitHubReleases = action({
         const lastSyncTime = await getLastSyncTime(ctx, repo)
 
         // Determine cutoff date:
-        // - If we have a last sync time, use it (only fetch new releases)
-        // - Otherwise, use daysBack parameter for initial sync
-        const cutoffDate = lastSyncTime
-          ? lastSyncTime
-          : defaultDaysBack > 0
-          ? now - defaultDaysBack * 24 * 60 * 60 * 1000
-          : 0
+        // - If daysBack is explicitly provided (including 0), use it to override lastSyncTime
+        // - If daysBack is not provided and we have lastSyncTime, use it (only fetch new releases)
+        // - If daysBack is not provided and no lastSyncTime, default to 2 days for initial sync
+        let cutoffDate: number
+        if (args.daysBack !== undefined) {
+          // Explicitly provided daysBack - override lastSyncTime
+          if (args.daysBack === 0) {
+            cutoffDate = 0 // Sync all releases
+          } else {
+            cutoffDate = now - args.daysBack * 24 * 60 * 60 * 1000
+          }
+        } else if (lastSyncTime) {
+          // Use lastSyncTime if no daysBack specified
+          cutoffDate = lastSyncTime
+        } else {
+          // No lastSyncTime and no daysBack - default to 2 days for initial sync
+          cutoffDate = now - 2 * 24 * 60 * 60 * 1000
+        }
 
         // Fetch releases (will be filtered by cutoffDate in fetchRepoReleases)
         const releases = await fetchRepoReleases(repo, token, cutoffDate)

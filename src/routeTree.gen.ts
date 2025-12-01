@@ -32,7 +32,6 @@ import { Route as LibrariesPaidSupportRouteImport } from './routes/_libraries/pa
 import { Route as LibrariesMaintainersRouteImport } from './routes/_libraries/maintainers'
 import { Route as LibrariesLoginRouteImport } from './routes/_libraries/login'
 import { Route as LibrariesLearnRouteImport } from './routes/_libraries/learn'
-import { Route as LibrariesFeedRouteImport } from './routes/_libraries/feed'
 import { Route as LibrariesEthosRouteImport } from './routes/_libraries/ethos'
 import { Route as LibrariesDashboardRouteImport } from './routes/_libraries/dashboard'
 import { Route as LibrariesBrandGuideRouteImport } from './routes/_libraries/brand-guide'
@@ -43,11 +42,13 @@ import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$versi
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
 import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
 import { Route as AdminFeedIndexRouteImport } from './routes/admin/feed.index'
+import { Route as LibrariesFeedIndexRouteImport } from './routes/_libraries/feed.index'
 import { Route as LibrariesBlogIndexRouteImport } from './routes/_libraries/blog.index'
 import { Route as ApiGithubReleasesRouteImport } from './routes/api/github/releases'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
 import { Route as AdminFeedIdRouteImport } from './routes/admin/feed.$id'
+import { Route as LibrariesFeedIdRouteImport } from './routes/_libraries/feed.$id'
 import { Route as LibrariesBlogSplatRouteImport } from './routes/_libraries/blog.$'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
 import { Route as LibrariesVirtualVersionIndexRouteImport } from './routes/_libraries/virtual.$version.index'
@@ -187,11 +188,6 @@ const LibrariesLearnRoute = LibrariesLearnRouteImport.update({
   path: '/learn',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
-const LibrariesFeedRoute = LibrariesFeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
-  getParentRoute: () => LibrariesRouteRoute,
-} as any)
 const LibrariesEthosRoute = LibrariesEthosRouteImport.update({
   id: '/ethos',
   path: '/ethos',
@@ -242,6 +238,11 @@ const AdminFeedIndexRoute = AdminFeedIndexRouteImport.update({
   path: '/feed/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const LibrariesFeedIndexRoute = LibrariesFeedIndexRouteImport.update({
+  id: '/feed/',
+  path: '/feed/',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
 const LibrariesBlogIndexRoute = LibrariesBlogIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -266,6 +267,11 @@ const AdminFeedIdRoute = AdminFeedIdRouteImport.update({
   id: '/feed/$id',
   path: '/feed/$id',
   getParentRoute: () => AdminRouteRoute,
+} as any)
+const LibrariesFeedIdRoute = LibrariesFeedIdRouteImport.update({
+  id: '/feed/$id',
+  path: '/feed/$id',
+  getParentRoute: () => LibrariesRouteRoute,
 } as any)
 const LibrariesBlogSplatRoute = LibrariesBlogSplatRouteImport.update({
   id: '/$',
@@ -424,7 +430,6 @@ export interface FileRoutesByFullPath {
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
-  '/feed': typeof LibrariesFeedRoute
   '/learn': typeof LibrariesLearnRoute
   '/login': typeof LibrariesLoginRoute
   '/maintainers': typeof LibrariesMaintainersRoute
@@ -442,11 +447,13 @@ export interface FileRoutesByFullPath {
   '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/blog/$': typeof LibrariesBlogSplatRoute
+  '/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/github/releases': typeof ApiGithubReleasesRoute
   '/blog/': typeof LibrariesBlogIndexRoute
+  '/feed': typeof LibrariesFeedIndexRoute
   '/admin/feed': typeof AdminFeedIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
@@ -485,7 +492,6 @@ export interface FileRoutesByTo {
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
-  '/feed': typeof LibrariesFeedRoute
   '/learn': typeof LibrariesLearnRoute
   '/login': typeof LibrariesLoginRoute
   '/maintainers': typeof LibrariesMaintainersRoute
@@ -502,11 +508,13 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/stats': typeof StatsIndexRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
+  '/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/github/releases': typeof ApiGithubReleasesRoute
   '/blog': typeof LibrariesBlogIndexRoute
+  '/feed': typeof LibrariesFeedIndexRoute
   '/admin/feed': typeof AdminFeedIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
@@ -550,7 +558,6 @@ export interface FileRoutesById {
   '/_libraries/brand-guide': typeof LibrariesBrandGuideRoute
   '/_libraries/dashboard': typeof LibrariesDashboardRoute
   '/_libraries/ethos': typeof LibrariesEthosRoute
-  '/_libraries/feed': typeof LibrariesFeedRoute
   '/_libraries/learn': typeof LibrariesLearnRoute
   '/_libraries/login': typeof LibrariesLoginRoute
   '/_libraries/maintainers': typeof LibrariesMaintainersRoute
@@ -568,11 +575,13 @@ export interface FileRoutesById {
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
+  '/_libraries/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/github/releases': typeof ApiGithubReleasesRoute
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
+  '/_libraries/feed/': typeof LibrariesFeedIndexRoute
   '/admin/feed/': typeof AdminFeedIndexRoute
   '/admin/roles/': typeof AdminRolesIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
@@ -616,7 +625,6 @@ export interface FileRouteTypes {
     | '/brand-guide'
     | '/dashboard'
     | '/ethos'
-    | '/feed'
     | '/learn'
     | '/login'
     | '/maintainers'
@@ -634,11 +642,13 @@ export interface FileRouteTypes {
     | '/stats'
     | '/$libraryId/$version/docs'
     | '/blog/$'
+    | '/feed/$id'
     | '/admin/feed/$id'
     | '/admin/roles/$roleId'
     | '/api/auth/$'
     | '/api/github/releases'
     | '/blog/'
+    | '/feed'
     | '/admin/feed'
     | '/admin/roles'
     | '/stats/npm'
@@ -677,7 +687,6 @@ export interface FileRouteTypes {
     | '/brand-guide'
     | '/dashboard'
     | '/ethos'
-    | '/feed'
     | '/learn'
     | '/login'
     | '/maintainers'
@@ -694,11 +703,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/stats'
     | '/blog/$'
+    | '/feed/$id'
     | '/admin/feed/$id'
     | '/admin/roles/$roleId'
     | '/api/auth/$'
     | '/api/github/releases'
     | '/blog'
+    | '/feed'
     | '/admin/feed'
     | '/admin/roles'
     | '/stats/npm'
@@ -741,7 +752,6 @@ export interface FileRouteTypes {
     | '/_libraries/brand-guide'
     | '/_libraries/dashboard'
     | '/_libraries/ethos'
-    | '/_libraries/feed'
     | '/_libraries/learn'
     | '/_libraries/login'
     | '/_libraries/maintainers'
@@ -759,11 +769,13 @@ export interface FileRouteTypes {
     | '/stats/'
     | '/$libraryId/$version/docs'
     | '/_libraries/blog/$'
+    | '/_libraries/feed/$id'
     | '/admin/feed/$id'
     | '/admin/roles/$roleId'
     | '/api/auth/$'
     | '/api/github/releases'
     | '/_libraries/blog/'
+    | '/_libraries/feed/'
     | '/admin/feed/'
     | '/admin/roles/'
     | '/stats/npm/'
@@ -969,13 +981,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesLearnRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
-    '/_libraries/feed': {
-      id: '/_libraries/feed'
-      path: '/feed'
-      fullPath: '/feed'
-      preLoaderRoute: typeof LibrariesFeedRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
     '/_libraries/ethos': {
       id: '/_libraries/ethos'
       path: '/ethos'
@@ -1046,6 +1051,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_libraries/feed/': {
+      id: '/_libraries/feed/'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof LibrariesFeedIndexRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
     '/_libraries/blog/': {
       id: '/_libraries/blog/'
       path: '/'
@@ -1080,6 +1092,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/feed/$id'
       preLoaderRoute: typeof AdminFeedIdRouteImport
       parentRoute: typeof AdminRouteRoute
+    }
+    '/_libraries/feed/$id': {
+      id: '/_libraries/feed/$id'
+      path: '/feed/$id'
+      fullPath: '/feed/$id'
+      preLoaderRoute: typeof LibrariesFeedIdRouteImport
+      parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/blog/$': {
       id: '/_libraries/blog/$'
@@ -1334,7 +1353,6 @@ interface LibrariesRouteRouteChildren {
   LibrariesBrandGuideRoute: typeof LibrariesBrandGuideRoute
   LibrariesDashboardRoute: typeof LibrariesDashboardRoute
   LibrariesEthosRoute: typeof LibrariesEthosRoute
-  LibrariesFeedRoute: typeof LibrariesFeedRoute
   LibrariesLearnRoute: typeof LibrariesLearnRoute
   LibrariesLoginRoute: typeof LibrariesLoginRoute
   LibrariesMaintainersRoute: typeof LibrariesMaintainersRoute
@@ -1346,6 +1364,8 @@ interface LibrariesRouteRouteChildren {
   LibrariesTermsRoute: typeof LibrariesTermsRoute
   LibrariesWorkshopsRoute: typeof LibrariesWorkshopsRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
+  LibrariesFeedIdRoute: typeof LibrariesFeedIdRoute
+  LibrariesFeedIndexRoute: typeof LibrariesFeedIndexRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
   LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
   LibrariesDevtoolsVersionIndexRoute: typeof LibrariesDevtoolsVersionIndexRoute
@@ -1367,7 +1387,6 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesBrandGuideRoute: LibrariesBrandGuideRoute,
   LibrariesDashboardRoute: LibrariesDashboardRoute,
   LibrariesEthosRoute: LibrariesEthosRoute,
-  LibrariesFeedRoute: LibrariesFeedRoute,
   LibrariesLearnRoute: LibrariesLearnRoute,
   LibrariesLoginRoute: LibrariesLoginRoute,
   LibrariesMaintainersRoute: LibrariesMaintainersRoute,
@@ -1379,6 +1398,8 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesTermsRoute: LibrariesTermsRoute,
   LibrariesWorkshopsRoute: LibrariesWorkshopsRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
+  LibrariesFeedIdRoute: LibrariesFeedIdRoute,
+  LibrariesFeedIndexRoute: LibrariesFeedIndexRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
   LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,
   LibrariesDevtoolsVersionIndexRoute: LibrariesDevtoolsVersionIndexRoute,

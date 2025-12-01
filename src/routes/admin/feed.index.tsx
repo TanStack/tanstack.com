@@ -10,7 +10,7 @@ import { FeedEntry } from '~/components/FeedEntry'
 import { FeedSyncStatus } from '~/components/admin/FeedSyncStatus'
 import { FeedPageLayout } from '~/components/FeedPageLayout'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
-
+import { useCapabilities } from '~/hooks/useCapabilities'
 const librarySchema = z.enum([
   'start',
   'router',
@@ -38,6 +38,11 @@ const categorySchema = z.enum([
 ])
 
 const releaseLevelSchema = z.enum(['major', 'minor', 'patch'])
+const viewModeSchema = z
+  .enum(['table', 'timeline'])
+  .optional()
+  .default('table')
+  .catch('table')
 
 export const Route = createFileRoute('/admin/feed/')({
   component: FeedAdminPage,
@@ -67,7 +72,9 @@ export const Route = createFileRoute('/admin/feed/')({
         featured: z.boolean().optional().catch(undefined),
         search: z.string().optional().catch(undefined),
         page: z.number().optional().default(1).catch(1),
-        pageSize: z.number().int().positive().optional().default(20).catch(20),
+        pageSize: z.number().int().positive().optional().default(50).catch(50),
+        viewMode: viewModeSchema,
+        expanded: z.array(z.string()).optional().catch(undefined),
       })
       .parse(search)
   },
@@ -79,7 +86,8 @@ function FeedAdminPage() {
   const currentPage = search.page ?? 1
 
   const user = useConvexQuery(api.auth.getCurrentUser)
-  const pageSize = search.pageSize ?? 20
+  const capabilities = useCapabilities()
+  const pageSize = search.pageSize ?? 50
   const feedQuery = useFeedQuery({
     page: currentPage,
     pageSize,
@@ -165,6 +173,27 @@ function FeedAdminPage() {
     })
   }
 
+  const handleViewModeChange = (viewMode: 'table' | 'timeline') => {
+    navigate({
+      search: (s) => ({ ...s, viewMode }),
+      replace: true,
+    })
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('feedViewMode', viewMode)
+    }
+  }
+
+  const handleExpandedChange = (expandedIds: string[]) => {
+    navigate({
+      search: (s) => ({
+        ...s,
+        expanded: expandedIds.length > 0 ? expandedIds : undefined,
+      }),
+      replace: true,
+      resetScroll: false,
+    })
+  }
+
   if (user === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -173,7 +202,7 @@ function FeedAdminPage() {
     )
   }
 
-  const canAdmin = user?.capabilities.includes('admin')
+  const canAdmin = capabilities.includes('admin')
   if (user && !canAdmin) {
     return (
       <div className="flex-1 min-h-screen flex items-center justify-center">
@@ -192,8 +221,8 @@ function FeedAdminPage() {
       feedQuery={feedQuery}
       currentPage={currentPage}
       pageSize={pageSize}
-      filters={search as any}
-      onFiltersChange={handleFiltersChange as any}
+      filters={search}
+      onFiltersChange={handleFiltersChange}
       onClearFilters={handleClearFilters}
       onPageChange={(page) => {
         navigate({
@@ -203,6 +232,10 @@ function FeedAdminPage() {
         })
       }}
       onPageSizeChange={handlePageSizeChange}
+      viewMode={search.viewMode ?? 'table'}
+      onViewModeChange={handleViewModeChange}
+      expandedIds={search.expanded}
+      onExpandedChange={handleExpandedChange}
       adminActions={{
         onEdit: handleEdit,
         onToggleVisibility: handleToggleVisibility,

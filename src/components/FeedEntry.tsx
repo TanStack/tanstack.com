@@ -5,6 +5,8 @@ import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
 import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaStar } from 'react-icons/fa'
+import { Link } from '@tanstack/react-router'
+import { TableRow, TableCell } from '~/components/TableComponents'
 
 export interface FeedEntry {
   _id: string
@@ -27,6 +29,8 @@ export interface FeedEntry {
 interface FeedEntryProps {
   entry: FeedEntry
   showFullContent?: boolean
+  expanded?: boolean
+  onExpandedChange?: (expanded: boolean) => void
   adminActions?: {
     onEdit?: (entry: FeedEntry) => void
     onToggleVisibility?: (entry: FeedEntry, isVisible: boolean) => void
@@ -38,9 +42,14 @@ interface FeedEntryProps {
 export function FeedEntry({
   entry,
   showFullContent = false,
+  expanded: expandedProp,
+  onExpandedChange,
   adminActions,
 }: FeedEntryProps) {
-  const [expanded, setExpanded] = React.useState(showFullContent)
+  const expanded = expandedProp ?? showFullContent
+  const setExpanded = (value: boolean) => {
+    onExpandedChange?.(value)
+  }
 
   // Get library info
   const entryLibraries = entry.libraryIds
@@ -160,16 +169,15 @@ export function FeedEntry({
   return (
     <>
       {/* Table Row */}
-      <tr
+      <TableRow
         className={twMerge(
-          'border-b border-gray-200 dark:border-gray-800',
-          'hover:bg-gray-50 dark:hover:bg-black/50 transition-colors cursor-pointer',
+          'cursor-pointer',
           entry.featured && 'bg-yellow-50 dark:bg-yellow-900/10'
         )}
         onClick={() => setExpanded(!expanded)}
       >
         {/* Expand Arrow */}
-        <td className="w-5 px-4 py-3 whitespace-nowrap">
+        <TableCell className="w-5 whitespace-nowrap">
           <button
             className="flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             onClick={(e) => {
@@ -179,7 +187,7 @@ export function FeedEntry({
           >
             <svg
               className={twMerge(
-                'w-4 h-4 transition-transform',
+                'w-3.5 h-3.5 transition-transform',
                 expanded && 'rotate-90'
               )}
               fill="none"
@@ -194,10 +202,10 @@ export function FeedEntry({
               />
             </svg>
           </button>
-        </td>
+        </TableCell>
 
         {/* Date */}
-        <td className="hidden sm:table-cell px-4 py-3 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+        <TableCell className="hidden sm:table-cell text-[11px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
           <time
             dateTime={new Date(entry.publishedAt).toISOString()}
             title={format(new Date(entry.publishedAt), 'PPpp')}
@@ -207,15 +215,15 @@ export function FeedEntry({
               addSuffix: true,
             })}
           </time>
-        </td>
+        </TableCell>
 
         {/* Badges */}
-        <td className="px-4 py-3 whitespace-nowrap">
-          <div className="flex items-center gap-1.5">
+        <TableCell className="whitespace-nowrap">
+          <div className="flex items-center gap-1">
             {/* Category Badge (Release, Blog, Announcement, etc.) */}
             <span
               className={twMerge(
-                'px-2 py-0.5 rounded text-xs font-medium uppercase',
+                'px-1.5 py-0.5 rounded text-[10px] font-medium uppercase',
                 badge.className
               )}
             >
@@ -225,7 +233,7 @@ export function FeedEntry({
             {releaseLevelBadge && (
               <span
                 className={twMerge(
-                  'px-2 py-0.5 rounded text-xs font-medium uppercase',
+                  'px-1.5 py-0.5 rounded text-[10px] font-medium uppercase',
                   releaseLevelBadge.className
                 )}
               >
@@ -233,58 +241,67 @@ export function FeedEntry({
               </span>
             )}
           </div>
-        </td>
+        </TableCell>
 
         {/* Title */}
-        <td className="px-4 py-3 whitespace-nowrap">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+        <TableCell className="whitespace-nowrap">
+          <Link
+            to="/feed/$id"
+            params={{ id: entry._id }}
+            search={{} as any}
+            onClick={(e) => e.stopPropagation()}
+            className="text-xs font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
             {entry.title}
-          </h3>
-        </td>
+            </Link>
+        </TableCell>
 
         {/* Excerpt */}
-        <td className="hidden md:table-cell px-4 py-3 whitespace-nowrap">
+        <TableCell className="hidden md:table-cell whitespace-nowrap">
           {entry.excerpt ? (
-            <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+            <p className="text-[11px] text-gray-600 dark:text-gray-400 truncate">
               {entry.excerpt.replace(/\n/g, ' ')}
             </p>
           ) : (
-            <span className="text-xs text-gray-400 dark:text-gray-500">—</span>
+            <span className="text-[11px] text-gray-400 dark:text-gray-500">
+              —
+            </span>
           )}
-        </td>
+        </TableCell>
 
         {/* Tags/Badges */}
-        <td className="hidden md:table-cell px-4 py-3 whitespace-nowrap">
+        <TableCell className="hidden md:table-cell whitespace-nowrap">
           <div className="flex items-center gap-1">
             {entry.featured && (
-              <span className="px-1.5 py-0.5 rounded text-xs bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
+              <span className="px-1 py-0.5 rounded text-[10px] bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
                 ⭐
               </span>
             )}
             {!entry.isVisible && (
-              <span className="px-1.5 py-0.5 rounded text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
+              <span className="px-1 py-0.5 rounded text-[10px] bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
                 Hidden
               </span>
             )}
             {entryLibraries.length > 0 && (
-              <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              <span className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
                 {entryLibraries.map((lib) => lib!.name).join(', ')}
               </span>
             )}
           </div>
-        </td>
+        </TableCell>
 
         {/* Admin Actions Column */}
         {adminActions && (
-          <td
-            className="hidden md:table-cell px-4 py-3 text-right whitespace-nowrap"
+          <TableCell
+            className="hidden md:table-cell text-right whitespace-nowrap"
+            align="right"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-end gap-1">
+            <div className="flex items-center justify-end gap-0.5">
               {adminActions.onEdit && (
                 <button
                   onClick={() => adminActions.onEdit!(entry)}
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400"
+                  className="p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400"
                   title="Edit"
                 >
                   <FaEdit className="w-3 h-3" />
@@ -295,7 +312,7 @@ export function FeedEntry({
                   onClick={() =>
                     adminActions.onToggleVisibility!(entry, !entry.isVisible)
                   }
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400"
+                  className="p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400"
                   title={entry.isVisible ? 'Hide' : 'Show'}
                 >
                   {entry.isVisible ? (
@@ -310,7 +327,7 @@ export function FeedEntry({
                   onClick={() =>
                     adminActions.onToggleFeatured!(entry, !entry.featured)
                   }
-                  className={`p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors ${
+                  className={`p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors ${
                     entry.featured
                       ? 'text-yellow-500'
                       : 'text-gray-600 dark:text-gray-400'
@@ -323,24 +340,24 @@ export function FeedEntry({
               {adminActions.onDelete && (
                 <button
                   onClick={() => adminActions.onDelete!(entry)}
-                  className="p-1 hover:bg-red-100 dark:hover:bg-red-900 rounded transition-colors text-red-500"
+                  className="p-0.5 hover:bg-red-100 dark:hover:bg-red-900 rounded transition-colors text-red-500"
                   title="Delete"
                 >
                   <FaTrash className="w-3 h-3" />
                 </button>
               )}
             </div>
-          </td>
+          </TableCell>
         )}
-      </tr>
+      </TableRow>
 
       {/* Expanded Content */}
       {expanded && (
-        <tr className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-black/50">
-          <td colSpan={colSpan} className="px-4 py-4">
-            <div className="pl-[52px]">
+        <TableRow className="bg-gray-50 dark:bg-gray-900/30">
+          <TableCell colSpan={colSpan} className="px-2 py-4">
+            <div className="pl-8">
               {/* Metadata Row */}
-              <div className="flex items-center gap-4 mb-4 text-xs text-gray-600 dark:text-gray-400">
+              <div className="flex items-center gap-4 mb-3 text-[11px] text-gray-600 dark:text-gray-400">
                 {entry.source !== 'announcement' && (
                   <span className="capitalize">{entry.source}</span>
                 )}
@@ -392,7 +409,7 @@ export function FeedEntry({
               </div>
 
               {/* Content */}
-              <div className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed mb-4">
+              <div className="text-xs text-gray-900 dark:text-gray-100 leading-snug mb-3">
                 <Markdown rawContent={entry.content} />
               </div>
 
@@ -403,7 +420,7 @@ export function FeedEntry({
                     href={externalLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
+                    className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
                     onClick={(e) => e.stopPropagation()}
                   >
                     View on {entry.source === 'github' ? 'GitHub' : 'Blog'} →
@@ -411,8 +428,8 @@ export function FeedEntry({
                 </div>
               )}
             </div>
-          </td>
-        </tr>
+          </TableCell>
+        </TableRow>
       )}
     </>
   )

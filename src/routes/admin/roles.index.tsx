@@ -1,4 +1,14 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { FilterBar, FilterSearch, FilterCheckbox, FilterSection } from '~/components/FilterComponents'
+import {
+  Table,
+  TableHeader,
+  TableHeaderRow,
+  TableHeaderCell,
+  TableBody,
+  TableRow,
+  TableCell,
+} from '~/components/TableComponents'
 import { z } from 'zod'
 import {
   useQuery as useConvexQuery,
@@ -8,6 +18,7 @@ import { api } from 'convex/_generated/api'
 import { useState, useMemo, useCallback } from 'react'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { convexQuery } from '@convex-dev/react-query'
+import { useCapabilities } from '~/hooks/useCapabilities'
 import {
   FaEdit,
   FaSave,
@@ -60,14 +71,96 @@ function RolesPage() {
     [search.cap]
   )
 
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    capabilities: true,
+  })
+
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }))
+  }
+
+  const hasActiveFilters = nameFilter !== '' || capabilityFilters.length > 0
+
+  const handleClearFilters = () => {
+    navigate({
+      resetScroll: false,
+      search: {},
+    })
+  }
+
+  const renderFilterContent = () => (
+    <>
+      {/* Name Filter */}
+      <div className="mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Name / Description
+        </label>
+        <FilterSearch
+          value={nameFilter}
+          onChange={(value) => {
+            navigate({
+              resetScroll: false,
+              search: (prev) => ({
+                ...prev,
+                name: value || undefined,
+              }),
+            })
+          }}
+          placeholder="Filter by name or description"
+        />
+      </div>
+
+      {/* Capabilities Filter */}
+      <FilterSection
+        title="Capabilities"
+        sectionKey="capabilities"
+        onSelectAll={() => {
+          navigate({
+            resetScroll: false,
+            search: (prev) => ({
+              ...prev,
+              cap: availableCapabilities,
+            }),
+          })
+        }}
+        onSelectNone={() => {
+          navigate({
+            resetScroll: false,
+            search: (prev) => ({
+              ...prev,
+              cap: undefined,
+            }),
+          })
+        }}
+        isAllSelected={capabilityFilters.length === availableCapabilities.length}
+        isSomeSelected={
+          capabilityFilters.length > 0 &&
+          capabilityFilters.length < availableCapabilities.length
+        }
+        expandedSections={expandedSections}
+        onToggleSection={toggleSection}
+      >
+        {availableCapabilities.map((cap) => (
+          <FilterCheckbox
+            key={cap}
+            label={cap}
+            checked={capabilityFilters.includes(cap)}
+            onChange={() => handleCapabilityFilterToggle(cap)}
+          />
+        ))}
+      </FilterSection>
+    </>
+  )
+
   const user = useConvexQuery(api.auth.getCurrentUser)
   const rolesQuery = useQuery({
     ...convexQuery(api.roles.listRoles, {
       nameFilter: nameFilter || undefined,
       capabilityFilter:
-        capabilityFilters.length > 0
-          ? (capabilityFilters as ('admin' | 'disableAds' | 'builder')[])
-          : undefined,
+        capabilityFilters.length > 0 ? capabilityFilters : undefined,
     }),
     placeholderData: keepPreviousData,
   })
@@ -78,7 +171,7 @@ function RolesPage() {
   const deleteRole = useConvexMutation(api.roles.deleteRole)
 
   const availableCapabilities = useMemo(
-    () => ['admin', 'disableAds', 'builder'],
+    () => ['admin', 'disableAds', 'builder', 'feed'],
     []
   )
 
@@ -103,11 +196,7 @@ function RolesPage() {
         await createRole({
           name: editingName,
           description: editingDescription || undefined,
-          capabilities: editingCapabilities as (
-            | 'admin'
-            | 'disableAds'
-            | 'builder'
-          )[],
+          capabilities: editingCapabilities,
         })
         setIsCreating(false)
       } else if (editingRoleId) {
@@ -115,11 +204,7 @@ function RolesPage() {
           roleId: editingRoleId as Id<'roles'>,
           name: editingName,
           description: editingDescription || undefined,
-          capabilities: editingCapabilities as (
-            | 'admin'
-            | 'disableAds'
-            | 'builder'
-          )[],
+          capabilities: editingCapabilities,
         })
         setEditingRoleId(null)
       }
@@ -365,9 +450,8 @@ function RolesPage() {
   }
 
   // If authenticated but no admin capability, show unauthorized
-  const canAdmin =
-    user?.capabilities?.includes('admin') ||
-    (user as any)?.effectiveCapabilities?.includes('admin')
+  const capabilities = useCapabilities()
+  const canAdmin = capabilities.includes('admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -407,56 +491,13 @@ function RolesPage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar Filters */}
         <aside className="lg:w-64 lg:flex-shrink-0">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 space-y-4 sticky top-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Filters
-            </h2>
-
-            {/* Name Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Name / Description
-              </label>
-              <input
-                type="text"
-                value={nameFilter}
-                onChange={(e) => {
-                  const value = e.target.value
-                  navigate({
-                    resetScroll: false,
-                    search: (prev) => ({
-                      ...prev,
-                      name: value || undefined,
-                    }),
-                  })
-                }}
-                placeholder="Filter by name or description"
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
-              />
-            </div>
-
-            {/* Capabilities Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Capabilities
-              </label>
-              <div className="space-y-2">
-                {availableCapabilities.map((cap) => (
-                  <label key={cap} className="flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={capabilityFilters.includes(cap)}
-                      onChange={() => handleCapabilityFilterToggle(cap)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-sm text-gray-900 dark:text-white">
-                      {cap}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
+          <FilterBar
+            title="Filters"
+            onClearFilters={handleClearFilters}
+            hasActiveFilters={hasActiveFilters}
+          >
+            {renderFilterContent()}
+          </FilterBar>
         </aside>
 
         {/* Main Content */}
@@ -551,62 +592,64 @@ function RolesPage() {
             </div>
           )}
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 dark:bg-gray-700">
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <th
-                          key={header.id}
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                        >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </th>
-                      ))}
-                    </tr>
-                  ))}
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
-                  {table.getRowModel().rows.map((row) => (
-                    <tr
-                      key={row.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700"
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableHeaderRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHeaderCell
+                      key={header.id}
+                      align={
+                        header.column.columnDef.meta?.align === 'right'
+                          ? 'right'
+                          : 'left'
+                      }
                     >
-                      {row.getVisibleCells().map((cell) => (
-                        <td
-                          key={cell.id}
-                          className="px-6 py-4 whitespace-nowrap"
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
                           )}
-                        </td>
-                      ))}
-                    </tr>
+                    </TableHeaderCell>
                   ))}
-                </tbody>
-              </table>
-            </div>
+                </TableHeaderRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      className="whitespace-nowrap"
+                      align={
+                        cell.column.columnDef.meta?.align === 'right'
+                          ? 'right'
+                          : 'left'
+                      }
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
-            {(!roles || roles.length === 0) && (
-              <div className="text-center py-12">
-                <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                  No roles found
-                </h3>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Create your first role to get started.
-                </p>
-              </div>
-            )}
-          </div>
+          {(!roles || roles.length === 0) && (
+            <div className="text-center py-12">
+              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                No roles found
+              </h3>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Create your first role to get started.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -5,17 +5,15 @@ import { FaSync, FaSpinner } from 'react-icons/fa'
 
 export function FeedSyncStatus() {
   const statsQuery = useConvexQuery(api.feed.queries.getFeedStats)
-  // Note: Actions need to be exported from convex/feed/actions.ts
-  // For now, sync functions should be called via mutations or HTTP endpoints
-  // TODO: Fix action exports in Convex
   const syncGitHub = useAction(api.feed.github.syncGitHubReleases)
   const [syncing, setSyncing] = React.useState(false)
+  const [daysBack, setDaysBack] = React.useState<number>(7)
 
   const handleSyncGitHub = async () => {
     setSyncing(true)
     try {
-      // Call without daysBack - function defaults to 2 days (48 hours) for initial sync
-      await syncGitHub({})
+      // Pass daysBack to override lastSyncTime and fetch releases from the past N days
+      await syncGitHub({ daysBack })
     } catch (error) {
       console.error('Error syncing GitHub:', error)
       alert('Failed to sync GitHub releases. Please check console for details.')
@@ -34,18 +32,30 @@ export function FeedSyncStatus() {
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-sm font-semibold">Sync Status</h2>
-        <button
-          onClick={handleSyncGitHub}
-          disabled={syncing}
-          className="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
-        >
-          {syncing ? (
-            <FaSpinner className="animate-spin w-3 h-3" />
-          ) : (
-            <FaSync className="w-3 h-3" />
-          )}
-          Sync GitHub
-        </button>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            min="0"
+            max="365"
+            value={daysBack}
+            onChange={(e) => setDaysBack(parseInt(e.target.value) || 7)}
+            className="w-16 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            title="Number of days to look back (0 = all releases)"
+          />
+          <span className="text-xs text-gray-600 dark:text-gray-400">days</span>
+          <button
+            onClick={handleSyncGitHub}
+            disabled={syncing}
+            className="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
+          >
+            {syncing ? (
+              <FaSpinner className="animate-spin w-3 h-3" />
+            ) : (
+              <FaSync className="w-3 h-3" />
+            )}
+            Sync GitHub
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
@@ -87,7 +97,7 @@ export function FeedSyncStatus() {
               className="flex items-center justify-between px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded text-xs"
             >
               <span className="capitalize">{source}</span>
-              <span className="font-semibold">{count as number}</span>
+              <span className="font-semibold">{count}</span>
             </div>
           ))}
         </div>
@@ -105,7 +115,7 @@ export function FeedSyncStatus() {
               className="flex items-center justify-between px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded text-xs"
             >
               <span className="capitalize">{category}</span>
-              <span className="font-semibold">{count as number}</span>
+              <span className="font-semibold">{count}</span>
             </div>
           ))}
         </div>

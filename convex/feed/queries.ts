@@ -1,6 +1,7 @@
 import { query } from '../_generated/server'
 import { v } from 'convex/values'
 import { getEffectivePublishedAt } from './timestamps'
+import { feedCategoryValidator, releaseLevelValidator } from './schema'
 
 export const listFeedEntries = query({
   args: {
@@ -12,21 +13,10 @@ export const listFeedEntries = query({
       v.object({
         sources: v.optional(v.array(v.string())),
         libraries: v.optional(v.array(v.string())),
-        categories: v.optional(
-          v.array(
-            v.union(
-              v.literal('release'),
-              v.literal('announcement'),
-              v.literal('blog'),
-              v.literal('partner'),
-              v.literal('update'),
-              v.literal('other')
-            )
-          )
-        ),
+        categories: v.optional(v.array(feedCategoryValidator)),
         partners: v.optional(v.array(v.string())),
         tags: v.optional(v.array(v.string())),
-        releaseLevels: v.optional(v.array(v.string())), // e.g., ['major', 'minor', 'patch']
+        releaseLevels: v.optional(v.array(releaseLevelValidator)),
         includePrerelease: v.optional(v.boolean()), // Separate toggle for prerelease releases
         featured: v.optional(v.boolean()),
         search: v.optional(v.string()),
@@ -103,17 +93,17 @@ export const listFeedEntries = query({
         if (filters.releaseLevels!.length === 0) {
           return false
         }
-        
+
         // Check if this is a prerelease
         const isPrerelease = releaseLevelTags.some(
           (tag) => tag === 'release:prerelease'
         )
-        
+
         // If it's a prerelease, check includePrerelease flag
         if (isPrerelease && filters.includePrerelease !== true) {
           return false
         }
-        
+
         // Check if the base release level (major/minor/patch) is included
         const baseReleaseTag = releaseLevelTags.find(
           (tag) =>
@@ -124,7 +114,10 @@ export const listFeedEntries = query({
         if (!baseReleaseTag) {
           return false
         }
-        const level = baseReleaseTag.replace('release:', '')
+        const level = baseReleaseTag.replace('release:', '') as
+          | 'major'
+          | 'minor'
+          | 'patch'
         return filters.releaseLevels!.includes(level)
       })
     } else if (filters.includePrerelease === false) {
@@ -195,6 +188,16 @@ export const getFeedEntry = query({
   },
 })
 
+export const getFeedEntryById = query({
+  args: {
+    id: v.id('feedEntries'),
+  },
+  handler: async (ctx, args) => {
+    const entry = await ctx.db.get(args.id)
+    return entry ?? null
+  },
+})
+
 export const getFeedStats = query({
   args: {},
   handler: async (ctx) => {
@@ -236,21 +239,10 @@ export const getFeedFacetCounts = query({
       v.object({
         sources: v.optional(v.array(v.string())),
         libraries: v.optional(v.array(v.string())),
-        categories: v.optional(
-          v.array(
-            v.union(
-              v.literal('release'),
-              v.literal('announcement'),
-              v.literal('blog'),
-              v.literal('partner'),
-              v.literal('update'),
-              v.literal('other')
-            )
-          )
-        ),
+        categories: v.optional(v.array(feedCategoryValidator)),
         partners: v.optional(v.array(v.string())),
         tags: v.optional(v.array(v.string())),
-        releaseLevels: v.optional(v.array(v.string())),
+        releaseLevels: v.optional(v.array(releaseLevelValidator)),
         includePrerelease: v.optional(v.boolean()),
         featured: v.optional(v.boolean()),
         search: v.optional(v.string()),
@@ -285,29 +277,54 @@ export const getFeedFacetCounts = query({
     // Helper function to apply filters except for a specific facet
     const applyFiltersExcept = (
       entriesToFilter: typeof entries,
-      excludeFacet?: 'sources' | 'categories' | 'libraries' | 'partners' | 'tags' | 'releaseLevels' | 'includePrerelease' | 'featured' | 'search'
+      excludeFacet?:
+        | 'sources'
+        | 'categories'
+        | 'libraries'
+        | 'partners'
+        | 'tags'
+        | 'releaseLevels'
+        | 'includePrerelease'
+        | 'featured'
+        | 'search'
     ) => {
       let filtered = [...entriesToFilter]
 
-      if (excludeFacet !== 'sources' && filters.sources && filters.sources.length > 0) {
+      if (
+        excludeFacet !== 'sources' &&
+        filters.sources &&
+        filters.sources.length > 0
+      ) {
         filtered = filtered.filter((entry) =>
           filters.sources!.includes(entry.source)
         )
       }
 
-      if (excludeFacet !== 'categories' && filters.categories && filters.categories.length > 0) {
+      if (
+        excludeFacet !== 'categories' &&
+        filters.categories &&
+        filters.categories.length > 0
+      ) {
         filtered = filtered.filter((entry) =>
           filters.categories!.includes(entry.category)
         )
       }
 
-      if (excludeFacet !== 'libraries' && filters.libraries && filters.libraries.length > 0) {
+      if (
+        excludeFacet !== 'libraries' &&
+        filters.libraries &&
+        filters.libraries.length > 0
+      ) {
         filtered = filtered.filter((entry) =>
           entry.libraryIds.some((libId) => filters.libraries!.includes(libId))
         )
       }
 
-      if (excludeFacet !== 'partners' && filters.partners && filters.partners.length > 0) {
+      if (
+        excludeFacet !== 'partners' &&
+        filters.partners &&
+        filters.partners.length > 0
+      ) {
         filtered = filtered.filter(
           (entry) =>
             entry.partnerIds &&
@@ -323,7 +340,10 @@ export const getFeedFacetCounts = query({
         )
       }
 
-      if (excludeFacet !== 'releaseLevels' && excludeFacet !== 'includePrerelease') {
+      if (
+        excludeFacet !== 'releaseLevels' &&
+        excludeFacet !== 'includePrerelease'
+      ) {
         if (filters.releaseLevels !== undefined) {
           filtered = filtered.filter((entry) => {
             const releaseLevelTags = entry.tags.filter((tag) =>
@@ -350,7 +370,10 @@ export const getFeedFacetCounts = query({
             if (!baseReleaseTag) {
               return false
             }
-            const level = baseReleaseTag.replace('release:', '')
+            const level = baseReleaseTag.replace('release:', '') as
+              | 'major'
+              | 'minor'
+              | 'patch'
             return filters.releaseLevels!.includes(level)
           })
         } else if (filters.includePrerelease === false) {
@@ -362,10 +385,16 @@ export const getFeedFacetCounts = query({
       }
 
       if (excludeFacet !== 'featured' && filters.featured !== undefined) {
-        filtered = filtered.filter((entry) => entry.featured === filters.featured)
+        filtered = filtered.filter(
+          (entry) => entry.featured === filters.featured
+        )
       }
 
-      if (excludeFacet !== 'search' && filters.search && filters.search.length > 0) {
+      if (
+        excludeFacet !== 'search' &&
+        filters.search &&
+        filters.search.length > 0
+      ) {
         const searchLower = filters.search.toLowerCase()
         filtered = filtered.filter((entry) =>
           entry.title.toLowerCase().includes(searchLower)
@@ -436,6 +465,10 @@ export const getFeedFacetCounts = query({
       entry.tags.includes('release:prerelease')
     ).length
 
+    // Count featured
+    const featuredEntries = applyFiltersExcept(entries, 'featured')
+    const featuredCount = featuredEntries.filter((entry) => entry.featured).length
+
     return {
       sources: sourceCounts,
       categories: categoryCounts,
@@ -443,6 +476,7 @@ export const getFeedFacetCounts = query({
       partners: partnerCounts,
       releaseLevels: releaseLevelCounts,
       prerelease: prereleaseCount,
+      featured: featuredCount,
     }
   },
 })

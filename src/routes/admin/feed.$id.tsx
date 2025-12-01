@@ -2,8 +2,8 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery as useConvexQuery } from 'convex/react'
 import { api } from 'convex/_generated/api'
 import { FeedEntryEditor } from '~/components/admin/FeedEntryEditor'
+import { useCapabilities } from '~/hooks/useCapabilities'
 import { z } from 'zod'
-
 export const Route = createFileRoute('/admin/feed/$id')({
   component: FeedEditorPage,
   validateSearch: z.object({}),
@@ -15,6 +15,7 @@ function FeedEditorPage() {
   const isNew = id === 'new'
 
   const user = useConvexQuery(api.auth.getCurrentUser)
+  const capabilities = useCapabilities()
   const entryQuery = useConvexQuery(
     api.feed.queries.getFeedEntry,
     isNew ? 'skip' : { id }
@@ -28,7 +29,7 @@ function FeedEditorPage() {
     )
   }
 
-  const canAdmin = user?.capabilities.includes('admin')
+  const canAdmin = capabilities.includes('admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">

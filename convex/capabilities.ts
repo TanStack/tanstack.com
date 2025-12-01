@@ -31,7 +31,15 @@ export async function getEffectiveCapabilities(
     .flatMap((role) => role!.capabilities || [])
 
   // Union of direct capabilities and role capabilities
-  return Array.from(
+  const effectiveCapabilities = Array.from(
     new Set<Capability>([...directCapabilities, ...roleCapabilities])
   )
+
+  // Admin users automatically get feed capability
+  if (effectiveCapabilities.includes('admin')) {
+    effectiveCapabilities.push('feed')
+  }
+
+  // Return unique set (in case feed was already present)
+  return Array.from(new Set<Capability>(effectiveCapabilities))
 }

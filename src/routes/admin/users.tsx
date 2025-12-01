@@ -15,6 +15,16 @@ import {
   FaSpinner,
 } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
+import { FilterBar, FilterSearch, FilterCheckbox, FilterSection } from '~/components/FilterComponents'
+import {
+  Table,
+  TableHeader,
+  TableHeaderRow,
+  TableHeaderCell,
+  TableBody,
+  TableRow,
+  TableCell,
+} from '~/components/TableComponents'
 import type { Id } from 'convex/_generated/dataModel'
 import {
   useReactTable,
@@ -159,6 +169,17 @@ function UsersPage() {
   const [updatingAdsUserId] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [bulkActionRoleId, setBulkActionRoleId] = useState<string | null>(null)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    capabilities: true,
+    ads: true,
+  })
+
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }))
+  }
 
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
@@ -170,14 +191,195 @@ function UsersPage() {
     [search.cap]
   )
   const noCapabilitiesFilter = search.noCapabilities ?? false
-  const adsDisabledFilter = (search.ads ?? 'all') as 'all' | 'true' | 'false'
-  const waitlistFilter = (search.waitlist ?? 'all') as 'all' | 'true' | 'false'
+  const adsDisabledFilter = search.ads ?? 'all'
+  const waitlistFilter = search.waitlist ?? 'all'
+
+  const hasActiveFilters =
+    emailFilter !== '' ||
+    nameFilter !== '' ||
+    capabilityFilters.length > 0 ||
+    noCapabilitiesFilter ||
+    adsDisabledFilter !== 'all' ||
+    waitlistFilter !== 'all'
+
+  const handleClearFilters = () => {
+    navigate({
+      resetScroll: false,
+      search: {
+        page: 0,
+        pageSize: search.pageSize,
+      },
+    })
+  }
+
+  const renderFilterContent = () => (
+    <>
+      {/* Email Filter */}
+      <div className="mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Email
+        </label>
+        <FilterSearch
+          value={emailFilter}
+          onChange={(value) => {
+            navigate({
+              resetScroll: false,
+              search: (prev) => ({
+                ...prev,
+                email: value || undefined,
+                page: 0,
+              }),
+            })
+          }}
+          placeholder="Filter by email"
+        />
+      </div>
+
+      {/* Name Filter */}
+      <div className="mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Name
+        </label>
+        <FilterSearch
+          value={nameFilter}
+          onChange={(value) => {
+            navigate({
+              resetScroll: false,
+              search: (prev) => ({
+                ...prev,
+                name: value || undefined,
+                page: 0,
+              }),
+            })
+          }}
+          placeholder="Filter by name"
+        />
+      </div>
+
+      {/* Capabilities Filter */}
+      <FilterSection
+        title="Capabilities"
+        sectionKey="capabilities"
+        onSelectAll={() => {
+          navigate({
+            resetScroll: false,
+            search: (prev) => ({
+              ...prev,
+              cap: availableCapabilities,
+              page: 0,
+            }),
+          })
+        }}
+        onSelectNone={() => {
+          navigate({
+            resetScroll: false,
+            search: (prev) => ({
+              ...prev,
+              cap: undefined,
+              noCapabilities: undefined,
+              page: 0,
+            }),
+          })
+        }}
+        isAllSelected={
+          capabilityFilters.length === availableCapabilities.length &&
+          !noCapabilitiesFilter
+        }
+        isSomeSelected={
+          (capabilityFilters.length > 0 &&
+            capabilityFilters.length < availableCapabilities.length) ||
+          noCapabilitiesFilter
+        }
+        expandedSections={expandedSections}
+        onToggleSection={toggleSection}
+      >
+        <FilterCheckbox
+          label="No capabilities"
+          checked={noCapabilitiesFilter}
+          onChange={() => {
+            navigate({
+              resetScroll: false,
+              search: (prev) => ({
+                ...prev,
+                noCapabilities: !noCapabilitiesFilter || undefined,
+                page: 0,
+              }),
+            })
+          }}
+        />
+        {availableCapabilities.map((cap) => (
+          <FilterCheckbox
+            key={cap}
+            label={cap}
+            checked={capabilityFilters.includes(cap)}
+            onChange={() => handleCapabilityToggle(cap)}
+          />
+        ))}
+      </FilterSection>
+
+      {/* Ads Filters */}
+      <FilterSection
+        title="Ads"
+        sectionKey="ads"
+        expandedSections={expandedSections}
+        onToggleSection={toggleSection}
+      >
+        <div className="mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Status
+          </label>
+          <select
+            value={adsDisabledFilter}
+            onChange={(e) => {
+              const value = e.target.value
+              navigate({
+                resetScroll: false,
+                search: (prev) => ({
+                  ...prev,
+                  ads: value,
+                  page: 0,
+                }),
+              })
+            }}
+            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All ad statuses</option>
+            <option value="true">Ads disabled</option>
+            <option value="false">Ads enabled</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Waitlist
+          </label>
+          <select
+            value={waitlistFilter}
+            onChange={(e) => {
+              const value = e.target.value
+              navigate({
+                resetScroll: false,
+                search: (prev) => ({
+                  ...prev,
+                  waitlist: value,
+                  page: 0,
+                }),
+              })
+            }}
+            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All ads waitlist statuses</option>
+            <option value="true">On ads waitlist</option>
+            <option value="false">Not on ads waitlist</option>
+          </select>
+        </div>
+      </FilterSection>
+    </>
+  )
   const currentPageIndex = search.page ?? 0
 
   const user = useConvexQuery(api.auth.getCurrentUser)
   const pageSize = search.pageSize ?? 10
-  // Cast to any to avoid transient type mismatch until Convex codegen runs
-  const listUsersRef: any = (api as any).users?.listUsers
+  const listUsersRef = api.users.listUsers
   const usersQuery = useQuery({
     ...convexQuery(listUsersRef, {
       pagination: {
@@ -226,7 +428,7 @@ function UsersPage() {
   )
 
   const availableCapabilities = useMemo(
-    () => ['admin', 'disableAds', 'builder'],
+    () => ['admin', 'disableAds', 'builder', 'feed'],
     []
   )
 
@@ -264,11 +466,7 @@ function UsersPage() {
       await Promise.all([
         updateUserCapabilities({
           userId: editingUserId as Id<'users'>,
-          capabilities: editingCapabilities as (
-            | 'admin'
-            | 'disableAds'
-            | 'builder'
-          )[],
+          capabilities: editingCapabilities,
         }),
         assignRolesToUser({
           userId: editingUserId as Id<'users'>,
@@ -372,7 +570,7 @@ function UsersPage() {
       try {
         await bulkUpdateUserCapabilities({
           userIds: Array.from(selectedUserIds) as Id<'users'>[],
-          capabilities: capabilities as ('admin' | 'disableAds' | 'builder')[],
+          capabilities: capabilities,
         })
         setSelectedUserIds(new Set())
       } catch (error) {
@@ -476,7 +674,7 @@ function UsersPage() {
         header: 'Email',
         cell: ({ getValue }) => (
           <div className="text-sm text-gray-900 dark:text-white">
-            {getValue() as string}
+            {getValue()}
           </div>
         ),
       },
@@ -675,10 +873,8 @@ function UsersPage() {
   }
 
   // If authenticated but no admin capability, show unauthorized
-  // Check effective capabilities (direct + role-based)
-  const effectiveCapabilities =
-    (user as any)?.effectiveCapabilities || user?.capabilities || []
-  const canAdmin = effectiveCapabilities.includes('admin')
+  const capabilities = user?.capabilities || []
+  const canAdmin = capabilities.includes('admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -724,153 +920,13 @@ function UsersPage() {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Sidebar Filters */}
         <aside className="lg:w-64 lg:flex-shrink-0">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 space-y-4 sticky top-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Filters
-            </h2>
-
-            {/* Email Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email
-              </label>
-              <input
-                type="text"
-                value={emailFilter}
-                onChange={(e) => {
-                  const value = e.target.value
-                  navigate({
-                    resetScroll: false,
-                    search: (prev) => ({
-                      ...prev,
-                      email: value || undefined,
-                      page: 0,
-                    }),
-                  })
-                }}
-                placeholder="Filter by email"
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
-              />
-            </div>
-
-            {/* Name Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Name
-              </label>
-              <input
-                type="text"
-                value={nameFilter}
-                onChange={(e) => {
-                  const value = e.target.value
-                  navigate({
-                    resetScroll: false,
-                    search: (prev) => ({
-                      ...prev,
-                      name: value || undefined,
-                      page: 0,
-                    }),
-                  })
-                }}
-                placeholder="Filter by name"
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
-              />
-            </div>
-
-            {/* Capabilities Filter - Checkboxes */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Capabilities
-              </label>
-              <div className="space-y-2">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={noCapabilitiesFilter}
-                    onChange={(e) => {
-                      navigate({
-                        resetScroll: false,
-                        search: (prev) => ({
-                          ...prev,
-                          noCapabilities: e.target.checked || undefined,
-                          page: 0,
-                        }),
-                      })
-                    }}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <span className="ml-2 text-sm text-gray-900 dark:text-white">
-                    No capabilities
-                  </span>
-                </label>
-                {availableCapabilities.map((cap) => (
-                  <label key={cap} className="flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={capabilityFilters.includes(cap)}
-                      onChange={() => handleCapabilityToggle(cap)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-sm text-gray-900 dark:text-white">
-                      {cap}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Ads Disabled Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Ads Status
-              </label>
-              <select
-                value={adsDisabledFilter}
-                onChange={(e) => {
-                  const value = e.target.value as 'all' | 'true' | 'false'
-                  navigate({
-                    resetScroll: false,
-                    search: (prev) => ({
-                      ...prev,
-                      ads: value,
-                      page: 0,
-                    }),
-                  })
-                }}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="all">All ad statuses</option>
-                <option value="true">Ads disabled</option>
-                <option value="false">Ads enabled</option>
-              </select>
-            </div>
-
-            {/* Waitlist Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Ads Waitlist
-              </label>
-              <select
-                value={waitlistFilter}
-                onChange={(e) => {
-                  const value = e.target.value as 'all' | 'true' | 'false'
-                  navigate({
-                    resetScroll: false,
-                    search: (prev) => ({
-                      ...prev,
-                      waitlist: value,
-                      page: 0,
-                    }),
-                  })
-                }}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="all">All ads waitlist statuses</option>
-                <option value="true">On ads waitlist</option>
-                <option value="false">Not on ads waitlist</option>
-              </select>
-            </div>
-          </div>
+          <FilterBar
+            title="Filters"
+            onClearFilters={handleClearFilters}
+            hasActiveFilters={hasActiveFilters}
+          >
+            {renderFilterContent()}
+          </FilterBar>
         </aside>
 
         {/* Main Content */}
@@ -948,83 +1004,54 @@ function UsersPage() {
             </div>
           )}
 
-          {/* Pagination Controls - Top */}
-          <div className="mb-4">
-            <PaginationControls
-              currentPage={currentPageIndex}
-              totalPages={Math.max(
-                1,
-                Math.ceil((usersQuery?.data?.counts?.filtered ?? 0) / pageSize)
-              )}
-              totalItems={usersQuery?.data?.counts?.total ?? 0}
-              filteredItems={usersQuery?.data?.counts?.filtered}
-              pageSize={pageSize}
-              onPageChange={(page) => {
-                navigate({
-                  resetScroll: false,
-                  search: (prev) => ({ ...prev, page }),
-                })
-              }}
-              onPageSizeChange={(newPageSize) => {
-                navigate({
-                  resetScroll: false,
-                  search: (prev) => ({
-                    ...prev,
-                    pageSize: newPageSize,
-                    page: 0,
-                  }),
-                })
-              }}
-              canGoPrevious={canGoPrevious}
-              canGoNext={canGoNext}
-              itemLabel="users"
-            />
-          </div>
-
           {/* Table Container */}
-          <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg overflow-x-auto">
-            <table className="w-full min-w-full">
-              <thead className="hidden md:table-header-group">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr
-                    key={headerGroup.id}
-                    className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-black/50"
-                  >
-                    {headerGroup.headers.map((header) => (
-                      <th
-                        key={header.id}
-                        className="px-4 py-2 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase whitespace-nowrap"
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-black/50 transition-colors"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-4 py-3 whitespace-nowrap">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableHeaderRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHeaderCell
+                      key={header.id}
+                      align={
+                        header.column.columnDef.meta?.align === 'right'
+                          ? 'right'
+                          : 'left'
+                      }
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHeaderCell>
+                  ))}
+                </TableHeaderRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      className="whitespace-nowrap"
+                      align={
+                        cell.column.columnDef.meta?.align === 'right'
+                          ? 'right'
+                          : 'left'
+                      }
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
           {(!usersQuery.data || usersQuery.data?.page.length === 0) && (
             <div className="text-center py-12">
@@ -1038,40 +1065,42 @@ function UsersPage() {
             </div>
           )}
 
-          {/* Pagination Controls - Bottom */}
+          {/* Pagination Controls - Bottom (Sticky) */}
           {usersQuery?.data && usersQuery.data.page.length > 0 && (
-            <div className="mt-4">
-              <PaginationControls
-                currentPage={currentPageIndex}
-                totalPages={Math.max(
-                  1,
-                  Math.ceil(
-                    (usersQuery?.data?.counts?.filtered ?? 0) / pageSize
-                  )
-                )}
-                totalItems={usersQuery?.data?.counts?.total ?? 0}
-                filteredItems={usersQuery?.data?.counts?.filtered}
-                pageSize={pageSize}
-                onPageChange={(page) => {
-                  navigate({
-                    resetScroll: false,
-                    search: (prev) => ({ ...prev, page }),
-                  })
-                }}
-                onPageSizeChange={(newPageSize) => {
-                  navigate({
-                    resetScroll: false,
-                    search: (prev) => ({
-                      ...prev,
-                      pageSize: newPageSize,
-                      page: 0,
-                    }),
-                  })
-                }}
-                canGoPrevious={canGoPrevious}
-                canGoNext={canGoNext}
-                itemLabel="users"
-              />
+            <div className="sticky bottom-4 mt-4">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg px-3 py-2">
+                <PaginationControls
+                  currentPage={currentPageIndex}
+                  totalPages={Math.max(
+                    1,
+                    Math.ceil(
+                      (usersQuery?.data?.counts?.filtered ?? 0) / pageSize
+                    )
+                  )}
+                  totalItems={usersQuery?.data?.counts?.total ?? 0}
+                  filteredItems={usersQuery?.data?.counts?.filtered}
+                  pageSize={pageSize}
+                  onPageChange={(page) => {
+                    navigate({
+                      resetScroll: false,
+                      search: (prev) => ({ ...prev, page }),
+                    })
+                  }}
+                  onPageSizeChange={(newPageSize) => {
+                    navigate({
+                      resetScroll: false,
+                      search: (prev) => ({
+                        ...prev,
+                        pageSize: newPageSize,
+                        page: 0,
+                      }),
+                    })
+                  }}
+                  canGoPrevious={canGoPrevious}
+                  canGoNext={canGoNext}
+                  itemLabel="users"
+                />
+              </div>
             </div>
           )}
         </div>

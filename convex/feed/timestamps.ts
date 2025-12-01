@@ -1,6 +1,6 @@
 /**
  * Timestamp management for feed entries
- * 
+ *
  * Timestamp semantics:
  * - publishedAt: When the content was originally published (from source or manually set)
  *   This is the primary timestamp for sorting and display - represents when content was actually published
@@ -8,7 +8,7 @@
  * - updatedAt: When the entry was last modified in our system
  * - lastSyncedAt: When we last synced from external source (only for auto-synced entries)
  * - _createdAt: Convex internal timestamp (automatic, don't use in business logic)
- * 
+ *
  * Rules:
  * - Always sort by publishedAt (when content was published, not when we added it)
  * - createdAt should never be used for display/sorting
@@ -72,4 +72,3 @@ export function validatePublishedAt(publishedAt: number): {
 
   return { valid: true }
 }
-

@@ -6,7 +6,12 @@ import { feedCategoryValidator } from './feed/schema'
 
 // Zod schema for valid capabilities
 // Valid capabilities list (exported for use throughout the app)
-export const VALID_CAPABILITIES = ['admin', 'disableAds', 'builder', 'feed'] as const
+export const VALID_CAPABILITIES = [
+  'admin',
+  'disableAds',
+  'builder',
+  'feed',
+] as const
 export const CapabilitySchema = z.enum(VALID_CAPABILITIES)
 export type Capability = z.infer<typeof CapabilitySchema>
 

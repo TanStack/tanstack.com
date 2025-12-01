@@ -40,8 +40,15 @@ import { Route as LibrariesAdsRouteImport } from './routes/_libraries/ads'
 import { Route as LibrariesAccountRouteImport } from './routes/_libraries/account'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
+import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
+import { Route as AdminFeedIndexRouteImport } from './routes/admin/feed.index'
+import { Route as LibrariesFeedIndexRouteImport } from './routes/_libraries/feed.index'
 import { Route as LibrariesBlogIndexRouteImport } from './routes/_libraries/blog.index'
+import { Route as ApiGithubReleasesRouteImport } from './routes/api/github/releases'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
+import { Route as AdminFeedIdRouteImport } from './routes/admin/feed.$id'
+import { Route as LibrariesFeedIdRouteImport } from './routes/_libraries/feed.$id'
 import { Route as LibrariesBlogSplatRouteImport } from './routes/_libraries/blog.$'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
 import { Route as LibrariesVirtualVersionIndexRouteImport } from './routes/_libraries/virtual.$version.index'
@@ -222,15 +229,50 @@ const StatsNpmIndexRoute = StatsNpmIndexRouteImport.update({
   path: '/stats/npm/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRolesIndexRoute = AdminRolesIndexRouteImport.update({
+  id: '/roles/',
+  path: '/roles/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminFeedIndexRoute = AdminFeedIndexRouteImport.update({
+  id: '/feed/',
+  path: '/feed/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const LibrariesFeedIndexRoute = LibrariesFeedIndexRouteImport.update({
+  id: '/feed/',
+  path: '/feed/',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
 const LibrariesBlogIndexRoute = LibrariesBlogIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LibrariesBlogRoute,
 } as any)
+const ApiGithubReleasesRoute = ApiGithubReleasesRouteImport.update({
+  id: '/api/github/releases',
+  path: '/api/github/releases',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRolesRoleIdRoute = AdminRolesRoleIdRouteImport.update({
+  id: '/roles/$roleId',
+  path: '/roles/$roleId',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminFeedIdRoute = AdminFeedIdRouteImport.update({
+  id: '/feed/$id',
+  path: '/feed/$id',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const LibrariesFeedIdRoute = LibrariesFeedIdRouteImport.update({
+  id: '/feed/$id',
+  path: '/feed/$id',
+  getParentRoute: () => LibrariesRouteRoute,
 } as any)
 const LibrariesBlogSplatRoute = LibrariesBlogSplatRouteImport.update({
   id: '/$',
@@ -411,8 +453,15 @@ export interface FileRoutesByFullPath {
   '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/blog/$': typeof LibrariesBlogSplatRoute
+  '/feed/$id': typeof LibrariesFeedIdRoute
+  '/admin/feed/$id': typeof AdminFeedIdRoute
+  '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/github/releases': typeof ApiGithubReleasesRoute
   '/blog/': typeof LibrariesBlogIndexRoute
+  '/feed': typeof LibrariesFeedIndexRoute
+  '/admin/feed': typeof AdminFeedIndexRoute
+  '/admin/roles': typeof AdminRolesIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -466,8 +515,15 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/stats': typeof StatsIndexRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
+  '/feed/$id': typeof LibrariesFeedIdRoute
+  '/admin/feed/$id': typeof AdminFeedIdRoute
+  '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/github/releases': typeof ApiGithubReleasesRoute
   '/blog': typeof LibrariesBlogIndexRoute
+  '/feed': typeof LibrariesFeedIndexRoute
+  '/admin/feed': typeof AdminFeedIndexRoute
+  '/admin/roles': typeof AdminRolesIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -527,8 +583,15 @@ export interface FileRoutesById {
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
+  '/_libraries/feed/$id': typeof LibrariesFeedIdRoute
+  '/admin/feed/$id': typeof AdminFeedIdRoute
+  '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/github/releases': typeof ApiGithubReleasesRoute
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
+  '/_libraries/feed/': typeof LibrariesFeedIndexRoute
+  '/admin/feed/': typeof AdminFeedIndexRoute
+  '/admin/roles/': typeof AdminRolesIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -588,8 +651,15 @@ export interface FileRouteTypes {
     | '/stats'
     | '/$libraryId/$version/docs'
     | '/blog/$'
+    | '/feed/$id'
+    | '/admin/feed/$id'
+    | '/admin/roles/$roleId'
     | '/api/auth/$'
+    | '/api/github/releases'
     | '/blog/'
+    | '/feed'
+    | '/admin/feed'
+    | '/admin/roles'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -643,8 +713,15 @@ export interface FileRouteTypes {
     | '/admin'
     | '/stats'
     | '/blog/$'
+    | '/feed/$id'
+    | '/admin/feed/$id'
+    | '/admin/roles/$roleId'
     | '/api/auth/$'
+    | '/api/github/releases'
     | '/blog'
+    | '/feed'
+    | '/admin/feed'
+    | '/admin/roles'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -703,8 +780,15 @@ export interface FileRouteTypes {
     | '/stats/'
     | '/$libraryId/$version/docs'
     | '/_libraries/blog/$'
+    | '/_libraries/feed/$id'
+    | '/admin/feed/$id'
+    | '/admin/roles/$roleId'
     | '/api/auth/$'
+    | '/api/github/releases'
     | '/_libraries/blog/'
+    | '/_libraries/feed/'
+    | '/admin/feed/'
+    | '/admin/roles/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -742,6 +826,7 @@ export interface RootRouteChildren {
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   StatsIndexRoute: typeof StatsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiGithubReleasesRoute: typeof ApiGithubReleasesRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
 }
 
@@ -964,6 +1049,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatsNpmIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/roles/': {
+      id: '/admin/roles/'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/feed/': {
+      id: '/admin/feed/'
+      path: '/feed'
+      fullPath: '/admin/feed'
+      preLoaderRoute: typeof AdminFeedIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_libraries/feed/': {
+      id: '/_libraries/feed/'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof LibrariesFeedIndexRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
     '/_libraries/blog/': {
       id: '/_libraries/blog/'
       path: '/'
@@ -971,12 +1077,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesBlogIndexRouteImport
       parentRoute: typeof LibrariesBlogRoute
     }
+    '/api/github/releases': {
+      id: '/api/github/releases'
+      path: '/api/github/releases'
+      fullPath: '/api/github/releases'
+      preLoaderRoute: typeof ApiGithubReleasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/roles/$roleId': {
+      id: '/admin/roles/$roleId'
+      path: '/roles/$roleId'
+      fullPath: '/admin/roles/$roleId'
+      preLoaderRoute: typeof AdminRolesRoleIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/feed/$id': {
+      id: '/admin/feed/$id'
+      path: '/feed/$id'
+      fullPath: '/admin/feed/$id'
+      preLoaderRoute: typeof AdminFeedIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_libraries/feed/$id': {
+      id: '/_libraries/feed/$id'
+      path: '/feed/$id'
+      fullPath: '/feed/$id'
+      preLoaderRoute: typeof LibrariesFeedIdRouteImport
+      parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/blog/$': {
       id: '/_libraries/blog/$'
@@ -1249,6 +1383,8 @@ interface LibrariesRouteRouteChildren {
   LibrariesTermsRoute: typeof LibrariesTermsRoute
   LibrariesWorkshopsRoute: typeof LibrariesWorkshopsRoute
   LibrariesIndexRoute: typeof LibrariesIndexRoute
+  LibrariesFeedIdRoute: typeof LibrariesFeedIdRoute
+  LibrariesFeedIndexRoute: typeof LibrariesFeedIndexRoute
   LibrariesAiVersionIndexRoute: typeof LibrariesAiVersionIndexRoute
   LibrariesConfigVersionIndexRoute: typeof LibrariesConfigVersionIndexRoute
   LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
@@ -1282,6 +1418,8 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesTermsRoute: LibrariesTermsRoute,
   LibrariesWorkshopsRoute: LibrariesWorkshopsRoute,
   LibrariesIndexRoute: LibrariesIndexRoute,
+  LibrariesFeedIdRoute: LibrariesFeedIdRoute,
+  LibrariesFeedIndexRoute: LibrariesFeedIndexRoute,
   LibrariesAiVersionIndexRoute: LibrariesAiVersionIndexRoute,
   LibrariesConfigVersionIndexRoute: LibrariesConfigVersionIndexRoute,
   LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,
@@ -1304,11 +1442,19 @@ const LibrariesRouteRouteWithChildren = LibrariesRouteRoute._addFileChildren(
 interface AdminRouteRouteChildren {
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminFeedIdRoute: typeof AdminFeedIdRoute
+  AdminRolesRoleIdRoute: typeof AdminRolesRoleIdRoute
+  AdminFeedIndexRoute: typeof AdminFeedIndexRoute
+  AdminRolesIndexRoute: typeof AdminRolesIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminFeedIdRoute: AdminFeedIdRoute,
+  AdminRolesRoleIdRoute: AdminRolesRoleIdRoute,
+  AdminFeedIndexRoute: AdminFeedIndexRoute,
+  AdminRolesIndexRoute: AdminRolesIndexRoute,
 }
 
 const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
@@ -1326,6 +1472,7 @@ const rootRouteChildren: RootRouteChildren = {
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   StatsIndexRoute: StatsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiGithubReleasesRoute: ApiGithubReleasesRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
 }
 export const routeTree = rootRouteImport

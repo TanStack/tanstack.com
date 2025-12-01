@@ -125,13 +125,13 @@ export const libraries = [
     id: 'react-charts',
     name: 'React Charts',
     repo: 'tanstack/react-charts',
-  } as Library,
+  },
   {
     id: 'create-tsrouter-app',
     name: 'Create TS Router App',
     repo: 'tanstack/create-tsrouter-app',
-  } as Library,
-] satisfies Library[]
+  },
+]
 
 export const librariesByGroup = {
   state: [

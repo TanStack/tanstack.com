@@ -19,24 +19,28 @@ import {
   LuLock,
   LuX,
   LuMenu,
+  LuRss,
 } from 'react-icons/lu'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
+import { FeedTicker } from './FeedTicker'
 import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
 import { AuthLoading } from 'convex/react'
 import { api } from 'convex/_generated/api'
 import { libraries } from '~/libraries'
 import { sortBy } from '~/utils/utils'
+import { useCapabilities } from '~/hooks/useCapabilities'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const user = useQuery(api.auth.getCurrentUser)
   const matches = useMatches()
+  const capabilities = useCapabilities()
 
   const Title =
     [...matches].reverse().find((m) => m.staticData.Title)?.staticData.Title ??
     null
 
-  const canAdmin = user?.capabilities.includes('admin')
+  const canAdmin = capabilities.includes('admin')
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -88,15 +92,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       })()}
 
       <Authenticated>
-        <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-          <LuUser />
-          <Link
-            to="/account"
-            className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
-          >
-            My Account
-          </Link>
-        </div>
+        {!canAdmin ? (
+          <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
+            <LuUser />
+            <Link
+              to="/account"
+              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
+            >
+              My Account
+            </Link>
+          </div>
+        ) : null}
         {canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
             <LuLock />
@@ -208,6 +214,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <div className="flex-1 max-w-[180px] font-normal hidden lg:block">
           <SearchButton />
         </div>
+      </div>
+      <div className="hidden lg:flex flex-1 justify-end min-w-0">
+        {capabilities.includes('feed') || capabilities.includes('admin') ? (
+          <FeedTicker />
+        ) : null}
       </div>
       <div className="flex items-center gap-2">
         <div className="hidden sm:block">{socialLinks}</div>
@@ -394,8 +405,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       </div>
       <div>
         <Authenticated>
-          {user?.capabilities.some((capability) =>
-            ['builder', 'admin'].includes(capability)
+          {capabilities.some((capability) =>
+            (['builder', 'admin'] as const).includes(
+              capability as 'builder' | 'admin'
+            )
           ) ? (
             <Link
               to="/builder"
@@ -417,6 +430,19 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </Authenticated>
         {[
           {
+            label: (
+              <>
+                <span>Feed</span>
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-md uppercase">
+                  Alpha
+                </span>
+              </>
+            ),
+            icon: <LuRss />,
+            to: '/feed',
+            requiresCapability: 'feed' as const,
+          },
+          {
             label: 'Maintainers',
             icon: <LuCode />,
             to: '/maintainers',
@@ -433,12 +459,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: (
-              <span className="flex items-center gap-2">
-                Learn
-                <span className="text-xs bg-transparent text-transparent bg-clip-text bg-linear-to-r border border-cyan-600 from-blue-500 to-cyan-500 font-bold px-1 rounded">
+              <>
+                <span>Learn</span>
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-green-400 to-green-600 text-white rounded-md uppercase">
                   NEW
                 </span>
-              </span>
+              </>
             ),
             icon: <LuBookOpen />,
             to: '/learn',
@@ -484,28 +510,41 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             icon: <LuPaintbrush />,
             to: '/brand-guide',
           },
-        ].map((item, i) => {
-          return (
-            <Link
-              to={item.to}
-              key={i}
-              className={twMerge(linkClasses, 'font-normal')}
-              activeProps={{
-                className: twMerge(
-                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
-                ),
-              }}
-              target={item.to.startsWith('http') ? '_blank' : undefined}
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-4 justify-between">
-                  {item.icon}
+        ]
+          .filter((item) => {
+            // Filter out items that require capabilities the user doesn't have
+            if (item.requiresCapability) {
+              return (
+                capabilities.includes(item.requiresCapability) ||
+                capabilities.includes('admin')
+              )
+            }
+            return true
+          })
+          .map((item, i) => {
+            return (
+              <Link
+                to={item.to}
+                key={i}
+                className={twMerge(linkClasses, 'font-normal')}
+                activeProps={{
+                  className: twMerge(
+                    'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                  ),
+                }}
+                target={item.to.startsWith('http') ? '_blank' : undefined}
+              >
+                <div className="flex items-center gap-2 w-full">
+                  <div className="flex items-center gap-4 justify-between">
+                    {item.icon}
+                  </div>
+                  <div className="flex items-center justify-between flex-1 gap-2">
+                    {typeof item.label === 'string' ? item.label : item.label}
+                  </div>
                 </div>
-                <div>{item.label}</div>
-              </div>
-            </Link>
-          )
-        })}
+              </Link>
+            )
+          })}
       </div>
     </div>
   )

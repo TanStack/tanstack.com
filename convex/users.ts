@@ -3,12 +3,29 @@ import { mutation, query, QueryCtx } from './_generated/server'
 import { Capability, CapabilitySchema } from './schema'
 import { getCurrentUserConvex } from './auth'
 import { Id } from './_generated/dataModel'
+import { getEffectiveCapabilities } from './capabilities'
+
+// Helper to ensure userId is properly typed
+// This validates at runtime and narrows the type
+function getUserId(userId: string | null | undefined): Id<'users'> {
+  if (!userId) {
+    throw new Error('User ID is required')
+  }
+  // Type assertion is necessary here because Id<'users'> is a branded type
+  // but we've validated that userId is a string at runtime
+  return userId as Id<'users'>
+}
 
 export const updateUserCapabilities = mutation({
   args: {
     userId: v.id('users'),
     capabilities: v.array(
-      v.union(v.literal('admin'), v.literal('disableAds'), v.literal('builder'))
+      v.union(
+        v.literal('admin'),
+        v.literal('disableAds'),
+        v.literal('builder'),
+        v.literal('feed')
+      )
     ),
   },
   handler: async (ctx, args) => {
@@ -57,7 +74,8 @@ export const listUsers = query({
         v.union(
           v.literal('admin'),
           v.literal('disableAds'),
-          v.literal('builder')
+          v.literal('builder'),
+          v.literal('feed')
         )
       )
     ),
@@ -146,15 +164,21 @@ export const listUsers = query({
 // countUsers removed; counts are included in listUsers response
 
 // Helper function to validate user capability
-async function requireCapability(ctx: QueryCtx, capability: Capability) {
+export async function requireCapability(ctx: QueryCtx, capability: Capability) {
   // Get the current user (caller)
   const currentUser = await getCurrentUserConvex(ctx)
   if (!currentUser) {
     throw new Error('Not authenticated')
   }
 
+  // Get effective capabilities (direct + role-based)
+  const effectiveCapabilities = await getEffectiveCapabilities(
+    ctx,
+    getUserId(currentUser.userId)
+  )
+
   // Validate that caller has the required capability
-  if (!currentUser.capabilities.includes(capability)) {
+  if (!effectiveCapabilities.includes(capability)) {
     throw new Error(`${capability} capability required`)
   }
 
@@ -171,7 +195,7 @@ export const updateAdPreference = mutation({
     const { currentUser } = await requireCapability(ctx, 'disableAds')
 
     // Update target user's capabilities
-    await ctx.db.patch(currentUser.userId as Id<'users'>, {
+    await ctx.db.patch(getUserId(currentUser.userId), {
       adsDisabled: args.adsDisabled,
     })
 
@@ -216,10 +240,59 @@ export const setInterestedInHidingAds = mutation({
     }
 
     // Update user's interestedInHidingAds flag
-    await ctx.db.patch(user.userId as Id<'users'>, {
+    await ctx.db.patch(getUserId(user.userId), {
       interestedInHidingAds: args.interested,
     })
 
     return { success: true }
+  },
+})
+
+// Bulk update capabilities for multiple users (admin only)
+export const bulkUpdateUserCapabilities = mutation({
+  args: {
+    userIds: v.array(v.id('users')),
+    capabilities: v.array(
+      v.union(
+        v.literal('admin'),
+        v.literal('disableAds'),
+        v.literal('builder'),
+        v.literal('feed')
+      )
+    ),
+  },
+  handler: async (ctx, args) => {
+    // Validate admin capability
+    await requireCapability(ctx, 'admin')
+
+    // Validate capabilities
+    const validatedCapabilities = CapabilitySchema.array().parse(
+      args.capabilities
+    )
+
+    // Update all users
+    const updates = await Promise.all(
+      args.userIds.map(async (userId) => {
+        const targetUser = await ctx.db.get(userId)
+        if (!targetUser) {
+          throw new Error(`User ${userId} not found`)
+        }
+
+        let capabilities = validatedCapabilities
+
+        // Ensure that tannerlinsley@gmail.com always has the admin capability
+        if (targetUser.email === 'tannerlinsley@gmail.com') {
+          capabilities = [
+            ...new Set<Capability>(['admin', ...capabilities]).values(),
+          ]
+        }
+
+        await ctx.db.patch(userId, {
+          capabilities,
+        })
+      })
+    )
+
+    return { success: true, updated: updates.length }
   },
 })

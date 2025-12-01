@@ -1,7 +1,5 @@
-import { convexQuery } from '@convex-dev/react-query'
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { redirect, createFileRoute } from '@tanstack/react-router'
-import { api } from 'convex/_generated/api'
+import { useCapabilities } from '~/hooks/useCapabilities'
 
 export const Route = createFileRoute('/builder')({
   component: RouteComponent,
@@ -12,11 +10,9 @@ export const Route = createFileRoute('/builder')({
 })
 
 function RouteComponent() {
-  const currentUserQuery = useSuspenseQuery(
-    convexQuery(api.auth.getCurrentUser, {})
-  )
+  const capabilities = useCapabilities()
 
-  const canAccess = currentUserQuery.data?.capabilities.includes('builder')
+  const canAccess = capabilities.includes('builder')
 
   return (
     <div className="flex items-center justify-center h-screen">

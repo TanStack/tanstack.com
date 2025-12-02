@@ -1,5 +1,5 @@
 import { VscPreview } from 'react-icons/vsc'
-import { Library } from '.'
+import type { Library } from './types'
 import { FaGithub } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
 import { CgTimelapse } from 'react-icons/cg'

@@ -1,15 +1,16 @@
 import * as React from 'react'
 import { useState } from 'react'
-import {
-  useMutation as useConvexMutation,
-  useQuery as useConvexQuery,
-} from 'convex/react'
-import { api } from 'convex/_generated/api'
+import { useQuery } from '@tanstack/react-query'
 import { FeedEntry } from '~/components/FeedEntry'
 import { Markdown } from '~/components/Markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
-import { generateManualEntryId } from 'convex/feed/manual'
+import { currentUserQueryOptions } from '~/queries/auth'
+import {
+  useCreateFeedEntry,
+  useUpdateFeedEntry,
+} from '~/utils/mutations'
+import { generateManualEntryId } from '~/utils/feed-manual'
 import { FaSave, FaTimes } from 'react-icons/fa'
 
 interface FeedEntryEditorProps {
@@ -33,7 +34,6 @@ export function FeedEntryEditor({
   onCancel,
 }: FeedEntryEditorProps) {
   const isNew = entry === null
-  const user = useConvexQuery(api.auth.getCurrentUser)
 
   const [title, setTitle] = useState(entry?.title || '')
   const [content, setContent] = useState(entry?.content || '')
@@ -62,8 +62,10 @@ export function FeedEntryEditor({
   const [showPreview, setShowPreview] = useState(false)
   const [saving, setSaving] = useState(false)
 
-  const createEntry = useConvexMutation(api.feed.mutations.createFeedEntry)
-  const updateEntry = useConvexMutation(api.feed.mutations.updateFeedEntry)
+  const userQuery = useQuery(currentUserQueryOptions())
+  const user = userQuery.data
+  const createEntry = useCreateFeedEntry()
+  const updateEntry = useUpdateFeedEntry()
 
   const handleSave = async () => {
     if (!user) {
@@ -71,7 +73,7 @@ export function FeedEntryEditor({
       return
     }
 
-    if (!user._id) {
+    if (!user.userId) {
       alert('User ID is missing. Please refresh the page and try again.')
       return
     }
@@ -86,7 +88,7 @@ export function FeedEntryEditor({
       if (isNew) {
         const entryId = generateManualEntryId()
         console.log('Creating entry with ID:', entryId)
-        const result = await createEntry({
+        await createEntry.mutateAsync({
           id: entryId,
           source: 'announcement',
           title,
@@ -94,7 +96,7 @@ export function FeedEntryEditor({
           excerpt: excerpt || undefined,
           publishedAt: new Date(publishedAt).getTime(),
           metadata: {
-            createdBy: user._id,
+            createdBy: user.userId,
           },
           libraryIds: selectedLibraries,
           partnerIds:
@@ -105,10 +107,10 @@ export function FeedEntryEditor({
           featured,
           autoSynced: false,
         })
-        console.log('Entry created successfully:', result)
+        console.log('Entry created successfully')
       } else {
         console.log('Updating entry:', entry.id)
-        const result = await updateEntry({
+        await updateEntry.mutateAsync({
           id: entry.id,
           title,
           content,
@@ -122,7 +124,7 @@ export function FeedEntryEditor({
           isVisible,
           featured,
         })
-        console.log('Entry updated successfully:', result)
+        console.log('Entry updated successfully')
       }
       onSave()
     } catch (error) {

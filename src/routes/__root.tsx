@@ -7,11 +7,9 @@ import {
   useRouterState,
   HeadContent,
   Scripts,
-  useRouteContext,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
-import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
 import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
@@ -24,23 +22,16 @@ import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
 import { ToastProvider } from '~/components/ToastProvider'
 import { ThemeProvider } from '~/components/ThemeProvider'
-import { ConvexQueryClient } from '@convex-dev/react-query'
-import { ConvexReactClient } from 'convex/react'
 import { Navbar } from '~/components/Navbar'
 
-import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
-import { authClient } from '../utils/auth.client'
-
 import { LibrariesLayout } from './_libraries/route'
-import { TanStackUser } from 'convex/auth'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
+import { getCurrentUser } from '~/utils/auth.server'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
-  convexClient: ConvexReactClient
-  convexQueryClient: ConvexQueryClient
-  ensureUser: () => Promise<TanStackUser>
+  user?: Awaited<ReturnType<typeof getCurrentUser>>
 }>()({
   head: () => ({
     meta: [
@@ -72,10 +63,6 @@ export const Route = createRootRouteWithContext<{
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
-      {
-        rel: 'stylesheet',
-        href: carbonStyles,
-      },
       {
         rel: 'apple-touch-icon',
         sizes: '180x180',
@@ -149,11 +136,8 @@ export const Route = createRootRouteWithContext<{
       })
     }
 
-    // // During SSR only (the only time serverHttpClient exists),
-    // // set the auth token for Convex to make HTTP queries with.
-    // if (token) {
-    //   ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
-    // }
+    // Initialize user as undefined - routes can opt-in to load auth if needed
+    // Use undefined instead of null to distinguish between "not loaded" and "no user"
   },
   staleTime: Infinity,
   errorComponent: (props) => {
@@ -182,19 +166,12 @@ export const Route = createRootRouteWithContext<{
 })
 
 function DocumentWrapper({ children }: { children: React.ReactNode }) {
-  const context = useRouteContext({ from: Route.id })
-
   return (
-    <ConvexBetterAuthProvider
-      client={context.convexClient}
-      authClient={authClient}
-    >
-      <ThemeProvider>
-        <SearchProvider>
-          <HtmlWrapper>{children}</HtmlWrapper>
-        </SearchProvider>
-      </ThemeProvider>
-    </ConvexBetterAuthProvider>
+    <ThemeProvider>
+      <SearchProvider>
+        <HtmlWrapper>{children}</HtmlWrapper>
+      </SearchProvider>
+    </ThemeProvider>
   )
 }
 

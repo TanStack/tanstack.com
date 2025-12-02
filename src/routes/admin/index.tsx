@@ -1,15 +1,16 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { FaLock, FaUsers, FaRss, FaShieldAlt } from 'react-icons/fa'
-import { useQuery } from 'convex/react'
-import { api } from 'convex/_generated/api'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { requireCapability } from '~/utils/auth.server'
 
 export const Route = createFileRoute('/admin/')({
   component: AdminPage,
 })
 
 function AdminPage() {
-  const user = useQuery(api.auth.getCurrentUser)
+  const userQuery = useCurrentUserQuery()
+  const user = userQuery.data
   const capabilities = useCapabilities()
 
   // If not authenticated, show loading
@@ -47,7 +48,8 @@ function AdminPage() {
 }
 
 function AdminDashboard() {
-  const user = useQuery(api.auth.getCurrentUser)
+  const userQuery = useCurrentUserQuery()
+  const user = userQuery.data
 
   return (
     <div className="min-h-screen">
@@ -57,7 +59,11 @@ function AdminDashboard() {
             Admin Dashboard
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Welcome back, {user?.name}. Manage your TanStack platform from here.
+            Welcome back,{' '}
+            {user && typeof user === 'object' && 'name' in user
+              ? user.name
+              : 'Admin'}
+            . Manage your TanStack platform from here.
           </p>
         </div>
 

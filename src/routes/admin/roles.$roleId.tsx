@@ -1,12 +1,10 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import {
-  useQuery as useConvexQuery,
-  useMutation as useConvexMutation,
-} from 'convex/react'
-import { api } from 'convex/_generated/api'
 import { useState, useMemo, useCallback } from 'react'
 import { FaLock, FaTrash, FaArrowLeft, FaUser, FaUsers } from 'react-icons/fa'
-import type { Id } from 'convex/_generated/dataModel'
+import { useRemoveUsersFromRole } from '~/utils/mutations'
+import { useQuery } from '@tanstack/react-query'
+import { getRole, getUsersWithRole } from '~/utils/roles.server'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import {
   useReactTable,
   getCoreRowModel,
@@ -35,22 +33,31 @@ function RoleDetailPage() {
     name: string
   } | null>(null)
 
-  const user = useConvexQuery(api.auth.getCurrentUser)
-  const role = useConvexQuery(api.roles.getRole, {
-    roleId: roleId as Id<'roles'>,
+  const userQuery = useCurrentUserQuery()
+  const user = userQuery.data
+  const roleQuery = useQuery({
+    queryKey: ['admin', 'role', roleId],
+    queryFn: async () => {
+      return getRole({ data: { roleId } })
+    },
   })
-  const usersWithRole = useConvexQuery(api.roles.getUsersWithRole, {
-    roleId: roleId as Id<'roles'>,
+  const role = roleQuery.data
+  const usersWithRoleQuery = useQuery({
+    queryKey: ['admin', 'usersWithRole', roleId],
+    queryFn: async () => {
+      return getUsersWithRole({ data: { roleId } })
+    },
   })
-  const removeUsersFromRole = useConvexMutation(api.roles.removeUsersFromRole)
+  const usersWithRole = usersWithRoleQuery.data
+  const removeUsersFromRole = useRemoveUsersFromRole()
 
   const handleRemoveUsers = useCallback(async () => {
     if (selectedUserIds.size === 0) return
 
     try {
-      await removeUsersFromRole({
-        roleId: roleId as Id<'roles'>,
-        userIds: Array.from(selectedUserIds) as Id<'users'>[],
+      await removeUsersFromRole.mutateAsync({
+        roleId: roleId,
+        userIds: Array.from(selectedUserIds),
       })
       setSelectedUserIds(new Set())
     } catch (error) {
@@ -328,9 +335,9 @@ function RoleDetailPage() {
                 <button
                   onClick={async () => {
                     try {
-                      await removeUsersFromRole({
-                        roleId: roleId as Id<'roles'>,
-                        userIds: [confirmRemove.userId as Id<'users'>],
+                      await removeUsersFromRole.mutateAsync({
+                        roleId: roleId,
+                        userIds: [confirmRemove.userId],
                       })
                       setConfirmRemove(null)
                     } catch (error) {

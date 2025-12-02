@@ -18,7 +18,10 @@ export default defineConfig({
     }),
 
     tanstackStart(),
-    netlify(),
+    // Only enable Netlify plugin during build or when NETLIFY env is set
+    ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
+      ? [netlify()]
+      : []),
     viteReact(),
 
     sentryVitePlugin({

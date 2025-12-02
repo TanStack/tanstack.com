@@ -1,5 +1,5 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { Library } from '.'
+import type { Library } from './types'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { BiBookAlt } from 'react-icons/bi'

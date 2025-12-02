@@ -1,15 +1,12 @@
-import { convexQuery } from '@convex-dev/react-query'
-import { useNpmDownloadCounter } from '@erquhart/convex-oss-stats/react'
 import NumberFlow from '@number-flow/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { api } from 'convex/_generated/api'
 import { FaCube, FaStar, FaUsers } from 'react-icons/fa'
 import { FaDownload } from 'react-icons/fa'
-import convexImageWhite from '~/images/convex-white.svg'
-import convexImageDark from '~/images/convex-dark.svg'
 import { BlankErrorBoundary } from './BlankErrorBoundary'
 import { Suspense } from 'react'
 import { Library } from '~/libraries'
+import { ossStatsQueryOptions } from '~/queries/stats'
+import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 
 const StableCounter = ({
   value,
@@ -55,18 +52,18 @@ const StableCounter = ({
 const NpmDownloadCounter = ({
   npmData,
 }: {
-  npmData: Parameters<typeof useNpmDownloadCounter>[0]
+  npmData: { totalDownloads: number; tag?: string }
 }) => {
   const { count, intervalMs } = useNpmDownloadCounter(npmData)
   if (!Number.isFinite(count)) {
-    // this returns true for NaN, Infinty / -Infinty, null, undefined
+    // this returns true for NaN, Infinity / -Infinity, null, undefined
     return '-'
   }
   return <StableCounter value={count} intervalMs={intervalMs} />
 }
 
 export function ossStatsQuery({ library }: { library?: Library } = {}) {
-  return convexQuery(api.stats.getStats, {
+  return ossStatsQueryOptions({
     library: library
       ? {
           id: library.id,
@@ -77,7 +74,7 @@ export function ossStatsQuery({ library }: { library?: Library } = {}) {
   })
 }
 
-export function _OssStats({ library }: { library?: Library }) {
+function OssStatsContent({ library }: { library?: Library }) {
   const { data: stats } = useSuspenseQuery(ossStatsQuery({ library }))
 
   return (
@@ -146,31 +143,6 @@ export function _OssStats({ library }: { library?: Library }) {
           </div>
         </div>
       </div>
-      <div className="px-4 py-2 flex justify-end">
-        <a
-          href="https://www.convex.dev/?utm_source=tanstack"
-          className="group flex items-center gap-2"
-        >
-          <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
-          <div className="flex items-center gap-1">
-            <span className="text-[.75rem] opacity-60 relative -top-px">
-              Powered by
-            </span>
-            <img
-              className="dark:hidden opacity-30 group-hover:opacity-50"
-              src={convexImageDark}
-              alt="Convex Logo"
-              width={80}
-            />
-            <img
-              className="hidden dark:block opacity-30 group-hover:opacity-50"
-              src={convexImageWhite}
-              alt="Convex Logo"
-              width={80}
-            />
-          </div>
-        </a>
-      </div>
     </div>
   )
 }
@@ -179,7 +151,7 @@ export default function OssStats({ library }: { library?: Library }) {
   return (
     <Suspense fallback={<></>}>
       <BlankErrorBoundary>
-        <_OssStats library={library} />
+        <OssStatsContent library={library} />
       </BlankErrorBoundary>
     </Suspense>
   )

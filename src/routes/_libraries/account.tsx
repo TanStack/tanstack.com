@@ -1,55 +1,65 @@
 import { FaSignOutAlt } from 'react-icons/fa'
-import { Authenticated, Unauthenticated, useMutation } from 'convex/react'
-import { Link, redirect, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, redirect } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useCapabilities } from '~/hooks/useCapabilities'
-import { api } from 'convex/_generated/api'
 import { useToast } from '~/components/ToastProvider'
+import { updateAdPreference } from '~/utils/users.server'
+import { requireAuth } from '~/utils/auth.server'
 
 export const Route = createFileRoute('/_libraries/account')({
   component: AccountPage,
+  beforeLoad: async () => {
+    // Call server function directly from beforeLoad (works in both SSR and client)
+    try {
+      const user = await requireAuth()
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
 })
 
 function UserSettings() {
   const userQuery = useCurrentUserQuery()
   const capabilities = useCapabilities()
   const { notify } = useToast()
-  // Use current user query directly instead of separate ad preference query
-  const updateAdPreferenceMutation = useMutation(
-    api.users.updateAdPreference
-  ).withOptimisticUpdate((localStore, args) => {
-    const { adsDisabled } = args
-    const currentValue = localStore.getQuery(api.auth.getCurrentUser)
-    if (currentValue !== undefined) {
-      localStore.setQuery(api.auth.getCurrentUser, {}, {
-        ...currentValue,
-        adsDisabled: adsDisabled,
-      })
-    }
-  })
+  const navigate = useNavigate()
 
   // Get values directly from the current user data
-  const adsDisabled = userQuery.data?.adsDisabled ?? false
+  const user = userQuery.data
+  const adsDisabled =
+    user && typeof user === 'object' && 'adsDisabled' in user
+      ? user.adsDisabled ?? false
+      : false
   const canDisableAds = capabilities.includes('disableAds')
 
-  const handleToggleAds = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateAdPreferenceMutation({
-      adsDisabled: e.target.checked,
-    })
-    notify(
-      <div>
-        <div className="font-medium">Preferences updated</div>
-        <div className="text-gray-500 dark:text-gray-400 text-xs">
-          Ad visibility preference saved
+  const handleToggleAds = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      await updateAdPreference({ data: { adsDisabled: e.target.checked } })
+      notify(
+        <div>
+          <div className="font-medium">Preferences updated</div>
+          <div className="text-gray-500 dark:text-gray-400 text-xs">
+            Ad visibility preference saved
+          </div>
         </div>
-      </div>
-    )
+      )
+    } catch (error) {
+      notify(
+        <div>
+          <div className="font-medium">Error</div>
+          <div className="text-gray-500 dark:text-gray-400 text-xs">
+            Failed to update preferences
+          </div>
+        </div>
+      )
+    }
   }
 
   const signOut = async () => {
     await authClient.signOut()
-    redirect({ to: '/login' })
+    navigate({ to: '/login' })
     notify(
       <div>
         <div className="font-medium">Signed out</div>
@@ -75,7 +85,11 @@ function UserSettings() {
                 <input
                   type="text"
                   className="border border-gray-300 rounded-md py-1 px-2 w-full max-w-xs"
-                  value={userQuery.data?.email ?? ''}
+                  value={
+                    user && typeof user === 'object' && 'email' in user
+                      ? user.email ?? ''
+                      : ''
+                  }
                   disabled
                 />
               </div>
@@ -123,24 +137,7 @@ function UserSettings() {
 function AccountPage() {
   return (
     <div className="min-h-screen mx-auto p-4 md:p-8 w-full">
-      <Authenticated>
-        <UserSettings />
-      </Authenticated>
-      <Unauthenticated>
-        <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 text-center w-[100vw] max-w-sm mx-auto">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            Sign In Required
-          </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
-            Please sign in to access your account settings.
-          </p>
-          <Link to="/login">
-            <button className="text-sm font-medium bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white  py-2 px-4 rounded-md transition-colors">
-              Sign In
-            </button>
-          </Link>
-        </div>
-      </Unauthenticated>
+      <UserSettings />
     </div>
   )
 }

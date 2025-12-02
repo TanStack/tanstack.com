@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
-import { api } from 'convex/_generated/api'
+import { listFeedEntriesQueryOptions } from '~/queries/feed'
 import { Link } from '@tanstack/react-router'
 import { formatDistanceToNow } from 'date-fns'
 import { useCapabilities } from '~/hooks/useCapabilities'
@@ -16,8 +15,8 @@ export function FeedTicker() {
   const canAccessFeed = capabilities.includes('feed')
 
   // Fetch feed entries with default filters (major, minor releases, include prerelease)
-  const feedQuery = useQuery({
-    ...convexQuery(api.feed.queries.listFeedEntries, {
+  const feedQuery = useQuery(
+    listFeedEntriesQueryOptions({
       pagination: {
         limit: 10, // Fetch first 10 entries
         page: 0,
@@ -26,8 +25,8 @@ export function FeedTicker() {
         releaseLevels: ['major', 'minor', 'patch'],
         includePrerelease: true,
       },
-    }),
-  })
+    })
+  )
 
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const [animationKey, setAnimationKey] = React.useState(0)

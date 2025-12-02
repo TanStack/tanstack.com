@@ -1,10 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import {
-  useQuery as useConvexQuery,
-  useMutation as useConvexMutation,
-} from 'convex/react'
-import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import { api } from 'convex/_generated/api'
+import { useQuery } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import {
   FaUser,
@@ -15,7 +10,12 @@ import {
   FaSpinner,
 } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
-import { FilterBar, FilterSearch, FilterCheckbox, FilterSection } from '~/components/FilterComponents'
+import {
+  FilterBar,
+  FilterSearch,
+  FilterCheckbox,
+  FilterSection,
+} from '~/components/FilterComponents'
 import {
   Table,
   TableHeader,
@@ -25,15 +25,28 @@ import {
   TableRow,
   TableCell,
 } from '~/components/TableComponents'
-import type { Id } from 'convex/_generated/dataModel'
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
   type ColumnDef,
 } from '@tanstack/react-table'
-import { convexQuery } from '@convex-dev/react-query'
+import {
+  useUpdateUserCapabilities,
+  useAdminSetAdsDisabled,
+  useAssignRolesToUser,
+  useBulkAssignRolesToUsers,
+  useBulkUpdateUserCapabilities,
+} from '~/utils/mutations'
 import { z } from 'zod'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { listUsersQueryOptions } from '~/queries/users'
+import {
+  listRolesQueryOptions,
+  getBulkUserRolesQueryOptions,
+  getBulkEffectiveCapabilitiesQueryOptions,
+} from '~/queries/roles'
+import { getUserRoles } from '~/utils/roles.server'
 
 // User type for table
 type User = {
@@ -169,7 +182,9 @@ function UsersPage() {
   const [updatingAdsUserId] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [bulkActionRoleId, setBulkActionRoleId] = useState<string | null>(null)
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
     capabilities: true,
     ads: true,
   })
@@ -377,11 +392,11 @@ function UsersPage() {
   )
   const currentPageIndex = search.page ?? 0
 
-  const user = useConvexQuery(api.auth.getCurrentUser)
+  const userQuery = useCurrentUserQuery()
+  const user = userQuery.data
   const pageSize = search.pageSize ?? 10
-  const listUsersRef = api.users.listUsers
-  const usersQuery = useQuery({
-    ...convexQuery(listUsersRef, {
+  const usersQuery = useQuery(
+    listUsersQueryOptions({
       pagination: {
         limit: pageSize,
         page: currentPageIndex,
@@ -395,37 +410,29 @@ function UsersPage() {
         adsDisabledFilter === 'all' ? undefined : adsDisabledFilter === 'true',
       interestedInHidingAdsFilter:
         waitlistFilter === 'all' ? undefined : waitlistFilter === 'true',
-    }),
-    placeholderData: keepPreviousData,
-  })
+    })
+  )
   // counts now come from listUsers response
 
-  const updateUserCapabilities = useConvexMutation(
-    api.users.updateUserCapabilities
-  )
-  const adminSetAdsDisabled = useConvexMutation(api.users.adminSetAdsDisabled)
-  const assignRolesToUser = useConvexMutation(api.roles.assignRolesToUser)
-  const bulkAssignRolesToUsers = useConvexMutation(
-    api.roles.bulkAssignRolesToUsers
-  )
-  const bulkUpdateUserCapabilities = useConvexMutation(
-    api.users.bulkUpdateUserCapabilities
-  )
-  const allRoles = useConvexQuery(api.roles.listRoles, {})
+  const updateUserCapabilities = useUpdateUserCapabilities()
+  const adminSetAdsDisabled = useAdminSetAdsDisabled()
+  const assignRolesToUser = useAssignRolesToUser()
+  const bulkAssignRolesToUsers = useBulkAssignRolesToUsers()
+  const bulkUpdateUserCapabilities = useBulkUpdateUserCapabilities()
+  const allRolesQuery = useQuery(listRolesQueryOptions({}))
+  const allRoles = allRolesQuery.data || []
 
   // Bulk fetch user roles and effective capabilities to avoid N+1 queries
   const userIds = useMemo(
     () => (usersQuery?.data?.page || []).map((u: User) => u._id),
     [usersQuery?.data?.page]
   )
-  const bulkUserRoles = useConvexQuery(
-    api.roles.getBulkUserRoles,
-    userIds.length > 0 ? { userIds: userIds as Id<'users'>[] } : 'skip'
+  const bulkUserRolesQuery = useQuery(getBulkUserRolesQueryOptions(userIds))
+  const bulkUserRoles = bulkUserRolesQuery.data
+  const bulkEffectiveCapabilitiesQuery = useQuery(
+    getBulkEffectiveCapabilitiesQueryOptions(userIds)
   )
-  const bulkEffectiveCapabilities = useConvexQuery(
-    api.roles.getBulkEffectiveCapabilities,
-    userIds.length > 0 ? { userIds: userIds as Id<'users'>[] } : 'skip'
-  )
+  const bulkEffectiveCapabilities = bulkEffectiveCapabilitiesQuery.data
 
   const availableCapabilities = useMemo(
     () => ['admin', 'disableAds', 'builder', 'feed'],
@@ -445,11 +452,17 @@ function UsersPage() {
     editingUserId &&
     typeof editingUserId === 'string' &&
     editingUserId.trim() !== ''
-      ? (editingUserId as Id<'users'>)
+      ? editingUserId
       : undefined
-  const editingUserRoles = useConvexQuery(api.roles.getUserRoles, {
-    userId: validEditingUserId,
+  const editingUserRolesQuery = useQuery({
+    queryKey: ['admin', 'userRoles', validEditingUserId],
+    queryFn: async () => {
+      if (!validEditingUserId) return []
+      return getUserRoles({ data: { userId: validEditingUserId } })
+    },
+    enabled: !!validEditingUserId,
   })
+  const editingUserRoles = editingUserRolesQuery.data
 
   useEffect(() => {
     if (editingUserRoles && editingUserId) {
@@ -464,13 +477,13 @@ function UsersPage() {
 
     try {
       await Promise.all([
-        updateUserCapabilities({
-          userId: editingUserId as Id<'users'>,
+        updateUserCapabilities.mutateAsync({
+          userId: editingUserId,
           capabilities: editingCapabilities,
         }),
-        assignRolesToUser({
-          userId: editingUserId as Id<'users'>,
-          roleIds: editingRoleIds as Id<'roles'>[],
+        assignRolesToUser.mutateAsync({
+          userId: editingUserId,
+          roleIds: editingRoleIds,
         }),
       ])
       setEditingUserId(null)
@@ -543,9 +556,9 @@ function UsersPage() {
     if (selectedUserIds.size === 0 || !bulkActionRoleId) return
 
     try {
-      await bulkAssignRolesToUsers({
-        userIds: Array.from(selectedUserIds) as Id<'users'>[],
-        roleIds: [bulkActionRoleId as Id<'roles'>],
+      await bulkAssignRolesToUsers.mutateAsync({
+        userIds: Array.from(selectedUserIds),
+        roleIds: [bulkActionRoleId],
       })
       setSelectedUserIds(new Set())
       setBulkActionRoleId(null)
@@ -568,8 +581,8 @@ function UsersPage() {
       }
 
       try {
-        await bulkUpdateUserCapabilities({
-          userIds: Array.from(selectedUserIds) as Id<'users'>[],
+        await bulkUpdateUserCapabilities.mutateAsync({
+          userIds: Array.from(selectedUserIds),
           capabilities: capabilities,
         })
         setSelectedUserIds(new Set())
@@ -587,8 +600,8 @@ function UsersPage() {
 
   const handleToggleAdsDisabled = useCallback(
     async (userId: string, nextValue: boolean) => {
-      adminSetAdsDisabled({
-        userId: userId as Id<'users'>,
+      await adminSetAdsDisabled.mutateAsync({
+        userId: userId,
         adsDisabled: nextValue,
       })
     },
@@ -1067,41 +1080,36 @@ function UsersPage() {
 
           {/* Pagination Controls - Bottom (Sticky) */}
           {usersQuery?.data && usersQuery.data.page.length > 0 && (
-            <div className="sticky bottom-4 mt-4">
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg px-3 py-2">
-                <PaginationControls
-                  currentPage={currentPageIndex}
-                  totalPages={Math.max(
-                    1,
-                    Math.ceil(
-                      (usersQuery?.data?.counts?.filtered ?? 0) / pageSize
-                    )
-                  )}
-                  totalItems={usersQuery?.data?.counts?.total ?? 0}
-                  filteredItems={usersQuery?.data?.counts?.filtered}
-                  pageSize={pageSize}
-                  onPageChange={(page) => {
-                    navigate({
-                      resetScroll: false,
-                      search: (prev) => ({ ...prev, page }),
-                    })
-                  }}
-                  onPageSizeChange={(newPageSize) => {
-                    navigate({
-                      resetScroll: false,
-                      search: (prev) => ({
-                        ...prev,
-                        pageSize: newPageSize,
-                        page: 0,
-                      }),
-                    })
-                  }}
-                  canGoPrevious={canGoPrevious}
-                  canGoNext={canGoNext}
-                  itemLabel="users"
-                />
-              </div>
-            </div>
+            <PaginationControls
+              currentPage={currentPageIndex}
+              totalPages={Math.max(
+                1,
+                Math.ceil((usersQuery?.data?.counts?.filtered ?? 0) / pageSize)
+              )}
+              totalItems={usersQuery?.data?.counts?.total ?? 0}
+              filteredItems={usersQuery?.data?.counts?.filtered}
+              pageSize={pageSize}
+              onPageChange={(page) => {
+                navigate({
+                  resetScroll: false,
+                  search: (prev) => ({ ...prev, page }),
+                })
+              }}
+              onPageSizeChange={(newPageSize) => {
+                navigate({
+                  resetScroll: false,
+                  search: (prev) => ({
+                    ...prev,
+                    pageSize: newPageSize,
+                    page: 0,
+                  }),
+                })
+              }}
+              canGoPrevious={canGoPrevious}
+              canGoNext={canGoNext}
+              itemLabel="users"
+              sticky
+            />
           )}
         </div>
       </div>

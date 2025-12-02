@@ -1,12 +1,3 @@
-import reactLogo from '../images/react-logo.svg'
-import preactLogo from '../images/preact-logo.svg'
-import solidLogo from '../images/solid-logo.svg'
-import vueLogo from '../images/vue-logo.svg'
-import angularLogo from '../images/angular-logo.svg'
-import svelteLogo from '../images/svelte-logo.svg'
-import litLogo from '../images/lit-logo.svg'
-import qwikLogo from '../images/qwik-logo.svg'
-import jsLogo from '../images/js-logo.svg'
 import { queryProject } from './query'
 import { formProject } from './form'
 import { configProject } from './config'
@@ -20,92 +11,17 @@ import { pacerProject } from './pacer'
 import { dbProject } from './db'
 import { aiProject } from './ai'
 import { devtoolsProject } from './devtools'
+import {
+  type Framework,
+  type Library,
+  type LibraryId,
+  type LibraryMenuItem,
+  frameworkOptions,
+} from './types'
 
-export const frameworkOptions = [
-  { label: 'React', value: 'react', logo: reactLogo, color: 'bg-blue-500' },
-  { label: 'Preact', value: 'preact', logo: preactLogo, color: 'bg-blue-400' },
-  { label: 'Vue', value: 'vue', logo: vueLogo, color: 'bg-green-500' },
-  {
-    label: 'Angular',
-    value: 'angular',
-    logo: angularLogo,
-    color: 'bg-red-500',
-  },
-  { label: 'Solid', value: 'solid', logo: solidLogo, color: 'bg-blue-600' },
-  { label: 'Lit', value: 'lit', logo: litLogo, color: 'bg-orange-500' },
-  {
-    label: 'Svelte',
-    value: 'svelte',
-    logo: svelteLogo,
-    color: 'bg-orange-600',
-  },
-  { label: 'Qwik', value: 'qwik', logo: qwikLogo, color: 'bg-purple-500' },
-  { label: 'Vanilla', value: 'vanilla', logo: jsLogo, color: 'bg-yellow-500' },
-] as const
-
-export type Framework = (typeof frameworkOptions)[number]['value']
-
-export type Library = {
-  id:
-    | 'start'
-    | 'router'
-    | 'query'
-    | 'table'
-    | 'form'
-    | 'virtual'
-    | 'ranger'
-    | 'store'
-    | 'pacer'
-    | 'db'
-    | 'ai'
-    | 'config'
-    | 'devtools'
-    | 'react-charts'
-    | 'create-tsrouter-app'
-  name: string
-  cardStyles: string
-  to?: string
-  tagline: string
-  description: string
-  ogImage?: string
-  bgStyle: string
-  textStyle: string
-  badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh' | 'RC'
-  repo: string
-  latestBranch: string
-  latestVersion: string
-  availableVersions: string[]
-  bgRadial: string
-  colorFrom: string
-  colorTo: string
-  textColor: string
-  frameworks: Framework[]
-  scarfId?: string
-  defaultDocs?: string
-  handleRedirects?: (href: string) => void
-  hideCodesandboxUrl?: true
-  hideStackblitzUrl?: true
-  showVercelUrl?: boolean
-  showNetlifyUrl?: boolean
-  showCloudflareUrl?: boolean
-  menu: LibraryMenuItem[]
-  featureHighlights?: {
-    title: string
-    icon: React.ReactNode
-    description: React.ReactNode
-  }[]
-  docsRoot?: string
-  embedEditor?: 'codesandbox' | 'stackblitz'
-  visible?: boolean
-}
-
-export type LibraryMenuItem = {
-  icon: React.ReactNode
-  label: React.ReactNode
-  to: string
-}
-
-export type LibraryId = Library['id']
+// Re-export types for backward compatibility
+export type { Framework, Library, LibraryId, LibraryMenuItem }
+export { frameworkOptions }
 
 export const libraries = [
   startProject,

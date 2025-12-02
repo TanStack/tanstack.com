@@ -329,7 +329,9 @@ const options: HTMLReactParserOptions = {
               domToReact(panel.children as any, options)
             )
 
-            return <Tabs tabs={tabs} children={children as any} />
+            return (
+              <Tabs id={attributes.id} tabs={tabs} children={children as any} />
+            )
           }
           default:
             return <div>{domToReact(domNode.children as any, options)}</div>

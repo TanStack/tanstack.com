@@ -146,7 +146,7 @@ export function _OssStats({ library }: { library?: Library }) {
           </div>
         </div>
       </div>
-      <div className="px-4 py-2 flex justify-end">
+      <div className="px-4 py-2 flex justify-center sm:justify-end">
         <a
           href="https://www.convex.dev/?utm_source=tanstack"
           className="group flex items-center gap-2"

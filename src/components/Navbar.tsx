@@ -76,7 +76,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <Link
             to="/login"
             className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
-            hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
+            hover:opacity-100 transition-opacity duration-300 ease-in-out whitespace-nowrap uppercase font-black text-xs"
           >
             <LuUser className="scale-125" />
             <div className="">Log In</div>
@@ -118,36 +118,41 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     </>
   )
 
+  const socialLinksData = [
+    {
+      href: 'https://x.com/tan_stack',
+      label: 'Follow TanStack on X.com',
+      icon: <TbBrandX className="text-xl" />,
+    },
+    {
+      href: 'https://bsky.app/profile/tanstack.com',
+      label: 'Follow TanStack on Bluesky',
+      icon: <TbBrandBluesky className="text-xl" />,
+    },
+    {
+      href: 'https://instagram.com/tan_stack',
+      label: 'Follow TanStack on Instagram',
+      icon: <FaInstagram className="text-xl" />,
+    },
+    {
+      href: 'https://tlinz.com/discord',
+      label: 'Join TanStack Discord',
+      icon: <FaDiscord className="text-xl" />,
+    },
+  ]
+
   const socialLinks = (
     <div className="flex items-center gap-1">
-      <a
-        href="https://x.com/tan_stack"
-        className="opacity-70 hover:opacity-100"
-        aria-label="Follow TanStack on X.com"
-      >
-        <TbBrandX className="text-xl" />
-      </a>
-      <a
-        href="https://bsky.app/profile/tanstack.com"
-        className="opacity-70 hover:opacity-100"
-        aria-label="Follow TanStack on Bluesky"
-      >
-        <TbBrandBluesky className="text-xl" />
-      </a>
-      <a
-        href="https://instagram.com/tan_stack"
-        className="opacity-70 hover:opacity-100"
-        aria-label="Follow TanStack on Instagram"
-      >
-        <FaInstagram className="text-xl" />
-      </a>
-      <a
-        href="https://tlinz.com/discord"
-        className="opacity-70 hover:opacity-100"
-        aria-label="Join TanStack Discord"
-      >
-        <FaDiscord className="text-xl" />
-      </a>
+      {socialLinksData.map((link, index) => (
+        <a
+          key={index}
+          href={link.href}
+          className="transition-opacity duration-300 ease-in-out opacity-70 hover:opacity-100"
+          aria-label={link.label}
+        >
+          {link.icon}
+        </a>
+      ))}
     </div>
   )
 

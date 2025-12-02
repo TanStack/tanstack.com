@@ -70,6 +70,8 @@ const makeHeading =
       />
     )
 
+type ImgProps = React.ImgHTMLAttributes<HTMLImageElement>
+
 const markdownComponents: Record<string, React.FC> = {
   a: MarkdownLink,
   pre: CodeBlock,
@@ -92,7 +94,7 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
-  img: ({ className, ...props }: HTMLProps<HTMLImageElement>) => (
+  img: ({ className, ...props }: ImgProps) => (
     // eslint-disable-next-line jsx-a11y/alt-text
     <img
       className={`max-w-full h-auto rounded-lg shadow-md ${className ?? ''}`}

@@ -18,7 +18,7 @@ export function ThemeToggle() {
       onClick={handleToggleMode}
       className={`bg-gray-500/10 dark:bg-gray-500/30 rounded-lg flex items-center justify-between
         hover:bg-gray-500/20 dark:hover:bg-gray-500/40
-        cursor-pointer transition-all text-xs font-black`}
+        cursor-pointer transition-all duration-300 ease-in-out text-xs font-black`}
     >
       <div className="flex-1 flex items-center justify-between p-2 gap-1">
         <FaSun className={`hidden light:block`} />

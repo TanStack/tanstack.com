@@ -116,9 +116,6 @@ importers:
       cmdk:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.2.3(@types/react@19.2.5))(@types/react@19.2.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      convex-oss-stats:
-        specifier: link:../../../erquhart/convex-oss-stats
-        version: link:../../../erquhart/convex-oss-stats
       d3:
         specifier: ^7.9.0
         version: 7.9.0

@@ -30,7 +30,10 @@ const CustomHeading = ({
   // Convert children to array and strip any inner anchor (native 'a' or MarkdownLink)
   const childrenArray = React.Children.toArray(children)
   const sanitizedChildren = childrenArray.map((child) => {
-    if (React.isValidElement(child) && (child.type === 'a' || child.type === MarkdownLink)) {
+    if (
+      React.isValidElement(child) &&
+      (child.type === 'a' || child.type === MarkdownLink)
+    ) {
       // replace anchor child with its own children so outer anchor remains the only link
       return child.props.children ?? null
     }
@@ -45,7 +48,10 @@ const CustomHeading = ({
 
   if (id) {
     return (
-      <a href={`#${id}`} className={`anchor-heading *:scroll-my-20 *:lg:scroll-my-4`}>
+      <a
+        href={`#${id}`}
+        className={`anchor-heading *:scroll-my-20 *:lg:scroll-my-4`}
+      >
         {heading}
       </a>
     )
@@ -55,8 +61,7 @@ const CustomHeading = ({
 }
 
 const makeHeading =
-  (type: HeadingLevel) =>
-  (props: HTMLProps<HTMLHeadingElement>) =>
+  (type: HeadingLevel) => (props: HTMLProps<HTMLHeadingElement>) =>
     (
       <CustomHeading
         Comp={type}
@@ -87,13 +92,11 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
-  img: ({ ...props }: HTMLProps<HTMLImageElement>) => (
+  img: ({ className, ...rest }: HTMLProps<HTMLImageElement>) => (
     // eslint-disable-next-line jsx-a11y/alt-text
     <img
-      {...props}
-      className={`max-w-full h-auto rounded-lg shadow-md ${
-        props.className ?? ''
-      }`}
+      {...rest}
+      className={`max-w-full h-auto rounded-lg shadow-md ${className ?? ''}`}
     />
   ),
 }

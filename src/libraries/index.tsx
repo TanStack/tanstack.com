@@ -124,6 +124,8 @@ export type Library = {
   frameworks: Framework[]
   scarfId?: string
   defaultDocs?: string
+  installPath?: string
+  corePackageName?: string
   handleRedirects?: (href: string) => void
   hideCodesandboxUrl?: true
   hideStackblitzUrl?: true

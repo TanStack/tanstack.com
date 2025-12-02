@@ -16,17 +16,11 @@ import * as Plot from '@observablehq/plot'
 import { ParentSize } from '@visx/responsive'
 import { Tooltip } from '~/components/Tooltip'
 import * as d3 from 'd3'
-import { FaAngleRight, FaSpinner } from 'react-icons/fa'
+import { FaSpinner } from 'react-icons/fa'
 import { HexColorPicker } from 'react-colorful'
 import { seo } from '~/utils/seo'
 import { getPopularComparisons } from './-comparisons'
-import {
-  GamFooter,
-  GamHeader,
-  GamLeftRailSquare,
-  GamRightRailSquare,
-  GamVrec1,
-} from '~/components/Gam'
+import { GamHeader, GamVrec1 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
@@ -172,19 +166,6 @@ const binningOptionsByType = binningOptions.reduce((acc, option) => {
 
 type TransformMode = z.infer<typeof transformModeSchema>
 
-type NpmPackage = {
-  name: string
-  description: string
-  version: string
-  publisher: {
-    username: string
-  }
-  time?: {
-    created: string
-    modified: string
-  }
-}
-
 const defaultColors = [
   '#1f77b4', // blue
   '#ff7f0e', // orange
@@ -237,7 +218,7 @@ function npmQueryOptions({
   const now = d3.utcDay(new Date())
   // Set to start of today to avoid timezone issues
   now.setHours(0, 0, 0, 0)
-  let endDate = now
+  const endDate = now
 
   // Function to get package creation date
   const getPackageCreationDate = async (packageName: string): Promise<Date> => {
@@ -304,7 +285,7 @@ function npmQueryOptions({
             const packages = await Promise.all(
               packageGroup.packages.map(async (pkg) => {
                 let currentEnd = endDate
-                let currentStart = startDate
+                const currentStart = startDate
 
                 const chunkRanges: { start: Date; end: Date }[] = []
 
@@ -635,7 +616,7 @@ function NpmStatsChart({
 
   const plotData = filteredPackageData.flatMap((d) => d.downloads)
 
-  let baseOptions: Plot.LineYOptions = {
+  const baseOptions: Plot.LineYOptions = {
     x: 'date',
     y: transform === 'normalize-y' ? 'change' : 'downloads',
     fx: facetX,
@@ -1018,59 +999,6 @@ function RouteComponent() {
       range,
     })
   )
-
-  const handleCombineSelect = (selectedPackage: NpmPackage) => {
-    if (!combiningPackage) return
-
-    // Find the package group that contains the combining package
-    const packageGroup = packageGroups.find((pkg) =>
-      pkg.packages.some((p) => p.name === combiningPackage)
-    )
-
-    if (packageGroup) {
-      // Update existing package group
-      const newPackages = packageGroups.map((pkg) =>
-        pkg === packageGroup
-          ? {
-              ...pkg,
-              packages: [
-                ...pkg.packages,
-                { name: selectedPackage.name, hidden: true },
-              ],
-            }
-          : pkg
-      )
-
-      navigate({
-        to: '.',
-        search: (prev) => ({
-          ...prev,
-          packageGroups: newPackages,
-        }),
-        resetScroll: false,
-      })
-    } else {
-      // Create new package group
-      navigate({
-        to: '.',
-        search: (prev) => ({
-          ...prev,
-          packageGroups: [
-            ...packageGroups,
-            {
-              packages: [
-                { name: combiningPackage },
-                { name: selectedPackage.name },
-              ],
-            },
-          ],
-        }),
-        resetScroll: false,
-      })
-    }
-
-    setCombiningPackage(null)
-  }
 
   const handleRemoveFromGroup = (mainPackage: string, subPackage: string) => {
     // Find the package group
@@ -1877,12 +1805,6 @@ function RouteComponent() {
                         <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Downloads last {binOption.single}
                         </th>
-                        {/* <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Period Growth
-                        </th>
-                        <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Period Growth %
-                        </th> */}
                       </tr>
                     </thead>
                     <tbody className="bg-gray-500/5 divide-y divide-gray-500/10">
@@ -1896,20 +1818,7 @@ function RouteComponent() {
                             return null
                           }
 
-                          // const flooredStartData =
-                          //   binOption.bin.floor(startDate)
-
                           const firstPackage = packageGroupDownloads.packages[0]
-
-                          // const rangeFilteredDownloads =
-                          //   packageGroupDownloads.packages.map((p) => {
-                          //     return {
-                          //       ...p,
-                          //       downloads: p.downloads.filter(
-                          //         (d) => d.day >= startDate
-                          //       ),
-                          //     }
-                          //   })
 
                           // Sort downloads by date
                           const sortedDownloads = packageGroupDownloads.packages
@@ -2033,42 +1942,6 @@ function RouteComponent() {
                             <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
                               {formatNumber(stat!.binDownloads)}
                             </td>
-                            {/* <td
-                              className={`px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-right ${
-                                stat!.growth > 0
-                                  ? 'text-green-500'
-                                  : stat!.growth < 0
-                                  ? 'text-red-500'
-                                  : 'text-gray-500'
-                              }`}
-                            >
-                              <div className="inline-flex items-center gap-1">
-                                {stat!.growth > 0 ? (
-                                  <MdArrowUpward />
-                                ) : (
-                                  <MdArrowDownward />
-                                )}
-                                {formatNumber(Math.abs(stat!.growth))}
-                              </div>
-                            </td>
-                            <td
-                              className={`px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-right ${
-                                stat!.growthPercentage > 0
-                                  ? 'text-green-500'
-                                  : stat!.growthPercentage < 0
-                                  ? 'text-red-500'
-                                  : 'text-gray-500'
-                              }`}
-                            >
-                              <div className="inline-flex items-center gap-1">
-                                {stat!.growthPercentage > 0 ? (
-                                  <MdArrowUpward />
-                                ) : (
-                                  <MdArrowDownward />
-                                )}
-                                {Math.abs(stat!.growthPercentage).toFixed(1)}%
-                              </div>
-                            </td> */}
                           </tr>
                         ))}
                     </tbody>

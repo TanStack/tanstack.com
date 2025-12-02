@@ -14,7 +14,7 @@ import {
 } from '~/components/MarkdownHeadingContext'
 import { AdGate } from '~/contexts/AdsContext'
 import { CopyMarkdownButton } from './CopyMarkdownButton'
-import { GamHeader, GamLeader } from './Gam'
+import { GamHeader } from './Gam'
 import { Toc } from './Toc'
 import { TocMobile } from './TocMobile'
 

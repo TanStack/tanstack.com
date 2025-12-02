@@ -27,9 +27,8 @@ export type Sponsor = {
 export const getSponsorsForSponsorPack = createServerFn({
   method: 'GET',
 }).handler(async () => {
-  let sponsors = await fetchCached({
+  const sponsors = await fetchCached({
     key: 'sponsors',
-    // ttl: process.env.NODE_ENV === 'development' ? 1 : 60 * 60 * 1000,
     ttl: 60 * 1000,
     fn: getSponsors,
   })
@@ -56,7 +55,7 @@ export const getSponsorsForSponsorPack = createServerFn({
 })
 
 export async function getSponsors() {
-  let [sponsors, sponsorsMeta] = await Promise.all([
+  const [sponsors, sponsorsMeta] = await Promise.all([
     getGithubSponsors(),
     getSponsorsMeta(),
   ])
@@ -184,7 +183,7 @@ async function getGithubSponsors() {
         'jherr',
         'seancassiere',
         'schiller-manuel',
-      ].flatMap((d, i1) =>
+      ].flatMap((d) =>
         new Array(20).fill(d).map((d, i2) => ({
           login: d,
           name: d,

@@ -70,6 +70,8 @@ const makeHeading =
       />
     )
 
+type ImgProps = React.ImgHTMLAttributes<HTMLImageElement>
+
 const markdownComponents: Record<string, React.FC> = {
   a: MarkdownLink,
   pre: CodeBlock,
@@ -92,15 +94,11 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
-  img: ({ children, ...props }: HTMLProps<HTMLImageElement>) => (
+  img: ({ className, children, ...props }: ImgProps) => (
     // eslint-disable-next-line jsx-a11y/alt-text
     <img
+      className={`max-w-full h-auto rounded-lg shadow-md ${className ?? ''}`}
       {...props}
-      className={`max-w-full h-auto rounded-lg shadow-md ${
-        props.className ?? ''
-      }`}
-      // loading="lazy"
-      // decoding="async"
     />
   ),
 }
@@ -202,7 +200,6 @@ export function CodeBlock({
 
       setCodeElement(
         <div
-          // className={`m-0 text-sm rounded-md w-full border border-gray-500/20 dark:border-gray-500/30`}
           className={twMerge(
             isEmbedded ? 'h-full [&>pre]:h-full [&>pre]:rounded-none' : ''
           )}
@@ -287,7 +284,7 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
   const loadedLanguages = highlighter.getLoadedLanguages()
   const loadedThemes = highlighter.getLoadedThemes()
 
-  let promises = []
+  const promises = []
   if (!loadedLanguages.includes(language as any)) {
     promises.push(
       highlighter.loadLanguage(

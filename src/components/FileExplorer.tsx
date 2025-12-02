@@ -253,7 +253,7 @@ const RenderFileTree = (props: {
 
   return (
     <ul className="flex flex-col">
-      {props.files.map((file, index) => (
+      {props.files.map((file, __) => (
         <li key={file.path} className="relative">
           {/* Tree lines */}
           {file.depth > 0 && (

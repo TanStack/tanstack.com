@@ -4,11 +4,10 @@ declare global {
   var docCache: LRUCache<string, unknown>
 }
 
-let docCache =
+const docCache =
   globalThis.docCache ||
   (globalThis.docCache = new LRUCache<string, unknown>({
     max: 300,
-    // ttl: 1,
     ttl: process.env.NODE_ENV === 'production' ? 1 : 1000000,
   }))
 

@@ -1,7 +1,6 @@
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
-// import { fileURLToPath } from 'node:url'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
 import { multiSortBy, removeLeadingSlash } from './utils'
@@ -46,7 +45,6 @@ async function fetchRemote(
  * Return text content of file from local file system
  */
 async function fetchFs(repo: string, filepath: string) {
-  // const __dirname = fileURLToPath(new URL('.', import.meta.url))
   const dirname = import.meta.url.split('://').at(-1)!
   const localFilePath = path.resolve(dirname, `../../../../${repo}`, filepath)
   const exists = fs.existsSync(localFilePath)
@@ -257,7 +255,7 @@ export async function fetchRepoFile(
   filepath: string
 ) {
   const key = `${repoPair}:${ref}:${filepath}`
-  let [owner, repo] = repoPair.split('/')
+  const [owner, repo] = repoPair.split('/')
 
   const ttl = process.env.NODE_ENV === 'development' ? 1 : 1 * 60 * 1000 // 5 minute
   const file = await fetchCached({
@@ -368,17 +366,9 @@ function extractFirstImage(markdown: string) {
 export interface GitHubFile {
   name: string
   path: string
-  // sha: string
-  // size: number
-  // url: string
-  // html_url: string
-  // git_url: string
-  // download_url: string
   type: string
   _links: {
     self: string
-    // git: string
-    // html: string
   }
 }
 
@@ -419,7 +409,6 @@ async function fetchApiContentsFs(
   repoPair: string,
   startingPath: string
 ): Promise<Array<GitHubFileNode> | null> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, repo] = repoPair.split('/')
   const dirname = import.meta.url.split('://').at(-1)!
 

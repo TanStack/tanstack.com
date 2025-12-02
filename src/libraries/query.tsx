@@ -1,5 +1,4 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { Library } from '.'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { BiBookAlt } from 'react-icons/bi'
@@ -235,7 +234,6 @@ const reactQueryV3List = [
     {from: "reference/useQuery", to: "docs/framework/react/reference/useQuery"},
     {from: "reference/QueryClient", to: "docs/reference/QueryClient"},
     {from: "examples/basic", to: "docs/framework/react/examples/basic"},
-    // {from: '',to: ''},
   ]
 
 /**

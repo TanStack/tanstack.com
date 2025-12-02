@@ -169,7 +169,6 @@ let cursor = 0
 while (cursor < path.length) {
   data = parseSegment(path, cursor, data)
   cursor = data[5]
-  //       ^? let data: Segment
 }
 
 type Segment = Uint16Array & {0: SegmentKind, 1: number, 2: number, ... }

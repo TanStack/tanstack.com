@@ -11,7 +11,6 @@ import {
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
-import carbonStyles from '~/styles/carbon.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
 import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
@@ -73,10 +72,6 @@ export const Route = createRootRouteWithContext<{
     links: [
       { rel: 'stylesheet', href: appCss },
       {
-        rel: 'stylesheet',
-        href: carbonStyles,
-      },
-      {
         rel: 'apple-touch-icon',
         sizes: '180x180',
         href: '/apple-touch-icon.png',
@@ -97,28 +92,7 @@ export const Route = createRootRouteWithContext<{
       { rel: 'icon', href: '/favicon.ico' },
       {
         rel: 'preload',
-        href: '/fonts/inter-v19-latin-regular.woff2',
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: '',
-      },
-      {
-        rel: 'preload',
-        href: '/fonts/inter-v19-latin-700.woff2',
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: '',
-      },
-      {
-        rel: 'preload',
-        href: '/fonts/inter-v19-latin-800.woff2',
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: '',
-      },
-      {
-        rel: 'preload',
-        href: '/fonts/inter-v19-latin-900.woff2',
+        href: '/fonts/Inter.woff2',
         as: 'font',
         type: 'font/woff2',
         crossOrigin: '',
@@ -148,12 +122,6 @@ export const Route = createRootRouteWithContext<{
         ),
       })
     }
-
-    // // During SSR only (the only time serverHttpClient exists),
-    // // set the auth token for Convex to make HTTP queries with.
-    // if (token) {
-    //   ctx.context.convexQueryClient.serverHttpClient?.setAuth(token)
-    // }
   },
   staleTime: Infinity,
   errorComponent: (props) => {

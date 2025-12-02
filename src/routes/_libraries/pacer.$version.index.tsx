@@ -30,9 +30,6 @@ export const Route = createFileRoute('/_libraries/pacer/$version/')({
 })
 
 function PacerVersionIndex() {
-  // sponsorsPromise no longer needed - using lazy loading
-  const { version } = Route.useParams()
-
   return (
     <>
       <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">

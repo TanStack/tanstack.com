@@ -131,14 +131,11 @@ type DocsLayoutProps = {
 }
 
 export function DocsLayout({
-  name,
-  version,
   colorFrom,
   colorTo,
   textColor,
   config,
   frameworks,
-  versions,
   repo,
   children,
 }: DocsLayoutProps) {
@@ -173,7 +170,6 @@ export function DocsLayout({
   const prevItem = flatMenu[index - 1]
   const nextItem = flatMenu[index + 1]
 
-  const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
   const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
   const activePartners = partners.filter(
@@ -239,9 +235,7 @@ export function DocsLayout({
                                 : ''
                             )}
                           >
-                            {/* <div className="transition group-hover:delay-700 duration-300 group-hover:duration-[2s] group-hover:translate-x-[-50%]"> */}
                             {child.label}
-                            {/* </div> */}
                           </div>
                           {child.badge ? (
                             <div

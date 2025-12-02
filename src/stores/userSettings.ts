@@ -1,8 +1,4 @@
 import { create } from 'zustand'
-// Remove persist and createJSONStorage imports since we no longer use localStorage
-// import { persist, createJSONStorage } from 'zustand/middleware'
-// Remove the useCurrentUserQuery import since we'll use the new hook
-// import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
 // Update the export to use the new hook
 export { useAdsPreference } from '~/hooks/useAdPreference'
@@ -19,7 +15,7 @@ type UserSettingsState = {
   // Remove toggleAds since it's now handled by the new hooks
 }
 
-export const useUserSettingsStore = create<UserSettingsState>()((set, get) => ({
+export const useUserSettingsStore = create<UserSettingsState>()((set, __) => ({
   settings: {
     // Remove adsDisabled initialization
   },

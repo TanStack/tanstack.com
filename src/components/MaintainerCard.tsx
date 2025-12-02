@@ -192,69 +192,6 @@ function MaintainerSocialLinks({ maintainer }: { maintainer: Maintainer }) {
   )
 }
 
-// GitHub stats component - commented out due to performance/accuracy concerns
-/*
-function GitHubStats({
-  username,
-  stats,
-}: {
-  username: string
-  stats?: {
-    totalCommits: number
-    totalPullRequests: number
-    totalIssues: number
-    totalReviews: number
-  }
-}) {
-  if (!stats) return null
-
-  const totalContributions =
-    stats.totalCommits +
-    stats.totalPullRequests +
-    stats.totalIssues +
-    stats.totalReviews
-
-  return (
-    <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-      <div
-        className="flex items-center gap-1"
-        title="Total commits to TanStack repositories"
-      >
-        <FaCode className="w-3 h-3" />
-        <span>{stats.totalCommits.toLocaleString()}</span>
-      </div>
-      <div
-        className="flex items-center gap-1"
-        title="Total pull requests to TanStack repositories"
-      >
-        <FaGitAlt className="w-3 h-3" />
-        <span>{stats.totalPullRequests.toLocaleString()}</span>
-      </div>
-      <div
-        className="flex items-center gap-1"
-        title="Total issues opened in TanStack repositories"
-      >
-        <FaComment className="w-3 h-3" />
-        <span>{stats.totalIssues.toLocaleString()}</span>
-      </div>
-      <div
-        className="flex items-center gap-1"
-        title="Total pull request reviews in TanStack repositories"
-      >
-        <FaEye className="w-3 h-3" />
-        <span>{stats.totalReviews.toLocaleString()}</span>
-      </div>
-      <div
-        className="text-xs text-gray-500 dark:text-gray-500"
-        title="Total contributions to TanStack repositories"
-      >
-        {totalContributions.toLocaleString()} total
-      </div>
-    </div>
-  )
-}
-*/
-
 interface MaintainerCardProps {
   maintainer: Maintainer
   libraryId?: Library['id']
@@ -268,12 +205,6 @@ interface CompactMaintainerCardProps {
 interface MaintainerRowCardProps {
   maintainer: Maintainer
   libraryId?: Library['id']
-  stats?: {
-    totalCommits: number
-    totalPullRequests: number
-    totalIssues: number
-    totalReviews: number
-  }
 }
 
 export function CompactMaintainerCard({
@@ -309,7 +240,6 @@ export function CompactMaintainerCard({
 export function MaintainerRowCard({
   maintainer,
   libraryId,
-  stats,
 }: MaintainerRowCardProps) {
   const libraries = getPersonsMaintainerOf(maintainer)
   const [showAllLibraries, setShowAllLibraries] = useState(false)
@@ -408,11 +338,6 @@ export function MaintainerRowCard({
               )}
             </div>
           )}
-
-          {/* GitHub Stats - commented out due to performance/accuracy concerns */}
-          {/* <div className="mt-4">
-            <GitHubStats username={maintainer.github} stats={stats} />
-          </div> */}
         </div>
       </div>
     </div>

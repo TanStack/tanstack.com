@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { THEME_COLORS } from '~/utils/utils'
 
 const themeModeSchema = z.enum(['light', 'dark', 'auto'])
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const resolvedThemeSchema = z.enum(['light', 'dark'])
 const themeKey = 'theme'
 

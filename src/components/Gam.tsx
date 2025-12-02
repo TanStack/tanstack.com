@@ -74,13 +74,11 @@ const gamDivs = {
 
 function GamAd({
   name,
-  children,
   adClassName,
   className,
   placeholderClassName,
   popupPosition = 'bottom',
   borderClassName,
-  style,
   ...props
 }: { name: keyof typeof gamDivs } & React.HTMLAttributes<HTMLDivElement> & {
     adClassName?: string

@@ -122,7 +122,6 @@ function UserRolesCell({
 
 // Component to display effective capabilities (now uses bulk data)
 function EffectiveCapabilitiesCell({
-  userId,
   effectiveCapabilities,
 }: {
   userId: string

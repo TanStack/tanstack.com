@@ -7,21 +7,6 @@ if (process.env.NODE_ENV !== 'production') {
   })
 }
 
-const guildId = '719702312431386674'
-
-const channelIds = {
-  welcome: '725435640673468500',
-  fan: '803508045627654155',
-  supporter: '803508117752119307',
-  premierSponsor: '803508359378370600',
-}
-
-const roles = {
-  fan: '🤘Fan',
-  supporter: '🎗Supporter',
-  permierSponsor: '🏅Premier Sponsor',
-}
-
 let clientPromise
 
 init()
@@ -43,24 +28,10 @@ function getClient() {
   return clientPromise
 }
 
-async function getGuild() {
-  const client = await getClient()
-  return await client.guilds.fetch(guildId)
-}
-
 async function init() {
   const client = await getClient()
 
-  // const guild = await getGuild()
-
-  // console.info(guild)
-
-  client.on('message', (message) => {
-    // console.info(message)
-    // let tierRole = message.guild.roles.cache.find(
-    //   (role) => role.name === roles[tier.sponsorType]
-    // )
-  })
+  client.on('message', (message) => {})
 
   //Welcome & goodbye messages\\
   client.on('guildMemberAdd', (member) => {

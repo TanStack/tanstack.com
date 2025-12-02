@@ -2,9 +2,7 @@ import { Link, MatchRoute, createFileRoute } from '@tanstack/react-router'
 import { convexQuery } from '@convex-dev/react-query'
 import { api } from 'convex/_generated/api'
 import { twMerge } from 'tailwind-merge'
-// import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
-// import SponsorPack from '~/components/SponsorPack'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import discordImage from '~/images/discord-logo-white.svg'
 import { useMutation } from '~/hooks/useMutation'
@@ -110,18 +108,8 @@ function Index() {
   const { notify } = useToast()
   const { recentPosts } = Route.useLoaderData()
 
-  // sponsorsPromise no longer needed - using lazy loading
-
   return (
     <>
-      {/* <img
-        src={waves}
-        className="-bottom-[50px] -left-[10px] z-0 fixed opacity-20"
-      />
-      <img
-        src={toyPalmChair}
-        className="-bottom-[50px] -right-[100px] z-0 fixed opacity-20"
-      /> */}
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
           <div className="flex flex-col xl:flex-row items-center gap-4 xl:pt-24 xl:justify-center">
@@ -241,7 +229,7 @@ function Index() {
                             <MatchRoute
                               pending
                               to={library.to}
-                              children={(isPending) => {
+                              children={() => {
                                 return (
                                   <div
                                     className={twMerge(

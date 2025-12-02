@@ -176,29 +176,6 @@ export default function App() {
             <p className="my-4 text-xl leading-7  text-gray-600">
               Create a route, pop in a Router, and start slingin' some code!
             </p>
-            {/* <div className="flex flex-wrap gap-2 justify-center">
-            {(
-              [
-                { label: 'React', value: 'react' },
-                { label: 'Preact', value: 'preact' },
-                { label: 'Solid', value: 'solid' },
-                { label: 'Vue', value: 'vue' },
-                { label: 'Svelte', value: 'svelte' },
-              ] as const
-            ).map((item) => (
-              <button
-                key={item.value}
-                className={`inline-block py-2 px-4 rounded text-white uppercase font-extrabold ${
-                  item.value === framework
-                    ? 'bg-teal-500'
-                    : 'bg-gray-300 dark:bg-gray-700 hover:bg-teal-300'
-                }`}
-                onClick={() => setFramework(item.value)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div> */}
           </div>
         </div>
 

@@ -25,7 +25,6 @@ import {
   getRoleForFilteredLibraries,
 } from '~/libraries/maintainers'
 import { Library, libraries } from '~/libraries'
-// import { fetchAllMaintainerStats } from '~/utils/docs'
 
 const librarySchema = z.enum([
   'start',
@@ -64,26 +63,6 @@ export const Route = createFileRoute('/_libraries/maintainers')({
       keywords: 'tanstack,maintainers,contributors,open source,developers',
     }),
   }),
-  // loader: async ({ context: { queryClient } }) => {
-  //   try {
-  //     // Fetch GitHub stats for all maintainers
-  //     const stats = await queryClient.ensureQueryData({
-  //       queryKey: ['maintainerStats'],
-  //       queryFn: () => fetchAllMaintainerStats(),
-  //       staleTime: 1000 * 60 * 30, // 30 minutes
-  //     })
-
-  //     return {
-  //       stats,
-  //     }
-  //   } catch (error) {
-  //     console.error('Error loading maintainer stats:', error)
-  //     // Return empty stats array if there's an error
-  //     return {
-  //       stats: [],
-  //     }
-  //   }
-  // },
 })
 
 interface FilterProps {
@@ -339,18 +318,10 @@ function MaintainerGrid({
   maintainers,
   viewMode,
   title,
-  stats,
 }: {
   maintainers: Maintainer[]
   viewMode: 'compact' | 'full' | 'row'
   title?: string
-  stats?: Array<{
-    username: string
-    totalCommits: number
-    totalPullRequests: number
-    totalIssues: number
-    totalReviews: number
-  }>
 }) {
   return (
     <div>
@@ -376,10 +347,7 @@ function MaintainerGrid({
             {viewMode === 'compact' ? (
               <CompactMaintainerCard maintainer={maintainer} />
             ) : viewMode === 'row' ? (
-              <MaintainerRowCard
-                maintainer={maintainer}
-                stats={stats?.find((s) => s.username === maintainer.github)}
-              />
+              <MaintainerRowCard maintainer={maintainer} />
             ) : (
               <MaintainerCard maintainer={maintainer} />
             )}
@@ -393,9 +361,6 @@ function MaintainerGrid({
 function RouteComponent() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
-  // const loaderData = Route.useLoaderData()
-  // const stats = loaderData?.stats || []
-  const stats: any[] = [] // Empty array since stats are commented out
 
   const updateFilters = (updates: {
     libraries?: Library['id'][] | undefined
@@ -720,13 +685,12 @@ function RouteComponent() {
                 </p>
               )}
 
-              {groupedMaintainers.map((group, index) => (
+              {groupedMaintainers.map((group) => (
                 <MaintainerGrid
                   key={group.title || 'all'}
                   maintainers={group.maintainers}
                   viewMode={search.viewMode}
                   title={group.title}
-                  stats={stats}
                 />
               ))}
             </div>

@@ -60,7 +60,7 @@
   - Status: Backlog
   - Notes:
     - Route: `src/routes/state-of-tanstack.tsx`.
-    - Include growth charts (npm downloads: reuse `NpmStatsChart.tsx` or embed portions of `stats/npm`), GitHub stars, contributors, dependents (available via Convex aggregation already powering `OpenSourceStats`).
+    - Include growth charts (npm downloads: reuse `NpmStatsChart.tsx` (in git history) or embed portions of `stats/npm`), GitHub stars, contributors, dependents (available via Convex aggregation already powering `OpenSourceStats`).
       - Community stats: Discord members (needs server function), newsletter subscribers (manual or vendor API), X/Twitter followers (manual or API), repository contributors (Convex or GitHub GraphQL on server).
     - Ecosystem counts: partners (derive from `src/utils/partners.tsx`), plugins/tools (manual list or content collection).
     - CTA to GitHub org.

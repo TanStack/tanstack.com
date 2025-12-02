@@ -70,10 +70,6 @@ button {
     @apply text-gray-900 bg-gray-50 dark:bg-gray-900 dark:text-gray-200;
   }
 
-  .using-mouse * {
-    outline: none !important;
-  }
-
   * {
     scrollbar-color: var(--color-gray-400) var(--color-gray-100);
   }
@@ -131,27 +127,6 @@ button {
 
   [disabled] {
     @apply opacity-50 pointer-events-none;
-  }
-
-  #docs-details summary::-webkit-details-marker {
-    display: none;
-  }
-
-  #docs-details .icon-close {
-    display: none;
-  }
-
-  #docs-details[open] .icon-close {
-    display: block;
-  }
-
-  #docs-details[open] .icon-open {
-    display: none;
-  }
-
-  #docs-details[open] > summary + * {
-    height: auto;
-    max-height: calc(100vh - 62px);
   }
 
   .anchor-heading {
@@ -565,10 +540,6 @@ html.dark .shiki.tokyo-night span[style*='color: #51597D'] {
 
 .markdown-alert .markdown-alert-title {
   @apply flex justify-start items-center font-medium;
-}
-
-.bg-clip-text {
-  @apply print:text-gray-800;
 }
 
 [data-tab] {

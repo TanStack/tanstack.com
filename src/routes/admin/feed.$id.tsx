@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useQuery as useConvexQuery } from 'convex/react'
-import { api } from 'convex/_generated/api'
+import { useQuery } from '@tanstack/react-query'
 import { FeedEntryEditor } from '~/components/admin/FeedEntryEditor'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { getFeedEntryQueryOptions } from '~/queries/feed'
 import { z } from 'zod'
 export const Route = createFileRoute('/admin/feed/$id')({
   component: FeedEditorPage,
@@ -14,12 +15,13 @@ function FeedEditorPage() {
   const navigate = useNavigate()
   const isNew = id === 'new'
 
-  const user = useConvexQuery(api.auth.getCurrentUser)
+  const userQuery = useCurrentUserQuery()
+  const user = userQuery.data
   const capabilities = useCapabilities()
-  const entryQuery = useConvexQuery(
-    api.feed.queries.getFeedEntry,
-    isNew ? 'skip' : { id }
-  )
+  const entryQuery = useQuery({
+    ...getFeedEntryQueryOptions(id),
+    enabled: !isNew,
+  })
 
   if (user === undefined) {
     return (
@@ -43,7 +45,7 @@ function FeedEditorPage() {
     )
   }
 
-  if (!isNew && entryQuery === undefined) {
+  if (!isNew && entryQuery.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div>Loading...</div>
@@ -51,7 +53,7 @@ function FeedEditorPage() {
     )
   }
 
-  if (!isNew && entryQuery === null) {
+  if (!isNew && !entryQuery.data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -71,7 +73,7 @@ function FeedEditorPage() {
     <div className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
         <FeedEntryEditor
-          entry={isNew ? null : entryQuery ?? null}
+          entry={isNew ? null : entryQuery.data ?? null}
           onSave={() => navigate({ to: '/admin/feed' })}
           onCancel={() => navigate({ to: '/admin/feed' })}
         />

@@ -1,9 +1,9 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import {
-  useQuery as useConvexQuery,
-  useMutation as useConvexMutation,
-} from 'convex/react'
-import { api } from 'convex/_generated/api'
+  useToggleFeedEntryVisibility,
+  useSetFeedEntryFeatured,
+  useDeleteFeedEntry,
+} from '~/utils/mutations'
 import { FaPlus } from 'react-icons/fa'
 import { z } from 'zod'
 import { FeedEntry } from '~/components/FeedEntry'
@@ -11,6 +11,7 @@ import { FeedSyncStatus } from '~/components/admin/FeedSyncStatus'
 import { FeedPageLayout } from '~/components/FeedPageLayout'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 const librarySchema = z.enum([
   'start',
   'router',
@@ -85,7 +86,8 @@ function FeedAdminPage() {
   const search = Route.useSearch()
   const currentPage = search.page ?? 1
 
-  const user = useConvexQuery(api.auth.getCurrentUser)
+  const userQuery = useCurrentUserQuery()
+  const user = userQuery.data
   const capabilities = useCapabilities()
   const pageSize = search.pageSize ?? 50
   const feedQuery = useFeedQuery({
@@ -105,28 +107,26 @@ function FeedAdminPage() {
     },
   })
 
-  const toggleVisibility = useConvexMutation(
-    api.feed.mutations.toggleFeedEntryVisibility
-  )
-  const setFeatured = useConvexMutation(api.feed.mutations.setFeedEntryFeatured)
-  const deleteEntry = useConvexMutation(api.feed.mutations.deleteFeedEntry)
+  const toggleVisibility = useToggleFeedEntryVisibility()
+  const setFeatured = useSetFeedEntryFeatured()
+  const deleteEntry = useDeleteFeedEntry()
 
   const handleToggleVisibility = async (
     entry: FeedEntry,
     isVisible: boolean
   ) => {
-    await toggleVisibility({ id: entry.id, isVisible })
+    await toggleVisibility.mutateAsync({ id: entry.id, isVisible })
     feedQuery.refetch()
   }
 
   const handleToggleFeatured = async (entry: FeedEntry, featured: boolean) => {
-    await setFeatured({ id: entry.id, featured })
+    await setFeatured.mutateAsync({ id: entry.id, featured })
     feedQuery.refetch()
   }
 
   const handleDelete = async (entry: FeedEntry) => {
     if (window.confirm(`Are you sure you want to delete "${entry.title}"?`)) {
-      await deleteEntry({ id: entry.id })
+      await deleteEntry.mutateAsync({ id: entry.id })
       feedQuery.refetch()
     }
   }

@@ -9,8 +9,7 @@ import {
   type FeedFiltersState,
 } from '~/components/FeedPageLayout'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
-import { convexQuery } from '@convex-dev/react-query'
-import { api } from 'convex/_generated/api'
+import { listFeedEntriesQueryOptions } from '~/queries/feed'
 import { libraries, type LibraryId } from '~/libraries'
 import { FEED_CATEGORIES, RELEASE_LEVELS } from '~/utils/feedSchema'
 
@@ -66,7 +65,7 @@ export const Route = createFileRoute('/_libraries/feed/')({
     // Note: localStorage preferences are merged client-side, but this prefetches
     // the data based on URL params which helps with initial load
     await queryClient.ensureQueryData(
-      convexQuery(api.feed.queries.listFeedEntries, {
+      listFeedEntriesQueryOptions({
         pagination: {
           limit: deps.pageSize ?? 50,
           page: (deps.page ?? 1) - 1,
@@ -74,10 +73,10 @@ export const Route = createFileRoute('/_libraries/feed/')({
         filters: {
           sources: deps.sources,
           libraries: deps.libraries,
-          categories: deps.categories,
+          categories: deps.categories as any,
           partners: deps.partners,
           tags: deps.tags,
-          releaseLevels: deps.releaseLevels,
+          releaseLevels: deps.releaseLevels as any,
           includePrerelease: deps.includePrerelease,
           featured: deps.featured,
           search: deps.search,

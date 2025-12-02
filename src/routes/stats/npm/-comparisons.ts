@@ -1,5 +1,21 @@
 import { z } from 'zod'
-import { packageComparisonSchema } from './index'
+
+export const packageGroupSchema = z.object({
+  packages: z.array(
+    z.object({
+      name: z.string(),
+      hidden: z.boolean().optional(),
+    })
+  ),
+  color: z.string().nullable().optional(),
+  baseline: z.boolean().optional(),
+})
+
+export const packageComparisonSchema = z.object({
+  title: z.string(),
+  packageGroups: z.array(packageGroupSchema),
+  baseline: z.string().optional(),
+})
 
 export function getPopularComparisons(): z.input<
   typeof packageComparisonSchema

@@ -1,6 +1,4 @@
 import { Link, MatchRoute, createFileRoute } from '@tanstack/react-router'
-import { convexQuery } from '@convex-dev/react-query'
-import { api } from 'convex/_generated/api'
 import { twMerge } from 'tailwind-merge'
 // import { CgSpinner } from 'react-icons/cg'
 import { Footer } from '~/components/Footer'
@@ -77,7 +75,8 @@ const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(async () => {
 
 export const Route = createFileRoute('/_libraries/')({
   loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(convexQuery(api.stats.getStats, {}))
+    // TODO: Re-enable stats query once stats module is migrated
+    // await queryClient.ensureQueryData(ossStatsQueryOptions())
     const recentPosts = await fetchRecentPosts()
 
     return {

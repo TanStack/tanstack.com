@@ -4,16 +4,13 @@ import { FaGithub, FaGoogle } from 'react-icons/fa'
 // Using public asset URLs for splash images
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { redirect, createFileRoute } from '@tanstack/react-router'
-import { api } from 'convex/_generated/api'
-import { convexQuery } from '@convex-dev/react-query'
+import { getCurrentUser } from '~/utils/auth.server'
 
 export const Route = createFileRoute('/_libraries/login')({
   component: LoginPage,
-  loader: async ({ context }) => {
-    const user = await context.queryClient.ensureQueryData(
-      convexQuery(api.auth.getCurrentUser, {})
-    )
-
+  loader: async () => {
+    // Call server function directly from loader (works in both SSR and client)
+    const user = await getCurrentUser()
     if (user) {
       throw redirect({ to: '/account' })
     }

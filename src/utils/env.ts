@@ -3,22 +3,18 @@ import { z } from 'zod'
 // Define server-only schema
 const serverEnvSchema = z.object({
   GITHUB_AUTH_TOKEN: z.string().default('USE_A_REAL_KEY_IN_PRODUCTION'),
+  GITHUB_WEBHOOK_SECRET: z.string().optional(),
   AIRTABLE_API_KEY: z.string().optional(),
   GITHUB_OAUTH_CLIENT_ID: z.string().optional(),
   GITHUB_OAUTH_CLIENT_SECRET: z.string().optional(),
   GOOGLE_OAUTH_CLIENT_ID: z.string().optional(),
   GOOGLE_OAUTH_CLIENT_SECRET: z.string().optional(),
+  SITE_URL: z.string().optional(), // Base URL for OAuth redirects (e.g., https://tanstack.com or http://localhost:3000)
+  DATABASE_URL: z.string().optional(),
+  SESSION_SECRET: z.string().optional(), // Secret key for signing session cookies (required in production)
 })
 
 const clientEnvSchema = z.object({
-  VITE_CONVEX_SITE_URL: z
-    .string()
-    .optional()
-    .default('http://upbeat-greyhound-631.convex.site'),
-  VITE_CONVEX_URL: z
-    .string()
-    .optional()
-    .default('http://upbeat-greyhound-631.convex.cloud'),
   URL: z.string().optional(),
 })
 

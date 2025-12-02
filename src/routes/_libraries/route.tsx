@@ -33,9 +33,7 @@ import {
   Authenticated,
   AuthLoading,
   Unauthenticated,
-  useQuery,
-} from 'convex/react'
-import { api } from 'convex/_generated/api'
+} from '~/components/AuthComponents'
 import { PiHammerFill } from 'react-icons/pi'
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 

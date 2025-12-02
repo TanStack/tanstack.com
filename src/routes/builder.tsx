@@ -1,11 +1,17 @@
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { requireCapability } from '~/utils/auth.server'
 
 export const Route = createFileRoute('/builder')({
   component: RouteComponent,
-  loader: async (opts) => {
-    const user = await opts.context.ensureUser()
-    return { user }
+  beforeLoad: async () => {
+    // Call server function directly from beforeLoad (works in both SSR and client)
+    try {
+      const user = await requireCapability({ data: { capability: 'builder' } })
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
   },
 })
 

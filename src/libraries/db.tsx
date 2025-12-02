@@ -1,6 +1,6 @@
 import { BsCollectionFill } from 'react-icons/bs'
 import { VscPreview } from 'react-icons/vsc'
-import { Library } from '.'
+import type { Library } from './types'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
 import { twMerge } from 'tailwind-merge'

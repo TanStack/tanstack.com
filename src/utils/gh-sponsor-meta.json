@@ -1,4 +1,10 @@
 ﻿[
+      {
+    "login": "Humanizer PRO",
+    "name": "Humanizer",
+    "imageUrl": "https://humanizerpro.ai/favicon.ico",
+    "linkUrl": "https://humanizerpro.ai"
+  },
   {
     "login": "sanity-io",
     "linkUrl": "https://www.sanity.io/?utm_source=tanstack"

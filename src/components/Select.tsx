@@ -11,10 +11,10 @@ import { Scarf } from '~/components/Scarf'
 import {
   findLibrary,
   Framework,
-  getFrameworkOptions,
   getLibrary,
   LibraryId,
 } from '~/libraries'
+import { getFrameworkOptions } from '~/libraries/frameworks'
 import { seo } from '~/utils/seo'
 
 export type SelectOption = {

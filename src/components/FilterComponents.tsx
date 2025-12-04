@@ -2,6 +2,7 @@ import * as React from 'react'
 import { useState } from 'react'
 import { MdExpandMore } from 'react-icons/md'
 import { LuTable, LuList } from 'react-icons/lu'
+import { useDebouncedValue } from '@tanstack/react-pacer'
 
 // FilterSection - Collapsible section with select all/none
 interface FilterSectionProps {
@@ -119,12 +120,13 @@ export function FilterCheckbox({
   )
 }
 
-// FilterSearch - Search input component
+// FilterSearch - Search input component with debouncing
 interface FilterSearchProps {
   value: string
   onChange: (value: string) => void
   placeholder?: string
   className?: string
+  debounceMs?: number
 }
 
 export function FilterSearch({
@@ -132,13 +134,33 @@ export function FilterSearch({
   onChange,
   placeholder = 'Search...',
   className = '',
+  debounceMs = 300,
 }: FilterSearchProps) {
+  // Local state for immediate UI updates
+  const [inputValue, setInputValue] = useState(value || '')
+
+  // Debounce the input value
+  const [debouncedValue] = useDebouncedValue(inputValue, {
+    wait: debounceMs,
+  })
+
+  // Update parent when debounced value changes
+  React.useEffect(() => {
+    onChange(debouncedValue)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedValue])
+
+  // Sync local state when value prop changes externally
+  React.useEffect(() => {
+    setInputValue(value || '')
+  }, [value])
+
   return (
     <input
       type="text"
       placeholder={placeholder}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
+      value={inputValue}
+      onChange={(e) => setInputValue(e.target.value)}
       className={`px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
     />
   )

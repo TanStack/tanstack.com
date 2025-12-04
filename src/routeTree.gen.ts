@@ -49,6 +49,7 @@ import { Route as LibrariesFeedIndexRouteImport } from './routes/_libraries/feed
 import { Route as LibrariesBlogIndexRouteImport } from './routes/_libraries/blog.index'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
+import { Route as ApiGithubReleasesRouteImport } from './routes/api/github/releases'
 import { Route as ApiAdminSyncRouteImport } from './routes/api/admin/sync'
 import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
 import { Route as AdminFeedIdRouteImport } from './routes/admin/feed.$id'
@@ -279,6 +280,11 @@ const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
   path: '/api/github/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGithubReleasesRoute = ApiGithubReleasesRouteImport.update({
+  id: '/api/github/releases',
+  path: '/api/github/releases',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminSyncRoute = ApiAdminSyncRouteImport.update({
   id: '/api/admin/sync',
   path: '/api/admin/sync',
@@ -490,6 +496,7 @@ export interface FileRoutesByFullPath {
   '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
+  '/api/github/releases': typeof ApiGithubReleasesRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/blog/': typeof LibrariesBlogIndexRoute
@@ -557,6 +564,7 @@ export interface FileRoutesByTo {
   '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
+  '/api/github/releases': typeof ApiGithubReleasesRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/blog': typeof LibrariesBlogIndexRoute
@@ -630,6 +638,7 @@ export interface FileRoutesById {
   '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
+  '/api/github/releases': typeof ApiGithubReleasesRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
@@ -703,6 +712,7 @@ export interface FileRouteTypes {
     | '/admin/feed/$id'
     | '/admin/roles/$roleId'
     | '/api/admin/sync'
+    | '/api/github/releases'
     | '/api/github/webhook'
     | '/auth/$provider/start'
     | '/blog/'
@@ -770,6 +780,7 @@ export interface FileRouteTypes {
     | '/admin/feed/$id'
     | '/admin/roles/$roleId'
     | '/api/admin/sync'
+    | '/api/github/releases'
     | '/api/github/webhook'
     | '/auth/$provider/start'
     | '/blog'
@@ -842,6 +853,7 @@ export interface FileRouteTypes {
     | '/admin/feed/$id'
     | '/admin/roles/$roleId'
     | '/api/admin/sync'
+    | '/api/github/releases'
     | '/api/github/webhook'
     | '/auth/$provider/start'
     | '/_libraries/blog/'
@@ -887,6 +899,7 @@ export interface RootRouteChildren {
   AuthSignoutRoute: typeof AuthSignoutRoute
   StatsIndexRoute: typeof StatsIndexRoute
   ApiAdminSyncRoute: typeof ApiAdminSyncRoute
+  ApiGithubReleasesRoute: typeof ApiGithubReleasesRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
@@ -1173,6 +1186,13 @@ declare module '@tanstack/react-router' {
       path: '/api/github/webhook'
       fullPath: '/api/github/webhook'
       preLoaderRoute: typeof ApiGithubWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/github/releases': {
+      id: '/api/github/releases'
+      path: '/api/github/releases'
+      fullPath: '/api/github/releases'
+      preLoaderRoute: typeof ApiGithubReleasesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/sync': {
@@ -1575,6 +1595,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthSignoutRoute: AuthSignoutRoute,
   StatsIndexRoute: StatsIndexRoute,
   ApiAdminSyncRoute: ApiAdminSyncRoute,
+  ApiGithubReleasesRoute: ApiGithubReleasesRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,

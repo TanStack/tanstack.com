@@ -76,7 +76,7 @@ export const Route = createFileRoute('/api/github/webhook')({
         const repo = event.repository.full_name
 
         // Normalize release
-        const normalized = normalizeGitHubRelease({
+        const normalized = await normalizeGitHubRelease({
           id: event.release.id,
           tag_name: event.release.tag_name,
           name: event.release.name,

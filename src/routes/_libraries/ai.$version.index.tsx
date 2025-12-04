@@ -9,8 +9,11 @@ import { AILibraryHero } from '~/components/AILibraryHero'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import OpenSourceStats, { ossStatsQuery } from '~/components/OpenSourceStats'
+import OpenSourceStats from '~/components/OpenSourceStats'
+import { ossStatsQuery } from '~/queries/stats'
 import { LibraryHero } from '~/components/LibraryHero'
+import { AdGate } from '~/contexts/AdsContext'
+import { GamHeader } from '~/components/Gam'
 
 const library = getLibrary('ai')
 
@@ -59,6 +62,9 @@ function AIVersionIndex() {
         <div className="w-fit mx-auto px-4">
           <OpenSourceStats library={library} />
         </div>
+        <AdGate>
+          <GamHeader />
+        </AdGate>
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />
@@ -75,59 +81,63 @@ function AIVersionIndex() {
               the community.
             </p>
           </div>
-          <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-10 lg:gap-x-12 gap-y-6 mx-auto max-w-[90vw] sm:max-w-[600px] lg:max-w-[900px]">
-            <div>
-              <h4 className="text-xl my-2">🖥️ Server Agnostic</h4>
-              <p className="opacity-90">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mx-auto max-w-[90vw] sm:max-w-[600px] lg:max-w-[1200px]">
+            <div className="border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-6 transition-all duration-300 ease-out bg-white/90 dark:bg-black/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-500/50 hover:-translate-y-1">
+              <h4 className="text-xl font-bold mb-3">🖥️ Server Agnostic</h4>
+              <p className="opacity-90 text-sm leading-relaxed">
                 Use any backend server you want. Well-documented protocol with
                 libraries for TypeScript, PHP, Python, and more.
               </p>
             </div>
-            <div>
-              <h4 className="text-xl my-2">📱 Client Agnostic</h4>
-              <p className="opacity-90">
+            <div className="border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-6 transition-all duration-300 ease-out bg-white/90 dark:bg-black/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-500/50 hover:-translate-y-1">
+              <h4 className="text-xl font-bold mb-3">📱 Client Agnostic</h4>
+              <p className="opacity-90 text-sm leading-relaxed">
                 Vanilla client library (@tanstack/ai-client) or framework
                 integrations for React, Solid, and more coming soon.
               </p>
             </div>
-            <div>
-              <h4 className="text-xl my-2">🔌 Service Agnostic</h4>
-              <p className="opacity-90">
+            <div className="border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-6 transition-all duration-300 ease-out bg-white/90 dark:bg-black/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-500/50 hover:-translate-y-1">
+              <h4 className="text-xl font-bold mb-3">🔌 Service Agnostic</h4>
+              <p className="opacity-90 text-sm leading-relaxed">
                 Connect to OpenAI, Anthropic, Gemini, and Ollama out of the box.
                 Create custom adapters for any provider.
               </p>
             </div>
-            <div>
-              <h4 className="text-xl my-2">🛠️ Full Tooling Support</h4>
-              <p className="opacity-90">
+            <div className="border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-6 transition-all duration-300 ease-out bg-white/90 dark:bg-black/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-500/50 hover:-translate-y-1">
+              <h4 className="text-xl font-bold mb-3">
+                🛠️ Full Tooling Support
+              </h4>
+              <p className="opacity-90 text-sm leading-relaxed">
                 Complete support for client and server tools, including tool
                 approvals and execution control.
               </p>
             </div>
-            <div>
-              <h4 className="text-xl my-2">🧠 Thinking & Reasoning</h4>
-              <p className="opacity-90">
+            <div className="border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-6 transition-all duration-300 ease-out bg-white/90 dark:bg-black/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-500/50 hover:-translate-y-1">
+              <h4 className="text-xl font-bold mb-3">
+                🧠 Thinking & Reasoning
+              </h4>
+              <p className="opacity-90 text-sm leading-relaxed">
                 Full support for thinking and reasoning models with
                 thinking/reasoning tokens streamed to clients.
               </p>
             </div>
-            <div>
-              <h4 className="text-xl my-2">🎯 Fully Type-Safe</h4>
-              <p className="opacity-90">
+            <div className="border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-6 transition-all duration-300 ease-out bg-white/90 dark:bg-black/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-500/50 hover:-translate-y-1">
+              <h4 className="text-xl font-bold mb-3">🎯 Fully Type-Safe</h4>
+              <p className="opacity-90 text-sm leading-relaxed">
                 Complete type safety across providers, models, and model options
                 from end to end.
               </p>
             </div>
-            <div>
-              <h4 className="text-xl my-2">🔍 Next-Gen DevTools</h4>
-              <p className="opacity-90">
+            <div className="border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-6 transition-all duration-300 ease-out bg-white/90 dark:bg-black/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-500/50 hover:-translate-y-1">
+              <h4 className="text-xl font-bold mb-3">🔍 Next-Gen DevTools</h4>
+              <p className="opacity-90 text-sm leading-relaxed">
                 Amazing developer tools that show you everything happening with
                 your AI connections in real-time.
               </p>
             </div>
-            <div>
-              <h4 className="text-xl my-2">💚 Pure Open Source</h4>
-              <p className="opacity-90">
+            <div className="border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-6 transition-all duration-300 ease-out bg-white/90 dark:bg-black/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-pink-500/20 hover:border-pink-500/50 hover:-translate-y-1">
+              <h4 className="text-xl font-bold mb-3">💚 Pure Open Source</h4>
+              <p className="opacity-90 text-sm leading-relaxed">
                 No hidden service, no fees, no upsells. Community-supported
                 software connecting you directly to your chosen providers.
               </p>

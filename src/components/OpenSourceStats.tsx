@@ -80,112 +80,122 @@ function isValidMetric(value: number | undefined | null): boolean {
 function OssStatsContent({ library }: { library?: Library }) {
   const { data: stats } = useSuspenseQuery(ossStatsQuery({ library }))
 
-  const hasNpmDownloads = isValidMetric(stats.npm?.totalDownloads)
-  const hasStarCount = isValidMetric(stats.github?.starCount)
-  const hasContributorCount = isValidMetric(stats.github?.contributorCount)
-  const hasDependentCount = isValidMetric(stats.github?.dependentCount)
+  const npmDownloads = stats.npm?.totalDownloads ?? 0
+  const starCount = stats.github?.starCount ?? 0
+  const contributorCount = stats.github?.contributorCount ?? 0
+  const dependentCount = stats.github?.dependentCount ?? 0
 
-  const visibleMetricsCount = [
-    hasNpmDownloads,
-    hasStarCount,
-    hasContributorCount,
-    hasDependentCount,
-  ].filter(Boolean).length
+  const hasNpmDownloads = isValidMetric(npmDownloads)
+  const hasStarCount = isValidMetric(starCount)
+  const hasContributorCount = isValidMetric(contributorCount)
+  const hasDependentCount = isValidMetric(dependentCount)
 
-  const gridColsClass =
-    visibleMetricsCount === 1
-      ? 'grid-cols-1'
-      : visibleMetricsCount === 2
-      ? 'sm:grid-cols-2'
-      : visibleMetricsCount === 3
-      ? 'sm:grid-cols-2 xl:grid-cols-3'
-      : 'sm:grid-cols-2 xl:grid-cols-4'
+  const hasAnyData = hasNpmDownloads || hasStarCount || hasContributorCount || hasDependentCount
 
   return (
     <div>
       <div
-        className={`relative p-8 grid grid-cols-1 ${gridColsClass} gap-8 items-center
+        className="relative p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center
       justify-center xl:place-items-center bg-white/50 dark:bg-black/40
-      dark:shadow-none rounded-xl shadow-xl`}
+      dark:shadow-none rounded-xl shadow-xl"
       >
-        {hasNpmDownloads && (
-          <a
-            href="https://www.npmjs.com/org/tanstack"
-            target="_blank"
-            rel="noreferrer"
-            className="group flex gap-4 items-center"
-          >
-            <FaDownload className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
-            <div>
-              <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
+        {!hasAnyData && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 dark:border-pink-500/30 backdrop-blur-sm pointer-events-auto">
+              <span className="text-2xl">🚀</span>
+              <p className="text-sm font-medium text-pink-600 dark:text-pink-400">
+                <span className="font-bold">Fresh out of the oven!</span> This library just launched. 
+                Be among the first to star, download, and contribute!
+              </p>
+            </div>
+          </div>
+        )}
+        <a
+          href="https://www.npmjs.com/org/tanstack"
+          target="_blank"
+          rel="noreferrer"
+          className={`group flex gap-4 items-center ${!hasNpmDownloads ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}
+        >
+          <FaDownload className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
+          <div>
+            <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
+              {hasNpmDownloads ? (
                 <NpmDownloadCounter npmData={stats.npm} />
-              </div>
-              <div className="text-sm opacity-60 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
-                NPM Downloads
-              </div>
+              ) : (
+                <span>0</span>
+              )}
             </div>
-          </a>
-        )}
-        {hasStarCount && (
-          <a
-            href={
-              library
-                ? `https://github.com/${library.repo}`
-                : 'https://github.com/orgs/TanStack/repositories?q=sort:stars'
-            }
-            target="_blank"
-            rel="noreferrer"
-            className="group flex gap-4 items-center"
-          >
-            <FaStar className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
-            <div>
-              <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200 relative">
-                <NumberFlow
-                  value={stats.github?.starCount}
-                  continuous
-                  willChange
-                />
-              </div>
-              <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
-                Stars on Github
-              </div>
-            </div>
-          </a>
-        )}
-        {hasContributorCount && (
-          <div className="flex gap-4 items-center">
-            <FaUsers className="text-2xl" />
-            <div className="">
-              <div className="text-2xl font-bold opacity-80 relative">
-                <NumberFlow
-                  value={stats.github?.contributorCount}
-                  continuous
-                  willChange
-                />
-              </div>
-              <div className="text-sm opacity-60 font-medium italic -mt-1">
-                Contributors on GitHub
-              </div>
+            <div className="text-sm opacity-60 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
+              NPM Downloads
             </div>
           </div>
-        )}
-        {hasDependentCount && (
-          <div className="flex gap-4 items-center">
-            <FaCube className="text-2xl" />
-            <div className="">
-              <div className="text-2xl font-bold opacity-80 relative">
+        </a>
+        <a
+          href={
+            library
+              ? `https://github.com/${library.repo}`
+              : 'https://github.com/orgs/TanStack/repositories?q=sort:stars'
+          }
+          target="_blank"
+          rel="noreferrer"
+          className={`group flex gap-4 items-center ${!hasStarCount ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}
+        >
+          <FaStar className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
+          <div>
+            <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200 relative">
+              {hasStarCount ? (
                 <NumberFlow
-                  value={stats.github?.dependentCount}
+                  value={starCount}
                   continuous
                   willChange
                 />
-              </div>
-              <div className="text-sm opacity-60 font-medium italic -mt-1">
-                Dependents on GitHub
-              </div>
+              ) : (
+                <span>0</span>
+              )}
+            </div>
+            <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
+              Stars on Github
             </div>
           </div>
-        )}
+        </a>
+        <div className={`flex gap-4 items-center ${!hasContributorCount ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}>
+          <FaUsers className="text-2xl" />
+          <div className="">
+            <div className="text-2xl font-bold opacity-80 relative">
+              {hasContributorCount ? (
+                <NumberFlow
+                  value={contributorCount}
+                  continuous
+                  willChange
+                />
+              ) : (
+                <span>0</span>
+              )}
+            </div>
+            <div className="text-sm opacity-60 font-medium italic -mt-1">
+              Contributors on GitHub
+            </div>
+          </div>
+        </div>
+        <div className={`flex gap-4 items-center ${!hasDependentCount ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}>
+          <FaCube className="text-2xl" />
+          <div className="">
+            <div className="text-2xl font-bold opacity-80 relative">
+              {hasDependentCount ? (
+                <NumberFlow
+                  value={dependentCount}
+                  continuous
+                  willChange
+                />
+              ) : (
+                <span>0</span>
+              )}
+            </div>
+            <div className="text-sm opacity-60 font-medium italic -mt-1">
+              Dependents on GitHub
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

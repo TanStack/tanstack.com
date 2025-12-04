@@ -928,6 +928,11 @@ export async function setCachedGitHubStats(
     expiresAt.setHours(expiresAt.getHours() + ttlHours)
     const now = new Date()
 
+    console.log(
+      `[GitHub Stats Cache] Attempting to save cache for ${cacheKey} with stats:`,
+      JSON.stringify(stats, null, 2)
+    )
+
     const existing = await db.query.githubStatsCache.findFirst({
       where: eq(githubStatsCache.cacheKey, cacheKey),
     })
@@ -944,7 +949,7 @@ export async function setCachedGitHubStats(
         })
         .where(eq(githubStatsCache.cacheKey, cacheKey))
       console.log(
-        `[GitHub Stats Cache] Updated cache for ${cacheKey} (expires at ${expiresAt.toISOString()})`
+        `[GitHub Stats Cache] ✓ Updated cache for ${cacheKey} (expires at ${expiresAt.toISOString()})`
       )
     } else {
       // First time - no previous stats yet
@@ -955,11 +960,22 @@ export async function setCachedGitHubStats(
         expiresAt,
       })
       console.log(
-        `[GitHub Stats Cache] Created cache for ${cacheKey} (expires at ${expiresAt.toISOString()})`
+        `[GitHub Stats Cache] ✓ Created cache for ${cacheKey} (expires at ${expiresAt.toISOString()})`
       )
     }
   } catch (error) {
-    console.error('[GitHub Stats Cache] Error writing cache:', error)
-    // Don't throw - cache failures shouldn't break the request
+    const errorMessage =
+      error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error(
+      `[GitHub Stats Cache] ✗ Error writing cache for ${cacheKey}:`,
+      errorMessage
+    )
+    if (errorStack) {
+      console.error(`[GitHub Stats Cache] Stack trace:`, errorStack)
+    }
+    // Re-throw the error so the caller knows it failed
+    // This allows the refresh function to track failures properly
+    throw error
   }
 }

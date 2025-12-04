@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { getFrameworkOptions, type Framework } from '~/libraries'
+import type { Framework } from '~/libraries'
+import { getFrameworkOptions } from '~/libraries/frameworks'
 
 type FrameworkIconTabsProps = {
   frameworks: Framework[]

@@ -1,4 +1,5 @@
-import { Library, Framework, frameworkOptions } from '~/libraries'
+import { Library, Framework } from '~/libraries'
+import { frameworkOptions } from '~/libraries/frameworks'
 import {
   getRoleInLibrary,
   Maintainer,

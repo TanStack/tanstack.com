@@ -15,7 +15,8 @@ import { liteClient } from 'algoliasearch/lite'
 import { MdClose, MdSearch } from 'react-icons/md'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
-import { frameworkOptions, libraries } from '~/libraries'
+import { libraries } from '~/libraries'
+import { frameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'
 
 const searchClient = liteClient(

@@ -5,9 +5,9 @@ import { loadDocs } from '~/utils/docs'
 import {
   Framework,
   getBranch,
-  getFrameworkOptions,
   getLibrary,
 } from '~/libraries'
+import { getFrameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'

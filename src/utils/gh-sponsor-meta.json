@@ -1,4 +1,10 @@
 ﻿[
+     {
+    "login": "Superhumanizer",
+    "name": "humanizer",
+    "imageUrl": "https://superhumanizer.ai/images/logo.png",
+    "linkUrl": "https://superhumanizer.ai/"
+  }
   {
     "login": "sanity-io",
     "linkUrl": "https://www.sanity.io/?utm_source=tanstack"

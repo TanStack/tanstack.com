@@ -1,6 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import * as React from 'react'
-import { getFrameworkOptions } from '~/libraries'
+import { getFrameworkOptions } from '~/libraries/frameworks'
 
 export type TabDefinition = {
   slug: string
@@ -11,10 +11,9 @@ export type TabDefinition = {
 export type TabsProps = {
   tabs: Array<TabDefinition>
   children: Array<React.ReactNode>
-  id: string
 }
 
-export function Tabs({ tabs, id, children }: TabsProps) {
+export function Tabs({ tabs, children }: TabsProps) {
   const Route = getRouteApi()
   const { framework } = Route.useParams()
 
@@ -28,7 +27,6 @@ export function Tabs({ tabs, id, children }: TabsProps) {
         {tabs.map((tab) => {
           return (
             <Tab
-              id={id}
               tab={tab}
               activeSlug={activeSlug}
               setActiveSlug={setActiveSlug}
@@ -42,7 +40,7 @@ export function Tabs({ tabs, id, children }: TabsProps) {
           if (!tab) return null
           return (
             <div
-              key={`${id}-${tab.slug}`}
+              key={tab.slug}
               data-tab={tab.slug}
               hidden={tab.slug !== activeSlug}
               className="prose dark:prose-invert max-w-none flex flex-col gap-2 text-base"
@@ -57,12 +55,10 @@ export function Tabs({ tabs, id, children }: TabsProps) {
 }
 
 const Tab = ({
-  id,
   tab,
   activeSlug,
   setActiveSlug,
 }: {
-  id: string
   tab: TabDefinition
   activeSlug: string
   setActiveSlug: React.Dispatch<React.SetStateAction<string>>
@@ -70,7 +66,7 @@ const Tab = ({
   const options = React.useMemo(() => getFrameworkOptions(tab.slug), [tab.slug])
   return (
     <button
-      key={`${id}-${tab.slug}`}
+      key={tab.slug}
       aria-label={tab.name}
       title={tab.name}
       type="button"

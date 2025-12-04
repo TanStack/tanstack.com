@@ -4,10 +4,10 @@ import { useNavigate, useParams } from '@tanstack/react-router'
 import { Select } from './Select'
 import {
   Framework,
-  getFrameworkOptions,
   getLibrary,
   LibraryId,
 } from '~/libraries'
+import { getFrameworkOptions } from '~/libraries/frameworks'
 
 export function FrameworkSelect({ libraryId }: { libraryId: LibraryId }) {
   const library = getLibrary(libraryId)

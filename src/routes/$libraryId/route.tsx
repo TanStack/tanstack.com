@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { notFound, Outlet, useParams } from '@tanstack/react-router'
 import { Scarf } from '~/components/Scarf'
-import { findLibrary, getLibrary, LibraryId } from '~/libraries'
+import { findLibrary, LibraryId } from '~/libraries'
 import { seo } from '~/utils/seo'
 
 export const Route = createFileRoute('/$libraryId')({
@@ -9,6 +9,13 @@ export const Route = createFileRoute('/$libraryId')({
     parse: (params) => {
       return params as { libraryId: LibraryId }
     },
+  },
+  beforeLoad: (ctx) => {
+    const library = findLibrary(ctx.params.libraryId as any)
+
+    if (!library) {
+      throw notFound()
+    }
   },
   loader: (ctx) => {
     const library = findLibrary(ctx.params.libraryId as any)
@@ -50,7 +57,12 @@ export const Route = createFileRoute('/$libraryId')({
     Title: () => {
       const { libraryId } = Route.useParams()
       const { version } = useParams({ strict: false })
-      const library = getLibrary(libraryId)
+      const library = findLibrary(libraryId)
+      
+      if (!library) {
+        return null
+      }
+      
       const libraryName = library.name.replace('TanStack ', '')
       const resolvedVersion =
         version === 'latest' ? library.latestVersion : version!
@@ -76,7 +88,11 @@ export const Route = createFileRoute('/$libraryId')({
 
 function RouteForm() {
   const { libraryId } = Route.useParams()
-  const library = getLibrary(libraryId as any)
+  const library = findLibrary(libraryId)
+
+  if (!library) {
+    return null
+  }
 
   return (
     <>

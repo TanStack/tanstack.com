@@ -1,5 +1,5 @@
 import { FaGithub } from 'react-icons/fa'
-import { Library } from '.'
+import type { Library } from './types'
 import { VscPreview } from 'react-icons/vsc'
 import { BiBookAlt } from 'react-icons/bi'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
@@ -37,6 +37,7 @@ export const routerProject = {
   frameworks: ['react', 'solid'],
   scarfId: '3d14fff2-f326-4929-b5e1-6ecf953d24f4',
   defaultDocs: 'framework/react/overview',
+  legacyPackages: ['react-location'],
   hideCodesandboxUrl: true,
   showVercelUrl: false,
   showNetlifyUrl: true,

@@ -1,5 +1,5 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { Library } from '.'
+import type { Library } from './types'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { BiBookAlt } from 'react-icons/bi'
@@ -32,6 +32,7 @@ export const queryProject = {
   frameworks: ['react', 'solid', 'vue', 'svelte', 'angular'],
   scarfId: '53afb586-3934-4624-a37a-e680c1528e17',
   defaultDocs: 'framework/react/overview',
+  legacyPackages: ['react-query'],
   handleRedirects: (href: string) => {
     handleRedirects(
       reactQueryV3List,

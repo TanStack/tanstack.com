@@ -1,4 +1,5 @@
-import { Framework, getLibrary, Library } from '.'
+import type { Framework, Library } from './types'
+import { getLibrary } from './index'
 
 export interface Maintainer {
   name: string
@@ -477,20 +478,6 @@ export function getLibraryContributors(
     : contributors
 }
 
-export function getLibraryConsultants(
-  libraryId: string,
-  includeMaintainers = true
-): Maintainer[] {
-  const maintainers = getLibraryMaintainers(libraryId)
-  const consultants = allMaintainers.filter((maintainer) =>
-    maintainer.consultantOf?.includes(libraryId as Library['id'])
-  )
-
-  return includeMaintainers
-    ? [...new Set([...maintainers, ...consultants])]
-    : consultants
-}
-
 export function getPersonsCreatorOf(person: Maintainer): Library[] {
   return person.creatorOf?.map((libraryId) => getLibrary(libraryId)) || []
 }
@@ -506,32 +493,6 @@ export function getPersonsMaintainerOf(
   return includeCreatorOf
     ? [...new Set([...creatorOf, ...maintainerOf])]
     : maintainerOf
-}
-
-export function getPersonsContributorOf(
-  person: Maintainer,
-  includeMaintainers = true
-): Library[] {
-  const maintainers = getPersonsMaintainerOf(person)
-  const contributors =
-    person.contributorOf?.map((libraryId) => getLibrary(libraryId)) || []
-
-  return includeMaintainers
-    ? [...new Set([...maintainers, ...contributors])]
-    : contributors
-}
-
-export function getPersonsConsultantOf(
-  person: Maintainer,
-  includeMaintainers = true
-): Library[] {
-  const maintainers = getPersonsMaintainerOf(person)
-  const consultants =
-    person.consultantOf?.map((libraryId) => getLibrary(libraryId)) || []
-
-  return includeMaintainers
-    ? [...new Set([...maintainers, ...consultants])]
-    : consultants
 }
 
 export function getIsCreatorOfLibrary(person: Maintainer, libraryId: string) {

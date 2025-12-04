@@ -1,7 +1,18 @@
-import { convexQuery } from '@convex-dev/react-query'
 import { useQuery } from '@tanstack/react-query'
-import { api } from 'convex/_generated/api'
+import { useRouteContext } from '@tanstack/react-router'
+import { getCurrentUser } from '~/utils/auth.server'
 
 export function useCurrentUserQuery() {
-  return useQuery(convexQuery(api.auth.getCurrentUser, {}))
+  // Get user from route context (set in beforeLoad)
+  const routeContext = useRouteContext({ strict: false })
+  const contextUser = routeContext?.user
+
+  return useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      return getCurrentUser()
+    },
+    initialData: contextUser,
+    staleTime: 5 * 1000,
+  })
 }

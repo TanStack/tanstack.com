@@ -15,15 +15,12 @@ import {
   TableCell,
 } from '~/components/TableComponents'
 import { z } from 'zod'
-import {
-  useQuery as useConvexQuery,
-  useMutation as useConvexMutation,
-} from 'convex/react'
-import { api } from 'convex/_generated/api'
 import { useState, useMemo, useCallback } from 'react'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { useCreateRole, useUpdateRole, useDeleteRole } from '~/utils/mutations'
+import { listRoles } from '~/utils/roles.functions'
 import {
   FaEdit,
   FaSave,
@@ -34,12 +31,10 @@ import {
   FaUsers,
   FaSpinner,
 } from 'react-icons/fa'
-import type { Id } from 'convex/_generated/dataModel'
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
-  type ColumnDef,
 } from '@tanstack/react-table'
 
 // Role type for table
@@ -83,7 +78,7 @@ function RolesPage() {
   })
 
   const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({
+    setExpandedSections((prev: Record<string, boolean>) => ({
       ...prev,
       [section]: !prev[section],
     }))
@@ -110,7 +105,7 @@ function RolesPage() {
           onChange={(value) => {
             navigate({
               resetScroll: false,
-              search: (prev) => ({
+              search: (prev: any) => ({
                 ...prev,
                 name: value || undefined,
               }),
@@ -127,7 +122,7 @@ function RolesPage() {
         onSelectAll={() => {
           navigate({
             resetScroll: false,
-            search: (prev) => ({
+            search: (prev: any) => ({
               ...prev,
               cap: availableCapabilities,
             }),
@@ -136,7 +131,7 @@ function RolesPage() {
         onSelectNone={() => {
           navigate({
             resetScroll: false,
-            search: (prev) => ({
+            search: (prev: any) => ({
               ...prev,
               cap: undefined,
             }),
@@ -164,20 +159,27 @@ function RolesPage() {
     </>
   )
 
-  const user = useConvexQuery(api.auth.getCurrentUser)
+  const userQuery = useCurrentUserQuery()
+  const user = userQuery.data
+  const capabilities = useCapabilities()
   const rolesQuery = useQuery({
-    ...convexQuery(api.roles.listRoles, {
-      nameFilter: nameFilter || undefined,
-      capabilityFilter:
-        capabilityFilters.length > 0 ? capabilityFilters : undefined,
-    }),
+    queryKey: ['admin', 'roles', nameFilter, capabilityFilters],
+    queryFn: async () => {
+      return listRoles({
+        data: {
+          nameFilter: nameFilter || undefined,
+          capabilityFilter:
+            capabilityFilters.length > 0 ? capabilityFilters : undefined,
+        },
+      })
+    },
     placeholderData: keepPreviousData,
   })
   const roles = rolesQuery?.data
 
-  const createRole = useConvexMutation(api.roles.createRole)
-  const updateRole = useConvexMutation(api.roles.updateRole)
-  const deleteRole = useConvexMutation(api.roles.deleteRole)
+  const createRole = useCreateRole()
+  const updateRole = useUpdateRole()
+  const deleteRole = useDeleteRole()
 
   const availableCapabilities = useMemo(
     () => ['admin', 'disableAds', 'builder', 'feed'],
@@ -202,15 +204,15 @@ function RolesPage() {
   const handleSaveRole = useCallback(async () => {
     try {
       if (isCreating) {
-        await createRole({
+        await createRole.mutateAsync({
           name: editingName,
           description: editingDescription || undefined,
           capabilities: editingCapabilities,
         })
         setIsCreating(false)
       } else if (editingRoleId) {
-        await updateRole({
-          roleId: editingRoleId as Id<'roles'>,
+        await updateRole.mutateAsync({
+          roleId: editingRoleId,
           name: editingName,
           description: editingDescription || undefined,
           capabilities: editingCapabilities,
@@ -248,7 +250,7 @@ function RolesPage() {
         return
       }
       try {
-        await deleteRole({ roleId: roleId as Id<'roles'> })
+        await deleteRole.mutateAsync({ roleId: roleId })
       } catch (error) {
         console.error('Failed to delete role:', error)
         alert(error instanceof Error ? error.message : 'Failed to delete role')
@@ -261,7 +263,7 @@ function RolesPage() {
     (capability: string) => {
       if (editingCapabilities.includes(capability)) {
         setEditingCapabilities(
-          editingCapabilities.filter((c) => c !== capability)
+          editingCapabilities.filter((c: string) => c !== capability)
         )
       } else {
         setEditingCapabilities([...editingCapabilities, capability])
@@ -273,11 +275,11 @@ function RolesPage() {
   const handleCapabilityFilterToggle = useCallback(
     (capability: string) => {
       const newFilters = capabilityFilters.includes(capability)
-        ? capabilityFilters.filter((c) => c !== capability)
+        ? capabilityFilters.filter((c: string) => c !== capability)
         : [...capabilityFilters, capability]
       navigate({
         resetScroll: false,
-        search: (prev) => ({
+        search: (prev: any) => ({
           ...prev,
           cap: newFilters.length > 0 ? newFilters : undefined,
         }),
@@ -287,12 +289,12 @@ function RolesPage() {
   )
 
   // Define columns using the column helper
-  const columns = useMemo<ColumnDef<Role, any>[]>(
+  const columns = useMemo(
     () => [
       {
         accessorKey: 'name',
         header: 'Name',
-        cell: ({ row }) => {
+        cell: ({ row }: { row: any }) => {
           const role = row.original
           return editingRoleId === role._id ||
             (isCreating && role._id === 'new') ? (
@@ -313,7 +315,7 @@ function RolesPage() {
       {
         accessorKey: 'description',
         header: 'Description',
-        cell: ({ row }) => {
+        cell: ({ row }: { row: any }) => {
           const role = row.original
           return editingRoleId === role._id ||
             (isCreating && role._id === 'new') ? (
@@ -336,7 +338,7 @@ function RolesPage() {
       {
         id: 'capabilities',
         header: 'Capabilities',
-        cell: ({ row }) => {
+        cell: ({ row }: { row: any }) => {
           const role = row.original
           return editingRoleId === role._id ||
             (isCreating && role._id === 'new') ? (
@@ -377,7 +379,7 @@ function RolesPage() {
       {
         id: 'actions',
         header: 'Actions',
-        cell: ({ row }) => {
+        cell: ({ row }: { row: any }) => {
           const role = row.original
           if (
             editingRoleId === role._id ||
@@ -459,7 +461,6 @@ function RolesPage() {
   }
 
   // If authenticated but no admin capability, show unauthorized
-  const capabilities = useCapabilities()
   const canAdmin = capabilities.includes('admin')
   if (user && !canAdmin) {
     return (
@@ -609,7 +610,7 @@ function RolesPage() {
                     <TableHeaderCell
                       key={header.id}
                       align={
-                        header.column.columnDef.meta?.align === 'right'
+                        (header.column.columnDef.meta as any)?.align === 'right'
                           ? 'right'
                           : 'left'
                       }
@@ -633,7 +634,7 @@ function RolesPage() {
                       key={cell.id}
                       className="whitespace-nowrap"
                       align={
-                        cell.column.columnDef.meta?.align === 'right'
+                        (cell.column.columnDef.meta as any)?.align === 'right'
                           ? 'right'
                           : 'left'
                       }

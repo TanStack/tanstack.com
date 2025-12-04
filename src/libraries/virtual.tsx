@@ -1,5 +1,5 @@
 import { VscPreview } from 'react-icons/vsc'
-import { Library } from '.'
+import type { Library } from './types'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
 import { IoIosBody } from 'react-icons/io'
@@ -31,6 +31,7 @@ export const virtualProject = {
   frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular'],
   defaultDocs: 'introduction',
   scarfId: '32372eb1-91e0-48e7-8df1-4808a7be6b94',
+  legacyPackages: ['react-virtual'],
   menu: [
     {
       icon: <BiBookAlt />,

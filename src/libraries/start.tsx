@@ -1,5 +1,5 @@
 import { FaGithub, FaYinYang } from 'react-icons/fa'
-import { Library } from '.'
+import type { Library } from './types'
 import { VscPreview } from 'react-icons/vsc'
 import { BiBookAlt } from 'react-icons/bi'
 import { PiRocketLaunchDuotone, PiTreeStructureBold } from 'react-icons/pi'

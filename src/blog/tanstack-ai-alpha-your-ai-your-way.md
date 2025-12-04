@@ -9,7 +9,7 @@ authors:
 
 ![TanStack AI Alpha](/blog-assets/tanstack-ai-alpha-your-ai-your-way/header.jpg)
 
-**The TanStack team is excited to announce the alpha release of TanStack AI, a framework-agnostic AI toolkit built for developers who want control over their stack.**
+**The TanStack team is excited to announce the alpha release of [TanStack AI](/ai), a framework-agnostic AI toolkit built for developers who want control over their stack.**
 
 Let's be honest. The current AI landscape has a problem. You pick a framework, you pick a cloud provider, and suddenly you're locked into an ecosystem that dictates how you build. We think that's backwards.
 
@@ -29,9 +29,9 @@ TanStack AI takes a different approach. We're building the Switzerland of AI too
 
 **Real examples that actually ship.** We're not just giving you docs, we're giving you working code:
 
-- TanStack Start with React
+- [TanStack Start](/start) with React
 
-- TanStack Start with Solid
+- [TanStack Start](/start) with Solid
 
 - PHP with Slim running a Vanilla client
 
@@ -39,15 +39,15 @@ TanStack AI takes a different approach. We're building the Switzerland of AI too
 
 - Python FastAPI with Vanilla frontend
 
-- A multi-user group chat built on TanStack Start using Cap'n'Web RPC and websockets
+- A multi-user group chat built on [TanStack Start](/start) using Cap'n'Web RPC and websockets
 
 **Per-model type safety that actually matters.** Every provider has different options. Every model supports different modalities. Text, audio, video, tools. We give you full typing for providerOptions on a per-model basis, so your IDE knows exactly what each model can do. No more guessing. No more runtime surprises.
 
-**Isomorphic devtools.** A full AI devtools panel that gives you unparalleled insight into what the LLM is doing on both sides of the connection. See what's happening on the server. See what's happening on the client. Debug your AI workflows the way you debug everything else.
+**Isomorphic devtools.** A full AI devtools panel that gives you unparalleled insight into what the LLM is doing on both sides of the connection. See what's happening on the server. See what's happening on the client. Debug your AI workflows the way you debug everything else. Built on [TanStack Devtools](/devtools).
 
 ## Coming Soon
 
-**Headless chatbot UI components.** Think Radix, but for AI chat interfaces. Fully functional, completely unstyled components for React and Solid that you can skin to match your application. You handle the look and feel, we handle the complexity underneath.
+**Headless chatbot UI components.** Think Radix, but for AI chat interfaces. Fully functional, completely unstyled components for React and Solid that you can skin to match your application. You handle the look and feel, we handle the complexity underneath. Similar to how [TanStack Table](/table) and [TanStack Form](/form) work.
 
 ## The Catch
 

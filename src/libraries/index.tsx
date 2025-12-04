@@ -17,11 +17,12 @@ import {
   type LibraryId,
   type LibraryMenuItem,
 } from './types'
-import { frameworkOptions } from './frameworks'
 
 // Re-export types for backward compatibility
 export type { Framework, Library, LibraryId, LibraryMenuItem }
-export { frameworkOptions }
+
+// Note: frameworkOptions is NOT exported here to avoid bundling SVG imports
+// in server/background functions. Import it directly from './frameworks' in client components.
 
 export const libraries = [
   startProject,
@@ -77,7 +78,7 @@ export function getLibrary(id: LibraryId): Library {
     throw new Error(`Library with id "${id}" not found!`)
   }
 
-  return library
+  return library as Library
 }
 
 export function findLibrary(id: string): Library | undefined {
@@ -86,13 +87,6 @@ export function findLibrary(id: string): Library | undefined {
   } catch (error) {
     return undefined
   }
-}
-
-export function getFrameworkOptions(frameworkStrs: Framework[]) {
-  if (!frameworkOptions) {
-    throw new Error('frameworkOptions is not defined')
-  }
-  return frameworkOptions.filter((d) => frameworkStrs.includes(d.value))
 }
 
 export function getBranch(library: Library, argVersion?: string) {

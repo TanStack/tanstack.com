@@ -30,7 +30,7 @@ export const aiProject = {
   textColor: `text-pink-700`,
   frameworks: ['react', 'solid', 'vanilla'],
   scarfId: undefined,
-  defaultDocs: 'overview',
+  defaultDocs: 'getting-started/overview',
   menu: [
     {
       icon: <BiBookAlt />,

@@ -13,6 +13,7 @@ interface PaginationControlsProps {
   canGoNext: boolean
   showPageSizeSelector?: boolean
   itemLabel?: string // e.g., "users", "entries"
+  sticky?: boolean // If true, wraps in sticky container with consistent styling
 }
 
 export function PaginationControls({
@@ -28,6 +29,7 @@ export function PaginationControls({
   canGoNext,
   showPageSizeSelector = true,
   itemLabel = 'items',
+  sticky = false,
 }: PaginationControlsProps) {
   const goToPreviousPage = () => {
     if (canGoPrevious) {
@@ -43,21 +45,15 @@ export function PaginationControls({
 
   const displayCount = filteredItems ?? totalItems
 
-  return (
+  const content = (
     <div className="flex items-center justify-between flex-wrap gap-1.5">
       <div className="text-xs text-gray-500 dark:text-gray-400">
         Showing {displayCount} of {totalItems} {itemLabel}
         {filteredItems !== undefined && filteredItems !== totalItems && (
-          <span>
-            {' '}
-            • Page {currentPage + 1} of {totalPages}
-          </span>
+          <span> • Page {currentPage + 1} of {totalPages}</span>
         )}
         {filteredItems === undefined && (
-          <span>
-            {' '}
-            • Page {currentPage + 1} of {totalPages}
-          </span>
+          <span> • Page {currentPage + 1} of {totalPages}</span>
         )}
       </div>
       <div className="flex gap-1 items-center">
@@ -72,7 +68,7 @@ export function PaginationControls({
                 const next = parseInt(e.target.value, 10)
                 onPageSizeChange(next)
               }}
-              className="px-1.5 py-0.5 text-xs border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+              className="px-1.5 py-0.5 text-xs border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
             >
               {pageSizeOptions.map((n) => (
                 <option key={n} value={n}>
@@ -101,4 +97,17 @@ export function PaginationControls({
       </div>
     </div>
   )
+
+  if (sticky) {
+    return (
+      <div className="sticky bottom-4 mt-4">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg px-3 py-2">
+          {content}
+        </div>
+      </div>
+    )
+  }
+
+  return content
 }
+

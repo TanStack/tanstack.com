@@ -1,15 +1,12 @@
-import { convexQuery } from '@convex-dev/react-query'
-import { useNpmDownloadCounter } from '@erquhart/convex-oss-stats/react'
 import NumberFlow from '@number-flow/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { api } from 'convex/_generated/api'
 import { FaCube, FaStar, FaUsers } from 'react-icons/fa'
 import { FaDownload } from 'react-icons/fa'
-import convexImageWhite from '~/images/convex-white.svg'
-import convexImageDark from '~/images/convex-dark.svg'
 import { BlankErrorBoundary } from './BlankErrorBoundary'
 import { Suspense } from 'react'
 import { Library } from '~/libraries'
+import { ossStatsQuery } from '~/queries/stats'
+import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 
 const StableCounter = ({
   value,
@@ -55,30 +52,45 @@ const StableCounter = ({
 const NpmDownloadCounter = ({
   npmData,
 }: {
-  npmData: Parameters<typeof useNpmDownloadCounter>[0]
+  npmData: {
+    totalDownloads: number
+    ratePerDay?: number
+    updatedAt?: number
+    tag?: string
+  }
 }) => {
   const { count, intervalMs } = useNpmDownloadCounter(npmData)
   if (!Number.isFinite(count)) {
-    // this returns true for NaN, Infinty / -Infinty, null, undefined
+    // this returns true for NaN, Infinity / -Infinity, null, undefined
     return '-'
   }
   return <StableCounter value={count} intervalMs={intervalMs} />
 }
 
-export function ossStatsQuery({ library }: { library?: Library } = {}) {
-  return convexQuery(api.stats.getStats, {
-    library: library
-      ? {
-          id: library.id,
-          repo: library.repo,
-          frameworks: library.frameworks,
-        }
-      : undefined,
-  })
+function isValidMetric(value: number | undefined | null): boolean {
+  return (
+    value !== undefined &&
+    value !== null &&
+    !Number.isNaN(value) &&
+    value > 0 &&
+    Number.isFinite(value)
+  )
 }
 
-export function _OssStats({ library }: { library?: Library }) {
+function OssStatsContent({ library }: { library?: Library }) {
   const { data: stats } = useSuspenseQuery(ossStatsQuery({ library }))
+
+  const npmDownloads = stats.npm?.totalDownloads ?? 0
+  const starCount = stats.github?.starCount ?? 0
+  const contributorCount = stats.github?.contributorCount ?? 0
+  const dependentCount = stats.github?.dependentCount ?? 0
+
+  const hasNpmDownloads = isValidMetric(npmDownloads)
+  const hasStarCount = isValidMetric(starCount)
+  const hasContributorCount = isValidMetric(contributorCount)
+  const hasDependentCount = isValidMetric(dependentCount)
+
+  const hasAnyData = hasNpmDownloads || hasStarCount || hasContributorCount || hasDependentCount
 
   return (
     <div>
@@ -87,16 +99,31 @@ export function _OssStats({ library }: { library?: Library }) {
       justify-center xl:place-items-center bg-white/50 dark:bg-black/40
       dark:shadow-none rounded-xl shadow-xl"
       >
+        {!hasAnyData && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 dark:border-pink-500/30 backdrop-blur-sm pointer-events-auto">
+              <span className="text-2xl">🚀</span>
+              <p className="text-sm font-medium text-pink-600 dark:text-pink-400">
+                <span className="font-bold">Fresh out of the oven!</span> This library just launched. 
+                Be among the first to star, download, and contribute!
+              </p>
+            </div>
+          </div>
+        )}
         <a
           href="https://www.npmjs.com/org/tanstack"
           target="_blank"
           rel="noreferrer"
-          className="group flex gap-4 items-center"
+          className={`group flex gap-4 items-center ${!hasNpmDownloads ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}
         >
           <FaDownload className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
           <div>
             <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
-              <NpmDownloadCounter npmData={stats.npm} />
+              {hasNpmDownloads ? (
+                <NpmDownloadCounter npmData={stats.npm} />
+              ) : (
+                <span>0</span>
+              )}
             </div>
             <div className="text-sm opacity-60 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
               NPM Downloads
@@ -111,65 +138,64 @@ export function _OssStats({ library }: { library?: Library }) {
           }
           target="_blank"
           rel="noreferrer"
-          className="group flex gap-4 items-center"
+          className={`group flex gap-4 items-center ${!hasStarCount ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}
         >
           <FaStar className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
           <div>
-            <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200">
-              <NumberFlow value={stats.github?.starCount} />
+            <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200 relative">
+              {hasStarCount ? (
+                <NumberFlow
+                  value={starCount}
+                  continuous
+                  willChange
+                />
+              ) : (
+                <span>0</span>
+              )}
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
               Stars on Github
             </div>
           </div>
         </a>
-        <div className="flex gap-4 items-center">
+        <div className={`flex gap-4 items-center ${!hasContributorCount ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}>
           <FaUsers className="text-2xl" />
           <div className="">
-            <div className="text-2xl font-bold opacity-80">
-              <NumberFlow value={stats.github?.contributorCount} />
+            <div className="text-2xl font-bold opacity-80 relative">
+              {hasContributorCount ? (
+                <NumberFlow
+                  value={contributorCount}
+                  continuous
+                  willChange
+                />
+              ) : (
+                <span>0</span>
+              )}
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1">
               Contributors on GitHub
             </div>
           </div>
         </div>
-        <div className="flex gap-4 items-center">
+        <div className={`flex gap-4 items-center ${!hasDependentCount ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}>
           <FaCube className="text-2xl" />
           <div className="">
             <div className="text-2xl font-bold opacity-80 relative">
-              <NumberFlow value={stats.github?.dependentCount} />
+              {hasDependentCount ? (
+                <NumberFlow
+                  value={dependentCount}
+                  continuous
+                  willChange
+                />
+              ) : (
+                <span>0</span>
+              )}
             </div>
             <div className="text-sm opacity-60 font-medium italic -mt-1">
               Dependents on GitHub
             </div>
           </div>
         </div>
-      </div>
-      <div className="px-4 py-2 flex justify-end">
-        <a
-          href="https://www.convex.dev/?utm_source=tanstack"
-          className="group flex items-center gap-2"
-        >
-          <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
-          <div className="flex items-center gap-1">
-            <span className="text-[.75rem] opacity-60 relative -top-px">
-              Powered by
-            </span>
-            <img
-              className="dark:hidden opacity-30 group-hover:opacity-50"
-              src={convexImageDark}
-              alt="Convex Logo"
-              width={80}
-            />
-            <img
-              className="hidden dark:block opacity-30 group-hover:opacity-50"
-              src={convexImageWhite}
-              alt="Convex Logo"
-              width={80}
-            />
-          </div>
-        </a>
       </div>
     </div>
   )
@@ -179,7 +205,7 @@ export default function OssStats({ library }: { library?: Library }) {
   return (
     <Suspense fallback={<></>}>
       <BlankErrorBoundary>
-        <_OssStats library={library} />
+        <OssStatsContent library={library} />
       </BlankErrorBoundary>
     </Suspense>
   )

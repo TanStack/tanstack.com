@@ -7,8 +7,7 @@ import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { FaSpinner } from 'react-icons/fa'
 import { useQuery } from '@tanstack/react-query'
-import { convexQuery } from '@convex-dev/react-query'
-import { api } from 'convex/_generated/api'
+import { getFeedFacetCountsQueryOptions } from '~/queries/feed'
 
 export type LibraryId =
   | 'start'
@@ -121,22 +120,20 @@ function FeedPageLayoutRoot({
   children,
 }: FeedPageLayoutRootProps) {
   // Fetch facet counts based on current filters
-  const facetCountsQuery = useQuery({
-    ...convexQuery(api.feed.queries.getFeedFacetCounts, {
-      filters: {
-        sources: filters.sources,
-        libraries: filters.libraries,
-        categories: filters.categories,
-        partners: filters.partners,
-        tags: filters.tags,
-        releaseLevels: filters.releaseLevels,
-        includePrerelease: filters.includePrerelease,
-        featured: filters.featured,
-        search: filters.search,
-        includeHidden: adminActions !== undefined, // Admin sees all
-      },
-    }),
-  })
+  const facetCountsQuery = useQuery(
+    getFeedFacetCountsQueryOptions({
+      sources: filters.sources,
+      libraries: filters.libraries,
+      categories: filters.categories as any,
+      partners: filters.partners,
+      tags: filters.tags,
+      releaseLevels: filters.releaseLevels as any,
+      includePrerelease: filters.includePrerelease,
+      featured: filters.featured,
+      search: filters.search,
+      includeHidden: adminActions !== undefined, // Admin sees all
+    })
+  )
 
   return (
     <FeedPageLayoutContext.Provider

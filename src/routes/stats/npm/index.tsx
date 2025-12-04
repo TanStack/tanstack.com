@@ -19,14 +19,8 @@ import * as d3 from 'd3'
 import { FaAngleRight, FaSpinner } from 'react-icons/fa'
 import { HexColorPicker } from 'react-colorful'
 import { seo } from '~/utils/seo'
-import { getPopularComparisons } from './-comparisons'
-import {
-  GamFooter,
-  GamHeader,
-  GamLeftRailSquare,
-  GamRightRailSquare,
-  GamVrec1,
-} from '~/components/Gam'
+import { getPopularComparisons, packageGroupSchema } from './-comparisons'
+import { GamHeader, GamVrec1 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
@@ -37,23 +31,6 @@ import {
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu'
 import { Command } from 'cmdk'
-
-export const packageGroupSchema = z.object({
-  packages: z.array(
-    z.object({
-      name: z.string(),
-      hidden: z.boolean().optional(),
-    })
-  ),
-  color: z.string().nullable().optional(),
-  baseline: z.boolean().optional(),
-})
-
-export const packageComparisonSchema = z.object({
-  title: z.string(),
-  packageGroups: z.array(packageGroupSchema),
-  baseline: z.string().optional(),
-})
 
 const transformModeSchema = z.enum(['none', 'normalize-y'])
 const binTypeSchema = z.enum(['yearly', 'monthly', 'weekly', 'daily'])

@@ -60,6 +60,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
       published: post.published,
       content: post.content,
       authors: post.authors,
+      headerImage: post.headerImage,
       filePath,
     }
   })
@@ -74,6 +75,9 @@ export const Route = createFileRoute('/_libraries/blog/$')({
             ...seo({
               title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
               description: loaderData?.description,
+              image: loaderData?.headerImage
+                ? `https://tanstack.com${loaderData.headerImage}`
+                : undefined,
             }),
             {
               name: 'author',

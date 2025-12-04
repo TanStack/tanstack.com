@@ -17,14 +17,12 @@ publish = "dist/client"
 # They can also be invoked manually from the admin panel.
 
 # Scheduled function: Stats cache refresh (runs every 6 hours)
-[[functions.scheduled]]
-  cron = "0 */6 * * *"  # Every 6 hours at minute 0
-  function = "scheduled/refresh-stats-cache"
+[functions."scheduled/refresh-stats-cache"]
+schedule = "0 */6 * * *"
 
 # Scheduled function: GitHub release sync (runs every 6 hours)
-[[functions.scheduled]]
-  cron = "0 */6 * * *"  # Every 6 hours at minute 0
-  function = "scheduled/sync-github-releases"
+[functions."scheduled/sync-github-releases"]
+schedule = "0 */6 * * *"
 
 # Background Functions (invoked by scheduled functions or manually)
 #

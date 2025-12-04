@@ -546,7 +546,6 @@ export async function getRegisteredPackages(
  */
 export async function discoverAndRegisterPackages(org: string): Promise<void> {
   try {
-
     // Fetch all packages in the org
     const response = await fetch(
       `https://registry.npmjs.org/-/org/${org}/package`,

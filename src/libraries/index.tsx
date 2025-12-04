@@ -16,8 +16,8 @@ import {
   type Library,
   type LibraryId,
   type LibraryMenuItem,
-  frameworkOptions,
 } from './types'
+import { frameworkOptions } from './frameworks'
 
 // Re-export types for backward compatibility
 export type { Framework, Library, LibraryId, LibraryMenuItem }

@@ -5,7 +5,8 @@ import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
-import { Framework, frameworkOptions } from '~/libraries'
+import { Framework } from '~/libraries'
+import { frameworkOptions } from '~/libraries/frameworks'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { twMerge } from 'tailwind-merge'
 import { partners, PartnerImage } from '~/utils/partners'
@@ -14,6 +15,15 @@ import { AdGate } from '~/contexts/AdsContext'
 import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
+
+// Helper to get text color class from framework badge
+const getFrameworkTextColor = (frameworkValue: string | undefined) => {
+  if (!frameworkValue) return 'text-gray-500'
+  const framework = frameworkOptions.find((f) => f.value === frameworkValue)
+  if (!framework) return 'text-gray-500'
+  // Convert bg-* to text-* color class
+  return framework.color.replace('bg-', 'text-')
+}
 
 // Create context for width toggle state
 const WidthToggleContext = React.createContext<{
@@ -247,11 +257,9 @@ export function DocsLayout({
                             <div
                               className={`text-xs ${
                                 props.isActive ? 'opacity-100' : 'opacity-40'
-                              } group-hover:opacity-100 font-bold transition-opacity ${
-                                frameworkOptions.find(
-                                  (f) => f.value === child.badge
-                                )?.fontColor ?? 'text-gray-500'
-                              }`}
+                              } group-hover:opacity-100 font-bold transition-opacity ${getFrameworkTextColor(
+                                child.badge
+                              )}`}
                             >
                               {child.badge}
                             </div>

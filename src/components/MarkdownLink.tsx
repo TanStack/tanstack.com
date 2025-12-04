@@ -17,6 +17,12 @@ export function MarkdownLink({
   const [hrefWithoutHash, hash] = hrefProp?.split('#') ?? []
   let [to] = hrefWithoutHash?.split('.md') ?? []
 
+  to = to.replaceAll(/\.\.\//gm, '../../')
+  to = to.replaceAll(
+    /(?!https?:\/\/|\/\/|\/|\.\/|\.\.\/|#)([^)]+)\)/gm,
+    (match, p1) => `../${p1})`
+  )
+
   return (
     <Link
       {...rest}

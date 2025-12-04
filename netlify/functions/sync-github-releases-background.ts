@@ -1,5 +1,5 @@
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
-import { syncGitHubReleases } from '~/server/feed/github'
+import { syncGitHubReleases } from '~/server/feed/github.functions'
 
 /**
  * Netlify Background Function - Sync GitHub releases

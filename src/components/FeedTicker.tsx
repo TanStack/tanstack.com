@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { listFeedEntriesQueryOptions } from '~/queries/feed'
 import { Link } from '@tanstack/react-router'
 import { formatDistanceToNow } from 'date-fns'
@@ -15,8 +15,8 @@ export function FeedTicker() {
   const canAccessFeed = capabilities.includes('feed')
 
   // Fetch feed entries with default filters (major, minor releases, include prerelease)
-  const feedQuery = useQuery(
-    listFeedEntriesQueryOptions({
+  const feedQuery = useQuery({
+    ...listFeedEntriesQueryOptions({
       pagination: {
         limit: 10, // Fetch first 10 entries
         page: 0,
@@ -25,8 +25,9 @@ export function FeedTicker() {
         releaseLevels: ['major', 'minor', 'patch'],
         includePrerelease: true,
       },
-    })
-  )
+    }),
+    placeholderData: keepPreviousData,
+  })
 
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const [animationKey, setAnimationKey] = React.useState(0)

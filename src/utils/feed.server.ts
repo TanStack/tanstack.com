@@ -382,7 +382,7 @@ export const getFeedEntry = createServerFn({ method: 'POST' })
 
 // Server function wrapper for getFeedEntryById
 export const getFeedEntryById = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
     const entry = await db.query.feedEntries.findFirst({
       where: eq(feedEntries.entryId, data.id),

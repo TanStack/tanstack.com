@@ -7,7 +7,7 @@ import {
   redirect,
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { FaHome, FaUser, FaUsers, FaRss, FaShieldAlt } from 'react-icons/fa'
+import { FaHome, FaUser, FaUsers, FaRss, FaShieldAlt, FaGithub, FaNpm } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
@@ -72,6 +72,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         label: 'Feed',
         icon: <FaRss />,
         to: '/admin/feed',
+      },
+      {
+        label: 'GitHub Stats',
+        icon: <FaGithub />,
+        to: '/admin/github-stats',
+      },
+      {
+        label: 'NPM Stats',
+        icon: <FaNpm />,
+        to: '/admin/npm-stats',
       },
       {
         label: 'My Account',

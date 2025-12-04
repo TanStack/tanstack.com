@@ -4,3 +4,42 @@ publish = "dist/client"
 
 [functions]
   directory = "netlify/functions"
+
+# Scheduled + Background Function Pattern
+#
+# The pattern for long-running cron jobs:
+# 1. Scheduled function (30s timeout) runs on cron schedule
+# 2. It invokes the background function via HTTP
+# 3. Returns immediately (202)
+# 4. Background function (15 min timeout) does the actual work
+#
+# Background functions are identified by the `-background` suffix in the filename.
+# They can also be invoked manually from the admin panel.
+
+# Scheduled function: Stats cache refresh (runs every 6 hours)
+[[functions.scheduled]]
+  cron = "0 */6 * * *"  # Every 6 hours at minute 0
+  function = "scheduled/refresh-stats-cache"
+
+# Scheduled function: GitHub release sync (runs every 6 hours)
+[[functions.scheduled]]
+  cron = "0 */6 * * *"  # Every 6 hours at minute 0
+  function = "scheduled/sync-github-releases"
+
+# Background Functions (invoked by scheduled functions or manually)
+#
+# 1. refresh-stats-cache-background.ts
+#    - Refreshes NPM and GitHub stats cache for the entire TanStack org
+#    - ~10-20 minutes to complete (200+ packages)
+#    - Invoked by: scheduled/refresh-stats-cache
+#    - Manual: POST /.netlify/functions/refresh-stats-cache-background
+#    - Authorization: Bearer YOUR_CRON_SECRET
+#
+# 2. sync-github-releases-background.ts
+#    - Syncs GitHub releases from all TanStack repos to the feed
+#    - ~1-5 minutes to complete
+#    - Invoked by: scheduled/sync-github-releases
+#    - Manual: POST /.netlify/functions/sync-github-releases-background
+#    - Authorization: Bearer YOUR_CRON_SECRET
+#
+# Note: Both functions require CRON_SECRET environment variable for authentication

@@ -1,36 +1,75 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import type { NpmStats } from '~/utils/stats.server'
 
 /**
- * Hook to calculate NPM download counter with interval
- * Replaces useNpmDownloadCounter from convex-oss-stats
+ * Hook to animate NPM download counter based on growth rate and elapsed time
+ * Interpolates downloads from the last known value using week-over-week growth rate
  */
 export function useNpmDownloadCounter(npmData: NpmStats): {
   count: number
   intervalMs: number
 } {
-  return useMemo(() => {
-    const totalDownloads = npmData.totalDownloads ?? 0
+  const baseCount = npmData.totalDownloads ?? 0
+  const ratePerDay = npmData.ratePerDay ?? 0
+  const updatedAt = npmData.updatedAt ?? Date.now()
 
-    // Calculate interval based on download count
-    // Higher counts = slower interval (less frequent updates)
-    // Lower counts = faster interval (more frequent updates)
-    let intervalMs = 1000 // Default 1 second
+  const [animatedCount, setAnimatedCount] = useState(baseCount)
 
-    if (totalDownloads > 100_000_000) {
-      intervalMs = 5000 // 5 seconds for very high counts
-    } else if (totalDownloads > 10_000_000) {
-      intervalMs = 3000 // 3 seconds for high counts
-    } else if (totalDownloads > 1_000_000) {
-      intervalMs = 2000 // 2 seconds for medium counts
+  useEffect(() => {
+    // If no growth rate, just show the base count
+    if (!ratePerDay || ratePerDay === 0) {
+      setAnimatedCount(baseCount)
+      return
+    }
+
+    // Convert rate per day to rate per millisecond
+    const msPerDay = 24 * 60 * 60 * 1000
+    const ratePerMs = ratePerDay / msPerDay
+
+    // Calculate animation interval based on rate
+    // Faster growth = more frequent updates for smoother animation
+    const dailyRate = Math.abs(ratePerDay)
+    let intervalMs: number
+
+    if (dailyRate > 100000) {
+      // Very high rate: update every 100ms
+      intervalMs = 100
+    } else if (dailyRate > 10000) {
+      // High rate: update every 200ms
+      intervalMs = 200
+    } else if (dailyRate > 1000) {
+      // Medium rate: update every 500ms
+      intervalMs = 500
     } else {
-      intervalMs = 1000 // 1 second for lower counts
+      // Low rate: update every 1000ms
+      intervalMs = 1000
     }
 
-    return {
-      count: totalDownloads,
-      intervalMs,
-    }
-  }, [npmData.totalDownloads])
+    // Set up interval to update the count
+    const interval = setInterval(() => {
+      const now = Date.now()
+      const elapsedMs = now - updatedAt
+      const additionalDownloads = ratePerMs * elapsedMs
+      const newCount = baseCount + additionalDownloads
+
+      setAnimatedCount(Math.round(newCount))
+    }, intervalMs)
+
+    // Also update immediately
+    const now = Date.now()
+    const elapsedMs = now - updatedAt
+    const additionalDownloads = ratePerMs * elapsedMs
+    setAnimatedCount(Math.round(baseCount + additionalDownloads))
+
+    return () => clearInterval(interval)
+  }, [baseCount, ratePerDay, updatedAt])
+
+  return useMemo(
+    () => ({
+      count: animatedCount,
+      intervalMs: 1000, // This is just for compatibility, actual interval is managed internally
+    }),
+    [animatedCount]
+  )
 }
 

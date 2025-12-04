@@ -24,14 +24,14 @@ import { ToastProvider } from '~/components/ToastProvider'
 import { ThemeProvider } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 
-import { LibrariesLayout } from './_libraries/route'
+// import { LibrariesLayout } from './_libraries/route'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
-import { getCurrentUser } from '~/utils/auth.server'
+// import { getCurrentUser } from '~/utils/auth.server'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
-  user?: Awaited<ReturnType<typeof getCurrentUser>>
+  // user?: Awaited<ReturnType<typeof getCurrentUser>>
 }>()({
   head: () => ({
     meta: [
@@ -150,9 +150,9 @@ export const Route = createRootRouteWithContext<{
   notFoundComponent: () => {
     return (
       <DocumentWrapper>
-        <LibrariesLayout>
-          <NotFound />
-        </LibrariesLayout>
+        {/* <LibrariesLayout> */}
+        <NotFound />
+        {/* </LibrariesLayout> */}
       </DocumentWrapper>
     )
   },

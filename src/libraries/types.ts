@@ -20,6 +20,7 @@ export type Library = {
     | 'store'
     | 'pacer'
     | 'db'
+    | 'ai'
     | 'config'
     | 'devtools'
     | 'react-charts'

@@ -5,11 +5,7 @@
 
 import * as cheerio from 'cheerio'
 import { envFunctions } from './env.functions'
-import type {
-  GitHubStats,
-  NpmPackageStats,
-  NpmStats,
-} from './stats.server'
+import type { GitHubStats, NpmPackageStats, NpmStats } from './stats.server'
 
 /**
  * Parse number from string, removing commas
@@ -49,9 +45,7 @@ async function scrapeGitHubDependentCount(
 
       // Find the dependents link and extract the count from the Counter span
       // Selector: a[href$="/network/dependents"] > span.Counter
-      const dependentCount = $(
-        `a[href$="/network/dependents"] > span.Counter`
-      )
+      const dependentCount = $(`a[href$="/network/dependents"] > span.Counter`)
         .filter((_, el) => {
           const title = $(el).attr('title')
           return !!parseNumber(title)
@@ -156,6 +150,76 @@ async function scrapeGitHubContributorCount(
 }
 
 /**
+ * Fetch GitHub repository statistics
+ */
+export async function fetchGitHubRepoStats(repo: string): Promise<GitHubStats> {
+  const token = envFunctions.GITHUB_AUTH_TOKEN
+  if (!token || token === 'USE_A_REAL_KEY_IN_PRODUCTION') {
+    throw new Error('GITHUB_AUTH_TOKEN not configured')
+  }
+
+  const [repoData, contributorCount, dependentCount] = await Promise.all([
+    // Get repo basic stats
+    fetch(`https://api.github.com/repos/${repo}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'TanStack-Stats',
+      },
+    }).then(async (res) => {
+      if (!res.ok) {
+        // Check for rate limiting
+        if (res.status === 403) {
+          const rateLimitRemaining = res.headers.get('X-RateLimit-Remaining')
+          if (rateLimitRemaining === '0') {
+            const rateLimitReset = res.headers.get('X-RateLimit-Reset')
+            const resetTime = rateLimitReset
+              ? new Date(parseInt(rateLimitReset, 10) * 1000)
+              : new Date(Date.now() + 60 * 60 * 1000)
+            throw new Error(
+              `GitHub API rate limit exceeded. Resets at: ${resetTime.toISOString()}`
+            )
+          }
+        }
+        const errorText = await res.text().catch(() => 'Unknown error')
+        throw new Error(`GitHub API error: ${res.status} - ${errorText}`)
+      }
+      return res.json()
+    }),
+
+    // Scrape contributor count from GitHub web UI
+    // Using scraping instead of API to get the full count without pagination limits
+    // Based on @erquhart/convex-oss-stats approach
+    // Wrap in catch to ensure it never rejects - scraping failures shouldn't break the whole operation
+    scrapeGitHubContributorCount(repo).catch((error) => {
+      console.error(
+        `[GitHub Stats] Contributor count scraping failed for ${repo}:`,
+        error instanceof Error ? error.message : String(error)
+      )
+      return undefined
+    }),
+
+    // Scrape dependent count from GitHub web UI
+    // GitHub doesn't provide this via REST or GraphQL API
+    // Wrap in catch to ensure it never rejects - scraping failures shouldn't break the whole operation
+    scrapeGitHubDependentCount(repo).catch((error) => {
+      console.error(
+        `[GitHub Stats] Dependent count scraping failed for ${repo}:`,
+        error instanceof Error ? error.message : String(error)
+      )
+      return undefined
+    }),
+  ])
+
+  return {
+    starCount: repoData.stargazers_count ?? 0,
+    contributorCount: contributorCount ?? 0,
+    dependentCount: dependentCount,
+    forkCount: repoData.forks_count ?? 0,
+  }
+}
+
+/**
  * Fetch GitHub organization statistics (aggregate across all repos)
  */
 export async function fetchGitHubOwnerStats(
@@ -249,8 +313,21 @@ export async function fetchGitHubOwnerStats(
     repos.map(async (repo) => {
       try {
         const [contributorCount, dependentCount] = await Promise.all([
-          scrapeGitHubContributorCount(repo.full_name),
-          scrapeGitHubDependentCount(repo.full_name),
+          // Wrap in catch to ensure scraping failures don't break the operation
+          scrapeGitHubContributorCount(repo.full_name).catch((error) => {
+            console.error(
+              `[GitHub Stats] Contributor count scraping failed for ${repo.full_name}:`,
+              error instanceof Error ? error.message : String(error)
+            )
+            return undefined
+          }),
+          scrapeGitHubDependentCount(repo.full_name).catch((error) => {
+            console.error(
+              `[GitHub Stats] Dependent count scraping failed for ${repo.full_name}:`,
+              error instanceof Error ? error.message : String(error)
+            )
+            return undefined
+          }),
         ])
         return {
           contributorCount: contributorCount ?? 0,
@@ -629,7 +706,9 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
               // Progress update every 50 packages
               if ((successCount + failCount) % 50 === 0) {
                 console.log(
-                  `[NPM Stats] Progress: ${successCount + failCount}/${packageNames.length} packages`
+                  `[NPM Stats] Progress: ${successCount + failCount}/${
+                    packageNames.length
+                  } packages`
                 )
               }
             },
@@ -739,4 +818,3 @@ export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
 
   return stats
 }
-

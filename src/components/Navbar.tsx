@@ -246,25 +246,28 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const items = (
     <div className="md:flex gap-2 [&>*]:flex-1 lg:block">
       <div>
-        {sortBy(
-          libraries.filter((d) => {
-            const sidebarLibraryIds = [
-              'start',
-              'router',
-              'query',
-              'table',
-              'form',
-              'db',
-              'ai',
-              'virtual',
-              'pacer',
-              'store',
-              'devtools',
-            ]
-            return d.to && sidebarLibraryIds.includes(d.id)
-          }),
-          (d) => !d.name.includes('TanStack')
-        ).map((library, i) => {
+        {(() => {
+          const sidebarLibraryIds = [
+            'start',
+            'router',
+            'query',
+            'table',
+            'db',
+            'ai',
+            'form',
+            'virtual',
+            'pacer',
+            'store',
+            'devtools',
+          ]
+          return libraries
+            .filter((d) => d.to && sidebarLibraryIds.includes(d.id))
+            .sort((a, b) => {
+              const indexA = sidebarLibraryIds.indexOf(a.id)
+              const indexB = sidebarLibraryIds.indexOf(b.id)
+              return indexA - indexB
+            })
+        })().map((library, i) => {
           const [prefix, name] = library.name.split(' ')
 
           return (

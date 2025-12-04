@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { db } from '~/db/client'
 import { githubStatsCache, npmPackages, npmOrgStatsCache } from '~/db/schema'
 import { eq, desc, and, like } from 'drizzle-orm'
-import { fetchGitHubOwnerStats, fetchGitHubRepoStats } from './stats.server'
+import { fetchGitHubOwnerStats, fetchGitHubRepoStats } from './stats.functions'
 import { refreshNpmOrgStats } from './stats.server'
 import { setCachedGitHubStats } from './stats-db.server'
 import { setCachedNpmPackageStats } from './stats-db.server'
@@ -68,33 +68,69 @@ export const refreshGitHubStats = createServerFn({ method: 'POST' })
 
 /**
  * Refresh all GitHub stats cache entries
+ * Processes all libraries from the libraries array, plus any existing org cache entries
  */
 export const refreshAllGitHubStats = createServerFn({ method: 'POST' }).handler(
   async () => {
     await requireCapability({ data: { capability: 'admin' } })
 
-    const entries = await db.query.githubStatsCache.findMany({
-      orderBy: [desc(githubStatsCache.updatedAt)],
-    })
-
     const results = []
     const errors = []
 
-    for (let i = 0; i < entries.length; i++) {
-      const entry = entries[i]
+    // First, refresh all libraries from the libraries array
+    const { libraries } = await import('~/libraries')
+    console.log(
+      `[GitHub Stats Refresh] Processing ${libraries.length} libraries from libraries array`
+    )
+
+    for (let i = 0; i < libraries.length; i++) {
+      const library = libraries[i]
+      if (!library.repo) {
+        console.log(
+          `[GitHub Stats Refresh] Skipping library ${library.id} - no repo`
+        )
+        continue
+      }
+
       try {
-        const isOrg = entry.cacheKey.startsWith('org:')
-        const identifier = isOrg
-          ? entry.cacheKey.replace('org:', '')
-          : entry.cacheKey
+        const stats = await fetchGitHubRepoStats(library.repo)
+        await setCachedGitHubStats(library.repo, stats, 1)
 
-        let stats
-        if (isOrg) {
-          stats = await fetchGitHubOwnerStats(identifier)
-        } else {
-          stats = await fetchGitHubRepoStats(identifier)
+        results.push({
+          cacheKey: library.repo,
+          success: true,
+          stats,
+        })
+
+        // Add delay between requests to avoid rate limiting (except for last item)
+        if (i < libraries.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 500))
         }
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error)
+        console.error(
+          `[GitHub Stats Refresh] Failed to refresh ${library.repo}:`,
+          errorMessage
+        )
+        errors.push({
+          cacheKey: library.repo,
+          success: false,
+          error: errorMessage,
+        })
+      }
+    }
 
+    // Also refresh any org-level cache entries (like "org:tanstack")
+    const orgEntries = await db.query.githubStatsCache.findMany({
+      where: like(githubStatsCache.cacheKey, 'org:%'),
+    })
+
+    for (let i = 0; i < orgEntries.length; i++) {
+      const entry = orgEntries[i]
+      try {
+        const identifier = entry.cacheKey.replace('org:', '')
+        const stats = await fetchGitHubOwnerStats(identifier)
         await setCachedGitHubStats(entry.cacheKey, stats, 1)
 
         results.push({
@@ -104,7 +140,7 @@ export const refreshAllGitHubStats = createServerFn({ method: 'POST' }).handler(
         })
 
         // Add delay between requests to avoid rate limiting (except for last item)
-        if (i < entries.length - 1) {
+        if (i < orgEntries.length - 1) {
           await new Promise((resolve) => setTimeout(resolve, 500))
         }
       } catch (error) {
@@ -253,7 +289,10 @@ export const listNpmOrgStatsCache = createServerFn({ method: 'POST' }).handler(
 
         const legacyPackages: string[] = []
         for (const library of libraries) {
-          if ('legacyPackages' in library && Array.isArray(library.legacyPackages)) {
+          if (
+            'legacyPackages' in library &&
+            Array.isArray(library.legacyPackages)
+          ) {
             legacyPackages.push(...library.legacyPackages)
           }
         }

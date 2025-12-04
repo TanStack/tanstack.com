@@ -9,23 +9,20 @@ import { feedEntries, feedConfig } from '~/db/schema'
 import { eq } from 'drizzle-orm'
 
 /**
- * Map GitHub repo names to library IDs
+ * Dynamically build repo to library ID mapping from libraries list
+ * This ensures we always sync all libraries without maintaining a duplicate list
  */
-const REPO_TO_LIBRARY_ID: Record<string, string> = {
-  'tanstack/start': 'start',
-  'tanstack/router': 'router',
-  'tanstack/query': 'query',
-  'tanstack/table': 'table',
-  'tanstack/form': 'form',
-  'tanstack/virtual': 'virtual',
-  'tanstack/ranger': 'ranger',
-  'tanstack/store': 'store',
-  'tanstack/pacer': 'pacer',
-  'tanstack/db': 'db',
-  'tanstack/config': 'config',
-  'tanstack/devtools': 'devtools',
-  'tanstack/react-charts': 'react-charts',
-  'tanstack/create-tsrouter-app': 'create-tsrouter-app',
+async function getRepoToLibraryIdMap(): Promise<Record<string, string>> {
+  const { libraries } = await import('~/libraries')
+  const mapping: Record<string, string> = {}
+
+  for (const library of libraries) {
+    if (library.repo && library.id) {
+      mapping[library.repo] = library.id
+    }
+  }
+
+  return mapping
 }
 
 /**
@@ -69,7 +66,7 @@ function parseVersion(version: string): {
 /**
  * Normalize GitHub release to feed entry format
  */
-export function normalizeGitHubRelease(release: {
+export async function normalizeGitHubRelease(release: {
   id: number
   tag_name: string
   name: string
@@ -78,7 +75,7 @@ export function normalizeGitHubRelease(release: {
   html_url: string
   author?: { login: string }
   repo: string
-}): {
+}): Promise<{
   id: string
   source: string
   title: string
@@ -93,9 +90,10 @@ export function normalizeGitHubRelease(release: {
   isVisible: boolean
   featured?: boolean
   autoSynced: boolean
-} {
+}> {
   const { releaseType, isPrerelease } = parseVersion(release.tag_name)
-  const libraryId = REPO_TO_LIBRARY_ID[release.repo]
+  const repoToLibraryId = await getRepoToLibraryIdMap()
+  const libraryId = repoToLibraryId[release.repo]
 
   // Generate unique ID
   const id = `github:${release.repo}:${release.tag_name}`
@@ -241,7 +239,8 @@ export async function syncGitHubReleases(options?: { daysBack?: number }) {
     )
   }
 
-  const repos = Object.keys(REPO_TO_LIBRARY_ID)
+  const repoToLibraryId = await getRepoToLibraryIdMap()
+  const repos = Object.keys(repoToLibraryId)
   const now = Date.now()
   let syncedCount = 0
   let errorCount = 0
@@ -282,7 +281,7 @@ export async function syncGitHubReleases(options?: { daysBack?: number }) {
         }
 
         try {
-          const normalized = normalizeGitHubRelease({
+          const normalized = await normalizeGitHubRelease({
             ...release,
             repo,
           })
@@ -364,4 +363,3 @@ export async function syncGitHubReleases(options?: { daysBack?: number }) {
     reposProcessed: repos.length,
   }
 }
-

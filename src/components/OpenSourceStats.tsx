@@ -5,7 +5,7 @@ import { FaDownload } from 'react-icons/fa'
 import { BlankErrorBoundary } from './BlankErrorBoundary'
 import { Suspense } from 'react'
 import { Library } from '~/libraries'
-import { ossStatsQueryOptions } from '~/queries/stats'
+import { ossStatsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 
 const StableCounter = ({
@@ -52,7 +52,12 @@ const StableCounter = ({
 const NpmDownloadCounter = ({
   npmData,
 }: {
-  npmData: { totalDownloads: number; tag?: string }
+  npmData: {
+    totalDownloads: number
+    ratePerDay?: number
+    updatedAt?: number
+    tag?: string
+  }
 }) => {
   const { count, intervalMs } = useNpmDownloadCounter(npmData)
   if (!Number.isFinite(count)) {
@@ -62,86 +67,125 @@ const NpmDownloadCounter = ({
   return <StableCounter value={count} intervalMs={intervalMs} />
 }
 
-export function ossStatsQuery({ library }: { library?: Library } = {}) {
-  return ossStatsQueryOptions({
-    library: library
-      ? {
-          id: library.id,
-          repo: library.repo,
-          frameworks: library.frameworks,
-        }
-      : undefined,
-  })
+function isValidMetric(value: number | undefined | null): boolean {
+  return (
+    value !== undefined &&
+    value !== null &&
+    !Number.isNaN(value) &&
+    value > 0 &&
+    Number.isFinite(value)
+  )
 }
 
 function OssStatsContent({ library }: { library?: Library }) {
   const { data: stats } = useSuspenseQuery(ossStatsQuery({ library }))
 
+  const hasNpmDownloads = isValidMetric(stats.npm?.totalDownloads)
+  const hasStarCount = isValidMetric(stats.github?.starCount)
+  const hasContributorCount = isValidMetric(stats.github?.contributorCount)
+  const hasDependentCount = isValidMetric(stats.github?.dependentCount)
+
+  const visibleMetricsCount = [
+    hasNpmDownloads,
+    hasStarCount,
+    hasContributorCount,
+    hasDependentCount,
+  ].filter(Boolean).length
+
+  const gridColsClass =
+    visibleMetricsCount === 1
+      ? 'grid-cols-1'
+      : visibleMetricsCount === 2
+      ? 'sm:grid-cols-2'
+      : visibleMetricsCount === 3
+      ? 'sm:grid-cols-2 xl:grid-cols-3'
+      : 'sm:grid-cols-2 xl:grid-cols-4'
+
   return (
     <div>
       <div
-        className="relative p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center
+        className={`relative p-8 grid grid-cols-1 ${gridColsClass} gap-8 items-center
       justify-center xl:place-items-center bg-white/50 dark:bg-black/40
-      dark:shadow-none rounded-xl shadow-xl"
+      dark:shadow-none rounded-xl shadow-xl`}
       >
-        <a
-          href="https://www.npmjs.com/org/tanstack"
-          target="_blank"
-          rel="noreferrer"
-          className="group flex gap-4 items-center"
-        >
-          <FaDownload className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
-          <div>
-            <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
-              <NpmDownloadCounter npmData={stats.npm} />
+        {hasNpmDownloads && (
+          <a
+            href="https://www.npmjs.com/org/tanstack"
+            target="_blank"
+            rel="noreferrer"
+            className="group flex gap-4 items-center"
+          >
+            <FaDownload className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
+            <div>
+              <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
+                <NpmDownloadCounter npmData={stats.npm} />
+              </div>
+              <div className="text-sm opacity-60 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
+                NPM Downloads
+              </div>
             </div>
-            <div className="text-sm opacity-60 font-medium italic group-hover:text-emerald-500 transition-colors duration-200">
-              NPM Downloads
+          </a>
+        )}
+        {hasStarCount && (
+          <a
+            href={
+              library
+                ? `https://github.com/${library.repo}`
+                : 'https://github.com/orgs/TanStack/repositories?q=sort:stars'
+            }
+            target="_blank"
+            rel="noreferrer"
+            className="group flex gap-4 items-center"
+          >
+            <FaStar className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
+            <div>
+              <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200 relative">
+                <NumberFlow
+                  value={stats.github?.starCount}
+                  continuous
+                  willChange
+                />
+              </div>
+              <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
+                Stars on Github
+              </div>
+            </div>
+          </a>
+        )}
+        {hasContributorCount && (
+          <div className="flex gap-4 items-center">
+            <FaUsers className="text-2xl" />
+            <div className="">
+              <div className="text-2xl font-bold opacity-80 relative">
+                <NumberFlow
+                  value={stats.github?.contributorCount}
+                  continuous
+                  willChange
+                />
+              </div>
+              <div className="text-sm opacity-60 font-medium italic -mt-1">
+                Contributors on GitHub
+              </div>
             </div>
           </div>
-        </a>
-        <a
-          href={
-            library
-              ? `https://github.com/${library.repo}`
-              : 'https://github.com/orgs/TanStack/repositories?q=sort:stars'
-          }
-          target="_blank"
-          rel="noreferrer"
-          className="group flex gap-4 items-center"
-        >
-          <FaStar className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
-          <div>
-            <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200">
-              <NumberFlow value={stats.github?.starCount} />
-            </div>
-            <div className="text-sm opacity-60 font-medium italic -mt-1 group-hover:text-yellow-500 transition-colors duration-200">
-              Stars on Github
+        )}
+        {hasDependentCount && (
+          <div className="flex gap-4 items-center">
+            <FaCube className="text-2xl" />
+            <div className="">
+              <div className="text-2xl font-bold opacity-80 relative">
+                <NumberFlow
+                  value={stats.github?.dependentCount}
+                  continuous
+                  willChange
+                />
+              </div>
+              <div className="text-sm opacity-60 font-medium italic -mt-1">
+                Dependents on GitHub
+              </div>
             </div>
           </div>
-        </a>
-        <div className="flex gap-4 items-center">
-          <FaUsers className="text-2xl" />
-          <div className="">
-            <div className="text-2xl font-bold opacity-80">
-              <NumberFlow value={stats.github?.contributorCount} />
-            </div>
-            <div className="text-sm opacity-60 font-medium italic -mt-1">
-              Contributors on GitHub
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-4 items-center">
-          <FaCube className="text-2xl" />
-          <div className="">
-            <div className="text-2xl font-bold opacity-80 relative">
-              <NumberFlow value={stats.github?.dependentCount} />
-            </div>
-            <div className="text-sm opacity-60 font-medium italic -mt-1">
-              Dependents on GitHub
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )

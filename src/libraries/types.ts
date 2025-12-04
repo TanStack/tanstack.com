@@ -68,6 +68,8 @@ export type Library = {
   docsRoot?: string
   embedEditor?: 'codesandbox' | 'stackblitz'
   visible?: boolean
+  // Legacy npm packages (non-@tanstack scope) to include in stats
+  legacyPackages?: string[]
 }
 
 export type LibraryMenuItem = {

@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import {
   FaUser,
@@ -395,8 +395,8 @@ function UsersPage() {
   const userQuery = useCurrentUserQuery()
   const user = userQuery.data
   const pageSize = search.pageSize ?? 10
-  const usersQuery = useQuery(
-    listUsersQueryOptions({
+  const usersQuery = useQuery({
+    ...listUsersQueryOptions({
       pagination: {
         limit: pageSize,
         page: currentPageIndex,
@@ -410,8 +410,9 @@ function UsersPage() {
         adsDisabledFilter === 'all' ? undefined : adsDisabledFilter === 'true',
       interestedInHidingAdsFilter:
         waitlistFilter === 'all' ? undefined : waitlistFilter === 'true',
-    })
-  )
+    }),
+    placeholderData: keepPreviousData,
+  })
   // counts now come from listUsers response
 
   const updateUserCapabilities = useUpdateUserCapabilities()
@@ -419,7 +420,10 @@ function UsersPage() {
   const assignRolesToUser = useAssignRolesToUser()
   const bulkAssignRolesToUsers = useBulkAssignRolesToUsers()
   const bulkUpdateUserCapabilities = useBulkUpdateUserCapabilities()
-  const allRolesQuery = useQuery(listRolesQueryOptions({}))
+  const allRolesQuery = useQuery({
+    ...listRolesQueryOptions({}),
+    placeholderData: keepPreviousData,
+  })
   const allRoles = allRolesQuery.data || []
 
   // Bulk fetch user roles and effective capabilities to avoid N+1 queries
@@ -427,11 +431,15 @@ function UsersPage() {
     () => (usersQuery?.data?.page || []).map((u: User) => u._id),
     [usersQuery?.data?.page]
   )
-  const bulkUserRolesQuery = useQuery(getBulkUserRolesQueryOptions(userIds))
+  const bulkUserRolesQuery = useQuery({
+    ...getBulkUserRolesQueryOptions(userIds),
+    placeholderData: keepPreviousData,
+  })
   const bulkUserRoles = bulkUserRolesQuery.data
-  const bulkEffectiveCapabilitiesQuery = useQuery(
-    getBulkEffectiveCapabilitiesQueryOptions(userIds)
-  )
+  const bulkEffectiveCapabilitiesQuery = useQuery({
+    ...getBulkEffectiveCapabilitiesQueryOptions(userIds),
+    placeholderData: keepPreviousData,
+  })
   const bulkEffectiveCapabilities = bulkEffectiveCapabilitiesQuery.data
 
   const availableCapabilities = useMemo(

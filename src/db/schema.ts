@@ -8,6 +8,8 @@ import {
   jsonb,
   pgEnum,
   integer,
+  bigint,
+  real,
   index,
   uniqueIndex,
 } from 'drizzle-orm/pg-core'
@@ -274,6 +276,149 @@ export const feedConfig = pgTable(
 
 export type FeedConfig = InferSelectModel<typeof feedConfig>
 export type NewFeedConfig = InferInsertModel<typeof feedConfig>
+
+// GitHub Stats cache table (for caching expensive GitHub API calls)
+export const githubStatsCache = pgTable(
+  'github_stats_cache',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Cache key: repo name (e.g., "tanstack/query") or "org:tanstack" for org aggregate
+    cacheKey: varchar('cache_key', { length: 255 }).notNull().unique(),
+    // Cached GitHub stats data (JSON)
+    stats: jsonb('stats').notNull(),
+    // Previous stats data (JSON) - for calculating deltas and animation trajectory
+    previousStats: jsonb('previous_stats'),
+    // When this cache entry expires (should refresh after this)
+    expiresAt: timestamp('expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    cacheKeyIdx: index('github_stats_cache_key_idx').on(table.cacheKey),
+    expiresAtIdx: index('github_stats_cache_expires_at_idx').on(table.expiresAt),
+  })
+)
+
+export type GithubStatsCache = InferSelectModel<typeof githubStatsCache>
+
+// NPM Packages table (combines registry and stats cache)
+export const npmPackages = pgTable(
+  'npm_packages',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Package name (e.g., "@tanstack/react-query")
+    packageName: varchar('package_name', { length: 255 }).notNull().unique(),
+
+    // Package metadata (from npm registry)
+    githubRepo: varchar('github_repo', { length: 255 }),
+    libraryId: varchar('library_id', { length: 255 }),
+    isLegacy: boolean('is_legacy').default(false),
+    metadataCheckedAt: timestamp('metadata_checked_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+
+    // Stats cache (from npm downloads API)
+    downloads: bigint('downloads', { mode: 'number' }),
+    ratePerDay: real('rate_per_day'), // Growth rate in downloads per day (for animation)
+    statsExpiresAt: timestamp('stats_expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    packageNameIdx: index('npm_packages_package_name_idx').on(
+      table.packageName
+    ),
+    githubRepoIdx: index('npm_packages_github_repo_idx').on(table.githubRepo),
+    libraryIdIdx: index('npm_packages_library_id_idx').on(table.libraryId),
+    statsExpiresAtIdx: index('npm_packages_stats_expires_at_idx').on(
+      table.statsExpiresAt
+    ),
+  })
+)
+
+export type NpmPackage = InferSelectModel<typeof npmPackages>
+export type NewNpmPackage = InferInsertModel<typeof npmPackages>
+
+// NPM Org Stats cache table (for pre-aggregated org-level stats)
+export const npmOrgStatsCache = pgTable(
+  'npm_org_stats_cache',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Organization name (e.g., "tanstack")
+    orgName: varchar('org_name', { length: 255 }).notNull().unique(),
+    // Pre-aggregated total downloads
+    totalDownloads: bigint('total_downloads', { mode: 'number' }).notNull(),
+    // Per-package stats breakdown (JSON) - needed for per-package rate info
+    packageStats: jsonb('package_stats').notNull(),
+    // When this cache entry expires (should refresh after this)
+    expiresAt: timestamp('expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    orgNameIdx: index('npm_org_stats_cache_org_name_idx').on(table.orgName),
+    expiresAtIdx: index('npm_org_stats_cache_expires_at_idx').on(
+      table.expiresAt
+    ),
+  })
+)
+
+export type NpmOrgStatsCache = InferSelectModel<typeof npmOrgStatsCache>
+export type NewNpmOrgStatsCache = InferInsertModel<typeof npmOrgStatsCache>
+
+// NPM Library Stats cache table (for pre-aggregated library-level stats)
+export const npmLibraryStatsCache = pgTable(
+  'npm_library_stats_cache',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Library ID (e.g., "query", "table")
+    libraryId: varchar('library_id', { length: 255 }).notNull().unique(),
+    // Pre-aggregated total downloads for this library
+    totalDownloads: bigint('total_downloads', { mode: 'number' }).notNull(),
+    // Previous total downloads (for calculating rate of change)
+    previousTotalDownloads: bigint('previous_total_downloads', { mode: 'number' }),
+    // Package count
+    packageCount: integer('package_count').notNull(),
+    // When this cache entry was last updated
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    libraryIdIdx: index('npm_library_stats_cache_library_id_idx').on(
+      table.libraryId
+    ),
+  })
+)
+
+export type NpmLibraryStatsCache = InferSelectModel<typeof npmLibraryStatsCache>
+export type NewNpmLibraryStatsCache = InferInsertModel<typeof npmLibraryStatsCache>
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({

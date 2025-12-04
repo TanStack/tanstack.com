@@ -6,10 +6,11 @@ import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import discordImage from '~/images/discord-logo-white.svg'
 import { useMutation } from '~/hooks/useMutation'
-import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
+import { librariesByGroup, librariesGroupNamesMap } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
 import { PartnersGrid } from '~/components/PartnersGrid'
 import OpenSourceStats from '~/components/OpenSourceStats'
+import { ossStatsQuery } from '~/queries/stats'
 // Using public asset URLs for splash images
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 import LandingPageGad from '~/components/LandingPageGad'
@@ -75,8 +76,7 @@ const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(async () => {
 
 export const Route = createFileRoute('/_libraries/')({
   loader: async ({ context: { queryClient } }) => {
-    // TODO: Re-enable stats query once stats module is migrated
-    // await queryClient.ensureQueryData(ossStatsQueryOptions())
+    await queryClient.ensureQueryData(ossStatsQuery())
     const recentPosts = await fetchRecentPosts()
 
     return {
@@ -201,7 +201,7 @@ function Index() {
           </div>
 
           {Object.entries(librariesByGroup).map(
-            ([groupName, groupLibraries]: [string, Library[]]) => (
+            ([groupName, groupLibraries]) => (
               <div key={groupName} className="mt-8">
                 <h4 className={`text-2xl font-medium capitalize mb-6`}>
                   {
@@ -240,7 +240,7 @@ function Index() {
                             <MatchRoute
                               pending
                               to={library.to}
-                              children={(isPending) => {
+                              children={() => {
                                 return (
                                   <div
                                     className={twMerge(

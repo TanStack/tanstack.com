@@ -1,21 +1,12 @@
 import * as React from 'react'
-import reactLogo from '../images/react-logo.svg'
-import vueLogo from '../images/vue-logo.svg'
-import angularLogo from '../images/angular-logo.svg'
-import svelteLogo from '../images/svelte-logo.svg'
-import solidLogo from '../images/solid-logo.svg'
-import jsLogo from '../images/js-logo.svg'
 
-export const frameworkOptions = [
-  { label: 'React', value: 'react', logo: reactLogo, color: 'bg-blue-500' },
-  { label: 'Vue', value: 'vue', logo: vueLogo, color: 'bg-green-500' },
-  { label: 'Angular', value: 'angular', logo: angularLogo, color: 'bg-red-500' },
-  { label: 'Svelte', value: 'svelte', logo: svelteLogo, color: 'bg-orange-500' },
-  { label: 'Solid', value: 'solid', logo: solidLogo, color: 'bg-blue-600' },
-  { label: 'Vanilla', value: 'vanilla', logo: jsLogo, color: 'bg-yellow-500' },
-] as const
-
-export type Framework = (typeof frameworkOptions)[number]['value']
+export type Framework =
+  | 'react'
+  | 'vue'
+  | 'angular'
+  | 'svelte'
+  | 'solid'
+  | 'vanilla'
 
 export type Library = {
   id:
@@ -79,4 +70,3 @@ export type LibraryMenuItem = {
 }
 
 export type LibraryId = Library['id']
-

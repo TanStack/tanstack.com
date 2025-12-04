@@ -1,5 +1,5 @@
 import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
-import { refreshNpmOrgStats, fetchGitHubOwnerStats } from '~/utils/stats.server'
+import { refreshNpmOrgStats, fetchGitHubOwnerStats } from '~/utils/stats.functions'
 import { setCachedGitHubStats } from '~/utils/stats-db.server'
 
 /**

@@ -20,7 +20,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useCreateRole, useUpdateRole, useDeleteRole } from '~/utils/mutations'
-import { listRoles } from '~/utils/roles.server'
+import { listRoles } from '~/utils/roles.functions'
 import {
   FaEdit,
   FaSave,

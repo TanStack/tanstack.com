@@ -46,7 +46,7 @@ import {
   getBulkUserRolesQueryOptions,
   getBulkEffectiveCapabilitiesQueryOptions,
 } from '~/queries/roles'
-import { getUserRoles } from '~/utils/roles.server'
+import { getUserRoles } from '~/utils/roles.functions'
 
 // User type for table
 type User = {

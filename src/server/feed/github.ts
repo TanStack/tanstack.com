@@ -4,7 +4,7 @@ import {
   updateFeedEntry,
   getFeedConfig,
   setFeedConfig,
-} from '~/utils/feed.server'
+} from '~/utils/feed.functions'
 import { env } from '~/utils/env'
 
 /**

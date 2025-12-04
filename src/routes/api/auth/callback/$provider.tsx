@@ -11,6 +11,7 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
     handlers: {
       GET: async ({ request, params }) => {
         try {
+
           const provider = params.provider as 'github' | 'google'
           const url = new URL(request.url)
           const code = url.searchParams.get('code')

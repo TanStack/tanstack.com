@@ -11,14 +11,14 @@ import {
   assignRolesToUser,
   bulkAssignRolesToUsers,
   removeUsersFromRole,
-} from './roles.server'
+} from './roles.functions'
 import {
   toggleFeedEntryVisibility,
   setFeedEntryFeatured,
   deleteFeedEntry,
   createFeedEntry,
   updateFeedEntry,
-} from './feed.server'
+} from './feed.functions'
 
 // User mutations
 export function useUpdateUserCapabilities() {

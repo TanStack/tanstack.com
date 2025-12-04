@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { syncAllSources } from '~/server/feed/sync-all'
 import { getAuthenticatedUser } from '~/utils/auth.server-helpers'
-import { getEffectiveCapabilities } from '~/utils/capabilities'
+import { getEffectiveCapabilities } from '~/utils/capabilities.server'
 
 export const Route = createFileRoute('/api/admin/sync')({
   server: {

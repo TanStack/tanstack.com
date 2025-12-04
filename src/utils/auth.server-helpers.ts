@@ -3,7 +3,7 @@ import { db } from '~/db/client'
 import { users } from '~/db/schema'
 import { eq } from 'drizzle-orm'
 import { getSessionCookie, verifyCookie } from './cookies.server'
-import { getEffectiveCapabilities } from './capabilities'
+import { getEffectiveCapabilities } from './capabilities.server'
 
 // Helper to get user from session cookie (server-side only)
 export async function getCurrentUserFromRequest(request: Request) {

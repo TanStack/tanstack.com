@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { normalizeGitHubRelease } from '~/server/feed/github'
-import { getFeedEntry, createFeedEntry, updateFeedEntry } from '~/utils/feed.server'
+import { getFeedEntry, createFeedEntry, updateFeedEntry } from '~/utils/feed.functions'
 import { env } from '~/utils/env'
 import crypto from 'crypto'
 

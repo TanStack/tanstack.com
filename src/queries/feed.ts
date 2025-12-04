@@ -7,7 +7,7 @@ import {
   getFeedFacetCounts,
   searchFeedEntries,
   getFeedConfig,
-} from '~/utils/feed.server'
+} from '~/utils/feed.functions'
 import type { FeedCategory, ReleaseLevel } from '~/db/schema'
 
 export interface FeedFilters {

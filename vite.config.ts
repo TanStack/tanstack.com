@@ -12,6 +12,21 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  ssr: {
+    external: ['postgres'],
+    noExternal: ['drizzle-orm'],
+  },
+  optimizeDeps: {
+    exclude: ['postgres'],
+  },
+  build: {
+    rollupOptions: {
+      external: (id) => {
+        // Externalize postgres from client bundle
+        return id.includes('postgres')
+      },
+    },
+  },
   plugins: [
     tsConfigPaths({
       projects: ['./tsconfig.json'],

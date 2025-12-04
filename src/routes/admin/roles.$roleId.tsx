@@ -3,7 +3,7 @@ import { useState, useMemo, useCallback } from 'react'
 import { FaLock, FaTrash, FaArrowLeft, FaUser, FaUsers } from 'react-icons/fa'
 import { useRemoveUsersFromRole } from '~/utils/mutations'
 import { useQuery } from '@tanstack/react-query'
-import { getRole, getUsersWithRole } from '~/utils/roles.server'
+import { getRole, getUsersWithRole } from '~/utils/roles.functions'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import {
   useReactTable,

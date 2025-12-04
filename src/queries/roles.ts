@@ -5,7 +5,7 @@ import {
   getUserRoles,
   getBulkUserRoles,
   getBulkEffectiveCapabilities,
-} from '~/utils/roles.server'
+} from '~/utils/roles.functions'
 import type { Capability } from '~/db/schema'
 
 export interface ListRolesFilters {

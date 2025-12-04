@@ -30,6 +30,7 @@ export const virtualProject = {
   frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular'],
   defaultDocs: 'introduction',
   scarfId: '32372eb1-91e0-48e7-8df1-4808a7be6b94',
+  legacyPackages: ['react-virtual'],
   menu: [
     {
       icon: <BiBookAlt />,

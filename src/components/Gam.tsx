@@ -179,33 +179,6 @@ export function GamLeftRailSquare() {
 }
 
 // Export GAM div components for direct use
-export function GamIncontent1() {
-  return <GamAd name="incontent_1" />
-}
-
-export function GamIncontent2() {
-  return <GamAd name="incontent_2" />
-}
-
-export function GamIncontent3() {
-  return <GamAd name="incontent_3" />
-}
-
-export function GamIncontent4() {
-  return <GamAd name="incontent_4" />
-}
-
-export function GamIncontentFooter() {
-  return <GamAd name="incontent_footer" />
-}
-
-export function GamMrec1() {
-  return <GamAd name="mrec_1" />
-}
-
-export function GamMrec2() {
-  return <GamAd name="mrec_2" />
-}
 
 export function GamVrec1(
   props: Omit<React.ComponentProps<typeof GamAd>, 'name'>

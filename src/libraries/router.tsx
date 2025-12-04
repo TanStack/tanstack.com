@@ -36,6 +36,7 @@ export const routerProject = {
   frameworks: ['react', 'solid'],
   scarfId: '3d14fff2-f326-4929-b5e1-6ecf953d24f4',
   defaultDocs: 'framework/react/overview',
+  legacyPackages: ['react-location'],
   hideCodesandboxUrl: true,
   showVercelUrl: false,
   showNetlifyUrl: true,

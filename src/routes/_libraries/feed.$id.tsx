@@ -1,5 +1,4 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router'
-import { api } from 'convex/_generated/api'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { useCapabilities } from '~/hooks/useCapabilities'
@@ -11,19 +10,16 @@ import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
 import type { FeedEntry } from '~/components/FeedEntry'
-import { convexQuery } from '@convex-dev/react-query'
-import { Id } from 'convex/_generated/dataModel'
+import { getFeedEntryByIdQueryOptions } from '~/queries/feed'
 
 export const Route = createFileRoute('/_libraries/feed/$id')({
   staleTime: 1000 * 60 * 5, // 5 minutes
   loader: async ({ params, context: { queryClient } }) => {
-    // Use Convex _id directly (already URL-safe)
-    // Route params are strings, but we cast to Id type for the query
-    const entryId = params.id as Id<'feedEntries'>
+    const entryId = params.id
 
-    // Fetch the feed entry by _id
+    // Fetch the feed entry by id
     const entry = await queryClient.ensureQueryData(
-      convexQuery(api.feed.queries.getFeedEntryById, { id: entryId })
+      getFeedEntryByIdQueryOptions(entryId)
     )
 
     if (!entry) {

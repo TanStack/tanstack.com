@@ -32,23 +32,6 @@ import {
 } from '@radix-ui/react-dropdown-menu'
 import { Command } from 'cmdk'
 
-export const packageGroupSchema = z.object({
-  packages: z.array(
-    z.object({
-      name: z.string(),
-      hidden: z.boolean().optional(),
-    })
-  ),
-  color: z.string().nullable().optional(),
-  baseline: z.boolean().optional(),
-})
-
-export const packageComparisonSchema = z.object({
-  title: z.string(),
-  packageGroups: z.array(packageGroupSchema),
-  baseline: z.string().optional(),
-})
-
 const transformModeSchema = z.enum(['none', 'normalize-y'])
 const binTypeSchema = z.enum(['yearly', 'monthly', 'weekly', 'daily'])
 const showDataModeSchema = z.enum(['all', 'complete'])

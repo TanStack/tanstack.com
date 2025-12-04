@@ -7,7 +7,6 @@ import {
   useRouterState,
   HeadContent,
   Scripts,
-  useRouteContext,
 } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
@@ -23,23 +22,14 @@ import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
 import { ToastProvider } from '~/components/ToastProvider'
 import { ThemeProvider } from '~/components/ThemeProvider'
-import { ConvexQueryClient } from '@convex-dev/react-query'
-import { ConvexReactClient } from 'convex/react'
 import { Navbar } from '~/components/Navbar'
 
-import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react'
-import { authClient } from '../utils/auth.client'
 
-import { LibrariesLayout } from './_libraries/route'
-import { TanStackUser } from 'convex/auth'
 import { THEME_COLORS } from '~/utils/utils'
 import { useHubSpotChat } from '~/hooks/useHubSpotChat'
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient
-  convexClient: ConvexReactClient
-  convexQueryClient: ConvexQueryClient
-  ensureUser: () => Promise<TanStackUser>
 }>()({
   head: () => ({
     meta: [
@@ -134,9 +124,7 @@ export const Route = createRootRouteWithContext<{
   notFoundComponent: () => {
     return (
       <DocumentWrapper>
-        <LibrariesLayout>
-          <NotFound />
-        </LibrariesLayout>
+        <NotFound />
       </DocumentWrapper>
     )
   },
@@ -150,19 +138,12 @@ export const Route = createRootRouteWithContext<{
 })
 
 function DocumentWrapper({ children }: { children: React.ReactNode }) {
-  const context = useRouteContext({ from: Route.id })
-
   return (
-    <ConvexBetterAuthProvider
-      client={context.convexClient}
-      authClient={authClient}
-    >
-      <ThemeProvider>
-        <SearchProvider>
-          <HtmlWrapper>{children}</HtmlWrapper>
-        </SearchProvider>
-      </ThemeProvider>
-    </ConvexBetterAuthProvider>
+    <ThemeProvider>
+      <SearchProvider>
+        <HtmlWrapper>{children}</HtmlWrapper>
+      </SearchProvider>
+    </ThemeProvider>
   )
 }
 

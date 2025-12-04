@@ -1,7 +1,7 @@
 node_modules
 package-lock.json
 yarn.lock
-convex/generated
+drizzle/migrations
 
 .tanstack
 .DS_Store

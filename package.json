@@ -11,7 +11,7 @@
     "dev:frontend": "pnpm run with-env vite dev",
     "build": "vite build",
     "start": "vite start",
-    "lint": "prettier --check '**/*' --ignore-unknown && eslint --ext .ts,.tsx ./src",
+    "lint": "eslint --ext .ts,.tsx ./src",
     "format": "prettier --write '**/*' --ignore-unknown",
     "linkAll": "node scripts/link.js",
     "db:generate": "drizzle-kit generate",

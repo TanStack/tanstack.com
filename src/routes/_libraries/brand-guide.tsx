@@ -49,7 +49,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
           <div className="text-gray-500 dark:text-gray-400 text-xs">
             Try again or use Copy URL
           </div>
-        </div>
+        </div>,
       )
     }
   }
@@ -60,13 +60,13 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
         bg === 'dark'
           ? 'bg-black/80 text-white'
           : bg === 'light'
-          ? 'bg-white text-black'
-          : 'bg-gray-500/20'
+            ? 'bg-white text-black'
+            : 'bg-gray-500/20',
       )}
     >
       <div
         className={twMerge(
-          `p-6  flex items-center justify-center min-h-[200px]`
+          `p-6  flex items-center justify-center min-h-[200px]`,
         )}
       >
         {asset}
@@ -98,7 +98,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
                       <div className="text-gray-500 dark:text-gray-400 text-xs">
                         Asset URL is now in your clipboard
                       </div>
-                    </div>
+                    </div>,
                   )
                 } catch (err) {
                   console.error('Failed to copy asset URL', err)
@@ -108,7 +108,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
                       <div className="text-gray-500 dark:text-gray-400 text-xs">
                         Try again or download directly from the brand guide
                       </div>
-                    </div>
+                    </div>,
                   )
                 }
               }}
@@ -131,7 +131,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
                         <div className="text-gray-500 dark:text-gray-400 text-xs">
                           SVG markup is now in your clipboard
                         </div>
-                      </div>
+                      </div>,
                     )
                   } catch (err) {
                     console.error('Failed to copy SVG', err)
@@ -141,7 +141,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
                         <div className="text-gray-500 dark:text-gray-400 text-xs">
                           Try again or download directly from the brand guide
                         </div>
-                      </div>
+                      </div>,
                     )
                   }
                 }}
@@ -251,7 +251,7 @@ function RouteComponent() {
         ],
       },
     ],
-    []
+    [],
   )
   return (
     <div className="min-h-screen flex flex-col">

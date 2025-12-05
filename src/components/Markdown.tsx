@@ -39,14 +39,13 @@ const CustomHeading = ({
 
 const makeHeading =
   (type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
-  (props: HTMLProps<HTMLHeadingElement>) =>
-    (
-      <CustomHeading
-        Comp={type}
-        {...props}
-        className={`${props.className ?? ''} block`}
-      />
-    )
+  (props: HTMLProps<HTMLHeadingElement>) => (
+    <CustomHeading
+      Comp={type}
+      {...props}
+      className={`${props.className ?? ''} block`}
+    />
+  )
 
 const markdownComponents: Record<string, React.FC> = {
   a: MarkdownLink,
@@ -144,7 +143,7 @@ export function CodeBlock({
       <pre className={`shiki tokyo-night`}>
         <code>{lang === 'mermaid' ? <svg /> : code}</code>
       </pre>
-    </>
+    </>,
   )
 
   React[
@@ -175,18 +174,18 @@ export function CodeBlock({
           }
 
           return output
-        })
+        }),
       )
 
       setCodeElement(
         <div
           // className={`m-0 text-sm rounded-md w-full border border-gray-500/20 dark:border-gray-500/30`}
           className={twMerge(
-            isEmbedded ? 'h-full [&>pre]:h-full [&>pre]:rounded-none' : ''
+            isEmbedded ? 'h-full [&>pre]:h-full [&>pre]:rounded-none' : '',
           )}
           dangerouslySetInnerHTML={{ __html: htmls.join('') }}
           ref={ref}
-        />
+        />,
       )
     })()
   }, [code, lang])
@@ -195,7 +194,7 @@ export function CodeBlock({
     <div
       className={twMerge(
         'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md [*[data-tab]_&]:only:border-0',
-        props.className
+        props.className,
       )}
       style={props.style}
     >
@@ -205,7 +204,7 @@ export function CodeBlock({
             `absolute flex items-stretch bg-white text-sm z-10 rounded-md`,
             `dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20`,
             'shadow-md',
-            isEmbedded ? 'top-2 right-4' : '-top-3 right-2'
+            isEmbedded ? 'top-2 right-4' : '-top-3 right-2',
           )}
         >
           {lang ? <div className="px-2">{lang}</div> : null}
@@ -230,7 +229,7 @@ export function CodeBlock({
                   <div className="text-gray-500 dark:text-gray-400 text-xs">
                     Code block copied to clipboard
                   </div>
-                </div>
+                </div>,
               )
             }}
             aria-label="Copy code to clipboard"
@@ -269,8 +268,8 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
   if (!loadedLanguages.includes(language as any)) {
     promises.push(
       highlighter.loadLanguage(
-        language === 'mermaid' ? 'plaintext' : (language as any)
-      )
+        language === 'mermaid' ? 'plaintext' : (language as any),
+      ),
     )
   }
 
@@ -303,11 +302,11 @@ const options: HTMLReactParserOptions = {
             const tabs = attributes.tabs
             const panelElements = domNode.children?.filter(
               (child): child is Element =>
-                child instanceof Element && child.name === 'md-tab-panel'
+                child instanceof Element && child.name === 'md-tab-panel',
             )
 
             const children = panelElements?.map((panel) =>
-              domToReact(panel.children as any, options)
+              domToReact(panel.children as any, options),
             )
 
             return <Tabs tabs={tabs} children={children as any} />
@@ -322,7 +321,7 @@ const options: HTMLReactParserOptions = {
         return React.createElement(
           replacer,
           attributesToProps(domNode.attribs),
-          domToReact(domNode.children as any, options)
+          domToReact(domNode.children as any, options),
         )
       }
     }

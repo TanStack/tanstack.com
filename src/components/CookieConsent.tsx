@@ -55,7 +55,7 @@ export default function CookieConsent() {
       if (!consentSettings.analytics && !consentSettings.ads) {
         try {
           const response = await fetch(
-            'https://www.cloudflare.com/cdn-cgi/trace'
+            'https://www.cloudflare.com/cdn-cgi/trace',
           )
           const data = await response.text()
           const country = data.match(/loc=(\w+)/)?.[1]
@@ -212,7 +212,7 @@ export default function CookieConsent() {
                     }
                     localStorage.setItem(
                       'cookie_consent',
-                      JSON.stringify(updated)
+                      JSON.stringify(updated),
                     )
                     updateGTMConsent(updated)
                   }}
@@ -237,7 +237,7 @@ export default function CookieConsent() {
                     if (typeof document !== 'undefined') {
                       localStorage.setItem(
                         'cookie_consent',
-                        JSON.stringify(updated)
+                        JSON.stringify(updated),
                       )
                     }
                     updateGTMConsent(updated)

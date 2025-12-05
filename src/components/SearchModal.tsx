@@ -21,7 +21,7 @@ import { capitalize } from '~/utils/utils'
 
 const searchClient = liteClient(
   'FQ0DQ6MA3C',
-  '10c34d6a5c89f6048cf644d601e65172'
+  '10c34d6a5c89f6048cf644d601e65172',
 )
 
 const SafeLink = React.forwardRef(
@@ -36,7 +36,7 @@ const SafeLink = React.forwardRef(
       tabIndex,
       ...props
     }: React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    ref: React.Ref<HTMLAnchorElement>
+    ref: React.Ref<HTMLAnchorElement>,
   ) => {
     const isInternal = href?.includes('//tanstack.com')
 
@@ -72,7 +72,7 @@ const SafeLink = React.forwardRef(
         {children}
       </Link>
     )
-  }
+  },
 )
 
 const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
@@ -104,7 +104,7 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
       href={hit.url}
       className={twMerge(
         'block p-4 focus:outline-none border-b border-gray-500/10',
-        isFocused ? 'bg-gray-500/20' : 'hover:bg-gray-500/10'
+        isFocused ? 'bg-gray-500/20' : 'hover:bg-gray-500/10',
       )}
       onKeyDown={handleKeyDown}
       onFocus={() => ref.current?.focus()}
@@ -129,7 +129,7 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
                 >
                   <Highlight attribute={`hierarchy.${lvl}`} hit={hit} />
                 </p>
-              ) : null
+              ) : null,
             )}
           {hit.content ? (
             <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
@@ -139,7 +139,7 @@ const Hit = ({ hit, isFocused }: { hit: any; isFocused?: boolean }) => {
         </div>
         {(() => {
           const framework = frameworkOptions.find((f) =>
-            hit.url.includes(`/framework/${f.value}`)
+            hit.url.includes(`/framework/${f.value}`),
           )
           if (!framework) return null
 
@@ -174,7 +174,7 @@ function LibraryRefinement() {
 
   React.useEffect(() => {
     const isAlreadyRefined = items.some(
-      (item) => item.label === subpathname && item.isRefined
+      (item) => item.label === subpathname && item.isRefined,
     )
 
     const library = libraries.find((l) => l.id === subpathname)
@@ -204,7 +204,7 @@ function LibraryRefinement() {
                     ? library
                       ? library.bgStyle
                       : 'bg-black dark:bg-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
                 )}
               >
                 {capitalize(item.label)}{' '}
@@ -244,7 +244,7 @@ function FrameworkRefinement() {
     if (!subpathname) return
 
     const isAlreadyRefined = items.some(
-      (item) => item.value === subpathname && item.isRefined
+      (item) => item.value === subpathname && item.isRefined,
     )
 
     const framework = frameworkOptions.find((f) => f.value === subpathname)
@@ -263,7 +263,7 @@ function FrameworkRefinement() {
         <div className="flex gap-1.5">
           {items.map((item) => {
             const framework = frameworkOptions.find(
-              (f) => f.value === item.value
+              (f) => f.value === item.value,
             )
 
             return (
@@ -274,7 +274,7 @@ function FrameworkRefinement() {
                   'px-2 py-0.5 text-xs rounded-full transition-colors font-bold text-white',
                   item.isRefined
                     ? framework?.color || 'bg-black dark:bg-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
                 )}
               >
                 {capitalize(item.label)}{' '}
@@ -474,7 +474,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
         <Hits
           hitComponent={({ hit }) => {
             const index = results.hits.findIndex(
-              (h) => h.objectID === hit.objectID
+              (h) => h.objectID === hit.objectID,
             )
             return <Hit hit={hit} isFocused={index === focusedIndex} />
           }}
@@ -486,7 +486,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
             '[&>ul]:w-full [&>ul]:flex [&>ul]:justify-center [&>ul]:gap-2 lg:[&>ul]:gap-4',
             '[&_li>*]:px-3 [&_li>*]:py-1.5',
             '[&_li>span]:cursor-not-allowed',
-            '[&_.ais-Pagination-item--selected>*]:bg-emerald-500 [&_.ais-Pagination-item--selected>*]:text-white [&_.ais-Pagination-item--selected>*]:rounded-lg'
+            '[&_.ais-Pagination-item--selected>*]:bg-emerald-500 [&_.ais-Pagination-item--selected>*]:text-white [&_.ais-Pagination-item--selected>*]:rounded-lg',
           )}
         />
       </div>

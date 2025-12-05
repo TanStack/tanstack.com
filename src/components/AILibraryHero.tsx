@@ -178,10 +178,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                 const currentSelectedService = getStoreState().selectedService
                 const targetService = getRandomIndex(
                   SERVICES.length,
-                  currentSelectedService ?? undefined
+                  currentSelectedService ?? undefined,
                 )
                 let currentServiceIndex = Math.floor(
-                  Math.random() * SERVICES.length
+                  Math.random() * SERVICES.length,
                 )
                 const serviceRotationCount = 6 + Math.floor(Math.random() * 3)
 
@@ -213,7 +213,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                         setPhase(AnimationPhase.SELECTING_SERVER)
                         const targetServer = getRandomIndex(SERVERS.length)
                         let currentServerIndex = Math.floor(
-                          Math.random() * SERVERS.length
+                          Math.random() * SERVERS.length,
                         )
                         const serverRotationCount =
                           8 + Math.floor(Math.random() * 4)
@@ -230,7 +230,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                                   (iteration - (serverRotationCount - 4)) * 50
                             addTimeoutHelper(
                               () => rotateServer(iteration + 1),
-                              delay
+                              delay,
                             )
                           } else {
                             // Final iteration - ensure we land on target
@@ -313,10 +313,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     const chunkSize = 2 + Math.floor(Math.random() * 7)
                     const nextIndex = Math.min(
                       currentIndex + chunkSize,
-                      fullMessage.length
+                      fullMessage.length,
                     )
                     updateCurrentAssistantMessage(
-                      fullMessage.slice(0, nextIndex)
+                      fullMessage.slice(0, nextIndex),
                     )
                     currentIndex = nextIndex
                     // Random delay between 20ms and 80ms
@@ -368,7 +368,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
   const getOpacity = (
     index: number,
     selectedIndex: number | null,
-    rotatingIndex: number | null
+    rotatingIndex: number | null,
   ) => {
     if (rotatingIndex !== null && rotatingIndex === index) {
       return 1.0
@@ -391,7 +391,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
 
   const getConnectionOpacity = (
     frameworkIndex: number,
-    serverIndex: number
+    serverIndex: number,
   ) => {
     const isFrameworkSelected =
       selectedFramework !== null && selectedFramework === frameworkIndex
@@ -412,7 +412,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
 
   const getConnectionStrokeColor = (
     frameworkIndex: number,
-    serverIndex: number
+    serverIndex: number,
   ) => {
     // If no selections, ALWAYS return original stroke color (highest priority check)
     if (selectedFramework === null || selectedServer === null) {
@@ -459,7 +459,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
     index: number,
     selectedIndex: number | null,
     centerX: number,
-    centerY: number
+    centerY: number,
   ) => {
     if (selectedIndex === index) {
       return `translate(${centerX}, ${centerY}) scale(1.1) translate(-${centerX}, -${centerY})`
@@ -797,7 +797,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   0,
                   selectedFramework,
                   LIBRARY_CARD_LOCATIONS[0] + LIBRARY_CARD_WIDTH / 2,
-                  LIBRARY_CARD_HEIGHT / 2
+                  LIBRARY_CARD_HEIGHT / 2,
                 )}
               />
 
@@ -817,7 +817,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   1,
                   selectedFramework,
                   LIBRARY_CARD_LOCATIONS[1] + LIBRARY_CARD_WIDTH / 2,
-                  LIBRARY_CARD_HEIGHT / 2
+                  LIBRARY_CARD_HEIGHT / 2,
                 )}
               />
 
@@ -837,7 +837,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   2,
                   selectedFramework,
                   LIBRARY_CARD_LOCATIONS[2] + LIBRARY_CARD_WIDTH / 2,
-                  LIBRARY_CARD_HEIGHT / 2
+                  LIBRARY_CARD_HEIGHT / 2,
                 )}
               />
 
@@ -857,7 +857,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   3,
                   selectedFramework,
                   LIBRARY_CARD_LOCATIONS[3] + LIBRARY_CARD_WIDTH / 2,
-                  LIBRARY_CARD_HEIGHT / 2
+                  LIBRARY_CARD_HEIGHT / 2,
                 )}
               />
 
@@ -902,13 +902,13 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   selectedFramework === null || selectedServer === null
                     ? strokeColor
                     : // Only highlight during specific phases
-                    phase === AnimationPhase.SHOWING_CHAT ||
-                      phase === AnimationPhase.PULSING_CONNECTIONS ||
-                      phase === AnimationPhase.STREAMING_RESPONSE
-                    ? isDark
-                      ? 'rgba(255, 255, 240, 0.95)'
-                      : 'rgba(255, 255, 240, 0.95)'
-                    : strokeColor
+                      phase === AnimationPhase.SHOWING_CHAT ||
+                        phase === AnimationPhase.PULSING_CONNECTIONS ||
+                        phase === AnimationPhase.STREAMING_RESPONSE
+                      ? isDark
+                        ? 'rgba(255, 255, 240, 0.95)'
+                        : 'rgba(255, 255, 240, 0.95)'
+                      : strokeColor
                 }
                 strokeWidth={
                   phase === AnimationPhase.PULSING_CONNECTIONS ||
@@ -930,10 +930,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   selectedServer === null
                     ? 0.3
                     : phase === AnimationPhase.SHOWING_CHAT ||
-                      phase === AnimationPhase.PULSING_CONNECTIONS ||
-                      phase === AnimationPhase.STREAMING_RESPONSE
-                    ? 1.0
-                    : 0.3
+                        phase === AnimationPhase.PULSING_CONNECTIONS ||
+                        phase === AnimationPhase.STREAMING_RESPONSE
+                      ? 1.0
+                      : 0.3
                 }
                 className={
                   getConnectionPulse()
@@ -966,7 +966,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     0,
                     selectedService,
                     SERVICE_LOCATIONS[0] + SERVICE_WIDTH / 2,
-                    SERVICE_Y_CENTER
+                    SERVICE_Y_CENTER,
                   )}
                 />
 
@@ -987,7 +987,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     1,
                     selectedService,
                     SERVICE_LOCATIONS[1] + SERVICE_WIDTH / 2,
-                    SERVICE_Y_CENTER
+                    SERVICE_Y_CENTER,
                   )}
                 />
 
@@ -1008,7 +1008,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     2,
                     selectedService,
                     SERVICE_LOCATIONS[2] + SERVICE_WIDTH / 2,
-                    SERVICE_Y_CENTER
+                    SERVICE_Y_CENTER,
                   )}
                 />
 
@@ -1028,7 +1028,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                     3,
                     selectedService,
                     SERVICE_LOCATIONS[3] + SERVICE_WIDTH / 2,
-                    SERVICE_Y_CENTER
+                    SERVICE_Y_CENTER,
                   )}
                 />
               </g>
@@ -1050,7 +1050,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   0,
                   selectedServer,
                   SERVER_CARD_LOCATIONS[0] + SERVER_CARD_WIDTH / 2,
-                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2
+                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2,
                 )}
               />
 
@@ -1071,7 +1071,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   1,
                   selectedServer,
                   SERVER_CARD_LOCATIONS[1] + SERVER_CARD_WIDTH / 2,
-                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2
+                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2,
                 )}
               />
 
@@ -1091,7 +1091,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   2,
                   selectedServer,
                   SERVER_CARD_LOCATIONS[2] + SERVER_CARD_WIDTH / 2,
-                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2
+                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2,
                 )}
               />
 
@@ -1111,7 +1111,7 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   3,
                   selectedServer,
                   SERVER_CARD_LOCATIONS[3] + SERVER_CARD_WIDTH / 2,
-                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2
+                  SERVER_CARD_Y_OFFSET + SERVER_CARD_HEIGHT / 2,
                 )}
               />
             </svg>

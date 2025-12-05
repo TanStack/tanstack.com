@@ -51,7 +51,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
         'cache-control': 'public, max-age=0, must-revalidate',
         'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
         'Netlify-Vary': 'query=payload',
-      })
+      }),
     )
 
     return {
@@ -75,7 +75,7 @@ export const Route = createFileRoute('/_libraries/blog/$')({
 
       // Use Netlify Image CDN to optimize for social media (1200x630 is the standard for og:image)
       const netlifyImageUrl = `https://tanstack.com/.netlify/images?url=${encodeURIComponent(
-        headerImage
+        headerImage,
       )}&w=1200&h=630&fit=cover&fm=jpg&q=80`
       return netlifyImageUrl
     }
@@ -107,7 +107,7 @@ function BlogPost() {
 
   const blogContent = `_by ${formatAuthors(authors)} on ${format(
     new Date(published || 0),
-    'MMM dd, yyyy'
+    'MMM dd, yyyy',
   )}._
 ${content}`
 
@@ -168,7 +168,7 @@ ${content}`
                         className={twMerge(
                           'prose prose-gray dark:prose-invert max-w-none',
                           '[font-size:14px]',
-                          'styled-markdown-content'
+                          'styled-markdown-content',
                         )}
                       >
                         <Markdown rawContent={blogContent} />

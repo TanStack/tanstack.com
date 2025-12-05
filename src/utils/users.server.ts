@@ -44,7 +44,7 @@ export const listUsers = createServerFn({ method: 'POST' })
       .transform((data) => ({
         ...data,
         capabilityFilter: data.capabilityFilter as Capability[] | undefined,
-      }))
+      })),
   )
   .handler(async ({ data }) => {
     if (!data || !data.pagination) {
@@ -74,8 +74,8 @@ export const listUsers = createServerFn({ method: 'POST' })
       conditions.push(
         or(
           sql`LOWER(${users.name}) LIKE ${`%${nameLower}%`}`,
-          sql`LOWER(${users.displayUsername}) LIKE ${`%${nameLower}%`}`
-        )
+          sql`LOWER(${users.displayUsername}) LIKE ${`%${nameLower}%`}`,
+        ),
       )
     }
 
@@ -94,8 +94,8 @@ export const listUsers = createServerFn({ method: 'POST' })
         .join(',')
       conditions.push(
         sql`${users.capabilities} && ARRAY[${sql.raw(
-          filterArrayValues
-        )}]::capability[]`
+          filterArrayValues,
+        )}]::capability[]`,
       )
     }
 
@@ -107,7 +107,7 @@ export const listUsers = createServerFn({ method: 'POST' })
     // Interested in hiding ads filter
     if (typeof data.interestedInHidingAdsFilter === 'boolean') {
       conditions.push(
-        eq(users.interestedInHidingAds, data.interestedInHidingAdsFilter)
+        eq(users.interestedInHidingAds, data.interestedInHidingAdsFilter),
       )
     }
 
@@ -236,7 +236,7 @@ export const updateUserCapabilities = createServerFn({ method: 'POST' })
     z.object({
       userId: z.string().uuid(),
       capabilities: z.array(z.enum(['admin', 'disableAds', 'builder', 'feed'])),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     // Validate admin capability
@@ -267,7 +267,7 @@ export const adminSetAdsDisabled = createServerFn({ method: 'POST' })
     z.object({
       userId: z.string().uuid(),
       adsDisabled: z.boolean(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     // Validate admin capability
@@ -296,7 +296,7 @@ export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
     z.object({
       userIds: z.array(z.string().uuid()),
       capabilities: z.array(z.enum(['admin', 'disableAds', 'builder', 'feed'])),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     // Validate admin capability
@@ -321,7 +321,7 @@ export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
           .update(users)
           .set({ capabilities, updatedAt: new Date() })
           .where(eq(users.id, userId))
-      })
+      }),
     )
 
     return { success: true, updated: data.userIds.length }
@@ -333,7 +333,7 @@ export const revokeUserSessions = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       userId: z.string(),
-    })
+    }),
   )
   .handler(async ({ data: { userId } }) => {
     const user = await db.query.users.findFirst({

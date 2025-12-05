@@ -34,7 +34,7 @@ const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
 const repoDirApiContentsQueryOptions = (
   repo: string,
   branch: string,
-  startingPath: string
+  startingPath: string,
 ) =>
   queryOptions({
     queryKey: ['repo-api-contents', repo, branch, startingPath],
@@ -46,7 +46,7 @@ const repoDirApiContentsQueryOptions = (
   })
 
 export const Route = createFileRoute(
-  '/$libraryId/$version/docs/framework/$framework/examples/$'
+  '/$libraryId/$version/docs/framework/$framework/examples/$',
 )({
   component: RouteComponent,
   validateSearch: z.object({
@@ -64,7 +64,7 @@ export const Route = createFileRoute(
 
     // Fetching and Caching the contents of the target directory
     const githubContents = await queryClient.ensureQueryData(
-      repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath)
+      repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath),
     )
 
     // Used to determine the starting file name for the explorer
@@ -81,13 +81,13 @@ export const Route = createFileRoute(
       githubContents,
       explorerCandidateStartingFileName,
       params.framework as Framework,
-      params.libraryId
+      params.libraryId,
     )
 
     // Now that we've resolved the starting file path, we can
     // fetching and caching the file content for the starting file path
     await queryClient.ensureQueryData(
-      fileQueryOptions(library.repo, branch, currentPath)
+      fileQueryOptions(library.repo, branch, currentPath),
     )
 
     return { repoStartingDirPath, currentPath }
@@ -98,10 +98,10 @@ export const Route = createFileRoute(
     return {
       meta: seo({
         title: `${capitalize(params.framework)} ${library.name} ${slugToTitle(
-          params._splat || ''
+          params._splat || '',
         )} Example | ${library.name} Docs`,
         description: `An example showing how to implement ${slugToTitle(
-          params._splat || ''
+          params._splat || '',
         )} in ${capitalize(params.framework)} using ${library.name}.`,
       }),
     }
@@ -127,11 +127,11 @@ function PageComponent() {
 
   const mainExampleFile = getExampleStartingPath(
     framework as Framework,
-    libraryId
+    libraryId,
   )
 
   const { data: githubContents } = useSuspenseQuery(
-    repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath)
+    repoDirApiContentsQueryOptions(library.repo, branch, repoStartingDirPath),
   )
 
   const [isDark, setIsDark] = React.useState(true)
@@ -166,14 +166,14 @@ function PageComponent() {
   }
 
   const { data: currentCode } = useQuery(
-    fileQueryOptions(library.repo, branch, currentPath)
+    fileQueryOptions(library.repo, branch, currentPath),
   )
 
   const prefetchFileContent = React.useCallback(
     (path: string) => {
       queryClient.prefetchQuery(fileQueryOptions(library.repo, branch, path))
     },
-    [queryClient, library.repo, branch]
+    [queryClient, library.repo, branch],
   )
 
   // Update local storage when tab changes
@@ -292,7 +292,7 @@ function determineStartingFilePath(
   nodes: Array<GitHubFileNode> | null,
   candidate: string,
   framework: Framework,
-  libraryId: string
+  libraryId: string,
 ) {
   if (!nodes) return candidate
 
@@ -325,7 +325,7 @@ function determineStartingFilePath(
   // If no preference file is found, try and find the first file from a preference directory
   for (const dir of preferenceDirs) {
     const found = flattened.find(
-      (node) => node.path.startsWith(dir) && node.type === 'file'
+      (node) => node.path.startsWith(dir) && node.type === 'file',
     )
     if (found) {
       return found.path
@@ -344,7 +344,7 @@ function determineStartingFilePath(
 
 function recursiveFlattenGithubContents(
   nodes: Array<GitHubFileNode>,
-  bannedDirs: Set<string> = new Set()
+  bannedDirs: Set<string> = new Set(),
 ): Array<GitHubFileNode> {
   return nodes.flatMap((node) => {
     if (node.type === 'dir' && node.children && !bannedDirs.has(node.name)) {

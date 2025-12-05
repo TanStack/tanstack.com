@@ -49,7 +49,7 @@ export const tableProject = {
       href,
       '/table/v7',
       '/table/v8',
-      'from=reactTableV7'
+      'from=reactTableV7',
     )
   },
   menu: [

@@ -14,7 +14,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/framework/')({
 function getPackageName(
   frameworkValue: string,
   libraryId: string,
-  library: ReturnType<typeof getLibrary>
+  library: ReturnType<typeof getLibrary>,
 ): string {
   if (frameworkValue === 'vanilla') {
     // For vanilla, use corePackageName if provided, otherwise just libraryId
@@ -39,7 +39,7 @@ function RouteComponent() {
     <DocContainer>
       <div
         className={twMerge(
-          'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]'
+          'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]',
         )}
       >
         <div
@@ -53,14 +53,14 @@ function RouteComponent() {
           {/* Framework Cards Grid */}
           <div
             className={twMerge(
-              'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
+              'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4',
             )}
           >
             {frameworks.map((framework, i) => {
               const packageName = getPackageName(
                 framework.value,
                 libraryId,
-                library
+                library,
               )
               return (
                 <FrameworkCard

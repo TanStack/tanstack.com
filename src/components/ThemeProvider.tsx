@@ -52,7 +52,7 @@ const updateThemeClass = createClientOnlyFn((themeMode: ThemeMode) => {
   if (metaThemeColor) {
     metaThemeColor.setAttribute(
       'content',
-      newTheme === 'dark' ? THEME_COLORS.dark : THEME_COLORS.light
+      newTheme === 'dark' ? THEME_COLORS.dark : THEME_COLORS.light,
     )
   }
 })

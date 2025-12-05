@@ -39,7 +39,7 @@ export function ToastProvider({
       setToasts((prev) => [...prev, { id, content, durationMs }])
       return id
     },
-    []
+    [],
   )
 
   const removeToast = React.useCallback((id: string) => {
@@ -48,7 +48,7 @@ export function ToastProvider({
 
   const contextValue = React.useMemo<ToastContextValue>(
     () => ({ notify }),
-    [notify]
+    [notify],
   )
 
   return (

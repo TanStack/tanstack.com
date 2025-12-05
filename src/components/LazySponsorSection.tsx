@@ -59,7 +59,7 @@ export function LazySponsorSection({
             href="https://github.com/sponsors/tannerlinsley"
             className={twMerge(
               'inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors',
-              ctaClassName
+              ctaClassName,
             )}
           >
             Become a Sponsor!

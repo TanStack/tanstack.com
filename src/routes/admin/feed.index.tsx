@@ -62,7 +62,7 @@ export const Route = createFileRoute('/admin/feed/')({
           ? z
               .array(releaseLevelSchema)
               .catch(
-                Array.isArray(releaseLevelsValue) ? releaseLevelsValue : []
+                Array.isArray(releaseLevelsValue) ? releaseLevelsValue : [],
               )
           : z
               .array(releaseLevelSchema)
@@ -113,7 +113,7 @@ function FeedAdminPage() {
 
   const handleToggleVisibility = async (
     entry: FeedEntry,
-    isVisible: boolean
+    isVisible: boolean,
   ) => {
     await toggleVisibility.mutateAsync({ id: entry.id, isVisible })
     feedQuery.refetch()

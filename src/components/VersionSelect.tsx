@@ -65,7 +65,7 @@ function useCurrentVersion(versions: string[]) {
       })
       localCurrentVersion.setCurrentVersion(version)
     },
-    [localCurrentVersion, navigate]
+    [localCurrentVersion, navigate],
   )
 
   React.useEffect(() => {
@@ -103,7 +103,7 @@ function useVersionConfig({ versions }: { versions: string[] }) {
           label: 'Latest',
           value: 'latest',
         },
-      ]
+      ],
     )
 
     return {

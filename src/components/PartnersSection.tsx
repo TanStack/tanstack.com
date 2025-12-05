@@ -23,7 +23,7 @@ export function PartnersSection({
   const filtered = partners.filter((p) =>
     libraryId
       ? p.libraries?.includes(libraryId as any) && p.status === 'active'
-      : p.status === 'active'
+      : p.status === 'active',
   )
 
   return (

@@ -18,7 +18,7 @@ const StableCounter = ({
   const dummyString = Number(
     Array(value?.toString().length ?? 1)
       .fill('8')
-      .join('')
+      .join(''),
   )
   // TODO don't use locale formatting since it can cause a hydration mismatch
   //.toLocaleString()

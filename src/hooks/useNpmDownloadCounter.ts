@@ -69,6 +69,6 @@ export function useNpmDownloadCounter(npmData: NpmStats): {
       count: animatedCount,
       intervalMs: 1000, // This is just for compatibility, actual interval is managed internally
     }),
-    [animatedCount]
+    [animatedCount],
   )
 }

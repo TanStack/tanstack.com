@@ -69,7 +69,7 @@ function DocContent({
           map[headingElement.target.id] = headingElement
           return map
         },
-        headingElementRefs.current
+        headingElementRefs.current,
       )
 
       const visibleHeadings: Array<IntersectionObserverEntry> = []
@@ -92,8 +92,8 @@ function DocContent({
 
     const headingElements = Array.from(
       markdownContainerRef.current?.querySelectorAll(
-        'h2[id], h3[id], h4[id], h5[id], h6[id]'
-      ) ?? []
+        'h2[id], h3[id], h4[id], h5[id], h6[id]',
+      ) ?? [],
     )
     headingElements.forEach((el) => observer.observe(el))
 
@@ -112,13 +112,13 @@ function DocContent({
         className={twMerge(
           'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]',
           isTocVisible && 'max-w-full',
-          shouldRenderToc && 'lg:pt-0'
+          shouldRenderToc && 'lg:pt-0',
         )}
       >
         <div
           className={twMerge(
             'flex overflow-auto flex-col w-full p-2 lg:p-4 xl:p-6',
-            isTocVisible && 'pr-0!'
+            isTocVisible && 'pr-0!',
           )}
         >
           {title ? (
@@ -156,7 +156,7 @@ function DocContent({
               'prose prose-gray dark:prose-invert max-w-none',
               '[font-size:14px]',
               isTocVisible && 'pr-2 lg:pr-4 xl:pr-6',
-              'styled-markdown-content'
+              'styled-markdown-content',
             )}
           >
             <Markdown rawContent={content} />

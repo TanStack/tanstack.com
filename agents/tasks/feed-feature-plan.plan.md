@@ -49,7 +49,7 @@ feedEntries: defineTable({
         v.literal('major'),
         v.literal('minor'),
         v.literal('patch'),
-        v.literal('prerelease')
+        v.literal('prerelease'),
       ),
       url: v.string(), // GitHub release URL
       author: v.optional(v.string()), // GitHub username
@@ -66,7 +66,7 @@ feedEntries: defineTable({
       type: v.literal('manual'),
       createdBy: v.id('users'), // Admin user who created it
       editedBy: v.optional(v.id('users')), // Last editor
-    })
+    }),
   ),
 
   // Categorization
@@ -79,7 +79,7 @@ feedEntries: defineTable({
     v.literal('blog'),
     v.literal('partner'),
     v.literal('update'),
-    v.literal('other')
+    v.literal('other'),
   ),
 
   // Display control
@@ -219,7 +219,7 @@ z.object({
   libraries: z.array(librarySchema).optional(),
   categories: z
     .array(
-      z.enum(['release', 'announcement', 'blog', 'partner', 'update', 'other'])
+      z.enum(['release', 'announcement', 'blog', 'partner', 'update', 'other']),
     )
     .optional(),
   partners: z.array(z.string()).optional(),

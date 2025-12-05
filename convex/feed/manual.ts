@@ -33,7 +33,7 @@ export function generateManualEntryId(): string {
  */
 export function generateExcerpt(
   content: string,
-  maxLength: number = 200
+  maxLength: number = 200,
 ): string {
   // Remove markdown headers, links, etc. for a cleaner excerpt
   const plainText = content

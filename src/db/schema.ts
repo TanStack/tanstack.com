@@ -77,7 +77,7 @@ export const users = pgTable(
   (table) => ({
     emailIdx: index('users_email_idx').on(table.email),
     createdAtIdx: index('users_created_at_idx').on(table.createdAt),
-  })
+  }),
 )
 
 export type User = InferSelectModel<typeof users>
@@ -100,7 +100,7 @@ export const roles = pgTable(
   },
   (table) => ({
     nameIdx: index('roles_name_idx').on(table.name),
-  })
+  }),
 )
 
 export type Role = InferSelectModel<typeof roles>
@@ -126,9 +126,9 @@ export const roleAssignments = pgTable(
     roleIdIdx: index('role_assignments_role_id_idx').on(table.roleId),
     userRoleUnique: uniqueIndex('role_assignments_user_role_unique').on(
       table.userId,
-      table.roleId
+      table.roleId,
     ),
-  })
+  }),
 )
 
 export type RoleAssignment = InferSelectModel<typeof roleAssignments>
@@ -157,7 +157,7 @@ export const sessions = pgTable(
     tokenIdx: index('sessions_token_idx').on(table.token),
     userIdIdx: index('sessions_user_id_idx').on(table.userId),
     expiresAtIdx: index('sessions_expires_at_idx').on(table.expiresAt),
-  })
+  }),
 )
 
 export type Session = InferSelectModel<typeof sessions>
@@ -183,13 +183,13 @@ export const oauthAccounts = pgTable(
   (table) => ({
     userIdIdx: index('oauth_accounts_user_id_idx').on(table.userId),
     providerAccountUnique: uniqueIndex(
-      'oauth_accounts_provider_account_unique'
+      'oauth_accounts_provider_account_unique',
     ).on(table.provider, table.providerAccountId),
     providerAccountIdx: index('oauth_accounts_provider_account_idx').on(
       table.provider,
-      table.providerAccountId
+      table.providerAccountId,
     ),
-  })
+  }),
 )
 
 export type OAuthAccount = InferSelectModel<typeof oauthAccounts>
@@ -241,18 +241,18 @@ export const feedEntries = pgTable(
   },
   (table) => ({
     publishedAtIdx: index('feed_entries_published_at_idx').on(
-      table.publishedAt
+      table.publishedAt,
     ),
     sourceIdx: index('feed_entries_source_idx').on(table.source),
     categoryIdx: index('feed_entries_category_idx').on(table.category),
     visiblePublishedIdx: index('feed_entries_visible_published_idx').on(
       table.isVisible,
-      table.publishedAt
+      table.publishedAt,
     ),
     // GIN indexes for array columns (created via SQL migration)
     // libraryIdsGin: index('feed_entries_library_ids_gin_idx').using('gin', table.libraryIds),
     // tagsGin: index('feed_entries_tags_gin_idx').using('gin', table.tags),
-  })
+  }),
 )
 
 export type FeedEntry = InferSelectModel<typeof feedEntries>
@@ -271,7 +271,7 @@ export const feedConfig = pgTable(
   },
   (table) => ({
     keyIdx: index('feed_config_key_idx').on(table.key),
-  })
+  }),
 )
 
 export type FeedConfig = InferSelectModel<typeof feedConfig>
@@ -303,9 +303,9 @@ export const githubStatsCache = pgTable(
   (table) => ({
     cacheKeyIdx: index('github_stats_cache_key_idx').on(table.cacheKey),
     expiresAtIdx: index('github_stats_cache_expires_at_idx').on(
-      table.expiresAt
+      table.expiresAt,
     ),
-  })
+  }),
 )
 
 export type GithubStatsCache = InferSelectModel<typeof githubStatsCache>
@@ -344,14 +344,14 @@ export const npmPackages = pgTable(
   },
   (table) => ({
     packageNameIdx: index('npm_packages_package_name_idx').on(
-      table.packageName
+      table.packageName,
     ),
     githubRepoIdx: index('npm_packages_github_repo_idx').on(table.githubRepo),
     libraryIdIdx: index('npm_packages_library_id_idx').on(table.libraryId),
     statsExpiresAtIdx: index('npm_packages_stats_expires_at_idx').on(
-      table.statsExpiresAt
+      table.statsExpiresAt,
     ),
-  })
+  }),
 )
 
 export type NpmPackage = InferSelectModel<typeof npmPackages>
@@ -383,9 +383,9 @@ export const npmOrgStatsCache = pgTable(
   (table) => ({
     orgNameIdx: index('npm_org_stats_cache_org_name_idx').on(table.orgName),
     expiresAtIdx: index('npm_org_stats_cache_expires_at_idx').on(
-      table.expiresAt
+      table.expiresAt,
     ),
-  })
+  }),
 )
 
 export type NpmOrgStatsCache = InferSelectModel<typeof npmOrgStatsCache>
@@ -416,9 +416,9 @@ export const npmLibraryStatsCache = pgTable(
   },
   (table) => ({
     libraryIdIdx: index('npm_library_stats_cache_library_id_idx').on(
-      table.libraryId
+      table.libraryId,
     ),
-  })
+  }),
 )
 
 export type NpmLibraryStatsCache = InferSelectModel<typeof npmLibraryStatsCache>
@@ -448,7 +448,7 @@ export const roleAssignmentsRelations = relations(
       fields: [roleAssignments.roleId],
       references: [roles.id],
     }),
-  })
+  }),
 )
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({

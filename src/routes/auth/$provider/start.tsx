@@ -24,7 +24,7 @@ export const Route = createFileRoute('/auth/$provider/start')({
         // Store state in HTTPS-only cookie for CSRF protection
         // SameSite=Strict prevents CSRF attacks
         const stateCookie = `oauth_state=${encodeURIComponent(
-          state
+          state,
         )}; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Strict${
           process.env.NODE_ENV === 'production' ? '; Secure' : ''
         }`
@@ -41,9 +41,9 @@ export const Route = createFileRoute('/auth/$provider/start')({
             throw new Error('GITHUB_OAUTH_CLIENT_ID is not configured')
           }
           authUrl = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
-            clientId
+            clientId,
           )}&redirect_uri=${encodeURIComponent(
-            redirectUri
+            redirectUri,
           )}&scope=user:email&state=${state}`
         } else {
           // Google
@@ -52,9 +52,9 @@ export const Route = createFileRoute('/auth/$provider/start')({
             throw new Error('GOOGLE_OAUTH_CLIENT_ID is not configured')
           }
           authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
-            clientId
+            clientId,
           )}&redirect_uri=${encodeURIComponent(
-            redirectUri
+            redirectUri,
           )}&response_type=code&scope=openid email profile&state=${state}`
         }
 

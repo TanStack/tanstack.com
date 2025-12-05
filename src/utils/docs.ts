@@ -51,7 +51,7 @@ export const loadDocs = async ({
 
 export const fetchDocs = createServerFn({ method: 'GET' })
   .inputValidator(
-    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() })
+    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() }),
   )
   .handler(async ({ data: { repo, branch, filePath } }) => {
     const file = await fetchRepoFile(repo, branch, filePath)
@@ -77,7 +77,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
     setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
     setResponseHeader(
       'CDN-Cache-Control',
-      'max-age=300, stale-while-revalidate=300, durable'
+      'max-age=300, stale-while-revalidate=300, durable',
     )
 
     return {
@@ -91,7 +91,7 @@ export const fetchDocs = createServerFn({ method: 'GET' })
 
 export const fetchFile = createServerFn({ method: 'GET' })
   .inputValidator(
-    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() })
+    z.object({ repo: z.string(), branch: z.string(), filePath: z.string() }),
   )
   .handler(async ({ data: { repo, branch, filePath } }) => {
     const file = await fetchRepoFile(repo, branch, filePath)
@@ -105,7 +105,7 @@ export const fetchFile = createServerFn({ method: 'GET' })
     setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
     setResponseHeader(
       'CDN-Cache-Control',
-      'max-age=3600, stale-while-revalidate=3600, durable'
+      'max-age=3600, stale-while-revalidate=3600, durable',
     )
 
     return file
@@ -119,7 +119,7 @@ export const fetchRepoDirectoryContents = createServerFn({
       repo: z.string(),
       branch: z.string(),
       startingPath: z.string(),
-    })
+    }),
   )
   .handler(async ({ data: { repo, branch, startingPath } }) => {
     const githubContents = await fetchApiContents(repo, branch, startingPath)
@@ -129,7 +129,7 @@ export const fetchRepoDirectoryContents = createServerFn({
     setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
     setResponseHeader(
       'CDN-Cache-Control',
-      'max-age=3600, stale-while-revalidate=3600, durable'
+      'max-age=3600, stale-while-revalidate=3600, durable',
     )
 
     return githubContents

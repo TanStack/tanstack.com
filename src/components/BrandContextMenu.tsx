@@ -33,7 +33,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
           <div className="text-gray-500 dark:text-gray-400 text-xs">
             SVG markup is now in your clipboard
           </div>
-        </div>
+        </div>,
       )
     } catch (err) {
       console.error('Clipboard error', err)
@@ -43,7 +43,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
           <div className="text-gray-500 dark:text-gray-400 text-xs">
             Try again or download directly from the brand guide
           </div>
-        </div>
+        </div>,
       )
     }
   }
@@ -93,7 +93,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
               <DropdownMenu.Item
                 key={label}
                 className={twMerge(
-                  'flex cursor-pointer select-none items-center gap-2 rounded px-3 py-1 outline-none hover:bg-gray-500/20'
+                  'flex cursor-pointer select-none items-center gap-2 rounded px-3 py-1 outline-none hover:bg-gray-500/20',
                 )}
                 onSelect={async () => {
                   try {
@@ -111,7 +111,7 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
                     'p-1 rounded-full',
                     darkBg
                       ? 'bg-black text-white shadow-lg shadow-white/20'
-                      : 'bg-white text-black shadow-lg'
+                      : 'bg-white text-black shadow-lg',
                   )}
                 >
                   <img src={url} alt={label} className="h-6" />

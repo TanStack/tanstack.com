@@ -14,7 +14,7 @@ export default function BytesForm() {
           <div className="text-gray-500 dark:text-gray-400 text-xs">
             Check your email to confirm your subscription
           </div>
-        </div>
+        </div>,
       )
     }
   }, [state, notify])
@@ -27,7 +27,7 @@ export default function BytesForm() {
           <div className="text-gray-500 dark:text-gray-400 text-xs">
             Please try again in a moment
           </div>
-        </div>
+        </div>,
       )
     }
   }, [error, notify])

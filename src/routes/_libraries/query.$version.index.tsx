@@ -77,7 +77,7 @@ function VersionIndex() {
               className={twMerge(
                 `group bg-white/60 dark:bg-black/40 rounded-lg overflow-hidden shadow-xl
             max-w-full mx-auto
-            [&_pre]:bg-transparent! [&_pre]:p-4!`
+            [&_pre]:bg-transparent! [&_pre]:p-4!`,
               )}
             >
               <div>

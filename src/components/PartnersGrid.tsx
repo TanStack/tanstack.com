@@ -9,7 +9,7 @@ type PartnersGridProps = {
 
 export function PartnersGrid({ partnersList }: PartnersGridProps) {
   const items = (partnersList ?? allPartners).filter(
-    (partner) => partner.status === 'active'
+    (partner) => partner.status === 'active',
   )
 
   return (

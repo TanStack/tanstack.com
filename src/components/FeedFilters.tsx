@@ -192,7 +192,7 @@ export function FeedFilters({
     !selectedReleaseLevels ||
     selectedReleaseLevels.length !== defaultReleaseLevels.length ||
     !defaultReleaseLevels.every((level) =>
-      selectedReleaseLevels.includes(level)
+      selectedReleaseLevels.includes(level),
     )
 
   const hasActiveFilters =

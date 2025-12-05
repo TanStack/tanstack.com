@@ -235,7 +235,7 @@ function OptInButton() {
     ) {
       setIsInterested(
         (userQuery.data as { interestedInHidingAds?: boolean })
-          .interestedInHidingAds ?? false
+          .interestedInHidingAds ?? false,
       )
     }
   }, [userQuery.data])
@@ -251,7 +251,7 @@ function OptInButton() {
           <div className="text-gray-500 dark:text-gray-400 text-xs">
             We'll notify you when ad-free browsing becomes available
           </div>
-        </div>
+        </div>,
       )
     } catch (error) {
       notify(
@@ -260,7 +260,7 @@ function OptInButton() {
           <div className="text-gray-500 dark:text-gray-400 text-xs">
             Failed to join waitlist. Please try again.
           </div>
-        </div>
+        </div>,
       )
     } finally {
       setIsLoading(false)

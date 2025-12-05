@@ -10,7 +10,7 @@ import { DocTitle } from '~/components/DocTitle'
 import { twMerge } from 'tailwind-merge'
 
 export const Route = createFileRoute(
-  '/$libraryId/$version/docs/framework/$framework/'
+  '/$libraryId/$version/docs/framework/$framework/',
 )({
   staleTime: 1000 * 60 * 5,
   loader: (ctx) => {
@@ -47,7 +47,7 @@ function Comp() {
     <DocContainer>
       <div
         className={twMerge(
-          'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]'
+          'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[936px]',
         )}
       >
         <div
@@ -63,7 +63,7 @@ function Comp() {
           <div
             className={twMerge(
               'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
-              'styled-markdown-content'
+              'styled-markdown-content',
             )}
           >
             Use the menu to select a documentation page.

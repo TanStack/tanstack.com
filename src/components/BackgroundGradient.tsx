@@ -32,7 +32,7 @@ export function BackgroundGradient() {
               'dark:from-gray-300 dark:via-gray-300/30',
               'to-transparent',
             ]),
-        'opacity-20 dark:opacity-20'
+        'opacity-20 dark:opacity-20',
       )}
     />
   )

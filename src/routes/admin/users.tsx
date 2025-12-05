@@ -203,7 +203,7 @@ function UsersPage() {
   const capabilityFilters = useMemo(
     () =>
       Array.isArray(search.cap) ? search.cap : search.cap ? [search.cap] : [],
-    [search.cap]
+    [search.cap],
   )
   const noCapabilitiesFilter = search.noCapabilities ?? false
   const adsDisabledFilter = search.ads ?? 'all'
@@ -429,7 +429,7 @@ function UsersPage() {
   // Bulk fetch user roles and effective capabilities to avoid N+1 queries
   const userIds = useMemo(
     () => (usersQuery?.data?.page || []).map((u: User) => u._id),
-    [usersQuery?.data?.page]
+    [usersQuery?.data?.page],
   )
   const bulkUserRolesQuery = useQuery({
     ...getBulkUserRolesQueryOptions(userIds),
@@ -444,7 +444,7 @@ function UsersPage() {
 
   const availableCapabilities = useMemo(
     () => ['admin', 'disableAds', 'builder', 'feed'],
-    []
+    [],
   )
 
   const handleEditUser = useCallback((user: User) => {
@@ -518,13 +518,13 @@ function UsersPage() {
     (capability: string) => {
       if (editingCapabilities.includes(capability)) {
         setEditingCapabilities(
-          editingCapabilities.filter((c) => c !== capability)
+          editingCapabilities.filter((c) => c !== capability),
         )
       } else {
         setEditingCapabilities([...editingCapabilities, capability])
       }
     },
-    [editingCapabilities]
+    [editingCapabilities],
   )
 
   const toggleRole = useCallback(
@@ -535,7 +535,7 @@ function UsersPage() {
         setEditingRoleIds([...editingRoleIds, roleId])
       }
     },
-    [editingRoleIds]
+    [editingRoleIds],
   )
 
   const toggleUserSelection = useCallback(
@@ -548,7 +548,7 @@ function UsersPage() {
       }
       setSelectedUserIds(newSelection)
     },
-    [selectedUserIds]
+    [selectedUserIds],
   )
 
   const toggleAllSelection = useCallback(() => {
@@ -582,7 +582,7 @@ function UsersPage() {
 
       if (
         !window.confirm(
-          `Update capabilities for ${selectedUserIds.size} user(s)?`
+          `Update capabilities for ${selectedUserIds.size} user(s)?`,
         )
       ) {
         return
@@ -599,11 +599,11 @@ function UsersPage() {
         alert(
           error instanceof Error
             ? error.message
-            : 'Failed to update capabilities'
+            : 'Failed to update capabilities',
         )
       }
     },
-    [selectedUserIds, bulkUpdateUserCapabilities]
+    [selectedUserIds, bulkUpdateUserCapabilities],
   )
 
   const handleToggleAdsDisabled = useCallback(
@@ -613,7 +613,7 @@ function UsersPage() {
         adsDisabled: nextValue,
       })
     },
-    [adminSetAdsDisabled]
+    [adminSetAdsDisabled],
   )
 
   const handleCapabilityToggle = useCallback(
@@ -630,7 +630,7 @@ function UsersPage() {
         }),
       })
     },
-    [capabilityFilters, navigate]
+    [capabilityFilters, navigate],
   )
 
   // Define columns using the column helper
@@ -869,7 +869,7 @@ function UsersPage() {
       usersQuery,
       bulkUserRoles,
       bulkEffectiveCapabilities,
-    ]
+    ],
   )
 
   // Pagination state
@@ -1043,7 +1043,7 @@ function UsersPage() {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHeaderCell>
                   ))}
@@ -1065,7 +1065,7 @@ function UsersPage() {
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -1092,7 +1092,7 @@ function UsersPage() {
               currentPage={currentPageIndex}
               totalPages={Math.max(
                 1,
-                Math.ceil((usersQuery?.data?.counts?.filtered ?? 0) / pageSize)
+                Math.ceil((usersQuery?.data?.counts?.filtered ?? 0) / pageSize),
               )}
               totalItems={usersQuery?.data?.counts?.total ?? 0}
               filteredItems={usersQuery?.data?.counts?.filtered}

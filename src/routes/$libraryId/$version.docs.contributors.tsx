@@ -43,7 +43,7 @@ function RouteComponent() {
       <DocContainer>
         <div
           className={twMerge(
-            'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[1200px]'
+            'w-full flex bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[1200px]',
           )}
         >
           <div
@@ -97,8 +97,8 @@ function RouteComponent() {
                   viewMode === 'compact'
                     ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4'
                     : viewMode === 'row'
-                    ? 'flex flex-col gap-4'
-                    : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+                      ? 'flex flex-col gap-4'
+                      : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
                 } mb-8 pt-8`}
               >
                 {libraryContributors.map((maintainer, index) => (

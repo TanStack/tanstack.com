@@ -83,7 +83,7 @@ export function FeedTicker() {
     if (isRelease) {
       // Get release level badge color
       const releaseLevelTag = entry.tags.find((tag) =>
-        tag.startsWith('release:')
+        tag.startsWith('release:'),
       )
       const isPrerelease = entry.tags.includes('release:prerelease')
       const releaseLevel = releaseLevelTag?.replace('release:', '') || ''

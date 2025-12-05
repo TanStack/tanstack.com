@@ -22,7 +22,7 @@ export const Route = createFileRoute('/libraries')({
 function LibrariesPage() {
   const allLibraries = libraries.filter((d) => d.to)
   const others = allLibraries.filter(
-    (l) => l.id !== 'ranger' && l.id !== 'config' && l.id !== 'react-charts'
+    (l) => l.id !== 'ranger' && l.id !== 'config' && l.id !== 'react-charts',
   )
   const ranger = allLibraries.filter((l) => l.id === 'ranger')
   const config = allLibraries.filter((l) => l.id === 'config')
@@ -63,7 +63,7 @@ function LibrariesPage() {
                   : 'border-gray-200 dark:border-gray-800/50 hover:shadow-2xl hover:shadow-current/20 hover:border-current/50 hover:-translate-y-1',
                 'relative group',
                 'min-h-[250px] xl:min-h-[220px]',
-                !isRanger && library.cardStyles
+                !isRanger && library.cardStyles,
               )}
               style={{
                 zIndex: i,
@@ -75,7 +75,7 @@ function LibrariesPage() {
                 <div className="flex gap-2 justify-between items-center">
                   <div
                     className={twMerge(
-                      `flex items-center gap-2 text-[1.2rem] font-extrabold uppercase [letter-spacing:-.04em]`
+                      `flex items-center gap-2 text-[1.2rem] font-extrabold uppercase [letter-spacing:-.04em]`,
                     )}
                     style={{
                       viewTransitionName: `library-name-${library.id}`,
@@ -86,7 +86,7 @@ function LibrariesPage() {
                         'rounded-lg leading-none flex items-center',
                         isRanger
                           ? 'bg-slate-500 dark:bg-slate-400'
-                          : 'bg-current'
+                          : 'bg-current',
                       )}
                     >
                       <span className="text-white dark:text-black text-xs leading-none p-1.5 px-2 uppercase">
@@ -109,7 +109,7 @@ function LibrariesPage() {
                     `text-sm italic font-medium mt-3`,
                     isRanger
                       ? 'text-slate-500 dark:text-slate-400'
-                      : 'text-current'
+                      : 'text-current',
                   )}
                 >
                   {library.tagline}
@@ -162,7 +162,7 @@ function LibrariesPage() {
                   className={twMerge(
                     `absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md`,
                     ['bg-gradient-to-r', library.colorFrom, library.colorTo],
-                    'uppercase text-white font-black italic text-xs'
+                    'uppercase text-white font-black italic text-xs',
                   )}
                   style={{
                     animation: 'pulseScale 3s infinite',
@@ -198,7 +198,7 @@ function LibrariesPage() {
                     <div className="flex gap-2 justify-between items-center">
                       <div
                         className={twMerge(
-                          `flex items-center gap-2 text-[1.2rem] font-extrabold uppercase [letter-spacing:-.04em]`
+                          `flex items-center gap-2 text-[1.2rem] font-extrabold uppercase [letter-spacing:-.04em]`,
                         )}
                         style={{
                           viewTransitionName: `library-name-${library.id}`,
@@ -275,7 +275,7 @@ function LibrariesPage() {
                 bg-white/90 dark:bg-black/40 backdrop-blur-sm`,
                 'border-transparent shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 hover:shadow-2xl hover:border-slate-400/70 hover:-translate-y-1',
                 'relative group',
-                'min-h-[250px] xl:min-h-[220px]'
+                'min-h-[250px] xl:min-h-[220px]',
               )
 
               return isExternal ? (

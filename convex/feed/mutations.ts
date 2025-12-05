@@ -34,7 +34,7 @@ export const createFeedEntry = mutation({
     const publishedAtValidation = validatePublishedAt(args.publishedAt)
     if (!publishedAtValidation.valid) {
       throw new Error(
-        `Invalid publishedAt: ${publishedAtValidation.error}. publishedAt should represent when the content was actually published, not when it was added to the feed.`
+        `Invalid publishedAt: ${publishedAtValidation.error}. publishedAt should represent when the content was actually published, not when it was added to the feed.`,
       )
     }
 
@@ -46,7 +46,7 @@ export const createFeedEntry = mutation({
 
     if (existing) {
       throw new Error(
-        `Feed entry with ID "${args.id}" already exists. Please try again or edit the existing entry.`
+        `Feed entry with ID "${args.id}" already exists. Please try again or edit the existing entry.`,
       )
     }
 
@@ -116,7 +116,7 @@ export const updateFeedEntry = mutation({
       const publishedAtValidation = validatePublishedAt(args.publishedAt)
       if (!publishedAtValidation.valid) {
         throw new Error(
-          `Invalid publishedAt: ${publishedAtValidation.error}. publishedAt should represent when the content was actually published.`
+          `Invalid publishedAt: ${publishedAtValidation.error}. publishedAt should represent when the content was actually published.`,
         )
       }
       updates.publishedAt = args.publishedAt

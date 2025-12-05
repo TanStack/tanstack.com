@@ -25,7 +25,7 @@ export const syncAllSources = action({
     try {
       const githubResult: { success: boolean } = await ctx.runAction(
         api.feed.github.syncGitHubReleases,
-        {} // Uses default of 2 days
+        {}, // Uses default of 2 days
       )
       results.github.success = githubResult.success
     } catch (error) {

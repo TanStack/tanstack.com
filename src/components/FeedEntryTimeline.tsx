@@ -97,7 +97,7 @@ export function FeedEntryTimeline({
         tag !== 'release:prerelease' &&
         (tag === 'release:major' ||
           tag === 'release:minor' ||
-          tag === 'release:patch')
+          tag === 'release:patch'),
     )
     if (!releaseLevelTag) return null
 
@@ -146,7 +146,7 @@ export function FeedEntryTimeline({
         'bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all',
         'hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-700',
         entry.featured &&
-          'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800'
+          'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800',
       )}
     >
       {/* Header */}
@@ -157,7 +157,7 @@ export function FeedEntryTimeline({
             <span
               className={twMerge(
                 'px-2.5 py-1 rounded-md text-xs font-medium uppercase',
-                badge.className
+                badge.className,
               )}
             >
               {badge.label}
@@ -166,7 +166,7 @@ export function FeedEntryTimeline({
               <span
                 className={twMerge(
                   'px-2.5 py-1 rounded-md text-xs font-medium uppercase',
-                  releaseLevelBadge.className
+                  releaseLevelBadge.className,
                 )}
               >
                 {releaseLevelBadge.label}
@@ -277,7 +277,7 @@ export function FeedEntryTimeline({
                   'p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors',
                   entry.featured
                     ? 'text-yellow-500'
-                    : 'text-gray-600 dark:text-gray-400'
+                    : 'text-gray-600 dark:text-gray-400',
                 )}
                 title="Toggle Featured"
               >

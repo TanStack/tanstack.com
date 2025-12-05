@@ -24,7 +24,7 @@ export function NpmStatsChart({ stats }: { stats: NpmStats[] }) {
         ...d,
         package: stat.package,
         date: new Date(d.day),
-      }))
+      })),
     )
 
     const chart = Plot.plot({

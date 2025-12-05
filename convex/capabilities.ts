@@ -6,7 +6,7 @@ import { Id } from './_generated/dataModel'
 // Extracted to avoid circular dependencies between users.ts and roles.ts
 export async function getEffectiveCapabilities(
   ctx: QueryCtx,
-  userId: Id<'users'>
+  userId: Id<'users'>,
 ): Promise<Capability[]> {
   // Get user's direct capabilities
   const user = await ctx.db.get(userId)
@@ -32,7 +32,7 @@ export async function getEffectiveCapabilities(
 
   // Union of direct capabilities and role capabilities
   const effectiveCapabilities = Array.from(
-    new Set<Capability>([...directCapabilities, ...roleCapabilities])
+    new Set<Capability>([...directCapabilities, ...roleCapabilities]),
   )
 
   // Admin users automatically get feed capability

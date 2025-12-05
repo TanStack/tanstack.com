@@ -69,6 +69,6 @@ export function useHubSpotChat(config?: HubSpotChatConfig) {
           async: true,
           defer: true,
           src: '', // Empty src prevents loading
-        }
+        },
   )
 }

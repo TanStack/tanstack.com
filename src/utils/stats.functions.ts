@@ -22,7 +22,7 @@ function parseNumber(value: string | undefined): number | undefined {
  */
 async function scrapeGitHubDependentCount(
   repo: string,
-  maxRetries: number = 3
+  maxRetries: number = 3,
 ): Promise<number | undefined> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -35,7 +35,7 @@ async function scrapeGitHubDependentCount(
 
       if (!response.ok) {
         console.warn(
-          `[GitHub Scraper] Failed to fetch ${repo} page (${response.status}), attempt ${attempt}/${maxRetries}`
+          `[GitHub Scraper] Failed to fetch ${repo} page (${response.status}), attempt ${attempt}/${maxRetries}`,
         )
         continue
       }
@@ -59,12 +59,12 @@ async function scrapeGitHubDependentCount(
       }
 
       console.warn(
-        `[GitHub Scraper] No dependent count found for ${repo}, attempt ${attempt}/${maxRetries}`
+        `[GitHub Scraper] No dependent count found for ${repo}, attempt ${attempt}/${maxRetries}`,
       )
     } catch (error) {
       console.error(
         `[GitHub Scraper] Error scraping ${repo}, attempt ${attempt}/${maxRetries}:`,
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       )
     }
 
@@ -76,7 +76,7 @@ async function scrapeGitHubDependentCount(
   }
 
   console.warn(
-    `[GitHub Scraper] Failed to scrape dependent count for ${repo} after ${maxRetries} attempts`
+    `[GitHub Scraper] Failed to scrape dependent count for ${repo} after ${maxRetries} attempts`,
   )
   return undefined
 }
@@ -88,7 +88,7 @@ async function scrapeGitHubDependentCount(
  */
 async function scrapeGitHubContributorCount(
   repo: string,
-  maxRetries: number = 3
+  maxRetries: number = 3,
 ): Promise<number | undefined> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -101,7 +101,7 @@ async function scrapeGitHubContributorCount(
 
       if (!response.ok) {
         console.warn(
-          `[GitHub Scraper] Failed to fetch ${repo} page (${response.status}), attempt ${attempt}/${maxRetries}`
+          `[GitHub Scraper] Failed to fetch ${repo} page (${response.status}), attempt ${attempt}/${maxRetries}`,
         )
         continue
       }
@@ -112,7 +112,7 @@ async function scrapeGitHubContributorCount(
       // Find the contributors link and extract the count from the Counter span
       // Selector: a[href$="/graphs/contributors"] > span.Counter
       const contributorCount = $(
-        `a[href$="/graphs/contributors"] > span.Counter`
+        `a[href$="/graphs/contributors"] > span.Counter`,
       )
         .filter((_, el) => {
           const title = $(el).attr('title')
@@ -127,12 +127,12 @@ async function scrapeGitHubContributorCount(
       }
 
       console.warn(
-        `[GitHub Scraper] No contributor count found for ${repo}, attempt ${attempt}/${maxRetries}`
+        `[GitHub Scraper] No contributor count found for ${repo}, attempt ${attempt}/${maxRetries}`,
       )
     } catch (error) {
       console.error(
         `[GitHub Scraper] Error scraping ${repo}, attempt ${attempt}/${maxRetries}:`,
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       )
     }
 
@@ -144,7 +144,7 @@ async function scrapeGitHubContributorCount(
   }
 
   console.warn(
-    `[GitHub Scraper] Failed to scrape contributor count for ${repo} after ${maxRetries} attempts`
+    `[GitHub Scraper] Failed to scrape contributor count for ${repo} after ${maxRetries} attempts`,
   )
   return undefined
 }
@@ -177,7 +177,7 @@ export async function fetchGitHubRepoStats(repo: string): Promise<GitHubStats> {
               ? new Date(parseInt(rateLimitReset, 10) * 1000)
               : new Date(Date.now() + 60 * 60 * 1000)
             throw new Error(
-              `GitHub API rate limit exceeded. Resets at: ${resetTime.toISOString()}`
+              `GitHub API rate limit exceeded. Resets at: ${resetTime.toISOString()}`,
             )
           }
         }
@@ -194,7 +194,7 @@ export async function fetchGitHubRepoStats(repo: string): Promise<GitHubStats> {
     scrapeGitHubContributorCount(repo).catch((error) => {
       console.error(
         `[GitHub Stats] Contributor count scraping failed for ${repo}:`,
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       )
       return undefined
     }),
@@ -205,7 +205,7 @@ export async function fetchGitHubRepoStats(repo: string): Promise<GitHubStats> {
     scrapeGitHubDependentCount(repo).catch((error) => {
       console.error(
         `[GitHub Stats] Dependent count scraping failed for ${repo}:`,
-        error instanceof Error ? error.message : String(error)
+        error instanceof Error ? error.message : String(error),
       )
       return undefined
     }),
@@ -223,7 +223,7 @@ export async function fetchGitHubRepoStats(repo: string): Promise<GitHubStats> {
  * Fetch GitHub organization statistics (aggregate across all repos)
  */
 export async function fetchGitHubOwnerStats(
-  owner: string
+  owner: string,
 ): Promise<GitHubStats> {
   const token = envFunctions.GITHUB_AUTH_TOKEN
   if (!token || token === 'USE_A_REAL_KEY_IN_PRODUCTION') {
@@ -244,7 +244,7 @@ export async function fetchGitHubOwnerStats(
           Accept: 'application/vnd.github.v3+json',
           'User-Agent': 'TanStack-Stats',
         },
-      }
+      },
     )
 
     if (!response.ok) {
@@ -258,27 +258,27 @@ export async function fetchGitHubOwnerStats(
             ? new Date(parseInt(rateLimitReset, 10) * 1000)
             : new Date(Date.now() + 60 * 60 * 1000) // Default to 1 hour
           console.error(
-            `[GitHub API] Rate limit exceeded. Resets at: ${resetTime.toISOString()}`
+            `[GitHub API] Rate limit exceeded. Resets at: ${resetTime.toISOString()}`,
           )
           throw new Error(
-            `GitHub API rate limit exceeded. Resets at: ${resetTime.toISOString()}`
+            `GitHub API rate limit exceeded. Resets at: ${resetTime.toISOString()}`,
           )
         }
 
         // 403 without rate limit means permission issue
         const errorText = await response.text().catch(() => 'Unknown error')
         console.error(
-          `[GitHub API] 403 Forbidden for org/${owner}. Token may lack required permissions. Error: ${errorText}`
+          `[GitHub API] 403 Forbidden for org/${owner}. Token may lack required permissions. Error: ${errorText}`,
         )
         throw new Error(
-          `GitHub API 403 Forbidden. Token may lack required permissions for organization access.`
+          `GitHub API 403 Forbidden. Token may lack required permissions for organization access.`,
         )
       }
 
       // Handle other errors
       const errorText = await response.text().catch(() => 'Unknown error')
       console.error(
-        `[GitHub API] Error ${response.status} fetching org/${owner}: ${errorText}`
+        `[GitHub API] Error ${response.status} fetching org/${owner}: ${errorText}`,
       )
       throw new Error(`GitHub API error: ${response.status} - ${errorText}`)
     }
@@ -295,12 +295,12 @@ export async function fetchGitHubOwnerStats(
   // Aggregate stats
   const starCount = repos.reduce(
     (sum, repo) => sum + (repo.stargazers_count ?? 0),
-    0
+    0,
   )
 
   const forkCount = repos.reduce(
     (sum, repo) => sum + (repo.forks_count ?? 0),
-    0
+    0,
   )
 
   const repositoryCount = repos.length
@@ -317,14 +317,14 @@ export async function fetchGitHubOwnerStats(
           scrapeGitHubContributorCount(repo.full_name).catch((error) => {
             console.error(
               `[GitHub Stats] Contributor count scraping failed for ${repo.full_name}:`,
-              error instanceof Error ? error.message : String(error)
+              error instanceof Error ? error.message : String(error),
             )
             return undefined
           }),
           scrapeGitHubDependentCount(repo.full_name).catch((error) => {
             console.error(
               `[GitHub Stats] Dependent count scraping failed for ${repo.full_name}:`,
-              error instanceof Error ? error.message : String(error)
+              error instanceof Error ? error.message : String(error),
             )
             return undefined
           }),
@@ -336,24 +336,24 @@ export async function fetchGitHubOwnerStats(
       } catch (error) {
         console.error(
           `[GitHub Stats] Failed to scrape stats for ${repo.full_name}:`,
-          error instanceof Error ? error.message : String(error)
+          error instanceof Error ? error.message : String(error),
         )
         return {
           contributorCount: 0,
           dependentCount: 0,
         }
       }
-    })
+    }),
   )
 
   const totalContributorCount = repoStats.reduce(
     (sum, stats) => sum + stats.contributorCount,
-    0
+    0,
   )
 
   const totalDependentCount = repoStats.reduce(
     (sum, stats) => sum + stats.dependentCount,
-    0
+    0,
   )
 
   return {
@@ -369,7 +369,7 @@ export async function fetchGitHubOwnerStats(
  * Fetch package creation date from npm registry
  */
 async function fetchNpmPackageCreationDate(
-  packageName: string
+  packageName: string,
 ): Promise<string> {
   try {
     const response = await fetch(`https://registry.npmjs.com/${packageName}`, {
@@ -381,7 +381,7 @@ async function fetchNpmPackageCreationDate(
 
     if (!response.ok) {
       console.warn(
-        `[NPM Stats] Could not fetch creation date for ${packageName}, using 2015-01-10`
+        `[NPM Stats] Could not fetch creation date for ${packageName}, using 2015-01-10`,
       )
       return '2015-01-10' // npm download data starts from this date
     }
@@ -391,7 +391,7 @@ async function fetchNpmPackageCreationDate(
   } catch (error) {
     console.warn(
       `[NPM Stats] Error fetching creation date for ${packageName}:`,
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     )
     return '2015-01-10' // npm download data starts from this date
   }
@@ -407,7 +407,7 @@ async function fetchNpmPackageCreationDate(
  */
 async function fetchNpmPackageDownloadsChunked(
   packageName: string,
-  createdDate: string
+  createdDate: string,
 ): Promise<{ totalDownloads: number; ratePerDay: number }> {
   const currentDateIso = new Date().toISOString().substring(0, 10)
   let nextDate = new Date(createdDate)
@@ -448,13 +448,13 @@ async function fetchNpmPackageDownloadsChunked(
               Accept: 'application/json',
               'User-Agent': 'TanStack-Stats',
             },
-          }
+          },
         )
 
         if (!response.ok) {
           if (response.status === 404) {
             console.log(
-              `[NPM Stats] ${packageName} chunk ${chunk.from}:${chunk.to}: not found`
+              `[NPM Stats] ${packageName} chunk ${chunk.from}:${chunk.to}: not found`,
             )
             success = true // Exit retry loop
             continue
@@ -465,7 +465,7 @@ async function fetchNpmPackageDownloadsChunked(
             // Use fixed 60 second wait time instead
             const waitTime = 60000 // 60 seconds
             console.warn(
-              `[NPM Stats] Rate limited on ${packageName} chunk ${chunk.from}:${chunk.to}, waiting ${waitTime}ms...`
+              `[NPM Stats] Rate limited on ${packageName} chunk ${chunk.from}:${chunk.to}, waiting ${waitTime}ms...`,
             )
             await new Promise((resolve) => setTimeout(resolve, waitTime))
             continue // Retry this chunk
@@ -486,7 +486,7 @@ async function fetchNpmPackageDownloadsChunked(
 
         const downloadCount = pageData.downloads.reduce(
           (acc, cur) => acc + cur.downloads,
-          0
+          0,
         )
 
         totalDownloadCount += downloadCount
@@ -499,7 +499,7 @@ async function fetchNpmPackageDownloadsChunked(
         // For non-rate-limit errors, throw to fail the whole package
         console.error(
           `[NPM Stats] Error fetching chunk ${chunk.from}:${chunk.to} for ${packageName}:`,
-          error instanceof Error ? error.message : String(error)
+          error instanceof Error ? error.message : String(error),
         )
         throw error
       }
@@ -526,24 +526,23 @@ async function fetchNpmPackageDownloadsChunked(
 export async function fetchSingleNpmPackageFresh(
   packageName: string,
   retries: number = 3,
-  skipCache: boolean = false
+  skipCache: boolean = false,
 ): Promise<NpmPackageStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { getCachedNpmPackageStats, setCachedNpmPackageStats } = await import(
-    './stats-db.server'
-  )
+  const { getCachedNpmPackageStats, setCachedNpmPackageStats } =
+    await import('./stats-db.server')
 
   // Only check cache if not skipping it
   if (skipCache) {
     console.log(
-      `[NPM Stats] Bypassing cache for ${packageName} (skipCache=true)`
+      `[NPM Stats] Bypassing cache for ${packageName} (skipCache=true)`,
     )
     // Skip cache check entirely when forcing refresh
   } else {
     const cached = await getCachedNpmPackageStats(packageName)
     if (cached !== null) {
       console.log(
-        `[NPM Stats] Using cached data for ${packageName} (skipCache=false)`
+        `[NPM Stats] Using cached data for ${packageName} (skipCache=false)`,
       )
       return cached
     }
@@ -563,7 +562,7 @@ export async function fetchSingleNpmPackageFresh(
       // This is the correct method as /point/ is limited to 18 months
       const result = await fetchNpmPackageDownloadsChunked(
         packageName,
-        createdDate
+        createdDate,
       )
 
       // Capture timestamp when data was fetched
@@ -574,7 +573,7 @@ export async function fetchSingleNpmPackageFresh(
         packageName,
         result.totalDownloads,
         24,
-        result.ratePerDay
+        result.ratePerDay,
       )
 
       return {
@@ -590,13 +589,13 @@ export async function fetchSingleNpmPackageFresh(
         const waitTime = Math.pow(2, attempt) * 1000
         console.warn(
           `[NPM Stats] Error fetching ${packageName}, retrying in ${waitTime}ms...`,
-          lastError.message
+          lastError.message,
         )
         await new Promise((resolve) => setTimeout(resolve, waitTime))
       } else {
         console.error(
           `[NPM Stats] Error fetching ${packageName} after all retries:`,
-          lastError.message
+          lastError.message,
         )
         return { downloads: 0 }
       }
@@ -625,12 +624,12 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
             Accept: 'application/json',
             'User-Agent': 'TanStack-Stats',
           },
-        }
+        },
       )
 
       if (!response.ok) {
         console.error(
-          `[NPM Stats] Org packages fetch failed: ${response.status} ${response.statusText}`
+          `[NPM Stats] Org packages fetch failed: ${response.status} ${response.statusText}`,
         )
         if (response.status === 429) {
           // Note: NPM's Retry-After header is unreliable (often returns "0")
@@ -640,7 +639,7 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
           console.warn(
             `[NPM Stats] Rate limited fetching org packages, waiting ${waitTime}ms before retry (attempt ${
               4 - retries
-            }/3)...`
+            }/3)...`,
           )
 
           if (retries > 1) {
@@ -691,7 +690,7 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
             const stats = await fetchSingleNpmPackageFresh(
               packageName,
               3,
-              true // Always skip cache for org refresh
+              true, // Always skip cache for org refresh
             )
             return stats
           },
@@ -708,7 +707,7 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
                 console.log(
                   `[NPM Stats] Progress: ${successCount + failCount}/${
                     packageNames.length
-                  } packages`
+                  } packages`,
                 )
               }
             },
@@ -717,7 +716,7 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
               console.error(
                 `[NPM Stats] Failed ${packageName}: ${
                   error instanceof Error ? error.message : String(error)
-                }`
+                }`,
               )
               // Store 0 for failed packages
               const zeroStats = { downloads: 0 }
@@ -725,11 +724,11 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
             },
             onIdle: () => {
               console.log(
-                `[NPM Stats] Completed: ${successCount} successful, ${failCount} failed`
+                `[NPM Stats] Completed: ${successCount} successful, ${failCount} failed`,
               )
               resolve()
             },
-          }
+          },
         )
 
         // Add all packages to the queue
@@ -771,13 +770,13 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
         const waitTime = Math.pow(2, 4 - retries) * 1000
         console.warn(
           `[NPM Stats] Error fetching org stats for ${org}, retrying in ${waitTime}ms...`,
-          lastError.message
+          lastError.message,
         )
         await new Promise((resolve) => setTimeout(resolve, waitTime))
       } else {
         console.error(
           `[NPM Stats] Error fetching org stats for ${org} after all retries:`,
-          lastError.message
+          lastError.message,
         )
         return { totalDownloads: 0, packageStats: {} }
       }
@@ -795,9 +794,8 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
  */
 export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { discoverAndRegisterPackages, setCachedNpmOrgStats } = await import(
-    './stats-db.server'
-  )
+  const { discoverAndRegisterPackages, setCachedNpmOrgStats } =
+    await import('./stats-db.server')
 
   // First, discover and register all packages
   try {
@@ -805,7 +803,7 @@ export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
   } catch (error) {
     console.error(
       '[NPM Org Stats] Package discovery failed, continuing with stats refresh:',
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     )
   }
 

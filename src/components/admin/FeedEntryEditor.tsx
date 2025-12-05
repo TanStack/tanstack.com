@@ -42,16 +42,16 @@ export function FeedEntryEditor({
       ? new Date(entry.publishedAt).toISOString().split('T')[0]
       : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
           .toISOString()
-          .split('T')[0]
+          .split('T')[0],
   )
   const [category, setCategory] = useState<
     'release' | 'announcement' | 'blog' | 'partner' | 'update' | 'other'
   >(entry?.category || 'announcement')
   const [selectedLibraries, setSelectedLibraries] = useState<string[]>(
-    entry?.libraryIds || []
+    entry?.libraryIds || [],
   )
   const [selectedPartners, setSelectedPartners] = useState<string[]>(
-    entry?.partnerIds || []
+    entry?.partnerIds || [],
   )
   const [tags, setTags] = useState<string>(entry?.tags.join(', ') || '')
   const [isVisible, setIsVisible] = useState(entry?.isVisible ?? true)
@@ -129,7 +129,7 @@ export function FeedEntryEditor({
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error occurred'
       alert(
-        `Failed to save entry: ${errorMessage}\n\nCheck the console for more details.`
+        `Failed to save entry: ${errorMessage}\n\nCheck the console for more details.`,
       )
     } finally {
       setSaving(false)
@@ -140,7 +140,7 @@ export function FeedEntryEditor({
     setSelectedLibraries((prev) =>
       prev.includes(libraryId)
         ? prev.filter((id) => id !== libraryId)
-        : [...prev, libraryId]
+        : [...prev, libraryId],
     )
   }
 
@@ -148,7 +148,7 @@ export function FeedEntryEditor({
     setSelectedPartners((prev) =>
       prev.includes(partnerId)
         ? prev.filter((id) => id !== partnerId)
-        : [...prev, partnerId]
+        : [...prev, partnerId],
     )
   }
 
@@ -244,7 +244,7 @@ export function FeedEntryEditor({
                     | 'blog'
                     | 'partner'
                     | 'update'
-                    | 'other'
+                    | 'other',
                 )
               }
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"

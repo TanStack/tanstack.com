@@ -58,11 +58,11 @@ export const Route = createFileRoute('/$libraryId')({
       const { libraryId } = Route.useParams()
       const { version } = useParams({ strict: false })
       const library = findLibrary(libraryId)
-      
+
       if (!library) {
         return null
       }
-      
+
       const libraryName = library.name.replace('TanStack ', '')
       const resolvedVersion =
         version === 'latest' ? library.latestVersion : version!

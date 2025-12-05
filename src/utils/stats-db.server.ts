@@ -964,8 +964,7 @@ export async function setCachedGitHubStats(
       )
     }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : String(error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
     const errorStack = error instanceof Error ? error.stack : undefined
     console.error(
       `[GitHub Stats Cache] ✗ Error writing cache for ${cacheKey}:`,

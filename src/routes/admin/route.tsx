@@ -7,7 +7,15 @@ import {
   redirect,
 } from '@tanstack/react-router'
 import { CgClose, CgMenuLeft } from 'react-icons/cg'
-import { FaHome, FaUser, FaUsers, FaRss, FaShieldAlt, FaGithub, FaNpm } from 'react-icons/fa'
+import {
+  FaHome,
+  FaUser,
+  FaUsers,
+  FaRss,
+  FaShieldAlt,
+  FaGithub,
+  FaNpm,
+} from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'

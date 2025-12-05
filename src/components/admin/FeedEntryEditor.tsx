@@ -6,10 +6,7 @@ import { Markdown } from '~/components/Markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { currentUserQueryOptions } from '~/queries/auth'
-import {
-  useCreateFeedEntry,
-  useUpdateFeedEntry,
-} from '~/utils/mutations'
+import { useCreateFeedEntry, useUpdateFeedEntry } from '~/utils/mutations'
 import { generateManualEntryId } from '~/utils/feed-manual'
 import { FaSave, FaTimes } from 'react-icons/fa'
 

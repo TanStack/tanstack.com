@@ -353,7 +353,8 @@ function NpmStatsAdmin() {
                   <FaDownload className="text-2xl text-emerald-500" />
                   <div>
                     <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                      {orgStats.ratePerDay !== undefined && orgStats.ratePerDay > 0
+                      {orgStats.ratePerDay !== undefined &&
+                      orgStats.ratePerDay > 0
                         ? Math.round(orgStats.ratePerDay).toLocaleString()
                         : '0'}
                     </div>

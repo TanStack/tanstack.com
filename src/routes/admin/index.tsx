@@ -1,5 +1,12 @@
 import { Link, createFileRoute, redirect } from '@tanstack/react-router'
-import { FaLock, FaUsers, FaRss, FaShieldAlt, FaGithub, FaNpm } from 'react-icons/fa'
+import {
+  FaLock,
+  FaUsers,
+  FaRss,
+  FaShieldAlt,
+  FaGithub,
+  FaNpm,
+} from 'react-icons/fa'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { requireCapability } from '~/utils/auth.server'
@@ -148,7 +155,8 @@ function AdminDashboard() {
               </div>
             </div>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              View and refresh cached GitHub statistics for repositories and organizations.
+              View and refresh cached GitHub statistics for repositories and
+              organizations.
             </p>
             <Link
               to="/admin/github-stats"
@@ -170,7 +178,8 @@ function AdminDashboard() {
               </div>
             </div>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              View and refresh cached NPM package statistics and org-level aggregates.
+              View and refresh cached NPM package statistics and org-level
+              aggregates.
             </p>
             <Link
               to="/admin/npm-stats"

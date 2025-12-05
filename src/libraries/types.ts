@@ -62,6 +62,7 @@ export type Library = {
   visible?: boolean
   // Legacy npm packages (non-@tanstack scope) to include in stats
   legacyPackages?: string[]
+  installPath?: string
   corePackageName?: string
 }
 

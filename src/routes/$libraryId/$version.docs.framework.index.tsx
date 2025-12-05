@@ -67,7 +67,6 @@ function RouteComponent() {
                   key={framework.value}
                   framework={framework}
                   libraryId={libraryId}
-                  version={version}
                   packageName={packageName}
                   index={i}
                   library={library}

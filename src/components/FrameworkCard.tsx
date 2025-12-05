@@ -1,21 +1,20 @@
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { FaCheck, FaCopy } from 'react-icons/fa'
-import { getFrameworkOptions, Library } from '~/libraries'
+import { Library } from '~/libraries'
+import { getFrameworkOptions } from '~/libraries/frameworks'
 import { useCopyButton } from '~/components/CopyMarkdownButton'
 import { useToast } from '~/components/ToastProvider'
 
 export function FrameworkCard({
   framework,
   libraryId,
-  version,
   packageName,
   index,
   library,
 }: {
   framework: ReturnType<typeof getFrameworkOptions>[number]
   libraryId: string
-  version: string
   packageName: string
   index: number
   library: Library

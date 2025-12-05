@@ -1,4 +1,4 @@
-import { Library } from '.'
+import type { Library } from './types'
 
 export const reactChartsProject = {
   id: 'react-charts',

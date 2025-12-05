@@ -142,21 +142,18 @@ export function FeedList({
 
       {/* Pagination Controls - Bottom (Sticky) */}
       {data && data.page.length > 0 && (
-        <div className="sticky bottom-4 mt-4">
-          <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg px-3 py-2">
-            <PaginationControls
-              currentPage={currentPage - 1}
-              totalPages={data.counts.pages}
-              totalItems={data.counts.total}
-              pageSize={pageSize}
-              onPageChange={(page) => onPageChange(page + 1)}
-              onPageSizeChange={onPageSizeChange}
-              canGoPrevious={currentPage > 1}
-              canGoNext={!data.isDone}
-              itemLabel="entries"
-            />
-          </div>
-        </div>
+        <PaginationControls
+          currentPage={currentPage - 1}
+          totalPages={data.counts.pages}
+          totalItems={data.counts.total}
+          pageSize={pageSize}
+          onPageChange={(page) => onPageChange(page + 1)}
+          onPageSizeChange={onPageSizeChange}
+          canGoPrevious={currentPage > 1}
+          canGoNext={!data.isDone}
+          itemLabel="entries"
+          sticky
+        />
       )}
     </div>
   )

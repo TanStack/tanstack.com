@@ -1,5 +1,11 @@
 ﻿[
   {
+    "login": "rewriterprojs",
+    "name": "humanizer",
+    "imageUrl": "https://superhumanizer.ai/images/logo.png",
+    "linkUrl": "https://superhumanizer.ai/"
+  },
+  {
     "login": "sanity-io",
     "linkUrl": "https://www.sanity.io/?utm_source=tanstack"
   },
@@ -276,5 +282,17 @@
     "name": "Promptmonitor",
     "imageUrl": "https://bvatwanklwlvzlcxrcxn.supabase.co/storage/v1/object/public/assets/promptmonitor-icon-brandfill.png",
     "linkUrl": "https://www.promptmonitor.io/?utm_source=tanstack"
+  },
+  {
+    "login": "TextToHuman",
+    "name": "TextToHuman",
+    "imageUrl": "https://texttohuman.com/icon_texto_to_human.png",
+    "linkUrl": "https://texttohuman.com/"
+  },
+  {
+    "login": "AbdurazzoqovA",
+    "name": "Detecting-AI",
+    "imageUrl": "https://detecting-ai.com/images/favicon.png",
+    "linkUrl": "https://detecting-ai.com/"
   }
 ]

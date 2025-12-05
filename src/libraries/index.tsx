@@ -1,12 +1,3 @@
-import reactLogo from '../images/react-logo.svg'
-import preactLogo from '../images/preact-logo.svg'
-import solidLogo from '../images/solid-logo.svg'
-import vueLogo from '../images/vue-logo.svg'
-import angularLogo from '../images/angular-logo.svg'
-import svelteLogo from '../images/svelte-logo.svg'
-import litLogo from '../images/lit-logo.svg'
-import qwikLogo from '../images/qwik-logo.svg'
-import jsLogo from '../images/js-logo.svg'
 import { queryProject } from './query'
 import { formProject } from './form'
 import { configProject } from './config'
@@ -18,138 +9,20 @@ import { rangerProject } from './ranger'
 import { storeProject } from './store'
 import { pacerProject } from './pacer'
 import { dbProject } from './db'
+import { aiProject } from './ai'
 import { devtoolsProject } from './devtools'
+import {
+  type Framework,
+  type Library,
+  type LibraryId,
+  type LibraryMenuItem,
+} from './types'
 
-export const frameworkOptions = [
-  {
-    label: 'React',
-    value: 'react',
-    logo: reactLogo,
-    color: 'bg-blue-500',
-    fontColor: 'text-sky-500',
-  },
-  {
-    label: 'Preact',
-    value: 'preact',
-    logo: preactLogo,
-    color: 'bg-purple-500',
-    fontColor: 'text-purple-500',
-  },
-  {
-    label: 'Vue',
-    value: 'vue',
-    logo: vueLogo,
-    color: 'bg-green-500',
-    fontColor: 'text-green-500',
-  },
-  {
-    label: 'Angular',
-    value: 'angular',
-    logo: angularLogo,
-    color: 'bg-red-500',
-    fontColor: 'text-fuchsia-500',
-  },
-  {
-    label: 'Solid',
-    value: 'solid',
-    logo: solidLogo,
-    color: 'bg-blue-600',
-    fontColor: 'text-blue-600',
-  },
-  {
-    label: 'Lit',
-    value: 'lit',
-    logo: litLogo,
-    color: 'bg-emerald-500',
-    fontColor: 'text-emerald-500',
-  },
-  {
-    label: 'Svelte',
-    value: 'svelte',
-    logo: svelteLogo,
-    color: 'bg-orange-600',
-    fontColor: 'text-orange-600',
-  },
-  {
-    label: 'Qwik',
-    value: 'qwik',
-    logo: qwikLogo,
-    color: 'bg-indigo-500',
-    fontColor: 'text-indigo-500',
-  },
-  {
-    label: 'Vanilla',
-    value: 'vanilla',
-    logo: jsLogo,
-    color: 'bg-yellow-500',
-    fontColor: 'text-yellow-500',
-  },
-] as const
+// Re-export types for backward compatibility
+export type { Framework, Library, LibraryId, LibraryMenuItem }
 
-export type Framework = (typeof frameworkOptions)[number]['value']
-
-export type Library = {
-  id:
-    | 'start'
-    | 'router'
-    | 'query'
-    | 'table'
-    | 'form'
-    | 'virtual'
-    | 'ranger'
-    | 'store'
-    | 'pacer'
-    | 'db'
-    | 'config'
-    | 'devtools'
-    | 'react-charts'
-    | 'create-tsrouter-app'
-  name: string
-  cardStyles: string
-  to?: string
-  tagline: string
-  description: string
-  ogImage?: string
-  bgStyle: string
-  textStyle: string
-  badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh' | 'RC'
-  repo: string
-  latestBranch: string
-  latestVersion: string
-  availableVersions: string[]
-  bgRadial: string
-  colorFrom: string
-  colorTo: string
-  textColor: string
-  frameworks: Framework[]
-  scarfId?: string
-  defaultDocs?: string
-  installPath?: string
-  corePackageName?: string
-  handleRedirects?: (href: string) => void
-  hideCodesandboxUrl?: true
-  hideStackblitzUrl?: true
-  showVercelUrl?: boolean
-  showNetlifyUrl?: boolean
-  showCloudflareUrl?: boolean
-  menu: LibraryMenuItem[]
-  featureHighlights?: {
-    title: string
-    icon: React.ReactNode
-    description: React.ReactNode
-  }[]
-  docsRoot?: string
-  embedEditor?: 'codesandbox' | 'stackblitz'
-  visible?: boolean
-}
-
-export type LibraryMenuItem = {
-  icon: React.ReactNode
-  label: React.ReactNode
-  to: string
-}
-
-export type LibraryId = Library['id']
+// Note: frameworkOptions is NOT exported here to avoid bundling SVG imports
+// in server/background functions. Import it directly from './frameworks' in client components.
 
 export const libraries = [
   startProject,
@@ -158,6 +31,7 @@ export const libraries = [
   tableProject,
   formProject,
   dbProject,
+  aiProject,
   virtualProject,
   pacerProject,
   storeProject,
@@ -183,16 +57,18 @@ export const librariesByGroup = {
     queryProject,
     dbProject,
     storeProject,
-    pacerProject,
+    aiProject,
   ],
-  headlessUI: [tableProject, formProject, virtualProject],
-  other: [devtoolsProject, configProject],
+  headlessUI: [tableProject, formProject],
+  performance: [virtualProject, pacerProject],
+  tooling: [devtoolsProject, configProject],
 }
 
 export const librariesGroupNamesMap = {
   state: 'Data and State Management',
   headlessUI: 'Headless UI',
-  other: 'Other',
+  performance: 'Performance',
+  tooling: 'Tooling',
 }
 
 export function getLibrary(id: LibraryId): Library {
@@ -202,7 +78,7 @@ export function getLibrary(id: LibraryId): Library {
     throw new Error(`Library with id "${id}" not found!`)
   }
 
-  return library
+  return library as Library
 }
 
 export function findLibrary(id: string): Library | undefined {
@@ -211,13 +87,6 @@ export function findLibrary(id: string): Library | undefined {
   } catch (error) {
     return undefined
   }
-}
-
-export function getFrameworkOptions(frameworkStrs: Framework[]) {
-  if (!frameworkOptions) {
-    throw new Error('frameworkOptions is not defined')
-  }
-  return frameworkOptions.filter((d) => frameworkStrs.includes(d.value))
 }
 
 export function getBranch(library: Library, argVersion?: string) {

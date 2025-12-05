@@ -3,7 +3,8 @@ import { twMerge } from 'tailwind-merge'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
-import { getFrameworkOptions, getLibrary } from '~/libraries'
+import { getLibrary } from '~/libraries'
+import { getFrameworkOptions } from '~/libraries/frameworks'
 import { FrameworkCard } from '~/components/FrameworkCard'
 
 export const Route = createFileRoute('/$libraryId/$version/docs/framework/')({

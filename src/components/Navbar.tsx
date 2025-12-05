@@ -24,15 +24,16 @@ import {
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
 import { FeedTicker } from './FeedTicker'
-import { Authenticated, Unauthenticated, useQuery } from 'convex/react'
-import { AuthLoading } from 'convex/react'
-import { api } from 'convex/_generated/api'
+import {
+  Authenticated,
+  Unauthenticated,
+  AuthLoading,
+} from '~/components/AuthComponents'
 import { libraries } from '~/libraries'
 import { sortBy } from '~/utils/utils'
 import { useCapabilities } from '~/hooks/useCapabilities'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
-  const user = useQuery(api.auth.getCurrentUser)
   const matches = useMatches()
   const capabilities = useCapabilities()
 
@@ -245,24 +246,28 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const items = (
     <div className="md:flex gap-2 [&>*]:flex-1 lg:block">
       <div>
-        {sortBy(
-          libraries.filter((d) => {
-            const sidebarLibraryIds = [
-              'start',
-              'router',
-              'query',
-              'table',
-              'form',
-              'db',
-              'virtual',
-              'pacer',
-              'store',
-              'devtools',
-            ]
-            return d.to && sidebarLibraryIds.includes(d.id)
-          }),
-          (d) => !d.name.includes('TanStack')
-        ).map((library, i) => {
+        {(() => {
+          const sidebarLibraryIds = [
+            'start',
+            'router',
+            'query',
+            'table',
+            'db',
+            'ai',
+            'form',
+            'virtual',
+            'pacer',
+            'store',
+            'devtools',
+          ]
+          return libraries
+            .filter((d) => d.to && sidebarLibraryIds.includes(d.id))
+            .sort((a, b) => {
+              const indexA = sidebarLibraryIds.indexOf(a.id)
+              const indexB = sidebarLibraryIds.indexOf(b.id)
+              return indexA - indexB
+            })
+        })().map((library, i) => {
           const [prefix, name] = library.name.split(' ')
 
           return (

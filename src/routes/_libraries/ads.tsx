@@ -3,11 +3,11 @@ import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { authClient } from '~/utils/auth.client'
 import { FaGithub, FaGoogle, FaCheckCircle } from 'react-icons/fa'
-import { Authenticated, Unauthenticated, useMutation } from 'convex/react'
+import { Authenticated, Unauthenticated } from '~/components/AuthComponents'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useToast } from '~/components/ToastProvider'
 import { useEffect, useState } from 'react'
-import { api } from 'convex/_generated/api'
+import { setInterestedInHidingAds } from '~/utils/users.server'
 
 export const Route = createFileRoute('/_libraries/ads')({
   component: RouteComp,
@@ -224,29 +224,26 @@ function OptInButton() {
   const [isInterested, setIsInterested] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  const setInterestedMutation = useMutation(
-    api.users.setInterestedInHidingAds
-  ).withOptimisticUpdate((localStore, args) => {
-    const { interested } = args
-    const currentValue = localStore.getQuery(api.auth.getCurrentUser)
-    if (currentValue !== undefined) {
-      localStore.setQuery(api.auth.getCurrentUser, {}, {
-        ...currentValue,
-        interestedInHidingAds: interested,
-      } as any)
-    }
-  })
+  // Note: Using server function wrapper instead of direct Convex mutation
+  // to handle authentication via session cookie
 
   useEffect(() => {
-    if (userQuery.data) {
-      setIsInterested(userQuery.data.interestedInHidingAds ?? false)
+    if (
+      userQuery.data &&
+      typeof userQuery.data === 'object' &&
+      'interestedInHidingAds' in userQuery.data
+    ) {
+      setIsInterested(
+        (userQuery.data as { interestedInHidingAds?: boolean })
+          .interestedInHidingAds ?? false
+      )
     }
   }, [userQuery.data])
 
   const handleOptIn = async () => {
     setIsLoading(true)
     try {
-      await setInterestedMutation({ interested: true })
+      await setInterestedInHidingAds({ data: { interested: true } })
       setIsInterested(true)
       notify(
         <div>

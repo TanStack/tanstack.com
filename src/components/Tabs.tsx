@@ -1,6 +1,6 @@
 import { getRouteApi } from '@tanstack/react-router'
 import * as React from 'react'
-import { getFrameworkOptions } from '~/libraries'
+import { getFrameworkOptions } from '~/libraries/frameworks'
 
 export type TabDefinition = {
   slug: string

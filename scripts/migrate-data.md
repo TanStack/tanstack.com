@@ -7,6 +7,7 @@ This guide covers migrating data from Convex to PostgreSQL (Neon DB).
 ## Prerequisites
 
 1. **Export Convex Data**
+
    - Use Convex dashboard or CLI to export all tables
    - Export format: JSON or CSV
    - Tables to export:
@@ -31,15 +32,18 @@ This guide covers migrating data from Convex to PostgreSQL (Neon DB).
 Create a transformation script that:
 
 1. **Convert Convex IDs to UUIDs**
+
    - Generate new UUIDs for each record
    - Maintain mapping for foreign key relationships
 
 2. **Transform Timestamps**
+
    - Convex: milliseconds (number)
    - PostgreSQL: `timestamp with time zone` (Date object)
    - Convert: `new Date(timestamp)` for milliseconds
 
 3. **Transform Arrays**
+
    - Convex: stored as arrays
    - PostgreSQL: array columns (already compatible)
    - Ensure proper formatting
@@ -101,17 +105,19 @@ WHERE u.id IS NULL;
 ### Step 4: Post-Migration Tasks
 
 1. **Set up indexes** (if not created by Drizzle):
+
    ```sql
    -- GIN indexes for array columns
-   CREATE INDEX IF NOT EXISTS feed_entries_library_ids_gin_idx 
+   CREATE INDEX IF NOT EXISTS feed_entries_library_ids_gin_idx
      ON feed_entries USING GIN (library_ids);
-   CREATE INDEX IF NOT EXISTS feed_entries_tags_gin_idx 
+   CREATE INDEX IF NOT EXISTS feed_entries_tags_gin_idx
      ON feed_entries USING GIN (tags);
-   
+
    -- Full-text search (see drizzle/migrations/README.md)
    ```
 
 2. **Verify functionality**:
+
    - Test authentication flow
    - Test feed queries
    - Test admin interfaces
@@ -138,4 +144,3 @@ If migration fails:
 - **entryId field**: The `feed_entries` table uses `entryId` (string) as the unique identifier, not `id` (UUID). Make sure to map Convex feed entry IDs to `entryId` field.
 - **Metadata**: JSONB fields should be preserved as-is from Convex
 - **Capabilities**: Array fields should be preserved as arrays
-

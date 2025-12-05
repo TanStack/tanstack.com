@@ -29,14 +29,17 @@ export const handler: Handler = async (
     // Invoke the background function
     const functionUrl = `${process.env.URL}/.netlify/functions/refresh-stats-cache-background`
 
-    console.log('[refresh-stats-cache] Invoking background function:', functionUrl)
+    console.log(
+      '[refresh-stats-cache] Invoking background function:',
+      functionUrl
+    )
 
     // Fire and forget - background function will run independently
     const response = await fetch(functionUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${cronSecret}`,
+        Authorization: `Bearer ${cronSecret}`,
       },
       body: JSON.stringify({
         source: 'scheduled-function',
@@ -46,10 +49,14 @@ export const handler: Handler = async (
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`Background function invocation failed: ${response.status} - ${errorText}`)
+      throw new Error(
+        `Background function invocation failed: ${response.status} - ${errorText}`
+      )
     }
 
-    console.log('[refresh-stats-cache] Background function invoked successfully')
+    console.log(
+      '[refresh-stats-cache] Background function invoked successfully'
+    )
 
     return {
       statusCode: 202, // Accepted - processing in background

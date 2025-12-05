@@ -19,4 +19,3 @@ export type FeedCategory = (typeof FEED_CATEGORIES)[number]
 export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
 
 export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
-

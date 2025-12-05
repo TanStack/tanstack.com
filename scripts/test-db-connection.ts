@@ -33,9 +33,15 @@ async function testConnection() {
 
     // Test 3: Count records
     console.log('3. Counting records...')
-    const userCount = await db.select({ count: sql<number>`count(*)` }).from(users)
-    const roleCount = await db.select({ count: sql<number>`count(*)` }).from(roles)
-    const feedCount = await db.select({ count: sql<number>`count(*)` }).from(feedEntries)
+    const userCount = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+    const roleCount = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(roles)
+    const feedCount = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(feedEntries)
 
     console.log(`✓ Users: ${userCount[0]?.count ?? 0}`)
     console.log(`✓ Roles: ${roleCount[0]?.count ?? 0}`)
@@ -57,4 +63,3 @@ async function testConnection() {
 }
 
 testConnection()
-

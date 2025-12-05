@@ -18,7 +18,9 @@ export const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
-  console.log('[sync-github-releases] Triggering background GitHub release sync...')
+  console.log(
+    '[sync-github-releases] Triggering background GitHub release sync...'
+  )
 
   try {
     const cronSecret = process.env.CRON_SECRET
@@ -29,14 +31,17 @@ export const handler: Handler = async (
     // Invoke the background function
     const functionUrl = `${process.env.URL}/.netlify/functions/sync-github-releases-background`
 
-    console.log('[sync-github-releases] Invoking background function:', functionUrl)
+    console.log(
+      '[sync-github-releases] Invoking background function:',
+      functionUrl
+    )
 
     // Fire and forget - background function will run independently
     const response = await fetch(functionUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${cronSecret}`,
+        Authorization: `Bearer ${cronSecret}`,
       },
       body: JSON.stringify({
         source: 'scheduled-function',
@@ -46,10 +51,14 @@ export const handler: Handler = async (
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`Background function invocation failed: ${response.status} - ${errorText}`)
+      throw new Error(
+        `Background function invocation failed: ${response.status} - ${errorText}`
+      )
     }
 
-    console.log('[sync-github-releases] Background function invoked successfully')
+    console.log(
+      '[sync-github-releases] Background function invoked successfully'
+    )
 
     return {
       statusCode: 202, // Accepted - processing in background

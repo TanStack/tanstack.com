@@ -6,4 +6,3 @@ export function generateManualEntryId(): string {
     .toString(36)
     .substring(2, 9)}`
 }
-

@@ -24,14 +24,18 @@ export const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
-  console.log('[sync-github-releases-background] Starting GitHub release sync...')
+  console.log(
+    '[sync-github-releases-background] Starting GitHub release sync...'
+  )
 
   // Check authentication
   const cronSecret = process.env.CRON_SECRET
   const authHeader = event.headers.authorization || event.headers.Authorization
 
   if (!cronSecret) {
-    console.error('[sync-github-releases-background] CRON_SECRET not configured')
+    console.error(
+      '[sync-github-releases-background] CRON_SECRET not configured'
+    )
     return {
       statusCode: 500,
       body: JSON.stringify({

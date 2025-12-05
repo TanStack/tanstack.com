@@ -90,7 +90,8 @@ function OssStatsContent({ library }: { library?: Library }) {
   const hasContributorCount = isValidMetric(contributorCount)
   const hasDependentCount = isValidMetric(dependentCount)
 
-  const hasAnyData = hasNpmDownloads || hasStarCount || hasContributorCount || hasDependentCount
+  const hasAnyData =
+    hasNpmDownloads || hasStarCount || hasContributorCount || hasDependentCount
 
   return (
     <div>
@@ -104,8 +105,9 @@ function OssStatsContent({ library }: { library?: Library }) {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20 dark:border-pink-500/30 backdrop-blur-sm pointer-events-auto">
               <span className="text-2xl">🚀</span>
               <p className="text-sm font-medium text-pink-600 dark:text-pink-400">
-                <span className="font-bold">Fresh out of the oven!</span> This library just launched. 
-                Be among the first to star, download, and contribute!
+                <span className="font-bold">Fresh out of the oven!</span> This
+                library just launched. Be among the first to star, download, and
+                contribute!
               </p>
             </div>
           </div>
@@ -114,7 +116,9 @@ function OssStatsContent({ library }: { library?: Library }) {
           href="https://www.npmjs.com/org/tanstack"
           target="_blank"
           rel="noreferrer"
-          className={`group flex gap-4 items-center ${!hasNpmDownloads ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}
+          className={`group flex gap-4 items-center ${
+            !hasNpmDownloads ? 'opacity-50' : ''
+          } ${!hasAnyData ? 'blur-sm' : ''}`}
         >
           <FaDownload className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
           <div>
@@ -138,17 +142,15 @@ function OssStatsContent({ library }: { library?: Library }) {
           }
           target="_blank"
           rel="noreferrer"
-          className={`group flex gap-4 items-center ${!hasStarCount ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}
+          className={`group flex gap-4 items-center ${
+            !hasStarCount ? 'opacity-50' : ''
+          } ${!hasAnyData ? 'blur-sm' : ''}`}
         >
           <FaStar className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
           <div>
             <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200 relative">
               {hasStarCount ? (
-                <NumberFlow
-                  value={starCount}
-                  continuous
-                  willChange
-                />
+                <NumberFlow value={starCount} continuous willChange />
               ) : (
                 <span>0</span>
               )}
@@ -158,16 +160,16 @@ function OssStatsContent({ library }: { library?: Library }) {
             </div>
           </div>
         </a>
-        <div className={`flex gap-4 items-center ${!hasContributorCount ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}>
+        <div
+          className={`flex gap-4 items-center ${
+            !hasContributorCount ? 'opacity-50' : ''
+          } ${!hasAnyData ? 'blur-sm' : ''}`}
+        >
           <FaUsers className="text-2xl" />
           <div className="">
             <div className="text-2xl font-bold opacity-80 relative">
               {hasContributorCount ? (
-                <NumberFlow
-                  value={contributorCount}
-                  continuous
-                  willChange
-                />
+                <NumberFlow value={contributorCount} continuous willChange />
               ) : (
                 <span>0</span>
               )}
@@ -177,16 +179,16 @@ function OssStatsContent({ library }: { library?: Library }) {
             </div>
           </div>
         </div>
-        <div className={`flex gap-4 items-center ${!hasDependentCount ? 'opacity-50' : ''} ${!hasAnyData ? 'blur-sm' : ''}`}>
+        <div
+          className={`flex gap-4 items-center ${
+            !hasDependentCount ? 'opacity-50' : ''
+          } ${!hasAnyData ? 'blur-sm' : ''}`}
+        >
           <FaCube className="text-2xl" />
           <div className="">
             <div className="text-2xl font-bold opacity-80 relative">
               {hasDependentCount ? (
-                <NumberFlow
-                  value={dependentCount}
-                  continuous
-                  willChange
-                />
+                <NumberFlow value={dependentCount} continuous willChange />
               ) : (
                 <span>0</span>
               )}

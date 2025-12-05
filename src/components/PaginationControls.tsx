@@ -50,10 +50,16 @@ export function PaginationControls({
       <div className="text-xs text-gray-500 dark:text-gray-400">
         Showing {displayCount} of {totalItems} {itemLabel}
         {filteredItems !== undefined && filteredItems !== totalItems && (
-          <span> • Page {currentPage + 1} of {totalPages}</span>
+          <span>
+            {' '}
+            • Page {currentPage + 1} of {totalPages}
+          </span>
         )}
         {filteredItems === undefined && (
-          <span> • Page {currentPage + 1} of {totalPages}</span>
+          <span>
+            {' '}
+            • Page {currentPage + 1} of {totalPages}
+          </span>
         )}
       </div>
       <div className="flex gap-1 items-center">
@@ -110,4 +116,3 @@ export function PaginationControls({
 
   return content
 }
-

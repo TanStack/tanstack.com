@@ -8,10 +8,10 @@ export const Route = createFileRoute('/auth/signout')({
       GET: async ({ request }) => {
         // Read and verify signed cookie
         const signedCookie = getSessionCookie(request)
-        
+
         if (signedCookie) {
           const cookieData = await verifyCookie(signedCookie)
-          
+
           // Revoke all sessions for this user (increment sessionVersion)
           if (cookieData) {
             try {

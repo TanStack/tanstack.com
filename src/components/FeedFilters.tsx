@@ -206,7 +206,6 @@ export function FeedFilters({
     releaseLevelsDiffer ||
     (includePrerelease !== undefined && includePrerelease !== true)
 
-
   // Render filter content (shared between mobile and desktop)
   const renderFilterContent = () => (
     <>
@@ -216,9 +215,7 @@ export function FeedFilters({
           <FilterCheckbox
             label="Featured"
             checked={featured ?? false}
-            onChange={() =>
-              handleFeaturedChange(featured ? undefined : true)
-            }
+            onChange={() => handleFeaturedChange(featured ? undefined : true)}
             count={facetCounts?.featured}
           />
         </div>
@@ -234,9 +231,7 @@ export function FeedFilters({
         onSelectNone={() => {
           onFiltersChange({ releaseLevels: undefined })
         }}
-        isAllSelected={
-          selectedReleaseLevels?.length === RELEASE_LEVELS.length
-        }
+        isAllSelected={selectedReleaseLevels?.length === RELEASE_LEVELS.length}
         isSomeSelected={
           selectedReleaseLevels !== undefined &&
           selectedReleaseLevels.length > 0 &&
@@ -452,10 +447,7 @@ export function FeedFilters({
           compact
         />
       )}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="flex-shrink-0"
-      >
+      <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
         <FilterSearch
           value={searchInput}
           onChange={handleSearchChange}
@@ -482,10 +474,7 @@ export function FeedFilters({
       >
         <LuHelpCircle className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
       </Tooltip>
-      <ViewModeToggle
-        viewMode={viewMode}
-        onViewModeChange={onViewModeChange}
-      />
+      <ViewModeToggle viewMode={viewMode} onViewModeChange={onViewModeChange} />
     </div>
   )
 
@@ -498,8 +487,16 @@ export function FeedFilters({
       desktopHeader={desktopHeader}
     >
       {/* Search - Desktop */}
-      <div className={`mb-2 lg:block hidden ${viewMode === 'table' ? 'max-w-xs lg:max-w-none lg:w-full' : 'w-full'}`}>
-        <FilterSearch value={searchInput} onChange={handleSearchChange} className="w-full" />
+      <div
+        className={`mb-2 lg:block hidden ${
+          viewMode === 'table' ? 'max-w-xs lg:max-w-none lg:w-full' : 'w-full'
+        }`}
+      >
+        <FilterSearch
+          value={searchInput}
+          onChange={handleSearchChange}
+          className="w-full"
+        />
       </div>
 
       {renderFilterContent()}

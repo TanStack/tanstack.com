@@ -1,12 +1,15 @@
 import * as React from 'react'
 
 export type Framework =
-  | 'react'
-  | 'vue'
   | 'angular'
-  | 'svelte'
+  | 'lit'
+  | 'preact'
+  | 'qwik'
+  | 'react'
   | 'solid'
+  | 'svelte'
   | 'vanilla'
+  | 'vue'
 
 export type Library = {
   id:
@@ -62,6 +65,8 @@ export type Library = {
   visible?: boolean
   // Legacy npm packages (non-@tanstack scope) to include in stats
   legacyPackages?: string[]
+  installPath?: string
+  corePackageName?: string
 }
 
 export type LibraryMenuItem = {

@@ -1,16 +1,36 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
+import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
 import { getLibrary } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
+import { FrameworkCard } from '~/components/FrameworkCard'
 
 export const Route = createFileRoute('/$libraryId/$version/docs/framework/')({
   component: RouteComponent,
 })
 
+function getPackageName(
+  frameworkValue: string,
+  libraryId: string,
+  library: ReturnType<typeof getLibrary>
+): string {
+  if (frameworkValue === 'vanilla') {
+    // For vanilla, use corePackageName if provided, otherwise just libraryId
+    const coreName = library.corePackageName || libraryId
+    return `@tanstack/${coreName}`
+  }
+  // Special case: Angular Query uses experimental package
+  if (frameworkValue === 'angular' && libraryId === 'query') {
+    return `@tanstack/angular-query-experimental`
+  }
+  // For other frameworks, use {framework}-{libraryId} pattern (e.g., @tanstack/react-table)
+  return `@tanstack/${frameworkValue}-${libraryId}`
+}
+
 function RouteComponent() {
-  const { libraryId } = Route.useParams()
+  const { libraryId, version } = Route.useParams()
   const library = getLibrary(libraryId)
 
   const frameworks = getFrameworkOptions(library.frameworks)
@@ -28,32 +48,67 @@ function RouteComponent() {
           <DocTitle>Supported {library.name} Frameworks</DocTitle>
           <div className="h-4" />
           <div className="h-px bg-gray-500 opacity-20" />
-          <div className="h-4" />
+          <div className="h-6" />
+
+          {/* Framework Cards Grid */}
           <div
             className={twMerge(
-              'prose prose-gray prose-sm prose-p:leading-7 dark:prose-invert max-w-none',
-              'styled-markdown-content'
+              'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'
             )}
           >
-            <ul className="text-lg">
-              {frameworks.map((framework) => (
-                <li key={framework.value}>
-                  <Link
-                    to={`./${framework.value}`}
-                    className="flex items-center gap-2"
-                  >
-                    <img
-                      src={framework.logo}
-                      alt={framework.label}
-                      className="w-4 h-4 p-0 m-0"
-                    />
-                    TanStack {framework.label}{' '}
-                    {library.name.replace('TanStack ', '')}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {frameworks.map((framework, i) => {
+              const packageName = getPackageName(
+                framework.value,
+                libraryId,
+                library
+              )
+              return (
+                <FrameworkCard
+                  key={framework.value}
+                  framework={framework}
+                  libraryId={libraryId}
+                  packageName={packageName}
+                  index={i}
+                  library={library}
+                />
+              )
+            })}
           </div>
+
+          {/* Call to Action Message */}
+          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
+            <div className="text-center max-w-2xl mx-auto">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                Want to add support for another framework?
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                We'd love to help you create a framework adapter for{' '}
+                {library.name}. Join our community to discuss implementation
+                details and get support.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <a
+                  href="https://tlinz.com/discord"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  <FaDiscord className="w-5 h-5" />
+                  Join Discord
+                </a>
+                <a
+                  href={`https://github.com/${library.repo}/discussions`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                >
+                  <FaGithub className="w-5 h-5" />
+                  Start Discussion
+                </a>
+              </div>
+            </div>
+          </div>
+
           <div className="h-24" />
         </div>
       </div>

@@ -27,7 +27,7 @@ export const storeProject = {
   colorFrom: 'from-twine-500',
   colorTo: 'to-twine-700',
   textColor: 'text-twine-700',
-  frameworks: ['react', 'solid', 'svelte', 'vue', 'angular'],
+  frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
   menu: [

@@ -28,6 +28,8 @@ export function MarkdownLink({
     hrefWithoutMd = hrefWithoutMd.replace(/^\.\.\//gm, '../../')
   } else if (hrefWithoutMd.startsWith('./')) {
     hrefWithoutMd = hrefWithoutMd.replace(/^\.\//gm, '../')
+  } else {
+    hrefWithoutMd = `../${hrefWithoutMd}`
   }
 
   return (

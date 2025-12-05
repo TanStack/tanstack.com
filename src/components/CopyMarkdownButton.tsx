@@ -6,7 +6,7 @@ import { type MouseEventHandler, useEffect, useRef } from 'react'
 import { useToast } from '~/components/ToastProvider'
 
 export function useCopyButton(
-  onCopy: () => void | Promise<void>
+  onCopy: () => void | Promise<void>,
 ): [checked: boolean, onClick: MouseEventHandler] {
   const [checked, setChecked] = useState(false)
   const timeoutRef = useRef<number | null>(null)
@@ -61,7 +61,7 @@ export function CopyMarkdownButton({
               <div className="text-gray-500 dark:text-gray-400 text-xs">
                 Source content copied from cache
               </div>
-            </div>
+            </div>,
           )
         })
       } else {
@@ -81,7 +81,7 @@ export function CopyMarkdownButton({
                   <div className="text-gray-500 dark:text-gray-400 text-xs">
                     Source content copied from GitHub
                   </div>
-                </div>
+                </div>,
               )
             })
           })
@@ -97,7 +97,7 @@ export function CopyMarkdownButton({
                   <div className="text-gray-500 dark:text-gray-400 text-xs">
                     Fallback: copied rendered page content
                   </div>
-                </div>
+                </div>,
               )
             })
           })

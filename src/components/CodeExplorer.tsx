@@ -121,12 +121,12 @@ export function CodeExplorer({
               isEmbedded
               className={twMerge(
                 'h-full border-0',
-                isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]'
+                isFullScreen ? 'max-h-[90dvh]' : 'max-h-[80dvh]',
               )}
             >
               <code
                 className={`language-${overrideExtension(
-                  currentPath.split('.').pop()
+                  currentPath.split('.').pop(),
                 )}`}
               >
                 {currentCode}

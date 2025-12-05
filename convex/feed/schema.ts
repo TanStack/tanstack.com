@@ -23,9 +23,9 @@ export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
  * Convex validators derived from constants
  */
 export const feedCategoryValidator = v.union(
-  ...FEED_CATEGORIES.map((cat) => v.literal(cat))
+  ...FEED_CATEGORIES.map((cat) => v.literal(cat)),
 )
 
 export const releaseLevelValidator = v.union(
-  ...RELEASE_LEVELS.map((level) => v.literal(level))
+  ...RELEASE_LEVELS.map((level) => v.literal(level)),
 )

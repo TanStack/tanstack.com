@@ -21,7 +21,7 @@ export const Route = createFileRoute('/partners-embed')({
 
 function PartnersEmbed() {
   const activePartners = partners.filter(
-    (partner) => partner.status === 'active'
+    (partner) => partner.status === 'active',
   )
 
   return (

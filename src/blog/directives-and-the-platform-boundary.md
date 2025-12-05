@@ -73,7 +73,7 @@ export const action = server(
     method: 'POST',
     headers: { 'x-foo': 'bar' },
     middleware: [requireAuth()],
-  }
+  },
 )
 ```
 
@@ -208,7 +208,7 @@ export const sendEmail = workflow(
   async (input) => {
     /* ... */
   },
-  { retries: 3, timeout: '1m' }
+  { retries: 3, timeout: '1m' },
 )
 
 export const handle = step(
@@ -216,7 +216,7 @@ export const handle = step(
   async () => {
     /* ... */
   },
-  { cache: 60 }
+  { cache: 60 },
 )
 ```
 
@@ -240,7 +240,7 @@ export const task = workflow(
   async () => {
     /* ... */
   },
-  { retries: 5 }
+  { retries: 5 },
 )
 ```
 

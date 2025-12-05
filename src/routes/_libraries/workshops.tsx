@@ -47,7 +47,7 @@ function WorkshopsPage() {
   const { seed } = Route.useLoaderData()
   // Calculate instructors on client side using the seed
   const availableInstructors = allMaintainers.filter(
-    (m) => m.workshopsAvailable
+    (m) => m.workshopsAvailable,
   )
   const shuffled = shuffleWithSeed(availableInstructors, seed, (m) => m.name)
   const instructors = shuffled.slice(0, 4) as Maintainer[]
@@ -525,7 +525,7 @@ function TestimonialsMarquee() {
                   <div>{testimonial.company}</div>
                 </div>
               </div>
-            )
+            ),
           )}
         </div>
       </div>

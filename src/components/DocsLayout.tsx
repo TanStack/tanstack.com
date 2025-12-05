@@ -100,7 +100,7 @@ const useMenuConfig = ({
     // Merge the two menus together based on their group labels
     ...config.sections.map((section): MenuItem | undefined => {
       const frameworkDocs = section.frameworks?.find(
-        (f) => f.label === currentFramework.framework
+        (f) => f.label === currentFramework.framework,
       )
       const frameworkItems = frameworkDocs?.children ?? []
 
@@ -168,14 +168,14 @@ export function DocsLayout({
 
   const flatMenu = React.useMemo(
     () => menuConfig.flatMap((d) => d?.children),
-    [menuConfig]
+    [menuConfig],
   )
 
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
 
   const relativePathname = lastMatch.pathname.replace(
     docsMatch!.pathname + '/',
-    ''
+    '',
   )
 
   const index = flatMenu.findIndex((d) => d?.to === relativePathname)
@@ -186,7 +186,7 @@ export function DocsLayout({
   const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
   const activePartners = partners.filter(
-    (d) => d.status === 'active' && d.name !== 'Nozzle.io'
+    (d) => d.status === 'active' && d.name !== 'Nozzle.io',
   )
 
   const menuItems = menuConfig.map((group, i) => {
@@ -198,7 +198,7 @@ export function DocsLayout({
       typeof group.defaultCollapsed !== 'undefined'
         ? !group.defaultCollapsed // defaultCollapsed is true means the group is closed
         : undefined
-    const isOpen = isChildActive ? true : configGroupOpenState ?? false
+    const isOpen = isChildActive ? true : (configGroupOpenState ?? false)
 
     const detailsProps = group.collapsible ? { open: isOpen } : {}
 
@@ -245,7 +245,7 @@ export function DocsLayout({
                               'overflow-auto w-full',
                               props.isActive
                                 ? `font-bold text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
-                                : ''
+                                : '',
                             )}
                           >
                             {/* <div className="transition group-hover:delay-700 duration-300 group-hover:duration-[2s] group-hover:translate-x-[-50%]"> */}
@@ -257,7 +257,7 @@ export function DocsLayout({
                               className={`text-xs ${
                                 props.isActive ? 'opacity-100' : 'opacity-40'
                               } group-hover:opacity-100 font-bold transition-opacity ${getFrameworkTextColor(
-                                child.badge
+                                child.badge,
                               )}`}
                             >
                               {child.badge}
@@ -337,7 +337,7 @@ export function DocsLayout({
           <div
             className={twMerge(
               `max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0`,
-              !isExample && !isFullWidth && 'mx-auto w-[1208px]' // page width
+              !isExample && !isFullWidth && 'mx-auto w-[1208px]', // page width
             )}
           >
             {children}
@@ -433,7 +433,7 @@ export function DocsLayout({
                           style={{
                             width: Math.max(
                               50 + Math.round(200 * partner.score),
-                              100
+                              100,
                             ),
                           }}
                         >

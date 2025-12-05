@@ -5,7 +5,7 @@ export const packageGroupSchema = z.object({
     z.object({
       name: z.string(),
       hidden: z.boolean().optional(),
-    })
+    }),
   ),
   color: z.string().nullable().optional(),
   baseline: z.boolean().optional(),

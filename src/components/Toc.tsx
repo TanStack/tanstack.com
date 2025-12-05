@@ -33,7 +33,7 @@ export function Toc({
       </div>
       <ul
         className={twMerge(
-          'p-0.5 lg:p-1 xl:p-1.5 2xl:p-2 flex flex-col overflow-y-auto gap-0.5 text-[.7em] lg:text-[.725em] xl:text-[.775em] 2xl:text-[.8em]'
+          'p-0.5 lg:p-1 xl:p-1.5 2xl:p-2 flex flex-col overflow-y-auto gap-0.5 text-[.7em] lg:text-[.725em] xl:text-[.775em] 2xl:text-[.8em]',
         )}
       >
         {headings?.map((heading) => (
@@ -41,7 +41,7 @@ export function Toc({
             key={heading.id}
             className={twMerge(
               'cursor-pointer py-[.1rem] w-full rounded hover:bg-gray-500/10',
-              headingLevels[heading.level]
+              headingLevels[heading.level],
             )}
           >
             <a

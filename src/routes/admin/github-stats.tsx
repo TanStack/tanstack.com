@@ -296,7 +296,7 @@ function GitHubStatsAdmin() {
         },
       },
     ],
-    [refreshingKey, refreshAllMutation]
+    [refreshingKey, refreshAllMutation],
   )
 
   const table = useReactTable({
@@ -360,7 +360,7 @@ function GitHubStatsAdmin() {
                         <span className="font-medium">{error.cacheKey}:</span>{' '}
                         {error.error}
                       </div>
-                    )
+                    ),
                   )}
                 </div>
               </div>
@@ -389,7 +389,7 @@ function GitHubStatsAdmin() {
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHeaderCell>
                 ))}

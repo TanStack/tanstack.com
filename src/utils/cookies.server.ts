@@ -116,7 +116,7 @@ export async function signCookie(data: SessionCookieData): Promise<string> {
     keyData,
     { name: 'HMAC', hash: 'SHA-256' },
     false,
-    ['sign']
+    ['sign'],
   )
 
   const signature = await crypto.subtle.sign('HMAC', key, messageData)
@@ -134,7 +134,7 @@ export async function signCookie(data: SessionCookieData): Promise<string> {
 
 // Verify and parse signed cookie
 export async function verifyCookie(
-  signedCookie: string
+  signedCookie: string,
 ): Promise<SessionCookieData | null> {
   try {
     const secret = getSecretKey()
@@ -154,7 +154,7 @@ export async function verifyCookie(
       keyData,
       { name: 'HMAC', hash: 'SHA-256' },
       false,
-      ['verify']
+      ['verify'],
     )
 
     // Decode signature
@@ -165,7 +165,7 @@ export async function verifyCookie(
       'HMAC',
       key,
       signature,
-      messageData
+      messageData,
     )
 
     if (!isValid) {

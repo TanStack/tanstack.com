@@ -384,7 +384,7 @@ const uiDev = (() => {
               window.open(
                 'https://ui.dev/?utm_source=tanstack&utm_campaign=tanstack',
                 '_blank',
-                'noopener,noreferrer'
+                'noopener,noreferrer',
               )
             }
             tabIndex={0}

@@ -65,7 +65,7 @@ export const syncBlogPosts = action({
         excerpt: v.optional(v.string()),
         content: v.string(),
         authors: v.array(v.string()),
-      })
+      }),
     ),
   },
   handler: async (ctx, args) => {

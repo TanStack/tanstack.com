@@ -68,7 +68,7 @@ function RolesPage() {
   const capabilityFilters = useMemo(
     () =>
       Array.isArray(search.cap) ? search.cap : search.cap ? [search.cap] : [],
-    [search.cap]
+    [search.cap],
   )
 
   const [expandedSections, setExpandedSections] = useState<
@@ -183,7 +183,7 @@ function RolesPage() {
 
   const availableCapabilities = useMemo(
     () => ['admin', 'disableAds', 'builder', 'feed'],
-    []
+    [],
   )
 
   const handleCreateRole = useCallback(() => {
@@ -256,20 +256,20 @@ function RolesPage() {
         alert(error instanceof Error ? error.message : 'Failed to delete role')
       }
     },
-    [deleteRole]
+    [deleteRole],
   )
 
   const toggleCapability = useCallback(
     (capability: string) => {
       if (editingCapabilities.includes(capability)) {
         setEditingCapabilities(
-          editingCapabilities.filter((c: string) => c !== capability)
+          editingCapabilities.filter((c: string) => c !== capability),
         )
       } else {
         setEditingCapabilities([...editingCapabilities, capability])
       }
     },
-    [editingCapabilities]
+    [editingCapabilities],
   )
 
   const handleCapabilityFilterToggle = useCallback(
@@ -285,7 +285,7 @@ function RolesPage() {
         }),
       })
     },
-    [capabilityFilters, navigate]
+    [capabilityFilters, navigate],
   )
 
   // Define columns using the column helper
@@ -441,7 +441,7 @@ function RolesPage() {
       handleEditRole,
       handleDeleteRole,
       toggleCapability,
-    ]
+    ],
   )
 
   // Create table instance
@@ -619,7 +619,7 @@ function RolesPage() {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHeaderCell>
                   ))}
@@ -641,7 +641,7 @@ function RolesPage() {
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

@@ -310,7 +310,7 @@ function MaintainersFilter({
         <div className="flex flex-wrap gap-2">
           {selectedLibraries?.map((libraryId) => {
             const library = availableLibraries.find(
-              (lib) => lib.id === libraryId
+              (lib) => lib.id === libraryId,
             )
             const bgStyle = library?.bgStyle ?? 'bg-gray-500'
 
@@ -360,8 +360,8 @@ function MaintainerGrid({
           viewMode === 'compact'
             ? 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-6'
             : viewMode === 'row'
-            ? 'flex flex-col gap-4'
-            : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+              ? 'flex flex-col gap-4'
+              : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
         }`}
       >
         {maintainers.map((maintainer, index) => (
@@ -422,19 +422,19 @@ function RouteComponent() {
         const maintainerLibraries = getPersonsMaintainerOf(maintainer)
         return (
           maintainerLibraries.some((lib) =>
-            search.libraries!.includes(lib.id as Library['id'])
+            search.libraries!.includes(lib.id as Library['id']),
           ) ||
           maintainer.creatorOf?.some((lib) =>
-            search.libraries!.includes(lib)
+            search.libraries!.includes(lib),
           ) ||
           maintainer.maintainerOf?.some((lib) =>
-            search.libraries!.includes(lib)
+            search.libraries!.includes(lib),
           ) ||
           maintainer.contributorOf?.some((lib) =>
-            search.libraries!.includes(lib)
+            search.libraries!.includes(lib),
           ) ||
           maintainer.consultantOf?.some((lib) =>
-            search.libraries!.includes(lib)
+            search.libraries!.includes(lib),
           )
         )
       })
@@ -453,11 +453,11 @@ function RouteComponent() {
           // Sort by role priority within filtered libraries, then core status, then original order
           const aPriority = getRolePriorityForFilteredLibraries(
             a,
-            search.libraries
+            search.libraries,
           )
           const bPriority = getRolePriorityForFilteredLibraries(
             b,
-            search.libraries
+            search.libraries,
           )
 
           if (aPriority !== bPriority) {
@@ -467,11 +467,11 @@ function RouteComponent() {
           // Same role priority - use core maintainer status for filtered libraries
           const aIsCore = getIsCoreMaintainerForFilteredLibraries(
             a,
-            search.libraries
+            search.libraries,
           )
           const bIsCore = getIsCoreMaintainerForFilteredLibraries(
             b,
-            search.libraries
+            search.libraries,
           )
 
           if (aIsCore && !bIsCore) return -1
@@ -506,29 +506,29 @@ function RouteComponent() {
     switch (search.groupBy) {
       case 'core':
         const coreMaintainers = filteredMaintainers.filter(
-          (m) => m.isCoreMaintainer
+          (m) => m.isCoreMaintainer,
         )
         const regularMaintainers = filteredMaintainers.filter(
           (m) =>
             !m.isCoreMaintainer &&
             ((m.creatorOf && m.creatorOf.length > 0) ||
-              (m.maintainerOf && m.maintainerOf.length > 0))
+              (m.maintainerOf && m.maintainerOf.length > 0)),
         )
         const regularContributors = filteredMaintainers.filter(
           (m) =>
             !m.isCoreMaintainer &&
             (!m.creatorOf || m.creatorOf.length === 0) &&
-            (!m.maintainerOf || m.maintainerOf.length === 0)
+            (!m.maintainerOf || m.maintainerOf.length === 0),
         )
 
         // Sort by original order within each group
         const sortByOriginalOrder = (group: Maintainer[]) => {
           return group.sort((a, b) => {
             const aIndex = allMaintainers.findIndex(
-              (m) => m.github === a.github
+              (m) => m.github === a.github,
             )
             const bIndex = allMaintainers.findIndex(
-              (m) => m.github === b.github
+              (m) => m.github === b.github,
             )
             return aIndex - bIndex
           })
@@ -579,10 +579,10 @@ function RouteComponent() {
           const uniqueMaintainers = [...new Set(maintainers)]
           const sortedMaintainers = uniqueMaintainers.sort((a, b) => {
             const aIndex = allMaintainers.findIndex(
-              (m) => m.github === a.github
+              (m) => m.github === a.github,
             )
             const bIndex = allMaintainers.findIndex(
-              (m) => m.github === b.github
+              (m) => m.github === b.github,
             )
 
             // Get library ID for this group
@@ -612,25 +612,25 @@ function RouteComponent() {
 
       case 'role':
         const creators = filteredMaintainers.filter(
-          (m) => getRoleForFilteredLibraries(m, search.libraries) === 'creator'
+          (m) => getRoleForFilteredLibraries(m, search.libraries) === 'creator',
         )
         const libraryMaintainers = filteredMaintainers.filter(
           (m) =>
-            getRoleForFilteredLibraries(m, search.libraries) === 'maintainer'
+            getRoleForFilteredLibraries(m, search.libraries) === 'maintainer',
         )
         const libraryContributors = filteredMaintainers.filter(
           (m) =>
-            getRoleForFilteredLibraries(m, search.libraries) === 'contributor'
+            getRoleForFilteredLibraries(m, search.libraries) === 'contributor',
         )
 
         // Sort each role group: core maintainers first, then by original order
         const sortRoleGroup = (group: Maintainer[]) => {
           return group.sort((a, b) => {
             const aIndex = allMaintainers.findIndex(
-              (m) => m.github === a.github
+              (m) => m.github === a.github,
             )
             const bIndex = allMaintainers.findIndex(
-              (m) => m.github === b.github
+              (m) => m.github === b.github,
             )
 
             // Core maintainers first within each role

@@ -155,7 +155,7 @@ async function getLastSyncTime(ctx: any, repo: string): Promise<number | null> {
 async function updateLastSyncTime(
   ctx: any,
   repo: string,
-  timestamp: number
+  timestamp: number,
 ): Promise<void> {
   const configKey = `github:sync:${repo}`
   await ctx.runMutation(api.feed.mutations.setFeedConfig, {
@@ -173,7 +173,7 @@ async function updateLastSyncTime(
 async function fetchRepoReleases(
   repo: string,
   token: string,
-  since?: number
+  since?: number,
 ): Promise<any[]> {
   const url = `https://api.github.com/repos/${repo}/releases?per_page=100&page=1`
 
@@ -211,7 +211,7 @@ async function fetchRepoReleases(
   // Filter by since timestamp if provided
   if (since && since > 0) {
     return releases.filter(
-      (release: any) => new Date(release.published_at).getTime() > since
+      (release: any) => new Date(release.published_at).getTime() > since,
     )
   }
 
@@ -234,7 +234,7 @@ export const syncGitHubReleases = action({
     const token = process.env.GITHUB_AUTH_TOKEN
     if (!token) {
       throw new Error(
-        'GITHUB_AUTH_TOKEN not configured. Please set it in Convex dashboard.'
+        'GITHUB_AUTH_TOKEN not configured. Please set it in Convex dashboard.',
       )
     }
 
@@ -323,7 +323,7 @@ export const syncGitHubReleases = action({
           } catch (error) {
             console.error(
               `Error processing release ${release.id} from ${repo}:`,
-              error
+              error,
             )
             errorCount++
           }

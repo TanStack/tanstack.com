@@ -10,7 +10,7 @@ crons.hourly(
     minuteUTC: 0,
   },
   api.feed.github.syncGitHubReleases,
-  {}
+  {},
 )
 
 // Note: Blog sync requires server-side access to content-collections

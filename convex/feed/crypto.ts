@@ -19,7 +19,7 @@ export const verifyGitHubSignature = action({
     const digest = 'sha256=' + hmac.update(args.payload).digest('hex')
     return crypto.timingSafeEqual(
       Buffer.from(args.signature),
-      Buffer.from(digest)
+      Buffer.from(digest),
     )
   },
 })

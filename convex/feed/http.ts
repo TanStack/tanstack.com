@@ -10,7 +10,7 @@ export const handleGitHubWebhook = httpAction(async (ctx, request) => {
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
-      }
+      },
     )
   }
 
@@ -55,7 +55,7 @@ export const handleGitHubWebhook = httpAction(async (ctx, request) => {
       {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
-      }
+      },
     )
   }
 
@@ -109,6 +109,6 @@ export const handleGitHubWebhook = httpAction(async (ctx, request) => {
     {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
-    }
+    },
   )
 })

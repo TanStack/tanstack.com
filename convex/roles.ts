@@ -20,9 +20,9 @@ export const listRoles = query({
           v.literal('admin'),
           v.literal('disableAds'),
           v.literal('builder'),
-          v.literal('feed')
-        )
-      )
+          v.literal('feed'),
+        ),
+      ),
     ),
   },
   handler: async (ctx, args) => {
@@ -38,14 +38,14 @@ export const listRoles = query({
         (role) =>
           role.name.toLowerCase().includes(nameLower) ||
           (role.description &&
-            role.description.toLowerCase().includes(nameLower))
+            role.description.toLowerCase().includes(nameLower)),
       )
     }
 
     // Apply capability filter
     if (args.capabilityFilter && args.capabilityFilter.length > 0) {
       roles = roles.filter((role) =>
-        args.capabilityFilter!.some((cap) => role.capabilities.includes(cap))
+        args.capabilityFilter!.some((cap) => role.capabilities.includes(cap)),
       )
     }
 
@@ -78,8 +78,8 @@ export const createRole = mutation({
         v.literal('admin'),
         v.literal('disableAds'),
         v.literal('builder'),
-        v.literal('feed')
-      )
+        v.literal('feed'),
+      ),
     ),
   },
   handler: async (ctx, args) => {
@@ -97,7 +97,7 @@ export const createRole = mutation({
 
     // Validate capabilities
     const validatedCapabilities = CapabilitySchema.array().parse(
-      args.capabilities
+      args.capabilities,
     )
 
     const now = Date.now()
@@ -125,9 +125,9 @@ export const updateRole = mutation({
           v.literal('admin'),
           v.literal('disableAds'),
           v.literal('builder'),
-          v.literal('feed')
-        )
-      )
+          v.literal('feed'),
+        ),
+      ),
     ),
   },
   handler: async (ctx, args) => {
@@ -159,7 +159,7 @@ export const updateRole = mutation({
     if (args.description !== undefined) updates.description = args.description
     if (args.capabilities !== undefined) {
       const validatedCapabilities = CapabilitySchema.array().parse(
-        args.capabilities
+        args.capabilities,
       )
       updates.capabilities = validatedCapabilities
     }
@@ -223,7 +223,7 @@ export const getUserRoles = query({
       .collect()
 
     const roles = await Promise.all(
-      roleAssignments.map((ra) => ctx.db.get(ra.roleId))
+      roleAssignments.map((ra) => ctx.db.get(ra.roleId)),
     )
 
     return roles.filter((role) => role !== null)
@@ -247,7 +247,7 @@ export const assignRolesToUser = mutation({
 
     // Validate that all roles exist
     const roles = await Promise.all(
-      args.roleIds.map((roleId) => ctx.db.get(roleId))
+      args.roleIds.map((roleId) => ctx.db.get(roleId)),
     )
     if (roles.some((role) => role === null)) {
       throw new Error('One or more roles not found')
@@ -264,13 +264,13 @@ export const assignRolesToUser = mutation({
 
     // Delete assignments that are no longer needed
     const toDelete = existingAssignments.filter(
-      (ra) => !newRoleIds.has(ra.roleId)
+      (ra) => !newRoleIds.has(ra.roleId),
     )
     await Promise.all(toDelete.map((ra) => ctx.db.delete(ra._id)))
 
     // Create new assignments
     const toCreate = args.roleIds.filter(
-      (roleId) => !existingRoleIds.has(roleId)
+      (roleId) => !existingRoleIds.has(roleId),
     )
     const now = Date.now()
     await Promise.all(
@@ -279,8 +279,8 @@ export const assignRolesToUser = mutation({
           userId: args.userId,
           roleId,
           createdAt: now,
-        })
-      )
+        }),
+      ),
     )
 
     return { success: true }
@@ -322,7 +322,7 @@ export const getBulkUserRoles = query({
     // Filter to only assignments for our users
     const userIdsSet = new Set(args.userIds)
     const relevantAssignments = allAssignments.filter((ra) =>
-      userIdsSet.has(ra.userId)
+      userIdsSet.has(ra.userId),
     )
 
     // Group by userId
@@ -338,13 +338,13 @@ export const getBulkUserRoles = query({
 
     // Get all unique role IDs
     const roleIds = Array.from(
-      new Set(relevantAssignments.map((ra) => ra.roleId))
+      new Set(relevantAssignments.map((ra) => ra.roleId)),
     )
     const roles = await Promise.all(roleIds.map((roleId) => ctx.db.get(roleId)))
 
     // Build map of roleId -> role
     const roleMap = new Map(
-      roles.filter((r) => r !== null).map((r) => [r!._id, r!])
+      roles.filter((r) => r !== null).map((r) => [r!._id, r!]),
     )
 
     // Group assignments by user
@@ -377,7 +377,7 @@ export const getBulkEffectiveCapabilities = query({
 
     // Get all users
     const users = await Promise.all(
-      args.userIds.map((userId) => ctx.db.get(userId))
+      args.userIds.map((userId) => ctx.db.get(userId)),
     )
 
     // Get all role assignments in one query
@@ -385,12 +385,12 @@ export const getBulkEffectiveCapabilities = query({
 
     const userIdsSet = new Set(args.userIds)
     const relevantAssignments = allAssignments.filter((ra) =>
-      userIdsSet.has(ra.userId)
+      userIdsSet.has(ra.userId),
     )
 
     // Get all unique role IDs
     const roleIds = Array.from(
-      new Set(relevantAssignments.map((ra) => ra.roleId))
+      new Set(relevantAssignments.map((ra) => ra.roleId)),
     )
     const roles = await Promise.all(roleIds.map((roleId) => ctx.db.get(roleId)))
 
@@ -398,7 +398,7 @@ export const getBulkEffectiveCapabilities = query({
     const roleCapabilitiesMap = new Map(
       roles
         .filter((r) => r !== null)
-        .map((r) => [r!._id, r!.capabilities || []])
+        .map((r) => [r!._id, r!.capabilities || []]),
     )
 
     // Build result: userId -> effective capabilities
@@ -410,15 +410,15 @@ export const getBulkEffectiveCapabilities = query({
 
       // Get role capabilities for this user
       const userAssignments = relevantAssignments.filter(
-        (ra) => ra.userId === user._id
+        (ra) => ra.userId === user._id,
       )
       const roleCapabilities = userAssignments.flatMap(
-        (ra) => roleCapabilitiesMap.get(ra.roleId) || []
+        (ra) => roleCapabilitiesMap.get(ra.roleId) || [],
       )
 
       // Union of direct + role capabilities
       result[user._id] = Array.from(
-        new Set<Capability>([...directCapabilities, ...roleCapabilities])
+        new Set<Capability>([...directCapabilities, ...roleCapabilities]),
       )
     })
 
@@ -471,7 +471,7 @@ export const removeUsersFromRole = mutation({
 
     // Validate that all users exist
     const users = await Promise.all(
-      args.userIds.map((userId) => ctx.db.get(userId))
+      args.userIds.map((userId) => ctx.db.get(userId)),
     )
     if (users.some((user) => user === null)) {
       throw new Error('One or more users not found')
@@ -503,7 +503,7 @@ export const bulkAssignRolesToUsers = mutation({
 
     // Validate that all users exist
     const users = await Promise.all(
-      args.userIds.map((userId) => ctx.db.get(userId))
+      args.userIds.map((userId) => ctx.db.get(userId)),
     )
     if (users.some((user) => user === null)) {
       throw new Error('One or more users not found')
@@ -511,7 +511,7 @@ export const bulkAssignRolesToUsers = mutation({
 
     // Validate that all roles exist
     const roles = await Promise.all(
-      args.roleIds.map((roleId) => ctx.db.get(roleId))
+      args.roleIds.map((roleId) => ctx.db.get(roleId)),
     )
     if (roles.some((role) => role === null)) {
       throw new Error('One or more roles not found')
@@ -533,7 +533,7 @@ export const bulkAssignRolesToUsers = mutation({
         .collect()
 
       const existingRoleIds = new Set(
-        existingAssignments.map((ra) => ra.roleId)
+        existingAssignments.map((ra) => ra.roleId),
       )
 
       // Add new assignments for roles not already assigned
@@ -551,8 +551,8 @@ export const bulkAssignRolesToUsers = mutation({
     // Insert all new assignments
     await Promise.all(
       assignmentsToCreate.map((assignment) =>
-        ctx.db.insert('roleAssignments', assignment)
-      )
+        ctx.db.insert('roleAssignments', assignment),
+      ),
     )
 
     return { success: true, assigned: assignmentsToCreate.length }

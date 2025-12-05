@@ -8,7 +8,7 @@ export const getCurrentUser = createServerFn({ method: 'POST' }).handler(
   async () => {
     const request = getRequest()
     return getCurrentUserFromRequest(request)
-  }
+  },
 )
 
 // Server function to require authentication
@@ -20,7 +20,7 @@ export const requireAuth = createServerFn({ method: 'POST' }).handler(
       throw new Error('Not authenticated')
     }
     return user
-  }
+  },
 )
 
 // Server function to require a specific capability

@@ -159,7 +159,7 @@ export const startProject = {
     // Redirect from /api-routes to /server-routes
     if (
       href.match(
-        /\/start\/(latest|v1)\/docs\/framework\/(react|solid)\/api-routes/
+        /\/start\/(latest|v1)\/docs\/framework\/(react|solid)\/api-routes/,
       )
     ) {
       throw redirect({

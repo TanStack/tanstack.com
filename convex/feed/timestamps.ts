@@ -39,7 +39,7 @@ export function getEffectivePublishedAt(entry: {
 
   // Fallback to createdAt if publishedAt is invalid
   console.warn(
-    `Invalid publishedAt (${entry.publishedAt}) for entry, using createdAt (${entry.createdAt})`
+    `Invalid publishedAt (${entry.publishedAt}) for entry, using createdAt (${entry.createdAt})`,
   )
   return entry.createdAt
 }

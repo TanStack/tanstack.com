@@ -81,7 +81,7 @@ function RouteComp() {
                 relative group
                 min-h-[280px] flex flex-col`,
                 item.borderColor,
-                item.hoverShadow
+                item.hoverShadow,
               )}
               style={{
                 zIndex: i,
@@ -110,7 +110,7 @@ function RouteComp() {
                       `inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium
                       bg-black/5 dark:bg-white/10 text-gray-900 dark:text-white
                       group-hover:bg-black/10 dark:group-hover:bg-white/20
-                      transition-colors`
+                      transition-colors`,
                     )}
                   >
                     Shop {item.name}

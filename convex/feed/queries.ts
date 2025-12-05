@@ -21,7 +21,7 @@ export const listFeedEntries = query({
         featured: v.optional(v.boolean()),
         search: v.optional(v.string()),
         includeHidden: v.optional(v.boolean()), // Admin flag to show all entries
-      })
+      }),
     ),
   },
   handler: async (ctx, args) => {
@@ -36,26 +36,26 @@ export const listFeedEntries = query({
       : await ctx.db
           .query('feedEntries')
           .withIndex('by_visible', (q) =>
-            q.eq('isVisible', true).gte('publishedAt', 0)
+            q.eq('isVisible', true).gte('publishedAt', 0),
           )
           .collect()
 
     // Apply filters
     if (filters.sources && filters.sources.length > 0) {
       entries = entries.filter((entry) =>
-        filters.sources!.includes(entry.source)
+        filters.sources!.includes(entry.source),
       )
     }
 
     if (filters.categories && filters.categories.length > 0) {
       entries = entries.filter((entry) =>
-        filters.categories!.includes(entry.category)
+        filters.categories!.includes(entry.category),
       )
     }
 
     if (filters.libraries && filters.libraries.length > 0) {
       entries = entries.filter((entry) =>
-        entry.libraryIds.some((libId) => filters.libraries!.includes(libId))
+        entry.libraryIds.some((libId) => filters.libraries!.includes(libId)),
       )
     }
 
@@ -64,14 +64,14 @@ export const listFeedEntries = query({
         (entry) =>
           entry.partnerIds &&
           entry.partnerIds.some((partnerId) =>
-            filters.partners!.includes(partnerId)
-          )
+            filters.partners!.includes(partnerId),
+          ),
       )
     }
 
     if (filters.tags && filters.tags.length > 0) {
       entries = entries.filter((entry) =>
-        filters.tags!.some((tag) => entry.tags.includes(tag))
+        filters.tags!.some((tag) => entry.tags.includes(tag)),
       )
     }
 
@@ -83,7 +83,7 @@ export const listFeedEntries = query({
       entries = entries.filter((entry) => {
         // Check if entry has release level tags
         const releaseLevelTags = entry.tags.filter((tag) =>
-          tag.startsWith('release:')
+          tag.startsWith('release:'),
         )
         if (releaseLevelTags.length === 0) {
           // Not a release entry, include it (unless explicitly filtering releases only)
@@ -96,7 +96,7 @@ export const listFeedEntries = query({
 
         // Check if this is a prerelease
         const isPrerelease = releaseLevelTags.some(
-          (tag) => tag === 'release:prerelease'
+          (tag) => tag === 'release:prerelease',
         )
 
         // If it's a prerelease, check includePrerelease flag
@@ -109,7 +109,7 @@ export const listFeedEntries = query({
           (tag) =>
             tag === 'release:major' ||
             tag === 'release:minor' ||
-            tag === 'release:patch'
+            tag === 'release:patch',
         )
         if (!baseReleaseTag) {
           return false
@@ -136,7 +136,7 @@ export const listFeedEntries = query({
     if (filters.search && filters.search.length > 0) {
       const searchLower = filters.search.toLowerCase()
       entries = entries.filter((entry) =>
-        entry.title.toLowerCase().includes(searchLower)
+        entry.title.toLowerCase().includes(searchLower),
       )
     }
 
@@ -247,7 +247,7 @@ export const getFeedFacetCounts = query({
         featured: v.optional(v.boolean()),
         search: v.optional(v.string()),
         includeHidden: v.optional(v.boolean()),
-      })
+      }),
     ),
   },
   handler: async (ctx, args) => {
@@ -260,7 +260,7 @@ export const getFeedFacetCounts = query({
       : await ctx.db
           .query('feedEntries')
           .withIndex('by_visible', (q) =>
-            q.eq('isVisible', true).gte('publishedAt', 0)
+            q.eq('isVisible', true).gte('publishedAt', 0),
           )
           .collect()
 
@@ -286,7 +286,7 @@ export const getFeedFacetCounts = query({
         | 'releaseLevels'
         | 'includePrerelease'
         | 'featured'
-        | 'search'
+        | 'search',
     ) => {
       let filtered = [...entriesToFilter]
 
@@ -296,7 +296,7 @@ export const getFeedFacetCounts = query({
         filters.sources.length > 0
       ) {
         filtered = filtered.filter((entry) =>
-          filters.sources!.includes(entry.source)
+          filters.sources!.includes(entry.source),
         )
       }
 
@@ -306,7 +306,7 @@ export const getFeedFacetCounts = query({
         filters.categories.length > 0
       ) {
         filtered = filtered.filter((entry) =>
-          filters.categories!.includes(entry.category)
+          filters.categories!.includes(entry.category),
         )
       }
 
@@ -316,7 +316,7 @@ export const getFeedFacetCounts = query({
         filters.libraries.length > 0
       ) {
         filtered = filtered.filter((entry) =>
-          entry.libraryIds.some((libId) => filters.libraries!.includes(libId))
+          entry.libraryIds.some((libId) => filters.libraries!.includes(libId)),
         )
       }
 
@@ -329,14 +329,14 @@ export const getFeedFacetCounts = query({
           (entry) =>
             entry.partnerIds &&
             entry.partnerIds.some((partnerId) =>
-              filters.partners!.includes(partnerId)
-            )
+              filters.partners!.includes(partnerId),
+            ),
         )
       }
 
       if (excludeFacet !== 'tags' && filters.tags && filters.tags.length > 0) {
         filtered = filtered.filter((entry) =>
-          filters.tags!.some((tag) => entry.tags.includes(tag))
+          filters.tags!.some((tag) => entry.tags.includes(tag)),
         )
       }
 
@@ -347,7 +347,7 @@ export const getFeedFacetCounts = query({
         if (filters.releaseLevels !== undefined) {
           filtered = filtered.filter((entry) => {
             const releaseLevelTags = entry.tags.filter((tag) =>
-              tag.startsWith('release:')
+              tag.startsWith('release:'),
             )
             if (releaseLevelTags.length === 0) {
               return true
@@ -356,7 +356,7 @@ export const getFeedFacetCounts = query({
               return false
             }
             const isPrerelease = releaseLevelTags.some(
-              (tag) => tag === 'release:prerelease'
+              (tag) => tag === 'release:prerelease',
             )
             if (isPrerelease && filters.includePrerelease !== true) {
               return false
@@ -365,7 +365,7 @@ export const getFeedFacetCounts = query({
               (tag) =>
                 tag === 'release:major' ||
                 tag === 'release:minor' ||
-                tag === 'release:patch'
+                tag === 'release:patch',
             )
             if (!baseReleaseTag) {
               return false
@@ -386,7 +386,7 @@ export const getFeedFacetCounts = query({
 
       if (excludeFacet !== 'featured' && filters.featured !== undefined) {
         filtered = filtered.filter(
-          (entry) => entry.featured === filters.featured
+          (entry) => entry.featured === filters.featured,
         )
       }
 
@@ -397,7 +397,7 @@ export const getFeedFacetCounts = query({
       ) {
         const searchLower = filters.search.toLowerCase()
         filtered = filtered.filter((entry) =>
-          entry.title.toLowerCase().includes(searchLower)
+          entry.title.toLowerCase().includes(searchLower),
         )
       }
 
@@ -443,14 +443,14 @@ export const getFeedFacetCounts = query({
     const releaseEntries = applyFiltersExcept(entries, 'releaseLevels')
     for (const entry of releaseEntries) {
       const releaseLevelTags = entry.tags.filter((tag) =>
-        tag.startsWith('release:')
+        tag.startsWith('release:'),
       )
       if (releaseLevelTags.length > 0) {
         const baseReleaseTag = releaseLevelTags.find(
           (tag) =>
             tag === 'release:major' ||
             tag === 'release:minor' ||
-            tag === 'release:patch'
+            tag === 'release:patch',
         )
         if (baseReleaseTag) {
           const level = baseReleaseTag.replace('release:', '')
@@ -462,13 +462,13 @@ export const getFeedFacetCounts = query({
     // Count prerelease (separate from release levels)
     const prereleaseEntries = applyFiltersExcept(entries, 'includePrerelease')
     const prereleaseCount = prereleaseEntries.filter((entry) =>
-      entry.tags.includes('release:prerelease')
+      entry.tags.includes('release:prerelease'),
     ).length
 
     // Count featured
     const featuredEntries = applyFiltersExcept(entries, 'featured')
     const featuredCount = featuredEntries.filter(
-      (entry) => entry.featured
+      (entry) => entry.featured,
     ).length
 
     return {

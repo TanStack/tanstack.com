@@ -36,9 +36,9 @@ function parseDescriptor(descriptor: string) {
 const isCommentNode = (value: unknown) =>
   Boolean(
     value &&
-      typeof value === 'object' &&
-      'type' in value &&
-      value.type === 'comment'
+    typeof value === 'object' &&
+    'type' in value &&
+    value.type === 'comment',
   )
 
 const slugify = (value: string, fallback: string) => {
@@ -217,7 +217,7 @@ function transformTabsComponent(node) {
         'data-tab-index': String(index),
       },
       children: panelChildren,
-    })
+    }),
   )
 
   node.properties = {

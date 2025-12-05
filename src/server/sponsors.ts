@@ -86,7 +86,7 @@ export async function getSponsors() {
 
   sponsors.sort(
     (a, b) =>
-      (b.amount || 0) - (a.amount || 0) || (b.createdAt > a.createdAt ? -1 : 1)
+      (b.amount || 0) - (a.amount || 0) || (b.createdAt > a.createdAt ? -1 : 1),
   )
 
   return sponsors
@@ -130,7 +130,7 @@ async function getGithubSponsors() {
       `,
         {
           cursor,
-        }
+        },
       )
 
       const {
@@ -193,7 +193,7 @@ async function getGithubSponsors() {
           private: false,
           linkUrl: `https://github.com/${d}`,
           imageUrl: `https://github.com/${d}.png`,
-        }))
+        })),
       )
     }
     if (err.status === 403) {

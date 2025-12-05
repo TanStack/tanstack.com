@@ -18,7 +18,7 @@ const { data: projectTodos } = useLiveQuery((q) =>
     .from({ todos })
     .join({ projects }, (t, p) => eq(t.projectId, p.id))
     .where(({ todos }) => eq(todos.status, 'active'))
-    .where(({ projects }) => eq(projects.id, 123))
+    .where(({ projects }) => eq(projects.id, 123)),
 )
 
 // ...becomes these precise API calls automatically:
@@ -51,7 +51,7 @@ function TodoList({ filter }) {
       q
         .from({ todos: todoCollection })
         .where(({ todos }) => eq(todos.status, filter)),
-    [filter]
+    [filter],
   )
   return todos.map((t) => <TodoItem todo={t} />)
 }
@@ -115,7 +115,7 @@ const productsCollection = createCollection(
       return api.getProducts(params)
     },
     syncMode: 'on-demand', // ← New!
-  })
+  }),
 )
 ```
 
@@ -126,10 +126,10 @@ const { data: electronics } = useLiveQuery((q) =>
   q
     .from({ product: productsCollection })
     .where(({ product }) =>
-      and(eq(product.category, 'electronics'), lt(product.price, 100))
+      and(eq(product.category, 'electronics'), lt(product.price, 100)),
     )
     .orderBy(({ product }) => product.price, 'asc')
-    .limit(10)
+    .limit(10),
 )
 ```
 
@@ -158,12 +158,12 @@ Multiple components requesting the same data trigger exactly one network call:
 ```tsx
 // Component A
 const { data: active } = useLiveQuery((q) =>
-  q.from({ todos }).where(({ todos }) => eq(todos.status, 'active'))
+  q.from({ todos }).where(({ todos }) => eq(todos.status, 'active')),
 )
 
 // Component B (same query, different component)
 const { data: active } = useLiveQuery((q) =>
-  q.from({ todos }).where(({ todos }) => eq(todos.status, 'active'))
+  q.from({ todos }).where(({ todos }) => eq(todos.status, 'active')),
 )
 
 // Result: ONE network request
@@ -205,7 +205,7 @@ const { data } = useLiveQuery((q) =>
   q
     .from({ todos })
     .join({ projects }, (t, p) => eq(t.projectId, p.id))
-    .where(({ todos }) => eq(todos.status, 'active'))
+    .where(({ todos }) => eq(todos.status, 'active')),
 )
 
 // Network calls:
@@ -254,14 +254,14 @@ const todoCollection = createCollection(
   electricCollectionOptions({
     table: 'todos',
     syncMode: 'progressive',
-  })
+  }),
 )
 
 // First query loads immediately (on-demand)
 const { data: urgentTodos } = useLiveQuery((q) =>
   q
     .from({ todos: todoCollection })
-    .where(({ todos }) => eq(todos.priority, 'urgent'))
+    .where(({ todos }) => eq(todos.priority, 'urgent')),
 )
 // ~100ms: Network request for urgent todos only
 
@@ -299,7 +299,7 @@ We provide helper functions to make this straightforward:
 queryFn: async (ctx) => {
   // Parse expression trees into a simple format
   const { filters, sorts, limit } = parseLoadSubsetOptions(
-    ctx.meta?.loadSubsetOptions
+    ctx.meta?.loadSubsetOptions,
   )
 
   // Map to your REST API's query parameters

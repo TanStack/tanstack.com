@@ -15,7 +15,7 @@ export function RedirectVersionBanner(props: {
   const [showModal, setShowModal] = useLocalStorage(
     'showRedirectToLatestModal',
     true,
-    1000 * 60 * 24 * 30
+    1000 * 60 * 24 * 30,
   )
 
   if (!useClientOnlyRender()) {

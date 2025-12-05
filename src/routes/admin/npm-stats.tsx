@@ -135,7 +135,7 @@ function NpmStatsAdmin() {
         ),
       },
     ],
-    []
+    [],
   )
 
   const packageColumns = useMemo<ColumnDef<NpmPackage>[]>(
@@ -255,7 +255,7 @@ function NpmStatsAdmin() {
         ),
       },
     ],
-    [refreshPackageMutation]
+    [refreshPackageMutation],
   )
 
   const libraryTable = useReactTable({
@@ -443,7 +443,7 @@ function NpmStatsAdmin() {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHeaderCell>
                     ))}
@@ -457,7 +457,7 @@ function NpmStatsAdmin() {
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -500,7 +500,7 @@ function NpmStatsAdmin() {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHeaderCell>
                     ))}
@@ -514,7 +514,7 @@ function NpmStatsAdmin() {
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}

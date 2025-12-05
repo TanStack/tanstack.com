@@ -18,7 +18,7 @@ export function Tabs({ tabs, children }: TabsProps) {
   const { framework } = Route.useParams()
 
   const [activeSlug, setActiveSlug] = React.useState(
-    () => tabs.find((tab) => tab.slug === framework)?.slug || tabs[0].slug
+    () => tabs.find((tab) => tab.slug === framework)?.slug || tabs[0].slug,
   )
 
   return (

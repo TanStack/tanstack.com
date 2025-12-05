@@ -65,7 +65,7 @@ function RoleDetailPage() {
       alert(
         error instanceof Error
           ? error.message
-          : 'Failed to remove users from role'
+          : 'Failed to remove users from role',
       )
     }
   }, [selectedUserIds, roleId, removeUsersFromRole])
@@ -80,7 +80,7 @@ function RoleDetailPage() {
       }
       setSelectedUserIds(newSelection)
     },
-    [selectedUserIds]
+    [selectedUserIds],
   )
 
   const toggleAllSelection = useCallback(() => {
@@ -202,7 +202,7 @@ function RoleDetailPage() {
         },
       },
     ],
-    [selectedUserIds, usersWithRole, toggleAllSelection, toggleUserSelection]
+    [selectedUserIds, usersWithRole, toggleAllSelection, toggleUserSelection],
   )
 
   const table = useReactTable({
@@ -303,7 +303,7 @@ function RoleDetailPage() {
               onClick={() => {
                 if (
                   window.confirm(
-                    `Remove ${selectedUserIds.size} user(s) from this role?`
+                    `Remove ${selectedUserIds.size} user(s) from this role?`,
                   )
                 ) {
                   handleRemoveUsers()
@@ -345,7 +345,7 @@ function RoleDetailPage() {
                       alert(
                         error instanceof Error
                           ? error.message
-                          : 'Failed to remove user'
+                          : 'Failed to remove user',
                       )
                     }
                   }}
@@ -373,7 +373,7 @@ function RoleDetailPage() {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </th>
                     ))}
@@ -394,7 +394,7 @@ function RoleDetailPage() {
                       <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     ))}

@@ -38,7 +38,7 @@ export default function PlaceholderSponsorPack() {
       radius: 0,
       distance: 0,
     }),
-    [sponsors]
+    [sponsors],
   )
 
   const root = React.useMemo(
@@ -46,9 +46,9 @@ export default function PlaceholderSponsorPack() {
       hierarchy(pack)
         .sum((d: any) => 0.0007 + (d.size || 0))
         .sort(
-          (a, b) => ((b.data as any)?.size ?? 0) - ((a.data as any)?.size ?? 0)
+          (a, b) => ((b.data as any)?.size ?? 0) - ((a.data as any)?.size ?? 0),
         ),
-    [pack]
+    [pack],
   )
 
   return (

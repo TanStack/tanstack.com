@@ -42,8 +42,8 @@ export const Route = createFileRoute('/$libraryId')({
               .map(
                 (framework) =>
                   `${framework.charAt(0).toUpperCase()}${framework.slice(
-                    1
-                  )} ${library.name.replace('TanStack ', '')}`
+                    1,
+                  )} ${library.name.replace('TanStack ', '')}`,
               )
               .join(', ')}`
           : '',

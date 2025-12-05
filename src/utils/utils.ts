@@ -38,7 +38,7 @@ export function last<T>(arr: T[]) {
  */
 export function generatePath(
   id: string,
-  params: Record<string, string | undefined>
+  params: Record<string, string | undefined>,
 ) {
   let result = id.replace('routes', '').replaceAll('.', '/')
   Object.entries(params).forEach(([key, value]) => {
@@ -90,7 +90,7 @@ function hashString(str: string): number {
 export function shuffleWithSeed<T>(
   arr: T[],
   seed: string,
-  keyAccessor: (item: T) => string
+  keyAccessor: (item: T) => string,
 ): T[] {
   return [...arr].sort((a, b) => {
     const hashA = hashString(keyAccessor(a) + seed)
@@ -173,7 +173,7 @@ export function isNumericString(str: string): boolean {
  */
 export function multiSortBy<T>(
   arr: Array<T>,
-  accessors: Array<(item: T) => any> = [(d) => d]
+  accessors: Array<(item: T) => any> = [(d) => d],
 ): Array<T> {
   return arr
     .map((d, i) => [d, i] as const)
@@ -217,7 +217,7 @@ export function removeLeadingSlash(path: string): string {
  */
 export async function logTime<T>(
   lable: string,
-  fn: () => T
+  fn: () => T,
 ): Promise<T extends Promise<infer U> ? U : T> {
   const start = performance.now()
   const result = await fn()

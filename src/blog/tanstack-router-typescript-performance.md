@@ -79,8 +79,11 @@ export type ParseRoute<TRouteTree, TAcc = TRouteTree> = TRouteTree extends {
   ? unknown extends TChildren
     ? TAcc
     : TChildren extends ReadonlyArray<any>
-    ? ParseRoute<TChildren[number], TAcc | TChildren[number]>
-    : ParseRoute<TChildren[keyof TChildren], TAcc | TChildren[keyof TChildren]>
+      ? ParseRoute<TChildren[number], TAcc | TChildren[number]>
+      : ParseRoute<
+          TChildren[keyof TChildren],
+          TAcc | TChildren[keyof TChildren]
+        >
   : TAcc
 ```
 

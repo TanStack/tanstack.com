@@ -31,7 +31,7 @@ import { setCachedGitHubStats } from '~/utils/stats-db.server'
  */
 export const handler: Handler = async (
   event: HandlerEvent,
-  context: HandlerContext
+  context: HandlerContext,
 ) => {
   console.log('[refresh-stats-cache-background] Starting stats refresh...')
 
@@ -46,7 +46,7 @@ export const handler: Handler = async (
 
     // Refresh GitHub org stats
     console.log(
-      '[refresh-stats-cache-background] Refreshing GitHub org stats...'
+      '[refresh-stats-cache-background] Refreshing GitHub org stats...',
     )
     const githubCacheKey = `org:${org}`
     const githubStats = await fetchGitHubOwnerStats(org)
@@ -54,12 +54,12 @@ export const handler: Handler = async (
 
     // Refresh GitHub stats for each library repo
     console.log(
-      '[refresh-stats-cache-background] Refreshing GitHub stats for individual libraries...'
+      '[refresh-stats-cache-background] Refreshing GitHub stats for individual libraries...',
     )
     const { libraries } = await import('~/libraries')
     console.log(
       `[refresh-stats-cache-background] Found ${libraries.length} libraries to process:`,
-      libraries.map((lib) => ({ id: lib.id, repo: lib.repo }))
+      libraries.map((lib) => ({ id: lib.id, repo: lib.repo })),
     )
     const libraryResults = []
     const libraryErrors = []
@@ -68,13 +68,13 @@ export const handler: Handler = async (
       const library = libraries[i]
       if (!library.repo) {
         console.log(
-          `[refresh-stats-cache-background] Skipping library ${library.id} - no repo`
+          `[refresh-stats-cache-background] Skipping library ${library.id} - no repo`,
         )
         continue
       }
 
       console.log(
-        `[refresh-stats-cache-background] Processing library ${library.id} (${library.repo})...`
+        `[refresh-stats-cache-background] Processing library ${library.id} (${library.repo})...`,
       )
       try {
         const repoStats = await fetchGitHubRepoStats(library.repo)
@@ -83,11 +83,11 @@ export const handler: Handler = async (
             library.repo
           }: ${repoStats.starCount} stars, ${
             repoStats.contributorCount
-          } contributors, ${repoStats.dependentCount ?? 'N/A'} dependents`
+          } contributors, ${repoStats.dependentCount ?? 'N/A'} dependents`,
         )
         await setCachedGitHubStats(library.repo, repoStats, 1)
         console.log(
-          `[refresh-stats-cache-background] ✓ Successfully cached stats for ${library.repo}`
+          `[refresh-stats-cache-background] ✓ Successfully cached stats for ${library.repo}`,
         )
         libraryResults.push({
           repo: library.repo,
@@ -103,7 +103,7 @@ export const handler: Handler = async (
           error instanceof Error ? error.message : String(error)
         console.error(
           `[refresh-stats-cache-background] Failed to refresh ${library.repo}:`,
-          errorMessage
+          errorMessage,
         )
         libraryErrors.push({
           repo: library.repo,
@@ -118,7 +118,7 @@ export const handler: Handler = async (
         Object.keys(npmStats.packageStats || {}).length
       } packages), GitHub Org: ${githubStats.starCount.toLocaleString()} stars, Libraries: ${
         libraryResults.length
-      } refreshed, ${libraryErrors.length} failed`
+      } refreshed, ${libraryErrors.length} failed`,
     )
 
     return {
@@ -154,7 +154,7 @@ export const handler: Handler = async (
 
     console.error(
       `[refresh-stats-cache-background] ✗ Failed after ${duration}ms:`,
-      errorMessage
+      errorMessage,
     )
     if (errorStack) {
       console.error('[refresh-stats-cache-background] Stack:', errorStack)

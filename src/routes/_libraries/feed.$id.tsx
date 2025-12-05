@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_libraries/feed/$id')({
 
     // Fetch the feed entry by id
     const entry = await queryClient.ensureQueryData(
-      getFeedEntryByIdQueryOptions(entryId)
+      getFeedEntryByIdQueryOptions(entryId),
     )
 
     if (!entry) {
@@ -185,7 +185,7 @@ function FeedEntryView({ entry }: { entry: FeedEntry }) {
         tag !== 'release:prerelease' &&
         (tag === 'release:major' ||
           tag === 'release:minor' ||
-          tag === 'release:patch')
+          tag === 'release:patch'),
     )
     if (!releaseLevelTag) return null
 
@@ -252,7 +252,7 @@ function FeedEntryView({ entry }: { entry: FeedEntry }) {
           className={twMerge(
             'bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg p-4 lg:p-6',
             entry.featured &&
-              'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800'
+              'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800',
           )}
         >
           {/* Header */}
@@ -262,7 +262,7 @@ function FeedEntryView({ entry }: { entry: FeedEntry }) {
               <span
                 className={twMerge(
                   'px-2 py-1 rounded-md text-xs font-medium uppercase',
-                  badge.className
+                  badge.className,
                 )}
               >
                 {badge.label}
@@ -271,7 +271,7 @@ function FeedEntryView({ entry }: { entry: FeedEntry }) {
                 <span
                   className={twMerge(
                     'px-2 py-1 rounded-md text-xs font-medium uppercase',
-                    releaseLevelBadge.className
+                    releaseLevelBadge.className,
                   )}
                 >
                   {releaseLevelBadge.label}

@@ -15,5 +15,5 @@ export const syncAllFeedSources = createServerFn({ method: 'POST' }).handler(
     }
 
     return await syncAllSources()
-  }
+  },
 )

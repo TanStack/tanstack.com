@@ -40,7 +40,7 @@ export const queryProject = {
       href,
       '/query/v3',
       '/query/latest',
-      'from=reactQueryV3'
+      'from=reactQueryV3',
     )
 
     handleRedirects(
@@ -48,7 +48,7 @@ export const queryProject = {
       href,
       '/query/v3',
       '/query/v5',
-      'from=reactQueryV3'
+      'from=reactQueryV3',
     )
 
     handleRedirects(
@@ -56,7 +56,7 @@ export const queryProject = {
       href,
       '/query/latest',
       '/query/latest',
-      'from=communityLinks'
+      'from=communityLinks',
     )
   },
   menu: [

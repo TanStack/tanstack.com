@@ -37,7 +37,7 @@ const formatNumber = (number: number) => number.toString().padStart(2, '0')
 
 const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(
-    calculateTimeLeft(targetDate)
+    calculateTimeLeft(targetDate),
   )
 
   useEffect(() => {

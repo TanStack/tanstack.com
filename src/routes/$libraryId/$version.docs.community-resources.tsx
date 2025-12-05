@@ -7,7 +7,7 @@ import { seo } from '~/utils/seo'
 import { loadDocs } from '~/utils/docs'
 
 export const Route = createFileRoute(
-  '/$libraryId/$version/docs/community-resources'
+  '/$libraryId/$version/docs/community-resources',
 )({
   staleTime: 1000 * 60 * 5,
   loader: async (ctx) => {
@@ -62,7 +62,7 @@ function RouteComponent() {
     <DocContainer>
       <div
         className={twMerge(
-          'w-full flex flex-col bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[1200px]'
+          'w-full flex flex-col bg-white/70 dark:bg-black/40 mx-auto rounded-xl max-w-[1200px]',
         )}
       >
         <div className="p-4 lg:p-6 flex flex-col space-y-4 w-full">

@@ -16,7 +16,7 @@ export const routerProject = {
   id: 'router',
   name: 'TanStack Router',
   cardStyles: twMerge(
-    `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 ${textStyles} border-2 border-transparent hover:border-current`
+    `shadow-xl shadow-emerald-700/20 dark:shadow-lg dark:shadow-emerald-500/30 ${textStyles} border-2 border-transparent hover:border-current`,
   ),
   to: '/router',
   tagline: `Type-safe Routing for React and Solid applications`,
@@ -121,7 +121,7 @@ export const routerProject = {
       throw redirect({
         href: href.replace(
           'router/latest/docs/framework/react/start',
-          'start/latest/docs/framework/react'
+          'start/latest/docs/framework/react',
         ),
       })
     }
@@ -130,7 +130,7 @@ export const routerProject = {
       throw redirect({
         href: href.replace(
           'router/latest/docs/framework/react/examples/start',
-          'start/latest/docs/framework/react/examples/start'
+          'start/latest/docs/framework/react/examples/start',
         ),
       })
     }

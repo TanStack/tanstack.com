@@ -68,14 +68,14 @@ interface FeedPageLayoutContextValue {
 }
 
 const FeedPageLayoutContext = createContext<FeedPageLayoutContextValue | null>(
-  null
+  null,
 )
 
 function useFeedPageLayout() {
   const context = useContext(FeedPageLayoutContext)
   if (!context) {
     throw new Error(
-      'FeedPageLayout components must be used within FeedPageLayout.Root'
+      'FeedPageLayout components must be used within FeedPageLayout.Root',
     )
   }
   return context
@@ -132,7 +132,7 @@ function FeedPageLayoutRoot({
       featured: filters.featured,
       search: filters.search,
       includeHidden: adminActions !== undefined, // Admin sees all
-    })
+    }),
   )
 
   return (

@@ -3,7 +3,7 @@ import { loadDocs } from '~/utils/docs'
 import { createFileRoute, notFound } from '@tanstack/react-router'
 
 export const Route = createFileRoute(
-  '/$libraryId/$version/docs/framework/$framework/{$}.md'
+  '/$libraryId/$version/docs/framework/$framework/{$}.md',
 )({
   server: {
     handlers: {

@@ -6,7 +6,7 @@ import type { Capability } from '~/db/schema'
 // Helper function to get effective capabilities (direct + role-based)
 // Optimized to use single LEFT JOIN query to fetch both user and role capabilities
 export async function getEffectiveCapabilities(
-  userId: string
+  userId: string,
 ): Promise<Capability[]> {
   // Single query to get both user capabilities and role capabilities
   const result = await db
@@ -30,13 +30,13 @@ export async function getEffectiveCapabilities(
   const roleCapabilities = result
     .map((r) => r.roleCapabilities)
     .filter(
-      (caps): caps is Capability[] => caps !== null && Array.isArray(caps)
+      (caps): caps is Capability[] => caps !== null && Array.isArray(caps),
     )
     .flat()
 
   // Union of direct capabilities and role capabilities
   const effectiveCapabilities = Array.from(
-    new Set<Capability>([...directCapabilities, ...roleCapabilities])
+    new Set<Capability>([...directCapabilities, ...roleCapabilities]),
   )
 
   // Admin users automatically get feed capability

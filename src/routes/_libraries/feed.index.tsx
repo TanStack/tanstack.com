@@ -81,7 +81,7 @@ export const Route = createFileRoute('/_libraries/feed/')({
           featured: deps.featured,
           search: deps.search,
         },
-      })
+      }),
     )
   },
   headers: () => ({

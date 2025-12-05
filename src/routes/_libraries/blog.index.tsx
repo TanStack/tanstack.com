@@ -36,7 +36,7 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
     //     'Cache-Control': 'public, max-age=300, s-maxage=3600',
     //   },
     // })
-  }
+  },
 )
 
 export const Route = createFileRoute('/_libraries/blog/')({

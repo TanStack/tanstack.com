@@ -142,10 +142,13 @@ const binningOptions = [
   },
 ] as const
 
-const binningOptionsByType = binningOptions.reduce((acc, option) => {
-  acc[option.value] = option
-  return acc
-}, {} as Record<BinType, (typeof binningOptions)[number]>)
+const binningOptionsByType = binningOptions.reduce(
+  (acc, option) => {
+    acc[option.value] = option
+    return acc
+  },
+  {} as Record<BinType, (typeof binningOptions)[number]>,
+)
 
 type TransformMode = z.infer<typeof transformModeSchema>
 
@@ -232,11 +235,11 @@ function npmQueryOptions({
   // Get the earliest creation date among all packages
   const getEarliestCreationDate = async () => {
     const packageNames = packageGroups.flatMap((pkg) =>
-      pkg.packages.filter((p) => !p.hidden).map((p) => p.name)
+      pkg.packages.filter((p) => !p.hidden).map((p) => p.name),
     )
 
     const creationDates = await Promise.all(
-      packageNames.map(getPackageCreationDate)
+      packageNames.map(getPackageCreationDate),
     )
     return new Date(Math.min(...creationDates.map((date) => date.getTime())))
   }
@@ -298,7 +301,7 @@ function npmQueryOptions({
                 const chunks = await Promise.all(
                   chunkRanges.map(async (chunk) => {
                     const url = `https://api.npmjs.org/downloads/range/${formatDate(
-                      chunk.start
+                      chunk.start,
                     )}:${formatDate(chunk.end)}/${pkg.name}`
                     const response = await fetch(url)
                     if (!response.ok) {
@@ -308,7 +311,7 @@ function npmQueryOptions({
                       throw new Error('fetch_failed')
                     }
                     return response.json()
-                  })
+                  }),
                 )
 
                 // Combine all chunks and ensure no gaps
@@ -316,7 +319,7 @@ function npmQueryOptions({
                   .flatMap((chunk) => chunk.downloads || [])
                   .sort(
                     (a, b) =>
-                      new Date(a.day).getTime() - new Date(b.day).getTime()
+                      new Date(a.day).getTime() - new Date(b.day).getTime(),
                   )
 
                 // Find the earliest non-zero download
@@ -326,7 +329,7 @@ function npmQueryOptions({
                 }
 
                 return { ...pkg, downloads }
-              })
+              }),
             )
 
             return {
@@ -351,7 +354,7 @@ function npmQueryOptions({
                   : 'Failed to fetch package data (see console for details)',
             }
           }
-        })
+        }),
       )
     },
     placeholderData: keepPreviousData,
@@ -361,11 +364,11 @@ function npmQueryOptions({
 // Get or assign colors for packages
 function getPackageColor(
   packageName: string,
-  packages: z.infer<typeof packageGroupSchema>[]
+  packages: z.infer<typeof packageGroupSchema>[],
 ) {
   // Find the package group that contains this package
   const packageInfo = packages.find((pkg) =>
-    pkg.packages.some((p) => p.name === packageName)
+    pkg.packages.some((p) => p.name === packageName),
   )
   if (packageInfo?.color) {
     return packageInfo.color
@@ -373,7 +376,7 @@ function getPackageColor(
 
   // Otherwise, assign a default color based on the package's position
   const packageIndex = packages.findIndex((pkg) =>
-    pkg.packages.some((p) => p.name === packageName)
+    pkg.packages.some((p) => p.name === packageName),
   )
   return defaultColors[packageIndex % defaultColors.length]
 }
@@ -513,7 +516,7 @@ function NpmStatsChart({
     // Filter out any sub packages that are hidden before
     // summing them into a unified downloads count
     const visiblePackages = packageGroup.packages.filter(
-      (p, i) => !i || !p.hidden
+      (p, i) => !i || !p.hidden,
     )
 
     const downloadsByDate: Map<number, number> = new Map()
@@ -527,7 +530,7 @@ function NpmStatsChart({
         downloadsByDate.set(
           date.getTime(),
           // Sum the downloads for each date
-          (downloadsByDate.get(date.getTime()) || 0) + d.downloads
+          (downloadsByDate.get(date.getTime()) || 0) + d.downloads,
         )
       })
     })
@@ -535,7 +538,7 @@ function NpmStatsChart({
     return {
       ...packageGroup,
       downloads: Array.from(downloadsByDate.entries()).map(
-        ([date, downloads]) => [d3.utcDay(new Date(date)), downloads]
+        ([date, downloads]) => [d3.utcDay(new Date(date)), downloads],
       ) as [Date, number][],
     }
   })
@@ -547,9 +550,9 @@ function NpmStatsChart({
       d3.rollup(
         packageGroup.downloads,
         (v) => d3.sum(v, (d) => d[1]),
-        (d) => binUnit.floor(d[0])
+        (d) => binUnit.floor(d[0]),
       ),
-      (d) => d[0]
+      (d) => d[0],
     )
 
     const downloads = binned.map((d) => ({
@@ -581,7 +584,7 @@ function NpmStatsChart({
                 d.date.getTime(),
                 firstValue === 0 ? 1 : firstValue / d.downloads,
               ]
-            })
+            }),
           )
         })()
       : undefined
@@ -607,7 +610,7 @@ function NpmStatsChart({
 
   // Filter out any top-level hidden packages
   const filteredPackageData = correctedPackageData.filter(
-    (pkg) => !pkg.baseline && !pkg.packages[0].hidden
+    (pkg) => !pkg.baseline && !pkg.packages[0].hidden,
   )
 
   const plotData = filteredPackageData.flatMap((d) => d.downloads)
@@ -657,7 +660,7 @@ function NpmStatsChart({
                     strokeDasharray: '2 4',
                     strokeOpacity: 0.8,
                     curve: 'monotone-x',
-                  }
+                  },
                 ),
               ],
               Plot.lineY(
@@ -667,7 +670,7 @@ function NpmStatsChart({
                   stroke: 'name',
                   strokeWidth: 2,
                   curve: 'monotone-x',
-                }
+                },
               ),
               Plot.tip(
                 effectiveShowDataMode === 'all'
@@ -684,7 +687,7 @@ function NpmStatsChart({
                         year: 'numeric',
                       }),
                   },
-                } as Plot.TipOptions)
+                } as Plot.TipOptions),
               ),
             ].filter(Boolean),
             x: {
@@ -696,15 +699,15 @@ function NpmStatsChart({
                 transform === 'normalize-y'
                   ? 'Downloads Growth'
                   : baselinePackage
-                  ? 'Downloads (baseline-adjusted)'
-                  : 'Downloads',
+                    ? 'Downloads (baseline-adjusted)'
+                    : 'Downloads',
               labelOffset: 35,
             },
             grid: true,
             color: {
               domain: [...new Set(plotData.map((d) => d.name))],
               range: [...new Set(plotData.map((d) => d.name))].map((pkg) =>
-                getPackageColor(pkg, packages)
+                getPackageColor(pkg, packages),
               ),
               legend: false,
             },
@@ -755,12 +758,12 @@ function PackageSearch({
 
       const response = await fetch(
         `https://api.npms.io/v2/search?q=${encodeURIComponent(
-          debouncedInputValue
-        )}&size=10`
+          debouncedInputValue,
+        )}&size=10`,
       )
       const data = await response.json()
       const hasInputValue = data.results.find(
-        (r: any) => r.package.name === debouncedInputValue
+        (r: any) => r.package.name === debouncedInputValue,
       )
 
       return [
@@ -862,7 +865,7 @@ const defaultRangeBinTypes: Record<TimeRange, BinType> = {
 // Add a function to check if a binning option is valid for a time range
 function isBinningOptionValidForRange(
   range: TimeRange,
-  binType: BinType
+  binType: BinType,
 ): boolean {
   switch (range) {
     case '7-days':
@@ -908,7 +911,7 @@ function RouteComponent() {
     height = 400,
   } = Route.useSearch()
   const [combiningPackage, setCombiningPackage] = React.useState<string | null>(
-    null
+    null,
   )
   const navigate = Route.useNavigate()
   const [colorPickerPackage, setColorPickerPackage] = React.useState<
@@ -919,7 +922,7 @@ function RouteComponent() {
     y: number
   } | null>(null)
   const [openMenuPackage, setOpenMenuPackage] = React.useState<string | null>(
-    null
+    null,
   )
 
   const binType = binTypeParam ?? defaultRangeBinTypes[range]
@@ -978,10 +981,10 @@ function RouteComponent() {
             ? {
                 ...pkg,
                 packages: pkg.packages.map((p) =>
-                  p.name === packageName ? { ...p, hidden: !p.hidden } : p
+                  p.name === packageName ? { ...p, hidden: !p.hidden } : p,
                 ),
               }
-            : pkg
+            : pkg,
         ),
       }),
       replace: true,
@@ -993,7 +996,7 @@ function RouteComponent() {
     npmQueryOptions({
       packageGroups: packageGroups,
       range,
-    })
+    }),
   )
 
   const handleCombineSelect = (selectedPackage: NpmPackage) => {
@@ -1001,7 +1004,7 @@ function RouteComponent() {
 
     // Find the package group that contains the combining package
     const packageGroup = packageGroups.find((pkg) =>
-      pkg.packages.some((p) => p.name === combiningPackage)
+      pkg.packages.some((p) => p.name === combiningPackage),
     )
 
     if (packageGroup) {
@@ -1015,7 +1018,7 @@ function RouteComponent() {
                 { name: selectedPackage.name, hidden: true },
               ],
             }
-          : pkg
+          : pkg,
       )
 
       navigate({
@@ -1052,19 +1055,19 @@ function RouteComponent() {
   const handleRemoveFromGroup = (mainPackage: string, subPackage: string) => {
     // Find the package group
     const packageGroup = packageGroups.find((pkg) =>
-      pkg.packages.some((p) => p.name === mainPackage)
+      pkg.packages.some((p) => p.name === mainPackage),
     )
     if (!packageGroup) return
 
     // Remove the subpackage
     const updatedPackages = packageGroup.packages.filter(
-      (p) => p.name !== subPackage
+      (p) => p.name !== subPackage,
     )
 
     // Update the packages array
     const newPackages = packageGroups
       .map((pkg) =>
-        pkg === packageGroup ? { ...pkg, packages: updatedPackages } : pkg
+        pkg === packageGroup ? { ...pkg, packages: updatedPackages } : pkg,
       )
       .filter((pkg) => pkg.packages.length > 0)
 
@@ -1084,7 +1087,7 @@ function RouteComponent() {
       search: (prev) => ({
         ...prev,
         packageGroups: prev.packageGroups.filter(
-          (_, i) => i !== packageGroupIndex
+          (_, i) => i !== packageGroupIndex,
         ),
       }),
       resetScroll: false,
@@ -1139,7 +1142,7 @@ function RouteComponent() {
         to: '.',
         search: (prev) => {
           const packageGroup = packageGroups.find((pkg) =>
-            pkg.packages.some((p) => p.name === packageName)
+            pkg.packages.some((p) => p.name === packageName),
           )
           if (!packageGroup) return prev
 
@@ -1148,7 +1151,7 @@ function RouteComponent() {
               ? color === null
                 ? { packages: pkg.packages }
                 : { ...pkg, color }
-              : pkg
+              : pkg,
           )
 
           return {
@@ -1162,7 +1165,7 @@ function RouteComponent() {
     },
     {
       wait: 100,
-    }
+    },
   )
 
   const onHeightChange = useThrottledCallback(
@@ -1175,7 +1178,7 @@ function RouteComponent() {
     },
     {
       wait: 16,
-    }
+    },
   )
 
   const handleMenuOpenChange = (packageName: string, open: boolean) => {
@@ -1229,7 +1232,7 @@ function RouteComponent() {
 
     // Find the package group that contains the combining package
     const packageGroup = packageGroups.find((pkg) =>
-      pkg.packages.some((p) => p.name === combiningPackage)
+      pkg.packages.some((p) => p.name === combiningPackage),
     )
 
     if (packageGroup) {
@@ -1240,7 +1243,7 @@ function RouteComponent() {
               ...pkg,
               packages: [...pkg.packages, { name: packageName }],
             }
-          : pkg
+          : pkg,
       )
 
       navigate({
@@ -1297,7 +1300,7 @@ function RouteComponent() {
                     className={twMerge(
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                       value === range ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
+                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
                     )}
                   >
                     {label}
@@ -1311,7 +1314,7 @@ function RouteComponent() {
                   <button
                     className={twMerge(
                       dropdownButtonStyles.base,
-                      binType !== 'weekly' && dropdownButtonStyles.active
+                      binType !== 'weekly' && dropdownButtonStyles.active,
                     )}
                   >
                     {binningOptions.find((b) => b.value === binType)?.label}
@@ -1334,7 +1337,7 @@ function RouteComponent() {
                       'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
                       !isBinningOptionValidForRange(range, value)
                         ? 'opacity-50 cursor-not-allowed'
-                        : ''
+                        : '',
                     )}
                   >
                     {label}
@@ -1348,7 +1351,7 @@ function RouteComponent() {
                   <button
                     className={twMerge(
                       dropdownButtonStyles.base,
-                      transform !== 'none' && dropdownButtonStyles.active
+                      transform !== 'none' && dropdownButtonStyles.active,
                     )}
                   >
                     {
@@ -1372,7 +1375,7 @@ function RouteComponent() {
                     className={twMerge(
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                       transform === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
+                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
                     )}
                   >
                     {label}
@@ -1386,7 +1389,7 @@ function RouteComponent() {
                   <button
                     className={twMerge(
                       dropdownButtonStyles.base,
-                      facetX && dropdownButtonStyles.active
+                      facetX && dropdownButtonStyles.active,
                     )}
                   >
                     {facetX
@@ -1408,7 +1411,7 @@ function RouteComponent() {
                   className={twMerge(
                     'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                     !facetX ? 'text-blue-500 bg-blue-500/10' : '',
-                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
+                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
                   )}
                 >
                   No Facet
@@ -1420,7 +1423,7 @@ function RouteComponent() {
                     className={twMerge(
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                       facetX === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
+                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
                     )}
                   >
                     {label}
@@ -1434,7 +1437,7 @@ function RouteComponent() {
                   <button
                     className={twMerge(
                       dropdownButtonStyles.base,
-                      facetY && dropdownButtonStyles.active
+                      facetY && dropdownButtonStyles.active,
                     )}
                   >
                     {facetY
@@ -1456,7 +1459,7 @@ function RouteComponent() {
                   className={twMerge(
                     'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                     !facetY ? 'text-blue-500 bg-blue-500/10' : '',
-                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
+                    'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
                   )}
                 >
                   No Facet
@@ -1468,7 +1471,7 @@ function RouteComponent() {
                     className={twMerge(
                       'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
                       facetY === value ? 'text-blue-500 bg-blue-500/10' : '',
-                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500'
+                      'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
                     )}
                   >
                     {label}
@@ -1491,13 +1494,13 @@ function RouteComponent() {
                       showDataModeParam !== 'all' &&
                         dropdownButtonStyles.active,
                       transform === 'normalize-y' &&
-                        'opacity-50 cursor-not-allowed'
+                        'opacity-50 cursor-not-allowed',
                     )}
                     disabled={transform === 'normalize-y'}
                   >
                     {
                       showDataModeOptions.find(
-                        (opt) => opt.value === showDataModeParam
+                        (opt) => opt.value === showDataModeParam,
                       )?.label
                     }
                     <MdMoreVert className="w-3 h-3" />
@@ -1521,7 +1524,7 @@ function RouteComponent() {
                       'data-highlighted:bg-gray-500/20 data-highlighted:text-blue-500',
                       transform === 'normalize-y'
                         ? 'opacity-50 cursor-not-allowed'
-                        : ''
+                        : '',
                     )}
                   >
                     {label}
@@ -1536,7 +1539,7 @@ function RouteComponent() {
               const packageList = pkg.packages
               const isCombined = packageList.length > 1
               const subPackages = packageList.filter(
-                (p) => p.name !== mainPackage.name
+                (p) => p.name !== mainPackage.name,
               )
               const color = getPackageColor(mainPackage.name, packageGroups)
 
@@ -1592,7 +1595,7 @@ function RouteComponent() {
                             }
                             className={twMerge(
                               'hover:text-blue-500 flex items-center gap-1',
-                              mainPackage.hidden ? 'opacity-50' : ''
+                              mainPackage.hidden ? 'opacity-50' : '',
                             )}
                           >
                             {mainPackage.name}
@@ -1653,7 +1656,7 @@ function RouteComponent() {
                               }}
                               className={twMerge(
                                 'w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer',
-                                pkg.baseline ? 'text-blue-500' : ''
+                                pkg.baseline ? 'text-blue-500' : '',
                               )}
                             >
                               <MdPushPin className="text-sm" />
@@ -1666,7 +1669,7 @@ function RouteComponent() {
                                 e.preventDefault()
                                 handleColorClick(
                                   mainPackage.name,
-                                  e as unknown as React.MouseEvent
+                                  e as unknown as React.MouseEvent,
                                 )
                               }}
                               className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
@@ -1690,7 +1693,7 @@ function RouteComponent() {
                                       e.preventDefault()
                                       togglePackageVisibility(
                                         index,
-                                        subPackage.name
+                                        subPackage.name,
                                       )
                                     }}
                                     className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
@@ -1717,7 +1720,7 @@ function RouteComponent() {
                                           e.stopPropagation()
                                           handleRemoveFromGroup(
                                             mainPackage.name,
-                                            subPackage.name
+                                            subPackage.name,
                                           )
                                         }}
                                         className="p-1 text-gray-400 hover:text-red-500"
@@ -1867,7 +1870,7 @@ function RouteComponent() {
                         ?.map((packageGroupDownloads, index) => {
                           if (
                             !packageGroupDownloads.packages.some(
-                              (p) => p.downloads.length
+                              (p) => p.downloads.length,
                             )
                           ) {
                             return null
@@ -1894,7 +1897,7 @@ function RouteComponent() {
                             .sort(
                               (a, b) =>
                                 d3.utcDay(a.day).getTime() -
-                                d3.utcDay(b.day).getTime()
+                                d3.utcDay(b.day).getTime(),
                             )
 
                           // Get the binning unit and calculate partial bin boundaries
@@ -1904,7 +1907,7 @@ function RouteComponent() {
 
                           // Filter downloads based on showDataMode for total downloads
                           const filteredDownloads = sortedDownloads.filter(
-                            (d) => d3.utcDay(new Date(d.day)) < partialBinEnd
+                            (d) => d3.utcDay(new Date(d.day)) < partialBinEnd,
                           )
 
                           // Group downloads by bin using d3
@@ -1912,14 +1915,14 @@ function RouteComponent() {
                             d3.rollup(
                               filteredDownloads,
                               (v) => d3.sum(v, (d) => d.downloads),
-                              (d) => binUnit.floor(new Date(d.day))
+                              (d) => binUnit.floor(new Date(d.day)),
                             ),
-                            (d) => d[0]
+                            (d) => d[0],
                           )
 
                           const color = getPackageColor(
                             firstPackage.name,
-                            packageGroups
+                            packageGroups,
                           )
 
                           const firstBin = binnedDownloads[0]
@@ -1933,7 +1936,7 @@ function RouteComponent() {
                             package: firstPackage.name,
                             totalDownloads: d3.sum(
                               binnedDownloads,
-                              (d) => d[1]
+                              (d) => d[1],
                             ),
                             binDownloads: lastBin[1],
                             growth,
@@ -1947,7 +1950,7 @@ function RouteComponent() {
                         .sort((a, b) =>
                           transform === 'normalize-y'
                             ? b!.growth - a!.growth
-                            : b!.binDownloads - a!.binDownloads
+                            : b!.binDownloads - a!.binDownloads,
                         )
                         .map((stat) => (
                           <tr key={stat!.package}>
@@ -1973,7 +1976,7 @@ function RouteComponent() {
                                         onClick={() =>
                                           togglePackageVisibility(
                                             stat!.index,
-                                            stat!.package
+                                            stat!.package,
                                           )
                                         }
                                         className="p-0.5 hover:text-blue-500 flex items-center gap-1"
@@ -2061,7 +2064,7 @@ function RouteComponent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {getPopularComparisons().map((comparison) => {
                 const baselinePackage = comparison.packageGroups.find(
-                  (pg) => pg.baseline
+                  (pg) => pg.baseline,
                 )
                 return (
                   <Link
@@ -2071,7 +2074,7 @@ function RouteComponent() {
                       ...prev,
                       packageGroups: comparison.packageGroups,
                       baseline: comparison.packageGroups.find(
-                        (pg) => pg.baseline
+                        (pg) => pg.baseline,
                       )?.packages[0].name,
                     })}
                     resetScroll={false}

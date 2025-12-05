@@ -55,7 +55,7 @@ const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(async () => {
       'cache-control': 'public, max-age=0, must-revalidate',
       'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
       'Netlify-Vary': 'query=payload',
-    })
+    }),
   )
 
   return allPosts
@@ -227,7 +227,7 @@ function Index() {
                           'hover:shadow-2xl hover:shadow-current/20 hover:border-current/50 hover:-translate-y-1',
                           'relative group',
                           'min-h-[250px] xl:min-h-[220px]',
-                          library.cardStyles
+                          library.cardStyles,
                         )}
                         style={{
                           zIndex: i,
@@ -244,7 +244,7 @@ function Index() {
                                 return (
                                   <div
                                     className={twMerge(
-                                      `flex items-center gap-2 text-[1.2rem] font-extrabold uppercase [letter-spacing:-.04em]`
+                                      `flex items-center gap-2 text-[1.2rem] font-extrabold uppercase [letter-spacing:-.04em]`,
                                     )}
                                     style={{
                                       viewTransitionName: `library-name-${library.id}`,
@@ -321,7 +321,7 @@ function Index() {
                                   library.colorFrom,
                                   library.colorTo,
                                 ],
-                                'uppercase text-white font-black italic text-xs'
+                                'uppercase text-white font-black italic text-xs',
                               )}
                               style={{
                                 animation: 'pulseScale 3s infinite',
@@ -339,7 +339,7 @@ function Index() {
                   })}
                 </div>
               </div>
-            )
+            ),
           )}
         </div>
 
@@ -423,7 +423,7 @@ function Index() {
                                 dateTime={published}
                                 title={format(
                                   new Date(published),
-                                  'MMM dd, yyyy'
+                                  'MMM dd, yyyy',
                                 )}
                               >
                                 {' '}
@@ -447,7 +447,7 @@ function Index() {
                       </div>
                     </Link>
                   )
-                }
+                },
               )}
             </div>
             <div className="text-center mt-6">
@@ -626,7 +626,7 @@ function Index() {
                         <div className="text-gray-500 dark:text-gray-400 text-xs">
                           Check your email to confirm your subscription
                         </div>
-                      </div>
+                      </div>,
                     )
                   } else if (bytesSignupMutation.status === 'error') {
                     notify(
@@ -635,7 +635,7 @@ function Index() {
                         <div className="text-gray-500 dark:text-gray-400 text-xs">
                           Please try again in a moment
                         </div>
-                      </div>
+                      </div>,
                     )
                   }
                 }}

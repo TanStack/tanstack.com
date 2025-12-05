@@ -131,7 +131,7 @@ export const Route = createRootRouteWithContext<{
       throw redirect({
         href: ctx.location.href.replace(
           /\/docs\/(react|vue|angular|svelte|solid)\//gm,
-          '/docs/framework/$1/'
+          '/docs/framework/$1/',
         ),
       })
     }

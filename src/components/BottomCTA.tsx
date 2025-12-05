@@ -27,7 +27,7 @@ export function BottomCTA({
           {...linkProps}
           className={twMerge(
             'inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors',
-            className
+            className,
           )}
         >
           {label}

@@ -77,7 +77,7 @@ export type StatsQueryParams = {
  * Uses batched database query for better performance
  */
 export async function fetchNpmPackageStats(
-  packageNames: string[]
+  packageNames: string[],
 ): Promise<NpmStats> {
   // Handle empty array case
   if (packageNames.length === 0) {
@@ -138,9 +138,8 @@ export async function fetchNpmPackageStats(
  */
 async function fetchNpmOrgStats(org: string): Promise<NpmStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { getCachedNpmOrgStats, getExpiredNpmOrgStats } = await import(
-    './stats-db.server'
-  )
+  const { getCachedNpmOrgStats, getExpiredNpmOrgStats } =
+    await import('./stats-db.server')
 
   // Try cache first
   const cached = await getCachedNpmOrgStats(org)
@@ -172,7 +171,7 @@ function calculateDelta(
   currentGitHub: GitHubStats,
   previousNpm: NpmStats | null,
   currentNpm: NpmStats,
-  timeDeltaMs: number
+  timeDeltaMs: number,
 ): OSSStatsWithDelta {
   return {
     github: currentGitHub,
@@ -220,7 +219,7 @@ export const getOSSStats = createServerFn({ method: 'POST' })
           frameworks: z.array(z.string()).optional(),
         })
         .optional(),
-    })
+    }),
   )
   .handler(async ({ data }): Promise<OSSStatsWithDelta> => {
     // Add HTTP caching headers for better performance
@@ -231,7 +230,7 @@ export const getOSSStats = createServerFn({ method: 'POST' })
           'public, max-age=300, stale-while-revalidate=3600, stale-if-error=3600',
         'CDN-Cache-Control': 'max-age=300, stale-while-revalidate=3600',
         'Netlify-Vary': 'query=data',
-      })
+      }),
     )
 
     let githubCacheKey: string
@@ -257,7 +256,7 @@ export const getOSSStats = createServerFn({ method: 'POST' })
         npmPackageNames = [`@tanstack/${data.library.id}`]
         console.warn(
           `[OSS Stats] No registered packages found for ${data.library.id}, using fallback:`,
-          npmPackageNames
+          npmPackageNames,
         )
       }
     } else {
@@ -318,6 +317,6 @@ export const getOSSStats = createServerFn({ method: 'POST' })
       githubStats,
       null, // NPM delta calculated from individual package rates
       npmStats,
-      githubTimeDeltaMs
+      githubTimeDeltaMs,
     )
   })

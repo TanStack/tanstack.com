@@ -20,7 +20,7 @@ export default function SponsorPack({
       radius: 0,
       distance: 0,
     }),
-    [sponsors]
+    [sponsors],
   )
 
   const root = React.useMemo(
@@ -28,7 +28,7 @@ export default function SponsorPack({
       hierarchy(pack)
         .sum((d) => 0.0007 + d.size)
         .sort((a, b) => (b.data.size ?? 0) - (a.data.size ?? 0)),
-    [pack]
+    [pack],
   )
 
   return (
@@ -119,7 +119,7 @@ export default function SponsorPack({
                                 : `right-1/4 translate-x-full`,
                               tooltipY == 'top'
                                 ? `top-1/4 -translate-y-full`
-                                : `bottom-1/4 translate-y-full`
+                                : `bottom-1/4 translate-y-full`,
                             )}
                           >
                             <p className={`whitespace-nowrap font-bold`}>

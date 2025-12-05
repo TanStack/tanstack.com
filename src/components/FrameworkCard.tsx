@@ -28,7 +28,7 @@ export function FrameworkCard({
         <div className="text-gray-500 dark:text-gray-400 text-xs">
           {packageName} copied to clipboard
         </div>
-      </div>
+      </div>,
     )
   })
 
@@ -52,7 +52,7 @@ export function FrameworkCard({
         'hover:shadow-xl hover:-translate-y-1',
         'flex flex-col gap-4 group',
         'min-h-[180px]',
-        'relative'
+        'relative',
       )}
       style={{
         zIndex: index,
@@ -126,7 +126,7 @@ export function FrameworkCard({
           'absolute bottom-0 left-0 right-0 h-1 rounded-b-xl',
           'transition-opacity duration-300',
           'opacity-0 group-hover:opacity-100',
-          framework.color
+          framework.color,
         )}
       />
     </div>

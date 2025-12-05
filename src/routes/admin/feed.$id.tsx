@@ -73,7 +73,7 @@ function FeedEditorPage() {
     <div className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
         <FeedEntryEditor
-          entry={isNew ? null : entryQuery.data ?? null}
+          entry={isNew ? null : (entryQuery.data ?? null)}
           onSave={() => navigate({ to: '/admin/feed' })}
           onCancel={() => navigate({ to: '/admin/feed' })}
         />

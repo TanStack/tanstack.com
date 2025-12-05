@@ -85,7 +85,7 @@ export function useCurrentFramework(frameworks: Framework[]) {
       })
       localCurrentFramework.setCurrentFramework(framework)
     },
-    [localCurrentFramework, navigate]
+    [localCurrentFramework, navigate],
   )
 
   React.useEffect(() => {

@@ -8,7 +8,7 @@ export interface UseIntersectionObserverOptions {
 }
 
 export function useIntersectionObserver(
-  options: UseIntersectionObserverOptions = {}
+  options: UseIntersectionObserverOptions = {},
 ) {
   const {
     root = null,
@@ -41,7 +41,7 @@ export function useIntersectionObserver(
         root,
         rootMargin,
         threshold,
-      }
+      },
     )
 
     observer.observe(target)

@@ -75,8 +75,8 @@ We even support type-checking what errors are returned in `<form.Field>`:
   children={(field) => (
     <>
       <NumberInput value={field.state.value} />
-      // TypeScript will correctly tell you that `errorMap.onChange` // is an object,
-      not a string
+      // TypeScript will correctly tell you that `errorMap.onChange` // is an
+      object, not a string
       <p>{field.state.meta.errorMap.onChange}</p>
     </>
   )}
@@ -154,7 +154,7 @@ const serverValidate = createServerValidate({
 export const getFormDataFromServer = createServerFn({ method: 'GET' }).handler(
   async () => {
     return getFormData()
-  }
+  },
 )
 ```
 

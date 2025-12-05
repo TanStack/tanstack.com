@@ -32,7 +32,7 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
                 'partner',
                 'update',
                 'other',
-              ])
+              ]),
             )
             .optional(),
           partners: z.array(z.string()).optional(),
@@ -46,7 +46,7 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
           includeHidden: z.boolean().optional(),
         })
         .optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     // Check if admin (for includeHidden)
@@ -77,7 +77,7 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
     allEntries = filterByReleaseLevel(
       allEntries,
       filters.releaseLevels,
-      filters.includePrerelease
+      filters.includePrerelease,
     )
 
     // Sort: latest first (by publishedAt), with featured as tiebreaker
@@ -228,7 +228,7 @@ export const getFeedStats = createServerFn({ method: 'POST' }).handler(
     }
 
     return stats
-  }
+  },
 )
 
 // Server function wrapper for getFeedFacetCounts
@@ -248,7 +248,7 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
                 'partner',
                 'update',
                 'other',
-              ])
+              ]),
             )
             .optional(),
           partners: z.array(z.string()).optional(),
@@ -262,7 +262,7 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
           includeHidden: z.boolean().optional(),
         })
         .optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const filters = data.filters ?? {}
@@ -279,7 +279,7 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
         | 'releaseLevels'
         | 'includePrerelease'
         | 'featured'
-        | 'search'
+        | 'search',
     ) => {
       const whereClause = buildFeedQueryConditions(filters, excludeFacet)
       return db.select().from(feedEntries).where(whereClause)
@@ -290,7 +290,7 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
       ? undefined
       : and(
           eq(feedEntries.isVisible, true),
-          gte(feedEntries.publishedAt, new Date(0))
+          gte(feedEntries.publishedAt, new Date(0)),
         )
     const baseEntries = await db
       .select()
@@ -334,14 +334,14 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
     const releaseLevelCounts: Record<string, number> = {}
     for (const entry of releaseEntries) {
       const releaseLevelTags = entry.tags.filter((tag) =>
-        tag.startsWith('release:')
+        tag.startsWith('release:'),
       )
       if (releaseLevelTags.length > 0) {
         const baseReleaseTag = releaseLevelTags.find(
           (tag) =>
             tag === 'release:major' ||
             tag === 'release:minor' ||
-            tag === 'release:patch'
+            tag === 'release:patch',
         )
         if (baseReleaseTag) {
           const level = baseReleaseTag.replace('release:', '')
@@ -353,13 +353,13 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
     // Count prerelease
     const prereleaseEntries = await applyFiltersExcept('includePrerelease')
     const prereleaseCount = prereleaseEntries.filter((entry) =>
-      entry.tags.includes('release:prerelease')
+      entry.tags.includes('release:prerelease'),
     ).length
 
     // Count featured
     const featuredEntries = await applyFiltersExcept('featured')
     const featuredCount = featuredEntries.filter(
-      (entry) => entry.featured
+      (entry) => entry.featured,
     ).length
 
     return {
@@ -379,7 +379,7 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
     z.object({
       search: z.string(),
       limit: z.number().optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     const limit = data.limit ?? 20
@@ -396,8 +396,8 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
       .where(
         and(
           eq(feedEntries.isVisible, true),
-          sql`to_tsvector('english', ${feedEntries.title} || ' ' || ${feedEntries.content} || ' ' || COALESCE(${feedEntries.excerpt}, '')) @@ to_tsquery('english', ${searchQuery})`
-        )
+          sql`to_tsvector('english', ${feedEntries.title} || ' ' || ${feedEntries.content} || ' ' || COALESCE(${feedEntries.excerpt}, '')) @@ to_tsquery('english', ${searchQuery})`,
+        ),
       )
       .limit(limit)
 
@@ -466,7 +466,7 @@ export const createFeedEntry = createServerFn({ method: 'POST' })
       isVisible: z.boolean(),
       featured: z.boolean().optional(),
       autoSynced: z.boolean(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireAdmin()
@@ -475,7 +475,7 @@ export const createFeedEntry = createServerFn({ method: 'POST' })
     const publishedAtValidation = validatePublishedAt(data.publishedAt)
     if (!publishedAtValidation.valid) {
       throw new Error(
-        `Invalid publishedAt: ${publishedAtValidation.error}. publishedAt should represent when the content was actually published, not when it was added to the feed.`
+        `Invalid publishedAt: ${publishedAtValidation.error}. publishedAt should represent when the content was actually published, not when it was added to the feed.`,
       )
     }
 
@@ -486,7 +486,7 @@ export const createFeedEntry = createServerFn({ method: 'POST' })
 
     if (existing) {
       throw new Error(
-        `Feed entry with ID "${data.id}" already exists. Please try again or edit the existing entry.`
+        `Feed entry with ID "${data.id}" already exists. Please try again or edit the existing entry.`,
       )
     }
 
@@ -533,7 +533,7 @@ export const updateFeedEntry = createServerFn({ method: 'POST' })
       isVisible: z.boolean().optional(),
       featured: z.boolean().optional(),
       lastSyncedAt: z.number().optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireAdmin()
@@ -571,7 +571,7 @@ export const updateFeedEntry = createServerFn({ method: 'POST' })
       const publishedAtValidation = validatePublishedAt(data.publishedAt)
       if (!publishedAtValidation.valid) {
         throw new Error(
-          `Invalid publishedAt: ${publishedAtValidation.error}. publishedAt should represent when the content was actually published.`
+          `Invalid publishedAt: ${publishedAtValidation.error}. publishedAt should represent when the content was actually published.`,
         )
       }
       updates.publishedAt = new Date(data.publishedAt)
@@ -625,7 +625,7 @@ export const toggleFeedEntryVisibility = createServerFn({ method: 'POST' })
     z.object({
       id: z.string(),
       isVisible: z.boolean(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireAdmin()
@@ -652,7 +652,7 @@ export const setFeedEntryFeatured = createServerFn({ method: 'POST' })
     z.object({
       id: z.string(),
       featured: z.boolean(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireAdmin()
@@ -679,7 +679,7 @@ export const setFeedConfig = createServerFn({ method: 'POST' })
     z.object({
       key: z.string(),
       value: z.any(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     // No admin check - config can be set by sync actions

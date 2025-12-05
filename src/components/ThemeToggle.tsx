@@ -6,7 +6,7 @@ export function ThemeToggle() {
   const { toggleMode } = useTheme()
 
   const handleToggleMode = (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     e.preventDefault()
     e.stopPropagation()

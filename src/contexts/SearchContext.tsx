@@ -7,7 +7,7 @@ interface SearchContextType {
 }
 
 const SearchContext = React.createContext<SearchContextType | undefined>(
-  undefined
+  undefined,
 )
 
 export function SearchProvider({ children }: { children: React.ReactNode }) {
@@ -19,7 +19,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
       openSearch: () => setIsOpen(true),
       closeSearch: () => setIsOpen(false),
     }),
-    [isOpen]
+    [isOpen],
   )
 
   return (

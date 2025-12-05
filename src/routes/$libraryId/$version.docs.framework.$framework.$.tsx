@@ -7,7 +7,7 @@ import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
 
 export const Route = createFileRoute(
-  '/$libraryId/$version/docs/framework/$framework/$'
+  '/$libraryId/$version/docs/framework/$framework/$',
 )({
   staleTime: 1000 * 60 * 5,
   loader: (ctx) => {

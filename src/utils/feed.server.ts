@@ -86,7 +86,7 @@ export function buildFeedQueryConditions(
     | 'releaseLevels'
     | 'includePrerelease'
     | 'featured'
-    | 'search'
+    | 'search',
 ) {
   const conditions = []
 
@@ -122,7 +122,7 @@ export function buildFeedQueryConditions(
   ) {
     const libraryArray = `{${filters.libraries.map((l) => `"${l}"`).join(',')}}`
     conditions.push(
-      sql`${feedEntries.libraryIds} && ${sql.raw(libraryArray)}::text[]`
+      sql`${feedEntries.libraryIds} && ${sql.raw(libraryArray)}::text[]`,
     )
   }
 
@@ -134,7 +134,7 @@ export function buildFeedQueryConditions(
   ) {
     const partnerArray = `{${filters.partners.map((p) => `"${p}"`).join(',')}}`
     conditions.push(
-      sql`${feedEntries.partnerIds} && ${sql.raw(partnerArray)}::text[]`
+      sql`${feedEntries.partnerIds} && ${sql.raw(partnerArray)}::text[]`,
     )
   }
 
@@ -162,7 +162,7 @@ export function buildFeedQueryConditions(
       .map((term) => `'${term.replace(/'/g, "''")}'`)
       .join(' & ')
     conditions.push(
-      sql`to_tsvector('english', ${feedEntries.title} || ' ' || ${feedEntries.content} || ' ' || COALESCE(${feedEntries.excerpt}, '')) @@ to_tsquery('english', ${searchQuery})`
+      sql`to_tsvector('english', ${feedEntries.title} || ' ' || ${feedEntries.content} || ' ' || COALESCE(${feedEntries.excerpt}, '')) @@ to_tsquery('english', ${searchQuery})`,
     )
   }
 
@@ -173,13 +173,13 @@ export function buildFeedQueryConditions(
 export function filterByReleaseLevel(
   entries: (typeof feedEntries.$inferSelect)[],
   releaseLevels?: ReleaseLevel[],
-  includePrerelease?: boolean
+  includePrerelease?: boolean,
 ) {
   if (releaseLevels === undefined) {
     // If releaseLevels not specified but includePrerelease is explicitly false, exclude prerelease
     if (includePrerelease === false) {
       return entries.filter(
-        (entry) => !entry.tags.includes('release:prerelease')
+        (entry) => !entry.tags.includes('release:prerelease'),
       )
     }
     return entries
@@ -187,7 +187,7 @@ export function filterByReleaseLevel(
 
   return entries.filter((entry) => {
     const releaseLevelTags = entry.tags.filter((tag) =>
-      tag.startsWith('release:')
+      tag.startsWith('release:'),
     )
     if (releaseLevelTags.length === 0) {
       // Not a release entry, include it (unless explicitly filtering releases only)
@@ -200,7 +200,7 @@ export function filterByReleaseLevel(
 
     // Check if this is a prerelease
     const isPrerelease = releaseLevelTags.some(
-      (tag) => tag === 'release:prerelease'
+      (tag) => tag === 'release:prerelease',
     )
 
     // If it's a prerelease, check includePrerelease flag
@@ -213,7 +213,7 @@ export function filterByReleaseLevel(
       (tag) =>
         tag === 'release:major' ||
         tag === 'release:minor' ||
-        tag === 'release:patch'
+        tag === 'release:patch',
     )
     if (!baseReleaseTag) {
       return false

@@ -13,12 +13,12 @@ type OAuthProfile = {
 // Get OAuth account by provider and account ID
 export async function getOAuthAccount(
   provider: OAuthProvider,
-  providerAccountId: string
+  providerAccountId: string,
 ) {
   const account = await db.query.oauthAccounts.findFirst({
     where: and(
       eq(oauthAccounts.provider, provider),
-      eq(oauthAccounts.providerAccountId, providerAccountId)
+      eq(oauthAccounts.providerAccountId, providerAccountId),
     ),
   })
 
@@ -28,7 +28,7 @@ export async function getOAuthAccount(
 // Upsert OAuth account and user
 export async function upsertOAuthAccount(
   provider: OAuthProvider,
-  profile: OAuthProfile
+  profile: OAuthProfile,
 ) {
   // Check if OAuth account already exists
   const existingAccount = await getOAuthAccount(provider, profile.id)

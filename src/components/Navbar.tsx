@@ -51,7 +51,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         const height = containerRef.current.offsetHeight
         document.documentElement.style.setProperty(
           '--navbar-height',
-          `${height}px`
+          `${height}px`,
         )
       }
     }
@@ -157,7 +157,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       className={twMerge(
         'w-full p-2 fixed top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-blur-lg shadow-xl shadow-black/3',
         'flex items-center justify-between gap-4',
-        'dark:border-b border-gray-500/20'
+        'dark:border-b border-gray-500/20',
       )}
       ref={containerRef}
     >
@@ -172,7 +172,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 'transition-all duration-300 h-8 px-2 py-1 lg:px-0',
                 Title
                   ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
-                  : 'lg:w-0 lg:opacity-0 lg:-translate-x-full'
+                  : 'lg:w-0 lg:opacity-0 lg:-translate-x-full',
               )}
               onClick={toggleMenu}
               onPointerEnter={() => {
@@ -187,7 +187,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             <Link
               to="/"
               className={twMerge(
-                `inline-flex items-center gap-1.5 cursor-pointer`
+                `inline-flex items-center gap-1.5 cursor-pointer`,
               )}
             >
               <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
@@ -291,7 +291,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                             linkClasses,
                             props.isActive
                               ? 'bg-gray-500/10 dark:bg-gray-500/30'
-                              : ''
+                              : '',
                           )}
                         >
                           <span
@@ -304,14 +304,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                                 'font-light dark:font-bold dark:opacity-40',
                                 props.isActive
                                   ? `font-bold dark:opacity-100`
-                                  : ''
+                                  : '',
                               )}
                             >
                               {prefix}
                             </span>{' '}
                             <span
                               className={twMerge(
-                                library.textStyle
+                                library.textStyle,
                                 // isPending &&
                                 //   `[view-transition-name:library-name]`
                               )}
@@ -327,7 +327,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                                 'bg-gradient-to-r',
                                 library.colorFrom,
                                 library.colorTo,
-                                'text-[.6rem]'
+                                'text-[.6rem]',
                               )}
                             >
                               {library.badge}
@@ -339,7 +339,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                   </Link>
                   <div
                     className={twMerge(
-                      library.to === activeLibrary?.to ? 'block' : 'hidden'
+                      library.to === activeLibrary?.to ? 'block' : 'hidden',
                     )}
                   >
                     {library.menu?.map((item, i) => {
@@ -349,7 +349,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                           key={i}
                           className={twMerge(
                             'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
-                            'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                            'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30',
                           )}
                         >
                           {item.icon}
@@ -365,7 +365,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                       }}
                       className={twMerge(
                         'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
-                        'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30'
+                        'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30',
                       )}
                     >
                       <LuUsers />
@@ -411,15 +411,15 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <Authenticated>
           {capabilities.some((capability) =>
             (['builder', 'admin'] as const).includes(
-              capability as 'builder' | 'admin'
-            )
+              capability as 'builder' | 'admin',
+            ),
           ) ? (
             <Link
               to="/builder"
               className={twMerge(linkClasses, 'font-normal')}
               activeProps={{
                 className: twMerge(
-                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
                 ),
               }}
             >
@@ -533,7 +533,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 className={twMerge(linkClasses, 'font-normal')}
                 activeProps={{
                   className: twMerge(
-                    'font-bold! bg-gray-500/10 dark:bg-gray-500/30'
+                    'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
                   ),
                 }}
                 target={item.to.startsWith('http') ? '_blank' : undefined}
@@ -603,7 +603,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             : [
                 'fixed bg-white/70 dark:bg-black/50 backdrop-blur-lg -translate-x-full',
                 showMenu && 'translate-x-0',
-              ]
+              ],
         )}
         onPointerEnter={() => {
           clearTimeout(leaveTimer.current)
@@ -628,7 +628,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         className={twMerge(
           `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col
           min-w-0 lg:flex-row w-full transition-all duration-300
-          pt-[var(--navbar-height)]`
+          pt-[var(--navbar-height)]`,
         )}
       >
         {smallMenu}

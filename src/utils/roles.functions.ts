@@ -14,7 +14,7 @@ export const listRoles = createServerFn({ method: 'POST' })
       capabilityFilter: z
         .array(z.enum(['admin', 'disableAds', 'builder', 'feed']))
         .optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireAdmin()
@@ -29,14 +29,14 @@ export const listRoles = createServerFn({ method: 'POST' })
         (role) =>
           role.name.toLowerCase().includes(nameLower) ||
           (role.description &&
-            role.description.toLowerCase().includes(nameLower))
+            role.description.toLowerCase().includes(nameLower)),
       )
     }
 
     // Apply capability filter
     if (data.capabilityFilter && data.capabilityFilter.length > 0) {
       allRoles = allRoles.filter((role) =>
-        data.capabilityFilter!.some((cap) => role.capabilities.includes(cap))
+        data.capabilityFilter!.some((cap) => role.capabilities.includes(cap)),
       )
     }
 
@@ -83,7 +83,7 @@ export const createRole = createServerFn({ method: 'POST' })
       name: z.string(),
       description: z.string().optional(),
       capabilities: z.array(z.enum(['admin', 'disableAds', 'builder', 'feed'])),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireAdmin()
@@ -118,7 +118,7 @@ export const updateRole = createServerFn({ method: 'POST' })
       capabilities: z
         .array(z.enum(['admin', 'disableAds', 'builder', 'feed']))
         .optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireAdmin()
@@ -212,12 +212,12 @@ export const getUserRoles = createServerFn({ method: 'POST' })
       userRoleAssignments.map((ra) =>
         db.query.roles.findFirst({
           where: eq(roles.id, ra.roleId),
-        })
-      )
+        }),
+      ),
     )
 
     const validRoles = userRoles.filter(
-      (role): role is NonNullable<typeof role> => role !== null
+      (role): role is NonNullable<typeof role> => role !== null,
     )
 
     return validRoles.map((role) => ({
@@ -235,7 +235,7 @@ export const assignRolesToUser = createServerFn({ method: 'POST' })
     z.object({
       userId: z.string().uuid(),
       roleIds: z.array(z.string().uuid()),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireAdmin()
@@ -268,27 +268,27 @@ export const assignRolesToUser = createServerFn({ method: 'POST' })
 
     // Delete assignments that are no longer needed
     const toDelete = existingAssignments.filter(
-      (ra) => !newRoleIds.has(ra.roleId)
+      (ra) => !newRoleIds.has(ra.roleId),
     )
     if (toDelete.length > 0) {
       await db.delete(roleAssignments).where(
         inArray(
           roleAssignments.id,
-          toDelete.map((ra) => ra.id)
-        )
+          toDelete.map((ra) => ra.id),
+        ),
       )
     }
 
     // Create new assignments
     const toCreate = data.roleIds.filter(
-      (roleId) => !existingRoleIds.has(roleId)
+      (roleId) => !existingRoleIds.has(roleId),
     )
     if (toCreate.length > 0) {
       await db.insert(roleAssignments).values(
         toCreate.map((roleId) => ({
           userId: data.userId,
           roleId,
-        }))
+        })),
       )
     }
 
@@ -322,7 +322,7 @@ export const getBulkUserRoles = createServerFn({ method: 'POST' })
         await db.query.roles.findMany({
           where: inArray(roles.id, roleIds),
         })
-      ).map((role) => [role.id, role])
+      ).map((role) => [role.id, role]),
     )
 
     // Group by user
@@ -364,7 +364,7 @@ export const getBulkEffectiveCapabilities = createServerFn({ method: 'POST' })
     await Promise.all(
       data.userIds.map(async (userId) => {
         result[userId] = await getEffectiveCapabilities(userId)
-      })
+      }),
     )
 
     return result
@@ -404,7 +404,7 @@ export const removeUsersFromRole = createServerFn({ method: 'POST' })
     z.object({
       roleId: z.string().uuid(),
       userIds: z.array(z.string().uuid()),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireAdmin()
@@ -424,8 +424,8 @@ export const removeUsersFromRole = createServerFn({ method: 'POST' })
       .where(
         and(
           eq(roleAssignments.roleId, data.roleId),
-          inArray(roleAssignments.userId, data.userIds)
-        )
+          inArray(roleAssignments.userId, data.userIds),
+        ),
       )
 
     return { success: true }
@@ -436,7 +436,7 @@ export const bulkAssignRolesToUsers = createServerFn({ method: 'POST' })
     z.object({
       userIds: z.array(z.string().uuid()),
       roleIds: z.array(z.string().uuid()),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireAdmin()
@@ -465,7 +465,7 @@ export const bulkAssignRolesToUsers = createServerFn({ method: 'POST' })
     })
 
     const existingSet = new Set(
-      existingAssignments.map((a) => `${a.userId}:${a.roleId}`)
+      existingAssignments.map((a) => `${a.userId}:${a.roleId}`),
     )
 
     // Create new assignments (skip duplicates)

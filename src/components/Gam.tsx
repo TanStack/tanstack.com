@@ -19,7 +19,7 @@ declare global {
           defineSlot: (
             path: string,
             sizes: [number, number][],
-            id: string
+            id: string,
           ) => {
             addService: (pubads: any) => {
               setTargeting: (key: string, value: string[]) => void
@@ -103,7 +103,7 @@ function GamAd({
         className={twMerge(
           'absolute inset-0 bg-white/50 dark:bg-black/20 shadow-xl shadow-black/2',
           borderClassName,
-          placeholderClassName
+          placeholderClassName,
         )}
       >
         <div className="flex justify-center items-center h-full opacity-50 gap-[1px]">
@@ -114,7 +114,7 @@ function GamAd({
         <div
           className={twMerge(
             'absolute -top-px -left-px -right-px -bottom-px border-[2px] border-gray-200 dark:border-gray-900',
-            borderClassName
+            borderClassName,
           )}
         />
       </div>
@@ -125,7 +125,7 @@ function GamAd({
         <div
           className={twMerge(
             'absolute -top-px -left-px -right-px -bottom-px border-[2px] border-gray-200 dark:border-gray-900',
-            borderClassName
+            borderClassName,
           )}
         />
       </div>
@@ -149,7 +149,7 @@ function GamAd({
 }
 
 export function GamFooter(
-  props: Omit<React.ComponentProps<typeof GamAd>, 'name'>
+  props: Omit<React.ComponentProps<typeof GamAd>, 'name'>,
 ) {
   return (
     <GamAd
@@ -183,7 +183,7 @@ export function GamLeftRailSquare() {
 // Export GAM div components for direct use
 
 export function GamVrec1(
-  props: Omit<React.ComponentProps<typeof GamAd>, 'name'>
+  props: Omit<React.ComponentProps<typeof GamAd>, 'name'>,
 ) {
   return <GamAd {...props} name="vrec_1" />
 }
@@ -191,7 +191,7 @@ export function GamVrec1(
 export function GamHeader(
   props: React.HTMLAttributes<HTMLDivElement> & {
     adClassName?: string
-  }
+  },
 ) {
   return (
     <GamAd
@@ -199,7 +199,7 @@ export function GamHeader(
       {...props}
       className={twMerge(
         'w-full max-w-[728px] flex mx-auto justify-center',
-        props.className
+        props.className,
       )}
       adClassName={twMerge('h-[90px]', props.adClassName)}
     />

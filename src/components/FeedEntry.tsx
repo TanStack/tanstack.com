@@ -121,7 +121,7 @@ export function FeedEntry({
         tag !== 'release:prerelease' &&
         (tag === 'release:major' ||
           tag === 'release:minor' ||
-          tag === 'release:patch')
+          tag === 'release:patch'),
     )
     if (!releaseLevelTag) return null
 
@@ -172,7 +172,7 @@ export function FeedEntry({
       <TableRow
         className={twMerge(
           'cursor-pointer',
-          entry.featured && 'bg-yellow-50 dark:bg-yellow-900/10'
+          entry.featured && 'bg-yellow-50 dark:bg-yellow-900/10',
         )}
         onClick={() => setExpanded(!expanded)}
       >
@@ -188,7 +188,7 @@ export function FeedEntry({
             <svg
               className={twMerge(
                 'w-3.5 h-3.5 transition-transform',
-                expanded && 'rotate-90'
+                expanded && 'rotate-90',
               )}
               fill="none"
               stroke="currentColor"
@@ -224,7 +224,7 @@ export function FeedEntry({
             <span
               className={twMerge(
                 'px-1.5 py-0.5 rounded text-[10px] font-medium uppercase',
-                badge.className
+                badge.className,
               )}
             >
               {badge.label}
@@ -234,7 +234,7 @@ export function FeedEntry({
               <span
                 className={twMerge(
                   'px-1.5 py-0.5 rounded text-[10px] font-medium uppercase',
-                  releaseLevelBadge.className
+                  releaseLevelBadge.className,
                 )}
               >
                 {releaseLevelBadge.label}

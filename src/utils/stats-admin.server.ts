@@ -32,7 +32,7 @@ export const listGitHubStatsCache = createServerFn({ method: 'POST' }).handler(
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
     }))
-  }
+  },
 )
 
 /**
@@ -42,7 +42,7 @@ export const refreshGitHubStats = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       cacheKey: z.string(), // e.g., "tanstack/query" or "org:tanstack"
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireCapability({ data: { capability: 'admin' } })
@@ -80,14 +80,14 @@ export const refreshAllGitHubStats = createServerFn({ method: 'POST' }).handler(
     // First, refresh all libraries from the libraries array
     const { libraries } = await import('~/libraries')
     console.log(
-      `[GitHub Stats Refresh] Processing ${libraries.length} libraries from libraries array`
+      `[GitHub Stats Refresh] Processing ${libraries.length} libraries from libraries array`,
     )
 
     for (let i = 0; i < libraries.length; i++) {
       const library = libraries[i]
       if (!library.repo) {
         console.log(
-          `[GitHub Stats Refresh] Skipping library ${library.id} - no repo`
+          `[GitHub Stats Refresh] Skipping library ${library.id} - no repo`,
         )
         continue
       }
@@ -111,7 +111,7 @@ export const refreshAllGitHubStats = createServerFn({ method: 'POST' }).handler(
           error instanceof Error ? error.message : String(error)
         console.error(
           `[GitHub Stats Refresh] Failed to refresh ${library.repo}:`,
-          errorMessage
+          errorMessage,
         )
         errors.push({
           cacheKey: library.repo,
@@ -148,7 +148,7 @@ export const refreshAllGitHubStats = createServerFn({ method: 'POST' }).handler(
           error instanceof Error ? error.message : String(error)
         console.error(
           `[GitHub Stats Refresh] Failed to refresh ${entry.cacheKey}:`,
-          errorMessage
+          errorMessage,
         )
         errors.push({
           cacheKey: entry.cacheKey,
@@ -165,7 +165,7 @@ export const refreshAllGitHubStats = createServerFn({ method: 'POST' }).handler(
       results,
       errors,
     }
-  }
+  },
 )
 
 /**
@@ -176,7 +176,7 @@ export const listNpmPackages = createServerFn({ method: 'POST' })
     z.object({
       libraryId: z.string().optional(),
       search: z.string().optional(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireCapability({ data: { capability: 'admin' } })
@@ -221,7 +221,7 @@ export const refreshNpmPackageStats = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       packageName: z.string(),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireCapability({ data: { capability: 'admin' } })
@@ -235,7 +235,7 @@ export const refreshNpmPackageStats = createServerFn({ method: 'POST' })
             Accept: 'application/json',
             'User-Agent': 'TanStack-Stats',
           },
-        }
+        },
       )
 
       if (!response.ok) {
@@ -304,7 +304,7 @@ export const listNpmOrgStatsCache = createServerFn({ method: 'POST' }).handler(
         if (legacyPackages.length > 0) {
           const legacyResults = await db.query.npmPackages.findMany({
             where: or(
-              ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg))
+              ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg)),
             ),
           })
           packages = [...packages, ...legacyResults]
@@ -312,7 +312,7 @@ export const listNpmOrgStatsCache = createServerFn({ method: 'POST' }).handler(
 
         const totalRatePerDay = packages.reduce(
           (sum, pkg) => sum + (pkg.ratePerDay ?? 0),
-          0
+          0,
         )
 
         return {
@@ -324,9 +324,9 @@ export const listNpmOrgStatsCache = createServerFn({ method: 'POST' }).handler(
           createdAt: entry.createdAt,
           updatedAt: entry.updatedAt,
         }
-      })
+      }),
     )
-  }
+  },
 )
 
 /**
@@ -351,11 +351,11 @@ export const getLibraryNpmStats = createServerFn({ method: 'POST' }).handler(
 
       // Calculate ratePerDay by summing up all packages' ratePerDay for this library
       const libraryPackages = allPackages.filter(
-        (pkg) => pkg.libraryId === library.id
+        (pkg) => pkg.libraryId === library.id,
       )
       const ratePerDay = libraryPackages.reduce(
         (sum, pkg) => sum + (pkg.ratePerDay ?? 0),
-        0
+        0,
       )
 
       if (!cached) {
@@ -378,7 +378,7 @@ export const getLibraryNpmStats = createServerFn({ method: 'POST' }).handler(
         ratePerDay: ratePerDay > 0 ? ratePerDay : null,
       }
     })
-  }
+  },
 )
 
 /**
@@ -393,7 +393,7 @@ export const refreshAllNpmStats = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       org: z.string().default('tanstack'),
-    })
+    }),
   )
   .handler(async ({ data }) => {
     await requireCapability({ data: { capability: 'admin' } })

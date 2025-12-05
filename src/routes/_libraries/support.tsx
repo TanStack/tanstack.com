@@ -44,7 +44,7 @@ function SupportComp() {
                     >
                       {d}
                     </span>
-                  )
+                  ),
                 )}
               </div>
             </div>

@@ -20,7 +20,7 @@ import type { GitHubStats, NpmPackageStats, NpmStats } from './stats.server'
  * Returns a map of packageName -> NpmPackageStats
  */
 export async function getBatchCachedNpmPackageStats(
-  packageNames: string[]
+  packageNames: string[],
 ): Promise<Map<string, NpmPackageStats>> {
   const results = new Map<string, NpmPackageStats>()
 
@@ -58,7 +58,7 @@ export async function getBatchCachedNpmPackageStats(
  */
 export async function getCachedNpmPackageStats(
   packageName: string,
-  ttlHours: number = 24
+  ttlHours: number = 24,
 ): Promise<NpmPackageStats | null> {
   try {
     const cached = await db.query.npmPackages.findFirst({
@@ -102,7 +102,7 @@ export async function setCachedNpmPackageStats(
   packageName: string,
   downloads: number,
   ttlHours: number = 24,
-  ratePerDay?: number
+  ratePerDay?: number,
 ): Promise<void> {
   try {
     const expiresAt = new Date()
@@ -180,7 +180,7 @@ export async function setCachedNpmPackageStats(
         'tanstack',
         packageName,
         oldDownloads,
-        downloads
+        downloads,
       )
     }
   } catch (error) {
@@ -194,7 +194,7 @@ export async function setCachedNpmPackageStats(
  */
 async function updateLibraryStatsCache(
   libraryId: string,
-  downloadDelta: number
+  downloadDelta: number,
 ): Promise<void> {
   try {
     const existing = await db.query.npmLibraryStatsCache.findFirst({
@@ -217,7 +217,7 @@ async function updateLibraryStatsCache(
       })
       const totalDownloads = packages.reduce(
         (sum, pkg) => sum + (pkg.downloads ?? 0),
-        0
+        0,
       )
 
       await db.insert(npmLibraryStatsCache).values({
@@ -230,7 +230,7 @@ async function updateLibraryStatsCache(
   } catch (error) {
     console.error(
       `[Library Stats Cache] Error updating cache for ${libraryId}:`,
-      error
+      error,
     )
   }
 }
@@ -242,7 +242,7 @@ async function updateOrgStatsCache(
   orgName: string,
   packageName: string,
   oldDownloads: number,
-  newDownloads: number
+  newDownloads: number,
 ): Promise<void> {
   try {
     const existing = await db.query.npmOrgStatsCache.findFirst({
@@ -271,13 +271,13 @@ async function updateOrgStatsCache(
       // If org cache doesn't exist, we'll need to compute it from all packages
       // This should be rare - scheduled tasks should create it
       console.warn(
-        `[Org Stats Cache] Cache doesn't exist for ${orgName}, skipping incremental update`
+        `[Org Stats Cache] Cache doesn't exist for ${orgName}, skipping incremental update`,
       )
     }
   } catch (error) {
     console.error(
       `[Org Stats Cache] Error updating cache for ${orgName}:`,
-      error
+      error,
     )
   }
 }
@@ -287,7 +287,7 @@ async function updateOrgStatsCache(
  */
 export async function getCachedNpmOrgStats(
   orgName: string,
-  ttlHours: number = 24
+  ttlHours: number = 24,
 ): Promise<NpmStats | null> {
   try {
     const cached = await db.query.npmOrgStatsCache.findFirst({
@@ -318,7 +318,7 @@ export async function getCachedNpmOrgStats(
       if (legacyPackages.length > 0) {
         const legacyResults = await db.query.npmPackages.findMany({
           where: or(
-            ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg))
+            ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg)),
           ),
         })
         packages = [...packages, ...legacyResults]
@@ -326,7 +326,7 @@ export async function getCachedNpmOrgStats(
 
       const totalRatePerDay = packages.reduce(
         (sum, pkg) => sum + (pkg.ratePerDay ?? 0),
-        0
+        0,
       )
 
       return {
@@ -348,7 +348,7 @@ export async function getCachedNpmOrgStats(
  * Get expired NPM org stats cache if available (for fallback when cache is expired)
  */
 export async function getExpiredNpmOrgStats(
-  orgName: string
+  orgName: string,
 ): Promise<NpmStats | null> {
   try {
     const cached = await db.query.npmOrgStatsCache.findFirst({
@@ -357,7 +357,7 @@ export async function getExpiredNpmOrgStats(
 
     if (cached) {
       console.log(
-        `[NPM Org Stats Cache] Using expired cache for org ${orgName}`
+        `[NPM Org Stats Cache] Using expired cache for org ${orgName}`,
       )
 
       // Calculate org-level ratePerDay from packages in the database
@@ -381,7 +381,7 @@ export async function getExpiredNpmOrgStats(
       if (legacyPackages.length > 0) {
         const legacyResults = await db.query.npmPackages.findMany({
           where: or(
-            ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg))
+            ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg)),
           ),
         })
         packages = [...packages, ...legacyResults]
@@ -389,7 +389,7 @@ export async function getExpiredNpmOrgStats(
 
       const totalRatePerDay = packages.reduce(
         (sum, pkg) => sum + (pkg.ratePerDay ?? 0),
-        0
+        0,
       )
 
       return {
@@ -413,7 +413,7 @@ export async function getExpiredNpmOrgStats(
 export async function setCachedNpmOrgStats(
   orgName: string,
   stats: NpmStats,
-  ttlHours: number = 24
+  ttlHours: number = 24,
 ): Promise<void> {
   try {
     const expiresAt = new Date()
@@ -436,7 +436,7 @@ export async function setCachedNpmOrgStats(
         })
         .where(eq(npmOrgStatsCache.orgName, orgName))
       console.log(
-        `[NPM Org Stats Cache] Updated cache for org ${orgName} (expires at ${expiresAt.toISOString()})`
+        `[NPM Org Stats Cache] Updated cache for org ${orgName} (expires at ${expiresAt.toISOString()})`,
       )
     } else {
       // First time
@@ -447,7 +447,7 @@ export async function setCachedNpmOrgStats(
         expiresAt,
       })
       console.log(
-        `[NPM Org Stats Cache] Created cache for org ${orgName} (expires at ${expiresAt.toISOString()})`
+        `[NPM Org Stats Cache] Created cache for org ${orgName} (expires at ${expiresAt.toISOString()})`,
       )
     }
   } catch (error) {
@@ -483,7 +483,7 @@ export async function getCachedLibraryStats(libraryId: string): Promise<{
   } catch (error) {
     console.error(
       `[Library Stats Cache] Error reading cache for ${libraryId}:`,
-      error
+      error,
     )
     return null
   }
@@ -521,7 +521,7 @@ export async function getAllCachedLibraryStats(): Promise<
  * Get all registered packages for a specific library or all packages
  */
 export async function getRegisteredPackages(
-  libraryId?: string
+  libraryId?: string,
 ): Promise<string[]> {
   try {
     const packages = libraryId
@@ -534,7 +534,7 @@ export async function getRegisteredPackages(
   } catch (error) {
     console.error(
       '[Package Registry] Error fetching packages:',
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     )
     return []
   }
@@ -554,12 +554,12 @@ export async function discoverAndRegisterPackages(org: string): Promise<void> {
           Accept: 'application/json',
           'User-Agent': 'TanStack-Stats',
         },
-      }
+      },
     )
 
     if (!response.ok) {
       throw new Error(
-        `NPM Registry API error: ${response.status} ${response.statusText}`
+        `NPM Registry API error: ${response.status} ${response.statusText}`,
       )
     }
 
@@ -649,7 +649,7 @@ export async function discoverAndRegisterPackages(org: string): Promise<void> {
               packageName.includes(`-${libraryName}-`) ||
               packageName.includes(`-${libraryName}`) ||
               new RegExp(`^@${org}/[a-z]+-${libraryName}$`, 'i').test(
-                packageName
+                packageName,
               )
             ) {
               libraryId = libraryName
@@ -692,7 +692,7 @@ export async function discoverAndRegisterPackages(org: string): Promise<void> {
       } catch (error) {
         console.error(
           `[Package Discovery] Error processing ${packageName}:`,
-          error instanceof Error ? error.message : String(error)
+          error instanceof Error ? error.message : String(error),
         )
         // Continue with next package
       }
@@ -700,7 +700,7 @@ export async function discoverAndRegisterPackages(org: string): Promise<void> {
   } catch (error) {
     console.error(
       '[Package Discovery] Error discovering packages:',
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     )
     throw error
   }
@@ -735,7 +735,7 @@ export async function computeOrgStatsFromCache(org: string): Promise<NpmStats> {
     if (legacyPackages.length > 0) {
       const legacyResults = await db.query.npmPackages.findMany({
         where: or(
-          ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg))
+          ...legacyPackages.map((pkg) => eq(npmPackages.packageName, pkg)),
         ),
       })
       packages = [...packages, ...legacyResults]
@@ -765,8 +765,8 @@ export async function computeOrgStatsFromCache(org: string): Promise<NpmStats> {
       `[Org Stats Recalc] Computed from ${
         packages.length
       } cached packages: ${totalDownloads.toLocaleString()} total downloads, ${Math.round(
-        totalRatePerDay
-      ).toLocaleString()}/day`
+        totalRatePerDay,
+      ).toLocaleString()}/day`,
     )
 
     return {
@@ -777,7 +777,7 @@ export async function computeOrgStatsFromCache(org: string): Promise<NpmStats> {
   } catch (error) {
     console.error(
       `[Org Stats Recalc] Error computing stats for org ${org}:`,
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     )
     return {
       totalDownloads: 0,
@@ -803,7 +803,7 @@ export async function rebuildLibraryCaches(): Promise<void> {
 
       const totalDownloads = packages.reduce(
         (sum, pkg) => sum + (pkg.downloads ?? 0),
-        0
+        0,
       )
 
       const existing = await db.query.npmLibraryStatsCache.findFirst({
@@ -921,7 +921,7 @@ export async function getExpiredGitHubStats(cacheKey: string): Promise<{
 export async function setCachedGitHubStats(
   cacheKey: string,
   stats: GitHubStats,
-  ttlHours: number = 24
+  ttlHours: number = 24,
 ): Promise<void> {
   try {
     const expiresAt = new Date()
@@ -930,7 +930,7 @@ export async function setCachedGitHubStats(
 
     console.log(
       `[GitHub Stats Cache] Attempting to save cache for ${cacheKey} with stats:`,
-      JSON.stringify(stats, null, 2)
+      JSON.stringify(stats, null, 2),
     )
 
     const existing = await db.query.githubStatsCache.findFirst({
@@ -949,7 +949,7 @@ export async function setCachedGitHubStats(
         })
         .where(eq(githubStatsCache.cacheKey, cacheKey))
       console.log(
-        `[GitHub Stats Cache] ✓ Updated cache for ${cacheKey} (expires at ${expiresAt.toISOString()})`
+        `[GitHub Stats Cache] ✓ Updated cache for ${cacheKey} (expires at ${expiresAt.toISOString()})`,
       )
     } else {
       // First time - no previous stats yet
@@ -960,7 +960,7 @@ export async function setCachedGitHubStats(
         expiresAt,
       })
       console.log(
-        `[GitHub Stats Cache] ✓ Created cache for ${cacheKey} (expires at ${expiresAt.toISOString()})`
+        `[GitHub Stats Cache] ✓ Created cache for ${cacheKey} (expires at ${expiresAt.toISOString()})`,
       )
     }
   } catch (error) {
@@ -968,7 +968,7 @@ export async function setCachedGitHubStats(
     const errorStack = error instanceof Error ? error.stack : undefined
     console.error(
       `[GitHub Stats Cache] ✗ Error writing cache for ${cacheKey}:`,
-      errorMessage
+      errorMessage,
     )
     if (errorStack) {
       console.error(`[GitHub Stats Cache] Stack trace:`, errorStack)

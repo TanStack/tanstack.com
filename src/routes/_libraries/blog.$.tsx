@@ -60,6 +60,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
       published: post.published,
       content: post.content,
       authors: post.authors,
+      headerImage: post.headerImage,
       filePath,
     }
   })
@@ -68,12 +69,24 @@ export const Route = createFileRoute('/_libraries/blog/$')({
   staleTime: Infinity,
   loader: ({ params }) => fetchBlogPost({ data: params._splat }),
   head: ({ loaderData }) => {
+    // Generate optimized social media image URL using Netlify Image CDN
+    const getSocialImageUrl = (headerImage?: string) => {
+      if (!headerImage) return undefined
+
+      // Use Netlify Image CDN to optimize for social media (1200x630 is the standard for og:image)
+      const netlifyImageUrl = `https://tanstack.com/.netlify/images?url=${encodeURIComponent(
+        headerImage
+      )}&w=1200&h=630&fit=cover&fm=jpg&q=80`
+      return netlifyImageUrl
+    }
+
     return {
       meta: loaderData
         ? [
             ...seo({
               title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
               description: loaderData?.description,
+              image: getSocialImageUrl(loaderData?.headerImage),
             }),
             {
               name: 'author',

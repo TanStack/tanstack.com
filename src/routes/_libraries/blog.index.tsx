@@ -72,7 +72,7 @@ function BlogIndex() {
                 key={slug}
                 to="/blog/$"
                 params={{ _splat: slug }}
-                className={`flex flex-col gap-4 justify-between
+                className={`relative flex flex-col gap-4 justify-between
                   border-2 border-transparent rounded-lg p-4 md:p-8
                   transition-all bg-white dark:bg-gray-800
                   shadow-xl dark:shadow-lg dark:shadow-blue-500/30

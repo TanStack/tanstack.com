@@ -7,21 +7,21 @@ import {
 import { setCachedGitHubStats } from '~/utils/stats-db.server'
 
 /**
- * Netlify Background Function - Refresh org-level stats cache
+ * Netlify Background + Scheduled Function - Refresh org-level stats cache
  *
- * Background functions are identified by the `-background` suffix in the filename.
- * They have a 15-minute timeout (vs 30 seconds for regular functions) and return
- * a 202 response immediately while processing continues in the background.
+ * This function combines both background and scheduled execution:
+ * - Can be invoked via HTTP POST (returns 202 immediately, runs in background)
+ * - Can be triggered on a schedule (runs automatically via cron)
+ *
+ * Background functions have a 15-minute timeout (vs 30 seconds for regular functions)
+ * and return a 202 response immediately while processing continues in the background.
  *
  * This function refreshes pre-aggregated stats for the TanStack organization:
  * - GitHub: stars, contributors, dependents
  * - NPM: total downloads across all packages (including legacy packages)
  *
- * Invocation:
- *   POST https://tanstack.com/.netlify/functions/refresh-stats-cache-background
- *   Authorization: Bearer YOUR_CRON_SECRET
- *
- * Can be triggered manually from the admin panel.
+ * Scheduled: Runs automatically every 6 hours (configured via export config)
+ * Only called by Netlify's scheduler - not publicly accessible
  * Timeout: 15 minutes
  * Concurrency: 8 packages at a time, 500ms delay between packages
  *
@@ -33,36 +33,7 @@ export const handler: Handler = async (
   event: HandlerEvent,
   context: HandlerContext
 ) => {
-  console.log(
-    '[refresh-stats-cache-background] Starting background stats refresh...'
-  )
-
-  // Check authentication
-  const cronSecret = process.env.CRON_SECRET
-  const authHeader = event.headers.authorization || event.headers.Authorization
-
-  if (!cronSecret) {
-    console.error('[refresh-stats-cache-background] CRON_SECRET not configured')
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: 'CRON_SECRET not configured',
-      }),
-    }
-  }
-
-  // Extract token from "Bearer TOKEN" format
-  const providedSecret = authHeader?.replace(/^Bearer\s+/i, '')
-
-  if (providedSecret !== cronSecret) {
-    console.error('[refresh-stats-cache-background] Invalid authentication')
-    return {
-      statusCode: 401,
-      body: JSON.stringify({
-        error: 'Invalid authentication',
-      }),
-    }
-  }
+  console.log('[refresh-stats-cache-background] Starting stats refresh...')
 
   const startTime = Date.now()
 
@@ -199,4 +170,14 @@ export const handler: Handler = async (
       }),
     }
   }
+}
+
+/**
+ * Netlify function configuration
+ * - type: 'experimental-background' enables background execution (15 min timeout, returns 202 immediately)
+ * - schedule: Cron expression for scheduled execution (runs every 6 hours)
+ */
+export const config = {
+  type: 'experimental-background' as const,
+  schedule: '0 */6 * * *', // Every 6 hours
 }

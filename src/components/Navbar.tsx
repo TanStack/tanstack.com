@@ -24,11 +24,9 @@ import {
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
 import { FeedTicker } from './FeedTicker'
-import { Authenticated, Unauthenticated } from 'convex/react'
-import { AuthLoading } from 'convex/react'
 import { libraries } from '~/libraries'
-import { sortBy } from '~/utils/utils'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { Authenticated, AuthLoading, Unauthenticated } from './AuthComponents'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()

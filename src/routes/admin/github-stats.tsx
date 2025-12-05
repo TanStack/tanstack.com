@@ -1,13 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import {
-  FaGithub,
-  FaSync,
-  FaStar,
-  FaUsers,
-  FaCube,
-} from 'react-icons/fa'
+import { FaGithub, FaSync, FaStar, FaUsers, FaCube } from 'react-icons/fa'
 import {
   Table,
   TableHeader,
@@ -69,7 +63,9 @@ function GitHubStatsAdmin() {
     mutationFn: (cacheKey: string) =>
       refreshGitHubStats({ data: { cacheKey } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'github-stats-cache'] })
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'github-stats-cache'],
+      })
       setRefreshingKey(null)
     },
     onError: () => {
@@ -80,7 +76,9 @@ function GitHubStatsAdmin() {
   const refreshAllMutation = useMutation({
     mutationFn: () => refreshAllGitHubStats({ data: {} }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'github-stats-cache'] })
+      queryClient.invalidateQueries({
+        queryKey: ['admin', 'github-stats-cache'],
+      })
     },
   })
 
@@ -310,107 +308,107 @@ function GitHubStatsAdmin() {
   return (
     <div className="w-full p-4">
       <div className="mb-6 flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <FaGithub className="text-2xl text-gray-900 dark:text-white" />
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  GitHub Stats Management
-                </h1>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                View and refresh cached GitHub statistics for repositories and organizations.
-              </p>
-            </div>
-            {cacheEntries && cacheEntries.length > 0 && (
-              <button
-                onClick={() => refreshAllMutation.mutate()}
-                disabled={refreshAllMutation.isPending || refreshingKey !== null}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <FaSync
-                  className={refreshAllMutation.isPending ? 'animate-spin' : ''}
-                />
-                Refresh All
-              </button>
-            )}
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <FaGithub className="text-2xl text-gray-900 dark:text-white" />
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              GitHub Stats Management
+            </h1>
           </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            View and refresh cached GitHub statistics for repositories and
+            organizations.
+          </p>
+        </div>
+        {cacheEntries && cacheEntries.length > 0 && (
+          <button
+            onClick={() => refreshAllMutation.mutate()}
+            disabled={refreshAllMutation.isPending || refreshingKey !== null}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <FaSync
+              className={refreshAllMutation.isPending ? 'animate-spin' : ''}
+            />
+            Refresh All
+          </button>
+        )}
+      </div>
 
-          {refreshAllMutation.data && (
-            <div className="mb-4 space-y-2">
-              <div
-                className={`p-4 rounded-lg ${
-                  refreshAllMutation.data.failed > 0
-                    ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
-                    : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
-                }`}
-              >
-                Refreshed {refreshAllMutation.data.refreshed} entries
-                {refreshAllMutation.data.failed > 0 &&
-                  `, ${refreshAllMutation.data.failed} failed`}
+      {refreshAllMutation.data && (
+        <div className="mb-4 space-y-2">
+          <div
+            className={`p-4 rounded-lg ${
+              refreshAllMutation.data.failed > 0
+                ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400'
+                : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
+            }`}
+          >
+            Refreshed {refreshAllMutation.data.refreshed} entries
+            {refreshAllMutation.data.failed > 0 &&
+              `, ${refreshAllMutation.data.failed} failed`}
+          </div>
+          {refreshAllMutation.data.errors &&
+            refreshAllMutation.data.errors.length > 0 && (
+              <div className="p-4 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                <div className="font-semibold text-red-800 dark:text-red-400 mb-2">
+                  Failed Entries:
+                </div>
+                <div className="space-y-1 text-sm">
+                  {refreshAllMutation.data.errors.map(
+                    (error: any, idx: number) => (
+                      <div key={idx} className="text-red-700 dark:text-red-300">
+                        <span className="font-medium">{error.cacheKey}:</span>{' '}
+                        {error.error}
+                      </div>
+                    )
+                  )}
+                </div>
               </div>
-              {refreshAllMutation.data.errors &&
-                refreshAllMutation.data.errors.length > 0 && (
-                  <div className="p-4 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                    <div className="font-semibold text-red-800 dark:text-red-400 mb-2">
-                      Failed Entries:
-                    </div>
-                    <div className="space-y-1 text-sm">
-                      {refreshAllMutation.data.errors.map((error: any, idx: number) => (
-                        <div key={idx} className="text-red-700 dark:text-red-300">
-                          <span className="font-medium">{error.cacheKey}:</span>{' '}
-                          {error.error}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-            </div>
-          )}
+            )}
+        </div>
+      )}
 
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="text-gray-600 dark:text-gray-400">Loading...</div>
-            </div>
-          ) : !cacheEntries || cacheEntries.length === 0 ? (
-            <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-              <p className="text-gray-600 dark:text-gray-400">
-                No GitHub stats cache entries found.
-              </p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableHeaderRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHeaderCell key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHeaderCell>
-                    ))}
-                  </TableHeaderRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
+      {isLoading ? (
+        <div className="text-center py-12">
+          <div className="text-gray-600 dark:text-gray-400">Loading...</div>
+        </div>
+      ) : !cacheEntries || cacheEntries.length === 0 ? (
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+          <p className="text-gray-600 dark:text-gray-400">
+            No GitHub stats cache entries found.
+          </p>
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableHeaderRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHeaderCell key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
                         )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
+                  </TableHeaderCell>
                 ))}
-              </TableBody>
-            </Table>
-          )}
+              </TableHeaderRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </div>
   )
 }

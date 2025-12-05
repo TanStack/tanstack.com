@@ -59,7 +59,9 @@ export function FeedSyncStatus() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
             <div className="text-center">
               <div className="text-base font-bold">{stats.total}</div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">Total</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                Total
+              </div>
             </div>
             <div className="text-center">
               <div className="text-base font-bold">{stats.visible}</div>

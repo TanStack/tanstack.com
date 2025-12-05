@@ -8,4 +8,3 @@ export function useCapabilities() {
   const userQuery = useCurrentUserQuery()
   return userQuery.data?.capabilities || []
 }
-

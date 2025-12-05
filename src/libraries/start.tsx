@@ -32,6 +32,7 @@ export const startProject = {
   embedEditor: 'codesandbox',
   frameworks: ['react', 'solid'],
   defaultDocs: 'framework/react/overview',
+  installPath: 'framework/$framework/build-from-scratch',
   scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   showNetlifyUrl: true,
   showCloudflareUrl: true,

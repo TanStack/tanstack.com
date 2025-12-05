@@ -2,22 +2,22 @@ import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
 import { syncGitHubReleases } from '~/server/feed/github.functions'
 
 /**
- * Netlify Background Function - Sync GitHub releases
+ * Netlify Background + Scheduled Function - Sync GitHub releases
  *
- * Background functions are identified by the `-background` suffix in the filename.
- * They have a 15-minute timeout (vs 30 seconds for regular functions) and return
- * a 202 response immediately while processing continues in the background.
+ * This function combines both background and scheduled execution:
+ * - Can be invoked via HTTP POST (returns 202 immediately, runs in background)
+ * - Can be triggered on a schedule (runs automatically via cron)
+ *
+ * Background functions have a 15-minute timeout (vs 30 seconds for regular functions)
+ * and return a 202 response immediately while processing continues in the background.
  *
  * This function syncs GitHub releases from all TanStack repos:
  * - Fetches new releases since last sync
  * - Creates/updates feed items in the database
  * - Marks releases as synced to avoid duplicates
  *
- * Invocation:
- *   POST https://tanstack.com/.netlify/functions/sync-github-releases-background
- *   Authorization: Bearer YOUR_CRON_SECRET
- *
- * Triggered by: .github/workflows/sync-github-releases.yml (hourly cron)
+ * Scheduled: Runs automatically every 6 hours (configured via export config)
+ * Only called by Netlify's scheduler - not publicly accessible
  * Timeout: 15 minutes
  */
 export const handler: Handler = async (
@@ -27,35 +27,6 @@ export const handler: Handler = async (
   console.log(
     '[sync-github-releases-background] Starting GitHub release sync...'
   )
-
-  // Check authentication
-  const cronSecret = process.env.CRON_SECRET
-  const authHeader = event.headers.authorization || event.headers.Authorization
-
-  if (!cronSecret) {
-    console.error(
-      '[sync-github-releases-background] CRON_SECRET not configured'
-    )
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        error: 'CRON_SECRET not configured',
-      }),
-    }
-  }
-
-  // Extract token from "Bearer TOKEN" format
-  const providedSecret = authHeader?.replace(/^Bearer\s+/i, '')
-
-  if (providedSecret !== cronSecret) {
-    console.error('[sync-github-releases-background] Invalid authentication')
-    return {
-      statusCode: 401,
-      body: JSON.stringify({
-        error: 'Invalid authentication',
-      }),
-    }
-  }
 
   const startTime = Date.now()
 
@@ -102,4 +73,14 @@ export const handler: Handler = async (
       }),
     }
   }
+}
+
+/**
+ * Netlify function configuration
+ * - type: 'experimental-background' enables background execution (15 min timeout, returns 202 immediately)
+ * - schedule: Cron expression for scheduled execution (runs every 6 hours)
+ */
+export const config = {
+  type: 'experimental-background' as const,
+  schedule: '0 */6 * * *', // Every 6 hours
 }

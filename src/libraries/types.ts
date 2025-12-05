@@ -1,12 +1,15 @@
 import * as React from 'react'
 
 export type Framework =
-  | 'react'
-  | 'vue'
   | 'angular'
-  | 'svelte'
+  | 'lit'
+  | 'preact'
+  | 'qwik'
+  | 'react'
   | 'solid'
+  | 'svelte'
   | 'vanilla'
+  | 'vue'
 
 export type Library = {
   id:

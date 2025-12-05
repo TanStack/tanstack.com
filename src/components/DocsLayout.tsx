@@ -20,9 +20,8 @@ import { VersionSelect } from './VersionSelect'
 const getFrameworkTextColor = (frameworkValue: string | undefined) => {
   if (!frameworkValue) return 'text-gray-500'
   const framework = frameworkOptions.find((f) => f.value === frameworkValue)
-  if (!framework) return 'text-gray-500'
-  // Convert bg-* to text-* color class
-  return framework.color.replace('bg-', 'text-')
+
+  return framework?.fontColor ?? 'text-gray-500'
 }
 
 // Create context for width toggle state

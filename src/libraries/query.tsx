@@ -32,6 +32,7 @@ export const queryProject = {
   frameworks: ['react', 'solid', 'vue', 'svelte', 'angular'],
   scarfId: '53afb586-3934-4624-a37a-e680c1528e17',
   defaultDocs: 'framework/react/overview',
+  installPath: 'framework/$framework/installation',
   legacyPackages: ['react-query'],
   handleRedirects: (href: string) => {
     handleRedirects(

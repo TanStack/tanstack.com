@@ -2,11 +2,7 @@ import * as React from 'react'
 import { create } from 'zustand'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { Select } from './Select'
-import {
-  Framework,
-  getLibrary,
-  LibraryId,
-} from '~/libraries'
+import { Framework, getLibrary, LibraryId } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 
 export function FrameworkSelect({ libraryId }: { libraryId: LibraryId }) {

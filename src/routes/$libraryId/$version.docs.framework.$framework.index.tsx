@@ -2,11 +2,7 @@ import { seo } from '~/utils/seo'
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
-import {
-  Framework,
-  getBranch,
-  getLibrary,
-} from '~/libraries'
+import { Framework, getBranch, getLibrary } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'

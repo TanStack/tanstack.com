@@ -60,4 +60,3 @@ export const getFeedFacetCountsQueryOptions = (filters?: FeedFilters) =>
     queryKey: ['feed', 'facetCounts', filters],
     queryFn: () => getFeedFacetCounts({ data: { filters } }),
   })
-

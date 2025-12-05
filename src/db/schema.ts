@@ -302,7 +302,9 @@ export const githubStatsCache = pgTable(
   },
   (table) => ({
     cacheKeyIdx: index('github_stats_cache_key_idx').on(table.cacheKey),
-    expiresAtIdx: index('github_stats_cache_expires_at_idx').on(table.expiresAt),
+    expiresAtIdx: index('github_stats_cache_expires_at_idx').on(
+      table.expiresAt
+    ),
   })
 )
 
@@ -399,7 +401,9 @@ export const npmLibraryStatsCache = pgTable(
     // Pre-aggregated total downloads for this library
     totalDownloads: bigint('total_downloads', { mode: 'number' }).notNull(),
     // Previous total downloads (for calculating rate of change)
-    previousTotalDownloads: bigint('previous_total_downloads', { mode: 'number' }),
+    previousTotalDownloads: bigint('previous_total_downloads', {
+      mode: 'number',
+    }),
     // Package count
     packageCount: integer('package_count').notNull(),
     // When this cache entry was last updated
@@ -418,7 +422,9 @@ export const npmLibraryStatsCache = pgTable(
 )
 
 export type NpmLibraryStatsCache = InferSelectModel<typeof npmLibraryStatsCache>
-export type NewNpmLibraryStatsCache = InferInsertModel<typeof npmLibraryStatsCache>
+export type NewNpmLibraryStatsCache = InferInsertModel<
+  typeof npmLibraryStatsCache
+>
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({

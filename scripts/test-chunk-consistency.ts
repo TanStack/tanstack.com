@@ -48,11 +48,7 @@ console.log(`Created: ${createdDate}`)
 console.log('')
 
 // Simulate running on different days
-const testDates = [
-  '2025-12-06',
-  '2025-12-07',
-  '2025-12-08',
-]
+const testDates = ['2025-12-06', '2025-12-07', '2025-12-08']
 
 console.log('Testing chunk consistency across different "today" dates:\n')
 
@@ -122,9 +118,15 @@ const lastChunks = dates.map((date) => {
   return chunks[chunks.length - 1]
 })
 
-console.log(`  Run 1 (${dates[0]}): ${lastChunks[0].from} → ${lastChunks[0].to}`)
-console.log(`  Run 2 (${dates[1]}): ${lastChunks[1].from} → ${lastChunks[1].to}`)
-console.log(`  Run 3 (${dates[2]}): ${lastChunks[2].from} → ${lastChunks[2].to}`)
+console.log(
+  `  Run 1 (${dates[0]}): ${lastChunks[0].from} → ${lastChunks[0].to}`,
+)
+console.log(
+  `  Run 2 (${dates[1]}): ${lastChunks[1].from} → ${lastChunks[1].to}`,
+)
+console.log(
+  `  Run 3 (${dates[2]}): ${lastChunks[2].from} → ${lastChunks[2].to}`,
+)
 
 const currentChunksDiffer = lastChunks[0].to !== lastChunks[1].to
 console.log('')
@@ -132,7 +134,9 @@ if (currentChunksDiffer) {
   console.log(
     '✅ Current chunks differ (expected - they track "today" and will be marked mutable)',
   )
-  console.log('   These chunks expire in 6 hours and get refreshed with updated data')
+  console.log(
+    '   These chunks expire in 6 hours and get refreshed with updated data',
+  )
 } else {
   console.log('⚠️  Current chunks are identical (might be same day)')
 }

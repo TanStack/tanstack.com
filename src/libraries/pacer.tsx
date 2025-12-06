@@ -29,7 +29,7 @@ export const pacerProject = {
   colorFrom: `from-lime-500`,
   colorTo: `to-lime-700`,
   textColor: `text-lime-700`,
-  frameworks: ['react', 'solid'],
+  frameworks: ['react', 'preact', 'solid'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
   menu: [

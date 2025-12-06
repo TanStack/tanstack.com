@@ -457,9 +457,8 @@ async function fetchNpmPackageDownloadsChunked(
   let lastChunkData: { day: string; downloads: number }[] = []
 
   // Load cache functions (dynamic import for Netlify compatibility)
-  const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } = await import(
-    './stats-db.server'
-  )
+  const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } =
+    await import('./stats-db.server')
 
   // Fetch chunks sequentially to avoid nested AsyncQueuer complexity
   // The outer queue (per-package) provides concurrency control

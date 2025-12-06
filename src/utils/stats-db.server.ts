@@ -1029,7 +1029,10 @@ export async function getCachedNpmDownloadChunk(
         dateTo: cached.dateTo,
         binSize: cached.binSize,
         totalDownloads: cached.totalDownloads,
-        dailyData: cached.dailyData as Array<{ day: string; downloads: number }>,
+        dailyData: cached.dailyData as Array<{
+          day: string
+          downloads: number
+        }>,
         isImmutable: cached.isImmutable,
       }
     }
@@ -1042,7 +1045,10 @@ export async function getCachedNpmDownloadChunk(
         dateTo: cached.dateTo,
         binSize: cached.binSize,
         totalDownloads: cached.totalDownloads,
-        dailyData: cached.dailyData as Array<{ day: string; downloads: number }>,
+        dailyData: cached.dailyData as Array<{
+          day: string
+          downloads: number
+        }>,
         isImmutable: cached.isImmutable,
       }
     }

@@ -219,7 +219,7 @@ export function DocsLayout({
             return (
               <li key={i}>
                 {child.to.startsWith('http') ? (
-                  <a href={child.to} className={linkClasses}>
+                  <a href={child.to} className={linkClasses} target="_blank" rel="noopener noreferrer">
                     {child.label}
                   </a>
                 ) : (

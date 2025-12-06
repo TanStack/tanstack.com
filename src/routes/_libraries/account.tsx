@@ -30,7 +30,7 @@ function UserSettings() {
   const user = userQuery.data
   const adsDisabled =
     user && typeof user === 'object' && 'adsDisabled' in user
-      ? user.adsDisabled ?? false
+      ? (user.adsDisabled ?? false)
       : false
   const canDisableAds = capabilities.includes('disableAds')
 
@@ -87,7 +87,7 @@ function UserSettings() {
                   className="border border-gray-300 rounded-md py-1 px-2 w-full max-w-xs"
                   value={
                     user && typeof user === 'object' && 'email' in user
-                      ? user.email ?? ''
+                      ? (user.email ?? '')
                       : ''
                   }
                   disabled

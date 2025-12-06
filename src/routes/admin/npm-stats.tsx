@@ -86,9 +86,16 @@ function NpmStatsAdmin() {
   })
 
   const refreshAllMutation = useMutation({
-    mutationFn: (org: string) => refreshAllNpmStats({ data: { org } }),
-    onSuccess: () => {
+    mutationFn: (org: string) => {
+      console.log('[Admin UI] Starting refresh for org:', org)
+      return refreshAllNpmStats({ data: { org } })
+    },
+    onSuccess: (data) => {
+      console.log('[Admin UI] Refresh succeeded:', data)
       queryClient.invalidateQueries({ queryKey: ['admin'] })
+    },
+    onError: (error) => {
+      console.error('[Admin UI] Refresh failed:', error)
     },
   })
 
@@ -290,7 +297,10 @@ function NpmStatsAdmin() {
             </p>
           </div>
           <button
-            onClick={() => refreshAllMutation.mutate('tanstack')}
+            onClick={() => {
+              console.log('[Admin UI] Refresh button clicked')
+              refreshAllMutation.mutate('tanstack')
+            }}
             disabled={refreshAllMutation.isPending}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             title="Complete refresh: discover packages, fetch fresh stats with growth rates, and rebuild all caches"

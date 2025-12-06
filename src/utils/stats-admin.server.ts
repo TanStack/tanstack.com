@@ -396,6 +396,8 @@ export const refreshAllNpmStats = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
+    console.log(`[Admin] refreshAllNpmStats handler called with org: ${data.org}`)
+
     await requireCapability({ data: { capability: 'admin' } })
 
     console.log(`[Admin] Starting complete NPM stats refresh for ${data.org}`)

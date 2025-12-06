@@ -21,19 +21,19 @@ export function getExampleStartingFileName(
     framework === 'angular'
       ? 'app.component'
       : ['svelte', 'vue'].includes(framework)
-        ? 'App'
-        : ['form', 'query', 'pacer'].includes(libraryId!)
-          ? 'index'
-          : 'main'
+      ? 'App'
+      : ['form', 'query', 'pacer'].includes(libraryId!)
+      ? 'index'
+      : 'main'
 
   const ext =
     framework === 'svelte'
       ? 'svelte'
       : framework === 'vue'
-        ? 'vue'
-        : ['angular', 'lit'].includes(framework)
-          ? 'ts'
-          : 'tsx'
+      ? 'vue'
+      : ['angular', 'lit'].includes(framework)
+      ? 'ts'
+      : 'tsx'
 
   return `${file}.${ext}` as const
 }

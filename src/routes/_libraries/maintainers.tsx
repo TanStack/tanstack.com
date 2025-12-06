@@ -360,8 +360,8 @@ function MaintainerGrid({
           viewMode === 'compact'
             ? 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-6'
             : viewMode === 'row'
-              ? 'flex flex-col gap-4'
-              : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
+            ? 'flex flex-col gap-4'
+            : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
         }`}
       >
         {maintainers.map((maintainer, index) => (

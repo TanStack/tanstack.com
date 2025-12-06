@@ -39,13 +39,14 @@ const CustomHeading = ({
 
 const makeHeading =
   (type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
-  (props: HTMLProps<HTMLHeadingElement>) => (
-    <CustomHeading
-      Comp={type}
-      {...props}
-      className={`${props.className ?? ''} block`}
-    />
-  )
+  (props: HTMLProps<HTMLHeadingElement>) =>
+    (
+      <CustomHeading
+        Comp={type}
+        {...props}
+        className={`${props.className ?? ''} block`}
+      />
+    )
 
 const markdownComponents: Record<string, React.FC> = {
   a: MarkdownLink,

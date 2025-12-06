@@ -28,6 +28,7 @@
 ### Tasks
 
 - [ ] Implement “Trusted By” on homepage
+
   - Status: Backlog
   - Notes:
     - Reuse `TrustedByMarquee` but upgrade to support logos + links + tooltip proof.
@@ -42,6 +43,7 @@
   - Owner:
 
 - [ ] Add Real-Time Metrics Counters (per-library + org rollup)
+
   - Status: Partial (org rollup live via `OpenSourceStats`)
   - Notes:
     - Extend counters to per-library pages using existing Convex endpoints or add repo-level endpoints via `convex-oss-stats` if needed.
@@ -89,6 +91,7 @@
 ### Tasks
 
 - [ ] Redesign/Create “About” page
+
   - Status: Backlog
   - Notes:
     - Route: `src/routes/about.tsx`.
@@ -98,6 +101,7 @@
   - Links: `src/components/MaintainerCard.tsx`, `src/routes/_libraries/maintainers.tsx`.
 
 - [ ] Speaking Engagements section
+
   - Status: Backlog
   - Notes:
     - Add to About or standalone `src/routes/speaking.tsx`.
@@ -132,6 +136,7 @@
 ### Tasks
 
 - [ ] “Enterprise” page
+
   - Status: Partial
   - Notes:
     - Option 1: Rename and expand `paid-support` into `enterprise` (route alias + updated copy) while keeping legacy route.
@@ -160,6 +165,7 @@
 ### Tasks
 
 - [ ] Public Roadmap page
+
   - Status: Backlog
   - Notes:
     - Route: `src/routes/roadmap.tsx`.
@@ -188,6 +194,7 @@
 ### Tasks
 
 - [ ] Press/Media Kit page
+
   - Status: Backlog
   - Notes:
     - Route: `src/routes/media-kit.tsx`.
@@ -196,6 +203,7 @@
   - Acceptance: Page provides direct downloads and usage rules.
 
 - [ ] In the News page
+
   - Status: Backlog
   - Notes:
     - Route: `src/routes/news.tsx`.

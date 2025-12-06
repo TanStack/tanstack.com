@@ -1,4 +1,4 @@
-import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
+import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
 
 /**
  * Netlify Background + Scheduled Function - Test scheduled function (10 seconds)
@@ -15,22 +15,22 @@ import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
  */
 export const handler: Handler = async (
   event: HandlerEvent,
-  context: HandlerContext
+  context: HandlerContext,
 ) => {
   console.log(
-    "[test-scheduled-10s] Test message - function executed at",
-    new Date().toISOString()
-  );
+    '[test-scheduled-10s] Test message - function executed at',
+    new Date().toISOString(),
+  )
 
   return {
     statusCode: 200,
     body: JSON.stringify({
       success: true,
-      message: "Test scheduled function executed",
+      message: 'Test scheduled function executed',
       timestamp: new Date().toISOString(),
     }),
-  };
-};
+  }
+}
 
 /**
  * Netlify function configuration
@@ -38,6 +38,6 @@ export const handler: Handler = async (
  * - schedule: Cron expression for scheduled execution (every 2 minutes)
  */
 export const config = {
-  type: "experimental-background" as const,
-  schedule: "*/2 * * * *", // Every 2 minutes (5-field cron)
-};
+  type: 'experimental-background' as const,
+  schedule: '*/2 * * * *', // Every 2 minutes (5-field cron)
+}

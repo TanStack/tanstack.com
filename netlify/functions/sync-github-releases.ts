@@ -22,10 +22,10 @@ import { syncGitHubReleases } from '~/server/feed/github.functions'
  */
 export const handler: Handler = async (
   event: HandlerEvent,
-  context: HandlerContext,
+  context: HandlerContext
 ) => {
   console.log(
-    '[sync-github-releases-background] Starting GitHub release sync...',
+    '[sync-github-releases-background] Starting GitHub release sync...'
   )
 
   const startTime = Date.now()
@@ -35,7 +35,7 @@ export const handler: Handler = async (
 
     const duration = Date.now() - startTime
     console.log(
-      `[sync-github-releases-background] ✓ Completed in ${duration}ms - Synced: ${result.syncedCount}, Skipped: ${result.skippedCount}, Errors: ${result.errorCount}`,
+      `[sync-github-releases-background] ✓ Completed in ${duration}ms - Synced: ${result.syncedCount}, Skipped: ${result.skippedCount}, Errors: ${result.errorCount}`
     )
 
     return {
@@ -57,7 +57,7 @@ export const handler: Handler = async (
 
     console.error(
       `[sync-github-releases-background] ✗ Failed after ${duration}ms:`,
-      errorMessage,
+      errorMessage
     )
     if (errorStack) {
       console.error('[sync-github-releases-background] Stack:', errorStack)

@@ -142,10 +142,13 @@ const binningOptions = [
   },
 ] as const
 
-const binningOptionsByType = binningOptions.reduce((acc, option) => {
-  acc[option.value] = option
-  return acc
-}, {} as Record<BinType, (typeof binningOptions)[number]>)
+const binningOptionsByType = binningOptions.reduce(
+  (acc, option) => {
+    acc[option.value] = option
+    return acc
+  },
+  {} as Record<BinType, (typeof binningOptions)[number]>,
+)
 
 type TransformMode = z.infer<typeof transformModeSchema>
 
@@ -696,8 +699,8 @@ function NpmStatsChart({
                 transform === 'normalize-y'
                   ? 'Downloads Growth'
                   : baselinePackage
-                  ? 'Downloads (baseline-adjusted)'
-                  : 'Downloads',
+                    ? 'Downloads (baseline-adjusted)'
+                    : 'Downloads',
               labelOffset: 35,
             },
             grid: true,

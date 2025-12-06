@@ -902,13 +902,13 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   selectedFramework === null || selectedServer === null
                     ? strokeColor
                     : // Only highlight during specific phases
-                    phase === AnimationPhase.SHOWING_CHAT ||
-                      phase === AnimationPhase.PULSING_CONNECTIONS ||
-                      phase === AnimationPhase.STREAMING_RESPONSE
-                    ? isDark
-                      ? 'rgba(255, 255, 240, 0.95)'
-                      : 'rgba(255, 255, 240, 0.95)'
-                    : strokeColor
+                      phase === AnimationPhase.SHOWING_CHAT ||
+                        phase === AnimationPhase.PULSING_CONNECTIONS ||
+                        phase === AnimationPhase.STREAMING_RESPONSE
+                      ? isDark
+                        ? 'rgba(255, 255, 240, 0.95)'
+                        : 'rgba(255, 255, 240, 0.95)'
+                      : strokeColor
                 }
                 strokeWidth={
                   phase === AnimationPhase.PULSING_CONNECTIONS ||
@@ -930,10 +930,10 @@ export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
                   selectedServer === null
                     ? 0.3
                     : phase === AnimationPhase.SHOWING_CHAT ||
-                      phase === AnimationPhase.PULSING_CONNECTIONS ||
-                      phase === AnimationPhase.STREAMING_RESPONSE
-                    ? 1.0
-                    : 0.3
+                        phase === AnimationPhase.PULSING_CONNECTIONS ||
+                        phase === AnimationPhase.STREAMING_RESPONSE
+                      ? 1.0
+                      : 0.3
                 }
                 className={
                   getConnectionPulse()

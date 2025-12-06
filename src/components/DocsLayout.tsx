@@ -198,7 +198,7 @@ export function DocsLayout({
       typeof group.defaultCollapsed !== 'undefined'
         ? !group.defaultCollapsed // defaultCollapsed is true means the group is closed
         : undefined
-    const isOpen = isChildActive ? true : configGroupOpenState ?? false
+    const isOpen = isChildActive ? true : (configGroupOpenState ?? false)
 
     const detailsProps = group.collapsible ? { open: isOpen } : {}
 

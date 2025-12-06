@@ -73,8 +73,8 @@ export function TableHeaderCell({
     align === 'right'
       ? 'text-right'
       : align === 'center'
-      ? 'text-center'
-      : 'text-left'
+        ? 'text-center'
+        : 'text-left'
   const paddingClass = compact ? 'px-2 py-1.5' : 'px-4 py-2'
   const textSizeClass = compact ? 'text-[10px]' : 'text-xs'
   return (
@@ -139,8 +139,8 @@ export function TableCell({
     align === 'right'
       ? 'text-right'
       : align === 'center'
-      ? 'text-center'
-      : 'text-left'
+        ? 'text-center'
+        : 'text-left'
   const paddingClass = compact ? 'px-2 py-2' : 'px-4 py-3'
   return (
     <td

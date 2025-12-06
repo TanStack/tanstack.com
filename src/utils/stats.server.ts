@@ -138,9 +138,8 @@ export async function fetchNpmPackageStats(
  */
 async function fetchNpmOrgStats(org: string): Promise<NpmStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { getCachedNpmOrgStats, getExpiredNpmOrgStats } = await import(
-    './stats-db.server'
-  )
+  const { getCachedNpmOrgStats, getExpiredNpmOrgStats } =
+    await import('./stats-db.server')
 
   // Try cache first
   const cached = await getCachedNpmOrgStats(org)

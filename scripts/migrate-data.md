@@ -7,6 +7,7 @@ This guide covers migrating data from Convex to PostgreSQL (Neon DB).
 ## Prerequisites
 
 1. **Export Convex Data**
+
    - Use Convex dashboard or CLI to export all tables
    - Export format: JSON or CSV
    - Tables to export:
@@ -31,15 +32,18 @@ This guide covers migrating data from Convex to PostgreSQL (Neon DB).
 Create a transformation script that:
 
 1. **Convert Convex IDs to UUIDs**
+
    - Generate new UUIDs for each record
    - Maintain mapping for foreign key relationships
 
 2. **Transform Timestamps**
+
    - Convex: milliseconds (number)
    - PostgreSQL: `timestamp with time zone` (Date object)
    - Convert: `new Date(timestamp)` for milliseconds
 
 3. **Transform Arrays**
+
    - Convex: stored as arrays
    - PostgreSQL: array columns (already compatible)
    - Ensure proper formatting
@@ -113,6 +117,7 @@ WHERE u.id IS NULL;
    ```
 
 2. **Verify functionality**:
+
    - Test authentication flow
    - Test feed queries
    - Test admin interfaces

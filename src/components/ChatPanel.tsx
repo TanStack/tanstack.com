@@ -106,8 +106,8 @@ export function ChatPanel({ messages, typingUserMessage }: ChatPanelProps) {
                   ? 'text-gray-200'
                   : 'text-gray-900'
                 : isDark
-                  ? 'text-gray-600 italic'
-                  : 'text-gray-400 italic'
+                ? 'text-gray-600 italic'
+                : 'text-gray-400 italic'
             }`}
           >
             {typingUserMessage || 'Type a message...'}

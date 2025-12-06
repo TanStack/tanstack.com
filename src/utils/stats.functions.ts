@@ -462,8 +462,8 @@ async function fetchNpmPackageDownloadsChunked(
           if (response.status === 429) {
             // Rate limited - wait and retry indefinitely
             // Note: NPM's Retry-After header is unreliable (often returns "0")
-            // Use fixed 60 second wait time instead
-            const waitTime = 60000 // 60 seconds
+            // Use fixed 5 second wait time instead
+            const waitTime = 5000 // 5 seconds
             console.warn(
               `[NPM Stats] Rate limited on ${packageName} chunk ${chunk.from}:${chunk.to}, waiting ${waitTime}ms...`,
             )
@@ -529,8 +529,9 @@ export async function fetchSingleNpmPackageFresh(
   skipCache: boolean = false,
 ): Promise<NpmPackageStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { getCachedNpmPackageStats, setCachedNpmPackageStats } =
-    await import('./stats-db.server')
+  const { getCachedNpmPackageStats, setCachedNpmPackageStats } = await import(
+    './stats-db.server'
+  )
 
   // Only check cache if not skipping it
   if (skipCache) {
@@ -633,8 +634,8 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
         )
         if (response.status === 429) {
           // Note: NPM's Retry-After header is unreliable (often returns "0")
-          // Use fixed 60 second wait time instead
-          const waitTime = 60000 // 60 seconds
+          // Use fixed 5 second wait time instead
+          const waitTime = 5000 // 5 seconds
 
           console.warn(
             `[NPM Stats] Rate limited fetching org packages, waiting ${waitTime}ms before retry (attempt ${
@@ -794,8 +795,9 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
  */
 export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { discoverAndRegisterPackages, setCachedNpmOrgStats } =
-    await import('./stats-db.server')
+  const { discoverAndRegisterPackages, setCachedNpmOrgStats } = await import(
+    './stats-db.server'
+  )
 
   // First, discover and register all packages
   try {
@@ -815,4 +817,86 @@ export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
   await rebuildLibraryCaches()
 
   return stats
+}
+
+/**
+ * Refresh GitHub organization statistics
+ * Fetches and caches GitHub stats for the org and all library repos
+ */
+export async function refreshGitHubOrgStats(org: string): Promise<{
+  orgStats: GitHubStats
+  libraryResults: Array<{ repo: string; stars: number }>
+  libraryErrors: Array<{ repo: string; error: string }>
+}> {
+  const { setCachedGitHubStats } = await import('./stats-db.server')
+
+  // Refresh GitHub org stats
+  console.log('[GitHub Stats] Refreshing GitHub org stats...')
+  const githubCacheKey = `org:${org}`
+  const githubStats = await fetchGitHubOwnerStats(org)
+  await setCachedGitHubStats(githubCacheKey, githubStats, 1)
+
+  // Refresh GitHub stats for each library repo
+  console.log(
+    '[GitHub Stats] Refreshing GitHub stats for individual libraries...',
+  )
+  const { libraries } = await import('~/libraries')
+  console.log(
+    `[GitHub Stats] Found ${libraries.length} libraries to process:`,
+    libraries.map((lib) => ({ id: lib.id, repo: lib.repo })),
+  )
+  const libraryResults = []
+  const libraryErrors = []
+
+  for (let i = 0; i < libraries.length; i++) {
+    const library = libraries[i]
+    if (!library.repo) {
+      console.log(`[GitHub Stats] Skipping library ${library.id} - no repo`)
+      continue
+    }
+
+    console.log(
+      `[GitHub Stats] Processing library ${library.id} (${library.repo})...`,
+    )
+    try {
+      const repoStats = await fetchGitHubRepoStats(library.repo)
+      console.log(
+        `[GitHub Stats] Fetched stats for ${library.repo}: ${
+          repoStats.starCount
+        } stars, ${repoStats.contributorCount} contributors, ${
+          repoStats.dependentCount ?? 'N/A'
+        } dependents`,
+      )
+      await setCachedGitHubStats(library.repo, repoStats, 1)
+      console.log(
+        `[GitHub Stats] ✓ Successfully cached stats for ${library.repo}`,
+      )
+      libraryResults.push({
+        repo: library.repo,
+        stars: repoStats.starCount,
+      })
+
+      // Add delay between requests to avoid rate limiting (except for last item)
+      if (i < libraries.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      console.error(
+        `[GitHub Stats] Failed to refresh ${library.repo}:`,
+        errorMessage,
+      )
+      libraryErrors.push({
+        repo: library.repo,
+        error: errorMessage,
+      })
+    }
+  }
+
+  return {
+    orgStats: githubStats,
+    libraryResults,
+    libraryErrors,
+  }
 }

@@ -60,8 +60,8 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
         bg === 'dark'
           ? 'bg-black/80 text-white'
           : bg === 'light'
-            ? 'bg-white text-black'
-            : 'bg-gray-500/20',
+          ? 'bg-white text-black'
+          : 'bg-gray-500/20',
       )}
     >
       <div

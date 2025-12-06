@@ -1,4 +1,4 @@
-import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
+import type { Handler, HandlerEvent, HandlerContext } from '@netlify/functions'
 
 /**
  * Netlify Background + Scheduled Function - Test scheduled function
@@ -14,19 +14,19 @@ import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
  */
 export const handler: Handler = async (
   event: HandlerEvent,
-  context: HandlerContext
+  context: HandlerContext,
 ) => {
   console.log(
-    "[test-scheduled] Test message - function executed at",
-    new Date().toISOString()
-  );
+    '[test-scheduled] Test message - function executed at',
+    new Date().toISOString(),
+  )
 
   return {
     statusCode: 200,
     body: JSON.stringify({
       success: true,
-      message: "Test scheduled function executed",
+      message: 'Test scheduled function executed',
       timestamp: new Date().toISOString(),
     }),
-  };
-};
+  }
+}

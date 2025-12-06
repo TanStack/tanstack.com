@@ -25,7 +25,9 @@ async function testCache() {
     testDateFrom,
     testDateTo,
   )
-  console.log(`  Result: ${miss === null ? '✅ NULL (as expected)' : '❌ Got data (unexpected)'}`)
+  console.log(
+    `  Result: ${miss === null ? '✅ NULL (as expected)' : '❌ Got data (unexpected)'}`,
+  )
 
   // Test 2: Write to cache
   console.log('\nTest 2: Write to cache')
@@ -84,7 +86,9 @@ async function testCache() {
     historicalDateTo,
   )
   if (historical) {
-    console.log(`  Is immutable: ${historical.isImmutable ? '✅ YES (as expected)' : '❌ NO (unexpected)'}`)
+    console.log(
+      `  Is immutable: ${historical.isImmutable ? '✅ YES (as expected)' : '❌ NO (unexpected)'}`,
+    )
   } else {
     console.log('  ❌ Failed to retrieve historical chunk')
   }

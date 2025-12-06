@@ -314,15 +314,15 @@ function RouteComp() {
             {isShowingPrevious
               ? 'Previous Partners'
               : isShowingActive
-              ? 'Current Partners'
-              : 'Partners'}
+                ? 'Current Partners'
+                : 'Partners'}
           </h1>
           <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
             {isShowingPrevious
               ? 'Companies and organizations that have supported TanStack in the past'
               : isShowingActive
-              ? 'Companies and organizations currently supporting TanStack and our open source mission'
-              : 'Companies and organizations supporting TanStack and our open source mission'}
+                ? 'Companies and organizations currently supporting TanStack and our open source mission'
+                : 'Companies and organizations supporting TanStack and our open source mission'}
           </p>
         </header>
 

@@ -529,9 +529,8 @@ export async function fetchSingleNpmPackageFresh(
   skipCache: boolean = false,
 ): Promise<NpmPackageStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { getCachedNpmPackageStats, setCachedNpmPackageStats } = await import(
-    './stats-db.server'
-  )
+  const { getCachedNpmPackageStats, setCachedNpmPackageStats } =
+    await import('./stats-db.server')
 
   // Only check cache if not skipping it
   if (skipCache) {
@@ -795,9 +794,8 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
  */
 export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { discoverAndRegisterPackages, setCachedNpmOrgStats } = await import(
-    './stats-db.server'
-  )
+  const { discoverAndRegisterPackages, setCachedNpmOrgStats } =
+    await import('./stats-db.server')
 
   // First, discover and register all packages
   try {

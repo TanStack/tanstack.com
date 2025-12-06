@@ -1,6 +1,6 @@
 ---
 title: 'How We Track Billions of Downloads: The NPM Stats API Deep Dive'
-published: 2025-12-04
+published: 2025-12-02
 authors:
   - Tanner Linsley
 ---

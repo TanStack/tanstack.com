@@ -10,7 +10,7 @@ import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
  * Background functions have a 15-minute timeout (vs 30 seconds for regular functions)
  * and return a 202 response immediately while processing continues in the background.
  *
- * Scheduled: Runs automatically every 30 seconds (configured via export config)
+ * Scheduled: Runs automatically every 30 seconds (configured via netlify.toml)
  */
 export const handler: Handler = async (
   event: HandlerEvent,
@@ -29,14 +29,4 @@ export const handler: Handler = async (
       timestamp: new Date().toISOString(),
     }),
   };
-};
-
-/**
- * Netlify function configuration
- * - type: 'experimental-background' enables background execution (15 min timeout, returns 202 immediately)
- * - schedule: Cron expression for scheduled execution (runs every 30 seconds)
- */
-export const config = {
-  type: "experimental-background" as const,
-  schedule: "*/30 * * * * *", // Every 30 seconds (6-field cron with seconds)
 };

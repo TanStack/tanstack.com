@@ -4,3 +4,9 @@ publish = "dist/client"
 
 [functions]
   directory = "netlify/functions"
+
+[functions.test-scheduled]
+  schedule = "*/30 * * * * *"
+
+[functions.test-scheduled-10s]
+  schedule = "*/10 * * * * *"

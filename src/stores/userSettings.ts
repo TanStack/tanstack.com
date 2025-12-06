@@ -8,7 +8,6 @@ import { create } from 'zustand'
 export { useAdsPreference } from '~/hooks/useAdPreference'
 
 export type UserSettings = {
-  // Remove adsDisabled since it's now handled by Convex
   // Other settings can be added here in the future
 }
 

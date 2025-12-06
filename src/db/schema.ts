@@ -426,6 +426,65 @@ export type NewNpmLibraryStatsCache = InferInsertModel<
   typeof npmLibraryStatsCache
 >
 
+// NPM Download Chunks cache table (for caching historical date range downloads)
+// This table stores immutable historical chunks and cacheable recent chunks
+// to avoid repeated API calls and rate limiting
+export const npmDownloadChunks = pgTable(
+  'npm_download_chunks',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Package identifier
+    packageName: varchar('package_name', { length: 255 }).notNull(),
+    // Date range for this chunk (inclusive, YYYY-MM-DD format)
+    dateFrom: varchar('date_from', { length: 10 }).notNull(),
+    dateTo: varchar('date_to', { length: 10 }).notNull(),
+    // Bin size for aggregation (future-proofing for stats visualizer)
+    // 'daily' = raw daily data, 'weekly'/'monthly' for future aggregations
+    binSize: varchar('bin_size', { length: 20 }).notNull().default('daily'),
+    // Aggregate total downloads for this chunk (sum of dailyData)
+    totalDownloads: bigint('total_downloads', { mode: 'number' }).notNull(),
+    // Detailed daily breakdown (array of { day: string, downloads: number })
+    // Stores the actual npm API response data for this date range
+    dailyData: jsonb('daily_data').notNull(),
+    // Cache control
+    // isImmutable: true for chunks completely in the past (won't change)
+    // isImmutable: false for chunks touching today (may need refresh)
+    isImmutable: boolean('is_immutable').notNull().default(false),
+    // expiresAt: null if immutable, timestamp if needs periodic refresh
+    expiresAt: timestamp('expires_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    // Composite unique index: one chunk per package/dateRange/binSize combo
+    packageDateBinUnique: uniqueIndex(
+      'npm_download_chunks_package_date_bin_unique',
+    ).on(table.packageName, table.dateFrom, table.dateTo, table.binSize),
+    // Individual indexes for efficient lookups
+    packageNameIdx: index('npm_download_chunks_package_name_idx').on(
+      table.packageName,
+    ),
+    dateFromIdx: index('npm_download_chunks_date_from_idx').on(table.dateFrom),
+    dateToIdx: index('npm_download_chunks_date_to_idx').on(table.dateTo),
+    expiresAtIdx: index('npm_download_chunks_expires_at_idx').on(
+      table.expiresAt,
+    ),
+    isImmutableIdx: index('npm_download_chunks_is_immutable_idx').on(
+      table.isImmutable,
+    ),
+  }),
+)
+
+export type NpmDownloadChunk = InferSelectModel<typeof npmDownloadChunks>
+export type NewNpmDownloadChunk = InferInsertModel<typeof npmDownloadChunks>
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),

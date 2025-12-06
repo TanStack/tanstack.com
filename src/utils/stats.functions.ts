@@ -457,8 +457,9 @@ async function fetchNpmPackageDownloadsChunked(
   let lastChunkData: { day: string; downloads: number }[] = []
 
   // Load cache functions (dynamic import for Netlify compatibility)
-  const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } =
-    await import('./stats-db.server')
+  const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } = await import(
+    './stats-db.server'
+  )
 
   // Fetch chunks sequentially to avoid nested AsyncQueuer complexity
   // The outer queue (per-package) provides concurrency control
@@ -500,7 +501,11 @@ async function fetchNpmPackageDownloadsChunked(
     if (cachedChunk) {
       // Use cached data
       console.log(
-        `[NPM Stats] ${packageName} chunk ${chunk.from}:${chunk.to}: using cache (${cachedChunk.totalDownloads.toLocaleString()} downloads, ${cachedChunk.isImmutable ? 'immutable' : 'mutable'})`,
+        `[NPM Stats] ${packageName} chunk ${chunk.from}:${
+          chunk.to
+        }: using cache (${cachedChunk.totalDownloads.toLocaleString()} downloads, ${
+          cachedChunk.isImmutable ? 'immutable' : 'mutable'
+        })`,
       )
       totalDownloadCount += cachedChunk.totalDownloads
       if (cachedChunk.dailyData.length > 0) {
@@ -614,28 +619,9 @@ async function fetchNpmPackageDownloadsChunked(
 export async function fetchSingleNpmPackageFresh(
   packageName: string,
   retries: number = 3,
-  skipCache: boolean = false,
 ): Promise<NpmPackageStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { getCachedNpmPackageStats, setCachedNpmPackageStats } =
-    await import('./stats-db.server')
-
-  // Only check cache if not skipping it
-  if (skipCache) {
-    console.log(
-      `[NPM Stats] Bypassing cache for ${packageName} (skipCache=true)`,
-    )
-    // Skip cache check entirely when forcing refresh
-  } else {
-    const cached = await getCachedNpmPackageStats(packageName)
-    if (cached !== null) {
-      console.log(
-        `[NPM Stats] Using cached data for ${packageName} (skipCache=false)`,
-      )
-      return cached
-    }
-    console.log(`[NPM Stats] Cache miss for ${packageName}, fetching from API`)
-  }
+  const { setCachedNpmPackageStats } = await import('./stats-db.server')
 
   // Cache miss or skip cache - fetch from API
   let attempt = 0
@@ -775,11 +761,7 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
       await new Promise<void>((resolve, reject) => {
         const queue = new AsyncQueuer(
           async (packageName: string) => {
-            const stats = await fetchSingleNpmPackageFresh(
-              packageName,
-              3,
-              true, // Always skip cache for org refresh
-            )
+            const stats = await fetchSingleNpmPackageFresh(packageName, 3)
             return stats
           },
           {
@@ -882,8 +864,9 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
  */
 export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { discoverAndRegisterPackages, setCachedNpmOrgStats } =
-    await import('./stats-db.server')
+  const { discoverAndRegisterPackages, setCachedNpmOrgStats } = await import(
+    './stats-db.server'
+  )
 
   // First, discover and register all packages
   try {

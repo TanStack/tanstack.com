@@ -224,8 +224,7 @@ function OptInButton() {
   const [isInterested, setIsInterested] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Note: Using server function wrapper instead of direct Convex mutation
-  // to handle authentication via session cookie
+  // Using server function wrapper to handle authentication via session cookie
 
   useEffect(() => {
     if (

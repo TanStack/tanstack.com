@@ -116,7 +116,7 @@ export async function setCachedNpmPackageStats(
     const oldDownloads = existing?.downloads ?? 0
     const downloadDelta = downloads - oldDownloads
     // Get libraryId from existing record, or we'll need to look it up after update
-    let libraryId = existing?.libraryId
+    const libraryId = existing?.libraryId
 
     if (existing) {
       // Update stats with new data

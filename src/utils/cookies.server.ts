@@ -194,7 +194,7 @@ export async function verifyCookie(
       version,
     }
   } catch (error) {
-    console.error('[verifyCookie] Error verifying cookie:', error)
+    console.error('[verifyCookie] Error verifying cookie:', error instanceof Error ? error.message : 'Unknown error')
     return null
   }
 }

@@ -61,7 +61,7 @@ function RoleDetailPage() {
       })
       setSelectedUserIds(new Set())
     } catch (error) {
-      console.error('Failed to remove users from role:', error)
+      console.error('Failed to remove users from role:', error instanceof Error ? error.message : 'Unknown error')
       alert(
         error instanceof Error
           ? error.message
@@ -341,7 +341,7 @@ function RoleDetailPage() {
                       })
                       setConfirmRemove(null)
                     } catch (error) {
-                      console.error('Failed to remove user from role:', error)
+                      console.error('Failed to remove user from role:', error instanceof Error ? error.message : 'Unknown error')
                       alert(
                         error instanceof Error
                           ? error.message

@@ -52,7 +52,7 @@ export async function getCurrentUserFromRequest(request: Request) {
   } catch (error) {
     console.error(
       '[getCurrentUserFromRequest] Failed to get user from session:',
-      error,
+      error instanceof Error ? error.message : 'Unknown error',
     )
     return null
   }

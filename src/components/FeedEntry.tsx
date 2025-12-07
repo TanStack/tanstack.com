@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { format, formatDistanceToNow } from 'date-fns'
 import { Markdown } from '~/components/Markdown'
 import { libraries } from '~/libraries'

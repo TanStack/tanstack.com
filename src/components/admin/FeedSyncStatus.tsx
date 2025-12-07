@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getFeedStatsQueryOptions } from '~/queries/feed'
-import { syncAllSources } from '~/server/feed/sync-all'
 import { FaSync, FaSpinner } from 'react-icons/fa'
 
 export function FeedSyncStatus() {

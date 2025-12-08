@@ -217,7 +217,7 @@ function npmQueryOptions({
   const now = d3.utcDay(new Date())
   // Set to start of today to avoid timezone issues
   now.setHours(0, 0, 0, 0)
-  let endDate = now
+  const endDate = now
 
   // Function to get package creation date
   const getPackageCreationDate = async (packageName: string): Promise<Date> => {
@@ -284,7 +284,7 @@ function npmQueryOptions({
             const packages = await Promise.all(
               packageGroup.packages.map(async (pkg) => {
                 let currentEnd = endDate
-                let currentStart = startDate
+                const currentStart = startDate
 
                 const chunkRanges: { start: Date; end: Date }[] = []
 
@@ -615,7 +615,7 @@ function NpmStatsChart({
 
   const plotData = filteredPackageData.flatMap((d) => d.downloads)
 
-  let baseOptions: Plot.LineYOptions = {
+  const baseOptions: Plot.LineYOptions = {
     x: 'date',
     y: transform === 'normalize-y' ? 'change' : 'downloads',
     fx: facetX,

@@ -4,7 +4,7 @@ declare global {
   var docCache: LRUCache<string, unknown>
 }
 
-let docCache =
+const docCache =
   globalThis.docCache ||
   (globalThis.docCache = new LRUCache<string, unknown>({
     max: 300,

@@ -1,6 +1,5 @@
 import { LogoQueryGGSmall } from '~/components/LogoQueryGGSmall'
 import { useQueryGGPPPDiscount } from '~/hooks/useQueryGGPPPDiscount'
-import CountdownTimerSmall from '~/components/CountdownTimerSmall'
 
 export function DocsCalloutQueryGG() {
   const ppp = useQueryGGPPPDiscount()

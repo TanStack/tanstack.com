@@ -312,22 +312,6 @@ The NPM download counts API is powerful, but it has sharp edges. Understanding t
 
 ---
 
-## Try It Yourself
-
-I've included the experiment script in our repo at [`scripts/npm-point-vs-range-experiment.js`](https://github.com/TanStack/tanstack.com/blob/main/scripts/npm-point-vs-range-experiment.js).
-
-Run it yourself:
-
-```bash
-node scripts/npm-point-vs-range-experiment.js
-```
-
-Test your favorite packages. See where the 18-month wall hits. Watch the numbers stop growing when you go too far back.
-
-It's a sobering reminder that even simple APIs have complex behavior once you dig in.
-
----
-
 ## Why This Matters to TanStack
 
 We care about this because **transparency matters**. When we show download stats, we want them to be accurate. When we talk about growth, we want it to be real.

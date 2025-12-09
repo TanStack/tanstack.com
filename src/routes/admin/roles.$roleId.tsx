@@ -133,7 +133,6 @@ function RoleDetailPage() {
                 {user.image ? (
                   <img
                     className="h-10 w-10 rounded-full"
-                    loading='lazy'
                     src={user.image}
                     alt=""
                   />

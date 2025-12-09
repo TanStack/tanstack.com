@@ -1,9 +1,5 @@
 import * as React from 'react'
-import {
-  Outlet,
-  useLocation,
-  createFileRoute,
-} from '@tanstack/react-router'
+import { Outlet, useLocation, createFileRoute } from '@tanstack/react-router'
 
 import { libraries } from '~/libraries'
 import { Scarf } from '~/components/Scarf'

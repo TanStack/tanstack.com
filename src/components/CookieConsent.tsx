@@ -64,7 +64,7 @@ export default function CookieConsent() {
       '_gid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.google.com'
   }
 
-const restoreGoogleScripts = () => {
+  const restoreGoogleScripts = () => {
     if (!document.querySelector("script[src*='googletagmanager.com']")) {
       const script = document.createElement('script')
       script.src = 'https://www.googletagmanager.com/gtag/js?id=GTM-5N57KQT4'
@@ -73,7 +73,7 @@ const restoreGoogleScripts = () => {
     }
   }
 
- const updateGTMConsent = (settings: { analytics: boolean; ads: boolean }) => {
+  const updateGTMConsent = (settings: { analytics: boolean; ads: boolean }) => {
     window.dataLayer = window.dataLayer || []
     window.dataLayer.push({
       event: 'cookie_consent',

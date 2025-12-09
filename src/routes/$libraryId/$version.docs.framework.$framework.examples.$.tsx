@@ -217,6 +217,7 @@ function PageComponent() {
               >
                 <img
                   src="https://deploy.workers.cloudflare.com/button"
+                  loading='lazy'
                   alt="Deploy to Cloudflare"
                 />
               </a>
@@ -227,6 +228,7 @@ function PageComponent() {
               >
                 <img
                   src="https://www.netlify.com/img/deploy/button.svg"
+                  loading='lazy'
                   alt="Deploy with Netlify"
                 />
               </a>
@@ -235,7 +237,10 @@ function PageComponent() {
               <a
                 href={`https://vercel.com/new/clone?repository-url=${githubUrl}`}
               >
-                <img src="https://vercel.com/button" alt="Deploy with Vercel" />
+                <img
+                  src="https://vercel.com/button"
+                  loading='lazy'
+                  alt="Deploy with Vercel" />
               </a>
             ) : null}
             <a

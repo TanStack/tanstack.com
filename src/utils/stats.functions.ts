@@ -84,7 +84,6 @@ async function scrapeGitHubDependentCount(
 /**
  * Scrape GitHub repository page for contributor count
  * Uses retry logic as scraping can be unreliable
- * Based on @erquhart/convex-oss-stats approach
  */
 async function scrapeGitHubContributorCount(
   repo: string,
@@ -189,7 +188,6 @@ export async function fetchGitHubRepoStats(repo: string): Promise<GitHubStats> {
 
     // Scrape contributor count from GitHub web UI
     // Using scraping instead of API to get the full count without pagination limits
-    // Based on @erquhart/convex-oss-stats approach
     // Wrap in catch to ensure it never rejects - scraping failures shouldn't break the whole operation
     scrapeGitHubContributorCount(repo).catch((error) => {
       console.error(
@@ -307,8 +305,7 @@ export async function fetchGitHubOwnerStats(
 
   // Scrape contributor and dependent counts from each repo's page
   // Note: This sums counts across repos, which may count the same person multiple times
-  // if they contributed to multiple repos. This matches @erquhart/convex-oss-stats behavior
-  // and provides higher numbers than trying to deduplicate via API calls.
+  // if they contributed to multiple repos. This provides higher numbers than trying to deduplicate via API calls.
   const repoStats = await Promise.all(
     repos.map(async (repo) => {
       try {
@@ -398,10 +395,52 @@ async function fetchNpmPackageCreationDate(
 }
 
 /**
+ * Normalize date ranges into consistent chunk boundaries
+ * Uses fixed 500-day chunks aligned to calendar dates for cache consistency
+ *
+ * This ensures the same date ranges are used across all fetches, preventing
+ * duplicate cache entries with different keys (e.g., 2025-12-06 vs 2025-12-07)
+ */
+function generateNormalizedChunks(
+  startDate: string,
+  endDate: string,
+): Array<{ from: string; to: string }> {
+  const CHUNK_DAYS = 500 // Stay well under 18-month (549 day) limit
+  const chunks: Array<{ from: string; to: string }> = []
+
+  let currentFrom = new Date(startDate)
+  const finalDate = new Date(endDate)
+
+  while (currentFrom <= finalDate) {
+    const from = currentFrom.toISOString().substring(0, 10)
+
+    // Calculate chunk end: either CHUNK_DAYS later or finalDate, whichever is earlier
+    const potentialTo = new Date(currentFrom)
+    potentialTo.setDate(potentialTo.getDate() + CHUNK_DAYS - 1) // -1 because inclusive
+
+    const to =
+      potentialTo > finalDate
+        ? finalDate.toISOString().substring(0, 10)
+        : potentialTo.toISOString().substring(0, 10)
+
+    chunks.push({ from, to })
+
+    // Move to next chunk (day after current chunk ends)
+    currentFrom = new Date(to)
+    currentFrom.setDate(currentFrom.getDate() + 1)
+
+    // Prevent infinite loop if we've reached the end
+    if (to === endDate) break
+  }
+
+  return chunks
+}
+
+/**
  * Fetch all-time download counts using chunked /range/ requests
  * This is the correct method as npm API limits /point/ to 18 months
- * Based on @erquhart/convex-oss-stats implementation
  *
+ * Uses normalized chunk boundaries for consistent caching across runs
  * Fetches chunks sequentially (concurrency controlled at package level)
  * Returns total downloads and daily rate (average from last full week)
  */
@@ -409,28 +448,17 @@ async function fetchNpmPackageDownloadsChunked(
   packageName: string,
   createdDate: string,
 ): Promise<{ totalDownloads: number; ratePerDay: number }> {
-  const currentDateIso = new Date().toISOString().substring(0, 10)
-  let nextDate = new Date(createdDate)
-  const chunks: Array<{ from: string; to: string }> = []
+  const today = new Date().toISOString().substring(0, 10)
 
-  // Build all chunk date ranges upfront
-  let hasMore = true
-  while (hasMore) {
-    const from = nextDate.toISOString().substring(0, 10)
-    nextDate.setDate(nextDate.getDate() + 17 * 30) // ~17 months
-    if (nextDate.toISOString().substring(0, 10) > currentDateIso) {
-      nextDate = new Date()
-    }
-    const to = nextDate.toISOString().substring(0, 10)
-
-    chunks.push({ from, to })
-
-    nextDate.setDate(nextDate.getDate() + 1)
-    hasMore = nextDate.toISOString().substring(0, 10) < currentDateIso
-  }
+  // Generate normalized chunks for consistent cache keys
+  const chunks = generateNormalizedChunks(createdDate, today)
 
   let totalDownloadCount = 0
   let lastChunkData: { day: string; downloads: number }[] = []
+
+  // Load cache functions (dynamic import for Netlify compatibility)
+  const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } =
+    await import('./stats-db.server')
 
   // Fetch chunks sequentially to avoid nested AsyncQueuer complexity
   // The outer queue (per-package) provides concurrency control
@@ -438,6 +466,54 @@ async function fetchNpmPackageDownloadsChunked(
     const chunk = chunks[i]
     let success = false
 
+    // Check cache first (gracefully handle if migration not run)
+    let cachedChunk = null
+    try {
+      cachedChunk = await getCachedNpmDownloadChunk(
+        packageName,
+        chunk.from,
+        chunk.to,
+        'daily',
+      )
+    } catch (error) {
+      // Cache table doesn't exist yet (migration not run) - gracefully continue
+      if (
+        error instanceof Error &&
+        (error.message.includes('relation') ||
+          error.message.includes('does not exist'))
+      ) {
+        // Silently skip cache on first error, then stop trying
+        if (i === 0) {
+          console.log(
+            `[NPM Stats] Cache table not available (migration not run), skipping cache`,
+          )
+        }
+      } else {
+        // Other errors - log but continue
+        console.warn(
+          `[NPM Stats] Cache lookup error for ${packageName}:`,
+          error,
+        )
+      }
+    }
+
+    if (cachedChunk) {
+      // Use cached data
+      console.log(
+        `[NPM Stats] ${packageName} chunk ${chunk.from}:${
+          chunk.to
+        }: using cache (${cachedChunk.totalDownloads.toLocaleString()} downloads, ${
+          cachedChunk.isImmutable ? 'immutable' : 'mutable'
+        })`,
+      )
+      totalDownloadCount += cachedChunk.totalDownloads
+      if (cachedChunk.dailyData.length > 0) {
+        lastChunkData = cachedChunk.dailyData
+      }
+      continue // Skip to next chunk
+    }
+
+    // Not in cache - fetch from NPM API
     // Retry loop with indefinite retries for rate limiting
     while (!success) {
       try {
@@ -462,8 +538,8 @@ async function fetchNpmPackageDownloadsChunked(
           if (response.status === 429) {
             // Rate limited - wait and retry indefinitely
             // Note: NPM's Retry-After header is unreliable (often returns "0")
-            // Use fixed 60 second wait time instead
-            const waitTime = 60000 // 60 seconds
+            // Use fixed 5 second wait time instead
+            const waitTime = 5000 // 5 seconds
             console.warn(
               `[NPM Stats] Rate limited on ${packageName} chunk ${chunk.from}:${chunk.to}, waiting ${waitTime}ms...`,
             )
@@ -492,6 +568,22 @@ async function fetchNpmPackageDownloadsChunked(
         totalDownloadCount += downloadCount
         if (pageData.downloads.length > 0) {
           lastChunkData = pageData.downloads
+        }
+
+        // Cache the fetched chunk for future use (best-effort)
+        try {
+          await setCachedNpmDownloadChunk({
+            packageName,
+            dateFrom: chunk.from,
+            dateTo: chunk.to,
+            binSize: 'daily',
+            totalDownloads: downloadCount,
+            dailyData: pageData.downloads,
+            isImmutable: false, // Will be calculated by setCachedNpmDownloadChunk
+          })
+        } catch (error) {
+          // Cache write failed - not critical, continue anyway
+          // This can happen if migration hasn't been run yet
         }
 
         success = true // Successfully processed this chunk
@@ -526,28 +618,9 @@ async function fetchNpmPackageDownloadsChunked(
 export async function fetchSingleNpmPackageFresh(
   packageName: string,
   retries: number = 3,
-  skipCache: boolean = false,
 ): Promise<NpmPackageStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { getCachedNpmPackageStats, setCachedNpmPackageStats } =
-    await import('./stats-db.server')
-
-  // Only check cache if not skipping it
-  if (skipCache) {
-    console.log(
-      `[NPM Stats] Bypassing cache for ${packageName} (skipCache=true)`,
-    )
-    // Skip cache check entirely when forcing refresh
-  } else {
-    const cached = await getCachedNpmPackageStats(packageName)
-    if (cached !== null) {
-      console.log(
-        `[NPM Stats] Using cached data for ${packageName} (skipCache=false)`,
-      )
-      return cached
-    }
-    console.log(`[NPM Stats] Cache miss for ${packageName}, fetching from API`)
-  }
+  const { setCachedNpmPackageStats } = await import('./stats-db.server')
 
   // Cache miss or skip cache - fetch from API
   let attempt = 0
@@ -633,8 +706,8 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
         )
         if (response.status === 429) {
           // Note: NPM's Retry-After header is unreliable (often returns "0")
-          // Use fixed 60 second wait time instead
-          const waitTime = 60000 // 60 seconds
+          // Use fixed 5 second wait time instead
+          const waitTime = 5000 // 5 seconds
 
           console.warn(
             `[NPM Stats] Rate limited fetching org packages, waiting ${waitTime}ms before retry (attempt ${
@@ -687,11 +760,7 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
       await new Promise<void>((resolve, reject) => {
         const queue = new AsyncQueuer(
           async (packageName: string) => {
-            const stats = await fetchSingleNpmPackageFresh(
-              packageName,
-              3,
-              true, // Always skip cache for org refresh
-            )
+            const stats = await fetchSingleNpmPackageFresh(packageName, 3)
             return stats
           },
           {
@@ -815,4 +884,86 @@ export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
   await rebuildLibraryCaches()
 
   return stats
+}
+
+/**
+ * Refresh GitHub organization statistics
+ * Fetches and caches GitHub stats for the org and all library repos
+ */
+export async function refreshGitHubOrgStats(org: string): Promise<{
+  orgStats: GitHubStats
+  libraryResults: Array<{ repo: string; stars: number }>
+  libraryErrors: Array<{ repo: string; error: string }>
+}> {
+  const { setCachedGitHubStats } = await import('./stats-db.server')
+
+  // Refresh GitHub org stats
+  console.log('[GitHub Stats] Refreshing GitHub org stats...')
+  const githubCacheKey = `org:${org}`
+  const githubStats = await fetchGitHubOwnerStats(org)
+  await setCachedGitHubStats(githubCacheKey, githubStats, 1)
+
+  // Refresh GitHub stats for each library repo
+  console.log(
+    '[GitHub Stats] Refreshing GitHub stats for individual libraries...',
+  )
+  const { libraries } = await import('~/libraries')
+  console.log(
+    `[GitHub Stats] Found ${libraries.length} libraries to process:`,
+    libraries.map((lib) => ({ id: lib.id, repo: lib.repo })),
+  )
+  const libraryResults = []
+  const libraryErrors = []
+
+  for (let i = 0; i < libraries.length; i++) {
+    const library = libraries[i]
+    if (!library.repo) {
+      console.log(`[GitHub Stats] Skipping library ${library.id} - no repo`)
+      continue
+    }
+
+    console.log(
+      `[GitHub Stats] Processing library ${library.id} (${library.repo})...`,
+    )
+    try {
+      const repoStats = await fetchGitHubRepoStats(library.repo)
+      console.log(
+        `[GitHub Stats] Fetched stats for ${library.repo}: ${
+          repoStats.starCount
+        } stars, ${repoStats.contributorCount} contributors, ${
+          repoStats.dependentCount ?? 'N/A'
+        } dependents`,
+      )
+      await setCachedGitHubStats(library.repo, repoStats, 1)
+      console.log(
+        `[GitHub Stats] ✓ Successfully cached stats for ${library.repo}`,
+      )
+      libraryResults.push({
+        repo: library.repo,
+        stars: repoStats.starCount,
+      })
+
+      // Add delay between requests to avoid rate limiting (except for last item)
+      if (i < libraries.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      console.error(
+        `[GitHub Stats] Failed to refresh ${library.repo}:`,
+        errorMessage,
+      )
+      libraryErrors.push({
+        repo: library.repo,
+        error: errorMessage,
+      })
+    }
+  }
+
+  return {
+    orgStats: githubStats,
+    libraryResults,
+    libraryErrors,
+  }
 }

@@ -7,7 +7,9 @@ import { getFrameworkOptions } from '~/libraries/frameworks'
 
 export function FrameworkSelect({ libraryId }: { libraryId: LibraryId }) {
   const library = getLibrary(libraryId)
-  const frameworkConfig = useFrameworkConfig({ frameworks: library.frameworks })
+  const frameworkConfig = useFrameworkConfig({
+    frameworks: library.frameworks,
+  })
   return (
     <Select
       className="min-w-[120px]"

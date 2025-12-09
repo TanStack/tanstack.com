@@ -77,7 +77,7 @@ This ensures the loader only re-runs when the specific dependencies change, not 
 
 **Loaders in TanStack Start/Router are isomorphic and cannot call server logic unless via a call to a server function.**
 
-Loaders run on both the server and client, so they cannot directly access server-only APIs (like file system, database connections, etc.). To perform server-side operations, loaders must call server functions (e.g., TanStack server functions created via `createServerFn()`, Convex queries/mutations, API routes, or other server functions).
+Loaders run on both the server and client, so they cannot directly access server-only APIs (like file system, database connections, etc.). To perform server-side operations, loaders must call server functions (e.g., TanStack server functions created via `createServerFn()`, API routes, or other server functions).
 
 ❌ **Bad:**
 
@@ -93,11 +93,9 @@ loader: async () => {
 
 ```typescript
 loader: async () => {
-  // Call a server function instead (TanStack server function or Convex)
+  // Call a server function instead
   // TanStack server functions created via createServerFn() can be called directly
   const data = await serverFn({ data: { id: '123' } })
-  // or
-  const data = await convex.query(api.data.getData)
   return { data }
 }
 ```

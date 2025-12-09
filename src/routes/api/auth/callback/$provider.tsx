@@ -58,8 +58,6 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           const clearStateCookie = `oauth_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
 
           console.log('[OAuth Callback] State validation result: valid')
-        
-        // Note: convexClient is already initialized above for state validation
 
         // Exchange code for access token
         // Use SITE_URL env var if set, otherwise fall back to request origin

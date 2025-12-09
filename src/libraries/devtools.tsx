@@ -28,7 +28,7 @@ export const devtoolsProject = {
   colorFrom: 'from-slate-400',
   colorTo: 'to-slate-600',
   textColor: 'text-slate-600',
-  frameworks: ['react', 'solid', 'vanilla'],
+  frameworks: ['react', 'preact', 'solid', 'vanilla'],
   menu: [
     {
       icon: <BiBookAlt />,

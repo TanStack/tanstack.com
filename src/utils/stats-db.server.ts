@@ -10,8 +10,9 @@ import {
   npmPackages,
   npmOrgStatsCache,
   npmLibraryStatsCache,
+  npmDownloadChunks,
 } from '~/db/schema'
-import { eq, inArray } from 'drizzle-orm'
+import { eq, inArray, and } from 'drizzle-orm'
 import type { GitHubStats, NpmPackageStats, NpmStats } from './stats.server'
 
 /**
@@ -116,7 +117,7 @@ export async function setCachedNpmPackageStats(
     const oldDownloads = existing?.downloads ?? 0
     const downloadDelta = downloads - oldDownloads
     // Get libraryId from existing record, or we'll need to look it up after update
-    let libraryId = existing?.libraryId
+    const libraryId = existing?.libraryId
 
     if (existing) {
       // Update stats with new data
@@ -976,5 +977,161 @@ export async function setCachedGitHubStats(
     // Re-throw the error so the caller knows it failed
     // This allows the refresh function to track failures properly
     throw error
+  }
+}
+
+/**
+ * NPM Download Chunks Cache
+ * These functions cache historical date range downloads to avoid repeated API calls
+ * and rate limiting. Chunks that are completely in the past are immutable and cached forever.
+ */
+
+export interface NpmDownloadChunkData {
+  packageName: string
+  dateFrom: string // YYYY-MM-DD
+  dateTo: string // YYYY-MM-DD
+  binSize: string // 'daily', 'weekly', 'monthly'
+  totalDownloads: number
+  dailyData: Array<{ day: string; downloads: number }>
+  isImmutable: boolean
+}
+
+/**
+ * Get a cached npm download chunk if available
+ * Returns the chunk data if found and not expired (for mutable chunks)
+ * Immutable chunks (isImmutable=true) never expire
+ */
+export async function getCachedNpmDownloadChunk(
+  packageName: string,
+  dateFrom: string,
+  dateTo: string,
+  binSize: string = 'daily',
+): Promise<NpmDownloadChunkData | null> {
+  try {
+    const cached = await db.query.npmDownloadChunks.findFirst({
+      where: and(
+        eq(npmDownloadChunks.packageName, packageName),
+        eq(npmDownloadChunks.dateFrom, dateFrom),
+        eq(npmDownloadChunks.dateTo, dateTo),
+        eq(npmDownloadChunks.binSize, binSize),
+      ),
+    })
+
+    if (!cached) {
+      return null
+    }
+
+    // Immutable chunks never expire
+    if (cached.isImmutable) {
+      return {
+        packageName: cached.packageName,
+        dateFrom: cached.dateFrom,
+        dateTo: cached.dateTo,
+        binSize: cached.binSize,
+        totalDownloads: cached.totalDownloads,
+        dailyData: cached.dailyData as Array<{
+          day: string
+          downloads: number
+        }>,
+        isImmutable: cached.isImmutable,
+      }
+    }
+
+    // Mutable chunks (recent data) - check expiration
+    if (cached.expiresAt && cached.expiresAt > new Date()) {
+      return {
+        packageName: cached.packageName,
+        dateFrom: cached.dateFrom,
+        dateTo: cached.dateTo,
+        binSize: cached.binSize,
+        totalDownloads: cached.totalDownloads,
+        dailyData: cached.dailyData as Array<{
+          day: string
+          downloads: number
+        }>,
+        isImmutable: cached.isImmutable,
+      }
+    }
+
+    // Expired - return null so it gets refetched
+    return null
+  } catch (error) {
+    console.error(
+      `[NPM Download Chunks] Error reading cache for ${packageName} ${dateFrom}:${dateTo}:`,
+      error,
+    )
+    return null
+  }
+}
+
+/**
+ * Store an npm download chunk in the cache
+ * Chunks are marked as immutable if they end before today
+ * Immutable chunks never expire, mutable chunks expire in 6 hours
+ */
+export async function setCachedNpmDownloadChunk(
+  data: NpmDownloadChunkData,
+): Promise<void> {
+  try {
+    const now = new Date()
+    const today = now.toISOString().split('T')[0]
+
+    // Determine if chunk is immutable (completely in the past)
+    const isImmutable = data.dateTo < today
+
+    // Set expiration: null for immutable, 6 hours for mutable
+    const expiresAt = isImmutable
+      ? null
+      : new Date(now.getTime() + 6 * 60 * 60 * 1000)
+
+    // Check if chunk already exists
+    const existing = await db.query.npmDownloadChunks.findFirst({
+      where: and(
+        eq(npmDownloadChunks.packageName, data.packageName),
+        eq(npmDownloadChunks.dateFrom, data.dateFrom),
+        eq(npmDownloadChunks.dateTo, data.dateTo),
+        eq(npmDownloadChunks.binSize, data.binSize),
+      ),
+    })
+
+    if (existing) {
+      // Update existing chunk
+      await db
+        .update(npmDownloadChunks)
+        .set({
+          totalDownloads: data.totalDownloads,
+          dailyData: data.dailyData,
+          isImmutable,
+          expiresAt,
+          updatedAt: now,
+        })
+        .where(eq(npmDownloadChunks.id, existing.id))
+
+      console.log(
+        `[NPM Download Chunks] ✓ Updated ${data.packageName} ${data.dateFrom}:${data.dateTo} (${data.totalDownloads.toLocaleString()} downloads, ${isImmutable ? 'immutable' : 'expires ' + expiresAt?.toISOString()})`,
+      )
+    } else {
+      // Insert new chunk
+      await db.insert(npmDownloadChunks).values({
+        packageName: data.packageName,
+        dateFrom: data.dateFrom,
+        dateTo: data.dateTo,
+        binSize: data.binSize,
+        totalDownloads: data.totalDownloads,
+        dailyData: data.dailyData,
+        isImmutable,
+        expiresAt,
+      })
+
+      console.log(
+        `[NPM Download Chunks] ✓ Cached ${data.packageName} ${data.dateFrom}:${data.dateTo} (${data.totalDownloads.toLocaleString()} downloads, ${isImmutable ? 'immutable' : 'expires ' + expiresAt?.toISOString()})`,
+      )
+    }
+  } catch (error) {
+    console.error(
+      `[NPM Download Chunks] ✗ Error caching ${data.packageName} ${data.dateFrom}:${data.dateTo}:`,
+      error,
+    )
+    // Don't throw - caching is best-effort
   }
 }

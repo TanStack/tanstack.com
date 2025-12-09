@@ -264,7 +264,7 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
   const loadedLanguages = highlighter.getLoadedLanguages()
   const loadedThemes = highlighter.getLoadedThemes()
 
-  let promises = []
+  const promises = []
   if (!loadedLanguages.includes(language as any)) {
     promises.push(
       highlighter.loadLanguage(

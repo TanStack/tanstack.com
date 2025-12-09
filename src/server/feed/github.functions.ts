@@ -244,7 +244,7 @@ export async function syncGitHubReleases(options?: { daysBack?: number }) {
   const now = Date.now()
   let syncedCount = 0
   let errorCount = 0
-  let skippedCount = 0
+  const skippedCount = 0
 
   for (const repo of repos) {
     try {

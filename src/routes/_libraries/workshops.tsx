@@ -370,6 +370,7 @@ function WorkshopsPage() {
                 <img
                   src="https://github.com/tannerlinsley.png"
                   alt="Tanner Linsley"
+                  loading='lazy'
                   className="w-32 h-32 rounded-full border-4 border-white dark:border-gray-900"
                 />
               </div>

@@ -76,8 +76,7 @@ const markdownComponents: Record<string, React.FC> = {
       className={`max-w-full h-auto rounded-lg shadow-md ${
         props.className ?? ''
       }`}
-      // loading="lazy"
-      // decoding="async"
+      loading="lazy"
     />
   ),
 }

@@ -10,7 +10,6 @@ import parse, {
   Element,
   HTMLReactParserOptions,
 } from 'html-react-parser'
-import mermaid from 'mermaid'
 import { useToast } from '~/components/ToastProvider'
 import { twMerge } from 'tailwind-merge'
 import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
@@ -103,7 +102,21 @@ export function extractPreAttributes(html: string): {
 
 const genSvgMap = new Map<string, string>()
 
-mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
+// Lazy load mermaid only when needed
+let mermaidPromise: Promise<typeof import('mermaid').default> | null = null
+let mermaidInitialized = false
+
+async function getMermaid() {
+  if (!mermaidPromise) {
+    mermaidPromise = import('mermaid').then((mod) => mod.default)
+  }
+  const mermaid = await mermaidPromise
+  if (!mermaidInitialized) {
+    mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
+    mermaidInitialized = true
+  }
+  return mermaid
+}
 
 export function CodeBlock({
   isEmbedded,
@@ -165,6 +178,7 @@ export function CodeBlock({
             const preAttributes = extractPreAttributes(output)
             let svgHtml = genSvgMap.get(code || '')
             if (!svgHtml) {
+              const mermaid = await getMermaid()
               const { svg } = await mermaid.render('foo', code || '')
               genSvgMap.set(code || '', svg)
               svgHtml = svg

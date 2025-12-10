@@ -107,7 +107,7 @@ export function PaginationControls({
   if (sticky) {
     return (
       <div className="sticky bottom-4 mt-4">
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg px-3 py-2">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl px-3 py-2">
           {content}
         </div>
       </div>

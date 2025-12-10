@@ -147,7 +147,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const largeMenu = (
     <div
-      className="bg-white/50 dark:bg-black/30 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px]
+      className="bg-white dark:bg-black/30 shadow-xl max-w-[300px] xl:max-w-[350px] 2xl:max-w-[400px]
       hidden lg:flex flex-col gap-4 sticky
       h-[calc(100dvh-var(--navbar-height))] lg:top-[var(--navbar-height)]
       z-20 dark:border-r
@@ -165,7 +165,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     >
       {smallMenu}
       {largeMenu}
-      <div className="flex flex-1 min-h-0 relative justify-center overflow-x-hidden bg-gray-50 dark:bg-gray-900">
+      <div className="flex flex-1 min-h-0 min-w-0 relative justify-center bg-gray-50 dark:bg-gray-900">
         {children}
       </div>
     </div>

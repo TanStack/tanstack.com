@@ -2,7 +2,6 @@ import * as React from 'react'
 import { FaRegCopy } from 'react-icons/fa'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
-import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import parse, {
   attributesToProps,
@@ -15,6 +14,7 @@ import { twMerge } from 'tailwind-merge'
 import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
 import { renderMarkdown } from '~/utils/markdown'
 import { Tabs } from '~/components/Tabs'
+import { createHighlighter } from 'shiki'
 
 const CustomHeading = ({
   Comp,
@@ -269,7 +269,7 @@ const cache = <T extends (...args: any[]) => any>(fn: T) => {
   }
 }
 
-const highlighterPromise = shikiGetHighlighter({} as any)
+const highlighterPromise = createHighlighter({} as any)
 
 const getHighlighter = cache(async (language: string, themes: string[]) => {
   const highlighter = await highlighterPromise

@@ -457,9 +457,8 @@ async function fetchNpmPackageDownloadsChunked(
   let lastChunkData: { day: string; downloads: number }[] = []
 
   // Load cache functions (dynamic import for Netlify compatibility)
-  const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } = await import(
-    './stats-db.server'
-  )
+  const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } =
+    await import('./stats-db.server')
 
   // Fetch chunks sequentially to avoid nested AsyncQueuer complexity
   // The outer queue (per-package) provides concurrency control
@@ -871,9 +870,8 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
  */
 export async function refreshNpmOrgStats(org: string): Promise<NpmStats> {
   // Import db functions dynamically to avoid pulling server code into client bundle
-  const { discoverAndRegisterPackages, setCachedNpmOrgStats } = await import(
-    './stats-db.server'
-  )
+  const { discoverAndRegisterPackages, setCachedNpmOrgStats } =
+    await import('./stats-db.server')
 
   // First, discover and register all packages
   try {

@@ -10,6 +10,12 @@
     "linkUrl": "https://www.sanity.io/?utm_source=tanstack"
   },
   {
+    "login": "humanizerpro",
+    "name": "AI humanizer",
+    "imageUrl": "https://humanizerpro.ai/favicon.ico",
+    "linkUrl": "https://humanizerpro.ai"
+  },
+  {
     "login": "codedamn",
     "linkUrl": "https://codedamn.com?utm_source=tanstack"
   },

@@ -32,8 +32,18 @@ export const Route = createFileRoute('/_libraries/feed/')({
         includePrerelease: z.boolean().optional().catch(undefined),
         featured: z.boolean().optional().catch(undefined),
         search: z.string().optional().catch(undefined),
-        page: z.number().optional().default(FEED_DEFAULTS.page).catch(FEED_DEFAULTS.page),
-        pageSize: z.number().int().positive().optional().default(FEED_DEFAULTS.pageSize).catch(FEED_DEFAULTS.pageSize),
+        page: z
+          .number()
+          .optional()
+          .default(FEED_DEFAULTS.page)
+          .catch(FEED_DEFAULTS.page),
+        pageSize: z
+          .number()
+          .int()
+          .positive()
+          .optional()
+          .default(FEED_DEFAULTS.pageSize)
+          .catch(FEED_DEFAULTS.pageSize),
         viewMode: viewModeSchema,
         expanded: z.array(z.string()).optional().catch(undefined),
       })

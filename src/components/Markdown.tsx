@@ -14,7 +14,7 @@ import { twMerge } from 'tailwind-merge'
 import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
 import { renderMarkdown } from '~/utils/markdown'
 import { Tabs } from '~/components/Tabs'
-import { createHighlighter } from 'shiki'
+import { createHighlighter } from 'shiki/bundle-web.mjs'
 
 const CustomHeading = ({
   Comp,

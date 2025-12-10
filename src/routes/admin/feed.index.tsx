@@ -8,37 +8,17 @@ import { FaPlus } from 'react-icons/fa'
 import { z } from 'zod'
 import { FeedEntry } from '~/components/FeedEntry'
 import { FeedSyncStatus } from '~/components/admin/FeedSyncStatus'
-import { FeedPageLayout } from '~/components/FeedPageLayout'
+import { FeedPage as FeedPageComponent } from '~/components/FeedPage'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-const librarySchema = z.enum([
-  'start',
-  'router',
-  'query',
-  'table',
-  'form',
-  'virtual',
-  'ranger',
-  'store',
-  'pacer',
-  'db',
-  'config',
-  'react-charts',
-  'devtools',
-  'create-tsrouter-app',
-])
-
-const categorySchema = z.enum([
-  'release',
-  'announcement',
-  'blog',
-  'partner',
-  'update',
-  'other',
-])
-
-const releaseLevelSchema = z.enum(['major', 'minor', 'patch'])
+import { FEED_DEFAULTS } from '~/utils/feedDefaults'
+import { libraries, type LibraryId } from '~/libraries'
+import { FEED_CATEGORIES, RELEASE_LEVELS } from '~/utils/feedSchema'
+const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
+const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
+const categorySchema = z.enum(FEED_CATEGORIES)
+const releaseLevelSchema = z.enum(RELEASE_LEVELS)
 const viewModeSchema = z
   .enum(['table', 'timeline'])
   .optional()
@@ -64,12 +44,8 @@ export const Route = createFileRoute('/admin/feed/')({
               .catch(
                 Array.isArray(releaseLevelsValue) ? releaseLevelsValue : [],
               )
-          : z
-              .array(releaseLevelSchema)
-              .optional()
-              .default(['major', 'minor'])
-              .catch(['major', 'minor']),
-        includePrerelease: z.boolean().optional().default(true).catch(true),
+          : z.array(releaseLevelSchema).optional().catch(undefined),
+        includePrerelease: z.boolean().optional().catch(undefined),
         featured: z.boolean().optional().catch(undefined),
         search: z.string().optional().catch(undefined),
         page: z.number().optional().default(1).catch(1),
@@ -84,15 +60,14 @@ export const Route = createFileRoute('/admin/feed/')({
 function FeedAdminPage() {
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
-  const currentPage = search.page ?? 1
 
   const userQuery = useCurrentUserQuery()
   const user = userQuery.data
   const capabilities = useCapabilities()
-  const pageSize = search.pageSize ?? 50
+
   const feedQuery = useFeedQuery({
-    page: currentPage,
-    pageSize,
+    page: search.page ?? 1,
+    pageSize: search.pageSize ?? 50,
     filters: {
       sources: search.sources,
       libraries: search.libraries,
@@ -138,62 +113,6 @@ function FeedAdminPage() {
     })
   }
 
-  const handleFiltersChange = (newFilters: Partial<typeof search>) => {
-    navigate({
-      search: (s) => ({
-        ...s,
-        ...newFilters,
-        page: 1,
-      }),
-      replace: true,
-    })
-  }
-
-  const handleClearFilters = () => {
-    navigate({
-      search: {
-        releaseLevels: ['major', 'minor'],
-        includePrerelease: true,
-        page: 1,
-        pageSize: pageSize,
-      },
-      replace: true,
-    })
-  }
-
-  const handlePageSizeChange = (newPageSize: number) => {
-    navigate({
-      search: (s) => ({
-        ...s,
-        pageSize: newPageSize,
-        page: 1,
-      }),
-      replace: true,
-      resetScroll: false,
-    })
-  }
-
-  const handleViewModeChange = (viewMode: 'table' | 'timeline') => {
-    navigate({
-      search: (s) => ({ ...s, viewMode }),
-      replace: true,
-    })
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('feedViewMode', viewMode)
-    }
-  }
-
-  const handleExpandedChange = (expandedIds: string[]) => {
-    navigate({
-      search: (s) => ({
-        ...s,
-        expanded: expandedIds.length > 0 ? expandedIds : undefined,
-      }),
-      replace: true,
-      resetScroll: false,
-    })
-  }
-
   if (user === undefined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -217,50 +136,43 @@ function FeedAdminPage() {
   }
 
   return (
-    <FeedPageLayout.Root
-      feedQuery={feedQuery}
-      currentPage={currentPage}
-      pageSize={pageSize}
-      filters={search}
-      onFiltersChange={handleFiltersChange}
-      onClearFilters={handleClearFilters}
-      onPageChange={(page) => {
-        navigate({
-          search: (s) => ({ ...s, page }),
-          replace: true,
-          resetScroll: false,
-        })
-      }}
-      onPageSizeChange={handlePageSizeChange}
-      viewMode={search.viewMode ?? 'table'}
-      onViewModeChange={handleViewModeChange}
-      expandedIds={search.expanded}
-      onExpandedChange={handleExpandedChange}
-      adminActions={{
-        onEdit: handleEdit,
-        onToggleVisibility: handleToggleVisibility,
-        onToggleFeatured: handleToggleFeatured,
-        onDelete: handleDelete,
-      }}
-    >
-      <FeedPageLayout.Header
-        title="Feed Admin"
-        actions={
-          <Link
-            to="/admin/feed/$id"
-            params={{ id: 'new' }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-          >
-            <FaPlus />
-            Create Entry
-          </Link>
-        }
-        extra={<FeedSyncStatus />}
+    <div className="flex-1 min-w-0 flex flex-col gap-4 p-2 sm:p-4 pb-0 min-h-0">
+      <FeedSyncStatus
+        onSyncComplete={() => {
+          feedQuery.refetch()
+        }}
       />
-      <div className="flex flex-col lg:flex-row gap-8">
-        <FeedPageLayout.Filters />
-        <FeedPageLayout.Content />
+      <div className="flex-1 min-h-0 relative">
+        <FeedPageComponent
+          search={search}
+          onNavigate={(updates) => {
+            navigate({
+              search: (s) => ({ ...s, ...updates.search }),
+              replace: updates.replace ?? true,
+              resetScroll: updates.resetScroll ?? false,
+            })
+          }}
+          includeHidden={true}
+          adminActions={{
+            onEdit: handleEdit,
+            onToggleVisibility: handleToggleVisibility,
+            onToggleFeatured: handleToggleFeatured,
+            onDelete: handleDelete,
+          }}
+          headerTitle="Feed Admin"
+          headerActions={
+            <Link
+              to="/admin/feed/$id"
+              params={{ id: 'new' }}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            >
+              <FaPlus />
+              Create Entry
+            </Link>
+          }
+          showFooter={false}
+        />
       </div>
-    </FeedPageLayout.Root>
+    </div>
   )
 }

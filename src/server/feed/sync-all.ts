@@ -1,6 +1,5 @@
 import { syncGitHubReleases } from './github'
-// TODO: Add blog sync when implemented
-// import { syncBlogPosts } from './blog'
+import { syncBlogPosts } from './blog'
 
 type SyncResult = {
   success: boolean
@@ -30,13 +29,17 @@ export async function syncAllSources(): Promise<SyncResult> {
       error instanceof Error ? error.message : 'Unknown error'
   }
 
-  // Note: Blog sync requires blog post data from server
-  // This should be called via a server function that has access to content-collections
-  results.blog.error =
-    'Blog sync requires server-side trigger with content-collections access'
+  // Sync blog posts from content collections
+  try {
+    const blogResult = await syncBlogPosts()
+    results.blog.success = blogResult.success
+  } catch (error) {
+    results.blog.error =
+      error instanceof Error ? error.message : 'Unknown error'
+  }
 
   return {
-    success: results.github.success,
+    success: results.github.success && results.blog.success,
     results,
   }
 }

@@ -186,15 +186,6 @@ export function FeedFilters({
     onFiltersChange({ featured: value })
   }
 
-  // Check if release levels differ from default (all except patch)
-  const defaultReleaseLevels: ReleaseLevel[] = ['major', 'minor']
-  const releaseLevelsDiffer =
-    !selectedReleaseLevels ||
-    selectedReleaseLevels.length !== defaultReleaseLevels.length ||
-    !defaultReleaseLevels.every((level) =>
-      selectedReleaseLevels.includes(level),
-    )
-
   const hasActiveFilters =
     (selectedSources && selectedSources.length > 0) ||
     (selectedLibraries && selectedLibraries.length > 0) ||
@@ -203,7 +194,7 @@ export function FeedFilters({
     (selectedTags && selectedTags.length > 0) ||
     featured !== undefined ||
     search ||
-    releaseLevelsDiffer ||
+    (selectedReleaseLevels && selectedReleaseLevels.length > 0) ||
     (includePrerelease !== undefined && includePrerelease !== true)
 
   // Render filter content (shared between mobile and desktop)

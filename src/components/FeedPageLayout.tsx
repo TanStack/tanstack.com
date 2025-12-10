@@ -154,7 +154,7 @@ function FeedPageLayoutRoot({
         adminActions,
       }}
     >
-      <div className="flex-1 flex flex-col max-w-full min-h-screen gap-2 sm:gap-4 p-2 sm:p-4 pb-0">
+      <div className="flex-1 flex flex-col max-w-full gap-2 sm:gap-4 relative">
         <div className="flex-1 space-y-2 sm:space-y-4 w-full max-w-7xl mx-auto">
           {children}
         </div>
@@ -208,7 +208,7 @@ function FeedPageLayoutFilters() {
   } = useFeedPageLayout()
 
   return (
-    <aside className="lg:w-64 flex-shrink-0">
+    <aside className="lg:w-64 flex-shrink-0 lg:self-start">
       <FeedFilters
         libraries={libraries}
         partners={partners}
@@ -245,7 +245,7 @@ function FeedPageLayoutContent({ children }: { children?: ReactNode }) {
   } = useFeedPageLayout()
 
   return (
-    <main className="flex-1 min-w-0">
+    <main className="flex-1 min-w-0 relative">
       <FeedList
         query={feedQuery}
         currentPage={currentPage}

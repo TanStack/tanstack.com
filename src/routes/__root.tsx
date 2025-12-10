@@ -216,7 +216,7 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
         ) : null}
         <GamScripts />
       </head>
-      <body>
+      <body className="overflow-x-hidden">
         <ToastProvider>
           <BackgroundGradient />
           <React.Suspense fallback={null}>

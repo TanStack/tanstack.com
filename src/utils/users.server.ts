@@ -3,6 +3,7 @@ import { db } from '~/db/client'
 import { users } from '~/db/schema'
 import { eq, and, or, ilike, sql } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
+import { getBulkEffectiveCapabilities } from './capabilities.server'
 import { z } from 'zod'
 import type { Capability } from '~/db/schema'
 
@@ -40,6 +41,7 @@ export const listUsers = createServerFn({ method: 'POST' })
         noCapabilitiesFilter: z.boolean().optional(),
         adsDisabledFilter: z.boolean().optional(),
         interestedInHidingAdsFilter: z.boolean().optional(),
+        useEffectiveCapabilities: z.boolean().optional().default(true),
       })
       .transform((data) => ({
         ...data,
@@ -59,8 +61,9 @@ export const listUsers = createServerFn({ method: 'POST' })
 
     const limit = data.pagination.limit
     const pageIndex = data.pagination.page ?? 0
+    const useEffectiveCapabilities = data.useEffectiveCapabilities ?? true
 
-    // Build query conditions
+    // Build query conditions (excluding capability filters if using effective capabilities)
     const conditions = []
 
     // Email filter (case-insensitive search)
@@ -79,13 +82,17 @@ export const listUsers = createServerFn({ method: 'POST' })
       )
     }
 
-    // No capabilities filter
-    if (data.noCapabilitiesFilter === true) {
+    // No capabilities filter - only apply if using direct capabilities
+    if (data.noCapabilitiesFilter === true && !useEffectiveCapabilities) {
       conditions.push(sql`array_length(${users.capabilities}, 1) IS NULL`)
     }
 
-    // Capability filter (check if user has any of the specified capabilities)
-    if (data.capabilityFilter && data.capabilityFilter.length > 0) {
+    // Capability filter - only apply SQL filter if using direct capabilities
+    if (
+      data.capabilityFilter &&
+      data.capabilityFilter.length > 0 &&
+      !useEffectiveCapabilities
+    ) {
       // Use PostgreSQL array overlap operator (&&)
       // Check if user's capabilities array overlaps with filter array
       // Format: ARRAY['admin', 'feed']::capability[]
@@ -116,74 +123,171 @@ export const listUsers = createServerFn({ method: 'POST' })
 
     const queryStartTime = Date.now()
 
-    // Get total count (with filters applied) - can be slow, consider removing if not needed
-    const [totalCount] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(users)
-      .where(whereClause)
+    // If filtering by effective capabilities, we need to fetch all matching users first,
+    // then filter by effective capabilities in memory, then paginate
+    let allMatchingUsers: any[] = []
+    let filteredUsers: any[] = []
 
-    const countTime = Date.now() - queryStartTime
+    if (useEffectiveCapabilities && (data.capabilityFilter?.length || data.noCapabilitiesFilter)) {
+      // Fetch all users matching other filters (without pagination)
+      allMatchingUsers = await db
+        .select()
+        .from(users)
+        .where(whereClause)
+        .orderBy(sql`${users.createdAt} DESC`)
 
-    // Get filtered count (same as total when filters are applied)
-    const filteredCount = Number(totalCount.count)
+      // Get effective capabilities for all matching users
+      const userIds = allMatchingUsers.map((u) => u.id)
+      const effectiveCapabilitiesMap =
+        userIds.length > 0
+          ? await getBulkEffectiveCapabilities(userIds)
+          : {}
 
-    // Apply SQL-level pagination (LIMIT/OFFSET)
-    const offset = Math.max(0, pageIndex * limit)
-    const selectStartTime = Date.now()
-    const page = await db
-      .select()
-      .from(users)
-      .where(whereClause)
-      .orderBy(sql`${users.createdAt} DESC`)
-      .limit(limit)
-      .offset(offset)
+      // Filter by effective capabilities
+      filteredUsers = allMatchingUsers.filter((user) => {
+        const effectiveCapabilities = effectiveCapabilitiesMap[user.id] || []
 
-    const selectTime = Date.now() - selectStartTime
-    const totalTime = Date.now() - startTime
+        // No capabilities filter
+        if (data.noCapabilitiesFilter === true) {
+          return effectiveCapabilities.length === 0
+        }
 
-    const hasMore = offset + limit < filteredCount
+        // Capability filter
+        if (data.capabilityFilter && data.capabilityFilter.length > 0) {
+          // Check if effective capabilities overlap with filter
+          return data.capabilityFilter.some((cap) =>
+            effectiveCapabilities.includes(cap),
+          )
+        }
 
-    // Log performance metrics
-    if (totalTime > 1000) {
-      console.warn(`[listUsers] Slow query detected:`, {
-        authTime: `${authTime}ms`,
-        countTime: `${countTime}ms`,
-        selectTime: `${selectTime}ms`,
-        totalTime: `${totalTime}ms`,
-        filters: {
-          emailFilter: !!data.emailFilter,
-          nameFilter: !!data.nameFilter,
-          capabilityFilter: !!data.capabilityFilter,
-          noCapabilitiesFilter: data.noCapabilitiesFilter,
-        },
-        pagination: { limit, pageIndex, offset },
-        resultCount: page.length,
+        return true
       })
-    }
 
-    // Transform to match expected format
-    const transformedPage = page.map((user: any) => ({
-      _id: user.id,
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-      image: user.image,
-      displayUsername: user.displayUsername,
-      capabilities: user.capabilities,
-      adsDisabled: user.adsDisabled,
-      interestedInHidingAds: user.interestedInHidingAds,
-      createdAt: user.createdAt.getTime(),
-      updatedAt: user.updatedAt.getTime(),
-    }))
+      // Apply pagination to filtered results
+      const offset = Math.max(0, pageIndex * limit)
+      const page = filteredUsers.slice(offset, offset + limit)
+      const filteredCount = filteredUsers.length
+      const hasMore = offset + limit < filteredCount
 
-    return {
-      page: transformedPage,
-      isDone: !hasMore,
-      counts: {
-        total: filteredCount,
-        filtered: filteredCount,
-        pages: Math.max(1, Math.ceil(filteredCount / limit)),
-      },
+      const selectTime = Date.now() - queryStartTime
+      const totalTime = Date.now() - startTime
+
+      // Log performance metrics
+      if (totalTime > 1000) {
+        console.warn(`[listUsers] Slow query detected (effective capabilities):`, {
+          authTime: `${authTime}ms`,
+          selectTime: `${selectTime}ms`,
+          totalTime: `${totalTime}ms`,
+          filters: {
+            emailFilter: !!data.emailFilter,
+            nameFilter: !!data.nameFilter,
+            capabilityFilter: !!data.capabilityFilter,
+            noCapabilitiesFilter: data.noCapabilitiesFilter,
+            useEffectiveCapabilities: true,
+          },
+          pagination: { limit, pageIndex, offset },
+          resultCount: page.length,
+          totalMatching: allMatchingUsers.length,
+          filteredCount,
+        })
+      }
+
+      // Transform to match expected format
+      const transformedPage = page.map((user: any) => ({
+        _id: user.id,
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+        displayUsername: user.displayUsername,
+        capabilities: user.capabilities,
+        adsDisabled: user.adsDisabled,
+        interestedInHidingAds: user.interestedInHidingAds,
+        createdAt: user.createdAt.getTime(),
+        updatedAt: user.updatedAt.getTime(),
+      }))
+
+      return {
+        page: transformedPage,
+        isDone: !hasMore,
+        counts: {
+          total: filteredCount,
+          filtered: filteredCount,
+          pages: Math.max(1, Math.ceil(filteredCount / limit)),
+        },
+      }
+    } else {
+      // Standard SQL-based filtering (direct capabilities or no capability filters)
+      // Get total count (with filters applied)
+      const [totalCount] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(whereClause)
+
+      const countTime = Date.now() - queryStartTime
+
+      // Get filtered count (same as total when filters are applied)
+      const filteredCount = Number(totalCount.count)
+
+      // Apply SQL-level pagination (LIMIT/OFFSET)
+      const offset = Math.max(0, pageIndex * limit)
+      const selectStartTime = Date.now()
+      const page = await db
+        .select()
+        .from(users)
+        .where(whereClause)
+        .orderBy(sql`${users.createdAt} DESC`)
+        .limit(limit)
+        .offset(offset)
+
+      const selectTime = Date.now() - selectStartTime
+      const totalTime = Date.now() - startTime
+
+      const hasMore = offset + limit < filteredCount
+
+      // Log performance metrics
+      if (totalTime > 1000) {
+        console.warn(`[listUsers] Slow query detected:`, {
+          authTime: `${authTime}ms`,
+          countTime: `${countTime}ms`,
+          selectTime: `${selectTime}ms`,
+          totalTime: `${totalTime}ms`,
+          filters: {
+            emailFilter: !!data.emailFilter,
+            nameFilter: !!data.nameFilter,
+            capabilityFilter: !!data.capabilityFilter,
+            noCapabilitiesFilter: data.noCapabilitiesFilter,
+            useEffectiveCapabilities: false,
+          },
+          pagination: { limit, pageIndex, offset },
+          resultCount: page.length,
+        })
+      }
+
+      // Transform to match expected format
+      const transformedPage = page.map((user: any) => ({
+        _id: user.id,
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+        displayUsername: user.displayUsername,
+        capabilities: user.capabilities,
+        adsDisabled: user.adsDisabled,
+        interestedInHidingAds: user.interestedInHidingAds,
+        createdAt: user.createdAt.getTime(),
+        updatedAt: user.updatedAt.getTime(),
+      }))
+
+      return {
+        page: transformedPage,
+        isDone: !hasMore,
+        counts: {
+          total: filteredCount,
+          filtered: filteredCount,
+          pages: Math.max(1, Math.ceil(filteredCount / limit)),
+        },
+      }
     }
   })
 

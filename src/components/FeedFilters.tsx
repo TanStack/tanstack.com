@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { LuHelpCircle } from 'react-icons/lu'
+import { LuHelpCircle, LuRotateCcw } from 'react-icons/lu'
 import { useDebouncedValue } from '@tanstack/react-pacer'
 import { Library, type LibraryId } from '~/libraries'
 import { partners } from '~/utils/partners'
@@ -42,8 +42,8 @@ interface FeedFiltersProps {
   featured?: boolean
   search?: string
   facetCounts?: FeedFacetCounts
-  viewMode?: 'table' | 'timeline'
-  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
+  viewMode?: 'table' | 'timeline' | 'columns'
+  onViewModeChange?: (viewMode: 'table' | 'timeline' | 'columns') => void
   onFiltersChange: (filters: {
     sources?: string[]
     libraries?: LibraryId[]
@@ -186,16 +186,17 @@ export function FeedFilters({
     onFiltersChange({ featured: value })
   }
 
-  const hasActiveFilters =
+  const hasActiveFilters = Boolean(
     (selectedSources && selectedSources.length > 0) ||
-    (selectedLibraries && selectedLibraries.length > 0) ||
-    (selectedCategories && selectedCategories.length > 0) ||
-    (selectedPartners && selectedPartners.length > 0) ||
-    (selectedTags && selectedTags.length > 0) ||
-    featured !== undefined ||
-    search ||
-    (selectedReleaseLevels && selectedReleaseLevels.length > 0) ||
-    (includePrerelease !== undefined && includePrerelease !== true)
+      (selectedLibraries && selectedLibraries.length > 0) ||
+      (selectedCategories && selectedCategories.length > 0) ||
+      (selectedPartners && selectedPartners.length > 0) ||
+      (selectedTags && selectedTags.length > 0) ||
+      featured !== undefined ||
+      search ||
+      (selectedReleaseLevels && selectedReleaseLevels.length > 0) ||
+      (includePrerelease !== undefined && includePrerelease !== true),
+  )
 
   // Render filter content (shared between mobile and desktop)
   const renderFilterContent = () => (
@@ -252,42 +253,44 @@ export function FeedFilters({
         />
       </FilterSection>
 
-      {/* Sources */}
-      <FilterSection
-        title="Sources"
-        sectionKey="sources"
-        onSelectAll={() => {
-          onFiltersChange({ sources: [...SOURCES] })
-        }}
-        onSelectNone={() => {
-          onFiltersChange({ sources: undefined })
-        }}
-        isAllSelected={
-          selectedSources !== undefined &&
-          selectedSources.length === SOURCES.length
-        }
-        isSomeSelected={
-          selectedSources !== undefined &&
-          selectedSources.length > 0 &&
-          selectedSources.length < SOURCES.length
-        }
-        expandedSections={expandedSections}
-        onToggleSection={toggleSection}
-      >
-        {SOURCES.map((source) => {
-          const count = facetCounts?.sources?.[source]
-          return (
-            <FilterCheckbox
-              key={source}
-              label={source}
-              checked={selectedSources?.includes(source) ?? false}
-              onChange={() => toggleSource(source)}
-              count={count}
-              capitalize
-            />
-          )
-        })}
-      </FilterSection>
+      {/* Sources - Hidden in columns mode */}
+      {viewMode !== 'columns' && (
+        <FilterSection
+          title="Sources"
+          sectionKey="sources"
+          onSelectAll={() => {
+            onFiltersChange({ sources: [...SOURCES] })
+          }}
+          onSelectNone={() => {
+            onFiltersChange({ sources: undefined })
+          }}
+          isAllSelected={
+            selectedSources !== undefined &&
+            selectedSources.length === SOURCES.length
+          }
+          isSomeSelected={
+            selectedSources !== undefined &&
+            selectedSources.length > 0 &&
+            selectedSources.length < SOURCES.length
+          }
+          expandedSections={expandedSections}
+          onToggleSection={toggleSection}
+        >
+          {SOURCES.map((source) => {
+            const count = facetCounts?.sources?.[source]
+            return (
+              <FilterCheckbox
+                key={source}
+                label={source}
+                checked={selectedSources?.includes(source) ?? false}
+                onChange={() => toggleSource(source)}
+                count={count}
+                capitalize
+              />
+            )
+          })}
+        </FilterSection>
+      )}
 
       {/* Categories */}
       <FilterSection
@@ -449,23 +452,14 @@ export function FeedFilters({
     </>
   )
 
-  const desktopHeader = onViewModeChange && (
+  const desktopHeader = (
     <div className="flex items-center gap-2">
-      <Tooltip
-        content={
-          <div className="max-w-xs">
-            <div className="font-semibold mb-1">Feed</div>
-            <div className="text-gray-300">
-              Stay up to date with all TanStack updates, releases,
-              announcements, and blog posts
-            </div>
-          </div>
-        }
-        placement="right"
-      >
-        <LuHelpCircle className="w-4 h-4 text-gray-400 dark:text-gray-500 cursor-help" />
-      </Tooltip>
-      <ViewModeToggle viewMode={viewMode} onViewModeChange={onViewModeChange} />
+      {onViewModeChange && (
+        <ViewModeToggle
+          viewMode={viewMode}
+          onViewModeChange={onViewModeChange}
+        />
+      )}
     </div>
   )
 
@@ -476,7 +470,21 @@ export function FeedFilters({
       hasActiveFilters={hasActiveFilters}
       mobileControls={mobileControls}
       desktopHeader={desktopHeader}
+      viewMode={viewMode}
     >
+      {/* Reset Filters Button */}
+      {hasActiveFilters && (
+        <div className="mb-2">
+          <button
+            onClick={onClearFilters}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
+          >
+            <LuRotateCcw className="w-3.5 h-3.5" />
+            <span>Reset Filters</span>
+          </button>
+        </div>
+      )}
+
       {/* Search - Desktop */}
       <div
         className={`mb-2 lg:block hidden ${

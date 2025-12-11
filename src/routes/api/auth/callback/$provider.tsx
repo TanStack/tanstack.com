@@ -18,21 +18,13 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           const state = url.searchParams.get('state')
           const error = url.searchParams.get('error')
 
-          console.log('[OAuth Callback] Initial state:', {
-            provider,
-            hasCode: !!code,
-            hasState: !!state,
-            error,
-            url: request.url,
-          })
-
           if (error) {
-            console.error('[OAuth Callback] OAuth error:', error)
+            console.error('[OAuth Callback] OAuth error received')
             return Response.redirect(new URL('/login', request.url), 302)
           }
 
           if (!code || !state) {
-            console.error('[OAuth Callback] Missing code or state:', { code: !!code, state: !!state })
+            console.error('[OAuth Callback] Missing code or state')
             return Response.redirect(new URL('/login', request.url), 302)
           }
 
@@ -56,8 +48,6 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
 
           // Clear state cookie (one-time use)
           const clearStateCookie = `oauth_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
-
-          console.log('[OAuth Callback] State validation result: valid')
 
         // Exchange code for access token
         // Use SITE_URL env var if set, otherwise fall back to request origin
@@ -97,12 +87,8 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           )
 
           const tokenData = await tokenResponse.json()
-          console.log('[OAuth Callback] GitHub token response:', {
-            hasError: !!tokenData.error,
-            error: tokenData.error,
-            hasAccessToken: !!tokenData.access_token,
-          })
           if (tokenData.error) {
+            console.error('[OAuth Callback] GitHub OAuth error received')
             throw new Error(`GitHub OAuth error: ${tokenData.error}`)
           }
           accessToken = tokenData.access_token
@@ -144,13 +130,6 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
             name: profile.name || profile.login,
             image: profile.avatar_url,
           }
-          
-          console.log('[OAuth Callback] GitHub user profile:', {
-            id: userProfile.id,
-            email: userProfile.email,
-            name: userProfile.name,
-            hasImage: !!userProfile.image,
-          })
         } else {
           // Google
           const clientId = env.GOOGLE_OAUTH_CLIENT_ID
@@ -175,12 +154,8 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           })
 
           const tokenData = await tokenResponse.json()
-          console.log('[OAuth Callback] Google token response:', {
-            hasError: !!tokenData.error,
-            error: tokenData.error,
-            hasAccessToken: !!tokenData.access_token,
-          })
           if (tokenData.error) {
+            console.error('[OAuth Callback] Google OAuth error received')
             throw new Error(`Google OAuth error: ${tokenData.error}`)
           }
           accessToken = tokenData.access_token
@@ -207,22 +182,10 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
             name: profile.name,
             image: profile.picture,
           }
-          
-          console.log('[OAuth Callback] Google user profile:', {
-            id: userProfile.id,
-            email: userProfile.email,
-            name: userProfile.name,
-            hasImage: !!userProfile.image,
-          })
         }
 
         // Upsert user and OAuth account
         const result = await upsertOAuthAccount(provider, userProfile)
-
-        console.log('[OAuth Callback] OAuth account upsert result:', {
-          userId: result.userId,
-          hasUserId: !!result.userId,
-        })
 
         // Get user to access sessionVersion
         const user = await db.query.users.findFirst({
@@ -241,23 +204,12 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           version: user.sessionVersion,
         })
 
-        console.log('[OAuth Callback] Signed cookie created:', {
-          hasCookie: !!signedCookie,
-          cookieLength: signedCookie.length,
-        })
-
         // Set session cookie (30 days, HTTP-only, Secure in prod)
         // Note: Domain is omitted to allow cookie to work on localhost and production
         // URL-encode the cookie value to handle any special characters
         const sessionCookie = `session_token=${encodeURIComponent(signedCookie)}; HttpOnly; Path=/; Max-Age=${
           30 * 24 * 60 * 60
         }; SameSite=Lax${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
-
-        console.log('[OAuth Callback] Setting cookie:', {
-          hasCookie: !!signedCookie,
-          cookieLength: sessionCookie.length,
-          cookiePreview: sessionCookie.substring(0, 100),
-        })
         
         // Return Response with Set-Cookie headers and redirect
         // Clear state cookie and set session cookie
@@ -272,8 +224,7 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           headers,
         })
         } catch (err) {
-          console.error('[API OAuth Callback] Error:', err)
-          console.error('[API OAuth Callback] Error stack:', err instanceof Error ? err.stack : 'No stack')
+          console.error('[API OAuth Callback] Error:', err instanceof Error ? err.message : 'Unknown error')
           return Response.redirect(new URL('/login?error=oauth_failed', request.url), 302)
         }
       },

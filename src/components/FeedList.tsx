@@ -2,8 +2,10 @@ import * as React from 'react'
 import { UseQueryResult } from '@tanstack/react-query'
 import { FeedEntry } from '~/components/FeedEntry'
 import { FeedEntryTimeline } from '~/components/FeedEntryTimeline'
+import { FeedListColumns } from '~/components/FeedListColumns'
 import { FaSpinner } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
+import type { FeedFilters } from '~/queries/feed'
 import {
   Table,
   TableHeader,
@@ -13,7 +15,7 @@ import {
 } from '~/components/TableComponents'
 
 interface FeedListProps {
-  query: UseQueryResult<{
+  query?: UseQueryResult<{
     page: FeedEntry[]
     isDone: boolean
     counts: {
@@ -21,13 +23,16 @@ interface FeedListProps {
       pages: number
     }
   }>
+  filters?: Omit<FeedFilters, 'sources'>
   currentPage: number
   pageSize: number
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
-  viewMode?: 'table' | 'timeline'
+  viewMode?: 'table' | 'timeline' | 'columns'
   expandedIds?: string[]
   onExpandedChange?: (expandedIds: string[]) => void
+  onViewModeChange?: (viewMode: 'table' | 'timeline' | 'columns') => void
+  onFiltersChange?: (filters: { sources?: string[] }) => void
   adminActions?: {
     onEdit?: (entry: FeedEntry) => void
     onToggleVisibility?: (entry: FeedEntry, isVisible: boolean) => void
@@ -38,6 +43,7 @@ interface FeedListProps {
 
 export function FeedList({
   query,
+  filters,
   currentPage,
   pageSize,
   onPageChange,
@@ -45,8 +51,43 @@ export function FeedList({
   viewMode = 'table',
   expandedIds,
   onExpandedChange,
+  onViewModeChange,
+  onFiltersChange,
   adminActions,
 }: FeedListProps) {
+  // Columns mode doesn't need the main query - columns handle their own queries
+  if (viewMode === 'columns') {
+    if (!filters) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-gray-600 dark:text-gray-400">Loading columns...</p>
+        </div>
+      )
+    }
+    return (
+      <FeedListColumns
+        filters={filters}
+        pageSize={pageSize}
+        expandedIds={expandedIds}
+        onExpandedChange={onExpandedChange}
+        onViewModeChange={onViewModeChange}
+        onFiltersChange={onFiltersChange}
+        adminActions={adminActions}
+      />
+    )
+  }
+
+  // Table and timeline modes need the query
+  if (!query) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-600 dark:text-gray-400">
+          Loading feed entries...
+        </p>
+      </div>
+    )
+  }
+
   if (query.isLoading) {
     return (
       <div className="flex items-center justify-center py-12">

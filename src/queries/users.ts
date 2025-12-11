@@ -13,6 +13,7 @@ export interface ListUsersFilters {
   noCapabilitiesFilter?: boolean
   adsDisabledFilter?: boolean
   interestedInHidingAdsFilter?: boolean
+  useEffectiveCapabilities?: boolean
 }
 
 export const listUsersQueryOptions = (filters: ListUsersFilters) =>

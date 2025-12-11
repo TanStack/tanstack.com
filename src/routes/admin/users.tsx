@@ -172,6 +172,7 @@ export const Route = createFileRoute('/admin/users')({
     waitlist: z.enum(['all', 'true', 'false']).optional(),
     page: z.number().int().nonnegative().optional(),
     pageSize: z.number().int().positive().optional(),
+    useEffectiveCapabilities: z.boolean().optional().default(true),
   }),
 })
 
@@ -208,6 +209,7 @@ function UsersPage() {
   const noCapabilitiesFilter = search.noCapabilities ?? false
   const adsDisabledFilter = search.ads ?? 'all'
   const waitlistFilter = search.waitlist ?? 'all'
+  const useEffectiveCapabilities = search.useEffectiveCapabilities ?? true
 
   const hasActiveFilters =
     emailFilter !== '' ||
@@ -229,6 +231,35 @@ function UsersPage() {
 
   const renderFilterContent = () => (
     <>
+      {/* Capability Filter Mode Toggle */}
+      <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <label className="flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={useEffectiveCapabilities}
+            onChange={(e) => {
+              navigate({
+                resetScroll: false,
+                search: (prev) => ({
+                  ...prev,
+                  useEffectiveCapabilities: e.target.checked,
+                  page: 0,
+                }),
+              })
+            }}
+            className="mr-2 h-4 w-4 accent-blue-600"
+          />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Filter by effective capabilities
+          </span>
+        </label>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
+          {useEffectiveCapabilities
+            ? 'Includes capabilities from roles'
+            : 'Direct capabilities only'}
+        </p>
+      </div>
+
       {/* Email Filter */}
       <div className="mb-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -273,7 +304,11 @@ function UsersPage() {
 
       {/* Capabilities Filter */}
       <FilterSection
-        title="Capabilities"
+        title={
+          useEffectiveCapabilities
+            ? 'Capabilities (Effective)'
+            : 'Capabilities (Direct)'
+        }
         sectionKey="capabilities"
         onSelectAll={() => {
           navigate({
@@ -410,6 +445,7 @@ function UsersPage() {
         adsDisabledFilter === 'all' ? undefined : adsDisabledFilter === 'true',
       interestedInHidingAdsFilter:
         waitlistFilter === 'all' ? undefined : waitlistFilter === 'true',
+      useEffectiveCapabilities,
     }),
     placeholderData: keepPreviousData,
   })
@@ -497,7 +533,10 @@ function UsersPage() {
       setEditingUserId(null)
       setEditingRoleIds([])
     } catch (error) {
-      console.error('Failed to update user:', error)
+      console.error(
+        'Failed to update user:',
+        error instanceof Error ? error.message : 'Unknown error',
+      )
       alert(error instanceof Error ? error.message : 'Failed to update user')
     }
   }, [
@@ -571,7 +610,10 @@ function UsersPage() {
       setSelectedUserIds(new Set())
       setBulkActionRoleId(null)
     } catch (error) {
-      console.error('Failed to assign role to users:', error)
+      console.error(
+        'Failed to assign role to users:',
+        error instanceof Error ? error.message : 'Unknown error',
+      )
       alert(error instanceof Error ? error.message : 'Failed to assign role')
     }
   }, [selectedUserIds, bulkActionRoleId, bulkAssignRolesToUsers])
@@ -595,7 +637,10 @@ function UsersPage() {
         })
         setSelectedUserIds(new Set())
       } catch (error) {
-        console.error('Failed to update user capabilities:', error)
+        console.error(
+          'Failed to update user capabilities:',
+          error instanceof Error ? error.message : 'Unknown error',
+        )
         alert(
           error instanceof Error
             ? error.message

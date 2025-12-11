@@ -498,19 +498,26 @@ async function fetchNpmPackageDownloadsChunked(
     }
 
     if (cachedChunk) {
-      // Use cached data
-      console.log(
-        `[NPM Stats] ${packageName} chunk ${chunk.from}:${
-          chunk.to
-        }: using cache (${cachedChunk.totalDownloads.toLocaleString()} downloads, ${
-          cachedChunk.isImmutable ? 'immutable' : 'mutable'
-        })`,
-      )
-      totalDownloadCount += cachedChunk.totalDownloads
-      if (cachedChunk.dailyData.length > 0) {
-        lastChunkData = cachedChunk.dailyData
+      // For mutable chunks, always fetch fresh data from npm API
+      // Immutable chunks can use cache since they won't change
+      if (!cachedChunk.isImmutable) {
+        console.log(
+          `[NPM Stats] ${packageName} chunk ${chunk.from}:${chunk.to}: mutable chunk, fetching fresh data from npm API`,
+        )
+        // Fall through to fetch from API
+      } else {
+        // Use cached immutable data
+        console.log(
+          `[NPM Stats] ${packageName} chunk ${chunk.from}:${
+            chunk.to
+          }: using cache (${cachedChunk.totalDownloads.toLocaleString()} downloads, immutable)`,
+        )
+        totalDownloadCount += cachedChunk.totalDownloads
+        if (cachedChunk.dailyData.length > 0) {
+          lastChunkData = cachedChunk.dailyData
+        }
+        continue // Skip to next chunk
       }
-      continue // Skip to next chunk
     }
 
     // Not in cache - fetch from NPM API

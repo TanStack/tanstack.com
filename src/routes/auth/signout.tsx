@@ -18,7 +18,10 @@ export const Route = createFileRoute('/auth/signout')({
               await revokeUserSessions({ data: { userId: cookieData.userId } })
             } catch (error) {
               // Log but don't fail if revocation fails
-              console.error('Failed to revoke sessions:', error)
+              console.error(
+                'Failed to revoke sessions:',
+                error instanceof Error ? error.message : 'Unknown error',
+              )
             }
           }
         }

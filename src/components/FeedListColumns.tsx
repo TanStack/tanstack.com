@@ -31,9 +31,7 @@ export function FeedListColumns({
   adminActions,
 }: FeedListColumnsProps) {
   return (
-    <div
-      className="min-w-0 overflow-x-auto -mx-2 pl-2 flex-1 flex gap-2 min-h-0"
-    >
+    <div className="min-w-0 overflow-x-auto -mx-2 pl-2 flex-1 flex gap-2 min-h-0">
       {KNOWN_SOURCES.map((source) => (
         <FeedColumn
           key={source}

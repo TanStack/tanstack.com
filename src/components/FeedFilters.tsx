@@ -188,14 +188,14 @@ export function FeedFilters({
 
   const hasActiveFilters = Boolean(
     (selectedSources && selectedSources.length > 0) ||
-      (selectedLibraries && selectedLibraries.length > 0) ||
-      (selectedCategories && selectedCategories.length > 0) ||
-      (selectedPartners && selectedPartners.length > 0) ||
-      (selectedTags && selectedTags.length > 0) ||
-      featured !== undefined ||
-      search ||
-      (selectedReleaseLevels && selectedReleaseLevels.length > 0) ||
-      (includePrerelease !== undefined && includePrerelease !== true),
+    (selectedLibraries && selectedLibraries.length > 0) ||
+    (selectedCategories && selectedCategories.length > 0) ||
+    (selectedPartners && selectedPartners.length > 0) ||
+    (selectedTags && selectedTags.length > 0) ||
+    featured !== undefined ||
+    search ||
+    (selectedReleaseLevels && selectedReleaseLevels.length > 0) ||
+    (includePrerelease !== undefined && includePrerelease !== true),
   )
 
   // Render filter content (shared between mobile and desktop)

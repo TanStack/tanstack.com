@@ -533,7 +533,10 @@ function UsersPage() {
       setEditingUserId(null)
       setEditingRoleIds([])
     } catch (error) {
-      console.error('Failed to update user:', error instanceof Error ? error.message : 'Unknown error')
+      console.error(
+        'Failed to update user:',
+        error instanceof Error ? error.message : 'Unknown error',
+      )
       alert(error instanceof Error ? error.message : 'Failed to update user')
     }
   }, [
@@ -607,7 +610,10 @@ function UsersPage() {
       setSelectedUserIds(new Set())
       setBulkActionRoleId(null)
     } catch (error) {
-      console.error('Failed to assign role to users:', error instanceof Error ? error.message : 'Unknown error')
+      console.error(
+        'Failed to assign role to users:',
+        error instanceof Error ? error.message : 'Unknown error',
+      )
       alert(error instanceof Error ? error.message : 'Failed to assign role')
     }
   }, [selectedUserIds, bulkActionRoleId, bulkAssignRolesToUsers])
@@ -631,7 +637,10 @@ function UsersPage() {
         })
         setSelectedUserIds(new Set())
       } catch (error) {
-        console.error('Failed to update user capabilities:', error instanceof Error ? error.message : 'Unknown error')
+        console.error(
+          'Failed to update user capabilities:',
+          error instanceof Error ? error.message : 'Unknown error',
+        )
         alert(
           error instanceof Error
             ? error.message

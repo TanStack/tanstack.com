@@ -128,7 +128,10 @@ export const listUsers = createServerFn({ method: 'POST' })
     let allMatchingUsers: any[] = []
     let filteredUsers: any[] = []
 
-    if (useEffectiveCapabilities && (data.capabilityFilter?.length || data.noCapabilitiesFilter)) {
+    if (
+      useEffectiveCapabilities &&
+      (data.capabilityFilter?.length || data.noCapabilitiesFilter)
+    ) {
       // Fetch all users matching other filters (without pagination)
       allMatchingUsers = await db
         .select()
@@ -139,9 +142,7 @@ export const listUsers = createServerFn({ method: 'POST' })
       // Get effective capabilities for all matching users
       const userIds = allMatchingUsers.map((u) => u.id)
       const effectiveCapabilitiesMap =
-        userIds.length > 0
-          ? await getBulkEffectiveCapabilities(userIds)
-          : {}
+        userIds.length > 0 ? await getBulkEffectiveCapabilities(userIds) : {}
 
       // Filter by effective capabilities
       filteredUsers = allMatchingUsers.filter((user) => {
@@ -174,22 +175,25 @@ export const listUsers = createServerFn({ method: 'POST' })
 
       // Log performance metrics
       if (totalTime > 1000) {
-        console.warn(`[listUsers] Slow query detected (effective capabilities):`, {
-          authTime: `${authTime}ms`,
-          selectTime: `${selectTime}ms`,
-          totalTime: `${totalTime}ms`,
-          filters: {
-            emailFilter: !!data.emailFilter,
-            nameFilter: !!data.nameFilter,
-            capabilityFilter: !!data.capabilityFilter,
-            noCapabilitiesFilter: data.noCapabilitiesFilter,
-            useEffectiveCapabilities: true,
+        console.warn(
+          `[listUsers] Slow query detected (effective capabilities):`,
+          {
+            authTime: `${authTime}ms`,
+            selectTime: `${selectTime}ms`,
+            totalTime: `${totalTime}ms`,
+            filters: {
+              emailFilter: !!data.emailFilter,
+              nameFilter: !!data.nameFilter,
+              capabilityFilter: !!data.capabilityFilter,
+              noCapabilitiesFilter: data.noCapabilitiesFilter,
+              useEffectiveCapabilities: true,
+            },
+            pagination: { limit, pageIndex, offset },
+            resultCount: page.length,
+            totalMatching: allMatchingUsers.length,
+            filteredCount,
           },
-          pagination: { limit, pageIndex, offset },
-          resultCount: page.length,
-          totalMatching: allMatchingUsers.length,
-          filteredCount,
-        })
+        )
       }
 
       // Transform to match expected format

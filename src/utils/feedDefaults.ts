@@ -19,4 +19,3 @@ export const FEED_DEFAULTS = {
   pageSize: 50,
   viewMode: 'table' as const,
 } as const
-

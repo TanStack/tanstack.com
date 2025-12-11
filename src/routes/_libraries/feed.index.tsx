@@ -6,6 +6,7 @@ import { listFeedEntriesQueryOptions } from '~/queries/feed'
 import { libraries, type LibraryId } from '~/libraries'
 import { FEED_CATEGORIES, RELEASE_LEVELS } from '~/utils/feedSchema'
 import { FEED_DEFAULTS } from '~/utils/feedDefaults'
+import { twMerge } from 'tailwind-merge'
 
 // Create zod enums from single source of truth
 const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
@@ -13,7 +14,7 @@ const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
 const categorySchema = z.enum(FEED_CATEGORIES)
 const releaseLevelSchema = z.enum(RELEASE_LEVELS)
 const viewModeSchema = z
-  .enum(['table', 'timeline'])
+  .enum(['table', 'timeline', 'columns'])
   .optional()
   .default('table')
   .catch('table')
@@ -32,8 +33,18 @@ export const Route = createFileRoute('/_libraries/feed/')({
         includePrerelease: z.boolean().optional().catch(undefined),
         featured: z.boolean().optional().catch(undefined),
         search: z.string().optional().catch(undefined),
-        page: z.number().optional().default(FEED_DEFAULTS.page).catch(FEED_DEFAULTS.page),
-        pageSize: z.number().int().positive().optional().default(FEED_DEFAULTS.pageSize).catch(FEED_DEFAULTS.pageSize),
+        page: z
+          .number()
+          .optional()
+          .default(FEED_DEFAULTS.page)
+          .catch(FEED_DEFAULTS.page),
+        pageSize: z
+          .number()
+          .int()
+          .positive()
+          .optional()
+          .default(FEED_DEFAULTS.pageSize)
+          .catch(FEED_DEFAULTS.pageSize),
         viewMode: viewModeSchema,
         expanded: z.array(z.string()).optional().catch(undefined),
       })
@@ -98,17 +109,15 @@ function FeedPage() {
   const navigate = Route.useNavigate()
 
   return (
-    <div className="p-2 sm:p-4 pb-0">
-      <FeedPageComponent
-        search={search}
-        onNavigate={(updates) => {
-          navigate({
-            search: (s) => ({ ...s, ...updates.search }),
-            replace: updates.replace ?? true,
-            resetScroll: updates.resetScroll ?? false,
-          })
-        }}
-      />
-    </div>
+    <FeedPageComponent
+      search={search}
+      onNavigate={(updates) => {
+        navigate({
+          search: (s) => ({ ...s, ...updates.search }),
+          replace: updates.replace ?? true,
+          resetScroll: updates.resetScroll ?? false,
+        })
+      }}
+    />
   )
 }

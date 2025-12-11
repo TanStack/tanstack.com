@@ -1,8 +1,10 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { MdExpandMore } from 'react-icons/md'
-import { LuTable, LuList } from 'react-icons/lu'
+import { LuTable, LuList, LuColumns } from 'react-icons/lu'
+import { LuRotateCcw } from 'react-icons/lu'
 import { useDebouncedValue } from '@tanstack/react-pacer'
+import { twMerge } from 'tailwind-merge'
 
 // FilterSection - Collapsible section with select all/none
 interface FilterSectionProps {
@@ -67,17 +69,19 @@ export function FilterSection({
         >
           <span>{title}</span>
           <MdExpandMore
-            className={`w-3.5 h-3.5 transition-transform ${
-              isExpanded ? '' : 'rotate-90'
-            }`}
+            className={twMerge(
+              'w-3.5 h-3.5 transition-transform',
+              !isExpanded && 'rotate-90',
+            )}
           />
         </button>
       </div>
       {isExpanded && (
         <div
-          className={`mt-1 space-y-0.5 ${
-            onSelectAll || onSelectNone ? 'pl-4' : 'pl-[1.375rem]'
-          }`}
+          className={twMerge(
+            'mt-1 space-y-0.5',
+            onSelectAll || onSelectNone ? 'pl-4' : 'pl-[1.375rem]',
+          )}
         >
           {children}
         </div>
@@ -161,7 +165,10 @@ export function FilterSearch({
       placeholder={placeholder}
       value={inputValue}
       onChange={(e) => setInputValue(e.target.value)}
-      className={`px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+      className={twMerge(
+        'px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500',
+        className,
+      )}
     />
   )
 }
@@ -174,6 +181,7 @@ interface FilterBarProps {
   hasActiveFilters?: boolean
   mobileControls?: React.ReactNode
   desktopHeader?: React.ReactNode
+  viewMode?: 'table' | 'timeline' | 'columns'
 }
 
 export function FilterBar({
@@ -183,6 +191,7 @@ export function FilterBar({
   hasActiveFilters,
   mobileControls,
   desktopHeader,
+  viewMode,
 }: FilterBarProps) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -200,9 +209,10 @@ export function FilterBar({
                 {title}
               </span>
               <MdExpandMore
-                className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform flex-shrink-0 ${
-                  isOpen ? '' : 'rotate-90'
-                }`}
+                className={twMerge(
+                  'w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform flex-shrink-0',
+                  !isOpen && 'rotate-90',
+                )}
               />
             </div>
             {mobileControls && (
@@ -221,27 +231,20 @@ export function FilterBar({
 
       {/* Desktop: Always visible */}
       <div
-        className="hidden lg:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 sticky overflow-y-auto"
+        className={twMerge(
+          'hidden lg:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 overflow-y-auto',
+          viewMode !== 'columns' && 'sticky',
+        )}
         style={{
-          top: 'calc(var(--navbar-height, 0px) + 1rem)',
-          height: 'calc(100vh - var(--navbar-height, 0px) - 2rem)',
-          maxHeight: 'calc(100vh - var(--navbar-height, 0px) - 2rem)',
+          ...(viewMode !== 'columns' && {
+            top: 'calc(var(--navbar-height, 0px) + 1rem)',
+            height: 'calc(100vh - var(--navbar-height, 0px) - 2rem)',
+            maxHeight: 'calc(100vh - var(--navbar-height, 0px) - 2rem)',
+          }),
         }}
       >
         {/* Header */}
-        {(desktopHeader || onClearFilters) && (
-          <div className="flex items-center justify-between mb-2">
-            {desktopHeader}
-            {hasActiveFilters && onClearFilters && (
-              <button
-                onClick={onClearFilters}
-                className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-              >
-                Reset
-              </button>
-            )}
-          </div>
-        )}
+        {desktopHeader && <div className="mb-2">{desktopHeader}</div>}
 
         {children}
       </div>
@@ -249,10 +252,10 @@ export function FilterBar({
   )
 }
 
-// ViewModeToggle - View mode toggle buttons (table/timeline)
+// ViewModeToggle - View mode toggle buttons (table/timeline/columns)
 interface ViewModeToggleProps {
-  viewMode: 'table' | 'timeline'
-  onViewModeChange: (viewMode: 'table' | 'timeline') => void
+  viewMode: 'table' | 'timeline' | 'columns'
+  onViewModeChange: (viewMode: 'table' | 'timeline' | 'columns') => void
   compact?: boolean
 }
 
@@ -261,67 +264,80 @@ export function ViewModeToggle({
   onViewModeChange,
   compact = false,
 }: ViewModeToggleProps) {
+  const baseButtonClasses =
+    'flex items-center px-1.5 py-1 rounded-md transition-colors'
+  const activeButtonClasses =
+    'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100'
+  const inactiveButtonClasses =
+    'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-600/50'
+
+  const compactViewModes = [
+    { mode: 'table' as const, icon: LuTable, title: 'Table view' },
+    { mode: 'timeline' as const, icon: LuList, title: 'Timeline view' },
+    { mode: 'columns' as const, icon: LuColumns, title: 'Columns view' },
+  ]
+
   if (compact) {
     return (
       <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 flex-shrink-0">
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onViewModeChange('table')
-          }}
-          className={
-            viewMode === 'table'
-              ? 'flex items-center px-1.5 py-1 rounded-md bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 transition-colors'
-              : 'flex items-center px-1.5 py-1 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-600/50 transition-colors'
-          }
-          title="Table view"
-        >
-          <LuTable className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onViewModeChange('timeline')
-          }}
-          className={
-            viewMode === 'timeline'
-              ? 'flex items-center px-1.5 py-1 rounded-md bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 transition-colors'
-              : 'flex items-center px-1.5 py-1 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-600/50 transition-colors'
-          }
-          title="Timeline view"
-        >
-          <LuList className="w-3.5 h-3.5" />
-        </button>
+        {compactViewModes.map(({ mode, icon: Icon, title }) => (
+          <button
+            key={mode}
+            onClick={(e) => {
+              e.stopPropagation()
+              onViewModeChange(mode)
+            }}
+            className={twMerge(
+              baseButtonClasses,
+              viewMode === mode ? activeButtonClasses : inactiveButtonClasses,
+            )}
+            title={title}
+          >
+            <Icon className="w-3.5 h-3.5" />
+          </button>
+        ))}
       </div>
     )
   }
 
+  const viewModes = [
+    {
+      mode: 'table' as const,
+      icon: LuTable,
+      label: 'Table',
+      title: 'Table view',
+    },
+    {
+      mode: 'timeline' as const,
+      icon: LuList,
+      label: 'Timeline',
+      title: 'Timeline view',
+    },
+    {
+      mode: 'columns' as const,
+      icon: LuColumns,
+      label: 'Columns',
+      title: 'Columns view',
+    },
+  ]
+
   return (
-    <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
-      <button
-        onClick={() => onViewModeChange('table')}
-        className={
-          viewMode === 'table'
-            ? 'flex items-center gap-1 px-1.5 py-1 rounded-md bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 transition-colors'
-            : 'flex items-center gap-1 px-1.5 py-1 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-600/50 transition-colors'
-        }
-        title="Table view"
-      >
-        <LuTable className="w-3.5 h-3.5" />
-        <span className="text-xs font-medium">Table</span>
-      </button>
-      <button
-        onClick={() => onViewModeChange('timeline')}
-        className={
-          viewMode === 'timeline'
-            ? 'flex items-center gap-1 px-1.5 py-1 rounded-md bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 transition-colors'
-            : 'flex items-center gap-1 px-1.5 py-1 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-600/50 transition-colors'
-        }
-        title="Timeline view"
-      >
-        <LuList className="w-3.5 h-3.5" />
-        <span className="text-xs font-medium">Timeline</span>
-      </button>
+    <div className="flex items-stretch w-full gap-0.5 bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
+      {viewModes.map(({ mode, icon: Icon, label, title }) => (
+        <button
+          key={mode}
+          onClick={() => onViewModeChange(mode)}
+          className={twMerge(
+            baseButtonClasses,
+            'flex-1 flex-col gap-1',
+            viewMode === mode ? activeButtonClasses : inactiveButtonClasses,
+          )}
+          title={title}
+        >
+          <Icon className="w-3.5 h-3.5" />
+          <span className="text-xs font-medium">{label}</span>
+        </button>
+      ))}
     </div>
   )
 }

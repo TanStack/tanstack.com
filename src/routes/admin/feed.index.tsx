@@ -20,14 +20,14 @@ const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
 const categorySchema = z.enum(FEED_CATEGORIES)
 const releaseLevelSchema = z.enum(RELEASE_LEVELS)
 const viewModeSchema = z
-  .enum(['table', 'timeline'])
+  .enum(['table', 'timeline', 'columns'])
   .optional()
   .default('table')
   .catch('table')
 
 export const Route = createFileRoute('/admin/feed/')({
   component: FeedAdminPage,
-  validateSearch: (search) => {
+  validateSearch: (search: Record<string, unknown>) => {
     const hasReleaseLevels = 'releaseLevels' in search
     const releaseLevelsValue = search.releaseLevels
 
@@ -136,18 +136,31 @@ function FeedAdminPage() {
   }
 
   return (
-    <div className="flex-1 min-w-0 flex flex-col gap-4 p-2 sm:p-4 pb-0 min-h-0">
-      <FeedSyncStatus
-        onSyncComplete={() => {
-          feedQuery.refetch()
-        }}
-      />
+    <div className="flex-1 min-w-0 flex flex-col gap-4 pt-4 pb-0 min-h-0">
+      <div className="px-2 sm:px-4 flex items-center justify-between">
+        <h1 className="text-3xl font-black">Feed Admin</h1>
+        <Link
+          to="/admin/feed/$id"
+          params={{ id: 'new' }}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
+        >
+          <FaPlus />
+          Create Entry
+        </Link>
+      </div>
+      <div className="px-2 sm:px-4">
+        <FeedSyncStatus
+          onSyncComplete={() => {
+            feedQuery.refetch()
+          }}
+        />
+      </div>
       <div className="flex-1 min-h-0 relative">
         <FeedPageComponent
           search={search}
           onNavigate={(updates) => {
             navigate({
-              search: (s) => ({ ...s, ...updates.search }),
+              search: (s: typeof search) => ({ ...s, ...updates.search }),
               replace: updates.replace ?? true,
               resetScroll: updates.resetScroll ?? false,
             })
@@ -159,18 +172,6 @@ function FeedAdminPage() {
             onToggleFeatured: handleToggleFeatured,
             onDelete: handleDelete,
           }}
-          headerTitle="Feed Admin"
-          headerActions={
-            <Link
-              to="/admin/feed/$id"
-              params={{ id: 'new' }}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-            >
-              <FaPlus />
-              Create Entry
-            </Link>
-          }
-          showFooter={false}
         />
       </div>
     </div>

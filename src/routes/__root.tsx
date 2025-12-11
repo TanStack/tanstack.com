@@ -84,32 +84,11 @@ export const Route = createRootRouteWithContext<{
       { rel: 'icon', href: '/favicon.ico' },
       {
         rel: 'preload',
-        href: '/fonts/inter-v19-latin-regular.woff2',
+        href: '/fonts/Inter.woff2',
         as: 'font',
         type: 'font/woff2',
         crossOrigin: '',
-      },
-      {
-        rel: 'preload',
-        href: '/fonts/inter-v19-latin-700.woff2',
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: '',
-      },
-      {
-        rel: 'preload',
-        href: '/fonts/inter-v19-latin-800.woff2',
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: '',
-      },
-      {
-        rel: 'preload',
-        href: '/fonts/inter-v19-latin-900.woff2',
-        as: 'font',
-        type: 'font/woff2',
-        crossOrigin: '',
-      },
+      }
     ],
     scripts: [
       // Google Tag Manager script

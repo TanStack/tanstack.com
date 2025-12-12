@@ -11,9 +11,10 @@ export type TabDefinition = {
 export type TabsProps = {
   tabs: Array<TabDefinition>
   children: Array<React.ReactNode>
+  id: string
 }
 
-export function Tabs({ tabs, children }: TabsProps) {
+export function Tabs({ tabs, id, children }: TabsProps) {
   const Route = getRouteApi()
   const { framework } = Route.useParams()
 
@@ -27,6 +28,8 @@ export function Tabs({ tabs, children }: TabsProps) {
         {tabs.map((tab) => {
           return (
             <Tab
+              key={`${id}-${tab.slug}`}
+              id={id}
               tab={tab}
               activeSlug={activeSlug}
               setActiveSlug={setActiveSlug}
@@ -40,7 +43,7 @@ export function Tabs({ tabs, children }: TabsProps) {
           if (!tab) return null
           return (
             <div
-              key={tab.slug}
+              key={`${id}-${tab.slug}`}
               data-tab={tab.slug}
               hidden={tab.slug !== activeSlug}
               className="prose dark:prose-invert max-w-none flex flex-col gap-2 text-base"
@@ -55,10 +58,12 @@ export function Tabs({ tabs, children }: TabsProps) {
 }
 
 const Tab = ({
+  key,
   tab,
   activeSlug,
   setActiveSlug,
 }: {
+  id: string
   tab: TabDefinition
   activeSlug: string
   setActiveSlug: React.Dispatch<React.SetStateAction<string>>
@@ -66,7 +71,7 @@ const Tab = ({
   const options = React.useMemo(() => getFrameworkOptions(tab.slug), [tab.slug])
   return (
     <button
-      key={tab.slug}
+      key={key}
       aria-label={tab.name}
       title={tab.name}
       type="button"

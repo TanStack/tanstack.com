@@ -1,7 +1,6 @@
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
-// import { fileURLToPath } from 'node:url'
 import * as graymatter from 'gray-matter'
 import { fetchCached } from '~/utils/cache.server'
 import { multiSortBy, removeLeadingSlash } from './utils'
@@ -259,7 +258,7 @@ export async function fetchRepoFile(
   const key = `${repoPair}:${ref}:${filepath}`
   const [owner, repo] = repoPair.split('/')
 
-  const ttl = process.env.NODE_ENV === 'development' ? 1 : 1 * 60 * 1000 // 5 minute
+  const ttl = process.env.NODE_ENV === 'development' ? 1 : 10 * 60 * 1000 // 10 minutes
   const file = await fetchCached({
     key,
     ttl,
@@ -398,7 +397,7 @@ export function fetchApiContents(
   const isDev = process.env.NODE_ENV === 'development'
   return fetchCached({
     key: `${repoPair}:${branch}:${startingPath}`,
-    ttl: isDev ? 1 : 1 * 60 * 1000, // 5 minute
+    ttl: isDev ? 1 : 10 * 60 * 1000, // 10 minute
     fn: () => {
       return isDev
         ? fetchApiContentsFs(repoPair, startingPath)

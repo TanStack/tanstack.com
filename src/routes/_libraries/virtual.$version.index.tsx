@@ -41,7 +41,6 @@ function RouteComp() {
   const { version } = Route.useParams()
   const [framework, setFramework] = React.useState<Framework>('react')
   const branch = getBranch(virtualProject, version)
-  const [isDark] = React.useState(true)
 
   return (
     <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">

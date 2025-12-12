@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/db/client'
 import { feedEntries, feedConfig } from '~/db/schema'
-import { eq, and, sql, inArray, gte } from 'drizzle-orm'
+import { eq, and, sql, gte } from 'drizzle-orm'
 import { z } from 'zod'
 import type { FeedCategory } from '~/db/schema'
 import {

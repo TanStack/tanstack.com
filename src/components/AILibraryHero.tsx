@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { twMerge } from 'tailwind-merge'
-import { Link, LinkProps } from '@tanstack/react-router'
+import { LinkProps } from '@tanstack/react-router'
 import type { Library } from '~/libraries'
 import { useIsDark } from '~/hooks/useIsDark'
 import { ChatPanel } from './ChatPanel'

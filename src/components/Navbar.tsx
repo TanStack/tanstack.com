@@ -30,7 +30,6 @@ import {
   AuthLoading,
 } from '~/components/AuthComponents'
 import { libraries } from '~/libraries'
-import { sortBy } from '~/utils/utils'
 import { useCapabilities } from '~/hooks/useCapabilities'
 
 export function Navbar({ children }: { children: React.ReactNode }) {

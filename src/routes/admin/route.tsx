@@ -15,6 +15,7 @@ import {
   FaShieldAlt,
   FaGithub,
   FaNpm,
+  FaChartLine,
 } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
@@ -65,6 +66,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         activeOptions: {
           exact: true,
         },
+      },
+      {
+        label: 'Statistics',
+        icon: <FaChartLine />,
+        to: '/admin/stats',
       },
       {
         label: 'Users',

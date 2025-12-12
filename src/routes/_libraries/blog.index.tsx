@@ -12,9 +12,9 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   async () => {
     setResponseHeaders({
-      'cache-control': 'public, max-age=0, must-revalidate',
-      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-      'Netlify-Vary': 'query=payload',
+      'Cache-Control': 'public, max-age=0, must-revalidate',
+      'Netlify-CDN-Cache-Control':
+        'public, max-age=300, durable, stale-while-revalidate=300',
     })
 
     return allPosts

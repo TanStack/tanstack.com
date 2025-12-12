@@ -205,6 +205,7 @@ type NpmQueryData = {
   end: string
   color?: string | null | undefined
   error?: string | null
+  actualStartDate?: Date
 }[]
 
 function npmQueryOptions({
@@ -219,16 +220,25 @@ function npmQueryOptions({
   now.setHours(0, 0, 0, 0)
   const endDate = now
 
+  // NPM download statistics only go back to January 10, 2015
+  const NPM_STATS_START_DATE = d3.utcDay(new Date('2015-01-10'))
+
   // Function to get package creation date
   const getPackageCreationDate = async (packageName: string): Promise<Date> => {
     try {
       const response = await fetch(`https://registry.npmjs.org/${packageName}`)
-      if (!response.ok) return d3.utcDay(new Date('2010-01-12')) // Fallback date
+      if (!response.ok) return NPM_STATS_START_DATE
       const data = await response.json()
-      return d3.utcDay(new Date(data.time?.created || '2010-01-12'))
+      const creationDate = d3.utcDay(
+        new Date(data.time?.created || '2015-01-10'),
+      )
+      // Ensure we don't return a date before npm stats started
+      return creationDate < NPM_STATS_START_DATE
+        ? NPM_STATS_START_DATE
+        : creationDate
     } catch (error) {
       console.error(`Error fetching creation date for ${packageName}:`, error)
-      return d3.utcDay(new Date('2010-01-12')) // Fallback date
+      return NPM_STATS_START_DATE
     }
   }
 
@@ -241,7 +251,11 @@ function npmQueryOptions({
     const creationDates = await Promise.all(
       packageNames.map(getPackageCreationDate),
     )
-    return new Date(Math.min(...creationDates.map((date) => date.getTime())))
+    const earliest = new Date(
+      Math.min(...creationDates.map((date) => date.getTime())),
+    )
+    // Ensure we don't go before npm's stats start date
+    return earliest < NPM_STATS_START_DATE ? NPM_STATS_START_DATE : earliest
   }
 
   let startDate = (() => {
@@ -262,7 +276,7 @@ function npmQueryOptions({
         return d3.utcDay.offset(now, -1825)
       case 'all-time':
         // We'll handle this in the queryFn
-        return d3.utcDay(new Date('2010-01-12')) // This will be overridden
+        return NPM_STATS_START_DATE // This will be overridden with actual earliest date
     }
   })()
 
@@ -281,63 +295,80 @@ function npmQueryOptions({
       return Promise.all(
         packageGroups.map(async (packageGroup) => {
           try {
+            let actualStartDate = startDate
+
+            // Import the server function for fetching npm downloads
+            const { fetchNpmDownloadChunk } = await import(
+              '~/utils/stats.server'
+            )
+
             const packages = await Promise.all(
               packageGroup.packages.map(async (pkg) => {
-                let currentEnd = endDate
-                const currentStart = startDate
+                try {
+                  // Generate year-based chunks from startDate to endDate
+                  const startYear = startDate.getFullYear()
+                  const endYear = endDate.getFullYear()
+                  const years: string[] = []
 
-                const chunkRanges: { start: Date; end: Date }[] = []
+                  for (let year = startYear; year <= endYear; year++) {
+                    years.push(year.toString())
+                  }
 
-                while (currentStart < currentEnd) {
-                  const chunkEnd = d3.utcDay(new Date(currentEnd))
-                  const chunkStart = d3.utcDay.offset(currentEnd, -365)
-
-                  // Move the end date to the day before the start of the current chunk
-                  currentEnd = d3.utcDay.offset(chunkStart, -1)
-
-                  chunkRanges.push({ start: chunkStart, end: chunkEnd })
-                }
-
-                const chunks = await Promise.all(
-                  chunkRanges.map(async (chunk) => {
-                    const url = `https://api.npmjs.org/downloads/range/${formatDate(
-                      chunk.start,
-                    )}:${formatDate(chunk.end)}/${pkg.name}`
-                    const response = await fetch(url)
-                    if (!response.ok) {
-                      if (response.status === 404) {
-                        throw new Error('not_found')
-                      }
-                      throw new Error('fetch_failed')
-                    }
-                    return response.json()
-                  }),
-                )
-
-                // Combine all chunks and ensure no gaps
-                const downloads = chunks
-                  .flatMap((chunk) => chunk.downloads || [])
-                  .sort(
-                    (a, b) =>
-                      new Date(a.day).getTime() - new Date(b.day).getTime(),
+                  // Fetch all year chunks in parallel
+                  const chunks = await Promise.all(
+                    years.map((year) =>
+                      fetchNpmDownloadChunk({
+                        data: {
+                          packageName: pkg.name,
+                          year,
+                        },
+                      }),
+                    ),
                   )
 
-                // Find the earliest non-zero download
-                const firstNonZero = downloads.find((d) => d.downloads > 0)
-                if (firstNonZero) {
-                  startDate = d3.utcDay(new Date(firstNonZero.day))
-                }
+                  // Combine all chunks and filter to requested date range
+                  const allDownloads = chunks
+                    .flatMap((chunk) => chunk.downloads || [])
+                    .filter((d) => {
+                      const date = new Date(d.day)
+                      return date >= startDate && date <= endDate
+                    })
+                    .sort(
+                      (a, b) =>
+                        new Date(a.day).getTime() - new Date(b.day).getTime(),
+                    )
 
-                return { ...pkg, downloads }
+                  // Find the earliest non-zero download for this package group
+                  const firstNonZero = allDownloads.find((d) => d.downloads > 0)
+                  if (firstNonZero) {
+                    const firstNonZeroDate = d3.utcDay(
+                      new Date(firstNonZero.day),
+                    )
+                    if (firstNonZeroDate < actualStartDate) {
+                      actualStartDate = firstNonZeroDate
+                    }
+                  }
+
+                  return { ...pkg, downloads: allDownloads }
+                } catch (error) {
+                  if (
+                    error instanceof Error &&
+                    error.message.includes('not found')
+                  ) {
+                    throw new Error('not_found')
+                  }
+                  throw new Error('fetch_failed')
+                }
               }),
             )
 
             return {
               ...packageGroup,
               packages,
-              start: formatDate(startDate),
+              start: formatDate(actualStartDate),
               end: formatDate(endDate),
               error: null,
+              actualStartDate,
             }
           } catch (error) {
             return {
@@ -352,6 +383,7 @@ function npmQueryOptions({
                 error instanceof Error && error.message === 'not_found'
                   ? `Package "${packageGroup.packages[0].name}" not found on npm`
                   : 'Failed to fetch package data (see console for details)',
+              actualStartDate: startDate,
             }
           }
         }),
@@ -506,7 +538,12 @@ function NpmStatsChart({
       case '1825-days':
         return d3.utcDay.offset(now, -1825)
       case 'all-time':
-        return d3.utcDay(new Date('2010-01-12'))
+        // Use the actual start date from the query data, or fall back to npm's stats start date
+        const earliestActualStartDate = queryData
+          .map((pkg) => pkg.actualStartDate)
+          .filter((d): d is Date => d !== undefined)
+          .sort((a, b) => a.getTime() - b.getTime())[0]
+        return earliestActualStartDate || d3.utcDay(new Date('2015-01-10'))
     }
   })()
 
@@ -1833,16 +1870,30 @@ function RouteComponent() {
             <div className="">
               <div className="space-y-2 sm:space-y-4">
                 <Resizable height={height} onHeightChange={onHeightChange}>
-                  <NpmStatsChart
-                    range={range}
-                    queryData={npmQuery.data}
-                    transform={transform}
-                    binType={binType}
-                    packages={packageGroups}
-                    facetX={facetX}
-                    facetY={facetY}
-                    showDataMode={showDataModeParam}
-                  />
+                  {npmQuery.isLoading && !npmQuery.data ? (
+                    <div
+                      className="flex items-center justify-center"
+                      style={{ height }}
+                    >
+                      <div className="flex flex-col items-center gap-4">
+                        <FaSpinner className="w-8 h-8 animate-spin text-blue-500" />
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          Loading download statistics...
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <NpmStatsChart
+                      range={range}
+                      queryData={npmQuery.data}
+                      transform={transform}
+                      binType={binType}
+                      packages={packageGroups}
+                      facetX={facetX}
+                      facetY={facetY}
+                      showDataMode={showDataModeParam}
+                    />
+                  )}
                 </Resizable>
                 <div className="overflow-x-auto rounded-xl">
                   <table className="min-w-full">

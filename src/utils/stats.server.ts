@@ -228,8 +228,8 @@ export const getOSSStats = createServerFn({ method: 'POST' })
       new Headers({
         'Cache-Control':
           'public, max-age=300, stale-while-revalidate=3600, stale-if-error=3600',
-        'CDN-Cache-Control': 'max-age=300, stale-while-revalidate=3600',
-        'Netlify-Vary': 'query=data',
+        'Netlify-CDN-Cache-Control':
+          'public, max-age=300, durable, stale-while-revalidate=3600',
       }),
     )
 
@@ -319,4 +319,205 @@ export const getOSSStats = createServerFn({ method: 'POST' })
       npmStats,
       githubTimeDeltaMs,
     )
+  })
+
+/**
+ * Fetch NPM download data for a package for a specific chunk
+ * Uses standardized year-based chunks for maximum cache reuse
+ * GET request with fixed boundaries allows CDN and browser caching
+ *
+ * Chunk format: YYYY (e.g., "2023" means Jan 1 - Dec 31, 2023)
+ * Special chunk "current" means current year to date
+ */
+export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
+  .inputValidator(
+    z.object({
+      packageName: z.string(),
+      year: z.string(), // YYYY format or "current" for current year
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { packageName, year } = data
+
+    // NPM download statistics only go back to January 10, 2015
+    const NPM_STATS_START_DATE = '2015-01-10'
+    const today = new Date().toISOString().substring(0, 10)
+    const currentYear = new Date().getFullYear().toString()
+
+    // Determine date range for this chunk
+    let startDate: string
+    let endDate: string
+    let isCurrentYear = year === 'current' || year === currentYear
+
+    if (year === 'current') {
+      // Current year to date
+      startDate = `${currentYear}-01-01`
+      endDate = today
+    } else {
+      // Full year
+      startDate = `${year}-01-01`
+      endDate = `${year}-12-31`
+
+      // Don't fetch future years
+      if (parseInt(year) > parseInt(currentYear)) {
+        return {
+          start: startDate,
+          end: endDate,
+          package: packageName,
+          year,
+          downloads: [],
+        }
+      }
+    }
+
+    // Adjust start date if before npm stats started
+    if (startDate < NPM_STATS_START_DATE) {
+      startDate = NPM_STATS_START_DATE
+    }
+
+    // Set aggressive cache headers for immutable historical data
+    // Current year data changes daily, historical data is immutable
+    const cacheMaxAge = isCurrentYear ? 3600 : 31536000 // 1 hour / 1 year
+    const cdnMaxAge = isCurrentYear ? 3600 : 31536000 // 1 hour / 1 year
+
+    setResponseHeaders({
+      // Use Netlify-specific header for best performance
+      // 'durable' shares cached responses across all edge nodes
+      'Netlify-CDN-Cache-Control': `public, max-age=${cdnMaxAge}, durable${isCurrentYear ? '' : ', stale-while-revalidate=86400'}`,
+      // Also set standard Cache-Control for browser caching
+      'Cache-Control': `public, max-age=${cacheMaxAge}`,
+    })
+
+    // Import cache functions
+    const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } =
+      await import('./stats-db.server')
+
+    // Check database cache first
+    let cachedChunk
+    try {
+      cachedChunk = await getCachedNpmDownloadChunk(
+        packageName,
+        startDate,
+        endDate,
+        'daily',
+      )
+    } catch (error) {
+      console.warn(
+        `[NPM Download Chunk] Cache lookup error for ${packageName} ${year}:`,
+        error,
+      )
+    }
+
+    // Use cache if available and immutable
+    if (cachedChunk) {
+      if (cachedChunk.isImmutable) {
+        return {
+          start: cachedChunk.dateFrom,
+          end: cachedChunk.dateTo,
+          package: packageName,
+          year,
+          downloads: cachedChunk.dailyData,
+        }
+      }
+      // For current year, check if cache is still fresh (within 1 hour)
+      // If expired, fall through to fetch fresh data
+    }
+
+    // Fetch from NPM API
+    try {
+      const response = await fetch(
+        `https://api.npmjs.org/downloads/range/${startDate}:${endDate}/${packageName}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'User-Agent': 'TanStack-Stats',
+          },
+        },
+      )
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          // Package not found or no data for this range
+          console.warn(
+            `[NPM Download Chunk] 404 for ${packageName} ${year}`,
+          )
+          return {
+            start: startDate,
+            end: endDate,
+            package: packageName,
+            year,
+            downloads: [],
+          }
+        }
+        if (response.status === 429) {
+          // Rate limited - use cached data if available
+          if (cachedChunk) {
+            console.warn(
+              `[NPM Download Chunk] Rate limited, using cached data for ${packageName} ${year}`,
+            )
+            return {
+              start: cachedChunk.dateFrom,
+              end: cachedChunk.dateTo,
+              package: packageName,
+              year,
+              downloads: cachedChunk.dailyData,
+            }
+          }
+          throw new Error(
+            'NPM API rate limit exceeded. Please try again in a moment.',
+          )
+        }
+        throw new Error(
+          `NPM API error for ${packageName} ${year}: ${response.status}`,
+        )
+      }
+
+      const result = await response.json()
+      const downloads = result.downloads || []
+
+      // Cache this chunk
+      try {
+        const isImmutable = !isCurrentYear
+        await setCachedNpmDownloadChunk({
+          packageName,
+          dateFrom: startDate,
+          dateTo: endDate,
+          binSize: 'daily',
+          totalDownloads: downloads.reduce(
+            (sum: number, d: any) => sum + d.downloads,
+            0,
+          ),
+          dailyData: downloads,
+          isImmutable,
+        })
+      } catch (error) {
+        console.warn(
+          `[NPM Download Chunk] Cache write error for ${packageName} ${year}:`,
+          error,
+        )
+      }
+
+      return {
+        start: result.start || startDate,
+        end: result.end || endDate,
+        package: packageName,
+        year,
+        downloads,
+      }
+    } catch (error) {
+      // If fetch fails and we have cached data, use that
+      if (cachedChunk) {
+        console.warn(
+          `[NPM Download Chunk] Fetch failed, using cached data for ${packageName} ${year}`,
+        )
+        return {
+          start: cachedChunk.dateFrom,
+          end: cachedChunk.dateTo,
+          package: packageName,
+          year,
+          downloads: cachedChunk.dailyData,
+        }
+      }
+      throw error
+    }
   })

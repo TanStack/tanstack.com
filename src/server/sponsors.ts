@@ -37,8 +37,9 @@ export const getSponsorsForSponsorPack = createServerFn({
   // In recent @tanstack/react-start versions, getEvent is no longer exported.
   // Headers can be set unconditionally here; framework will merge appropriately.
   setResponseHeaders({
-    'cache-control': 'public, max-age=0, must-revalidate',
-    'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+    'Cache-Control': 'public, max-age=0, must-revalidate',
+    'Netlify-CDN-Cache-Control':
+      'public, max-age=300, durable, stale-while-revalidate=300',
   })
 
   const amountExtent = extent(sponsors, (d) => d.amount).map((d) => d!)

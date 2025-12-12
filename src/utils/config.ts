@@ -75,9 +75,9 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
       }
 
       setResponseHeaders({
-        'cache-control': 'public, max-age=0, must-revalidate',
-        'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
-        'Netlify-Vary': 'query=payload',
+        'Cache-Control': 'public, max-age=0, must-revalidate',
+        'Netlify-CDN-Cache-Control':
+          'public, max-age=300, durable, stale-while-revalidate=300',
       })
 
       return validationResult.data

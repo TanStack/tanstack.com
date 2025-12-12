@@ -1,5 +1,4 @@
 import { VscPreview } from 'react-icons/vsc'
-import type { Library } from './types'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
 import { IoIosBody } from 'react-icons/io'

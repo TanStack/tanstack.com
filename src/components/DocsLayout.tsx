@@ -182,7 +182,6 @@ export function DocsLayout({
   const prevItem = flatMenu[index - 1]
   const nextItem = flatMenu[index + 1]
 
-  const [showBytes, setShowBytes] = useLocalStorage('showBytes', true)
   const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
   const activePartners = partners.filter(

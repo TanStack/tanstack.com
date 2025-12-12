@@ -157,9 +157,7 @@ export function FeedColumn({
         <div className="text-xs text-gray-500 dark:text-gray-400">
           {totalCount} {totalCount === 1 ? 'entry' : 'entries'}
           {allEntries.length > 0 && allEntries.length < totalCount && (
-            <span className="ml-1">
-              ({allEntries.length} loaded)
-            </span>
+            <span className="ml-1">({allEntries.length} loaded)</span>
           )}
         </div>
       </div>
@@ -208,7 +206,10 @@ export function FeedColumn({
 
         {/* Load More Sentinel */}
         {hasNextPage && allEntries.length > 0 && (
-          <div ref={loadMoreRef} className="py-4 flex items-center justify-center">
+          <div
+            ref={loadMoreRef}
+            className="py-4 flex items-center justify-center"
+          >
             {isLoadingMore && (
               <FaSpinner className="animate-spin text-sm text-gray-500" />
             )}
@@ -245,38 +246,36 @@ function FeedEntryColumn({
   const getTypeBadge = () => {
     const isPrerelease = entry.tags.includes('release:prerelease')
 
-    const badgeConfigs: Record<string, { label: string; className: string }> =
-      {
-        release: {
-          label: 'Release',
-          className:
-            'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
-        },
-        prerelease: {
-          label: 'Prerelease',
-          className:
-            'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
-        },
-        blog: {
-          label: 'Blog',
-          className:
-            'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
-        },
-        announcement: {
-          label: 'Announcement',
-          className:
-            'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200',
-        },
-        partner: {
-          label: 'Partner',
-          className:
-            'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200',
-        },
-      }
+    const badgeConfigs: Record<string, { label: string; className: string }> = {
+      release: {
+        label: 'Release',
+        className:
+          'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
+      },
+      prerelease: {
+        label: 'Prerelease',
+        className:
+          'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
+      },
+      blog: {
+        label: 'Blog',
+        className:
+          'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
+      },
+      announcement: {
+        label: 'Announcement',
+        className:
+          'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200',
+      },
+      partner: {
+        label: 'Partner',
+        className:
+          'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200',
+      },
+    }
 
     const category = entry.category
-    const key =
-      category === 'release' && isPrerelease ? 'prerelease' : category
+    const key = category === 'release' && isPrerelease ? 'prerelease' : category
 
     return (
       badgeConfigs[key] || {
@@ -308,9 +307,7 @@ function FeedEntryColumn({
         >
           {badge.label}
         </span>
-        {entry.featured && (
-          <span className="px-1 py-0.5 text-[10px]">⭐</span>
-        )}
+        {entry.featured && <span className="px-1 py-0.5 text-[10px]">⭐</span>}
         <time
           dateTime={new Date(entry.publishedAt).toISOString()}
           className="text-[10px] text-gray-500 dark:text-gray-400 ml-auto"
@@ -359,4 +356,3 @@ function FeedEntryColumn({
     </article>
   )
 }
-

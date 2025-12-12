@@ -1,4 +1,3 @@
-import { db } from '~/db/client'
 import { feedEntries } from '~/db/schema'
 import { eq, and, sql, inArray, gte } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'

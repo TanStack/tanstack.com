@@ -39,10 +39,30 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
     }
   },
   component: Docs,
-  headers: (ctx) => {
-    return {
-      'cache-control': 'public, max-age=0, must-revalidate',
-      'cdn-cache-control': 'max-age=300, stale-while-revalidate=300, durable',
+  headers: ({ params }) => {
+    const { version, libraryId } = params
+    const library = findLibrary(libraryId)
+
+    const isLatestVersion =
+      library &&
+      (version === 'latest' ||
+        version === library.latestVersion ||
+        version === library.latestBranch)
+
+    if (isLatestVersion) {
+      return {
+        'cache-control': 'public, max-age=60, must-revalidate',
+        'cdn-cache-control':
+          'max-age=600, stale-while-revalidate=3600, durable',
+        vary: 'Accept-Encoding',
+      }
+    } else {
+      return {
+        'cache-control': 'public, max-age=3600, must-revalidate',
+        'cdn-cache-control':
+          'max-age=86400, stale-while-revalidate=604800, durable',
+        vary: 'Accept-Encoding',
+      }
     }
   },
 })

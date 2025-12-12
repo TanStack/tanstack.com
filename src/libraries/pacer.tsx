@@ -1,5 +1,4 @@
 import { VscPreview, VscWand } from 'react-icons/vsc'
-import type { Library } from './types'
 import { FaGithub } from 'react-icons/fa'
 import { BiBookAlt } from 'react-icons/bi'
 import { GiF1Car } from 'react-icons/gi'

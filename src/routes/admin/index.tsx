@@ -1,4 +1,4 @@
-import { Link, createFileRoute, redirect } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import {
   FaLock,
   FaUsers,
@@ -9,7 +9,6 @@ import {
 } from 'react-icons/fa'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { requireCapability } from '~/utils/auth.server'
 
 export const Route = createFileRoute('/admin/')({
   component: AdminPage,

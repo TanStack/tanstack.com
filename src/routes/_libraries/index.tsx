@@ -564,7 +564,7 @@ function Index() {
               <img
                 src={discordImage}
                 alt="Discord Logo"
-                loading='lazy'
+                loading="lazy"
                 width={300}
                 height={300}
               />
@@ -645,7 +645,7 @@ function Index() {
                       <img
                         src={bytesImage}
                         alt="Bytes Logo"
-                        loading='lazy'
+                        loading="lazy"
                         width={40}
                         height={40}
                       />

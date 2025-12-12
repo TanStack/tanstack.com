@@ -73,7 +73,7 @@ export function FrameworkCard({
           <img
             src={framework.logo}
             alt={framework.label}
-            loading='lazy'
+            loading="lazy"
             className="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-110"
           />
         </div>

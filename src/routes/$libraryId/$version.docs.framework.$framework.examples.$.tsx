@@ -217,7 +217,7 @@ function PageComponent() {
               >
                 <img
                   src="https://deploy.workers.cloudflare.com/button"
-                  loading='lazy'
+                  loading="lazy"
                   alt="Deploy to Cloudflare"
                 />
               </a>
@@ -228,7 +228,7 @@ function PageComponent() {
               >
                 <img
                   src="https://www.netlify.com/img/deploy/button.svg"
-                  loading='lazy'
+                  loading="lazy"
                   alt="Deploy with Netlify"
                 />
               </a>
@@ -239,8 +239,9 @@ function PageComponent() {
               >
                 <img
                   src="https://vercel.com/button"
-                  loading='lazy'
-                  alt="Deploy with Vercel" />
+                  loading="lazy"
+                  alt="Deploy with Vercel"
+                />
               </a>
             ) : null}
             <a

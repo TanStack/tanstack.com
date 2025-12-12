@@ -43,23 +43,25 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
     const { version, libraryId } = params
     const library = findLibrary(libraryId)
 
-    const isLatestVersion = library && (
-        version === 'latest' ||
+    const isLatestVersion =
+      library &&
+      (version === 'latest' ||
         version === library.latestVersion ||
-        version === library.latestBranch
-    )
-    
+        version === library.latestBranch)
+
     if (isLatestVersion) {
       return {
         'cache-control': 'public, max-age=60, must-revalidate',
-        'cdn-cache-control': 'max-age=600, stale-while-revalidate=3600, durable',
-        'vary': 'Accept-Encoding',
+        'cdn-cache-control':
+          'max-age=600, stale-while-revalidate=3600, durable',
+        vary: 'Accept-Encoding',
       }
     } else {
       return {
         'cache-control': 'public, max-age=3600, must-revalidate',
-        'cdn-cache-control': 'max-age=86400, stale-while-revalidate=604800, durable',
-        'vary': 'Accept-Encoding',
+        'cdn-cache-control':
+          'max-age=86400, stale-while-revalidate=604800, durable',
+        vary: 'Accept-Encoding',
       }
     }
   },

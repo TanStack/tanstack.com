@@ -298,9 +298,8 @@ function npmQueryOptions({
             let actualStartDate = startDate
 
             // Import the server function for fetching npm downloads
-            const { fetchNpmDownloadChunk } = await import(
-              '~/utils/stats.server'
-            )
+            const { fetchNpmDownloadChunk } =
+              await import('~/utils/stats.server')
 
             const packages = await Promise.all(
               packageGroup.packages.map(async (pkg) => {
@@ -1262,7 +1261,7 @@ function RouteComponent() {
     <div className="min-h-dvh p-2 sm:p-4 space-y-2 sm:space-y-4">
       <div className="flex gap-4">
         <div className="flex-1 bg-white dark:bg-black/50 rounded-lg space-y-4 p-4 shadow-xl max-w-full">
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap items-center">
             <PackageSearch onSelect={handleAddPackage} />
             <DropdownMenu>
               <Tooltip content="Select time range">
@@ -1816,20 +1815,18 @@ function RouteComponent() {
           {Object.keys(packageGroups).length ? (
             <div className="">
               <div className="space-y-2 sm:space-y-4">
-                <Resizable height={height} onHeightChange={onHeightChange}>
-                  {npmQuery.isLoading && !npmQuery.data ? (
-                    <div
-                      className="flex items-center justify-center"
-                      style={{ height }}
-                    >
+                <div className="relative">
+                  {npmQuery.isFetching ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/30 dark:bg-black/30 backdrop-blur-sm z-10 rounded-lg">
                       <div className="flex flex-col items-center gap-4">
                         <FaSpinner className="w-8 h-8 animate-spin text-blue-500" />
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          Loading download statistics...
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          Updating...
                         </div>
                       </div>
                     </div>
-                  ) : (
+                  ) : null}
+                  <Resizable height={height} onHeightChange={onHeightChange}>
                     <NpmStatsChart
                       range={range}
                       queryData={npmQuery.data}
@@ -1840,8 +1837,8 @@ function RouteComponent() {
                       facetY={facetY}
                       showDataMode={showDataModeParam}
                     />
-                  )}
-                </Resizable>
+                  </Resizable>
+                </div>
                 <div className="overflow-x-auto rounded-xl">
                   <table className="min-w-full">
                     <thead className="bg-gray-500/10">

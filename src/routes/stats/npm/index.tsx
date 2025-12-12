@@ -16,7 +16,7 @@ import * as Plot from '@observablehq/plot'
 import { ParentSize } from '@visx/responsive'
 import { Tooltip } from '~/components/Tooltip'
 import * as d3 from 'd3'
-import { FaAngleRight, FaSpinner } from 'react-icons/fa'
+import { FaSpinner } from 'react-icons/fa'
 import { HexColorPicker } from 'react-colorful'
 import { seo } from '~/utils/seo'
 import { getPopularComparisons, packageGroupSchema } from './-comparisons'
@@ -998,59 +998,6 @@ function RouteComponent() {
       range,
     }),
   )
-
-  const handleCombineSelect = (selectedPackage: NpmPackage) => {
-    if (!combiningPackage) return
-
-    // Find the package group that contains the combining package
-    const packageGroup = packageGroups.find((pkg) =>
-      pkg.packages.some((p) => p.name === combiningPackage),
-    )
-
-    if (packageGroup) {
-      // Update existing package group
-      const newPackages = packageGroups.map((pkg) =>
-        pkg === packageGroup
-          ? {
-              ...pkg,
-              packages: [
-                ...pkg.packages,
-                { name: selectedPackage.name, hidden: true },
-              ],
-            }
-          : pkg,
-      )
-
-      navigate({
-        to: '.',
-        search: (prev) => ({
-          ...prev,
-          packageGroups: newPackages,
-        }),
-        resetScroll: false,
-      })
-    } else {
-      // Create new package group
-      navigate({
-        to: '.',
-        search: (prev) => ({
-          ...prev,
-          packageGroups: [
-            ...packageGroups,
-            {
-              packages: [
-                { name: combiningPackage },
-                { name: selectedPackage.name },
-              ],
-            },
-          ],
-        }),
-        resetScroll: false,
-      })
-    }
-
-    setCombiningPackage(null)
-  }
 
   const handleRemoveFromGroup = (mainPackage: string, subPackage: string) => {
     // Find the package group

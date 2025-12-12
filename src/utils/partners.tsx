@@ -62,12 +62,14 @@ export function PartnerImage({
         <img
           src={config.light}
           alt={alt}
+          loading="lazy"
           className="w-full dark:hidden"
           width={200}
         />
         <img
           src={config.dark}
           alt={alt}
+          loading="lazy"
           className="w-full hidden dark:block"
           width={200}
         />
@@ -77,7 +79,13 @@ export function PartnerImage({
 
   return (
     <div className="w-full flex items-center justify-center" style={scaleStyle}>
-      <img src={config.src} alt={alt} className="w-full" width={200} />
+      <img
+        src={config.src}
+        alt={alt}
+        className="w-full"
+        width={200}
+        loading="lazy"
+      />
     </div>
   )
 }

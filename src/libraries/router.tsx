@@ -1,5 +1,4 @@
 import { FaGithub } from 'react-icons/fa'
-import type { Library } from './types'
 import { VscPreview } from 'react-icons/vsc'
 import { BiBookAlt } from 'react-icons/bi'
 import { RiLightbulbFlashLine } from 'react-icons/ri'

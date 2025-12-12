@@ -2,6 +2,7 @@ import * as React from 'react'
 import { FaRegCopy } from 'react-icons/fa'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
+import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import parse, {
   attributesToProps,
@@ -9,36 +10,58 @@ import parse, {
   Element,
   HTMLReactParserOptions,
 } from 'html-react-parser'
+import mermaid from 'mermaid'
 import { useToast } from '~/components/ToastProvider'
 import { twMerge } from 'tailwind-merge'
 import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
 import { renderMarkdown } from '~/utils/markdown'
 import { Tabs } from '~/components/Tabs'
-import { createHighlighter } from 'shiki/bundle-web.mjs'
+
+type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
 const CustomHeading = ({
   Comp,
   id,
+  children,
   ...props
 }: HTMLProps<HTMLHeadingElement> & {
-  Comp: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  Comp: HeadingLevel
 }) => {
+  // Convert children to array and strip any inner anchor (native 'a' or MarkdownLink)
+  const childrenArray = React.Children.toArray(children)
+  const sanitizedChildren = childrenArray.map((child) => {
+    if (
+      React.isValidElement(child) &&
+      (child.type === 'a' || child.type === MarkdownLink)
+    ) {
+      // replace anchor child with its own children so outer anchor remains the only link
+      return child.props.children ?? null
+    }
+    return child
+  })
+
+  const heading = (
+    <Comp id={id} {...props}>
+      {sanitizedChildren}
+    </Comp>
+  )
+
   if (id) {
     return (
       <a
         href={`#${id}`}
         className={`anchor-heading *:scroll-my-20 *:lg:scroll-my-4`}
       >
-        <Comp id={id} {...props} />
+        {heading}
       </a>
     )
   }
-  return <Comp {...props} />
+
+  return heading
 }
 
 const makeHeading =
-  (type: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') =>
-  (props: HTMLProps<HTMLHeadingElement>) => (
+  (type: HeadingLevel) => (props: HTMLProps<HTMLHeadingElement>) => (
     <CustomHeading
       Comp={type}
       {...props}
@@ -75,7 +98,8 @@ const markdownComponents: Record<string, React.FC> = {
       className={`max-w-full h-auto rounded-lg shadow-md ${
         props.className ?? ''
       }`}
-      loading="lazy"
+      // loading="lazy"
+      // decoding="async"
     />
   ),
 }
@@ -102,21 +126,7 @@ export function extractPreAttributes(html: string): {
 
 const genSvgMap = new Map<string, string>()
 
-// Lazy load mermaid only when needed
-let mermaidPromise: Promise<typeof import('mermaid').default> | null = null
-let mermaidInitialized = false
-
-async function getMermaid() {
-  if (!mermaidPromise) {
-    mermaidPromise = import('mermaid').then((mod) => mod.default)
-  }
-  const mermaid = await mermaidPromise
-  if (!mermaidInitialized) {
-    mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
-    mermaidInitialized = true
-  }
-  return mermaid
-}
+mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
 
 export function CodeBlock({
   isEmbedded,
@@ -178,7 +188,6 @@ export function CodeBlock({
             const preAttributes = extractPreAttributes(output)
             let svgHtml = genSvgMap.get(code || '')
             if (!svgHtml) {
-              const mermaid = await getMermaid()
               const { svg } = await mermaid.render('foo', code || '')
               genSvgMap.set(code || '', svg)
               svgHtml = svg
@@ -269,7 +278,7 @@ const cache = <T extends (...args: any[]) => any>(fn: T) => {
   }
 }
 
-const highlighterPromise = createHighlighter({} as any)
+const highlighterPromise = shikiGetHighlighter({} as any)
 
 const getHighlighter = cache(async (language: string, themes: string[]) => {
   const highlighter = await highlighterPromise
@@ -277,7 +286,7 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
   const loadedLanguages = highlighter.getLoadedLanguages()
   const loadedThemes = highlighter.getLoadedThemes()
 
-  const promises = []
+  let promises = []
   if (!loadedLanguages.includes(language as any)) {
     promises.push(
       highlighter.loadLanguage(

@@ -226,7 +226,9 @@ function AdminStatsPage() {
                       <div className="flex-1 bg-gray-200 dark:bg-gray-600 h-2 rounded-full"></div>
                     </div>
                     <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
-                      <span>Active: {stats.ads.waitlistWithAdsDisabledCount}</span>
+                      <span>
+                        Active: {stats.ads.waitlistWithAdsDisabledCount}
+                      </span>
                       <span>
                         Waiting:{' '}
                         {stats.ads.waitlistCount -
@@ -256,9 +258,10 @@ function AdminStatsPage() {
                     {stats.ads.disabledCount.toLocaleString()}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {((stats.ads.disabledCount / stats.totalUsers) * 100).toFixed(
-                      1,
-                    )}
+                    {(
+                      (stats.ads.disabledCount / stats.totalUsers) *
+                      100
+                    ).toFixed(1)}
                     % of total users
                   </div>
                 </div>

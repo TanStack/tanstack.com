@@ -285,7 +285,14 @@ function npmQueryOptions({
   }
 
   return queryOptions({
-    queryKey: ['npm-stats', packageGroups, range],
+    queryKey: [
+      'npm-stats',
+      packageGroups.map((pg) => ({
+        packages: pg.packages.map((p) => ({ name: p.name })),
+        baseline: pg.baseline,
+      })),
+      range,
+    ],
     queryFn: async (): Promise<NpmQueryData> => {
       // For all-time range, get the earliest creation date
       if (range === 'all-time') {
@@ -548,12 +555,18 @@ function NpmStatsChart({
 
   startDate = binOption.bin.floor(startDate)
 
-  const combinedPackageGroups = queryData.map((packageGroup) => {
+  const combinedPackageGroups = queryData.map((packageGroup, index) => {
+    // Get the corresponding package group from the packages prop to get the hidden state
+    const packageGroupWithHidden = packages[index]
+
     // Filter out any sub packages that are hidden before
     // summing them into a unified downloads count
-    const visiblePackages = packageGroup.packages.filter(
-      (p, i) => !i || !p.hidden,
-    )
+    const visiblePackages = packageGroup.packages.filter((p, i) => {
+      const hiddenState = packageGroupWithHidden?.packages.find(
+        (pg) => pg.name === p.name,
+      )?.hidden
+      return !i || !hiddenState
+    })
 
     const downloadsByDate: Map<number, number> = new Map()
 
@@ -645,9 +658,11 @@ function NpmStatsChart({
   })
 
   // Filter out any top-level hidden packages
-  const filteredPackageData = correctedPackageData.filter(
-    (pkg) => !pkg.baseline && !pkg.packages[0].hidden,
-  )
+  const filteredPackageData = correctedPackageData.filter((pkg, index) => {
+    const packageGroupWithHidden = packages[index]
+    const isHidden = packageGroupWithHidden?.packages[0]?.hidden
+    return !pkg.baseline && !isHidden
+  })
 
   const plotData = filteredPackageData.flatMap((d) => d.downloads)
 
@@ -1816,7 +1831,7 @@ function RouteComponent() {
             <div className="">
               <div className="space-y-2 sm:space-y-4">
                 <div className="relative">
-                  {npmQuery.isFetching ? (
+                  {npmQuery.isFetching && npmQuery.data ? (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/30 dark:bg-black/30 backdrop-blur-sm z-10 rounded-lg">
                       <div className="flex flex-col items-center gap-4">
                         <FaSpinner className="w-8 h-8 animate-spin text-blue-500" />
@@ -1827,16 +1842,30 @@ function RouteComponent() {
                     </div>
                   ) : null}
                   <Resizable height={height} onHeightChange={onHeightChange}>
-                    <NpmStatsChart
-                      range={range}
-                      queryData={npmQuery.data}
-                      transform={transform}
-                      binType={binType}
-                      packages={packageGroups}
-                      facetX={facetX}
-                      facetY={facetY}
-                      showDataMode={showDataModeParam}
-                    />
+                    {npmQuery.isLoading ? (
+                      <div
+                        className="flex items-center justify-center"
+                        style={{ height }}
+                      >
+                        <div className="flex flex-col items-center gap-4">
+                          <FaSpinner className="w-8 h-8 animate-spin text-blue-500" />
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            Loading download statistics...
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <NpmStatsChart
+                        range={range}
+                        queryData={npmQuery.data}
+                        transform={transform}
+                        binType={binType}
+                        packages={packageGroups}
+                        facetX={facetX}
+                        facetY={facetY}
+                        showDataMode={showDataModeParam}
+                      />
+                    )}
                   </Resizable>
                 </div>
                 <div className="overflow-x-auto rounded-xl">

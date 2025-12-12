@@ -194,6 +194,10 @@ export function getPopularComparisons(): z.input<
           color: '#FF3E00',
         },
         {
+          packages: [{ name: 'solid-js' }],
+          color: '#2C4F7C',
+        },
+        {
           packages: [{ name: 'preact' }],
           color: '#673AB8',
         },

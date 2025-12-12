@@ -298,9 +298,8 @@ function npmQueryOptions({
             let actualStartDate = startDate
 
             // Import the server function for fetching npm downloads
-            const { fetchNpmDownloadChunk } = await import(
-              '~/utils/stats.server'
-            )
+            const { fetchNpmDownloadChunk } =
+              await import('~/utils/stats.server')
 
             const packages = await Promise.all(
               packageGroup.packages.map(async (pkg) => {

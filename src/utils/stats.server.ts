@@ -438,9 +438,7 @@ export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
       if (!response.ok) {
         if (response.status === 404) {
           // Package not found or no data for this range
-          console.warn(
-            `[NPM Download Chunk] 404 for ${packageName} ${year}`,
-          )
+          console.warn(`[NPM Download Chunk] 404 for ${packageName} ${year}`)
           return {
             start: startDate,
             end: endDate,

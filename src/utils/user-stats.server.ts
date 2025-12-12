@@ -102,10 +102,7 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
       .select({ count: sql<number>`count(*)::int` })
       .from(users)
       .where(
-        and(
-          eq(users.interestedInHidingAds, true),
-          eq(users.adsDisabled, true),
-        ),
+        and(eq(users.interestedInHidingAds, true), eq(users.adsDisabled, true)),
       )
 
     const waitlistWithAdsDisabledCount =

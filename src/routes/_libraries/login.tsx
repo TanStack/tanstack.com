@@ -79,7 +79,9 @@ function LoginPage() {
     oauth_failed: 'Authentication failed. Please try again.',
   }
 
-  const errorMessage = error ? errorMessages[error] || 'An error occurred. Please try again.' : null
+  const errorMessage = error
+    ? errorMessages[error] || 'An error occurred. Please try again.'
+    : null
 
   return (
     <div className="min-h-screen ">

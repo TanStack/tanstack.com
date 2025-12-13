@@ -19,13 +19,13 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           const error = url.searchParams.get('error')
 
           if (error) {
-            console.error('[OAuth Callback] OAuth error received')
-            return Response.redirect(new URL('/login', request.url), 302)
+            console.error(`[OAuth Callback] OAuth error received: ${error}`)
+            return Response.redirect(new URL('/login?error=oauth_failed', request.url), 302)
           }
 
           if (!code || !state) {
             console.error('[OAuth Callback] Missing code or state')
-            return Response.redirect(new URL('/login', request.url), 302)
+            return Response.redirect(new URL('/login?error=oauth_failed', request.url), 302)
           }
 
           // Validate state from HTTPS-only cookie (CSRF protection)
@@ -36,14 +36,14 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
 
           if (!stateCookie) {
             console.error('[OAuth Callback] No state cookie found')
-            return Response.redirect(new URL('/login', request.url), 302)
+            return Response.redirect(new URL('/login?error=oauth_failed', request.url), 302)
           }
 
           const cookieState = decodeURIComponent(stateCookie.split('=').slice(1).join('=').trim())
 
           if (cookieState !== state) {
             console.error('[OAuth Callback] State mismatch')
-            return Response.redirect(new URL('/login', request.url), 302)
+            return Response.redirect(new URL('/login?error=oauth_failed', request.url), 302)
           }
 
           // Clear state cookie (one-time use)

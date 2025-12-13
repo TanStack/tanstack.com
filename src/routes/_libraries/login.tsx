@@ -5,9 +5,13 @@ import { FaGithub, FaGoogle } from 'react-icons/fa'
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { getCurrentUser } from '~/utils/auth.server'
+import { z } from 'zod'
 
 export const Route = createFileRoute('/_libraries/login')({
   component: LoginPage,
+  validateSearch: z.object({
+    error: z.string().optional(),
+  }),
   loader: async () => {
     // Call server function directly from loader (works in both SSR and client)
     const user = await getCurrentUser()
@@ -69,10 +73,23 @@ export function SignInForm() {
 }
 
 function LoginPage() {
+  const { error } = Route.useSearch()
+
+  const errorMessages: Record<string, string> = {
+    oauth_failed: 'Authentication failed. Please try again.',
+  }
+
+  const errorMessage = error ? errorMessages[error] || 'An error occurred. Please try again.' : null
+
   return (
     <div className="min-h-screen ">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto text-center w-fit">
+          {errorMessage && (
+            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-600 dark:text-red-400">
+              {errorMessage}
+            </div>
+          )}
           <SignInForm />
         </div>
       </div>

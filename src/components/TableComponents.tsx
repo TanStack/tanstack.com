@@ -9,9 +9,9 @@ interface TableProps {
 export function Table({ children, className = '' }: TableProps) {
   return (
     <div
-      className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto relative ${className}`}
+      className={`bg-white dark:bg-black/40 border border-gray-200 dark:border-gray-700 rounded-lg overflow-x-auto relative ${className}`}
     >
-      <table className="w-full min-w-full bg-white dark:bg-gray-800">
+      <table className="w-full min-w-full bg-white dark:bg-black/40">
         {children}
       </table>
     </div>
@@ -27,7 +27,7 @@ interface TableHeaderProps {
 export function TableHeader({ children, className = '' }: TableHeaderProps) {
   return (
     <thead
-      className={`hidden md:table-header-group border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 ${className}`}
+      className={`hidden md:table-header-group border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-black/40 ${className}`}
     >
       {children}
     </thead>
@@ -46,7 +46,7 @@ export function TableHeaderRow({
 }: TableHeaderRowProps) {
   return (
     <tr
-      className={`border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 ${className}`}
+      className={`border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-black/40 ${className}`}
     >
       {children}
     </tr>

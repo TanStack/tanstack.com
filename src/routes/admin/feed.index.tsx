@@ -20,7 +20,7 @@ const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
 const categorySchema = z.enum(FEED_CATEGORIES)
 const releaseLevelSchema = z.enum(RELEASE_LEVELS)
 const viewModeSchema = z
-  .enum(['table', 'timeline', 'columns'])
+  .enum(['table', 'timeline'])
   .optional()
   .default('table')
   .catch('table')

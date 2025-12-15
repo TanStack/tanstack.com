@@ -42,8 +42,8 @@ interface FeedFiltersProps {
   featured?: boolean
   search?: string
   facetCounts?: FeedFacetCounts
-  viewMode?: 'table' | 'timeline' | 'columns'
-  onViewModeChange?: (viewMode: 'table' | 'timeline' | 'columns') => void
+  viewMode?: 'table' | 'timeline'
+  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
   onFiltersChange: (filters: {
     sources?: string[]
     libraries?: LibraryId[]
@@ -253,44 +253,42 @@ export function FeedFilters({
         />
       </FilterSection>
 
-      {/* Sources - Hidden in columns mode */}
-      {viewMode !== 'columns' && (
-        <FilterSection
-          title="Sources"
-          sectionKey="sources"
-          onSelectAll={() => {
-            onFiltersChange({ sources: [...SOURCES] })
-          }}
-          onSelectNone={() => {
-            onFiltersChange({ sources: undefined })
-          }}
-          isAllSelected={
-            selectedSources !== undefined &&
-            selectedSources.length === SOURCES.length
-          }
-          isSomeSelected={
-            selectedSources !== undefined &&
-            selectedSources.length > 0 &&
-            selectedSources.length < SOURCES.length
-          }
-          expandedSections={expandedSections}
-          onToggleSection={toggleSection}
-        >
-          {SOURCES.map((source) => {
-            const count = facetCounts?.sources?.[source]
-            return (
-              <FilterCheckbox
-                key={source}
-                label={source}
-                checked={selectedSources?.includes(source) ?? false}
-                onChange={() => toggleSource(source)}
-                count={count}
-                capitalize
-              />
-            )
-          })}
-        </FilterSection>
-      )}
+      {/* Sources */}
+      <FilterSection
+        title="Sources"
+        sectionKey="sources"
+        onSelectAll={() => {
+          onFiltersChange({ sources: [...SOURCES] })
+        }}
+        onSelectNone={() => {
+          onFiltersChange({ sources: undefined })
+        }}
+        isAllSelected={
+          selectedSources !== undefined &&
+          selectedSources.length === SOURCES.length
+        }
+        isSomeSelected={
+          selectedSources !== undefined &&
+          selectedSources.length > 0 &&
+          selectedSources.length < SOURCES.length
+        }
+        expandedSections={expandedSections}
+        onToggleSection={toggleSection}
+      >
+        {SOURCES.map((source) => {
+          const count = facetCounts?.sources?.[source]
+          return (
+            <FilterCheckbox
+              key={source}
+              label={source}
+              checked={selectedSources?.includes(source) ?? false}
+              onChange={() => toggleSource(source)}
+              count={count}
+              capitalize
+            />
+          )
+        })}
+      </FilterSection>
 
       {/* Categories */}
       <FilterSection

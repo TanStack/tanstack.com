@@ -143,7 +143,7 @@ export function FeedEntryTimeline({
   return (
     <article
       className={twMerge(
-        'bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-lg p-6 transition-all',
+        'bg-white dark:bg-black/40 border border-gray-200 dark:border-gray-700 rounded-lg p-6 transition-all',
         'hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-700',
         entry.featured &&
           'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800',
@@ -297,62 +297,58 @@ export function FeedEntryTimeline({
         )}
       </div>
 
-      {/* Excerpt */}
-      {entry.excerpt && !expanded && (
-        <p className="text-gray-700 dark:text-gray-300 mb-4 line-clamp-3">
-          {entry.excerpt}
-        </p>
-      )}
-
       {/* Content */}
-      {expanded && (
-        <div className="mb-4">
-          {/* Tags */}
-          {entry.tags.length > 0 && (
-            <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Tags:
+      <div className="mb-4">
+        {/* Tags - Only show when expanded */}
+        {expanded && entry.tags.length > 0 && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Tags:
+            </span>
+            {entry.tags.map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs"
+              >
+                {tag}
               </span>
-              {entry.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Full Content */}
-          <div className="text-gray-900 dark:text-gray-100 leading-relaxed prose prose-sm dark:prose-invert max-w-none">
-            <Markdown rawContent={entry.content} />
+            ))}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-4">
-          {externalLink && (
-            <a
-              href={externalLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
-              onClick={(e) => e.stopPropagation()}
-            >
-              View on {entry.source === 'github' ? 'GitHub' : 'Blog'} →
-            </a>
+        {/* Content - Truncated when not expanded */}
+        <div
+          className={twMerge(
+            'text-sm text-gray-900 dark:text-gray-100 leading-relaxed prose prose-sm dark:prose-invert max-w-none',
+            !expanded && 'line-clamp-6',
           )}
+        >
+          <Markdown rawContent={entry.content} />
         </div>
+
+        {/* Show more/less button */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-medium"
+          className="mt-3 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-medium"
         >
-          {expanded ? 'Show less' : 'Read more'}
+          {expanded ? 'Show less' : 'Show more'}
         </button>
       </div>
+
+      {/* Footer */}
+      {externalLink && (
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <a
+            href={externalLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View on {entry.source === 'github' ? 'GitHub' : 'Blog'} →
+          </a>
+        </div>
+      )}
     </article>
   )
 }

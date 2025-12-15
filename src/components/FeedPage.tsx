@@ -5,6 +5,7 @@ import { Footer } from '~/components/Footer'
 import { FeedList } from '~/components/FeedList'
 import { FeedFilters } from '~/components/FeedFilters'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
+import { useFeedInfiniteQuery } from '~/hooks/useFeedInfiniteQuery'
 import { FeedEntry } from '~/components/FeedEntry'
 import { FEED_DEFAULTS } from '~/utils/feedDefaults'
 import { libraries } from '~/libraries'
@@ -54,7 +55,7 @@ interface FeedPageProps {
   search: FeedFiltersState & {
     page?: number
     pageSize?: number
-    viewMode?: 'table' | 'timeline' | 'columns'
+    viewMode?: 'table' | 'timeline'
     expanded?: string[]
   }
   onNavigate: (updates: {
@@ -62,7 +63,7 @@ interface FeedPageProps {
       FeedFiltersState & {
         page?: number
         pageSize?: number
-        viewMode?: 'table' | 'timeline' | 'columns'
+        viewMode?: 'table' | 'timeline'
         expanded?: string[]
       }
     >
@@ -113,9 +114,7 @@ export function FeedPage({
     ...search,
     viewMode:
       search.viewMode ??
-      (savedViewMode === 'table' ||
-      savedViewMode === 'timeline' ||
-      savedViewMode === 'columns'
+      (savedViewMode === 'table' || savedViewMode === 'timeline'
         ? savedViewMode
         : undefined) ??
       'table',
@@ -126,15 +125,30 @@ export function FeedPage({
     return value && value.length > 0 ? value : undefined
   }
 
+  const viewMode = effectiveFilters.viewMode ?? 'table'
+  const isTimelineMode = viewMode === 'timeline'
+
   const feedQuery = useFeedQuery({
     page: effectiveFilters.page ?? 1,
     pageSize: effectiveFilters.pageSize ?? 50,
     filters: {
-      // Exclude sources filter when in columns mode
-      sources:
-        effectiveFilters.viewMode === 'columns'
-          ? undefined
-          : normalizeFilter(effectiveFilters.sources),
+      sources: normalizeFilter(effectiveFilters.sources),
+      libraries: normalizeFilter(effectiveFilters.libraries),
+      categories: normalizeFilter(effectiveFilters.categories),
+      partners: normalizeFilter(effectiveFilters.partners),
+      tags: normalizeFilter(effectiveFilters.tags),
+      releaseLevels: normalizeFilter(effectiveFilters.releaseLevels),
+      includePrerelease: effectiveFilters.includePrerelease,
+      featured: effectiveFilters.featured,
+      search: effectiveFilters.search,
+      includeHidden,
+    },
+  })
+
+  const feedInfiniteQuery = useFeedInfiniteQuery({
+    pageSize: effectiveFilters.pageSize ?? 50,
+    filters: {
+      sources: normalizeFilter(effectiveFilters.sources),
       libraries: normalizeFilter(effectiveFilters.libraries),
       categories: normalizeFilter(effectiveFilters.categories),
       partners: normalizeFilter(effectiveFilters.partners),
@@ -148,13 +162,9 @@ export function FeedPage({
   })
 
   // Fetch facet counts based on current filters
-  // Exclude sources filter when in columns mode
   const facetCountsQuery = useQuery(
     getFeedFacetCountsQueryOptions({
-      sources:
-        effectiveFilters.viewMode === 'columns'
-          ? undefined
-          : effectiveFilters.sources,
+      sources: effectiveFilters.sources,
       libraries: effectiveFilters.libraries,
       categories: effectiveFilters.categories as any,
       partners: effectiveFilters.partners,
@@ -222,7 +232,7 @@ export function FeedPage({
     })
   }
 
-  const handleViewModeChange = (viewMode: 'table' | 'timeline' | 'columns') => {
+  const handleViewModeChange = (viewMode: 'table' | 'timeline') => {
     onNavigate({
       search: {
         ...search,
@@ -257,11 +267,10 @@ export function FeedPage({
     })
   }
 
-  const viewMode = effectiveFilters.viewMode ?? 'table'
   const currentPage = effectiveFilters.page ?? 1
   const pageSize = effectiveFilters.pageSize ?? 50
 
-  // Convert FeedFiltersState to FeedFilters format (excluding sources for columns)
+  // Convert FeedFiltersState to FeedFilters format
   const feedFilters = useMemo(
     () => ({
       libraries: normalizeFilter(effectiveFilters.libraries),
@@ -288,22 +297,9 @@ export function FeedPage({
   )
 
   return (
-    <div
-      className={twMerge(
-        'p-2 sm:p-4 pb-0 flex flex-col max-w-full gap-2 sm:gap-4 relative',
-        viewMode === 'columns'
-          ? 'pr-0! h-[calc(100dvh-var(--navbar-height))] overflow-hidden'
-          : '',
-      )}
-    >
-      <div className="flex-1 space-y-2 sm:space-y-4 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-2">
-        <aside
-          className={twMerge(
-            'lg:w-64 flex-shrink-0 lg:self-start',
-            viewMode !== 'columns' &&
-              'sticky top-[calc(var(--navbar-height)+1rem)]',
-          )}
-        >
+    <div className="p-2 sm:p-4 pb-0 flex flex-col max-w-full gap-2 sm:gap-4 relative">
+      <div className="flex-1 space-y-2 sm:space-y-4 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-2 min-h-0">
+        <aside className="lg:w-64 flex-shrink-0 lg:self-start sticky top-[calc(var(--navbar-height)+1rem)] z-10">
           <FeedFilters
             libraries={libraries}
             partners={partners}
@@ -325,8 +321,9 @@ export function FeedPage({
         </aside>
         <main className="flex-1 min-w-0 relative flex flex-col">
           <FeedList
-            query={viewMode === 'columns' ? undefined : feedQuery}
-            filters={viewMode === 'columns' ? feedFilters : undefined}
+            query={isTimelineMode ? undefined : feedQuery}
+            infiniteQuery={isTimelineMode ? feedInfiniteQuery : undefined}
+            filters={undefined}
             currentPage={currentPage}
             pageSize={pageSize}
             onPageChange={handlePageChange}

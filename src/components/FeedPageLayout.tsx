@@ -57,8 +57,8 @@ interface FeedPageLayoutContextValue {
   onClearFilters: () => void
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
-  viewMode?: 'table' | 'timeline' | 'columns'
-  onViewModeChange?: (viewMode: 'table' | 'timeline' | 'columns') => void
+  viewMode?: 'table' | 'timeline'
+  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
   expandedIds?: string[]
   onExpandedChange?: (expandedIds: string[]) => void
   adminActions?: {
@@ -92,8 +92,8 @@ interface FeedPageLayoutRootProps {
   onClearFilters: () => void
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
-  viewMode?: 'table' | 'timeline' | 'columns'
-  onViewModeChange?: (viewMode: 'table' | 'timeline' | 'columns') => void
+  viewMode?: 'table' | 'timeline'
+  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
   expandedIds?: string[]
   onExpandedChange?: (expandedIds: string[]) => void
   adminActions?: {
@@ -122,10 +122,9 @@ function FeedPageLayoutRoot({
   children,
 }: FeedPageLayoutRootProps) {
   // Fetch facet counts based on current filters
-  // Exclude sources filter when in columns mode
   const facetCountsQuery = useQuery(
     getFeedFacetCountsQueryOptions({
-      sources: viewMode === 'columns' ? undefined : filters.sources,
+      sources: filters.sources,
       libraries: filters.libraries,
       categories: filters.categories as any,
       partners: filters.partners,
@@ -157,14 +156,7 @@ function FeedPageLayoutRoot({
         adminActions,
       }}
     >
-      <div
-        className={twMerge(
-          'p-2 sm:p-4 pb-0 flex-1 flex flex-col max-w-full gap-2 sm:gap-4 relative',
-          viewMode === 'columns'
-            ? 'pr-0! h-[calc(100dvh-var(--navbar-height)-2rem)]'
-            : '',
-        )}
-      >
+      <div className="p-2 sm:p-4 pb-0 flex-1 flex flex-col max-w-full gap-2 sm:gap-4 relative">
         <div className="flex-1 space-y-2 sm:space-y-4 w-full max-w-7xl mx-auto">
           {children}
         </div>
@@ -257,7 +249,7 @@ function FeedPageLayoutContent({ children }: { children?: ReactNode }) {
     adminActions,
   } = useFeedPageLayout()
 
-  // Convert FeedFiltersState to FeedFilters format (excluding sources for columns)
+  // Convert FeedFiltersState to FeedFilters format
   const feedFilters = React.useMemo(() => {
     if (!filters) {
       return {
@@ -285,8 +277,8 @@ function FeedPageLayoutContent({ children }: { children?: ReactNode }) {
   return (
     <main className="flex-1 min-w-0 relative flex flex-col">
       <FeedList
-        query={viewMode === 'columns' ? undefined : feedQuery}
-        filters={viewMode === 'columns' ? feedFilters : undefined}
+        query={feedQuery}
+        filters={undefined}
         currentPage={currentPage}
         pageSize={pageSize}
         onPageChange={onPageChange}

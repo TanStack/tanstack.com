@@ -3,17 +3,11 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { listFeedEntriesQueryOptions } from '~/queries/feed'
 import { Link } from '@tanstack/react-router'
 import { formatDistanceToNow } from 'date-fns'
-import { useCapabilities } from '~/hooks/useCapabilities'
 import { findLibrary } from '~/libraries'
 
 const DISPLAY_DURATION = 7000 // 7 seconds in milliseconds
 
 export function FeedTicker() {
-  const capabilities = useCapabilities()
-
-  // Check if user has feed access capability (feed or admin)
-  const canAccessFeed = capabilities.includes('feed')
-
   // Fetch feed entries with default filters (major, minor releases, include prerelease)
   const feedQuery = useQuery({
     ...listFeedEntriesQueryOptions({
@@ -68,8 +62,8 @@ export function FeedTicker() {
     }
   }, [entries.length])
 
-  // Don't show ticker if user doesn't have access or if loading/empty
-  if (!canAccessFeed || feedQuery.isLoading || entries.length === 0) {
+  // Don't show ticker if loading/empty
+  if (feedQuery.isLoading || entries.length === 0) {
     return null
   }
 

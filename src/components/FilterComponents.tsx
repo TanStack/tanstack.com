@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { MdExpandMore } from 'react-icons/md'
-import { LuTable, LuList, LuColumns } from 'react-icons/lu'
+import { LuTable, LuList } from 'react-icons/lu'
 import { LuRotateCcw } from 'react-icons/lu'
 import { useDebouncedValue } from '@tanstack/react-pacer'
 import { twMerge } from 'tailwind-merge'
@@ -166,7 +166,7 @@ export function FilterSearch({
       value={inputValue}
       onChange={(e) => setInputValue(e.target.value)}
       className={twMerge(
-        'px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500',
+        'px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black/40 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500',
         className,
       )}
     />
@@ -181,7 +181,7 @@ interface FilterBarProps {
   hasActiveFilters?: boolean
   mobileControls?: React.ReactNode
   desktopHeader?: React.ReactNode
-  viewMode?: 'table' | 'timeline' | 'columns'
+  viewMode?: 'table' | 'timeline'
 }
 
 export function FilterBar({
@@ -199,7 +199,7 @@ export function FilterBar({
     <>
       {/* Mobile: Collapsible */}
       <div className="lg:hidden">
-        <div className="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 sm:p-3">
+        <div className="relative bg-white dark:bg-black/40 border border-gray-200 dark:border-gray-700 rounded-lg p-2 sm:p-3">
           <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
             <div
               className="flex items-center gap-1.5 whitespace-nowrap cursor-pointer flex-shrink-0"
@@ -232,15 +232,12 @@ export function FilterBar({
       {/* Desktop: Always visible */}
       <div
         className={twMerge(
-          'hidden lg:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 overflow-y-auto',
-          viewMode !== 'columns' && 'sticky',
+          'hidden lg:block bg-white dark:bg-black/40 border border-gray-200 dark:border-gray-700 rounded-lg p-3 overflow-y-auto sticky',
         )}
         style={{
-          ...(viewMode !== 'columns' && {
-            top: 'calc(var(--navbar-height, 0px) + 1rem)',
-            height: 'calc(100vh - var(--navbar-height, 0px) - 2rem)',
-            maxHeight: 'calc(100vh - var(--navbar-height, 0px) - 2rem)',
-          }),
+          top: 'calc(var(--navbar-height, 0px) + 1rem)',
+          height: 'calc(100vh - var(--navbar-height, 0px) - 2rem)',
+          maxHeight: 'calc(100vh - var(--navbar-height, 0px) - 2rem)',
         }}
       >
         {/* Header */}
@@ -252,10 +249,10 @@ export function FilterBar({
   )
 }
 
-// ViewModeToggle - View mode toggle buttons (table/timeline/columns)
+// ViewModeToggle - View mode toggle buttons (table/timeline)
 interface ViewModeToggleProps {
-  viewMode: 'table' | 'timeline' | 'columns'
-  onViewModeChange: (viewMode: 'table' | 'timeline' | 'columns') => void
+  viewMode: 'table' | 'timeline'
+  onViewModeChange: (viewMode: 'table' | 'timeline') => void
   compact?: boolean
 }
 
@@ -267,19 +264,18 @@ export function ViewModeToggle({
   const baseButtonClasses =
     'flex items-center px-1.5 py-1 rounded-md transition-colors'
   const activeButtonClasses =
-    'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100'
+    'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100'
   const inactiveButtonClasses =
-    'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-600/50'
+    'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-700/50'
 
   const compactViewModes = [
     { mode: 'table' as const, icon: LuTable, title: 'Table view' },
     { mode: 'timeline' as const, icon: LuList, title: 'Timeline view' },
-    { mode: 'columns' as const, icon: LuColumns, title: 'Columns view' },
   ]
 
   if (compact) {
     return (
-      <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5 flex-shrink-0">
+      <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 flex-shrink-0">
         {compactViewModes.map(({ mode, icon: Icon, title }) => (
           <button
             key={mode}
@@ -313,16 +309,10 @@ export function ViewModeToggle({
       label: 'Timeline',
       title: 'Timeline view',
     },
-    {
-      mode: 'columns' as const,
-      icon: LuColumns,
-      label: 'Columns',
-      title: 'Columns view',
-    },
   ]
 
   return (
-    <div className="flex items-stretch w-full gap-0.5 bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
+    <div className="flex items-stretch w-full gap-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
       {viewModes.map(({ mode, icon: Icon, label, title }) => (
         <button
           key={mode}

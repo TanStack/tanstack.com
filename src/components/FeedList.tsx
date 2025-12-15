@@ -1,10 +1,10 @@
 import * as React from 'react'
-import { UseQueryResult } from '@tanstack/react-query'
+import { UseQueryResult, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { FeedEntry } from '~/components/FeedEntry'
 import { FeedEntryTimeline } from '~/components/FeedEntryTimeline'
-import { FeedListColumns } from '~/components/FeedListColumns'
 import { FaSpinner } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
+import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
 import type { FeedFilters } from '~/queries/feed'
 import {
   Table,
@@ -23,15 +23,23 @@ interface FeedListProps {
       pages: number
     }
   }>
+  infiniteQuery?: UseInfiniteQueryResult<{
+    page: FeedEntry[]
+    isDone: boolean
+    counts: {
+      total: number
+      pages: number
+    }
+  }>
   filters?: Omit<FeedFilters, 'sources'>
   currentPage: number
   pageSize: number
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
-  viewMode?: 'table' | 'timeline' | 'columns'
+  viewMode?: 'table' | 'timeline'
   expandedIds?: string[]
   onExpandedChange?: (expandedIds: string[]) => void
-  onViewModeChange?: (viewMode: 'table' | 'timeline' | 'columns') => void
+  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
   onFiltersChange?: (filters: { sources?: string[] }) => void
   adminActions?: {
     onEdit?: (entry: FeedEntry) => void
@@ -43,6 +51,7 @@ interface FeedListProps {
 
 export function FeedList({
   query,
+  infiniteQuery,
   filters,
   currentPage,
   pageSize,
@@ -55,30 +64,42 @@ export function FeedList({
   onFiltersChange,
   adminActions,
 }: FeedListProps) {
-  // Columns mode doesn't need the main query - columns handle their own queries
-  if (viewMode === 'columns') {
-    if (!filters) {
-      return (
-        <div className="text-center py-12">
-          <p className="text-gray-600 dark:text-gray-400">Loading columns...</p>
-        </div>
-      )
+  // For timeline mode, use infinite query
+  const isTimelineMode = viewMode === 'timeline'
+  const activeQuery = isTimelineMode ? infiniteQuery : query
+
+  // Intersection observer for infinite scrolling in timeline mode
+  const { ref: loadMoreRef, isIntersecting } = useIntersectionObserver({
+    rootMargin: '200px',
+    threshold: 0,
+    triggerOnce: false,
+  })
+
+  // Load more when intersection observer triggers in timeline mode
+  React.useEffect(() => {
+    if (
+      isTimelineMode &&
+      infiniteQuery &&
+      isIntersecting &&
+      infiniteQuery.hasNextPage &&
+      !infiniteQuery.isFetchingNextPage &&
+      !infiniteQuery.isLoading &&
+      infiniteQuery.data
+    ) {
+      infiniteQuery.fetchNextPage()
     }
-    return (
-      <FeedListColumns
-        filters={filters}
-        pageSize={pageSize}
-        expandedIds={expandedIds}
-        onExpandedChange={onExpandedChange}
-        onViewModeChange={onViewModeChange}
-        onFiltersChange={onFiltersChange}
-        adminActions={adminActions}
-      />
-    )
-  }
+  }, [
+    isTimelineMode,
+    infiniteQuery,
+    infiniteQuery?.hasNextPage,
+    infiniteQuery?.isFetchingNextPage,
+    infiniteQuery?.isLoading,
+    infiniteQuery?.data,
+    isIntersecting,
+  ])
 
   // Table and timeline modes need the query
-  if (!query) {
+  if (!activeQuery) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-600 dark:text-gray-400">
@@ -88,7 +109,7 @@ export function FeedList({
     )
   }
 
-  if (query.isLoading) {
+  if (activeQuery.isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <FaSpinner className="animate-spin text-2xl text-gray-500" />
@@ -96,7 +117,7 @@ export function FeedList({
     )
   }
 
-  if (query.isError) {
+  if (activeQuery.isError) {
     return (
       <div className="text-center py-12">
         <p className="text-red-500 dark:text-red-400">
@@ -106,9 +127,36 @@ export function FeedList({
     )
   }
 
-  const data = query.data
+  // For timeline mode, flatten all pages from infinite query
+  let allEntries: FeedEntry[] = []
+  let data: {
+    page: FeedEntry[]
+    isDone: boolean
+    counts: { total: number; pages: number }
+  } | null = null
 
-  if (!data || data.page.length === 0) {
+  if (isTimelineMode && infiniteQuery?.data) {
+    // Flatten all pages from InfiniteData structure
+    // infiniteQuery.data is InfiniteData which has a pages array
+    const pages = (infiniteQuery.data as any).pages as Array<{
+      page: FeedEntry[]
+      isDone: boolean
+      counts: { total: number; pages: number }
+    }>
+    allEntries = pages.flatMap((page) => page.page)
+    // Use first page's counts for reference
+    const firstPage = pages[0]
+    data = {
+      page: allEntries,
+      isDone: !infiniteQuery.hasNextPage,
+      counts: firstPage?.counts || { total: 0, pages: 0 },
+    }
+  } else if (query?.data) {
+    data = query.data
+    allEntries = data.page
+  }
+
+  if (!data || allEntries.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-600 dark:text-gray-400">
@@ -161,7 +209,7 @@ export function FeedList({
       {/* Timeline View */}
       {viewMode === 'timeline' && (
         <div className="space-y-4">
-          {data.page.map((entry) => (
+          {allEntries.map((entry) => (
             <FeedEntryTimeline
               key={entry._id}
               entry={entry}
@@ -178,11 +226,27 @@ export function FeedList({
               adminActions={adminActions}
             />
           ))}
+          {/* Load more sentinel */}
+          {infiniteQuery && (
+            <div
+              ref={loadMoreRef}
+              className="py-4 flex items-center justify-center min-h-[100px]"
+            >
+              {infiniteQuery.isFetchingNextPage && (
+                <FaSpinner className="animate-spin text-xl text-gray-500" />
+              )}
+              {!infiniteQuery.hasNextPage && allEntries.length > 0 && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  No more entries to load
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Pagination Controls - Bottom (Sticky) */}
-      {data && data.page.length > 0 && (
+      {/* Pagination Controls - Bottom (Sticky) - Only for table mode */}
+      {viewMode === 'table' && data && data.page.length > 0 && (
         <PaginationControls
           currentPage={currentPage - 1}
           totalPages={data.counts.pages}

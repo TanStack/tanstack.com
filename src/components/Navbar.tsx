@@ -216,9 +216,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <div className="hidden lg:flex flex-1 justify-end min-w-0">
-        {capabilities.includes('feed') || capabilities.includes('admin') ? (
-          <FeedTicker />
-        ) : null}
+        <FeedTicker />
       </div>
       <div className="flex items-center gap-2">
         <div className="hidden sm:block">{socialLinks}</div>
@@ -436,14 +434,13 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: (
               <>
                 <span>Feed</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-md uppercase">
-                  Alpha
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-md uppercase">
+                  Beta
                 </span>
               </>
             ),
             icon: <LuRss />,
             to: '/feed',
-            requiresCapability: 'feed' as const,
           },
           {
             label: 'Maintainers',

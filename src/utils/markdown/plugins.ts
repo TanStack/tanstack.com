@@ -122,7 +122,8 @@ export const rehypeParseCommentComponents = () => {
   }
 }
 
-const isHeading = (node: any): node is Element => isElement(node) && /^h[1-6]$/.test(node.tagName)
+const isHeading = (node: any): node is Element =>
+  isElement(node) && /^h[1-6]$/.test(node.tagName)
 
 const headingLevel = (node: Element) => Number(node.tagName.substring(1))
 

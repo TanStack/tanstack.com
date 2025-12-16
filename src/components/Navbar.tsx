@@ -1,7 +1,12 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { BrandContextMenu } from './BrandContextMenu'
-import { Link, useLocation, useMatches, type LinkProps } from '@tanstack/react-router'
+import {
+  Link,
+  useLocation,
+  useMatches,
+  type LinkProps,
+} from '@tanstack/react-router'
 import { TbBrandX, TbBrandBluesky } from 'react-icons/tb'
 import { FaDiscord, FaGithub, FaInstagram } from 'react-icons/fa'
 import {
@@ -258,8 +263,15 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             'devtools',
           ]
           return libraries
-            .filter((d): d is Library & { to: string; textStyle: string; badge?: string; colorFrom: string } =>
-              d.to !== undefined && sidebarLibraryIds.includes(d.id)
+            .filter(
+              (
+                d,
+              ): d is Library & {
+                to: string
+                textStyle: string
+                badge?: string
+                colorFrom: string
+              } => d.to !== undefined && sidebarLibraryIds.includes(d.id),
             )
             .sort((a, b) => {
               const indexA = sidebarLibraryIds.indexOf(a.id)

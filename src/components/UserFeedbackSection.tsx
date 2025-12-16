@@ -2,7 +2,12 @@ import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
-import { FaAward, FaComment, FaLightbulb, FaExternalLinkAlt } from 'react-icons/fa'
+import {
+  FaAward,
+  FaComment,
+  FaLightbulb,
+  FaExternalLinkAlt,
+} from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
@@ -51,22 +56,31 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                   <div>
-                    <span className="font-medium">{stats.byStatus.approved.count}</span> approved
-                    contributions
+                    <span className="font-medium">
+                      {stats.byStatus.approved.count}
+                    </span>{' '}
+                    approved contributions
                   </div>
                   <div>
-                    <span className="font-medium">{stats.byStatus.pending.count}</span> pending
-                    review
+                    <span className="font-medium">
+                      {stats.byStatus.pending.count}
+                    </span>{' '}
+                    pending review
                   </div>
                   {stats.byStatus.denied.count > 0 && (
                     <div className="text-red-600 dark:text-red-400">
-                      <span className="font-medium">{stats.byStatus.denied.count}</span> denied
+                      <span className="font-medium">
+                        {stats.byStatus.denied.count}
+                      </span>{' '}
+                      denied
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              <div className="text-sm text-gray-600 dark:text-gray-400">Loading stats...</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Loading stats...
+              </div>
             )}
           </div>
           <Link
@@ -95,7 +109,8 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
               You haven't submitted any feedback yet.
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-              Visit any documentation page while logged in to add notes or suggest improvements.
+              Visit any documentation page while logged in to add notes or
+              suggest improvements.
             </p>
           </div>
         ) : (
@@ -121,7 +136,9 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                            {item.type === 'note' ? 'Personal Note' : 'Improvement Suggestion'}
+                            {item.type === 'note'
+                              ? 'Personal Note'
+                              : 'Improvement Suggestion'}
                           </span>
                           <span className="text-xs text-gray-400">•</span>
                           <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
@@ -132,7 +149,9 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
                           {item.content}
                         </p>
                         <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                          <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                          <span>
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </span>
                           <span>•</span>
                           <span className="font-mono">{item.pagePath}</span>
                         </div>
@@ -152,10 +171,15 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
                             'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
                         )}
                       >
-                        {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                        {item.status.charAt(0).toUpperCase() +
+                          item.status.slice(1)}
                       </span>
                       <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-                        {calculatePoints(item.characterCount, item.type).toFixed(1)} pts
+                        {calculatePoints(
+                          item.characterCount,
+                          item.type,
+                        ).toFixed(1)}{' '}
+                        pts
                       </span>
                     </div>
                   </div>
@@ -164,8 +188,8 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
                   {item.isDetached && (
                     <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                       <p className="text-xs text-yellow-600 dark:text-yellow-400">
-                        ⚠️ The referenced section may have moved or been updated. Moderators can
-                        review this feedback.
+                        ⚠️ The referenced section may have moved or been
+                        updated. Moderators can review this feedback.
                       </p>
                     </div>
                   )}

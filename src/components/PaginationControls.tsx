@@ -64,7 +64,11 @@ export function PaginationControls({
       }
 
       // Pages around current
-      for (let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages - 2, currentPage + 1); i++) {
+      for (
+        let i = Math.max(1, currentPage - 1);
+        i <= Math.min(totalPages - 2, currentPage + 1);
+        i++
+      ) {
         pages.push(i)
       }
 
@@ -81,8 +85,15 @@ export function PaginationControls({
   const content = (
     <div className="flex items-center justify-between flex-wrap gap-3">
       <div className="text-sm text-gray-600 dark:text-gray-400">
-        Showing <span className="font-semibold text-gray-900 dark:text-white">{displayCount}</span> of{' '}
-        <span className="font-semibold text-gray-900 dark:text-white">{totalItems}</span> {itemLabel}
+        Showing{' '}
+        <span className="font-semibold text-gray-900 dark:text-white">
+          {displayCount}
+        </span>{' '}
+        of{' '}
+        <span className="font-semibold text-gray-900 dark:text-white">
+          {totalItems}
+        </span>{' '}
+        {itemLabel}
         {filteredItems !== undefined && filteredItems !== totalItems && (
           <span className="ml-2 text-xs">
             • Page {currentPage + 1} of {totalPages}
@@ -132,7 +143,10 @@ export function PaginationControls({
             {getPageNumbers().map((pageNum, idx) => {
               if (pageNum === '...') {
                 return (
-                  <span key={`ellipsis-${idx}`} className="px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
+                  <span
+                    key={`ellipsis-${idx}`}
+                    className="px-2 py-1 text-xs text-gray-500 dark:text-gray-400"
+                  >
                     ...
                   </span>
                 )

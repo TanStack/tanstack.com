@@ -35,7 +35,9 @@ export const requireCapability = createServerFn({ method: 'POST' })
       throw new Error('Not authenticated')
     }
     // Admin users have access to everything
-    const hasAccess = user.capabilities?.includes('admin') || user.capabilities?.includes(capability)
+    const hasAccess =
+      user.capabilities?.includes('admin') ||
+      user.capabilities?.includes(capability)
     if (!hasAccess) {
       throw new Error(`Missing required capability: ${capability}`)
     }

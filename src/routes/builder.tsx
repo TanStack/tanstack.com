@@ -18,7 +18,8 @@ export const Route = createFileRoute('/builder')({
 function RouteComponent() {
   const capabilities = useCapabilities()
 
-  const canAccess = capabilities.includes('admin') || capabilities.includes('builder')
+  const canAccess =
+    capabilities.includes('admin') || capabilities.includes('builder')
 
   return (
     <div className="flex items-center justify-center h-screen">

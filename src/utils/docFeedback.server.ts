@@ -19,7 +19,10 @@ export async function requireModerateFeedback() {
  * Personal notes earn 0 points
  * Improvements: 0.1 points per character, min 1 point (10 chars), soft cap 100 points (1000 chars)
  */
-export function calculatePoints(characterCount: number, type: 'note' | 'improvement'): number {
+export function calculatePoints(
+  characterCount: number,
+  type: 'note' | 'improvement',
+): number {
   // Personal notes don't earn points
   if (type === 'note') {
     return 0
@@ -110,10 +113,7 @@ export async function getUserFeedbackStats(userId: string) {
     })
     .from(docFeedback)
     .where(
-      and(
-        eq(docFeedback.userId, userId),
-        eq(docFeedback.type, 'improvement')
-      )
+      and(eq(docFeedback.userId, userId), eq(docFeedback.type, 'improvement')),
     )
 
   // Calculate stats in JS
@@ -129,7 +129,10 @@ export async function getUserFeedbackStats(userId: string) {
     statsMap[item.status].points += points
   })
 
-  const total = Object.values(statsMap).reduce((sum, stat) => sum + stat.count, 0)
+  const total = Object.values(statsMap).reduce(
+    (sum, stat) => sum + stat.count,
+    0,
+  )
 
   return {
     total,
@@ -169,7 +172,12 @@ export async function checkRateLimit(userId: string): Promise<boolean> {
   const recentSubmissions = await db
     .select({ count: sql<number>`COUNT(*)::int` })
     .from(docFeedback)
-    .where(and(eq(docFeedback.userId, userId), gte(docFeedback.createdAt, oneHourAgo)))
+    .where(
+      and(
+        eq(docFeedback.userId, userId),
+        gte(docFeedback.createdAt, oneHourAgo),
+      ),
+    )
 
   const count = recentSubmissions[0]?.count ?? 0
   return count >= 10

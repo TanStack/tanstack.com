@@ -1009,10 +1009,7 @@ export async function getBatchNpmDownloadChunks(
     binSize: string
   }>,
 ): Promise<
-  Map<
-    string,
-    NpmDownloadChunkData & { updatedAt?: string; createdAt?: string }
-  >
+  Map<string, NpmDownloadChunkData & { updatedAt?: string; createdAt?: string }>
 > {
   const results = new Map<
     string,
@@ -1045,8 +1042,7 @@ export async function getBatchNpmDownloadChunks(
     for (const chunk of cached) {
       // Check if chunk is expired (only for mutable chunks)
       const isValid =
-        chunk.isImmutable ||
-        (chunk.expiresAt && chunk.expiresAt > new Date())
+        chunk.isImmutable || (chunk.expiresAt && chunk.expiresAt > new Date())
 
       if (isValid || !chunk.expiresAt) {
         // Include even expired chunks if they have data (can be used as fallback)

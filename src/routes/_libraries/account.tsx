@@ -29,8 +29,7 @@ function AccountLayout() {
               activeOptions={{ exact: true }}
               className="pb-4 px-1 border-b-2 font-medium text-sm transition-colors"
               activeProps={{
-                className:
-                  'border-blue-600 text-blue-600 dark:text-blue-400',
+                className: 'border-blue-600 text-blue-600 dark:text-blue-400',
               }}
               inactiveProps={{
                 className:
@@ -43,8 +42,7 @@ function AccountLayout() {
               to="/account/notes"
               className="pb-4 px-1 border-b-2 font-medium text-sm transition-colors"
               activeProps={{
-                className:
-                  'border-blue-600 text-blue-600 dark:text-blue-400',
+                className: 'border-blue-600 text-blue-600 dark:text-blue-400',
               }}
               inactiveProps={{
                 className:
@@ -57,8 +55,7 @@ function AccountLayout() {
               to="/account/feedback"
               className="pb-4 px-1 border-b-2 font-medium text-sm transition-colors"
               activeProps={{
-                className:
-                  'border-blue-600 text-blue-600 dark:text-blue-400',
+                className: 'border-blue-600 text-blue-600 dark:text-blue-400',
               }}
               inactiveProps={{
                 className:

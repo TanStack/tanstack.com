@@ -18,7 +18,8 @@ function AccountFeedbackPage() {
   const [pageSize, setPageSize] = React.useState(10)
 
   const user = userQuery.data
-  const userId = user && typeof user === 'object' && 'userId' in user ? user.userId : null
+  const userId =
+    user && typeof user === 'object' && 'userId' in user ? user.userId : null
 
   const { data, isLoading } = useQuery(
     getUserDocFeedbackQueryOptions({
@@ -39,7 +40,9 @@ function AccountFeedbackPage() {
   if (!userId) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600 dark:text-gray-400">Please log in to view your feedback.</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          Please log in to view your feedback.
+        </p>
       </div>
     )
   }
@@ -63,21 +66,31 @@ function AccountFeedbackPage() {
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                   <div>
-                    <span className="font-medium">{stats.byStatus.approved.count}</span> approved
+                    <span className="font-medium">
+                      {stats.byStatus.approved.count}
+                    </span>{' '}
+                    approved
                   </div>
                   <div>
-                    <span className="font-medium">{stats.byStatus.pending.count}</span> pending
-                    review
+                    <span className="font-medium">
+                      {stats.byStatus.pending.count}
+                    </span>{' '}
+                    pending review
                   </div>
                   {stats.byStatus.denied.count > 0 && (
                     <div className="text-red-600 dark:text-red-400">
-                      <span className="font-medium">{stats.byStatus.denied.count}</span> denied
+                      <span className="font-medium">
+                        {stats.byStatus.denied.count}
+                      </span>{' '}
+                      denied
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              <div className="text-sm text-gray-600 dark:text-gray-400">Loading stats...</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Loading stats...
+              </div>
             )}
           </div>
           <Link
@@ -119,16 +132,13 @@ function AccountFeedbackPage() {
                     to={item.pagePath}
                     className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 font-mono"
                   >
-                    {item.libraryId}{item.pagePath}
+                    {item.libraryId}
+                    {item.pagePath}
                     <FaExternalLinkAlt className="text-[10px]" />
                   </Link>
 
                   {/* Feedback card */}
-                  <DocFeedbackNote
-                    note={item}
-                    anchorName=""
-                    inline={true}
-                  />
+                  <DocFeedbackNote note={item} anchorName="" inline={true} />
                 </div>
               ))}
             </div>

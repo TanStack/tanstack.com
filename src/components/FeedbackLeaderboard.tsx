@@ -54,7 +54,12 @@ export function FeedbackLeaderboard() {
   }
 
   const leaderboard = data?.leaderboard || []
-  const pagination = data?.pagination || { page: 1, pageSize: 50, total: 0, totalPages: 0 }
+  const pagination = data?.pagination || {
+    page: 1,
+    pageSize: 50,
+    total: 0,
+    totalPages: 0,
+  }
 
   // Calculate global rank based on page
   const getGlobalRank = (index: number) => {
@@ -80,7 +85,8 @@ export function FeedbackLeaderboard() {
             </h1>
           </div>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Recognizing contributors who help improve TanStack documentation through feedback and notes.
+            Recognizing contributors who help improve TanStack documentation
+            through feedback and notes.
           </p>
         </div>
       </div>
@@ -91,7 +97,9 @@ export function FeedbackLeaderboard() {
           {isLoading ? (
             <div className="p-12 text-center">
               <Spinner className="text-3xl" />
-              <p className="mt-4 text-gray-600 dark:text-gray-400">Loading leaderboard...</p>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">
+                Loading leaderboard...
+              </p>
             </div>
           ) : leaderboard.length === 0 ? (
             <div className="p-12 text-center">

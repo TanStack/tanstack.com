@@ -19,12 +19,12 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           const error = url.searchParams.get('error')
 
           if (error) {
-            console.error(`[OAuth Callback] OAuth error received: ${error}`)
+            console.error(`[AUTH:ERROR] OAuth error received from provider: ${error}`)
             return Response.redirect(new URL('/login?error=oauth_failed', request.url), 302)
           }
 
           if (!code || !state) {
-            console.error('[OAuth Callback] Missing code or state')
+            console.error('[AUTH:ERROR] Missing code or state in OAuth callback')
             return Response.redirect(new URL('/login?error=oauth_failed', request.url), 302)
           }
 
@@ -35,14 +35,14 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
             .find((c) => c.trim().startsWith('oauth_state='))
 
           if (!stateCookie) {
-            console.error('[OAuth Callback] No state cookie found')
+            console.error('[AUTH:ERROR] No state cookie found - possible CSRF or cookie issue')
             return Response.redirect(new URL('/login?error=oauth_failed', request.url), 302)
           }
 
           const cookieState = decodeURIComponent(stateCookie.split('=').slice(1).join('=').trim())
 
           if (cookieState !== state) {
-            console.error('[OAuth Callback] State mismatch')
+            console.error(`[AUTH:ERROR] State mismatch - expected: ${cookieState.substring(0, 10)}..., received: ${state.substring(0, 10)}...`)
             return Response.redirect(new URL('/login?error=oauth_failed', request.url), 302)
           }
 
@@ -88,9 +88,15 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
 
           const tokenData = await tokenResponse.json()
           if (tokenData.error) {
-            console.error('[OAuth Callback] GitHub OAuth error received')
+            console.error(`[AUTH:ERROR] GitHub token exchange failed: ${tokenData.error}, description: ${tokenData.error_description || 'none'}`)
             throw new Error(`GitHub OAuth error: ${tokenData.error}`)
           }
+
+          if (!tokenData.access_token) {
+            console.error('[AUTH:ERROR] GitHub token exchange succeeded but no access_token returned')
+            throw new Error('No access token received from GitHub')
+          }
+
           accessToken = tokenData.access_token
           // Fetch user profile
           const profileResponse = await fetch('https://api.github.com/user', {
@@ -121,7 +127,8 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           }
           
           if (!email) {
-             throw new Error('No verified email found for GitHub account')
+            console.error(`[AUTH:ERROR] No verified email found for GitHub user ${profile.id} (${profile.login})`)
+            throw new Error('No verified email found for GitHub account')
           }
 
           userProfile = {
@@ -155,9 +162,15 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
 
           const tokenData = await tokenResponse.json()
           if (tokenData.error) {
-            console.error('[OAuth Callback] Google OAuth error received')
+            console.error(`[AUTH:ERROR] Google token exchange failed: ${tokenData.error}, description: ${tokenData.error_description || 'none'}`)
             throw new Error(`Google OAuth error: ${tokenData.error}`)
           }
+
+          if (!tokenData.access_token) {
+            console.error('[AUTH:ERROR] Google token exchange succeeded but no access_token returned')
+            throw new Error('No access token received from Google')
+          }
+
           accessToken = tokenData.access_token
 
           // Fetch user profile
@@ -173,7 +186,8 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           const profile = await profileResponse.json()
           
           if (!profile.verified_email) {
-             throw new Error('Google email not verified')
+            console.error(`[AUTH:ERROR] Google email not verified for user ${profile.id} (${profile.email})`)
+            throw new Error('Google email not verified')
           }
           
           userProfile = {
@@ -193,6 +207,7 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
         })
 
         if (!user) {
+          console.error(`[AUTH:ERROR] User ${result.userId} not found after OAuth account creation for ${provider}:${userProfile.id} (${userProfile.email})`)
           throw new Error('User not found after OAuth account creation')
         }
 
@@ -224,7 +239,11 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           headers,
         })
         } catch (err) {
-          console.error('[API OAuth Callback] Error:', err instanceof Error ? err.message : 'Unknown error')
+          console.error('[AUTH:ERROR] OAuth callback failed:', {
+            error: err instanceof Error ? err.message : 'Unknown error',
+            stack: err instanceof Error ? err.stack : undefined,
+            provider: params.provider,
+          })
           return Response.redirect(new URL('/login?error=oauth_failed', request.url), 302)
         }
       },

@@ -324,7 +324,8 @@ const options: HTMLReactParserOptions = {
         switch (componentName?.toLowerCase()) {
           case 'tabs': {
             const tabs = attributes.tabs
-            const id = attributes.id || `tabs-${Math.random().toString(36).slice(2, 9)}`
+            const id =
+              attributes.id || `tabs-${Math.random().toString(36).slice(2, 9)}`
             const panelElements = domNode.children?.filter(
               (child): child is Element =>
                 child instanceof Element && child.name === 'md-tab-panel',

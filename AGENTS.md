@@ -180,6 +180,7 @@ Agents cannot:
 - ❌ Test API endpoints that require browser context
 
 For runtime testing and verification, developers should:
+
 1. Review the code changes
 2. Start the dev server manually (`pnpm dev`)
 3. Test the functionality in a browser

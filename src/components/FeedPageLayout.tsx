@@ -212,7 +212,9 @@ function FeedPageLayoutFilters() {
   return (
     <aside className="lg:w-64 flex-shrink-0 lg:self-start">
       <FeedFilters
-        libraries={libraries.filter((lib): lib is import('~/libraries/types').Library => 'tagline' in lib)}
+        libraries={libraries.filter(
+          (lib): lib is import('~/libraries/types').Library => 'tagline' in lib,
+        )}
         partners={partners}
         selectedSources={filters.sources}
         selectedLibraries={filters.libraries}

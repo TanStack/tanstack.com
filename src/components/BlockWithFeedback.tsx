@@ -83,7 +83,9 @@ export function BlockWithFeedback({
         onMouseLeave={handleMouseLeave}
         data-feedback-wrapper="true"
         style={{
-          anchorName: blockSelector ? `--feedback-${blockSelector.replace(/[^a-zA-Z0-9]/g, '-')}` : undefined,
+          anchorName: blockSelector
+            ? `--feedback-${blockSelector.replace(/[^a-zA-Z0-9]/g, '-')}`
+            : undefined,
         }}
       >
         {children}
@@ -111,11 +113,7 @@ export function BlockWithFeedback({
       {/* Note display - inline in document flow */}
       {note && blockSelector && (
         <div className="my-4">
-          <DocFeedbackNote
-            note={note}
-            anchorName=""
-            inline={true}
-          />
+          <DocFeedbackNote note={note} anchorName="" inline={true} />
         </div>
       )}
     </>

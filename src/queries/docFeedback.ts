@@ -24,7 +24,11 @@ export interface DocFeedbackPagination {
 
 export const getUserDocFeedbackQueryOptions = (params: {
   pagination: DocFeedbackPagination
-  filters?: { status?: DocFeedbackStatus[]; libraryId?: string; type?: DocFeedbackType[] }
+  filters?: {
+    status?: DocFeedbackStatus[]
+    libraryId?: string
+    type?: DocFeedbackType[]
+  }
 }) =>
   queryOptions({
     queryKey: ['docFeedback', 'user', params],

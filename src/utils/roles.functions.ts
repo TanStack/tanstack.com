@@ -13,7 +13,13 @@ export const listRoles = createServerFn({ method: 'POST' })
       nameFilter: z.string().optional(),
       capabilityFilter: z
         .array(
-          z.enum(['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback']),
+          z.enum([
+            'admin',
+            'disableAds',
+            'builder',
+            'feed',
+            'moderate-feedback',
+          ]),
         )
         .optional(),
     }),
@@ -121,7 +127,13 @@ export const updateRole = createServerFn({ method: 'POST' })
       description: z.string().optional(),
       capabilities: z
         .array(
-          z.enum(['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback']),
+          z.enum([
+            'admin',
+            'disableAds',
+            'builder',
+            'feed',
+            'moderate-feedback',
+          ]),
         )
         .optional(),
     }),

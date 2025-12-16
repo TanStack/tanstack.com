@@ -551,9 +551,7 @@ export const fetchNpmDownloadsBulk = createServerFn({ method: 'POST' })
           .flatMap((chunk) => chunk.dailyData || [])
           .filter((d: any) => {
             const date = new Date(d.day)
-            return (
-              date >= new Date(startDate) && date <= new Date(endDate)
-            )
+            return date >= new Date(startDate) && date <= new Date(endDate)
           })
           .sort(
             (a: any, b: any) =>

@@ -16,6 +16,8 @@ import { twMerge } from 'tailwind-merge'
 import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
 import { renderMarkdown } from '~/utils/markdown'
 import { Tabs } from '~/components/Tabs'
+import { BlockWithFeedback } from '~/components/BlockWithFeedback'
+import { useDocFeedback } from '~/components/DocFeedbackContext'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -35,7 +37,7 @@ const CustomHeading = ({
       (child.type === 'a' || child.type === MarkdownLink)
     ) {
       // replace anchor child with its own children so outer anchor remains the only link
-      return child.props.children ?? null
+      return (child.props as any).children ?? null
     }
     return child
   })
@@ -322,6 +324,7 @@ const options: HTMLReactParserOptions = {
         switch (componentName?.toLowerCase()) {
           case 'tabs': {
             const tabs = attributes.tabs
+            const id = attributes.id || `tabs-${Math.random().toString(36).slice(2, 9)}`
             const panelElements = domNode.children?.filter(
               (child): child is Element =>
                 child instanceof Element && child.name === 'md-tab-panel',
@@ -331,7 +334,7 @@ const options: HTMLReactParserOptions = {
               domToReact(panel.children as any, options),
             )
 
-            return <Tabs tabs={tabs} children={children as any} />
+            return <Tabs id={id} tabs={tabs} children={children as any} />
           }
           default:
             return <div>{domToReact(domNode.children as any, options)}</div>

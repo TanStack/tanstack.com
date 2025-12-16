@@ -322,6 +322,273 @@ export const getOSSStats = createServerFn({ method: 'POST' })
   })
 
 /**
+ * Fetch NPM download data for multiple packages in bulk
+ * Optimized to handle all packages in a single request with batch cache lookup
+ * and parallel NPM API fetching. Current year data is cached daily.
+ */
+export const fetchNpmDownloadsBulk = createServerFn({ method: 'POST' })
+  .inputValidator(
+    z.object({
+      packageGroups: z.array(
+        z.object({
+          packages: z.array(
+            z.object({
+              name: z.string(),
+              hidden: z.boolean().optional(),
+            }),
+          ),
+        }),
+      ),
+      startDate: z.string(), // YYYY-MM-DD
+      endDate: z.string(), // YYYY-MM-DD
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { packageGroups, startDate, endDate } = data
+
+    // Import cache functions
+    const { getBatchNpmDownloadChunks, setCachedNpmDownloadChunk } =
+      await import('./stats-db.server')
+
+    const NPM_STATS_START_DATE = '2015-01-10'
+    const today = new Date().toISOString().substring(0, 10)
+    const currentYear = new Date().getFullYear().toString()
+
+    // Collect all unique package/year combinations needed
+    interface ChunkRequest {
+      packageName: string
+      year: string
+      startDate: string
+      endDate: string
+      isCurrentYear: boolean
+    }
+
+    const chunkRequests: ChunkRequest[] = []
+    const allPackageNames = new Set<string>()
+
+    for (const group of packageGroups) {
+      for (const pkg of group.packages) {
+        allPackageNames.add(pkg.name)
+
+        // Generate year-based chunks from startDate to endDate
+        const startYear = new Date(startDate).getFullYear()
+        const endYear = new Date(endDate).getFullYear()
+
+        for (let year = startYear; year <= endYear; year++) {
+          const yearStr = year.toString()
+          const isCurrentYear = yearStr === currentYear
+
+          let chunkStart = `${yearStr}-01-01`
+          let chunkEnd = `${yearStr}-12-31`
+
+          if (isCurrentYear) {
+            chunkEnd = today
+          }
+
+          // Adjust start date if before npm stats started
+          if (chunkStart < NPM_STATS_START_DATE) {
+            chunkStart = NPM_STATS_START_DATE
+          }
+
+          // Skip future years
+          if (year > parseInt(currentYear)) {
+            continue
+          }
+
+          chunkRequests.push({
+            packageName: pkg.name,
+            year: yearStr,
+            startDate: chunkStart,
+            endDate: chunkEnd,
+            isCurrentYear,
+          })
+        }
+      }
+    }
+
+    // Batch fetch all chunks from cache
+    const cachedChunks = await getBatchNpmDownloadChunks(
+      chunkRequests.map((req) => ({
+        packageName: req.packageName,
+        dateFrom: req.startDate,
+        dateTo: req.endDate,
+        binSize: 'daily',
+      })),
+    )
+
+    // Identify chunks that need to be fetched from NPM API
+    const chunksToFetch: ChunkRequest[] = []
+    const resultChunks = new Map<string, any>()
+
+    for (const req of chunkRequests) {
+      const cacheKey = `${req.packageName}|${req.startDate}|${req.endDate}|daily`
+      const cached = cachedChunks.get(cacheKey)
+
+      if (cached) {
+        // For current year, check if cache is from today
+        if (req.isCurrentYear && !cached.isImmutable) {
+          // Check if the cache was updated today
+          const cacheDate = new Date(cached.updatedAt || 0)
+            .toISOString()
+            .substring(0, 10)
+          if (cacheDate === today) {
+            // Cache is from today, use it
+            resultChunks.set(cacheKey, cached)
+            continue
+          }
+          // Cache is stale, need to refetch
+          chunksToFetch.push(req)
+        } else {
+          // Immutable historical data, always use cache
+          resultChunks.set(cacheKey, cached)
+        }
+      } else {
+        // Not in cache, need to fetch
+        chunksToFetch.push(req)
+      }
+    }
+
+    // Fetch missing chunks from NPM API in parallel
+    if (chunksToFetch.length > 0) {
+      const fetchPromises = chunksToFetch.map(async (req) => {
+        try {
+          const response = await fetch(
+            `https://api.npmjs.org/downloads/range/${req.startDate}:${req.endDate}/${req.packageName}`,
+            {
+              headers: {
+                Accept: 'application/json',
+                'User-Agent': 'TanStack-Stats',
+              },
+            },
+          )
+
+          if (!response.ok) {
+            if (response.status === 404) {
+              return {
+                key: `${req.packageName}|${req.startDate}|${req.endDate}|daily`,
+                data: {
+                  packageName: req.packageName,
+                  dateFrom: req.startDate,
+                  dateTo: req.endDate,
+                  dailyData: [],
+                  totalDownloads: 0,
+                  isImmutable: !req.isCurrentYear,
+                },
+              }
+            }
+            throw new Error(`NPM API error: ${response.status}`)
+          }
+
+          const result = await response.json()
+          const downloads = result.downloads || []
+
+          const chunkData = {
+            packageName: req.packageName,
+            dateFrom: req.startDate,
+            dateTo: req.endDate,
+            binSize: 'daily',
+            totalDownloads: downloads.reduce(
+              (sum: number, d: any) => sum + d.downloads,
+              0,
+            ),
+            dailyData: downloads,
+            isImmutable: !req.isCurrentYear,
+          }
+
+          // Cache this chunk asynchronously (don't wait)
+          setCachedNpmDownloadChunk(chunkData).catch((err) =>
+            console.warn(`Failed to cache chunk for ${req.packageName}:`, err),
+          )
+
+          return {
+            key: `${req.packageName}|${req.startDate}|${req.endDate}|daily`,
+            data: chunkData,
+          }
+        } catch (error) {
+          console.error(
+            `Failed to fetch ${req.packageName} ${req.year}:`,
+            error,
+          )
+          // Return empty data on error
+          return {
+            key: `${req.packageName}|${req.startDate}|${req.endDate}|daily`,
+            data: {
+              packageName: req.packageName,
+              dateFrom: req.startDate,
+              dateTo: req.endDate,
+              dailyData: [],
+              totalDownloads: 0,
+              isImmutable: !req.isCurrentYear,
+            },
+          }
+        }
+      })
+
+      const fetchedResults = await Promise.all(fetchPromises)
+      for (const result of fetchedResults) {
+        resultChunks.set(result.key, result.data)
+      }
+    }
+
+    // Organize results by package group
+    const results = packageGroups.map((group) => {
+      const packages = group.packages.map((pkg) => {
+        // Collect all chunks for this package
+        const packageChunks: any[] = []
+
+        for (const req of chunkRequests) {
+          if (req.packageName === pkg.name) {
+            const cacheKey = `${req.packageName}|${req.startDate}|${req.endDate}|daily`
+            const chunk = resultChunks.get(cacheKey)
+            if (chunk) {
+              packageChunks.push(chunk)
+            }
+          }
+        }
+
+        // Combine all chunks and filter to requested date range
+        const allDownloads = packageChunks
+          .flatMap((chunk) => chunk.dailyData || [])
+          .filter((d: any) => {
+            const date = new Date(d.day)
+            return (
+              date >= new Date(startDate) && date <= new Date(endDate)
+            )
+          })
+          .sort(
+            (a: any, b: any) =>
+              new Date(a.day).getTime() - new Date(b.day).getTime(),
+          )
+
+        return {
+          name: pkg.name,
+          hidden: pkg.hidden,
+          downloads: allDownloads,
+        }
+      })
+
+      return {
+        packages,
+        start: startDate,
+        end: endDate,
+        error: null,
+      }
+    })
+
+    // Set cache headers for CDN caching
+    // Cache for 1 hour since we're now handling daily caching internally
+    setResponseHeaders(
+      new Headers({
+        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=7200',
+        'Netlify-CDN-Cache-Control':
+          'public, max-age=3600, durable, stale-while-revalidate=7200',
+      }),
+    )
+
+    return results
+  })
+
+/**
  * Fetch NPM download data for a package for a specific chunk
  * Uses standardized year-based chunks for maximum cache reuse
  * GET request with fixed boundaries allows CDN and browser caching

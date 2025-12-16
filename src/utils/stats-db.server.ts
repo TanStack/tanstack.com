@@ -997,6 +997,85 @@ export interface NpmDownloadChunkData {
 }
 
 /**
+ * Batch fetch multiple npm download chunks in a single query
+ * Much more efficient than calling getCachedNpmDownloadChunk individually
+ * Returns a map of cache key -> chunk data
+ */
+export async function getBatchNpmDownloadChunks(
+  requests: Array<{
+    packageName: string
+    dateFrom: string
+    dateTo: string
+    binSize: string
+  }>,
+): Promise<
+  Map<
+    string,
+    NpmDownloadChunkData & { updatedAt?: string; createdAt?: string }
+  >
+> {
+  const results = new Map<
+    string,
+    NpmDownloadChunkData & { updatedAt?: string; createdAt?: string }
+  >()
+
+  if (requests.length === 0) {
+    return results
+  }
+
+  try {
+    const { or } = await import('drizzle-orm')
+
+    // Build a complex OR condition that matches all requested chunks
+    const conditions = requests.map((req) =>
+      and(
+        eq(npmDownloadChunks.packageName, req.packageName),
+        eq(npmDownloadChunks.dateFrom, req.dateFrom),
+        eq(npmDownloadChunks.dateTo, req.dateTo),
+        eq(npmDownloadChunks.binSize, req.binSize),
+      ),
+    )
+
+    // Single query to fetch all chunks at once
+    const cached = await db.query.npmDownloadChunks.findMany({
+      where: or(...conditions),
+    })
+
+    // Process all cached results
+    for (const chunk of cached) {
+      // Check if chunk is expired (only for mutable chunks)
+      const isValid =
+        chunk.isImmutable ||
+        (chunk.expiresAt && chunk.expiresAt > new Date())
+
+      if (isValid || !chunk.expiresAt) {
+        // Include even expired chunks if they have data (can be used as fallback)
+        const cacheKey = `${chunk.packageName}|${chunk.dateFrom}|${chunk.dateTo}|${chunk.binSize}`
+        results.set(cacheKey, {
+          packageName: chunk.packageName,
+          dateFrom: chunk.dateFrom,
+          dateTo: chunk.dateTo,
+          binSize: chunk.binSize,
+          totalDownloads: chunk.totalDownloads,
+          dailyData: chunk.dailyData as Array<{
+            day: string
+            downloads: number
+          }>,
+          isImmutable: chunk.isImmutable,
+          updatedAt: chunk.updatedAt?.toISOString(),
+          createdAt: chunk.createdAt?.toISOString(),
+        })
+      }
+    }
+
+    return results
+  } catch (error) {
+    console.error('[NPM Download Chunks] Error reading batch cache:', error)
+    return results
+  }
+}
+
+/**
  * Get a cached npm download chunk if available
  * Returns the chunk data if found and not expired (for mutable chunks)
  * Immutable chunks (isImmutable=true) never expire

@@ -16,11 +16,14 @@ import {
   FaGithub,
   FaNpm,
   FaChartLine,
+  FaComments,
+  FaStickyNote,
 } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
 import { requireCapability } from '~/utils/auth.server'
+import { useCapabilities } from '~/hooks/useCapabilities'
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
@@ -54,10 +57,11 @@ export const Route = createFileRoute('/admin')({
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const detailsRef = React.useRef<HTMLElement>(null!)
+  const capabilities = useCapabilities()
 
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
 
-  const adminItems: (LinkOptions & { label: string; icon: React.ReactNode })[] =
+  const allAdminItems: (LinkOptions & { label: string; icon: React.ReactNode; requiredCapability?: string })[] =
     [
       {
         label: 'Admin Dashboard',
@@ -83,6 +87,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         to: '/admin/roles',
       },
       {
+        label: 'Feedback',
+        icon: <FaComments />,
+        to: '/admin/feedback',
+        requiredCapability: 'moderate-feedback',
+      },
+      {
+        label: 'Notes',
+        icon: <FaStickyNote />,
+        to: '/admin/notes',
+        requiredCapability: 'moderate-feedback',
+      },
+      {
         label: 'Feed',
         icon: <FaRss />,
         to: '/admin/feed',
@@ -103,6 +119,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         to: '/account',
       },
     ]
+
+  // Filter menu items based on required capabilities
+  // Admin users have access to everything
+  const isAdmin = capabilities.includes('admin')
+  const adminItems = allAdminItems.filter((item) => {
+    if (!item.requiredCapability) return true
+    return isAdmin || capabilities.includes(item.requiredCapability as any)
+  })
 
   const menuItems = (
     <>

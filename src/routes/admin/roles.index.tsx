@@ -29,8 +29,8 @@ import {
   FaPlus,
   FaTrash,
   FaUsers,
-  FaSpinner,
 } from 'react-icons/fa'
+import { Spinner } from '~/components/Spinner'
 import {
   useReactTable,
   getCoreRowModel,
@@ -182,7 +182,7 @@ function RolesPage() {
   const deleteRole = useDeleteRole()
 
   const availableCapabilities = useMemo(
-    () => ['admin', 'disableAds', 'builder', 'feed'],
+    () => ['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback'],
     [],
   )
 
@@ -518,7 +518,7 @@ function RolesPage() {
                 Manage Roles
               </h1>
               {rolesQuery.isFetching && (
-                <FaSpinner className="animate-spin text-gray-500 dark:text-gray-400" />
+                <Spinner className="text-gray-500 dark:text-gray-400" />
               )}
             </div>
             {!isCreating && (

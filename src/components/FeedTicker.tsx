@@ -101,7 +101,7 @@ export function FeedTicker() {
       const libraryName = library?.name || libraryId || ''
 
       // Get version from metadata
-      const version = entry.metadata?.version || ''
+      const version = (entry.metadata as { version?: string } | null)?.version || ''
 
       return (
         <Link

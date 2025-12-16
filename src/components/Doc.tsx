@@ -17,6 +17,7 @@ import { CopyMarkdownButton } from './CopyMarkdownButton'
 import { GamHeader } from './Gam'
 import { Toc } from './Toc'
 import { TocMobile } from './TocMobile'
+import { DocFeedbackProvider } from './DocFeedbackProvider'
 
 type DocProps = {
   title: string
@@ -27,6 +28,10 @@ type DocProps = {
   shouldRenderToc?: boolean
   colorFrom?: string
   colorTo?: string
+  // Feedback props (optional)
+  libraryId?: string
+  libraryVersion?: string
+  pagePath?: string
 }
 
 function DocContent({
@@ -38,6 +43,9 @@ function DocContent({
   shouldRenderToc = false,
   colorFrom,
   colorTo,
+  libraryId,
+  libraryVersion,
+  pagePath,
 }: DocProps) {
   const { headings } = useMarkdownHeadings()
 
@@ -159,7 +167,17 @@ function DocContent({
               'styled-markdown-content',
             )}
           >
-            <Markdown rawContent={content} />
+            {libraryId && libraryVersion && pagePath ? (
+              <DocFeedbackProvider
+                pagePath={pagePath}
+                libraryId={libraryId}
+                libraryVersion={libraryVersion}
+              >
+                <Markdown rawContent={content} />
+              </DocFeedbackProvider>
+            ) : (
+              <Markdown rawContent={content} />
+            )}
           </div>
           <div className="h-12" />
           <div className="w-full h-px bg-gray-500 opacity-30" />

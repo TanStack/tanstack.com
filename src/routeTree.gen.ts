@@ -36,6 +36,7 @@ import { Route as LibrariesPaidSupportRouteImport } from './routes/_libraries/pa
 import { Route as LibrariesMaintainersRouteImport } from './routes/_libraries/maintainers'
 import { Route as LibrariesLoginRouteImport } from './routes/_libraries/login'
 import { Route as LibrariesLearnRouteImport } from './routes/_libraries/learn'
+import { Route as LibrariesFeedbackLeaderboardRouteImport } from './routes/_libraries/feedback-leaderboard'
 import { Route as LibrariesEthosRouteImport } from './routes/_libraries/ethos'
 import { Route as LibrariesDashboardRouteImport } from './routes/_libraries/dashboard'
 import { Route as LibrariesBrandGuideRouteImport } from './routes/_libraries/brand-guide'
@@ -45,9 +46,12 @@ import { Route as LibrariesAccountRouteImport } from './routes/_libraries/accoun
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
 import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
+import { Route as AdminNotesIndexRouteImport } from './routes/admin/notes.index'
+import { Route as AdminFeedbackIndexRouteImport } from './routes/admin/feedback.index'
 import { Route as AdminFeedIndexRouteImport } from './routes/admin/feed.index'
 import { Route as LibrariesFeedIndexRouteImport } from './routes/_libraries/feed.index'
 import { Route as LibrariesBlogIndexRouteImport } from './routes/_libraries/blog.index'
+import { Route as LibrariesAccountIndexRouteImport } from './routes/_libraries/account/index'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiAdminSyncRouteImport } from './routes/api/admin/sync'
@@ -55,6 +59,8 @@ import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$role
 import { Route as AdminFeedIdRouteImport } from './routes/admin/feed.$id'
 import { Route as LibrariesFeedIdRouteImport } from './routes/_libraries/feed.$id'
 import { Route as LibrariesBlogSplatRouteImport } from './routes/_libraries/blog.$'
+import { Route as LibrariesAccountNotesRouteImport } from './routes/_libraries/account/notes'
+import { Route as LibrariesAccountFeedbackRouteImport } from './routes/_libraries/account/feedback'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
 import { Route as LibrariesVirtualVersionIndexRouteImport } from './routes/_libraries/virtual.$version.index'
 import { Route as LibrariesTableVersionIndexRouteImport } from './routes/_libraries/table.$version.index'
@@ -215,6 +221,12 @@ const LibrariesLearnRoute = LibrariesLearnRouteImport.update({
   path: '/learn',
   getParentRoute: () => LibrariesRouteRoute,
 } as any)
+const LibrariesFeedbackLeaderboardRoute =
+  LibrariesFeedbackLeaderboardRouteImport.update({
+    id: '/feedback-leaderboard',
+    path: '/feedback-leaderboard',
+    getParentRoute: () => LibrariesRouteRoute,
+  } as any)
 const LibrariesEthosRoute = LibrariesEthosRouteImport.update({
   id: '/ethos',
   path: '/ethos',
@@ -260,6 +272,16 @@ const AdminRolesIndexRoute = AdminRolesIndexRouteImport.update({
   path: '/roles/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminNotesIndexRoute = AdminNotesIndexRouteImport.update({
+  id: '/notes/',
+  path: '/notes/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminFeedbackIndexRoute = AdminFeedbackIndexRouteImport.update({
+  id: '/feedback/',
+  path: '/feedback/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminFeedIndexRoute = AdminFeedIndexRouteImport.update({
   id: '/feed/',
   path: '/feed/',
@@ -274,6 +296,11 @@ const LibrariesBlogIndexRoute = LibrariesBlogIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LibrariesBlogRoute,
+} as any)
+const LibrariesAccountIndexRoute = LibrariesAccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LibrariesAccountRoute,
 } as any)
 const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   id: '/auth/$provider/start',
@@ -310,6 +337,17 @@ const LibrariesBlogSplatRoute = LibrariesBlogSplatRouteImport.update({
   path: '/$',
   getParentRoute: () => LibrariesBlogRoute,
 } as any)
+const LibrariesAccountNotesRoute = LibrariesAccountNotesRouteImport.update({
+  id: '/notes',
+  path: '/notes',
+  getParentRoute: () => LibrariesAccountRoute,
+} as any)
+const LibrariesAccountFeedbackRoute =
+  LibrariesAccountFeedbackRouteImport.update({
+    id: '/feedback',
+    path: '/feedback',
+    getParentRoute: () => LibrariesAccountRoute,
+  } as any)
 const LibraryIdVersionDocsRoute = LibraryIdVersionDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -466,12 +504,13 @@ export interface FileRoutesByFullPath {
   '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
-  '/account': typeof LibrariesAccountRoute
+  '/account': typeof LibrariesAccountRouteWithChildren
   '/ads': typeof LibrariesAdsRoute
   '/blog': typeof LibrariesBlogRouteWithChildren
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
+  '/feedback-leaderboard': typeof LibrariesFeedbackLeaderboardRoute
   '/learn': typeof LibrariesLearnRoute
   '/login': typeof LibrariesLoginRoute
   '/maintainers': typeof LibrariesMaintainersRoute
@@ -492,6 +531,8 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
+  '/account/feedback': typeof LibrariesAccountFeedbackRoute
+  '/account/notes': typeof LibrariesAccountNotesRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
@@ -499,9 +540,12 @@ export interface FileRoutesByFullPath {
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/account/': typeof LibrariesAccountIndexRoute
   '/blog/': typeof LibrariesBlogIndexRoute
   '/feed': typeof LibrariesFeedIndexRoute
   '/admin/feed': typeof AdminFeedIndexRoute
+  '/admin/feedback': typeof AdminFeedbackIndexRoute
+  '/admin/notes': typeof AdminNotesIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
@@ -536,11 +580,11 @@ export interface FileRoutesByTo {
   '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
-  '/account': typeof LibrariesAccountRoute
   '/ads': typeof LibrariesAdsRoute
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
+  '/feedback-leaderboard': typeof LibrariesFeedbackLeaderboardRoute
   '/learn': typeof LibrariesLearnRoute
   '/login': typeof LibrariesLoginRoute
   '/maintainers': typeof LibrariesMaintainersRoute
@@ -560,6 +604,8 @@ export interface FileRoutesByTo {
   '/': typeof LibrariesIndexRoute
   '/admin': typeof AdminIndexRoute
   '/stats': typeof StatsIndexRoute
+  '/account/feedback': typeof LibrariesAccountFeedbackRoute
+  '/account/notes': typeof LibrariesAccountNotesRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
@@ -567,9 +613,12 @@ export interface FileRoutesByTo {
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/account': typeof LibrariesAccountIndexRoute
   '/blog': typeof LibrariesBlogIndexRoute
   '/feed': typeof LibrariesFeedIndexRoute
   '/admin/feed': typeof AdminFeedIndexRoute
+  '/admin/feedback': typeof AdminFeedbackIndexRoute
+  '/admin/notes': typeof AdminNotesIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
@@ -608,12 +657,13 @@ export interface FileRoutesById {
   '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
-  '/_libraries/account': typeof LibrariesAccountRoute
+  '/_libraries/account': typeof LibrariesAccountRouteWithChildren
   '/_libraries/ads': typeof LibrariesAdsRoute
   '/_libraries/blog': typeof LibrariesBlogRouteWithChildren
   '/_libraries/brand-guide': typeof LibrariesBrandGuideRoute
   '/_libraries/dashboard': typeof LibrariesDashboardRoute
   '/_libraries/ethos': typeof LibrariesEthosRoute
+  '/_libraries/feedback-leaderboard': typeof LibrariesFeedbackLeaderboardRoute
   '/_libraries/learn': typeof LibrariesLearnRoute
   '/_libraries/login': typeof LibrariesLoginRoute
   '/_libraries/maintainers': typeof LibrariesMaintainersRoute
@@ -634,6 +684,8 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
+  '/_libraries/account/feedback': typeof LibrariesAccountFeedbackRoute
+  '/_libraries/account/notes': typeof LibrariesAccountNotesRoute
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
   '/_libraries/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
@@ -641,9 +693,12 @@ export interface FileRoutesById {
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/_libraries/account/': typeof LibrariesAccountIndexRoute
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
   '/_libraries/feed/': typeof LibrariesFeedIndexRoute
   '/admin/feed/': typeof AdminFeedIndexRoute
+  '/admin/feedback/': typeof AdminFeedbackIndexRoute
+  '/admin/notes/': typeof AdminNotesIndexRoute
   '/admin/roles/': typeof AdminRolesIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
@@ -688,6 +743,7 @@ export interface FileRouteTypes {
     | '/brand-guide'
     | '/dashboard'
     | '/ethos'
+    | '/feedback-leaderboard'
     | '/learn'
     | '/login'
     | '/maintainers'
@@ -708,6 +764,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/stats'
     | '/$libraryId/$version/docs'
+    | '/account/feedback'
+    | '/account/notes'
     | '/blog/$'
     | '/feed/$id'
     | '/admin/feed/$id'
@@ -715,9 +773,12 @@ export interface FileRouteTypes {
     | '/api/admin/sync'
     | '/api/github/webhook'
     | '/auth/$provider/start'
+    | '/account/'
     | '/blog/'
     | '/feed'
     | '/admin/feed'
+    | '/admin/feedback'
+    | '/admin/notes'
     | '/admin/roles'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
@@ -752,11 +813,11 @@ export interface FileRouteTypes {
     | '/partners-embed'
     | '/sponsors-embed'
     | '/$libraryId/$version'
-    | '/account'
     | '/ads'
     | '/brand-guide'
     | '/dashboard'
     | '/ethos'
+    | '/feedback-leaderboard'
     | '/learn'
     | '/login'
     | '/maintainers'
@@ -776,6 +837,8 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/stats'
+    | '/account/feedback'
+    | '/account/notes'
     | '/blog/$'
     | '/feed/$id'
     | '/admin/feed/$id'
@@ -783,9 +846,12 @@ export interface FileRouteTypes {
     | '/api/admin/sync'
     | '/api/github/webhook'
     | '/auth/$provider/start'
+    | '/account'
     | '/blog'
     | '/feed'
     | '/admin/feed'
+    | '/admin/feedback'
+    | '/admin/notes'
     | '/admin/roles'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
@@ -829,6 +895,7 @@ export interface FileRouteTypes {
     | '/_libraries/brand-guide'
     | '/_libraries/dashboard'
     | '/_libraries/ethos'
+    | '/_libraries/feedback-leaderboard'
     | '/_libraries/learn'
     | '/_libraries/login'
     | '/_libraries/maintainers'
@@ -849,6 +916,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/stats/'
     | '/$libraryId/$version/docs'
+    | '/_libraries/account/feedback'
+    | '/_libraries/account/notes'
     | '/_libraries/blog/$'
     | '/_libraries/feed/$id'
     | '/admin/feed/$id'
@@ -856,9 +925,12 @@ export interface FileRouteTypes {
     | '/api/admin/sync'
     | '/api/github/webhook'
     | '/auth/$provider/start'
+    | '/_libraries/account/'
     | '/_libraries/blog/'
     | '/_libraries/feed/'
     | '/admin/feed/'
+    | '/admin/feedback/'
+    | '/admin/notes/'
     | '/admin/roles/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
@@ -1096,6 +1168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesLearnRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
+    '/_libraries/feedback-leaderboard': {
+      id: '/_libraries/feedback-leaderboard'
+      path: '/feedback-leaderboard'
+      fullPath: '/feedback-leaderboard'
+      preLoaderRoute: typeof LibrariesFeedbackLeaderboardRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
     '/_libraries/ethos': {
       id: '/_libraries/ethos'
       path: '/ethos'
@@ -1159,6 +1238,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRolesIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/notes/': {
+      id: '/admin/notes/'
+      path: '/notes'
+      fullPath: '/admin/notes'
+      preLoaderRoute: typeof AdminNotesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/feedback/': {
+      id: '/admin/feedback/'
+      path: '/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AdminFeedbackIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/feed/': {
       id: '/admin/feed/'
       path: '/feed'
@@ -1179,6 +1272,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/'
       preLoaderRoute: typeof LibrariesBlogIndexRouteImport
       parentRoute: typeof LibrariesBlogRoute
+    }
+    '/_libraries/account/': {
+      id: '/_libraries/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof LibrariesAccountIndexRouteImport
+      parentRoute: typeof LibrariesAccountRoute
     }
     '/auth/$provider/start': {
       id: '/auth/$provider/start'
@@ -1228,6 +1328,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/$'
       preLoaderRoute: typeof LibrariesBlogSplatRouteImport
       parentRoute: typeof LibrariesBlogRoute
+    }
+    '/_libraries/account/notes': {
+      id: '/_libraries/account/notes'
+      path: '/notes'
+      fullPath: '/account/notes'
+      preLoaderRoute: typeof LibrariesAccountNotesRouteImport
+      parentRoute: typeof LibrariesAccountRoute
+    }
+    '/_libraries/account/feedback': {
+      id: '/_libraries/account/feedback'
+      path: '/feedback'
+      fullPath: '/account/feedback'
+      preLoaderRoute: typeof LibrariesAccountFeedbackRouteImport
+      parentRoute: typeof LibrariesAccountRoute
     }
     '/$libraryId/$version/docs': {
       id: '/$libraryId/$version/docs'
@@ -1468,6 +1582,21 @@ const LibraryIdRouteRouteWithChildren = LibraryIdRouteRoute._addFileChildren(
   LibraryIdRouteRouteChildren,
 )
 
+interface LibrariesAccountRouteChildren {
+  LibrariesAccountFeedbackRoute: typeof LibrariesAccountFeedbackRoute
+  LibrariesAccountNotesRoute: typeof LibrariesAccountNotesRoute
+  LibrariesAccountIndexRoute: typeof LibrariesAccountIndexRoute
+}
+
+const LibrariesAccountRouteChildren: LibrariesAccountRouteChildren = {
+  LibrariesAccountFeedbackRoute: LibrariesAccountFeedbackRoute,
+  LibrariesAccountNotesRoute: LibrariesAccountNotesRoute,
+  LibrariesAccountIndexRoute: LibrariesAccountIndexRoute,
+}
+
+const LibrariesAccountRouteWithChildren =
+  LibrariesAccountRoute._addFileChildren(LibrariesAccountRouteChildren)
+
 interface LibrariesBlogRouteChildren {
   LibrariesBlogSplatRoute: typeof LibrariesBlogSplatRoute
   LibrariesBlogIndexRoute: typeof LibrariesBlogIndexRoute
@@ -1483,12 +1612,13 @@ const LibrariesBlogRouteWithChildren = LibrariesBlogRoute._addFileChildren(
 )
 
 interface LibrariesRouteRouteChildren {
-  LibrariesAccountRoute: typeof LibrariesAccountRoute
+  LibrariesAccountRoute: typeof LibrariesAccountRouteWithChildren
   LibrariesAdsRoute: typeof LibrariesAdsRoute
   LibrariesBlogRoute: typeof LibrariesBlogRouteWithChildren
   LibrariesBrandGuideRoute: typeof LibrariesBrandGuideRoute
   LibrariesDashboardRoute: typeof LibrariesDashboardRoute
   LibrariesEthosRoute: typeof LibrariesEthosRoute
+  LibrariesFeedbackLeaderboardRoute: typeof LibrariesFeedbackLeaderboardRoute
   LibrariesLearnRoute: typeof LibrariesLearnRoute
   LibrariesLoginRoute: typeof LibrariesLoginRoute
   LibrariesMaintainersRoute: typeof LibrariesMaintainersRoute
@@ -1518,12 +1648,13 @@ interface LibrariesRouteRouteChildren {
 }
 
 const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
-  LibrariesAccountRoute: LibrariesAccountRoute,
+  LibrariesAccountRoute: LibrariesAccountRouteWithChildren,
   LibrariesAdsRoute: LibrariesAdsRoute,
   LibrariesBlogRoute: LibrariesBlogRouteWithChildren,
   LibrariesBrandGuideRoute: LibrariesBrandGuideRoute,
   LibrariesDashboardRoute: LibrariesDashboardRoute,
   LibrariesEthosRoute: LibrariesEthosRoute,
+  LibrariesFeedbackLeaderboardRoute: LibrariesFeedbackLeaderboardRoute,
   LibrariesLearnRoute: LibrariesLearnRoute,
   LibrariesLoginRoute: LibrariesLoginRoute,
   LibrariesMaintainersRoute: LibrariesMaintainersRoute,
@@ -1565,6 +1696,8 @@ interface AdminRouteRouteChildren {
   AdminFeedIdRoute: typeof AdminFeedIdRoute
   AdminRolesRoleIdRoute: typeof AdminRolesRoleIdRoute
   AdminFeedIndexRoute: typeof AdminFeedIndexRoute
+  AdminFeedbackIndexRoute: typeof AdminFeedbackIndexRoute
+  AdminNotesIndexRoute: typeof AdminNotesIndexRoute
   AdminRolesIndexRoute: typeof AdminRolesIndexRoute
 }
 
@@ -1577,6 +1710,8 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminFeedIdRoute: AdminFeedIdRoute,
   AdminRolesRoleIdRoute: AdminRolesRoleIdRoute,
   AdminFeedIndexRoute: AdminFeedIndexRoute,
+  AdminFeedbackIndexRoute: AdminFeedbackIndexRoute,
+  AdminNotesIndexRoute: AdminNotesIndexRoute,
   AdminRolesIndexRoute: AdminRolesIndexRoute,
 }
 

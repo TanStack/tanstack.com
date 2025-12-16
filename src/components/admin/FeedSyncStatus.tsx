@@ -6,7 +6,8 @@ import {
   syncGitHubSource,
   syncBlogSource,
 } from '~/utils/admin'
-import { FaSync, FaSpinner } from 'react-icons/fa'
+import { FaSync } from 'react-icons/fa'
+import { Spinner } from '~/components/Spinner'
 
 export function FeedSyncStatus({
   onSyncComplete,
@@ -68,7 +69,7 @@ export function FeedSyncStatus({
             className="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
           >
             {syncingAll ? (
-              <FaSpinner className="animate-spin w-3 h-3" />
+              <Spinner className="text-xs" />
             ) : (
               <FaSync className="w-3 h-3" />
             )}
@@ -135,7 +136,7 @@ export function FeedSyncStatus({
                         title={`Sync ${source}`}
                       >
                         {isSyncing ? (
-                          <FaSpinner className="animate-spin w-2.5 h-2.5" />
+                          <Spinner className="text-xs" />
                         ) : (
                           <FaSync className="w-2.5 h-2.5" />
                         )}

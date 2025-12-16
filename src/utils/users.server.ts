@@ -18,8 +18,9 @@ const requireCapability = createServerFn({ method: 'POST' })
     const user = await getAuthenticatedUser()
 
     // User already has capabilities from getAuthenticatedUser
-    // Validate that caller has the required capability
-    if (!user.capabilities.includes(capability)) {
+    // Validate that caller has the required capability (admin users have access to everything)
+    const hasAccess = user.capabilities.includes('admin') || user.capabilities.includes(capability)
+    if (!hasAccess) {
       throw new Error(`${capability} capability required`)
     }
 

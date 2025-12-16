@@ -22,6 +22,7 @@ export const capabilityEnum = pgEnum('capability', [
   'disableAds',
   'builder',
   'feed',
+  'moderate-feedback',
 ])
 export const feedCategoryEnum = pgEnum('feed_category', [
   'release',
@@ -32,9 +33,23 @@ export const feedCategoryEnum = pgEnum('feed_category', [
   'other',
 ])
 export const oauthProviderEnum = pgEnum('oauth_provider', ['github', 'google'])
+export const docFeedbackTypeEnum = pgEnum('doc_feedback_type', [
+  'note',
+  'improvement',
+])
+export const docFeedbackStatusEnum = pgEnum('doc_feedback_status', [
+  'pending',
+  'approved',
+  'denied',
+])
 
 // Type exports
-export type Capability = 'admin' | 'disableAds' | 'builder' | 'feed'
+export type Capability =
+  | 'admin'
+  | 'disableAds'
+  | 'builder'
+  | 'feed'
+  | 'moderate-feedback'
 export type FeedCategory =
   | 'release'
   | 'announcement'
@@ -43,6 +58,8 @@ export type FeedCategory =
   | 'update'
   | 'other'
 export type OAuthProvider = 'github' | 'google'
+export type DocFeedbackType = 'note' | 'improvement'
+export type DocFeedbackStatus = 'pending' | 'approved' | 'denied'
 
 // Constants
 export const VALID_CAPABILITIES: readonly Capability[] = [
@@ -50,6 +67,7 @@ export const VALID_CAPABILITIES: readonly Capability[] = [
   'disableAds',
   'builder',
   'feed',
+  'moderate-feedback',
 ] as const
 export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
 export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
@@ -485,11 +503,72 @@ export const npmDownloadChunks = pgTable(
 export type NpmDownloadChunk = InferSelectModel<typeof npmDownloadChunks>
 export type NewNpmDownloadChunk = InferInsertModel<typeof npmDownloadChunks>
 
+// Doc feedback table (for user notes and improvement suggestions on documentation)
+export const docFeedback = pgTable(
+  'doc_feedback',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+
+    // Content
+    type: docFeedbackTypeEnum('type').notNull(),
+    content: text('content').notNull(),
+    characterCount: integer('character_count').notNull(), // Store raw character count, points derived from this
+
+    // Location
+    pagePath: varchar('page_path', { length: 500 }).notNull(), // e.g., "/query/v5/docs/overview"
+    libraryId: varchar('library_id', { length: 255 }).notNull(), // e.g., "query"
+    libraryVersion: varchar('library_version', { length: 50 }).notNull(), // e.g., "v5.0.0"
+    blockSelector: text('block_selector').notNull(), // hierarchical selector for resilience
+    blockContentHash: varchar('block_content_hash', { length: 64 }), // SHA-256 hash for drift detection
+
+    // State
+    status: docFeedbackStatusEnum('status').notNull().default('pending'),
+    isDetached: boolean('is_detached').notNull().default(false), // true if block moved/deleted
+    isCollapsed: boolean('is_collapsed').notNull().default(false), // UI state: collapsed or expanded
+
+    // Moderation
+    moderatedBy: uuid('moderated_by').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    moderatedAt: timestamp('moderated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    moderationNote: text('moderation_note'), // Internal note from moderator
+
+    // Timestamps
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    userIdIdx: index('doc_feedback_user_id_idx').on(table.userId),
+    statusIdx: index('doc_feedback_status_idx').on(table.status),
+    libraryIdx: index('doc_feedback_library_idx').on(table.libraryId),
+    pagePathIdx: index('doc_feedback_page_path_idx').on(table.pagePath),
+    createdAtIdx: index('doc_feedback_created_at_idx').on(table.createdAt),
+    isDetachedIdx: index('doc_feedback_is_detached_idx').on(table.isDetached),
+    moderatedByIdx: index('doc_feedback_moderated_by_idx').on(
+      table.moderatedBy,
+    ),
+  }),
+)
+
+export type DocFeedback = InferSelectModel<typeof docFeedback>
+export type NewDocFeedback = InferInsertModel<typeof docFeedback>
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   oauthAccounts: many(oauthAccounts),
   roleAssignments: many(roleAssignments),
+  docFeedback: many(docFeedback),
 }))
 
 export const rolesRelations = relations(roles, ({ many }) => ({
@@ -520,6 +599,17 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const oauthAccountsRelations = relations(oauthAccounts, ({ one }) => ({
   user: one(users, {
     fields: [oauthAccounts.userId],
+    references: [users.id],
+  }),
+}))
+
+export const docFeedbackRelations = relations(docFeedback, ({ one }) => ({
+  user: one(users, {
+    fields: [docFeedback.userId],
+    references: [users.id],
+  }),
+  moderator: one(users, {
+    fields: [docFeedback.moderatedBy],
     references: [users.id],
   }),
 }))

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Await } from '@tanstack/react-router'
-import { CgSpinner } from 'react-icons/cg'
+import { Spinner } from '~/components/Spinner'
 import SponsorPack from '~/components/SponsorPack'
 import { twMerge } from 'tailwind-merge'
 
@@ -30,7 +30,7 @@ export function SponsorsSection({
       >
         <Await
           promise={sponsorsPromise}
-          fallback={<CgSpinner className="text-2xl animate-spin" />}
+          fallback={<Spinner className="text-3xl" />}
         >
           {(sponsors: any) => <SponsorPack sponsors={sponsors} />}
         </Await>

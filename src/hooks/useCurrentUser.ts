@@ -16,3 +16,12 @@ export function useCurrentUserQuery() {
     staleTime: 5 * 1000,
   })
 }
+
+/**
+ * Simple hook to get the current user data
+ * Returns undefined if not logged in
+ */
+export function useCurrentUser() {
+  const query = useCurrentUserQuery()
+  return query.data
+}

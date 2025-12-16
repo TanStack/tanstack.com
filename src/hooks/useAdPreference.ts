@@ -23,7 +23,7 @@ export function useAdsPreference() {
   } else {
     const user = userQuery.data
     const adsDisabled = user.adsDisabled ?? false
-    const canDisableAds = capabilities.includes('disableAds')
+    const canDisableAds = capabilities.includes('admin') || capabilities.includes('disableAds')
     adsEnabled = !canDisableAds || !adsDisabled
   }
 

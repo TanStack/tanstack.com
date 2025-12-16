@@ -1,6 +1,10 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { FaComment, FaExclamationTriangle, FaExternalLinkAlt } from 'react-icons/fa'
+import {
+  FaComment,
+  FaExclamationTriangle,
+  FaExternalLinkAlt,
+} from 'react-icons/fa'
 import {
   Table,
   TableHeader,
@@ -16,23 +20,25 @@ import type { DocFeedback } from '~/db/schema'
 import { calculatePoints } from '~/utils/docFeedback.client'
 
 interface NotesModerationListProps {
-  data: {
-    feedback: Array<{
-      feedback: DocFeedback
-      user: {
-        id: string
-        name: string | null
-        email: string
-        image: string | null
-      } | null
-    }>
-    pagination: {
-      page: number
-      pageSize: number
-      total: number
-      totalPages: number
-    }
-  } | undefined
+  data:
+    | {
+        feedback: Array<{
+          feedback: DocFeedback
+          user: {
+            id: string
+            name: string | null
+            email: string
+            image: string | null
+          } | null
+        }>
+        pagination: {
+          page: number
+          pageSize: number
+          total: number
+          totalPages: number
+        }
+      }
+    | undefined
   isLoading: boolean
   error: Error | null
   page: number
@@ -75,13 +81,20 @@ export function NotesModerationList({
   }
 
   const notesList = data?.feedback || []
-  const pagination = data?.pagination || { page: 1, pageSize: 50, total: 0, totalPages: 0 }
+  const pagination = data?.pagination || {
+    page: 1,
+    pageSize: 50,
+    total: 0,
+    totalPages: 0,
+  }
 
   if (isLoading) {
     return (
       <div className="text-center py-12">
         <Spinner className="text-3xl" />
-        <p className="mt-4 text-gray-600 dark:text-gray-400">Loading notes...</p>
+        <p className="mt-4 text-gray-600 dark:text-gray-400">
+          Loading notes...
+        </p>
       </div>
     )
   }
@@ -116,14 +129,19 @@ export function NotesModerationList({
           {notesList.map((entry, index) => {
             const { feedback, user } = entry
             const isExpanded = expandedIds.has(feedback.id)
-            const contentPreview = feedback.content.slice(0, 100) + (feedback.content.length > 100 ? '...' : '')
+            const contentPreview =
+              feedback.content.slice(0, 100) +
+              (feedback.content.length > 100 ? '...' : '')
             const charCount = feedback.content.length
 
             // Status badge styling
             const statusStyles = {
-              pending: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-              approved: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-              denied: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+              pending:
+                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+              approved:
+                'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+              denied:
+                'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
             }
 
             return (
@@ -139,10 +157,12 @@ export function NotesModerationList({
                     {(page - 1) * pageSize + index + 1}
                   </TableCell>
                   <TableCell>
-                    <span className={twMerge(
-                      'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
-                      statusStyles[feedback.status]
-                    )}>
+                    <span
+                      className={twMerge(
+                        'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium',
+                        statusStyles[feedback.status],
+                      )}
+                    >
                       {feedback.status}
                     </span>
                   </TableCell>
@@ -156,8 +176,12 @@ export function NotesModerationList({
                         />
                       )}
                       <div>
-                        <div className="font-medium text-sm">{user?.name || 'Unknown'}</div>
-                        <div className="text-xs text-gray-500">{user?.email}</div>
+                        <div className="font-medium text-sm">
+                          {user?.name || 'Unknown'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {user?.email}
+                        </div>
                       </div>
                     </div>
                   </TableCell>
@@ -167,7 +191,9 @@ export function NotesModerationList({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm font-mono">{feedback.libraryId}</span>
+                    <span className="text-sm font-mono">
+                      {feedback.libraryId}
+                    </span>
                     {feedback.isDetached && (
                       <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mt-1">
                         <FaExclamationTriangle />
@@ -179,12 +205,20 @@ export function NotesModerationList({
                     {charCount}
                   </TableCell>
                   <TableCell className="text-right font-semibold">
-                    {calculatePoints(feedback.characterCount, feedback.type).toFixed(1)}
+                    {calculatePoints(
+                      feedback.characterCount,
+                      feedback.type,
+                    ).toFixed(1)}
                   </TableCell>
                   <TableCell className="text-xs text-gray-600 dark:text-gray-400">
-                    <div>{new Date(feedback.createdAt).toLocaleDateString()}</div>
+                    <div>
+                      {new Date(feedback.createdAt).toLocaleDateString()}
+                    </div>
                     <div className="text-[10px] text-gray-500">
-                      {new Date(feedback.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(feedback.createdAt).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </div>
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
@@ -201,11 +235,16 @@ export function NotesModerationList({
                 </TableRow>
                 {isExpanded && (
                   <TableRow>
-                    <TableCell colSpan={9} className="bg-gray-50 dark:bg-gray-900">
+                    <TableCell
+                      colSpan={9}
+                      className="bg-gray-50 dark:bg-gray-900"
+                    >
                       <div className="p-4 space-y-4">
                         {/* Content */}
                         <div>
-                          <h4 className="text-sm font-semibold mb-2">Content:</h4>
+                          <h4 className="text-sm font-semibold mb-2">
+                            Content:
+                          </h4>
                           <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
                             {feedback.content}
                           </div>
@@ -213,19 +252,33 @@ export function NotesModerationList({
 
                         {/* Location */}
                         <div>
-                          <h4 className="text-sm font-semibold mb-2">Location:</h4>
+                          <h4 className="text-sm font-semibold mb-2">
+                            Location:
+                          </h4>
                           <div className="text-xs space-y-1">
                             <div>
-                              <span className="text-gray-600 dark:text-gray-400">Path:</span>{' '}
-                              <span className="font-mono">{feedback.pagePath}</span>
+                              <span className="text-gray-600 dark:text-gray-400">
+                                Path:
+                              </span>{' '}
+                              <span className="font-mono">
+                                {feedback.pagePath}
+                              </span>
                             </div>
                             <div>
-                              <span className="text-gray-600 dark:text-gray-400">Version:</span>{' '}
-                              <span className="font-mono">{feedback.libraryVersion}</span>
+                              <span className="text-gray-600 dark:text-gray-400">
+                                Version:
+                              </span>{' '}
+                              <span className="font-mono">
+                                {feedback.libraryVersion}
+                              </span>
                             </div>
                             <div>
-                              <span className="text-gray-600 dark:text-gray-400">Selector:</span>{' '}
-                              <span className="font-mono text-xs">{feedback.blockSelector}</span>
+                              <span className="text-gray-600 dark:text-gray-400">
+                                Selector:
+                              </span>{' '}
+                              <span className="font-mono text-xs">
+                                {feedback.blockSelector}
+                              </span>
                             </div>
                           </div>
                         </div>

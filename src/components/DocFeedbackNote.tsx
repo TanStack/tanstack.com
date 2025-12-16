@@ -1,8 +1,20 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { FaComment, FaLightbulb, FaTrash, FaChevronDown, FaChevronUp, FaSave, FaTimes } from 'react-icons/fa'
+import {
+  FaComment,
+  FaLightbulb,
+  FaTrash,
+  FaChevronDown,
+  FaChevronUp,
+  FaSave,
+  FaTimes,
+} from 'react-icons/fa'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { deleteDocFeedback, updateDocFeedback, updateDocFeedbackCollapsed } from '~/utils/docFeedback.functions'
+import {
+  deleteDocFeedback,
+  updateDocFeedback,
+  updateDocFeedbackCollapsed,
+} from '~/utils/docFeedback.functions'
 import { useToast } from '~/components/ToastProvider'
 import type { DocFeedback } from '~/db/schema'
 
@@ -12,7 +24,11 @@ interface DocFeedbackNoteProps {
   inline?: boolean
 }
 
-export function DocFeedbackNote({ note, anchorName, inline = false }: DocFeedbackNoteProps) {
+export function DocFeedbackNote({
+  note,
+  anchorName,
+  inline = false,
+}: DocFeedbackNoteProps) {
   const queryClient = useQueryClient()
   const [isDeleting, setIsDeleting] = React.useState(false)
   const [deleteError, setDeleteError] = React.useState<string | null>(null)
@@ -57,7 +73,8 @@ export function DocFeedbackNote({ note, anchorName, inline = false }: DocFeedbac
 
   // Extract first line for preview
   const firstLine = note.content.split('\n')[0]
-  const preview = firstLine.length > 60 ? firstLine.substring(0, 60) + '...' : firstLine
+  const preview =
+    firstLine.length > 60 ? firstLine.substring(0, 60) + '...' : firstLine
 
   const deleteMutation = useMutation({
     mutationFn: deleteDocFeedback,
@@ -66,33 +83,32 @@ export function DocFeedbackNote({ note, anchorName, inline = false }: DocFeedbac
       await queryClient.cancelQueries({ queryKey: ['docFeedback'] })
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueriesData({ queryKey: ['docFeedback'] })
+      const previousData = queryClient.getQueriesData({
+        queryKey: ['docFeedback'],
+      })
 
       // Optimistically remove the note from all matching queries
-      queryClient.setQueriesData(
-        { queryKey: ['docFeedback'] },
-        (old: any) => {
-          if (!old) return old
+      queryClient.setQueriesData({ queryKey: ['docFeedback'] }, (old: any) => {
+        if (!old) return old
 
-          // Handle doc page structure (userFeedback)
-          if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
-            return {
-              ...old,
-              userFeedback: old.userFeedback.filter((f: any) => f.id !== note.id),
-            }
+        // Handle doc page structure (userFeedback)
+        if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
+          return {
+            ...old,
+            userFeedback: old.userFeedback.filter((f: any) => f.id !== note.id),
           }
-
-          // Handle account/notes page structure (feedback)
-          if ('feedback' in old && Array.isArray(old.feedback)) {
-            return {
-              ...old,
-              feedback: old.feedback.filter((f: any) => f.id !== note.id),
-            }
-          }
-
-          return old
         }
-      )
+
+        // Handle account/notes page structure (feedback)
+        if ('feedback' in old && Array.isArray(old.feedback)) {
+          return {
+            ...old,
+            feedback: old.feedback.filter((f: any) => f.id !== note.id),
+          }
+        }
+
+        return old
+      })
 
       return { previousData }
     },
@@ -118,41 +134,48 @@ export function DocFeedbackNote({ note, anchorName, inline = false }: DocFeedbac
       await queryClient.cancelQueries({ queryKey: ['docFeedback'] })
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueriesData({ queryKey: ['docFeedback'] })
+      const previousData = queryClient.getQueriesData({
+        queryKey: ['docFeedback'],
+      })
 
       // Optimistically update the note content
-      queryClient.setQueriesData(
-        { queryKey: ['docFeedback'] },
-        (old: any) => {
-          if (!old) return old
+      queryClient.setQueriesData({ queryKey: ['docFeedback'] }, (old: any) => {
+        if (!old) return old
 
-          // Handle doc page structure (userFeedback)
-          if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
-            return {
-              ...old,
-              userFeedback: old.userFeedback.map((f: any) =>
-                f.id === note.id
-                  ? { ...f, content: variables.data.content, updatedAt: new Date() }
-                  : f
-              ),
-            }
+        // Handle doc page structure (userFeedback)
+        if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
+          return {
+            ...old,
+            userFeedback: old.userFeedback.map((f: any) =>
+              f.id === note.id
+                ? {
+                    ...f,
+                    content: variables.data.content,
+                    updatedAt: new Date(),
+                  }
+                : f,
+            ),
           }
-
-          // Handle account/notes page structure (feedback)
-          if ('feedback' in old && Array.isArray(old.feedback)) {
-            return {
-              ...old,
-              feedback: old.feedback.map((f: any) =>
-                f.id === note.id
-                  ? { ...f, content: variables.data.content, updatedAt: new Date() }
-                  : f
-              ),
-            }
-          }
-
-          return old
         }
-      )
+
+        // Handle account/notes page structure (feedback)
+        if ('feedback' in old && Array.isArray(old.feedback)) {
+          return {
+            ...old,
+            feedback: old.feedback.map((f: any) =>
+              f.id === note.id
+                ? {
+                    ...f,
+                    content: variables.data.content,
+                    updatedAt: new Date(),
+                  }
+                : f,
+            ),
+          }
+        }
+
+        return old
+      })
 
       return { previousData }
     },
@@ -182,41 +205,40 @@ export function DocFeedbackNote({ note, anchorName, inline = false }: DocFeedbac
       await queryClient.cancelQueries({ queryKey: ['docFeedback'] })
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueriesData({ queryKey: ['docFeedback'] })
+      const previousData = queryClient.getQueriesData({
+        queryKey: ['docFeedback'],
+      })
 
       // Optimistically toggle collapsed state
-      queryClient.setQueriesData(
-        { queryKey: ['docFeedback'] },
-        (old: any) => {
-          if (!old) return old
+      queryClient.setQueriesData({ queryKey: ['docFeedback'] }, (old: any) => {
+        if (!old) return old
 
-          // Handle doc page structure (userFeedback)
-          if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
-            return {
-              ...old,
-              userFeedback: old.userFeedback.map((f: any) =>
-                f.id === note.id
-                  ? { ...f, isCollapsed: variables.data.isCollapsed }
-                  : f
-              ),
-            }
+        // Handle doc page structure (userFeedback)
+        if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
+          return {
+            ...old,
+            userFeedback: old.userFeedback.map((f: any) =>
+              f.id === note.id
+                ? { ...f, isCollapsed: variables.data.isCollapsed }
+                : f,
+            ),
           }
-
-          // Handle account/notes page structure (feedback)
-          if ('feedback' in old && Array.isArray(old.feedback)) {
-            return {
-              ...old,
-              feedback: old.feedback.map((f: any) =>
-                f.id === note.id
-                  ? { ...f, isCollapsed: variables.data.isCollapsed }
-                  : f
-              ),
-            }
-          }
-
-          return old
         }
-      )
+
+        // Handle account/notes page structure (feedback)
+        if ('feedback' in old && Array.isArray(old.feedback)) {
+          return {
+            ...old,
+            feedback: old.feedback.map((f: any) =>
+              f.id === note.id
+                ? { ...f, isCollapsed: variables.data.isCollapsed }
+                : f,
+            ),
+          }
+        }
+
+        return old
+      })
 
       return { previousData }
     },
@@ -316,7 +338,8 @@ export function DocFeedbackNote({ note, anchorName, inline = false }: DocFeedbac
         <div
           className={twMerge(
             `flex flex-col gap-1 p-2 ${colors.header}`,
-            note.isCollapsed && 'cursor-pointer hover:opacity-80 transition-opacity'
+            note.isCollapsed &&
+              'cursor-pointer hover:opacity-80 transition-opacity',
           )}
           onClick={note.isCollapsed ? handleToggle : undefined}
         >
@@ -364,9 +387,17 @@ export function DocFeedbackNote({ note, anchorName, inline = false }: DocFeedbac
                   handleToggle()
                 }}
                 className={`p-1 ${colors.icon} ${colors.deleteHover} transition-colors`}
-                title={note.isCollapsed ? `Expand ${isImprovement ? 'improvement' : 'note'}` : `Collapse ${isImprovement ? 'improvement' : 'note'}`}
+                title={
+                  note.isCollapsed
+                    ? `Expand ${isImprovement ? 'improvement' : 'note'}`
+                    : `Collapse ${isImprovement ? 'improvement' : 'note'}`
+                }
               >
-                {note.isCollapsed ? <FaChevronDown className="text-xs" /> : <FaChevronUp className="text-xs" />}
+                {note.isCollapsed ? (
+                  <FaChevronDown className="text-xs" />
+                ) : (
+                  <FaChevronUp className="text-xs" />
+                )}
               </button>
             </div>
           </div>
@@ -428,7 +459,9 @@ export function DocFeedbackNote({ note, anchorName, inline = false }: DocFeedbac
             )}
 
             {/* Timestamp and Points */}
-            <div className={`mt-2 flex items-center justify-between text-xs ${colors.timestamp}`}>
+            <div
+              className={`mt-2 flex items-center justify-between text-xs ${colors.timestamp}`}
+            >
               <div>
                 {new Date(note.createdAt).toLocaleDateString('en-US', {
                   month: 'short',

@@ -463,7 +463,10 @@ export function getPopularComparisons(): z.input<
           color: '#FF4500',
         },
         {
-          packages: [{ name: '@tanstack/react-table' }, { name: 'react-table' }],
+          packages: [
+            { name: '@tanstack/react-table' },
+            { name: 'react-table' },
+          ],
           color: '#FF7043',
         },
         {

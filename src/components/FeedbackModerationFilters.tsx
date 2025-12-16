@@ -91,7 +91,7 @@ export function FeedbackModerationFilters({
     filters.libraryId ||
     filters.isDetached ||
     filters.dateFrom ||
-    filters.dateTo
+    filters.dateTo,
   )
 
   return (

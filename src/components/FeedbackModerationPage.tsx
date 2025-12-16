@@ -38,7 +38,9 @@ export function FeedbackModerationPage() {
         <div>
           <div className="font-medium">Feedback moderated</div>
           <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Feedback {variables.data.action === 'approve' ? 'approved' : 'denied'} successfully.
+            Feedback{' '}
+            {variables.data.action === 'approve' ? 'approved' : 'denied'}{' '}
+            successfully.
           </div>
         </div>,
       )
@@ -119,7 +121,9 @@ export function FeedbackModerationPage() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               Moderate Feedback
             </h1>
-            {isLoading && <Spinner className="text-gray-500 dark:text-gray-400" />}
+            {isLoading && (
+              <Spinner className="text-gray-500 dark:text-gray-400" />
+            )}
           </div>
 
           <FeedbackModerationList

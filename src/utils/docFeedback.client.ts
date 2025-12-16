@@ -34,7 +34,7 @@ export function generateBlockSelector(element: HTMLElement): string {
       const siblings = Array.from(parent.children).filter(
         (child) =>
           child.tagName.toLowerCase() === tag &&
-          !child.hasAttribute('data-feedback-wrapper')
+          !child.hasAttribute('data-feedback-wrapper'),
       )
       const index = siblings.indexOf(current)
 
@@ -70,9 +70,7 @@ export async function generateContentHash(
   const data = encoder.encode(content)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
   return hashHex
 }
 
@@ -112,11 +110,17 @@ export function findReferenceableBlocks(
   // This includes headings, paragraphs, lists, code blocks, blockquotes, etc.
   const selectors = [
     // Headings
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
     // Content blocks
     'p',
     // Lists
-    'ul', 'ol',
+    'ul',
+    'ol',
     // Code blocks
     'pre',
     // Blockquotes
@@ -138,7 +142,8 @@ export function findReferenceableBlocks(
         const isNested = elements.some((existing) => existing.contains(el))
         if (!isNested) {
           // Skip if element is inside an editor portal or note portal
-          const isInsidePortal = el.closest('[data-editor-portal], [data-note-portal]') !== null
+          const isInsidePortal =
+            el.closest('[data-editor-portal], [data-note-portal]') !== null
           if (!isInsidePortal) {
             // Skip very small elements (likely empty or decorative)
             const text = el.textContent?.trim() || ''
@@ -250,7 +255,10 @@ export function highlightBlock(
  * Personal notes earn 0 points
  * Improvements: 0.1 points per character, min 1 point (10 chars), soft cap 100 points (1000 chars)
  */
-export function calculatePoints(characterCount: number, type: 'note' | 'improvement'): number {
+export function calculatePoints(
+  characterCount: number,
+  type: 'note' | 'improvement',
+): number {
   // Personal notes don't earn points
   if (type === 'note') {
     return 0

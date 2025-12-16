@@ -1,6 +1,6 @@
 import { ErrorComponent } from '@tanstack/react-router'
 import React from 'react'
-import { FaSpinner } from 'react-icons/fa'
+import { Spinner } from '~/components/Spinner'
 import { SignInForm } from '~/routes/_libraries/login'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 
@@ -18,7 +18,7 @@ export function ClientAuth({
   if (userQuery.isLoading) {
     return (
       <div className={baseClasses}>
-        <FaSpinner className="animate-spin" />
+        <Spinner />
       </div>
     )
   }
@@ -49,7 +49,7 @@ export function ClientAdminAuth({ children }: { children: React.ReactNode }) {
   if (userQuery.isLoading) {
     return (
       <div className={baseClasses}>
-        <FaSpinner className="animate-spin" />
+        <Spinner />
       </div>
     )
   }

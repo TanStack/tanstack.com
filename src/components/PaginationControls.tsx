@@ -45,27 +45,59 @@ export function PaginationControls({
 
   const displayCount = filteredItems ?? totalItems
 
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = []
+    const maxPagesToShow = 7
+
+    if (totalPages <= maxPagesToShow) {
+      // Show all pages
+      for (let i = 0; i < totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      // Show first, last, and pages around current
+      pages.push(0) // First page
+
+      if (currentPage > 2) {
+        pages.push('...')
+      }
+
+      // Pages around current
+      for (let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages - 2, currentPage + 1); i++) {
+        pages.push(i)
+      }
+
+      if (currentPage < totalPages - 3) {
+        pages.push('...')
+      }
+
+      pages.push(totalPages - 1) // Last page
+    }
+
+    return pages
+  }
+
   const content = (
-    <div className="flex items-center justify-between flex-wrap gap-1.5">
-      <div className="text-xs text-gray-500 dark:text-gray-400">
-        Showing {displayCount} of {totalItems} {itemLabel}
+    <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="text-sm text-gray-600 dark:text-gray-400">
+        Showing <span className="font-semibold text-gray-900 dark:text-white">{displayCount}</span> of{' '}
+        <span className="font-semibold text-gray-900 dark:text-white">{totalItems}</span> {itemLabel}
         {filteredItems !== undefined && filteredItems !== totalItems && (
-          <span>
-            {' '}
+          <span className="ml-2 text-xs">
             • Page {currentPage + 1} of {totalPages}
           </span>
         )}
         {filteredItems === undefined && (
-          <span>
-            {' '}
+          <span className="ml-2 text-xs">
             • Page {currentPage + 1} of {totalPages}
           </span>
         )}
       </div>
-      <div className="flex gap-1 items-center">
+      <div className="flex gap-2 items-center">
         {showPageSizeSelector && (
           <>
-            <label className="text-xs text-gray-500 dark:text-gray-400">
+            <label className="text-sm text-gray-600 dark:text-gray-400">
               Per page:
             </label>
             <select
@@ -74,7 +106,7 @@ export function PaginationControls({
                 const next = parseInt(e.target.value, 10)
                 onPageSizeChange(next)
               }}
-              className="px-1.5 py-0.5 text-xs border rounded-md bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+              className="px-2 py-1 text-xs border rounded bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
             >
               {pageSizeOptions.map((n) => (
                 <option key={n} value={n}>
@@ -84,22 +116,54 @@ export function PaginationControls({
             </select>
           </>
         )}
-        <button
-          onClick={goToPreviousPage}
-          disabled={!canGoPrevious}
-          className="flex items-center px-1.5 py-0.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed gap-0.5"
-        >
-          <FaChevronLeft className="w-3 h-3" />
-          <span className="hidden sm:inline">Prev</span>
-        </button>
-        <button
-          onClick={goToNextPage}
-          disabled={!canGoNext}
-          className="flex items-center px-1.5 py-0.5 text-xs font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed gap-0.5"
-        >
-          <span className="hidden sm:inline">Next</span>
-          <FaChevronRight className="w-3 h-3" />
-        </button>
+
+        <div className="flex gap-1 items-center">
+          <button
+            onClick={goToPreviousPage}
+            disabled={!canGoPrevious}
+            className="flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 hover:text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-800 gap-1 transition-colors"
+          >
+            <FaChevronLeft className="w-2.5 h-2.5" />
+            <span>Prev</span>
+          </button>
+
+          {/* Page number buttons */}
+          <div className="hidden sm:flex gap-1">
+            {getPageNumbers().map((pageNum, idx) => {
+              if (pageNum === '...') {
+                return (
+                  <span key={`ellipsis-${idx}`} className="px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
+                    ...
+                  </span>
+                )
+              }
+
+              const isActive = pageNum === currentPage
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => onPageChange(pageNum as number)}
+                  className={
+                    isActive
+                      ? 'px-2 py-1 text-xs font-bold text-gray-900 bg-gray-200 border border-gray-400 rounded dark:bg-gray-700 dark:text-white dark:border-gray-500'
+                      : 'px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 hover:text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white transition-colors'
+                  }
+                >
+                  {(pageNum as number) + 1}
+                </button>
+              )
+            })}
+          </div>
+
+          <button
+            onClick={goToNextPage}
+            disabled={!canGoNext}
+            className="flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 hover:text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-800 gap-1 transition-colors"
+          >
+            <span>Next</span>
+            <FaChevronRight className="w-2.5 h-2.5" />
+          </button>
+        </div>
       </div>
     </div>
   )

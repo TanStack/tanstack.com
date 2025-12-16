@@ -1,8 +1,9 @@
 import { unified } from 'unified'
 import rehypeParse from 'rehype-parse'
-import { visit } from 'unist-util-visit'
+import { visit, SKIP } from 'unist-util-visit'
 import { toString } from 'hast-util-to-string'
 import { isElement } from 'hast-util-is-element'
+import type { Root, Element, Comment, Nodes } from 'hast-util-is-element/lib'
 
 const COMPONENT_PREFIX = '::'
 const START_PREFIX = '::start:'
@@ -58,7 +59,7 @@ const slugify = (value: string, fallback: string) => {
 }
 
 export const rehypeParseCommentComponents = () => {
-  return (tree) => {
+  return (tree: Root) => {
     visit(tree, 'comment', (node, index, parent) => {
       if (!isCommentNode(node) || parent == null || typeof index !== 'number') {
         return
@@ -92,7 +93,7 @@ export const rehypeParseCommentComponents = () => {
 
       if (!isBlock) {
         parent.children.splice(index, 1, element)
-        return [visit.SKIP, index]
+        return [SKIP, index]
       }
 
       let endIndex = -1
@@ -110,28 +111,28 @@ export const rehypeParseCommentComponents = () => {
 
       if (endIndex === -1) {
         parent.children.splice(index, 1, element)
-        return [visit.SKIP, index]
+        return [SKIP, index]
       }
 
       const content = parent.children.slice(index + 1, endIndex)
       element.children = content
       parent.children.splice(index, endIndex - index + 1, element)
-      return [visit.SKIP, index]
+      return [SKIP, index]
     })
   }
 }
 
-const isHeading = (node) => isElement(node) && /^h[1-6]$/.test(node.tagName)
+const isHeading = (node: any): node is Element => isElement(node) && /^h[1-6]$/.test(node.tagName)
 
-const headingLevel = (node) => Number(node.tagName.substring(1))
+const headingLevel = (node: Element) => Number(node.tagName.substring(1))
 
-function extractSmartTabPanels(node) {
+function extractSmartTabPanels(node: Element) {
   const children = node.children ?? []
   const headings = children.filter(isHeading)
 
   let sectionStarted = false
   let largestHeadingLevel = Infinity
-  headings.forEach((heading) => {
+  headings.forEach((heading: Element) => {
     largestHeadingLevel = Math.min(largestHeadingLevel, headingLevel(heading))
   })
 
@@ -140,11 +141,11 @@ function extractSmartTabPanels(node) {
     name: string
     headers: Array<string>
   }> = []
-  const panels = []
+  const panels: any[] = []
 
-  let currentPanel = null
+  let currentPanel: any = null
 
-  children.forEach((child) => {
+  children.forEach((child: any) => {
     if (isHeading(child)) {
       const level = headingLevel(child)
       if (!sectionStarted) {
@@ -202,7 +203,7 @@ function extractSmartTabPanels(node) {
   return { tabs, panels }
 }
 
-function transformTabsComponent(node) {
+function transformTabsComponent(node: Element) {
   const result = extractSmartTabPanels(node)
   if (!result) {
     return

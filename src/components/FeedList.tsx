@@ -2,7 +2,7 @@ import * as React from 'react'
 import { UseQueryResult, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { FeedEntry } from '~/components/FeedEntry'
 import { FeedEntryTimeline } from '~/components/FeedEntryTimeline'
-import { FaSpinner } from 'react-icons/fa'
+import { Spinner } from '~/components/Spinner'
 import { PaginationControls } from '~/components/PaginationControls'
 import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
 import type { FeedFilters } from '~/queries/feed'
@@ -112,7 +112,7 @@ export function FeedList({
   if (activeQuery.isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <FaSpinner className="animate-spin text-2xl text-gray-500" />
+        <Spinner className="text-3xl text-gray-500" />
       </div>
     )
   }
@@ -233,7 +233,7 @@ export function FeedList({
               className="py-4 flex items-center justify-center min-h-[100px]"
             >
               {infiniteQuery.isFetchingNextPage && (
-                <FaSpinner className="animate-spin text-xl text-gray-500" />
+                <Spinner className="text-gray-500" />
               )}
               {!infiniteQuery.hasNextPage && allEntries.length > 0 && (
                 <p className="text-sm text-gray-500 dark:text-gray-400">

@@ -7,9 +7,9 @@ import {
   FaSave,
   FaTimes,
   FaLock,
-  FaSpinner,
 } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
+import { Spinner } from '~/components/Spinner'
 import {
   FilterBar,
   FilterSearch,
@@ -479,7 +479,7 @@ function UsersPage() {
   const bulkEffectiveCapabilities = bulkEffectiveCapabilitiesQuery.data
 
   const availableCapabilities = useMemo(
-    () => ['admin', 'disableAds', 'builder', 'feed'],
+    () => ['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback'],
     [],
   )
 
@@ -1002,7 +1002,7 @@ function UsersPage() {
               Manage Users
             </h1>
             {usersQuery.isFetching && (
-              <FaSpinner className="animate-spin text-gray-500 dark:text-gray-400" />
+              <Spinner className="text-gray-500 dark:text-gray-400" />
             )}
           </div>
 

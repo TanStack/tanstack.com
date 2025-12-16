@@ -6,10 +6,10 @@ import { FeedEntry } from '~/components/FeedEntry'
 import { UseQueryResult } from '@tanstack/react-query'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
-import { FaSpinner } from 'react-icons/fa'
 import { useQuery } from '@tanstack/react-query'
 import { getFeedFacetCountsQueryOptions } from '~/queries/feed'
 import { twMerge } from 'tailwind-merge'
+import { Spinner } from '~/components/Spinner'
 
 export type LibraryId =
   | 'start'
@@ -184,7 +184,7 @@ function FeedPageLayoutHeader({
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-black">{title}</h1>
           {feedQuery.isFetching && (
-            <FaSpinner className="animate-spin text-gray-500 dark:text-gray-400" />
+            <Spinner className="text-gray-500 dark:text-gray-400" />
           )}
         </div>
         {actions}
@@ -212,7 +212,7 @@ function FeedPageLayoutFilters() {
   return (
     <aside className="lg:w-64 flex-shrink-0 lg:self-start">
       <FeedFilters
-        libraries={libraries}
+        libraries={libraries.filter((lib): lib is import('~/libraries/types').Library => 'tagline' in lib)}
         partners={partners}
         selectedSources={filters.sources}
         selectedLibraries={filters.libraries}

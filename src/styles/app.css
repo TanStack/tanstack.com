@@ -640,3 +640,21 @@ mark {
     transform: scale(1);
   }
 }
+
+/* Doc Feedback Styles */
+.doc-feedback-block {
+  transition: background-color 0.2s ease, outline-color 0.2s ease;
+  outline: 1px solid transparent;
+  outline-offset: -1px;
+}
+
+.doc-feedback-block-highlighted {
+  background-color: rgba(59, 130, 246, 0.03);
+  outline-color: rgba(59, 130, 246, 0.2);
+  border-radius: 0.25rem;
+}
+
+.dark .doc-feedback-block-highlighted {
+  background-color: rgba(59, 130, 246, 0.05);
+  outline-color: rgba(59, 130, 246, 0.3);
+}

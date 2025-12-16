@@ -14,13 +14,13 @@ import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
 import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
 import { NotFound } from '~/components/NotFound'
-import { CgSpinner } from 'react-icons/cg'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { GamScripts } from '~/components/Gam'
 import { BackgroundGradient } from '~/components/BackgroundGradient'
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
 import { ToastProvider } from '~/components/ToastProvider'
+import { Spinner } from '~/components/Spinner'
 import { ThemeProvider } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
 
@@ -221,7 +221,7 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
                 className={`absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[30px] p-2 bg-white/80 dark:bg-gray-800
         rounded-lg shadow-lg`}
               >
-                <CgSpinner className="text-3xl animate-spin" />
+                <Spinner className="text-5xl" />
               </div>
             </div>
           ) : null}

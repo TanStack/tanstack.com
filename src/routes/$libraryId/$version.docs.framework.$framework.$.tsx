@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useLocation } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
@@ -46,6 +46,7 @@ function Docs() {
   const { version, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
+  const location = useLocation()
 
   return (
     <DocContainer>
@@ -59,6 +60,9 @@ function Docs() {
         colorFrom={library.colorFrom}
         colorTo={library.colorTo}
         shouldRenderToc
+        libraryId={libraryId}
+        libraryVersion={version === 'latest' ? library.latestVersion : version}
+        pagePath={location.pathname}
       />
     </DocContainer>
   )

@@ -10,7 +10,6 @@ import { FeedEntry } from '~/components/FeedEntry'
 import { FEED_DEFAULTS } from '~/utils/feedDefaults'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
-import { FaSpinner } from 'react-icons/fa'
 import { useQuery } from '@tanstack/react-query'
 import { getFeedFacetCountsQueryOptions } from '~/queries/feed'
 import { twMerge } from 'tailwind-merge'
@@ -301,7 +300,7 @@ export function FeedPage({
       <div className="flex-1 space-y-2 sm:space-y-4 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-2 min-h-0">
         <aside className="lg:w-64 flex-shrink-0 lg:self-start sticky top-[calc(var(--navbar-height)+1rem)] z-10">
           <FeedFilters
-            libraries={libraries}
+            libraries={libraries.filter((lib): lib is import('~/libraries/types').Library => 'tagline' in lib)}
             partners={partners}
             selectedSources={effectiveFilters.sources}
             selectedLibraries={effectiveFilters.libraries}

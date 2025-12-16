@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu'
 import { Command } from 'cmdk'
+import { Spinner } from '~/components/Spinner'
 
 const transformModeSchema = z.enum(['none', 'normalize-y'])
 const binTypeSchema = z.enum(['yearly', 'monthly', 'weekly', 'daily'])
@@ -73,7 +74,7 @@ export const Route = createFileRoute('/stats/npm/')({
   },
   head: ({ loaderData }) => ({
     meta: seo({
-      title: `NPM Download Stats and Trends — Track and Compare Packages Instantly: ${loaderData.packageList}`,
+      title: `NPM Download Stats and Trends — Track and Compare Packages Instantly: ${loaderData?.packageList ?? ''}`,
       description: `Get real-time npm download statistics, compare package popularity, spot trends, and make better choices for your projects. Faster and more detailed than npm-stat, npmtrends, and others.`,
     }),
   }),
@@ -223,42 +224,7 @@ function npmQueryOptions({
   // NPM download statistics only go back to January 10, 2015
   const NPM_STATS_START_DATE = d3.utcDay(new Date('2015-01-10'))
 
-  // Function to get package creation date
-  const getPackageCreationDate = async (packageName: string): Promise<Date> => {
-    try {
-      const response = await fetch(`https://registry.npmjs.org/${packageName}`)
-      if (!response.ok) return NPM_STATS_START_DATE
-      const data = await response.json()
-      const creationDate = d3.utcDay(
-        new Date(data.time?.created || '2015-01-10'),
-      )
-      // Ensure we don't return a date before npm stats started
-      return creationDate < NPM_STATS_START_DATE
-        ? NPM_STATS_START_DATE
-        : creationDate
-    } catch (error) {
-      console.error(`Error fetching creation date for ${packageName}:`, error)
-      return NPM_STATS_START_DATE
-    }
-  }
-
-  // Get the earliest creation date among all packages
-  const getEarliestCreationDate = async () => {
-    const packageNames = packageGroups.flatMap((pkg) =>
-      pkg.packages.filter((p) => !p.hidden).map((p) => p.name),
-    )
-
-    const creationDates = await Promise.all(
-      packageNames.map(getPackageCreationDate),
-    )
-    const earliest = new Date(
-      Math.min(...creationDates.map((date) => date.getTime())),
-    )
-    // Ensure we don't go before npm's stats start date
-    return earliest < NPM_STATS_START_DATE ? NPM_STATS_START_DATE : earliest
-  }
-
-  let startDate = (() => {
+  const startDate = (() => {
     switch (range) {
       case '7-days':
         return d3.utcDay.offset(now, -7)
@@ -275,8 +241,8 @@ function npmQueryOptions({
       case '1825-days':
         return d3.utcDay.offset(now, -1825)
       case 'all-time':
-        // We'll handle this in the queryFn
-        return NPM_STATS_START_DATE // This will be overridden with actual earliest date
+        // Use NPM's stats start date - the API will return empty data for dates before packages existed
+        return NPM_STATS_START_DATE
     }
   })()
 
@@ -289,111 +255,70 @@ function npmQueryOptions({
       'npm-stats',
       packageGroups.map((pg) => ({
         packages: pg.packages.map((p) => ({ name: p.name })),
-        baseline: pg.baseline,
       })),
       range,
     ],
-    queryFn: async (): Promise<NpmQueryData> => {
-      // For all-time range, get the earliest creation date
-      if (range === 'all-time') {
-        startDate = await getEarliestCreationDate()
-      }
+    queryFn: async () => {
+      try {
+        // Import the bulk server function for fetching all npm downloads at once
+        const { fetchNpmDownloadsBulk } = await import('~/utils/stats.server')
 
-      return Promise.all(
-        packageGroups.map(async (packageGroup) => {
-          try {
-            let actualStartDate = startDate
-
-            // Import the server function for fetching npm downloads
-            const { fetchNpmDownloadChunk } =
-              await import('~/utils/stats.server')
-
-            const packages = await Promise.all(
-              packageGroup.packages.map(async (pkg) => {
-                try {
-                  // Generate year-based chunks from startDate to endDate
-                  const startYear = startDate.getFullYear()
-                  const endYear = endDate.getFullYear()
-                  const years: string[] = []
-
-                  for (let year = startYear; year <= endYear; year++) {
-                    years.push(year.toString())
-                  }
-
-                  // Fetch all year chunks in parallel
-                  const chunks = await Promise.all(
-                    years.map((year) =>
-                      fetchNpmDownloadChunk({
-                        data: {
-                          packageName: pkg.name,
-                          year,
-                        },
-                      }),
-                    ),
-                  )
-
-                  // Combine all chunks and filter to requested date range
-                  const allDownloads = chunks
-                    .flatMap((chunk) => chunk.downloads || [])
-                    .filter((d) => {
-                      const date = new Date(d.day)
-                      return date >= startDate && date <= endDate
-                    })
-                    .sort(
-                      (a, b) =>
-                        new Date(a.day).getTime() - new Date(b.day).getTime(),
-                    )
-
-                  // Find the earliest non-zero download for this package group
-                  const firstNonZero = allDownloads.find((d) => d.downloads > 0)
-                  if (firstNonZero) {
-                    const firstNonZeroDate = d3.utcDay(
-                      new Date(firstNonZero.day),
-                    )
-                    if (firstNonZeroDate < actualStartDate) {
-                      actualStartDate = firstNonZeroDate
-                    }
-                  }
-
-                  return { ...pkg, downloads: allDownloads }
-                } catch (error) {
-                  if (
-                    error instanceof Error &&
-                    error.message.includes('not found')
-                  ) {
-                    throw new Error('not_found')
-                  }
-                  throw new Error('fetch_failed')
-                }
-              }),
-            )
-
-            return {
-              ...packageGroup,
-              packages,
-              start: formatDate(actualStartDate),
-              end: formatDate(endDate),
-              error: null,
-              actualStartDate,
-            }
-          } catch (error) {
-            return {
-              ...packageGroup,
-              packages: packageGroup.packages.map((pkg) => ({
-                ...pkg,
-                downloads: [],
+        // Make a single bulk request for all packages
+        const results = await fetchNpmDownloadsBulk({
+          data: {
+            packageGroups: packageGroups.map((pg) => ({
+              packages: pg.packages.map((p) => ({
+                name: p.name,
+                hidden: p.hidden,
               })),
-              start: formatDate(startDate),
-              end: formatDate(endDate),
-              error:
-                error instanceof Error && error.message === 'not_found'
-                  ? `Package "${packageGroup.packages[0].name}" not found on npm`
-                  : 'Failed to fetch package data (see console for details)',
-              actualStartDate: startDate,
+            })),
+            startDate: formatDate(startDate),
+            endDate: formatDate(endDate),
+          },
+        })
+
+        // Process results to match the expected format
+        return results.map((result, groupIndex) => {
+          let actualStartDate = startDate
+
+          // Find the earliest non-zero download for this package group
+          for (const pkg of result.packages) {
+            const firstNonZero = pkg.downloads.find((d) => d.downloads > 0)
+            if (firstNonZero) {
+              const firstNonZeroDate = d3.utcDay(new Date(firstNonZero.day))
+              if (firstNonZeroDate < actualStartDate) {
+                actualStartDate = firstNonZeroDate
+              }
             }
           }
-        }),
-      )
+
+          return {
+            packages: result.packages.map((pkg) => ({
+              ...packageGroups[groupIndex].packages.find(
+                (p) => p.name === pkg.name,
+              ),
+              downloads: pkg.downloads,
+            })),
+            start: formatDate(actualStartDate),
+            end: formatDate(endDate),
+            error: result.error,
+            actualStartDate,
+          }
+        })
+      } catch (error) {
+        console.error('Failed to fetch npm stats:', error)
+        // Return error state for all package groups
+        return packageGroups.map((packageGroup) => ({
+          packages: packageGroup.packages.map((pkg) => ({
+            ...pkg,
+            downloads: [],
+          })),
+          start: formatDate(startDate),
+          end: formatDate(endDate),
+          error: 'Failed to fetch package data (see console for details)',
+          actualStartDate: startDate,
+        }))
+      }
     },
     placeholderData: keepPreviousData,
   })
@@ -511,7 +436,11 @@ function NpmStatsChart({
   facetY,
   showDataMode,
 }: {
-  queryData: undefined | NpmQueryData
+  queryData:
+    | undefined
+    | Awaited<
+        ReturnType<Required<ReturnType<typeof npmQueryOptions>>['queryFn']>
+      >
   transform: TransformMode
   binType: BinType
   packages: z.infer<typeof packageGroupSchema>[]
@@ -555,13 +484,13 @@ function NpmStatsChart({
 
   startDate = binOption.bin.floor(startDate)
 
-  const combinedPackageGroups = queryData.map((packageGroup, index) => {
+  const combinedPackageGroups = queryData.map((queryPackageGroup, index) => {
     // Get the corresponding package group from the packages prop to get the hidden state
     const packageGroupWithHidden = packages[index]
 
     // Filter out any sub packages that are hidden before
     // summing them into a unified downloads count
-    const visiblePackages = packageGroup.packages.filter((p, i) => {
+    const visiblePackages = queryPackageGroup.packages.filter((p, i) => {
       const hiddenState = packageGroupWithHidden?.packages.find(
         (pg) => pg.name === p.name,
       )?.hidden
@@ -585,7 +514,7 @@ function NpmStatsChart({
     })
 
     return {
-      ...packageGroup,
+      ...queryPackageGroup,
       downloads: Array.from(downloadsByDate.entries()).map(
         ([date, downloads]) => [d3.utcDay(new Date(date)), downloads],
       ) as [Date, number][],
@@ -618,21 +547,18 @@ function NpmStatsChart({
 
   // Apply the baseline correction
 
-  const baselinePackage = binnedPackageData.find((pkg) => {
+  const baselinePackageIndex = packages.findIndex((pkg) => {
     return pkg.baseline
   })
 
-  const baseLineCorrectionsByDate =
+  const baselinePackage = binnedPackageData[baselinePackageIndex]
+
+  const baseLineValuesByDate =
     baselinePackage && binnedPackageData.length
       ? (() => {
-          const firstValue = baselinePackage.downloads[0].downloads
-
           return new Map(
             baselinePackage.downloads.map((d) => {
-              return [
-                d.date.getTime(),
-                firstValue === 0 ? 1 : firstValue / d.downloads,
-              ]
+              return [d.date.getTime(), d.downloads]
             }),
           )
         })()
@@ -644,9 +570,9 @@ function NpmStatsChart({
     return {
       ...packageGroup,
       downloads: packageGroup.downloads.map((d) => {
-        if (baseLineCorrectionsByDate) {
+        if (baseLineValuesByDate) {
           d.downloads =
-            d.downloads * (baseLineCorrectionsByDate.get(d.date.getTime()) || 1)
+            d.downloads / (baseLineValuesByDate.get(d.date.getTime()) || 0)
         }
 
         return {
@@ -750,7 +676,7 @@ function NpmStatsChart({
                 transform === 'normalize-y'
                   ? 'Downloads Growth'
                   : baselinePackage
-                    ? 'Downloads (baseline-adjusted)'
+                    ? 'Downloads (% of baseline)'
                     : 'Downloads',
               labelOffset: 35,
             },
@@ -805,7 +731,11 @@ function PackageSearch({
   const searchQuery = useQuery({
     queryKey: ['npm-search', debouncedInputValue],
     queryFn: async () => {
-      if (!debouncedInputValue || debouncedInputValue.length <= 2) return []
+      if (!debouncedInputValue || debouncedInputValue.length <= 2)
+        return {
+          all: [] as string[],
+          set: new Set<string>(),
+        }
 
       const response = await fetch(
         `https://api.npms.io/v2/search?q=${encodeURIComponent(
@@ -813,32 +743,36 @@ function PackageSearch({
         )}&size=10`,
       )
       const data = await response.json()
-      const hasInputValue = data.results.find(
-        (r: any) => r.package.name === debouncedInputValue,
-      )
-
-      return [
-        ...(hasInputValue
-          ? []
-          : [
-              {
-                name: debouncedInputValue,
-                label: `Use "${debouncedInputValue}"`,
-              },
-            ]),
-        ...data.results.map((r: any) => r.package),
-      ]
+      return data.results.map((r: any) => r.package)
     },
     enabled: debouncedInputValue.length > 2,
     placeholderData: keepPreviousData,
   })
+
+  const results = React.useMemo(() => {
+    const hasInputValue = searchQuery.data?.find(
+      (d) => d.name === debouncedInputValue,
+    )
+
+    return [
+      ...(hasInputValue
+        ? []
+        : [
+            {
+              name: debouncedInputValue,
+              label: `Use "${debouncedInputValue}"`,
+            },
+          ]),
+      ...(searchQuery.data ?? []),
+    ]
+  }, [searchQuery.data, debouncedInputValue])
 
   const handleInputChange = (value: string) => {
     setInputValue(value)
   }
 
   const handleSelect = (value: string) => {
-    const selectedItem = searchQuery.data?.find((item) => item.name === value)
+    const selectedItem = results?.find((item) => item.name === value)
     if (!selectedItem) return
 
     onSelect(selectedItem.name)
@@ -861,9 +795,9 @@ function PackageSearch({
               autoFocus={autoFocus}
             />
           </div>
-          {searchQuery.isLoading && (
+          {searchQuery.isFetching && (
             <div className="absolute right-2 top-0 bottom-0 flex items-center justify-center">
-              <FaSpinner className="w-4 h-4 animate-spin" />
+              <Spinner className="text-sm" />
             </div>
           )}
           {inputValue.length && open ? (
@@ -872,12 +806,12 @@ function PackageSearch({
                 <div className="px-3 py-2">Keep typing to search...</div>
               ) : searchQuery.isLoading ? (
                 <div className="px-3 py-2 flex items-center gap-2">
-                  <FaSpinner className="w-4 h-4 animate-spin" /> Searching...
+                  Searching...
                 </div>
-              ) : !searchQuery.data?.length ? (
+              ) : !results?.length ? (
                 <div className="px-3 py-2">No packages found</div>
               ) : null}
-              {searchQuery.data?.map((item) => (
+              {results?.map((item) => (
                 <Command.Item
                   key={item.name}
                   value={item.name}
@@ -1832,9 +1766,9 @@ function RouteComponent() {
               <div className="space-y-2 sm:space-y-4">
                 <div className="relative">
                   {npmQuery.isFetching && npmQuery.data ? (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/30 dark:bg-black/30 backdrop-blur-sm z-10 rounded-lg">
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/30 dark:bg-black/30 z-10 rounded-lg">
                       <div className="flex flex-col items-center gap-4">
-                        <FaSpinner className="w-8 h-8 animate-spin text-blue-500" />
+                        <Spinner />
                         <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           Updating...
                         </div>
@@ -1848,7 +1782,7 @@ function RouteComponent() {
                         style={{ height }}
                       >
                         <div className="flex flex-col items-center gap-4">
-                          <FaSpinner className="w-8 h-8 animate-spin text-blue-500" />
+                          <Spinner />
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             Loading download statistics...
                           </div>
@@ -2097,9 +2031,6 @@ function RouteComponent() {
                     search={(prev) => ({
                       ...prev,
                       packageGroups: comparison.packageGroups,
-                      baseline: comparison.packageGroups.find(
-                        (pg) => pg.baseline,
-                      )?.packages[0].name,
                     })}
                     resetScroll={false}
                     onClick={(e) => {

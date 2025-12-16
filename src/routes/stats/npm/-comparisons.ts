@@ -452,5 +452,56 @@ export function getPopularComparisons(): z.input<
         },
       ],
     },
+    {
+      title: 'All TanStack Packages',
+      packageGroups: [
+        {
+          packages: [
+            { name: '@tanstack/react-query' },
+            { name: 'react-query' },
+          ],
+          color: '#FF4500',
+        },
+        {
+          packages: [{ name: '@tanstack/react-table' }, { name: 'react-table' }],
+          color: '#FF7043',
+        },
+        {
+          packages: [{ name: '@tanstack/react-router' }],
+          color: '#32CD32',
+        },
+        {
+          packages: [
+            { name: '@tanstack/react-virtual' },
+            { name: 'react-virtual' },
+          ],
+          color: '#8B5CF6',
+        },
+        {
+          packages: [{ name: '@tanstack/react-form' }],
+          color: '#FFD700',
+        },
+        {
+          packages: [{ name: '@tanstack/start' }],
+          color: '#00CED1',
+        },
+        {
+          packages: [{ name: '@tanstack/store' }],
+          color: '#FF69B4',
+        },
+        {
+          packages: [{ name: '@tanstack/ranger' }],
+          color: '#98D8C8',
+        },
+        {
+          packages: [{ name: '@tanstack/config' }],
+          color: '#FFA500',
+        },
+        {
+          packages: [{ name: '@tanstack/react-charts' }],
+          color: '#4169E1',
+        },
+      ],
+    },
   ] as const
 }

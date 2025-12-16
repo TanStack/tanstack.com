@@ -161,3 +161,25 @@ Since `listRoles` is wrapped in `createServerFn`, TanStack Start will properly h
 **The `dev` command does not end - it runs indefinitely in watch mode.**
 
 When agents need to test build output or verify that the project builds successfully, use the `build` command instead of `dev`. The `build` command will complete and exit, making it suitable for automated testing and verification.
+
+### Testing Limitations
+
+**Agents cannot run end-to-end tests without a headless browser.**
+
+This is a TanStack Start application that requires a browser environment to fully test. Agents can:
+
+- ✅ Run TypeScript compilation (`pnpm tsc --noEmit`) to check for type errors
+- ✅ Run the build command (`pnpm build`) to verify the project builds successfully
+- ✅ Inspect build output and generated files
+
+Agents cannot:
+
+- ❌ Start the dev server and interact with the application (no headless browser)
+- ❌ Test UI functionality or user interactions
+- ❌ Verify runtime behavior in the browser
+- ❌ Test API endpoints that require browser context
+
+For runtime testing and verification, developers should:
+1. Review the code changes
+2. Start the dev server manually (`pnpm dev`)
+3. Test the functionality in a browser

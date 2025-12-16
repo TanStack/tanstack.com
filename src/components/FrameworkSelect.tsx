@@ -80,10 +80,7 @@ export function useCurrentFramework(frameworks: Framework[]) {
   const setFramework = React.useCallback(
     (framework: string) => {
       navigate({
-        params: (prev) => ({
-          ...prev,
-          framework,
-        }),
+        params: { framework } as any,
       })
       localCurrentFramework.setCurrentFramework(framework)
     },

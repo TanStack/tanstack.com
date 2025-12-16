@@ -12,7 +12,9 @@ export const listRoles = createServerFn({ method: 'POST' })
     z.object({
       nameFilter: z.string().optional(),
       capabilityFilter: z
-        .array(z.enum(['admin', 'disableAds', 'builder', 'feed']))
+        .array(
+          z.enum(['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback']),
+        )
         .optional(),
     }),
   )
@@ -82,7 +84,9 @@ export const createRole = createServerFn({ method: 'POST' })
     z.object({
       name: z.string(),
       description: z.string().optional(),
-      capabilities: z.array(z.enum(['admin', 'disableAds', 'builder', 'feed'])),
+      capabilities: z.array(
+        z.enum(['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback']),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -116,7 +120,9 @@ export const updateRole = createServerFn({ method: 'POST' })
       name: z.string().optional(),
       description: z.string().optional(),
       capabilities: z
-        .array(z.enum(['admin', 'disableAds', 'builder', 'feed']))
+        .array(
+          z.enum(['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback']),
+        )
         .optional(),
     }),
   )

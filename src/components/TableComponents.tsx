@@ -55,7 +55,7 @@ export function TableHeaderRow({
 
 // TableHeaderCell - Header cell
 interface TableHeaderCellProps {
-  children: React.ReactNode
+  children?: React.ReactNode
   className?: string
   align?: 'left' | 'right' | 'center'
   width?: string

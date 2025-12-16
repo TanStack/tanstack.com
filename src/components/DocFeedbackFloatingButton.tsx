@@ -138,7 +138,9 @@ export function DocFeedbackFloatingButton({
                   </div>
                 </div>
               </button>
-              {!hasImprovement && <div className="h-px bg-gray-200 dark:bg-gray-700" />}
+              {!hasImprovement && (
+                <div className="h-px bg-gray-200 dark:bg-gray-700" />
+              )}
             </>
           )}
           {!hasImprovement && (

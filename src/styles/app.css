@@ -643,7 +643,9 @@ mark {
 
 /* Doc Feedback Styles */
 .doc-feedback-block {
-  transition: background-color 0.2s ease, outline-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    outline-color 0.2s ease;
   outline: 1px solid transparent;
   outline-offset: -1px;
 }

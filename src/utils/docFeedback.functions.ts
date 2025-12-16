@@ -36,7 +36,9 @@ export const createDocFeedback = createServerFn({ method: 'POST' })
       }),
       z.object({
         type: z.literal('improvement'),
-        content: z.string().min(10, 'Improvement feedback must be at least 10 characters'),
+        content: z
+          .string()
+          .min(10, 'Improvement feedback must be at least 10 characters'),
         pagePath: z.string(),
         libraryId: z.string(),
         libraryVersion: z.string(),
@@ -442,13 +444,16 @@ export const getDocFeedbackLeaderboard = createServerFn({ method: 'POST' })
       .where(eq(docFeedback.status, 'approved' as DocFeedbackStatus))
 
     // Calculate points and aggregate by user in JS
-    const userStats = new Map<string, {
-      userId: string
-      firstName: string | null
-      lastInitial: string | null
-      totalPoints: number
-      feedbackCount: number
-    }>()
+    const userStats = new Map<
+      string,
+      {
+        userId: string
+        firstName: string | null
+        lastInitial: string | null
+        totalPoints: number
+        feedbackCount: number
+      }
+    >()
 
     allFeedback.forEach((item) => {
       const points = calculatePoints(item.characterCount, item.type)
@@ -474,8 +479,9 @@ export const getDocFeedbackLeaderboard = createServerFn({ method: 'POST' })
     })
 
     // Sort by total points and paginate
-    const sortedLeaderboard = Array.from(userStats.values())
-      .sort((a, b) => b.totalPoints - a.totalPoints)
+    const sortedLeaderboard = Array.from(userStats.values()).sort(
+      (a, b) => b.totalPoints - a.totalPoints,
+    )
 
     const offset = (page - 1) * pageSize
     const leaderboard = sortedLeaderboard.slice(offset, offset + pageSize)

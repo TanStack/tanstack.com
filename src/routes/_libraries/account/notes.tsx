@@ -18,7 +18,8 @@ function AccountNotesPage() {
   const [pageSize, setPageSize] = React.useState(10)
 
   const user = userQuery.data
-  const userId = user && typeof user === 'object' && 'userId' in user ? user.userId : null
+  const userId =
+    user && typeof user === 'object' && 'userId' in user ? user.userId : null
 
   const { data, isLoading } = useQuery(
     getUserDocFeedbackQueryOptions({
@@ -38,7 +39,9 @@ function AccountNotesPage() {
   if (!userId) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600 dark:text-gray-400">Please log in to view your notes.</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          Please log in to view your notes.
+        </p>
       </div>
     )
   }
@@ -61,7 +64,8 @@ function AccountNotesPage() {
               You haven't created any notes yet.
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-              Visit any documentation page while logged in to create personal notes.
+              Visit any documentation page while logged in to create personal
+              notes.
             </p>
           </div>
         ) : (
@@ -74,16 +78,13 @@ function AccountNotesPage() {
                     to={item.pagePath}
                     className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 font-mono"
                   >
-                    {item.libraryId}{item.pagePath}
+                    {item.libraryId}
+                    {item.pagePath}
                     <FaExternalLinkAlt className="text-[10px]" />
                   </Link>
 
                   {/* Feedback card */}
-                  <DocFeedbackNote
-                    note={item}
-                    anchorName=""
-                    inline={true}
-                  />
+                  <DocFeedbackNote note={item} anchorName="" inline={true} />
                 </div>
               ))}
             </div>

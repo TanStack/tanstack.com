@@ -22,7 +22,8 @@ function AccountSettingsPage() {
     user && typeof user === 'object' && 'adsDisabled' in user
       ? (user.adsDisabled ?? false)
       : false
-  const canDisableAds = capabilities.includes('admin') || capabilities.includes('disableAds')
+  const canDisableAds =
+    capabilities.includes('admin') || capabilities.includes('disableAds')
 
   const handleToggleAds = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {

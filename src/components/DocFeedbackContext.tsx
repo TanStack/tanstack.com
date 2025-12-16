@@ -10,7 +10,11 @@ interface DocFeedbackContextValue {
   toggleNote: (noteId: string) => void
 
   // Actions
-  onAddFeedback: (blockSelector: string, blockContentHash: string | undefined, type: 'note' | 'improvement') => void
+  onAddFeedback: (
+    blockSelector: string,
+    blockContentHash: string | undefined,
+    type: 'note' | 'improvement',
+  ) => void
   onEditNote: (note: DocFeedback) => void
   onShowNote: (noteId: string) => void
 
@@ -20,7 +24,9 @@ interface DocFeedbackContextValue {
   libraryVersion: string
 }
 
-const DocFeedbackContext = React.createContext<DocFeedbackContextValue | null>(null)
+const DocFeedbackContext = React.createContext<DocFeedbackContextValue | null>(
+  null,
+)
 
 export function useDocFeedback() {
   const context = React.useContext(DocFeedbackContext)

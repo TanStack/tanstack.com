@@ -1,13 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import {
-  FaUser,
-  FaEdit,
-  FaSave,
-  FaTimes,
-  FaLock,
-} from 'react-icons/fa'
+import { FaUser, FaEdit, FaSave, FaTimes, FaLock } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
 import { Spinner } from '~/components/Spinner'
 import {

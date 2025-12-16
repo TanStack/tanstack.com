@@ -61,64 +61,67 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
 
-  const allAdminItems: (LinkOptions & { label: string; icon: React.ReactNode; requiredCapability?: string })[] =
-    [
-      {
-        label: 'Admin Dashboard',
-        icon: <FaHome />,
-        to: '/admin',
-        activeOptions: {
-          exact: true,
-        },
+  const allAdminItems: (LinkOptions & {
+    label: string
+    icon: React.ReactNode
+    requiredCapability?: string
+  })[] = [
+    {
+      label: 'Admin Dashboard',
+      icon: <FaHome />,
+      to: '/admin',
+      activeOptions: {
+        exact: true,
       },
-      {
-        label: 'Statistics',
-        icon: <FaChartLine />,
-        to: '/admin/stats',
-      },
-      {
-        label: 'Users',
-        icon: <FaUsers />,
-        to: '/admin/users',
-      },
-      {
-        label: 'Roles',
-        icon: <FaShieldAlt />,
-        to: '/admin/roles',
-      },
-      {
-        label: 'Feedback',
-        icon: <FaComments />,
-        to: '/admin/feedback',
-        requiredCapability: 'moderate-feedback',
-      },
-      {
-        label: 'Notes',
-        icon: <FaStickyNote />,
-        to: '/admin/notes',
-        requiredCapability: 'moderate-feedback',
-      },
-      {
-        label: 'Feed',
-        icon: <FaRss />,
-        to: '/admin/feed',
-      },
-      {
-        label: 'GitHub Stats',
-        icon: <FaGithub />,
-        to: '/admin/github-stats',
-      },
-      {
-        label: 'NPM Stats',
-        icon: <FaNpm />,
-        to: '/admin/npm-stats',
-      },
-      {
-        label: 'My Account',
-        icon: <FaUser />,
-        to: '/account',
-      },
-    ]
+    },
+    {
+      label: 'Statistics',
+      icon: <FaChartLine />,
+      to: '/admin/stats',
+    },
+    {
+      label: 'Users',
+      icon: <FaUsers />,
+      to: '/admin/users',
+    },
+    {
+      label: 'Roles',
+      icon: <FaShieldAlt />,
+      to: '/admin/roles',
+    },
+    {
+      label: 'Feedback',
+      icon: <FaComments />,
+      to: '/admin/feedback',
+      requiredCapability: 'moderate-feedback',
+    },
+    {
+      label: 'Notes',
+      icon: <FaStickyNote />,
+      to: '/admin/notes',
+      requiredCapability: 'moderate-feedback',
+    },
+    {
+      label: 'Feed',
+      icon: <FaRss />,
+      to: '/admin/feed',
+    },
+    {
+      label: 'GitHub Stats',
+      icon: <FaGithub />,
+      to: '/admin/github-stats',
+    },
+    {
+      label: 'NPM Stats',
+      icon: <FaNpm />,
+      to: '/admin/npm-stats',
+    },
+    {
+      label: 'My Account',
+      icon: <FaUser />,
+      to: '/account',
+    },
+  ]
 
   // Filter menu items based on required capabilities
   // Admin users have access to everything

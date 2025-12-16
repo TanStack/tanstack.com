@@ -19,7 +19,9 @@ export async function getCurrentUserFromRequest(request: Request) {
     const cookieData = await verifyCookie(signedCookie)
 
     if (!cookieData) {
-      console.error('[AUTH:ERROR] Session cookie verification failed - invalid signature or expired')
+      console.error(
+        '[AUTH:ERROR] Session cookie verification failed - invalid signature or expired',
+      )
       return null
     }
 
@@ -29,13 +31,17 @@ export async function getCurrentUserFromRequest(request: Request) {
     })
 
     if (!user) {
-      console.error(`[AUTH:ERROR] Session cookie references non-existent user ${cookieData.userId}`)
+      console.error(
+        `[AUTH:ERROR] Session cookie references non-existent user ${cookieData.userId}`,
+      )
       return null
     }
 
     // Verify session version matches (for session revocation)
     if (user.sessionVersion !== cookieData.version) {
-      console.error(`[AUTH:ERROR] Session version mismatch for user ${user.id} - expected ${user.sessionVersion}, got ${cookieData.version}`)
+      console.error(
+        `[AUTH:ERROR] Session version mismatch for user ${user.id} - expected ${user.sessionVersion}, got ${cookieData.version}`,
+      )
       return null
     }
 
@@ -69,7 +75,9 @@ export async function getAuthenticatedUser() {
   const user = await getCurrentUserFromRequest(request)
 
   if (!user) {
-    console.error('[AUTH:ERROR] Authentication required but user not authenticated')
+    console.error(
+      '[AUTH:ERROR] Authentication required but user not authenticated',
+    )
     throw new Error('Not authenticated')
   }
 

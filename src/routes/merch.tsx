@@ -3,8 +3,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { Shirt, ShoppingBag, Smartphone, Tag, Circle } from 'lucide-react'
-import { PiBaseballCapBold } from 'react-icons/pi'
 import { twMerge } from 'tailwind-merge'
+import { BaseballCapIcon } from '~/components/icons/BaseballCapIcon'
 
 export const Route = createFileRoute('/merch')({
   component: RouteComp,
@@ -24,7 +24,7 @@ const merchItems = [
       'T-shirts, sweatshirts, hoodies, onesies, hats, totes, and phone cases featuring TanStack designs',
     icons: [
       { Icon: Shirt, label: 'T-shirts' },
-      { Icon: PiBaseballCapBold, label: 'Hats' },
+      { Icon: BaseballCapIcon, label: 'Hats' },
       { Icon: ShoppingBag, label: 'Totes' },
       { Icon: Smartphone, label: 'Phone cases' },
     ],

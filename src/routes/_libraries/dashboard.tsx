@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { PiHandWavingLight } from 'react-icons/pi'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Hand } from 'lucide-react'
 
 export const Route = createFileRoute('/_libraries/dashboard')({
   component: Dashboard,
@@ -35,7 +34,7 @@ function Dashboard() {
                   animation: waved ? 'hand-wave 1s ease-in-out 1' : undefined,
                 }}
               >
-                <PiHandWavingLight className="w-24 h-24 text-yellow-500 rounded-full" />
+                <Hand className="w-24 h-24 text-yellow-500 rounded-full" />
               </div>
             </div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1 text-center">

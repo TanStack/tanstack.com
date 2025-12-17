@@ -1,6 +1,5 @@
-import { Book, DatabaseZap, Wallpaper } from 'lucide-react'
+import { Book, DatabaseZap, MessageCircleQuestionMark, PlugZap, Wallpaper } from 'lucide-react'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { TbZoomQuestion } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -61,7 +60,7 @@ export const routerProject = {
     {
       title: 'Typesafe & powerful, yet familiarly simple',
       icon: (
-        <RiLightbulbFlashLine className={twMerge('scale-125', textStyles)} />
+        <PlugZap className={twMerge('scale-125', textStyles)} />
       ),
       description: (
         <div>
@@ -99,7 +98,7 @@ export const routerProject = {
     },
     {
       title: 'Search Param APIs to make your state-manager jealous',
-      icon: <TbZoomQuestion className={twMerge('', textStyles)} />,
+      icon: <MessageCircleQuestionMark className={twMerge('', textStyles)} />,
       description: (
         <div>
           Instead of throwing you to the URLSearchParam wolves, TanStack Router

@@ -1,6 +1,4 @@
-import { Book, Wallpaper } from 'lucide-react'
-import { PiRocketLaunchDuotone, PiTreeStructureBold } from 'react-icons/pi'
-import { TbServerBolt } from 'react-icons/tb'
+import { Book, Network, Rocket, ServerCrash, Wallpaper } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -59,7 +57,7 @@ export const startProject = {
     {
       title: 'Enterprise-Grade Routing',
       icon: (
-        <PiTreeStructureBold
+        <Network
           className={twMerge('motion-safe:animate-pulse', textStyles)}
           style={{
             animationDuration: '5s',
@@ -83,7 +81,7 @@ export const startProject = {
     {
       title: 'SSR, Streaming and Server RPCs',
       icon: (
-        <TbServerBolt
+        <ServerCrash
           className={twMerge('motion-safe:animate-ping', textStyles)}
           style={{
             animationDuration: '2s',
@@ -133,7 +131,7 @@ export const startProject = {
     {
       title: 'Deploy Anywhere',
       icon: (
-        <PiRocketLaunchDuotone
+        <Rocket
           className={twMerge('motion-safe:animate-bounce', textStyles)}
           style={{
             animationDuration: '2.5s',

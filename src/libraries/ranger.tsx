@@ -1,4 +1,4 @@
-import { Book, RotateCw, Wallpaper } from 'lucide-react'
+import { Book, PlugZap, RotateCw, Wallpaper } from 'lucide-react'
 import { TbZoomQuestion } from 'react-icons/tb'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { twMerge } from 'tailwind-merge'
@@ -50,7 +50,7 @@ export const rangerProject = {
     {
       title: 'Typesafe & powerful, yet familiarly simple',
       icon: (
-        <RiLightbulbFlashLine
+        <PlugZap
           className={twMerge('scale-125 animate-pulse', textStyles)}
         />
       ),

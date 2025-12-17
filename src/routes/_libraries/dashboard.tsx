@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { FaArrowRight } from 'react-icons/fa'
 import { PiHandWavingLight } from 'react-icons/pi'
+import { ArrowRight } from 'lucide-react'
 
 export const Route = createFileRoute('/_libraries/dashboard')({
   component: Dashboard,
@@ -50,7 +50,7 @@ function Dashboard() {
                 className="inline-block bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/90 dark:hover:bg-white font-semibold py-2 px-6 rounded-md transition-colors text-center"
               >
                 Account Settings
-                <FaArrowRight className="inline-block ml-2" />
+                <ArrowRight className="inline-block ml-2" />
               </a>
             </div>
           </div>

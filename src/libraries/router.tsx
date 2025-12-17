@@ -1,5 +1,5 @@
 import { VscPreview } from 'react-icons/vsc'
-import { Book } from 'lucide-react'
+import { Book, DatabaseZap } from 'lucide-react'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { CgTimelapse } from 'react-icons/cg'
 import { TbZoomQuestion } from 'react-icons/tb'
@@ -79,7 +79,7 @@ export const routerProject = {
     {
       title: 'Built-in Data Fetching with Caching',
       icon: (
-        <CgTimelapse
+        <DatabaseZap
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '3s',

@@ -12,6 +12,7 @@ import {
 import { getUserStats } from '~/utils/user-stats.server'
 import * as Plot from '@observablehq/plot'
 import { useEffect, useRef } from 'react'
+import { ArrowDown, ArrowUp } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/stats')({
   component: AdminStatsPage,
@@ -110,9 +111,9 @@ function AdminStatsPage() {
                     }`}
                   >
                     {todayVsYesterday > 0 ? (
-                      <FaArrowUp />
+                      <ArrowUp />
                     ) : todayVsYesterday < 0 ? (
-                      <FaArrowDown />
+                      <ArrowDown />
                     ) : (
                       <FaMinus />
                     )}

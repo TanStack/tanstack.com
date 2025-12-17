@@ -11,6 +11,7 @@ import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
 import type { FeedEntry } from '~/components/FeedEntry'
 import { getFeedEntryByIdQueryOptions } from '~/queries/feed'
+import { ArrowLeft } from 'lucide-react'
 
 export const Route = createFileRoute('/_libraries/feed/$id')({
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -243,7 +244,7 @@ function FeedEntryView({ entry }: { entry: FeedEntry }) {
           }}
           className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4 font-medium"
         >
-          <FaArrowLeft />
+          <ArrowLeft />
           Back to Feed
         </Link>
 

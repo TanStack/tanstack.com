@@ -11,6 +11,7 @@ import {
   flexRender,
   type ColumnDef,
 } from '@tanstack/react-table'
+import { ArrowLeft } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/roles/$roleId')({
   component: RoleDetailPage,
@@ -263,7 +264,7 @@ function RoleDetailPage() {
               to="/admin/roles"
               className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             >
-              <FaArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">

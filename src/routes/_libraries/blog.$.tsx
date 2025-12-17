@@ -20,6 +20,7 @@ import { Markdown } from '~/components/Markdown'
 import { CopyMarkdownButton } from '~/components/CopyMarkdownButton'
 import { GamFooter, GamHeader } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
+import { ArrowLeft } from 'lucide-react'
 
 function handleRedirects(docsPath: string) {
   if (docsPath.includes('directives-the-new-framework-lock-in')) {
@@ -140,7 +141,7 @@ ${content}`
                     to="/blog"
                     className="font-black inline-flex items-center gap-2 p-1"
                   >
-                    <FaArrowLeft />
+                    <ArrowLeft />
                     Back to Blog
                   </Link>
                 </div>

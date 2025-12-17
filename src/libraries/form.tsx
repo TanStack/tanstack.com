@@ -1,8 +1,8 @@
 import { VscPreview, VscWand } from 'react-icons/vsc'
-import { FaCogs } from 'react-icons/fa'
 import { Book, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/form'
 
@@ -83,7 +83,7 @@ export const formProject = {
     },
     {
       title: 'Granular Reactive Performance',
-      icon: <FaCogs className="text-amber-500" />,
+      icon: <CogsIcon className="text-amber-500" />,
       description: (
         <div>
           When it comes to performance, TanStack Form delivers amazing speed and

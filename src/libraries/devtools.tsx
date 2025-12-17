@@ -1,8 +1,8 @@
-import { FaCogs } from 'react-icons/fa'
 import { Book, Zap } from 'lucide-react'
 import { VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/devtools'
 
@@ -74,7 +74,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Custom Devtools Support',
-      icon: <FaCogs className="text-slate-600" />,
+      icon: <CogsIcon className="text-slate-600" />,
       description: (
         <div>
           Extend the devtools panel with your own custom devtools. The platform

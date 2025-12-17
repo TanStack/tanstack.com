@@ -1,9 +1,9 @@
 import { Library } from '.'
-import { FaCogs } from 'react-icons/fa'
 import { Book, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { FaPlug } from 'react-icons/fa6'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/ai'
 
@@ -68,7 +68,7 @@ export const aiProject = {
     },
     {
       title: 'Tool/Function Calling',
-      icon: <FaCogs className={twMerge(textStyles)} />,
+      icon: <CogsIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Automatic execution loop with no manual tool management needed.

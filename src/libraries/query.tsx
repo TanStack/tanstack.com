@@ -1,9 +1,9 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { FaCogs } from 'react-icons/fa'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { Book, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/query'
 
@@ -128,7 +128,7 @@ export const queryProject = {
     {
       title: 'Extensible',
       icon: (
-        <FaCogs
+        <CogsIcon
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '10s',

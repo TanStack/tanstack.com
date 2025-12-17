@@ -1,9 +1,9 @@
 import { VscPreview } from 'react-icons/vsc'
-import { FaCogs } from 'react-icons/fa'
 import { Book, Zap } from 'lucide-react'
 import { IoIosBody } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/virtual'
 
@@ -85,7 +85,7 @@ export const virtualProject = {
     },
     {
       title: 'Maximum Composability',
-      icon: <FaCogs className="text-purple-600" />,
+      icon: <CogsIcon className="text-purple-600" />,
       description: (
         <div>
           With a single function/hook, you'll get limitless virtualization for{' '}

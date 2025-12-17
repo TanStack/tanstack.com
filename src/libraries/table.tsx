@@ -1,10 +1,10 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
 import { VscPreview } from 'react-icons/vsc'
-import { FaCogs } from 'react-icons/fa'
 import { Book, Zap } from 'lucide-react'
 import { IoIosBody } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/table'
 
@@ -107,7 +107,7 @@ export const tableProject = {
     },
     {
       title: 'Extensible',
-      icon: <FaCogs className={twMerge(textStyles)} />,
+      icon: <CogsIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack table ships with excellent defaults to get you off the ground

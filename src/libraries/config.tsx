@@ -1,8 +1,8 @@
-import { FaCogs } from 'react-icons/fa'
 import { Book, Zap } from 'lucide-react'
 import { VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/config'
 
@@ -76,7 +76,7 @@ export const configProject = {
     },
     {
       title: 'Effortless Publication',
-      icon: <FaCogs className="text-gray-700" />,
+      icon: <CogsIcon className="text-gray-700" />,
       description: (
         <div>
           Say goodbye to the complexities of code publishing. This package

@@ -22,10 +22,11 @@ export const Route = createFileRoute('/auth/$provider/start')({
           .replace(/=/g, '')
 
         // Store state in HTTPS-only cookie for CSRF protection
-        // SameSite=Strict prevents CSRF attacks
+        // SameSite=Lax allows the cookie to be sent on OAuth redirects (top-level navigations)
+        // while still protecting against CSRF on POST requests
         const stateCookie = `oauth_state=${encodeURIComponent(
           state,
-        )}; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Strict${
+        )}; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Lax${
           process.env.NODE_ENV === 'production' ? '; Secure' : ''
         }`
 

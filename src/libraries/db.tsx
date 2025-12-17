@@ -1,4 +1,4 @@
-import { BsCollectionFill } from 'react-icons/bs'
+import { GalleryVerticalEnd } from 'lucide-react'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
@@ -49,7 +49,7 @@ export const dbProject = {
   featureHighlights: [
     {
       title: 'Collections',
-      icon: <BsCollectionFill className={twMerge(textStyles)} />,
+      icon: <GalleryVerticalEnd className={twMerge(textStyles)} />,
       description: (
         <div>
           Collections are typed sets of objects. Sync or load data into them.

@@ -1,8 +1,5 @@
 import * as React from 'react'
-import {
-  BsArrowsCollapseVertical,
-  BsArrowsExpandVertical,
-} from 'react-icons/bs'
+import { FoldHorizontal, UnfoldHorizontal } from 'lucide-react'
 import { FaEdit } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 import { useWidthToggle } from '~/components/DocsLayout'
@@ -146,9 +143,12 @@ function DocContent({
                     title={isFullWidth ? 'Constrain width' : 'Expand width'}
                   >
                     {isFullWidth ? (
-                      <BsArrowsCollapseVertical className="w-4 h-4" />
+                      <FoldHorizontal className="w-4 h-4" strokeWidth={2.25} />
                     ) : (
-                      <BsArrowsExpandVertical className="w-4 h-4" />
+                      <UnfoldHorizontal
+                        className="w-4 h-4"
+                        strokeWidth={2.25}
+                      />
                     )}
                   </button>
                 )}

@@ -1,29 +1,25 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { BrandContextMenu } from './BrandContextMenu'
+import { Link, useLocation, useMatches } from '@tanstack/react-router'
+import { TbBrandX, TbBrandBesky } from 'react-icons/tb'
 import {
-  Link,
-  useLocation,
-  useMatches,
-} from '@tanstack/react-router'
-import { TbBrandX, TbBrandBluesky } from 'react-icons/tb'
-import {
-  LuCode,
-  LuUsers,
-  LuMusic,
-  LuHelpCircle,
-  LuBookOpen,
-  LuTrendingUp,
-  LuShirt,
-  LuShieldCheck,
-  LuPaintbrush,
-  LuHammer,
-  LuUser,
-  LuLock,
-  LuX,
-  LuMenu,
-  LuRss,
-} from 'react-icons/lu'
+  Code,
+  Users,
+  Music,
+  HelpCircle,
+  BookOpen,
+  TrendingUp,
+  Shirt,
+  ShieldCheck,
+  Paintbrush,
+  Hammer,
+  User,
+  Lock,
+  X,
+  Menu,
+  Rss,
+} from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
 import { FeedTicker } from './FeedTicker'
@@ -46,7 +42,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     [...matches].reverse().find((m) => m.staticData.Title)?.staticData.Title ??
     null
 
-  const canAdmin = capabilities.includes('admin')
+  const canAdmin = capabilities.incdes('admin')
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -84,7 +80,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
             hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
           >
-            <LuUser className="scale-125" />
+            <User className="scale-125" />
             <div className="">Log In</div>
           </Link>
         )
@@ -100,7 +96,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <Authenticated>
         {!canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <LuUser />
+            <User />
             <Link
               to="/account"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
@@ -111,7 +107,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ) : null}
         {canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <LuLock />
+            <Lock />
             <Link
               to="/admin"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -136,9 +132,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <a
         href="https://bsky.app/profile/tanstack.com"
         className="opacity-70 hover:opacity-100"
-        aria-label="Follow TanStack on Bluesky"
+        aria-label="Follow TanStack on Besky"
       >
-        <TbBrandBluesky className="text-xl" />
+        <TbBrandBesky className="text-xl" />
       </a>
       <a
         href="https://instagram.com/tan_stack"
@@ -160,7 +156,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const navbar = (
     <div
       className={twMerge(
-        'w-full p-2 fixed top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-blur-lg shadow-xl shadow-black/3',
+        'w-full p-2 fixed top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-br-lg shadow-xl shadow-black/3',
         'flex items-center justify-between gap-4',
         'dark:border-b border-gray-500/20',
       )}
@@ -187,7 +183,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 setShowMenu(true)
               }}
             >
-              {showMenu ? <LuX /> : <LuMenu />}
+              {showMenu ? <X /> : <Menu />}
             </button>
             <Link
               to="/"
@@ -272,7 +268,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 textStyle: string
                 badge?: string
                 colorFrom: string
-              } => d.to !== undefined && sidebarLibraryIds.includes(d.id),
+              } => d.to !== undefined && sidebarLibraryIds.incdes(d.id),
             )
             .sort((a, b) => {
               const indexA = sidebarLibraryIds.indexOf(a.id)
@@ -380,7 +376,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                         'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30',
                       )}
                     >
-                      <LuUsers />
+                      <Users />
                       Contributors
                     </Link>
                   </div>
@@ -422,7 +418,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <div>
         <Authenticated>
           {capabilities.some((capability) =>
-            (['builder', 'admin'] as const).includes(
+            (['builder', 'admin'] as const).incdes(
               capability as 'builder' | 'admin',
             ),
           ) ? (
@@ -437,7 +433,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             >
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-4 justify-between">
-                  <LuHammer />
+                  <Hammer />
                 </div>
                 <div>Builder</div>
               </div>
@@ -449,27 +445,27 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: (
               <>
                 <span>Feed</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-be-400 to-be-600 text-white rounded-md uppercase">
                   Beta
                 </span>
               </>
             ),
-            icon: <LuRss />,
+            icon: <Rss />,
             to: '/feed',
           },
           {
             label: 'Maintainers',
-            icon: <LuCode />,
+            icon: <Code />,
             to: '/maintainers',
           },
           {
             label: 'Partners',
-            icon: <LuUsers />,
+            icon: <Users />,
             to: '/partners',
           },
           {
             label: 'Blog',
-            icon: <LuMusic />,
+            icon: <Music />,
             to: '/blog',
           },
           {
@@ -481,17 +477,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 </span>
               </>
             ),
-            icon: <LuBookOpen />,
+            icon: <BookOpen />,
             to: '/learn',
           },
           {
             label: 'Support',
-            icon: <LuHelpCircle />,
+            icon: <HelpCircle />,
             to: '/support',
           },
           {
             label: 'Stats',
-            icon: <LuTrendingUp />,
+            icon: <TrendingUp />,
             to: '/stats/npm',
           },
           {
@@ -502,7 +498,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: 'Merch',
-            icon: <LuShirt />,
+            icon: <Shirt />,
             to: '/merch',
           },
           {
@@ -512,17 +508,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: 'Ethos',
-            icon: <LuShieldCheck />,
+            icon: <ShieldCheck />,
             to: '/ethos',
           },
           {
             label: 'Tenets',
-            icon: <LuBookOpen />,
+            icon: <BookOpen />,
             to: '/tenets',
           },
           {
             label: 'Brand Guide',
-            icon: <LuPaintbrush />,
+            icon: <Paintbrush />,
             to: '/brand-guide',
           },
         ]
@@ -530,8 +526,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             // Filter out items that require capabilities the user doesn't have
             if (item.requiresCapability) {
               return (
-                capabilities.includes(item.requiresCapability) ||
-                capabilities.includes('admin')
+                capabilities.incdes(item.requiresCapability) ||
+                capabilities.incdes('admin')
               )
             }
             return true
@@ -566,7 +562,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   const smallMenu = showMenu ? (
     <div
-      className="lg:hidden bg-white/50 dark:bg-black/60 backdrop-blur-[20px] z-50
+      className="lg:hidden bg-white/50 dark:bg-black/60 backdrop-br-[20px] z-50
     fixed top-[var(--navbar-height)] left-0 right-0 max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto
     "
     >
@@ -612,7 +608,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           inlineMenu
             ? ''
             : [
-                'fixed bg-white/70 dark:bg-black/50 backdrop-blur-lg -translate-x-full',
+                'fixed bg-white/70 dark:bg-black/50 backdrop-br-lg -translate-x-full',
                 showMenu && 'translate-x-0',
               ],
         )}

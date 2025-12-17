@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { useState } from 'react'
 import { MdExpandMore } from 'react-icons/md'
-import { LuTable, LuList } from 'react-icons/lu'
-import { LuRotateCcw } from 'react-icons/lu'
+import { Table, List } from 'lucide-react'
 import { useDebouncedValue } from '@tanstack/react-pacer'
 import { twMerge } from 'tailwind-merge'
 
@@ -269,8 +268,8 @@ export function ViewModeToggle({
     'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-white/50 dark:hover:bg-gray-700/50'
 
   const compactViewModes = [
-    { mode: 'table' as const, icon: LuTable, title: 'Table view' },
-    { mode: 'timeline' as const, icon: LuList, title: 'Timeline view' },
+    { mode: 'table' as const, icon: Table, title: 'Table view' },
+    { mode: 'timeline' as const, icon: List, title: 'Timeline view' },
   ]
 
   if (compact) {
@@ -299,13 +298,13 @@ export function ViewModeToggle({
   const viewModes = [
     {
       mode: 'table' as const,
-      icon: LuTable,
+      icon: Table,
       label: 'Table',
       title: 'Table view',
     },
     {
       mode: 'timeline' as const,
-      icon: LuList,
+      icon: List,
       label: 'Timeline',
       title: 'Timeline view',
     },

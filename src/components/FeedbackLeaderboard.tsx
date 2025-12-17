@@ -14,8 +14,7 @@ import {
 } from './TableComponents'
 import { PaginationControls } from './PaginationControls'
 import { twMerge } from 'tailwind-merge'
-import { FaTrophy, FaMedal } from 'react-icons/fa'
-import { Award } from 'lucide-react'
+import { Award, Medal, Trophy } from 'lucide-react'
 
 export function FeedbackLeaderboard() {
   const navigate = useNavigate({ from: '/_libraries/feedback-leaderboard' })
@@ -68,9 +67,9 @@ export function FeedbackLeaderboard() {
   }
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <FaTrophy className="text-yellow-500" />
-    if (rank === 2) return <FaMedal className="text-gray-400" />
-    if (rank === 3) return <FaMedal className="text-amber-600" />
+    if (rank === 1) return <Trophy className="text-yellow-500" size={14} />
+    if (rank === 2) return <Medal className="text-gray-400" size={14} />
+    if (rank === 3) return <Medal className="text-amber-600" size={14} />
     return null
   }
 

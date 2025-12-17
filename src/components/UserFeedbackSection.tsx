@@ -2,14 +2,11 @@ import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
-import {
-  FaLightbulb,
-} from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import { calculatePoints } from '~/utils/docFeedback.client'
-import { Award, ExternalLink, MessageSquare } from 'lucide-react'
+import { Award, ExternalLink, Lightbulb, MessageSquare } from 'lucide-react'
 
 interface UserFeedbackSectionProps {
   userId: string
@@ -123,9 +120,9 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
                       {/* Icon */}
                       <div className="mt-1">
                         {item.type === 'note' ? (
-                          <MessageSquare className="text-blue-500" />
+                          <MessageSquare className="text-blue-500" size={14} />
                         ) : (
-                          <FaLightbulb className="text-yellow-500" />
+                          <Lightbulb className="text-yellow-500" size={14} />
                         )}
                       </div>
 

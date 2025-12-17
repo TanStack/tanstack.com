@@ -24,7 +24,6 @@ import { listRoles } from '~/utils/roles.functions'
 import {
   FaSave,
   FaTimes,
-  FaLock,
   FaPlus,
   FaTrash,
   FaUsers,
@@ -35,7 +34,7 @@ import {
   getCoreRowModel,
   flexRender,
 } from '@tanstack/react-table'
-import { SquarePen } from 'lucide-react'
+import { Lock, SquarePen } from 'lucide-react'
 
 // Role type for table
 type Role = {
@@ -466,7 +465,7 @@ function RolesPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <FaLock className="text-4xl text-red-500 mx-auto mb-4" />
+          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             You don't have permission to access the admin area.

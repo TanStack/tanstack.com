@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  FaLightbulb,
   FaTrash,
   FaSave,
   FaTimes,
@@ -13,7 +12,7 @@ import {
   updateDocFeedbackCollapsed,
 } from '~/utils/docFeedback.functions'
 import type { DocFeedback } from '~/db/schema'
-import { ChevronDown, ChevronUp, MessageSquare } from 'lucide-react'
+import { ChevronDown, ChevronUp, Lightbulb, MessageSquare } from 'lucide-react'
 
 interface DocFeedbackNoteProps {
   note: DocFeedback
@@ -39,13 +38,13 @@ export function DocFeedbackNote({
 
   // Theme based on type
   const isImprovement = note.type === 'improvement'
-  const Icon = isImprovement ? FaLightbulb : MessageSquare
+  const Icon = isImprovement ? Lightbulb : MessageSquare
   const colors = isImprovement
     ? {
         bg: 'bg-yellow-50 dark:bg-yellow-900/20',
         border: 'border-yellow-400 dark:border-yellow-600',
         header: 'bg-yellow-100 dark:bg-yellow-900/30',
-        icon: 'text-yellow-600 dark:text-yellow-500',
+        icon: 'text-yellow-600 dark:text-yellow-500 text-[14px]',
         text: 'text-yellow-800 dark:text-yellow-300',
         timestamp: 'text-yellow-700 dark:text-yellow-400',
         deleteHover: 'hover:text-yellow-600 dark:hover:text-yellow-400',
@@ -54,7 +53,7 @@ export function DocFeedbackNote({
         bg: 'bg-blue-50 dark:bg-blue-900/20',
         border: 'border-blue-400 dark:border-blue-600',
         header: 'bg-blue-100 dark:bg-blue-900/30',
-        icon: 'text-blue-600 dark:text-blue-500',
+        icon: 'text-blue-600 dark:text-blue-500 text-[14px]',
         text: 'text-blue-800 dark:text-blue-300',
         timestamp: 'text-blue-700 dark:text-blue-400',
         deleteHover: 'hover:text-blue-600 dark:hover:text-blue-400',

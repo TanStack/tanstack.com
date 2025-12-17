@@ -6,14 +6,18 @@ import {
   createFileRoute,
   redirect,
 } from '@tanstack/react-router'
-import { X, TextAlignStart, ChartLine, MessagesSquare } from 'lucide-react'
 import {
-  FaHome,
+  X,
+  TextAlignStart,
+  ChartLine,
+  MessagesSquare,
+  Home,
+} from 'lucide-react'
+import {
   FaUser,
   FaUsers,
   FaRss,
   FaShieldAlt,
-  FaNpm,
   FaStickyNote,
 } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
@@ -22,6 +26,7 @@ import { ClientAdminAuth } from '~/components/ClientAuth'
 import { requireCapability } from '~/utils/auth.server'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { NpmIcon } from '~/components/icons/NpmIcon'
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
@@ -66,7 +71,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   })[] = [
     {
       label: 'Admin Dashboard',
-      icon: <FaHome />,
+      icon: <Home size={14} />,
       to: '/admin',
       activeOptions: {
         exact: true,
@@ -74,7 +79,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'Statistics',
-      icon: <ChartLine />,
+      icon: <ChartLine size={14} />,
       to: '/admin/stats',
     },
     {
@@ -111,7 +116,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'NPM Stats',
-      icon: <FaNpm />,
+      icon: <NpmIcon />,
       to: '/admin/npm-stats',
     },
     {

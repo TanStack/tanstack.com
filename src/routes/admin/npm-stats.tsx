@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { FaNpm, FaSync } from 'react-icons/fa'
+import { FaSync } from 'react-icons/fa'
 import {
   Table,
   TableHeader,
@@ -26,6 +26,7 @@ import {
 } from '~/utils/stats-admin.server'
 import { formatDistanceToNow } from 'date-fns'
 import { Download } from 'lucide-react'
+import { NpmIcon } from '~/components/icons/NpmIcon'
 
 type NpmPackage = {
   id: string
@@ -286,7 +287,7 @@ function NpmStatsAdmin() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <FaNpm className="text-2xl text-red-500" />
+              <NpmIcon className="text-2xl text-red-500" />
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 NPM Stats Management
               </h1>

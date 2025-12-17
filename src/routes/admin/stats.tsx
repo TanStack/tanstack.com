@@ -2,14 +2,18 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import {
   FaUsers,
-  FaEyeSlash,
-  FaListUl,
-  FaMinus,
 } from 'react-icons/fa'
 import { getUserStats } from '~/utils/user-stats.server'
 import * as Plot from '@observablehq/plot'
 import { useEffect, useRef } from 'react'
-import { ArrowDown, ArrowUp, ChartLine } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  ChartLine,
+  EyeOff,
+  List,
+  Minus,
+} from 'lucide-react'
 
 export const Route = createFileRoute('/admin/stats')({
   component: AdminStatsPage,
@@ -108,11 +112,11 @@ function AdminStatsPage() {
                     }`}
                   >
                     {todayVsYesterday > 0 ? (
-                      <ArrowUp />
+                      <ArrowUp size={14} />
                     ) : todayVsYesterday < 0 ? (
-                      <ArrowDown />
+                      <ArrowDown size={14} />
                     ) : (
-                      <FaMinus />
+                      <Minus size={14} />
                     )}
                     {Math.abs(todayVsYesterday).toFixed(0)}%
                   </div>
@@ -176,7 +180,7 @@ function AdminStatsPage() {
         {/* Ads Statistics Section */}
         <section className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <FaEyeSlash className="text-purple-500" />
+            <EyeOff className="text-purple-500" />
             Ads-Related Statistics
           </h2>
 
@@ -184,7 +188,7 @@ function AdminStatsPage() {
             {/* Ads Hiding Waitlist Card */}
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl shadow-lg border border-purple-200 dark:border-purple-800 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <FaListUl className="text-2xl text-purple-500" />
+                <List className="text-2xl text-purple-500" />
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Ads Hiding Waitlist
                 </h3>
@@ -241,7 +245,7 @@ function AdminStatsPage() {
             {/* Ads Disabled Capability Card */}
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl shadow-lg border border-green-200 dark:border-green-800 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <FaEyeSlash className="text-2xl text-green-500" />
+                <EyeOff className="text-2xl text-green-500" />
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Ads Disabled Status
                 </h3>

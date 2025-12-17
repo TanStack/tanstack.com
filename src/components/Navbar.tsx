@@ -7,7 +7,6 @@ import {
   useMatches,
 } from '@tanstack/react-router'
 import { TbBrandX, TbBrandBluesky } from 'react-icons/tb'
-import { FaInstagram } from 'react-icons/fa'
 import {
   LuCode,
   LuUsers,
@@ -37,6 +36,7 @@ import { libraries } from '~/libraries'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
+import { InstagramIcon } from '~/components/icons/InstagramIcon'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
@@ -145,7 +145,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         className="opacity-70 hover:opacity-100"
         aria-label="Follow TanStack on Instagram"
       >
-        <FaInstagram className="text-xl" />
+        <InstagramIcon className="text-xl" />
       </a>
       <a
         href="https://tlinz.com/discord"

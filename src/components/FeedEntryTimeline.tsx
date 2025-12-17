@@ -4,10 +4,10 @@ import { Markdown } from '~/components/Markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
-import { FaTrash, FaEye, FaEyeSlash, FaStar } from 'react-icons/fa'
+import { FaTrash, FaStar } from 'react-icons/fa'
 import { FeedEntry } from './FeedEntry'
 import { Link } from '@tanstack/react-router'
-import { SquarePen } from 'lucide-react'
+import { Eye, EyeOff, SquarePen } from 'lucide-react'
 
 interface FeedEntryTimelineProps {
   entry: FeedEntry
@@ -263,9 +263,9 @@ export function FeedEntryTimeline({
                 title={entry.isVisible ? 'Hide' : 'Show'}
               >
                 {entry.isVisible ? (
-                  <FaEye className="w-4 h-4" />
+                  <Eye className="w-4 h-4" />
                 ) : (
-                  <FaEyeSlash className="w-4 h-4" />
+                  <EyeOff className="w-4 h-4" />
                 )}
               </button>
             )}

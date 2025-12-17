@@ -1,15 +1,14 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import {
-  FaLock,
   FaUsers,
   FaRss,
   FaShieldAlt,
-  FaGithub,
-  FaNpm,
 } from 'react-icons/fa'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { Lock } from 'lucide-react'
+import { NpmIcon } from '~/components/icons/NpmIcon'
 
 export const Route = createFileRoute('/admin/')({
   component: AdminPage,
@@ -35,7 +34,7 @@ function AdminPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <FaLock className="text-4xl text-red-500 mx-auto mb-4" />
+          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             You don't have permission to access the admin area.
@@ -170,7 +169,7 @@ function AdminDashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                  <FaNpm className="text-red-600 dark:text-red-400 text-xl" />
+                  <NpmIcon className="text-red-600 dark:text-red-400 text-xl" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   NPM Stats

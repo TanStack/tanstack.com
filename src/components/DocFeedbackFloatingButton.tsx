@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { FaPlus, FaLightbulb } from 'react-icons/fa'
+import { FaPlus } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
-import { MessageSquare } from 'lucide-react'
+import { Lightbulb, MessageSquare } from 'lucide-react'
 
 interface DocFeedbackFloatingButtonProps {
   onAddNote: () => void
@@ -149,7 +149,7 @@ export function DocFeedbackFloatingButton({
               onClick={handleFeedbackClick}
               className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
             >
-              <FaLightbulb className="text-yellow-500" />
+              <Lightbulb className="text-yellow-500" />
               <div>
                 <div className="font-medium text-sm text-gray-900 dark:text-white">
                   Suggest Improvement

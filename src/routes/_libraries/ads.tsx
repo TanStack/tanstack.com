@@ -2,7 +2,6 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { authClient } from '~/utils/auth.client'
-import { FaGoogle } from 'react-icons/fa'
 import { Authenticated, Unauthenticated } from '~/components/AuthComponents'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useToast } from '~/components/ToastProvider'
@@ -10,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { setInterestedInHidingAds } from '~/utils/users.server'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
+import { GoogleIcon } from '~/components/icons/GoogleIcon'
 
 export const Route = createFileRoute('/_libraries/ads')({
   component: RouteComp,
@@ -214,7 +214,7 @@ function SignInForm() {
         }
         className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"
       >
-        <FaGoogle className="inline-block mr-2" /> Sign in with Google
+        <GoogleIcon className="inline-block mr-2" /> Sign in with Google
       </button>
     </div>
   )

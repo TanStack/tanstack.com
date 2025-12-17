@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { FaUser, FaSave, FaTimes, FaLock } from 'react-icons/fa'
+import { FaUser, FaSave, FaTimes } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
 import { Spinner } from '~/components/Spinner'
 import {
@@ -41,7 +41,7 @@ import {
   getBulkEffectiveCapabilitiesQueryOptions,
 } from '~/queries/roles'
 import { getUserRoles } from '~/utils/roles.functions'
-import { SquarePen } from 'lucide-react'
+import { Lock, SquarePen } from 'lucide-react'
 
 // User type for table
 type User = {
@@ -940,7 +940,7 @@ function UsersPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <FaLock className="text-4xl text-red-500 mx-auto mb-4" />
+          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             You don't have permission to access the admin area.

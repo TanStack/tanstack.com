@@ -3,10 +3,10 @@ import { Markdown } from '~/components/Markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
-import { FaTrash, FaEye, FaEyeSlash, FaStar } from 'react-icons/fa'
+import { FaTrash, FaStar } from 'react-icons/fa'
 import { Link } from '@tanstack/react-router'
 import { TableRow, TableCell } from '~/components/TableComponents'
-import { SquarePen } from 'lucide-react'
+import { Eye, EyeOff, SquarePen } from 'lucide-react'
 
 export interface FeedEntry {
   _id: string
@@ -316,9 +316,9 @@ export function FeedEntry({
                   title={entry.isVisible ? 'Hide' : 'Show'}
                 >
                   {entry.isVisible ? (
-                    <FaEye className="w-3 h-3" />
+                    <Eye className="w-3 h-3" />
                   ) : (
-                    <FaEyeSlash className="w-3 h-3" />
+                    <EyeOff className="w-3 h-3" />
                   )}
                 </button>
               )}

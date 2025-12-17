@@ -1,6 +1,6 @@
 import { FaGithub } from 'react-icons/fa'
 import { VscPreview } from 'react-icons/vsc'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { CgTimelapse } from 'react-icons/cg'
 import { TbZoomQuestion } from 'react-icons/tb'
@@ -44,7 +44,7 @@ export const routerProject = {
   showCloudflareUrl: true,
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/router/latest/docs/framework/react/overview',
     },

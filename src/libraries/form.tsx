@@ -1,6 +1,6 @@
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 
 const repo = 'tanstack/form'
@@ -30,7 +30,7 @@ export const formProject = {
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/form/latest/docs',
     },

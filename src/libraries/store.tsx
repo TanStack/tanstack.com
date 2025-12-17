@@ -1,6 +1,6 @@
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { FaGithub } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 
 const repo = 'tanstack/store'
@@ -31,7 +31,7 @@ export const storeProject = {
   defaultDocs: 'overview',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/store/latest/docs',
     },

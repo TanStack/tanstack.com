@@ -1,6 +1,6 @@
 import { VscPreview } from 'react-icons/vsc'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { IoIosBody } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
 
@@ -33,7 +33,7 @@ export const virtualProject = {
   legacyPackages: ['react-virtual'],
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/virtual/latest/docs/introduction',
     },

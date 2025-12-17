@@ -1,6 +1,6 @@
 import { BsCollectionFill } from 'react-icons/bs'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 
 const repo = 'tanstack/db'
@@ -31,7 +31,7 @@ export const dbProject = {
   defaultDocs: 'overview',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/db/latest/docs',
     },

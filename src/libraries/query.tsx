@@ -1,7 +1,7 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { VscPreview, VscWand } from 'react-icons/vsc'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 
 const repo = 'tanstack/query'
@@ -60,7 +60,7 @@ export const queryProject = {
   },
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/query/latest/docs/framework/react/overview',
     },

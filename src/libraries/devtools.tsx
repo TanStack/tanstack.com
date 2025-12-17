@@ -1,5 +1,5 @@
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 
@@ -30,7 +30,7 @@ export const devtoolsProject = {
   frameworks: ['react', 'preact', 'solid', 'vanilla'],
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/devtools/latest/docs',
     },

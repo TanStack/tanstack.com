@@ -1,6 +1,6 @@
 import { FaGithub, FaYinYang } from 'react-icons/fa'
 import { VscPreview } from 'react-icons/vsc'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { PiRocketLaunchDuotone, PiTreeStructureBold } from 'react-icons/pi'
 import { TbServerBolt } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
@@ -40,7 +40,7 @@ export const startProject = {
   hideStackblitzUrl: true,
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/start/latest/docs/framework/react/overview',
     },

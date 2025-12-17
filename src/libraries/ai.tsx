@@ -1,6 +1,6 @@
 import { Library } from '.'
 import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { FaPlug } from 'react-icons/fa6'
 
@@ -32,7 +32,7 @@ export const aiProject = {
   defaultDocs: 'getting-started/overview',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/ai/latest/docs',
     },

@@ -1,6 +1,6 @@
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { FaGithub } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { GiF1Car } from 'react-icons/gi'
 import { twMerge } from 'tailwind-merge'
 import { FaTimeline } from 'react-icons/fa6'
@@ -33,7 +33,7 @@ export const pacerProject = {
   defaultDocs: 'overview',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/pacer/latest/docs',
     },

@@ -3,7 +3,7 @@
   "private": true,
   "sideEffects": false,
   "repository": "https://github.com/TanStack/tanstack.com.git",
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@10.26.0",
   "type": "module",
   "scripts": {
     "dev": "pnpm run with-env vite dev",
@@ -59,6 +59,7 @@
     "hast-util-to-string": "^3.0.1",
     "html-react-parser": "^5.1.10",
     "lru-cache": "^7.13.1",
+    "lucide-react": "^0.561.0",
     "mermaid": "^11.11.0",
     "postgres": "^3.4.7",
     "react": "^19.2.0",

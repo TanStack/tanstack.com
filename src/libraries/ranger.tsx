@@ -1,6 +1,6 @@
 import { VscPreview } from 'react-icons/vsc'
 import { FaGithub } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book } from 'lucide-react'
 import { CgTimelapse } from 'react-icons/cg'
 import { TbZoomQuestion } from 'react-icons/tb'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
@@ -33,7 +33,7 @@ export const rangerProject = {
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/ranger/latest/docs/overview',
     },

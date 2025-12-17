@@ -14,7 +14,8 @@ import {
 } from './TableComponents'
 import { PaginationControls } from './PaginationControls'
 import { twMerge } from 'tailwind-merge'
-import { FaTrophy, FaMedal, FaAward } from 'react-icons/fa'
+import { FaTrophy, FaMedal } from 'react-icons/fa'
+import { Award } from 'lucide-react'
 
 export function FeedbackLeaderboard() {
   const navigate = useNavigate({ from: '/_libraries/feedback-leaderboard' })
@@ -79,7 +80,7 @@ export function FeedbackLeaderboard() {
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center gap-3 mb-2">
-            <FaAward className="text-3xl text-blue-500" />
+            <Award className="text-3xl text-blue-500" />
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               Documentation Feedback Leaderboard
             </h1>

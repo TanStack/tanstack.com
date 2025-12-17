@@ -1,6 +1,6 @@
 import { VscPreview, VscWand } from 'react-icons/vsc'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { Book } from 'lucide-react'
+import { FaCogs } from 'react-icons/fa'
+import { Book, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 
@@ -66,7 +66,7 @@ export const formProject = {
     },
     {
       title: 'Headless and Framework Agnostic',
-      icon: <FaBolt className="text-yellow-500" />,
+      icon: <Zap className="text-yellow-500" />,
       description: (
         <div>
           Form's headless and framework agnostic approach ensures maximum

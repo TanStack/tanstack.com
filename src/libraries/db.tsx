@@ -1,5 +1,5 @@
-import { GalleryVerticalEnd } from 'lucide-react'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
+import { GalleryVerticalEnd, Zap } from 'lucide-react'
+import { FaCogs } from 'react-icons/fa'
 import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -61,7 +61,7 @@ export const dbProject = {
     },
     {
       title: 'Live Queries',
-      icon: <FaBolt className={twMerge(textStyles)} />,
+      icon: <Zap className={twMerge(textStyles)} />,
       description: (
         <div>
           Live queries run reactively against and across collections. They're

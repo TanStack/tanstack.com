@@ -1,5 +1,5 @@
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { Book } from 'lucide-react'
+import { FaCogs } from 'react-icons/fa'
+import { Book, Zap } from 'lucide-react'
 import { VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -59,7 +59,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Framework Agnostic',
-      icon: <FaBolt className="text-slate-500" />,
+      icon: <Zap className="text-slate-500" />,
       description: (
         <div>
           Built with Solid.js for lightweight performance, but designed to work

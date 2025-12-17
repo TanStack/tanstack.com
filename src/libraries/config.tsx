@@ -1,5 +1,5 @@
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { Book } from 'lucide-react'
+import { FaCogs } from 'react-icons/fa'
+import { Book, Zap } from 'lucide-react'
 import { VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -59,7 +59,7 @@ export const configProject = {
     },
     {
       title: 'Vite-Powered Builds',
-      icon: <FaBolt className="text-gray-500" />,
+      icon: <Zap className="text-gray-500" />,
       description: (
         <div>
           TanStack Config's build configuration harnesses the Vite ecosystem.

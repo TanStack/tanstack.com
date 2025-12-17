@@ -1,7 +1,7 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
+import { FaCogs } from 'react-icons/fa'
 import { VscPreview, VscWand } from 'react-icons/vsc'
-import { Book } from 'lucide-react'
+import { Book, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 
@@ -104,7 +104,7 @@ export const queryProject = {
     {
       title: 'Simple & Familiar',
       icon: (
-        <FaBolt
+        <Zap
           className={twMerge('motion-safe:animate-bounce', textStyles)}
           style={{
             animationDuration: '2s',

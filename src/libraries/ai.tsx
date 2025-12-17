@@ -1,6 +1,6 @@
 import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { Book } from 'lucide-react'
+import { FaCogs } from 'react-icons/fa'
+import { Book, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { FaPlug } from 'react-icons/fa6'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -57,7 +57,7 @@ export const aiProject = {
     },
     {
       title: 'Unified API',
-      icon: <FaBolt className={twMerge(textStyles)} />,
+      icon: <Zap className={twMerge(textStyles)} />,
       description: (
         <div>
           Same interface across all providers. Standalone functions with

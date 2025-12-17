@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
 import {
-  FaAward,
   FaComment,
   FaLightbulb,
   FaExternalLinkAlt,
@@ -12,6 +11,7 @@ import { twMerge } from 'tailwind-merge'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import { calculatePoints } from '~/utils/docFeedback.client'
+import { Award } from 'lucide-react'
 
 interface UserFeedbackSectionProps {
   userId: string
@@ -44,7 +44,7 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <FaAward className="text-2xl text-blue-600 dark:text-blue-400" />
+              <Award className="text-2xl text-blue-600 dark:text-blue-400" />
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Feedback Points
               </h3>

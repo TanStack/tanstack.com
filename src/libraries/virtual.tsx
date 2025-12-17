@@ -1,6 +1,6 @@
 import { VscPreview } from 'react-icons/vsc'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { Book } from 'lucide-react'
+import { FaCogs } from 'react-icons/fa'
+import { Book, Zap } from 'lucide-react'
 import { IoIosBody } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -70,7 +70,7 @@ export const virtualProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <FaBolt className="text-purple-500" />,
+      icon: <Zap className="text-purple-500" />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Virtual uses every

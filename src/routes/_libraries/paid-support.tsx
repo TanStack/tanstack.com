@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { HiOutlineMail } from 'react-icons/hi'
 import { MdViewList, MdViewModule, MdFormatListBulleted } from 'react-icons/md'
 import { useState } from 'react'
 import { coreMaintainers } from '~/libraries/maintainers'
@@ -9,6 +8,7 @@ import {
   MaintainerCard,
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
+import { Mail } from 'lucide-react'
 
 export const Route = createFileRoute('/_libraries/paid-support')({
   component: PaidSupportComp,
@@ -157,7 +157,7 @@ function PaidSupportComp() {
               href="mailto:support@tanstack.com?subject=Enterprise%20Support%20Inquiry"
               className="inline-flex items-center gap-3 px-6 py-3 bg-linear-to-r from-green-600 to-cyan-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-lg hover:scale-105"
             >
-              <HiOutlineMail className="w-5 h-5" />
+              <Mail className="w-5 h-5" />
               Contact Support Team
             </a>
           </div>

@@ -1,11 +1,3 @@
-Package hi
-  HiOutlineMail
-    - src/routes/_libraries/paid-support.tsx
-    - src/routes/_libraries/workshops.tsx
-Package io
-  IoIosBody
-    - src/libraries/table.tsx
-    - src/libraries/virtual.tsx
 Package lu
   LuBookOpen
     - src/components/Navbar.tsx

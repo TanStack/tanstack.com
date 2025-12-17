@@ -1,6 +1,5 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { Book, Wallpaper, Zap } from 'lucide-react'
-import { IoIosBody } from 'react-icons/io'
+import { Book, PersonStanding, Wallpaper, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
@@ -73,7 +72,7 @@ export const tableProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <IoIosBody className={twMerge(textStyles)} />
+          <PersonStanding className={twMerge(textStyles)} />
         </div>
       ),
       description: (

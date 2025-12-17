@@ -41,40 +41,42 @@ export async function upsertOAuthAccount(
       })
 
       if (!user) {
-        console.error(`[AUTH:ERROR] OAuth account exists for ${provider}:${profile.id} but user ${existingAccount.userId} not found`)
+        console.error(
+          `[AUTH:ERROR] OAuth account exists for ${provider}:${profile.id} but user ${existingAccount.userId} not found`,
+        )
         throw new Error('User not found for existing OAuth account')
       }
 
       if (user) {
-      const updates: {
-        email?: string
-        name?: string
-        image?: string
-      } = {}
+        const updates: {
+          email?: string
+          name?: string
+          image?: string
+        } = {}
 
-      if (profile.email && user.email !== profile.email) {
-        updates.email = profile.email
-      }
-      if (profile.name && user.name !== profile.name) {
-        updates.name = profile.name
-      }
-      if (profile.image && user.image !== profile.image) {
-        updates.image = profile.image
+        if (profile.email && user.email !== profile.email) {
+          updates.email = profile.email
+        }
+        if (profile.name && user.name !== profile.name) {
+          updates.name = profile.name
+        }
+        if (profile.image && user.image !== profile.image) {
+          updates.image = profile.image
+        }
+
+        if (Object.keys(updates).length > 0) {
+          await db
+            .update(users)
+            .set({ ...updates, updatedAt: new Date() })
+            .where(eq(users.id, existingAccount.userId))
+        }
       }
 
-      if (Object.keys(updates).length > 0) {
-        await db
-          .update(users)
-          .set({ ...updates, updatedAt: new Date() })
-          .where(eq(users.id, existingAccount.userId))
+      return {
+        userId: existingAccount.userId,
+        isNewUser: false,
       }
     }
-
-    return {
-      userId: existingAccount.userId,
-      isNewUser: false,
-    }
-  }
 
     // Find user by email (for linking multiple OAuth providers)
     const existingUser = await db.query.users.findFirst({
@@ -85,7 +87,9 @@ export async function upsertOAuthAccount(
 
     if (existingUser) {
       // Link OAuth account to existing user
-      console.log(`[AUTH:INFO] Linking ${provider} account to existing user ${existingUser.id} (${profile.email})`)
+      console.log(
+        `[AUTH:INFO] Linking ${provider} account to existing user ${existingUser.id} (${profile.email})`,
+      )
       userId = existingUser.id
 
       // Update user info if provided
@@ -109,7 +113,9 @@ export async function upsertOAuthAccount(
       }
     } else {
       // Create new user
-      console.log(`[AUTH:INFO] Creating new user for ${provider} login: ${profile.email}`)
+      console.log(
+        `[AUTH:INFO] Creating new user for ${provider} login: ${profile.email}`,
+      )
       const [newUser] = await db
         .insert(users)
         .values({
@@ -122,7 +128,9 @@ export async function upsertOAuthAccount(
         .returning()
 
       if (!newUser) {
-        console.error(`[AUTH:ERROR] Failed to create user for ${provider}:${profile.id} (${profile.email})`)
+        console.error(
+          `[AUTH:ERROR] Failed to create user for ${provider}:${profile.id} (${profile.email})`,
+        )
         throw new Error('Failed to create user')
       }
 
@@ -144,10 +152,13 @@ export async function upsertOAuthAccount(
       isNewUser: !existingUser,
     }
   } catch (error) {
-    console.error(`[AUTH:ERROR] Failed to upsert OAuth account for ${provider}:${profile.id} (${profile.email}):`, {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-    })
+    console.error(
+      `[AUTH:ERROR] Failed to upsert OAuth account for ${provider}:${profile.id} (${profile.email}):`,
+      {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+    )
     throw error
   }
 }

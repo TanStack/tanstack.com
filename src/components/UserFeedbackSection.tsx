@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
 import {
-  FaComment,
   FaLightbulb,
   FaExternalLinkAlt,
 } from 'react-icons/fa'
@@ -11,14 +10,13 @@ import { twMerge } from 'tailwind-merge'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import { calculatePoints } from '~/utils/docFeedback.client'
-import { Award } from 'lucide-react'
+import { Award, MessageSquare } from 'lucide-react'
 
 interface UserFeedbackSectionProps {
   userId: string
 }
 
 export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
-  const navigate = useNavigate()
   const [page, setPage] = React.useState(1)
   const [pageSize, setPageSize] = React.useState(10)
 
@@ -126,7 +124,7 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
                       {/* Icon */}
                       <div className="mt-1">
                         {item.type === 'note' ? (
-                          <FaComment className="text-blue-500" />
+                          <MessageSquare className="text-blue-500" />
                         ) : (
                           <FaLightbulb className="text-yellow-500" />
                         )}

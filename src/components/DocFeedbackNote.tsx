@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  FaComment,
   FaLightbulb,
   FaTrash,
   FaSave,
@@ -14,7 +13,7 @@ import {
   updateDocFeedbackCollapsed,
 } from '~/utils/docFeedback.functions'
 import type { DocFeedback } from '~/db/schema'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, MessageSquare } from 'lucide-react'
 
 interface DocFeedbackNoteProps {
   note: DocFeedback
@@ -40,7 +39,7 @@ export function DocFeedbackNote({
 
   // Theme based on type
   const isImprovement = note.type === 'improvement'
-  const Icon = isImprovement ? FaLightbulb : FaComment
+  const Icon = isImprovement ? FaLightbulb : MessageSquare
   const colors = isImprovement
     ? {
         bg: 'bg-yellow-50 dark:bg-yellow-900/20',

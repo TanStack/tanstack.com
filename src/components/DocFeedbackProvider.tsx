@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
-import { FaComment, FaLightbulb } from 'react-icons/fa'
+import { FaLightbulb } from 'react-icons/fa'
 import { DocFeedbackNote } from './DocFeedbackNote'
 import { DocFeedbackFloatingButton } from './DocFeedbackFloatingButton'
 import { getDocFeedbackForPageQueryOptions } from '~/queries/docFeedback'
@@ -13,6 +13,7 @@ import {
   getBlockIdentifier,
 } from '~/utils/docFeedback.client'
 import type { DocFeedback } from '~/db/schema'
+import { MessageSquare } from 'lucide-react'
 
 interface DocFeedbackProviderProps {
   children: React.ReactNode
@@ -536,7 +537,7 @@ function CreatingFeedbackNote({
 
   // Theme based on type
   const isImprovement = type === 'improvement'
-  const Icon = isImprovement ? FaLightbulb : FaComment
+  const Icon = isImprovement ? FaLightbulb : MessageSquare
 
   const colors = isImprovement
     ? {

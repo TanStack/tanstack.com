@@ -1,23 +1,4 @@
 Package fa
-  FaCheckCircle
-    - src/components/FeatureGrid.tsx
-    - src/routes/_libraries/ads.tsx
-    - src/routes/_libraries/config.$version.index.tsx
-    - src/routes/_libraries/devtools.$version.index.tsx
-    - src/routes/_libraries/learn.tsx
-  FaChevronLeft
-    - src/components/PaginationControls.tsx
-  FaChevronRight
-    - src/components/PaginationControls.tsx
-  FaCogs
-    - src/libraries/ai.tsx
-    - src/libraries/config.tsx
-    - src/libraries/db.tsx
-    - src/libraries/devtools.tsx
-    - src/libraries/form.tsx
-    - src/libraries/query.tsx
-    - src/libraries/table.tsx
-    - src/libraries/virtual.tsx
   FaComment
     - src/components/DocFeedbackFloatingButton.tsx
     - src/components/DocFeedbackNote.tsx

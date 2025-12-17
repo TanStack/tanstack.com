@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  FaComment,
   FaExclamationTriangle,
   FaExternalLinkAlt,
 } from 'react-icons/fa'

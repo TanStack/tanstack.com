@@ -6,7 +6,7 @@ import {
   createFileRoute,
   redirect,
 } from '@tanstack/react-router'
-import { X, TextAlignStart, ChartLine } from 'lucide-react'
+import { X, TextAlignStart, ChartLine, MessagesSquare } from 'lucide-react'
 import {
   FaHome,
   FaUser,
@@ -14,7 +14,6 @@ import {
   FaRss,
   FaShieldAlt,
   FaNpm,
-  FaComments,
   FaStickyNote,
 } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
@@ -90,7 +89,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'Feedback',
-      icon: <FaComments />,
+      icon: <MessagesSquare />,
       to: '/admin/feedback',
       requiredCapability: 'moderate-feedback',
     },

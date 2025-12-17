@@ -2,7 +2,6 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
   FaTimes,
-  FaComment,
   FaLightbulb,
   FaExclamationTriangle,
 } from 'react-icons/fa'
@@ -19,7 +18,8 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/schema'
 import { calculatePoints } from '~/utils/docFeedback.client'
-import { Check } from 'lucide-reactd'
+import { Check } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 
 interface FeedbackModerationListProps {
   data:
@@ -174,7 +174,7 @@ export function FeedbackModerationList({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {feedback.type === 'note' ? (
-                        <FaComment className="text-blue-500" />
+                        <MessageSquare className="text-blue-500" />
                       ) : (
                         <FaLightbulb className="text-yellow-500" />
                       )}

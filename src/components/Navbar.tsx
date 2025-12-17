@@ -2,7 +2,6 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { BrandContextMenu } from './BrandContextMenu'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
-import { TbBrandX, TbBrandBesky } from 'react-icons/tb'
 import {
   Code,
   Users,
@@ -33,6 +32,8 @@ import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
+import { BSkyIcon } from '~/components/icons/BSkyIcon'
+import { BrandXIcon } from '~/components/icons/BrandXIcon'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
@@ -42,7 +43,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     [...matches].reverse().find((m) => m.staticData.Title)?.staticData.Title ??
     null
 
-  const canAdmin = capabilities.incdes('admin')
+  const canAdmin = capabilities.includes('admin')
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -80,7 +81,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
             hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
           >
-            <User className="scale-125" />
+            <User size={16} />
             <div className="">Log In</div>
           </Link>
         )
@@ -127,14 +128,14 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         className="opacity-70 hover:opacity-100"
         aria-label="Follow TanStack on X.com"
       >
-        <TbBrandX className="text-xl" />
+        <BrandXIcon className="text-xl" />
       </a>
       <a
         href="https://bsky.app/profile/tanstack.com"
         className="opacity-70 hover:opacity-100"
         aria-label="Follow TanStack on Besky"
       >
-        <TbBrandBesky className="text-xl" />
+        <BSkyIcon className="text-xl" />
       </a>
       <a
         href="https://instagram.com/tan_stack"
@@ -268,7 +269,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 textStyle: string
                 badge?: string
                 colorFrom: string
-              } => d.to !== undefined && sidebarLibraryIds.incdes(d.id),
+              } => d.to !== undefined && sidebarLibraryIds.includes(d.id),
             )
             .sort((a, b) => {
               const indexA = sidebarLibraryIds.indexOf(a.id)
@@ -418,7 +419,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <div>
         <Authenticated>
           {capabilities.some((capability) =>
-            (['builder', 'admin'] as const).incdes(
+            (['builder', 'admin'] as const).includes(
               capability as 'builder' | 'admin',
             ),
           ) ? (
@@ -450,22 +451,22 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 </span>
               </>
             ),
-            icon: <Rss />,
+            icon: <Rss size={14} />,
             to: '/feed',
           },
           {
             label: 'Maintainers',
-            icon: <Code />,
+            icon: <Code size={14} />,
             to: '/maintainers',
           },
           {
             label: 'Partners',
-            icon: <Users />,
+            icon: <Users size={14} />,
             to: '/partners',
           },
           {
             label: 'Blog',
-            icon: <Music />,
+            icon: <Music size={14} />,
             to: '/blog',
           },
           {
@@ -477,28 +478,28 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 </span>
               </>
             ),
-            icon: <BookOpen />,
+            icon: <BookOpen size={14} />,
             to: '/learn',
           },
           {
             label: 'Support',
-            icon: <HelpCircle />,
+            icon: <HelpCircle size={14} />,
             to: '/support',
           },
           {
             label: 'Stats',
-            icon: <TrendingUp />,
+            icon: <TrendingUp size={14} />,
             to: '/stats/npm',
           },
           {
             label: 'Discord',
-            icon: <DiscordIcon />,
+            icon: <DiscordIcon size={14} />,
             to: 'https://tlinz.com/discord',
             target: '_blank',
           },
           {
             label: 'Merch',
-            icon: <Shirt />,
+            icon: <Shirt size={14} />,
             to: '/merch',
           },
           {
@@ -508,17 +509,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: 'Ethos',
-            icon: <ShieldCheck />,
+            icon: <ShieldCheck size={14} />,
             to: '/ethos',
           },
           {
             label: 'Tenets',
-            icon: <BookOpen />,
+            icon: <BookOpen size={14} />,
             to: '/tenets',
           },
           {
             label: 'Brand Guide',
-            icon: <Paintbrush />,
+            icon: <Paintbrush size={14} />,
             to: '/brand-guide',
           },
         ]
@@ -526,8 +527,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             // Filter out items that require capabilities the user doesn't have
             if (item.requiresCapability) {
               return (
-                capabilities.incdes(item.requiresCapability) ||
-                capabilities.incdes('admin')
+                capabilities.includes(item.requiresCapability) ||
+                capabilities.includes('admin')
               )
             }
             return true

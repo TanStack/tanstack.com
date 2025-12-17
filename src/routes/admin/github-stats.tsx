@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { FaGithub, FaSync, FaStar, FaUsers, FaCube } from 'react-icons/fa'
+import {FaSync, FaStar, FaUsers } from 'react-icons/fa'
 import {
   Table,
   TableHeader,
@@ -24,6 +24,7 @@ import {
 } from '~/utils/stats-admin.server'
 import { formatDistanceToNow } from 'date-fns'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { Box } from 'lucide-react'
 
 type GitHubStatsEntry = {
   cacheKey: string
@@ -168,7 +169,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <FaCube className="text-purple-500" />
+                <Box className="text-purple-500" />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.dependentCount.toLocaleString()}
                 </span>

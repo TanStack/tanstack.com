@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
 import { getLibrary } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { FrameworkCard } from '~/components/FrameworkCard'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { DiscordIcon } from '~/components/icons/DiscordIcon'
 
 export const Route = createFileRoute('/$libraryId/$version/docs/framework/')({
   component: RouteComponent,
@@ -31,7 +31,7 @@ function getPackageName(
 }
 
 function RouteComponent() {
-  const { libraryId, version } = Route.useParams()
+  const { libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
 
   const frameworks = getFrameworkOptions(library.frameworks)
@@ -94,7 +94,7 @@ function RouteComponent() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                 >
-                  <FaDiscord className="w-5 h-5" />
+                  <DiscordIcon className="w-5 h-5" />
                   Join Discord
                 </a>
                 <a

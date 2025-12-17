@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { FaNpm, FaSync, FaDownload } from 'react-icons/fa'
+import { FaNpm, FaSync } from 'react-icons/fa'
 import {
   Table,
   TableHeader,
@@ -25,6 +25,7 @@ import {
   refreshAllNpmStats,
 } from '~/utils/stats-admin.server'
 import { formatDistanceToNow } from 'date-fns'
+import { Download } from 'lucide-react'
 
 type NpmPackage = {
   id: string
@@ -127,7 +128,7 @@ function NpmStatsAdmin() {
         cell: ({ row }) => (
           <div>
             <div className="flex items-center gap-2">
-              <FaDownload className="text-emerald-500" />
+              <Download className="text-emerald-500" />
               <span className="font-semibold text-gray-900 dark:text-white">
                 {row.original.totalDownloads.toLocaleString()}
               </span>
@@ -189,7 +190,7 @@ function NpmStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <FaDownload className="text-emerald-500" />
+                <Download className="text-emerald-500" />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {pkg.downloads?.toLocaleString() ?? 'N/A'}
                 </span>
@@ -349,7 +350,7 @@ function NpmStatsAdmin() {
                   Total Downloads
                 </div>
                 <div className="flex items-center gap-3">
-                  <FaDownload className="text-2xl text-emerald-500" />
+                  <Download className="text-2xl text-emerald-500" />
                   <div className="text-3xl font-bold text-gray-900 dark:text-white">
                     {orgStats.totalDownloads.toLocaleString()}
                   </div>
@@ -360,7 +361,7 @@ function NpmStatsAdmin() {
                   Downloads Per Day
                 </div>
                 <div className="flex items-center gap-3">
-                  <FaDownload className="text-2xl text-emerald-500" />
+                  <Download className="text-2xl text-emerald-500" />
                   <div>
                     <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                       {orgStats.ratePerDay !== undefined &&

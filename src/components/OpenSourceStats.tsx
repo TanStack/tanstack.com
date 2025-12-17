@@ -1,12 +1,12 @@
 import NumberFlow from '@number-flow/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { FaCube, FaStar, FaUsers } from 'react-icons/fa'
-import { FaDownload } from 'react-icons/fa'
+import { FaStar, FaUsers } from 'react-icons/fa'
 import { BlankErrorBoundary } from './BlankErrorBoundary'
 import { Suspense } from 'react'
 import { Library } from '~/libraries'
 import { ossStatsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
+import { Box, Download } from 'lucide-react'
 
 const StableCounter = ({
   value,
@@ -20,8 +20,6 @@ const StableCounter = ({
       .fill('8')
       .join(''),
   )
-  // TODO don't use locale formatting since it can cause a hydration mismatch
-  //.toLocaleString()
 
   return (
     <>
@@ -120,7 +118,7 @@ function OssStatsContent({ library }: { library?: Library }) {
             !hasNpmDownloads ? 'opacity-50' : ''
           } ${!hasAnyData ? 'blur-sm' : ''}`}
         >
-          <FaDownload className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
+          <Download className="text-2xl group-hover:text-emerald-500 transition-colors duration-200" />
           <div>
             <div className="text-2xl font-bold opacity-80 relative group-hover:text-emerald-500 transition-colors duration-200">
               {hasNpmDownloads ? (
@@ -184,7 +182,7 @@ function OssStatsContent({ library }: { library?: Library }) {
             !hasDependentCount ? 'opacity-50' : ''
           } ${!hasAnyData ? 'blur-sm' : ''}`}
         >
-          <FaCube className="text-2xl" />
+          <Box className="text-2xl" />
           <div className="">
             <div className="text-2xl font-bold opacity-80 relative">
               {hasDependentCount ? (

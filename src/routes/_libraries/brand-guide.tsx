@@ -4,7 +4,7 @@ import { Footer } from '~/components/Footer'
 import { useMemo } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
-import { FaRegCopy, FaDownload } from 'react-icons/fa'
+import { Copy, Download } from 'lucide-react'
 
 export const Route = createFileRoute('/_libraries/brand-guide')({
   component: RouteComponent,
@@ -81,7 +81,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
               className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-700"
               aria-label="Download asset"
             >
-              <FaDownload className="h-3 w-3" />
+              <Download className="h-3 w-3" />
               Download
             </button>
             <button
@@ -114,7 +114,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
               }}
               className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-700"
             >
-              <FaRegCopy className="h-3 w-3" />
+              <Copy className="h-3 w-3" />
               Copy URL
             </button>
             {isSvg ? (
@@ -147,7 +147,7 @@ function AssetCard({ title, description, asset, url, bg }: AssetCardProps) {
                 }}
                 className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
               >
-                <FaRegCopy className="h-3 w-3" />
+                <Copy className="h-3 w-3" />
                 Copy as SVG
               </button>
             ) : null}

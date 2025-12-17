@@ -1,10 +1,9 @@
 'use client'
 import { useState, useTransition } from 'react'
-import { FaCopy } from 'react-icons/fa'
 
 import { type MouseEventHandler, useEffect, useRef } from 'react'
 import { useToast } from '~/components/ToastProvider'
-import { Check } from 'lucide-react'
+import { Check, Copy } from 'lucide-react'
 
 export function useCopyButton(
   onCopy: () => void | Promise<void>,
@@ -120,7 +119,7 @@ export function CopyMarkdownButton({
           </>
         ) : (
           <>
-            <FaCopy className="w-3 h-3" /> Copy Markdown
+            <Copy className="w-3 h-3" /> Copy Markdown
           </>
         )}
       </div>

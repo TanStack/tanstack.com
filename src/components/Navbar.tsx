@@ -5,10 +5,9 @@ import {
   Link,
   useLocation,
   useMatches,
-  type LinkProps,
 } from '@tanstack/react-router'
 import { TbBrandX, TbBrandBluesky } from 'react-icons/tb'
-import { FaDiscord, FaGithub, FaInstagram } from 'react-icons/fa'
+import { FaInstagram } from 'react-icons/fa'
 import {
   LuCode,
   LuUsers,
@@ -37,6 +36,7 @@ import {
 import { libraries } from '~/libraries'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { DiscordIcon } from '~/components/icons/DiscordIcon'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
@@ -152,7 +152,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         className="opacity-70 hover:opacity-100"
         aria-label="Join TanStack Discord"
       >
-        <FaDiscord className="text-xl" />
+        <DiscordIcon className="text-xl" />
       </a>
     </div>
   )
@@ -496,7 +496,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: 'Discord',
-            icon: <FaDiscord />,
+            icon: <DiscordIcon />,
             to: 'https://tlinz.com/discord',
             target: '_blank',
           },

@@ -6,7 +6,7 @@ import {
   createFileRoute,
   redirect,
 } from '@tanstack/react-router'
-import { CgClose, CgMenuLeft } from 'react-icons/cg'
+import { X, TextAlignStart } from 'lucide-react'
 import {
   FaHome,
   FaUser,
@@ -166,8 +166,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       >
         <summary className="py-2 px-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-4 items-center">
-            <CgMenuLeft className="icon-open cursor-pointer" />
-            <CgClose className="icon-close cursor-pointer" />
+            <TextAlignStart className="icon-open cursor-pointer" />
+            <X className="icon-close cursor-pointer" />
             Admin Menu
           </div>
         </summary>

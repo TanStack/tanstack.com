@@ -24,7 +24,7 @@ export function SearchButton({ className }: SearchButtonProps) {
         <MdSearch className="text-lg" /> Search...
       </div>
       <div className="flex items-center bg-white/50 dark:bg-gray-500/50 rounded-md px-2 py-1 gap-1 font-bold text-xs whitespace-nowrap">
-        <Command size={14} strokeWidth={2.25} /> + K
+        <Command size={14} /> + K
       </div>
     </button>
   )

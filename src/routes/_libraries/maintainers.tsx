@@ -2,8 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useState } from 'react'
 import * as React from 'react'
+import { X } from 'lucide-react'
 import {
-  MdClose,
   MdFilterList,
   MdViewList,
   MdViewModule,
@@ -324,7 +324,7 @@ function MaintainersFilter({
                   onClick={() => toggleLibrary(libraryId)}
                   className="hover:bg-black/10 dark:hover:bg-white/10 rounded p-0.5 transition-colors"
                 >
-                  <MdClose className="w-3 h-3" />
+                  <X className="w-3 h-3" />
                 </button>
               </span>
             )

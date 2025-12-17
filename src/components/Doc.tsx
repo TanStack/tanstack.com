@@ -143,11 +143,10 @@ function DocContent({
                     title={isFullWidth ? 'Constrain width' : 'Expand width'}
                   >
                     {isFullWidth ? (
-                      <FoldHorizontal className="w-4 h-4" strokeWidth={2.25} />
+                      <FoldHorizontal className="w-4 h-4" />
                     ) : (
                       <UnfoldHorizontal
                         className="w-4 h-4"
-                        strokeWidth={2.25}
                       />
                     )}
                   </button>

@@ -12,7 +12,8 @@ import {
   Pagination,
 } from 'react-instantsearch'
 import { liteClient } from 'algoliasearch/lite'
-import { MdClose, MdSearch } from 'react-icons/md'
+import { X } from 'lucide-react'
+import { MdSearch } from 'react-icons/md'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useSearchContext } from '~/contexts/SearchContext'
 import { libraries } from '~/libraries'
@@ -312,7 +313,7 @@ const submitIconComponent = () => {
 }
 
 const resetIconComponent = () => {
-  return <MdClose />
+  return <X size={20} />
 }
 
 export function SearchModal() {

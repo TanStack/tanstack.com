@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { CgClose, CgMenuLeft } from 'react-icons/cg'
+import { X, TextAlignStart } from 'lucide-react'
 import { FaArrowLeft, FaArrowRight, FaDiscord, FaGithub } from 'react-icons/fa'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
@@ -292,8 +292,8 @@ export function DocsLayout({
       >
         <summary className="py-2 px-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-4 items-center">
-            <CgMenuLeft className="icon-open cursor-pointer" />
-            <CgClose className="icon-close cursor-pointer" />
+            <TextAlignStart className="icon-open cursor-pointer" size={16} />
+            <X className="icon-close cursor-pointer" size={16} />
             Documentation
           </div>
         </summary>

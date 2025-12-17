@@ -1,5 +1,4 @@
-import { VscPreview } from 'react-icons/vsc'
-import { Book, DatabaseZap } from 'lucide-react'
+import { Book, DatabaseZap, Wallpaper } from 'lucide-react'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { TbZoomQuestion } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
@@ -48,7 +47,7 @@ export const routerProject = {
       to: '/router/latest/docs/framework/react/overview',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/router/latest/docs/framework/react/examples/kitchen-sink-file-based',
     },

@@ -1,6 +1,5 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { VscPreview } from 'react-icons/vsc'
-import { Book, Zap } from 'lucide-react'
+import { Book, Wallpaper, Zap } from 'lucide-react'
 import { IoIosBody } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -59,7 +58,7 @@ export const tableProject = {
       to: '/table/latest/docs/introduction',
     },
     {
-      icon: <VscPreview className="text-lg" />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/table/latest/docs/framework/react/examples/basic',
     },

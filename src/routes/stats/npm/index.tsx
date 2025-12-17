@@ -16,7 +16,6 @@ import * as Plot from '@observablehq/plot'
 import { ParentSize } from '@visx/responsive'
 import { Tooltip } from '~/components/Tooltip'
 import * as d3 from 'd3'
-import { FaSpinner } from 'react-icons/fa'
 import { HexColorPicker } from 'react-colorful'
 import { seo } from '~/utils/seo'
 import { getPopularComparisons, packageGroupSchema } from './-comparisons'
@@ -153,19 +152,6 @@ const binningOptionsByType = binningOptions.reduce(
 
 type TransformMode = z.infer<typeof transformModeSchema>
 
-type NpmPackage = {
-  name: string
-  description: string
-  version: string
-  publisher: {
-    username: string
-  }
-  time?: {
-    created: string
-    modified: string
-  }
-}
-
 const defaultColors = [
   '#1f77b4', // blue
   '#ff7f0e', // orange
@@ -194,20 +180,6 @@ const dropdownButtonStyles = {
   base: 'bg-gray-500/10 rounded-md px-2 py-1 text-sm flex items-center gap-1',
   active: 'bg-gray-500/20',
 } as const
-
-type NpmQueryData = {
-  packages: {
-    downloads: any[]
-    name: string
-    hidden?: boolean | undefined
-  }[]
-  baseline?: boolean
-  start: string
-  end: string
-  color?: string | null | undefined
-  error?: string | null
-  actualStartDate?: Date
-}[]
 
 function npmQueryOptions({
   packageGroups,

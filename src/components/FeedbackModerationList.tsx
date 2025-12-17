@@ -1,9 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  FaTimes,
-} from 'react-icons/fa'
-import {
   Table,
   TableHeader,
   TableHeaderRow,
@@ -17,7 +14,7 @@ import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/schema'
 import { calculatePoints } from '~/utils/docFeedback.client'
 import { Check, Lightbulb, TriangleAlert } from 'lucide-react'
-import { MessageSquare } from 'lucide-react'
+import { MessageSquare, X } from 'lucide-react'
 
 interface FeedbackModerationListProps {
   data:
@@ -240,7 +237,7 @@ export function FeedbackModerationList({
                           className="px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
                           title="Deny"
                         >
-                          <FaTimes />
+                          <X size={14} />
                         </button>
                       </div>
                     )}
@@ -307,7 +304,10 @@ export function FeedbackModerationList({
                         {/* Moderation Note Input (for pending only) */}
                         {isPending && (
                           <div>
-                            <label className="block text-sm font-semibold mb-2">
+                            <label
+                              htmlFor={`moderation-note-${feedback.id}`}
+                              className="block text-sm font-semibold mb-2"
+                            >
                               Internal Moderation Note (optional):
                             </label>
                             <textarea

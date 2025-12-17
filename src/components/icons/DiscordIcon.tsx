@@ -1,13 +1,11 @@
 import * as React from 'react'
 
-import type { IconProps } from './GithubIcon'
-
 export function DiscordIcon({
                               className,
                               width = '1em',
                               height = '1em',
                               ...props
-                            }: IconProps) {
+                            }: React.SVGProps<SVGSVGElement>) {
   return (
   <svg
     viewBox="0 0 640 512"

@@ -1,10 +1,5 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import {
-  FaTrash,
-  FaSave,
-  FaTimes,
-} from 'react-icons/fa'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   deleteDocFeedback,
@@ -12,7 +7,15 @@ import {
   updateDocFeedbackCollapsed,
 } from '~/utils/docFeedback.functions'
 import type { DocFeedback } from '~/db/schema'
-import { ChevronDown, ChevronUp, Lightbulb, MessageSquare } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronUp,
+  Lightbulb,
+  MessageSquare,
+  Save,
+  Trash,
+  X,
+} from 'lucide-react'
 
 interface DocFeedbackNoteProps {
   note: DocFeedback
@@ -373,7 +376,7 @@ export function DocFeedbackNote({
                     title={isImprovement ? 'Delete improvement' : 'Delete note'}
                     disabled={isDeleting || isSaving}
                   >
-                    <FaTrash className="text-xs" />
+                    <Trash className="text-xs" />
                   </button>
                 </>
               )}
@@ -440,7 +443,7 @@ export function DocFeedbackNote({
                   )}
                   disabled={isSaving}
                 >
-                  <FaSave className="text-[10px]" />
+                  <Save className="text-[10px]" />
                   {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 <button
@@ -448,7 +451,7 @@ export function DocFeedbackNote({
                   className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-50"
                   disabled={isSaving}
                 >
-                  <FaTimes className="inline text-[10px] mr-1" />
+                  <X className="inline text-[10px] mr-1" />
                   Cancel
                 </button>
               </div>

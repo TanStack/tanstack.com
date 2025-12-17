@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState, useMemo, useCallback } from 'react'
-import { FaTrash, FaUser, FaUsers } from 'react-icons/fa'
 import { useRemoveUsersFromRole } from '~/utils/mutations'
 import { useQuery } from '@tanstack/react-query'
 import { getRole, getUsersWithRole } from '~/utils/roles.functions'
@@ -11,7 +10,7 @@ import {
   flexRender,
   type ColumnDef,
 } from '@tanstack/react-table'
-import { ArrowLeft, Lock } from 'lucide-react'
+import { ArrowLeft, Lock, Trash, User, Users } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/roles/$roleId')({
   component: RoleDetailPage,
@@ -139,7 +138,7 @@ function RoleDetailPage() {
                   />
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <FaUser className="text-gray-500 dark:text-gray-400" />
+                    <User className="text-gray-500 dark:text-gray-400" size={14} />
                   </div>
                 )}
               </div>
@@ -200,7 +199,7 @@ function RoleDetailPage() {
               }}
               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
             >
-              <FaTrash className="w-4 h-4" />
+              <Trash className="w-4 h-4" />
             </button>
           )
         },
@@ -281,7 +280,7 @@ function RoleDetailPage() {
 
         <div className="mb-4 flex items-center gap-4">
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <FaUsers className="w-5 h-5" />
+            <Users className="w-5 h-5" />
             <span className="text-sm">
               {usersWithRole?.length || 0} user(s) with this role
             </span>
@@ -415,7 +414,7 @@ function RoleDetailPage() {
 
           {(!usersWithRole || usersWithRole.length === 0) && (
             <div className="text-center py-12">
-              <FaUsers className="mx-auto h-12 w-12 text-gray-400" />
+              <Users className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
                 No users with this role
               </h3>

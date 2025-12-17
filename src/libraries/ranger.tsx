@@ -1,5 +1,4 @@
-import { VscPreview } from 'react-icons/vsc'
-import { Book, RotateCw } from 'lucide-react'
+import { Book, RotateCw, Wallpaper } from 'lucide-react'
 import { TbZoomQuestion } from 'react-icons/tb'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { twMerge } from 'tailwind-merge'
@@ -37,7 +36,7 @@ export const rangerProject = {
       to: '/ranger/latest/docs/overview',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/ranger/latest/docs/framework/react/examples/basic',
     },

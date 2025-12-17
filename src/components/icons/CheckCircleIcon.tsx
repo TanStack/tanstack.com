@@ -1,13 +1,11 @@
 import * as React from 'react'
 
-export type IconProps = React.SVGProps<SVGSVGElement>
-
 export function CheckCircleIcon({
                                   className,
                                   width = '1em',
                                   height = '1em',
                                   ...props
-                                }: IconProps) {
+                                }: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       viewBox="0 0 24 24"

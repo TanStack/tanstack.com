@@ -1,6 +1,4 @@
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { FaGithub } from 'react-icons/fa'
-import { Book } from 'lucide-react'
+import { Book, Wallpaper, WandSparkles } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 
@@ -37,7 +35,7 @@ export const storeProject = {
       to: '/store/latest/docs',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/store/latest/docs/framework/react/examples/simple',
     },
@@ -50,7 +48,7 @@ export const storeProject = {
   featureHighlights: [
     {
       title: 'Battle-Tested',
-      icon: <VscWand className={twMerge(textStyles)} />,
+      icon: <WandSparkles className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack Store is widely adopted across the TanStack ecosystem,
@@ -66,7 +64,7 @@ export const storeProject = {
     },
     {
       title: 'Tiny Bundle Size',
-      icon: <VscWand className={twMerge(textStyles)} />,
+      icon: <WandSparkles className={twMerge(textStyles)} />,
       description: (
         <div>
           Designed with a focus on performance and efficiency, boasting a{' '}
@@ -81,7 +79,7 @@ export const storeProject = {
     },
     {
       title: 'Framework Agnostic',
-      icon: <VscWand className={twMerge(textStyles)} />,
+      icon: <WandSparkles className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack Store is{' '}

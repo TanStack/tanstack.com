@@ -7,7 +7,6 @@ import { BottomCTA } from '~/components/BottomCTA'
 import { LibraryHero } from '~/components/LibraryHero'
 import { startProject } from '~/libraries/start'
 import { seo } from '~/utils/seo'
-import { VscPreview } from 'react-icons/vsc'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
@@ -18,7 +17,7 @@ import { TbBrandX } from 'react-icons/tb'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { Book } from 'lucide-react'
+import { Book, Wallpaper } from 'lucide-react'
 
 const library = getLibrary('start')
 
@@ -111,7 +110,7 @@ function VersionIndex() {
             }}
             className="flex items-center gap-2 py-2 px-4 bg-cyan-900 rounded text-white uppercase font-extrabold"
           >
-            <VscPreview className="min-w-4" /> See an Example
+            <Wallpaper className="min-w-4" /> See an Example
           </Link>
           <Link
             from={'/$libraryId/$version'}

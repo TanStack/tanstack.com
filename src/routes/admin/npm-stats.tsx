@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { FaSync } from 'react-icons/fa'
 import {
   Table,
   TableHeader,
@@ -25,7 +24,7 @@ import {
   refreshAllNpmStats,
 } from '~/utils/stats-admin.server'
 import { formatDistanceToNow } from 'date-fns'
-import { Download } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 import { NpmIcon } from '~/components/icons/NpmIcon'
 
 type NpmPackage = {
@@ -256,7 +255,8 @@ function NpmStatsAdmin() {
             disabled={refreshPackageMutation.isPending}
             className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
           >
-            <FaSync
+            <RefreshCw
+              size={14}
               className={refreshPackageMutation.isPending ? 'animate-spin' : ''}
             />
             Refresh
@@ -307,7 +307,8 @@ function NpmStatsAdmin() {
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             title="Complete refresh: discover packages, fetch fresh stats with growth rates, and rebuild all caches"
           >
-            <FaSync
+            <RefreshCw
+              size={14}
               className={refreshAllMutation.isPending ? 'animate-spin' : ''}
             />
             {refreshAllMutation.isPending

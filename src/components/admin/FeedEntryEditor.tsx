@@ -8,7 +8,7 @@ import { partners } from '~/utils/partners'
 import { currentUserQueryOptions } from '~/queries/auth'
 import { useCreateFeedEntry, useUpdateFeedEntry } from '~/utils/mutations'
 import { generateManualEntryId } from '~/utils/feed-manual'
-import { FaSave, FaTimes } from 'react-icons/fa'
+import { Save, X } from 'lucide-react'
 
 interface FeedEntryEditorProps {
   entry: FeedEntry | null
@@ -163,7 +163,7 @@ export function FeedEntryEditor({
             onClick={onCancel}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <FaTimes className="inline mr-2" />
+            <X size={14} className="inline mr-2" />
             Cancel
           </button>
           <button
@@ -171,7 +171,7 @@ export function FeedEntryEditor({
             disabled={saving || !title || !content || !user}
             className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <FaSave className="inline mr-2" />
+            <Save className="inline mr-2" size={14} />
             {saving ? 'Saving...' : user ? 'Save' : 'Loading...'}
           </button>
         </div>
@@ -182,7 +182,12 @@ export function FeedEntryEditor({
         <div className="space-y-4">
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium mb-2">Title *</label>
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium mb-2"
+            >
+              Title *
+            </label>
             <input
               type="text"
               value={title}
@@ -194,7 +199,11 @@ export function FeedEntryEditor({
 
           {/* Content */}
           <div>
-            <label className="block text-sm font-medium mb-2">Content *</label>
+            <label
+              htmlFor="content"
+              className="block text-sm font-medium mb-2">
+              Content *
+            </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -206,7 +215,10 @@ export function FeedEntryEditor({
 
           {/* Excerpt */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="excerpt"
+              className="block text-sm font-medium mb-2"
+            >
               Excerpt (optional)
             </label>
             <textarea
@@ -220,7 +232,10 @@ export function FeedEntryEditor({
 
           {/* Published Date */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="publishedAt"
+              className="block text-sm font-medium mb-2"
+            >
               Published Date *
             </label>
             <input
@@ -233,7 +248,11 @@ export function FeedEntryEditor({
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium mb-2">Category *</label>
+            <label
+              htmlFor="category"
+              className="block text-sm font-medium mb-2">
+              Category *
+            </label>
             <select
               value={category}
               onChange={(e) =>
@@ -259,7 +278,12 @@ export function FeedEntryEditor({
 
           {/* Libraries */}
           <div>
-            <label className="block text-sm font-medium mb-2">Libraries</label>
+            <label
+              htmlFor="libraries"
+              className="block text-sm font-medium mb-2"
+            >
+              Libraries
+            </label>
             <div className="max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-2">
               {libraries.map((library) => (
                 <label
@@ -280,7 +304,12 @@ export function FeedEntryEditor({
 
           {/* Partners */}
           <div>
-            <label className="block text-sm font-medium mb-2">Partners</label>
+            <label
+              htmlFor="partners"
+              className="block text-sm font-medium mb-2"
+            >
+              Partners
+            </label>
             <div className="max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-2">
               {partners
                 .filter((p) => p.status === 'active')
@@ -303,7 +332,10 @@ export function FeedEntryEditor({
 
           {/* Tags */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="tags"
+              className="block text-sm font-medium mb-2"
+            >
               Tags (comma-separated)
             </label>
             <input

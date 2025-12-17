@@ -1,5 +1,4 @@
-import { Book, Zap } from 'lucide-react'
-import { VscWand } from 'react-icons/vsc'
+import { Book, WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
@@ -44,7 +43,7 @@ export const devtoolsProject = {
   featureHighlights: [
     {
       title: 'Unified Devtools Panel',
-      icon: <VscWand className="text-slate-400" />,
+      icon: <WandSparkles size={16} className="text-slate-400" />,
       description: (
         <div>
           TanStack Devtools provides a centralized panel that houses all

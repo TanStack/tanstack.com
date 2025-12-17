@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { FaPlus } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
-import { Lightbulb, MessageSquare } from 'lucide-react'
+import { Lightbulb, MessageSquare, Plus } from 'lucide-react'
 
 interface DocFeedbackFloatingButtonProps {
   onAddNote: () => void
@@ -112,7 +111,7 @@ export function DocFeedbackFloatingButton({
         )}
         title="Add feedback"
       >
-        <FaPlus
+        <Plus
           className={twMerge(
             'text-[10px] transition-transform duration-200',
             isMenuOpen && 'rotate-45',

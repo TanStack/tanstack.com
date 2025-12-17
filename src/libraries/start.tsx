@@ -1,11 +1,10 @@
-import { FaGithub, FaYinYang } from 'react-icons/fa'
-import { VscPreview } from 'react-icons/vsc'
-import { Book } from 'lucide-react'
+import { Book, Wallpaper } from 'lucide-react'
 import { PiRocketLaunchDuotone, PiTreeStructureBold } from 'react-icons/pi'
 import { TbServerBolt } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { YinYangIcon } from '~/components/icons/YinYangIcon'
 
 const repo = 'tanstack/router'
 
@@ -46,7 +45,7 @@ export const startProject = {
       to: '/start/latest/docs/framework/react/overview',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/start/latest/docs/framework/react/examples/start-basic',
     },
@@ -107,7 +106,7 @@ export const startProject = {
     {
       title: 'Client-Side First, 100% Server Capable',
       icon: (
-        <FaYinYang
+        <YinYangIcon
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '10s',

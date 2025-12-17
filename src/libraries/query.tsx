@@ -1,6 +1,5 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { Book, Zap } from 'lucide-react'
+import { Book, Wallpaper, WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
@@ -66,7 +65,7 @@ export const queryProject = {
       to: '/query/latest/docs/framework/react/overview',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/query/latest/docs/framework/react/examples/basic',
     },
@@ -80,7 +79,7 @@ export const queryProject = {
     {
       title: 'Declarative & Automatic',
       icon: (
-        <VscWand
+        <WandSparkles
           className={twMerge('motion-safe:animate-pulse', textStyles)}
           style={{
             animationDuration: '5s',

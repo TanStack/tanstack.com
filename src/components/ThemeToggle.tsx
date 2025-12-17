@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { FaMoon, FaSun } from 'react-icons/fa'
 import { useTheme } from './ThemeProvider'
+import { Moon, Sun } from 'lucide-react'
 
 export function ThemeToggle() {
   const { toggleMode } = useTheme()
@@ -20,9 +20,9 @@ export function ThemeToggle() {
         hover:bg-gray-500/20 dark:hover:bg-gray-500/40
         cursor-pointer transition-all duration-300 ease-in-out text-xs font-black`}
     >
-      <div className="flex-1 flex items-center justify-between p-2 gap-1">
-        <FaSun className={`hidden light:block`} />
-        <FaMoon className={`hidden dark:block`} />
+      <div className="flex-1 flex items-center justify-between p-1.5 gap-1">
+        <Sun className={`hidden light:block`} size={16} />
+        <Moon className={`hidden dark:block`} size={16} />
         <div
           className={`hidden auto:block uppercase select-none opacity-70 text-xs`}
         >

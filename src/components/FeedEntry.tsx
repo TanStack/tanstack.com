@@ -3,10 +3,9 @@ import { Markdown } from '~/components/Markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
-import { FaTrash, FaStar } from 'react-icons/fa'
 import { Link } from '@tanstack/react-router'
 import { TableRow, TableCell } from '~/components/TableComponents'
-import { Eye, EyeOff, SquarePen } from 'lucide-react'
+import { Eye, EyeOff, SquarePen, Star, Trash } from 'lucide-react'
 
 export interface FeedEntry {
   _id: string
@@ -334,7 +333,7 @@ export function FeedEntry({
                   }`}
                   title="Toggle Featured"
                 >
-                  <FaStar className="w-3 h-3" />
+                  <Star className="w-3 h-3" />
                 </button>
               )}
               {adminActions.onDelete && (
@@ -343,7 +342,7 @@ export function FeedEntry({
                   className="p-0.5 hover:bg-red-100 dark:hover:bg-red-900 rounded transition-colors text-red-500"
                   title="Delete"
                 >
-                  <FaTrash className="w-3 h-3" />
+                  <Trash className="w-3 h-3" />
                 </button>
               )}
             </div>

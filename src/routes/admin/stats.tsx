@@ -1,8 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import {
-  FaUsers,
-} from 'react-icons/fa'
 import { getUserStats } from '~/utils/user-stats.server'
 import * as Plot from '@observablehq/plot'
 import { useEffect, useRef } from 'react'
@@ -13,6 +10,7 @@ import {
   EyeOff,
   List,
   Minus,
+  Users,
 } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/stats')({
@@ -73,7 +71,7 @@ function AdminStatsPage() {
         {/* User Statistics Section */}
         <section className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-            <FaUsers className="text-blue-500" />
+            <Users className="text-blue-500 text-xl" />
             User Statistics
           </h2>
 

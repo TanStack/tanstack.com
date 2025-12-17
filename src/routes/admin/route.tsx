@@ -12,14 +12,12 @@ import {
   ChartLine,
   MessagesSquare,
   Home,
+  Rss,
+  ShieldHalf,
+  StickyNote,
+  Users,
+  User,
 } from 'lucide-react'
-import {
-  FaUser,
-  FaUsers,
-  FaRss,
-  FaShieldAlt,
-  FaStickyNote,
-} from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
@@ -84,29 +82,29 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'Users',
-      icon: <FaUsers />,
+      icon: <Users size={14} />,
       to: '/admin/users',
     },
     {
       label: 'Roles',
-      icon: <FaShieldAlt />,
+      icon: <ShieldHalf size={14} />,
       to: '/admin/roles',
     },
     {
       label: 'Feedback',
-      icon: <MessagesSquare />,
+      icon: <MessagesSquare size={14} />,
       to: '/admin/feedback',
       requiredCapability: 'moderate-feedback',
     },
     {
       label: 'Notes',
-      icon: <FaStickyNote />,
+      icon: <StickyNote size={14} />,
       to: '/admin/notes',
       requiredCapability: 'moderate-feedback',
     },
     {
       label: 'Feed',
-      icon: <FaRss />,
+      icon: <Rss size={14} />,
       to: '/admin/feed',
     },
     {
@@ -121,7 +119,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'My Account',
-      icon: <FaUser />,
+      icon: <User size={14} />,
       to: '/account',
     },
   ]

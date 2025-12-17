@@ -36,11 +36,6 @@ export const dbProject = {
       label: 'Docs',
       to: '/db/latest/docs',
     },
-    // {
-    //   icon: <VscPreview />,
-    //   label: 'Examples',
-    //   to: '/db/latest/docs/framework/react/examples/todo',
-    // },
     {
       icon: <GithubIcon />,
       label: 'Github',

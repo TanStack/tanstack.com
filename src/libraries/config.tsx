@@ -1,5 +1,4 @@
-import { Book, Zap } from 'lucide-react'
-import { VscWand } from 'react-icons/vsc'
+import { Book, WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
@@ -43,7 +42,7 @@ export const configProject = {
   featureHighlights: [
     {
       title: 'Intuitive Configuration',
-      icon: <VscWand className="text-gray-400" />,
+      icon: <WandSparkles className="text-gray-400" />,
       description: (
         <div>
           TanStack Config offers a seamless and intuitive configuration

@@ -4,15 +4,14 @@ import {
   useSetFeedEntryFeatured,
   useDeleteFeedEntry,
 } from '~/utils/mutations'
-import { FaPlus } from 'react-icons/fa'
 import { z } from 'zod'
+import { Plus } from 'lucide-react'
 import { FeedEntry } from '~/components/FeedEntry'
 import { FeedSyncStatus } from '~/components/admin/FeedSyncStatus'
 import { FeedPage as FeedPageComponent } from '~/components/FeedPage'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { FEED_DEFAULTS } from '~/utils/feedDefaults'
 import { libraries, type LibraryId } from '~/libraries'
 import { FEED_CATEGORIES, RELEASE_LEVELS } from '~/utils/feedSchema'
 const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
@@ -144,7 +143,7 @@ function FeedAdminPage() {
           params={{ id: 'new' }}
           className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
         >
-          <FaPlus />
+          <Plus size={14} />
           Create Entry
         </Link>
       </div>

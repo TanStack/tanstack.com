@@ -1,7 +1,6 @@
 import { Library } from '.'
-import { Book, Zap } from 'lucide-react'
+import { Book, Plug, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { FaPlug } from 'react-icons/fa6'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 
@@ -46,7 +45,7 @@ export const aiProject = {
   featureHighlights: [
     {
       title: 'Multi-Provider Support',
-      icon: <FaPlug className={twMerge(textStyles)} />,
+      icon: <Plug className={twMerge(textStyles)} />,
       description: (
         <div>
           Support for OpenAI, Anthropic, Ollama, and Google Gemini. Switch

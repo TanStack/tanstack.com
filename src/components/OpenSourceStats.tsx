@@ -1,12 +1,11 @@
 import NumberFlow from '@number-flow/react'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { FaStar, FaUsers } from 'react-icons/fa'
 import { BlankErrorBoundary } from './BlankErrorBoundary'
 import { Suspense } from 'react'
 import { Library } from '~/libraries'
 import { ossStatsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
-import { Box, Download } from 'lucide-react'
+import { Box, Download, Star, Users } from 'lucide-react'
 
 const StableCounter = ({
   value,
@@ -144,7 +143,7 @@ function OssStatsContent({ library }: { library?: Library }) {
             !hasStarCount ? 'opacity-50' : ''
           } ${!hasAnyData ? 'blur-sm' : ''}`}
         >
-          <FaStar className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
+          <Star className="group-hover:text-yellow-500 text-2xl transition-colors duration-200" />
           <div>
             <div className="text-2xl font-bold opacity-80 leading-none group-hover:text-yellow-500 transition-colors duration-200 relative">
               {hasStarCount ? (
@@ -163,7 +162,7 @@ function OssStatsContent({ library }: { library?: Library }) {
             !hasContributorCount ? 'opacity-50' : ''
           } ${!hasAnyData ? 'blur-sm' : ''}`}
         >
-          <FaUsers className="text-2xl" />
+          <Users className="text-2xl" />
           <div className="">
             <div className="text-2xl font-bold opacity-80 relative">
               {hasContributorCount ? (

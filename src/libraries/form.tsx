@@ -1,5 +1,4 @@
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { Book, Zap } from 'lucide-react'
+import { Book, Wallpaper, WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
@@ -36,7 +35,7 @@ export const formProject = {
       to: '/form/latest/docs',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/form/latest/docs/framework/react/examples/simple',
     },
@@ -49,7 +48,7 @@ export const formProject = {
   featureHighlights: [
     {
       title: 'First-Class TypeScript Support',
-      icon: <VscWand className="text-yellow-400" />,
+      icon: <WandSparkles size={16} className="text-yellow-400" />,
       description: (
         <div>
           TanStack Form touts first-class TypeScript support with outstanding

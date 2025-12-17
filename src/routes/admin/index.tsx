@@ -1,13 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-import {
-  FaUsers,
-  FaRss,
-  FaShieldAlt,
-} from 'react-icons/fa'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { Lock } from 'lucide-react'
+import { Lock, Rss, ShieldHalf, Users } from 'lucide-react'
 import { NpmIcon } from '~/components/icons/NpmIcon'
 
 export const Route = createFileRoute('/admin/')({
@@ -78,7 +73,7 @@ function AdminDashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                  <FaUsers className="text-blue-600 dark:text-blue-400 text-xl" />
+                  <Users className="text-blue-600 dark:text-blue-400 text-xl" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   User Management
@@ -100,7 +95,7 @@ function AdminDashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                  <FaShieldAlt className="text-purple-600 dark:text-purple-400 text-xl" />
+                  <ShieldHalf className="text-purple-600 dark:text-purple-400 text-xl" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Role Management
@@ -123,7 +118,7 @@ function AdminDashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                  <FaRss className="text-green-600 dark:text-green-400 text-xl" />
+                  <Rss className="text-green-600 dark:text-green-400 text-xl" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Feed Management

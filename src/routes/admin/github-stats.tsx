@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import {FaSync, FaStar, FaUsers } from 'react-icons/fa'
 import {
   Table,
   TableHeader,
@@ -24,7 +23,7 @@ import {
 } from '~/utils/stats-admin.server'
 import { formatDistanceToNow } from 'date-fns'
 import { GithubIcon } from '~/components/icons/GithubIcon'
-import { Box } from 'lucide-react'
+import { Box, RefreshCw, Star, Users } from 'lucide-react'
 
 type GitHubStatsEntry = {
   cacheKey: string
@@ -106,7 +105,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <FaStar className="text-yellow-500" />
+                <Star className="text-yellow-500" size={14} />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.starCount.toLocaleString()}
                 </span>
@@ -132,7 +131,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <FaUsers className="text-blue-500" />
+                <Users className="text-blue-500" size={14} />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.contributorCount.toLocaleString()}
                 </span>
@@ -291,7 +290,7 @@ function GitHubStatsAdmin() {
               disabled={isRefreshing || refreshAllMutation.isPending}
               className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
             >
-              <FaSync className={isRefreshing ? 'animate-spin' : ''} />
+              <RefreshCw className={isRefreshing ? 'animate-spin' : ''} size={14} />
               Refresh
             </button>
           )
@@ -328,7 +327,8 @@ function GitHubStatsAdmin() {
             disabled={refreshAllMutation.isPending || refreshingKey !== null}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <FaSync
+            <RefreshCw
+              size={14}
               className={refreshAllMutation.isPending ? 'animate-spin' : ''}
             />
             Refresh All

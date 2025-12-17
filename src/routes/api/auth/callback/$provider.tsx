@@ -47,7 +47,7 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
           }
 
           // Clear state cookie (one-time use)
-          const clearStateCookie = `oauth_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
+          const clearStateCookie = `oauth_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${process.env.NODE_ENV === 'production' ? '; Secure' : ''}`
 
         // Exchange code for access token
         // Use SITE_URL env var if set, otherwise fall back to request origin

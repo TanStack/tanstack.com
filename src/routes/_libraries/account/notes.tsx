@@ -2,11 +2,11 @@ import * as React from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
-import { FaExternalLinkAlt } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { DocFeedbackNote } from '~/components/DocFeedbackNote'
 import { Spinner } from '~/components/Spinner'
+import { ExternalLink } from 'lucide-react'
 
 export const Route = createFileRoute('/_libraries/account/notes')({
   component: AccountNotesPage,
@@ -80,7 +80,7 @@ function AccountNotesPage() {
                   >
                     {item.libraryId}
                     {item.pagePath}
-                    <FaExternalLinkAlt className="text-[10px]" />
+                    <ExternalLink className="text-[10px]" />
                   </Link>
 
                   {/* Feedback card */}

@@ -1,16 +1,15 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
 import {
   FaLightbulb,
-  FaExternalLinkAlt,
 } from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import { calculatePoints } from '~/utils/docFeedback.client'
-import { Award, MessageSquare } from 'lucide-react'
+import { Award, ExternalLink, MessageSquare } from 'lucide-react'
 
 interface UserFeedbackSectionProps {
   userId: string
@@ -86,7 +85,7 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
           >
             View Leaderboard
-            <FaExternalLinkAlt className="text-xs" />
+            <ExternalLink className="text-xs" />
           </Link>
         </div>
       </div>

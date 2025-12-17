@@ -22,7 +22,6 @@ import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useCreateRole, useUpdateRole, useDeleteRole } from '~/utils/mutations'
 import { listRoles } from '~/utils/roles.functions'
 import {
-  FaEdit,
   FaSave,
   FaTimes,
   FaLock,
@@ -36,6 +35,7 @@ import {
   getCoreRowModel,
   flexRender,
 } from '@tanstack/react-table'
+import { SquarePen } from 'lucide-react'
 
 // Role type for table
 type Role = {
@@ -416,7 +416,7 @@ function RolesPage() {
                 onClick={() => handleEditRole(role)}
                 className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
               >
-                <FaEdit className="w-4 h-4" />
+                <SquarePen className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleDeleteRole(role._id)}

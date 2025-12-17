@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { FoldHorizontal, UnfoldHorizontal } from 'lucide-react'
-import { FaEdit } from 'react-icons/fa'
+import { FoldHorizontal, SquarePen, UnfoldHorizontal } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { useWidthToggle } from '~/components/DocsLayout'
 import { DocTitle } from '~/components/DocTitle'
@@ -185,7 +184,7 @@ function DocContent({
               href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
               className="flex items-center gap-2"
             >
-              <FaEdit /> Edit on GitHub
+              <SquarePen size={16} /> Edit on GitHub
             </a>
           </div>
           <div className="h-24" />

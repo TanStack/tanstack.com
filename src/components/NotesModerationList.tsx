@@ -1,10 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  FaExclamationTriangle,
-  FaExternalLinkAlt,
-} from 'react-icons/fa'
-import {
   Table,
   TableHeader,
   TableHeaderRow,
@@ -17,6 +13,7 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/schema'
 import { calculatePoints } from '~/utils/docFeedback.client'
+import { ExternalLink, TriangleAlert } from 'lucide-react'
 
 interface NotesModerationListProps {
   data:
@@ -195,7 +192,7 @@ export function NotesModerationList({
                     </span>
                     {feedback.isDetached && (
                       <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        <FaExclamationTriangle />
+                        <TriangleAlert size={12} />
                         Detached
                       </div>
                     )}
@@ -227,7 +224,7 @@ export function NotesModerationList({
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      <FaExternalLinkAlt className="text-[10px]" />
+                      <ExternalLink className="text-[10px]" />
                       View Doc
                     </a>
                   </TableCell>

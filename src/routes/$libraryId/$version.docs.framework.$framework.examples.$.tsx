@@ -6,7 +6,6 @@ import {
   useSuspenseQuery,
 } from '@tanstack/react-query'
 import React from 'react'
-import { FaExternalLinkAlt } from 'react-icons/fa'
 import { DocTitle } from '~/components/DocTitle'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { fetchFile, fetchRepoDirectoryContents } from '~/utils/docs'
@@ -19,6 +18,7 @@ import { capitalize, slugToTitle } from '~/utils/utils'
 import { z } from 'zod'
 import { CodeExplorer } from '~/components/CodeExplorer'
 import type { GitHubFileNode } from '~/utils/documents.server'
+import { ExternalLink } from 'lucide-react'
 
 const fileQueryOptions = (repo: string, branch: string, filePath: string) => {
   return queryOptions({
@@ -250,7 +250,7 @@ function PageComponent() {
               className="flex gap-1 items-center"
               rel="noreferrer"
             >
-              <FaExternalLinkAlt /> Github
+              <ExternalLink /> Github
             </a>
             {!library.hideStackblitzUrl ? (
               <a
@@ -259,7 +259,7 @@ function PageComponent() {
                 className="flex gap-1 items-center"
                 rel="noreferrer"
               >
-                <FaExternalLinkAlt /> StackBlitz
+                <ExternalLink /> StackBlitz
               </a>
             ) : null}
             {!library.hideCodesandboxUrl ? (
@@ -269,7 +269,7 @@ function PageComponent() {
                 className="flex gap-1 items-center"
                 rel="noreferrer"
               >
-                <FaExternalLinkAlt /> CodeSandbox
+                <ExternalLink /> CodeSandbox
               </a>
             ) : null}
           </div>

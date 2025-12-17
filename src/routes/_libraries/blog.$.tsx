@@ -10,7 +10,6 @@ import { createServerFn } from '@tanstack/react-start'
 import { formatAuthors } from '~/utils/blog'
 import { format } from 'date-fns'
 import { z } from 'zod'
-import { FaEdit } from 'react-icons/fa'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 import * as React from 'react'
@@ -20,7 +19,7 @@ import { Markdown } from '~/components/Markdown'
 import { CopyMarkdownButton } from '~/components/CopyMarkdownButton'
 import { GamFooter, GamHeader } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, SquarePen } from 'lucide-react'
 
 function handleRedirects(docsPath: string) {
   if (docsPath.includes('directives-the-new-framework-lock-in')) {
@@ -181,7 +180,7 @@ ${content}`
                           href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
                           className="flex items-center gap-2"
                         >
-                          <FaEdit /> Edit on GitHub
+                          <SquarePen size={16} /> Edit on GitHub
                         </a>
                       </div>
                       <div className="h-24" />

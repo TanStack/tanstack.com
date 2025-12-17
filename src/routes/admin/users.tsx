@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { FaUser, FaEdit, FaSave, FaTimes, FaLock } from 'react-icons/fa'
+import { FaUser, FaSave, FaTimes, FaLock } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
 import { Spinner } from '~/components/Spinner'
 import {
@@ -41,6 +41,7 @@ import {
   getBulkEffectiveCapabilitiesQueryOptions,
 } from '~/queries/roles'
 import { getUserRoles } from '~/utils/roles.functions'
+import { SquarePen } from 'lucide-react'
 
 // User type for table
 type User = {
@@ -883,7 +884,7 @@ function UsersPage() {
               onClick={() => handleEditUser(user)}
               className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
             >
-              <FaEdit className="w-4 h-4" />
+              <SquarePen className="w-4 h-4" />
             </button>
           )
         },

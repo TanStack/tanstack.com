@@ -3,7 +3,6 @@ import { twMerge } from 'tailwind-merge'
 import {
   FaTimes,
   FaLightbulb,
-  FaExclamationTriangle,
 } from 'react-icons/fa'
 import {
   Table,
@@ -18,7 +17,7 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/schema'
 import { calculatePoints } from '~/utils/docFeedback.client'
-import { Check } from 'lucide-react'
+import { Check, TriangleAlert } from 'lucide-react'
 import { MessageSquare } from 'lucide-react'
 
 interface FeedbackModerationListProps {
@@ -213,7 +212,7 @@ export function FeedbackModerationList({
                     </span>
                     {feedback.isDetached && (
                       <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        <FaExclamationTriangle />
+                        <TriangleAlert size={12} />
                         Detached
                       </div>
                     )}

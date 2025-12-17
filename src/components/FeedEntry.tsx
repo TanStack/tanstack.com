@@ -3,9 +3,10 @@ import { Markdown } from '~/components/Markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
-import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaStar } from 'react-icons/fa'
+import { FaTrash, FaEye, FaEyeSlash, FaStar } from 'react-icons/fa'
 import { Link } from '@tanstack/react-router'
 import { TableRow, TableCell } from '~/components/TableComponents'
+import { SquarePen } from 'lucide-react'
 
 export interface FeedEntry {
   _id: string
@@ -303,7 +304,7 @@ export function FeedEntry({
                   className="p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400"
                   title="Edit"
                 >
-                  <FaEdit className="w-3 h-3" />
+                  <SquarePen className="w-3 h-3" />
                 </button>
               )}
               {adminActions.onToggleVisibility && (

@@ -1,8 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { FaCheckCircle } from 'react-icons/fa'
 import { LuUsers, LuVideo, LuMapPin, LuStar } from 'react-icons/lu'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
+import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 
 export const Route = createFileRoute('/_libraries/learn')({
   component: LearnPage,
@@ -91,13 +91,13 @@ function LearnPage() {
               <div className="grid max-w-(--breakpoint-lg) mx-auto text-xs gap-2 text-left">
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <FaCheckCircle />
+                    <CheckCircleIcon />
                   </span>
                   <div>Save time by learning with a guided approach</div>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <FaCheckCircle />
+                    <CheckCircleIcon />
                   </span>
                   <div>
                     Get hands-on experience building a real-world application
@@ -105,7 +105,7 @@ function LearnPage() {
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <FaCheckCircle />
+                    <CheckCircleIcon />
                   </span>
                   <div>Never worry about data fetching again</div>
                 </div>

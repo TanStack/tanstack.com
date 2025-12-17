@@ -9,7 +9,6 @@ import {
   LuStar,
   LuCode,
   LuRocket,
-  LuCheckCircle2,
   LuSettings,
   LuCode2,
 } from 'react-icons/lu'
@@ -18,6 +17,7 @@ import { Footer } from '~/components/Footer'
 import { allMaintainers, Maintainer } from '~/libraries/maintainers'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { shuffleWithSeed } from '~/utils/utils'
+import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 
 // Server function to get the seed based on 10-second intervals
 // This ensures consistency between server and client
@@ -93,19 +93,19 @@ function WorkshopsPage() {
               </p>
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <li className="flex items-start gap-2">
-                  <LuCheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                   <span>No travel costs or logistics</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuCheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                   <span>Flexible scheduling across time zones</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuCheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                   <span>Interactive sessions with Q&A</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuCheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                   <span>Access to maintainers and creators</span>
                 </li>
               </ul>
@@ -123,19 +123,19 @@ function WorkshopsPage() {
               </p>
               <ul className="space-y-2 text-sm opacity-90">
                 <li className="flex items-start gap-2">
-                  <LuStar className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <LuStar className="w-5 h-5 flex-shrink-0" />
                   <span>Premium experience with direct access</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuStar className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <LuStar className="w-5 h-5 flex-shrink-0" />
                   <span>Personal appearance by Tanner Linsley available</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuStar className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <LuStar className="w-5 h-5 flex-shrink-0" />
                   <span>Customized workshop content</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuStar className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <LuStar className="w-5 h-5 flex-shrink-0" />
                   <span>Extended Q&A and networking sessions</span>
                 </li>
               </ul>
@@ -349,7 +349,7 @@ function WorkshopsPage() {
                     key={topic}
                     className="flex items-center gap-3 rounded-lg bg-white dark:bg-gray-800 px-4 py-3 shadow-sm border border-gray-200 dark:border-gray-700"
                   >
-                    <LuCheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                     <span className="text-gray-700 dark:text-gray-300 font-medium">
                       {topic}
                     </span>

@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { FaCheckCircle } from 'react-icons/fa'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { LibraryHero } from '~/components/LibraryHero'
@@ -14,6 +13,7 @@ import OpenSourceStats from '~/components/OpenSourceStats'
 import { ossStatsQuery } from '~/queries/stats'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
+import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 
 const library = getLibrary('config')
 
@@ -82,7 +82,7 @@ function FormVersionIndex() {
             ].map((d, i) => {
               return (
                 <span key={i} className="flex items-center gap-2">
-                  <FaCheckCircle className="text-green-500 " /> {d}
+                  <CheckCircleIcon className="text-green-500 " /> {d}
                 </span>
               )
             })}

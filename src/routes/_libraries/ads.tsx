@@ -2,13 +2,14 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { authClient } from '~/utils/auth.client'
-import { FaGithub, FaGoogle, FaCheckCircle } from 'react-icons/fa'
+import { FaGoogle } from 'react-icons/fa'
 import { Authenticated, Unauthenticated } from '~/components/AuthComponents'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useToast } from '~/components/ToastProvider'
 import { useEffect, useState } from 'react'
 import { setInterestedInHidingAds } from '~/utils/users.server'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 
 export const Route = createFileRoute('/_libraries/ads')({
   component: RouteComp,
@@ -271,7 +272,7 @@ function OptInButton() {
     return (
       <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 w-[100vw] max-w-sm mx-auto text-center">
         <div className="flex items-center justify-center mb-4">
-          <FaCheckCircle className="text-green-500 text-4xl" />
+          <CheckCircleIcon className="text-green-500 text-4xl" />
         </div>
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
           You're on the waitlist!

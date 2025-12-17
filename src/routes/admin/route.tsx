@@ -6,16 +6,14 @@ import {
   createFileRoute,
   redirect,
 } from '@tanstack/react-router'
-import { X, TextAlignStart } from 'lucide-react'
+import { X, TextAlignStart, ChartLine } from 'lucide-react'
 import {
   FaHome,
   FaUser,
   FaUsers,
   FaRss,
   FaShieldAlt,
-  FaGithub,
   FaNpm,
-  FaChartLine,
   FaComments,
   FaStickyNote,
 } from 'react-icons/fa'
@@ -77,7 +75,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'Statistics',
-      icon: <FaChartLine />,
+      icon: <ChartLine />,
       to: '/admin/stats',
     },
     {

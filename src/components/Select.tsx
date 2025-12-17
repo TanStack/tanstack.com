@@ -1,7 +1,8 @@
 import { Fragment } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 
-import { HiCheck, HiChevronDown } from 'react-icons/hi'
+import { HiCheck } from 'react-icons/hi'
+import { ChevronDown } from 'lucide-react'
 
 export type SelectOption = {
   label: string
@@ -57,7 +58,7 @@ export function Select<T extends SelectOption>({
               ) : null}
               <span className="truncate">{selectedOption.label}</span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <HiChevronDown
+                <ChevronDown
                   className="h-5 w-5 text-gray-400"
                   aria-hidden="true"
                 />

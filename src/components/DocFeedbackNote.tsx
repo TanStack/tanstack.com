@@ -4,8 +4,6 @@ import {
   FaComment,
   FaLightbulb,
   FaTrash,
-  FaChevronDown,
-  FaChevronUp,
   FaSave,
   FaTimes,
 } from 'react-icons/fa'
@@ -15,8 +13,8 @@ import {
   updateDocFeedback,
   updateDocFeedbackCollapsed,
 } from '~/utils/docFeedback.functions'
-import { useToast } from '~/components/ToastProvider'
 import type { DocFeedback } from '~/db/schema'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 interface DocFeedbackNoteProps {
   note: DocFeedback
@@ -394,9 +392,9 @@ export function DocFeedbackNote({
                 }
               >
                 {note.isCollapsed ? (
-                  <FaChevronDown className="text-xs" />
+                  <ChevronDown className="text-xs" />
                 ) : (
-                  <FaChevronUp className="text-xs" />
+                  <ChevronUp className="text-xs" />
                 )}
               </button>
             </div>

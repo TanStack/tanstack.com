@@ -2,17 +2,14 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import {
   FaUsers,
-  FaChartLine,
   FaEyeSlash,
   FaListUl,
-  FaArrowUp,
-  FaArrowDown,
   FaMinus,
 } from 'react-icons/fa'
 import { getUserStats } from '~/utils/user-stats.server'
 import * as Plot from '@observablehq/plot'
 import { useEffect, useRef } from 'react'
-import { ArrowDown, ArrowUp } from 'lucide-react'
+import { ArrowDown, ArrowUp, ChartLine } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/stats')({
   component: AdminStatsPage,
@@ -59,7 +56,7 @@ function AdminStatsPage() {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
-            <FaChartLine className="text-2xl text-blue-500" />
+            <ChartLine className="text-2xl text-blue-500" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Admin Statistics
             </h1>

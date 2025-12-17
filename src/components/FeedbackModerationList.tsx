@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  FaCheck,
   FaTimes,
   FaComment,
   FaLightbulb,
@@ -20,6 +19,7 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/schema'
 import { calculatePoints } from '~/utils/docFeedback.client'
+import { Check } from 'lucide-reactd'
 
 interface FeedbackModerationListProps {
   data:
@@ -235,7 +235,7 @@ export function FeedbackModerationList({
                           className="px-3 py-1 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded transition-colors"
                           title="Approve"
                         >
-                          <FaCheck />
+                          <Check />
                         </button>
                         <button
                           onClick={() => handleModerate(feedback.id, 'deny')}

@@ -1,27 +1,14 @@
 Package fa
-  FaBook
-    - src/routes/_libraries/start.$version.index.tsx
-  FaChartLine
-    - src/routes/admin/route.tsx
-    - src/routes/admin/stats.tsx
-  FaCheck
-    - src/components/CopyMarkdownButton.tsx
-    - src/components/FeedbackModerationList.tsx
-    - src/components/FrameworkCard.tsx
   FaCheckCircle
     - src/components/FeatureGrid.tsx
     - src/routes/_libraries/ads.tsx
     - src/routes/_libraries/config.$version.index.tsx
     - src/routes/_libraries/devtools.$version.index.tsx
     - src/routes/_libraries/learn.tsx
-  FaChevronDown
-    - src/components/DocFeedbackNote.tsx
   FaChevronLeft
     - src/components/PaginationControls.tsx
   FaChevronRight
     - src/components/PaginationControls.tsx
-  FaChevronUp
-    - src/components/DocFeedbackNote.tsx
   FaCogs
     - src/libraries/ai.tsx
     - src/libraries/config.tsx

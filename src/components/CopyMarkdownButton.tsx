@@ -1,9 +1,10 @@
 'use client'
 import { useState, useTransition } from 'react'
-import { FaCheck, FaCopy } from 'react-icons/fa'
+import { FaCopy } from 'react-icons/fa'
 
 import { type MouseEventHandler, useEffect, useRef } from 'react'
 import { useToast } from '~/components/ToastProvider'
+import { Check } from 'lucide-react'
 
 export function useCopyButton(
   onCopy: () => void | Promise<void>,
@@ -115,7 +116,7 @@ export function CopyMarkdownButton({
       <div className="flex gap-2 items-center">
         {checked ? (
           <>
-            <FaCheck className="w-3 h-3" /> Copied to Clipboard
+            <Check className="w-3 h-3" /> Copied to Clipboard
           </>
         ) : (
           <>

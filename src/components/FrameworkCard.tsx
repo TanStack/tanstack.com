@@ -1,10 +1,11 @@
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import { FaCheck, FaCopy } from 'react-icons/fa'
+import { FaCopy } from 'react-icons/fa'
 import { Library } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { useCopyButton } from '~/components/CopyMarkdownButton'
 import { useToast } from '~/components/ToastProvider'
+import { Check } from "lucide-react"
 
 export function FrameworkCard({
   framework,
@@ -102,7 +103,7 @@ export function FrameworkCard({
             title="Copy package name"
           >
             {copied ? (
-              <FaCheck className="w-3 h-3 text-green-600 dark:text-green-400" />
+              <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
             ) : (
               <FaCopy className="w-3 h-3" />
             )}

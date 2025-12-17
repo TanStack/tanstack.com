@@ -1,7 +1,5 @@
 import * as React from 'react'
 
-import { FaBook } from 'react-icons/fa'
-
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -20,6 +18,7 @@ import { TbBrandX } from 'react-icons/tb'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
 import { GithubIcon } from '~/components/icons/GithubIcon'
+import { Book } from 'lucide-react'
 
 const library = getLibrary('start')
 
@@ -120,7 +119,7 @@ function VersionIndex() {
             params={{ libraryId: library.id }}
             className="flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded text-white uppercase font-extrabold"
           >
-            <FaBook className="min-w-4" /> Try the BETA
+            <Book className="min-w-4" /> Try the BETA
           </Link>
           <a
             href={`https://github.com/tanstack/tanstack.com`}

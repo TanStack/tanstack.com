@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { BiCommand } from 'react-icons/bi'
+import { Command } from 'lucide-react'
 import { MdSearch } from 'react-icons/md'
 import { twMerge } from 'tailwind-merge'
 import { useSearchContext } from '~/contexts/SearchContext'
@@ -24,7 +24,7 @@ export function SearchButton({ className }: SearchButtonProps) {
         <MdSearch className="text-lg" /> Search...
       </div>
       <div className="flex items-center bg-white/50 dark:bg-gray-500/50 rounded-md px-2 py-1 gap-1 font-bold text-xs whitespace-nowrap">
-        <BiCommand /> + K
+        <Command size={14} strokeWidth={2.25} /> + K
       </div>
     </button>
   )

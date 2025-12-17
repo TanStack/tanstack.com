@@ -1,20 +1,3 @@
-Package bi
-  BiBookAlt
-    - src/libraries/ai.tsx
-    - src/libraries/config.tsx
-    - src/libraries/db.tsx
-    - src/libraries/devtools.tsx
-    - src/libraries/form.tsx
-    - src/libraries/pacer.tsx
-    - src/libraries/query.tsx
-    - src/libraries/ranger.tsx
-    - src/libraries/router.tsx
-    - src/libraries/start.tsx
-    - src/libraries/store.tsx
-    - src/libraries/table.tsx
-    - src/libraries/virtual.tsx
-  BiCommand
-    - src/components/SearchButton.tsx
 Package bs
   BsArrowsCollapseVertical
     - src/components/Doc.tsx

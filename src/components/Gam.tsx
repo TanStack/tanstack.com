@@ -104,6 +104,7 @@ function GamAd({
           'absolute inset-0 bg-white/50 dark:bg-black/20 shadow-xl shadow-black/2',
           borderClassName,
           placeholderClassName,
+          'pointer-events-none',
         )}
       >
         <div className="flex justify-center items-center h-full opacity-50 gap-[1px]">
@@ -126,6 +127,7 @@ function GamAd({
           className={twMerge(
             'absolute -top-px -left-px -right-px -bottom-px border-[2px] border-gray-200 dark:border-gray-900',
             borderClassName,
+            'pointer-events-none',
           )}
         />
       </div>

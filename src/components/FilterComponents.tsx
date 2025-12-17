@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { MdExpandMore } from 'react-icons/md'
-import { Table, List } from 'lucide-react'
+import { Table, List, ChevronDown } from 'lucide-react'
 import { useDebouncedValue } from '@tanstack/react-pacer'
 import { twMerge } from 'tailwind-merge'
 
@@ -67,7 +66,7 @@ export function FilterSection({
           className="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex-1 py-0"
         >
           <span>{title}</span>
-          <MdExpandMore
+          <ChevronDown
             className={twMerge(
               'w-3.5 h-3.5 transition-transform',
               !isExpanded && 'rotate-90',
@@ -186,11 +185,8 @@ interface FilterBarProps {
 export function FilterBar({
   children,
   title = 'Filters',
-  onClearFilters,
-  hasActiveFilters,
   mobileControls,
   desktopHeader,
-  viewMode,
 }: FilterBarProps) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -207,7 +203,7 @@ export function FilterBar({
               <span className="text-sm font-semibold text-gray-900 dark:text-white">
                 {title}
               </span>
-              <MdExpandMore
+              <ChevronDown
                 className={twMerge(
                   'w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform flex-shrink-0',
                   !isOpen && 'rotate-90',

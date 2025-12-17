@@ -2,13 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useState } from 'react'
 import * as React from 'react'
-import { X } from 'lucide-react'
-import {
-  MdFilterList,
-  MdViewList,
-  MdViewModule,
-  MdFormatListBulleted,
-} from 'react-icons/md'
+import { X, ListFilter, Grid2X2, Grid3X3, LayoutList } from 'lucide-react'
 import { Footer } from '~/components/Footer'
 import {
   MaintainerCard,
@@ -25,7 +19,6 @@ import {
   getRoleForFilteredLibraries,
 } from '~/libraries/maintainers'
 import { Library, libraries } from '~/libraries'
-// import { fetchAllMaintainerStats } from '~/utils/docs'
 
 const librarySchema = z.enum([
   'start',
@@ -64,26 +57,6 @@ export const Route = createFileRoute('/_libraries/maintainers')({
       keywords: 'tanstack,maintainers,contributors,open source,developers',
     }),
   }),
-  // loader: async ({ context: { queryClient } }) => {
-  //   try {
-  //     // Fetch GitHub stats for all maintainers
-  //     const stats = await queryClient.ensureQueryData({
-  //       queryKey: ['maintainerStats'],
-  //       queryFn: () => fetchAllMaintainerStats(),
-  //       staleTime: 1000 * 60 * 30, // 30 minutes
-  //     })
-
-  //     return {
-  //       stats,
-  //     }
-  //   } catch (error) {
-  //     console.error('Error loading maintainer stats:', error)
-  //     // Return empty stats array if there's an error
-  //     return {
-  //       stats: [],
-  //     }
-  //   }
-  // },
 })
 
 interface FilterProps {
@@ -174,7 +147,7 @@ function MaintainersFilter({
             }`}
             title="Compact cards"
           >
-            <MdViewList className="w-5 h-5" />
+            <Grid3X3 className="w-5 h-5" />
           </button>
           <button
             onClick={() => onViewModeChange('full')}
@@ -185,7 +158,7 @@ function MaintainersFilter({
             }`}
             title="Full cards"
           >
-            <MdViewModule className="w-5 h-5" />
+            <Grid2X2 className="w-5 h-5" />
           </button>
           <button
             onClick={() => onViewModeChange('row')}
@@ -196,7 +169,7 @@ function MaintainersFilter({
             }`}
             title="Row cards"
           >
-            <MdFormatListBulleted className="w-5 h-5" />
+            <LayoutList className="w-5 h-5" />
           </button>
         </div>
 
@@ -206,7 +179,7 @@ function MaintainersFilter({
             onClick={() => setIsOpen(!isOpen)}
             className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <MdFilterList className="w-4 h-4" />
+            <ListFilter className="w-4 h-4" />
             Filter & Sort
             {hasFilters && (
               <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full text-xs">

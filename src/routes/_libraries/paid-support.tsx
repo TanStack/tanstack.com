@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { MdViewList, MdViewModule, MdFormatListBulleted } from 'react-icons/md'
 import { useState } from 'react'
 import { coreMaintainers } from '~/libraries/maintainers'
 import {
@@ -8,7 +7,7 @@ import {
   MaintainerCard,
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
-import { Mail } from 'lucide-react'
+import { Grid2x2, Grid3X3, LayoutList, Mail } from 'lucide-react'
 
 export const Route = createFileRoute('/_libraries/paid-support')({
   component: PaidSupportComp,
@@ -68,7 +67,7 @@ function PaidSupportComp() {
                 }`}
                 title="Compact cards"
               >
-                <MdViewList className="w-5 h-5" />
+                <Grid3X3 className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setViewMode('full')}
@@ -79,7 +78,7 @@ function PaidSupportComp() {
                 }`}
                 title="Full cards"
               >
-                <MdViewModule className="w-5 h-5" />
+                <Grid2x2 className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setViewMode('row')}
@@ -90,7 +89,7 @@ function PaidSupportComp() {
                 }`}
                 title="Row cards"
               >
-                <MdFormatListBulleted className="w-5 h-5" />
+                <LayoutList className="w-5 h-5" />
               </button>
             </div>
           </div>

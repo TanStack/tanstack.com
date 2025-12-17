@@ -80,7 +80,7 @@ const useMenuConfig = ({
       {
         label: (
           <div className="flex items-center gap-2">
-            GitHub <GithubIcon className="opacity-20" size={16} />
+            GitHub <GithubIcon className="opacity-20" />
           </div>
         ),
         to: `https://github.com/${repo}`,
@@ -141,14 +141,11 @@ type DocsLayoutProps = {
 }
 
 export function DocsLayout({
-  name,
-  version,
   colorFrom,
   colorTo,
   textColor,
   config,
   frameworks,
-  versions,
   repo,
   children,
 }: DocsLayoutProps) {

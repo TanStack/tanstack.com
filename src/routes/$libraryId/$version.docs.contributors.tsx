@@ -4,15 +4,14 @@ import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
 import { getLibrary } from '~/libraries'
 import { ContributorsWall } from '~/components/ContributorsWall'
-import {} from '@tanstack/react-router'
 import { getLibraryContributors } from '~/libraries/maintainers'
 import {
   MaintainerCard,
   CompactMaintainerCard,
   MaintainerRowCard,
 } from '~/components/MaintainerCard'
-import { MdViewList, MdViewModule, MdFormatListBulleted } from 'react-icons/md'
 import { useState } from 'react'
+import { Grid2X2, Grid3X3, LayoutList } from 'lucide-react'
 
 export const Route = createFileRoute('/$libraryId/$version/docs/contributors')({
   component: RouteComponent,
@@ -64,7 +63,7 @@ function RouteComponent() {
                   }`}
                   title="Compact cards"
                 >
-                  <MdViewList className="w-5 h-5" />
+                  <Grid3X3 className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('full')}
@@ -75,7 +74,7 @@ function RouteComponent() {
                   }`}
                   title="Full cards"
                 >
-                  <MdViewModule className="w-5 h-5" />
+                  <Grid2X2 className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('row')}
@@ -86,7 +85,7 @@ function RouteComponent() {
                   }`}
                   title="Row cards"
                 >
-                  <MdFormatListBulleted className="w-5 h-5" />
+                  <LayoutList className="w-5 h-5" />
                 </button>
               </div>
             </div>

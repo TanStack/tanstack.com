@@ -2,15 +2,7 @@ import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useDebouncedValue, useThrottledCallback } from '@tanstack/react-pacer'
-import { X } from 'lucide-react'
-import {
-  MdVisibility,
-  MdVisibilityOff,
-  MdAdd,
-  MdPushPin,
-  MdMoreVert,
-  MdSearch,
-} from 'react-icons/md'
+import { X, Plus, Eye, EyeOff, Pin, EllipsisVertical, Search } from 'lucide-react'
 import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import * as Plot from '@observablehq/plot'
 import { ParentSize } from '@visx/responsive'
@@ -757,7 +749,7 @@ function PackageSearch({
       <div className="relative">
         <Command className="w-full" shouldFilter={false}>
           <div className="flex items-center gap-1">
-            <MdSearch className="text-lg" />
+            <Search className="text-lg" />
             <Command.Input
               placeholder={placeholder}
               className="w-full bg-gray-500/10 rounded-md px-2 py-1 min-w-[200px] text-sm"
@@ -1189,7 +1181,7 @@ function RouteComponent() {
                 <DropdownMenuTrigger asChild>
                   <button className={twMerge(dropdownButtonStyles.base)}>
                     {timeRanges.find((r) => r.value === range)?.label}
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1222,7 +1214,7 @@ function RouteComponent() {
                     )}
                   >
                     {binningOptions.find((b) => b.value === binType)?.label}
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1262,7 +1254,7 @@ function RouteComponent() {
                       transformOptions.find((opt) => opt.value === transform)
                         ?.label
                     }
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1302,7 +1294,7 @@ function RouteComponent() {
                             ?.label
                         }`
                       : 'No Facet X'}
-                    <MdMoreVert className="w-3 h-3" />
+                    <Ellip className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1350,7 +1342,7 @@ function RouteComponent() {
                             ?.label
                         }`
                       : 'No Facet Y'}
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1407,7 +1399,7 @@ function RouteComponent() {
                         (opt) => opt.value === showDataModeParam,
                       )?.label
                     }
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1472,7 +1464,7 @@ function RouteComponent() {
                             }
                             className="hover:text-blue-500"
                           >
-                            <MdPushPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
+                            <Pin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
                           </button>
                         </Tooltip>
                         <span>{mainPackage.name}</span>
@@ -1504,7 +1496,7 @@ function RouteComponent() {
                           >
                             {mainPackage.name}
                             {mainPackage.hidden ? (
-                              <MdVisibilityOff className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
                             ) : null}
                           </button>
                         </Tooltip>
@@ -1525,7 +1517,7 @@ function RouteComponent() {
                         <Tooltip content="More options">
                           <DropdownMenuTrigger asChild>
                             <button className="px-0.5 sm:px-1 hover:text-blue-500">
-                              <MdMoreVert className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
                           </DropdownMenuTrigger>
                         </Tooltip>
@@ -1545,9 +1537,9 @@ function RouteComponent() {
                               className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                             >
                               {mainPackage.hidden ? (
-                                <MdVisibilityOff className="text-sm" />
+                                <EyeOff className="text-sm" />
                               ) : (
-                                <MdVisibility className="text-sm" />
+                                <Eye className="text-sm" />
                               )}
                               {mainPackage.hidden
                                 ? 'Show Package'
@@ -1563,7 +1555,7 @@ function RouteComponent() {
                                 pkg.baseline ? 'text-blue-500' : '',
                               )}
                             >
-                              <MdPushPin className="text-sm" />
+                              <Pin className="text-sm" />
                               {pkg.baseline
                                 ? 'Remove Baseline'
                                 : 'Set as Baseline'}
@@ -1643,7 +1635,7 @@ function RouteComponent() {
                               }}
                               className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                             >
-                              <MdAdd className="text-sm" />
+                              <Plus className="text-sm" />
                               Add Packages
                             </DropdownMenuItem>
                           </div>

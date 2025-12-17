@@ -97,7 +97,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <Authenticated>
         {!canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <User />
+            <User size={16} />
             <Link
               to="/account"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
@@ -377,7 +377,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                         'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30',
                       )}
                     >
-                      <Users />
+                      <Users size={14} />
                       Contributors
                     </Link>
                   </div>

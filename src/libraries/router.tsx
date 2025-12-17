@@ -1,7 +1,6 @@
 import { VscPreview } from 'react-icons/vsc'
 import { Book, DatabaseZap } from 'lucide-react'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { CgTimelapse } from 'react-icons/cg'
 import { TbZoomQuestion } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'

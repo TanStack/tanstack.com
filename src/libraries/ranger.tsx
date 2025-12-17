@@ -1,7 +1,5 @@
 import { VscPreview } from 'react-icons/vsc'
-import { FaGithub } from 'react-icons/fa'
 import { Book, RotateCw } from 'lucide-react'
-import { CgTimelapse } from 'react-icons/cg'
 import { TbZoomQuestion } from 'react-icons/tb'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { twMerge } from 'tailwind-merge'

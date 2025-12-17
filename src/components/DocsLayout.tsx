@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { X, TextAlignStart } from 'lucide-react'
-import { FaArrowLeft, FaArrowRight, FaDiscord, FaGithub } from 'react-icons/fa'
+import { X, TextAlignStart, ArrowLeft, ArrowRight } from 'lucide-react'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { last } from '~/utils/utils'
@@ -79,7 +80,7 @@ const useMenuConfig = ({
       {
         label: (
           <div className="flex items-center gap-2">
-            GitHub <FaGithub className="text-lg opacity-20" />
+            GitHub <GithubIcon className="opacity-20" size={16} />
           </div>
         ),
         to: `https://github.com/${repo}`,
@@ -87,7 +88,7 @@ const useMenuConfig = ({
       {
         label: (
           <div className="flex items-center gap-2">
-            Discord <FaDiscord className="text-lg opacity-20" />
+            Discord <DiscordIcon className="text-lg opacity-20" />
           </div>
         ),
         to: 'https://tlinz.com/discord',
@@ -155,8 +156,6 @@ export function DocsLayout({
     from: '/$libraryId/$version/docs',
   })
   const { _splat } = useParams({ strict: false })
-  // const frameworkConfig = useFrameworkConfig({ frameworks })
-  // const versionConfig = useVersionConfig({ versions })
   const menuConfig = useMenuConfig({ config, frameworks, repo })
 
   const matches = useMatches()
@@ -363,7 +362,7 @@ export function DocsLayout({
                   className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
                 >
                   <div className="flex gap-2 items-center font-bold">
-                    <FaArrowLeft />
+                    <ArrowLeft size={16} />
                     {prevItem.label}
                   </div>
                 </Link>
@@ -383,7 +382,7 @@ export function DocsLayout({
                     >
                       {nextItem.label}
                     </span>{' '}
-                    <FaArrowRight className={textColor} />
+                    <ArrowRight className={textColor} size={16} />
                   </div>
                 </Link>
               ) : null}

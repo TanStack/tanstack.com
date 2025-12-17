@@ -1,5 +1,5 @@
 import { VscPreview, VscWand } from 'react-icons/vsc'
-import { FaGithub } from 'react-icons/fa'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 import { Book } from 'lucide-react'
 import { GiF1Car } from 'react-icons/gi'
 import { twMerge } from 'tailwind-merge'
@@ -43,7 +43,7 @@ export const pacerProject = {
       to: '/pacer/latest/docs/framework/react/examples/debounce',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },

@@ -24,6 +24,7 @@ import { twMerge } from 'tailwind-merge'
 import { ClientAdminAuth } from '~/components/ClientAuth'
 import { requireCapability } from '~/utils/auth.server'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
@@ -108,7 +109,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'GitHub Stats',
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       to: '/admin/github-stats',
     },
     {

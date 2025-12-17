@@ -5,6 +5,7 @@ import { CgTimelapse } from 'react-icons/cg'
 import { TbZoomQuestion } from 'react-icons/tb'
 import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/ranger'
 
@@ -43,7 +44,7 @@ export const rangerProject = {
       to: '/ranger/latest/docs/framework/react/examples/basic',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },

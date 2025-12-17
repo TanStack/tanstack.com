@@ -23,6 +23,7 @@ import {
   refreshAllGitHubStats,
 } from '~/utils/stats-admin.server'
 import { formatDistanceToNow } from 'date-fns'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 type GitHubStatsEntry = {
   cacheKey: string
@@ -310,7 +311,7 @@ function GitHubStatsAdmin() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <FaGithub className="text-2xl text-gray-900 dark:text-white" />
+            <GithubIcon className="text-2xl text-gray-900 dark:text-white" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               GitHub Stats Management
             </h1>

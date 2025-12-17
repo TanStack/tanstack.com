@@ -5,6 +5,7 @@ import { PiRocketLaunchDuotone, PiTreeStructureBold } from 'react-icons/pi'
 import { TbServerBolt } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/router'
 
@@ -50,7 +51,7 @@ export const startProject = {
       to: '/start/latest/docs/framework/react/examples/start-basic',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'GitHub',
       to: `https://github.com/${repo}`,
     },

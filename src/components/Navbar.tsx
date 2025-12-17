@@ -36,6 +36,7 @@ import {
 } from '~/components/AuthComponents'
 import { libraries } from '~/libraries'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
@@ -506,7 +507,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: 'GitHub',
-            icon: <FaGithub />,
+            icon: <GithubIcon />,
             to: 'https://github.com/tanstack',
           },
           {

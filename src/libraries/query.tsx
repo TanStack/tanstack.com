@@ -3,6 +3,7 @@ import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { VscPreview, VscWand } from 'react-icons/vsc'
 import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/query'
 
@@ -70,7 +71,7 @@ export const queryProject = {
       to: '/query/latest/docs/framework/react/examples/basic',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'GitHub',
       to: `https://github.com/${repo}`,
     },

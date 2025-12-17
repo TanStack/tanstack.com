@@ -3,6 +3,7 @@ import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { Book } from 'lucide-react'
 import { IoIosBody } from 'react-icons/io'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/virtual'
 
@@ -43,7 +44,7 @@ export const virtualProject = {
       to: '/virtual/latest/docs/framework/react/examples/dynamic',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },

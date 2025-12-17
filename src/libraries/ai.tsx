@@ -3,6 +3,7 @@ import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { FaPlug } from 'react-icons/fa6'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/ai'
 
@@ -37,7 +38,7 @@ export const aiProject = {
       to: '/ai/latest/docs',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },

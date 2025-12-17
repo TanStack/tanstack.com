@@ -10,7 +10,6 @@ Package cg
     - src/components/DocsLayout.tsx
     - src/routes/admin/route.tsx
   CgMenuLeft
-    - src/components/CodeExplorerTopBar.tsx
     - src/components/DocsLayout.tsx
     - src/routes/admin/route.tsx
   CgTimelapse
@@ -83,8 +82,6 @@ Package fa
     - src/components/UserFeedbackSection.tsx
   FaComments
     - src/routes/admin/route.tsx
-  FaCompress
-    - src/components/CodeExplorerTopBar.tsx
   FaCopy
     - src/components/CopyMarkdownButton.tsx
     - src/components/FrameworkCard.tsx
@@ -109,8 +106,6 @@ Package fa
   FaExclamationTriangle
     - src/components/FeedbackModerationList.tsx
     - src/components/NotesModerationList.tsx
-  FaExpand
-    - src/components/CodeExplorerTopBar.tsx
   FaExternalLinkAlt
     - src/components/NotesModerationList.tsx
     - src/components/UserFeedbackSection.tsx
@@ -124,29 +119,6 @@ Package fa
     - src/components/FeedEntry.tsx
     - src/components/FeedEntryTimeline.tsx
     - src/routes/admin/stats.tsx
-  FaGithub
-    - src/components/DocsLayout.tsx
-    - src/components/Navbar.tsx
-    - src/libraries/ai.tsx
-    - src/libraries/config.tsx
-    - src/libraries/db.tsx
-    - src/libraries/devtools.tsx
-    - src/libraries/form.tsx
-    - src/libraries/pacer.tsx
-    - src/libraries/query.tsx
-    - src/libraries/ranger.tsx
-    - src/libraries/router.tsx
-    - src/libraries/start.tsx
-    - src/libraries/store.tsx
-    - src/libraries/table.tsx
-    - src/libraries/virtual.tsx
-    - src/routes/$libraryId/$version.docs.framework.index.tsx
-    - src/routes/_libraries/ads.tsx
-    - src/routes/_libraries/login.tsx
-    - src/routes/_libraries/start.$version.index.tsx
-    - src/routes/admin/github-stats.tsx
-    - src/routes/admin/index.tsx
-    - src/routes/admin/route.tsx
   FaGoogle
     - src/routes/_libraries/ads.tsx
     - src/routes/_libraries/login.tsx

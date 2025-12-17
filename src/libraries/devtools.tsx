@@ -2,6 +2,7 @@ import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
 import { Book } from 'lucide-react'
 import { VscWand } from 'react-icons/vsc'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/devtools'
 
@@ -35,7 +36,7 @@ export const devtoolsProject = {
       to: '/devtools/latest/docs',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },

@@ -6,6 +6,7 @@ import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { getCurrentUser } from '~/utils/auth.server'
 import { z } from 'zod'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 export const Route = createFileRoute('/_libraries/login')({
   component: LoginPage,
@@ -56,7 +57,7 @@ export function SignInForm() {
         }
         className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
       >
-        <FaGithub className="inline-block mr-2" /> Sign in with GitHub
+        <GithubIcon className="inline-block mr-2" /> Sign in with GitHub
       </button>
       <button
         onClick={() =>

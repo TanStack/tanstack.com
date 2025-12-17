@@ -8,6 +8,7 @@ import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useToast } from '~/components/ToastProvider'
 import { useEffect, useState } from 'react'
 import { setInterestedInHidingAds } from '~/utils/users.server'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 export const Route = createFileRoute('/_libraries/ads')({
   component: RouteComp,
@@ -202,7 +203,7 @@ function SignInForm() {
         }
         className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
       >
-        <FaGithub className="inline-block mr-2" /> Sign in with GitHub
+        <GithubIcon className="inline-block mr-2" /> Sign in with GitHub
       </button>
       <button
         onClick={() =>

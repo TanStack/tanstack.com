@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fa'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 export const Route = createFileRoute('/admin/')({
   component: AdminPage,
@@ -146,7 +147,7 @@ function AdminDashboard() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gray-100 dark:bg-gray-900/30 rounded-lg">
-                  <FaGithub className="text-gray-900 dark:text-gray-100 text-xl" />
+                  <GithubIcon className="text-gray-900 dark:text-gray-100 text-xl" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   GitHub Stats

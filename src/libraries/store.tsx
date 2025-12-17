@@ -2,6 +2,7 @@ import { VscPreview, VscWand } from 'react-icons/vsc'
 import { FaGithub } from 'react-icons/fa'
 import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/store'
 
@@ -41,7 +42,7 @@ export const storeProject = {
       to: '/store/latest/docs/framework/react/examples/simple',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },

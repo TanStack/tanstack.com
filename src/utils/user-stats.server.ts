@@ -29,9 +29,13 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
 
     const totalUsers = totalUsersResult[0]?.count ?? 0
 
-    // Get users created in last 7 days (for daily breakdown)
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    // Get users created in last 7 days (for daily breakdown) - using UTC
+    const nowForSevenDays = new Date()
+    const sevenDaysAgo = new Date(Date.UTC(
+      nowForSevenDays.getUTCFullYear(),
+      nowForSevenDays.getUTCMonth(),
+      nowForSevenDays.getUTCDate() - 7
+    ))
 
     const recentUsers = await db.query.users.findMany({
       where: gte(users.createdAt, sevenDaysAgo),
@@ -56,16 +60,16 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
       }
     })
 
-    // Get daily signup counts (aggregated by day)
+    // Get daily signup counts (aggregated by day) - using UTC for consistency
     // This gives us efficient per-day data that can be used for both daily and cumulative charts
     const dailySignupsData = await db
       .select({
-        date: sql<string>`DATE(${users.createdAt})`.as('date'),
+        date: sql<string>`DATE(${users.createdAt} AT TIME ZONE 'UTC')`.as('date'),
         count: sql<number>`COUNT(*)::int`.as('count'),
       })
       .from(users)
-      .groupBy(sql`DATE(${users.createdAt})`)
-      .orderBy(sql`DATE(${users.createdAt})`)
+      .groupBy(sql`DATE(${users.createdAt} AT TIME ZONE 'UTC')`)
+      .orderBy(sql`DATE(${users.createdAt} AT TIME ZONE 'UTC')`)
 
     // Convert to array of objects with proper date strings
     const signupsPerDay = dailySignupsData.map((row) => ({
@@ -108,9 +112,13 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
     const waitlistWithAdsDisabledCount =
       waitlistWithAdsDisabledResult[0]?.count ?? 0
 
-    // Calculate average signups per day (last 30 days)
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    // Calculate average signups per day (last 30 days) - using UTC
+    const nowForThirtyDays = new Date()
+    const thirtyDaysAgo = new Date(Date.UTC(
+      nowForThirtyDays.getUTCFullYear(),
+      nowForThirtyDays.getUTCMonth(),
+      nowForThirtyDays.getUTCDate() - 30
+    ))
 
     const last30DaysResult = await db
       .select({ count: sql<number>`count(*)::int` })
@@ -120,9 +128,9 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
     const last30DaysCount = last30DaysResult[0]?.count ?? 0
     const avgSignupsPerDay = Math.round(last30DaysCount / 30)
 
-    // Calculate today's signups
-    const todayStart = new Date()
-    todayStart.setHours(0, 0, 0, 0)
+    // Calculate today's signups (using UTC for consistency with charts)
+    const now = new Date()
+    const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 
     const todayResult = await db
       .select({ count: sql<number>`count(*)::int` })
@@ -131,9 +139,8 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
 
     const todaySignups = todayResult[0]?.count ?? 0
 
-    // Calculate yesterday's signups
-    const yesterdayStart = new Date(todayStart)
-    yesterdayStart.setDate(yesterdayStart.getDate() - 1)
+    // Calculate yesterday's signups (using UTC)
+    const yesterdayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1))
 
     const yesterdayResult = await db
       .select({ count: sql<number>`count(*)::int` })

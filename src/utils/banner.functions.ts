@@ -96,7 +96,7 @@ export const getDismissedBannerIds = createServerFn({ method: 'GET' }).handler(
     }
 
     const dismissals = await db.query.bannerDismissals.findMany({
-      where: eq(bannerDismissals.userId, user.id),
+      where: eq(bannerDismissals.userId, user.userId),
       columns: {
         bannerId: true,
       },
@@ -124,7 +124,7 @@ export const dismissBanner = createServerFn({ method: 'POST' })
     // Check if already dismissed
     const existing = await db.query.bannerDismissals.findFirst({
       where: and(
-        eq(bannerDismissals.userId, user.id),
+        eq(bannerDismissals.userId, user.userId),
         eq(bannerDismissals.bannerId, data.bannerId),
       ),
     })
@@ -135,7 +135,7 @@ export const dismissBanner = createServerFn({ method: 'POST' })
 
     // Create dismissal record
     await db.insert(bannerDismissals).values({
-      userId: user.id,
+      userId: user.userId,
       bannerId: data.bannerId,
     })
 

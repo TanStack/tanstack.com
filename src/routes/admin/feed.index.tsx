@@ -13,10 +13,10 @@ import { useFeedQuery } from '~/hooks/useFeedQuery'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { libraries, type LibraryId } from '~/libraries'
-import { FEED_CATEGORIES, RELEASE_LEVELS } from '~/utils/feedSchema'
+import { ENTRY_TYPES, RELEASE_LEVELS } from '~/utils/feedSchema'
 const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
 const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
-const categorySchema = z.enum(FEED_CATEGORIES)
+const entryTypeSchema = z.enum(ENTRY_TYPES)
 const releaseLevelSchema = z.enum(RELEASE_LEVELS)
 const viewModeSchema = z
   .enum(['table', 'timeline'])
@@ -32,9 +32,8 @@ export const Route = createFileRoute('/admin/feed/')({
 
     return z
       .object({
-        sources: z.array(z.string()).optional().catch(undefined),
+        entryTypes: z.array(entryTypeSchema).optional().catch(undefined),
         libraries: z.array(librarySchema).optional().catch(undefined),
-        categories: z.array(categorySchema).optional().catch(undefined),
         partners: z.array(z.string()).optional().catch(undefined),
         tags: z.array(z.string()).optional().catch(undefined),
         releaseLevels: hasReleaseLevels
@@ -68,9 +67,8 @@ function FeedAdminPage() {
     page: search.page ?? 1,
     pageSize: search.pageSize ?? 50,
     filters: {
-      sources: search.sources,
+      entryTypes: search.entryTypes,
       libraries: search.libraries,
-      categories: search.categories,
       partners: search.partners,
       tags: search.tags,
       releaseLevels: search.releaseLevels,

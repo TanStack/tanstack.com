@@ -51,13 +51,12 @@ export async function syncBlogPosts(): Promise<BlogSyncResult> {
 
       const entryData = {
         entryId,
-        source: 'blog',
+        entryType: 'blog' as const,
         title: post.title,
         content,
         excerpt: post.excerpt || post.description || null,
         publishedAt,
-        category: 'blog' as const,
-        isVisible: true,
+        showInFeed: true,
         autoSynced: true,
         lastSyncedAt: new Date(),
         updatedAt: new Date(),

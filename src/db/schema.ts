@@ -24,14 +24,7 @@ export const capabilityEnum = pgEnum('capability', [
   'feed',
   'moderate-feedback',
 ])
-export const feedCategoryEnum = pgEnum('feed_category', [
-  'release',
-  'announcement',
-  'blog',
-  'partner',
-  'update',
-  'other',
-])
+// Note: feed_category enum was dropped in migration 0011
 export const oauthProviderEnum = pgEnum('oauth_provider', ['github', 'google'])
 export const docFeedbackTypeEnum = pgEnum('doc_feedback_type', [
   'note',
@@ -42,6 +35,18 @@ export const docFeedbackStatusEnum = pgEnum('doc_feedback_status', [
   'approved',
   'denied',
 ])
+export const bannerScopeEnum = pgEnum('banner_scope', ['global', 'targeted'])
+export const bannerStyleEnum = pgEnum('banner_style', [
+  'info',
+  'warning',
+  'success',
+  'promo',
+])
+export const entryTypeEnum = pgEnum('entry_type', [
+  'release',
+  'blog',
+  'announcement',
+])
 
 // Type exports
 export type Capability =
@@ -50,16 +55,13 @@ export type Capability =
   | 'builder'
   | 'feed'
   | 'moderate-feedback'
-export type FeedCategory =
-  | 'release'
-  | 'announcement'
-  | 'blog'
-  | 'partner'
-  | 'update'
-  | 'other'
+// Note: FeedCategory type was removed - use EntryType instead
 export type OAuthProvider = 'github' | 'google'
 export type DocFeedbackType = 'note' | 'improvement'
 export type DocFeedbackStatus = 'pending' | 'approved' | 'denied'
+export type BannerScope = 'global' | 'targeted'
+export type BannerStyle = 'info' | 'warning' | 'success' | 'promo'
+export type EntryType = 'release' | 'blog' | 'announcement'
 
 // Constants
 export const VALID_CAPABILITIES: readonly Capability[] = [
@@ -71,6 +73,12 @@ export const VALID_CAPABILITIES: readonly Capability[] = [
 ] as const
 export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
 export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
+export const ENTRY_TYPES: readonly EntryType[] = [
+  'release',
+  'blog',
+  'announcement',
+] as const
+export const MANUAL_ENTRY_TYPES: readonly EntryType[] = ['announcement'] as const
 
 // Users table
 export const users = pgTable(
@@ -220,7 +228,8 @@ export const feedEntries = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     // Unique identifier (e.g., "github:tanstack/query:v5.0.0" or UUID for manual)
     entryId: varchar('entry_id', { length: 255 }).notNull().unique(),
-    source: varchar('source', { length: 50 }).notNull(), // e.g., "github", "blog", "manual"
+    // Entry type: release (auto-synced from GitHub), blog (auto-synced), announcement (manual)
+    entryType: entryTypeEnum('entry_type').notNull().default('announcement'),
     title: text('title').notNull(),
     content: text('content').notNull(), // Markdown content
     excerpt: text('excerpt'),
@@ -246,9 +255,8 @@ export const feedEntries = pgTable(
       .notNull()
       .default([]),
     tags: varchar('tags', { length: 255 }).array().notNull().default([]),
-    category: feedCategoryEnum('category').notNull(),
     // Display control
-    isVisible: boolean('is_visible').notNull().default(true),
+    showInFeed: boolean('show_in_feed').notNull().default(true),
     featured: boolean('featured').default(false),
     // Auto-sync metadata
     autoSynced: boolean('auto_synced').notNull().default(false),
@@ -261,10 +269,9 @@ export const feedEntries = pgTable(
     publishedAtIdx: index('feed_entries_published_at_idx').on(
       table.publishedAt,
     ),
-    sourceIdx: index('feed_entries_source_idx').on(table.source),
-    categoryIdx: index('feed_entries_category_idx').on(table.category),
-    visiblePublishedIdx: index('feed_entries_visible_published_idx').on(
-      table.isVisible,
+    entryTypeIdx: index('feed_entries_entry_type_idx').on(table.entryType),
+    showInFeedPublishedIdx: index('feed_entries_show_in_feed_published_at_idx').on(
+      table.showInFeed,
       table.publishedAt,
     ),
     // GIN indexes for array columns (created via SQL migration)
@@ -563,12 +570,116 @@ export const docFeedback = pgTable(
 export type DocFeedback = InferSelectModel<typeof docFeedback>
 export type NewDocFeedback = InferInsertModel<typeof docFeedback>
 
+// Banners table (separate from feed entries)
+export const banners = pgTable(
+  'banners',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Display content
+    title: text('title').notNull(),
+    content: text('content'), // Optional longer content/description
+    // Link (makes banner clickable)
+    linkUrl: text('link_url'),
+    linkText: varchar('link_text', { length: 255 }),
+    // Styling
+    style: bannerStyleEnum('style').notNull().default('info'),
+    // Targeting
+    scope: bannerScopeEnum('scope').notNull().default('global'),
+    pathPrefixes: varchar('path_prefixes', { length: 255 })
+      .array()
+      .notNull()
+      .default([]),
+    // Scheduling
+    isActive: boolean('is_active').notNull().default(true),
+    startsAt: timestamp('starts_at', { withTimezone: true, mode: 'date' }),
+    expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }),
+    // Priority (higher = shown first when multiple banners match)
+    priority: integer('priority').notNull().default(0),
+    // Metadata
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    isActiveIdx: index('banners_is_active_idx').on(table.isActive),
+    priorityIdx: index('banners_priority_idx').on(table.priority),
+    startsAtIdx: index('banners_starts_at_idx').on(table.startsAt),
+    expiresAtIdx: index('banners_expires_at_idx').on(table.expiresAt),
+  }),
+)
+
+export type Banner = InferSelectModel<typeof banners>
+export type NewBanner = InferInsertModel<typeof banners>
+
+// Banner dismissals table (for tracking which banners users have dismissed)
+export const bannerDismissals = pgTable(
+  'banner_dismissals',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    bannerId: uuid('banner_id')
+      .notNull()
+      .references(() => banners.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    dismissedAt: timestamp('dismissed_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    bannerIdIdx: index('banner_dismissals_banner_id_idx').on(table.bannerId),
+    userIdIdx: index('banner_dismissals_user_id_idx').on(table.userId),
+    userBannerUnique: uniqueIndex('banner_dismissals_user_banner_unique').on(
+      table.userId,
+      table.bannerId,
+    ),
+  }),
+)
+
+export type BannerDismissal = InferSelectModel<typeof bannerDismissals>
+export type NewBannerDismissal = InferInsertModel<typeof bannerDismissals>
+
+// Announcement dismissals table (legacy - for tracking which feed entry banners users have dismissed)
+export const announcementDismissals = pgTable(
+  'announcement_dismissals',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // The feed entry ID (references feedEntries.entryId, not the UUID)
+    announcementId: varchar('announcement_id', { length: 255 }).notNull(),
+    // User who dismissed (nullable for future anonymous tracking if needed)
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    dismissedAt: timestamp('dismissed_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    announcementIdIdx: index('announcement_dismissals_announcement_id_idx').on(
+      table.announcementId,
+    ),
+    userIdIdx: index('announcement_dismissals_user_id_idx').on(table.userId),
+    // Ensure a user can only dismiss an announcement once
+    userAnnouncementUnique: uniqueIndex(
+      'announcement_dismissals_user_announcement_unique',
+    ).on(table.userId, table.announcementId),
+  }),
+)
+
+export type AnnouncementDismissal = InferSelectModel<typeof announcementDismissals>
+export type NewAnnouncementDismissal = InferInsertModel<typeof announcementDismissals>
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   oauthAccounts: many(oauthAccounts),
   roleAssignments: many(roleAssignments),
   docFeedback: many(docFeedback),
+  announcementDismissals: many(announcementDismissals),
+  bannerDismissals: many(bannerDismissals),
 }))
 
 export const rolesRelations = relations(roles, ({ many }) => ({
@@ -613,3 +724,31 @@ export const docFeedbackRelations = relations(docFeedback, ({ one }) => ({
     references: [users.id],
   }),
 }))
+
+export const announcementDismissalsRelations = relations(
+  announcementDismissals,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [announcementDismissals.userId],
+      references: [users.id],
+    }),
+  }),
+)
+
+export const bannersRelations = relations(banners, ({ many }) => ({
+  dismissals: many(bannerDismissals),
+}))
+
+export const bannerDismissalsRelations = relations(
+  bannerDismissals,
+  ({ one }) => ({
+    banner: one(banners, {
+      fields: [bannerDismissals.bannerId],
+      references: [banners.id],
+    }),
+    user: one(users, {
+      fields: [bannerDismissals.userId],
+      references: [users.id],
+    }),
+  }),
+)

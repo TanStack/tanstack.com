@@ -10,19 +10,21 @@ import { Eye, EyeOff, SquarePen, Star, Trash } from 'lucide-react'
 export interface FeedEntry {
   _id: string
   id: string
-  source: string
+  entryType: 'release' | 'blog' | 'announcement'
   title: string
   content: string
-  excerpt?: string
+  excerpt?: string | null
   publishedAt: number
+  createdAt: number
+  updatedAt?: number
   metadata?: any
   libraryIds: string[]
   partnerIds?: string[]
   tags: string[]
-  category: 'release' | 'announcement' | 'blog' | 'partner' | 'update' | 'other'
-  isVisible: boolean
+  showInFeed: boolean
   featured?: boolean
   autoSynced: boolean
+  lastSyncedAt?: number
 }
 
 interface FeedEntryProps {
@@ -93,14 +95,21 @@ export function FeedEntry({
         className:
           'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200',
       },
+      update: {
+        label: 'Update',
+        className:
+          'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200',
+      },
     }
 
-    const category = entry.category
-    const key = category === 'release' && isPrerelease ? 'prerelease' : category
+    const key =
+      entry.entryType === 'release' && isPrerelease
+        ? 'prerelease'
+        : entry.entryType
 
     return (
       badgeConfigs[key] || {
-        label: entry.source,
+        label: entry.entryType,
         className:
           'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200',
       }
@@ -151,10 +160,10 @@ export function FeedEntry({
   // Determine external link if available
   const getExternalLink = () => {
     if (entry.metadata) {
-      if (entry.source === 'github' && entry.metadata.url) {
+      if (entry.entryType === 'release' && entry.metadata.url) {
         return entry.metadata.url
       }
-      if (entry.source === 'blog' && entry.metadata.url) {
+      if (entry.entryType === 'blog' && entry.metadata.url) {
         return entry.metadata.url
       }
     }
@@ -276,7 +285,7 @@ export function FeedEntry({
                 ⭐
               </span>
             )}
-            {!entry.isVisible && (
+            {!entry.showInFeed && (
               <span className="px-1 py-0.5 rounded text-[10px] bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
                 Hidden
               </span>
@@ -309,12 +318,12 @@ export function FeedEntry({
               {adminActions.onToggleVisibility && (
                 <button
                   onClick={() =>
-                    adminActions.onToggleVisibility!(entry, !entry.isVisible)
+                    adminActions.onToggleVisibility!(entry, !entry.showInFeed)
                   }
                   className="p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400"
-                  title={entry.isVisible ? 'Hide' : 'Show'}
+                  title={entry.showInFeed ? 'Hide' : 'Show'}
                 >
-                  {entry.isVisible ? (
+                  {entry.showInFeed ? (
                     <Eye className="w-3 h-3" />
                   ) : (
                     <EyeOff className="w-3 h-3" />
@@ -357,9 +366,6 @@ export function FeedEntry({
             <div className="pl-8">
               {/* Metadata Row */}
               <div className="flex items-center gap-4 mb-3 text-[11px] text-gray-600 dark:text-gray-400">
-                {entry.source !== 'announcement' && (
-                  <span className="capitalize">{entry.source}</span>
-                )}
                 {entryLibraries.length > 0 && (
                   <div className="flex items-center gap-2">
                     <span>Libraries:</span>
@@ -422,7 +428,7 @@ export function FeedEntry({
                     className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    View on {entry.source === 'github' ? 'GitHub' : 'Blog'} →
+                    View on {entry.entryType === 'release' ? 'GitHub' : 'Blog'} →
                   </a>
                 </div>
               )}

@@ -1,17 +1,17 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { FeedEntryEditor } from '~/components/admin/FeedEntryEditor'
-import type { FeedEntry } from '~/components/FeedEntry'
+import { BannerEditor } from '~/components/admin/BannerEditor'
+import { getBanner, type BannerWithMeta } from '~/utils/banner.functions'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { getFeedEntryQueryOptions } from '~/queries/feed'
 import { z } from 'zod'
-export const Route = createFileRoute('/admin/feed/$id')({
-  component: FeedEditorPage,
+
+export const Route = createFileRoute('/admin/banners/$id')({
+  component: BannerEditorPage,
   validateSearch: z.object({}),
 })
 
-function FeedEditorPage() {
+function BannerEditorPage() {
   const { id } = Route.useParams()
   const navigate = useNavigate()
   const isNew = id === 'new'
@@ -19,8 +19,10 @@ function FeedEditorPage() {
   const userQuery = useCurrentUserQuery()
   const user = userQuery.data
   const capabilities = useCapabilities()
-  const entryQuery = useQuery({
-    ...getFeedEntryQueryOptions(id),
+
+  const bannerQuery = useQuery({
+    queryKey: ['banner', id],
+    queryFn: () => getBanner({ id }),
     enabled: !isNew,
   })
 
@@ -46,7 +48,7 @@ function FeedEditorPage() {
     )
   }
 
-  if (!isNew && entryQuery.isLoading) {
+  if (!isNew && bannerQuery.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div>Loading...</div>
@@ -54,16 +56,16 @@ function FeedEditorPage() {
     )
   }
 
-  if (!isNew && !entryQuery.data) {
+  if (!isNew && !bannerQuery.data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Entry Not Found</h1>
+          <h1 className="text-2xl font-bold mb-2">Banner Not Found</h1>
           <button
-            onClick={() => navigate({ to: '/admin/feed' })}
+            onClick={() => navigate({ to: '/admin/banners' })}
             className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
           >
-            Back to Feed Admin
+            Back to Banners
           </button>
         </div>
       </div>
@@ -72,11 +74,11 @@ function FeedEditorPage() {
 
   return (
     <div className="min-h-screen p-8">
-      <div className="max-w-4xl mx-auto">
-        <FeedEntryEditor
-          entry={isNew ? null : ((entryQuery.data as FeedEntry | undefined) ?? null)}
-          onSave={() => navigate({ to: '/admin/feed' })}
-          onCancel={() => navigate({ to: '/admin/feed' })}
+      <div className="max-w-6xl mx-auto">
+        <BannerEditor
+          banner={isNew ? null : (bannerQuery.data as BannerWithMeta)}
+          onSave={() => navigate({ to: '/admin/banners' })}
+          onCancel={() => navigate({ to: '/admin/banners' })}
         />
       </div>
     </div>

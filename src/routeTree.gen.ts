@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
 import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
 import { Route as MerchRouteImport } from './routes/merch'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as LibrariesRouteImport } from './routes/libraries'
 import { Route as BuilderRouteImport } from './routes/builder'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
@@ -49,14 +50,17 @@ import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
 import { Route as AdminNotesIndexRouteImport } from './routes/admin/notes.index'
 import { Route as AdminFeedbackIndexRouteImport } from './routes/admin/feedback.index'
 import { Route as AdminFeedIndexRouteImport } from './routes/admin/feed.index'
+import { Route as AdminBannersIndexRouteImport } from './routes/admin/banners.index'
 import { Route as LibrariesFeedIndexRouteImport } from './routes/_libraries/feed.index'
 import { Route as LibrariesBlogIndexRouteImport } from './routes/_libraries/blog.index'
 import { Route as LibrariesAccountIndexRouteImport } from './routes/_libraries/account/index'
+import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiAdminSyncRouteImport } from './routes/api/admin/sync'
 import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
 import { Route as AdminFeedIdRouteImport } from './routes/admin/feed.$id'
+import { Route as AdminBannersIdRouteImport } from './routes/admin/banners.$id'
 import { Route as LibrariesFeedIdRouteImport } from './routes/_libraries/feed.$id'
 import { Route as LibrariesBlogSplatRouteImport } from './routes/_libraries/blog.$'
 import { Route as LibrariesAccountNotesRouteImport } from './routes/_libraries/account/notes'
@@ -100,6 +104,11 @@ const PartnersEmbedRoute = PartnersEmbedRouteImport.update({
 const MerchRoute = MerchRouteImport.update({
   id: '/merch',
   path: '/merch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LibrariesRoute = LibrariesRouteImport.update({
@@ -287,6 +296,11 @@ const AdminFeedIndexRoute = AdminFeedIndexRouteImport.update({
   path: '/feed/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminBannersIndexRoute = AdminBannersIndexRouteImport.update({
+  id: '/banners/',
+  path: '/banners/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const LibrariesFeedIndexRoute = LibrariesFeedIndexRouteImport.update({
   id: '/feed/',
   path: '/feed/',
@@ -301,6 +315,11 @@ const LibrariesAccountIndexRoute = LibrariesAccountIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LibrariesAccountRoute,
+} as any)
+const StatsNpmPackagesRoute = StatsNpmPackagesRouteImport.update({
+  id: '/stats/npm/$packages',
+  path: '/stats/npm/$packages',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   id: '/auth/$provider/start',
@@ -325,6 +344,11 @@ const AdminRolesRoleIdRoute = AdminRolesRoleIdRouteImport.update({
 const AdminFeedIdRoute = AdminFeedIdRouteImport.update({
   id: '/feed/$id',
   path: '/feed/$id',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminBannersIdRoute = AdminBannersIdRouteImport.update({
+  id: '/banners/$id',
+  path: '/banners/$id',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const LibrariesFeedIdRoute = LibrariesFeedIdRouteImport.update({
@@ -500,6 +524,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteRouteWithChildren
   '/builder': typeof BuilderRoute
   '/libraries': typeof LibrariesRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
@@ -535,14 +560,17 @@ export interface FileRoutesByFullPath {
   '/account/notes': typeof LibrariesAccountNotesRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/feed/$id': typeof LibrariesFeedIdRoute
+  '/admin/banners/$id': typeof AdminBannersIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/account/': typeof LibrariesAccountIndexRoute
   '/blog/': typeof LibrariesBlogIndexRoute
   '/feed': typeof LibrariesFeedIndexRoute
+  '/admin/banners': typeof AdminBannersIndexRoute
   '/admin/feed': typeof AdminFeedIndexRoute
   '/admin/feedback': typeof AdminFeedbackIndexRoute
   '/admin/notes': typeof AdminNotesIndexRoute
@@ -576,6 +604,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/builder': typeof BuilderRoute
   '/libraries': typeof LibrariesRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
@@ -608,14 +637,17 @@ export interface FileRoutesByTo {
   '/account/notes': typeof LibrariesAccountNotesRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/feed/$id': typeof LibrariesFeedIdRoute
+  '/admin/banners/$id': typeof AdminBannersIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/account': typeof LibrariesAccountIndexRoute
   '/blog': typeof LibrariesBlogIndexRoute
   '/feed': typeof LibrariesFeedIndexRoute
+  '/admin/banners': typeof AdminBannersIndexRoute
   '/admin/feed': typeof AdminFeedIndexRoute
   '/admin/feedback': typeof AdminFeedbackIndexRoute
   '/admin/notes': typeof AdminNotesIndexRoute
@@ -653,6 +685,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteRouteWithChildren
   '/builder': typeof BuilderRoute
   '/libraries': typeof LibrariesRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
@@ -688,14 +721,17 @@ export interface FileRoutesById {
   '/_libraries/account/notes': typeof LibrariesAccountNotesRoute
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
   '/_libraries/feed/$id': typeof LibrariesFeedIdRoute
+  '/admin/banners/$id': typeof AdminBannersIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/_libraries/account/': typeof LibrariesAccountIndexRoute
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
   '/_libraries/feed/': typeof LibrariesFeedIndexRoute
+  '/admin/banners/': typeof AdminBannersIndexRoute
   '/admin/feed/': typeof AdminFeedIndexRoute
   '/admin/feedback/': typeof AdminFeedbackIndexRoute
   '/admin/notes/': typeof AdminNotesIndexRoute
@@ -733,6 +769,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/builder'
     | '/libraries'
+    | '/llms.txt'
     | '/merch'
     | '/partners-embed'
     | '/sponsors-embed'
@@ -768,14 +805,17 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/blog/$'
     | '/feed/$id'
+    | '/admin/banners/$id'
     | '/admin/feed/$id'
     | '/admin/roles/$roleId'
     | '/api/admin/sync'
     | '/api/github/webhook'
     | '/auth/$provider/start'
+    | '/stats/npm/$packages'
     | '/account/'
     | '/blog/'
     | '/feed'
+    | '/admin/banners'
     | '/admin/feed'
     | '/admin/feedback'
     | '/admin/notes'
@@ -809,6 +849,7 @@ export interface FileRouteTypes {
   to:
     | '/builder'
     | '/libraries'
+    | '/llms.txt'
     | '/merch'
     | '/partners-embed'
     | '/sponsors-embed'
@@ -841,14 +882,17 @@ export interface FileRouteTypes {
     | '/account/notes'
     | '/blog/$'
     | '/feed/$id'
+    | '/admin/banners/$id'
     | '/admin/feed/$id'
     | '/admin/roles/$roleId'
     | '/api/admin/sync'
     | '/api/github/webhook'
     | '/auth/$provider/start'
+    | '/stats/npm/$packages'
     | '/account'
     | '/blog'
     | '/feed'
+    | '/admin/banners'
     | '/admin/feed'
     | '/admin/feedback'
     | '/admin/notes'
@@ -885,6 +929,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/builder'
     | '/libraries'
+    | '/llms.txt'
     | '/merch'
     | '/partners-embed'
     | '/sponsors-embed'
@@ -920,14 +965,17 @@ export interface FileRouteTypes {
     | '/_libraries/account/notes'
     | '/_libraries/blog/$'
     | '/_libraries/feed/$id'
+    | '/admin/banners/$id'
     | '/admin/feed/$id'
     | '/admin/roles/$roleId'
     | '/api/admin/sync'
     | '/api/github/webhook'
     | '/auth/$provider/start'
+    | '/stats/npm/$packages'
     | '/_libraries/account/'
     | '/_libraries/blog/'
     | '/_libraries/feed/'
+    | '/admin/banners/'
     | '/admin/feed/'
     | '/admin/feedback/'
     | '/admin/notes/'
@@ -965,6 +1013,7 @@ export interface RootRouteChildren {
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
   BuilderRoute: typeof BuilderRoute
   LibrariesRoute: typeof LibrariesRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
   MerchRoute: typeof MerchRoute
   PartnersEmbedRoute: typeof PartnersEmbedRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
@@ -973,6 +1022,7 @@ export interface RootRouteChildren {
   ApiAdminSyncRoute: typeof ApiAdminSyncRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
+  StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
 }
@@ -998,6 +1048,13 @@ declare module '@tanstack/react-router' {
       path: '/merch'
       fullPath: '/merch'
       preLoaderRoute: typeof MerchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/libraries': {
@@ -1259,6 +1316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeedIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/banners/': {
+      id: '/admin/banners/'
+      path: '/banners'
+      fullPath: '/admin/banners'
+      preLoaderRoute: typeof AdminBannersIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/_libraries/feed/': {
       id: '/_libraries/feed/'
       path: '/feed'
@@ -1279,6 +1343,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/account/'
       preLoaderRoute: typeof LibrariesAccountIndexRouteImport
       parentRoute: typeof LibrariesAccountRoute
+    }
+    '/stats/npm/$packages': {
+      id: '/stats/npm/$packages'
+      path: '/stats/npm/$packages'
+      fullPath: '/stats/npm/$packages'
+      preLoaderRoute: typeof StatsNpmPackagesRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/auth/$provider/start': {
       id: '/auth/$provider/start'
@@ -1313,6 +1384,13 @@ declare module '@tanstack/react-router' {
       path: '/feed/$id'
       fullPath: '/admin/feed/$id'
       preLoaderRoute: typeof AdminFeedIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/banners/$id': {
+      id: '/admin/banners/$id'
+      path: '/banners/$id'
+      fullPath: '/admin/banners/$id'
+      preLoaderRoute: typeof AdminBannersIdRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/_libraries/feed/$id': {
@@ -1693,8 +1771,10 @@ interface AdminRouteRouteChildren {
   AdminStatsRoute: typeof AdminStatsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminBannersIdRoute: typeof AdminBannersIdRoute
   AdminFeedIdRoute: typeof AdminFeedIdRoute
   AdminRolesRoleIdRoute: typeof AdminRolesRoleIdRoute
+  AdminBannersIndexRoute: typeof AdminBannersIndexRoute
   AdminFeedIndexRoute: typeof AdminFeedIndexRoute
   AdminFeedbackIndexRoute: typeof AdminFeedbackIndexRoute
   AdminNotesIndexRoute: typeof AdminNotesIndexRoute
@@ -1707,8 +1787,10 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminStatsRoute: AdminStatsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminBannersIdRoute: AdminBannersIdRoute,
   AdminFeedIdRoute: AdminFeedIdRoute,
   AdminRolesRoleIdRoute: AdminRolesRoleIdRoute,
+  AdminBannersIndexRoute: AdminBannersIndexRoute,
   AdminFeedIndexRoute: AdminFeedIndexRoute,
   AdminFeedbackIndexRoute: AdminFeedbackIndexRoute,
   AdminNotesIndexRoute: AdminNotesIndexRoute,
@@ -1725,6 +1807,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRouteRoute: AdminRouteRouteWithChildren,
   BuilderRoute: BuilderRoute,
   LibrariesRoute: LibrariesRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
   MerchRoute: MerchRoute,
   PartnersEmbedRoute: PartnersEmbedRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
@@ -1733,6 +1816,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminSyncRoute: ApiAdminSyncRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
+  StatsNpmPackagesRoute: StatsNpmPackagesRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
 }

@@ -1,51 +1,18 @@
 import * as React from 'react'
 import { ReactNode, createContext, useContext } from 'react'
 import { FeedList } from '~/components/FeedList'
-import { FeedFilters, FeedFacetCounts } from '~/components/FeedFilters'
+import { FeedFilters as FeedFiltersComponent, FeedFacetCounts } from '~/components/FeedFilters'
 import { FeedEntry } from '~/components/FeedEntry'
 import { UseQueryResult } from '@tanstack/react-query'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { useQuery } from '@tanstack/react-query'
-import { getFeedFacetCountsQueryOptions } from '~/queries/feed'
+import { getFeedFacetCountsQueryOptions, type FeedFilters } from '~/queries/feed'
 import { twMerge } from 'tailwind-merge'
 import { Spinner } from '~/components/Spinner'
 
-export type LibraryId =
-  | 'start'
-  | 'router'
-  | 'query'
-  | 'table'
-  | 'form'
-  | 'virtual'
-  | 'ranger'
-  | 'store'
-  | 'pacer'
-  | 'db'
-  | 'config'
-  | 'react-charts'
-  | 'devtools'
-  | 'create-tsrouter-app'
-
-export type Category =
-  | 'release'
-  | 'announcement'
-  | 'blog'
-  | 'partner'
-  | 'update'
-  | 'other'
-
-export interface FeedFiltersState {
-  sources?: string[]
-  libraries?: LibraryId[]
-  categories?: Category[]
-  partners?: string[]
-  tags?: string[]
-  releaseLevels?: ('major' | 'minor' | 'patch')[]
-  includePrerelease?: boolean
-  featured?: boolean
-  search?: string
-}
+// Re-export FeedFilters as FeedFiltersState for backwards compatibility
+export type FeedFiltersState = FeedFilters
 
 interface FeedPageLayoutContextValue {
   feedQuery: UseQueryResult<any>
@@ -124,9 +91,8 @@ function FeedPageLayoutRoot({
   // Fetch facet counts based on current filters
   const facetCountsQuery = useQuery(
     getFeedFacetCountsQueryOptions({
-      sources: filters.sources,
+      entryTypes: filters.entryTypes,
       libraries: filters.libraries,
-      categories: filters.categories as any,
       partners: filters.partners,
       tags: filters.tags,
       releaseLevels: filters.releaseLevels as any,
@@ -211,14 +177,13 @@ function FeedPageLayoutFilters() {
 
   return (
     <aside className="lg:w-64 flex-shrink-0 lg:self-start">
-      <FeedFilters
+      <FeedFiltersComponent
         libraries={libraries.filter(
           (lib): lib is import('~/libraries/types').Library => 'tagline' in lib,
         )}
         partners={partners}
-        selectedSources={filters.sources}
+        selectedEntryTypes={filters.entryTypes}
         selectedLibraries={filters.libraries}
-        selectedCategories={filters.categories}
         selectedPartners={filters.partners}
         selectedTags={filters.tags}
         selectedReleaseLevels={filters.releaseLevels}
@@ -264,8 +229,8 @@ function FeedPageLayoutContent({ children }: { children?: ReactNode }) {
     }
 
     return {
+      entryTypes: normalizeFilter(filters.entryTypes),
       libraries: normalizeFilter(filters.libraries),
-      categories: normalizeFilter(filters.categories) as any,
       partners: normalizeFilter(filters.partners),
       tags: normalizeFilter(filters.tags),
       releaseLevels: normalizeFilter(filters.releaseLevels) as any,

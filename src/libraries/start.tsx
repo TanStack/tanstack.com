@@ -4,7 +4,7 @@ import { redirect } from '@tanstack/react-router'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { YinYangIcon } from '~/components/icons/YinYangIcon'
 
-const repo = 'tanstack/router'
+const repo = 'tanstack/start'
 
 const textStyles = 'text-cyan-600 dark:text-cyan-500'
 

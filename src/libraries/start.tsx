@@ -1,10 +1,8 @@
-import { FaGithub, FaYinYang } from 'react-icons/fa'
-import { VscPreview } from 'react-icons/vsc'
-import { BiBookAlt } from 'react-icons/bi'
-import { PiRocketLaunchDuotone, PiTreeStructureBold } from 'react-icons/pi'
-import { TbServerBolt } from 'react-icons/tb'
+import { Book, Network, Rocket, ServerCrash, Wallpaper } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { YinYangIcon } from '~/components/icons/YinYangIcon'
 
 const repo = 'tanstack/router'
 
@@ -40,17 +38,17 @@ export const startProject = {
   hideStackblitzUrl: true,
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/start/latest/docs/framework/react/overview',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/start/latest/docs/framework/react/examples/start-basic',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'GitHub',
       to: `https://github.com/${repo}`,
     },
@@ -59,7 +57,7 @@ export const startProject = {
     {
       title: 'Enterprise-Grade Routing',
       icon: (
-        <PiTreeStructureBold
+        <Network
           className={twMerge('motion-safe:animate-pulse', textStyles)}
           style={{
             animationDuration: '5s',
@@ -83,7 +81,7 @@ export const startProject = {
     {
       title: 'SSR, Streaming and Server RPCs',
       icon: (
-        <TbServerBolt
+        <ServerCrash
           className={twMerge('motion-safe:animate-ping', textStyles)}
           style={{
             animationDuration: '2s',
@@ -106,7 +104,7 @@ export const startProject = {
     {
       title: 'Client-Side First, 100% Server Capable',
       icon: (
-        <FaYinYang
+        <YinYangIcon
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '10s',
@@ -133,7 +131,7 @@ export const startProject = {
     {
       title: 'Deploy Anywhere',
       icon: (
-        <PiRocketLaunchDuotone
+        <Rocket
           className={twMerge('motion-safe:animate-bounce', textStyles)}
           style={{
             animationDuration: '2.5s',

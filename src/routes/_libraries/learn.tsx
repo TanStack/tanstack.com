@@ -1,8 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
-import { FaCheckCircle } from 'react-icons/fa'
-import { LuUsers, LuVideo, LuMapPin, LuStar } from 'react-icons/lu'
+import { Users, Video, MapPin, Star } from 'lucide-react'
 import { LogoQueryGG } from '~/components/LogoQueryGG'
+import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 
 export const Route = createFileRoute('/_libraries/learn')({
   component: LearnPage,
@@ -36,7 +36,7 @@ function LearnPage() {
             </div>
             <div className="p-4 lg:p-8">
               <div className="flex items-center gap-3 mb-4">
-                <LuUsers className="w-8 h-8" />
+                <Users className="w-8 h-8" />
                 <h2 className="text-xl font-bold">Professional Workshops</h2>
               </div>
               <p className="text-sm mb-4 opacity-90">
@@ -45,15 +45,15 @@ function LearnPage() {
               </p>
               <div className="grid gap-2 text-xs text-left">
                 <div className="flex items-start gap-2">
-                  <LuVideo className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Video className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <div>Remote workshops worldwide</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <LuMapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <div>Premium in-person options</div>
                 </div>
                 <div className="flex items-start gap-2">
-                  <LuStar className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Star className="w-4 h-4 mt-0.5 flex-shrink-0" />
                   <div>From maintainers & creators</div>
                 </div>
               </div>
@@ -91,13 +91,13 @@ function LearnPage() {
               <div className="grid max-w-(--breakpoint-lg) mx-auto text-xs gap-2 text-left">
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <FaCheckCircle />
+                    <CheckCircleIcon />
                   </span>
                   <div>Save time by learning with a guided approach</div>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <FaCheckCircle />
+                    <CheckCircleIcon />
                   </span>
                   <div>
                     Get hands-on experience building a real-world application
@@ -105,52 +105,13 @@ function LearnPage() {
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="text-lg text-green-500">
-                    <FaCheckCircle />
+                    <CheckCircleIcon />
                   </span>
                   <div>Never worry about data fetching again</div>
                 </div>
               </div>
             </div>
           </Link>
-          {/* <Link
-              to={'https://github.com/tanstack' as string}
-              target="_blank"
-              className="max-w-[300px] rounded-lg bg-linear-to-br from-gray-500 to-gray-900 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
-            >
-              <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
-                GitHub
-              </div>
-              <div className="p-4 flex gap-2 flex-wrap">
-                {['Bug Reports', 'Feature Requests', 'Source Code'].map((d) => (
-                  <div
-                    key={d}
-                    className="text-sm bg-white text-black rounded-full py-1 px-2 shadow-lg font-bold"
-                  >
-                    {d}
-                  </div>
-                ))}
-              </div>
-            </Link>
-            <Link
-              to="/paid-support"
-              className="max-w-[300px] rounded-lg bg-linear-to-br from-green-500 to-sky-500 text-white shadow-black/20 shadow-lg hover:shadow-2xl hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105"
-            >
-              <div className="p-4 text-lg md:text-xl lg:text-2xl font-bold text-center">
-                Paid Support
-              </div>
-              <div className="p-4 flex gap-2 flex-wrap">
-                {['Consulting', 'Enterprise Paid Support'].map((d) => (
-                  <div
-                    key={d}
-                    className="text-sm bg-white/90 rounded-full py-1 px-2 shadow-lg font-bold"
-                  >
-                    <div className="text-transparent bg-clip-text bg-linear-to-r to-green-600 from-sky-600">
-                      {d}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Link> */}
         </div>
       </div>
     </div>

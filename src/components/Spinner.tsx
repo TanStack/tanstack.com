@@ -1,5 +1,5 @@
-import { TbFidgetSpinner } from 'react-icons/tb'
 import { twMerge } from 'tailwind-merge'
+import { Fan } from 'lucide-react'
 
 interface SpinnerProps {
   className?: string
@@ -7,7 +7,7 @@ interface SpinnerProps {
 
 export function Spinner({ className }: SpinnerProps) {
   return (
-    <TbFidgetSpinner
+    <Fan
       className={twMerge(
         'animate-spin text-gray-900 dark:text-white text-2xl',
         className,

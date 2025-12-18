@@ -1,9 +1,12 @@
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { FaGithub } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
-import { GiF1Car } from 'react-icons/gi'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import {
+  ArrowRightLeft,
+  Book,
+  CircleGauge,
+  Wallpaper,
+  WandSparkles,
+} from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { FaTimeline } from 'react-icons/fa6'
 
 const repo = 'tanstack/pacer'
 
@@ -33,17 +36,17 @@ export const pacerProject = {
   defaultDocs: 'overview',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/pacer/latest/docs',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/pacer/latest/docs/framework/react/examples/debounce',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },
@@ -51,7 +54,7 @@ export const pacerProject = {
   featureHighlights: [
     {
       title: 'Flexible & Type-Safe',
-      icon: <VscWand className={twMerge(textStyles)} />,
+      icon: <WandSparkles className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack Pacer provides an intuitive and flexible API that works
@@ -67,7 +70,7 @@ export const pacerProject = {
     },
     {
       title: 'Optimize Performance',
-      icon: <GiF1Car className={twMerge(textStyles)} />,
+      icon: <CircleGauge className={twMerge(textStyles)} />,
       description: (
         <div>
           Enhance your application's efficiency with flexible utilities for{' '}
@@ -84,7 +87,7 @@ export const pacerProject = {
     },
     {
       title: 'Async or Sync',
-      icon: <FaTimeline className={twMerge(textStyles)} />,
+      icon: <ArrowRightLeft className={twMerge(textStyles)} />,
       description: (
         <div>
           Choose between async or sync execution for each utility based on your

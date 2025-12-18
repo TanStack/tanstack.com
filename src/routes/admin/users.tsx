@@ -1,7 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
-import { FaUser, FaEdit, FaSave, FaTimes, FaLock } from 'react-icons/fa'
 import { PaginationControls } from '~/components/PaginationControls'
 import { Spinner } from '~/components/Spinner'
 import {
@@ -41,6 +40,7 @@ import {
   getBulkEffectiveCapabilitiesQueryOptions,
 } from '~/queries/roles'
 import { getUserRoles } from '~/utils/roles.functions'
+import { Lock, Save, SquarePen, X, User } from 'lucide-react'
 
 // User type for table
 type User = {
@@ -716,7 +716,7 @@ function UsersPage() {
                   />
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <FaUser className="text-gray-500 dark:text-gray-400" />
+                    <User className="text-gray-500 dark:text-gray-400 text-xs" />
                   </div>
                 )}
               </div>
@@ -869,13 +869,13 @@ function UsersPage() {
                 onClick={handleSaveUser}
                 className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
               >
-                <FaSave className="w-4 h-4" />
+                <Save className="w-4 h-4" />
               </button>
               <button
                 onClick={handleCancelEdit}
                 className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
               >
-                <FaTimes className="w-4 h-4" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
@@ -883,7 +883,7 @@ function UsersPage() {
               onClick={() => handleEditUser(user)}
               className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
             >
-              <FaEdit className="w-4 h-4" />
+              <SquarePen className="w-4 h-4" />
             </button>
           )
         },
@@ -939,7 +939,7 @@ function UsersPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <FaLock className="text-4xl text-red-500 mx-auto mb-4" />
+          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             You don't have permission to access the admin area.
@@ -1115,7 +1115,7 @@ function UsersPage() {
 
           {(!usersQuery.data || usersQuery.data?.page.length === 0) && (
             <div className="text-center py-12">
-              <FaUser className="mx-auto h-12 w-12 text-gray-400" />
+              <User className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
                 No users found
               </h3>

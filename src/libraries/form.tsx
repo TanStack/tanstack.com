@@ -1,7 +1,7 @@
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book, Wallpaper, WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/form'
 
@@ -30,17 +30,17 @@ export const formProject = {
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/form/latest/docs',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/form/latest/docs/framework/react/examples/simple',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },
@@ -48,7 +48,7 @@ export const formProject = {
   featureHighlights: [
     {
       title: 'First-Class TypeScript Support',
-      icon: <VscWand className="text-yellow-400" />,
+      icon: <WandSparkles size={16} className="text-yellow-400" />,
       description: (
         <div>
           TanStack Form touts first-class TypeScript support with outstanding
@@ -65,7 +65,7 @@ export const formProject = {
     },
     {
       title: 'Headless and Framework Agnostic',
-      icon: <FaBolt className="text-yellow-500" />,
+      icon: <Zap className="text-yellow-500" />,
       description: (
         <div>
           Form's headless and framework agnostic approach ensures maximum
@@ -82,7 +82,7 @@ export const formProject = {
     },
     {
       title: 'Granular Reactive Performance',
-      icon: <FaCogs className="text-amber-500" />,
+      icon: <CogsIcon className="text-amber-500" />,
       description: (
         <div>
           When it comes to performance, TanStack Form delivers amazing speed and

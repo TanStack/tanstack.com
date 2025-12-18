@@ -1,4 +1,4 @@
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface PaginationControlsProps {
   currentPage: number
@@ -134,7 +134,7 @@ export function PaginationControls({
             disabled={!canGoPrevious}
             className="flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 hover:text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-800 gap-1 transition-colors"
           >
-            <FaChevronLeft className="w-2.5 h-2.5" />
+            <ChevronLeft className="w-2.5 h-2.5" />
             <span>Prev</span>
           </button>
 
@@ -175,7 +175,7 @@ export function PaginationControls({
             className="flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 hover:text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white dark:disabled:hover:bg-gray-800 gap-1 transition-colors"
           >
             <span>Next</span>
-            <FaChevronRight className="w-2.5 h-2.5" />
+            <ChevronRight className="w-2.5 h-2.5" />
           </button>
         </div>
       </div>

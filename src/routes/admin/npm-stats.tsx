@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { FaNpm, FaSync, FaDownload } from 'react-icons/fa'
 import {
   Table,
   TableHeader,
@@ -25,6 +24,8 @@ import {
   refreshAllNpmStats,
 } from '~/utils/stats-admin.server'
 import { formatDistanceToNow } from 'date-fns'
+import { Download, RefreshCw } from 'lucide-react'
+import { NpmIcon } from '~/components/icons/NpmIcon'
 
 type NpmPackage = {
   id: string
@@ -127,7 +128,7 @@ function NpmStatsAdmin() {
         cell: ({ row }) => (
           <div>
             <div className="flex items-center gap-2">
-              <FaDownload className="text-emerald-500" />
+              <Download className="text-emerald-500" />
               <span className="font-semibold text-gray-900 dark:text-white">
                 {row.original.totalDownloads.toLocaleString()}
               </span>
@@ -189,7 +190,7 @@ function NpmStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <FaDownload className="text-emerald-500" />
+                <Download className="text-emerald-500" />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {pkg.downloads?.toLocaleString() ?? 'N/A'}
                 </span>
@@ -254,7 +255,8 @@ function NpmStatsAdmin() {
             disabled={refreshPackageMutation.isPending}
             className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
           >
-            <FaSync
+            <RefreshCw
+              size={14}
               className={refreshPackageMutation.isPending ? 'animate-spin' : ''}
             />
             Refresh
@@ -285,7 +287,7 @@ function NpmStatsAdmin() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <FaNpm className="text-2xl text-red-500" />
+              <NpmIcon className="text-2xl text-red-500" />
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 NPM Stats Management
               </h1>
@@ -305,7 +307,8 @@ function NpmStatsAdmin() {
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             title="Complete refresh: discover packages, fetch fresh stats with growth rates, and rebuild all caches"
           >
-            <FaSync
+            <RefreshCw
+              size={14}
               className={refreshAllMutation.isPending ? 'animate-spin' : ''}
             />
             {refreshAllMutation.isPending
@@ -349,7 +352,7 @@ function NpmStatsAdmin() {
                   Total Downloads
                 </div>
                 <div className="flex items-center gap-3">
-                  <FaDownload className="text-2xl text-emerald-500" />
+                  <Download className="text-2xl text-emerald-500" />
                   <div className="text-3xl font-bold text-gray-900 dark:text-white">
                     {orgStats.totalDownloads.toLocaleString()}
                   </div>
@@ -360,7 +363,7 @@ function NpmStatsAdmin() {
                   Downloads Per Day
                 </div>
                 <div className="flex items-center gap-3">
-                  <FaDownload className="text-2xl text-emerald-500" />
+                  <Download className="text-2xl text-emerald-500" />
                   <div>
                     <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                       {orgStats.ratePerDay !== undefined &&

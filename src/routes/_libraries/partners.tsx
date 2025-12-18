@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { Library } from '~/libraries'
 import { useState } from 'react'
 import * as React from 'react'
-import { MdClose, MdFilterList } from 'react-icons/md'
+import { ListFilter, X } from 'lucide-react'
 import { startProject } from '~/libraries/start'
 import { routerProject } from '~/libraries/router'
 import { queryProject } from '~/libraries/query'
@@ -134,7 +134,7 @@ function PartnersFilter({
             onClick={() => setIsOpen(!isOpen)}
             className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <MdFilterList className="w-4 h-4" />
+            <ListFilter className="w-4 h-4" />
             Filter Partners
             {hasFilters && (
               <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full text-xs">
@@ -253,7 +253,7 @@ function PartnersFilter({
                     onClick={() => toggleLibrary(libraryId)}
                     className="hover:bg-blue-200 dark:hover:bg-blue-800 rounded p-0.5 transition-colors"
                   >
-                    <MdClose className="w-3 h-3" />
+                    <X className="w-3 h-3" />
                   </button>
                 </span>
               )

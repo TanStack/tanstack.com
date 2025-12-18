@@ -1,24 +1,18 @@
 import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { getUserDocFeedbackQueryOptions } from '~/queries/docFeedback'
-import {
-  FaAward,
-  FaComment,
-  FaLightbulb,
-  FaExternalLinkAlt,
-} from 'react-icons/fa'
 import { twMerge } from 'tailwind-merge'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import { calculatePoints } from '~/utils/docFeedback.client'
+import { Award, ExternalLink, Lightbulb, MessageSquare } from 'lucide-react'
 
 interface UserFeedbackSectionProps {
   userId: string
 }
 
 export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
-  const navigate = useNavigate()
   const [page, setPage] = React.useState(1)
   const [pageSize, setPageSize] = React.useState(10)
 
@@ -44,7 +38,7 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <FaAward className="text-2xl text-blue-600 dark:text-blue-400" />
+              <Award className="text-2xl text-blue-600 dark:text-blue-400" />
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                 Feedback Points
               </h3>
@@ -88,7 +82,7 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
           >
             View Leaderboard
-            <FaExternalLinkAlt className="text-xs" />
+            <ExternalLink className="text-xs" />
           </Link>
         </div>
       </div>
@@ -126,9 +120,9 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
                       {/* Icon */}
                       <div className="mt-1">
                         {item.type === 'note' ? (
-                          <FaComment className="text-blue-500" />
+                          <MessageSquare className="text-blue-500" size={14} />
                         ) : (
-                          <FaLightbulb className="text-yellow-500" />
+                          <Lightbulb className="text-yellow-500" size={14} />
                         )}
                       </div>
 

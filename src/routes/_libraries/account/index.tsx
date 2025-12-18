@@ -1,10 +1,10 @@
-import { FaSignOutAlt } from 'react-icons/fa'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useToast } from '~/components/ToastProvider'
 import { updateAdPreference } from '~/utils/users.server'
+import { LogOut } from 'lucide-react'
 
 export const Route = createFileRoute('/_libraries/account/')({
   component: AccountSettingsPage,
@@ -69,7 +69,9 @@ function AccountSettingsPage() {
         </h3>
         <div className="flex flex-col gap-y-4 text-sm">
           <div className="flex flex-col gap-1">
-            <label className="font-medium">Email</label>
+            <label htmlFor="email" className="font-medium">
+              Email
+            </label>
             <input
               type="text"
               className="border border-gray-300 rounded-md py-1 px-2 w-full max-w-xs"
@@ -113,7 +115,7 @@ function AccountSettingsPage() {
           onClick={signOut}
           className="text-sm flex gap-2 items-center font-medium bg-black/80 hover:bg-black text-white dark:bg-white/95 dark:hover:bg-white dark:text-black py-1.5 px-2 rounded-md transition-colors my-4"
         >
-          <FaSignOutAlt /> Logout
+          <LogOut size={14} /> Logout
         </button>
       </div>
     </div>

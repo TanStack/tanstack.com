@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { FaRegCopy } from 'react-icons/fa'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
 import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
@@ -16,8 +15,7 @@ import { twMerge } from 'tailwind-merge'
 import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
 import { renderMarkdown } from '~/utils/markdown'
 import { Tabs } from '~/components/Tabs'
-import { BlockWithFeedback } from '~/components/BlockWithFeedback'
-import { useDocFeedback } from '~/components/DocFeedbackContext'
+import { Copy } from 'lucide-react'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -100,8 +98,8 @@ const markdownComponents: Record<string, React.FC> = {
       className={`max-w-full h-auto rounded-lg shadow-md ${
         props.className ?? ''
       }`}
-      // loading="lazy"
-      // decoding="async"
+      loading="lazy"
+      decoding="async"
     />
   ),
 }
@@ -258,7 +256,11 @@ export function CodeBlock({
             }}
             aria-label="Copy code to clipboard"
           >
-            {copied ? <span className="text-xs">Copied!</span> : <FaRegCopy />}
+            {copied ? (
+              <span className="text-xs">Copied!</span>
+            ) : (
+              <Copy size={14} />
+            )}
           </button>
         </div>
       ) : null}

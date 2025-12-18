@@ -4,9 +4,9 @@ import { Markdown } from '~/components/Markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
-import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaStar } from 'react-icons/fa'
 import { FeedEntry } from './FeedEntry'
 import { Link } from '@tanstack/react-router'
+import { Eye, EyeOff, SquarePen, Star, Trash } from 'lucide-react'
 
 interface FeedEntryTimelineProps {
   entry: FeedEntry
@@ -250,7 +250,7 @@ export function FeedEntryTimeline({
                 className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400"
                 title="Edit"
               >
-                <FaEdit className="w-4 h-4" />
+                <SquarePen className="w-4 h-4" />
               </button>
             )}
             {adminActions.onToggleVisibility && (
@@ -262,9 +262,9 @@ export function FeedEntryTimeline({
                 title={entry.isVisible ? 'Hide' : 'Show'}
               >
                 {entry.isVisible ? (
-                  <FaEye className="w-4 h-4" />
+                  <Eye className="w-4 h-4" />
                 ) : (
-                  <FaEyeSlash className="w-4 h-4" />
+                  <EyeOff className="w-4 h-4" />
                 )}
               </button>
             )}
@@ -281,7 +281,7 @@ export function FeedEntryTimeline({
                 )}
                 title="Toggle Featured"
               >
-                <FaStar className="w-4 h-4" />
+                <Star className="w-4 h-4" />
               </button>
             )}
             {adminActions.onDelete && (
@@ -290,7 +290,7 @@ export function FeedEntryTimeline({
                 className="p-2 hover:bg-red-100 dark:hover:bg-red-900 rounded transition-colors text-red-500"
                 title="Delete"
               >
-                <FaTrash className="w-4 h-4" />
+                <Trash className="w-4 h-4" />
               </button>
             )}
           </div>

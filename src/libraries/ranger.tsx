@@ -1,10 +1,12 @@
-import { VscPreview } from 'react-icons/vsc'
-import { FaGithub } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
-import { CgTimelapse } from 'react-icons/cg'
-import { TbZoomQuestion } from 'react-icons/tb'
-import { RiLightbulbFlashLine } from 'react-icons/ri'
+import {
+  Book,
+  MessageCircleQuestionMark,
+  PlugZap,
+  RotateCw,
+  Wallpaper,
+} from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/ranger'
 
@@ -33,17 +35,17 @@ export const rangerProject = {
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/ranger/latest/docs/overview',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/ranger/latest/docs/framework/react/examples/basic',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },
@@ -52,9 +54,7 @@ export const rangerProject = {
     {
       title: 'Typesafe & powerful, yet familiarly simple',
       icon: (
-        <RiLightbulbFlashLine
-          className={twMerge('scale-125 animate-pulse', textStyles)}
-        />
+        <PlugZap className={twMerge('scale-125 animate-pulse', textStyles)} />
       ),
       description: (
         <div>
@@ -69,7 +69,7 @@ export const rangerProject = {
     {
       title: '"Headless" UI library',
       icon: (
-        <CgTimelapse
+        <RotateCw
           className={twMerge('animate-spin', textStyles)}
           style={{
             animationDuration: '3s',
@@ -90,7 +90,7 @@ export const rangerProject = {
     },
     {
       title: 'Extensible',
-      icon: <TbZoomQuestion className={twMerge('', textStyles)} />,
+      icon: <MessageCircleQuestionMark className={twMerge('', textStyles)} />,
       description: (
         <div>
           Designed with maximum inversion of control in mind, Ranger is built to

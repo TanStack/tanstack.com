@@ -21,21 +21,13 @@ import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useCreateRole, useUpdateRole, useDeleteRole } from '~/utils/mutations'
 import { listRoles } from '~/utils/roles.functions'
-import {
-  FaEdit,
-  FaSave,
-  FaTimes,
-  FaLock,
-  FaPlus,
-  FaTrash,
-  FaUsers,
-} from 'react-icons/fa'
 import { Spinner } from '~/components/Spinner'
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
 } from '@tanstack/react-table'
+import { Lock, SquarePen, Plus, Save, X, Trash, Users } from 'lucide-react'
 
 // Role type for table
 type Role = {
@@ -97,7 +89,10 @@ function RolesPage() {
     <>
       {/* Name Filter */}
       <div className="mb-2">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           Name / Description
         </label>
         <FilterSearch
@@ -391,13 +386,13 @@ function RolesPage() {
                   onClick={handleSaveRole}
                   className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                 >
-                  <FaSave className="w-4 h-4" />
+                  <Save className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleCancelEdit}
                   className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                 >
-                  <FaTimes className="w-4 h-4" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             )
@@ -410,19 +405,19 @@ function RolesPage() {
                 className="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300"
                 title="View users with this role"
               >
-                <FaUsers className="w-4 h-4" />
+                <Users className="w-4 h-4" />
               </Link>
               <button
                 onClick={() => handleEditRole(role)}
                 className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
               >
-                <FaEdit className="w-4 h-4" />
+                <SquarePen className="w-4 h-4" />
               </button>
               <button
                 onClick={() => handleDeleteRole(role._id)}
                 className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
               >
-                <FaTrash className="w-4 h-4" />
+                <Trash className="w-4 h-4" />
               </button>
             </div>
           )
@@ -466,7 +461,7 @@ function RolesPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <FaLock className="text-4xl text-red-500 mx-auto mb-4" />
+          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             You don't have permission to access the admin area.
@@ -526,7 +521,7 @@ function RolesPage() {
                 onClick={handleCreateRole}
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                <FaPlus className="w-4 h-4" />
+                <Plus className="w-4 h-4" />
                 Create Role
               </button>
             )}
@@ -539,7 +534,10 @@ function RolesPage() {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="role-name"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Name
                   </label>
                   <input
@@ -551,7 +549,10 @@ function RolesPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="role-description"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Description
                   </label>
                   <input
@@ -563,7 +564,10 @@ function RolesPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="role-capabilities"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Capabilities
                   </label>
                   <div className="space-y-2">
@@ -587,14 +591,14 @@ function RolesPage() {
                     onClick={handleSaveRole}
                     className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    <FaSave className="w-4 h-4" />
+                    <Save className="w-4 h-4" />
                     Save
                   </button>
                   <button
                     onClick={handleCancelEdit}
                     className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                   >
-                    <FaTimes className="w-4 h-4" />
+                    <X className="w-4 h-4" />
                     Cancel
                   </button>
                 </div>

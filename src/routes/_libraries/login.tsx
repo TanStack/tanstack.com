@@ -1,11 +1,12 @@
 import { authClient } from '~/utils/auth.client'
 import { useIsDark } from '~/hooks/useIsDark'
-import { FaGithub, FaGoogle } from 'react-icons/fa'
 // Using public asset URLs for splash images
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { getCurrentUser } from '~/utils/auth.server'
 import { z } from 'zod'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { GoogleIcon } from '~/components/icons/GoogleIcon'
 
 export const Route = createFileRoute('/_libraries/login')({
   component: LoginPage,
@@ -56,7 +57,7 @@ export function SignInForm() {
         }
         className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
       >
-        <FaGithub className="inline-block mr-2" /> Sign in with GitHub
+        <GithubIcon className="inline-block mr-2 -mt-0.5" /> Sign in with GitHub
       </button>
       <button
         onClick={() =>
@@ -66,7 +67,7 @@ export function SignInForm() {
         }
         className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"
       >
-        <FaGoogle className="inline-block mr-2" /> Sign in with Google
+        <GoogleIcon className="inline-block mr-2 -mt-0.5" /> Sign in with Google
       </button>
     </div>
   )

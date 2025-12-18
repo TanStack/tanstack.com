@@ -1,7 +1,8 @@
-import { BsCollectionFill } from 'react-icons/bs'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { GalleryVerticalEnd, Zap } from 'lucide-react'
+import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/db'
 
@@ -31,17 +32,12 @@ export const dbProject = {
   defaultDocs: 'overview',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/db/latest/docs',
     },
-    // {
-    //   icon: <VscPreview />,
-    //   label: 'Examples',
-    //   to: '/db/latest/docs/framework/react/examples/todo',
-    // },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },
@@ -49,7 +45,7 @@ export const dbProject = {
   featureHighlights: [
     {
       title: 'Collections',
-      icon: <BsCollectionFill className={twMerge(textStyles)} />,
+      icon: <GalleryVerticalEnd className={twMerge(textStyles)} />,
       description: (
         <div>
           Collections are typed sets of objects. Sync or load data into them.
@@ -60,7 +56,7 @@ export const dbProject = {
     },
     {
       title: 'Live Queries',
-      icon: <FaBolt className={twMerge(textStyles)} />,
+      icon: <Zap className={twMerge(textStyles)} />,
       description: (
         <div>
           Live queries run reactively against and across collections. They're
@@ -71,7 +67,7 @@ export const dbProject = {
     },
     {
       title: 'Optimistic mutations',
-      icon: <FaCogs className={twMerge(textStyles)} />,
+      icon: <CogsIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Batch and stage instant local changes across collections. Sync

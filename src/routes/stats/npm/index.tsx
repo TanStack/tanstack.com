@@ -3,20 +3,19 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useDebouncedValue, useThrottledCallback } from '@tanstack/react-pacer'
 import {
-  MdClose,
-  MdVisibility,
-  MdVisibilityOff,
-  MdAdd,
-  MdPushPin,
-  MdMoreVert,
-  MdSearch,
-} from 'react-icons/md'
+  X,
+  Plus,
+  Eye,
+  EyeOff,
+  Pin,
+  EllipsisVertical,
+  Search,
+} from 'lucide-react'
 import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import * as Plot from '@observablehq/plot'
 import { ParentSize } from '@visx/responsive'
 import { Tooltip } from '~/components/Tooltip'
 import * as d3 from 'd3'
-import { FaSpinner } from 'react-icons/fa'
 import { HexColorPicker } from 'react-colorful'
 import { seo } from '~/utils/seo'
 import { getPopularComparisons, packageGroupSchema } from './-comparisons'
@@ -153,19 +152,6 @@ const binningOptionsByType = binningOptions.reduce(
 
 type TransformMode = z.infer<typeof transformModeSchema>
 
-type NpmPackage = {
-  name: string
-  description: string
-  version: string
-  publisher: {
-    username: string
-  }
-  time?: {
-    created: string
-    modified: string
-  }
-}
-
 const defaultColors = [
   '#1f77b4', // blue
   '#ff7f0e', // orange
@@ -194,20 +180,6 @@ const dropdownButtonStyles = {
   base: 'bg-gray-500/10 rounded-md px-2 py-1 text-sm flex items-center gap-1',
   active: 'bg-gray-500/20',
 } as const
-
-type NpmQueryData = {
-  packages: {
-    downloads: any[]
-    name: string
-    hidden?: boolean | undefined
-  }[]
-  baseline?: boolean
-  start: string
-  end: string
-  color?: string | null | undefined
-  error?: string | null
-  actualStartDate?: Date
-}[]
 
 function npmQueryOptions({
   packageGroups,
@@ -785,7 +757,7 @@ function PackageSearch({
       <div className="relative">
         <Command className="w-full" shouldFilter={false}>
           <div className="flex items-center gap-1">
-            <MdSearch className="text-lg" />
+            <Search className="text-lg" />
             <Command.Input
               placeholder={placeholder}
               className="w-full bg-gray-500/10 rounded-md px-2 py-1 min-w-[200px] text-sm"
@@ -1217,7 +1189,7 @@ function RouteComponent() {
                 <DropdownMenuTrigger asChild>
                   <button className={twMerge(dropdownButtonStyles.base)}>
                     {timeRanges.find((r) => r.value === range)?.label}
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1250,7 +1222,7 @@ function RouteComponent() {
                     )}
                   >
                     {binningOptions.find((b) => b.value === binType)?.label}
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1290,7 +1262,7 @@ function RouteComponent() {
                       transformOptions.find((opt) => opt.value === transform)
                         ?.label
                     }
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1330,7 +1302,7 @@ function RouteComponent() {
                             ?.label
                         }`
                       : 'No Facet X'}
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1378,7 +1350,7 @@ function RouteComponent() {
                             ?.label
                         }`
                       : 'No Facet Y'}
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1435,7 +1407,7 @@ function RouteComponent() {
                         (opt) => opt.value === showDataModeParam,
                       )?.label
                     }
-                    <MdMoreVert className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>
@@ -1500,7 +1472,7 @@ function RouteComponent() {
                             }
                             className="hover:text-blue-500"
                           >
-                            <MdPushPin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
+                            <Pin className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
                           </button>
                         </Tooltip>
                         <span>{mainPackage.name}</span>
@@ -1532,7 +1504,7 @@ function RouteComponent() {
                           >
                             {mainPackage.name}
                             {mainPackage.hidden ? (
-                              <MdVisibilityOff className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
                             ) : null}
                           </button>
                         </Tooltip>
@@ -1553,7 +1525,7 @@ function RouteComponent() {
                         <Tooltip content="More options">
                           <DropdownMenuTrigger asChild>
                             <button className="px-0.5 sm:px-1 hover:text-blue-500">
-                              <MdMoreVert className="w-3 h-3 sm:w-4 sm:h-4" />
+                              <EllipsisVertical className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
                           </DropdownMenuTrigger>
                         </Tooltip>
@@ -1573,9 +1545,9 @@ function RouteComponent() {
                               className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                             >
                               {mainPackage.hidden ? (
-                                <MdVisibilityOff className="text-sm" />
+                                <EyeOff className="text-sm" />
                               ) : (
-                                <MdVisibility className="text-sm" />
+                                <Eye className="text-sm" />
                               )}
                               {mainPackage.hidden
                                 ? 'Show Package'
@@ -1591,7 +1563,7 @@ function RouteComponent() {
                                 pkg.baseline ? 'text-blue-500' : '',
                               )}
                             >
-                              <MdPushPin className="text-sm" />
+                              <Pin className="text-sm" />
                               {pkg.baseline
                                 ? 'Remove Baseline'
                                 : 'Set as Baseline'}
@@ -1657,7 +1629,7 @@ function RouteComponent() {
                                         }}
                                         className="p-1 text-gray-400 hover:text-red-500"
                                       >
-                                        <MdClose className="w-3 h-3" />
+                                        <X className="w-3 h-3" />
                                       </button>
                                     </div>
                                   </DropdownMenuItem>
@@ -1671,7 +1643,7 @@ function RouteComponent() {
                               }}
                               className="w-full px-2 py-1.5 text-left text-sm rounded hover:bg-gray-500/20 flex items-center gap-2 outline-none cursor-pointer"
                             >
-                              <MdAdd className="text-sm" />
+                              <Plus className="text-sm" />
                               Add Packages
                             </DropdownMenuItem>
                           </div>
@@ -1682,7 +1654,7 @@ function RouteComponent() {
                       onClick={() => handleRemovePackageName(index)}
                       className="ml-auto pl-0.5 sm:pl-1 text-gray-500 hover:text-red-500"
                     >
-                      <MdClose className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <X className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
                   </div>
                   {packageError && (
@@ -1707,7 +1679,7 @@ function RouteComponent() {
                     onClick={() => setCombiningPackage(null)}
                     className="p-0.5 sm:p-1 hover:text-red-500"
                   >
-                    <MdClose className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
                 <PackageSearch
@@ -1815,12 +1787,6 @@ function RouteComponent() {
                         <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Downloads last {binOption.single}
                         </th>
-                        {/* <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Period Growth
-                        </th>
-                        <th className="px-3 sm:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                          Period Growth %
-                        </th> */}
                       </tr>
                     </thead>
                     <tbody className="bg-gray-500/5 divide-y divide-gray-500/10">
@@ -1834,20 +1800,7 @@ function RouteComponent() {
                             return null
                           }
 
-                          // const flooredStartData =
-                          //   binOption.bin.floor(startDate)
-
                           const firstPackage = packageGroupDownloads.packages[0]
-
-                          // const rangeFilteredDownloads =
-                          //   packageGroupDownloads.packages.map((p) => {
-                          //     return {
-                          //       ...p,
-                          //       downloads: p.downloads.filter(
-                          //         (d) => d.day >= startDate
-                          //       ),
-                          //     }
-                          //   })
 
                           // Sort downloads by date
                           const sortedDownloads = packageGroupDownloads.packages
@@ -1958,7 +1911,7 @@ function RouteComponent() {
                                         }
                                         className="p-0.5 text-gray-500 hover:text-red-500"
                                       >
-                                        <MdClose className="" />
+                                        <X className="" />
                                       </button>
                                     </Tooltip>
                                   </div>
@@ -1971,42 +1924,6 @@ function RouteComponent() {
                             <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
                               {formatNumber(stat!.binDownloads)}
                             </td>
-                            {/* <td
-                              className={`px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-right ${
-                                stat!.growth > 0
-                                  ? 'text-green-500'
-                                  : stat!.growth < 0
-                                  ? 'text-red-500'
-                                  : 'text-gray-500'
-                              }`}
-                            >
-                              <div className="inline-flex items-center gap-1">
-                                {stat!.growth > 0 ? (
-                                  <MdArrowUpward />
-                                ) : (
-                                  <MdArrowDownward />
-                                )}
-                                {formatNumber(Math.abs(stat!.growth))}
-                              </div>
-                            </td>
-                            <td
-                              className={`px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-right ${
-                                stat!.growthPercentage > 0
-                                  ? 'text-green-500'
-                                  : stat!.growthPercentage < 0
-                                  ? 'text-red-500'
-                                  : 'text-gray-500'
-                              }`}
-                            >
-                              <div className="inline-flex items-center gap-1">
-                                {stat!.growthPercentage > 0 ? (
-                                  <MdArrowUpward />
-                                ) : (
-                                  <MdArrowDownward />
-                                )}
-                                {Math.abs(stat!.growthPercentage).toFixed(1)}%
-                              </div>
-                            </td> */}
                           </tr>
                         ))}
                     </tbody>

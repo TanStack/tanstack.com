@@ -1,8 +1,8 @@
 import { Library } from '.'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book, Plug, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { FaPlug } from 'react-icons/fa6'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/ai'
 
@@ -32,12 +32,12 @@ export const aiProject = {
   defaultDocs: 'getting-started/overview',
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/ai/latest/docs',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },
@@ -45,7 +45,7 @@ export const aiProject = {
   featureHighlights: [
     {
       title: 'Multi-Provider Support',
-      icon: <FaPlug className={twMerge(textStyles)} />,
+      icon: <Plug className={twMerge(textStyles)} />,
       description: (
         <div>
           Support for OpenAI, Anthropic, Ollama, and Google Gemini. Switch
@@ -56,7 +56,7 @@ export const aiProject = {
     },
     {
       title: 'Unified API',
-      icon: <FaBolt className={twMerge(textStyles)} />,
+      icon: <Zap className={twMerge(textStyles)} />,
       description: (
         <div>
           Same interface across all providers. Standalone functions with
@@ -67,7 +67,7 @@ export const aiProject = {
     },
     {
       title: 'Tool/Function Calling',
-      icon: <FaCogs className={twMerge(textStyles)} />,
+      icon: <CogsIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           Automatic execution loop with no manual tool management needed.

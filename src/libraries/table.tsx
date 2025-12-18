@@ -1,9 +1,8 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { VscPreview } from 'react-icons/vsc'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
-import { IoIosBody } from 'react-icons/io'
+import { Book, PersonStanding, Wallpaper, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/table'
 
@@ -53,17 +52,17 @@ export const tableProject = {
   },
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/table/latest/docs/introduction',
     },
     {
-      icon: <VscPreview className="text-lg" />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/table/latest/docs/framework/react/examples/basic',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },
@@ -73,7 +72,7 @@ export const tableProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <IoIosBody className={twMerge(textStyles)} />
+          <PersonStanding className={twMerge(textStyles)} />
         </div>
       ),
       description: (
@@ -90,7 +89,7 @@ export const tableProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <FaBolt className={twMerge(textStyles)} />,
+      icon: <Zap className={twMerge(textStyles)} />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Table is a
@@ -106,7 +105,7 @@ export const tableProject = {
     },
     {
       title: 'Extensible',
-      icon: <FaCogs className={twMerge(textStyles)} />,
+      icon: <CogsIcon className={twMerge(textStyles)} />,
       description: (
         <div>
           TanStack table ships with excellent defaults to get you off the ground

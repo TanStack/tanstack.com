@@ -1,8 +1,7 @@
-import { VscPreview } from 'react-icons/vsc'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
-import { IoIosBody } from 'react-icons/io'
+import { Book, PersonStanding, Wallpaper, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/virtual'
 
@@ -33,17 +32,17 @@ export const virtualProject = {
   legacyPackages: ['react-virtual'],
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/virtual/latest/docs/introduction',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/virtual/latest/docs/framework/react/examples/dynamic',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },
@@ -53,7 +52,7 @@ export const virtualProject = {
       title: 'Designed for zero design',
       icon: (
         <div className="text-center overflow-hidden">
-          <IoIosBody className="text-purple-400" />
+          <PersonStanding className="text-purple-400" />
         </div>
       ),
       description: (
@@ -69,7 +68,7 @@ export const virtualProject = {
     },
     {
       title: 'Big Power, Small Package',
-      icon: <FaBolt className="text-purple-500" />,
+      icon: <Zap className="text-purple-500" />,
       description: (
         <div>
           Don't be fooled by the small bundle size. TanStack Virtual uses every
@@ -84,7 +83,7 @@ export const virtualProject = {
     },
     {
       title: 'Maximum Composability',
-      icon: <FaCogs className="text-purple-600" />,
+      icon: <CogsIcon className="text-purple-600" />,
       description: (
         <div>
           With a single function/hook, you'll get limitless virtualization for{' '}

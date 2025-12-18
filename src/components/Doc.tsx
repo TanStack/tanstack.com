@@ -1,9 +1,5 @@
 import * as React from 'react'
-import {
-  BsArrowsCollapseVertical,
-  BsArrowsExpandVertical,
-} from 'react-icons/bs'
-import { FaEdit } from 'react-icons/fa'
+import { FoldHorizontal, SquarePen, UnfoldHorizontal } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { useWidthToggle } from '~/components/DocsLayout'
 import { DocTitle } from '~/components/DocTitle'
@@ -146,9 +142,9 @@ function DocContent({
                     title={isFullWidth ? 'Constrain width' : 'Expand width'}
                   >
                     {isFullWidth ? (
-                      <BsArrowsCollapseVertical className="w-4 h-4" />
+                      <FoldHorizontal className="w-4 h-4" />
                     ) : (
-                      <BsArrowsExpandVertical className="w-4 h-4" />
+                      <UnfoldHorizontal className="w-4 h-4" />
                     )}
                   </button>
                 )}
@@ -186,7 +182,7 @@ function DocContent({
               href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
               className="flex items-center gap-2"
             >
-              <FaEdit /> Edit on GitHub
+              <SquarePen size={16} /> Edit on GitHub
             </a>
           </div>
           <div className="h-24" />

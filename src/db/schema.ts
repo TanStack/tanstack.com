@@ -78,7 +78,9 @@ export const ENTRY_TYPES: readonly EntryType[] = [
   'blog',
   'announcement',
 ] as const
-export const MANUAL_ENTRY_TYPES: readonly EntryType[] = ['announcement'] as const
+export const MANUAL_ENTRY_TYPES: readonly EntryType[] = [
+  'announcement',
+] as const
 
 // Users table
 export const users = pgTable(
@@ -270,10 +272,9 @@ export const feedEntries = pgTable(
       table.publishedAt,
     ),
     entryTypeIdx: index('feed_entries_entry_type_idx').on(table.entryType),
-    showInFeedPublishedIdx: index('feed_entries_show_in_feed_published_at_idx').on(
-      table.showInFeed,
-      table.publishedAt,
-    ),
+    showInFeedPublishedIdx: index(
+      'feed_entries_show_in_feed_published_at_idx',
+    ).on(table.showInFeed, table.publishedAt),
     // GIN indexes for array columns (created via SQL migration)
     // libraryIdsGin: index('feed_entries_library_ids_gin_idx').using('gin', table.libraryIds),
     // tagsGin: index('feed_entries_tags_gin_idx').using('gin', table.tags),
@@ -669,8 +670,12 @@ export const announcementDismissals = pgTable(
   }),
 )
 
-export type AnnouncementDismissal = InferSelectModel<typeof announcementDismissals>
-export type NewAnnouncementDismissal = InferInsertModel<typeof announcementDismissals>
+export type AnnouncementDismissal = InferSelectModel<
+  typeof announcementDismissals
+>
+export type NewAnnouncementDismissal = InferInsertModel<
+  typeof announcementDismissals
+>
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({

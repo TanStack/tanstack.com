@@ -31,11 +31,13 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
 
     // Get users created in last 7 days (for daily breakdown) - using UTC
     const nowForSevenDays = new Date()
-    const sevenDaysAgo = new Date(Date.UTC(
-      nowForSevenDays.getUTCFullYear(),
-      nowForSevenDays.getUTCMonth(),
-      nowForSevenDays.getUTCDate() - 7
-    ))
+    const sevenDaysAgo = new Date(
+      Date.UTC(
+        nowForSevenDays.getUTCFullYear(),
+        nowForSevenDays.getUTCMonth(),
+        nowForSevenDays.getUTCDate() - 7,
+      ),
+    )
 
     const recentUsers = await db.query.users.findMany({
       where: gte(users.createdAt, sevenDaysAgo),
@@ -64,7 +66,9 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
     // This gives us efficient per-day data that can be used for both daily and cumulative charts
     const dailySignupsData = await db
       .select({
-        date: sql<string>`DATE(${users.createdAt} AT TIME ZONE 'UTC')`.as('date'),
+        date: sql<string>`DATE(${users.createdAt} AT TIME ZONE 'UTC')`.as(
+          'date',
+        ),
         count: sql<number>`COUNT(*)::int`.as('count'),
       })
       .from(users)
@@ -114,11 +118,13 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
 
     // Calculate average signups per day (last 30 days) - using UTC
     const nowForThirtyDays = new Date()
-    const thirtyDaysAgo = new Date(Date.UTC(
-      nowForThirtyDays.getUTCFullYear(),
-      nowForThirtyDays.getUTCMonth(),
-      nowForThirtyDays.getUTCDate() - 30
-    ))
+    const thirtyDaysAgo = new Date(
+      Date.UTC(
+        nowForThirtyDays.getUTCFullYear(),
+        nowForThirtyDays.getUTCMonth(),
+        nowForThirtyDays.getUTCDate() - 30,
+      ),
+    )
 
     const last30DaysResult = await db
       .select({ count: sql<number>`count(*)::int` })
@@ -130,7 +136,9 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
 
     // Calculate today's signups (using UTC for consistency with charts)
     const now = new Date()
-    const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+    const todayStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    )
 
     const todayResult = await db
       .select({ count: sql<number>`count(*)::int` })
@@ -140,7 +148,9 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
     const todaySignups = todayResult[0]?.count ?? 0
 
     // Calculate yesterday's signups (using UTC)
-    const yesterdayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1))
+    const yesterdayStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1),
+    )
 
     const yesterdayResult = await db
       .select({ count: sql<number>`count(*)::int` })

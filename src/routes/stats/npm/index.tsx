@@ -2113,7 +2113,6 @@ function RouteComponent() {
               })}
             </div>
           </div>
-
         </div>
         <div className="hidden lg:block w-[290px] xl:w-[332px] shrink-0">
           <div className="sticky top-4 space-y-4">

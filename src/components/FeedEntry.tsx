@@ -428,7 +428,8 @@ export function FeedEntry({
                     className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    View on {entry.entryType === 'release' ? 'GitHub' : 'Blog'} →
+                    View on {entry.entryType === 'release' ? 'GitHub' : 'Blog'}{' '}
+                    →
                   </a>
                 </div>
               )}

@@ -226,11 +226,7 @@ export function AnnouncementBanner() {
   return (
     <div className="w-full">
       {visibleBanners.map((banner) => (
-        <BannerItem
-          key={banner.id}
-          banner={banner}
-          onDismiss={handleDismiss}
-        />
+        <BannerItem key={banner.id} banner={banner} onDismiss={handleDismiss} />
       ))}
     </div>
   )

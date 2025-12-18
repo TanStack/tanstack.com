@@ -1,51 +1,51 @@
+/**
+ * Auth Server Utilities
+ *
+ * This module delegates to the isolated auth module at ~/auth/
+ * for backward compatibility with existing imports.
+ *
+ * For new code, import directly from '~/auth/index.server'.
+ */
+
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
-import { getCurrentUserFromRequest } from './auth.server-helpers'
-import type { Capability } from '~/db/schema'
+import { getAuthService, getAuthGuards } from '~/auth/index.server'
+import type { Capability } from '~/auth/index.server'
 
-// Re-export getCurrentUser for backward compatibility
+/**
+ * Server function to get the current user
+ */
 export const getCurrentUser = createServerFn({ method: 'POST' }).handler(
   async () => {
     const request = getRequest()
-    return getCurrentUserFromRequest(request)
+    const authService = getAuthService()
+    return authService.getCurrentUser(request)
   },
 )
 
-// Server function to require authentication
+/**
+ * Server function to require authentication
+ */
 export const requireAuth = createServerFn({ method: 'POST' }).handler(
   async () => {
     const request = getRequest()
-    const user = await getCurrentUserFromRequest(request)
-    if (!user) {
-      throw new Error('Not authenticated')
-    }
-    return user
+    const guards = getAuthGuards()
+    return guards.requireAuth(request)
   },
 )
 
-// Server function to require a specific capability
+/**
+ * Server function to require a specific capability
+ */
 export const requireCapability = createServerFn({ method: 'POST' })
   .inputValidator((data: { capability: string }) => ({
     capability: data.capability as Capability,
   }))
   .handler(async ({ data: { capability } }) => {
     const request = getRequest()
-    const user = await getCurrentUserFromRequest(request)
-    if (!user) {
-      throw new Error('Not authenticated')
-    }
-    // Admin users have access to everything
-    const hasAccess =
-      user.capabilities?.includes('admin') ||
-      user.capabilities?.includes(capability)
-    if (!hasAccess) {
-      throw new Error(`Missing required capability: ${capability}`)
-    }
-    return user
+    const guards = getAuthGuards()
+    return guards.requireCapability(request, capability)
   })
-
-// Utility functions for use in loaders/beforeLoad
-// These use server functions internally and work in both SSR and client contexts
 
 /**
  * Load user from session (non-blocking, returns null if not authenticated)
@@ -60,7 +60,7 @@ export async function loadUser() {
 }
 
 /**
- * Require authentication (throws redirect if not authenticated)
+ * Require authentication (throws if not authenticated)
  * Can be called from loaders or beforeLoad
  */
 export async function requireAuthUser() {
@@ -72,7 +72,7 @@ export async function requireAuthUser() {
 }
 
 /**
- * Require a specific capability (throws redirect if not authenticated or missing capability)
+ * Require a specific capability (throws if not authorized)
  * Can be called from loaders or beforeLoad
  */
 export async function requireCapabilityUser(capability: string) {

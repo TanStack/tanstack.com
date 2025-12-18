@@ -5,9 +5,9 @@ import { useDebouncedValue } from '@tanstack/react-pacer'
 import { Library, type LibraryId } from '~/libraries'
 import { partners } from '~/utils/partners'
 import {
-  FEED_CATEGORIES,
+  ENTRY_TYPES,
   RELEASE_LEVELS,
-  type FeedCategory,
+  type EntryType,
   type ReleaseLevel,
 } from '~/utils/feedSchema'
 import {
@@ -19,8 +19,7 @@ import {
 } from '~/components/FilterComponents'
 
 export interface FeedFacetCounts {
-  sources?: Record<string, number>
-  categories?: Record<string, number>
+  entryTypes?: Record<string, number>
   libraries?: Record<string, number>
   partners?: Record<string, number>
   releaseLevels?: Record<string, number>
@@ -31,9 +30,8 @@ export interface FeedFacetCounts {
 interface FeedFiltersProps {
   libraries: Library[]
   partners: typeof partners
-  selectedSources?: string[]
+  selectedEntryTypes?: EntryType[]
   selectedLibraries?: string[] // Library IDs, not Library objects
-  selectedCategories?: string[]
   selectedPartners?: string[]
   selectedTags?: string[]
   selectedReleaseLevels?: ReleaseLevel[]
@@ -44,9 +42,8 @@ interface FeedFiltersProps {
   viewMode?: 'table' | 'timeline'
   onViewModeChange?: (viewMode: 'table' | 'timeline') => void
   onFiltersChange: (filters: {
-    sources?: string[]
+    entryTypes?: EntryType[]
     libraries?: LibraryId[]
-    categories?: FeedCategory[]
     partners?: string[]
     tags?: string[]
     releaseLevels?: ReleaseLevel[]
@@ -57,14 +54,11 @@ interface FeedFiltersProps {
   onClearFilters: () => void
 }
 
-const SOURCES = ['github', 'blog', 'announcement'] as const
-
 export function FeedFilters({
   libraries,
   partners,
-  selectedSources,
+  selectedEntryTypes,
   selectedLibraries,
-  selectedCategories,
   selectedPartners,
   selectedTags,
   selectedReleaseLevels,
@@ -80,9 +74,8 @@ export function FeedFilters({
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({
-    sources: true,
+    entryTypes: true,
     libraries: true,
-    categories: true,
     releaseLevels: true,
     prerelease: true,
     partners: true,
@@ -96,12 +89,12 @@ export function FeedFilters({
     }))
   }
 
-  const toggleSource = (source: string) => {
-    const current = selectedSources || []
-    const updated = current.includes(source)
-      ? current.filter((s) => s !== source)
-      : [...current, source]
-    onFiltersChange({ sources: updated.length > 0 ? updated : undefined })
+  const toggleEntryType = (entryType: EntryType) => {
+    const current = selectedEntryTypes || []
+    const updated = current.includes(entryType)
+      ? current.filter((t) => t !== entryType)
+      : [...current, entryType]
+    onFiltersChange({ entryTypes: updated.length > 0 ? updated : undefined })
   }
 
   const toggleLibrary = (libraryId: string) => {
@@ -111,16 +104,6 @@ export function FeedFilters({
       : [...current, libraryId]
     onFiltersChange({
       libraries: updated.length > 0 ? (updated as Library['id'][]) : undefined,
-    })
-  }
-
-  const toggleCategory = (category: FeedCategory) => {
-    const current = selectedCategories || []
-    const updated = current.includes(category)
-      ? current.filter((c) => c !== category)
-      : [...current, category]
-    onFiltersChange({
-      categories: updated.length > 0 ? (updated as FeedCategory[]) : undefined,
     })
   }
 
@@ -186,9 +169,8 @@ export function FeedFilters({
   }
 
   const hasActiveFilters = Boolean(
-    (selectedSources && selectedSources.length > 0) ||
+    (selectedEntryTypes && selectedEntryTypes.length > 0) ||
     (selectedLibraries && selectedLibraries.length > 0) ||
-    (selectedCategories && selectedCategories.length > 0) ||
     (selectedPartners && selectedPartners.length > 0) ||
     (selectedTags && selectedTags.length > 0) ||
     featured !== undefined ||
@@ -252,73 +234,36 @@ export function FeedFilters({
         />
       </FilterSection>
 
-      {/* Sources */}
+      {/* Entry Types */}
       <FilterSection
-        title="Sources"
-        sectionKey="sources"
+        title="Entry Types"
+        sectionKey="entryTypes"
         onSelectAll={() => {
-          onFiltersChange({ sources: [...SOURCES] })
+          onFiltersChange({ entryTypes: [...ENTRY_TYPES] })
         }}
         onSelectNone={() => {
-          onFiltersChange({ sources: undefined })
+          onFiltersChange({ entryTypes: undefined })
         }}
         isAllSelected={
-          selectedSources !== undefined &&
-          selectedSources.length === SOURCES.length
+          selectedEntryTypes !== undefined &&
+          selectedEntryTypes.length === ENTRY_TYPES.length
         }
         isSomeSelected={
-          selectedSources !== undefined &&
-          selectedSources.length > 0 &&
-          selectedSources.length < SOURCES.length
+          selectedEntryTypes !== undefined &&
+          selectedEntryTypes.length > 0 &&
+          selectedEntryTypes.length < ENTRY_TYPES.length
         }
         expandedSections={expandedSections}
         onToggleSection={toggleSection}
       >
-        {SOURCES.map((source) => {
-          const count = facetCounts?.sources?.[source]
+        {ENTRY_TYPES.map((entryType) => {
+          const count = facetCounts?.entryTypes?.[entryType]
           return (
             <FilterCheckbox
-              key={source}
-              label={source}
-              checked={selectedSources?.includes(source) ?? false}
-              onChange={() => toggleSource(source)}
-              count={count}
-              capitalize
-            />
-          )
-        })}
-      </FilterSection>
-
-      {/* Categories */}
-      <FilterSection
-        title="Categories"
-        sectionKey="categories"
-        onSelectAll={() => {
-          onFiltersChange({ categories: [...FEED_CATEGORIES] })
-        }}
-        onSelectNone={() => {
-          onFiltersChange({ categories: undefined })
-        }}
-        isAllSelected={
-          selectedCategories !== undefined &&
-          selectedCategories.length === FEED_CATEGORIES.length
-        }
-        isSomeSelected={
-          selectedCategories !== undefined &&
-          selectedCategories.length > 0 &&
-          selectedCategories.length < FEED_CATEGORIES.length
-        }
-        expandedSections={expandedSections}
-        onToggleSection={toggleSection}
-      >
-        {FEED_CATEGORIES.map((category) => {
-          const count = facetCounts?.categories?.[category]
-          return (
-            <FilterCheckbox
-              key={category}
-              label={category}
-              checked={selectedCategories?.includes(category) ?? false}
-              onChange={() => toggleCategory(category)}
+              key={entryType}
+              label={entryType}
+              checked={selectedEntryTypes?.includes(entryType) ?? false}
+              onChange={() => toggleEntryType(entryType)}
               count={count}
               capitalize
             />

@@ -3,7 +3,7 @@ import { db } from '~/db/client'
 import { feedEntries, feedConfig } from '~/db/schema'
 import { eq, and, sql, gte } from 'drizzle-orm'
 import { z } from 'zod'
-import type { FeedCategory } from '~/db/schema'
+import type { EntryType, BannerScope, BannerStyle } from '~/db/schema'
 import {
   requireAdmin,
   getEffectivePublishedAt,
@@ -21,20 +21,12 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
       }),
       filters: z
         .object({
-          sources: z.array(z.string()).optional(),
-          libraries: z.array(z.string()).optional(),
-          categories: z
+          entryTypes: z
             .array(
-              z.enum([
-                'release',
-                'announcement',
-                'blog',
-                'partner',
-                'update',
-                'other',
-              ]),
+              z.enum(['release', 'blog', 'announcement', 'partner', 'update']),
             )
             .optional(),
+          libraries: z.array(z.string()).optional(),
           partners: z.array(z.string()).optional(),
           tags: z.array(z.string()).optional(),
           releaseLevels: z
@@ -104,7 +96,7 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
     const transformedPage = page.map((entry) => ({
       _id: entry.entryId,
       id: entry.entryId,
-      source: entry.source,
+      entryType: entry.entryType,
       title: entry.title,
       content: entry.content,
       excerpt: entry.excerpt,
@@ -115,8 +107,7 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
       libraryIds: entry.libraryIds,
       partnerIds: entry.partnerIds,
       tags: entry.tags,
-      category: entry.category,
-      isVisible: entry.isVisible,
+      showInFeed: entry.showInFeed,
       featured: entry.featured ?? false,
       autoSynced: entry.autoSynced,
       lastSyncedAt: entry.lastSyncedAt?.getTime(),
@@ -147,7 +138,7 @@ export const getFeedEntry = createServerFn({ method: 'POST' })
     return {
       _id: entry.entryId,
       id: entry.entryId,
-      source: entry.source,
+      entryType: entry.entryType,
       title: entry.title,
       content: entry.content,
       excerpt: entry.excerpt,
@@ -158,8 +149,7 @@ export const getFeedEntry = createServerFn({ method: 'POST' })
       libraryIds: entry.libraryIds,
       partnerIds: entry.partnerIds,
       tags: entry.tags,
-      category: entry.category,
-      isVisible: entry.isVisible,
+      showInFeed: entry.showInFeed,
       featured: entry.featured ?? false,
       autoSynced: entry.autoSynced,
       lastSyncedAt: entry.lastSyncedAt?.getTime(),
@@ -181,7 +171,7 @@ export const getFeedEntryById = createServerFn({ method: 'POST' })
     return {
       _id: entry.entryId,
       id: entry.entryId,
-      source: entry.source,
+      entryType: entry.entryType,
       title: entry.title,
       content: entry.content,
       excerpt: entry.excerpt,
@@ -192,8 +182,7 @@ export const getFeedEntryById = createServerFn({ method: 'POST' })
       libraryIds: entry.libraryIds,
       partnerIds: entry.partnerIds,
       tags: entry.tags,
-      category: entry.category,
-      isVisible: entry.isVisible,
+      showInFeed: entry.showInFeed,
       featured: entry.featured ?? false,
       autoSynced: entry.autoSynced,
       lastSyncedAt: entry.lastSyncedAt?.getTime(),
@@ -207,23 +196,21 @@ export const getFeedStats = createServerFn({ method: 'POST' }).handler(
 
     const stats = {
       total: allEntries.length,
-      bySource: {} as Record<string, number>,
-      byCategory: {} as Record<string, number>,
+      byEntryType: {} as Record<string, number>,
       byLibrary: {} as Record<string, number>,
       visible: 0,
       featured: 0,
     }
 
     for (const entry of allEntries) {
-      stats.bySource[entry.source] = (stats.bySource[entry.source] ?? 0) + 1
-      stats.byCategory[entry.category] =
-        (stats.byCategory[entry.category] ?? 0) + 1
+      stats.byEntryType[entry.entryType] =
+        (stats.byEntryType[entry.entryType] ?? 0) + 1
 
       for (const libId of entry.libraryIds) {
         stats.byLibrary[libId] = (stats.byLibrary[libId] ?? 0) + 1
       }
 
-      if (entry.isVisible) stats.visible++
+      if (entry.showInFeed) stats.visible++
       if (entry.featured) stats.featured++
     }
 
@@ -237,20 +224,12 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
     z.object({
       filters: z
         .object({
-          sources: z.array(z.string()).optional(),
-          libraries: z.array(z.string()).optional(),
-          categories: z
+          entryTypes: z
             .array(
-              z.enum([
-                'release',
-                'announcement',
-                'blog',
-                'partner',
-                'update',
-                'other',
-              ]),
+              z.enum(['release', 'blog', 'announcement', 'partner', 'update']),
             )
             .optional(),
+          libraries: z.array(z.string()).optional(),
           partners: z.array(z.string()).optional(),
           tags: z.array(z.string()).optional(),
           releaseLevels: z
@@ -271,8 +250,7 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
     // Helper function to apply filters except for a specific facet
     const applyFiltersExcept = (
       excludeFacet?:
-        | 'sources'
-        | 'categories'
+        | 'entryTypes'
         | 'libraries'
         | 'partners'
         | 'tags'
@@ -289,7 +267,7 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
     const baseWhereClause = includeHidden
       ? undefined
       : and(
-          eq(feedEntries.isVisible, true),
+          eq(feedEntries.showInFeed, true),
           gte(feedEntries.publishedAt, new Date(0)),
         )
     const baseEntries = await db
@@ -297,18 +275,12 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
       .from(feedEntries)
       .where(baseWhereClause)
 
-    // Count by source
-    const sourceEntries = await applyFiltersExcept('sources')
-    const sourceCounts: Record<string, number> = {}
-    for (const entry of sourceEntries) {
-      sourceCounts[entry.source] = (sourceCounts[entry.source] ?? 0) + 1
-    }
-
-    // Count by category
-    const categoryEntries = await applyFiltersExcept('categories')
-    const categoryCounts: Record<string, number> = {}
-    for (const entry of categoryEntries) {
-      categoryCounts[entry.category] = (categoryCounts[entry.category] ?? 0) + 1
+    // Count by entry type
+    const entryTypeEntries = await applyFiltersExcept('entryTypes')
+    const entryTypeCounts: Record<string, number> = {}
+    for (const entry of entryTypeEntries) {
+      entryTypeCounts[entry.entryType] =
+        (entryTypeCounts[entry.entryType] ?? 0) + 1
     }
 
     // Count by library
@@ -363,8 +335,7 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
     ).length
 
     return {
-      sources: sourceCounts,
-      categories: categoryCounts,
+      entryTypes: entryTypeCounts,
       libraries: libraryCounts,
       partners: partnerCounts,
       releaseLevels: releaseLevelCounts,
@@ -395,7 +366,7 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
       .from(feedEntries)
       .where(
         and(
-          eq(feedEntries.isVisible, true),
+          eq(feedEntries.showInFeed, true),
           sql`to_tsvector('english', ${feedEntries.title} || ' ' || ${feedEntries.content} || ' ' || COALESCE(${feedEntries.excerpt}, '')) @@ to_tsquery('english', ${searchQuery})`,
         ),
       )
@@ -404,7 +375,7 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
     return entries.map((entry) => ({
       _id: entry.entryId,
       id: entry.entryId,
-      source: entry.source,
+      entryType: entry.entryType,
       title: entry.title,
       content: entry.content,
       excerpt: entry.excerpt,
@@ -415,8 +386,7 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
       libraryIds: entry.libraryIds,
       partnerIds: entry.partnerIds,
       tags: entry.tags,
-      category: entry.category,
-      isVisible: entry.isVisible,
+      showInFeed: entry.showInFeed,
       featured: entry.featured ?? false,
       autoSynced: entry.autoSynced,
       lastSyncedAt: entry.lastSyncedAt?.getTime(),
@@ -446,7 +416,7 @@ export const createFeedEntry = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
-      source: z.string(),
+      entryType: z.enum(['release', 'blog', 'announcement']),
       title: z.string(),
       content: z.string(),
       excerpt: z.string().optional(),
@@ -455,15 +425,7 @@ export const createFeedEntry = createServerFn({ method: 'POST' })
       libraryIds: z.array(z.string()),
       partnerIds: z.array(z.string()).optional(),
       tags: z.array(z.string()),
-      category: z.enum([
-        'release',
-        'announcement',
-        'blog',
-        'partner',
-        'update',
-        'other',
-      ]),
-      isVisible: z.boolean(),
+      showInFeed: z.boolean(),
       featured: z.boolean().optional(),
       autoSynced: z.boolean(),
     }),
@@ -493,8 +455,8 @@ export const createFeedEntry = createServerFn({ method: 'POST' })
     const [newEntry] = await db
       .insert(feedEntries)
       .values({
-        entryId: data.id, // Use data.id as entryId (unique identifier)
-        source: data.source,
+        entryId: data.id,
+        entryType: data.entryType,
         title: data.title,
         content: data.content,
         excerpt: data.excerpt,
@@ -503,8 +465,7 @@ export const createFeedEntry = createServerFn({ method: 'POST' })
         libraryIds: data.libraryIds,
         partnerIds: data.partnerIds ?? [],
         tags: data.tags,
-        category: data.category,
-        isVisible: data.isVisible,
+        showInFeed: data.showInFeed,
         featured: data.featured ?? false,
         autoSynced: data.autoSynced,
         lastSyncedAt: data.autoSynced ? new Date() : undefined,
@@ -519,6 +480,7 @@ export const updateFeedEntry = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
+      entryType: z.enum(['release', 'blog', 'announcement']).optional(),
       title: z.string().optional(),
       content: z.string().optional(),
       excerpt: z.string().optional(),
@@ -527,10 +489,7 @@ export const updateFeedEntry = createServerFn({ method: 'POST' })
       libraryIds: z.array(z.string()).optional(),
       partnerIds: z.array(z.string()).optional(),
       tags: z.array(z.string()).optional(),
-      category: z
-        .enum(['release', 'announcement', 'blog', 'partner', 'update', 'other'])
-        .optional(),
-      isVisible: z.boolean().optional(),
+      showInFeed: z.boolean().optional(),
       featured: z.boolean().optional(),
       lastSyncedAt: z.number().optional(),
     }),
@@ -547,6 +506,7 @@ export const updateFeedEntry = createServerFn({ method: 'POST' })
     }
 
     const updates: {
+      entryType?: EntryType
       title?: string
       content?: string
       excerpt?: string | null
@@ -555,8 +515,7 @@ export const updateFeedEntry = createServerFn({ method: 'POST' })
       libraryIds?: string[]
       partnerIds?: string[]
       tags?: string[]
-      category?: FeedCategory
-      isVisible?: boolean
+      showInFeed?: boolean
       featured?: boolean
       lastSyncedAt?: Date | null
       updatedAt: Date
@@ -564,6 +523,7 @@ export const updateFeedEntry = createServerFn({ method: 'POST' })
       updatedAt: new Date(),
     }
 
+    if (data.entryType !== undefined) updates.entryType = data.entryType
     if (data.title !== undefined) updates.title = data.title
     if (data.content !== undefined) updates.content = data.content
     if (data.excerpt !== undefined) updates.excerpt = data.excerpt || null
@@ -580,8 +540,7 @@ export const updateFeedEntry = createServerFn({ method: 'POST' })
     if (data.libraryIds !== undefined) updates.libraryIds = data.libraryIds
     if (data.partnerIds !== undefined) updates.partnerIds = data.partnerIds
     if (data.tags !== undefined) updates.tags = data.tags
-    if (data.category !== undefined) updates.category = data.category
-    if (data.isVisible !== undefined) updates.isVisible = data.isVisible
+    if (data.showInFeed !== undefined) updates.showInFeed = data.showInFeed
     if (data.featured !== undefined) updates.featured = data.featured
     if (data.lastSyncedAt !== undefined)
       updates.lastSyncedAt = data.lastSyncedAt
@@ -610,10 +569,10 @@ export const deleteFeedEntry = createServerFn({ method: 'POST' })
       throw new Error('Feed entry not found')
     }
 
-    // Soft delete by setting isVisible to false
+    // Soft delete by setting showInFeed to false
     await db
       .update(feedEntries)
-      .set({ isVisible: false, updatedAt: new Date() })
+      .set({ showInFeed: false, updatedAt: new Date() })
       .where(eq(feedEntries.entryId, data.id))
 
     return { success: true }
@@ -624,7 +583,7 @@ export const toggleFeedEntryVisibility = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
       id: z.string(),
-      isVisible: z.boolean(),
+      showInFeed: z.boolean(),
     }),
   )
   .handler(async ({ data }) => {
@@ -640,7 +599,7 @@ export const toggleFeedEntryVisibility = createServerFn({ method: 'POST' })
 
     await db
       .update(feedEntries)
-      .set({ isVisible: data.isVisible, updatedAt: new Date() })
+      .set({ showInFeed: data.showInFeed, updatedAt: new Date() })
       .where(eq(feedEntries.entryId, data.id))
 
     return { success: true }

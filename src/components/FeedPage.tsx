@@ -3,7 +3,7 @@ import { ReactNode } from 'react'
 import { useMounted } from '~/hooks/useMounted'
 import { Footer } from '~/components/Footer'
 import { FeedList } from '~/components/FeedList'
-import { FeedFilters } from '~/components/FeedFilters'
+import { FeedFilters as FeedFiltersComponent } from '~/components/FeedFilters'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
 import { useFeedInfiniteQuery } from '~/hooks/useFeedInfiniteQuery'
 import { FeedEntry } from '~/components/FeedEntry'
@@ -11,44 +11,14 @@ import { FEED_DEFAULTS } from '~/utils/feedDefaults'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { useQuery } from '@tanstack/react-query'
-import { getFeedFacetCountsQueryOptions } from '~/queries/feed'
+import {
+  getFeedFacetCountsQueryOptions,
+  type FeedFilters,
+} from '~/queries/feed'
 import { twMerge } from 'tailwind-merge'
 
-export type LibraryId =
-  | 'start'
-  | 'router'
-  | 'query'
-  | 'table'
-  | 'form'
-  | 'virtual'
-  | 'ranger'
-  | 'store'
-  | 'pacer'
-  | 'db'
-  | 'config'
-  | 'react-charts'
-  | 'devtools'
-  | 'create-tsrouter-app'
-
-export type Category =
-  | 'release'
-  | 'announcement'
-  | 'blog'
-  | 'partner'
-  | 'update'
-  | 'other'
-
-export interface FeedFiltersState {
-  sources?: string[]
-  libraries?: LibraryId[]
-  categories?: Category[]
-  partners?: string[]
-  tags?: string[]
-  releaseLevels?: ('major' | 'minor' | 'patch')[]
-  includePrerelease?: boolean
-  featured?: boolean
-  search?: string
-}
+// Re-export FeedFilters as FeedFiltersState for backwards compatibility
+export type FeedFiltersState = FeedFilters
 
 interface FeedPageProps {
   search: FeedFiltersState & {
@@ -131,9 +101,8 @@ export function FeedPage({
     page: effectiveFilters.page ?? 1,
     pageSize: effectiveFilters.pageSize ?? 50,
     filters: {
-      sources: normalizeFilter(effectiveFilters.sources),
+      entryTypes: normalizeFilter(effectiveFilters.entryTypes),
       libraries: normalizeFilter(effectiveFilters.libraries),
-      categories: normalizeFilter(effectiveFilters.categories),
       partners: normalizeFilter(effectiveFilters.partners),
       tags: normalizeFilter(effectiveFilters.tags),
       releaseLevels: normalizeFilter(effectiveFilters.releaseLevels),
@@ -147,9 +116,8 @@ export function FeedPage({
   const feedInfiniteQuery = useFeedInfiniteQuery({
     pageSize: effectiveFilters.pageSize ?? 50,
     filters: {
-      sources: normalizeFilter(effectiveFilters.sources),
+      entryTypes: normalizeFilter(effectiveFilters.entryTypes),
       libraries: normalizeFilter(effectiveFilters.libraries),
-      categories: normalizeFilter(effectiveFilters.categories),
       partners: normalizeFilter(effectiveFilters.partners),
       tags: normalizeFilter(effectiveFilters.tags),
       releaseLevels: normalizeFilter(effectiveFilters.releaseLevels),
@@ -163,9 +131,8 @@ export function FeedPage({
   // Fetch facet counts based on current filters
   const facetCountsQuery = useQuery(
     getFeedFacetCountsQueryOptions({
-      sources: effectiveFilters.sources,
+      entryTypes: effectiveFilters.entryTypes,
       libraries: effectiveFilters.libraries,
-      categories: effectiveFilters.categories as any,
       partners: effectiveFilters.partners,
       tags: effectiveFilters.tags,
       releaseLevels: effectiveFilters.releaseLevels as any,
@@ -200,9 +167,8 @@ export function FeedPage({
         page: FEED_DEFAULTS.page,
         pageSize: effectiveFilters.pageSize ?? FEED_DEFAULTS.pageSize,
         viewMode: effectiveFilters.viewMode ?? FEED_DEFAULTS.viewMode,
-        sources: undefined,
+        entryTypes: undefined,
         libraries: undefined,
-        categories: undefined,
         partners: undefined,
         tags: undefined,
         releaseLevels: undefined,
@@ -272,8 +238,8 @@ export function FeedPage({
   // Convert FeedFiltersState to FeedFilters format
   const feedFilters = useMemo(
     () => ({
+      entryTypes: normalizeFilter(effectiveFilters.entryTypes),
       libraries: normalizeFilter(effectiveFilters.libraries),
-      categories: normalizeFilter(effectiveFilters.categories) as any,
       partners: normalizeFilter(effectiveFilters.partners),
       tags: normalizeFilter(effectiveFilters.tags),
       releaseLevels: normalizeFilter(effectiveFilters.releaseLevels) as any,
@@ -283,8 +249,8 @@ export function FeedPage({
       includeHidden: adminActions !== undefined,
     }),
     [
+      effectiveFilters.entryTypes,
       effectiveFilters.libraries,
-      effectiveFilters.categories,
       effectiveFilters.partners,
       effectiveFilters.tags,
       effectiveFilters.releaseLevels,
@@ -299,15 +265,14 @@ export function FeedPage({
     <div className="p-2 sm:p-4 pb-0 flex flex-col max-w-full gap-2 sm:gap-4 relative">
       <div className="flex-1 space-y-2 sm:space-y-4 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-2 min-h-0">
         <aside className="lg:w-64 flex-shrink-0 lg:self-start sticky top-[calc(var(--navbar-height)+1rem)] z-10">
-          <FeedFilters
+          <FeedFiltersComponent
             libraries={libraries.filter(
               (lib): lib is import('~/libraries/types').Library =>
                 'tagline' in lib,
             )}
             partners={partners}
-            selectedSources={effectiveFilters.sources}
+            selectedEntryTypes={effectiveFilters.entryTypes}
             selectedLibraries={effectiveFilters.libraries}
-            selectedCategories={effectiveFilters.categories}
             selectedPartners={effectiveFilters.partners}
             selectedTags={effectiveFilters.tags}
             selectedReleaseLevels={effectiveFilters.releaseLevels}

@@ -1,5 +1,9 @@
 import * as React from 'react'
-import { UseQueryResult, UseInfiniteQueryResult } from '@tanstack/react-query'
+import {
+  UseQueryResult,
+  UseInfiniteQueryResult,
+  InfiniteData,
+} from '@tanstack/react-query'
 import { FeedEntry } from '~/components/FeedEntry'
 import { FeedEntryTimeline } from '~/components/FeedEntryTimeline'
 import { Spinner } from '~/components/Spinner'
@@ -23,15 +27,17 @@ interface FeedListProps {
       pages: number
     }
   }>
-  infiniteQuery?: UseInfiniteQueryResult<{
-    page: FeedEntry[]
-    isDone: boolean
-    counts: {
-      total: number
-      pages: number
-    }
-  }>
-  filters?: Omit<FeedFilters, 'sources'>
+  infiniteQuery?: UseInfiniteQueryResult<
+    InfiniteData<{
+      page: FeedEntry[]
+      isDone: boolean
+      counts: {
+        total: number
+        pages: number
+      }
+    }>
+  >
+  filters?: FeedFilters
   currentPage: number
   pageSize: number
   onPageChange: (page: number) => void
@@ -40,7 +46,7 @@ interface FeedListProps {
   expandedIds?: string[]
   onExpandedChange?: (expandedIds: string[]) => void
   onViewModeChange?: (viewMode: 'table' | 'timeline') => void
-  onFiltersChange?: (filters: { sources?: string[] }) => void
+  onFiltersChange?: (filters: Partial<FeedFilters>) => void
   adminActions?: {
     onEdit?: (entry: FeedEntry) => void
     onToggleVisibility?: (entry: FeedEntry, isVisible: boolean) => void

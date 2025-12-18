@@ -3,17 +3,16 @@
  * Defined here to avoid importing drizzle-orm into client bundles
  */
 
-// Feed categories (must match db/schema.ts)
-export const FEED_CATEGORIES = [
-  'release',
-  'announcement',
-  'blog',
-  'partner',
-  'update',
-  'other',
-] as const
+// Entry types
+export const ENTRY_TYPES = ['release', 'blog', 'announcement'] as const
 
-export type FeedCategory = (typeof FEED_CATEGORIES)[number]
+export type EntryType = (typeof ENTRY_TYPES)[number]
+
+// Manual entry types (only 'announcement' can be created manually in admin)
+// Note: 'release' and 'blog' are auto-synced from GitHub and blog respectively
+export const MANUAL_ENTRY_TYPES = ['announcement'] as const
+
+export type ManualEntryType = (typeof MANUAL_ENTRY_TYPES)[number]
 
 // Release levels (must match db/schema.ts)
 export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const

@@ -131,7 +131,7 @@ export function useRemoveUsersFromRole() {
 export function useToggleFeedEntryVisibility() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: { id: string; isVisible: boolean }) =>
+    mutationFn: (data: { id: string; showInFeed: boolean }) =>
       toggleFeedEntryVisibility({ data }),
     onSuccess: () => {
       queryClient.invalidateQueries()
@@ -165,7 +165,7 @@ export function useCreateFeedEntry() {
   return useMutation({
     mutationFn: (data: {
       id: string
-      source: string
+      entryType: 'release' | 'blog' | 'announcement'
       title: string
       content: string
       excerpt?: string
@@ -174,8 +174,7 @@ export function useCreateFeedEntry() {
       libraryIds: string[]
       partnerIds?: string[]
       tags: string[]
-      category: string
-      isVisible: boolean
+      showInFeed: boolean
       featured?: boolean
       autoSynced: boolean
     }) => createFeedEntry({ data }),
@@ -190,6 +189,7 @@ export function useUpdateFeedEntry() {
   return useMutation({
     mutationFn: (data: {
       id: string
+      entryType?: 'release' | 'blog' | 'announcement'
       title?: string
       content?: string
       excerpt?: string
@@ -198,8 +198,7 @@ export function useUpdateFeedEntry() {
       libraryIds?: string[]
       partnerIds?: string[]
       tags?: string[]
-      category?: string
-      isVisible?: boolean
+      showInFeed?: boolean
       featured?: boolean
       lastSyncedAt?: number
     }) => updateFeedEntry({ data }),

@@ -1,78 +1,30 @@
+/**
+ * Auth Server Helpers
+ *
+ * This module delegates to the isolated auth module at ~/auth/
+ * for backward compatibility with existing imports.
+ *
+ * For new code, import directly from '~/auth/index.server'.
+ */
+
 import { getRequest } from '@tanstack/react-start/server'
-import { db } from '~/db/client'
-import { users } from '~/db/schema'
-import { eq } from 'drizzle-orm'
-import { getSessionCookie, verifyCookie } from './cookies.server'
-import { getEffectiveCapabilities } from './capabilities.server'
+import { getAuthService, getSessionService } from '~/auth/index.server'
 
-// Helper to get user from session cookie (server-side only)
+/**
+ * Get current user from request
+ */
 export async function getCurrentUserFromRequest(request: Request) {
-  const signedCookie = getSessionCookie(request)
-
-  if (!signedCookie) {
-    // This is normal - user just isn't logged in
-    return null
-  }
-
-  try {
-    // Verify and parse the signed cookie
-    const cookieData = await verifyCookie(signedCookie)
-
-    if (!cookieData) {
-      console.error(
-        '[AUTH:ERROR] Session cookie verification failed - invalid signature or expired',
-      )
-      return null
-    }
-
-    // Query user from database
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, cookieData.userId),
-    })
-
-    if (!user) {
-      console.error(
-        `[AUTH:ERROR] Session cookie references non-existent user ${cookieData.userId}`,
-      )
-      return null
-    }
-
-    // Verify session version matches (for session revocation)
-    if (user.sessionVersion !== cookieData.version) {
-      console.error(
-        `[AUTH:ERROR] Session version mismatch for user ${user.id} - expected ${user.sessionVersion}, got ${cookieData.version}`,
-      )
-      return null
-    }
-
-    // Get effective capabilities (direct + role-based)
-    const capabilities = await getEffectiveCapabilities(user.id)
-
-    // Return user with capabilities
-    return {
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-      image: user.image,
-      displayUsername: user.displayUsername,
-      capabilities,
-      adsDisabled: user.adsDisabled,
-      interestedInHidingAds: user.interestedInHidingAds,
-    }
-  } catch (error) {
-    console.error('[AUTH:ERROR] Failed to get user from session:', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-    })
-    return null
-  }
+  const authService = getAuthService()
+  return authService.getCurrentUser(request)
 }
 
-// Helper to get authenticated user from request (for use in server function wrappers)
-// This uses getRequest() which is server-only, so this file should never be imported by client code
+/**
+ * Get authenticated user from request (throws if not authenticated)
+ */
 export async function getAuthenticatedUser() {
   const request = getRequest()
-  const user = await getCurrentUserFromRequest(request)
+  const authService = getAuthService()
+  const user = await authService.getCurrentUser(request)
 
   if (!user) {
     throw new Error('Not authenticated')
@@ -81,11 +33,13 @@ export async function getAuthenticatedUser() {
   return user
 }
 
-// Helper to get session token from request (for use in server function wrappers)
-// This uses getRequest() which is server-only, so this file should never be imported by client code
+/**
+ * Get session token from request
+ */
 export function getSessionTokenFromRequest(): string {
   const request = getRequest()
-  const token = getSessionToken(request)
+  const sessionService = getSessionService()
+  const token = sessionService.getSessionCookie(request)
   if (!token) {
     throw new Error('Not authenticated')
   }

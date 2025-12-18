@@ -34,6 +34,7 @@ import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
+import { AnnouncementBanner } from '~/components/AnnouncementBanner'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
@@ -632,6 +633,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   return (
     <>
       {navbar}
+      {/* Sticky announcement banners below the nav */}
+      <div className="sticky top-[var(--navbar-height)] z-[99]">
+        <AnnouncementBanner />
+      </div>
       <div
         className={twMerge(
           `min-h-[calc(100dvh-var(--navbar-height))] flex flex-col

@@ -89,7 +89,7 @@ function FeedItemPage() {
   const capabilities = useCapabilities()
 
   // Show not found if entry isn't visible (unless admin)
-  if (!entry.isVisible && !capabilities.includes('admin')) {
+  if (!entry.showInFeed && !capabilities.includes('admin')) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -115,7 +115,7 @@ function FeedItemPage() {
     )
   }
 
-  return <FeedEntryView entry={entry} />
+  return <FeedEntryView entry={entry as FeedEntry} />
 }
 
 function FeedEntryView({ entry }: { entry: FeedEntry }) {
@@ -161,14 +161,21 @@ function FeedEntryView({ entry }: { entry: FeedEntry }) {
         className:
           'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200',
       },
+      update: {
+        label: 'Update',
+        className:
+          'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200',
+      },
     }
 
-    const category = entry.category
-    const key = category === 'release' && isPrerelease ? 'prerelease' : category
+    const key =
+      entry.entryType === 'release' && isPrerelease
+        ? 'prerelease'
+        : entry.entryType
 
     return (
       badgeConfigs[key] || {
-        label: entry.source,
+        label: entry.entryType,
         className:
           'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200',
       }
@@ -216,10 +223,10 @@ function FeedEntryView({ entry }: { entry: FeedEntry }) {
   // Determine external link if available
   const getExternalLink = () => {
     if (entry.metadata) {
-      if (entry.source === 'github' && entry.metadata.url) {
+      if (entry.entryType === 'release' && entry.metadata.url) {
         return entry.metadata.url
       }
-      if (entry.source === 'blog' && entry.metadata.url) {
+      if (entry.entryType === 'blog' && entry.metadata.url) {
         return entry.metadata.url
       }
     }
@@ -300,8 +307,10 @@ function FeedEntryView({ entry }: { entry: FeedEntry }) {
                   addSuffix: true,
                 })}
               </time>
-              {entry.source !== 'announcement' && (
-                <span className="capitalize">{entry.source}</span>
+              {entry.autoSynced && (
+                <span className="capitalize">
+                  {entry.entryType === 'release' ? 'GitHub' : entry.entryType}
+                </span>
               )}
               {entryLibraries.length > 0 && (
                 <div className="flex items-center gap-2">
@@ -367,7 +376,7 @@ function FeedEntryView({ entry }: { entry: FeedEntry }) {
                 rel="noopener noreferrer"
                 className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium inline-flex items-center gap-2"
               >
-                View on {entry.source === 'github' ? 'GitHub' : 'Blog'}
+                View on {entry.entryType === 'release' ? 'GitHub' : 'Blog'}
                 <svg
                   className="w-4 h-4"
                   fill="none"

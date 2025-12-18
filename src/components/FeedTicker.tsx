@@ -72,7 +72,7 @@ export function FeedTicker() {
   if (!currentEntry) return null
 
   const renderEntry = (entry: typeof currentEntry, isExiting: boolean) => {
-    const isRelease = entry.category === 'release'
+    const isRelease = entry.entryType === 'release'
 
     if (isRelease) {
       // Get release level badge color

@@ -77,7 +77,7 @@ export async function normalizeGitHubRelease(release: {
   repo: string
 }): Promise<{
   id: string
-  source: string
+  entryType: 'release' | 'blog' | 'announcement'
   title: string
   content: string
   excerpt?: string
@@ -86,8 +86,7 @@ export async function normalizeGitHubRelease(release: {
   libraryIds: string[]
   partnerIds?: string[]
   tags: string[]
-  category: 'release' | 'announcement' | 'blog' | 'partner' | 'update' | 'other'
-  isVisible: boolean
+  showInFeed: boolean
   featured?: boolean
   autoSynced: boolean
 }> {
@@ -115,7 +114,7 @@ export async function normalizeGitHubRelease(release: {
 
   return {
     id,
-    source: 'github',
+    entryType: 'release',
     title: release.name || `${release.repo} ${release.tag_name}`,
     content: release.body || '',
     excerpt,
@@ -131,8 +130,7 @@ export async function normalizeGitHubRelease(release: {
     },
     libraryIds: libraryId ? [libraryId] : [],
     tags,
-    category: 'release',
-    isVisible: true,
+    showInFeed: true,
     autoSynced: true,
   }
 }
@@ -314,7 +312,7 @@ export async function syncGitHubReleases(options?: { daysBack?: number }) {
             // Create new entry
             await db.insert(feedEntries).values({
               entryId: normalized.id,
-              source: normalized.source,
+              entryType: normalized.entryType,
               title: normalized.title,
               content: normalized.content,
               excerpt: normalized.excerpt,
@@ -323,8 +321,7 @@ export async function syncGitHubReleases(options?: { daysBack?: number }) {
               libraryIds: normalized.libraryIds,
               partnerIds: normalized.partnerIds ?? [],
               tags: normalized.tags,
-              category: normalized.category,
-              isVisible: normalized.isVisible,
+              showInFeed: normalized.showInFeed,
               featured: normalized.featured ?? false,
               autoSynced: normalized.autoSynced,
               lastSyncedAt: new Date(now),

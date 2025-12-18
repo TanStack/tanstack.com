@@ -1723,9 +1723,9 @@ function RouteComponent() {
                                     <div className="flex-1 flex items-center justify-between">
                                       <div className="flex items-center gap-2">
                                         {subPackage.hidden ? (
-                                          <MdVisibilityOff className="text-sm" />
+                                          <EyeOff className="text-sm" />
                                         ) : (
-                                          <MdVisibility className="text-sm" />
+                                          <Eye className="text-sm" />
                                         )}
                                         <span
                                           className={
@@ -2018,7 +2018,7 @@ function RouteComponent() {
                                           {stat!.package}
                                         </span>
                                         {stat!.hidden ? (
-                                          <MdVisibilityOff className="" />
+                                          <EyeOff className="" />
                                         ) : null}
                                       </button>
                                     </Tooltip>

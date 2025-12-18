@@ -435,7 +435,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             >
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-4 justify-between">
-                  <Hammer />
+                  <Hammer size={14} />
                 </div>
                 <div>Builder</div>
               </div>

@@ -1,5 +1,4 @@
 import { Book, DatabaseZap, MessageCircleQuestionMark, PlugZap, Wallpaper } from 'lucide-react'
-import { RiLightbulbFlashLine } from 'react-icons/ri'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
 import { GithubIcon } from '~/components/icons/GithubIcon'

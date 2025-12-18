@@ -1,6 +1,4 @@
-import { Book, PlugZap, RotateCw, Wallpaper } from 'lucide-react'
-import { TbZoomQuestion } from 'react-icons/tb'
-import { RiLightbulbFlashLine } from 'react-icons/ri'
+import { Book, MessageCircleQuestionMark, PlugZap, RotateCw, Wallpaper } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 
@@ -88,7 +86,7 @@ export const rangerProject = {
     },
     {
       title: 'Extensible',
-      icon: <TbZoomQuestion className={twMerge('', textStyles)} />,
+      icon: <MessageCircleQuestionMark className={twMerge('', textStyles)} />,
       description: (
         <div>
           Designed with maximum inversion of control in mind, Ranger is built to

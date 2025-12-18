@@ -108,7 +108,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ) : null}
         {canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <Lock />
+            <Lock size={16} />
             <Link
               to="/admin"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -434,7 +434,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             >
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-4 justify-between">
-                  <Hammer />
+                  <Hammer size={14} />
                 </div>
                 <div>Builder</div>
               </div>

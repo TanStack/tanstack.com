@@ -128,7 +128,7 @@ function NpmStatsAdmin() {
         cell: ({ row }) => (
           <div>
             <div className="flex items-center gap-2">
-              <Download className="text-emerald-500" />
+              <Download className="text-emerald-500" size={18} />
               <span className="font-semibold text-gray-900 dark:text-white">
                 {row.original.totalDownloads.toLocaleString()}
               </span>

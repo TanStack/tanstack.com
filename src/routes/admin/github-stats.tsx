@@ -105,7 +105,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <Star className="text-yellow-500" size={14} />
+                <Star className="text-yellow-500" size={16} />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.starCount.toLocaleString()}
                 </span>
@@ -131,7 +131,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <Users className="text-blue-500" size={14} />
+                <Users className="text-blue-500" size={16} />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.contributorCount.toLocaleString()}
                 </span>
@@ -168,7 +168,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <Box className="text-purple-500" />
+                <Box className="text-purple-500" size={16} />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.dependentCount.toLocaleString()}
                 </span>

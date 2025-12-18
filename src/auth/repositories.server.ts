@@ -180,7 +180,8 @@ export class DrizzleCapabilitiesRepository implements ICapabilitiesRepository {
     }
 
     // Extract user capabilities (same for all rows)
-    const directCapabilities = (result[0]?.userCapabilities || []) as Capability[]
+    const directCapabilities = (result[0]?.userCapabilities ||
+      []) as Capability[]
 
     // Collect all role capabilities from all rows
     const roleCapabilities = result
@@ -226,7 +227,8 @@ export class DrizzleCapabilitiesRepository implements ICapabilitiesRepository {
 
       // Store direct capabilities (same for all rows of the same user)
       if (!userCapabilitiesMap[userId]) {
-        userCapabilitiesMap[userId] = (row.userCapabilities || []) as Capability[]
+        userCapabilitiesMap[userId] = (row.userCapabilities ||
+          []) as Capability[]
       }
 
       // Collect role capabilities

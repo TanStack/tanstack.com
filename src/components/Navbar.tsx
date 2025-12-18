@@ -564,7 +564,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   const smallMenu = showMenu ? (
     <div
-      className="lg:hidden bg-white/50 dark:bg-black/60 backdrop-br-[20px] z-50
+      className="lg:hidden bg-white/50 dark:bg-black/60 backdrop-blur-[20px] z-50
     fixed top-[var(--navbar-height)] left-0 right-0 max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto
     "
     >
@@ -610,7 +610,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           inlineMenu
             ? ''
             : [
-                'fixed bg-white/70 dark:bg-black/50 backdrop-br-lg -translate-x-full',
+                'fixed bg-white/70 dark:bg-black/50 backdrop-blur-lg -translate-x-full',
                 showMenu && 'translate-x-0',
               ],
         )}

@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { listFeedEntriesQueryOptions, type FeedFilters } from '~/queries/feed'
+import { type FeedFilters } from '~/queries/feed'
+import { listFeedEntries } from '~/utils/feed.functions'
 
 export interface UseFeedInfiniteQueryOptions {
   pageSize?: number
@@ -17,9 +18,8 @@ export function useFeedInfiniteQuery({
       {
         pageSize,
         filters: {
-          sources: filters.sources,
+          entryTypes: filters.entryTypes,
           libraries: filters.libraries,
-          categories: filters.categories as any,
           partners: filters.partners,
           tags: filters.tags,
           releaseLevels: filters.releaseLevels as any,
@@ -31,24 +31,25 @@ export function useFeedInfiniteQuery({
       },
     ],
     queryFn: ({ pageParam = 0 }) => {
-      return listFeedEntriesQueryOptions({
-        pagination: {
-          limit: pageSize,
-          page: pageParam,
+      return listFeedEntries({
+        data: {
+          pagination: {
+            limit: pageSize,
+            page: pageParam,
+          },
+          filters: {
+            entryTypes: filters.entryTypes,
+            libraries: filters.libraries,
+            partners: filters.partners,
+            tags: filters.tags,
+            releaseLevels: filters.releaseLevels as any,
+            includePrerelease: filters.includePrerelease,
+            featured: filters.featured,
+            search: filters.search,
+            includeHidden: filters.includeHidden,
+          },
         },
-        filters: {
-          sources: filters.sources,
-          libraries: filters.libraries,
-          categories: filters.categories as any,
-          partners: filters.partners,
-          tags: filters.tags,
-          releaseLevels: filters.releaseLevels as any,
-          includePrerelease: filters.includePrerelease,
-          featured: filters.featured,
-          search: filters.search,
-          includeHidden: filters.includeHidden,
-        },
-      }).queryFn()
+      })
     },
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.isDone) {

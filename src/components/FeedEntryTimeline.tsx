@@ -73,14 +73,21 @@ export function FeedEntryTimeline({
         className:
           'bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200',
       },
+      update: {
+        label: 'Update',
+        className:
+          'bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200',
+      },
     }
 
-    const category = entry.category
-    const key = category === 'release' && isPrerelease ? 'prerelease' : category
+    const key =
+      entry.entryType === 'release' && isPrerelease
+        ? 'prerelease'
+        : entry.entryType
 
     return (
       badgeConfigs[key] || {
-        label: entry.source,
+        label: entry.entryType,
         className:
           'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200',
       }
@@ -128,10 +135,10 @@ export function FeedEntryTimeline({
   // Determine external link if available
   const getExternalLink = () => {
     if (entry.metadata) {
-      if (entry.source === 'github' && entry.metadata.url) {
+      if (entry.entryType === 'release' && entry.metadata.url) {
         return entry.metadata.url
       }
-      if (entry.source === 'blog' && entry.metadata.url) {
+      if (entry.entryType === 'blog' && entry.metadata.url) {
         return entry.metadata.url
       }
     }
@@ -177,7 +184,7 @@ export function FeedEntryTimeline({
                 ⭐ Featured
               </span>
             )}
-            {!entry.isVisible && (
+            {!entry.showInFeed && (
               <span className="px-2.5 py-1 rounded-md text-xs bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
                 Hidden
               </span>
@@ -205,8 +212,10 @@ export function FeedEntryTimeline({
                 addSuffix: true,
               })}
             </time>
-            {entry.source !== 'announcement' && (
-              <span className="capitalize">{entry.source}</span>
+            {entry.autoSynced && (
+              <span className="capitalize">
+                {entry.entryType === 'release' ? 'GitHub' : entry.entryType}
+              </span>
             )}
             {entryLibraries.length > 0 && (
               <div className="flex items-center gap-2">
@@ -256,12 +265,12 @@ export function FeedEntryTimeline({
             {adminActions.onToggleVisibility && (
               <button
                 onClick={() =>
-                  adminActions.onToggleVisibility!(entry, !entry.isVisible)
+                  adminActions.onToggleVisibility!(entry, !entry.showInFeed)
                 }
                 className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400"
-                title={entry.isVisible ? 'Hide' : 'Show'}
+                title={entry.showInFeed ? 'Hide' : 'Show'}
               >
-                {entry.isVisible ? (
+                {entry.showInFeed ? (
                   <Eye className="w-4 h-4" />
                 ) : (
                   <EyeOff className="w-4 h-4" />
@@ -345,7 +354,7 @@ export function FeedEntryTimeline({
             className="text-blue-600 dark:text-blue-400 hover:underline text-sm font-medium"
             onClick={(e) => e.stopPropagation()}
           >
-            View on {entry.source === 'github' ? 'GitHub' : 'Blog'} →
+            View on {entry.entryType === 'release' ? 'GitHub' : 'Blog'} →
           </a>
         </div>
       )}

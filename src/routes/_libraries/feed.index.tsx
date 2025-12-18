@@ -4,14 +4,14 @@ import { seo } from '~/utils/seo'
 import { FeedPage as FeedPageComponent } from '~/components/FeedPage'
 import { listFeedEntriesQueryOptions } from '~/queries/feed'
 import { libraries, type LibraryId } from '~/libraries'
-import { FEED_CATEGORIES, RELEASE_LEVELS } from '~/utils/feedSchema'
+import { ENTRY_TYPES, RELEASE_LEVELS } from '~/utils/feedSchema'
 import { FEED_DEFAULTS } from '~/utils/feedDefaults'
 import { twMerge } from 'tailwind-merge'
 
 // Create zod enums from single source of truth
 const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
 const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
-const categorySchema = z.enum(FEED_CATEGORIES)
+const entryTypeSchema = z.enum(ENTRY_TYPES)
 const releaseLevelSchema = z.enum(RELEASE_LEVELS)
 const viewModeSchema = z
   .enum(['table', 'timeline'])
@@ -24,9 +24,8 @@ export const Route = createFileRoute('/_libraries/feed/')({
   validateSearch: (search) => {
     const parsed = z
       .object({
-        sources: z.array(z.string()).optional().catch(undefined),
+        entryTypes: z.array(entryTypeSchema).optional().catch(undefined),
         libraries: z.array(librarySchema).optional().catch(undefined),
-        categories: z.array(categorySchema).optional().catch(undefined),
         partners: z.array(z.string()).optional().catch(undefined),
         tags: z.array(z.string()).optional().catch(undefined),
         releaseLevels: z.array(releaseLevelSchema).optional().catch(undefined),
@@ -55,9 +54,8 @@ export const Route = createFileRoute('/_libraries/feed/')({
   loaderDeps: ({ search }) => ({
     page: search.page,
     pageSize: search.pageSize,
-    sources: search.sources,
+    entryTypes: search.entryTypes,
     libraries: search.libraries,
-    categories: search.categories,
     partners: search.partners,
     tags: search.tags,
     releaseLevels: search.releaseLevels,
@@ -76,9 +74,8 @@ export const Route = createFileRoute('/_libraries/feed/')({
           page: (deps.page ?? 1) - 1,
         },
         filters: {
-          sources: deps.sources,
+          entryTypes: deps.entryTypes,
           libraries: deps.libraries,
-          categories: deps.categories as any,
           partners: deps.partners,
           tags: deps.tags,
           releaseLevels: deps.releaseLevels as any,

@@ -8,12 +8,11 @@ import {
   searchFeedEntries,
   getFeedConfig,
 } from '~/utils/feed.functions'
-import type { FeedCategory, ReleaseLevel } from '~/db/schema'
+import type { EntryType, ReleaseLevel } from '~/db/schema'
 
 export interface FeedFilters {
-  sources?: string[]
+  entryTypes?: EntryType[]
   libraries?: string[]
-  categories?: FeedCategory[]
   partners?: string[]
   tags?: string[]
   releaseLevels?: ReleaseLevel[]

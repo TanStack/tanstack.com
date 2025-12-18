@@ -101,21 +101,21 @@ export function FeedSyncStatus({
             </div>
             <div className="text-center">
               <div className="text-base font-bold">
-                {Object.keys(stats.bySource).length}
+                {Object.keys(stats.byEntryType).length}
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400">
-                Sources
+                Entry Types
               </div>
             </div>
           </div>
 
-          {/* By Source Breakdown */}
+          {/* Sync Sources */}
           <div className="mb-3">
             <h3 className="text-xs font-medium mb-1.5 text-gray-700 dark:text-gray-300">
-              By Source
+              Sync Sources
             </h3>
             <div className="space-y-1">
-              {Object.entries(stats.bySource).map(([source, count]) => {
+              {(['github', 'blog'] as const).map((source) => {
                 const isSyncing = syncingSources[source] || false
                 return (
                   <div
@@ -124,7 +124,6 @@ export function FeedSyncStatus({
                   >
                     <span className="capitalize">{source}</span>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">{count}</span>
                       <button
                         onClick={() => handleSyncSource(source)}
                         disabled={
@@ -148,18 +147,18 @@ export function FeedSyncStatus({
             </div>
           </div>
 
-          {/* By Category Breakdown */}
+          {/* By Entry Type Breakdown */}
           <div>
             <h3 className="text-xs font-medium mb-1.5 text-gray-700 dark:text-gray-300">
-              By Category
+              By Entry Type
             </h3>
             <div className="space-y-1">
-              {Object.entries(stats.byCategory).map(([category, count]) => (
+              {Object.entries(stats.byEntryType).map(([entryType, count]) => (
                 <div
-                  key={category}
+                  key={entryType}
                   className="flex items-center justify-between px-2 py-1 bg-gray-50 dark:bg-gray-700 rounded text-xs"
                 >
-                  <span className="capitalize">{category}</span>
+                  <span className="capitalize">{entryType}</span>
                   <span className="font-semibold">{count}</span>
                 </div>
               ))}

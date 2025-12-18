@@ -19,9 +19,8 @@ export function useFeedQuery({
         page: page - 1,
       },
       filters: {
-        sources: filters.sources,
+        entryTypes: filters.entryTypes,
         libraries: filters.libraries,
-        categories: filters.categories as any,
         partners: filters.partners,
         tags: filters.tags,
         releaseLevels: filters.releaseLevels as any,

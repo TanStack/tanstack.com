@@ -2,7 +2,7 @@ import { feedEntries } from '~/db/schema'
 import { eq, and, sql, inArray, gte } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getEffectiveCapabilities } from './capabilities.server'
-import type { FeedCategory, ReleaseLevel } from '~/db/schema'
+import type { EntryType, ReleaseLevel } from '~/db/schema'
 
 // Helper function to validate admin capability
 export async function requireAdmin() {
@@ -65,9 +65,8 @@ export function validatePublishedAt(publishedAt: number): {
 // Helper function to apply filters to feed entries query
 export function buildFeedQueryConditions(
   filters: {
-    sources?: string[]
+    entryTypes?: EntryType[]
     libraries?: string[]
-    categories?: FeedCategory[]
     partners?: string[]
     tags?: string[]
     releaseLevels?: ReleaseLevel[]
@@ -77,8 +76,7 @@ export function buildFeedQueryConditions(
     includeHidden?: boolean
   },
   excludeFacet?:
-    | 'sources'
-    | 'categories'
+    | 'entryTypes'
     | 'libraries'
     | 'partners'
     | 'tags'
@@ -91,26 +89,17 @@ export function buildFeedQueryConditions(
 
   // Visibility filter
   if (!filters.includeHidden) {
-    conditions.push(eq(feedEntries.isVisible, true))
+    conditions.push(eq(feedEntries.showInFeed, true))
     conditions.push(gte(feedEntries.publishedAt, new Date(0)))
   }
 
-  // Source filter
+  // Entry type filter
   if (
-    excludeFacet !== 'sources' &&
-    filters.sources &&
-    filters.sources.length > 0
+    excludeFacet !== 'entryTypes' &&
+    filters.entryTypes &&
+    filters.entryTypes.length > 0
   ) {
-    conditions.push(inArray(feedEntries.source, filters.sources))
-  }
-
-  // Category filter
-  if (
-    excludeFacet !== 'categories' &&
-    filters.categories &&
-    filters.categories.length > 0
-  ) {
-    conditions.push(inArray(feedEntries.category, filters.categories))
+    conditions.push(inArray(feedEntries.entryType, filters.entryTypes))
   }
 
   // Library filter (array overlap)

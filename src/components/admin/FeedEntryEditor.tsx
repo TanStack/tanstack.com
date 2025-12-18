@@ -8,22 +8,13 @@ import { partners } from '~/utils/partners'
 import { currentUserQueryOptions } from '~/queries/auth'
 import { useCreateFeedEntry, useUpdateFeedEntry } from '~/utils/mutations'
 import { generateManualEntryId } from '~/utils/feed-manual'
-import { Save, X } from 'lucide-react'
+import { Save, X, FileText, Tags, Settings, Eye, Calendar, Check } from 'lucide-react'
 
 interface FeedEntryEditorProps {
   entry: FeedEntry | null
   onSave: () => void
   onCancel: () => void
 }
-
-const CATEGORIES = [
-  'release',
-  'announcement',
-  'blog',
-  'partner',
-  'update',
-  'other',
-] as const
 
 export function FeedEntryEditor({
   entry,
@@ -35,18 +26,13 @@ export function FeedEntryEditor({
   const [title, setTitle] = useState(entry?.title || '')
   const [content, setContent] = useState(entry?.content || '')
   const [excerpt, setExcerpt] = useState(entry?.excerpt || '')
-  // For new entries, default to 30 days ago to encourage setting the actual publication date
-  // For existing entries, use their publishedAt
   const [publishedAt, setPublishedAt] = useState(
     entry
       ? new Date(entry.publishedAt).toISOString().split('T')[0]
-      : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split('T')[0],
+      : new Date().toISOString().split('T')[0],
   )
-  const [category, setCategory] = useState<
-    'release' | 'announcement' | 'blog' | 'partner' | 'update' | 'other'
-  >(entry?.category || 'announcement')
+  // All manually created entries are announcements
+  const entryType = 'announcement' as const
   const [selectedLibraries, setSelectedLibraries] = useState<string[]>(
     entry?.libraryIds || [],
   )
@@ -54,9 +40,8 @@ export function FeedEntryEditor({
     entry?.partnerIds || [],
   )
   const [tags, setTags] = useState<string>(entry?.tags.join(', ') || '')
-  const [isVisible, setIsVisible] = useState(entry?.isVisible ?? true)
+  const [showInFeed, setShowInFeed] = useState(entry?.showInFeed ?? true)
   const [featured, setFeatured] = useState(entry?.featured ?? false)
-  const [showPreview, setShowPreview] = useState(false)
   const [saving, setSaving] = useState(false)
 
   const userQuery = useQuery(currentUserQueryOptions())
@@ -84,10 +69,9 @@ export function FeedEntryEditor({
 
       if (isNew) {
         const entryId = generateManualEntryId()
-        console.log('Creating entry with ID:', entryId)
         await createEntry.mutateAsync({
           id: entryId,
-          source: 'announcement',
+          entryType,
           title,
           content,
           excerpt: excerpt || undefined,
@@ -99,16 +83,14 @@ export function FeedEntryEditor({
           partnerIds:
             selectedPartners.length > 0 ? selectedPartners : undefined,
           tags: tagArray,
-          category,
-          isVisible,
+          showInFeed,
           featured,
           autoSynced: false,
         })
-        console.log('Entry created successfully')
       } else {
-        console.log('Updating entry:', entry.id)
         await updateEntry.mutateAsync({
           id: entry.id,
+          entryType,
           title,
           content,
           excerpt: excerpt || undefined,
@@ -117,11 +99,9 @@ export function FeedEntryEditor({
           partnerIds:
             selectedPartners.length > 0 ? selectedPartners : undefined,
           tags: tagArray,
-          category,
-          isVisible,
+          showInFeed,
           featured,
         })
-        console.log('Entry updated successfully')
       }
       onSave()
     } catch (error) {
@@ -152,233 +132,389 @@ export function FeedEntryEditor({
     )
   }
 
+  const isValid = title.trim() && content.trim() && user
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">
-          {isNew ? 'Create Feed Entry' : 'Edit Feed Entry'}
-        </h1>
-        <div className="flex gap-2">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <X size={14} className="inline mr-2" />
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving || !title || !content || !user}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <Save className="inline mr-2" size={14} />
-            {saving ? 'Saving...' : user ? 'Save' : 'Loading...'}
-          </button>
+    <div className="min-h-full">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 -mx-8 px-8 py-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {isNew ? 'Create Announcement' : 'Edit Entry'}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {isNew
+                ? 'Create a new announcement for the feed'
+                : `Editing: ${entry?.title}`}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onCancel}
+              className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
+            >
+              <X className="w-4 h-4" />
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving || !isValid}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? 'Saving...' : 'Save Entry'}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Left Column - Form */}
-        <div className="space-y-4">
-          {/* Title */}
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium mb-2">
-              Title *
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-              placeholder="Entry title"
-            />
-          </div>
-
-          {/* Content */}
-          <div>
-            <label htmlFor="content" className="block text-sm font-medium mb-2">
-              Content *
-            </label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={15}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 font-mono text-sm"
-              placeholder="Markdown content"
-            />
-          </div>
-
-          {/* Excerpt */}
-          <div>
-            <label htmlFor="excerpt" className="block text-sm font-medium mb-2">
-              Excerpt (optional)
-            </label>
-            <textarea
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-              placeholder="Short excerpt or leave empty to auto-generate"
-            />
-          </div>
-
-          {/* Published Date */}
-          <div>
-            <label
-              htmlFor="publishedAt"
-              className="block text-sm font-medium mb-2"
-            >
-              Published Date *
-            </label>
-            <input
-              type="date"
-              value={publishedAt}
-              onChange={(e) => setPublishedAt(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-            />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label
-              htmlFor="category"
-              className="block text-sm font-medium mb-2"
-            >
-              Category *
-            </label>
-            <select
-              value={category}
-              onChange={(e) =>
-                setCategory(
-                  e.target.value as
-                    | 'release'
-                    | 'announcement'
-                    | 'blog'
-                    | 'partner'
-                    | 'update'
-                    | 'other',
-                )
-              }
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-            >
-              {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Libraries */}
-          <div>
-            <label
-              htmlFor="libraries"
-              className="block text-sm font-medium mb-2"
-            >
-              Libraries
-            </label>
-            <div className="max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-2">
-              {libraries.map((library) => (
-                <label
-                  key={library.id}
-                  className="flex items-center gap-2 p-1 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedLibraries.includes(library.id)}
-                    onChange={() => toggleLibrary(library.id)}
-                    className="rounded"
-                  />
-                  <span className="text-sm">{library.name}</span>
+        <div className="space-y-6">
+          {/* Basic Information Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                  <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-gray-900 dark:text-white">
+                    Basic Information
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Title, content, and publication details
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-5">
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Title <span className="text-red-500">*</span>
                 </label>
-              ))}
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  placeholder="Enter a descriptive title"
+                />
+              </div>
+
+              {/* Content */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Content <span className="text-red-500">*</span>
+                  <span className="ml-2 text-xs font-normal text-gray-400">
+                    (Markdown supported)
+                  </span>
+                </label>
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  rows={12}
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  placeholder="Write your announcement content here..."
+                />
+              </div>
+
+              {/* Excerpt */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Excerpt
+                  <span className="ml-2 text-xs font-normal text-gray-400">
+                    (Optional - auto-generated if empty)
+                  </span>
+                </label>
+                <textarea
+                  value={excerpt}
+                  onChange={(e) => setExcerpt(e.target.value)}
+                  rows={2}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  placeholder="Brief summary for feed previews"
+                />
+              </div>
+
+              {/* Published Date */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <Calendar className="inline mr-2 w-4 h-4 text-gray-400" />
+                  Published Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={publishedAt}
+                  onChange={(e) => setPublishedAt(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Partners */}
-          <div>
-            <label
-              htmlFor="partners"
-              className="block text-sm font-medium mb-2"
-            >
-              Partners
-            </label>
-            <div className="max-h-40 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-2">
-              {partners
-                .filter((p) => p.status === 'active')
-                .map((partner) => (
-                  <label
-                    key={partner.id}
-                    className="flex items-center gap-2 p-1 hover:bg-gray-50 dark:hover:bg-gray-700 rounded cursor-pointer"
-                  >
+          {/* Categorization Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                  <Tags className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-gray-900 dark:text-white">
+                    Categorization
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Category, libraries, and tags
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-5">
+              {/* Libraries */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Related Libraries
+                  {selectedLibraries.length > 0 && (
+                    <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full">
+                      {selectedLibraries.length} selected
+                    </span>
+                  )}
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {libraries.map((library) => (
+                    <button
+                      key={library.id}
+                      type="button"
+                      onClick={() => toggleLibrary(library.id)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                        selectedLibraries.includes(library.id)
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      {selectedLibraries.includes(library.id) && (
+                        <Check className="inline mr-1.5 w-3 h-3" />
+                      )}
+                      {library.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Partners */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Related Partners
+                  {selectedPartners.length > 0 && (
+                    <span className="ml-2 text-xs bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 px-2 py-0.5 rounded-full">
+                      {selectedPartners.length} selected
+                    </span>
+                  )}
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {partners
+                    .filter((p) => p.status === 'active')
+                    .map((partner) => (
+                      <button
+                        key={partner.id}
+                        type="button"
+                        onClick={() => togglePartner(partner.id)}
+                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                          selectedPartners.includes(partner.id)
+                            ? 'bg-pink-600 text-white'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                        }`}
+                      >
+                        {selectedPartners.includes(partner.id) && (
+                          <Check className="inline mr-1.5 w-3 h-3" />
+                        )}
+                        {partner.name}
+                      </button>
+                    ))}
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Tags
+                  <span className="ml-2 text-xs font-normal text-gray-400">
+                    (comma-separated)
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  placeholder="e.g., release:major, breaking-change"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Display Options Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                  <Settings className="w-4 h-4 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-gray-900 dark:text-white">
+                    Display Options
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Visibility and featuring settings
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      Show in Feed
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      Display this entry in the public feed
+                    </div>
+                  </div>
+                  <div className="relative">
                     <input
                       type="checkbox"
-                      checked={selectedPartners.includes(partner.id)}
-                      onChange={() => togglePartner(partner.id)}
-                      className="rounded"
+                      checked={showInFeed}
+                      onChange={(e) => setShowInFeed(e.target.checked)}
+                      className="sr-only"
                     />
-                    <span className="text-sm">{partner.name}</span>
-                  </label>
-                ))}
+                    <div
+                      className={`w-11 h-6 rounded-full transition-colors ${showInFeed ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                    >
+                      <div
+                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform mt-0.5 ${showInFeed ? 'translate-x-5.5 ml-0.5' : 'translate-x-0.5'}`}
+                      />
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  <div>
+                    <div className="font-medium text-gray-900 dark:text-white">
+                      Featured
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      Highlight this entry in the feed
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={featured}
+                      onChange={(e) => setFeatured(e.target.checked)}
+                      className="sr-only"
+                    />
+                    <div
+                      className={`w-11 h-6 rounded-full transition-colors ${featured ? 'bg-yellow-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                    >
+                      <div
+                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform mt-0.5 ${featured ? 'translate-x-5.5 ml-0.5' : 'translate-x-0.5'}`}
+                      />
+                    </div>
+                  </div>
+                </label>
+              </div>
             </div>
           </div>
 
-          {/* Tags */}
-          <div>
-            <label htmlFor="tags" className="block text-sm font-medium mb-2">
-              Tags (comma-separated)
-            </label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-              placeholder="tag1, tag2, tag3"
-            />
-          </div>
-
-          {/* Toggles */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isVisible}
-                onChange={(e) => setIsVisible(e.target.checked)}
-                className="rounded"
-              />
-              <span>Visible</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={featured}
-                onChange={(e) => setFeatured(e.target.checked)}
-                className="rounded"
-              />
-              <span>Featured</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showPreview}
-                onChange={(e) => setShowPreview(e.target.checked)}
-                className="rounded"
-              />
-              <span>Show Preview</span>
-            </label>
-          </div>
         </div>
 
-        {/* Right Column - Preview */}
-        {showPreview && (
-          <div className="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-800">
-            <h2 className="text-lg font-bold mb-4">Preview</h2>
-            <div className="prose dark:prose-invert max-w-none">
-              <h1>{title || 'Untitled'}</h1>
-              <Markdown rawContent={content || '*No content*'} />
+        {/* Right Column - Live Preview */}
+        <div className="xl:sticky xl:top-24 xl:self-start">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                  <Eye className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div>
+                  <h2 className="font-semibold text-gray-900 dark:text-white">
+                    Live Preview
+                  </h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    How it will appear in the feed
+                  </p>
+                </div>
+              </div>
             </div>
+            <div className="p-6">
+              {title || content ? (
+                <div className="prose dark:prose-invert prose-sm max-w-none">
+                  <h2 className="text-xl font-bold mt-0 mb-4">
+                    {title || 'Untitled'}
+                  </h2>
+                  {excerpt && (
+                    <p className="text-gray-600 dark:text-gray-400 italic border-l-4 border-gray-200 dark:border-gray-700 pl-4 mb-4">
+                      {excerpt}
+                    </p>
+                  )}
+                  <Markdown rawContent={content || '*No content yet*'} />
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-400 dark:text-gray-500">
+                  <FileText className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                  <p>Start typing to see a preview</p>
+                </div>
+              )}
+            </div>
+
+            {/* Preview Metadata */}
+            {(selectedLibraries.length > 0 ||
+              selectedPartners.length > 0 ||
+              tags) && (
+              <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                <div className="flex flex-wrap gap-2">
+                  {selectedLibraries.map((id) => {
+                    const lib = libraries.find((l) => l.id === id)
+                    return lib ? (
+                      <span
+                        key={id}
+                        className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full"
+                      >
+                        {lib.name}
+                      </span>
+                    ) : null
+                  })}
+                  {selectedPartners.map((id) => {
+                    const partner = partners.find((p) => p.id === id)
+                    return partner ? (
+                      <span
+                        key={id}
+                        className="px-2 py-1 text-xs bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full"
+                      >
+                        {partner.name}
+                      </span>
+                    ) : null
+                  })}
+                  {tags
+                    .split(',')
+                    .map((t) => t.trim())
+                    .filter(Boolean)
+                    .map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

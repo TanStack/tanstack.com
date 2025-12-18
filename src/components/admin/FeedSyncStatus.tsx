@@ -6,8 +6,8 @@ import {
   syncGitHubSource,
   syncBlogSource,
 } from '~/utils/admin'
-import { FaSync } from 'react-icons/fa'
 import { Spinner } from '~/components/Spinner'
+import { RefreshCw } from 'lucide-react'
 
 export function FeedSyncStatus({
   onSyncComplete,
@@ -71,7 +71,7 @@ export function FeedSyncStatus({
             {syncingAll ? (
               <Spinner className="text-xs" />
             ) : (
-              <FaSync className="w-3 h-3" />
+              <RefreshCw className="w-3 h-3" />
             )}
             Sync All
           </button>
@@ -138,7 +138,7 @@ export function FeedSyncStatus({
                         {isSyncing ? (
                           <Spinner className="text-xs" />
                         ) : (
-                          <FaSync className="w-2.5 h-2.5" />
+                          <RefreshCw className="w-2.5 h-2.5" />
                         )}
                       </button>
                     </div>

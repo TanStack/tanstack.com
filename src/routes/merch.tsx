@@ -2,15 +2,9 @@ import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
-import {
-  LuShirt,
-  LuShoppingBag,
-  LuSmartphone,
-  LuTag,
-  LuCircle,
-} from 'react-icons/lu'
-import { PiBaseballCapBold } from 'react-icons/pi'
+import { Shirt, ShoppingBag, Smartphone, Tag, Circle } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { BaseballCapIcon } from '~/components/icons/BaseballCapIcon'
 
 export const Route = createFileRoute('/merch')({
   component: RouteComp,
@@ -29,10 +23,10 @@ const merchItems = [
     description:
       'T-shirts, sweatshirts, hoodies, onesies, hats, totes, and phone cases featuring TanStack designs',
     icons: [
-      { Icon: LuShirt, label: 'T-shirts' },
-      { Icon: PiBaseballCapBold, label: 'Hats' },
-      { Icon: LuShoppingBag, label: 'Totes' },
-      { Icon: LuSmartphone, label: 'Phone cases' },
+      { Icon: Shirt, label: 'T-shirts' },
+      { Icon: BaseballCapIcon, label: 'Hats' },
+      { Icon: ShoppingBag, label: 'Totes' },
+      { Icon: Smartphone, label: 'Phone cases' },
     ],
     href: 'https://cottonbureau.com/people/tanstack',
     iconColor: 'text-blue-500',
@@ -44,8 +38,8 @@ const merchItems = [
     description:
       'High-quality vinyl stickers and small buttons for your laptop, water bottle, and more',
     icons: [
-      { Icon: LuTag, label: 'Stickers' },
-      { Icon: LuCircle, label: 'Buttons' },
+      { Icon: Tag, label: 'Stickers' },
+      { Icon: Circle, label: 'Buttons' },
     ],
     href: 'https://www.stickermule.com/tanstack',
     iconColor: 'text-purple-500',

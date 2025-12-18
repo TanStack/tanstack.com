@@ -1,23 +1,23 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { seo } from '~/utils/seo'
-import { HiOutlineMail } from 'react-icons/hi'
 import {
-  LuUsers,
-  LuVideo,
-  LuMapPin,
-  LuStar,
-  LuCode,
-  LuRocket,
-  LuCheckCircle2,
-  LuSettings,
-  LuCode2,
-} from 'react-icons/lu'
+  Users,
+  Video,
+  MapPin,
+  Star,
+  Code,
+  Rocket,
+  Settings,
+  CodeXml,
+} from 'lucide-react'
 import * as React from 'react'
 import { Footer } from '~/components/Footer'
 import { allMaintainers, Maintainer } from '~/libraries/maintainers'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { shuffleWithSeed } from '~/utils/utils'
+import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
+import { Mail } from 'lucide-react'
 
 // Server function to get the seed based on 10-second intervals
 // This ensures consistency between server and client
@@ -74,7 +74,7 @@ function WorkshopsPage() {
               href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry"
               className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg font-black text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-xl hover:scale-105"
             >
-              <HiOutlineMail className="w-6 h-6" />
+              <Mail className="w-6 h-6" />
               Get a Quote
             </a>
           </header>
@@ -83,7 +83,7 @@ function WorkshopsPage() {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-3 mb-4">
-                <LuVideo className="w-8 h-8 text-blue-500" />
+                <Video className="w-8 h-8 text-blue-500" />
                 <h2 className="text-2xl font-black">Remote Workshops</h2>
               </div>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
@@ -93,19 +93,19 @@ function WorkshopsPage() {
               </p>
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <li className="flex items-start gap-2">
-                  <LuCheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                   <span>No travel costs or logistics</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuCheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                   <span>Flexible scheduling across time zones</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuCheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                   <span>Interactive sessions with Q&A</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuCheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                   <span>Access to maintainers and creators</span>
                 </li>
               </ul>
@@ -113,7 +113,7 @@ function WorkshopsPage() {
 
             <div className="rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 p-6 shadow-lg text-white">
               <div className="flex items-center gap-3 mb-4">
-                <LuMapPin className="w-8 h-8" />
+                <MapPin className="w-8 h-8" />
                 <h2 className="text-2xl font-black">In-Person Workshops</h2>
               </div>
               <p className="mb-4 opacity-90">
@@ -123,19 +123,19 @@ function WorkshopsPage() {
               </p>
               <ul className="space-y-2 text-sm opacity-90">
                 <li className="flex items-start gap-2">
-                  <LuStar className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <Star className="w-5 h-5 flex-shrink-0" />
                   <span>Premium experience with direct access</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuStar className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <Star className="w-5 h-5 flex-shrink-0" />
                   <span>Personal appearance by Tanner Linsley available</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuStar className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <Star className="w-5 h-5 flex-shrink-0" />
                   <span>Customized workshop content</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <LuStar className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <Star className="w-5 h-5 flex-shrink-0" />
                   <span>Extended Q&A and networking sessions</span>
                 </li>
               </ul>
@@ -155,7 +155,7 @@ function WorkshopsPage() {
               </h2>
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center">
-                  <LuCode className="w-12 h-12 text-blue-500 dark:text-blue-400 mx-auto mb-3" />
+                  <Code className="w-12 h-12 text-blue-500 dark:text-blue-400 mx-auto mb-3" />
                   <h3 className="font-black mb-2">From the Source</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     Learn directly from the maintainers and creators who built
@@ -163,7 +163,7 @@ function WorkshopsPage() {
                   </p>
                 </div>
                 <div className="text-center">
-                  <LuUsers className="w-12 h-12 text-blue-600 dark:text-blue-500 mx-auto mb-3" />
+                  <Users className="w-12 h-12 text-blue-600 dark:text-blue-500 mx-auto mb-3" />
                   <h3 className="font-black mb-2">Expert Instructors</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     Our workshops are led by experienced maintainers who
@@ -171,7 +171,7 @@ function WorkshopsPage() {
                   </p>
                 </div>
                 <div className="text-center">
-                  <LuRocket className="w-12 h-12 text-blue-700 dark:text-blue-600 mx-auto mb-3" />
+                  <Rocket className="w-12 h-12 text-blue-700 dark:text-blue-600 mx-auto mb-3" />
                   <h3 className="font-black mb-2">Practical Focus</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
                     Hands-on training that helps your team ship better code
@@ -198,7 +198,7 @@ function WorkshopsPage() {
             </div>
             <div className="grid md:grid-cols-2 gap-6 mt-8">
               <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <LuSettings className="w-8 h-8 text-blue-500 dark:text-blue-400 mb-3" />
+                <Settings className="w-8 h-8 text-blue-500 dark:text-blue-400 mb-3" />
                 <h3 className="text-lg font-black mb-2">
                   Customized to Your Stack
                 </h3>
@@ -210,7 +210,7 @@ function WorkshopsPage() {
                 </p>
               </div>
               <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <LuCode2 className="w-8 h-8 text-blue-600 dark:text-blue-500 mb-3" />
+                <CodeXml className="w-8 h-8 text-blue-600 dark:text-blue-500 mb-3" />
                 <h3 className="text-lg font-black mb-2">Hands-On Learning</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
                   Expect to code, not just listen. Our workshops include live
@@ -235,7 +235,7 @@ function WorkshopsPage() {
               href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry"
               className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-lg font-black text-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:shadow-xl hover:scale-105"
             >
-              <HiOutlineMail className="w-6 h-6" />
+              <Mail className="w-6 h-6" />
               Get a Quote
             </a>
           </div>
@@ -317,7 +317,7 @@ function WorkshopsPage() {
                 href="mailto:workshops@tanstack.com?subject=Workshop%20Questions"
                 className="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 hover:shadow-lg"
               >
-                <HiOutlineMail className="w-5 h-5" />
+                <Mail className="w-5 h-5" />
                 Ask Us Anything
               </a>
             </div>
@@ -349,7 +349,7 @@ function WorkshopsPage() {
                     key={topic}
                     className="flex items-center gap-3 rounded-lg bg-white dark:bg-gray-800 px-4 py-3 shadow-sm border border-gray-200 dark:border-gray-700"
                   >
-                    <LuCheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
                     <span className="text-gray-700 dark:text-gray-300 font-medium">
                       {topic}
                     </span>
@@ -385,15 +385,15 @@ function WorkshopsPage() {
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-full text-sm font-medium border border-amber-200 dark:border-amber-800">
-                  <LuStar className="w-4 h-4" />
+                  <Star className="w-4 h-4" />
                   <span>Q&A Sessions</span>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-full text-sm font-medium border border-amber-200 dark:border-amber-800">
-                  <LuCode className="w-4 h-4" />
+                  <Code className="w-4 h-4" />
                   <span>Lightning Consults</span>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-full text-sm font-medium border border-amber-200 dark:border-amber-800">
-                  <LuRocket className="w-4 h-4" />
+                  <Rocket className="w-4 h-4" />
                   <span>Inspire Your Developers</span>
                 </div>
               </div>
@@ -420,7 +420,7 @@ function WorkshopsPage() {
               href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry"
               className="inline-flex items-center gap-3 px-8 py-4 bg-linear-to-r from-green-600 to-cyan-600 text-white rounded-lg font-black text-lg hover:from-green-700 hover:to-cyan-700 transition-all duration-200 hover:shadow-xl hover:scale-105"
             >
-              <HiOutlineMail className="w-6 h-6" />
+              <Mail className="w-6 h-6" />
               Get Started Today
             </a>
           </div>
@@ -512,7 +512,7 @@ function TestimonialsMarquee() {
               >
                 <div className="flex items-start gap-2 mb-4">
                   {[...Array(5)].map((_, j) => (
-                    <LuStar
+                    <Star
                       key={j}
                       className="w-4 h-4 text-yellow-500 fill-yellow-500"
                     />
@@ -566,7 +566,7 @@ function InstructorsSection({ instructors }: { instructors: Maintainer[] }) {
           href="mailto:workshops@tanstack.com?subject=Workshop%20Inquiry&body=I'm interested in learning more about your workshop instructors and availability."
           className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 hover:shadow-lg"
         >
-          <HiOutlineMail className="w-5 h-5" />
+          <Mail className="w-5 h-5" />
           Learn More About Our Instructors
         </a>
       </div>

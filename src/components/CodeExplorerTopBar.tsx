@@ -1,6 +1,11 @@
 import React from 'react'
-import { FaExpand, FaCompress } from 'react-icons/fa'
-import { CgMenuLeft } from 'react-icons/cg'
+import {
+  ArrowLeftFromLine,
+  ArrowRightFromLine,
+  Maximize,
+  Minimize,
+  TextAlignStart,
+} from 'lucide-react'
 
 interface CodeExplorerTopBarProps {
   activeTab: 'code' | 'sandbox'
@@ -23,16 +28,26 @@ export function CodeExplorerTopBar({
     <div className="flex items-center justify-between gap-2 border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-2 px-1">
         {activeTab === 'code' ? (
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-            title={isSidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-          >
-            <CgMenuLeft className="w-4 h-4" />
-          </button>
+          isSidebarOpen ? (
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              title={'Hide sidebar'}
+            >
+              <ArrowLeftFromLine className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              title={'Show sidebar'}
+            >
+              <ArrowRightFromLine className="w-4 h-4" />
+            </button>
+          )
         ) : (
           <div className="p-2 text-sm rounded" aria-hidden>
-            <CgMenuLeft className="w-4 h-4 text-transparent" aria-hidden />
+            <TextAlignStart className="w-4 h-4 text-transparent" aria-hidden />
           </div>
         )}
         <button
@@ -81,9 +96,9 @@ export function CodeExplorerTopBar({
           title={isFullScreen ? 'Exit full screen' : 'Enter full screen'}
         >
           {isFullScreen ? (
-            <FaCompress className="w-4 h-4" />
+            <Minimize className="w-4 h-4" />
           ) : (
-            <FaExpand className="w-4 h-4" />
+            <Maximize className="w-4 h-4" />
           )}
         </button>
       </div>

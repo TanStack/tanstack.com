@@ -1,22 +1,21 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import {
-  FaComment,
-  FaLightbulb,
-  FaTrash,
-  FaChevronDown,
-  FaChevronUp,
-  FaSave,
-  FaTimes,
-} from 'react-icons/fa'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   deleteDocFeedback,
   updateDocFeedback,
   updateDocFeedbackCollapsed,
 } from '~/utils/docFeedback.functions'
-import { useToast } from '~/components/ToastProvider'
 import type { DocFeedback } from '~/db/schema'
+import {
+  ChevronDown,
+  ChevronUp,
+  Lightbulb,
+  MessageSquare,
+  Save,
+  Trash,
+  X,
+} from 'lucide-react'
 
 interface DocFeedbackNoteProps {
   note: DocFeedback
@@ -42,13 +41,13 @@ export function DocFeedbackNote({
 
   // Theme based on type
   const isImprovement = note.type === 'improvement'
-  const Icon = isImprovement ? FaLightbulb : FaComment
+  const Icon = isImprovement ? Lightbulb : MessageSquare
   const colors = isImprovement
     ? {
         bg: 'bg-yellow-50 dark:bg-yellow-900/20',
         border: 'border-yellow-400 dark:border-yellow-600',
         header: 'bg-yellow-100 dark:bg-yellow-900/30',
-        icon: 'text-yellow-600 dark:text-yellow-500',
+        icon: 'text-yellow-600 dark:text-yellow-500 text-[14px]',
         text: 'text-yellow-800 dark:text-yellow-300',
         timestamp: 'text-yellow-700 dark:text-yellow-400',
         deleteHover: 'hover:text-yellow-600 dark:hover:text-yellow-400',
@@ -57,7 +56,7 @@ export function DocFeedbackNote({
         bg: 'bg-blue-50 dark:bg-blue-900/20',
         border: 'border-blue-400 dark:border-blue-600',
         header: 'bg-blue-100 dark:bg-blue-900/30',
-        icon: 'text-blue-600 dark:text-blue-500',
+        icon: 'text-blue-600 dark:text-blue-500 text-[14px]',
         text: 'text-blue-800 dark:text-blue-300',
         timestamp: 'text-blue-700 dark:text-blue-400',
         deleteHover: 'hover:text-blue-600 dark:hover:text-blue-400',
@@ -377,7 +376,7 @@ export function DocFeedbackNote({
                     title={isImprovement ? 'Delete improvement' : 'Delete note'}
                     disabled={isDeleting || isSaving}
                   >
-                    <FaTrash className="text-xs" />
+                    <Trash className="text-xs" />
                   </button>
                 </>
               )}
@@ -394,9 +393,9 @@ export function DocFeedbackNote({
                 }
               >
                 {note.isCollapsed ? (
-                  <FaChevronDown className="text-xs" />
+                  <ChevronDown className="text-xs" />
                 ) : (
-                  <FaChevronUp className="text-xs" />
+                  <ChevronUp className="text-xs" />
                 )}
               </button>
             </div>
@@ -444,7 +443,7 @@ export function DocFeedbackNote({
                   )}
                   disabled={isSaving}
                 >
-                  <FaSave className="text-[10px]" />
+                  <Save className="text-[10px]" />
                   {isSaving ? 'Saving...' : 'Save'}
                 </button>
                 <button
@@ -452,7 +451,7 @@ export function DocFeedbackNote({
                   className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-50"
                   disabled={isSaving}
                 >
-                  <FaTimes className="inline text-[10px] mr-1" />
+                  <X className="inline text-[10px] mr-1" />
                   Cancel
                 </button>
               </div>

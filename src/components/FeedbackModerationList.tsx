@@ -1,13 +1,6 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import {
-  FaCheck,
-  FaTimes,
-  FaComment,
-  FaLightbulb,
-  FaExclamationTriangle,
-} from 'react-icons/fa'
-import {
   Table,
   TableHeader,
   TableHeaderRow,
@@ -20,6 +13,8 @@ import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { DocFeedback } from '~/db/schema'
 import { calculatePoints } from '~/utils/docFeedback.client'
+import { Check, Lightbulb, TriangleAlert } from 'lucide-react'
+import { MessageSquare, X } from 'lucide-react'
 
 interface FeedbackModerationListProps {
   data:
@@ -174,9 +169,9 @@ export function FeedbackModerationList({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {feedback.type === 'note' ? (
-                        <FaComment className="text-blue-500" />
+                        <MessageSquare className="text-blue-500" size={14} />
                       ) : (
-                        <FaLightbulb className="text-yellow-500" />
+                        <Lightbulb className="text-yellow-500" size={14} />
                       )}
                       <span className="text-xs">
                         {feedback.type === 'note' ? 'Note' : 'Improvement'}
@@ -213,7 +208,7 @@ export function FeedbackModerationList({
                     </span>
                     {feedback.isDetached && (
                       <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        <FaExclamationTriangle />
+                        <TriangleAlert size={12} />
                         Detached
                       </div>
                     )}
@@ -235,14 +230,14 @@ export function FeedbackModerationList({
                           className="px-3 py-1 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded transition-colors"
                           title="Approve"
                         >
-                          <FaCheck />
+                          <Check />
                         </button>
                         <button
                           onClick={() => handleModerate(feedback.id, 'deny')}
                           className="px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
                           title="Deny"
                         >
-                          <FaTimes />
+                          <X size={14} />
                         </button>
                       </div>
                     )}
@@ -309,7 +304,10 @@ export function FeedbackModerationList({
                         {/* Moderation Note Input (for pending only) */}
                         {isPending && (
                           <div>
-                            <label className="block text-sm font-semibold mb-2">
+                            <label
+                              htmlFor={`moderation-note-${feedback.id}`}
+                              className="block text-sm font-semibold mb-2"
+                            >
                               Internal Moderation Note (optional):
                             </label>
                             <textarea

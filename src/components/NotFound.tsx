@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { TbGhost } from 'react-icons/tb'
+import { Ghost } from 'lucide-react'
 
 export function NotFound({ children }: { children?: any }) {
   return (
@@ -8,7 +8,7 @@ export function NotFound({ children }: { children?: any }) {
         <h1 className="text-3xl font-black uppercase [letter-spacing:-0.02em]">
           404 Not Found
         </h1>
-        <TbGhost className="text-[10rem] opacity-20 hover:opacity-100 animate-bounce mt-8 blur-md hover:blur-none transition-all duration-300" />
+        <Ghost className="text-[10rem] opacity-20 hover:opacity-100 animate-bounce mt-8 blur-md hover:blur-none transition-all duration-300" />
         <p>The page you are looking for does not exist.</p>
         {children || (
           <p className="flex items-center gap-2 flex-wrap">

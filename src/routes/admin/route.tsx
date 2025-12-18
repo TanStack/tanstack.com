@@ -6,24 +6,25 @@ import {
   createFileRoute,
   redirect,
 } from '@tanstack/react-router'
-import { CgClose, CgMenuLeft } from 'react-icons/cg'
 import {
-  FaHome,
-  FaUser,
-  FaUsers,
-  FaRss,
-  FaShieldAlt,
-  FaGithub,
-  FaNpm,
-  FaChartLine,
-  FaComments,
-  FaStickyNote,
-} from 'react-icons/fa'
+  X,
+  TextAlignStart,
+  ChartLine,
+  MessagesSquare,
+  Home,
+  Rss,
+  ShieldHalf,
+  StickyNote,
+  Users,
+  User,
+} from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
 import { requireCapability } from '~/utils/auth.server'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { NpmIcon } from '~/components/icons/NpmIcon'
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
@@ -68,7 +69,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   })[] = [
     {
       label: 'Admin Dashboard',
-      icon: <FaHome />,
+      icon: <Home size={14} />,
       to: '/admin',
       activeOptions: {
         exact: true,
@@ -76,49 +77,49 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'Statistics',
-      icon: <FaChartLine />,
+      icon: <ChartLine size={14} />,
       to: '/admin/stats',
     },
     {
       label: 'Users',
-      icon: <FaUsers />,
+      icon: <Users size={14} />,
       to: '/admin/users',
     },
     {
       label: 'Roles',
-      icon: <FaShieldAlt />,
+      icon: <ShieldHalf size={14} />,
       to: '/admin/roles',
     },
     {
       label: 'Feedback',
-      icon: <FaComments />,
+      icon: <MessagesSquare size={14} />,
       to: '/admin/feedback',
       requiredCapability: 'moderate-feedback',
     },
     {
       label: 'Notes',
-      icon: <FaStickyNote />,
+      icon: <StickyNote size={14} />,
       to: '/admin/notes',
       requiredCapability: 'moderate-feedback',
     },
     {
       label: 'Feed',
-      icon: <FaRss />,
+      icon: <Rss size={14} />,
       to: '/admin/feed',
     },
     {
       label: 'GitHub Stats',
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       to: '/admin/github-stats',
     },
     {
       label: 'NPM Stats',
-      icon: <FaNpm />,
+      icon: <NpmIcon />,
       to: '/admin/npm-stats',
     },
     {
       label: 'My Account',
-      icon: <FaUser />,
+      icon: <User size={14} />,
       to: '/account',
     },
   ]
@@ -166,8 +167,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       >
         <summary className="py-2 px-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-4 items-center">
-            <CgMenuLeft className="icon-open cursor-pointer" />
-            <CgClose className="icon-close cursor-pointer" />
+            <TextAlignStart className="icon-open cursor-pointer" />
+            <X className="icon-close cursor-pointer" />
             Admin Menu
           </div>
         </summary>

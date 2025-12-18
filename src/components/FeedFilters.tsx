@@ -1,10 +1,9 @@
 import * as React from 'react'
 import { useState } from 'react'
-import { LuHelpCircle, LuRotateCcw } from 'react-icons/lu'
+import { RotateCcw } from 'lucide-react'
 import { useDebouncedValue } from '@tanstack/react-pacer'
 import { Library, type LibraryId } from '~/libraries'
 import { partners } from '~/utils/partners'
-import { Tooltip } from '~/components/Tooltip'
 import {
   FEED_CATEGORIES,
   RELEASE_LEVELS,
@@ -477,7 +476,7 @@ export function FeedFilters({
             onClick={onClearFilters}
             className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
           >
-            <LuRotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset Filters</span>
           </button>
         </div>

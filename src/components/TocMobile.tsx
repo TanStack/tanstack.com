@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from '@tanstack/react-router'
-import { FaCaretRight, FaCaretDown } from 'react-icons/fa6'
 import { MarkdownHeading } from '~/utils/markdown/processor'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 
 interface TocMobileProps {
   headings: Array<MarkdownHeading>
@@ -26,7 +26,9 @@ export function TocMobile({ headings }: TocMobileProps) {
           rounded-b-xl"
           aria-expanded={isOpen}
         >
-          <span>{isOpen ? <FaCaretDown /> : <FaCaretRight />}</span>
+          <span>
+            {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </span>
           <span>On this page</span>
         </summary>
         <div className="px-2 py-2">

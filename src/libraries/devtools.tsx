@@ -1,7 +1,7 @@
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { BiBookAlt } from 'react-icons/bi'
-import { VscWand } from 'react-icons/vsc'
+import { Book, WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/devtools'
 
@@ -30,12 +30,12 @@ export const devtoolsProject = {
   frameworks: ['react', 'preact', 'solid', 'vanilla'],
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/devtools/latest/docs',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'Github',
       to: `https://github.com/${repo}`,
     },
@@ -43,7 +43,7 @@ export const devtoolsProject = {
   featureHighlights: [
     {
       title: 'Unified Devtools Panel',
-      icon: <VscWand className="text-slate-400" />,
+      icon: <WandSparkles size={16} className="text-slate-400" />,
       description: (
         <div>
           TanStack Devtools provides a centralized panel that houses all
@@ -58,7 +58,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Framework Agnostic',
-      icon: <FaBolt className="text-slate-500" />,
+      icon: <Zap className="text-slate-500" />,
       description: (
         <div>
           Built with Solid.js for lightweight performance, but designed to work
@@ -73,7 +73,7 @@ export const devtoolsProject = {
     },
     {
       title: 'Custom Devtools Support',
-      icon: <FaCogs className="text-slate-600" />,
+      icon: <CogsIcon className="text-slate-600" />,
       description: (
         <div>
           Extend the devtools panel with your own custom devtools. The platform

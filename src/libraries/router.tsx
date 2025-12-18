@@ -1,11 +1,13 @@
-import { FaGithub } from 'react-icons/fa'
-import { VscPreview } from 'react-icons/vsc'
-import { BiBookAlt } from 'react-icons/bi'
-import { RiLightbulbFlashLine } from 'react-icons/ri'
-import { CgTimelapse } from 'react-icons/cg'
-import { TbZoomQuestion } from 'react-icons/tb'
+import {
+  Book,
+  DatabaseZap,
+  MessageCircleQuestionMark,
+  PlugZap,
+  Wallpaper,
+} from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
+import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/router'
 
@@ -44,17 +46,17 @@ export const routerProject = {
   showCloudflareUrl: true,
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/router/latest/docs/framework/react/overview',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/router/latest/docs/framework/react/examples/kitchen-sink-file-based',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'GitHub',
       to: `https://github.com/${repo}`,
     },
@@ -62,9 +64,7 @@ export const routerProject = {
   featureHighlights: [
     {
       title: 'Typesafe & powerful, yet familiarly simple',
-      icon: (
-        <RiLightbulbFlashLine className={twMerge('scale-125', textStyles)} />
-      ),
+      icon: <PlugZap className={twMerge('scale-125', textStyles)} />,
       description: (
         <div>
           TanStack Router builds on modern routing patterns made popular by
@@ -79,7 +79,7 @@ export const routerProject = {
     {
       title: 'Built-in Data Fetching with Caching',
       icon: (
-        <CgTimelapse
+        <DatabaseZap
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '3s',
@@ -101,7 +101,7 @@ export const routerProject = {
     },
     {
       title: 'Search Param APIs to make your state-manager jealous',
-      icon: <TbZoomQuestion className={twMerge('', textStyles)} />,
+      icon: <MessageCircleQuestionMark className={twMerge('', textStyles)} />,
       description: (
         <div>
           Instead of throwing you to the URLSearchParam wolves, TanStack Router

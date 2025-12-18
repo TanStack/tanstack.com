@@ -660,3 +660,14 @@ mark {
   background-color: rgba(59, 130, 246, 0.05);
   outline-color: rgba(59, 130, 246, 0.3);
 }
+
+/* Icons */
+
+.lucide-book {
+  height: 1em;
+  width: 1em;
+}
+
+.lucide {
+  stroke-width: 2.25;
+}

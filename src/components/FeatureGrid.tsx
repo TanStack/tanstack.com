@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { FaCheckCircle } from 'react-icons/fa'
+import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
 
 type FeatureGridProps = {
   title?: string
@@ -25,7 +25,7 @@ export function FeatureGrid({ title, items, gridClassName }: FeatureGridProps) {
       >
         {items.map((d, i) => (
           <span key={i} className="flex items-center gap-2">
-            <FaCheckCircle className="text-green-500 " /> {d}
+            <CheckCircleIcon className="text-green-500 " /> {d}
           </span>
         ))}
       </div>

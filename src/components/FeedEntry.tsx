@@ -3,9 +3,9 @@ import { Markdown } from '~/components/Markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
-import { FaEdit, FaTrash, FaEye, FaEyeSlash, FaStar } from 'react-icons/fa'
 import { Link } from '@tanstack/react-router'
 import { TableRow, TableCell } from '~/components/TableComponents'
+import { Eye, EyeOff, SquarePen, Star, Trash } from 'lucide-react'
 
 export interface FeedEntry {
   _id: string
@@ -303,7 +303,7 @@ export function FeedEntry({
                   className="p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors text-gray-600 dark:text-gray-400"
                   title="Edit"
                 >
-                  <FaEdit className="w-3 h-3" />
+                  <SquarePen className="w-3 h-3" />
                 </button>
               )}
               {adminActions.onToggleVisibility && (
@@ -315,9 +315,9 @@ export function FeedEntry({
                   title={entry.isVisible ? 'Hide' : 'Show'}
                 >
                   {entry.isVisible ? (
-                    <FaEye className="w-3 h-3" />
+                    <Eye className="w-3 h-3" />
                   ) : (
-                    <FaEyeSlash className="w-3 h-3" />
+                    <EyeOff className="w-3 h-3" />
                   )}
                 </button>
               )}
@@ -333,7 +333,7 @@ export function FeedEntry({
                   }`}
                   title="Toggle Featured"
                 >
-                  <FaStar className="w-3 h-3" />
+                  <Star className="w-3 h-3" />
                 </button>
               )}
               {adminActions.onDelete && (
@@ -342,7 +342,7 @@ export function FeedEntry({
                   className="p-0.5 hover:bg-red-100 dark:hover:bg-red-900 rounded transition-colors text-red-500"
                   title="Delete"
                 >
-                  <FaTrash className="w-3 h-3" />
+                  <Trash className="w-3 h-3" />
                 </button>
               )}
             </div>

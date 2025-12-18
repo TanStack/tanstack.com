@@ -2,12 +2,14 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { authClient } from '~/utils/auth.client'
-import { FaGithub, FaGoogle, FaCheckCircle } from 'react-icons/fa'
 import { Authenticated, Unauthenticated } from '~/components/AuthComponents'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useToast } from '~/components/ToastProvider'
 import { useEffect, useState } from 'react'
 import { setInterestedInHidingAds } from '~/utils/users.server'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CheckCircleIcon } from '~/components/icons/CheckCircleIcon'
+import { GoogleIcon } from '~/components/icons/GoogleIcon'
 
 export const Route = createFileRoute('/_libraries/ads')({
   component: RouteComp,
@@ -202,7 +204,7 @@ function SignInForm() {
         }
         className="w-full bg-black/80 hover:bg-black text-white dark:text-black dark:bg-white/95 dark:hover:bg-white font-semibold py-2 px-4 rounded-md transition-colors"
       >
-        <FaGithub className="inline-block mr-2" /> Sign in with GitHub
+        <GithubIcon className="inline-block mr-2" /> Sign in with GitHub
       </button>
       <button
         onClick={() =>
@@ -212,7 +214,7 @@ function SignInForm() {
         }
         className="w-full bg-[#DB4437]/95 hover:bg-[#DB4437] text-white font-semibold py-2 px-4 rounded-md transition-colors mt-4"
       >
-        <FaGoogle className="inline-block mr-2" /> Sign in with Google
+        <GoogleIcon className="inline-block mr-2" /> Sign in with Google
       </button>
     </div>
   )
@@ -270,7 +272,7 @@ function OptInButton() {
     return (
       <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 w-[100vw] max-w-sm mx-auto text-center">
         <div className="flex items-center justify-center mb-4">
-          <FaCheckCircle className="text-green-500 text-4xl" />
+          <CheckCircleIcon className="text-green-500 text-4xl" />
         </div>
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
           You're on the waitlist!

@@ -1,31 +1,24 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { BrandContextMenu } from './BrandContextMenu'
+import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import {
-  Link,
-  useLocation,
-  useMatches,
-  type LinkProps,
-} from '@tanstack/react-router'
-import { TbBrandX, TbBrandBluesky } from 'react-icons/tb'
-import { FaDiscord, FaGithub, FaInstagram } from 'react-icons/fa'
-import {
-  LuCode,
-  LuUsers,
-  LuMusic,
-  LuHelpCircle,
-  LuBookOpen,
-  LuTrendingUp,
-  LuShirt,
-  LuShieldCheck,
-  LuPaintbrush,
-  LuHammer,
-  LuUser,
-  LuLock,
-  LuX,
-  LuMenu,
-  LuRss,
-} from 'react-icons/lu'
+  Code,
+  Users,
+  Music,
+  HelpCircle,
+  BookOpen,
+  TrendingUp,
+  Shirt,
+  ShieldCheck,
+  Paintbrush,
+  Hammer,
+  User,
+  Lock,
+  X,
+  Menu,
+  Rss,
+} from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
 import { FeedTicker } from './FeedTicker'
@@ -36,6 +29,11 @@ import {
 } from '~/components/AuthComponents'
 import { libraries } from '~/libraries'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { DiscordIcon } from '~/components/icons/DiscordIcon'
+import { InstagramIcon } from '~/components/icons/InstagramIcon'
+import { BSkyIcon } from '~/components/icons/BSkyIcon'
+import { BrandXIcon } from '~/components/icons/BrandXIcon'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
@@ -83,7 +81,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
             hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
           >
-            <LuUser className="scale-125" />
+            <User size={16} />
             <div className="">Log In</div>
           </Link>
         )
@@ -99,7 +97,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <Authenticated>
         {!canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <LuUser />
+            <User size={16} />
             <Link
               to="/account"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
@@ -110,7 +108,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ) : null}
         {canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <LuLock />
+            <Lock />
             <Link
               to="/admin"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -130,28 +128,28 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         className="opacity-70 hover:opacity-100"
         aria-label="Follow TanStack on X.com"
       >
-        <TbBrandX className="text-xl" />
+        <BrandXIcon className="text-xl" />
       </a>
       <a
         href="https://bsky.app/profile/tanstack.com"
         className="opacity-70 hover:opacity-100"
-        aria-label="Follow TanStack on Bluesky"
+        aria-label="Follow TanStack on Besky"
       >
-        <TbBrandBluesky className="text-xl" />
+        <BSkyIcon className="text-xl" />
       </a>
       <a
         href="https://instagram.com/tan_stack"
         className="opacity-70 hover:opacity-100"
         aria-label="Follow TanStack on Instagram"
       >
-        <FaInstagram className="text-xl" />
+        <InstagramIcon className="text-xl" />
       </a>
       <a
         href="https://tlinz.com/discord"
         className="opacity-70 hover:opacity-100"
         aria-label="Join TanStack Discord"
       >
-        <FaDiscord className="text-xl" />
+        <DiscordIcon className="text-xl" />
       </a>
     </div>
   )
@@ -159,7 +157,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const navbar = (
     <div
       className={twMerge(
-        'w-full p-2 fixed top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-blur-lg shadow-xl shadow-black/3',
+        'w-full p-2 fixed top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-br-lg shadow-xl shadow-black/3',
         'flex items-center justify-between gap-4',
         'dark:border-b border-gray-500/20',
       )}
@@ -186,7 +184,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 setShowMenu(true)
               }}
             >
-              {showMenu ? <LuX /> : <LuMenu />}
+              {showMenu ? <X /> : <Menu />}
             </button>
             <Link
               to="/"
@@ -379,7 +377,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                         'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30',
                       )}
                     >
-                      <LuUsers />
+                      <Users size={14} />
                       Contributors
                     </Link>
                   </div>
@@ -436,7 +434,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             >
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-4 justify-between">
-                  <LuHammer />
+                  <Hammer />
                 </div>
                 <div>Builder</div>
               </div>
@@ -448,27 +446,27 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: (
               <>
                 <span>Feed</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-be-400 to-be-600 text-white rounded-md uppercase">
                   Beta
                 </span>
               </>
             ),
-            icon: <LuRss />,
+            icon: <Rss size={14} />,
             to: '/feed',
           },
           {
             label: 'Maintainers',
-            icon: <LuCode />,
+            icon: <Code size={14} />,
             to: '/maintainers',
           },
           {
             label: 'Partners',
-            icon: <LuUsers />,
+            icon: <Users size={14} />,
             to: '/partners',
           },
           {
             label: 'Blog',
-            icon: <LuMusic />,
+            icon: <Music size={14} />,
             to: '/blog',
           },
           {
@@ -480,48 +478,48 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 </span>
               </>
             ),
-            icon: <LuBookOpen />,
+            icon: <BookOpen size={14} />,
             to: '/learn',
           },
           {
             label: 'Support',
-            icon: <LuHelpCircle />,
+            icon: <HelpCircle size={14} />,
             to: '/support',
           },
           {
             label: 'Stats',
-            icon: <LuTrendingUp />,
+            icon: <TrendingUp size={14} />,
             to: '/stats/npm',
           },
           {
             label: 'Discord',
-            icon: <FaDiscord />,
+            icon: <DiscordIcon size={14} />,
             to: 'https://tlinz.com/discord',
             target: '_blank',
           },
           {
             label: 'Merch',
-            icon: <LuShirt />,
+            icon: <Shirt size={14} />,
             to: '/merch',
           },
           {
             label: 'GitHub',
-            icon: <FaGithub />,
+            icon: <GithubIcon />,
             to: 'https://github.com/tanstack',
           },
           {
             label: 'Ethos',
-            icon: <LuShieldCheck />,
+            icon: <ShieldCheck size={14} />,
             to: '/ethos',
           },
           {
             label: 'Tenets',
-            icon: <LuBookOpen />,
+            icon: <BookOpen size={14} />,
             to: '/tenets',
           },
           {
             label: 'Brand Guide',
-            icon: <LuPaintbrush />,
+            icon: <Paintbrush size={14} />,
             to: '/brand-guide',
           },
         ]
@@ -565,7 +563,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   const smallMenu = showMenu ? (
     <div
-      className="lg:hidden bg-white/50 dark:bg-black/60 backdrop-blur-[20px] z-50
+      className="lg:hidden bg-white/50 dark:bg-black/60 backdrop-br-[20px] z-50
     fixed top-[var(--navbar-height)] left-0 right-0 max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto
     "
     >
@@ -611,7 +609,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           inlineMenu
             ? ''
             : [
-                'fixed bg-white/70 dark:bg-black/50 backdrop-blur-lg -translate-x-full',
+                'fixed bg-white/70 dark:bg-black/50 backdrop-br-lg -translate-x-full',
                 showMenu && 'translate-x-0',
               ],
         )}

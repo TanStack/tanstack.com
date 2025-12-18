@@ -1,8 +1,8 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { FaGithub, FaBolt, FaCogs } from 'react-icons/fa'
-import { VscPreview, VscWand } from 'react-icons/vsc'
-import { BiBookAlt } from 'react-icons/bi'
+import { Book, Wallpaper, WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
+import { GithubIcon } from '~/components/icons/GithubIcon'
+import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/query'
 
@@ -60,17 +60,17 @@ export const queryProject = {
   },
   menu: [
     {
-      icon: <BiBookAlt />,
+      icon: <Book />,
       label: 'Docs',
       to: '/query/latest/docs/framework/react/overview',
     },
     {
-      icon: <VscPreview />,
+      icon: <Wallpaper size={16} />,
       label: 'Examples',
       to: '/query/latest/docs/framework/react/examples/basic',
     },
     {
-      icon: <FaGithub />,
+      icon: <GithubIcon />,
       label: 'GitHub',
       to: `https://github.com/${repo}`,
     },
@@ -79,7 +79,7 @@ export const queryProject = {
     {
       title: 'Declarative & Automatic',
       icon: (
-        <VscWand
+        <WandSparkles
           className={twMerge('motion-safe:animate-pulse', textStyles)}
           style={{
             animationDuration: '5s',
@@ -103,7 +103,7 @@ export const queryProject = {
     {
       title: 'Simple & Familiar',
       icon: (
-        <FaBolt
+        <Zap
           className={twMerge('motion-safe:animate-bounce', textStyles)}
           style={{
             animationDuration: '2s',
@@ -127,7 +127,7 @@ export const queryProject = {
     {
       title: 'Extensible',
       icon: (
-        <FaCogs
+        <CogsIcon
           className={twMerge('motion-safe:animate-spin', textStyles)}
           style={{
             animationDuration: '10s',

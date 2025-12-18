@@ -11,7 +11,10 @@ import { FEED_DEFAULTS } from '~/utils/feedDefaults'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { useQuery } from '@tanstack/react-query'
-import { getFeedFacetCountsQueryOptions, type FeedFilters } from '~/queries/feed'
+import {
+  getFeedFacetCountsQueryOptions,
+  type FeedFilters,
+} from '~/queries/feed'
 import { twMerge } from 'tailwind-merge'
 
 // Re-export FeedFilters as FeedFiltersState for backwards compatibility

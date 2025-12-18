@@ -1,11 +1,10 @@
-// Minimal auth client for OAuth flows
-export const authClient = {
-  signIn: {
-    social: ({ provider }: { provider: 'github' | 'google' }) => {
-      window.location.href = `/auth/${provider}/start`
-    },
-  },
-  signOut: async () => {
-    window.location.href = '/auth/signout'
-  },
-}
+/**
+ * Auth Client Utilities
+ *
+ * This module re-exports from the isolated auth module at ~/auth/
+ * for backward compatibility with existing imports.
+ *
+ * For new code, import directly from '~/auth'.
+ */
+
+export { authClient } from '~/auth/client'

@@ -137,7 +137,7 @@ function Index() {
                   <span
                     className={`
             inline-block text-black dark:text-white
-            mb-2 uppercase [letter-spacing:-.04em] pr-1.5
+            mb-2 uppercase [letter-spacing:-.02em] pr-1.5
             `}
                   >
                     TanStack

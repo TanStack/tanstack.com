@@ -8,7 +8,11 @@
  */
 
 import { getOAuthService, getOAuthAccountRepository } from '~/auth/index.server'
-import type { OAuthProvider, OAuthProfile, OAuthResult } from '~/auth/index.server'
+import type {
+  OAuthProvider,
+  OAuthProfile,
+  OAuthResult,
+} from '~/auth/index.server'
 
 // Re-export types for backward compatibility
 export type { OAuthProvider, OAuthProfile }

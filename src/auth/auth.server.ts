@@ -97,7 +97,10 @@ export class AuthService implements IAuthService {
   /**
    * Map database user to AuthUser type
    */
-  private mapDbUserToAuthUser(user: DbUser, capabilities: Capability[]): AuthUser {
+  private mapDbUserToAuthUser(
+    user: DbUser,
+    capabilities: Capability[],
+  ): AuthUser {
     return {
       userId: user.id,
       email: user.email,
@@ -140,7 +143,8 @@ export async function requireCapability(
   const user = await requireAuthentication(authService, request)
 
   const hasAccess =
-    user.capabilities.includes('admin') || user.capabilities.includes(capability)
+    user.capabilities.includes('admin') ||
+    user.capabilities.includes(capability)
 
   if (!hasAccess) {
     throw new AuthError(

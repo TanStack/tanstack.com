@@ -22,9 +22,7 @@ import {
 // ============================================================================
 
 function getSessionSecret(): string {
-  return (
-    process.env.SESSION_SECRET || 'dev-secret-key-change-in-production'
-  )
+  return process.env.SESSION_SECRET || 'dev-secret-key-change-in-production'
 }
 
 function isProduction(): boolean {

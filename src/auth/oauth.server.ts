@@ -243,10 +243,7 @@ export async function exchangeGitHubCode(
     console.error(
       '[OAuth] GitHub token exchange succeeded but no access_token returned',
     )
-    throw new AuthError(
-      'No access token received from GitHub',
-      'OAUTH_ERROR',
-    )
+    throw new AuthError('No access token received from GitHub', 'OAUTH_ERROR')
   }
 
   return tokenData.access_token

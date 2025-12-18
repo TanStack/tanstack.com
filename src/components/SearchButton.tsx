@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Command, Search } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { useSearchContext } from '~/contexts/SearchContext'
+import { usePlatform } from '~/hooks/usePlatform'
 
 interface SearchButtonProps {
   className?: string
@@ -10,6 +11,7 @@ interface SearchButtonProps {
 
 export function SearchButton({ className }: SearchButtonProps) {
   const { openSearch } = useSearchContext()
+  const platform = usePlatform();
 
   return (
     <button
@@ -23,7 +25,7 @@ export function SearchButton({ className }: SearchButtonProps) {
         <Search size={18} /> Search...
       </div>
       <div className="flex items-center bg-white/50 dark:bg-gray-500/50 rounded-md px-2 py-1 gap-1 font-bold text-xs whitespace-nowrap">
-        <Command size={12} /> + K
+        {platform?.toLowerCase()?.includes("mac") ? <Command size={12} /> : "Ctrl"} + K
       </div>
     </button>
   )

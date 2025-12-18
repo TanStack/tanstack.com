@@ -274,6 +274,18 @@ export async function fetchGitHubProfile(
       },
     })
     const emails = await emailResponse.json()
+
+    if (!Array.isArray(emails)) {
+      console.error(
+        `[OAuth] GitHub emails API returned non-array response:`,
+        emails,
+      )
+      throw new AuthError(
+        emails?.message || 'Failed to fetch GitHub emails',
+        'OAUTH_ERROR',
+      )
+    }
+
     const primaryEmail = emails.find(
       (e: { primary: boolean; verified: boolean; email: string }) =>
         e.primary && e.verified,

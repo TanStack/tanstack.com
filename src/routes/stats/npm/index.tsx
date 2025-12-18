@@ -1302,7 +1302,7 @@ function RouteComponent() {
                             ?.label
                         }`
                       : 'No Facet X'}
-                    <Ellip className="w-3 h-3" />
+                    <EllipsisVertical className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
               </Tooltip>

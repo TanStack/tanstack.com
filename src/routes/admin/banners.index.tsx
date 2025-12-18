@@ -296,9 +296,7 @@ function BannersAdminPage() {
                               ? 'text-green-600 hover:bg-green-100 dark:hover:bg-green-900/30'
                               : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                           }`}
-                          title={
-                            banner.isActive ? 'Deactivate' : 'Activate'
-                          }
+                          title={banner.isActive ? 'Deactivate' : 'Activate'}
                         >
                           {banner.isActive ? (
                             <ToggleRight className="w-5 h-5" />

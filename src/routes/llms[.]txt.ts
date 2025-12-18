@@ -1,6 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { setResponseHeader } from '@tanstack/react-start/server'
-import { libraries, librariesByGroup, librariesGroupNamesMap } from '~/libraries'
+import {
+  libraries,
+  librariesByGroup,
+  librariesGroupNamesMap,
+} from '~/libraries'
 import type { Library } from '~/libraries'
 
 export const Route = createFileRoute('/llms.txt')({
@@ -14,7 +18,7 @@ export const Route = createFileRoute('/llms.txt')({
         setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')
         setResponseHeader(
           'CDN-Cache-Control',
-          'max-age=86400, stale-while-revalidate=86400, durable'
+          'max-age=86400, stale-while-revalidate=86400, durable',
         )
 
         return new Response(content)
@@ -30,7 +34,7 @@ function generateLlmsTxt(): string {
   lines.push('# TanStack')
   lines.push('')
   lines.push(
-    '> TanStack provides high-quality, open-source libraries for web development including routing, data fetching, state management, tables, forms, and more. All libraries are framework-agnostic with first-class support for React, Vue, Solid, Svelte, and Angular.'
+    '> TanStack provides high-quality, open-source libraries for web development including routing, data fetching, state management, tables, forms, and more. All libraries are framework-agnostic with first-class support for React, Vue, Solid, Svelte, and Angular.',
   )
   lines.push('')
 
@@ -76,7 +80,7 @@ function generateLlmsTxt(): string {
 
     if (library.defaultDocs) {
       links.push(
-        `- [Documentation](https://tanstack.com/${library.id}/latest/docs/${library.defaultDocs})`
+        `- [Documentation](https://tanstack.com/${library.id}/latest/docs/${library.defaultDocs})`,
       )
     }
 
@@ -87,7 +91,7 @@ function generateLlmsTxt(): string {
     // Add installation link if available
     if (library.installPath) {
       links.push(
-        `- [Installation](https://tanstack.com/${library.id}/latest/docs/${library.installPath.replace('$framework', 'react')})`
+        `- [Installation](https://tanstack.com/${library.id}/latest/docs/${library.installPath.replace('$framework', 'react')})`,
       )
     }
 
@@ -107,7 +111,7 @@ function generateLlmsTxt(): string {
   lines.push('## Optional')
   lines.push('')
   lines.push(
-    '- [NPM Stats](https://tanstack.com/stats/npm): Compare npm package download statistics'
+    '- [NPM Stats](https://tanstack.com/stats/npm): Compare npm package download statistics',
   )
   lines.push('- [Blog](https://tanstack.com/blog): Latest news and updates')
   lines.push('')

@@ -34,7 +34,8 @@ const BANNER_STYLES = [
     value: 'info',
     label: 'Info',
     icon: Info,
-    bgClass: 'bg-blue-100 dark:bg-blue-950 border-blue-200 dark:border-blue-800',
+    bgClass:
+      'bg-blue-100 dark:bg-blue-950 border-blue-200 dark:border-blue-800',
     textClass: 'text-blue-900 dark:text-blue-100',
     iconClass: 'text-blue-600 dark:text-blue-400',
   },
@@ -42,7 +43,8 @@ const BANNER_STYLES = [
     value: 'warning',
     label: 'Warning',
     icon: AlertTriangle,
-    bgClass: 'bg-amber-100 dark:bg-amber-950 border-amber-200 dark:border-amber-800',
+    bgClass:
+      'bg-amber-100 dark:bg-amber-950 border-amber-200 dark:border-amber-800',
     textClass: 'text-amber-900 dark:text-amber-100',
     iconClass: 'text-amber-600 dark:text-amber-400',
   },
@@ -50,7 +52,8 @@ const BANNER_STYLES = [
     value: 'success',
     label: 'Success',
     icon: CheckCircle,
-    bgClass: 'bg-green-100 dark:bg-green-950 border-green-200 dark:border-green-800',
+    bgClass:
+      'bg-green-100 dark:bg-green-950 border-green-200 dark:border-green-800',
     textClass: 'text-green-900 dark:text-green-100',
     iconClass: 'text-green-600 dark:text-green-400',
   },
@@ -58,7 +61,8 @@ const BANNER_STYLES = [
     value: 'promo',
     label: 'Promo',
     icon: Gift,
-    bgClass: 'bg-purple-100 dark:bg-purple-950 border-purple-200 dark:border-purple-800',
+    bgClass:
+      'bg-purple-100 dark:bg-purple-950 border-purple-200 dark:border-purple-800',
     textClass: 'text-purple-900 dark:text-purple-100',
     iconClass: 'text-purple-600 dark:text-purple-400',
   },
@@ -67,11 +71,7 @@ const BANNER_STYLES = [
 type BannerStyle = (typeof BANNER_STYLES)[number]['value']
 type BannerScope = 'global' | 'targeted'
 
-export function BannerEditor({
-  banner,
-  onSave,
-  onCancel,
-}: BannerEditorProps) {
+export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
   const isNew = banner === null
   const queryClient = useQueryClient()
 
@@ -640,9 +640,7 @@ export function BannerEditor({
                     className={`w-5 h-5 mt-0.5 flex-shrink-0 ${currentStyle.iconClass}`}
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium">
-                      {title || 'Banner Title'}
-                    </div>
+                    <div className="font-medium">{title || 'Banner Title'}</div>
                     {content && (
                       <div className="text-sm opacity-90 mt-0.5">{content}</div>
                     )}

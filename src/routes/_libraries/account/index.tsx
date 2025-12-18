@@ -69,10 +69,7 @@ function AccountSettingsPage() {
         </h3>
         <div className="flex flex-col gap-y-4 text-sm">
           <div className="flex flex-col gap-1">
-            <label
-              htmlFor="email"
-              className="font-medium"
-            >
+            <label htmlFor="email" className="font-medium">
               Email
             </label>
             <input

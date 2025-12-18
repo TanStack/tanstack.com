@@ -1,4 +1,10 @@
-import { Book, DatabaseZap, MessageCircleQuestionMark, PlugZap, Wallpaper } from 'lucide-react'
+import {
+  Book,
+  DatabaseZap,
+  MessageCircleQuestionMark,
+  PlugZap,
+  Wallpaper,
+} from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -58,9 +64,7 @@ export const routerProject = {
   featureHighlights: [
     {
       title: 'Typesafe & powerful, yet familiarly simple',
-      icon: (
-        <PlugZap className={twMerge('scale-125', textStyles)} />
-      ),
+      icon: <PlugZap className={twMerge('scale-125', textStyles)} />,
       description: (
         <div>
           TanStack Router builds on modern routing patterns made popular by

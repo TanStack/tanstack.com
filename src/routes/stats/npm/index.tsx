@@ -2,7 +2,15 @@ import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 import { useDebouncedValue, useThrottledCallback } from '@tanstack/react-pacer'
-import { X, Plus, Eye, EyeOff, Pin, EllipsisVertical, Search } from 'lucide-react'
+import {
+  X,
+  Plus,
+  Eye,
+  EyeOff,
+  Pin,
+  EllipsisVertical,
+  Search,
+} from 'lucide-react'
 import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import * as Plot from '@observablehq/plot'
 import { ParentSize } from '@visx/responsive'
@@ -1793,8 +1801,6 @@ function RouteComponent() {
                           }
 
                           const firstPackage = packageGroupDownloads.packages[0]
-
-
 
                           // Sort downloads by date
                           const sortedDownloads = packageGroupDownloads.packages

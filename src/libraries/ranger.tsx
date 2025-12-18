@@ -1,4 +1,10 @@
-import { Book, MessageCircleQuestionMark, PlugZap, RotateCw, Wallpaper } from 'lucide-react'
+import {
+  Book,
+  MessageCircleQuestionMark,
+  PlugZap,
+  RotateCw,
+  Wallpaper,
+} from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 
@@ -48,9 +54,7 @@ export const rangerProject = {
     {
       title: 'Typesafe & powerful, yet familiarly simple',
       icon: (
-        <PlugZap
-          className={twMerge('scale-125 animate-pulse', textStyles)}
-        />
+        <PlugZap className={twMerge('scale-125 animate-pulse', textStyles)} />
       ),
       description: (
         <div>

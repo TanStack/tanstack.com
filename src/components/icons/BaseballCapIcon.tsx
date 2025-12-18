@@ -1,11 +1,11 @@
 import * as React from 'react'
 
 export function BaseballCapIcon({
-                                  className,
-                                  width = '1em',
-                                  height = '1em',
-                                  ...props
-                                }: React.SVGProps<SVGSVGElement>) {
+  className,
+  width = '1em',
+  height = '1em',
+  ...props
+}: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       viewBox="0 0 256 256"

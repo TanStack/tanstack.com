@@ -1,5 +1,11 @@
 import React from 'react'
-import { ArrowLeftFromLine, ArrowRightFromLine, Maximize, Minimize, TextAlignStart } from 'lucide-react'
+import {
+  ArrowLeftFromLine,
+  ArrowRightFromLine,
+  Maximize,
+  Minimize,
+  TextAlignStart,
+} from 'lucide-react'
 
 interface CodeExplorerTopBarProps {
   activeTab: 'code' | 'sandbox'
@@ -22,24 +28,23 @@ export function CodeExplorerTopBar({
     <div className="flex items-center justify-between gap-2 border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-2 px-1">
         {activeTab === 'code' ? (
-          isSidebarOpen ?
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-            title={'Hide sidebar'}
-          >
-            <ArrowLeftFromLine className="w-4 h-4" />
-          </button>
-            :
-            (
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
-                title={'Show sidebar'}
-              >
-                <ArrowRightFromLine className="w-4 h-4" />
-              </button>
-            )
+          isSidebarOpen ? (
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              title={'Hide sidebar'}
+            >
+              <ArrowLeftFromLine className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 text-sm rounded transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              title={'Show sidebar'}
+            >
+              <ArrowRightFromLine className="w-4 h-4" />
+            </button>
+          )
         ) : (
           <div className="p-2 text-sm rounded" aria-hidden>
             <TextAlignStart className="w-4 h-4 text-transparent" aria-hidden />

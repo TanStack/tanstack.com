@@ -344,7 +344,6 @@ export function MaintainerRowCard({
               )}
             </div>
           )}
-
         </div>
       </div>
     </div>

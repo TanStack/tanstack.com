@@ -26,7 +26,9 @@ export function TocMobile({ headings }: TocMobileProps) {
           rounded-b-xl"
           aria-expanded={isOpen}
         >
-          <span>{isOpen ? <ChevronDown size={16} /> : <ChevronRight  size={16} />}</span>
+          <span>
+            {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </span>
           <span>On this page</span>
         </summary>
         <div className="px-2 py-2">

@@ -4,7 +4,7 @@ import { Library } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { useCopyButton } from '~/components/CopyMarkdownButton'
 import { useToast } from '~/components/ToastProvider'
-import { Check, Copy } from "lucide-react"
+import { Check, Copy } from 'lucide-react'
 
 export function FrameworkCard({
   framework,

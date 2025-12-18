@@ -256,7 +256,11 @@ export function CodeBlock({
             }}
             aria-label="Copy code to clipboard"
           >
-            {copied ? <span className="text-xs">Copied!</span> : <Copy size={14} />}
+            {copied ? (
+              <span className="text-xs">Copied!</span>
+            ) : (
+              <Copy size={14} />
+            )}
           </button>
         </div>
       ) : null}

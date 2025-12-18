@@ -144,9 +144,7 @@ function DocContent({
                     {isFullWidth ? (
                       <FoldHorizontal className="w-4 h-4" />
                     ) : (
-                      <UnfoldHorizontal
-                        className="w-4 h-4"
-                      />
+                      <UnfoldHorizontal className="w-4 h-4" />
                     )}
                   </button>
                 )}

@@ -182,10 +182,7 @@ export function FeedEntryEditor({
         <div className="space-y-4">
           {/* Title */}
           <div>
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="title" className="block text-sm font-medium mb-2">
               Title *
             </label>
             <input
@@ -199,9 +196,7 @@ export function FeedEntryEditor({
 
           {/* Content */}
           <div>
-            <label
-              htmlFor="content"
-              className="block text-sm font-medium mb-2">
+            <label htmlFor="content" className="block text-sm font-medium mb-2">
               Content *
             </label>
             <textarea
@@ -215,10 +210,7 @@ export function FeedEntryEditor({
 
           {/* Excerpt */}
           <div>
-            <label
-              htmlFor="excerpt"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="excerpt" className="block text-sm font-medium mb-2">
               Excerpt (optional)
             </label>
             <textarea
@@ -250,7 +242,8 @@ export function FeedEntryEditor({
           <div>
             <label
               htmlFor="category"
-              className="block text-sm font-medium mb-2">
+              className="block text-sm font-medium mb-2"
+            >
               Category *
             </label>
             <select
@@ -332,10 +325,7 @@ export function FeedEntryEditor({
 
           {/* Tags */}
           <div>
-            <label
-              htmlFor="tags"
-              className="block text-sm font-medium mb-2"
-            >
+            <label htmlFor="tags" className="block text-sm font-medium mb-2">
               Tags (comma-separated)
             </label>
             <input

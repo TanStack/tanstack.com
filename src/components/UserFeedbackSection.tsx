@@ -82,7 +82,7 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
           >
             View Leaderboard
-            <ExternalLink className="text-xs" />
+            <ExternalLink className="text-xs" size={16} />
           </Link>
         </div>
       </div>

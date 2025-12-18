@@ -42,15 +42,9 @@ export const getActiveBanners = createServerFn({ method: 'GET' })
       where: and(
         eq(banners.isActive, true),
         // Either no start date or starts_at <= now
-        or(
-          sql`${banners.startsAt} IS NULL`,
-          lte(banners.startsAt, now),
-        ),
+        or(sql`${banners.startsAt} IS NULL`, lte(banners.startsAt, now)),
         // Either no end date or expires_at >= now
-        or(
-          sql`${banners.expiresAt} IS NULL`,
-          gte(banners.expiresAt, now),
-        ),
+        or(sql`${banners.expiresAt} IS NULL`, gte(banners.expiresAt, now)),
       ),
       orderBy: (b, { desc }) => [desc(b.priority), desc(b.createdAt)],
     })
@@ -307,7 +301,8 @@ export const updateBanner = createServerFn({ method: 'POST' })
     if (data.linkText !== undefined) updates.linkText = data.linkText || null
     if (data.style !== undefined) updates.style = data.style
     if (data.scope !== undefined) updates.scope = data.scope
-    if (data.pathPrefixes !== undefined) updates.pathPrefixes = data.pathPrefixes
+    if (data.pathPrefixes !== undefined)
+      updates.pathPrefixes = data.pathPrefixes
     if (data.isActive !== undefined) updates.isActive = data.isActive
     if (data.startsAt !== undefined) {
       updates.startsAt = data.startsAt ? new Date(data.startsAt) : null

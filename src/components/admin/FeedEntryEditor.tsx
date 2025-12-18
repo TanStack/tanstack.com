@@ -8,7 +8,16 @@ import { partners } from '~/utils/partners'
 import { currentUserQueryOptions } from '~/queries/auth'
 import { useCreateFeedEntry, useUpdateFeedEntry } from '~/utils/mutations'
 import { generateManualEntryId } from '~/utils/feed-manual'
-import { Save, X, FileText, Tags, Settings, Eye, Calendar, Check } from 'lucide-react'
+import {
+  Save,
+  X,
+  FileText,
+  Tags,
+  Settings,
+  Eye,
+  Calendar,
+  Check,
+} from 'lucide-react'
 
 interface FeedEntryEditorProps {
   entry: FeedEntry | null
@@ -428,7 +437,6 @@ export function FeedEntryEditor({
               </div>
             </div>
           </div>
-
         </div>
 
         {/* Right Column - Live Preview */}

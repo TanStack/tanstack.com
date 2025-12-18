@@ -158,7 +158,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const navbar = (
     <div
       className={twMerge(
-        'w-full p-2 fixed top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-br-lg shadow-xl shadow-black/3',
+        'w-full p-2 fixed top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-blur-lg shadow-xl shadow-black/3',
         'flex items-center justify-between gap-4',
         'dark:border-b border-gray-500/20',
       )}

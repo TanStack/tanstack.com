@@ -91,12 +91,11 @@ function VersionIndex() {
         </div>
         <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-black/40 rounded-xl shadow-xl shadow-black/10">
           <div>
-            You can use <strong>TanStack Start BETA</strong> today! Although
-            currently in active development, we do not expect any more breaking
-            changes. We invite you to provide feedback to help us on the journey
-            to 1.0! If you choose to ship a BETA Start app to production, we
-            recommend locking your dependencies to a specific version and
-            keeping up with the latest releases.
+            You can use <strong>TanStack Start RC</strong> today! We're
+            feature-complete and preparing for 1.0. We invite you to provide
+            feedback to help us finalize the release! If you choose to ship an
+            RC Start app to production, we recommend locking your dependencies
+            to a specific version and keeping up with the latest releases.
           </div>
         </div>
         <div className="grid items-center gap-2 justify-center grid-cols-1 sm:grid-cols-2 w-[600px] max-w-full mx-auto">
@@ -118,7 +117,7 @@ function VersionIndex() {
             params={{ libraryId: library.id }}
             className="flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded text-white uppercase font-extrabold"
           >
-            <Book className="min-w-4" /> Try the BETA
+            <Book className="min-w-4" /> Try it out!
           </Link>
           <a
             href={`https://github.com/tanstack/tanstack.com`}

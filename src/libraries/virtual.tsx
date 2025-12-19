@@ -37,7 +37,7 @@ export const virtualProject = {
       to: '/virtual/latest/docs/introduction',
     },
     {
-      icon: <Wallpaper size={16} />,
+      icon: <Wallpaper />,
       label: 'Examples',
       to: '/virtual/latest/docs/framework/react/examples/dynamic',
     },

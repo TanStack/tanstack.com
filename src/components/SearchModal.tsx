@@ -308,11 +308,11 @@ function NoResults() {
 }
 
 const submitIconComponent = () => {
-  return <Search size={18} />
+  return <Search />
 }
 
 const resetIconComponent = () => {
-  return <X size={20} />
+  return <X />
 }
 
 export function SearchModal() {

@@ -82,8 +82,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
             hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
           >
-            <User size={16} />
-            <div className="">Log In</div>
+            <User className="text-sm"/>
+            <div >Log In</div>
           </Link>
         )
 
@@ -98,7 +98,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <Authenticated>
         {!canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <User size={16} />
+            <User />
             <Link
               to="/account"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
@@ -109,7 +109,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ) : null}
         {canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <Lock size={16} />
+            <Lock />
             <Link
               to="/admin"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -378,7 +378,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                         'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30',
                       )}
                     >
-                      <Users size={14} />
+                      <Users />
                       Contributors
                     </Link>
                   </div>
@@ -435,7 +435,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             >
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-4 justify-between">
-                  <Hammer size={14} />
+                  <Hammer />
                 </div>
                 <div>Builder</div>
               </div>
@@ -452,22 +452,22 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 </span>
               </>
             ),
-            icon: <Rss size={14} />,
+            icon: <Rss />,
             to: '/feed',
           },
           {
             label: 'Maintainers',
-            icon: <Code size={14} />,
+            icon: <Code />,
             to: '/maintainers',
           },
           {
             label: 'Partners',
-            icon: <Users size={14} />,
+            icon: <Users />,
             to: '/partners',
           },
           {
             label: 'Blog',
-            icon: <Music size={14} />,
+            icon: <Music />,
             to: '/blog',
           },
           {
@@ -479,28 +479,28 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 </span>
               </>
             ),
-            icon: <BookOpen size={14} />,
+            icon: <BookOpen />,
             to: '/learn',
           },
           {
             label: 'Support',
-            icon: <HelpCircle size={14} />,
+            icon: <HelpCircle />,
             to: '/support',
           },
           {
             label: 'Stats',
-            icon: <TrendingUp size={14} />,
+            icon: <TrendingUp />,
             to: '/stats/npm',
           },
           {
             label: 'Discord',
-            icon: <DiscordIcon size={14} />,
+            icon: <DiscordIcon />,
             to: 'https://tlinz.com/discord',
             target: '_blank',
           },
           {
             label: 'Merch',
-            icon: <Shirt size={14} />,
+            icon: <Shirt />,
             to: '/merch',
           },
           {
@@ -510,17 +510,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: 'Ethos',
-            icon: <ShieldCheck size={14} />,
+            icon: <ShieldCheck />,
             to: '/ethos',
           },
           {
             label: 'Tenets',
-            icon: <BookOpen size={14} />,
+            icon: <BookOpen />,
             to: '/tenets',
           },
           {
             label: 'Brand Guide',
-            icon: <Paintbrush size={14} />,
+            icon: <Paintbrush />,
             to: '/brand-guide',
           },
         ]
@@ -611,7 +611,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           inlineMenu
             ? ''
             : [
-                'fixed bg-white/70 dark:bg-black/50 backdrop-br-lg -translate-x-full',
+                'fixed bg-white dark:bg-black/90 backdrop-br-lg -translate-x-full',
                 showMenu && 'translate-x-0',
               ],
         )}

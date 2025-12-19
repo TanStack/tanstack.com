@@ -35,7 +35,7 @@ export const formProject = {
       to: '/form/latest/docs',
     },
     {
-      icon: <Wallpaper size={16} />,
+      icon: <Wallpaper />,
       label: 'Examples',
       to: '/form/latest/docs/framework/react/examples/simple',
     },
@@ -48,7 +48,7 @@ export const formProject = {
   featureHighlights: [
     {
       title: 'First-Class TypeScript Support',
-      icon: <WandSparkles size={16} className="text-yellow-400" />,
+      icon: <WandSparkles className="text-yellow-400" />,
       description: (
         <div>
           TanStack Form touts first-class TypeScript support with outstanding

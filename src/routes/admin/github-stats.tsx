@@ -105,7 +105,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <Star className="text-yellow-500" size={16} />
+                <Star className="text-yellow-500" />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.starCount.toLocaleString()}
                 </span>
@@ -131,7 +131,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <Users className="text-blue-500" size={16} />
+                <Users className="text-blue-500" />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.contributorCount.toLocaleString()}
                 </span>
@@ -168,7 +168,7 @@ function GitHubStatsAdmin() {
           return (
             <div>
               <div className="flex items-center gap-2">
-                <Box className="text-purple-500" size={16} />
+                <Box className="text-purple-500" />
                 <span className="font-semibold text-gray-900 dark:text-white">
                   {entry.stats.dependentCount.toLocaleString()}
                 </span>
@@ -292,7 +292,6 @@ function GitHubStatsAdmin() {
             >
               <RefreshCw
                 className={isRefreshing ? 'animate-spin' : ''}
-                size={14}
               />
               Refresh
             </button>
@@ -331,7 +330,6 @@ function GitHubStatsAdmin() {
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <RefreshCw
-              size={14}
               className={refreshAllMutation.isPending ? 'animate-spin' : ''}
             />
             Refresh All

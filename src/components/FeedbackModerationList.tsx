@@ -169,9 +169,9 @@ export function FeedbackModerationList({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {feedback.type === 'note' ? (
-                        <MessageSquare className="text-blue-500" size={14} />
+                        <MessageSquare className="text-blue-500" />
                       ) : (
-                        <Lightbulb className="text-yellow-500" size={14} />
+                        <Lightbulb className="text-yellow-500" />
                       )}
                       <span className="text-xs">
                         {feedback.type === 'note' ? 'Note' : 'Improvement'}
@@ -208,7 +208,7 @@ export function FeedbackModerationList({
                     </span>
                     {feedback.isDetached && (
                       <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        <TriangleAlert size={12} />
+                        <TriangleAlert />
                         Detached
                       </div>
                     )}
@@ -237,7 +237,7 @@ export function FeedbackModerationList({
                           className="px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
                           title="Deny"
                         >
-                          <X size={14} />
+                          <X />
                         </button>
                       </div>
                     )}

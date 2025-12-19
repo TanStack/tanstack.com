@@ -67,9 +67,9 @@ export function FeedbackLeaderboard() {
   }
 
   const getRankIcon = (rank: number) => {
-    if (rank === 1) return <Trophy className="text-yellow-500" size={14} />
-    if (rank === 2) return <Medal className="text-gray-400" size={14} />
-    if (rank === 3) return <Medal className="text-amber-600" size={14} />
+    if (rank === 1) return <Trophy className="text-yellow-500" />
+    if (rank === 2) return <Medal className="text-gray-400" />
+    if (rank === 3) return <Medal className="text-amber-600" />
     return null
   }
 

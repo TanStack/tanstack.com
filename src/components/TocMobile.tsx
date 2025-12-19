@@ -27,7 +27,7 @@ export function TocMobile({ headings }: TocMobileProps) {
           aria-expanded={isOpen}
         >
           <span>
-            {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            {isOpen ? <ChevronDown /> : <ChevronRight />}
           </span>
           <span>On this page</span>
         </summary>

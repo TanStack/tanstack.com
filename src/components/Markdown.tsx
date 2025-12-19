@@ -231,7 +231,7 @@ export function CodeBlock({
         >
           {lang ? <div className="px-2">{lang}</div> : null}
           <button
-            className="px-2 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
+            className="px-2 py-1 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
             onClick={() => {
               let copyContent =
                 typeof ref.current?.innerText === 'string'
@@ -259,7 +259,7 @@ export function CodeBlock({
             {copied ? (
               <span className="text-xs">Copied!</span>
             ) : (
-              <Copy size={14} />
+              <Copy />
             )}
           </button>
         </div>

@@ -82,8 +82,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
             hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
           >
-            <User className="text-sm"/>
-            <div >Log In</div>
+            <User className="text-sm" />
+            <div>Log In</div>
           </Link>
         )
 

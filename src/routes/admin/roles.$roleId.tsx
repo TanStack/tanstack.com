@@ -138,9 +138,7 @@ function RoleDetailPage() {
                   />
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <User
-                      className="text-gray-500 dark:text-gray-400"
-                    />
+                    <User className="text-gray-500 dark:text-gray-400" />
                   </div>
                 )}
               </div>

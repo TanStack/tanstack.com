@@ -134,6 +134,7 @@ export default function CookieConsent() {
     }
 
     checkLocationAndSetConsent()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const acceptAllCookies = () => {

@@ -300,7 +300,7 @@ function GitHubStatsAdmin() {
         },
       },
     ],
-    [refreshingKey, refreshAllMutation],
+    [refreshingKey, refreshAllMutation, refreshMutation],
   )
 
   const table = useReactTable({

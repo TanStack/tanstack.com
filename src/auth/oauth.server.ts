@@ -172,9 +172,6 @@ export interface OAuthConfig {
   clientSecret: string
 }
 
-export interface GitHubOAuthConfig extends OAuthConfig {}
-export interface GoogleOAuthConfig extends OAuthConfig {}
-
 /**
  * Build GitHub OAuth authorization URL
  */

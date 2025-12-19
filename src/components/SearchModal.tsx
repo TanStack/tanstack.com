@@ -182,7 +182,7 @@ function LibraryRefinement() {
     if (!isAlreadyRefined && library) {
       refine(subpathname)
     }
-  }, [])
+  }, [items, refine, subpathname])
 
   return (
     <div className="overflow-x-auto scrollbar-hide">
@@ -252,7 +252,7 @@ function FrameworkRefinement() {
     if (!isAlreadyRefined && framework) {
       refine(subpathname)
     }
-  }, [subpathname])
+  }, [items, refine, subpathname])
 
   return (
     <div className="overflow-x-auto scrollbar-hide">
@@ -436,6 +436,7 @@ export function SearchModal() {
                 }}
                 submitIconComponent={submitIconComponent}
                 resetIconComponent={resetIconComponent}
+                // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
               />
             </div>

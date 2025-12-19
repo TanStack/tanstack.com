@@ -764,11 +764,10 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
       let successCount = 0
       let failCount = 0
 
-      await new Promise<void>((resolve, reject) => {
+      await new Promise<void>((resolve) => {
         const queue = new AsyncQueuer(
           async (packageName: string) => {
-            const stats = await fetchSingleNpmPackageFresh(packageName, 3)
-            return stats
+            return await fetchSingleNpmPackageFresh(packageName, 3)
           },
           {
             concurrency: 8, // Process 8 packages concurrently (reduced from 15 to avoid rate limiting)
@@ -791,7 +790,7 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
               failCount++
               console.error(
                 `[NPM Stats] Failed ${packageName}: ${
-                  error instanceof Error ? error.message : String(error)
+                  (error.message)
                 }`,
               )
               // Store 0 for failed packages

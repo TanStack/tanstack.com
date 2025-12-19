@@ -1,8 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import {
   listRoles,
-  getRole,
-  getUserRoles,
   getBulkUserRoles,
   getBulkEffectiveCapabilities,
 } from '~/utils/roles.functions'

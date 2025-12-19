@@ -110,11 +110,11 @@ function AdminStatsPage() {
                     }`}
                   >
                     {todayVsYesterday > 0 ? (
-                      <ArrowUp size={14} />
+                      <ArrowUp />
                     ) : todayVsYesterday < 0 ? (
-                      <ArrowDown size={14} />
+                      <ArrowDown />
                     ) : (
-                      <Minus size={14} />
+                      <Minus />
                     )}
                     {Math.abs(todayVsYesterday).toFixed(0)}%
                   </div>

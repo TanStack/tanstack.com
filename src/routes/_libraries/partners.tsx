@@ -163,7 +163,10 @@ function PartnersFilter({
 
                 {/* Status filter */}
                 <div className="mb-4">
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="partner-status"
+                    className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Partner Status
                   </label>
                   <div className="flex gap-2">
@@ -204,7 +207,10 @@ function PartnersFilter({
 
                 {/* Library filter */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="library-filter"
+                    className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Filter by Libraries
                   </label>
                   <div className="grid grid-cols-2 gap-2">

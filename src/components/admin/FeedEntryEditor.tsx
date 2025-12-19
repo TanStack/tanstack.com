@@ -201,7 +201,10 @@ export function FeedEntryEditor({
             <div className="p-6 space-y-5">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Title <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -215,7 +218,10 @@ export function FeedEntryEditor({
 
               {/* Content */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="content"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Content <span className="text-red-500">*</span>
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Markdown supported)
@@ -232,7 +238,10 @@ export function FeedEntryEditor({
 
               {/* Excerpt */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="excerpt"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Excerpt
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Optional - auto-generated if empty)
@@ -249,7 +258,10 @@ export function FeedEntryEditor({
 
               {/* Published Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="publishedAt"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   <Calendar className="inline mr-2 w-4 h-4 text-gray-400" />
                   Published Date <span className="text-red-500">*</span>
                 </label>
@@ -347,7 +359,10 @@ export function FeedEntryEditor({
 
               {/* Tags */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="tags"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Tags
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (comma-separated)
@@ -383,15 +398,15 @@ export function FeedEntryEditor({
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                  <div>
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  <label htmlFor="showInFeed">
                     <div className="font-medium text-gray-900 dark:text-white">
                       Show in Feed
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       Display this entry in the public feed
                     </div>
-                  </div>
+                  </label>
                   <div className="relative">
                     <input
                       type="checkbox"
@@ -407,17 +422,17 @@ export function FeedEntryEditor({
                       />
                     </div>
                   </div>
-                </label>
+                </div>
 
-                <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                  <div>
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  <label htmlFor="featured">
                     <div className="font-medium text-gray-900 dark:text-white">
                       Featured
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       Highlight this entry in the feed
                     </div>
-                  </div>
+                  </label>
                   <div className="relative">
                     <input
                       type="checkbox"
@@ -433,7 +448,7 @@ export function FeedEntryEditor({
                       />
                     </div>
                   </div>
-                </label>
+                </div>
               </div>
             </div>
           </div>

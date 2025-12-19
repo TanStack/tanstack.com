@@ -16,8 +16,7 @@ export function PartnershipCallout({ libraryId }: PartnershipCalloutProps) {
                     dark:bg-black/40 dark:shadow-none w-[500px] max-w-full mx-auto"
     >
       <span className="flex items-center gap-2 p-8 text-3xl text-rose-500 font-black uppercase">
-        {library.name.replace('TanStack ', '')} <HeartHandshake size={28} />{' '}
-        You?
+        {library.name.replace('TanStack ', '')} <HeartHandshake /> You?
       </span>
       <div className="flex flex-col p-4 gap-3 text-sm">
         <div>

@@ -171,7 +171,10 @@ export function FeedbackModerationFilters({
       >
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="date-from"
+              className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               From
             </label>
             <input
@@ -182,7 +185,10 @@ export function FeedbackModerationFilters({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="date-to"
+              className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               To
             </label>
             <input

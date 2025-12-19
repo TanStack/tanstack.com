@@ -15,6 +15,7 @@ export function CogsIcon({
       aria-hidden={props['aria-label'] ? undefined : true}
       className={className}
       height={height}
+      width={width}
       role="img"
       xmlns="http://www.w3.org/2000/svg"
     >

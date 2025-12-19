@@ -57,7 +57,7 @@ export const tableProject = {
       to: '/table/latest/docs/introduction',
     },
     {
-      icon: <Wallpaper size={16} />,
+      icon: <Wallpaper />,
       label: 'Examples',
       to: '/table/latest/docs/framework/react/examples/basic',
     },

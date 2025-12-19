@@ -5,8 +5,6 @@ import {
   getFeedEntryById,
   getFeedStats,
   getFeedFacetCounts,
-  searchFeedEntries,
-  getFeedConfig,
 } from '~/utils/feed.functions'
 import type { EntryType, ReleaseLevel } from '~/db/schema'
 

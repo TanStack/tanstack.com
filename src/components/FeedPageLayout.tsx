@@ -14,7 +14,6 @@ import {
   getFeedFacetCountsQueryOptions,
   type FeedFilters,
 } from '~/queries/feed'
-import { twMerge } from 'tailwind-merge'
 import { Spinner } from '~/components/Spinner'
 
 // Re-export FeedFilters as FeedFiltersState for backwards compatibility
@@ -211,7 +210,6 @@ function FeedPageLayoutContent({ children }: { children?: ReactNode }) {
     feedQuery,
     currentPage,
     pageSize,
-    filters = {},
     onPageChange,
     onPageSizeChange,
     viewMode = 'table',
@@ -221,31 +219,6 @@ function FeedPageLayoutContent({ children }: { children?: ReactNode }) {
     onFiltersChange,
     adminActions,
   } = useFeedPageLayout()
-
-  // Convert FeedFiltersState to FeedFilters format
-  const feedFilters = React.useMemo(() => {
-    if (!filters) {
-      return {
-        includeHidden: adminActions !== undefined,
-      }
-    }
-
-    const normalizeFilter = <T,>(value: T[] | undefined): T[] | undefined => {
-      return value && value.length > 0 ? value : undefined
-    }
-
-    return {
-      entryTypes: normalizeFilter(filters.entryTypes),
-      libraries: normalizeFilter(filters.libraries),
-      partners: normalizeFilter(filters.partners),
-      tags: normalizeFilter(filters.tags),
-      releaseLevels: normalizeFilter(filters.releaseLevels) as any,
-      includePrerelease: filters.includePrerelease,
-      featured: filters.featured,
-      search: filters.search,
-      includeHidden: adminActions !== undefined,
-    }
-  }, [filters, adminActions])
 
   return (
     <main className="flex-1 min-w-0 relative flex flex-col">

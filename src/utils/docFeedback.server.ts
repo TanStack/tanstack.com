@@ -1,6 +1,6 @@
 import { db } from '~/db/client'
-import { docFeedback, users, type DocFeedbackStatus } from '~/db/schema'
-import { eq, and, sql, desc, gte } from 'drizzle-orm'
+import { docFeedback, type DocFeedbackStatus } from '~/db/schema'
+import { and, eq, gte, sql } from 'drizzle-orm'
 import { requireCapability } from './auth.server'
 import { getEffectiveCapabilities } from './capabilities.server'
 
@@ -8,10 +8,9 @@ import { getEffectiveCapabilities } from './capabilities.server'
  * Require the user to have the moderate-feedback capability
  */
 export async function requireModerateFeedback() {
-  const user = await requireCapability({
+  return await requireCapability({
     data: { capability: 'moderate-feedback' },
   })
-  return user
 }
 
 /**
@@ -61,8 +60,8 @@ export async function generateContentHash(content: string): Promise<string> {
   const data = encoder.encode(content)
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
   const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-  return hashHex
+
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 /**
@@ -93,11 +92,10 @@ export async function getUserTotalPoints(userId: string): Promise<number> {
     )
 
   // Calculate total points in JS
-  const totalPoints = result.reduce((sum, item) => {
+
+  return result.reduce((sum, item) => {
     return sum + calculatePoints(item.characterCount, item.type)
   }, 0)
-
-  return totalPoints
 }
 
 /**

@@ -167,6 +167,6 @@ We've shipped a major architectural overhaul, new modalities across the board, a
 
 We're confident in this direction. We think you'll like it too.
 
----
+<!-- ---
 
-_Curious how we got here? Read [The `ai()` Function That Almost Was](/blog/tanstack-ai-the-ai-function-postmortem)—a post-mortem on the API we loved, built, and had to kill._
+_Curious how we got here? Read [The `ai()` Function That Almost Was](/blog/tanstack-ai-the-ai-function-postmortem)—a post-mortem on the API we loved, built, and had to kill._ -->

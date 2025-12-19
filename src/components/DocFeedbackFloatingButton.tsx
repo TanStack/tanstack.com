@@ -59,6 +59,7 @@ export function DocFeedbackFloatingButton({
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('keydown', handleEscape)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMenuOpen])
 
   const handleButtonClick = (e: React.MouseEvent) => {
@@ -86,6 +87,7 @@ export function DocFeedbackFloatingButton({
   }
 
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
     <div
       ref={buttonRef}
       className="doc-feedback-floating-btn absolute top-0 right-0 -translate-y-full z-[100]"

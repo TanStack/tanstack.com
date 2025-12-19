@@ -18,7 +18,7 @@ type UserSettingsState = {
   // Remove toggleAds since it's now handled by the new hooks
 }
 
-export const useUserSettingsStore = create<UserSettingsState>()((set, get) => ({
+export const useUserSettingsStore = create<UserSettingsState>()((set) => ({
   settings: {
     // Remove adsDisabled initialization
   },

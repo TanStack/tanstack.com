@@ -54,48 +54,6 @@ export async function getBatchCachedNpmPackageStats(
 }
 
 /**
- * Get cached NPM package stats if available and not expired
- * Returns stats with rate information for interpolation
- */
-export async function getCachedNpmPackageStats(
-  packageName: string,
-  ttlHours: number = 24,
-): Promise<NpmPackageStats | null> {
-  try {
-    const cached = await db.query.npmPackages.findFirst({
-      where: eq(npmPackages.packageName, packageName),
-    })
-
-    if (
-      cached &&
-      cached.statsExpiresAt &&
-      cached.statsExpiresAt > new Date() &&
-      cached.downloads !== null
-    ) {
-      return {
-        downloads: cached.downloads,
-        ratePerDay: cached.ratePerDay ?? undefined,
-        updatedAt: cached.updatedAt.getTime(),
-      }
-    }
-
-    // Cache expired - return expired cache if available (scheduled tasks will refresh)
-    if (cached && cached.downloads !== null) {
-      return {
-        downloads: cached.downloads,
-        ratePerDay: cached.ratePerDay ?? undefined,
-        updatedAt: cached.updatedAt.getTime(),
-      }
-    }
-
-    return null
-  } catch (error) {
-    console.error('[NPM Stats Cache] Error reading cache:', error)
-    return null
-  }
-}
-
-/**
  * Store NPM package stats in cache with calculated growth rate
  * Also incrementally updates library and org-level caches
  */
@@ -288,7 +246,6 @@ async function updateOrgStatsCache(
  */
 export async function getCachedNpmOrgStats(
   orgName: string,
-  ttlHours: number = 24,
 ): Promise<NpmStats | null> {
   try {
     const cached = await db.query.npmOrgStatsCache.findFirst({

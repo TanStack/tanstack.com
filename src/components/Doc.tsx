@@ -182,7 +182,7 @@ function DocContent({
               href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
               className="flex items-center gap-2"
             >
-              <SquarePen size={16} /> Edit on GitHub
+              <SquarePen /> Edit on GitHub
             </a>
           </div>
           <div className="h-24" />

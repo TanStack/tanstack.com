@@ -6,7 +6,6 @@ import { listFeedEntriesQueryOptions } from '~/queries/feed'
 import { libraries, type LibraryId } from '~/libraries'
 import { ENTRY_TYPES, RELEASE_LEVELS } from '~/utils/feedSchema'
 import { FEED_DEFAULTS } from '~/utils/feedDefaults'
-import { twMerge } from 'tailwind-merge'
 
 // Create zod enums from single source of truth
 const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]

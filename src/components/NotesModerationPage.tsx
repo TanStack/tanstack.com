@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
 import { NotesModerationFilters } from './NotesModerationFilters'
@@ -9,7 +9,6 @@ import { Spinner } from '~/components/Spinner'
 export function NotesModerationPage() {
   const navigate = useNavigate()
   const search = useSearch({ from: '/admin/notes/' })
-  const queryClient = useQueryClient()
 
   const { data, isLoading, error } = useQuery(
     listDocFeedbackForModerationQueryOptions({

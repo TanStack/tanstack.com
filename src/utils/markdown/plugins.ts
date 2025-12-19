@@ -1,9 +1,9 @@
 import { unified } from 'unified'
 import rehypeParse from 'rehype-parse'
-import { visit, SKIP } from 'unist-util-visit'
+import { SKIP, visit } from 'unist-util-visit'
 import { toString } from 'hast-util-to-string'
 import { isElement } from 'hast-util-is-element'
-import type { Root, Element, Comment, Nodes } from 'hast-util-is-element/lib'
+import type { Element, Root } from 'hast-util-is-element/lib'
 
 const COMPONENT_PREFIX = '::'
 const START_PREFIX = '::start:'
@@ -114,8 +114,7 @@ export const rehypeParseCommentComponents = () => {
         return [SKIP, index]
       }
 
-      const content = parent.children.slice(index + 1, endIndex)
-      element.children = content
+      element.children = parent.children.slice(index + 1, endIndex)
       parent.children.splice(index, endIndex - index + 1, element)
       return [SKIP, index]
     })

@@ -108,7 +108,10 @@ export function PaginationControls({
       <div className="flex gap-2 items-center">
         {showPageSizeSelector && (
           <>
-            <label className="text-sm text-gray-600 dark:text-gray-400">
+            <label
+              htmlFor="pageSize"
+              className="text-sm text-gray-600 dark:text-gray-400"
+            >
               Per page:
             </label>
             <select

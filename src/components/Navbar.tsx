@@ -82,8 +82,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
             hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
           >
-            <User size={16} />
-            <div className="">Log In</div>
+            <User className="text-sm" />
+            <div>Log In</div>
           </Link>
         )
 
@@ -98,7 +98,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       <Authenticated>
         {!canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <User size={16} />
+            <User />
             <Link
               to="/account"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
@@ -109,7 +109,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ) : null}
         {canAdmin ? (
           <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <Lock size={16} />
+            <Lock />
             <Link
               to="/admin"
               className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
@@ -170,6 +170,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             className={twMerge(`flex items-center gap-1.5 group`)}
           >
             <button
+              aria-label="Open Menu"
               className={twMerge(
                 'flex items-center justify-center',
                 'transition-all duration-300 h-8 px-2 py-1 lg:px-0',
@@ -378,7 +379,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                         'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30',
                       )}
                     >
-                      <Users size={14} />
+                      <Users />
                       Contributors
                     </Link>
                   </div>
@@ -435,7 +436,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             >
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-4 justify-between">
-                  <Hammer size={14} />
+                  <Hammer />
                 </div>
                 <div>Builder</div>
               </div>
@@ -452,22 +453,22 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 </span>
               </>
             ),
-            icon: <Rss size={14} />,
+            icon: <Rss />,
             to: '/feed',
           },
           {
             label: 'Maintainers',
-            icon: <Code size={14} />,
+            icon: <Code />,
             to: '/maintainers',
           },
           {
             label: 'Partners',
-            icon: <Users size={14} />,
+            icon: <Users />,
             to: '/partners',
           },
           {
             label: 'Blog',
-            icon: <Music size={14} />,
+            icon: <Music />,
             to: '/blog',
           },
           {
@@ -479,28 +480,28 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 </span>
               </>
             ),
-            icon: <BookOpen size={14} />,
+            icon: <BookOpen />,
             to: '/learn',
           },
           {
             label: 'Support',
-            icon: <HelpCircle size={14} />,
+            icon: <HelpCircle />,
             to: '/support',
           },
           {
             label: 'Stats',
-            icon: <TrendingUp size={14} />,
+            icon: <TrendingUp />,
             to: '/stats/npm',
           },
           {
             label: 'Discord',
-            icon: <DiscordIcon size={14} />,
+            icon: <DiscordIcon />,
             to: 'https://tlinz.com/discord',
             target: '_blank',
           },
           {
             label: 'Merch',
-            icon: <Shirt size={14} />,
+            icon: <Shirt />,
             to: '/merch',
           },
           {
@@ -510,17 +511,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           },
           {
             label: 'Ethos',
-            icon: <ShieldCheck size={14} />,
+            icon: <ShieldCheck />,
             to: '/ethos',
           },
           {
             label: 'Tenets',
-            icon: <BookOpen size={14} />,
+            icon: <BookOpen />,
             to: '/tenets',
           },
           {
             label: 'Brand Guide',
-            icon: <Paintbrush size={14} />,
+            icon: <Paintbrush />,
             to: '/brand-guide',
           },
         ]
@@ -570,7 +571,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     >
       <div
         className="flex flex-col whitespace-nowrap overflow-y-auto
-          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
+          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/90"
       >
         <div className="flex items-center justify-between p-2 gap-2">
           <div className="flex-1">
@@ -578,6 +579,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           </div>
           <div className="sm:hidden">{loginButton}</div>
         </div>
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
         <div
           className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20"
           onClick={(event) => {
@@ -602,7 +604,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     <>
       <div
         className={twMerge(
-          `min-w-[250px] hidden lg:flex flex-col
+          `px] hidden lg:flex flex-col
       h-[calc(100dvh-var(--navbar-height))] sticky top-[var(--navbar-height)] z-20
       bg-white/50 dark:bg-black/30 shadow-xl dark:border-r border-gray-500/20`,
           'transition-all duration-300',
@@ -610,7 +612,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           inlineMenu
             ? ''
             : [
-                'fixed bg-white/70 dark:bg-black/50 backdrop-br-lg -translate-x-full',
+                'fixed bg-white dark:bg-black/90 backdrop-br-lg -translate-x-full',
                 showMenu && 'translate-x-0',
               ],
         )}

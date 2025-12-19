@@ -11,7 +11,6 @@ import { OAuthService } from './oauth.server'
 import { SessionService } from './session.server'
 import { createAuthGuards } from './guards.server'
 import {
-  createRepositories,
   DrizzleUserRepository,
   DrizzleOAuthAccountRepository,
   DrizzleCapabilitiesRepository,

@@ -1,7 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import { getOSSStats } from '~/utils/stats.server'
 import type {
-  Library as StatsLibrary,
   StatsQueryParams,
 } from '~/utils/stats.server'
 import type { Library } from '~/libraries'

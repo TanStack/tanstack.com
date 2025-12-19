@@ -14,6 +14,7 @@ export function ThemeToggle() {
   }
 
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
     <div
       onClick={handleToggleMode}
       className={`bg-gray-500/10 dark:bg-gray-500/30 rounded-lg flex items-center justify-between

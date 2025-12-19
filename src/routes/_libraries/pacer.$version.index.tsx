@@ -32,7 +32,6 @@ export const Route = createFileRoute('/_libraries/pacer/$version/')({
 
 function PacerVersionIndex() {
   // sponsorsPromise no longer needed - using lazy loading
-  const { version } = Route.useParams()
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { findLibrary, getBranch, getLibrary } from '~/libraries'
+import { findLibrary, getBranch } from '~/libraries'
 import { loadDocs } from '~/utils/docs'
 import { createFileRoute, notFound } from '@tanstack/react-router'
 

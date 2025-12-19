@@ -578,6 +578,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           </div>
           <div className="sm:hidden">{loginButton}</div>
         </div>
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
         <div
           className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20"
           onClick={(event) => {

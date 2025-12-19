@@ -233,7 +233,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
             <div className="p-6 space-y-5">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Title <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -247,7 +250,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
 
               {/* Content */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="content"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Description
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Optional - shown below title)
@@ -284,7 +290,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
             <div className="p-6 space-y-5">
               {/* Link URL */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="linkUrl"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Link URL
                 </label>
                 <input
@@ -298,7 +307,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
 
               {/* Link Text */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="linkText"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Link Text
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Button text - defaults to "Learn More")
@@ -335,7 +347,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
             <div className="p-6 space-y-5">
               {/* Banner Style */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                <label
+                  htmlFor="style"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+                >
                   Banner Style
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -368,7 +383,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
 
               {/* Banner Scope */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                <label
+                  htmlFor="scope"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+                >
                   Banner Scope
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -535,15 +553,19 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
             </div>
             <div className="p-6 space-y-5">
               {/* Active Toggle */}
-              <label className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                <div>
+              <div
+                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              >
+                <label
+                  htmlFor="isActive"
+                >
                   <div className="font-medium text-gray-900 dark:text-white">
                     Active
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     Banner will only show when active
                   </div>
-                </div>
+                </label>
                 <div className="relative">
                   <input
                     type="checkbox"
@@ -559,11 +581,14 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                     />
                   </div>
                 </div>
-              </label>
+              </div>
 
               {/* Start Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="startsAt"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Start Date & Time
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Optional - shows immediately if empty)
@@ -579,7 +604,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
 
               {/* End Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="expiresAt"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   End Date & Time
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Optional - never expires if empty)
@@ -595,7 +623,10 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
 
               {/* Priority */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="priority"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Priority
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Higher = shown first when multiple banners match)

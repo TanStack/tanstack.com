@@ -176,7 +176,7 @@ export function FeedFilters({
     featured !== undefined ||
     search ||
     (selectedReleaseLevels && selectedReleaseLevels.length > 0) ||
-    (includePrerelease !== undefined && includePrerelease !== true),
+    (includePrerelease !== undefined && !includePrerelease),
   )
 
   // Render filter content (shared between mobile and desktop)
@@ -383,6 +383,7 @@ export function FeedFilters({
           compact
         />
       )}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
       <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
         <FilterSearch
           value={searchInput}

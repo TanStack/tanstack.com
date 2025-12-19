@@ -196,6 +196,7 @@ export function FilterBar({
       <div className="lg:hidden">
         <div className="relative bg-white dark:bg-black/40 border border-gray-200 dark:border-gray-700 rounded-lg p-2 sm:p-3">
           <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
             <div
               className="flex items-center gap-1.5 whitespace-nowrap cursor-pointer flex-shrink-0"
               onClick={() => setIsOpen((prev) => !prev)}

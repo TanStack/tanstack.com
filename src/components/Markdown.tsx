@@ -91,7 +91,7 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
-  img: ({ children, ...props }: HTMLProps<HTMLImageElement>) => (
+  img: ({ ...props }: HTMLProps<HTMLImageElement>) => (
     // eslint-disable-next-line jsx-a11y/alt-text
     <img
       {...props}
@@ -136,7 +136,6 @@ export function CodeBlock({
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
 }) {
-  // @ts-ignore
   let lang = props?.children?.props?.className?.replace('language-', '')
 
   if (lang === 'diff') {
@@ -290,7 +289,7 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
   const loadedLanguages = highlighter.getLoadedLanguages()
   const loadedThemes = highlighter.getLoadedThemes()
 
-  let promises = []
+  const promises = []
   if (!loadedLanguages.includes(language as any)) {
     promises.push(
       highlighter.loadLanguage(

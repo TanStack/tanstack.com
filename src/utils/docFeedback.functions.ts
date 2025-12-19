@@ -7,12 +7,11 @@ import {
   type DocFeedbackType,
   type DocFeedbackStatus,
 } from '~/db/schema'
-import { eq, and, sql, desc, gte, or, inArray } from 'drizzle-orm'
+import { eq, and, sql, desc, gte, inArray } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import {
   calculatePoints,
   requireModerateFeedback,
-  getUserTotalPoints,
   getUserFeedbackStats,
   validateFeedbackOwnership,
   canModerateFeedback,

@@ -15,8 +15,7 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { coreMaintainers } from '~/libraries/maintainers'
 import { useToast } from '~/components/ToastProvider'
-import { allPosts } from 'content-collections'
-import { formatAuthors } from '~/utils/blog'
+import { formatAuthors, getPublishedPosts } from '~/utils/blog'
 import { format } from 'date-fns'
 import { Markdown } from '~/components/Markdown'
 import { createServerFn } from '@tanstack/react-start'
@@ -56,10 +55,7 @@ const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(async () => {
     }),
   )
 
-  return allPosts
-    .sort((a, b) => {
-      return new Date(b.published).getTime() - new Date(a.published).getTime()
-    })
+  return getPublishedPosts()
     .slice(0, 3)
     .map((post) => {
       return {

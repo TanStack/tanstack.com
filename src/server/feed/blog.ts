@@ -22,7 +22,7 @@ export type BlogSyncResult = {
  */
 export async function syncBlogPosts(): Promise<BlogSyncResult> {
   // Dynamic import to ensure content-collections are available in server environment
-  const { allPosts } = await import('content-collections')
+  const { getPublishedPosts } = await import('~/utils/blog')
 
   const results: BlogSyncResult = {
     success: true,
@@ -32,7 +32,7 @@ export async function syncBlogPosts(): Promise<BlogSyncResult> {
     errors: [],
   }
 
-  for (const post of allPosts) {
+  for (const post of getPublishedPosts()) {
     try {
       const entryId = `blog:${post.slug}`
       const publishedAt = new Date(post.published)

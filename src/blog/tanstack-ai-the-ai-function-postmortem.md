@@ -151,7 +151,7 @@ We could have done custom bundling in TanStack Start to strip unused parts, but 
 
 ## Where We Landed
 
-Separate functions. `chat()`, `image()`, `audio()`, `transcribe()`.
+Separate functions. `chat()`, `generateImage()`, `generateSpeech()`, `generateTranscription()`.
 
 ```ts
 import { chat } from "@tanstack/ai"
@@ -165,7 +165,7 @@ chat({
 
 It's not as clever. That's the point.
 
-You know what `chat()` does. You know what `image()` does. LLMs know what they do. Your bundle only includes what you import. The types are simple enough to reason about.
+You know what `chat()` does. You know what `generateImage()` does. LLMs know what they do. Your bundle only includes what you import. The types are simple enough to reason about.
 
 Like a lot of things in life, there has to be compromise between complexity, DX, and UX. We decided to keep the core simple, split features into separate bundles, and make modalities easy to pull in or ignore.
 

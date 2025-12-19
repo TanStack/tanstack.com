@@ -1,12 +1,11 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 
-import { formatAuthors } from '~/utils/blog'
+import { formatAuthors, getPublishedPosts } from '~/utils/blog'
 import { Markdown } from '~/components/Markdown'
 import { format } from 'date-fns'
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
-import { allPosts } from 'content-collections'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
@@ -17,13 +16,7 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
         'public, max-age=300, durable, stale-while-revalidate=300',
     })
 
-    const now = new Date()
-
-    return allPosts
-      .filter((post) => !post.draft && new Date(post.published) <= now)
-      .sort((a, b) => {
-        return new Date(b.published).getTime() - new Date(a.published).getTime()
-      })
+    return getPublishedPosts()
       .map((post) => {
         return {
           slug: post.slug,

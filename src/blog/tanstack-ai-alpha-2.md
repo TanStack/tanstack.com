@@ -106,7 +106,7 @@ chat({
 Settings like `temperature` work across providers. Our other modalities already put config at the root:
 
 ```ts
-image({
+generateImage({
   adapter,
   numberOfImages: 3,
 })

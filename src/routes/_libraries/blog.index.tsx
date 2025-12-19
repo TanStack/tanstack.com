@@ -17,7 +17,10 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
         'public, max-age=300, durable, stale-while-revalidate=300',
     })
 
+    const now = new Date()
+
     return allPosts
+      .filter((post) => !post.draft && new Date(post.published) <= now)
       .sort((a, b) => {
         return new Date(b.published).getTime() - new Date(a.published).getTime()
       })

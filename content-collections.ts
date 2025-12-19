@@ -8,6 +8,7 @@ const posts = defineCollection({
   schema: (z) => ({
     title: z.string(),
     published: z.string().date(),
+    draft: z.boolean().optional(),
     authors: z.string().array(),
   }),
   transform: ({ content, ...post }) => {

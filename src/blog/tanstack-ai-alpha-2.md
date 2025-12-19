@@ -23,13 +23,13 @@ So we split the monolith.
 Instead of:
 
 ```ts
-import { openai } from "@tanstack/ai-openai"
+import { openai } from '@tanstack/ai-openai'
 ```
 
 You now have:
 
 ```ts
-import { openaiText, openaiImage, openaiVideo } from "@tanstack/ai-openai"
+import { openaiText, openaiImage, openaiVideo } from '@tanstack/ai-openai'
 ```
 
 ### Why This Matters
@@ -66,7 +66,7 @@ Before:
 ```ts
 chat({
   adapter: openai(),
-  model: "gpt-4",
+  model: 'gpt-4',
   // now you get typesafety...
 })
 ```
@@ -75,7 +75,7 @@ After:
 
 ```ts
 chat({
-  adapter: openaiText("gpt-4"),
+  adapter: openaiText('gpt-4'),
   // immediately get typesafety
 })
 ```
@@ -90,14 +90,14 @@ Quick terminology:
 - **Adapter**: TanStack AI's interface to that provider
 - **Model**: The specific model (GPT-4, Claude, etc.)
 
-The old `providerOptions` were tied to the *model*, not the provider. Changing from `gpt-4` to `gpt-3.5-turbo` changes those options. So we renamed them:
+The old `providerOptions` were tied to the _model_, not the provider. Changing from `gpt-4` to `gpt-3.5-turbo` changes those options. So we renamed them:
 
 ```ts
 chat({
-  adapter: openaiText("gpt-4"),
+  adapter: openaiText('gpt-4'),
   modelOptions: {
-    text: {}
-  }
+    text: {},
+  },
 })
 ```
 
@@ -108,7 +108,7 @@ Settings like `temperature` work across providers. Our other modalities already 
 ```ts
 generateImage({
   adapter,
-  numberOfImages: 3
+  numberOfImages: 3,
 })
 ```
 
@@ -116,11 +116,11 @@ So we brought chat in line:
 
 ```ts
 chat({
-  adapter: openaiText("gpt-4"),
+  adapter: openaiText('gpt-4'),
   modelOptions: {
-    text: {}
+    text: {},
   },
-  temperature: 0.6
+  temperature: 0.6,
 })
 ```
 
@@ -149,6 +149,7 @@ chat({
 **Standard Schema support.** We're dropping the Zod constraint for tools and structured outputs. Bring your own schema validation library.
 
 **On the roadmap:**
+
 - Middleware
 - Tool hardening
 - Headless UI library for AI components
@@ -166,4 +167,4 @@ We're confident in this direction. We think you'll like it too.
 
 ---
 
-*Curious how we got here? Read [The `ai()` Function That Almost Was](/blog/tanstack-ai-the-ai-function-postmortem)—a post-mortem on the API we loved, built, and had to kill.*
+_Curious how we got here? Read [The `ai()` Function That Almost Was](/blog/tanstack-ai-the-ai-function-postmortem)—a post-mortem on the API we loved, built, and had to kill._

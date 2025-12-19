@@ -1,5 +1,5 @@
 ---
-title: "Why We Split the Adapters"
+title: 'Why We Split the Adapters'
 published: 2026-01-02
 authors:
   - Alem Tuzlak
@@ -69,8 +69,8 @@ One idea was to create an adapter with sub-properties:
 
 ```ts
 const adapter = openai()
-adapter.image("model")
-adapter.text("model")
+adapter.image('model')
+adapter.text('model')
 ```
 
 Looks nicer. Feels more split. Same problem—it still bundles everything.
@@ -87,4 +87,4 @@ Out of all the possible outcomes, this one is the best. We're confident in the d
 
 ---
 
-*See it in action: [TanStack AI Alpha 2: Every Modality, Better APIs, Smaller Bundles](/blog/tanstack-ai-alpha-2)*
+_See it in action: [TanStack AI Alpha 2: Every Modality, Better APIs, Smaller Bundles](/blog/tanstack-ai-alpha-2)_

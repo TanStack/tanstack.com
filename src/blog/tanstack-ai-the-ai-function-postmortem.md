@@ -1,5 +1,5 @@
 ---
-title: "The ai() Function That Almost Was"
+title: 'The ai() Function That Almost Was'
 published: 2025-12-26
 authors:
   - Alem Tuzlak
@@ -12,24 +12,24 @@ We spent eight days building an API we had to kill. Here's what happened.
 One function to rule them all. One function to control all adapters. One function to make it all typesafe.
 
 ```ts
-import { ai } from "@tanstack/ai"
-import { openaiText, openaiImage, openaiSummarize } from "@tanstack/ai-openai"
+import { ai } from '@tanstack/ai'
+import { openaiText, openaiImage, openaiSummarize } from '@tanstack/ai-openai'
 
 // text generation
 ai({
-  adapter: openaiText("gpt-4"),
+  adapter: openaiText('gpt-4'),
   // ... text options
 })
 
 // image generation
 ai({
-  adapter: openaiImage("dall-e-3"),
+  adapter: openaiImage('dall-e-3'),
   // ... image options
 })
 
 // summarization
 ai({
-  adapter: openaiSummarize("gpt-4"),
+  adapter: openaiSummarize('gpt-4'),
   // ... summary options
 })
 ```
@@ -72,7 +72,7 @@ To match the theme, we called it `aiOptions`. It would constrain everything to t
 
 ```ts
 const opts = aiOptions({
-  adapter: openaiText("gpt-4")
+  adapter: openaiText('gpt-4'),
 })
 
 ai(opts)
@@ -118,7 +118,7 @@ When we finally asked the LLMs directly what they thought of the API, they were 
 
 We used agents to do the implementation work. That hid the struggle from us.
 
-If we'd been writing the code by hand, we would have *felt* the challenge of wrestling with the types. That probably would have stopped the idea early.
+If we'd been writing the code by hand, we would have _felt_ the challenge of wrestling with the types. That probably would have stopped the idea early.
 
 LLMs won't bark when you tell them to do crazy stuff. They won't criticize your designs unless you ask them to. They just try. And try. And eventually produce something that technically works but shouldn't exist.
 
@@ -141,8 +141,8 @@ Before landing on separate functions, we tried one more thing: an adapter with s
 
 ```ts
 const adapter = openai()
-adapter.image("model")
-adapter.text("model")
+adapter.image('model')
+adapter.text('model')
 ```
 
 Looks nicer. Feels more unified. Same problem—still bundles everything.
@@ -154,12 +154,12 @@ We could have done custom bundling in TanStack Start to strip unused parts, but 
 Separate functions. `chat()`, `generateImage()`, `generateSpeech()`, `generateTranscription()`.
 
 ```ts
-import { chat } from "@tanstack/ai"
-import { openaiText } from "@tanstack/ai-openai"
+import { chat } from '@tanstack/ai'
+import { openaiText } from '@tanstack/ai-openai'
 
 chat({
-  adapter: openaiText("gpt-4"),
-  temperature: 0.6
+  adapter: openaiText('gpt-4'),
+  temperature: 0.6,
 })
 ```
 
@@ -185,4 +185,4 @@ We loved the `ai()` API. We built it. We had to kill it. That's how it goes some
 
 ---
 
-*Ready to try what we shipped instead? Read [TanStack AI Alpha 2: Every Modality, Better APIs, Smaller Bundles](/blog/tanstack-ai-alpha-2).*
+_Ready to try what we shipped instead? Read [TanStack AI Alpha 2: Every Modality, Better APIs, Smaller Bundles](/blog/tanstack-ai-alpha-2)._

@@ -41,7 +41,7 @@ export const pacerProject = {
       to: '/pacer/latest/docs',
     },
     {
-      icon: <Wallpaper size={16} />,
+      icon: <Wallpaper />,
       label: 'Examples',
       to: '/pacer/latest/docs/framework/react/examples/debounce',
     },

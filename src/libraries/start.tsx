@@ -43,7 +43,7 @@ export const startProject = {
       to: '/start/latest/docs/framework/react/overview',
     },
     {
-      icon: <Wallpaper size={16} />,
+      icon: <Wallpaper />,
       label: 'Examples',
       to: '/start/latest/docs/framework/react/examples/start-basic',
     },

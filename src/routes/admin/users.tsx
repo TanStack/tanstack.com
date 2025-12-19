@@ -124,7 +124,6 @@ function UserRolesCell({
 
 // Component to display effective capabilities (now uses bulk data)
 function EffectiveCapabilitiesCell({
-  userId,
   effectiveCapabilities,
 }: {
   userId: string
@@ -256,7 +255,10 @@ function UsersPage() {
 
       {/* Email Filter */}
       <div className="mb-2">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label
+          htmlFor="email-filter"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           Email
         </label>
         <FilterSearch
@@ -277,7 +279,10 @@ function UsersPage() {
 
       {/* Name Filter */}
       <div className="mb-2">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label
+          htmlFor="name-filter"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           Name
         </label>
         <FilterSearch
@@ -369,7 +374,10 @@ function UsersPage() {
         onToggleSection={toggleSection}
       >
         <div className="mb-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label
+            htmlFor="ads-disabled-filter"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
             Status
           </label>
           <select
@@ -393,7 +401,10 @@ function UsersPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label
+            htmlFor="waitlist-filter"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
             Waitlist
           </label>
           <select
@@ -454,7 +465,7 @@ function UsersPage() {
     ...listRolesQueryOptions({}),
     placeholderData: keepPreviousData,
   })
-  const allRoles = allRolesQuery.data || []
+  const allRoles = useMemo(() => allRolesQuery.data || [], [allRolesQuery.data])
 
   // Bulk fetch user roles and effective capabilities to avoid N+1 queries
   const userIds = useMemo(
@@ -1015,7 +1026,10 @@ function UsersPage() {
               </div>
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="bulk-update-capabilities"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Assign Role:
                   </label>
                   <select
@@ -1041,7 +1055,10 @@ function UsersPage() {
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label
+                    htmlFor="bulk-update-capabilities"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
                     Set Capabilities:
                   </label>
                   {availableCapabilities.map((capability) => (

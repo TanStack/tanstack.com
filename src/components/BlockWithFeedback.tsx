@@ -41,7 +41,6 @@ export function BlockWithFeedback({
     return feedback.userNotes.find((n) => n.blockSelector === blockSelector)
   }, [feedback.userNotes, blockSelector])
 
-  const isCollapsed = note ? feedback.collapsedNotes.has(note.id) : false
   const hasNote = !!note
 
   const handleAddNote = React.useCallback(() => {

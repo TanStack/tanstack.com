@@ -40,7 +40,6 @@ function FormVersionIndex() {
   const { version } = Route.useParams()
   const branch = getBranch(formProject, version)
   const [framework, setFramework] = React.useState<Framework>('react')
-  const [isDark] = React.useState(true)
 
   return (
     <>

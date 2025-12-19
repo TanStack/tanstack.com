@@ -192,7 +192,7 @@ export function NotesModerationList({
                     </span>
                     {feedback.isDetached && (
                       <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-400 mt-1">
-                        <TriangleAlert size={12} />
+                        <TriangleAlert />
                         Detached
                       </div>
                     )}

@@ -69,7 +69,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   })[] = [
     {
       label: 'Admin Dashboard',
-      icon: <Home size={14} />,
+      icon: <Home />,
       to: '/admin',
       activeOptions: {
         exact: true,
@@ -77,34 +77,34 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'Statistics',
-      icon: <ChartLine size={14} />,
+      icon: <ChartLine />,
       to: '/admin/stats',
     },
     {
       label: 'Users',
-      icon: <Users size={14} />,
+      icon: <Users />,
       to: '/admin/users',
     },
     {
       label: 'Roles',
-      icon: <ShieldHalf size={14} />,
+      icon: <ShieldHalf />,
       to: '/admin/roles',
     },
     {
       label: 'Feedback',
-      icon: <MessagesSquare size={14} />,
+      icon: <MessagesSquare />,
       to: '/admin/feedback',
       requiredCapability: 'moderate-feedback',
     },
     {
       label: 'Notes',
-      icon: <StickyNote size={14} />,
+      icon: <StickyNote />,
       to: '/admin/notes',
       requiredCapability: 'moderate-feedback',
     },
     {
       label: 'Feed',
-      icon: <Rss size={14} />,
+      icon: <Rss />,
       to: '/admin/feed',
     },
     {
@@ -119,7 +119,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     },
     {
       label: 'My Account',
-      icon: <User size={14} />,
+      icon: <User />,
       to: '/account',
     },
   ]

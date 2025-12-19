@@ -229,6 +229,7 @@ export function FileExplorer({
           </div>
         ) : null}
       </div>
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         className={`w-1 cursor-col-resize hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 ${
           isResizing ? '' : 'transition-colors'
@@ -253,7 +254,7 @@ const RenderFileTree = (props: {
 
   return (
     <ul className="flex flex-col">
-      {props.files.map((file, index) => (
+      {props.files.map((file) => (
         <li key={file.path} className="relative">
           {/* Tree lines */}
           {file.depth > 0 && (

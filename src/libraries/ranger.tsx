@@ -40,7 +40,7 @@ export const rangerProject = {
       to: '/ranger/latest/docs/overview',
     },
     {
-      icon: <Wallpaper size={16} />,
+      icon: <Wallpaper />,
       label: 'Examples',
       to: '/ranger/latest/docs/framework/react/examples/basic',
     },

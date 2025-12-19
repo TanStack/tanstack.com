@@ -94,7 +94,7 @@ const MESSAGES = [
   },
 ]
 
-export function AILibraryHero({ project, cta, actions }: AILibraryHeroProps) {
+export function AILibraryHero({}: AILibraryHeroProps) {
   const isDark = useIsDark()
   const strokeColor = isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)'
   const textColor = isDark ? '#ffffff' : '#000000'

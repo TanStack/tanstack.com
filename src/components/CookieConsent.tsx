@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 declare global {
   interface Window {
@@ -134,6 +134,7 @@ export default function CookieConsent() {
     }
 
     checkLocationAndSetConsent()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const acceptAllCookies = () => {

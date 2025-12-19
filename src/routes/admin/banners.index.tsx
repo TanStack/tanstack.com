@@ -23,7 +23,7 @@ import {
 import { z } from 'zod'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { formatDistanceToNow, format } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 
 export const Route = createFileRoute('/admin/banners/')({
   component: BannersAdminPage,
@@ -186,7 +186,6 @@ function BannersAdminPage() {
                 banner.expiresAt && banner.expiresAt < Date.now()
               const hasntStarted =
                 banner.startsAt && banner.startsAt > Date.now()
-              const isScheduled = !banner.isActive || isExpired || hasntStarted
 
               return (
                 <div

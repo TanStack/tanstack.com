@@ -3,11 +3,10 @@
  * Tests that chunks are properly cached and retrieved
  */
 
-import { db } from '../src/db/client'
 import {
   getCachedNpmDownloadChunk,
   setCachedNpmDownloadChunk,
-} from '../src/utils/stats-db.server'
+} from '~/utils/stats-db.server'
 
 async function testCache() {
   console.log('\n' + '='.repeat(80))

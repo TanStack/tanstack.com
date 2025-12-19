@@ -170,6 +170,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             className={twMerge(`flex items-center gap-1.5 group`)}
           >
             <button
+              aria-label="Open Menu"
               className={twMerge(
                 'flex items-center justify-center',
                 'transition-all duration-300 h-8 px-2 py-1 lg:px-0',
@@ -570,7 +571,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     >
       <div
         className="flex flex-col whitespace-nowrap overflow-y-auto
-          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/20"
+          border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/90"
       >
         <div className="flex items-center justify-between p-2 gap-2">
           <div className="flex-1">
@@ -603,7 +604,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     <>
       <div
         className={twMerge(
-          `min-w-[250px] hidden lg:flex flex-col
+          `px] hidden lg:flex flex-col
       h-[calc(100dvh-var(--navbar-height))] sticky top-[var(--navbar-height)] z-20
       bg-white/50 dark:bg-black/30 shadow-xl dark:border-r border-gray-500/20`,
           'transition-all duration-300',

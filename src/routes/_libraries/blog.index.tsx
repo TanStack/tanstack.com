@@ -16,16 +16,15 @@ const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
         'public, max-age=300, durable, stale-while-revalidate=300',
     })
 
-    return getPublishedPosts()
-      .map((post) => {
-        return {
-          slug: post.slug,
-          title: post.title,
-          published: post.published,
-          excerpt: post.excerpt,
-          authors: post.authors,
-        }
-      })
+    return getPublishedPosts().map((post) => {
+      return {
+        slug: post.slug,
+        title: post.title,
+        published: post.published,
+        excerpt: post.excerpt,
+        authors: post.authors,
+      }
+    })
 
     // return json(frontMatters, {
     //   headers: {

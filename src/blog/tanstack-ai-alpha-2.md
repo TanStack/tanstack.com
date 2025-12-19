@@ -8,6 +8,8 @@ authors:
   - Tanner Linsley
 ---
 
+![TanStack AI Alpha 2](/blog-assets/tanstack-ai-alpha-2/header.jpeg)
+
 It's been two weeks since we released the first alpha of TanStack AI. To us, it feels like decades ago. We've prototyped through 5-6 different internal architectures to bring you the best experience possible.
 
 Our goals were simple: move away from monolithic adapters and their complexity, while expanding the flexibility and power of our public APIs. This release delivers on both.

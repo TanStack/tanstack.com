@@ -167,14 +167,6 @@ export class OAuthService implements IOAuthService {
 // OAuth Provider Utilities
 // ============================================================================
 
-export interface OAuthConfig {
-  clientId: string
-  clientSecret: string
-}
-
-export interface GitHubOAuthConfig extends OAuthConfig {}
-export interface GoogleOAuthConfig extends OAuthConfig {}
-
 /**
  * Build GitHub OAuth authorization URL
  */

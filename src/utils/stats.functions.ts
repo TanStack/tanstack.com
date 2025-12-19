@@ -789,7 +789,9 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
             onError: (error, packageName) => {
               failCount++
               console.error(
-                `[NPM Stats] Failed ${packageName}: ${error.message}`,
+                `[NPM Stats] Failed ${packageName}: ${
+                  (error.message)
+                }`,
               )
               // Store 0 for failed packages
               const zeroStats = { downloads: 0 }

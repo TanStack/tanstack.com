@@ -208,7 +208,10 @@ function MaintainersFilter({
 
                 {/* Group By */}
                 <div className="mb-4">
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="groupBy"
+                    className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Group By
                   </label>
                   <select
@@ -229,7 +232,10 @@ function MaintainersFilter({
 
                 {/* Sort By */}
                 <div className="mb-4">
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="sortBy"
+                    className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Sort By
                   </label>
                   <select
@@ -248,7 +254,10 @@ function MaintainersFilter({
 
                 {/* Library filter */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="libraryFilter"
+                    className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Filter by Libraries
                   </label>
                   <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
@@ -366,9 +375,6 @@ function MaintainerGrid({
 function RouteComponent() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
-  // const loaderData = Route.useLoaderData()
-  // const stats = loaderData?.stats || []
-  const stats: any[] = [] // Empty array since stats are commented out
 
   const updateFilters = (updates: {
     libraries?: Library['id'][] | undefined
@@ -693,7 +699,7 @@ function RouteComponent() {
                 </p>
               )}
 
-              {groupedMaintainers.map((group, index) => (
+              {groupedMaintainers.map((group) => (
                 <MaintainerGrid
                   key={group.title || 'all'}
                   maintainers={group.maintainers}

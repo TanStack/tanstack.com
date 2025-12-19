@@ -1,7 +1,5 @@
-import { useState, useEffect, useMemo } from 'react'
-import { ReactNode } from 'react'
+import { useState, useEffect } from 'react'
 import { useMounted } from '~/hooks/useMounted'
-import { Footer } from '~/components/Footer'
 import { FeedList } from '~/components/FeedList'
 import { FeedFilters as FeedFiltersComponent } from '~/components/FeedFilters'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
@@ -15,7 +13,6 @@ import {
   getFeedFacetCountsQueryOptions,
   type FeedFilters,
 } from '~/queries/feed'
-import { twMerge } from 'tailwind-merge'
 
 // Re-export FeedFilters as FeedFiltersState for backwards compatibility
 export type FeedFiltersState = FeedFilters
@@ -234,32 +231,6 @@ export function FeedPage({
 
   const currentPage = effectiveFilters.page ?? 1
   const pageSize = effectiveFilters.pageSize ?? 50
-
-  // Convert FeedFiltersState to FeedFilters format
-  const feedFilters = useMemo(
-    () => ({
-      entryTypes: normalizeFilter(effectiveFilters.entryTypes),
-      libraries: normalizeFilter(effectiveFilters.libraries),
-      partners: normalizeFilter(effectiveFilters.partners),
-      tags: normalizeFilter(effectiveFilters.tags),
-      releaseLevels: normalizeFilter(effectiveFilters.releaseLevels) as any,
-      includePrerelease: effectiveFilters.includePrerelease,
-      featured: effectiveFilters.featured,
-      search: effectiveFilters.search,
-      includeHidden: adminActions !== undefined,
-    }),
-    [
-      effectiveFilters.entryTypes,
-      effectiveFilters.libraries,
-      effectiveFilters.partners,
-      effectiveFilters.tags,
-      effectiveFilters.releaseLevels,
-      effectiveFilters.includePrerelease,
-      effectiveFilters.featured,
-      effectiveFilters.search,
-      adminActions,
-    ],
-  )
 
   return (
     <div className="p-2 sm:p-4 pb-0 flex flex-col max-w-full gap-2 sm:gap-4 relative">

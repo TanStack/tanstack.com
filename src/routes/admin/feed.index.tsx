@@ -141,7 +141,7 @@ function FeedAdminPage() {
           params={{ id: 'new' }}
           className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm"
         >
-          <Plus size={14} />
+          <Plus />
           Create Entry
         </Link>
       </div>

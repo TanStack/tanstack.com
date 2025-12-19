@@ -58,7 +58,6 @@ interface FeedListProps {
 export function FeedList({
   query,
   infiniteQuery,
-  filters,
   currentPage,
   pageSize,
   onPageChange,
@@ -66,8 +65,6 @@ export function FeedList({
   viewMode = 'table',
   expandedIds,
   onExpandedChange,
-  onViewModeChange,
-  onFiltersChange,
   adminActions,
 }: FeedListProps) {
   // For timeline mode, use infinite query

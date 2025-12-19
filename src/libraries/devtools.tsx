@@ -43,7 +43,7 @@ export const devtoolsProject = {
   featureHighlights: [
     {
       title: 'Unified Devtools Panel',
-      icon: <WandSparkles size={16} className="text-slate-400" />,
+      icon: <WandSparkles className="text-slate-400" />,
       description: (
         <div>
           TanStack Devtools provides a centralized panel that houses all

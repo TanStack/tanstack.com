@@ -288,8 +288,8 @@ export function DocsLayout({
       >
         <summary className="py-2 px-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-4 items-center">
-            <TextAlignStart className="icon-open cursor-pointer" size={16} />
-            <X className="icon-close cursor-pointer" size={16} />
+            <TextAlignStart className="icon-open cursor-pointer" />
+            <X className="icon-close cursor-pointer" />
             Documentation
           </div>
         </summary>
@@ -359,7 +359,7 @@ export function DocsLayout({
                   className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
                 >
                   <div className="flex gap-2 items-center font-bold">
-                    <ArrowLeft size={16} />
+                    <ArrowLeft />
                     {prevItem.label}
                   </div>
                 </Link>
@@ -379,7 +379,7 @@ export function DocsLayout({
                     >
                       {nextItem.label}
                     </span>{' '}
-                    <ArrowRight className={textColor} size={16} />
+                    <ArrowRight className={textColor} />
                   </div>
                 </Link>
               ) : null}

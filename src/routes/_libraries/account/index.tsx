@@ -115,7 +115,7 @@ function AccountSettingsPage() {
           onClick={signOut}
           className="text-sm flex gap-2 items-center font-medium bg-black/80 hover:bg-black text-white dark:bg-white/95 dark:hover:bg-white dark:text-black py-1.5 px-2 rounded-md transition-colors my-4"
         >
-          <LogOut size={14} /> Logout
+          <LogOut /> Logout
         </button>
       </div>
     </div>

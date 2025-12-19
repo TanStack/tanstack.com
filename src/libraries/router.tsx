@@ -51,7 +51,7 @@ export const routerProject = {
       to: '/router/latest/docs/framework/react/overview',
     },
     {
-      icon: <Wallpaper size={16} />,
+      icon: <Wallpaper />,
       label: 'Examples',
       to: '/router/latest/docs/framework/react/examples/kitchen-sink-file-based',
     },

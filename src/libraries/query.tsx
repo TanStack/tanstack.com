@@ -65,7 +65,7 @@ export const queryProject = {
       to: '/query/latest/docs/framework/react/overview',
     },
     {
-      icon: <Wallpaper size={16} />,
+      icon: <Wallpaper />,
       label: 'Examples',
       to: '/query/latest/docs/framework/react/examples/basic',
     },

@@ -91,10 +91,11 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
-  img: ({ ...props }: HTMLProps<HTMLImageElement>) => (
-    // eslint-disable-next-line jsx-a11y/alt-text
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  img: ({ children, alt, ...props }: HTMLProps<HTMLImageElement>) => (
     <img
       {...props}
+      alt={alt ?? ''}
       className={`max-w-full h-auto rounded-lg shadow-md ${
         props.className ?? ''
       }`}

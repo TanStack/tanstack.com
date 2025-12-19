@@ -398,12 +398,8 @@ export function FeedEntryEditor({
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                <div
-                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <label
-                    htmlFor="showInFeed"
-                  >
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                  <label htmlFor="showInFeed">
                     <div className="font-medium text-gray-900 dark:text-white">
                       Show in Feed
                     </div>
@@ -429,9 +425,7 @@ export function FeedEntryEditor({
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                  <label
-                  htmlFor="featured"
-                  >
+                  <label htmlFor="featured">
                     <div className="font-medium text-gray-900 dark:text-white">
                       Featured
                     </div>

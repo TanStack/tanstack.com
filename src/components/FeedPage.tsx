@@ -232,7 +232,6 @@ export function FeedPage({
   const currentPage = effectiveFilters.page ?? 1
   const pageSize = effectiveFilters.pageSize ?? 50
 
-
   return (
     <div className="p-2 sm:p-4 pb-0 flex flex-col max-w-full gap-2 sm:gap-4 relative">
       <div className="flex-1 space-y-2 sm:space-y-4 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-2 min-h-0">

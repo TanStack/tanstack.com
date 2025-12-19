@@ -553,12 +553,8 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
             </div>
             <div className="p-6 space-y-5">
               {/* Active Toggle */}
-              <div
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                <label
-                  htmlFor="isActive"
-                >
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <label htmlFor="isActive">
                   <div className="font-medium text-gray-900 dark:text-white">
                     Active
                   </div>

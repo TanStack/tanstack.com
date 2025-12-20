@@ -1,7 +1,6 @@
 ---
 title: 'TanStack AI Alpha 2: Every Modality, Better APIs, Smaller Bundles'
 published: 2025-12-19
-draft: true
 authors:
   - Alem Tuzlak
   - Jack Herrington

@@ -705,7 +705,6 @@ function RouteComponent() {
                   maintainers={group.maintainers}
                   viewMode={search.viewMode}
                   title={group.title}
-                  stats={stats}
                 />
               ))}
             </div>

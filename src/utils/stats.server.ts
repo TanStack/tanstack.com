@@ -269,7 +269,7 @@ export const getOSSStats = createServerFn({ method: 'POST' })
     // Try to get GitHub stats from cache (prefer valid cache, fallback to expired)
     const cachedGitHub = await getCachedGitHubStats(githubCacheKey)
     let githubStats: GitHubStats
-    let previousGitHubStats: GitHubStats | null = null
+    let previousGitHubStats: GitHubStats | null
     let githubTimeDeltaMs: number = 60 * 60 * 1000 // Default 1 hour
 
     if (cachedGitHub) {
@@ -612,7 +612,7 @@ export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
     // Determine date range for this chunk
     let startDate: string
     let endDate: string
-    let isCurrentYear = year === 'current' || year === currentYear
+    const isCurrentYear = year === 'current' || year === currentYear
 
     if (year === 'current') {
       // Current year to date

@@ -6,7 +6,7 @@ import { getEffectiveCapabilities } from '~/utils/capabilities.server'
 export const Route = createFileRoute('/api/admin/sync')({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: async () => {
         try {
           // Require admin capability
           const user = await getAuthenticatedUser()

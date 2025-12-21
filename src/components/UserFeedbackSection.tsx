@@ -12,7 +12,7 @@ interface UserFeedbackSectionProps {
   userId: string
 }
 
-export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
+export function UserFeedbackSection({}: UserFeedbackSectionProps) {
   const [page, setPage] = React.useState(1)
   const [pageSize, setPageSize] = React.useState(10)
 
@@ -82,7 +82,7 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1"
           >
             View Leaderboard
-            <ExternalLink className="text-xs" size={16} />
+            <ExternalLink className="text-xs" />
           </Link>
         </div>
       </div>
@@ -120,9 +120,9 @@ export function UserFeedbackSection({ userId }: UserFeedbackSectionProps) {
                       {/* Icon */}
                       <div className="mt-1">
                         {item.type === 'note' ? (
-                          <MessageSquare className="text-blue-500" size={14} />
+                          <MessageSquare className="text-blue-500" />
                         ) : (
-                          <Lightbulb className="text-yellow-500" size={14} />
+                          <Lightbulb className="text-yellow-500" />
                         )}
                       </div>
 

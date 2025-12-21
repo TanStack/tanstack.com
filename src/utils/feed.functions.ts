@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/db/client'
 import { feedEntries, feedConfig } from '~/db/schema'
-import { eq, and, sql, gte } from 'drizzle-orm'
+import { eq, and, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import type { EntryType, BannerScope, BannerStyle } from '~/db/schema'
+import type { EntryType } from '~/db/schema'
 import {
   requireAdmin,
   getEffectivePublishedAt,
@@ -42,10 +42,8 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     // Check if admin (for includeHidden)
-    let isAdmin = false
     try {
       await requireAdmin()
-      isAdmin = true
     } catch {
       // Not admin, continue
     }
@@ -53,7 +51,6 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
     const limit = data.pagination.limit
     const pageIndex = data.pagination.page ?? 0
     const filters = data.filters ?? {}
-    const includeHidden = filters.includeHidden ?? false
 
     // Build query conditions
     const whereClause = buildFeedQueryConditions(filters)
@@ -245,7 +242,6 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const filters = data.filters ?? {}
-    const includeHidden = filters.includeHidden ?? false
 
     // Helper function to apply filters except for a specific facet
     const applyFiltersExcept = (
@@ -262,18 +258,6 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
       const whereClause = buildFeedQueryConditions(filters, excludeFacet)
       return db.select().from(feedEntries).where(whereClause)
     }
-
-    // Get base entries (with visibility filter)
-    const baseWhereClause = includeHidden
-      ? undefined
-      : and(
-          eq(feedEntries.showInFeed, true),
-          gte(feedEntries.publishedAt, new Date(0)),
-        )
-    const baseEntries = await db
-      .select()
-      .from(feedEntries)
-      .where(baseWhereClause)
 
     // Count by entry type
     const entryTypeEntries = await applyFiltersExcept('entryTypes')

@@ -17,6 +17,7 @@ export function MarkdownLink({
   ...rest
 }: HTMLProps<HTMLAnchorElement>) {
   if (!isRelativeLink(hrefProp ?? '')) {
+    // eslint-disable-next-line jsx-a11y/anchor-has-content
     return <a {...rest} href={hrefProp} />
   }
 

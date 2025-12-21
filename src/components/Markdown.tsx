@@ -91,10 +91,11 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
-  img: ({ children, ...props }: HTMLProps<HTMLImageElement>) => (
-    // eslint-disable-next-line jsx-a11y/alt-text
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  img: ({ children, alt, ...props }: HTMLProps<HTMLImageElement>) => (
     <img
       {...props}
+      alt={alt ?? ''}
       className={`max-w-full h-auto rounded-lg shadow-md ${
         props.className ?? ''
       }`}
@@ -136,7 +137,6 @@ export function CodeBlock({
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
 }) {
-  // @ts-ignore
   let lang = props?.children?.props?.className?.replace('language-', '')
 
   if (lang === 'diff') {
@@ -231,7 +231,7 @@ export function CodeBlock({
         >
           {lang ? <div className="px-2">{lang}</div> : null}
           <button
-            className="px-2 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
+            className="px-2 py-1 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
             onClick={() => {
               let copyContent =
                 typeof ref.current?.innerText === 'string'
@@ -256,11 +256,7 @@ export function CodeBlock({
             }}
             aria-label="Copy code to clipboard"
           >
-            {copied ? (
-              <span className="text-xs">Copied!</span>
-            ) : (
-              <Copy size={14} />
-            )}
+            {copied ? <span className="text-xs">Copied!</span> : <Copy />}
           </button>
         </div>
       ) : null}
@@ -290,7 +286,7 @@ const getHighlighter = cache(async (language: string, themes: string[]) => {
   const loadedLanguages = highlighter.getLoadedLanguages()
   const loadedThemes = highlighter.getLoadedThemes()
 
-  let promises = []
+  const promises = []
   if (!loadedLanguages.includes(language as any)) {
     promises.push(
       highlighter.loadLanguage(

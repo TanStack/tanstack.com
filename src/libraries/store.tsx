@@ -35,7 +35,7 @@ export const storeProject = {
       to: '/store/latest/docs',
     },
     {
-      icon: <Wallpaper size={16} />,
+      icon: <Wallpaper />,
       label: 'Examples',
       to: '/store/latest/docs/framework/react/examples/simple',
     },

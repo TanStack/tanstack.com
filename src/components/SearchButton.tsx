@@ -20,10 +20,10 @@ export function SearchButton({ className }: SearchButtonProps) {
       )}
     >
       <div className="flex items-center gap-1 text-sm">
-        <Search size={18} /> Search...
+        <Search /> Search...
       </div>
       <div className="flex items-center bg-white/50 dark:bg-gray-500/50 rounded-md px-2 py-1 gap-1 font-bold text-xs whitespace-nowrap">
-        <Command size={12} /> + K
+        <Command /> + K
       </div>
     </button>
   )

@@ -825,7 +825,11 @@ interface NpmStatsComponentProps {
   competitors?: string[]
   frameworks?: string[]
   libraryId?: string
-  getPackageName?: (framework: string, libraryId: string, library: any) => string
+  getPackageName?: (
+    framework: string,
+    libraryId: string,
+    library: any,
+  ) => string
   library?: any
 }
 
@@ -1789,49 +1793,57 @@ export function NpmStatsComponent({
       ) : null}
 
       {/* Framework Adapters Section */}
-      {frameworks && frameworks.length > 0 && libraryId && getPackageName && library && (
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-3">
-            Add Framework Adapters
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {frameworks.map((framework) => {
-              const frameworkPackageName = getPackageName(framework, libraryId, library)
-              const isAlreadyAdded = packageGroups.some((pg) =>
-                pg.packages.some((pkg) => pkg.name === frameworkPackageName),
-              )
-              
-              return (
-                <button
-                  key={framework}
-                  onClick={() => {
-                    if (!isAlreadyAdded) {
-                      const newPackageGroups = [
-                        ...packageGroups,
-                        {
-                          packages: [{ name: frameworkPackageName }],
-                          // Don't set color - let default color assignment work
-                        },
-                      ]
-                      onPackageGroupsChange(newPackageGroups)
-                    }
-                  }}
-                  disabled={isAlreadyAdded}
-                  className={twMerge(
-                    'px-3 py-1.5 rounded-md text-sm font-medium transition-colors capitalize',
-                    isAlreadyAdded
-                      ? 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed'
-                      : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30',
-                  )}
-                >
-                  {isAlreadyAdded ? '✓ ' : '+ '}
-                  {framework === 'vanilla' ? 'Vanilla (Core)' : framework}
-                </button>
-              )
-            })}
+      {frameworks &&
+        frameworks.length > 0 &&
+        libraryId &&
+        getPackageName &&
+        library && (
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold mb-3">
+              Add Framework Adapters
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {frameworks.map((framework) => {
+                const frameworkPackageName = getPackageName(
+                  framework,
+                  libraryId,
+                  library,
+                )
+                const isAlreadyAdded = packageGroups.some((pg) =>
+                  pg.packages.some((pkg) => pkg.name === frameworkPackageName),
+                )
+
+                return (
+                  <button
+                    key={framework}
+                    onClick={() => {
+                      if (!isAlreadyAdded) {
+                        const newPackageGroups = [
+                          ...packageGroups,
+                          {
+                            packages: [{ name: frameworkPackageName }],
+                            // Don't set color - let default color assignment work
+                          },
+                        ]
+                        onPackageGroupsChange(newPackageGroups)
+                      }
+                    }}
+                    disabled={isAlreadyAdded}
+                    className={twMerge(
+                      'px-3 py-1.5 rounded-md text-sm font-medium transition-colors capitalize',
+                      isAlreadyAdded
+                        ? 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed'
+                        : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/30',
+                    )}
+                  >
+                    {isAlreadyAdded ? '✓ ' : '+ '}
+                    {framework === 'vanilla' ? 'Vanilla (Core)' : framework}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Competitor Packages Section */}
       {competitors && competitors.length > 0 && (

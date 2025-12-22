@@ -83,13 +83,11 @@ function isValidMetric(value: number | undefined | null): boolean {
   )
 }
 
-function NpmStatsSummaryContent({ 
-  library
-}: { 
-  library: Library
-}) {
+function NpmStatsSummaryContent({ library }: { library: Library }) {
   const { data: stats } = useSuspenseQuery(ossStatsQuery({ library }))
-  const { data: recentStats } = useSuspenseQuery(recentDownloadStatsQuery({ library }))
+  const { data: recentStats } = useSuspenseQuery(
+    recentDownloadStatsQuery({ library }),
+  )
 
   const npmDownloads = stats.npm?.totalDownloads ?? 0
   const hasNpmDownloads = isValidMetric(npmDownloads)
@@ -150,26 +148,26 @@ function NpmStatsSummaryContent({
   )
 }
 
-export default function NpmStatsSummaryBar({ 
-  library
-}: { 
-  library: Library
-}) {
+export default function NpmStatsSummaryBar({ library }: { library: Library }) {
   return (
-    <Suspense fallback={
-      <div className="mb-6">
-        <div className="animate-pulse">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Array(4).fill(0).map((_, i) => (
-              <div key={i} className="text-left">
-                <div className="h-9 bg-gray-300 dark:bg-gray-700 rounded w-20 mb-2"></div>
-                <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-16"></div>
-              </div>
-            ))}
+    <Suspense
+      fallback={
+        <div className="mb-6">
+          <div className="animate-pulse">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array(4)
+                .fill(0)
+                .map((_, i) => (
+                  <div key={i} className="text-left">
+                    <div className="h-9 bg-gray-300 dark:bg-gray-700 rounded w-20 mb-2"></div>
+                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-16"></div>
+                  </div>
+                ))}
+            </div>
           </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <BlankErrorBoundary>
         <NpmStatsSummaryContent library={library} />
       </BlankErrorBoundary>

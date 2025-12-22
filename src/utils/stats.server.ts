@@ -609,8 +609,11 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
     })
 
     // Import db functions dynamically
-    const { getRegisteredPackages, getBatchNpmDownloadChunks, setCachedNpmDownloadChunk } =
-      await import('./stats-db.server')
+    const {
+      getRegisteredPackages,
+      getBatchNpmDownloadChunks,
+      setCachedNpmDownloadChunk,
+    } = await import('./stats-db.server')
 
     // Get registered packages for this library (same as getOSSStats)
     let npmPackageNames = await getRegisteredPackages(data.library.id)
@@ -622,11 +625,17 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
 
     const today = new Date()
     const todayStr = today.toISOString().substring(0, 10)
-    
+
     // Calculate date ranges
-    const dailyStart = new Date(today.getTime() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
-    const weeklyStart = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
-    const monthlyStart = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10)
+    const dailyStart = new Date(today.getTime() - 24 * 60 * 60 * 1000)
+      .toISOString()
+      .substring(0, 10)
+    const weeklyStart = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .substring(0, 10)
+    const monthlyStart = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .substring(0, 10)
 
     // Create chunk requests for all packages and time periods
     const chunkRequests = []
@@ -637,7 +646,7 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
         dateFrom: dailyStart,
         dateTo: todayStr,
         binSize: 'daily',
-        period: 'daily'
+        period: 'daily',
       })
       // Weekly data (last 7 days)
       chunkRequests.push({
@@ -645,7 +654,7 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
         dateFrom: weeklyStart,
         dateTo: todayStr,
         binSize: 'daily',
-        period: 'weekly'
+        period: 'weekly',
       })
       // Monthly data (last 30 days)
       chunkRequests.push({
@@ -653,7 +662,7 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
         dateFrom: monthlyStart,
         dateTo: todayStr,
         binSize: 'daily',
-        period: 'monthly'
+        period: 'monthly',
       })
     }
 
@@ -666,18 +675,18 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
     for (const req of chunkRequests) {
       const cacheKey = `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`
       const cached = cachedChunks.get(cacheKey)
-      
+
       if (cached) {
         // Check if cache is recent enough (within last hour for recent data)
         const cacheAge = Date.now() - (cached.updatedAt ?? 0)
         const isStale = cacheAge > 60 * 60 * 1000 // 1 hour
-        
+
         if (!isStale) {
           results.set(cacheKey, cached)
           continue
         }
       }
-      
+
       needsFetch.push(req)
     }
 
@@ -709,7 +718,7 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
                   totalDownloads: 0,
                   isImmutable: false,
                   updatedAt: Date.now(),
-                }
+                },
               }
             }
             throw new Error(`NPM API error: ${response.status}`)
@@ -723,7 +732,10 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
             dateFrom: req.dateFrom,
             dateTo: req.dateTo,
             binSize: req.binSize,
-            totalDownloads: downloads.reduce((sum: number, d: any) => sum + d.downloads, 0),
+            totalDownloads: downloads.reduce(
+              (sum: number, d: any) => sum + d.downloads,
+              0,
+            ),
             dailyData: downloads,
             isImmutable: false, // Recent data is mutable
             updatedAt: Date.now(),
@@ -731,7 +743,10 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
 
           // Cache this chunk asynchronously
           setCachedNpmDownloadChunk(chunkData).catch((err) =>
-            console.warn(`Failed to cache recent downloads for ${req.packageName}:`, err)
+            console.warn(
+              `Failed to cache recent downloads for ${req.packageName}:`,
+              err,
+            ),
           )
 
           return {
@@ -739,7 +754,10 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
             data: chunkData,
           }
         } catch (error) {
-          console.error(`Failed to fetch recent downloads for ${req.packageName}:`, error)
+          console.error(
+            `Failed to fetch recent downloads for ${req.packageName}:`,
+            error,
+          )
           // Return zero data on error
           return {
             key: `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`,
@@ -771,10 +789,10 @@ export const fetchRecentDownloadStats = createServerFn({ method: 'POST' })
     for (const req of chunkRequests) {
       const cacheKey = `${req.packageName}|${req.dateFrom}|${req.dateTo}|${req.binSize}`
       const chunk = results.get(cacheKey)
-      
+
       if (chunk) {
         const downloads = chunk.totalDownloads || 0
-        
+
         if (req.period === 'daily') {
           dailyTotal += downloads
         } else if (req.period === 'weekly') {

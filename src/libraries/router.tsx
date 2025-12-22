@@ -40,6 +40,7 @@ export const routerProject = {
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/installation',
   legacyPackages: ['react-location'],
+  competitors: ['react-router-dom'],
   hideCodesandboxUrl: true,
   showVercelUrl: false,
   showNetlifyUrl: true,

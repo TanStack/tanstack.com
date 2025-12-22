@@ -33,6 +33,7 @@ export const rangerProject = {
   textColor: 'text-gray-700',
   frameworks: ['react'],
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
+  competitors: ['rc-slider', 'react-slider'],
   menu: [
     {
       icon: <Book />,

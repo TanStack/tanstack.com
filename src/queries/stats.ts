@@ -26,3 +26,25 @@ export function ossStatsQuery({ library }: { library?: Library } = {}) {
       : undefined,
   })
 }
+
+export const recentDownloadStatsQueryOptions = (library: Library) =>
+  queryOptions({
+    queryKey: ['stats', 'recent-downloads', library.id],
+    queryFn: async () => {
+      const { fetchRecentDownloadStats } = await import('~/utils/stats.server')
+      return fetchRecentDownloadStats({
+        data: {
+          library: {
+            id: library.id,
+            repo: library.repo,
+            frameworks: library.frameworks,
+          },
+        },
+      })
+    },
+    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+  })
+
+export function recentDownloadStatsQuery({ library }: { library: Library }) {
+  return recentDownloadStatsQueryOptions(library)
+}

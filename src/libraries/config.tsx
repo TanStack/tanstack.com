@@ -27,6 +27,7 @@ export const configProject = {
   colorTo: 'to-gray-700',
   textColor: 'text-gray-700',
   frameworks: [],
+  competitors: [],
   menu: [
     {
       icon: <Book />,

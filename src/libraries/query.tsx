@@ -33,6 +33,7 @@ export const queryProject = {
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/installation',
   legacyPackages: ['react-query'],
+  competitors: ['swr', '@reduxjs/toolkit', '@apollo/client', 'relay-runtime'],
   handleRedirects: (href: string) => {
     handleRedirects(
       reactQueryV3List,

@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { DocContainer } from '~/components/DocContainer'
 import { DocTitle } from '~/components/DocTitle'
-import { getLibrary } from '~/libraries'
+import { getLibrary, Library } from '~/libraries'
 import { getFrameworkOptions } from '~/libraries/frameworks'
 import { FrameworkCard } from '~/components/FrameworkCard'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -15,7 +15,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/framework/')({
 function getPackageName(
   frameworkValue: string,
   libraryId: string,
-  library: ReturnType<typeof getLibrary>,
+  library: Library,
 ): string {
   if (frameworkValue === 'vanilla') {
     // For vanilla, use corePackageName if provided, otherwise just libraryId

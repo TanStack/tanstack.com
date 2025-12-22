@@ -28,6 +28,7 @@ export const storeProject = {
   frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
+  competitors: ['@xstate/store', 'redux', 'zustand', 'jotai', 'valtio'],
   menu: [
     {
       icon: <Book />,

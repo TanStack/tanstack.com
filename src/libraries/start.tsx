@@ -36,6 +36,7 @@ export const startProject = {
   showCloudflareUrl: true,
   // hide stackblitz until they support Async Local Storage
   hideStackblitzUrl: true,
+  competitors: ['next', '@remix-run/react', 'nuxt', '@sveltejs/kit'],
   menu: [
     {
       icon: <Book />,

@@ -30,6 +30,12 @@ export const virtualProject = {
   defaultDocs: 'introduction',
   scarfId: '32372eb1-91e0-48e7-8df1-4808a7be6b94',
   legacyPackages: ['react-virtual'],
+  competitors: [
+    'react-window',
+    'react-virtualized',
+    'virtua',
+    'react-virtuoso',
+  ],
   menu: [
     {
       icon: <Book />,

@@ -69,6 +69,10 @@ const useMenuConfig = ({
         label: 'Contributors',
         to: '/$libraryId/$version/docs/contributors',
       },
+      {
+        label: 'NPM Stats',
+        to: '/$libraryId/$version/docs/npm-stats',
+      },
       ...(config.sections.find((d) => d.label === 'Community Resources')
         ? [
             {

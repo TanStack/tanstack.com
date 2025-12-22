@@ -760,7 +760,7 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
       const results = new Map<string, NpmPackageStats>()
 
       // Fetch packages using single AsyncQueuer (chunks are sequential within each package)
-      const { AsyncQueuer } = await import('@tanstack/pacer')
+      const { AsyncQueuer } = await import('@tanstack/react-pacer')
       let successCount = 0
       let failCount = 0
 

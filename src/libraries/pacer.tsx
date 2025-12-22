@@ -34,6 +34,7 @@ export const pacerProject = {
   frameworks: ['react', 'preact', 'solid'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
+  competitors: ['lodash.debounce', 'lodash.throttle', 'p-queue', 'bottleneck'],
   menu: [
     {
       icon: <Book />,

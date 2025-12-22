@@ -82,6 +82,7 @@ import { Route as LibrariesAiVersionIndexRouteImport } from './routes/_libraries
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
 import { Route as LibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
+import { Route as LibraryIdVersionDocsNpmStatsRouteImport } from './routes/$libraryId/$version.docs.npm-stats'
 import { Route as LibraryIdVersionDocsContributorsRouteImport } from './routes/$libraryId/$version.docs.contributors'
 import { Route as LibraryIdVersionDocsCommunityResourcesRouteImport } from './routes/$libraryId/$version.docs.community-resources'
 import { Route as LibraryIdVersionDocsSplatRouteImport } from './routes/$libraryId/$version.docs.$'
@@ -470,6 +471,12 @@ const LibraryIdVersionDocsChar123Char125DotmdRoute =
     path: '/{$}.md',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const LibraryIdVersionDocsNpmStatsRoute =
+  LibraryIdVersionDocsNpmStatsRouteImport.update({
+    id: '/npm-stats',
+    path: '/npm-stats',
+    getParentRoute: () => LibraryIdVersionDocsRoute,
+  } as any)
 const LibraryIdVersionDocsContributorsRoute =
   LibraryIdVersionDocsContributorsRouteImport.update({
     id: '/contributors',
@@ -579,6 +586,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
+  '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
@@ -656,6 +664,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
+  '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
@@ -740,6 +749,7 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
+  '/$libraryId/$version/docs/npm-stats': typeof LibraryIdVersionDocsNpmStatsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
@@ -824,6 +834,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
+    | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
     | '/$libraryId/$version/docs/'
@@ -901,6 +912,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
+    | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
     | '/$libraryId/$version/docs'
@@ -984,6 +996,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
     | '/$libraryId/$version/docs/contributors'
+    | '/$libraryId/$version/docs/npm-stats'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
     | '/$libraryId/$version/docs/'
@@ -1540,6 +1553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionDocsChar123Char125DotmdRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
     }
+    '/$libraryId/$version/docs/npm-stats': {
+      id: '/$libraryId/$version/docs/npm-stats'
+      path: '/npm-stats'
+      fullPath: '/$libraryId/$version/docs/npm-stats'
+      preLoaderRoute: typeof LibraryIdVersionDocsNpmStatsRouteImport
+      parentRoute: typeof LibraryIdVersionDocsRoute
+    }
     '/$libraryId/$version/docs/contributors': {
       id: '/$libraryId/$version/docs/contributors'
       path: '/contributors'
@@ -1603,6 +1623,7 @@ interface LibraryIdVersionDocsRouteChildren {
   LibraryIdVersionDocsSplatRoute: typeof LibraryIdVersionDocsSplatRoute
   LibraryIdVersionDocsCommunityResourcesRoute: typeof LibraryIdVersionDocsCommunityResourcesRoute
   LibraryIdVersionDocsContributorsRoute: typeof LibraryIdVersionDocsContributorsRoute
+  LibraryIdVersionDocsNpmStatsRoute: typeof LibraryIdVersionDocsNpmStatsRoute
   LibraryIdVersionDocsChar123Char125DotmdRoute: typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   LibraryIdVersionDocsIndexRoute: typeof LibraryIdVersionDocsIndexRoute
   LibraryIdVersionDocsFrameworkIndexRoute: typeof LibraryIdVersionDocsFrameworkIndexRoute
@@ -1617,6 +1638,7 @@ const LibraryIdVersionDocsRouteChildren: LibraryIdVersionDocsRouteChildren = {
   LibraryIdVersionDocsCommunityResourcesRoute:
     LibraryIdVersionDocsCommunityResourcesRoute,
   LibraryIdVersionDocsContributorsRoute: LibraryIdVersionDocsContributorsRoute,
+  LibraryIdVersionDocsNpmStatsRoute: LibraryIdVersionDocsNpmStatsRoute,
   LibraryIdVersionDocsChar123Char125DotmdRoute:
     LibraryIdVersionDocsChar123Char125DotmdRoute,
   LibraryIdVersionDocsIndexRoute: LibraryIdVersionDocsIndexRoute,

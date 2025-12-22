@@ -41,6 +41,7 @@ export const tableProject = {
   defaultDocs: 'introduction',
   corePackageName: 'table-core',
   legacyPackages: ['react-table'],
+  competitors: ['ag-grid-community', '@mui/x-data-grid'],
   handleRedirects: (href) => {
     handleRedirects(
       reactTableV7List,

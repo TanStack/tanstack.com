@@ -67,6 +67,8 @@ export type Library = {
   legacyPackages?: string[]
   installPath?: string
   corePackageName?: string
+  // Competitor packages to compare against
+  competitors?: string[]
 }
 
 export type LibraryMenuItem = {

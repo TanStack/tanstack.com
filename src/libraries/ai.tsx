@@ -30,6 +30,12 @@ export const aiProject = {
   frameworks: ['react', 'solid', 'vanilla'],
   scarfId: undefined,
   defaultDocs: 'getting-started/overview',
+  competitors: [
+    'ai',
+    '@ai-sdk/openai',
+    'llamaindex',
+    '@google-ai/generativelanguage',
+  ],
   menu: [
     {
       icon: <Book />,

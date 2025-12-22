@@ -28,6 +28,7 @@ export const devtoolsProject = {
   colorTo: 'to-slate-600',
   textColor: 'text-slate-600',
   frameworks: ['react', 'preact', 'solid', 'vanilla'],
+  competitors: [],
   menu: [
     {
       icon: <Book />,

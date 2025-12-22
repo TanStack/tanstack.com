@@ -28,3 +28,6 @@ dist
 # Content Collections generated files
 .content-collections
 
+# ai
+.claude
+.cursor

@@ -1,4 +1,9 @@
-import { Link, MatchRoute, createFileRoute } from '@tanstack/react-router'
+import {
+  Await,
+  Link,
+  MatchRoute,
+  createFileRoute,
+} from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -17,7 +22,7 @@ import { coreMaintainers } from '~/libraries/maintainers'
 import { useToast } from '~/components/ToastProvider'
 import { formatAuthors, getPublishedPosts } from '~/utils/blog'
 import { format } from 'date-fns'
-import { Markdown } from '~/components/Markdown'
+import { LazyMarkdown } from '~/components/LazyMarkdown'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { AdGate } from '~/contexts/AdsContext'
@@ -70,11 +75,11 @@ const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(async () => {
 
 export const Route = createFileRoute('/_libraries/')({
   loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(ossStatsQuery())
-    const recentPosts = await fetchRecentPosts()
+    queryClient.ensureQueryData(ossStatsQuery())
+    const recentPostsPromise = fetchRecentPosts()
 
     return {
-      recentPosts,
+      recentPostsPromise,
     }
   },
   component: Index,
@@ -101,7 +106,7 @@ function Index() {
     fn: bytesSignupServerFn,
   })
   const { notify } = useToast()
-  const { recentPosts } = Route.useLoaderData()
+  const { recentPostsPromise } = Route.useLoaderData()
 
   // sponsorsPromise no longer needed - using lazy loading
 
@@ -115,11 +120,13 @@ function Index() {
                 src={'/images/logos/splash-light.png'}
                 className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
                 alt="TanStack Logo"
+                fetchPriority="high"
               />
               <img
                 src={'/images/logos/splash-dark.png'}
                 className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
                 alt="TanStack Logo"
+                fetchPriority="high"
               />
             </BrandContextMenu>
             <div className="flex flex-col items-center gap-6 text-center px-4 xl:text-left xl:items-start">
@@ -372,80 +379,95 @@ function Index() {
           </div>
         </div>
 
-        {recentPosts && recentPosts.length > 0 && (
-          <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-            <h3 id="blog" className={`text-4xl font-light mb-6 scroll-mt-24`}>
-              <a
-                href="#blog"
-                className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-              >
-                Latest Blog Posts
-              </a>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {recentPosts.map(
-                ({ slug, title, published, excerpt, authors }) => {
-                  return (
-                    <Link
-                      key={slug}
-                      to="/blog/$"
-                      params={{ _splat: slug }}
-                      className={`flex flex-col gap-3 justify-between
+        <Await promise={recentPostsPromise}>
+          {(recentPosts: any) => (
+            <>
+              {recentPosts && recentPosts.length > 0 && (
+                <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+                  <h3
+                    id="blog"
+                    className={`text-4xl font-light mb-6 scroll-mt-24`}
+                  >
+                    <a
+                      href="#blog"
+                      className="hover:underline decoration-gray-400 dark:decoration-gray-600"
+                    >
+                      Latest Blog Posts
+                    </a>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {recentPosts.map(
+                      ({ slug, title, published, excerpt, authors }) => {
+                        return (
+                          <Link
+                            key={slug}
+                            to="/blog/$"
+                            params={{ _splat: slug }}
+                            className={`flex flex-col gap-3 justify-between
                       border-2 border-transparent rounded-lg p-4
                       transition-all bg-white/90 dark:bg-black/40
                       shadow-md dark:shadow-lg dark:shadow-blue-500/20
                       hover:border-blue-500 hover:shadow-xl
                     `}
-                    >
-                      <div>
-                        <div className={`text-base font-bold`}>{title}</div>
-                        <div
-                          className={`text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400`}
-                        >
-                          <p>
-                            by {formatAuthors(authors)}
-                            {published ? (
-                              <time
-                                dateTime={published}
-                                title={format(
-                                  new Date(published),
-                                  'MMM dd, yyyy',
-                                )}
-                              >
-                                {' '}
-                                on {format(new Date(published), 'MMM dd, yyyy')}
-                              </time>
-                            ) : null}
-                          </p>
-                        </div>
-                        {excerpt && (
-                          <div
-                            className={`text-xs mt-3 text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed`}
                           >
-                            <Markdown rawContent={excerpt} />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="text-blue-500 uppercase font-bold text-xs">
-                          Read More →
-                        </div>
-                      </div>
+                            <div>
+                              <div className={`text-base font-bold`}>
+                                {title}
+                              </div>
+                              <div
+                                className={`text-xs italic font-light mt-1 text-gray-600 dark:text-gray-400`}
+                              >
+                                <p>
+                                  by {formatAuthors(authors)}
+                                  {published ? (
+                                    <time
+                                      dateTime={published}
+                                      title={format(
+                                        new Date(published),
+                                        'MMM dd, yyyy',
+                                      )}
+                                    >
+                                      {' '}
+                                      on{' '}
+                                      {format(
+                                        new Date(published),
+                                        'MMM dd, yyyy',
+                                      )}
+                                    </time>
+                                  ) : null}
+                                </p>
+                              </div>
+                              {excerpt && (
+                                <div
+                                  className={`text-xs mt-3 text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed`}
+                                >
+                                  <LazyMarkdown rawContent={excerpt} />
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <div className="text-blue-500 uppercase font-bold text-xs">
+                                Read More →
+                              </div>
+                            </div>
+                          </Link>
+                        )
+                      },
+                    )}
+                  </div>
+                  <div className="text-center mt-6">
+                    <Link
+                      to="/blog"
+                      className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                    >
+                      View All Posts →
                     </Link>
-                  )
-                },
+                  </div>
+                </div>
               )}
-            </div>
-            <div className="text-center mt-6">
-              <Link
-                to="/blog"
-                className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-              >
-                View All Posts →
-              </Link>
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </Await>
 
         <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
           <h3 id="courses" className={`text-4xl font-light mb-6 scroll-mt-24`}>

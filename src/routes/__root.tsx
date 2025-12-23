@@ -62,6 +62,7 @@ export const Route = createRootRouteWithContext<{
       }),
     ],
     links: [
+      { rel: 'preload', href: appCss, as: 'style' },
       { rel: 'stylesheet', href: appCss },
       {
         rel: 'apple-touch-icon',
@@ -91,14 +92,25 @@ export const Route = createRootRouteWithContext<{
       },
     ],
     scripts: [
-      // Google Tag Manager script
+      // Google Tag Manager - deferred until user interaction or timeout
       {
         children: `
-          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','GTM-5N57KQT4');
+          (function(){
+            var loaded=false;
+            function loadGTM(){
+              if(loaded)return;
+              loaded=true;
+              var w=window,d=document,l='dataLayer',i='GTM-5N57KQT4';
+              w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+              var f=d.getElementsByTagName('script')[0],j=d.createElement('script');
+              j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;
+              f.parentNode.insertBefore(j,f);
+            }
+            ['scroll','click','touchstart','keydown'].forEach(function(e){
+              window.addEventListener(e,loadGTM,{once:true,passive:true});
+            });
+            setTimeout(loadGTM,4000);
+          })();
         `,
       },
     ],

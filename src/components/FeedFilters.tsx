@@ -136,7 +136,7 @@ export function FeedFilters({
   // Update filters when debounced search changes
   React.useEffect(() => {
     onFiltersChange({ search: debouncedSearch || undefined })
-  }, [debouncedSearch, onFiltersChange])
+  }, [debouncedSearch])
 
   // Sync local state with prop when search prop changes externally
   React.useEffect(() => {

@@ -8,6 +8,7 @@ import parse, {
   HTMLReactParserOptions,
 } from 'html-react-parser'
 import { renderMarkdown } from '~/utils/markdown'
+import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 
 /**
  * Lightweight markdown renderer for simple content like excerpts.
@@ -37,27 +38,16 @@ const markdownComponents: Record<string, React.FC<any>> = {
       </pre>
     )
   },
-  img: ({ children, alt, src, ...props }: HTMLProps<HTMLImageElement>) => {
-    // Use Netlify Image CDN for local images
-    const optimizedSrc =
-      src &&
-      !src.startsWith('http') &&
-      !src.startsWith('data:') &&
-      !src.endsWith('.svg')
-        ? `/.netlify/images?url=${encodeURIComponent(src)}&w=800&q=80`
-        : src
-
-    return (
-      <img
-        {...props}
-        src={optimizedSrc}
-        alt={alt ?? ''}
-        className={`max-w-full h-auto rounded-lg shadow-md ${props.className ?? ''}`}
-        loading="lazy"
-        decoding="async"
-      />
-    )
-  },
+  img: ({ alt, src, className, children: _, ...props }: HTMLProps<HTMLImageElement>) => (
+    <img
+      {...props}
+      src={src ? getNetlifyImageUrl(src) : undefined}
+      alt={alt ?? ''}
+      className={`max-w-full h-auto rounded-lg shadow-md ${className ?? ''}`}
+      loading="lazy"
+      decoding="async"
+    />
+  ),
 }
 
 const options: HTMLReactParserOptions = {

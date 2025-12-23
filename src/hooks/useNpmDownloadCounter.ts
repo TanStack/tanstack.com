@@ -29,8 +29,8 @@ export function useNpmDownloadCounter(
     // Calculate how often we need to update based on rate
     // At minimum, update when count would change by 1
     const msPerIncrement = 1 / ratePerMs
-    // Clamp between 50ms and 1000ms
-    const intervalMs = Math.max(50, Math.min(1000, msPerIncrement))
+    // Clamp between 16ms (60fps) and 1000ms
+    const intervalMs = Math.max(16, Math.min(1000, msPerIncrement))
 
     const tick = () => {
       if (!elementRef.current) return

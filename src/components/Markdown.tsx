@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
-import { createHighlighter as shikiGetHighlighter } from 'shiki/bundle-web.mjs'
+import { createHighlighter, type HighlighterGeneric } from 'shiki/bundle/web'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import parse, {
   attributesToProps,
@@ -9,7 +9,7 @@ import parse, {
   Element,
   HTMLReactParserOptions,
 } from 'html-react-parser'
-import mermaid from 'mermaid'
+import type { Mermaid } from 'mermaid'
 import { useToast } from '~/components/ToastProvider'
 import { twMerge } from 'tailwind-merge'
 import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
@@ -92,17 +92,29 @@ const markdownComponents: Record<string, React.FC> = {
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  img: ({ children, alt, ...props }: HTMLProps<HTMLImageElement>) => (
-    <img
-      {...props}
-      alt={alt ?? ''}
-      className={`max-w-full h-auto rounded-lg shadow-md ${
-        props.className ?? ''
-      }`}
-      loading="lazy"
-      decoding="async"
-    />
-  ),
+  img: ({ children, alt, src, ...props }: HTMLProps<HTMLImageElement>) => {
+    // Use Netlify Image CDN for local images
+    const optimizedSrc =
+      src &&
+      !src.startsWith('http') &&
+      !src.startsWith('data:') &&
+      !src.endsWith('.svg')
+        ? `/.netlify/images?url=${encodeURIComponent(src)}&w=800&q=80`
+        : src
+
+    return (
+      <img
+        {...props}
+        src={optimizedSrc}
+        alt={alt ?? ''}
+        className={`max-w-full h-auto rounded-lg shadow-md ${
+          props.className ?? ''
+        }`}
+        loading="lazy"
+        decoding="async"
+      />
+    )
+  },
 }
 
 export function extractPreAttributes(html: string): {
@@ -127,7 +139,16 @@ export function extractPreAttributes(html: string): {
 
 const genSvgMap = new Map<string, string>()
 
-mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' })
+// Lazy load mermaid only when needed
+let mermaidInstance: Mermaid | null = null
+async function getMermaid(): Promise<Mermaid> {
+  if (!mermaidInstance) {
+    const { default: mermaid } = await import('mermaid')
+    mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' })
+    mermaidInstance = mermaid
+  }
+  return mermaidInstance
+}
 
 export function CodeBlock({
   isEmbedded,
@@ -174,12 +195,17 @@ export function CodeBlock({
     ;(async () => {
       const themes = ['github-light', 'tokyo-night']
 
+      // Normalize language name
+      const normalizedLang = LANG_ALIASES[lang] || lang
+      const effectiveLang =
+        normalizedLang === 'mermaid' ? 'plaintext' : normalizedLang
+
       const highlighter = await getHighlighter(lang, themes)
 
       const htmls = await Promise.all(
         themes.map(async (theme) => {
           const output = highlighter.codeToHtml(code, {
-            lang: lang === 'mermaid' ? 'plaintext' : lang,
+            lang: effectiveLang,
             theme,
             transformers: [transformerNotationDiff()],
           })
@@ -188,6 +214,7 @@ export function CodeBlock({
             const preAttributes = extractPreAttributes(output)
             let svgHtml = genSvgMap.get(code || '')
             if (!svgHtml) {
+              const mermaid = await getMermaid()
               const { svg } = await mermaid.render('foo', code || '')
               genSvgMap.set(code || '', svg)
               svgHtml = svg
@@ -278,30 +305,65 @@ const cache = <T extends (...args: any[]) => any>(fn: T) => {
   }
 }
 
-const highlighterPromise = shikiGetHighlighter({} as any)
+// Core languages to bundle (most commonly used in TanStack docs)
+const CORE_LANGS = [
+  'typescript',
+  'javascript',
+  'tsx',
+  'jsx',
+  'bash',
+  'json',
+  'html',
+  'css',
+  'markdown',
+  'plaintext',
+] as const
 
-const getHighlighter = cache(async (language: string, themes: string[]) => {
-  const highlighter = await highlighterPromise
+// Language aliases mapping
+const LANG_ALIASES: Record<string, string> = {
+  ts: 'typescript',
+  js: 'javascript',
+  sh: 'bash',
+  shell: 'bash',
+  console: 'bash',
+  zsh: 'bash',
+  md: 'markdown',
+  txt: 'plaintext',
+  text: 'plaintext',
+}
+
+// Lazy highlighter initialization
+let highlighterPromise: Promise<HighlighterGeneric<any, any>> | null = null
+
+async function getShikiHighlighter() {
+  if (!highlighterPromise) {
+    highlighterPromise = createHighlighter({
+      themes: ['github-light', 'tokyo-night'],
+      langs: CORE_LANGS as unknown as string[],
+    })
+  }
+  return highlighterPromise
+}
+
+const getHighlighter = cache(async (language: string, _themes: string[]) => {
+  const highlighter = await getShikiHighlighter()
+
+  // Normalize language name
+  const normalizedLang = LANG_ALIASES[language] || language
+  const langToLoad = normalizedLang === 'mermaid' ? 'plaintext' : normalizedLang
 
   const loadedLanguages = highlighter.getLoadedLanguages()
-  const loadedThemes = highlighter.getLoadedThemes()
 
-  const promises = []
-  if (!loadedLanguages.includes(language as any)) {
-    promises.push(
-      highlighter.loadLanguage(
-        language === 'mermaid' ? 'plaintext' : (language as any),
-      ),
-    )
-  }
-
-  for (const theme of themes) {
-    if (!loadedThemes.includes(theme as any)) {
-      promises.push(highlighter.loadTheme(theme as any))
+  // Only load language if not already loaded
+  if (!loadedLanguages.includes(langToLoad as any)) {
+    try {
+      // Load language using shiki's built-in loader (works with bundle/web)
+      await highlighter.loadLanguage(langToLoad as any)
+    } catch {
+      // Fallback to plaintext if language not found
+      console.warn(`Shiki: Language "${langToLoad}" not found, using plaintext`)
     }
   }
-
-  await Promise.all(promises)
 
   return highlighter
 })

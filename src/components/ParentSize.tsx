@@ -33,7 +33,11 @@ export function ParentSize({ children, className }: ParentSizeProps) {
   }, [])
 
   return (
-    <div ref={containerRef} className={className} style={{ width: '100%', height: '100%' }}>
+    <div
+      ref={containerRef}
+      className={className}
+      style={{ width: '100%', height: '100%' }}
+    >
       {size.width > 0 && children(size)}
     </div>
   )

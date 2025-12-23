@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as Plot from '@observablehq/plot'
-import { ParentSize } from '@visx/responsive'
+import { ParentSize } from './ParentSize'
 
 type NpmStats = {
   start: string

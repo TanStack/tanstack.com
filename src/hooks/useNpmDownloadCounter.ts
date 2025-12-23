@@ -1,74 +1,64 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import type { NpmStats } from '~/utils/stats.server'
 
 /**
- * Hook to animate NPM download counter based on growth rate and elapsed time
- * Interpolates downloads from the last known value using week-over-week growth rate
+ * Hook to animate NPM download count using direct DOM updates.
+ * Uses setInterval to minimize overhead - updates only when count changes.
  */
-export function useNpmDownloadCounter(npmData: NpmStats): {
-  count: number
-  intervalMs: number
-} {
+export function useNpmDownloadCounter(npmData: NpmStats): React.RefCallback<HTMLElement> {
   const baseCount = npmData.totalDownloads ?? 0
   const ratePerDay = npmData.ratePerDay ?? 0
   const updatedAt = npmData.updatedAt ?? Date.now()
 
-  const [animatedCount, setAnimatedCount] = useState(baseCount)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
+  const elementRef = useRef<HTMLElement | null>(null)
+  const lastCountRef = useRef<number | null>(null)
 
   useEffect(() => {
-    // If no growth rate, just show the base count
-    if (!ratePerDay || ratePerDay === 0) {
-      setAnimatedCount(baseCount)
+    if (!ratePerDay || ratePerDay === 0 || !elementRef.current) {
       return
     }
 
-    // Convert rate per day to rate per millisecond
     const msPerDay = 24 * 60 * 60 * 1000
     const ratePerMs = ratePerDay / msPerDay
 
-    // Calculate animation interval based on rate
-    // Faster growth = more frequent updates for smoother animation
-    const dailyRate = Math.abs(ratePerDay)
-    let intervalMs: number
+    // Calculate how often we need to update based on rate
+    // At minimum, update when count would change by 1
+    const msPerIncrement = 1 / ratePerMs
+    // Clamp between 50ms and 1000ms
+    const intervalMs = Math.max(50, Math.min(1000, msPerIncrement))
 
-    if (dailyRate > 100000) {
-      // Very high rate: update every 100ms
-      intervalMs = 100
-    } else if (dailyRate > 10000) {
-      // High rate: update every 200ms
-      intervalMs = 200
-    } else if (dailyRate > 1000) {
-      // Medium rate: update every 500ms
-      intervalMs = 500
-    } else {
-      // Low rate: update every 1000ms
-      intervalMs = 1000
+    const tick = () => {
+      if (!elementRef.current) return
+      const elapsedMs = Date.now() - updatedAt
+      const count = Math.round(baseCount + ratePerMs * elapsedMs)
+
+      if (count !== lastCountRef.current) {
+        lastCountRef.current = count
+        elementRef.current.textContent = count.toLocaleString()
+      }
     }
 
-    // Set up interval to update the count
-    const interval = setInterval(() => {
-      const now = Date.now()
-      const elapsedMs = now - updatedAt
-      const additionalDownloads = ratePerMs * elapsedMs
-      const newCount = baseCount + additionalDownloads
+    intervalRef.current = setInterval(tick, intervalMs)
 
-      setAnimatedCount(Math.round(newCount))
-    }, intervalMs)
-
-    // Also update immediately
-    const now = Date.now()
-    const elapsedMs = now - updatedAt
-    const additionalDownloads = ratePerMs * elapsedMs
-    setAnimatedCount(Math.round(baseCount + additionalDownloads))
-
-    return () => clearInterval(interval)
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
   }, [baseCount, ratePerDay, updatedAt])
 
-  return useMemo(
-    () => ({
-      count: animatedCount,
-      intervalMs: 1000, // This is just for compatibility, actual interval is managed internally
-    }),
-    [animatedCount],
-  )
+  const refCallback = useCallback((node: HTMLElement | null) => {
+    elementRef.current = node
+    if (node) {
+      const msPerDay = 24 * 60 * 60 * 1000
+      const ratePerMs = ratePerDay / msPerDay
+      const elapsedMs = Date.now() - updatedAt
+      const count = Math.round(baseCount + ratePerMs * elapsedMs)
+      lastCountRef.current = count
+      node.textContent = count.toLocaleString()
+    }
+  }, [baseCount, ratePerDay, updatedAt])
+
+  return refCallback
 }

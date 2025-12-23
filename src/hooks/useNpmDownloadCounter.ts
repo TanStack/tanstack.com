@@ -5,12 +5,16 @@ import type { NpmStats } from '~/utils/stats.server'
  * Hook to animate NPM download count using direct DOM updates.
  * Uses setInterval to minimize overhead - updates only when count changes.
  */
-export function useNpmDownloadCounter(npmData: NpmStats): React.RefCallback<HTMLElement> {
+export function useNpmDownloadCounter(
+  npmData: NpmStats,
+): React.RefCallback<HTMLElement> {
   const baseCount = npmData.totalDownloads ?? 0
   const ratePerDay = npmData.ratePerDay ?? 0
   const updatedAt = npmData.updatedAt ?? Date.now()
 
-  const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(
+    undefined,
+  )
   const elementRef = useRef<HTMLElement | null>(null)
   const lastCountRef = useRef<number | null>(null)
 
@@ -48,17 +52,20 @@ export function useNpmDownloadCounter(npmData: NpmStats): React.RefCallback<HTML
     }
   }, [baseCount, ratePerDay, updatedAt])
 
-  const refCallback = useCallback((node: HTMLElement | null) => {
-    elementRef.current = node
-    if (node) {
-      const msPerDay = 24 * 60 * 60 * 1000
-      const ratePerMs = ratePerDay / msPerDay
-      const elapsedMs = Date.now() - updatedAt
-      const count = Math.round(baseCount + ratePerMs * elapsedMs)
-      lastCountRef.current = count
-      node.textContent = count.toLocaleString()
-    }
-  }, [baseCount, ratePerDay, updatedAt])
+  const refCallback = useCallback(
+    (node: HTMLElement | null) => {
+      elementRef.current = node
+      if (node) {
+        const msPerDay = 24 * 60 * 60 * 1000
+        const ratePerMs = ratePerDay / msPerDay
+        const elapsedMs = Date.now() - updatedAt
+        const count = Math.round(baseCount + ratePerMs * elapsedMs)
+        lastCountRef.current = count
+        node.textContent = count.toLocaleString()
+      }
+    },
+    [baseCount, ratePerDay, updatedAt],
+  )
 
   return refCallback
 }

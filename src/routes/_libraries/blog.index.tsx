@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { formatAuthors, getPublishedPosts } from '~/utils/blog'
-import { Markdown } from '~/components/Markdown'
+import { SimpleMarkdown } from '~/components/SimpleMarkdown'
 import { format } from 'date-fns'
 import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
@@ -93,7 +93,7 @@ function BlogIndex() {
                   <div
                     className={`text-sm mt-4 text-black dark:text-white leading-7`}
                   >
-                    <Markdown rawContent={excerpt || ''} />
+                    <SimpleMarkdown rawContent={excerpt || ''} />
                   </div>
                 </div>
                 <div>

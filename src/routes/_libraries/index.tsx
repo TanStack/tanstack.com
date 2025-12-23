@@ -17,7 +17,8 @@ import { coreMaintainers } from '~/libraries/maintainers'
 import { useToast } from '~/components/ToastProvider'
 import { formatAuthors, getPublishedPosts } from '~/utils/blog'
 import { format } from 'date-fns'
-import { Markdown } from '~/components/Markdown'
+import { SimpleMarkdown } from '~/components/SimpleMarkdown'
+import { NetlifyImage } from '~/components/NetlifyImage'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { AdGate } from '~/contexts/AdsContext'
@@ -111,15 +112,25 @@ function Index() {
         <div className="space-y-8">
           <div className="flex flex-col xl:flex-row items-center gap-4 xl:pt-24 xl:justify-center">
             <BrandContextMenu className="cursor-pointer">
-              <img
-                src={'/images/logos/splash-light.png'}
+              <NetlifyImage
+                src="/images/logos/splash-light.png"
+                width={500}
+                height={500}
+                quality={85}
                 className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
                 alt="TanStack Logo"
+                loading="eager"
+                fetchPriority="high"
               />
-              <img
-                src={'/images/logos/splash-dark.png'}
+              <NetlifyImage
+                src="/images/logos/splash-dark.png"
+                width={500}
+                height={500}
+                quality={85}
                 className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
                 alt="TanStack Logo"
+                loading="eager"
+                fetchPriority="high"
               />
             </BrandContextMenu>
             <div className="flex flex-col items-center gap-6 text-center px-4 xl:text-left xl:items-start">
@@ -422,7 +433,7 @@ function Index() {
                           <div
                             className={`text-xs mt-3 text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed`}
                           >
-                            <Markdown rawContent={excerpt} />
+                            <SimpleMarkdown rawContent={excerpt} />
                           </div>
                         )}
                       </div>

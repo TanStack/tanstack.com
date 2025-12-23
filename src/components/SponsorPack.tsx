@@ -1,6 +1,6 @@
 import React from 'react'
 import { Pack, hierarchy } from '@visx/hierarchy'
-import { ParentSize } from '@visx/responsive'
+import { ParentSize } from './ParentSize'
 import { twMerge } from 'tailwind-merge'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 

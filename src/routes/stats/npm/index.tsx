@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import * as Plot from '@observablehq/plot'
-import { ParentSize } from '@visx/responsive'
+import { ParentSize } from '~/components/ParentSize'
 import { Tooltip } from '~/components/Tooltip'
 import * as d3 from 'd3'
 import { HexColorPicker } from 'react-colorful'

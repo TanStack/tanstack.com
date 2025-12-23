@@ -25,8 +25,6 @@ export function FeedTicker() {
 
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const [animationKey, setAnimationKey] = React.useState(0)
-  const [isTransitioning, setIsTransitioning] = React.useState(false)
-  const [nextIndex, setNextIndex] = React.useState(0)
 
   const entries = feedQuery.data?.page || []
 
@@ -35,30 +33,18 @@ export function FeedTicker() {
 
     // Rotate to next item after DISPLAY_DURATION
     const rotateTimeout = setTimeout(() => {
-      const newIndex = (currentIndex + 1) % entries.length
-      setNextIndex(newIndex)
-      setIsTransitioning(true)
-      setAnimationKey((prev) => prev + 1) // Reset animation
-
-      // After transition completes, update current index
-      setTimeout(() => {
-        setCurrentIndex(newIndex)
-        setIsTransitioning(false)
-      }, 500) // Transition duration
+      setCurrentIndex((prev) => (prev + 1) % entries.length)
+      setAnimationKey((prev) => prev + 1)
     }, DISPLAY_DURATION)
 
-    return () => {
-      clearTimeout(rotateTimeout)
-    }
+    return () => clearTimeout(rotateTimeout)
   }, [currentIndex, entries.length])
 
   // Reset to first item when entries change
   React.useEffect(() => {
     if (entries.length > 0) {
       setCurrentIndex(0)
-      setNextIndex(0)
       setAnimationKey(0)
-      setIsTransitioning(false)
     }
   }, [entries.length])
 
@@ -68,10 +54,9 @@ export function FeedTicker() {
   }
 
   const currentEntry = entries[currentIndex]
-  const nextEntry = entries[nextIndex]
   if (!currentEntry) return null
 
-  const renderEntry = (entry: typeof currentEntry, isExiting: boolean) => {
+  const renderEntry = (entry: typeof currentEntry) => {
     const isRelease = entry.entryType === 'release'
 
     if (isRelease) {
@@ -109,12 +94,7 @@ export function FeedTicker() {
           to="/feed/$id"
           params={{ id: entry._id }}
           search={{} as any}
-          className={`flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors group ${
-            isExiting ? 'cube-exit' : ''
-          }`}
-          style={{
-            transformStyle: 'preserve-3d',
-          }}
+          className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors group"
         >
           {/* Badge */}
           <span
@@ -160,12 +140,7 @@ export function FeedTicker() {
         to="/feed/$id"
         params={{ id: entry._id }}
         search={{} as any}
-        className={`flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors group ${
-          isExiting ? 'cube-exit' : ''
-        }`}
-        style={{
-          transformStyle: 'preserve-3d',
-        }}
+        className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors group"
       >
         {/* Time ago */}
         <span className="text-[10px] text-gray-500 dark:text-gray-400 flex-shrink-0">
@@ -184,46 +159,27 @@ export function FeedTicker() {
         height: '32px',
         maxWidth: '400px',
         width: '100%',
-        perspective: '1000px',
-        transformStyle: 'preserve-3d',
       }}
     >
       {/* Progress bar - full height behind content */}
-      <div className="absolute inset-0 bg-gray-200/10 dark:bg-gray-700/10 rounded-lg">
+      <div className="absolute inset-0 bg-gray-200/10 dark:bg-gray-700/10 rounded-lg overflow-hidden">
         <div
           key={animationKey}
-          className="h-full rounded-lg progress-gradient"
+          className="h-full w-full rounded-lg progress-gradient"
           style={{
-            width: '0%',
+            transformOrigin: 'left',
             animation: `progress ${DISPLAY_DURATION}ms linear forwards`,
           }}
         />
       </div>
 
       <div className="relative z-10 h-full flex items-center">
-        {/* Current entry */}
         <div
-          className={`absolute inset-0 flex items-center ${
-            isTransitioning ? 'cube-exit' : ''
-          }`}
-          style={{
-            transformStyle: 'preserve-3d',
-          }}
+          key={animationKey}
+          className="absolute inset-0 flex items-center animate-fade-in"
         >
-          {renderEntry(currentEntry, isTransitioning)}
+          {renderEntry(currentEntry)}
         </div>
-
-        {/* Next entry (entering) */}
-        {isTransitioning && nextEntry && (
-          <div
-            className="absolute inset-0 flex items-center cube-enter"
-            style={{
-              transformStyle: 'preserve-3d',
-            }}
-          >
-            {renderEntry(nextEntry, false)}
-          </div>
-        )}
       </div>
       <style>{`
         .progress-gradient {
@@ -233,38 +189,15 @@ export function FeedTicker() {
           background: linear-gradient(to right, transparent, rgb(75 85 99 / 0.3));
         }
         @keyframes progress {
-          from {
-            width: 0%;
-          }
-          to {
-            width: 100%;
-          }
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
         }
-        @keyframes cubeExit {
-          from {
-            transform: rotateX(0deg);
-            opacity: 1;
-          }
-          to {
-            transform: rotateX(-90deg);
-            opacity: 0;
-          }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-        @keyframes cubeEnter {
-          from {
-            transform: rotateX(90deg);
-            opacity: 0;
-          }
-          to {
-            transform: rotateX(0deg);
-            opacity: 1;
-          }
-        }
-        .cube-exit {
-          animation: cubeExit 500ms ease-in forwards;
-        }
-        .cube-enter {
-          animation: cubeEnter 500ms ease-out forwards;
+        .animate-fade-in {
+          animation: fadeIn 300ms ease-out forwards;
         }
       `}</style>
     </div>

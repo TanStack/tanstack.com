@@ -1,6 +1,6 @@
 import React from 'react'
 import { Pack, hierarchy } from '@visx/hierarchy'
-import { ParentSize } from '@visx/responsive'
+import { ParentSize } from './ParentSize'
 
 // Generate realistic placeholder sponsor data with curved distribution
 // Simulates real sponsor ecosystems: few large sponsors, many small ones
@@ -65,31 +65,9 @@ export default function PlaceholderSponsorPack() {
             <style
               dangerouslySetInnerHTML={{
                 __html: `
-                @keyframes shimmer {
-                  0% {
-                    background-position: -200% 0;
-                  }
-                  100% {
-                    background-position: 200% 0;
-                  }
-                }
-                
                 .placeholder-bubble {
-                  background: linear-gradient(
-                    90deg,
-                    rgba(156, 163, 175, 0.3) 25%,
-                    rgba(156, 163, 175, 0.5) 50%,
-                    rgba(156, 163, 175, 0.3) 75%
-                  );
-                  background-size: 200% 100%;
-                  animation: shimmer 2s infinite;
-                  transition: all .2s ease;
+                  background: rgba(156, 163, 175, 0.3);
                   transform: translate(-50%, -50%);
-                  will-change: transform;
-                }
-                
-                .placeholder-bubble:hover {
-                  transform: translate(-50%, -50%) scale(1.05);
                 }
               `,
               }}

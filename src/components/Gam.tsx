@@ -105,10 +105,10 @@ function GamAd({
           'pointer-events-none',
         )}
       >
-        <div className="flex justify-center items-center h-full opacity-50 gap-[1px]">
-          <span className="inline-block w-1 h-1 rounded-full bg-gray-500 animate-bounce [animation-delay:0ms]" />
-          <span className="inline-block w-1 h-1 rounded-full bg-gray-500 animate-bounce [animation-delay:100ms]" />
-          <span className="inline-block w-1 h-1 rounded-full bg-gray-500 animate-bounce [animation-delay:200ms]" />
+        <div className="flex justify-center items-center h-full opacity-50 gap-1">
+          <span className="inline-block w-1 h-1 rounded-full bg-gray-500 animate-pulse [animation-delay:0ms]" />
+          <span className="inline-block w-1 h-1 rounded-full bg-gray-500 animate-pulse [animation-delay:150ms]" />
+          <span className="inline-block w-1 h-1 rounded-full bg-gray-500 animate-pulse [animation-delay:300ms]" />
         </div>
         <div
           className={twMerge(

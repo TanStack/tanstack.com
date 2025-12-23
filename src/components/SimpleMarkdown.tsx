@@ -71,7 +71,10 @@ type SimpleMarkdownProps = {
   htmlMarkup?: string
 }
 
-export function SimpleMarkdown({ rawContent, htmlMarkup }: SimpleMarkdownProps) {
+export function SimpleMarkdown({
+  rawContent,
+  htmlMarkup,
+}: SimpleMarkdownProps) {
   const rendered = React.useMemo(() => {
     if (rawContent) {
       return renderMarkdown(rawContent)

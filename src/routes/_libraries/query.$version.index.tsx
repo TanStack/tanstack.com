@@ -21,6 +21,7 @@ import { GamHeader } from '~/components/Gam'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 
 const library = getLibrary('query')
 
@@ -58,9 +59,6 @@ function VersionIndex() {
               className: 'bg-red-500 text-white',
             }}
           />
-          <div className="px-4">
-            <QueryGGBanner />
-          </div>
 
           <div className="w-fit mx-auto px-4">
             <OpenSourceStats library={library} />
@@ -68,6 +66,7 @@ function VersionIndex() {
           <AdGate>
             <GamHeader />
           </AdGate>
+
           {/* Minimal code example card */}
           <div className="px-4 space-y-4 flex flex-col items-center ">
             <div className="text-3xl font-black">Just a quick look...</div>
@@ -219,6 +218,8 @@ export class TodosComponent {
             featureHighlights={library.featureHighlights}
           />
 
+          <LibraryTestimonials testimonials={queryProject.testimonials} />
+
           <div className="px-4 sm:px-6 lg:px-8 mx-auto">
             <div className=" sm:text-center pb-16">
               <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
@@ -260,14 +261,6 @@ export class TodosComponent {
             />
           </div>
 
-          {/* Trusted Marquee intentionally left as-is for Query page content differences */}
-
-          <PartnersSection libraryId="query" />
-
-          <LazySponsorSection />
-
-          <LandingPageGad />
-
           <div className="flex flex-col gap-4">
             <div className="px-4 sm:px-6 lg:px-8  mx-auto max-w-3xl sm:text-center">
               <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
@@ -300,6 +293,16 @@ export class TodosComponent {
               />
             </div>
           </div>
+
+          <PartnersSection libraryId="query" />
+
+          <div className="px-4">
+            <QueryGGBanner />
+          </div>
+
+          <LazySponsorSection />
+
+          <LandingPageGad />
 
           <BottomCTA
             linkProps={{

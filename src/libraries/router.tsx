@@ -61,6 +61,50 @@ export const routerProject = {
       to: `https://github.com/${repo}`,
     },
   ],
+  testimonials: [
+    {
+      quote:
+        "The biggest problem with TanStack Router is that once you've worked with it, you'll have a harder time going back to other routing solutions.",
+      author: 'Dominik (TkDodo)',
+      role: '@TkDodo',
+      company: 'TanStack',
+    },
+    {
+      quote:
+        "TanStack Router lives and breathes TypeScript - it's meant for it, they are a perfect match.",
+      author: 'Dominik (TkDodo)',
+      role: '@TkDodo',
+      company: 'TanStack',
+    },
+    {
+      quote:
+        'I took a few hours to switch to the file-based generation and was very impressed. Then I used auto codesplitting and was blown away. This is absolutely phenomenal!',
+      author: 'GitHub User',
+      role: 'Migration Thread',
+      company: 'TanStack Community',
+    },
+    {
+      quote:
+        'The more I use React + Vite + TanStack Router + TypeScript + TanStack Query, the more I love it.',
+      author: 'Catalin Pit',
+      role: '@catalinmpit',
+      company: 'Developer Advocate',
+    },
+    {
+      quote:
+        'I just got Elysia to work with TanStack Router, amazing dx so far..',
+      author: 'An Le',
+      role: '@anlett10',
+      company: 'Developer',
+    },
+    {
+      quote:
+        "I've been using Tanstack Start for a new project and it's super good. The server functions completely replace the need for TRPC/GraphQL/REST.",
+      author: 'Developer',
+      role: 'TanStack Community',
+      company: '',
+    },
+  ],
   featureHighlights: [
     {
       title: 'Typesafe & powerful, yet familiarly simple',

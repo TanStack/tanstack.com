@@ -23,6 +23,8 @@ import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
+import { TrustedByMarquee } from '~/components/TrustedByMarquee'
+import { Layers, Zap, Shield, Code2 } from 'lucide-react'
 
 export const textColors = [
   `text-rose-500`,
@@ -175,27 +177,41 @@ function Index() {
             <OpenSourceStats />
           </div>
         </div>
+
         <AdGate>
           <GamHeader />
         </AdGate>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
-            <h3 id="libraries" className={`text-4xl font-light scroll-mt-24`}>
-              <a
-                href="#libraries"
-                className="hover:underline decoration-gray-400 dark:decoration-gray-600"
-              >
-                Open Source Libraries
-              </a>
-            </h3>
-            <Link
-              to="/tenets"
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors underline"
+          <TrustedByMarquee
+            brands={[
+              'Google',
+              'Amazon',
+              'Apple',
+              'Microsoft',
+              'Walmart',
+              'Uber',
+              'Salesforce',
+              'Cisco',
+              'Intuit',
+              'HP',
+              'Docusign',
+              'TicketMaster',
+              'Nordstrom',
+              'Yahoo!',
+            ]}
+          />
+        </div>
+
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+          <h3 id="libraries" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+            <a
+              href="#libraries"
+              className="hover:underline decoration-gray-400 dark:decoration-gray-600"
             >
-              Read our product tenets →
-            </Link>
-          </div>
+              Open Source Libraries
+            </a>
+          </h3>
 
           {Object.entries(librariesByGroup).map(
             ([groupName, groupLibraries]) => (
@@ -360,6 +376,79 @@ function Index() {
               />
             </svg>
           </Link>
+        </div>
+
+        {/* Why TanStack Section */}
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+          <div className="text-center mb-8">
+            <h3 className="text-3xl font-bold mb-3">Why TanStack?</h3>
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Our libraries are built on principles that put developers first
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-6 rounded-xl bg-white/80 dark:bg-black/40 border border-gray-200 dark:border-gray-800 shadow-sm">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-4">
+                <Layers className="w-5 h-5 text-white" />
+              </div>
+              <h4 className="font-bold text-lg mb-2">Framework Agnostic</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Every library starts with a provider-agnostic core. Use React,
+                Vue, Solid, Angular, or vanilla JS—your choice.
+              </p>
+            </div>
+            <div className="p-6 rounded-xl bg-white/80 dark:bg-black/40 border border-gray-200 dark:border-gray-800 shadow-sm">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mb-4">
+                <Code2 className="w-5 h-5 text-white" />
+              </div>
+              <h4 className="font-bold text-lg mb-2">Type-Safe by Design</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                First-class TypeScript support that catches bugs at compile time
+                and makes refactoring fearless.
+              </p>
+            </div>
+            <div className="p-6 rounded-xl bg-white/80 dark:bg-black/40 border border-gray-200 dark:border-gray-800 shadow-sm">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-4">
+                <Zap className="w-5 h-5 text-white" />
+              </div>
+              <h4 className="font-bold text-lg mb-2">Production-Grade</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Battle-tested in the world's largest apps. Built for real
+                workloads, not just happy-path demos.
+              </p>
+            </div>
+            <div className="p-6 rounded-xl bg-white/80 dark:bg-black/40 border border-gray-200 dark:border-gray-800 shadow-sm">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+              <h4 className="font-bold text-lg mb-2">No Vendor Lock-in</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Open source and independent. No hidden agendas, no platform
+                bias—just great tools for developers.
+              </p>
+            </div>
+          </div>
+          <div className="text-center mt-8">
+            <Link
+              to="/tenets"
+              className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            >
+              Read our product tenets
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
+          </div>
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">

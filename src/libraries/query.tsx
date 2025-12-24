@@ -75,6 +75,49 @@ export const queryProject = {
       to: `https://github.com/${repo}`,
     },
   ],
+  testimonials: [
+    {
+      quote:
+        "Honestly, if React Query had been around before Redux, I don't think Redux would have been nearly as popular as it was.",
+      author: 'Kent C. Dodds',
+      role: '@kentcdodds',
+      company: 'Epic Web',
+    },
+    {
+      quote:
+        'If I could go back in time and mass myself... I would hand myself a flash drive with a copy of react-query on it.',
+      author: 'Kent C. Dodds',
+      role: '@kentcdodds',
+      company: 'Epic Web',
+    },
+    {
+      quote: "React Query won. There's no denying that.",
+      author: 'Theo Browne',
+      role: '@t3dotgg',
+      company: 'Ping Labs',
+    },
+    {
+      quote:
+        'TanStack Query has been a game-changer for us. We love using it for react-admin.',
+      author: 'react-admin',
+      role: '@ReactAdmin',
+      company: 'Marmelab',
+    },
+    {
+      quote:
+        'The more I use React + Vite + TanStack Router + TypeScript + TanStack Query, the more I love it.',
+      author: 'Catalin Pit',
+      role: '@catalinmpit',
+      company: 'Developer Advocate',
+    },
+    {
+      quote:
+        'Combined with React Query, this stack has been a game-changer for my productivity.',
+      author: 'Dominik (TkDodo)',
+      role: '@TkDodo',
+      company: 'TanStack',
+    },
+  ],
   featureHighlights: [
     {
       title: 'Declarative & Automatic',

@@ -67,6 +67,36 @@ export const tableProject = {
       to: `https://github.com/${repo}`,
     },
   ],
+  testimonials: [
+    {
+      quote:
+        'Introducing Table and Data Table components. Powered by TanStack Table. With Pagination, Row Selection, Sorting, Filters, Row Actions and Keyboard Navigation.',
+      author: 'shadcn',
+      role: '@shadcn',
+      company: 'Vercel',
+    },
+    {
+      quote:
+        'I made a version using React Aria Components with arrow key navigation, multi selection, screen reader announcements, and more. Works great with TanStack Table too!',
+      author: 'Devon Govett',
+      role: '@devongovett',
+      company: 'Adobe',
+    },
+    {
+      quote:
+        "TanStack Table is the perfect choice if you need a lightweight, unopinionated, and fully customizable solution. It gives you the power and leaves the presentation up to you.",
+      author: 'Developer Review',
+      role: 'Community',
+      company: '',
+    },
+    {
+      quote:
+        "Linear-style table filters using shadcn and TanStack Table. Open source. You'll be able to use this as an add-on to the Data Table component.",
+      author: 'Kian Bazza',
+      role: '@kianbazza',
+      company: 'Developer',
+    },
+  ],
   featureHighlights: [
     {
       title: 'Designed for zero design',

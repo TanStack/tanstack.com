@@ -45,6 +45,29 @@ export const formProject = {
       to: `https://github.com/${repo}`,
     },
   ],
+  testimonials: [
+    {
+      quote:
+        'TanStack Form is a new headless form library that makes building more complex and interactive forms easy. Given the high quality of all the other libraries in the TanStack suite, I was excited to give this new form library a try.',
+      author: 'This Dot Labs',
+      role: '@ThisDotLabs',
+      company: 'This Dot',
+    },
+    {
+      quote:
+        'It seemed like an interesting library with its simple APIs so I started studying it. Having fun helping Form get to 1.0.',
+      author: 'Leonardo Montini',
+      role: '@DevLeonardo',
+      company: 'TanStack Maintainer',
+    },
+    {
+      quote:
+        'First-class TypeScript support with outstanding autocompletion, excellent generic throughput and inferred types everywhere possible.',
+      author: 'TanStack Form Docs',
+      role: 'Official',
+      company: 'TanStack',
+    },
+  ],
   featureHighlights: [
     {
       title: 'First-Class TypeScript Support',

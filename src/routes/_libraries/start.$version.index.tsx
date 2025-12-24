@@ -11,6 +11,7 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import OpenSourceStats from '~/components/OpenSourceStats'
 import { ossStatsQuery } from '~/queries/stats'
 import { AdGate } from '~/contexts/AdsContext'
@@ -84,6 +85,8 @@ function VersionIndex() {
       </AdGate>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
+
+      <LibraryTestimonials testimonials={startProject.testimonials} />
 
       <div className="space-y-8 px-4">
         <div className="font-black text-3xl mr-1 text-center">

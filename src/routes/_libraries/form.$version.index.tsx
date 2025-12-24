@@ -19,6 +19,7 @@ import { CodeBlock } from '~/components/Markdown'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 
 const library = getLibrary('form')
 
@@ -66,6 +67,8 @@ function FormVersionIndex() {
         <LibraryFeatureHighlights
           featureHighlights={library.featureHighlights}
         />
+
+        <LibraryTestimonials testimonials={formProject.testimonials} />
 
         {/* Minimal code example card */}
         <div className="px-4 space-y-4 flex flex-col items-center ">
@@ -226,12 +229,6 @@ export class SimpleForm extends LitElement {
           ]}
         />
 
-        <PartnersSection libraryId="form" />
-
-        <LazySponsorSection />
-
-        <LandingPageGad />
-
         <div className="flex flex-col gap-4">
           <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
             <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
@@ -266,6 +263,12 @@ export class SimpleForm extends LitElement {
             />
           </div>
         </div>
+
+        <PartnersSection libraryId="form" />
+
+        <LazySponsorSection />
+
+        <LandingPageGad />
 
         <BottomCTA
           linkProps={{

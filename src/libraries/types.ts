@@ -60,6 +60,7 @@ export type Library = {
     icon: React.ReactNode
     description: React.ReactNode
   }[]
+  testimonials?: Testimonial[]
   docsRoot?: string
   embedEditor?: 'codesandbox' | 'stackblitz'
   visible?: boolean
@@ -73,6 +74,14 @@ export type LibraryMenuItem = {
   icon: React.ReactNode
   label: React.ReactNode
   to: string
+}
+
+export type Testimonial = {
+  quote: string
+  author: string
+  role: string
+  company: string
+  avatar?: string
 }
 
 export type LibraryId = Library['id']

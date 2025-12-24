@@ -47,6 +47,29 @@ export const virtualProject = {
       to: `https://github.com/${repo}`,
     },
   ],
+  testimonials: [
+    {
+      quote:
+        'We chose TanStack Virtual for our virtualization needs - it handles our massive lists without breaking a sweat.',
+      author: 'Evan Bacon',
+      role: '@Baconbrix',
+      company: 'Expo',
+    },
+    {
+      quote:
+        'TanStack Virtual is the answer when you need to render thousands of rows without destroying performance. Headless, flexible, and just works.',
+      author: 'Developer Review',
+      role: 'Community',
+      company: '',
+    },
+    {
+      quote:
+        'For anyone dealing with large datasets in React, TanStack Virtual is a must. The row virtualizer alone saved our app.',
+      author: 'Community Developer',
+      role: 'GitHub Discussion',
+      company: '',
+    },
+  ],
   featureHighlights: [
     {
       title: 'Designed for zero design',

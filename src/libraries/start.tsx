@@ -53,6 +53,36 @@ export const startProject = {
       to: `https://github.com/${repo}`,
     },
   ],
+  testimonials: [
+    {
+      quote:
+        "I've been using Tanstack Start for a new project and it's super good. The server functions completely replace the need for TRPC/GraphQL/REST.",
+      author: 'Developer',
+      role: 'TanStack Community',
+      company: '',
+    },
+    {
+      quote:
+        'I just love how easy it is to read tanstack start code. Everything makes sense and flows naturally.',
+      author: 'Earnstein',
+      role: '@earnstein',
+      company: 'Developer',
+    },
+    {
+      quote:
+        'TanStack Start inside Astro is literally the perfect stack. Full-stack TypeScript with the best routing and data fetching.',
+      author: 'Shayan',
+      role: '@shayanAzd',
+      company: 'Developer',
+    },
+    {
+      quote:
+        "TanStack Start is amazing. It's like Remix and Next had a baby that actually cares about TypeScript.",
+      author: 'Melvyn',
+      role: '@melvynxdev',
+      company: 'Developer',
+    },
+  ],
   featureHighlights: [
     {
       title: 'Enterprise-Grade Routing',

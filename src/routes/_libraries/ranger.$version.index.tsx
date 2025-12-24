@@ -64,12 +64,6 @@ function VersionIndex() {
           featureHighlights={library.featureHighlights}
         />
 
-        <LazySponsorSection />
-
-        <PartnersSection libraryId="ranger" />
-
-        <LandingPageGad />
-
         <div className="flex flex-col gap-4">
           <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
             <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
@@ -98,6 +92,13 @@ function VersionIndex() {
             />
           </div>
         </div>
+
+        <PartnersSection libraryId="ranger" />
+
+        <LazySponsorSection />
+
+        <LandingPageGad />
+
         <BottomCTA
           linkProps={{
             to: '/$libraryId/$version/docs',

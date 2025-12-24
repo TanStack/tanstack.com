@@ -3,7 +3,6 @@ import { tableProject } from '~/libraries/table'
 import { Footer } from '~/components/Footer'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
-import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { PartnersSection } from '~/components/PartnersSection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
@@ -20,6 +19,7 @@ import OpenSourceStats from '~/components/OpenSourceStats'
 import { ossStatsQuery } from '~/queries/stats'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 
 const library = getLibrary('table')
 
@@ -397,6 +397,8 @@ table.getRowModel().rows.forEach((row) => {
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
 
+      <LibraryTestimonials testimonials={tableProject.testimonials} />
+
       <FeatureGrid
         title="Framework Agnostic & Feature Rich"
         items={[
@@ -425,37 +427,6 @@ table.getRowModel().rows.forEach((row) => {
         ]}
         gridClassName="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4  mx-auto"
       />
-
-      <TrustedByMarquee
-        brands={[
-          'Intuit',
-          'Google',
-          'Amazon',
-          'Apple',
-          'AutoZone',
-          'Microsoft',
-          'Cisco',
-          'Uber',
-          'Salesforce',
-          'Walmart',
-          'Wix',
-          'HP',
-          'Docusign',
-          'Tripwire',
-          'Yahoo!',
-          'Ocado',
-          'Nordstrom',
-          'TicketMaster',
-          'Comcast Business',
-          'Nozzle.io',
-        ]}
-      />
-
-      <PartnersSection libraryId="table" />
-
-      <LazySponsorSection />
-
-      <LandingPageGad />
 
       <div className="flex flex-col gap-4">
         <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
@@ -487,6 +458,12 @@ table.getRowModel().rows.forEach((row) => {
           />
         </div>
       </div>
+
+      <PartnersSection libraryId="table" />
+
+      <LazySponsorSection />
+
+      <LandingPageGad />
 
       <BottomCTA
         linkProps={{

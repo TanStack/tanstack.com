@@ -14,6 +14,7 @@ import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
+import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import OpenSourceStats from '~/components/OpenSourceStats'
 import { ossStatsQuery } from '~/queries/stats'
 import { CodeBlock } from '~/components/Markdown'
@@ -207,6 +208,8 @@ export class VirtualList extends LitElement {
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
 
+      <LibraryTestimonials testimonials={virtualProject.testimonials} />
+
       <FeatureGrid
         title="Framework Agnostic & Feature Rich"
         items={[
@@ -225,54 +228,6 @@ export class VirtualList extends LitElement {
         ]}
         gridClassName="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4  mx-auto"
       />
-
-      {/* <div>
-        <div className="uppercase tracking-wider text-sm font-semibold text-center text-gray-400 mb-3">
-          Trusted in Production by
-        </div>
-        <marquee scrollamount="2">
-          <div className="flex gap-2 items-center text-3xl font-bold ml-[-100%]">
-            {(new Array(4) as string[])
-              .fill('')
-              .reduce(
-                (all) => [...all, ...all],
-                [
-                  'Intuit',
-                  'Google',
-                  'Amazon',
-                  'Apple',
-                  'AutoZone',
-                  'Microsoft',
-                  'Cisco',
-                  'Uber',
-                  'Salesforce',
-                  'Walmart',
-                  'Wix',
-                  'HP',
-                  'Docusign',
-                  'Tripwire',
-                  'Yahoo!',
-                  'Ocado',
-                  'Nordstrom',
-                  'TicketMaster',
-                  'Comcast Business',
-                  'Nozzle.io',
-                ]
-              )
-              .map((d, i) => (
-                <span key={i} className="opacity-70 even:opacity-40">
-                  {d}
-                </span>
-              ))}
-          </div>
-        </marquee>
-      </div> */}
-
-      <PartnersSection libraryId="virtual" />
-
-      <LazySponsorSection />
-
-      <LandingPageGad />
 
       <div className="flex flex-col gap-4">
         <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
@@ -319,6 +274,12 @@ export class VirtualList extends LitElement {
           )}
         </div>
       </div>
+
+      <PartnersSection libraryId="virtual" />
+
+      <LazySponsorSection />
+
+      <LandingPageGad />
 
       <BottomCTA
         linkProps={{

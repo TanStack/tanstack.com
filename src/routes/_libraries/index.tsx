@@ -204,7 +204,10 @@ function Index() {
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 id="libraries" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+          <h3
+            id="libraries"
+            className={`text-4xl font-light mb-6 scroll-mt-24`}
+          >
             <a
               href="#libraries"
               className="hover:underline decoration-gray-400 dark:decoration-gray-600"

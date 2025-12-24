@@ -84,7 +84,7 @@ export const tableProject = {
     },
     {
       quote:
-        "TanStack Table is the perfect choice if you need a lightweight, unopinionated, and fully customizable solution. It gives you the power and leaves the presentation up to you.",
+        'TanStack Table is the perfect choice if you need a lightweight, unopinionated, and fully customizable solution. It gives you the power and leaves the presentation up to you.',
       author: 'Developer Review',
       role: 'Community',
       company: '',

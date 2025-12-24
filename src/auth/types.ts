@@ -69,6 +69,7 @@ export interface AuthUser {
   capabilities: Capability[]
   adsDisabled: boolean | null
   interestedInHidingAds: boolean | null
+  lastUsedFramework: string | null
 }
 
 /**
@@ -83,6 +84,7 @@ export interface DbUser {
   capabilities: Capability[]
   adsDisabled: boolean | null
   interestedInHidingAds: boolean | null
+  lastUsedFramework: string | null
   sessionVersion: number
   createdAt: Date
   updatedAt: Date
@@ -116,6 +118,7 @@ export interface IUserRepository {
       capabilities: Capability[]
       adsDisabled: boolean
       interestedInHidingAds: boolean
+      lastUsedFramework: string
       sessionVersion: number
       updatedAt: Date
     }>,

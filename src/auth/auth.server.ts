@@ -110,6 +110,7 @@ export class AuthService implements IAuthService {
       capabilities,
       adsDisabled: user.adsDisabled,
       interestedInHidingAds: user.interestedInHidingAds,
+      lastUsedFramework: user.lastUsedFramework,
     }
   }
 }

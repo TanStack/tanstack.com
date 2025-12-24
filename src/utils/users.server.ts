@@ -341,6 +341,23 @@ export const setInterestedInHidingAds = createServerFn({ method: 'POST' })
     return { success: true }
   })
 
+// Server function to update user's last used framework preference
+export const updateLastUsedFramework = createServerFn({ method: 'POST' })
+  .inputValidator(z.object({ framework: z.string().min(1).max(50) }))
+  .handler(async ({ data }) => {
+    const user = await getAuthenticatedUser()
+
+    await db
+      .update(users)
+      .set({
+        lastUsedFramework: data.framework,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, user.userId))
+
+    return { success: true }
+  })
+
 // Server function wrapper for updateUserCapabilities (admin only)
 export const updateUserCapabilities = createServerFn({ method: 'POST' })
   .inputValidator(

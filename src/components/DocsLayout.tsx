@@ -343,8 +343,8 @@ export function DocsLayout({
             {children}
           </div>
           <AdGate>
-            <div className="px-2 xl:px-4">
-              <div className="mb-8 !py-0! mx-auto max-w-full">
+            <div className="px-2 xl:px-4 flex">
+              <div className="mb-8 !py-0! mx-auto max-w-full justify-center">
                 <GamFooter popupPosition="top" />
               </div>
             </div>

@@ -17,6 +17,11 @@ import { useSearchContext } from '~/contexts/SearchContext'
 import { libraries } from '~/libraries'
 import { frameworkOptions } from '~/libraries/frameworks'
 import { capitalize } from '~/utils/utils'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import {
+  getStoredFrameworkPreference,
+  usePersistFrameworkPreference,
+} from './FrameworkSelect'
 
 function decodeHtmlEntities(str: string): string {
   const textarea = document.createElement('textarea')
@@ -87,8 +92,20 @@ function useSearchFilters() {
 }
 
 function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
+  const userQuery = useCurrentUserQuery()
   const [selectedLibrary, setSelectedLibrary] = React.useState('')
-  const [selectedFramework, setSelectedFramework] = React.useState('')
+
+  // Get initial framework from user preference (DB if logged in, localStorage otherwise)
+  const getInitialFramework = React.useCallback(() => {
+    if (userQuery.data?.lastUsedFramework) {
+      return userQuery.data.lastUsedFramework
+    }
+    return getStoredFrameworkPreference() || ''
+  }, [userQuery.data?.lastUsedFramework])
+
+  const [selectedFramework, setSelectedFramework] = React.useState(
+    getInitialFramework,
+  )
 
   const { items: rawLibraryItems, refine: refineLibrary } = useMenu({
     attribute: 'library',
@@ -99,6 +116,27 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
     attribute: 'framework',
     limit: 50,
   })
+
+  // Pre-filter by stored framework preference on mount (only if no URL framework)
+  const hasPrefiltered = React.useRef(false)
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  })
+  const hasUrlFramework = pathname.includes('/framework/')
+
+  React.useEffect(() => {
+    // Don't pre-filter if URL already specifies a framework (let FrameworkRefinement handle it)
+    if (hasPrefiltered.current || hasUrlFramework) return
+    const storedFramework = getInitialFramework()
+    if (storedFramework && rawFrameworkItems.length > 0) {
+      const item = rawFrameworkItems.find((i) => i.value === storedFramework)
+      if (item && !item.isRefined) {
+        refineFramework(storedFramework)
+        setSelectedFramework(storedFramework)
+        hasPrefiltered.current = true
+      }
+    }
+  }, [rawFrameworkItems, refineFramework, getInitialFramework, hasUrlFramework])
 
   // Sort items by their defined order
   const libraryItems = [...rawLibraryItems].sort((a, b) => {
@@ -456,6 +494,7 @@ function FrameworkRefinement() {
     frameworkItems: items,
   } = useSearchFilters()
 
+  const persistFramework = usePersistFrameworkPreference()
   const hasAutoRefined = React.useRef(false)
 
   // Auto-refine based on current page
@@ -476,6 +515,10 @@ function FrameworkRefinement() {
   const handleChange = (value: string) => {
     setSelectedFramework(value)
     refineFramework(value)
+    // Persist the framework preference (localStorage + DB if logged in)
+    if (value) {
+      persistFramework(value)
+    }
   }
 
   const currentFramework = frameworkOptions.find(
@@ -777,6 +820,8 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
     frameworkItems,
   } = useSearchFilters()
 
+  const persistFramework = usePersistFrameworkPreference()
+
   const algoliaRefinedLibrary =
     libraryItems.find((item) => item.isRefined)?.value || null
   const algoliaRefinedFramework =
@@ -879,6 +924,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
                       onClick={() => {
                         setSelectedFramework(fw.value)
                         refineFramework(fw.value)
+                        persistFramework(fw.value)
                       }}
                       className="flex items-center gap-1.5 px-2 py-1 text-xs font-bold rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                     >

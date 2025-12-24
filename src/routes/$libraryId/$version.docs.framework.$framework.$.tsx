@@ -1,4 +1,9 @@
-import { createFileRoute, useLocation } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  isNotFound,
+  redirect,
+  useLocation,
+} from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
@@ -10,20 +15,36 @@ export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/$',
 )({
   staleTime: 1000 * 60 * 5,
-  loader: (ctx) => {
+  loader: async (ctx) => {
     const { _splat: docsPath, framework, version, libraryId } = ctx.params
 
     const library = getLibrary(libraryId)
 
-    return loadDocs({
-      repo: library.repo,
-      branch: getBranch(library, version),
-      docsPath: `${
-        library.docsRoot || 'docs'
-      }/framework/${framework}/${docsPath}`,
-      currentPath: ctx.location.pathname,
-      redirectPath: `/${library.id}/${version}/docs/overview`,
-    })
+    try {
+      return await loadDocs({
+        repo: library.repo,
+        branch: getBranch(library, version),
+        docsPath: `${
+          library.docsRoot || 'docs'
+        }/framework/${framework}/${docsPath}`,
+        currentPath: ctx.location.pathname,
+        redirectPath: `/${library.id}/${version}/docs/overview`,
+      })
+    } catch (error) {
+      // If doc not found, redirect to framework docs root instead of showing 404
+      // This handles cases like switching frameworks where the same doc path doesn't exist
+      // Check both isNotFound() and the serialized form from server functions
+      const isNotFoundError =
+        isNotFound(error) ||
+        (error && typeof error === 'object' && 'isNotFound' in error)
+      if (isNotFoundError) {
+        throw redirect({
+          to: '/$libraryId/$version/docs/framework/$framework',
+          params: { libraryId, version, framework },
+        })
+      }
+      throw error
+    }
   },
   component: Docs,
   head: (ctx) => {

@@ -94,6 +94,7 @@ export const users = pgTable(
     capabilities: capabilityEnum('capabilities').array().notNull().default([]),
     adsDisabled: boolean('ads_disabled').default(false),
     interestedInHidingAds: boolean('interested_in_hiding_ads').default(false),
+    lastUsedFramework: varchar('last_used_framework', { length: 50 }),
     sessionVersion: integer('session_version').notNull().default(0),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
       .notNull()

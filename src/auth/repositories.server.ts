@@ -115,6 +115,7 @@ export class DrizzleUserRepository implements IUserRepository {
       capabilities: user.capabilities as Capability[],
       adsDisabled: user.adsDisabled,
       interestedInHidingAds: user.interestedInHidingAds,
+      lastUsedFramework: user.lastUsedFramework,
       sessionVersion: user.sessionVersion,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

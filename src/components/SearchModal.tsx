@@ -103,9 +103,8 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
     return getStoredFrameworkPreference() || ''
   }, [userQuery.data?.lastUsedFramework])
 
-  const [selectedFramework, setSelectedFramework] = React.useState(
-    getInitialFramework,
-  )
+  const [selectedFramework, setSelectedFramework] =
+    React.useState(getInitialFramework)
 
   const { items: rawLibraryItems, refine: refineLibrary } = useMenu({
     attribute: 'library',

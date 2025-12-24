@@ -339,7 +339,7 @@ const Hit = ({
             )}
             {hierarchyLevels.map((lvl, i, arr) => (
               <React.Fragment key={lvl}>
-                <span className="text-gray-600 dark:text-gray-400 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white">
+                <span className="text-gray-600 dark:text-gray-400 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
                   <DecodedHighlight attribute={`hierarchy.${lvl}`} hit={hit} />
                 </span>
                 {i < arr.length - 1 && (
@@ -351,7 +351,7 @@ const Hit = ({
             ))}
           </h3>
           {hit.content ? (
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 ml-8 line-clamp-2 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 ml-8 line-clamp-2 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
               <Snippet attribute="content" hit={hit} />
             </p>
           ) : null}

@@ -173,16 +173,18 @@ function LibraryRefinement() {
   })
 
   React.useEffect(() => {
+    if (!subpathname) return
+
     const isAlreadyRefined = items.some(
       (item) => item.label === subpathname && item.isRefined,
     )
 
     const library = libraries.find((l) => l.id === subpathname)
 
-    if (!isAlreadyRefined && library) {
+    if (!isAlreadyRefined && library && items.length > 0) {
       refine(subpathname)
     }
-  }, [items, refine, subpathname])
+  }, [subpathname])
 
   return (
     <div className="overflow-x-auto scrollbar-hide">

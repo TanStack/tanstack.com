@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { findLibrary } from '~/libraries'
 
 const DISPLAY_DURATION = 7000 // 7 seconds in milliseconds
+const TRANSITION_DURATION = 500 // 0.5 seconds for crossfade
 
 export function FeedTicker() {
   // Fetch feed entries with default filters (major, minor releases, include prerelease)
@@ -24,7 +25,8 @@ export function FeedTicker() {
   })
 
   const [currentIndex, setCurrentIndex] = React.useState(0)
-  const [animationKey, setAnimationKey] = React.useState(0)
+  const [previousIndex, setPreviousIndex] = React.useState<number | null>(null)
+  const [isTransitioning, setIsTransitioning] = React.useState(false)
 
   const entries = feedQuery.data?.page || []
 
@@ -33,8 +35,15 @@ export function FeedTicker() {
 
     // Rotate to next item after DISPLAY_DURATION
     const rotateTimeout = setTimeout(() => {
+      setPreviousIndex(currentIndex)
+      setIsTransitioning(true)
       setCurrentIndex((prev) => (prev + 1) % entries.length)
-      setAnimationKey((prev) => prev + 1)
+
+      // Clear previous after transition completes
+      setTimeout(() => {
+        setPreviousIndex(null)
+        setIsTransitioning(false)
+      }, TRANSITION_DURATION)
     }, DISPLAY_DURATION)
 
     return () => clearTimeout(rotateTimeout)
@@ -44,7 +53,8 @@ export function FeedTicker() {
   React.useEffect(() => {
     if (entries.length > 0) {
       setCurrentIndex(0)
-      setAnimationKey(0)
+      setPreviousIndex(null)
+      setIsTransitioning(false)
     }
   }, [entries.length])
 
@@ -54,6 +64,7 @@ export function FeedTicker() {
   }
 
   const currentEntry = entries[currentIndex]
+  const previousEntry = previousIndex !== null ? entries[previousIndex] : null
   if (!currentEntry) return null
 
   const renderEntry = (entry: typeof currentEntry) => {
@@ -161,43 +172,38 @@ export function FeedTicker() {
         width: '100%',
       }}
     >
-      {/* Progress bar - full height behind content */}
-      <div className="absolute inset-0 bg-gray-200/10 dark:bg-gray-700/10 rounded-lg overflow-hidden">
+      <div className="h-full flex items-center">
+        {/* Previous entry fading out */}
+        {previousEntry && isTransitioning && (
+          <div
+            key={`prev-${previousIndex}`}
+            className="absolute inset-0 flex items-center animate-fade-out"
+          >
+            {renderEntry(previousEntry)}
+          </div>
+        )}
+        {/* Current entry fading in */}
         <div
-          key={animationKey}
-          className="h-full w-full rounded-lg progress-gradient"
-          style={{
-            transformOrigin: 'left',
-            animation: `progress ${DISPLAY_DURATION}ms linear forwards`,
-          }}
-        />
-      </div>
-
-      <div className="relative z-10 h-full flex items-center">
-        <div
-          key={animationKey}
-          className="absolute inset-0 flex items-center animate-fade-in"
+          key={`curr-${currentIndex}`}
+          className={`absolute inset-0 flex items-center ${isTransitioning ? 'animate-fade-in' : ''}`}
         >
           {renderEntry(currentEntry)}
         </div>
       </div>
       <style>{`
-        .progress-gradient {
-          background: linear-gradient(to right, transparent, rgb(209 213 219 / 0.3));
-        }
-        .dark .progress-gradient {
-          background: linear-gradient(to right, transparent, rgb(75 85 99 / 0.3));
-        }
-        @keyframes progress {
-          from { transform: scaleX(0); }
-          to { transform: scaleX(1); }
-        }
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
         }
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
         .animate-fade-in {
-          animation: fadeIn 300ms ease-out forwards;
+          animation: fadeIn 500ms ease-out forwards;
+        }
+        .animate-fade-out {
+          animation: fadeOut 500ms ease-out forwards;
         }
       `}</style>
     </div>

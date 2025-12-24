@@ -25,13 +25,7 @@ function decodeHtmlEntities(str: string): string {
 }
 
 // Custom Highlight component that decodes HTML entities
-function DecodedHighlight({
-  attribute,
-  hit,
-}: {
-  attribute: string
-  hit: any
-}) {
+function DecodedHighlight({ attribute, hit }: { attribute: string; hit: any }) {
   // Navigate nested paths for both raw value and highlight result
   const getNestedValue = (obj: any, path: string) =>
     path.split('.').reduce((o, key) => o?.[key], obj)
@@ -45,7 +39,9 @@ function DecodedHighlight({
 
   // Parse the highlighted string and decode entities while preserving <mark> tags
   const decoded = decodeHtmlEntities(
-    highlighted.replace(/<mark>/g, '###MARK###').replace(/<\/mark>/g, '###/MARK###'),
+    highlighted
+      .replace(/<mark>/g, '###MARK###')
+      .replace(/<\/mark>/g, '###/MARK###'),
   )
     .replace(/###MARK###/g, '<mark>')
     .replace(/###\/MARK###/g, '</mark>')
@@ -66,14 +62,26 @@ const SearchFiltersContext = React.createContext<{
   setSelectedFramework: (value: string) => void
   refineLibrary: (value: string) => void
   refineFramework: (value: string) => void
-  libraryItems: Array<{ value: string; label: string; count: number; isRefined: boolean }>
-  frameworkItems: Array<{ value: string; label: string; count: number; isRefined: boolean }>
+  libraryItems: Array<{
+    value: string
+    label: string
+    count: number
+    isRefined: boolean
+  }>
+  frameworkItems: Array<{
+    value: string
+    label: string
+    count: number
+    isRefined: boolean
+  }>
 } | null>(null)
 
 function useSearchFilters() {
   const context = React.useContext(SearchFiltersContext)
   if (!context) {
-    throw new Error('useSearchFilters must be used within SearchFiltersProvider')
+    throw new Error(
+      'useSearchFilters must be used within SearchFiltersProvider',
+    )
   }
   return context
 }
@@ -252,9 +260,14 @@ const Hit = ({
     )
   }
 
-  const hierarchyLevels = ['lvl1', 'lvl2', 'lvl3', 'lvl4', 'lvl5', 'lvl6'].filter(
-    (lvl) => hit.hierarchy[lvl],
-  )
+  const hierarchyLevels = [
+    'lvl1',
+    'lvl2',
+    'lvl3',
+    'lvl4',
+    'lvl5',
+    'lvl6',
+  ].filter((lvl) => hit.hierarchy[lvl])
 
   return (
     <SafeLink
@@ -481,7 +494,9 @@ function FrameworkRefinement() {
             />
           )}
           <span>
-            {currentFramework ? capitalize(currentFramework.label) : 'All Frameworks'}
+            {currentFramework
+              ? capitalize(currentFramework.label)
+              : 'All Frameworks'}
           </span>
           <ChevronDown className="w-3.5 h-3.5 opacity-50" />
         </Listbox.Button>
@@ -692,51 +707,51 @@ export function SearchModal() {
           <InstantSearch searchClient={searchClient} indexName="tanstack-test">
             <SearchFiltersProvider>
               <Configure
-              attributesToRetrieve={[
-                'hierarchy.lvl1',
-                'hierarchy.lvl2',
-                'hierarchy.lvl3',
-                'hierarchy.lvl4',
-                'hierarchy.lvl5',
-                'hierarchy.lvl6',
-                'url',
-                'content',
-                'library',
-              ]}
-              attributesToHighlight={[
-                'hierarchy.lvl1',
-                'hierarchy.lvl2',
-                'hierarchy.lvl3',
-                'hierarchy.lvl4',
-                'hierarchy.lvl5',
-                'hierarchy.lvl6',
-                'content',
-              ]}
-              attributesToSnippet={['content:50']}
-              filters="version:latest"
-            />
-            <div className="flex items-center gap-2 px-4 py-3 overflow-visible">
-              <Search className="w-5 h-5 opacity-50 flex-none" />
-              <LibraryRefinement />
-              <span className="text-gray-400 dark:text-gray-600">/</span>
-              <FrameworkRefinement />
-              <span className="text-gray-400 dark:text-gray-600">/</span>
-              <SearchBox
-                placeholder="Search..."
-                classNames={{
-                  root: 'flex-1',
-                  form: 'flex items-center',
-                  input:
-                    'w-full outline-none font-bold [&::-webkit-search-cancel-button]:hidden bg-transparent',
-                  submit: 'hidden',
-                  reset: 'p-1 opacity-50 hover:opacity-100',
-                }}
-                resetIconComponent={resetIconComponent}
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus
+                attributesToRetrieve={[
+                  'hierarchy.lvl1',
+                  'hierarchy.lvl2',
+                  'hierarchy.lvl3',
+                  'hierarchy.lvl4',
+                  'hierarchy.lvl5',
+                  'hierarchy.lvl6',
+                  'url',
+                  'content',
+                  'library',
+                ]}
+                attributesToHighlight={[
+                  'hierarchy.lvl1',
+                  'hierarchy.lvl2',
+                  'hierarchy.lvl3',
+                  'hierarchy.lvl4',
+                  'hierarchy.lvl5',
+                  'hierarchy.lvl6',
+                  'content',
+                ]}
+                attributesToSnippet={['content:50']}
+                filters="version:latest"
               />
-            </div>
-            <SearchResults focusedIndex={focusedIndex} />
+              <div className="flex items-center gap-2 px-4 py-3 overflow-visible">
+                <Search className="w-5 h-5 opacity-50 flex-none" />
+                <LibraryRefinement />
+                <span className="text-gray-400 dark:text-gray-600">/</span>
+                <FrameworkRefinement />
+                <span className="text-gray-400 dark:text-gray-600">/</span>
+                <SearchBox
+                  placeholder="Search..."
+                  classNames={{
+                    root: 'flex-1',
+                    form: 'flex items-center',
+                    input:
+                      'w-full outline-none font-bold [&::-webkit-search-cancel-button]:hidden bg-transparent',
+                    submit: 'hidden',
+                    reset: 'p-1 opacity-50 hover:opacity-100',
+                  }}
+                  resetIconComponent={resetIconComponent}
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  autoFocus
+                />
+              </div>
+              <SearchResults focusedIndex={focusedIndex} />
             </SearchFiltersProvider>
           </InstantSearch>
         </div>
@@ -768,8 +783,12 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
     frameworkItems.find((item) => item.isRefined)?.value || null
 
   // Use Algolia values when available, fall back to shared state when empty
-  const refinedLibrary = libraryItems.length > 0 ? algoliaRefinedLibrary : selectedLibrary || null
-  const refinedFramework = frameworkItems.length > 0 ? algoliaRefinedFramework : selectedFramework || null
+  const refinedLibrary =
+    libraryItems.length > 0 ? algoliaRefinedLibrary : selectedLibrary || null
+  const refinedFramework =
+    frameworkItems.length > 0
+      ? algoliaRefinedFramework
+      : selectedFramework || null
 
   const clearFramework = () => {
     if (refinedFramework) {
@@ -819,7 +838,9 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
         <div className="mt-6 flex gap-8 justify-center">
           {!selectedLibrary && (
             <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium uppercase tracking-wide opacity-60">Libraries</p>
+              <p className="text-xs font-medium uppercase tracking-wide opacity-60">
+                Libraries
+              </p>
               <div className="flex flex-wrap gap-1.5 max-w-xs">
                 {libraries
                   .filter((lib) => 'bgStyle' in lib)
@@ -843,10 +864,14 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
           )}
           {!selectedFramework && frameworkItems.length > 0 && (
             <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium uppercase tracking-wide opacity-60">Frameworks</p>
+              <p className="text-xs font-medium uppercase tracking-wide opacity-60">
+                Frameworks
+              </p>
               <div className="flex flex-wrap gap-1.5 max-w-xs">
                 {frameworkItems.map((item) => {
-                  const fw = frameworkOptions.find((f) => f.value === item.value)
+                  const fw = frameworkOptions.find(
+                    (f) => f.value === item.value,
+                  )
                   if (!fw) return null
                   return (
                     <button
@@ -857,7 +882,11 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
                       }}
                       className="flex items-center gap-1.5 px-2 py-1 text-xs font-bold rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                     >
-                      <img src={fw.logo} alt={fw.label} className="w-3.5 h-3.5" />
+                      <img
+                        src={fw.logo}
+                        alt={fw.label}
+                        className="w-3.5 h-3.5"
+                      />
                       {fw.label}
                     </button>
                   )

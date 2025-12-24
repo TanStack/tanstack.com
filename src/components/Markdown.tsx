@@ -92,7 +92,13 @@ const markdownComponents: Record<string, React.FC> = {
   iframe: (props) => (
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
-  img: ({ alt, src, className, children: _, ...props }: HTMLProps<HTMLImageElement>) => (
+  img: ({
+    alt,
+    src,
+    className,
+    children: _,
+    ...props
+  }: HTMLProps<HTMLImageElement>) => (
     <img
       {...props}
       src={src ? getNetlifyImageUrl(src) : undefined}
@@ -182,7 +188,8 @@ export function CodeBlock({
     ;(async () => {
       const themes = ['github-light', 'tokyo-night']
       const normalizedLang = LANG_ALIASES[lang] || lang
-      const effectiveLang = normalizedLang === 'mermaid' ? 'plaintext' : normalizedLang
+      const effectiveLang =
+        normalizedLang === 'mermaid' ? 'plaintext' : normalizedLang
 
       const highlighter = await getHighlighter(lang)
 
@@ -296,7 +303,18 @@ async function getHighlighter(language: string) {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
       themes: ['github-light', 'tokyo-night'],
-      langs: ['typescript', 'javascript', 'tsx', 'jsx', 'bash', 'json', 'html', 'css', 'markdown', 'plaintext'],
+      langs: [
+        'typescript',
+        'javascript',
+        'tsx',
+        'jsx',
+        'bash',
+        'json',
+        'html',
+        'css',
+        'markdown',
+        'plaintext',
+      ],
     })
   }
 

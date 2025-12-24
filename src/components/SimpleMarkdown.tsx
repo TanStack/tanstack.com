@@ -38,7 +38,13 @@ const markdownComponents: Record<string, React.FC<any>> = {
       </pre>
     )
   },
-  img: ({ alt, src, className, children: _, ...props }: HTMLProps<HTMLImageElement>) => (
+  img: ({
+    alt,
+    src,
+    className,
+    children: _,
+    ...props
+  }: HTMLProps<HTMLImageElement>) => (
     <img
       {...props}
       src={src ? getNetlifyImageUrl(src) : undefined}

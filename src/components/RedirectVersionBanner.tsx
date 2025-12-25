@@ -1,5 +1,5 @@
 import { useLocalStorage } from '~/utils/useLocalStorage'
-import { useClientOnlyRender } from '~/utils/useClientOnlyRender'
+import { useMounted } from '~/hooks/useMounted'
 import { Link, useMatches } from '@tanstack/react-router'
 
 export function RedirectVersionBanner(props: {
@@ -18,7 +18,7 @@ export function RedirectVersionBanner(props: {
     1000 * 60 * 24 * 30,
   )
 
-  if (!useClientOnlyRender()) {
+  if (!useMounted()) {
     return null
   }
 

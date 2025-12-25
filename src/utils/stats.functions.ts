@@ -17,11 +17,13 @@ function parseNumber(value: string | undefined): number | undefined {
 }
 
 /**
- * Scrape GitHub repository page for dependent count
+ * Scrape a count from a GitHub repository page
  * Uses retry logic as scraping can be unreliable
  */
-async function scrapeGitHubDependentCount(
+async function scrapeGitHubCount(
   repo: string,
+  selector: string,
+  countType: string,
   maxRetries: number = 3,
 ): Promise<number | undefined> {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -43,23 +45,21 @@ async function scrapeGitHubDependentCount(
       const html = await response.text()
       const $ = cheerio.load(html)
 
-      // Find the dependents link and extract the count from the Counter span
-      // Selector: a[href$="/network/dependents"] > span.Counter
-      const dependentCount = $(`a[href$="/network/dependents"] > span.Counter`)
+      const count = $(`${selector} > span.Counter`)
         .filter((_, el) => {
           const title = $(el).attr('title')
           return !!parseNumber(title)
         })
         .attr('title')
 
-      const parsedCount = parseNumber(dependentCount)
+      const parsedCount = parseNumber(count)
 
       if (parsedCount !== undefined) {
         return parsedCount
       }
 
       console.warn(
-        `[GitHub Scraper] No dependent count found for ${repo}, attempt ${attempt}/${maxRetries}`,
+        `[GitHub Scraper] No ${countType} count found for ${repo}, attempt ${attempt}/${maxRetries}`,
       )
     } catch (error) {
       console.error(
@@ -68,7 +68,6 @@ async function scrapeGitHubDependentCount(
       )
     }
 
-    // Wait before retry (exponential backoff)
     if (attempt < maxRetries) {
       const waitTime = Math.pow(2, attempt) * 1000
       await new Promise((resolve) => setTimeout(resolve, waitTime))
@@ -76,76 +75,23 @@ async function scrapeGitHubDependentCount(
   }
 
   console.warn(
-    `[GitHub Scraper] Failed to scrape dependent count for ${repo} after ${maxRetries} attempts`,
+    `[GitHub Scraper] Failed to scrape ${countType} count for ${repo} after ${maxRetries} attempts`,
   )
   return undefined
 }
 
-/**
- * Scrape GitHub repository page for contributor count
- * Uses retry logic as scraping can be unreliable
- */
-async function scrapeGitHubContributorCount(
+function scrapeGitHubDependentCount(repo: string): Promise<number | undefined> {
+  return scrapeGitHubCount(repo, 'a[href$="/network/dependents"]', 'dependent')
+}
+
+function scrapeGitHubContributorCount(
   repo: string,
-  maxRetries: number = 3,
 ): Promise<number | undefined> {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const response = await fetch(`https://github.com/${repo}`, {
-        headers: {
-          'User-Agent': 'TanStack-Stats',
-          Accept: 'text/html',
-        },
-      })
-
-      if (!response.ok) {
-        console.warn(
-          `[GitHub Scraper] Failed to fetch ${repo} page (${response.status}), attempt ${attempt}/${maxRetries}`,
-        )
-        continue
-      }
-
-      const html = await response.text()
-      const $ = cheerio.load(html)
-
-      // Find the contributors link and extract the count from the Counter span
-      // Selector: a[href$="/graphs/contributors"] > span.Counter
-      const contributorCount = $(
-        `a[href$="/graphs/contributors"] > span.Counter`,
-      )
-        .filter((_, el) => {
-          const title = $(el).attr('title')
-          return !!parseNumber(title)
-        })
-        .attr('title')
-
-      const parsedCount = parseNumber(contributorCount)
-
-      if (parsedCount !== undefined) {
-        return parsedCount
-      }
-
-      console.warn(
-        `[GitHub Scraper] No contributor count found for ${repo}, attempt ${attempt}/${maxRetries}`,
-      )
-    } catch (error) {
-      console.error(
-        `[GitHub Scraper] Error scraping ${repo}, attempt ${attempt}/${maxRetries}:`,
-        error instanceof Error ? error.message : String(error),
-      )
-    }
-
-    // Wait before retry (exponential backoff)
-    if (attempt < maxRetries) {
-      const waitTime = Math.pow(2, attempt) * 1000
-      await new Promise((resolve) => setTimeout(resolve, waitTime))
-    }
-  }
-
-  console.warn(
-    `[GitHub Scraper] Failed to scrape contributor count for ${repo} after ${maxRetries} attempts`,
+  return scrapeGitHubCount(
+    repo,
+    'a[href$="/graphs/contributors"]',
+    'contributor',
   )
-  return undefined
 }
 
 /**

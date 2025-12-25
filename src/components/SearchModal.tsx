@@ -355,23 +355,18 @@ const Hit = ({
             </p>
           ) : null}
         </div>
-        {(() => {
-          // Only show the badge on the right if we ARE filtered to a framework
-          if (!refinedFramework || !hitFramework) return null
-
-          return (
-            <div className="flex-none">
-              <div className="flex items-center gap-1 text-xs font-black bg-white rounded-xl px-2 py-1 dark:bg-black">
-                <img
-                  src={hitFramework.logo}
-                  alt={hitFramework.label}
-                  className="w-4"
-                />
-                {capitalize(hitFramework.label)}
-              </div>
+        {refinedFramework && hitFramework ? (
+          <div className="flex-none">
+            <div className="flex items-center gap-1 text-xs font-black bg-white rounded-xl px-2 py-1 dark:bg-black">
+              <img
+                src={hitFramework.logo}
+                alt={hitFramework.label}
+                className="w-4"
+              />
+              {capitalize(hitFramework.label)}
             </div>
-          )
-        })()}
+          </div>
+        ) : null}
       </article>
     </SafeLink>
   )

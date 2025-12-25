@@ -12,6 +12,29 @@ import {
   filterByReleaseLevel,
 } from './feed.server'
 
+// Transform database entry to API response format
+function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {
+  return {
+    _id: entry.entryId,
+    id: entry.entryId,
+    entryType: entry.entryType,
+    title: entry.title,
+    content: entry.content,
+    excerpt: entry.excerpt,
+    publishedAt: entry.publishedAt.getTime(),
+    createdAt: entry.createdAt.getTime(),
+    updatedAt: entry.updatedAt.getTime(),
+    metadata: entry.metadata ?? {},
+    libraryIds: entry.libraryIds,
+    partnerIds: entry.partnerIds,
+    tags: entry.tags,
+    showInFeed: entry.showInFeed,
+    featured: entry.featured ?? false,
+    autoSynced: entry.autoSynced,
+    lastSyncedAt: entry.lastSyncedAt?.getTime(),
+  }
+}
+
 export const listFeedEntries = createServerFn({ method: 'POST' })
   .inputValidator(
     z.object({
@@ -89,26 +112,7 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
     const page = allEntries.slice(start, end)
     const hasMore = end < allEntries.length
 
-    // Transform to match expected format
-    const transformedPage = page.map((entry) => ({
-      _id: entry.entryId,
-      id: entry.entryId,
-      entryType: entry.entryType,
-      title: entry.title,
-      content: entry.content,
-      excerpt: entry.excerpt,
-      publishedAt: entry.publishedAt.getTime(),
-      createdAt: entry.createdAt.getTime(),
-      updatedAt: entry.updatedAt.getTime(),
-      metadata: entry.metadata ?? {},
-      libraryIds: entry.libraryIds,
-      partnerIds: entry.partnerIds,
-      tags: entry.tags,
-      showInFeed: entry.showInFeed,
-      featured: entry.featured ?? false,
-      autoSynced: entry.autoSynced,
-      lastSyncedAt: entry.lastSyncedAt?.getTime(),
-    }))
+    const transformedPage = page.map(transformFeedEntry)
 
     return {
       page: transformedPage,
@@ -132,25 +136,7 @@ export const getFeedEntry = createServerFn({ method: 'POST' })
       return null
     }
 
-    return {
-      _id: entry.entryId,
-      id: entry.entryId,
-      entryType: entry.entryType,
-      title: entry.title,
-      content: entry.content,
-      excerpt: entry.excerpt,
-      publishedAt: entry.publishedAt.getTime(),
-      createdAt: entry.createdAt.getTime(),
-      updatedAt: entry.updatedAt.getTime(),
-      metadata: entry.metadata ?? {},
-      libraryIds: entry.libraryIds,
-      partnerIds: entry.partnerIds,
-      tags: entry.tags,
-      showInFeed: entry.showInFeed,
-      featured: entry.featured ?? false,
-      autoSynced: entry.autoSynced,
-      lastSyncedAt: entry.lastSyncedAt?.getTime(),
-    }
+    return transformFeedEntry(entry)
   })
 
 // Server function wrapper for getFeedEntryById
@@ -165,25 +151,7 @@ export const getFeedEntryById = createServerFn({ method: 'POST' })
       return null
     }
 
-    return {
-      _id: entry.entryId,
-      id: entry.entryId,
-      entryType: entry.entryType,
-      title: entry.title,
-      content: entry.content,
-      excerpt: entry.excerpt,
-      publishedAt: entry.publishedAt.getTime(),
-      createdAt: entry.createdAt.getTime(),
-      updatedAt: entry.updatedAt.getTime(),
-      metadata: entry.metadata ?? {},
-      libraryIds: entry.libraryIds,
-      partnerIds: entry.partnerIds,
-      tags: entry.tags,
-      showInFeed: entry.showInFeed,
-      featured: entry.featured ?? false,
-      autoSynced: entry.autoSynced,
-      lastSyncedAt: entry.lastSyncedAt?.getTime(),
-    }
+    return transformFeedEntry(entry)
   })
 
 // Server function wrapper for getFeedStats
@@ -356,25 +324,7 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
       )
       .limit(limit)
 
-    return entries.map((entry) => ({
-      _id: entry.entryId,
-      id: entry.entryId,
-      entryType: entry.entryType,
-      title: entry.title,
-      content: entry.content,
-      excerpt: entry.excerpt,
-      publishedAt: entry.publishedAt.getTime(),
-      createdAt: entry.createdAt.getTime(),
-      updatedAt: entry.updatedAt.getTime(),
-      metadata: entry.metadata ?? {},
-      libraryIds: entry.libraryIds,
-      partnerIds: entry.partnerIds,
-      tags: entry.tags,
-      showInFeed: entry.showInFeed,
-      featured: entry.featured ?? false,
-      autoSynced: entry.autoSynced,
-      lastSyncedAt: entry.lastSyncedAt?.getTime(),
-    }))
+    return entries.map(transformFeedEntry)
   })
 
 // Server function wrapper for getFeedConfig

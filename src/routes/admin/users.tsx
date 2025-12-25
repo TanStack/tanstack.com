@@ -173,7 +173,6 @@ function UsersPage() {
   const [editingUserId, setEditingUserId] = useState<string | null>(null)
   const [editingCapabilities, setEditingCapabilities] = useState<string[]>([])
   const [editingRoleIds, setEditingRoleIds] = useState<string[]>([])
-  const [updatingAdsUserId] = useState<string | null>(null)
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [bulkActionRoleId, setBulkActionRoleId] = useState<string | null>(null)
   const [expandedSections, setExpandedSections] = useState<
@@ -844,7 +843,6 @@ function UsersPage() {
               onChange={(e) =>
                 handleToggleAdsDisabled(user._id, e.target.checked)
               }
-              disabled={updatingAdsUserId === user._id}
               className="h-4 w-4 accent-blue-600"
             />
           )
@@ -911,7 +909,6 @@ function UsersPage() {
       toggleCapability,
       toggleRole,
       handleToggleAdsDisabled,
-      updatingAdsUserId,
       allRoles,
       selectedUserIds,
       toggleUserSelection,

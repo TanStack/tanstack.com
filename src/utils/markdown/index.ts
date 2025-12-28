@@ -1,2 +1,2 @@
 export { renderMarkdown } from './processor'
-export { rehypeParseCommentComponents } from './plugins'
+export { rehypeParseCommentComponents } from './plugins/parseCommentComponents'

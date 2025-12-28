@@ -12,6 +12,7 @@ import {
   rehypeParseCommentComponents,
   rehypeTransformCommentComponents,
   rehypeCollectHeadings,
+  rehypeShikiHighlight,
   type MarkdownHeading,
 } from './plugins'
 
@@ -62,6 +63,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
       },
     })
     .use(rehypeSlug)
+    .use(rehypeShikiHighlight())
     .use(rehypeTransformCommentComponents)
     .use(rehypeAutolinkHeadings, {
       behavior: 'wrap',

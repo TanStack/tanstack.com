@@ -1,32 +1,29 @@
-import { unified } from 'unified'
-import rehypeParse from 'rehype-parse'
 import { isElement } from 'hast-util-is-element'
 import type { Element } from 'hast-util-is-element/lib'
+import type { Properties } from 'hast'
 
 export const COMPONENT_PREFIX = '::'
 export const START_PREFIX = '::start:'
 export const END_PREFIX = '::end:'
 
-const componentParser = unified().use(rehypeParse, { fragment: true })
-
 export const normalizeComponentName = (name: string) => name.toLowerCase()
 
 export function parseDescriptor(descriptor: string) {
-  const tree = componentParser.parse(`<${descriptor} />`)
-  const node = tree.children[0]
-  if (!node || node.type !== 'element') {
+  const match = descriptor.match(/^(?<component>[\w-]+)(?<rest>.*)$/)
+  if (!match?.groups?.component) {
     return null
   }
 
-  const component = node.tagName
+  const component = normalizeComponentName(match.groups.component)
   const attributes: Record<string, string> = {}
-  const properties = node.properties ?? {}
-  for (const [key, value] of Object.entries(properties)) {
-    if (Array.isArray(value)) {
-      attributes[key] = value.join(' ')
-    } else if (value != null) {
-      attributes[key] = String(value)
-    }
+  const rest = match.groups.rest ?? ''
+  const attributePattern = /(\w[\w-]*)(?:="([^"]*)"|='([^']*)'|=([^\s]+))?/g
+
+  let attributeMatch: RegExpExecArray | null
+  while ((attributeMatch = attributePattern.exec(rest))) {
+    const [, key, doubleQuoted, singleQuoted, bare] = attributeMatch
+    const value = doubleQuoted ?? singleQuoted ?? bare ?? ''
+    attributes[key] = value
   }
 
   return { component, attributes }

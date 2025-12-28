@@ -5,3 +5,4 @@ export {
   type MarkdownHeading,
   rehypeCollectHeadings,
 } from './collectHeadings'
+export { rehypeShikiHighlight } from './syntaxHighlight'

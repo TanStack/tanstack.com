@@ -383,8 +383,8 @@ const options: HTMLReactParserOptions = {
 }
 
 type MarkdownProps = {
+  htmlMarkup: string
   rawContent?: string
-  htmlMarkup?: string
 }
 
 export function Markdown({ rawContent, htmlMarkup }: MarkdownProps) {
@@ -395,11 +395,7 @@ export function Markdown({ rawContent, htmlMarkup }: MarkdownProps) {
       return renderMarkdown(rawContent)
     }
 
-    if (htmlMarkup) {
-      return { markup: htmlMarkup, headings: [] }
-    }
-
-    return { markup: '', headings: [] }
+    return { markup: htmlMarkup, headings: [] }
   }, [rawContent, htmlMarkup])
 
   React.useEffect(() => {

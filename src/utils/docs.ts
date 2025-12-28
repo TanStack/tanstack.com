@@ -8,6 +8,7 @@ import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { setResponseHeader } from '@tanstack/react-start/server'
+import { renderMarkdown } from '~/utils/markdown'
 
 export const loadDocs = async ({
   repo,
@@ -59,12 +60,15 @@ export const fetchDocs = createServerFn({ method: 'GET' })
       'max-age=300, stale-while-revalidate=300, durable',
     )
 
+    const html = renderMarkdown(frontMatter.content)
+
     return {
       title: frontMatter.data?.title,
       description,
       filePath,
       content: frontMatter.content,
       frontmatter: frontMatter.data,
+      html,
     }
   })
 

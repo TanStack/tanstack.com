@@ -332,7 +332,11 @@ export function FeedEntryTimeline({
             !expanded && 'line-clamp-6',
           )}
         >
-          <Markdown rawContent={entry.content} />
+          <Markdown
+            htmlMarkup={entry.html?.markup ?? ''}
+            headingsOverride={entry.html?.headings}
+            rawContent={entry.content}
+          />
         </div>
 
         {/* Show more/less button */}

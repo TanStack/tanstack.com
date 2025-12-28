@@ -14,10 +14,12 @@ import { GamHeader } from './Gam'
 import { Toc } from './Toc'
 import { TocMobile } from './TocMobile'
 import { DocFeedbackProvider } from './DocFeedbackProvider'
+import { MarkdownHeading } from '~/utils/markdown'
 
 type DocProps = {
   title: string
   content: string
+  html: { markup: string; headings: Array<MarkdownHeading> }
   repo: string
   branch: string
   filePath: string
@@ -33,6 +35,7 @@ type DocProps = {
 function DocContent({
   title,
   content,
+  html,
   repo,
   branch,
   filePath,
@@ -43,9 +46,16 @@ function DocContent({
   libraryVersion,
   pagePath,
 }: DocProps) {
-  const { headings } = useMarkdownHeadings()
+  const { headings, setHeadings } = useMarkdownHeadings()
 
-  const isTocVisible = shouldRenderToc && headings && headings.length > 1
+  React.useEffect(() => {
+    if (html?.headings?.length) {
+      setHeadings(html.headings)
+    }
+  }, [html?.headings, setHeadings])
+
+  const isTocVisible =
+    shouldRenderToc && (html?.headings?.length ?? headings.length) > 1
 
   const markdownContainerRef = React.useRef<HTMLDivElement>(null)
   const [activeHeadings, setActiveHeadings] = React.useState<Array<string>>([])
@@ -169,10 +179,18 @@ function DocContent({
                 libraryId={libraryId}
                 libraryVersion={libraryVersion}
               >
-                <Markdown rawContent={content} />
+                <Markdown
+                  htmlMarkup={html?.markup ?? ''}
+                  headingsOverride={html?.headings}
+                  rawContent={content}
+                />
               </DocFeedbackProvider>
             ) : (
-              <Markdown rawContent={content} />
+              <Markdown
+                htmlMarkup={html?.markup ?? ''}
+                headingsOverride={html?.headings}
+                rawContent={content}
+              />
             )}
           </div>
           <div className="h-12" />

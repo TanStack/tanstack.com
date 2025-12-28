@@ -483,7 +483,10 @@ export function FeedEntryEditor({
                       {excerpt}
                     </p>
                   )}
-                  <Markdown rawContent={content || '*No content yet*'} />
+                  <Markdown
+                    htmlMarkup=""
+                    rawContent={content || '*No content yet*'}
+                  />
                 </div>
               ) : (
                 <div className="text-center py-12 text-gray-400 dark:text-gray-500">

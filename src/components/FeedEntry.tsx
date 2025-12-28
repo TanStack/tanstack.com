@@ -14,6 +14,10 @@ export interface FeedEntry {
   title: string
   content: string
   excerpt?: string | null
+  html?: {
+    markup: string
+    headings: Array<{ id: string; text: string; level: number }>
+  }
   publishedAt: number
   createdAt: number
   updatedAt?: number
@@ -415,7 +419,11 @@ export function FeedEntry({
 
               {/* Content */}
               <div className="text-xs text-gray-900 dark:text-gray-100 leading-snug mb-3">
-                <Markdown rawContent={entry.content} />
+                <Markdown
+                  htmlMarkup={entry.html?.markup ?? ''}
+                  headingsOverride={entry.html?.headings}
+                  rawContent={entry.content}
+                />
               </div>
 
               {/* External Link */}

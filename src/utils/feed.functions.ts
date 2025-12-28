@@ -11,9 +11,12 @@ import {
   buildFeedQueryConditions,
   filterByReleaseLevel,
 } from './feed.server'
+import { renderMarkdown } from '~/utils/markdown'
 
 // Transform database entry to API response format
 function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {
+  const html = renderMarkdown(entry.content ?? '')
+
   return {
     _id: entry.entryId,
     id: entry.entryId,
@@ -32,6 +35,7 @@ function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {
     featured: entry.featured ?? false,
     autoSynced: entry.autoSynced,
     lastSyncedAt: entry.lastSyncedAt?.getTime(),
+    html,
   }
 }
 

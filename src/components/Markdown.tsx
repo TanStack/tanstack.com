@@ -1,8 +1,6 @@
 import * as React from 'react'
 import { MarkdownLink } from '~/components/MarkdownLink'
 import type { HTMLProps } from 'react'
-import { createHighlighter, type HighlighterGeneric } from 'shiki/bundle/web'
-import { transformerNotationDiff } from '@shikijs/transformers'
 import parse, {
   attributesToProps,
   domToReact,
@@ -13,10 +11,13 @@ import type { Mermaid } from 'mermaid'
 import { useToast } from '~/components/ToastProvider'
 import { twMerge } from 'tailwind-merge'
 import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
-import { renderMarkdown } from '~/utils/markdown'
 import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 import { Tabs } from '~/components/Tabs'
 import { Copy } from 'lucide-react'
+import type {
+  MarkdownHeading,
+  MarkdownRenderResult,
+} from '~/utils/markdown/processor'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -384,29 +385,35 @@ const options: HTMLReactParserOptions = {
 
 type MarkdownProps = {
   htmlMarkup: string
+  headingsOverride?: MarkdownHeading[]
   rawContent?: string
 }
 
-export function Markdown({ rawContent, htmlMarkup }: MarkdownProps) {
+export function Markdown({ rawContent, htmlMarkup, headingsOverride }: MarkdownProps) {
   const { setHeadings } = useMarkdownHeadings()
 
-  const rendered = React.useMemo(() => {
-    if (rawContent) {
-      return renderMarkdown(rawContent)
-    }
-
-    return { markup: htmlMarkup, headings: [] }
-  }, [rawContent, htmlMarkup])
-
   React.useEffect(() => {
-    setHeadings(rendered.headings)
-  }, [rendered.headings, setHeadings])
-
-  return React.useMemo(() => {
-    if (!rendered.markup) {
-      return null
+    if (headingsOverride) {
+      setHeadings(headingsOverride)
+    } else {
+      const { headings } = renderMarkdown(htmlMarkup || rawContent || '')
+      setHeadings(headings)
     }
+  }, [headingsOverride, htmlMarkup, rawContent, setHeadings])
 
-    return parse(rendered.markup, options)
-  }, [rendered.markup])
+  const markup = React.useMemo(() => {
+    if (htmlMarkup) {
+      return htmlMarkup
+    }
+    if (rawContent) {
+      return renderMarkdown(rawContent).markup
+    }
+    return ''
+  }, [htmlMarkup, rawContent])
+
+  if (!markup) {
+    return null
+  }
+
+  return React.useMemo(() => parse(markup, options), [markup])
 }

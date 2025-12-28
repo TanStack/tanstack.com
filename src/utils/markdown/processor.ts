@@ -69,7 +69,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
         className: ['anchor-heading'],
       },
     })
-    .use(rehypeCollectHeadings(headings))
+    .use((node, file) => rehypeCollectHeadings(node, file, headings))
 
   const file = processor.use(rehypeStringify).processSync(content)
 

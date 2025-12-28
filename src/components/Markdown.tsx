@@ -14,10 +14,12 @@ import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
 import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 import { Tabs } from '~/components/Tabs'
 import { Copy } from 'lucide-react'
-import type {
-  MarkdownHeading,
-  MarkdownRenderResult,
+import {
+  renderMarkdown,
+  type MarkdownHeading,
 } from '~/utils/markdown/processor'
+import { transformerNotationDiff } from '@shikijs/transformers'
+import { createHighlighter, HighlighterGeneric } from 'shiki'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 

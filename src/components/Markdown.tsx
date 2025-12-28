@@ -389,7 +389,11 @@ type MarkdownProps = {
   rawContent?: string
 }
 
-export function Markdown({ rawContent, htmlMarkup, headingsOverride }: MarkdownProps) {
+export function Markdown({
+  rawContent,
+  htmlMarkup,
+  headingsOverride,
+}: MarkdownProps) {
   const { setHeadings } = useMarkdownHeadings()
 
   React.useEffect(() => {

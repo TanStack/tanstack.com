@@ -2,24 +2,18 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkRehype from 'remark-rehype'
-import rehypeCallouts from 'rehype-callouts'
 import rehypeRaw from 'rehype-raw'
+import rehypeCallouts from 'rehype-callouts'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeStringify from 'rehype-stringify'
-import { visit } from 'unist-util-visit'
-import { toString } from 'hast-util-to-string'
 
 import {
   rehypeParseCommentComponents,
   rehypeTransformCommentComponents,
+  rehypeCollectHeadings,
+  type MarkdownHeading,
 } from './plugins'
-
-export type MarkdownHeading = {
-  id: string
-  text: string
-  level: number
-}
 
 export type MarkdownRenderResult = {
   markup: string
@@ -35,6 +29,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
     .use(rehypeParseCommentComponents)
+    // @ts-expect-error - rehype-callouts types are broken
     .use(rehypeCallouts, {
       theme: 'github',
       props: {
@@ -74,29 +69,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
         className: ['anchor-heading'],
       },
     })
-    .use(() => (tree, file) => {
-      visit(tree, 'element', (node) => {
-        if (!('tagName' in node)) return
-        if (!/^h[1-6]$/.test(String(node.tagName))) {
-          return
-        }
-
-        const tagName = String(node.tagName)
-        const id =
-          typeof node.properties?.id === 'string' ? node.properties.id : ''
-        if (!id) {
-          return
-        }
-
-        headings.push({
-          id,
-          level: Number(tagName.substring(1)),
-          text: toString(node).trim(),
-        })
-      })
-
-      file.data.headings = headings
-    })
+    .use(rehypeCollectHeadings(headings))
 
   const file = processor.use(rehypeStringify).processSync(content)
 

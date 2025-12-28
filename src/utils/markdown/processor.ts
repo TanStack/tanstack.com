@@ -12,7 +12,6 @@ import {
   rehypeParseCommentComponents,
   rehypeTransformCommentComponents,
   rehypeCollectHeadings,
-  rehypeShikiHighlight,
   type MarkdownHeading,
 } from './plugins'
 
@@ -63,7 +62,6 @@ export function renderMarkdown(content): MarkdownRenderResult {
       },
     })
     .use(rehypeSlug)
-    .use(rehypeShikiHighlight())
     .use(rehypeTransformCommentComponents)
     .use(rehypeAutolinkHeadings, {
       behavior: 'wrap',
@@ -71,7 +69,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
         className: ['anchor-heading'],
       },
     })
-    .use(rehypeCollectHeadings(headings))
+    .use((tree, file) => rehypeCollectHeadings(tree, file, headings))
 
   const file = processor.use(rehypeStringify).processSync(content)
 

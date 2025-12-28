@@ -1,6 +1,5 @@
 import { visit } from 'unist-util-visit'
 import { toString } from 'hast-util-to-string'
-import type { Root } from 'hast'
 
 import { isHeading } from './helpers'
 
@@ -10,10 +9,10 @@ export type MarkdownHeading = {
   level: number
 }
 
-export function rehypeCollectHeadings(initialHeadings?: MarkdownHeading[]) {
+export function rehypeCollectHeadings(tree, file, initialHeadings?: MarkdownHeading[]) {
   const headings = initialHeadings ?? []
 
-  return function collectHeadings(tree: Root, file: any) {
+  return function collectHeadings(tree, file: any) {
     visit(tree, 'element', (node) => {
       if (!isHeading(node)) {
         return

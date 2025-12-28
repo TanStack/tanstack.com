@@ -10,7 +10,9 @@ export type MarkdownHeading = {
   level: number
 }
 
-export function rehypeCollectHeadings(headings: MarkdownHeading[]) {
+export function rehypeCollectHeadings(initialHeadings?: MarkdownHeading[]) {
+  const headings = initialHeadings ?? []
+
   return function collectHeadings(tree: Root, file: any) {
     visit(tree, 'element', (node) => {
       if (!isHeading(node)) {

@@ -94,25 +94,16 @@ export const rehypeShikiHighlight = () => {
             }
           }
 
-          const htmlFragments = await Promise.all(
-            DEFAULT_THEMES.map((theme) =>
-              highlighter.codeToHtml(codeText, {
-                lang: effectiveLang,
-                theme,
-                transformers: [transformerNotationDiff()],
-              }),
-            ),
-          )
-
           node.tagName = 'div'
+          const existingClasses = Array.isArray(node.properties?.className)
+            ? (node.properties?.className as string[])
+            : typeof node.properties?.className === 'string'
+              ? String(node.properties.className).split('\n')
+              : []
+
           node.properties = {
             ...node.properties,
-            className: [
-              ...(Array.isArray(node.properties?.className)
-                ? (node.properties?.className as string[])
-                : []),
-              'shiki-wrapper',
-            ],
+            className: [...existingClasses, 'shiki-wrapper'],
             'data-language': normalizedLang,
           }
 
@@ -125,6 +116,16 @@ export const rehypeShikiHighlight = () => {
             node.children = mermaidTree.children
             return
           }
+
+          const htmlFragments = await Promise.all(
+            DEFAULT_THEMES.map((theme) =>
+              highlighter.codeToHtml(codeText, {
+                lang: effectiveLang,
+                theme,
+                transformers: [transformerNotationDiff()],
+              }),
+            ),
+          )
 
           const fragmentTrees = htmlFragments.map((fragment) =>
             fragmentParser.parse(fragment) as Root,

@@ -94,15 +94,17 @@ export function transformTabsComponent(node: Element) {
     return
   }
 
-  const panelElements: Element[] = result.panels.map((panelChildren, index) => ({
-    type: 'element',
-    tagName: 'md-tab-panel',
-    properties: {
-      'data-tab-slug': result.tabs[index]?.slug ?? `tab-${index + 1}`,
-      'data-tab-index': String(index),
-    },
-    children: panelChildren,
-  }))
+  const panelElements: Element[] = result.panels.map(
+    (panelChildren, index) => ({
+      type: 'element',
+      tagName: 'md-tab-panel',
+      properties: {
+        'data-tab-slug': result.tabs[index]?.slug ?? `tab-${index + 1}`,
+        'data-tab-index': String(index),
+      },
+      children: panelChildren,
+    }),
+  )
 
   node.properties = {
     ...node.properties,

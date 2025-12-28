@@ -60,7 +60,11 @@ export const rehypeShikiHighlight = () => {
     visit(tree, 'element', (node: Element) => {
       if (node.tagName !== 'pre') return
       const codeNode = node.children?.[0]
-      if (!codeNode || codeNode.type !== 'element' || codeNode.tagName !== 'code') {
+      if (
+        !codeNode ||
+        codeNode.type !== 'element' ||
+        codeNode.tagName !== 'code'
+      ) {
         return
       }
 
@@ -80,7 +84,8 @@ export const rehypeShikiHighlight = () => {
       highlightTasks.push(
         (async () => {
           const normalizedLang = LANG_ALIASES[langRaw] ?? (langRaw as Lang)
-          const effectiveLang = normalizedLang === 'mermaid' ? 'plaintext' : normalizedLang
+          const effectiveLang =
+            normalizedLang === 'mermaid' ? 'plaintext' : normalizedLang
 
           if (
             !highlighter
@@ -127,11 +132,13 @@ export const rehypeShikiHighlight = () => {
             ),
           )
 
-          const fragmentTrees = htmlFragments.map((fragment) =>
-            fragmentParser.parse(fragment) as Root,
+          const fragmentTrees = htmlFragments.map(
+            (fragment) => fragmentParser.parse(fragment) as Root,
           )
 
-          node.children = fragmentTrees.flatMap((fragmentTree) => fragmentTree.children)
+          node.children = fragmentTrees.flatMap(
+            (fragmentTree) => fragmentTree.children,
+          )
         })(),
       )
     })

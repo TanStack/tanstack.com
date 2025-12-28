@@ -19,7 +19,8 @@ export function rehypeCollectHeadings(initialHeadings?: MarkdownHeading[]) {
         return
       }
 
-      const id = typeof node.properties?.id === 'string' ? node.properties.id : ''
+      const id =
+        typeof node.properties?.id === 'string' ? node.properties.id : ''
       if (!id) {
         return
       }

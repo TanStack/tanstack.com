@@ -32,9 +32,9 @@ export function parseDescriptor(descriptor: string) {
 export const isCommentNode = (value: unknown): value is { value: string } =>
   Boolean(
     value &&
-      typeof value === 'object' &&
-      'type' in value &&
-      value.type === 'comment',
+    typeof value === 'object' &&
+    'type' in value &&
+    value.type === 'comment',
   )
 
 export const slugify = (value: string, fallback: string) => {

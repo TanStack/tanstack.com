@@ -171,7 +171,13 @@ ${content}`
                           'styled-markdown-content',
                         )}
                       >
-                        <Markdown rawContent={blogContent} />
+                        <React.Suspense fallback={null}>
+                          <Markdown
+                            htmlMarkup={blogPost.html?.markup ?? ''}
+                            headingsOverride={blogPost.html?.headings}
+                            rawContent={blogContent}
+                          />
+                        </React.Suspense>
                       </div>
                       <div className="h-12" />
                       <div className="w-full h-px bg-gray-500 opacity-30" />

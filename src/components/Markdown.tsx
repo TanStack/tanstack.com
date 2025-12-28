@@ -396,28 +396,41 @@ export function Markdown({
 }: MarkdownProps) {
   const { setHeadings } = useMarkdownHeadings()
 
-  React.useEffect(() => {
-    if (headingsOverride) {
-      setHeadings(headingsOverride)
-    } else {
-      const { headings } = renderMarkdown(htmlMarkup || rawContent || '')
-      setHeadings(headings)
+  const fallbackRender = React.useMemo(() => {
+    if (!rawContent) {
+      return null
     }
-  }, [headingsOverride, htmlMarkup, rawContent, setHeadings])
+
+    return renderMarkdown(rawContent)
+  }, [rawContent])
 
   const markup = React.useMemo(() => {
     if (htmlMarkup) {
       return htmlMarkup
     }
-    if (rawContent) {
-      return renderMarkdown(rawContent).markup
+
+    return fallbackRender?.markup ?? ''
+  }, [fallbackRender?.markup, htmlMarkup])
+
+  const headings = React.useMemo(() => {
+    if (headingsOverride) {
+      return headingsOverride
     }
-    return ''
-  }, [htmlMarkup, rawContent])
 
-  if (!markup) {
-    return null
-  }
+    return fallbackRender?.headings ?? []
+  }, [fallbackRender?.headings, headingsOverride])
 
-  return React.useMemo(() => parse(markup, options), [markup])
+  React.useEffect(() => {
+    setHeadings(headings)
+  }, [headings, setHeadings])
+
+  const parsed = React.useMemo(() => {
+    if (!markup) {
+      return null
+    }
+
+    return parse(markup, options)
+  }, [markup])
+
+  return parsed
 }

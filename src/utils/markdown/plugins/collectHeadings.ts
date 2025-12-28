@@ -9,7 +9,11 @@ export type MarkdownHeading = {
   level: number
 }
 
-export function rehypeCollectHeadings(tree, file, initialHeadings?: MarkdownHeading[]) {
+export function rehypeCollectHeadings(
+  tree,
+  file,
+  initialHeadings?: MarkdownHeading[],
+) {
   const headings = initialHeadings ?? []
 
   return function collectHeadings(tree, file: any) {

@@ -116,7 +116,7 @@ export function FeedTicker() {
 
           {/* Library name */}
           {libraryName && (
-            <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 flex-shrink-0">
+            <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400 flex-shrink-0">
               {libraryName}
             </span>
           )}

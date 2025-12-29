@@ -40,7 +40,7 @@ function Dashboard() {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1 text-center">
               Welcome!
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
               There's not much to see here yet. <br /> We're working on it!
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mt-16">

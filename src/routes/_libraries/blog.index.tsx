@@ -56,7 +56,7 @@ function BlogIndex() {
       <div className="flex-1 space-y-12 w-full max-w-4xl mx-auto">
         <header className="">
           <h1 className="text-3xl font-black">Blog</h1>
-          <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
+          <p className="text-lg mt-4 text-gray-600 dark:text-gray-400">
             The latest news and blog posts from TanStack
           </p>
         </header>

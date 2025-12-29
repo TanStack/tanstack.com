@@ -21,7 +21,7 @@ function LearnPage() {
       <div className="flex-1 space-y-12 w-full max-w-4xl mx-auto">
         <header className="">
           <h1 className="text-3xl font-black">Learn TanStack</h1>
-          <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
+          <p className="text-lg mt-4 text-gray-600 dark:text-gray-400">
             Whether you're just getting started or looking to level up as an
             individual or team, we have resources that will help you succeed.
           </p>

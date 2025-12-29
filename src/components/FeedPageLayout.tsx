@@ -161,7 +161,7 @@ function FeedPageLayoutHeader({
         {actions}
       </div>
       {description && (
-        <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
+        <p className="text-lg mt-4 text-gray-600 dark:text-gray-400">
           {description}
         </p>
       )}

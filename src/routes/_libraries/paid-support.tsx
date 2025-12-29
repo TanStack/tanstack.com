@@ -49,7 +49,7 @@ function PaidSupportComp() {
             <h1 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mb-6">
               Enterprise Support
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
               Private consultation and enterprise paid support for projects of
               any size, backed by TanStack's core team
             </p>
@@ -58,39 +58,26 @@ function PaidSupportComp() {
           {/* View Mode Toggle */}
           <div className="flex justify-center">
             <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <button
-                onClick={() => setViewMode('compact')}
-                className={`p-2 rounded-l-lg transition-colors ${
-                  viewMode === 'compact'
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                }`}
-                title="Compact cards"
-              >
-                <Grid3X3 className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('full')}
-                className={`p-2 transition-colors ${
-                  viewMode === 'full'
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                }`}
-                title="Full cards"
-              >
-                <Grid2x2 className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('row')}
-                className={`p-2 rounded-r-lg transition-colors ${
-                  viewMode === 'row'
-                    ? 'bg-blue-500 text-white'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                }`}
-                title="Row cards"
-              >
-                <LayoutList className="w-5 h-5" />
-              </button>
+              {(
+                [
+                  { mode: 'compact', Icon: Grid3X3, title: 'Compact cards', rounded: 'rounded-l-lg' },
+                  { mode: 'full', Icon: Grid2x2, title: 'Full cards', rounded: '' },
+                  { mode: 'row', Icon: LayoutList, title: 'Row cards', rounded: 'rounded-r-lg' },
+                ] as const
+              ).map(({ mode, Icon, title, rounded }) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className={`p-2 ${rounded} transition-colors ${
+                    viewMode === mode
+                      ? 'bg-blue-500 text-white'
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  }`}
+                  title={title}
+                >
+                  <Icon className="w-5 h-5" />
+                </button>
+              ))}
             </div>
           </div>
 
@@ -130,7 +117,7 @@ function PaidSupportComp() {
               <h3 className="text-lg font-semibold mb-2">
                 Looking for Team Training?
               </h3>
-              <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                 We also offer professional workshops on TanStack libraries,
                 delivered remotely or in-person by our creators and maintainers.
               </p>
@@ -147,7 +134,7 @@ function PaidSupportComp() {
             <h2 className="text-2xl font-semibold mb-4">
               Get Unblocked, Fix Bugs, Accelerate Success
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-xl mx-auto">
+            <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
               Our team will help you solve complex problems, debug tricky
               issues, and guide your project to success with expert TanStack
               knowledge.

@@ -138,46 +138,33 @@ function MaintainersFilter({
       <div className="flex items-center gap-3 flex-wrap">
         {/* View Mode Toggle */}
         <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-          <button
-            onClick={() => onViewModeChange('compact')}
-            className={`p-2 rounded-l-lg transition-colors ${
-              viewMode === 'compact'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-            }`}
-            title="Compact cards"
-          >
-            <Grid3X3 className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => onViewModeChange('full')}
-            className={`p-2 transition-colors ${
-              viewMode === 'full'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-            }`}
-            title="Full cards"
-          >
-            <Grid2X2 className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => onViewModeChange('row')}
-            className={`p-2 rounded-r-lg transition-colors ${
-              viewMode === 'row'
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-            }`}
-            title="Row cards"
-          >
-            <LayoutList className="w-5 h-5" />
-          </button>
+          {(
+            [
+              { mode: 'compact', Icon: Grid3X3, title: 'Compact cards', rounded: 'rounded-l-lg' },
+              { mode: 'full', Icon: Grid2X2, title: 'Full cards', rounded: '' },
+              { mode: 'row', Icon: LayoutList, title: 'Row cards', rounded: 'rounded-r-lg' },
+            ] as const
+          ).map(({ mode, Icon, title, rounded }) => (
+            <button
+              key={mode}
+              onClick={() => onViewModeChange(mode)}
+              className={`p-2 ${rounded} transition-colors ${
+                viewMode === mode
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+              }`}
+              title={title}
+            >
+              <Icon className="w-5 h-5" />
+            </button>
+          ))}
         </div>
 
         {/* Filter dropdown trigger */}
         <div className="relative" data-filter-dropdown>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <ListFilter className="w-4 h-4" />
             Filter & Sort
@@ -210,7 +197,7 @@ function MaintainersFilter({
                 <div className="mb-4">
                   <label
                     htmlFor="groupBy"
-                    className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
                   >
                     Group By
                   </label>
@@ -234,7 +221,7 @@ function MaintainersFilter({
                 <div className="mb-4">
                   <label
                     htmlFor="sortBy"
-                    className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
                   >
                     Sort By
                   </label>
@@ -256,7 +243,7 @@ function MaintainersFilter({
                 <div>
                   <label
                     htmlFor="libraryFilter"
-                    className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
                   >
                     Filter by Libraries
                   </label>
@@ -663,7 +650,7 @@ function RouteComponent() {
         <div className="flex-1 flex flex-col gap-16 w-full max-w-4xl mx-auto">
           <header className="">
             <h1 className="text-3xl font-black">Maintainers & Contributors</h1>
-            <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
+            <p className="text-lg mt-4 text-gray-600 dark:text-gray-400">
               Meet the amazing developers who make TanStack possible through
               their contributions, maintenance, and dedication to open source
             </p>
@@ -726,7 +713,7 @@ function RouteComponent() {
 
           <div className="text-center py-8 border-t border-gray-200 dark:border-gray-700">
             <h2 className="text-2xl font-semibold mb-4">Want to Contribute?</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-xl mx-auto">
+            <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
               TanStack is always welcoming new contributors! Check out our
               repositories and join our vibrant community.
             </p>

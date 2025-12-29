@@ -97,26 +97,24 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
       <Authenticated>
         {!canAdmin ? (
-          <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <User />
-            <Link
-              to="/account"
-              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white whitespace-nowrap"
-            >
-              My Account
-            </Link>
-          </div>
+          <Link
+            to="/account"
+            className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
+            hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
+          >
+            <User className="text-sm" />
+            <div>Account</div>
+          </Link>
         ) : null}
         {canAdmin ? (
-          <div className="flex items-center gap-2 px-2 py-1 rounded-lg">
-            <Lock />
-            <Link
-              to="/admin"
-              className="flex-1 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-            >
-              Admin
-            </Link>
-          </div>
+          <Link
+            to="/admin"
+            className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
+            hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
+          >
+            <Lock className="text-sm" />
+            <div>Admin</div>
+          </Link>
         ) : null}
       </Authenticated>
     </>

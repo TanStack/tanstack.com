@@ -111,7 +111,7 @@ export function FeedSyncStatus({
 
           {/* Sync Sources */}
           <div className="mb-3">
-            <h3 className="text-xs font-medium mb-1.5 text-gray-700 dark:text-gray-300">
+            <h3 className="text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400">
               Sync Sources
             </h3>
             <div className="space-y-1">
@@ -149,7 +149,7 @@ export function FeedSyncStatus({
 
           {/* By Entry Type Breakdown */}
           <div>
-            <h3 className="text-xs font-medium mb-1.5 text-gray-700 dark:text-gray-300">
+            <h3 className="text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400">
               By Entry Type
             </h3>
             <div className="space-y-1">

@@ -420,7 +420,7 @@ export function FeedFilters({
         <div className="mb-2">
           <button
             onClick={onClearFilters}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-400 rounded transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset Filters</span>

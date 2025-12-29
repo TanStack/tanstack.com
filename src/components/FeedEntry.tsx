@@ -403,7 +403,7 @@ export function FeedEntry({
                       {entry.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                          className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                         >
                           {tag}
                         </span>

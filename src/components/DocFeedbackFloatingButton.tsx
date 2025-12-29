@@ -103,7 +103,7 @@ export function DocFeedbackFloatingButton({
           'flex items-center justify-center',
           'w-6 h-6 rounded',
           'bg-white dark:bg-gray-800',
-          'text-gray-700 dark:text-gray-300',
+          'text-gray-600 dark:text-gray-400',
           'border border-gray-200 dark:border-gray-700',
           'shadow-md hover:shadow-lg',
           'hover:bg-gray-50 dark:hover:bg-gray-700',

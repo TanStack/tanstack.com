@@ -61,7 +61,7 @@ function WorkshopsPage() {
             <h1 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mb-8">
               Professional TanStack Workshops
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed mb-6">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed mb-6">
               Learn directly from the creators and maintainers of TanStack
               libraries. Get expert training on React Query, TanStack Table,
               TanStack Router, and the entire TanStack ecosystem.
@@ -86,28 +86,23 @@ function WorkshopsPage() {
                 <Video className="w-8 h-8 text-blue-500" />
                 <h2 className="text-2xl font-black">Remote Workshops</h2>
               </div>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Convenient, cost-effective training delivered directly to your
                 team from anywhere in the world. Perfect for distributed teams
                 and flexible scheduling.
               </p>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
-                <li className="flex items-start gap-2">
-                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span>No travel costs or logistics</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span>Flexible scheduling across time zones</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span>Interactive sessions with Q&A</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  <span>Access to maintainers and creators</span>
-                </li>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                {[
+                  'No travel costs or logistics',
+                  'Flexible scheduling across time zones',
+                  'Interactive sessions with Q&A',
+                  'Access to maintainers and creators',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -122,22 +117,17 @@ function WorkshopsPage() {
                 face-to-face interaction and personalized attention.
               </p>
               <ul className="space-y-2 text-sm opacity-90">
-                <li className="flex items-start gap-2">
-                  <Star className="w-5 h-5 flex-shrink-0" />
-                  <span>Premium experience with direct access</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Star className="w-5 h-5 flex-shrink-0" />
-                  <span>Personal appearance by Tanner Linsley available</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Star className="w-5 h-5 flex-shrink-0" />
-                  <span>Customized workshop content</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Star className="w-5 h-5 flex-shrink-0" />
-                  <span>Extended Q&A and networking sessions</span>
-                </li>
+                {[
+                  'Premium experience with direct access',
+                  'Personal appearance by Tanner Linsley available',
+                  'Customized workshop content',
+                  'Extended Q&A and networking sessions',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <Star className="w-5 h-5 flex-shrink-0" />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -154,30 +144,37 @@ function WorkshopsPage() {
                 Why Learn from TanStack?
               </h2>
               <div className="grid md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <Code className="w-12 h-12 text-blue-500 dark:text-blue-400 mx-auto mb-3" />
-                  <h3 className="font-black mb-2">From the Source</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Learn directly from the maintainers and creators who built
-                    these libraries. Get insights you can't find anywhere else.
-                  </p>
-                </div>
-                <div className="text-center">
-                  <Users className="w-12 h-12 text-blue-600 dark:text-blue-500 mx-auto mb-3" />
-                  <h3 className="font-black mb-2">Expert Instructors</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Our workshops are led by experienced maintainers who
-                    understand real-world challenges and best practices.
-                  </p>
-                </div>
-                <div className="text-center">
-                  <Rocket className="w-12 h-12 text-blue-700 dark:text-blue-600 mx-auto mb-3" />
-                  <h3 className="font-black mb-2">Practical Focus</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Hands-on training that helps your team ship better code
-                    faster. Real examples, real solutions.
-                  </p>
-                </div>
+                {[
+                  {
+                    Icon: Code,
+                    iconColor: 'text-blue-500 dark:text-blue-400',
+                    title: 'From the Source',
+                    description:
+                      "Learn directly from the maintainers and creators who built these libraries. Get insights you can't find anywhere else.",
+                  },
+                  {
+                    Icon: Users,
+                    iconColor: 'text-blue-600 dark:text-blue-500',
+                    title: 'Expert Instructors',
+                    description:
+                      'Our workshops are led by experienced maintainers who understand real-world challenges and best practices.',
+                  },
+                  {
+                    Icon: Rocket,
+                    iconColor: 'text-blue-700 dark:text-blue-600',
+                    title: 'Practical Focus',
+                    description:
+                      'Hands-on training that helps your team ship better code faster. Real examples, real solutions.',
+                  },
+                ].map(({ Icon, iconColor, title, description }) => (
+                  <div key={title} className="text-center">
+                    <Icon className={`w-12 h-12 ${iconColor} mx-auto mb-3`} />
+                    <h3 className="font-black mb-2">{title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {description}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -188,7 +185,7 @@ function WorkshopsPage() {
               <h2 className="text-2xl font-black mb-4">
                 Training That Moves the Needle
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
                 Our workshops aren't just presentations—they're interactive
                 learning experiences designed to transform how your team works
                 with TanStack libraries. We focus on real-world scenarios,
@@ -197,28 +194,33 @@ function WorkshopsPage() {
               </p>
             </div>
             <div className="grid md:grid-cols-2 gap-6 mt-8">
-              <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <Settings className="w-8 h-8 text-blue-500 dark:text-blue-400 mb-3" />
-                <h3 className="text-lg font-black mb-2">
-                  Customized to Your Stack
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Every workshop is tailored to your team's specific tech stack,
-                  challenges, and goals. We work with you beforehand to
-                  understand your codebase and create relevant examples that
-                  resonate with your developers.
-                </p>
-              </div>
-              <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-                <CodeXml className="w-8 h-8 text-blue-600 dark:text-blue-500 mb-3" />
-                <h3 className="text-lg font-black mb-2">Hands-On Learning</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Expect to code, not just listen. Our workshops include live
-                  coding sessions, exercises, and Q&A periods where you can get
-                  immediate answers to your specific questions from the people
-                  who built the tools you're learning.
-                </p>
-              </div>
+              {[
+                {
+                  Icon: Settings,
+                  iconColor: 'text-blue-500 dark:text-blue-400',
+                  title: 'Customized to Your Stack',
+                  description:
+                    "Every workshop is tailored to your team's specific tech stack, challenges, and goals. We work with you beforehand to understand your codebase and create relevant examples that resonate with your developers.",
+                },
+                {
+                  Icon: CodeXml,
+                  iconColor: 'text-blue-600 dark:text-blue-500',
+                  title: 'Hands-On Learning',
+                  description:
+                    "Expect to code, not just listen. Our workshops include live coding sessions, exercises, and Q&A periods where you can get immediate answers to your specific questions from the people who built the tools you're learning.",
+                },
+              ].map(({ Icon, iconColor, title, description }) => (
+                <div
+                  key={title}
+                  className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700"
+                >
+                  <Icon className={`w-8 h-8 ${iconColor} mb-3`} />
+                  <h3 className="text-lg font-black mb-2">{title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    {description}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -227,7 +229,7 @@ function WorkshopsPage() {
             <h2 className="text-2xl font-semibold mb-4">
               Ready to Level Up Your Team?
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-xl mx-auto">
+            <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
               Get a custom quote for your team's workshop needs. We'll work with
               you to create the perfect training experience.
             </p>
@@ -256,7 +258,7 @@ function WorkshopsPage() {
               <h2 className="text-2xl font-black mb-4">
                 Flexible Formats for Every Team
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
                 Whether you're a small startup or a large enterprise, we offer
                 workshop formats that fit your schedule and budget. From
                 half-day deep dives to multi-day comprehensive training
@@ -264,41 +266,42 @@ function WorkshopsPage() {
               </p>
             </div>
             <div className="grid md:grid-cols-3 gap-6 mt-8">
-              <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700 text-center">
-                <div className="text-3xl font-black text-blue-600 dark:text-blue-400 mb-2">
-                  2-4 hours
+              {[
+                {
+                  duration: '2-4 hours',
+                  color: 'text-blue-600 dark:text-blue-400',
+                  title: 'Quick Deep Dives',
+                  description:
+                    'Focused sessions on specific topics or libraries. Perfect for teams who need targeted knowledge quickly.',
+                },
+                {
+                  duration: '1-2 days',
+                  color: 'text-emerald-600 dark:text-emerald-400',
+                  title: 'Comprehensive Training',
+                  description:
+                    'Full-day workshops covering multiple libraries and advanced patterns. Ideal for teams adopting TanStack across their stack.',
+                },
+                {
+                  duration: 'Custom',
+                  color: 'text-amber-600 dark:text-amber-400',
+                  title: 'Tailored Programs',
+                  description:
+                    'Multi-day programs designed around your specific needs. Includes follow-up sessions and ongoing support.',
+                },
+              ].map(({ duration, color, title, description }) => (
+                <div
+                  key={title}
+                  className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700 text-center"
+                >
+                  <div className={`text-3xl font-black ${color} mb-2`}>
+                    {duration}
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">{title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    {description}
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Quick Deep Dives</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Focused sessions on specific topics or libraries. Perfect for
-                  teams who need targeted knowledge quickly.
-                </p>
-              </div>
-              <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700 text-center">
-                <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-2">
-                  1-2 days
-                </div>
-                <h3 className="text-lg font-semibold mb-2">
-                  Comprehensive Training
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Full-day workshops covering multiple libraries and advanced
-                  patterns. Ideal for teams adopting TanStack across their
-                  stack.
-                </p>
-              </div>
-              <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700 text-center">
-                <div className="text-3xl font-black text-amber-600 dark:text-amber-400 mb-2">
-                  Custom
-                </div>
-                <h3 className="text-lg font-semibold mb-2">
-                  Tailored Programs
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
-                  Multi-day programs designed around your specific needs.
-                  Includes follow-up sessions and ongoing support.
-                </p>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -308,7 +311,7 @@ function WorkshopsPage() {
               <h2 className="text-2xl font-semibold mb-4">
                 Have Questions About Our Workshops?
               </h2>
-              <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-xl mx-auto">
+              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
                 We're here to help you understand how our workshops can benefit
                 your team. Reach out to discuss topics, formats, scheduling, and
                 pricing.
@@ -350,7 +353,7 @@ function WorkshopsPage() {
                     className="flex items-center gap-3 rounded-lg bg-white dark:bg-gray-800 px-4 py-3 shadow-sm border border-gray-200 dark:border-gray-700"
                   >
                     <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-gray-700 dark:text-gray-300 font-medium">
+                    <span className="text-gray-600 dark:text-gray-400 font-medium">
                       {topic}
                     </span>
                   </div>
@@ -377,25 +380,26 @@ function WorkshopsPage() {
               <h2 className="text-2xl font-black mb-4">
                 Want Tanner Linsley at your workshop?
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed">
                 TanStack creator Tanner Linsley is available for premium
                 appearances, Q&A sessions, lightning consults, or to give your
                 session that extra kick to inspire your developers. Add this
                 exclusive experience to any workshop package.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-full text-sm font-medium border border-amber-200 dark:border-amber-800">
-                  <Star className="w-4 h-4" />
-                  <span>Q&A Sessions</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-full text-sm font-medium border border-amber-200 dark:border-amber-800">
-                  <Code className="w-4 h-4" />
-                  <span>Lightning Consults</span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-full text-sm font-medium border border-amber-200 dark:border-amber-800">
-                  <Rocket className="w-4 h-4" />
-                  <span>Inspire Your Developers</span>
-                </div>
+                {[
+                  { Icon: Star, label: 'Q&A Sessions' },
+                  { Icon: Code, label: 'Lightning Consults' },
+                  { Icon: Rocket, label: 'Inspire Your Developers' },
+                ].map(({ Icon, label }) => (
+                  <div
+                    key={label}
+                    className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-full text-sm font-medium border border-amber-200 dark:border-amber-800"
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{label}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -518,7 +522,7 @@ function TestimonialsMarquee() {
                     />
                   ))}
                 </div>
-                <p className="text-gray-700 dark:text-gray-300 mb-4 text-sm italic">
+                <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm italic">
                   "{testimonial.quote}"
                 </p>
                 <div className="text-xs text-gray-500 dark:text-gray-400">

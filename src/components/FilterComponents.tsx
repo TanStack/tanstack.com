@@ -114,7 +114,7 @@ export function FilterCheckbox({
       />
       <span className={capitalize ? 'capitalize' : ''}>{label}</span>
       {count !== undefined && (
-        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
           {count}
         </span>
       )}

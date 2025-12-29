@@ -41,7 +41,7 @@ function LibrariesPage() {
   return (
     <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto py-10">
       <h1 className="text-4xl font-light">All Libraries</h1>
-      <p className="text-gray-600 dark:text-gray-300 mt-2">
+      <p className="text-gray-600 dark:text-gray-400 mt-2">
         Browse all TanStack libraries.
       </p>
 
@@ -117,7 +117,7 @@ function LibrariesPage() {
 
                 {/* Description preview with ellipsis */}
                 <div
-                  className={`text-sm mt-3 text-gray-700 dark:text-gray-300 line-clamp-3 leading-relaxed`}
+                  className={`text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-3 leading-relaxed`}
                 >
                   {library.description}
                 </div>
@@ -228,7 +228,7 @@ function LibrariesPage() {
 
                     {/* Description preview with ellipsis */}
                     <div
-                      className={`text-sm mt-3 text-gray-700 dark:text-gray-300 line-clamp-3 leading-relaxed`}
+                      className={`text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-3 leading-relaxed`}
                     >
                       {library.description}
                     </div>

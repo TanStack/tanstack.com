@@ -132,14 +132,14 @@ function GamAd({
       <div className={twMerge('flex gap-1', popupClasses)}>
         <Link
           to="/ads"
-          className="text-xs text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 px-2 py-1 bg-white/90 dark:bg-gray-700 rounded-lg shadow-lg whitespace-nowrap"
+          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 px-2 py-1 bg-white/90 dark:bg-gray-700 rounded-lg shadow-lg whitespace-nowrap"
         >
           Learn about TanStack Ads
         </Link>
         <Link
           to="/ads"
           hash="hide-ads"
-          className="text-xs text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 px-2 py-1 bg-white/90 dark:bg-gray-700 rounded-lg shadow-lg whitespace-nowrap"
+          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 px-2 py-1 bg-white/90 dark:bg-gray-700 rounded-lg shadow-lg whitespace-nowrap"
         >
           Hide Ads
         </Link>

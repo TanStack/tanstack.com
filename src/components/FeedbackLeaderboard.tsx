@@ -151,7 +151,7 @@ export function FeedbackLeaderboard() {
                                     ? 'text-gray-600 dark:text-gray-400'
                                     : rank === 3
                                       ? 'text-amber-600 dark:text-amber-400'
-                                      : 'text-gray-700 dark:text-gray-300',
+                                      : 'text-gray-600 dark:text-gray-400',
                               )}
                             >
                               #{rank}

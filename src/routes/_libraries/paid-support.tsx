@@ -60,9 +60,24 @@ function PaidSupportComp() {
             <div className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
               {(
                 [
-                  { mode: 'compact', Icon: Grid3X3, title: 'Compact cards', rounded: 'rounded-l-lg' },
-                  { mode: 'full', Icon: Grid2x2, title: 'Full cards', rounded: '' },
-                  { mode: 'row', Icon: LayoutList, title: 'Row cards', rounded: 'rounded-r-lg' },
+                  {
+                    mode: 'compact',
+                    Icon: Grid3X3,
+                    title: 'Compact cards',
+                    rounded: 'rounded-l-lg',
+                  },
+                  {
+                    mode: 'full',
+                    Icon: Grid2x2,
+                    title: 'Full cards',
+                    rounded: '',
+                  },
+                  {
+                    mode: 'row',
+                    Icon: LayoutList,
+                    title: 'Row cards',
+                    rounded: 'rounded-r-lg',
+                  },
                 ] as const
               ).map(({ mode, Icon, title, rounded }) => (
                 <button

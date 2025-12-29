@@ -414,7 +414,14 @@ export function FeedEntryEditor({
                     activeColor: 'bg-yellow-500',
                   },
                 ].map(
-                  ({ id, label, description, checked, onChange, activeColor }) => (
+                  ({
+                    id,
+                    label,
+                    description,
+                    checked,
+                    onChange,
+                    activeColor,
+                  }) => (
                     <div
                       key={id}
                       className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"

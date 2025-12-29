@@ -178,6 +178,140 @@ button {
   }
 }
 
+/* ============================================================================
+   Design System Utilities
+   ============================================================================ */
+
+/* Buttons - base styles applied to all .btn-* classes */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-ghost,
+.btn-icon {
+  @apply inline-flex items-center justify-center gap-2 font-medium transition-colors;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary {
+  @apply px-4 py-2 rounded-lg;
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 rounded-lg;
+  @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
+  @apply dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700;
+}
+
+.btn-danger {
+  @apply px-4 py-2 rounded-lg;
+  @apply bg-red-600 text-white hover:bg-red-700;
+}
+
+.btn-ghost {
+  @apply px-3 py-2 rounded-lg;
+  @apply text-gray-600 hover:bg-gray-100;
+  @apply dark:text-gray-400 dark:hover:bg-gray-800;
+}
+
+.btn-icon {
+  @apply p-2 rounded-lg;
+  @apply text-gray-600 hover:bg-gray-100;
+  @apply dark:text-gray-400 dark:hover:bg-gray-700;
+}
+
+/* Form Inputs */
+.input-base {
+  @apply w-full px-3 py-2 text-sm rounded-lg transition-colors;
+  @apply border border-gray-300 dark:border-gray-600;
+  @apply bg-white dark:bg-gray-800;
+  @apply text-gray-900 dark:text-white;
+  @apply placeholder:text-gray-400 dark:placeholder:text-gray-500;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Cards */
+.card {
+  @apply rounded-xl transition-all duration-200;
+  @apply bg-white dark:bg-gray-800;
+  @apply border border-gray-200 dark:border-gray-700;
+}
+
+.card-elevated {
+  @apply rounded-xl transition-all duration-200 shadow-lg;
+  @apply bg-white/90 dark:bg-black/40 backdrop-blur-sm;
+  @apply border border-gray-200 dark:border-gray-700;
+}
+
+.card-interactive {
+  @apply rounded-xl transition-all duration-200 shadow-lg cursor-pointer;
+  @apply bg-white/90 dark:bg-black/40 backdrop-blur-sm;
+  @apply border border-gray-200 dark:border-gray-700;
+  @apply hover:shadow-xl hover:-translate-y-1;
+}
+
+/* Dropdown/Menu Containers */
+.dropdown-menu {
+  @apply rounded-lg shadow-lg overflow-hidden;
+  @apply bg-white dark:bg-gray-800;
+  @apply border border-gray-200 dark:border-gray-700;
+}
+
+.dropdown-item {
+  @apply w-full px-4 py-2 text-left text-sm transition-colors;
+  @apply text-gray-700 dark:text-gray-300;
+  @apply hover:bg-gray-50 dark:hover:bg-gray-700;
+}
+
+.dropdown-item-active {
+  @apply bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400;
+}
+
+/* Badges - base styles applied to all .badge-* classes */
+.badge-blue,
+.badge-green,
+.badge-red,
+.badge-yellow,
+.badge-gray {
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-blue {
+  @apply bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400;
+}
+
+.badge-green {
+  @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400;
+}
+
+.badge-red {
+  @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400;
+}
+
+.badge-yellow {
+  @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400;
+}
+
+.badge-gray {
+  @apply bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300;
+}
+
+/* Text utilities */
+.text-secondary {
+  @apply text-gray-600 dark:text-gray-400;
+}
+
+.text-tertiary {
+  @apply text-gray-500 dark:text-gray-500;
+}
+
+.text-link {
+  @apply text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300;
+}
+
+/* ============================================================================ */
+
 /* https://github.com/shikijs/twoslash/tree/main/packages/remark-shiki-twoslash#plugin-setup */
 pre {
   /* All code samples get a grey border, twoslash ones get a different color */

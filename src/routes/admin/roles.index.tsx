@@ -91,7 +91,7 @@ function RolesPage() {
       <div className="mb-2">
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
         >
           Name / Description
         </label>
@@ -536,7 +536,7 @@ function RolesPage() {
                 <div>
                   <label
                     htmlFor="role-name"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
                   >
                     Name
                   </label>
@@ -551,7 +551,7 @@ function RolesPage() {
                 <div>
                   <label
                     htmlFor="role-description"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
                   >
                     Description
                   </label>
@@ -566,7 +566,7 @@ function RolesPage() {
                 <div>
                   <label
                     htmlFor="role-capabilities"
-                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
                   >
                     Capabilities
                   </label>

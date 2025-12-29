@@ -450,7 +450,7 @@ export function DocFeedbackNote({
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-50"
+                  className="px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-50"
                   disabled={isSaving}
                 >
                   <X className="inline text-[10px] mr-1" />

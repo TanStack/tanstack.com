@@ -241,7 +241,7 @@ function UsersPage() {
             }}
             className="mr-2 h-4 w-4 accent-blue-600"
           />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
             Filter by effective capabilities
           </span>
         </label>
@@ -256,7 +256,7 @@ function UsersPage() {
       <div className="mb-2">
         <label
           htmlFor="email-filter"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
         >
           Email
         </label>
@@ -280,7 +280,7 @@ function UsersPage() {
       <div className="mb-2">
         <label
           htmlFor="name-filter"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
         >
           Name
         </label>
@@ -375,7 +375,7 @@ function UsersPage() {
         <div className="mb-2">
           <label
             htmlFor="ads-disabled-filter"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
           >
             Status
           </label>
@@ -402,7 +402,7 @@ function UsersPage() {
         <div>
           <label
             htmlFor="waitlist-filter"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
           >
             Waitlist
           </label>
@@ -1025,7 +1025,7 @@ function UsersPage() {
                 <div className="flex items-center gap-2">
                   <label
                     htmlFor="bulk-update-capabilities"
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    className="text-sm font-medium text-gray-600 dark:text-gray-400"
                   >
                     Assign Role:
                   </label>
@@ -1054,7 +1054,7 @@ function UsersPage() {
                 <div className="flex items-center gap-2">
                   <label
                     htmlFor="bulk-update-capabilities"
-                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                    className="text-sm font-medium text-gray-600 dark:text-gray-400"
                   >
                     Set Capabilities:
                   </label>

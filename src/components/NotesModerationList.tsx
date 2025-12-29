@@ -182,7 +182,7 @@ export function NotesModerationList({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-gray-700 dark:text-gray-300 max-w-md truncate">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 max-w-md truncate">
                       {contentPreview}
                     </div>
                   </TableCell>
@@ -241,7 +241,7 @@ export function NotesModerationList({
                           <h4 className="text-sm font-semibold mb-2">
                             Content:
                           </h4>
-                          <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
+                          <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
                             {feedback.content}
                           </div>
                         </div>

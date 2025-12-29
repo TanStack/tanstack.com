@@ -295,7 +295,7 @@ const RenderFileTree = (props: {
                 `px-2 py-1.5 text-left w-full flex items-center gap-2 text-sm rounded transition-colors duration-200 min-w-0`,
                 props.currentPath === file.path
                   ? `${props.libraryColor}/20 text-gray-900 dark:text-white shadow-sm`
-                  : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300',
+                  : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400',
               )}
             >
               <span className="shrink-0 select-none">

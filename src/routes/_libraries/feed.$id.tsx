@@ -348,13 +348,13 @@ function FeedEntryView({ entry }: { entry: FeedEntry }) {
           {/* Tags */}
           {entry.tags.length > 0 && (
             <div className="flex items-center gap-2 mb-4 flex-wrap pb-4 border-b border-gray-200 dark:border-gray-700">
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                 Tags:
               </span>
               {entry.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs"
+                  className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs"
                 >
                   {tag}
                 </span>

@@ -59,11 +59,11 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
           />
         ))}
       </div>
-      <p className="text-gray-700 dark:text-gray-300 mb-4 text-sm leading-relaxed">
+      <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm leading-relaxed">
         "{testimonial.quote}"
       </p>
       <div className="text-xs text-gray-500 dark:text-gray-400">
-        <div className="font-semibold text-gray-700 dark:text-gray-300">
+        <div className="font-semibold text-gray-600 dark:text-gray-400">
           {testimonial.author}
         </div>
         <div>

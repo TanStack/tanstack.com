@@ -54,7 +54,7 @@ function RouteComp() {
       <div className="flex-1 space-y-12 w-full max-w-4xl mx-auto">
         <header className="">
           <h1 className="text-3xl font-black">TanStack Merch</h1>
-          <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
+          <p className="text-lg mt-4 text-gray-600 dark:text-gray-400">
             Show your support for TanStack with official merchandise. All items
             are sold at cost (supplier price + shipping) with no markup. We do
             not pre-stock inventory and make no profit from merchandise sales.
@@ -95,7 +95,7 @@ function RouteComp() {
                   ))}
                 </div>
                 <h2 className="text-2xl font-bold text-center">{item.name}</h2>
-                <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
                   {item.description}
                 </p>
                 <div className="mt-4">

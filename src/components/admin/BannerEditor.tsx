@@ -175,6 +175,16 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
   const currentStyle =
     BANNER_STYLES.find((s) => s.value === style) || BANNER_STYLES[0]
 
+  // Repeated class patterns
+  const cardClass =
+    'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'
+  const cardHeaderClass =
+    'px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50'
+  const labelClass =
+    'block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2'
+  const inputClass =
+    'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow'
+
   return (
     <div className="min-h-full">
       {/* Sticky Header */}
@@ -193,7 +203,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
           <div className="flex items-center gap-3">
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
+              className="px-4 py-2 text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
             >
               <X className="w-4 h-4" />
               Cancel
@@ -214,8 +224,8 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
         {/* Left Column - Form */}
         <div className="space-y-6">
           {/* Content Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className={cardClass}>
+            <div className={cardHeaderClass}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                   <Info className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -233,27 +243,21 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
             <div className="p-6 space-y-5">
               {/* Title */}
               <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="title" className={labelClass}>
                   Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  className={inputClass}
                   placeholder="Enter banner title"
                 />
               </div>
 
               {/* Content */}
               <div>
-                <label
-                  htmlFor="content"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="content" className={labelClass}>
                   Description
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Optional - shown below title)
@@ -263,7 +267,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   rows={2}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  className={inputClass}
                   placeholder="Optional additional details"
                 />
               </div>
@@ -271,8 +275,8 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
           </div>
 
           {/* Link Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className={cardClass}>
+            <div className={cardHeaderClass}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
                   <Link2 className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -290,27 +294,21 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
             <div className="p-6 space-y-5">
               {/* Link URL */}
               <div>
-                <label
-                  htmlFor="linkUrl"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="linkUrl" className={labelClass}>
                   Link URL
                 </label>
                 <input
                   type="url"
                   value={linkUrl}
                   onChange={(e) => setLinkUrl(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  className={inputClass}
                   placeholder="https://example.com/page"
                 />
               </div>
 
               {/* Link Text */}
               <div>
-                <label
-                  htmlFor="linkText"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="linkText" className={labelClass}>
                   Link Text
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Button text - defaults to "Learn More")
@@ -320,7 +318,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                   type="text"
                   value={linkText}
                   onChange={(e) => setLinkText(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  className={inputClass}
                   placeholder="Learn More"
                 />
               </div>
@@ -328,8 +326,8 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
           </div>
 
           {/* Style & Targeting Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className={cardClass}>
+            <div className={cardHeaderClass}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                   <Settings className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -349,7 +347,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
               <div>
                 <label
                   htmlFor="style"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+                  className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-3"
                 >
                   Banner Style
                 </label>
@@ -385,7 +383,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
               <div>
                 <label
                   htmlFor="scope"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+                  className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-3"
                 >
                   Banner Scope
                 </label>
@@ -404,7 +402,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                     />
                     <div className="text-left">
                       <div
-                        className={`font-medium ${scope === 'global' ? 'text-purple-700 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300'}`}
+                        className={`font-medium ${scope === 'global' ? 'text-purple-700 dark:text-purple-300' : 'text-gray-600 dark:text-gray-400'}`}
                       >
                         Global
                       </div>
@@ -427,7 +425,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                     />
                     <div className="text-left">
                       <div
-                        className={`font-medium ${scope === 'targeted' ? 'text-purple-700 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300'}`}
+                        className={`font-medium ${scope === 'targeted' ? 'text-purple-700 dark:text-purple-300' : 'text-gray-600 dark:text-gray-400'}`}
                       >
                         Targeted
                       </div>
@@ -442,7 +440,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
               {/* Path Prefix Selection - Only show if scope is targeted */}
               {scope === 'targeted' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                     Show Banner On Paths
                     {pathPrefixes.length > 0 && (
                       <span className="ml-2 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-full">
@@ -471,7 +469,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
                             className={`px-2 py-1 rounded text-xs font-medium transition-all ${
                               pathPrefixes.includes(`/${library.id}`)
                                 ? 'bg-gray-200 dark:bg-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-600 dark:hover:text-purple-400'
                             }`}
                           >
                             {library.name}
@@ -535,8 +533,8 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
           </div>
 
           {/* Scheduling Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className={cardClass}>
+            <div className={cardHeaderClass}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
                   <Calendar className="w-4 h-4 text-orange-600 dark:text-orange-400" />
@@ -581,10 +579,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
 
               {/* Start Date */}
               <div>
-                <label
-                  htmlFor="startsAt"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="startsAt" className={labelClass}>
                   Start Date & Time
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Optional - shows immediately if empty)
@@ -600,10 +595,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
 
               {/* End Date */}
               <div>
-                <label
-                  htmlFor="expiresAt"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="expiresAt" className={labelClass}>
                   End Date & Time
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Optional - never expires if empty)
@@ -619,10 +611,7 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
 
               {/* Priority */}
               <div>
-                <label
-                  htmlFor="priority"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="priority" className={labelClass}>
                   Priority
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Higher = shown first when multiple banners match)
@@ -641,8 +630,8 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
 
         {/* Right Column - Live Preview */}
         <div className="xl:sticky xl:top-24 xl:self-start">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className={cardClass}>
+            <div className={cardHeaderClass}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
                   <Eye className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />

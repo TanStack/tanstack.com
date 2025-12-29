@@ -317,7 +317,7 @@ export function FeedEntryTimeline({
             {entry.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs"
+                className="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs"
               >
                 {tag}
               </span>

@@ -132,7 +132,7 @@ function PartnersFilter({
         <div className="relative" data-filter-dropdown>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <ListFilter className="w-4 h-4" />
             Filter Partners
@@ -165,7 +165,7 @@ function PartnersFilter({
                 <div className="mb-4">
                   <label
                     htmlFor="partner-status"
-                    className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
                   >
                     Partner Status
                   </label>
@@ -180,7 +180,7 @@ function PartnersFilter({
                       className={`px-3 py-2 rounded-md text-sm transition-colors ${
                         selectedStatus === 'active'
                           ? 'bg-green-500 text-white'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >
                       Current Partners
@@ -197,7 +197,7 @@ function PartnersFilter({
                       className={`px-3 py-2 rounded-md text-sm transition-colors ${
                         selectedStatus === 'inactive'
                           ? 'bg-orange-500 text-white'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
                     >
                       Previous Partners
@@ -209,7 +209,7 @@ function PartnersFilter({
                 <div>
                   <label
                     htmlFor="library-filter"
-                    className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2"
                   >
                     Filter by Libraries
                   </label>
@@ -227,7 +227,7 @@ function PartnersFilter({
                           className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
                             isSelected
                               ? `${bgStyle} text-white`
-                              : `${bgStyle}/30 text-gray-700 dark:text-gray-300 hover:${bgStyle}/40`
+                              : `${bgStyle}/30 text-gray-600 dark:text-gray-400 hover:${bgStyle}/40`
                           }`}
                         >
                           {library.name}
@@ -323,7 +323,7 @@ function RouteComp() {
                 ? 'Current Partners'
                 : 'Partners'}
           </h1>
-          <p className="text-lg mt-4 text-gray-700 dark:text-gray-300">
+          <p className="text-lg mt-4 text-gray-600 dark:text-gray-400">
             {isShowingPrevious
               ? 'Companies and organizations that have supported TanStack in the past'
               : isShowingActive
@@ -449,7 +449,7 @@ function RouteComp() {
           <h2 className="text-2xl font-semibold mb-4">
             Interested in Partnership?
           </h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
             We're always looking for organizations that share our values and
             want to support open source development.
           </p>
@@ -473,7 +473,7 @@ function RouteComp() {
               Total Support Share
             </h2>
           </a>
-          <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
             This chart is a percentage-based visualization of the total support
             each partner has rendered to TanStack ever. It is updated every 6
             months.

@@ -337,7 +337,7 @@ function NpmStatsAdmin() {
                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                   Last Updated
                 </div>
-                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   {formatDistanceToNow(new Date(orgStats.updatedAt), {
                     addSuffix: true,
                   })}

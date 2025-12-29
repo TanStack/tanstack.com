@@ -143,6 +143,19 @@ export function FeedEntryEditor({
 
   const isValid = title.trim() && content.trim() && user
 
+  // Repeated class patterns
+  const cardClass =
+    'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'
+  const cardHeaderClass =
+    'px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50'
+  const labelClass =
+    'block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2'
+  const inputClass =
+    'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow'
+  const chipBase = 'px-3 py-1.5 rounded-full text-sm font-medium transition-all'
+  const chipUnselected =
+    'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+
   return (
     <div className="min-h-full">
       {/* Sticky Header */}
@@ -161,7 +174,7 @@ export function FeedEntryEditor({
           <div className="flex items-center gap-3">
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
+              className="px-4 py-2 text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
             >
               <X className="w-4 h-4" />
               Cancel
@@ -182,8 +195,8 @@ export function FeedEntryEditor({
         {/* Left Column - Form */}
         <div className="space-y-6">
           {/* Basic Information Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className={cardClass}>
+            <div className={cardHeaderClass}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                   <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -201,27 +214,21 @@ export function FeedEntryEditor({
             <div className="p-6 space-y-5">
               {/* Title */}
               <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="title" className={labelClass}>
                   Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  className={inputClass}
                   placeholder="Enter a descriptive title"
                 />
               </div>
 
               {/* Content */}
               <div>
-                <label
-                  htmlFor="content"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="content" className={labelClass}>
                   Content <span className="text-red-500">*</span>
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Markdown supported)
@@ -238,10 +245,7 @@ export function FeedEntryEditor({
 
               {/* Excerpt */}
               <div>
-                <label
-                  htmlFor="excerpt"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="excerpt" className={labelClass}>
                   Excerpt
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (Optional - auto-generated if empty)
@@ -251,17 +255,14 @@ export function FeedEntryEditor({
                   value={excerpt}
                   onChange={(e) => setExcerpt(e.target.value)}
                   rows={2}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  className={inputClass}
                   placeholder="Brief summary for feed previews"
                 />
               </div>
 
               {/* Published Date */}
               <div>
-                <label
-                  htmlFor="publishedAt"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="publishedAt" className={labelClass}>
                   <Calendar className="inline mr-2 w-4 h-4 text-gray-400" />
                   Published Date <span className="text-red-500">*</span>
                 </label>
@@ -269,15 +270,15 @@ export function FeedEntryEditor({
                   type="date"
                   value={publishedAt}
                   onChange={(e) => setPublishedAt(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  className={inputClass}
                 />
               </div>
             </div>
           </div>
 
           {/* Categorization Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className={cardClass}>
+            <div className={cardHeaderClass}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                   <Tags className="w-4 h-4 text-purple-600 dark:text-purple-400" />
@@ -295,7 +296,7 @@ export function FeedEntryEditor({
             <div className="p-6 space-y-5">
               {/* Libraries */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className={labelClass}>
                   Related Libraries
                   {selectedLibraries.length > 0 && (
                     <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full">
@@ -309,10 +310,10 @@ export function FeedEntryEditor({
                       key={library.id}
                       type="button"
                       onClick={() => toggleLibrary(library.id)}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      className={`${chipBase} ${
                         selectedLibraries.includes(library.id)
                           ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          : chipUnselected
                       }`}
                     >
                       {selectedLibraries.includes(library.id) && (
@@ -326,7 +327,7 @@ export function FeedEntryEditor({
 
               {/* Partners */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className={labelClass}>
                   Related Partners
                   {selectedPartners.length > 0 && (
                     <span className="ml-2 text-xs bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 px-2 py-0.5 rounded-full">
@@ -342,10 +343,10 @@ export function FeedEntryEditor({
                         key={partner.id}
                         type="button"
                         onClick={() => togglePartner(partner.id)}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                        className={`${chipBase} ${
                           selectedPartners.includes(partner.id)
                             ? 'bg-pink-600 text-white'
-                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                            : chipUnselected
                         }`}
                       >
                         {selectedPartners.includes(partner.id) && (
@@ -359,10 +360,7 @@ export function FeedEntryEditor({
 
               {/* Tags */}
               <div>
-                <label
-                  htmlFor="tags"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-                >
+                <label htmlFor="tags" className={labelClass}>
                   Tags
                   <span className="ml-2 text-xs font-normal text-gray-400">
                     (comma-separated)
@@ -372,7 +370,7 @@ export function FeedEntryEditor({
                   type="text"
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+                  className={inputClass}
                   placeholder="e.g., release:major, breaking-change"
                 />
               </div>
@@ -380,8 +378,8 @@ export function FeedEntryEditor({
           </div>
 
           {/* Display Options Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className={cardClass}>
+            <div className={cardHeaderClass}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
                   <Settings className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -398,57 +396,55 @@ export function FeedEntryEditor({
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                  <label htmlFor="showInFeed">
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      Show in Feed
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      Display this entry in the public feed
-                    </div>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={showInFeed}
-                      onChange={(e) => setShowInFeed(e.target.checked)}
-                      className="sr-only"
-                    />
+                {[
+                  {
+                    id: 'showInFeed',
+                    label: 'Show in Feed',
+                    description: 'Display this entry in the public feed',
+                    checked: showInFeed,
+                    onChange: setShowInFeed,
+                    activeColor: 'bg-green-500',
+                  },
+                  {
+                    id: 'featured',
+                    label: 'Featured',
+                    description: 'Highlight this entry in the feed',
+                    checked: featured,
+                    onChange: setFeatured,
+                    activeColor: 'bg-yellow-500',
+                  },
+                ].map(
+                  ({ id, label, description, checked, onChange, activeColor }) => (
                     <div
-                      className={`w-11 h-6 rounded-full transition-colors ${showInFeed ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                      key={id}
+                      className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform mt-0.5 ${showInFeed ? 'translate-x-5.5 ml-0.5' : 'translate-x-0.5'}`}
-                      />
+                      <label htmlFor={id}>
+                        <div className="font-medium text-gray-900 dark:text-white">
+                          {label}
+                        </div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          {description}
+                        </div>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => onChange(e.target.checked)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-11 h-6 rounded-full transition-colors ${checked ? activeColor : 'bg-gray-300 dark:bg-gray-600'}`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform mt-0.5 ${checked ? 'translate-x-5.5 ml-0.5' : 'translate-x-0.5'}`}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                  <label htmlFor="featured">
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      Featured
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      Highlight this entry in the feed
-                    </div>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={featured}
-                      onChange={(e) => setFeatured(e.target.checked)}
-                      className="sr-only"
-                    />
-                    <div
-                      className={`w-11 h-6 rounded-full transition-colors ${featured ? 'bg-yellow-500' : 'bg-gray-300 dark:bg-gray-600'}`}
-                    >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform mt-0.5 ${featured ? 'translate-x-5.5 ml-0.5' : 'translate-x-0.5'}`}
-                      />
-                    </div>
-                  </div>
-                </div>
+                  ),
+                )}
               </div>
             </div>
           </div>
@@ -456,8 +452,8 @@ export function FeedEntryEditor({
 
         {/* Right Column - Live Preview */}
         <div className="xl:sticky xl:top-24 xl:self-start">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className={cardClass}>
+            <div className={cardHeaderClass}>
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
                   <Eye className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />

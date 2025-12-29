@@ -285,7 +285,7 @@ const Hit = ({
     prefixParts.push(
       <span
         key="framework"
-        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-bold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
       >
         <img
           src={hitFramework.logo}

@@ -192,7 +192,7 @@ function SignInForm() {
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">
         Sign in required
       </h2>
-      <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 text-center">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
         Please sign in to join the waitlist and be notified when ad-free
         browsing becomes available.
       </p>
@@ -277,7 +277,7 @@ function OptInButton() {
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
           You're on the waitlist!
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-300">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
           We'll notify you via email when ad-free browsing becomes available.
         </p>
       </div>
@@ -289,7 +289,7 @@ function OptInButton() {
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">
         Join the waitlist
       </h2>
-      <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 text-center">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
         Opt-in to be notified when ad-free browsing becomes available for
         TanStack.
       </p>

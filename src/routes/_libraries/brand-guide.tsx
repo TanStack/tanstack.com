@@ -303,7 +303,7 @@ function RouteComponent() {
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
               Usage Guidelines
             </h2>
-            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+            <div className="space-y-4 text-gray-600 dark:text-gray-400">
               <p>
                 These assets are provided for use in connection with TanStack
                 projects, educational materials, and promotional content that

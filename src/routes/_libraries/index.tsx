@@ -287,7 +287,7 @@ function Index() {
 
                           {/* Description preview with ellipsis */}
                           <div
-                            className={`text-sm mt-3 text-gray-700 dark:text-gray-300 line-clamp-3 leading-relaxed`}
+                            className={`text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-3 leading-relaxed`}
                           >
                             {library.description}
                           </div>
@@ -523,7 +523,7 @@ function Index() {
                         </div>
                         {excerpt && (
                           <div
-                            className={`text-xs mt-3 text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed`}
+                            className={`text-xs mt-3 text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed`}
                           >
                             <SimpleMarkdown rawContent={excerpt} />
                           </div>
@@ -607,7 +607,7 @@ function Index() {
           </div>
           <div className={`h-4`} />
           <p
-            className={`italic mx-auto max-w-(--breakpoint-sm) text-gray-500 dark:text-gray-300 text-center`}
+            className={`italic mx-auto max-w-(--breakpoint-sm) text-gray-500 dark:text-gray-400 text-center`}
           >
             Sponsors get special perks like{' '}
             <strong>

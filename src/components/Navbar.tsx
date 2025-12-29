@@ -143,34 +143,30 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
 
   const socialLinks = (
-    <div className="flex items-center">
+    <div className="flex items-center gap-2 [&_a]:p-1.5 [&_a]:opacity-50 [&_a:hover]:opacity-100 [&_a]:transition-opacity [&_svg]:text-sm">
       <a
-        href="https://x.com/tan_stack"
-        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
-        aria-label="Follow TanStack on X.com"
+        href="https://github.com/tanstack"
+        aria-label="Follow TanStack on GitHub"
       >
-        <BrandXIcon className="text-sm" />
+        <GithubIcon />
+      </a>
+      <a href="https://x.com/tan_stack" aria-label="Follow TanStack on X.com">
+        <BrandXIcon />
       </a>
       <a
         href="https://bsky.app/profile/tanstack.com"
-        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
-        aria-label="Follow TanStack on Bluesky"
+        aria-label="Follow TanStack on Besky"
       >
-        <BSkyIcon className="text-sm" />
+        <BSkyIcon />
       </a>
       <a
         href="https://instagram.com/tan_stack"
-        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
         aria-label="Follow TanStack on Instagram"
       >
-        <InstagramIcon className="text-sm" />
+        <InstagramIcon />
       </a>
-      <a
-        href="https://tlinz.com/discord"
-        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
-        aria-label="Join TanStack Discord"
-      >
-        <DiscordIcon className="text-sm" />
+      <a href="https://tlinz.com/discord" aria-label="Join TanStack Discord">
+        <DiscordIcon />
       </a>
     </div>
   )

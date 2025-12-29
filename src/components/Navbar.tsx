@@ -151,7 +151,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const socialLinks = (
     <div className="flex items-center gap-2 [&_a]:p-1.5 [&_a]:opacity-50 [&_a:hover]:opacity-100 [&_a]:transition-opacity [&_svg]:text-sm">
       <a
-        href={`https://github.com/tanstack/${library?.repo ?? ''}`}
+        href={`https://github.com/${library?.repo ?? ''}`}
         aria-label={`Follow ${library?.name ?? 'TanStack'} on GitHub`}
       >
         <GithubIcon />

@@ -26,7 +26,7 @@ import {
   Unauthenticated,
   AuthLoading,
 } from '~/components/AuthComponents'
-import { libraries } from '~/libraries'
+import { libraries, findLibrary } from '~/libraries'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
@@ -39,9 +39,15 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
   const capabilities = useCapabilities()
 
-  const Title =
-    [...matches].reverse().find((m) => m.staticData.Title)?.staticData.Title ??
-    null
+  const { Title, library } = React.useMemo(() => {
+    const match = [...matches].reverse().find((m) => m.staticData.Title)
+    const libraryId = match?.params?.libraryId
+
+    return {
+      Title: match?.staticData.Title ?? null,
+      library: libraryId ? findLibrary(libraryId) : null,
+    }
+  }, [matches])
 
   const canAdmin = capabilities.includes('admin')
 
@@ -145,8 +151,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const socialLinks = (
     <div className="flex items-center gap-2 [&_a]:p-1.5 [&_a]:opacity-50 [&_a:hover]:opacity-100 [&_a]:transition-opacity [&_svg]:text-sm">
       <a
-        href="https://github.com/tanstack"
-        aria-label="Follow TanStack on GitHub"
+        href={`https://github.com/tanstack/${library?.repo ?? ''}`}
+        aria-label={`Follow ${library?.name ?? 'TanStack'} on GitHub`}
       >
         <GithubIcon />
       </a>

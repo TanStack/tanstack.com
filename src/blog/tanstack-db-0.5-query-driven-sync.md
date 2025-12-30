@@ -1,5 +1,5 @@
 ---
-title: TanStack DB 0.5 — Query-Driven Sync
+title: TanStack DB 0.5 .  Query-Driven Sync
 published: 2025-11-12
 authors:
   - Sam Willis
@@ -28,13 +28,13 @@ const { data: projectTodos } = useLiveQuery((q) =>
 
 No custom endpoint. No GraphQL resolver. No backend change. Just write your query and TanStack DB figures out exactly what to fetch.
 
-We're releasing TanStack DB 0.5 today with Query-Driven Sync—a feature that fundamentally changes how you think about loading data.
+We're releasing TanStack DB 0.5 today with Query-Driven Sync. A feature that fundamentally changes how you think about loading data.
 
 ## Pure queries over data
 
 React's breakthrough was making components pure functions of state: `UI = f(state)`. You describe what you want to render, React handles the how.
 
-TanStack DB brings the same philosophy to data: `view = query(collections)`. You describe what data you need. **DB handles the fetching, caching, and updating**—even across 100k+ row datasets.
+TanStack DB brings the same philosophy to data: `view = query(collections)`. You describe what data you need. **DB handles the fetching, caching, and updating**, even across 100k+ row datasets.
 
 ```tsx
 // Pure view over state
@@ -57,11 +57,11 @@ function TodoList({ filter }) {
 }
 ```
 
-The difference? React recomputes the view when state changes. TanStack DB recomputes the _query_ when data changes—and optimizes the network calls automatically.
+The difference? React recomputes the view when state changes. TanStack DB recomputes the _query_ when data changes. And optimizes the network calls automatically.
 
 ## The reactive client-first store for your API
 
-TanStack DB is a client-first store for your API powered by [differential dataflow](https://github.com/TimelyDataflow/differential-dataflow)—a technique that recomputes only what changed. When you mark a todo complete, DB updates query results in <1ms on a modern laptop, even with 100,000+ rows in memory.
+TanStack DB is a client-first store for your API powered by [differential dataflow](https://github.com/TimelyDataflow/differential-dataflow). A technique that recomputes only what changed. When you mark a todo complete, DB updates query results in <1ms on a modern laptop, even with 100,000+ rows in memory.
 
 This isn't just fast filtering. It's **live queries** that incrementally maintain themselves as data changes. **Effortless optimistic mutations** that instantly update all affected queries, then reconcile with the server. And a **normalized collection store** that eliminates duplicate data and keeps everything coherent.
 
@@ -89,7 +89,7 @@ A collection defines the _schema_ and _security boundaries_ for a data domain. Y
 
 This led to three sync modes, each optimized for different use cases:
 
-**Eager mode (default & only mode before v0.5):** Load entire collection upfront. Best for <10k rows of mostly static data—user preferences, small reference tables.
+**Eager mode (default & only mode before v0.5):** Load entire collection upfront. Best for <10k rows of mostly static data: user preferences, small reference tables.
 
 **On-demand mode:** Load only what queries request. Best for large datasets (>50k rows), search interfaces, catalogs where most data won't be accessed.
 
@@ -149,7 +149,7 @@ If you're familiar with Relay or Apollo, this should feel familiar: components d
 
 "Wait," you're thinking, "doesn't this create N+1 query problems?"
 
-No—and here's why the performance story is actually _better_ than custom APIs.
+No. And here's why the performance story is actually _better_ than custom APIs.
 
 ### **Automatic request collapsing**
 
@@ -269,15 +269,15 @@ const { data: urgentTodos } = useLiveQuery((q) =>
 // After sync completes: all queries run in <1ms client-side
 ```
 
-Now your first query loads in ~100ms with a targeted network request. While the user interacts with that data, the full dataset syncs in the background. Once complete, all subsequent queries—even complex joins and filters—run in sub-millisecond time purely client-side.
+Now your first query loads in ~100ms with a targeted network request. While the user interacts with that data, the full dataset syncs in the background. Once complete, all subsequent queries (even complex joins and filters) run in sub-millisecond time purely client-side.
 
-**Progressive mode shines with sync engines** like Electric, Trailbase, and PowerSync. With traditional fetch approaches, loading more data means re-fetching everything, which gets expensive fast. But sync engines only send deltas—the actual changed rows—making it cheap to maintain large client-side datasets. You get instant queries over 10,000s of rows without the network cost of repeatedly fetching all that data.
+**Progressive mode shines with sync engines** like Electric, Trailbase, and PowerSync. With traditional fetch approaches, loading more data means re-fetching everything, which gets expensive fast. But sync engines only send deltas (the actual changed rows), making it cheap to maintain large client-side datasets. You get instant queries over 10,000s of rows without the network cost of repeatedly fetching all that data.
 
 With REST APIs, progressive mode is less common since updates generally require full re-fetches. But for sync engines, it's often the sweet spot: fast first paint + instant everything else.
 
 ## Works today with REST. Gets better with sync engines.
 
-Query-Driven Sync is designed to work with your existing REST, GraphQL, or tRPC APIs. No backend migration required—just map your predicates to your API's parameters (as shown below) and you're done.
+Query-Driven Sync is designed to work with your existing REST, GraphQL, or tRPC APIs. No backend migration required: just map your predicates to your API's parameters (as shown below) and you're done.
 
 For teams using sync engines like [Electric](https://electric-sql.com), [Trailbase](https://trailbase.io/), or [PowerSync](https://www.powersync.com/), you get additional benefits:
 
@@ -285,7 +285,7 @@ For teams using sync engines like [Electric](https://electric-sql.com), [Trailba
 - **Automatic predicate translation** (no manual mapping needed)
 - **Delta-only syncing** (only changed rows cross the wire)
 
-For example, Electric translates your client query directly into Postgres queries, applies authorization rules, and streams updates. Your component's query becomes a secure, real-time, authorized Postgres query—no API endpoint needed.
+For example, Electric translates your client query directly into Postgres queries, applies authorization rules, and streams updates. Your component's query becomes a secure, real-time, authorized Postgres query, no API endpoint needed.
 
 Collections abstract the data source. Start with REST. Upgrade to sync when you need real-time.
 
@@ -337,7 +337,7 @@ queryFn: async (ctx) => {
 
 You write this mapping once per collection. After that, every query automatically generates the right API calls.
 
-**Can't modify your API?** Your mapping doesn't need to be precise. Many queries can map to a single broad API call—for example, any product search query with category "hardware" could map to `GET /api/products?category=hardware`. TanStack DB will apply the remainder of the query client-side. As your API evolves to support more predicates, your client code doesn't change—just update the mapping to push down more filters. Start broad, optimize incrementally.
+**Can't modify your API?** Your mapping doesn't need to be precise. Many queries can map to a single broad API call. For example, any product search query with category "hardware" could map to `GET /api/products?category=hardware`. TanStack DB will apply the remainder of the query client-side. As your API evolves to support more predicates, your client code doesn't change: just update the mapping to push down more filters. Start broad, optimize incrementally.
 
 [Full Query Collection predicate mapping documentation →](https://tanstack.com/db/latest/docs/collections/query-collection#queryfn-and-predicate-push-down)
 
@@ -345,7 +345,7 @@ You write this mapping once per collection. After that, every query automaticall
 
 Query-Driven Sync (0.5) completes the core vision: intelligent loading that adapts to your queries, instant client-side updates via differential dataflow, and seamless persistence back to your backend. We're targeting 1.0 for December 2025, focusing on API stability and comprehensive docs.
 
-**This is new—we need early adopters.** Query-Driven Sync works and ships today, but it's fresh. If you try it, we'd love your feedback on rough edges or API improvements. Join us in [Discord](https://discord.gg/tanstack) or open [GitHub issues](https://github.com/TanStack/db/issues).
+**This is new. We need early adopters.** Query-Driven Sync works and ships today, but it's fresh. If you try it, we'd love your feedback on rough edges or API improvements. Join us in [Discord](https://discord.gg/tanstack) or open [GitHub issues](https://github.com/TanStack/db/issues).
 
 If you have ideas for new collection types based on Query-Driven Sync, please reach out. The interface is very powerful and we have lots of interesting ideas for how it can be used.
 
@@ -357,4 +357,4 @@ npm install @tanstack/react-db@latest
 
 ---
 
-Collections define schemas and security boundaries. Queries define what loads and when. Your components define UIs. Finally, each concern is separate—and your data layer adapts to how you actually use it.
+Collections define schemas and security boundaries. Queries define what loads and when. Your components define UIs. Finally, each concern is separate. And your data layer adapts to how you actually use it.

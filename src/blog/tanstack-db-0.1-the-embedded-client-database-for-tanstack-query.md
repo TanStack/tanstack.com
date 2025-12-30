@@ -1,5 +1,5 @@
 ---
-title: Stop Re-Rendering — TanStack DB, the Embedded Client Database for TanStack Query
+title: Stop Re-Rendering. TanStack DB, the Embedded Client Database for TanStack Query
 published: 2025-07-30
 authors:
   - Kyle Mathews
@@ -10,11 +10,11 @@ authors:
 
 **Your React dashboard shouldn't grind to a halt** just because one TODO turns from ☐ to ☑. Yet every optimistic update still kicks off a cascade of re-renders, filters, useMemos and spinner flashes.
 
-If you’ve ever muttered “**why is this still so hard in 2025?**”—same.
+If you’ve ever muttered “**why is this still so hard in 2025?**”, same.
 
 TanStack DB is our answer: a client-side database layer powered by differential dataflow that plugs straight into your existing useQuery calls.
 
-It recomputes only what changed—**0.7 ms to update one row in a sorted 100k collection** on an M1 Pro ([CodeSandbox](https://codesandbox.io/p/sandbox/bold-noyce-jfz9fs))
+It recomputes only what changed, **0.7 ms to update one row in a sorted 100k collection** on an M1 Pro ([CodeSandbox](https://codesandbox.io/p/sandbox/bold-noyce-jfz9fs))
 
 One early-alpha adopter, building a Linear-like application, swapped out a pile of MobX code for TanStack DB and told us with relief, “everything is now completely instantaneous when clicking around the app, even w/ 1000s of tasks loaded.”
 
@@ -83,17 +83,17 @@ Today most teams face an ugly fork in the road:
 
 **Option B. Load-everything-and-filter** (simple backend, sluggish client).
 
-Differential dataflow unlocks **Option C—load normalized collections once, let TanStack DB stream millisecond-level incremental joins in the browser**. No rewrites, no spinners, no jitter.
+Differential dataflow unlocks **Option C: load normalized collections once, let TanStack DB stream millisecond-level incremental joins in the browser**. No rewrites, no spinners, no jitter.
 
-**Live queries, effortless optimistic writes, and a radically simpler architecture**—all incrementally adoptable.
+**Live queries, effortless optimistic writes, and a radically simpler architecture**, all incrementally adoptable.
 
 _[Try out the TanStack DB Starter](https://github.com/TanStack/db/tree/main/examples/react/projects)_
 
 ## So what’s happening under the hood?
 
-TanStack DB keeps a **normalized collection store** in memory, then uses **differential dataflow** to update query results incrementally. Think of it like Materialize-style streaming SQL—except embedded in the browser and hooked straight into React Query’s cache.
+TanStack DB keeps a **normalized collection store** in memory, then uses **differential dataflow** to update query results incrementally. Think of it like Materialize-style streaming SQL, except embedded in the browser and hooked straight into React Query’s cache.
 
-- **Collections** wrap your existing `useQuery` calls (REST, tRPC, GraphQL, WebSocket—doesn’t matter). Do you sync data some other way? [Build a custom collection](https://tanstack.com/db/latest/docs/guides/collection-options-creator).
+- **Collections** wrap your existing `useQuery` calls (REST, tRPC, GraphQL, WebSocket, doesn’t matter). Do you sync data some other way? [Build a custom collection](https://tanstack.com/db/latest/docs/guides/collection-options-creator).
 - **Transactions** let you mutate those collections optimistically; failures roll back automatically.
 - **Live queries** declare _what_ data you need; TanStack DB streams only the rows that change, in < 1 ms.
 
@@ -251,23 +251,23 @@ const Todos = () => {
 
 TanStack Query is incredibly popular with 12m (and counting) downloads per week. So why make something new like TanStack DB?
 
-Query solves the hardest problems of server state management — intelligent caching, background synchronization, request deduplication, optimistic updates, and seamless error handling.
+Query solves the hardest problems of server state management: intelligent caching, background synchronization, request deduplication, optimistic updates, and seamless error handling.
 
 It's become the de facto standard because it eliminates the boilerplate and complexity of managing async data fetching while providing an excellent developer experience with features like automatic background refetching, stale-while-revalidate patterns, and powerful DevTools.
 
-But Query treats data as isolated cache entries. Each query result is independent—there's no concept of relationships, live queries across multiple data sources, or reactive updates when one piece of data affects another. **You can't easily ask "show me all todos where the project status is active"** and watch the list update automatically when a project flips status.
+But Query treats data as isolated cache entries. Each query result is independent, there's no concept of relationships, live queries across multiple data sources, or reactive updates when one piece of data affects another. **You can't easily ask "show me all todos where the project status is active"** and watch the list update automatically when a project flips status.
 
 TanStack DB fills this gap. While Query excels at fetching and caching server state, DB provides the missing reactive, relational layer on top. You get the best of both worlds: Query's robust server state management plus TanStack DB’s embedded client database that can join, filter, and reactively update across your entire data graph.
 
-But it doesn’t just improve your current setup — it enables a new radically simplified architecture.
+But it doesn’t just improve your current setup. It enables a new radically simplified architecture.
 
 ## TanStack DB enables a radically simplified architecture
 
 Let's revisit the three options:
 
-**Option A — View-Specific APIs**: Create view-specific API endpoints that return exactly what each component needs. Clean, fast, zero client-side processing. But now you're drowning in brittle API routes, dealing with network waterfalls when components need related data, and creating tight coupling between your frontend views and backend schemas.
+**Option A. View-Specific APIs**: Create view-specific API endpoints that return exactly what each component needs. Clean, fast, zero client-side processing. But now you're drowning in brittle API routes, dealing with network waterfalls when components need related data, and creating tight coupling between your frontend views and backend schemas.
 
-**Option B — Load-everything-and-filter**: Load broader datasets and filter/process them client-side. Fewer API calls, more flexible frontend. But you slam into the performance wall — `todos.filter()`, `users.find()`, `posts.map()`, `useMemo()` everywhere, with cascading re-renders destroying your UX.
+**Option B. Load-everything-and-filter**: Load broader datasets and filter/process them client-side. Fewer API calls, more flexible frontend. But you slam into the performance wall: `todos.filter()`, `users.find()`, `posts.map()`, `useMemo()` everywhere, with cascading re-renders destroying your UX.
 
 Most teams pick Option A to avoid performance problems. You're trading client-side complexity for API proliferation and network dependency.
 
@@ -300,7 +300,7 @@ const projectCollection = createQueryCollection({
   queryFn: fetchAllProjects,
 })
 
-// Navigation is instant — no new API calls needed
+// Navigation is instant, no new API calls needed
 const { data: activeProjectTodos } = useLiveQuery(
   (q) =>
     q
@@ -330,23 +330,23 @@ Your API becomes simpler. Your network calls drop dramatically. Your frontend ge
 
 Companies like Linear, Figma, and Slack load massive datasets into the client and achieve incredible performance through heavy investment in custom indexing, differential updates, and optimized rendering. These solutions are too complex and expensive for most teams to build.
 
-**TanStack DB brings this capability to everyone** through differential dataflow — a technique that only recomputes the parts of queries that actually changed. Instead of choosing between "many fast API calls with network waterfalls" or "few API calls with slow client processing," you get the best of both options: fewer network round-trips AND sub-millisecond client-side queries, even with large datasets.
+**TanStack DB brings this capability to everyone** through differential dataflow, a technique that only recomputes the parts of queries that actually changed. Instead of choosing between "many fast API calls with network waterfalls" or "few API calls with slow client processing," you get the best of both options: fewer network round-trips AND sub-millisecond client-side queries, even with large datasets.
 
-This isn't just about sync engines like [Electric (though they make this pattern incredibly powerful)](https://electric-sql.com/blog/2025/07/29/local-first-sync-with-tanstack-db). It's about enabling a fundamentally different data loading strategy that works with any backend — REST, GraphQL, or real-time sync.
+This isn't just about sync engines like [Electric (though they make this pattern incredibly powerful)](https://electric-sql.com/blog/2025/07/29/local-first-sync-with-tanstack-db). It's about enabling a fundamentally different data loading strategy that works with any backend: REST, GraphQL, or real-time sync.
 
 ## Why are sync engines interesting?
 
 While TanStack DB works great with REST and GraphQL, it really shines when paired with sync engines. Here's why sync engines are such a powerful complement:
 
-**Easy real-time** — If you need real-time updates, you know how painful it can be to set up WebSockets, handle reconnections, and wire up event handlers. Many new sync engines are native to your actual data store (e.g., Postgres) so you can simply write to the database directly and know the update will get streamed out to all subscribers in real-time. No more manual WebSocket plumbing.
+**Easy real-time**: If you need real-time updates, you know how painful it can be to set up WebSockets, handle reconnections, and wire up event handlers. Many new sync engines are native to your actual data store (e.g., Postgres) so you can simply write to the database directly and know the update will get streamed out to all subscribers in real-time. No more manual WebSocket plumbing.
 
-**Side-effects are pushed automatically** — When you do a backend mutation, there are often cascading updates across multiple tables. Update a todo's status? That might change the project's completion percentage, update team metrics, or trigger workflow automations. With TanStack Query alone, you need manual bookkeeping to track all these potential side-effects and reload the right data. Sync engines eliminate this complexity—any backend change that happens during a mutation is automatically pushed to all clients - without any extra work.
+**Side-effects are pushed automatically**: When you do a backend mutation, there are often cascading updates across multiple tables. Update a todo's status? That might change the project's completion percentage, update team metrics, or trigger workflow automations. With TanStack Query alone, you need manual bookkeeping to track all these potential side-effects and reload the right data. Sync engines eliminate this complexity, any backend change that happens during a mutation is automatically pushed to all clients - without any extra work.
 
-**Load far more data efficiently** — It's far cheaper to update data in the client when using sync engines. Instead of re-loading entire collections after each change, sync engines send only the actual changed items. This makes it practical to load far more data upfront, enabling the "load everything once" pattern that makes apps like Linear feel so fast.
+**Load far more data efficiently**: It's far cheaper to update data in the client when using sync engines. Instead of re-loading entire collections after each change, sync engines send only the actual changed items. This makes it practical to load far more data upfront, enabling the "load everything once" pattern that makes apps like Linear feel so fast.
 
 TanStack DB was designed from the ground up to support sync engines. [When you define a collection, you're provided with an API for writing synced transactions](https://tanstack.com/db/latest/docs/guides/collection-options-creator) from the backend into your local collections. Try out collection implementations for [Electric](https://tanstack.com/db/latest/docs/installation#electric-collection), [Trailblaze](https://tanstack.com/db/latest/docs/installation#trailbase-collection), and [(soon) Firebase](https://github.com/TanStack/db/pull/323)!
 
-DB gives you a common interface for your components to query data, which means you can easily switch between data loading strategies as needed without changing client code. Start with REST, switch to a sync engine later as needed—your components don't need to know the difference.
+DB gives you a common interface for your components to query data, which means you can easily switch between data loading strategies as needed without changing client code. Start with REST, switch to a sync engine later as needed, your components don't need to know the difference.
 
 ## Our Goals for TanStack DB
 
@@ -358,7 +358,7 @@ We're building TanStack DB to address the client-side data bottlenecks that ever
 - **Optimistic updates that don't break**: Reliable rollback behavior when network requests fail, without complex custom state management.
 - **Type and runtime safety throughout**: Full TypeScript inference from your schema to your components, catching data mismatches at compile and runtime.
 
-We're excited about giving teams a fundamentally better way to handle client-side data—while preserving the freedom to choose whatever backend works best.
+We're excited about giving teams a fundamentally better way to handle client-side data, while preserving the freedom to choose whatever backend works best.
 
 ## What's Next
 
@@ -378,4 +378,4 @@ If your team spends more time optimizing React re-renders than building features
 - [Try out the TanStack DB Starter](https://github.com/TanStack/db/tree/main/examples/react/projects)
 - [Join the TanStack Discord](https://tlinz.com/discord) - Direct migration support from the team
 
-No more stutters. No more jank. Stop re-rendering—start shipping!
+No more stutters. No more jank. Stop re-rendering, start shipping!

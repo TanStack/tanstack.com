@@ -7,9 +7,9 @@ authors:
 
 ![Search Params Are State Header](/blog-assets/search-params-are-state/search-params-are-state-header.jpg)
 
-## Search Params Are State — Treat Them That Way
+## Search Params Are State .  Treat Them That Way
 
-Search params have been historically treated like second-class state. They're global, serializable, and shareable — but in most apps, they’re still hacked together with string parsing, loose conventions, and brittle utils.
+Search params have been historically treated like second-class state. They're global, serializable, and shareable .  but in most apps, they’re still hacked together with string parsing, loose conventions, and brittle utils.
 
 Even something simple, like validating a `sort` param, quickly turns verbose:
 
@@ -30,7 +30,7 @@ This works, but it’s manual and repetitive. There’s no inference, no connect
 
 Even worse, `URLSearchParams` is string-only. It doesn’t support nested JSON, arrays (beyond naive comma-splitting), or type coercion. So unless your state is flat and simple, you’re going to hit walls fast.
 
-That’s why we’re starting to see a rise in tools and proposals — things like Nuqs, Next.js RFCs, and userland patterns — aimed at making search params more type-safe and ergonomic. Most of these focus on improving _reading_ from the URL.
+That’s why we’re starting to see a rise in tools and proposals .  things like Nuqs, Next.js RFCs, and userland patterns .  aimed at making search params more type-safe and ergonomic. Most of these focus on improving _reading_ from the URL.
 
 But almost none of them solve the deeper, harder problem: **writing** search params, safely and atomically, with full awareness of routing context.
 
@@ -56,15 +56,15 @@ Constraint is what makes coordination possible. It’s what allows **non-local c
 
 ---
 
-### Local Abstractions Can Help — But They Don’t Coordinate
+### Local Abstractions Can Help .  But They Don’t Coordinate
 
-Tools like **Nuqs** are a great example of how local abstractions can improve the _ergonomics_ of search param handling. You get Zod-powered parsing, type inference, even writable APIs — all scoped to a specific component or hook.
+Tools like **Nuqs** are a great example of how local abstractions can improve the _ergonomics_ of search param handling. You get Zod-powered parsing, type inference, even writable APIs .  all scoped to a specific component or hook.
 
-They make it easier to read and write search params **in isolation** — and that’s valuable.
+They make it easier to read and write search params **in isolation** .  and that’s valuable.
 
 But they don’t solve the broader issue of **coordination**. You still end up with duplicated schemas, disjointed expectations, and no way to enforce consistency between routes or components. Defaults can conflict. Types can drift. And when routes evolve, nothing guarantees all the callers update with them.
 
-That’s the real fragmentation problem — and fixing it requires bringing search param schemas into the routing layer itself.
+That’s the real fragmentation problem .  and fixing it requires bringing search param schemas into the routing layer itself.
 
 ---
 
@@ -100,13 +100,13 @@ navigate({
 })
 ```
 
-It’s reducer-style, transactional, and integrates directly with the router’s reactivity model. Components only re-render when the specific search param they use changes — not every time the URL mutates.
+It’s reducer-style, transactional, and integrates directly with the router’s reactivity model. Components only re-render when the specific search param they use changes .  not every time the URL mutates.
 
 ---
 
 ### How TanStack Router Prevents Schema Fragmentation
 
-When your search param logic lives in userland — scattered across hooks, utils, and helpers — it’s only a matter of time before you end up with **conflicting schemas**.
+When your search param logic lives in userland .  scattered across hooks, utils, and helpers .  it’s only a matter of time before you end up with **conflicting schemas**.
 
 Maybe one component expects \`sort: 'asc' | 'desc'\`. Another adds a \`filter\`. A third assumes \`sort: 'desc'\` by default. None of them share a source of truth.
 
@@ -117,7 +117,7 @@ This leads to:
 - Navigation that sets values others can’t parse
 - Broken deep linking and bugs you can’t trace
 
-TanStack Router prevents this by tying schemas directly to your route definitions — **hierarchically**.
+TanStack Router prevents this by tying schemas directly to your route definitions .  **hierarchically**.
 
 Parent routes can define shared search param validation. Child routes inherit that context, add to it, or extend it in type-safe ways. This makes it _impossible_ to accidentally create overlapping, incompatible schemas in different parts of your app.
 
@@ -160,7 +160,7 @@ validateSearch: z.object({
 })
 ```
 
-This kind of enforcement makes nested routes composable _and_ safe — a rare combo.
+This kind of enforcement makes nested routes composable _and_ safe .  a rare combo.
 
 ---
 
@@ -168,7 +168,7 @@ This kind of enforcement makes nested routes composable _and_ safe — a rare co
 
 The magic here is that you don’t need to teach your team to follow conventions. The route _owns_ the schema. Everyone just uses it. There’s no duplication. No drift. No silent bugs. No guessing.
 
-When you bring validation, typing, and ownership into the router itself, you stop treating URLs like strings and start treating them like real state — because that’s what they are.
+When you bring validation, typing, and ownership into the router itself, you stop treating URLs like strings and start treating them like real state .  because that’s what they are.
 
 ---
 
@@ -176,7 +176,7 @@ When you bring validation, typing, and ownership into the router itself, you sto
 
 Most routing systems treat search params like an afterthought. Something you _can_ read, maybe parse, maybe stringify, but rarely something you can actually **trust**.
 
-TanStack Router flips that on its head. It makes search params a core part of the routing contract — validated, inferable, writable, and reactive.
+TanStack Router flips that on its head. It makes search params a core part of the routing contract .  validated, inferable, writable, and reactive.
 
 Because if you’re not treating search params like state, you’re going to keep leaking it, breaking it, and working around it.
 

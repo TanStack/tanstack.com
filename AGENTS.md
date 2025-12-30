@@ -246,3 +246,40 @@ For runtime testing and verification, developers should:
 ### Summary Rule
 
 **If depth does not improve comprehension, remove it.**
+
+## Writing Style
+
+### Avoid Emdashes
+
+**Never use emdashes (—) in writing. They make content smell like AI-generated text.**
+
+Use these alternatives instead:
+
+- Commas for parenthetical phrases
+- Colons to introduce lists or explanations
+- Periods to break into separate sentences
+- Parentheses when appropriate
+
+❌ **Bad:**
+
+```
+RSCs aren't about replacing client interactivity — they're about choosing where work happens.
+```
+
+✅ **Good:**
+
+```
+RSCs aren't about replacing client interactivity. They're about choosing where work happens.
+```
+
+❌ **Bad:**
+
+```
+Heavy dependencies — markdown parsers, syntax highlighters — stay on the server.
+```
+
+✅ **Good:**
+
+```
+Heavy dependencies (markdown parsers, syntax highlighters) stay on the server.
+```

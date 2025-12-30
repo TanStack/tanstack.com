@@ -15,7 +15,7 @@ Our goals were simple: move away from monolithic adapters and their complexity, 
 
 ## New Adapter Architecture
 
-We wanted to support everything AI providers offer—image generation, video, audio, text-to-speech, transcription—without updating every adapter simultaneously.
+We wanted to support everything AI providers offer. Image generation, video, audio, text-to-speech, transcription. Without updating every adapter simultaneously.
 
 We're a small team. Adding image support shouldn't mean extending `BaseAdapter`, updating 5+ provider implementations, ensuring per-model type safety for each, and combing through docs manually. That's a week per provider. Multiply that by 20 providers and 6 modalities.
 
@@ -37,7 +37,7 @@ import { openaiText, openaiImage, openaiVideo } from '@tanstack/ai-openai'
 
 **Incremental feature support.** Add image generation to OpenAI this week, Gemini next week, video for a third provider the week after. Smaller releases, same pace.
 
-**Easier maintenance.** Our adapter abstraction had grown to 7 type generics with only text, summarization, and embeddings. Adding 6 more modalities would have exploded complexity. Now each adapter is focused—3 generics max.
+**Easier maintenance.** Our adapter abstraction had grown to 7 type generics with only text, summarization, and embeddings. Adding 6 more modalities would have exploded complexity. Now each adapter is focused. 3 generics max.
 
 **Better bundle size.** You control what you pull in. Want only text? Import `openaiText`. Want text and images? Import both. Your bundle, your choice.
 
@@ -168,4 +168,4 @@ We're confident in this direction. We think you'll like it too.
 
 <!-- ---
 
-_Curious how we got here? Read [The `ai()` Function That Almost Was](/blog/tanstack-ai-the-ai-function-postmortem)—a post-mortem on the API we loved, built, and had to kill._ -->
+_Curious how we got here? Read [The `ai()` Function That Almost Was](/blog/tanstack-ai-the-ai-function-postmortem). a post-mortem on the API we loved, built, and had to kill._ -->

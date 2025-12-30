@@ -9,7 +9,7 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeStringify from 'rehype-stringify'
 import { visit } from 'unist-util-visit'
 import { toString } from 'hast-util-to-string'
-import { rehypeParseCommentComponents, rehypeTransformCommentComponents } from '~/utils/markdown/plugins'
+import { rehypeCollectHeadings, rehypeParseCommentComponents, rehypeTransformCommentComponents } from '~/utils/markdown/plugins'
 
 export type MarkdownHeading = {
   id: string
@@ -70,29 +70,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
         className: ['anchor-heading'],
       },
     })
-    .use(() => (tree, file) => {
-      visit(tree, 'element', (node) => {
-        if (!('tagName' in node)) return
-        if (!/^h[1-6]$/.test(String(node.tagName))) {
-          return
-        }
-
-        const tagName = String(node.tagName)
-        const id =
-          typeof node.properties?.id === 'string' ? node.properties.id : ''
-        if (!id) {
-          return
-        }
-
-        headings.push({
-          id,
-          level: Number(tagName.substring(1)),
-          text: toString(node).trim(),
-        })
-      })
-
-      file.data.headings = headings
-    })
+    .use((tree, file) => rehypeCollectHeadings(tree, file, headings))
 
   const file = processor.use(rehypeStringify).processSync(content)
 

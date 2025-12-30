@@ -199,7 +199,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     >
       {smallMenu}
       {largeMenu}
-      <div className="flex flex-1 min-h-0 min-w-0 relative justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="flex flex-1 min-h-0 min-w-0 relative justify-center">
         {children}
       </div>
     </div>

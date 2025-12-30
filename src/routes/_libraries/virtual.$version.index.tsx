@@ -4,6 +4,7 @@ import { virtualProject } from '~/libraries/virtual'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { Footer } from '~/components/Footer'
+import { Card } from '~/components/Card'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -67,7 +68,7 @@ function RouteComp() {
       {/* Minimal code example card */}
       <div className="px-4 space-y-4 flex flex-col items-center ">
         <div className="text-3xl font-black">Just a quick look...</div>
-        <div className="relative group bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xl max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
+        <Card className="relative group overflow-hidden max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
           <div>
             <FrameworkIconTabs
               frameworks={virtualProject.frameworks}
@@ -196,11 +197,11 @@ export class VirtualList extends LitElement {
               </>
             )
           })()}
-        </div>
+        </Card>
         <Link
           to="/$libraryId/$version/docs"
           params={{ libraryId: library.id, version }}
-          className="inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors bg-purple-500 text-white"
+          className="inline-block py-2 px-4 rounded-lg font-black transition-colors bg-purple-500 text-white"
         >
           Get Started
         </Link>

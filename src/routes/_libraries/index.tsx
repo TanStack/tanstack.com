@@ -25,6 +25,7 @@ import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { Layers, Zap, Shield, Code2 } from 'lucide-react'
+import { Card } from '~/components/Card'
 
 export const textColors = [
   `text-rose-500`,
@@ -233,14 +234,14 @@ function Index() {
                 >
                   {groupLibraries.map((library, i: number) => {
                     return (
-                      <Link
+                      <Card
+                        as={Link}
                         key={library.name}
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `border border-gray-300 border-t-2 border-t-gray-400 rounded-xl shadow-xs p-8 transition-all duration-300 ease-out
-                          bg-white dark:bg-gray-900`,
-                          'hover:shadow-sm hover:shadow-current/5 hover:border-current/30 hover:-translate-y-1',
+                          `rounded-xl p-8 transition-all duration-300 ease-out`,
+                          'hover:shadow-md hover:shadow-current/5 hover:border-current/30 hover:-translate-y-1',
                           'relative group',
                           'min-h-[250px] xl:min-h-[220px]',
                           library.cardStyles,
@@ -350,7 +351,7 @@ function Index() {
                             </div>
                           </>
                         ) : null}
-                      </Link>
+                      </Card>
                     )
                   })}
                 </div>
@@ -362,7 +363,7 @@ function Index() {
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 text-center">
           <Link
             to="/libraries"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 border-t-2 border-t-gray-400 dark:border-gray-700 dark:border-t-gray-600 bg-white dark:bg-gray-900 shadow-xs hover:shadow-sm hover:border-gray-400 dark:hover:border-gray-600 hover:-translate-y-1 transition-all duration-300 text-gray-900 dark:text-gray-100 font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs hover:shadow-sm hover:border-gray-400 dark:hover:border-gray-600 hover:-translate-y-1 transition-all duration-300 text-gray-900 dark:text-gray-100 font-medium"
           >
             <span>More Libraries</span>
             <svg
@@ -390,7 +391,7 @@ function Index() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
+            <Card className="p-6 rounded-xl">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-4">
                 <Layers className="w-5 h-5 text-white" />
               </div>
@@ -399,8 +400,8 @@ function Index() {
                 Every library starts with a provider-agnostic core. Use React,
                 Vue, Solid, Angular, or vanilla JS—your choice.
               </p>
-            </div>
-            <div className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
+            </Card>
+            <Card className="p-6 rounded-xl">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mb-4">
                 <Code2 className="w-5 h-5 text-white" />
               </div>
@@ -409,8 +410,8 @@ function Index() {
                 First-class TypeScript support that catches bugs at compile time
                 and makes refactoring fearless.
               </p>
-            </div>
-            <div className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
+            </Card>
+            <Card className="p-6 rounded-xl">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-4">
                 <Zap className="w-5 h-5 text-white" />
               </div>
@@ -419,8 +420,8 @@ function Index() {
                 Battle-tested in the world's largest apps. Built for real
                 workloads, not just happy-path demos.
               </p>
-            </div>
-            <div className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
+            </Card>
+            <Card className="p-6 rounded-xl">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4">
                 <Shield className="w-5 h-5 text-white" />
               </div>
@@ -429,7 +430,7 @@ function Index() {
                 Open source and independent. No hidden agendas, no platform
                 bias—just great tools for developers.
               </p>
-            </div>
+            </Card>
           </div>
           <div className="text-center mt-8">
             <Link
@@ -468,7 +469,7 @@ function Index() {
             <Link
               to="/partners"
               search={{ status: 'inactive' }}
-              className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs hover:shadow-sm hover:border-gray-400 dark:hover:border-gray-700 transition-all"
             >
               View Previous Partners →
             </Link>
@@ -489,14 +490,13 @@ function Index() {
               {recentPosts.map(
                 ({ slug, title, published, excerpt, authors }) => {
                   return (
-                    <Link
+                    <Card
+                      as={Link}
                       key={slug}
                       to="/blog/$"
                       params={{ _splat: slug }}
-                      className={`flex flex-col gap-3 justify-between
-                      border border-gray-300 dark:border-gray-700 rounded-lg p-4
-                      transition-all bg-white dark:bg-gray-900
-                      shadow-xs hover:shadow-sm hover:border-blue-500
+                      className={`flex flex-col gap-3 justify-between p-4
+                      transition-all hover:shadow-md hover:border-blue-500
                     `}
                     >
                       <div>
@@ -533,7 +533,7 @@ function Index() {
                           Read More →
                         </div>
                       </div>
-                    </Link>
+                    </Card>
                   )
                 },
               )}
@@ -560,12 +560,12 @@ function Index() {
           </h3>
           <div className={`mt-4 grid grid-cols-1 gap-4`}>
             {courses.map((course) => (
-              <a
+              <Card
+                as="a"
                 key={course.name}
                 href={course.href}
-                className={`flex gap-2 justify-between border border-gray-300 dark:border-gray-700 rounded-lg p-4 md:p-8
-              transition-all bg-white dark:bg-gray-900
-              shadow-xs hover:shadow-sm hover:border-green-500
+                className={`flex gap-2 justify-between p-4 md:p-8
+              transition-all hover:shadow-md hover:border-green-500
               `}
                 target="_blank"
                 rel="noreferrer"
@@ -584,7 +584,7 @@ function Index() {
                     Check it out →
                   </div>
                 </div>
-              </a>
+              </Card>
             ))}
           </div>
         </div>
@@ -696,7 +696,7 @@ function Index() {
         </div>
         <div className="h-4" />
         <div className="px-4 mx-auto max-w-(--breakpoint-lg) relative">
-          <div className="rounded-md p-8 bg-white shadow-sm border border-gray-300 dark:border-gray-700 md:p-14 dark:bg-gray-900">
+          <Card className="rounded-md p-8 md:p-14">
             {!bytesSignupMutation.submittedAt ? (
               <form
                 onSubmit={async (e) => {
@@ -788,7 +788,7 @@ function Index() {
             ) : (
               <p>🎉 Thank you! Please confirm your email</p>
             )}
-          </div>
+          </Card>
         </div>
         <div className={`h-20`} />
         <Footer />

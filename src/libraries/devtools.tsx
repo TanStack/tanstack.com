@@ -10,7 +10,7 @@ const textStyles = 'text-gray-700 dark:text-gray-500'
 export const devtoolsProject = {
   id: 'devtools',
   name: 'TanStack Devtools',
-  cardStyles: `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-400 border-2 border-transparent hover:border-current`,
+  cardStyles: `text-slate-400 hover:border-current`,
   to: '/devtools',
   tagline: `Centralized devtools panel for TanStack libraries and other custom devtools`,
   description: `A unified devtools panel that houses all TanStack devtools and allows you to create and integrate your own custom devtools.`,

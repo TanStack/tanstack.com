@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
-
+import { Card } from '~/components/Card'
 import { formatAuthors, getPublishedPosts } from '~/utils/blog'
 import { SimpleMarkdown } from '~/components/SimpleMarkdown'
 import { format } from 'date-fns'
@@ -63,16 +63,12 @@ function BlogIndex() {
         <section className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
           {frontMatters.map(({ slug, title, published, excerpt, authors }) => {
             return (
-              <Link
+              <Card
                 key={slug}
+                as={Link}
                 to="/blog/$"
                 params={{ _splat: slug }}
-                className={`relative flex flex-col gap-4 justify-between
-                  border-2 border-transparent rounded-lg p-4 md:p-8
-                  transition-all bg-white dark:bg-gray-800
-                  shadow-xl dark:shadow-lg dark:shadow-blue-500/30
-                  hover:border-blue-500
-              `}
+                className="relative flex flex-col gap-4 justify-between p-4 md:p-8 transition-all hover:shadow-sm hover:border-blue-500"
               >
                 <div>
                   <div className={`text-lg font-extrabold`}>{title}</div>
@@ -101,7 +97,7 @@ function BlogIndex() {
                     Read More
                   </div>
                 </div>
-              </Link>
+              </Card>
             )
           })}
         </section>

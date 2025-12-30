@@ -15,6 +15,7 @@ import { keepPreviousData, queryOptions, useQuery } from '@tanstack/react-query'
 import * as Plot from '@observablehq/plot'
 import { ParentSize } from '~/components/ParentSize'
 import { Tooltip } from '~/components/Tooltip'
+import { Card } from '~/components/Card'
 import * as d3 from 'd3'
 import { HexColorPicker } from 'react-colorful'
 import { seo } from '~/utils/seo'
@@ -1300,7 +1301,7 @@ function RouteComponent() {
       </header>
 
       <div className="flex gap-4">
-        <div className="flex-1 bg-white dark:bg-black/50 rounded-lg space-y-4 p-4 shadow-xl max-w-full">
+        <Card className="flex-1 space-y-4 p-4 max-w-full">
           <div className="flex gap-2 flex-wrap items-center">
             <PackageSearch onSelect={handleAddPackage} />
             <DropdownMenu>
@@ -2115,12 +2116,12 @@ function RouteComponent() {
               })}
             </div>
           </div>
-        </div>
+        </Card>
         <div className="hidden lg:block w-[290px] xl:w-[332px] shrink-0">
           <div className="sticky top-4 space-y-4">
             <AdGate>
               <GamVrec1
-                className="flex justify-center rounded-xl overflow-hidden shadow-xl shadow-black/5 max-w-full"
+                className="flex justify-center rounded-xl overflow-hidden shadow-xs shadow-black/5 max-w-full"
                 adClassName="rounded-xl overflow-hidden"
               />
             </AdGate>

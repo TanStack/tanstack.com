@@ -12,6 +12,7 @@ import {
   Minus,
   Users,
 } from 'lucide-react'
+import { Card } from '~/components/Card'
 
 export const Route = createFileRoute('/admin/stats')({
   component: AdminStatsPage,
@@ -78,7 +79,7 @@ function AdminStatsPage() {
           {/* Overview Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             {/* Total Users */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl shadow-lg border border-blue-200 dark:border-blue-800 p-6">
+            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800 p-6">
               <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                 Total Users
               </div>
@@ -88,10 +89,10 @@ function AdminStatsPage() {
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 All-time registrations
               </div>
-            </div>
+            </Card>
 
             {/* Today's Signups */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <Card className="p-6">
               <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                 Today's Signups
               </div>
@@ -123,10 +124,10 @@ function AdminStatsPage() {
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 vs yesterday ({stats.yesterdaySignups})
               </div>
-            </div>
+            </Card>
 
             {/* Average Per Day */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <Card className="p-6">
               <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                 Avg Per Day
               </div>
@@ -136,10 +137,10 @@ function AdminStatsPage() {
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 Last 30 days average
               </div>
-            </div>
+            </Card>
 
             {/* Last 7 Days */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <Card className="p-6">
               <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                 Last 7 Days
               </div>
@@ -152,26 +153,26 @@ function AdminStatsPage() {
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 Total signups this week
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Daily Signups Chart */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <Card className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Daily Signups
               </h3>
               <DailySignupsChart data={stats.signupsPerDay} />
-            </div>
+            </Card>
 
             {/* Cumulative Signups Chart */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <Card className="p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Cumulative User Signups Over Time
               </h3>
               <CumulativeSignupsChart data={stats.signupsPerDay} />
-            </div>
+            </Card>
           </div>
         </section>
 
@@ -184,7 +185,7 @@ function AdminStatsPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Ads Hiding Waitlist Card */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl shadow-lg border border-purple-200 dark:border-purple-800 p-6">
+            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <List className="text-2xl text-purple-500" />
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -238,10 +239,10 @@ function AdminStatsPage() {
                   </div>
                 )}
               </div>
-            </div>
+            </Card>
 
             {/* Ads Disabled Capability Card */}
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl shadow-lg border border-green-200 dark:border-green-800 p-6">
+            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <EyeOff className="text-2xl text-green-500" />
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -295,7 +296,7 @@ function AdminStatsPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
         </section>
       </div>

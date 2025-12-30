@@ -5,6 +5,7 @@ import { Library } from '~/libraries'
 import { ossStatsQuery } from '~/queries/stats'
 import { useNpmDownloadCounter } from '~/hooks/useNpmDownloadCounter'
 import { Box, Download, Star, Users } from 'lucide-react'
+import { Card } from './Card'
 
 const NpmDownloadCounter = ({
   npmData,
@@ -48,11 +49,9 @@ function OssStatsContent({ library }: { library?: Library }) {
 
   return (
     <div>
-      <div
+      <Card
         className="relative p-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8 items-center
-      justify-center xl:place-items-center bg-white dark:bg-gray-500/10
-      rounded-[2rem] border border-gray-500/5 dark:border-gray-500/10
-      shadow-md dark:shadow-none"
+      justify-center xl:place-items-center rounded-[2rem]"
       >
         {!hasAnyData && (
           <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
@@ -140,7 +139,7 @@ function OssStatsContent({ library }: { library?: Library }) {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }

@@ -15,7 +15,7 @@ const textStyles = 'text-gray-700 dark:text-gray-500'
 export const rangerProject = {
   id: 'ranger',
   name: 'TanStack Ranger',
-  cardStyles: `shadow-xl shadow-slate-700/20 dark:shadow-lg dark:shadow-slate-500/30 text-slate-500 border-2 border-transparent hover:border-current`,
+  cardStyles: `text-slate-500 hover:border-current`,
   to: '/ranger',
   tagline: `Headless range and multi-range slider utilities.`,
   description: `Headless, lightweight, and extensible primitives for building range and multi-range sliders.`,

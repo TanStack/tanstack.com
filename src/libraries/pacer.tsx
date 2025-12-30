@@ -15,7 +15,7 @@ const textStyles = `text-lime-600 dark:text-lime-500`
 export const pacerProject = {
   id: 'pacer',
   name: 'TanStack Pacer',
-  cardStyles: `shadow-xl shadow-lime-700/20 dark:shadow-lg dark:shadow-lime-500/20 text-lime-500 dark:text-lime-400 border-2 border-transparent hover:border-current`,
+  cardStyles: `text-lime-500 dark:text-lime-400 hover:border-current`,
   to: '/pacer',
   tagline: `Framework agnostic debouncing, throttling, rate limiting, queuing, and batching utilities`,
   description: `Optimize your application's performance with TanStack Pacer's core primitives: Debouncing, Throttling, Rate Limiting, Queuing, and Batching.`,

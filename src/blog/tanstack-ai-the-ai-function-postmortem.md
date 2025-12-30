@@ -5,6 +5,8 @@ authors:
   - Alem Tuzlak
 ---
 
+![The ai() Function That Almost Was](/blog-assets/tanstack-ai-the-ai-function-postmortem/header.jpg)
+
 We spent eight days building an API we had to kill. Here's what happened.
 
 ## The Dream

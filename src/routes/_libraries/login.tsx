@@ -7,6 +7,7 @@ import { getCurrentUser } from '~/utils/auth.server'
 import { z } from 'zod'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
+import { Card } from '~/components/Card'
 
 export const Route = createFileRoute('/_libraries/login')({
   component: LoginPage,
@@ -44,7 +45,7 @@ function SplashImage() {
 
 export function SignInForm() {
   return (
-    <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 w-[100vw] max-w-sm mx-auto">
+    <Card className="p-8 w-[100vw] max-w-sm mx-auto">
       <SplashImage />
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">
         Sign into TanStack
@@ -69,7 +70,7 @@ export function SignInForm() {
       >
         <GoogleIcon className="inline-block mr-2 -mt-0.5" /> Sign in with Google
       </button>
-    </div>
+    </Card>
   )
 }
 

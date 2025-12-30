@@ -11,7 +11,7 @@ const textStyles = 'text-red-500 dark:text-red-400'
 export const queryProject = {
   id: 'query',
   name: 'TanStack Query',
-  cardStyles: `shadow-xl shadow-red-700/20 dark:shadow-lg dark:shadow-red-500/30 text-red-500 border-2 border-transparent hover:border-current`,
+  cardStyles: `text-red-500 hover:border-current`,
   to: '/query',
   tagline: `Powerful asynchronous state management, server-state utilities and data fetching`,
   description:

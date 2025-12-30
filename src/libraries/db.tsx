@@ -11,7 +11,7 @@ const textStyles = `text-orange-600 dark:text-orange-500`
 export const dbProject = {
   id: 'db',
   name: 'TanStack DB',
-  cardStyles: `shadow-xl shadow-orange-700/20 dark:shadow-lg dark:shadow-orange-500/20 text-orange-500 dark:text-orange-400 border-2 border-transparent hover:border-current`,
+  cardStyles: `text-orange-500 dark:text-orange-400 hover:border-current`,
   to: '/db',
   tagline: `The reactive client-first store for your API`,
   description: `TanStack DB gives you a reactive, client-first store for your API data with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥`,

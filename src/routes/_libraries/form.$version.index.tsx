@@ -1,6 +1,7 @@
 import * as React from 'react'
 
 import { Footer } from '~/components/Footer'
+import { Card } from '~/components/Card'
 import { formProject } from '~/libraries/form'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
@@ -73,7 +74,7 @@ function FormVersionIndex() {
         {/* Minimal code example card */}
         <div className="px-4 space-y-4 flex flex-col items-center ">
           <div className="text-3xl font-black">Just a quick look...</div>
-          <div className="relative group bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xl max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
+          <Card className="relative group overflow-hidden max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
             <div>
               <FrameworkIconTabs
                 frameworks={formProject.frameworks}
@@ -201,11 +202,11 @@ export class SimpleForm extends LitElement {
                 </>
               )
             })()}
-          </div>
+          </Card>
           <Link
             to="/$libraryId/$version/docs"
             params={{ libraryId: library.id, version }}
-            className="inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors bg-yellow-500 text-black"
+            className="inline-block py-2 px-4 rounded-lg font-black transition-colors bg-yellow-500 text-black"
           >
             Get Started
           </Link>

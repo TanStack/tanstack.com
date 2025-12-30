@@ -1,4 +1,5 @@
 import { Library } from '~/libraries'
+import { Card } from './Card'
 
 export function LibraryFeatureHighlights({
   featureHighlights,
@@ -13,13 +14,13 @@ export function LibraryFeatureHighlights({
     >
       {featureHighlights?.map((featureHighlight) => {
         return (
-          <div
+          <Card
             key={featureHighlight.title}
-            className="p-4 pt-6 flex-1 flex flex-col gap-4 items-center bg-white/50 dark:bg-black/40 shadow-md rounded-xl relative"
+            className="p-4 pt-6 flex-1 flex flex-col gap-4 items-center rounded-xl relative"
           >
-            <div className="text-3xl text-center p-2 rounded-full shadow-md absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2/3 bg-white dark:bg-black/50">
+            <Card className="text-3xl text-center p-2 rounded-full absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2/3">
               {featureHighlight.icon}
-            </div>
+            </Card>
             <div className="flex flex-col gap-4">
               <h3 className="uppercase text-xl font-black">
                 {featureHighlight.title}
@@ -28,7 +29,7 @@ export function LibraryFeatureHighlights({
                 {featureHighlight.description}
               </div>
             </div>
-          </div>
+          </Card>
         )
       })}
     </div>

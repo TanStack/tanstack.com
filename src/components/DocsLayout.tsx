@@ -22,6 +22,7 @@ import { VersionSelect } from './VersionSelect'
 function DocsMenuStrip({
   menuConfig,
   activeItem,
+  fullPathname,
   colorFrom,
   colorTo,
   frameworkLogo,
@@ -30,6 +31,7 @@ function DocsMenuStrip({
 }: {
   menuConfig: MenuItem[]
   activeItem: string | undefined
+  fullPathname: string
   colorFrom: string
   colorTo: string
   frameworkLogo: string | undefined
@@ -52,6 +54,42 @@ function DocsMenuStrip({
       })
     })
   })
+
+  // Check if a menu item path matches the current location
+  const isItemActive = (itemTo: string | undefined): boolean => {
+    if (!itemTo) return false
+
+    // External links are never active
+    if (itemTo.startsWith('http')) return false
+
+    // Standard relative path comparison
+    if (itemTo === activeItem) return true
+
+    // Handle special menu items with different path formats
+    // ".." means we're on the library home page (no /docs suffix in pathname)
+    if (itemTo === '..') {
+      // Active when on the library version index (e.g., /query/latest but not /query/latest/docs/...)
+      return fullPathname.match(/^\/[^/]+\/[^/]+\/?$/) !== null
+    }
+
+    // "./framework" means we're on the frameworks index page
+    if (itemTo === './framework') {
+      return (
+        fullPathname.includes('/docs/framework') &&
+        !fullPathname.match(/\/docs\/framework\/[^/]+/)
+      )
+    }
+
+    // Handle absolute paths like "/$libraryId/$version/docs/contributors"
+    if (itemTo.includes('/$libraryId')) {
+      const pathSuffix = itemTo.split('/docs/')[1]
+      if (pathSuffix && fullPathname.includes(`/docs/${pathSuffix}`)) {
+        return true
+      }
+    }
+
+    return false
+  }
 
   return (
     <div
@@ -80,7 +118,7 @@ function DocsMenuStrip({
       {/* Minimap: flex-height boxes filling remaining space */}
       <div className="flex-1 flex flex-col gap-1 min-h-0">
         {itemsWithSections.map((item, index) => {
-          const isActive = !item.isSection && item.to === activeItem
+          const isActive = !item.isSection && isItemActive(item.to)
 
           return (
             <div
@@ -256,6 +294,12 @@ export function DocsLayout({
     [menuConfig],
   )
 
+  // Filter out external links for prev/next navigation
+  const internalFlatMenu = React.useMemo(
+    () => flatMenu.filter((d) => d && !d.to.startsWith('http')),
+    [flatMenu],
+  )
+
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
 
   const relativePathname = lastMatch.pathname.replace(
@@ -263,9 +307,9 @@ export function DocsLayout({
     '',
   )
 
-  const index = flatMenu.findIndex((d) => d?.to === relativePathname)
-  const prevItem = flatMenu[index - 1]
-  const nextItem = flatMenu[index + 1]
+  const index = internalFlatMenu.findIndex((d) => d?.to === relativePathname)
+  const prevItem = internalFlatMenu[index - 1]
+  const nextItem = internalFlatMenu[index + 1]
 
   // Get current framework's logo for the preview strip
   const currentFramework = useCurrentFramework(frameworks)
@@ -410,6 +454,7 @@ export function DocsLayout({
         <DocsMenuStrip
           menuConfig={menuConfig}
           activeItem={relativePathname}
+          fullPathname={lastMatch.pathname}
           colorFrom={colorFrom}
           colorTo={colorTo}
           frameworkLogo={currentFrameworkOption?.logo}

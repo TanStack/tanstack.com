@@ -61,7 +61,7 @@ function VersionIndex() {
                 _splat: 'quick-start',
               }}
               hash={'impatient'}
-              className={`py-2 px-4 bg-transparent text-cyan-600 dark:text-cyan-400 border-2 border-cyan-500 dark:border-cyan-600 rounded uppercase font-extrabold`}
+              className={`py-2 px-4 bg-transparent text-cyan-600 dark:text-cyan-400 border-2 border-cyan-500 dark:border-cyan-600 rounded-lg font-black`}
             >
               Try it in 60 seconds
             </Link>
@@ -69,7 +69,7 @@ function VersionIndex() {
               from="/$libraryId/$version"
               to="./docs"
               params={{ libraryId: library.id }}
-              className={`py-2 px-4 bg-cyan-500 dark:bg-cyan-600 rounded text-white uppercase font-extrabold flex items-center`}
+              className={`py-2 px-4 bg-cyan-500 dark:bg-cyan-600 rounded-lg text-white font-black flex items-center`}
             >
               Get Started
             </Link>
@@ -92,7 +92,7 @@ function VersionIndex() {
         <div className="font-black text-3xl mr-1 text-center">
           When can I use it?
         </div>
-        <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-gray-900 rounded-xl shadow-xl shadow-black/10">
+        <div className="max-w-full p-8 w-[800px] mx-auto leading-loose space-y-4 bg-white dark:bg-gray-900 rounded-xl shadow-xs border border-gray-300 dark:border-gray-800">
           <div>
             You can use <strong>TanStack Start RC</strong> today! We're
             feature-complete and preparing for 1.0. We invite you to provide
@@ -110,7 +110,7 @@ function VersionIndex() {
               framework: 'react',
               _splat: 'start-basic',
             }}
-            className="flex items-center gap-2 py-2 px-4 bg-cyan-900 rounded text-white uppercase font-extrabold"
+            className="flex items-center gap-2 py-2 px-4 bg-cyan-900 rounded-lg text-white font-black"
           >
             <Wallpaper className="min-w-4" /> See an Example
           </Link>
@@ -118,13 +118,13 @@ function VersionIndex() {
             from={'/$libraryId/$version'}
             to="./docs"
             params={{ libraryId: library.id }}
-            className="flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded text-white uppercase font-extrabold"
+            className="flex items-center gap-2 py-2 px-4 bg-cyan-800 rounded-lg text-white font-black"
           >
             <Book className="min-w-4" /> Try it out!
           </Link>
           <a
             href={`https://github.com/tanstack/tanstack.com`}
-            className={`flex items-center gap-2 py-2 px-4 bg-cyan-700 rounded text-white uppercase font-extrabold`}
+            className={`flex items-center gap-2 py-2 px-4 bg-cyan-700 rounded-lg text-white font-black`}
           >
             <GithubIcon className="min-w-4" /> TanStack.com Source
           </a>
@@ -133,7 +133,7 @@ function VersionIndex() {
               `TanStack Start is in BETA! It's a new full-stack React framework from @Tan_Stack and you can check it out at https://tanstack.com/start/`,
             )}`}
             target="_blank"
-            className="flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded text-white uppercase font-extrabold"
+            className="flex items-center gap-2 py-2 px-4 bg-cyan-500 rounded-lg text-white font-black"
             rel="noreferrer"
           >
             <BrandXIcon className="min-w-4" /> Tweet about it!

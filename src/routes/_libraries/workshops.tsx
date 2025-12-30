@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import * as React from 'react'
 import { Footer } from '~/components/Footer'
+import { Card } from '~/components/Card'
 import { allMaintainers, Maintainer } from '~/libraries/maintainers'
 import { MaintainerCard } from '~/components/MaintainerCard'
 import { shuffleWithSeed } from '~/utils/utils'
@@ -81,7 +82,7 @@ function WorkshopsPage() {
 
           {/* Value Proposition - Remote vs In-Person */}
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+            <Card className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Video className="w-8 h-8 text-blue-500" />
                 <h2 className="text-2xl font-black">Remote Workshops</h2>
@@ -104,7 +105,7 @@ function WorkshopsPage() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </Card>
 
             <div className="rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 p-6 shadow-lg text-white">
               <div className="flex items-center gap-3 mb-4">
@@ -210,16 +211,13 @@ function WorkshopsPage() {
                     "Expect to code, not just listen. Our workshops include live coding sessions, exercises, and Q&A periods where you can get immediate answers to your specific questions from the people who built the tools you're learning.",
                 },
               ].map(({ Icon, iconColor, title, description }) => (
-                <div
-                  key={title}
-                  className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700"
-                >
+                <Card key={title} className="p-6">
                   <Icon className={`w-8 h-8 ${iconColor} mb-3`} />
                   <h3 className="text-lg font-black mb-2">{title}</h3>
                   <p className="text-gray-600 dark:text-gray-400 text-sm">
                     {description}
                   </p>
-                </div>
+                </Card>
               ))}
             </div>
           </div>
@@ -289,10 +287,7 @@ function WorkshopsPage() {
                     'Multi-day programs designed around your specific needs. Includes follow-up sessions and ongoing support.',
                 },
               ].map(({ duration, color, title, description }) => (
-                <div
-                  key={title}
-                  className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700 text-center"
-                >
+                <Card key={title} className="p-6 text-center">
                   <div className={`text-3xl font-black ${color} mb-2`}>
                     {duration}
                   </div>
@@ -300,7 +295,7 @@ function WorkshopsPage() {
                   <p className="text-gray-600 dark:text-gray-400 text-sm">
                     {description}
                   </p>
-                </div>
+                </Card>
               ))}
             </div>
           </div>
@@ -510,10 +505,7 @@ function TestimonialsMarquee() {
         >
           {[...testimonials, ...testimonials, ...testimonials].map(
             (testimonial, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 w-80 rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700"
-              >
+              <Card key={i} className="flex-shrink-0 w-80 p-6">
                 <div className="flex items-start gap-2 mb-4">
                   {[...Array(5)].map((_, j) => (
                     <Star
@@ -529,7 +521,7 @@ function TestimonialsMarquee() {
                   <div className="font-semibold">{testimonial.author}</div>
                   <div>{testimonial.company}</div>
                 </div>
-              </div>
+              </Card>
             ),
           )}
         </div>

@@ -7,6 +7,7 @@ import { getFrameworkOptions } from '~/libraries/frameworks'
 import { FrameworkCard } from '~/components/FrameworkCard'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
+import { Card } from '~/components/Card'
 
 export const Route = createFileRoute('/$libraryId/$version/docs/framework/')({
   component: RouteComponent,
@@ -77,7 +78,7 @@ function RouteComponent() {
           </div>
 
           {/* Call to Action Message */}
-          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
+          <Card className="mt-12 p-6 md:p-8">
             <div className="text-center max-w-2xl mx-auto">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
                 Want to add support for another framework?
@@ -108,7 +109,7 @@ function RouteComponent() {
                 </a>
               </div>
             </div>
-          </div>
+          </Card>
 
           <div className="h-24" />
         </div>

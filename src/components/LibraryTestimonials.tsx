@@ -1,5 +1,6 @@
 import { Star } from 'lucide-react'
 import type { Testimonial } from '~/libraries/types'
+import { Card } from './Card'
 
 export function LibraryTestimonials({
   testimonials,
@@ -50,7 +51,7 @@ export function LibraryTestimonials({
 
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   return (
-    <div className="flex-shrink-0 w-72 md:w-80 rounded-lg bg-white dark:bg-gray-800 p-5 shadow-md border border-gray-200 dark:border-gray-700">
+    <Card className="flex-shrink-0 w-72 md:w-80 p-5">
       <div className="flex items-start gap-1 mb-3">
         {[...Array(5)].map((_, j) => (
           <Star
@@ -70,6 +71,6 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
           {testimonial.role} · {testimonial.company}
         </div>
       </div>
-    </div>
+    </Card>
   )
 }

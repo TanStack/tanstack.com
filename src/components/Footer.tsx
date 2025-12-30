@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { Card } from './Card'
 
 const footerLinks = [
   { label: 'Blog', to: '/blog' },
@@ -36,10 +37,9 @@ const footerLinks = [
 
 export function Footer() {
   return (
-    <div
+    <Card
       className={`relative flex flex-col items-start justify-center gap-4 p-8
-      max-w-(--breakpoint-lg) mx-auto text-sm
-      bg-white dark:bg-black/40 shadow-md rounded-lg`}
+      max-w-(--breakpoint-lg) mx-auto text-sm`}
     >
       <div className={`grid gap-1 sm:grid-cols-2 md:grid-cols-3`}>
         {footerLinks.map((item) => (
@@ -57,6 +57,6 @@ export function Footer() {
       <div className={`text-center opacity-60`}>
         &copy; {new Date().getFullYear()} TanStack LLC
       </div>
-    </div>
+    </Card>
   )
 }

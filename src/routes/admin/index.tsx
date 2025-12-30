@@ -4,6 +4,7 @@ import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { Lock, Rss, ShieldHalf, Users } from 'lucide-react'
 import { NpmIcon } from '~/components/icons/NpmIcon'
+import { Card } from '~/components/Card'
 
 export const Route = createFileRoute('/admin/')({
   component: AdminPage,
@@ -69,7 +70,7 @@ function AdminDashboard() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -89,9 +90,9 @@ function AdminDashboard() {
             >
               Manage Users
             </Link>
-          </div>
+          </Card>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
@@ -112,9 +113,9 @@ function AdminDashboard() {
             >
               Manage Roles
             </Link>
-          </div>
+          </Card>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
@@ -135,9 +136,9 @@ function AdminDashboard() {
             >
               Manage Feed
             </Link>
-          </div>
+          </Card>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gray-100 dark:bg-gray-900/30 rounded-lg">
@@ -158,9 +159,9 @@ function AdminDashboard() {
             >
               Manage GitHub Stats
             </Link>
-          </div>
+          </Card>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
@@ -181,7 +182,7 @@ function AdminDashboard() {
             >
               Manage NPM Stats
             </Link>
-          </div>
+          </Card>
         </div>
 
         <div className="mt-8">

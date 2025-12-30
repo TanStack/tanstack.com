@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { ArrowRight, Hand } from 'lucide-react'
+import { Card } from '~/components/Card'
 
 export const Route = createFileRoute('/_libraries/dashboard')({
   component: Dashboard,
@@ -26,7 +27,7 @@ function Dashboard() {
             100% { transform: rotate(0deg); }
           }
         `}</style>
-          <div className="bg-white dark:bg-black/30 rounded-lg shadow-lg p-8 w-[100vw] mx-auto max-w-sm">
+          <Card className="p-8 w-[100vw] mx-auto max-w-sm">
             <div className="flex text-2xl items-center justify-center w-48 h-48 mx-auto">
               <div
                 style={{
@@ -52,7 +53,7 @@ function Dashboard() {
                 <ArrowRight className="inline-block ml-2" />
               </a>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

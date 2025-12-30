@@ -44,7 +44,7 @@ export function PartnersSection({
                     ? { libraries: [libraryId], status: 'inactive' }
                     : { status: 'inactive' }
                 }
-                className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs hover:shadow-sm hover:border-gray-400 dark:hover:border-gray-700 transition-all"
               >
                 View Previous Partners →
               </Link>

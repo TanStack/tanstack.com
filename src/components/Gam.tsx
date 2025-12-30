@@ -185,7 +185,13 @@ export function GamLeftRailSquare() {
 export function GamVrec1(
   props: Omit<React.ComponentProps<typeof GamAd>, 'name'>,
 ) {
-  return <GamAd {...props} name="vrec_1" />
+  return (
+    <GamAd
+      {...props}
+      name="vrec_1"
+      className={twMerge('w-[300px] min-h-[600px]', props.className)}
+    />
+  )
 }
 
 export function GamHeader(

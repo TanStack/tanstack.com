@@ -14,9 +14,12 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 import * as React from 'react'
 import { MarkdownContent } from '~/components/MarkdownContent'
-import { GamFooter, GamHeader } from '~/components/Gam'
+import { GamHeader } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { ArrowLeft } from 'lucide-react'
+import { Toc } from '~/components/Toc'
+import { TocMobile } from '~/components/TocMobile'
+import { renderMarkdown } from '~/utils/markdown'
 
 function handleRedirects(docsPath: string) {
   if (docsPath.includes('directives-the-new-framework-lock-in')) {
@@ -109,6 +112,58 @@ function BlogPost() {
 
 ${content}`
 
+  const { headings, markup } = React.useMemo(
+    () => renderMarkdown(blogContent),
+    [blogContent],
+  )
+
+  const isTocVisible = headings.length > 1
+
+  const markdownContainerRef = React.useRef<HTMLDivElement>(null)
+  const [activeHeadings, setActiveHeadings] = React.useState<Array<string>>([])
+
+  const headingElementRefs = React.useRef<
+    Record<string, IntersectionObserverEntry>
+  >({})
+
+  React.useEffect(() => {
+    const callback = (headingsList: Array<IntersectionObserverEntry>) => {
+      headingElementRefs.current = headingsList.reduce(
+        (map, headingElement) => {
+          map[headingElement.target.id] = headingElement
+          return map
+        },
+        headingElementRefs.current,
+      )
+
+      const visibleHeadings: Array<IntersectionObserverEntry> = []
+      Object.keys(headingElementRefs.current).forEach((key) => {
+        const headingElement = headingElementRefs.current[key]
+        if (headingElement.isIntersecting) {
+          visibleHeadings.push(headingElement)
+        }
+      })
+
+      if (visibleHeadings.length >= 1) {
+        setActiveHeadings(visibleHeadings.map((h) => h.target.id))
+      }
+    }
+
+    const observer = new IntersectionObserver(callback, {
+      rootMargin: '0px',
+      threshold: 0.2,
+    })
+
+    const headingElements = Array.from(
+      markdownContainerRef.current?.querySelectorAll(
+        'h2[id], h3[id], h4[id], h5[id], h6[id]',
+      ) ?? [],
+    )
+    headingElements.forEach((el) => observer.observe(el))
+
+    return () => observer.disconnect()
+  }, [headings])
+
   const repo = 'tanstack/tanstack.com'
   const branch = 'main'
 
@@ -131,30 +186,43 @@ ${content}`
               </div>
             </AdGate>
             <div className="px-4">
-              <div className="w-full max-w-[900px] mx-auto">
-                <div className="mt-4 mb-2 md:mb-6 lg:mb-8">
-                  <Link
-                    from="/blog/$"
-                    to="/blog"
-                    className="font-black inline-flex items-center gap-2 p-1"
-                  >
-                    <ArrowLeft />
-                    Back to Blog
-                  </Link>
-                </div>
-              </div>
-              <div className="w-full max-w-[900px] mx-auto">
+              <div className="w-full max-w-[1100px] mx-auto">
                 <div className="flex-1 min-h-0 flex flex-col">
-                  <div className="w-full flex bg-white/70 dark:bg-black/40 rounded-xl">
-                    <div className="flex overflow-auto flex-col w-full p-2 lg:p-4 xl:p-6">
+                  <div className="w-full flex justify-center">
+                    <div className="w-full max-w-[700px] p-2 lg:p-4 xl:p-6">
+                      <div className="mt-2 mb-2">
+                        <Link
+                          from="/blog/$"
+                          to="/blog"
+                          className="font-black inline-flex items-center gap-2 p-1"
+                        >
+                          <ArrowLeft />
+                          Back to Blog
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block" />
+                  </div>
+                  {isTocVisible && <TocMobile headings={headings} />}
+                  <div className="w-full flex justify-center">
+                    <div className="flex overflow-auto flex-col w-full max-w-[700px] p-2 lg:p-4 xl:p-6 pt-0">
                       <MarkdownContent
                         title={title}
-                        rawContent={blogContent}
+                        htmlMarkup={markup}
                         repo={repo}
                         branch={branch}
                         filePath={filePath}
+                        containerRef={markdownContainerRef}
                       />
                     </div>
+                    {isTocVisible && (
+                      <div className="pl-2 xl:pl-6 2xl:pl-8 max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block py-4">
+                        <Toc
+                          headings={headings}
+                          activeHeadings={activeHeadings}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -162,8 +230,8 @@ ${content}`
           </div>
         </div>
         <AdGate>
-          <div className="mb-8 !py-0! mx-auto max-w-full overflow-x-hidden flex justify-center">
-            <GamFooter />
+          <div className="py-2 pb-4 lg:py-4 lg:pb-6 xl:py-6 xl:pb-8 max-w-full">
+            <GamHeader />
           </div>
         </AdGate>
       </div>

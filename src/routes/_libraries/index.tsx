@@ -4,7 +4,7 @@ import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import discordImage from '~/images/discord-logo-white.svg'
 import { useMutation } from '~/hooks/useMutation'
-import { librariesByGroup, librariesGroupNamesMap } from '~/libraries'
+import { librariesByGroup, librariesGroupNamesMap, Library } from '~/libraries'
 import bytesImage from '~/images/bytes.svg'
 import { PartnersGrid } from '~/components/PartnersGrid'
 import OpenSourceStats from '~/components/OpenSourceStats'
@@ -26,6 +26,7 @@ import { GamHeader } from '~/components/Gam'
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { Layers, Zap, Shield, Code2 } from 'lucide-react'
 import { Card } from '~/components/Card'
+import LibraryCard from '~/components/LibraryCard'
 
 export const textColors = [
   `text-rose-500`,
@@ -234,124 +235,11 @@ function Index() {
                 >
                   {groupLibraries.map((library, i: number) => {
                     return (
-                      <Card
-                        as={Link}
+                      <LibraryCard
                         key={library.name}
-                        to={library.to ?? '#'}
-                        params
-                        className={twMerge(
-                          `rounded-xl p-8 transition-all duration-300 ease-out`,
-                          'hover:shadow-md hover:shadow-current/5 hover:border-current/30 hover:-translate-y-1',
-                          'relative group',
-                          'min-h-[250px] xl:min-h-[220px]',
-                          library.cardStyles,
-                        )}
-                        style={{
-                          zIndex: i,
-                          willChange: 'transform',
-                        }}
-                      >
-                        {/* Background content that will blur on hover */}
-                        <div className="z-0 relative group-hover:blur-[0.5px] transition-[filter] duration-300 ease-out">
-                          <div className="flex gap-2 justify-between items-center">
-                            <MatchRoute
-                              pending
-                              to={library.to}
-                              children={() => {
-                                return (
-                                  <div
-                                    className={twMerge(
-                                      `flex items-center gap-2 text-[1.2rem] font-extrabold uppercase [letter-spacing:-.04em]`,
-                                    )}
-                                    style={{
-                                      viewTransitionName: `library-name-${library.id}`,
-                                    }}
-                                  >
-                                    <span className="bg-current rounded-lg leading-none flex items-center">
-                                      <span className="text-white dark:text-black text-xs leading-none p-1.5 px-2 uppercase">
-                                        TanStack
-                                      </span>
-                                    </span>
-                                    <span className="text-current">
-                                      {library.name.replace('TanStack ', '')}
-                                    </span>
-                                  </div>
-                                )
-                              }}
-                            />
-                          </div>
-                          <div
-                            className={`text-sm italic font-medium mt-3 text-current`}
-                          >
-                            {library.tagline}
-                          </div>
-
-                          {/* Description preview with ellipsis */}
-                          <div
-                            className={`text-sm mt-3 text-gray-600 dark:text-gray-400 line-clamp-3 leading-relaxed`}
-                          >
-                            {library.description}
-                          </div>
-                        </div>
-
-                        {/* Foreground content that appears on hover */}
-                        <div
-                          className="absolute inset-0 z-30 bg-white/95 dark:bg-black/95 p-6 rounded-xl
-                          backdrop-blur-sm flex flex-col justify-center opacity-0 group-hover:opacity-100
-                          transition-opacity duration-300 ease-out pointer-events-none group-hover:pointer-events-auto"
-                        >
-                          <div
-                            className={`text-sm text-gray-800 dark:text-gray-200 leading-relaxed`}
-                          >
-                            {library.description}
-                          </div>
-                          <div className="mt-6 text-center">
-                            <span
-                              className="inline-flex items-center gap-2 px-4 py-2 bg-black/5 dark:bg-white/10 
-                              rounded-full text-sm font-medium text-gray-900 dark:text-white"
-                            >
-                              Click to learn more
-                              <svg
-                                className="w-4 h-4 transform transition-transform duration-200 group-hover:translate-x-0.5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 5l7 7-7 7"
-                                />
-                              </svg>
-                            </span>
-                          </div>
-                        </div>
-                        {/* Badge */}
-                        {library.badge ? (
-                          <>
-                            <div
-                              className={twMerge(
-                                `absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md`,
-                                [
-                                  'bg-gradient-to-r',
-                                  library.colorFrom,
-                                  library.colorTo,
-                                ],
-                                'uppercase text-white font-black italic text-xs',
-                              )}
-                              style={{
-                                animation: 'pulseScale 3s infinite',
-                                animationTimingFunction: 'ease-in-out',
-                                animationDelay: `${i * 0.5}s`,
-                                ['--scale-factor' as any]: '1.1',
-                              }}
-                            >
-                              <span>{library.badge}</span>
-                            </div>
-                          </>
-                        ) : null}
-                      </Card>
+                        index={i}
+                        library={library as Library}
+                      />
                     )
                   })}
                 </div>

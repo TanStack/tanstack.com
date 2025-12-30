@@ -71,6 +71,55 @@ export const Route = createFileRoute('/_libraries/partners')({
   }),
 })
 
+function ContributionDonut({
+  score,
+  totalScore,
+}: {
+  score: number
+  totalScore: number
+}) {
+  const normalizedScore = totalScore > 0 ? score / totalScore : 0
+  const percentage = normalizedScore * 100
+  const radius = 16
+  const circumference = 2 * Math.PI * radius
+  const strokeDashoffset = circumference - normalizedScore * circumference
+
+  return (
+    <div className="flex items-center gap-2">
+      <svg width="40" height="40" viewBox="0 0 40 40" className="shrink-0">
+        <circle
+          cx="20"
+          cy="20"
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="5"
+          className="text-gray-200 dark:text-gray-700"
+        />
+        <circle
+          cx="20"
+          cy="20"
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="5"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          className="text-blue-500"
+          transform="rotate(-90 20 20)"
+        />
+      </svg>
+      <div className="flex flex-col">
+        <span className="text-sm font-semibold">{percentage.toFixed(1)}%</span>
+        <span className="text-[10px] text-gray-500 dark:text-gray-400">
+          current support
+        </span>
+      </div>
+    </div>
+  )
+}
+
 interface FilterProps {
   selectedLibraries: Library['id'][] | undefined
   selectedStatus: 'active' | 'inactive' | undefined
@@ -307,6 +356,11 @@ function RouteComp() {
     return true
   })
 
+  const totalScore = filteredPartners.reduce(
+    (sum, partner) => sum + (partner.score ?? 0),
+    0,
+  )
+
   const hasStatusFilter = search.status
   const hasLibraryFilter = search.libraries && search.libraries.length > 0
   const hasResults = filteredPartners.length > 0
@@ -394,6 +448,14 @@ function RouteComp() {
                       <h3 className="text-center text-xl font-semibold mb-4">
                         {partner.name}
                       </h3>
+                      {partner.score != null && !isShowingPrevious && (
+                        <div className="flex justify-center mb-4">
+                          <ContributionDonut
+                            score={partner.score}
+                            totalScore={totalScore}
+                          />
+                        </div>
+                      )}
                       <div className="text-sm">
                         {isShowingPrevious ? (
                           <>
@@ -464,25 +526,25 @@ function RouteComp() {
 
         <div className="text-center py-8 border-t border-gray-200 dark:border-gray-700">
           <a
-            href="#total-support-share"
+            href="#lifetime-support-share"
             className="anchor-heading *:scroll-my-20 *:lg:scroll-my-4"
           >
             <h2
-              id="total-support-share"
+              id="lifetime-support-share"
               className="text-2xl font-semibold mb-4"
             >
-              Total Support Share
+              Lifetime Support Share
             </h2>
           </a>
           <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
-            This chart is a percentage-based visualization of the total support
-            each partner has rendered to TanStack ever. It is updated every 6
+            This chart is a percentage-based visualization of the lifetime
+            support each partner has rendered to TanStack. It is updated every 6
             months.
           </p>
           <div className="flex justify-center">
             <img
               src="/images/total-support-share.png"
-              alt="Total Support Share chart showing percentage-based contribution of partners to TanStack"
+              alt="Lifetime Support Share chart showing percentage-based contribution of partners to TanStack"
               className="rounded-lg shadow-lg"
               width={600}
               height={706}

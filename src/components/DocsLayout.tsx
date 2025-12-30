@@ -457,7 +457,7 @@ export function DocsLayout({
       {/* Collapsed strip - visible on sm to xl, hidden on xl+. Lower z-index so expanded menu covers it */}
       <div
         className={twMerge(
-          'hidden sm:flex xl:hidden flex-col',
+          'hidden sm:flex xl:hidden flex-col overflow-hidden',
           'sticky top-[var(--navbar-height)] h-[calc(100dvh-var(--navbar-height))]',
           'z-10 border-r border-gray-500/20',
           'bg-white/50 dark:bg-black/30',
@@ -492,7 +492,7 @@ export function DocsLayout({
         ref={expandedMenuRef}
         className={twMerge(
           'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
-          'flex-col',
+          'flex-col overflow-hidden',
           'h-[calc(100dvh-var(--navbar-height))] top-[var(--navbar-height)]',
           'z-20 border-r border-gray-500/20',
           'transition-all duration-300',
@@ -539,7 +539,8 @@ export function DocsLayout({
         className={`
           min-h-[calc(100dvh-var(--navbar-height))]
           flex flex-col sm:flex-row
-          w-full transition-all duration-300`}
+          w-full transition-all duration-300
+          [overflow-x:clip]`}
       >
         {smallMenu}
         {largeMenu}
@@ -605,70 +606,66 @@ export function DocsLayout({
         "
         >
           <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pl-4 pb-4">
-            <div className="flex flex-col">
-              <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden -mr-px">
-                <div className="w-full flex gap-2 justify-between border-b border-gray-500/20 px-3 py-2">
-                  <Link
-                    className="font-medium opacity-60 hover:opacity-100 text-xs"
-                    to="/partners"
-                  >
-                    Partners
-                  </Link>
-                  <a
-                    href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
-                  >
-                    Become a Partner
-                  </a>
-                </div>
-                {activePartners
-                  .filter((d) => d.id !== 'ui-dev')
-                  .map((partner) => {
-                    // flexBasis as percentage based on score, flexGrow to fill remaining row space
-                    const widthPercent = Math.round(partner.score * 100)
+            <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden -mr-px">
+              <div className="w-full flex gap-2 justify-between border-b border-gray-500/20 px-3 py-2">
+                <Link
+                  className="font-medium opacity-60 hover:opacity-100 text-xs"
+                  to="/partners"
+                >
+                  Partners
+                </Link>
+                <a
+                  href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
+                >
+                  Become a Partner
+                </a>
+              </div>
+              {activePartners
+                .filter((d) => d.id !== 'ui-dev')
+                .map((partner) => {
+                  // flexBasis as percentage based on score, flexGrow to fill remaining row space
+                  const widthPercent = Math.round(partner.score * 100)
 
-                    return (
-                      <a
-                        key={partner.name}
-                        href={partner.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center justify-center px-3 py-2
+                  return (
+                    <a
+                      key={partner.name}
+                      href={partner.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center px-3 py-2
                           border-r border-b border-gray-500/20
                           hover:bg-gray-500/10 transition-colors duration-150 ease-out"
+                      style={{
+                        flexBasis: `${widthPercent}%`,
+                        flexGrow: 1,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <div
                         style={{
-                          flexBasis: `${widthPercent}%`,
-                          flexGrow: 1,
-                          flexShrink: 0,
+                          width: Math.max(
+                            60 + Math.round(140 * partner.score),
+                            70,
+                          ),
                         }}
                       >
-                        <div
-                          style={{
-                            width: Math.max(
-                              60 + Math.round(140 * partner.score),
-                              70,
-                            ),
-                          }}
-                        >
-                          <PartnerImage
-                            config={partner.image}
-                            alt={partner.name}
-                          />
-                        </div>
-                      </a>
-                    )
-                  })}
-              </div>
+                        <PartnerImage
+                          config={partner.image}
+                          alt={partner.name}
+                        />
+                      </div>
+                    </a>
+                  )
+                })}
             </div>
             <AdGate>
-              <div className="max-w-full overflow-hidden">
-                <GamVrec1
-                  popupPosition="top"
-                  borderClassName="rounded-l-xl rounded-r-none"
-                />
-              </div>
+              <GamVrec1
+                popupPosition="top"
+                borderClassName="rounded-l-xl rounded-r-none"
+              />
             </AdGate>
             {libraryId === 'query' ? (
               <div className="p-4 bg-white/70 dark:bg-black/40 rounded-lg flex flex-col">

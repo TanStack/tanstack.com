@@ -6,13 +6,7 @@ export function DocContainer({
   ...props
 }: { children: React.ReactNode } & HTMLProps<HTMLDivElement>) {
   return (
-    <div
-      {...props}
-      className={twMerge(
-        'w-full max-w-full p-2 xl:p-4 2xl:p-8',
-        props.className,
-      )}
-    >
+    <div {...props} className={twMerge('w-full max-w-full', props.className)}>
       {children}
     </div>
   )

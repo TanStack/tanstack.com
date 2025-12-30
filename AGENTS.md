@@ -184,3 +184,65 @@ For runtime testing and verification, developers should:
 1. Review the code changes
 2. Start the dev server manually (`pnpm dev`)
 3. Test the functionality in a browser
+
+## UI Style Guide 2026
+
+### Core Principles
+
+- Prioritize clarity, hierarchy, and calm
+- Use depth to communicate structure, not decoration
+- Favor warmth and approachability over stark minimalism
+
+### Layout
+
+- Prefer fewer, well defined containers over many small sections
+- Use generous spacing to create separation before adding visual effects
+- Cards are acceptable when they express grouping or hierarchy
+
+### Corners
+
+- Rounded corners are standard
+- Use subtle radius values that feel intentional, not playful
+- Avoid sharp 90 degree corners unless intentionally industrial
+
+### Shadows and Depth
+
+- Shadows should be soft, low contrast, and diffused
+- Use shadows to imply separation, not elevation theatrics
+- Avoid heavy drop shadows or strong directional lighting
+- One to two shadow layers max
+
+### Cards
+
+- Cards should feel grounded, not floating
+- Prefer light elevation, border plus shadow, or surface contrast
+- Avoid overusing cards as a default layout primitive
+
+### Color and Surfaces
+
+- Favor soft neutrals, off whites, and warm grays
+- Use surface contrast or translucency instead of strong outlines
+- Glass or frosted effects are acceptable when subtle and accessible
+
+### Interaction
+
+- Use micro transitions to reinforce spatial relationships
+- Hover and focus states should feel responsive, not animated
+- Avoid excessive motion or springy effects
+
+### Typography
+
+- Let type hierarchy do most of the work
+- Strong headings, calm body text
+- Avoid visual noise around content
+
+### What to Avoid
+
+- Chunky shadows
+- Overly flat, sterile layouts
+- Neumorphism as a primary style
+- Over designed card grids
+
+### Summary Rule
+
+**If depth does not improve comprehension, remove it.**

@@ -81,7 +81,7 @@ export default function SponsorPack({
                           }
                           className={
                             `spon-link ` +
-                            `absolute shadow-lg bg-white rounded-full z-0`
+                            `absolute shadow-md bg-white rounded-full z-0`
                           }
                           style={{
                             left: circle.x,
@@ -110,7 +110,7 @@ export default function SponsorPack({
                               `spon-tooltip absolute text-sm
                               bg-gray-800 text-white p-2 pointer-events-none
                               transform opacity-0
-                              shadow-xl rounded-lg
+                              shadow-md rounded-lg
                               flex flex-col items-center
                             `,
 

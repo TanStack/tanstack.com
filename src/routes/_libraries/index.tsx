@@ -43,7 +43,7 @@ export const gradients = [
 const courses = [
   {
     name: 'The Official TanStack React Query Course',
-    cardStyles: `border-t-4 border-red-500 hover:(border-green-500)`,
+    cardStyles: ``,
     href: 'https://query.gg/?s=tanstack',
     description: `Learn how to build enterprise quality apps with TanStack's React Query the easy way with our brand new course.`,
   },
@@ -238,9 +238,9 @@ function Index() {
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `border-2 border-gray-200 dark:border-gray-800/50 rounded-xl shadow-md p-8 transition-all duration-300 ease-out
-                          bg-white/90 dark:bg-black/40 backdrop-blur-sm`,
-                          'hover:shadow-2xl hover:shadow-current/20 hover:border-current/50 hover:-translate-y-1',
+                          `border border-gray-300 border-t-2 border-t-gray-400 dark:border-gray-700 dark:border-t-gray-600 rounded-xl shadow-xs p-8 transition-all duration-300 ease-out
+                          bg-white dark:bg-black/40 backdrop-blur-sm`,
+                          'hover:shadow-sm hover:shadow-current/5 hover:border-current/30 hover:-translate-y-1',
                           'relative group',
                           'min-h-[250px] xl:min-h-[220px]',
                           library.cardStyles,

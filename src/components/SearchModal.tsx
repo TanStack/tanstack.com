@@ -424,7 +424,7 @@ function LibraryRefinement() {
           )}
           <ChevronDown className="w-3.5 h-3.5 opacity-50" />
         </Listbox.Button>
-        <Listbox.Options className="absolute z-50 mt-1 max-h-[60vh] w-64 overflow-auto rounded-lg bg-white dark:bg-gray-900 shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-none text-sm">
+        <Listbox.Options className="absolute z-50 mt-1 max-h-[60vh] w-64 overflow-auto rounded-lg bg-white dark:bg-gray-900 shadow-md ring-1 ring-black/5 dark:ring-white/10 focus:outline-none text-sm">
           <Listbox.Option
             value=""
             className={({ active }) =>
@@ -537,7 +537,7 @@ function FrameworkRefinement() {
           </span>
           <ChevronDown className="w-3.5 h-3.5 opacity-50" />
         </Listbox.Button>
-        <Listbox.Options className="absolute z-50 mt-1 max-h-[60vh] w-52 overflow-auto rounded-lg bg-white dark:bg-gray-900 shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-none text-sm">
+        <Listbox.Options className="absolute z-50 mt-1 max-h-[60vh] w-52 overflow-auto rounded-lg bg-white dark:bg-gray-900 shadow-md ring-1 ring-black/5 dark:ring-white/10 focus:outline-none text-sm">
           <Listbox.Option
             value=""
             className={({ active }) =>
@@ -614,7 +614,7 @@ function NoResults({
             onClick={clearFramework}
             role="option"
             aria-selected="true"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-lg"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm"
           >
             Search all frameworks
             {currentFrameworkOption && (
@@ -632,7 +632,7 @@ function NoResults({
             onClick={clearLibrary}
             role="option"
             aria-selected="true"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-lg"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-sm"
           >
             Search all libraries
             {currentLibrary && (
@@ -740,7 +740,7 @@ export function SearchModal() {
     >
       <div className="min-h-screen text-center">
         <Dialog.Overlay className="fixed inset-0 bg-black/60 xl:bg-black/30 backdrop-blur-sm" />
-        <div className="inline-block w-[98%] xl:w-full max-w-3xl mt-8 text-left align-middle transition-all transform bg-white/80 dark:bg-black/80 shadow-xl rounded-lg xl:rounded-xl divide-y divide-gray-500/20 backdrop-blur-lg dark:border dark:border-white/20">
+        <div className="inline-block w-[98%] xl:w-full max-w-3xl mt-8 text-left align-middle transition-all transform bg-white/80 dark:bg-black/80 shadow-lg rounded-lg xl:rounded-xl divide-y divide-gray-500/20 backdrop-blur-lg dark:border dark:border-white/20">
           <InstantSearch searchClient={searchClient} indexName="tanstack-test">
             <SearchFiltersProvider>
               <Configure

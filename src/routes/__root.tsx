@@ -16,7 +16,7 @@ import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { GamScripts } from '~/components/Gam'
-import { BackgroundGradient } from '~/components/BackgroundGradient'
+
 import { SearchProvider } from '~/contexts/SearchContext'
 import { SearchModal } from '~/components/SearchModal'
 import { ToastProvider } from '~/components/ToastProvider'
@@ -191,7 +191,6 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
       </head>
       <body className="overflow-x-hidden">
         <ToastProvider>
-          <BackgroundGradient />
           <React.Suspense fallback={null}>
             {hideNavbar ? children : <Navbar>{children}</Navbar>}
           </React.Suspense>

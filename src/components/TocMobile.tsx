@@ -19,17 +19,17 @@ export function TocMobile({ headings }: TocMobileProps) {
   }
 
   return (
-    <div className="lg:hidden flex -mt-2 md:-mt-4 mb-2 bg-white/50 dark:bg-black/30 backdrop-blur-lg rounded-b-xl">
+    <div className="lg:hidden flex bg-white/50 dark:bg-black/30 backdrop-blur-lg rounded-b-xl">
       <details className="flex-1" onToggle={handleToggle}>
         <summary
-          className="px-4 py-3 text-sm font-medium w-full flex content-start items-center gap-2
+          className="py-3 text-sm font-medium w-full flex content-start items-center gap-2
           rounded-b-xl"
           aria-expanded={isOpen}
         >
           <span>{isOpen ? <ChevronDown /> : <ChevronRight />}</span>
           <span>On this page</span>
         </summary>
-        <div className="px-2 py-2">
+        <div className="py-2">
           <ul className="list-none grid gap-2">
             {headings.map((heading) => (
               <li
@@ -40,7 +40,7 @@ export function TocMobile({ headings }: TocMobileProps) {
               >
                 <Link
                   to="."
-                  className="text-sm"
+                  className="text-sm transition-colors duration-200"
                   hash={heading.id}
                   dangerouslySetInnerHTML={{ __html: heading.text }}
                   aria-label={heading.text.replace(/<\/?[^>]+(>|$)/g, '')}

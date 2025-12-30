@@ -24,7 +24,7 @@ export function RedirectVersionBanner(props: {
 
   if (![latestVersion, 'latest'].includes(version) && showModal) {
     return (
-      <div className="p-4 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-xl shadow-black/20 flex items-center justify-center gap-2.5 lg:gap-4 fixed top-4 left-1/2 bottom-auto backdrop-blur-sm z-100 -translate-x-1/2 rounded-3xl lg:rounded-full overflow-hidden w-[80%] lg:w-auto">
+      <div className="p-4 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg flex items-center justify-center gap-2.5 lg:gap-4 fixed top-4 left-1/2 bottom-auto backdrop-blur-sm z-100 -translate-x-1/2 rounded-3xl lg:rounded-full overflow-hidden w-[80%] lg:w-auto">
         <p className="block">
           You are currently reading <strong>{version}</strong> docs. Redirect to{' '}
           <Link

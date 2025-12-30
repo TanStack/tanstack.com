@@ -8,6 +8,9 @@
 @custom-variant aria-current (&[aria-current="location"]);
 
 @theme {
+  /* Breakpoints */
+  --breakpoint-xs: 480px;
+
   /* Fonts */
   --font-sans:
     'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
@@ -68,7 +71,13 @@ button {
 @layer base {
   html,
   body {
-    @apply text-gray-900 bg-gray-50 dark:bg-gray-900 dark:text-gray-200;
+    @apply text-gray-900 dark:text-gray-200;
+    background-color: #fdfdfd; /* 99% white */
+  }
+
+  html.dark,
+  html.dark body {
+    background-color: #0d0d0d; /* 95% black */
   }
 
   .using-mouse * {
@@ -239,21 +248,21 @@ button {
 }
 
 .card-elevated {
-  @apply rounded-xl transition-all duration-200 shadow-lg;
+  @apply rounded-xl transition-all duration-200 shadow-md;
   @apply bg-white/90 dark:bg-black/40 backdrop-blur-sm;
   @apply border border-gray-200 dark:border-gray-700;
 }
 
 .card-interactive {
-  @apply rounded-xl transition-all duration-200 shadow-lg cursor-pointer;
+  @apply rounded-xl transition-all duration-200 shadow-md cursor-pointer;
   @apply bg-white/90 dark:bg-black/40 backdrop-blur-sm;
   @apply border border-gray-200 dark:border-gray-700;
-  @apply hover:shadow-xl hover:-translate-y-1;
+  @apply hover:shadow-lg;
 }
 
 /* Dropdown/Menu Containers */
 .dropdown-menu {
-  @apply rounded-lg shadow-lg overflow-hidden;
+  @apply rounded-lg shadow-md overflow-hidden;
   @apply bg-white dark:bg-gray-800;
   @apply border border-gray-200 dark:border-gray-700;
 }
@@ -649,7 +658,7 @@ html.dark .shiki.tokyo-night span[style*='color: #51597D'] {
 
 .TanStackRouterDevtools > button {
   @apply rotate-90 origin-top-right -translate-y-[50px] translate-x-2 rounded-t-none bg-white dark:bg-gray-900;
-  @apply border-t-0 border-gray-500/10 shadow-xl text-gray-800;
+  @apply border-t-0 border-gray-500/10 shadow-md text-gray-800;
 }
 
 /* Hubspot */

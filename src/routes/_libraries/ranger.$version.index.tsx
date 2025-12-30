@@ -76,7 +76,7 @@ function VersionIndex() {
         </div>
 
         <div className="px-4">
-          <div className="relative w-full bg-white/50 dark:bg-black/50 rounded-lg overflow-hidden shadow-xl">
+          <div className="relative w-full bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xl">
             <div className="">
               <FrameworkIconTabs
                 frameworks={rangerProject.frameworks}

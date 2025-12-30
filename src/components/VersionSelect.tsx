@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { create } from 'zustand'
 import { useNavigate, useParams } from '@tanstack/react-router'
+import { Tag } from 'lucide-react'
 import { Select, SelectOption } from './Select'
 import { getLibrary, LibraryId } from '~/libraries'
 
@@ -11,8 +12,8 @@ export function VersionSelect({ libraryId }: { libraryId: LibraryId }) {
   })
   return (
     <Select
-      className="max-w-[93px]"
-      label={versionConfig.label}
+      className="w-full"
+      icon={<Tag className="w-3.5 h-3.5 opacity-60" />}
       selected={versionConfig.selected}
       available={versionConfig.available}
       onSelect={versionConfig.onSelect}

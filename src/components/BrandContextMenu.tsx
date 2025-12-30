@@ -110,8 +110,8 @@ export function BrandContextMenu({ children, ...rest }: BrandContextMenuProps) {
                   className={twMerge(
                     'p-1 rounded-full',
                     darkBg
-                      ? 'bg-black text-white shadow-lg shadow-white/20'
-                      : 'bg-white text-black shadow-lg',
+                      ? 'bg-black text-white shadow-md'
+                      : 'bg-white text-black shadow-md',
                   )}
                 >
                   <img src={url} alt={label} className="h-6" />

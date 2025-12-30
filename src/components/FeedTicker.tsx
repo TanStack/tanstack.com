@@ -3,13 +3,13 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { listFeedEntriesQueryOptions } from '~/queries/feed'
 import { Link } from '@tanstack/react-router'
 import { formatDistanceToNow } from 'date-fns'
-import { findLibrary } from '~/libraries'
+import { libraries } from '~/libraries'
 
 const DISPLAY_DURATION = 7000 // 7 seconds in milliseconds
 const TRANSITION_DURATION = 500 // 0.5 seconds for crossfade
 
 export function FeedTicker() {
-  // Fetch feed entries with default filters (major, minor releases, include prerelease)
+  // Fetch feed entries with default filters (major, minor releases only)
   const feedQuery = useQuery({
     ...listFeedEntriesQueryOptions({
       pagination: {
@@ -17,8 +17,8 @@ export function FeedTicker() {
         page: 0,
       },
       filters: {
-        releaseLevels: ['major', 'minor', 'patch'],
-        includePrerelease: true,
+        releaseLevels: ['major', 'minor'],
+        includePrerelease: false,
       },
     }),
     placeholderData: keepPreviousData,
@@ -91,14 +91,10 @@ export function FeedTicker() {
         : badgeColors[releaseLevel] ||
           'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
 
-      // Get library name from first libraryId
-      const libraryId = entry.libraryIds[0]
-      const library = libraryId ? findLibrary(libraryId) : null
-      const libraryName = library?.name || libraryId || ''
-
-      // Get version from metadata
-      const version =
+      // Get version from metadata (strip @tanstack/ prefix)
+      const version = (
         (entry.metadata as { version?: string } | null)?.version || ''
+      ).replace(/@tanstack\//gi, '')
 
       return (
         <Link
@@ -114,16 +110,9 @@ export function FeedTicker() {
             {isPrerelease ? 'Pre' : releaseLevel || 'Release'}
           </span>
 
-          {/* Library name */}
-          {libraryName && (
-            <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400 flex-shrink-0">
-              {libraryName}
-            </span>
-          )}
-
           {/* Version */}
           {version && (
-            <span className="text-[10px] text-gray-600 dark:text-gray-400 flex-shrink-0">
+            <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400 flex-shrink-0">
               {version}
             </span>
           )}
@@ -134,6 +123,19 @@ export function FeedTicker() {
               addSuffix: true,
             })}
           </span>
+
+          {/* Library name */}
+          {entry.libraryIds[0] &&
+            (() => {
+              const library = libraries.find(
+                (lib) => lib.id === entry.libraryIds[0],
+              )
+              return library ? (
+                <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 flex-shrink-0">
+                  {library.name}
+                </span>
+              ) : null
+            })()}
 
           {/* Excerpt */}
           {entry.excerpt && (
@@ -168,7 +170,7 @@ export function FeedTicker() {
       className="relative overflow-hidden rounded-lg bg-white dark:bg-black border border-gray-200/50 dark:border-gray-700/50"
       style={{
         height: '32px',
-        maxWidth: '400px',
+        maxWidth: '320px',
         width: '100%',
       }}
     >

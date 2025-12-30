@@ -32,7 +32,7 @@ export function StackBlitzEmbed({
       src={src}
       title={title || `${repo}: ${examplePath}`}
       sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-      className="shadow-2xl"
+      className="shadow-lg"
       loading="lazy"
       style={{ width: '100%', height, border: '0' }}
     />

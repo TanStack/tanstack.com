@@ -70,8 +70,9 @@ These aren’t framework-specific APIs. They’re just props.
 
 The important nuance: client-provided UI crosses the boundary as **opaque slot placeholders**. The server can position those placeholders (because it owns the frame), but it can’t inspect, clone, or transform client subtrees. That’s what keeps the model predictable.
 
+#### Server
+
 ```tsx
-// Server
 const getPost = createServerFn().handler(async ({ data }) => {
   const post = await db.posts.get(data.postId)
 
@@ -105,8 +106,9 @@ const getPost = createServerFn().handler(async ({ data }) => {
 })
 ```
 
+#### Client
+
 ```tsx
-// Client
 function PostPage({ postId }) {
   const { data: Post } = useQuery({
     queryKey: ['post', postId],

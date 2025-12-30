@@ -4,8 +4,8 @@
  */
 
 export const FEED_DEFAULTS = {
-  // No default filters - show everything by default
-  releaseLevels: undefined as undefined,
+  // Default to major and minor releases only (exclude patches)
+  releaseLevels: ['major', 'minor'] as const,
   includePrerelease: undefined as undefined,
   sources: undefined as undefined,
   libraries: undefined as undefined,

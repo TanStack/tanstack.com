@@ -67,10 +67,27 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [showMenu, setShowMenu] = React.useState(false)
+  const smallMenuRef = React.useRef<HTMLDivElement>(null)
 
   const toggleMenu = () => {
     setShowMenu((prev) => !prev)
   }
+
+  // Close mobile menu when clicking outside
+  React.useEffect(() => {
+    if (!showMenu) return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      // Check if click is outside the small menu
+      if (smallMenuRef.current && !smallMenuRef.current.contains(target)) {
+        setShowMenu(false)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [showMenu])
 
   const loginButton = (
     <>
@@ -113,8 +130,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <Link
             to="/admin"
             className="flex items-center gap-1 rounded-md px-2 py-1.5
-            border border-gray-200 dark:border-gray-700
-            hover:bg-gray-100 dark:hover:bg-gray-800
+            bg-black dark:bg-white text-white dark:text-black
+            hover:bg-gray-800 dark:hover:bg-gray-200
             transition-colors duration-200 text-xs font-medium"
           >
             <Lock className="w-3.5 h-3.5" />
@@ -159,6 +176,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
 
   const navbar = (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
     <div
       className={twMerge(
         'w-full p-2 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
@@ -166,6 +184,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         'border-b border-gray-500/20',
       )}
       ref={containerRef}
+      onClick={() => {
+        setShowMenu(false)
+      }}
     >
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 font-black text-xl uppercase">
@@ -220,7 +241,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           {Title ? <Title /> : null}
         </div>
       </div>
-      <div className="hidden lg:flex flex-1 justify-end min-w-0">
+      <div className="hidden xl:flex flex-1 justify-end min-w-0">
         <FeedTicker />
       </div>
       <div className="flex items-center gap-2">
@@ -564,6 +585,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
 
   const smallMenu = showMenu ? (
     <div
+      ref={smallMenuRef}
       className="lg:hidden bg-white/50 dark:bg-black/60 backdrop-blur-[20px] z-50
     fixed top-[var(--navbar-height)] left-0 right-0 max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto
     "
@@ -572,25 +594,26 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         className="flex flex-col whitespace-nowrap overflow-y-auto
           border-t border-gray-500/20 text-lg bg-white/80 dark:bg-black/90"
       >
-        <div className="flex items-center justify-between p-2 gap-2">
-          <div className="flex-1">
-            <SearchButton />
-          </div>
-          <div className="sm:hidden">{loginButton}</div>
-        </div>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
         <div
-          className="space-y-px text-sm p-2 border-b border-gray-500/20"
           onClick={(event) => {
             const target = event.target as HTMLElement
-            if (target.closest('a')) {
+            if (target.closest('a') || target.closest('button')) {
               setShowMenu(false)
             }
           }}
         >
-          {items}
+          <div className="flex items-center justify-between p-2 gap-2">
+            <div className="flex-1">
+              <SearchButton />
+            </div>
+            <div className="xs:hidden">{loginButton}</div>
+          </div>
+          <div className="space-y-px text-sm p-2 border-b border-gray-500/20">
+            {items}
+          </div>
+          <div className="p-4 sm:hidden">{socialLinks}</div>
         </div>
-        <div className="p-4 sm:hidden">{socialLinks}</div>
       </div>
     </div>
   ) : null

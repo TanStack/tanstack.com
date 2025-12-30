@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { MarkdownHeading } from '~/utils/markdown/processor'
@@ -35,37 +36,32 @@ export function Toc({
       </div>
       <ul
         className={twMerge(
-          'py-1 flex flex-col overflow-y-auto gap-0.5 text-[.6em] lg:text-[.65em] xl:text-[.7em] 2xl:text-[.75em]',
+          'py-1 flex flex-col overflow-y-auto text-[.6em] lg:text-[.65em] xl:text-[.7em] 2xl:text-[.75em]',
         )}
       >
         {headings?.map((heading) => (
           <li
             key={heading.id}
-            className={twMerge(
-              'cursor-pointer py-1 w-full rounded hover:bg-gray-500/10',
-              headingLevels[heading.level],
-            )}
+            className={twMerge('w-full', headingLevels[heading.level])}
           >
-            <a
+            <Link
+              to="."
               title={heading.id}
-              href={`#${heading.id}`}
+              hash={`#${heading.id}`}
               aria-current={activeHeadings.includes(heading.id) && 'location'}
               className={twMerge(
-                'flex items-start gap-1.5 transition-colors duration-200 opacity-60 hover:opacity-100',
-                activeHeadings.includes(heading.id) &&
-                  `opacity-100 ${textColor}`,
+                'block py-1 pl-2 border-l-2 rounded-r transition-colors duration-200 opacity-60 hover:opacity-100 hover:bg-gray-500/10',
+                activeHeadings.includes(heading.id)
+                  ? `opacity-100 border-current ${textColor}`
+                  : 'border-transparent',
               )}
+              resetScroll={false}
+              hashScrollIntoView={{
+                behavior: 'smooth',
+              }}
             >
-              <span
-                className={twMerge(
-                  'w-1.5 h-1.5 mt-1.5 shrink-0 rounded-full transition-opacity duration-200',
-                  activeHeadings.includes(heading.id)
-                    ? `bg-current`
-                    : 'opacity-0',
-                )}
-              />
               <span dangerouslySetInnerHTML={{ __html: heading.text }} />
-            </a>
+            </Link>
           </li>
         ))}
       </ul>

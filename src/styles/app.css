@@ -43,6 +43,19 @@
   --color-twine-950: #321c16;
 
   --color-discord: #536bbd;
+
+  /* Neutral gray scale (no blue tint) */
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e5e5e5;
+  --color-gray-300: #d4d4d4;
+  --color-gray-400: #a3a3a3;
+  --color-gray-500: #737373;
+  --color-gray-600: #525252;
+  --color-gray-700: #404040;
+  --color-gray-800: #262626;
+  --color-gray-900: #171717;
+  --color-gray-950: #0a0a0a;
 }
 
 /* Safelist for dynamic colors */
@@ -77,7 +90,7 @@ button {
 
   html.dark,
   html.dark body {
-    background-color: #0d0d0d; /* 95% black */
+    background-color: #0a0a0a; /* 96% black */
   }
 
   .using-mouse * {

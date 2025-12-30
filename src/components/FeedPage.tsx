@@ -102,7 +102,9 @@ export function FeedPage({
       libraries: normalizeFilter(effectiveFilters.libraries),
       partners: normalizeFilter(effectiveFilters.partners),
       tags: normalizeFilter(effectiveFilters.tags),
-      releaseLevels: normalizeFilter(effectiveFilters.releaseLevels),
+      releaseLevels: normalizeFilter(effectiveFilters.releaseLevels) ?? [
+        ...FEED_DEFAULTS.releaseLevels,
+      ],
       includePrerelease: effectiveFilters.includePrerelease,
       featured: effectiveFilters.featured,
       search: effectiveFilters.search,
@@ -117,7 +119,9 @@ export function FeedPage({
       libraries: normalizeFilter(effectiveFilters.libraries),
       partners: normalizeFilter(effectiveFilters.partners),
       tags: normalizeFilter(effectiveFilters.tags),
-      releaseLevels: normalizeFilter(effectiveFilters.releaseLevels),
+      releaseLevels: normalizeFilter(effectiveFilters.releaseLevels) ?? [
+        ...FEED_DEFAULTS.releaseLevels,
+      ],
       includePrerelease: effectiveFilters.includePrerelease,
       featured: effectiveFilters.featured,
       search: effectiveFilters.search,
@@ -246,7 +250,9 @@ export function FeedPage({
             selectedLibraries={effectiveFilters.libraries}
             selectedPartners={effectiveFilters.partners}
             selectedTags={effectiveFilters.tags}
-            selectedReleaseLevels={effectiveFilters.releaseLevels}
+            selectedReleaseLevels={
+              effectiveFilters.releaseLevels ?? [...FEED_DEFAULTS.releaseLevels]
+            }
             includePrerelease={effectiveFilters.includePrerelease}
             featured={effectiveFilters.featured}
             search={effectiveFilters.search}

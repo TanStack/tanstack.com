@@ -238,8 +238,8 @@ function Index() {
                         to={library.to ?? '#'}
                         params
                         className={twMerge(
-                          `border border-gray-300 border-t-2 border-t-gray-400 dark:border-gray-700 dark:border-t-gray-600 rounded-xl shadow-xs p-8 transition-all duration-300 ease-out
-                          bg-white dark:bg-black/40 backdrop-blur-sm`,
+                          `border border-gray-300 border-t-2 border-t-gray-400 rounded-xl shadow-xs p-8 transition-all duration-300 ease-out
+                          bg-white dark:bg-gray-900`,
                           'hover:shadow-sm hover:shadow-current/5 hover:border-current/30 hover:-translate-y-1',
                           'relative group',
                           'min-h-[250px] xl:min-h-[220px]',
@@ -362,7 +362,7 @@ function Index() {
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 text-center">
           <Link
             to="/libraries"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-black/40 backdrop-blur-sm shadow-md hover:shadow-xl hover:border-gray-400/70 dark:hover:border-gray-600/70 hover:-translate-y-1 transition-all duration-300 text-gray-900 dark:text-gray-100 font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 border-t-2 border-t-gray-400 dark:border-gray-700 dark:border-t-gray-600 bg-white dark:bg-gray-900 shadow-xs hover:shadow-sm hover:border-gray-400 dark:hover:border-gray-600 hover:-translate-y-1 transition-all duration-300 text-gray-900 dark:text-gray-100 font-medium"
           >
             <span>More Libraries</span>
             <svg
@@ -390,7 +390,7 @@ function Index() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-xl bg-white/80 dark:bg-black/40 border border-gray-200 dark:border-gray-800 shadow-sm">
+            <div className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-4">
                 <Layers className="w-5 h-5 text-white" />
               </div>
@@ -400,7 +400,7 @@ function Index() {
                 Vue, Solid, Angular, or vanilla JS—your choice.
               </p>
             </div>
-            <div className="p-6 rounded-xl bg-white/80 dark:bg-black/40 border border-gray-200 dark:border-gray-800 shadow-sm">
+            <div className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center mb-4">
                 <Code2 className="w-5 h-5 text-white" />
               </div>
@@ -410,7 +410,7 @@ function Index() {
                 and makes refactoring fearless.
               </p>
             </div>
-            <div className="p-6 rounded-xl bg-white/80 dark:bg-black/40 border border-gray-200 dark:border-gray-800 shadow-sm">
+            <div className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-4">
                 <Zap className="w-5 h-5 text-white" />
               </div>
@@ -420,7 +420,7 @@ function Index() {
                 workloads, not just happy-path demos.
               </p>
             </div>
-            <div className="p-6 rounded-xl bg-white/80 dark:bg-black/40 border border-gray-200 dark:border-gray-800 shadow-sm">
+            <div className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4">
                 <Shield className="w-5 h-5 text-white" />
               </div>
@@ -494,10 +494,9 @@ function Index() {
                       to="/blog/$"
                       params={{ _splat: slug }}
                       className={`flex flex-col gap-3 justify-between
-                      border-2 border-transparent rounded-lg p-4
-                      transition-all bg-white/90 dark:bg-black/40
-                      shadow-md dark:shadow-lg dark:shadow-blue-500/20
-                      hover:border-blue-500 hover:shadow-xl
+                      border border-gray-300 dark:border-gray-700 rounded-lg p-4
+                      transition-all bg-white dark:bg-gray-900
+                      shadow-xs hover:shadow-sm hover:border-blue-500
                     `}
                     >
                       <div>
@@ -564,10 +563,9 @@ function Index() {
               <a
                 key={course.name}
                 href={course.href}
-                className={`flex gap-2 justify-between border-2 border-transparent rounded-lg p-4 md:p-8
-              transition-all bg-white/90 dark:bg-black/40
-              shadow-xl shadow-green-700/10 dark:shadow-green-500/30
-              hover:border-green-500
+                className={`flex gap-2 justify-between border border-gray-300 dark:border-gray-700 rounded-lg p-4 md:p-8
+              transition-all bg-white dark:bg-gray-900
+              shadow-xs hover:shadow-sm hover:border-green-500
               `}
                 target="_blank"
                 rel="noreferrer"
@@ -698,7 +696,7 @@ function Index() {
         </div>
         <div className="h-4" />
         <div className="px-4 mx-auto max-w-(--breakpoint-lg) relative">
-          <div className="rounded-md p-8 bg-white shadow-xl shadow-gray-900/10 md:p-14 dark:bg-black/40">
+          <div className="rounded-md p-8 bg-white shadow-sm border border-gray-300 dark:border-gray-700 md:p-14 dark:bg-gray-900">
             {!bytesSignupMutation.submittedAt ? (
               <form
                 onSubmit={async (e) => {

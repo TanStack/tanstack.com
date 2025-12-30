@@ -1,5 +1,5 @@
 import { feedEntries } from '~/db/schema'
-import { eq, and, sql, inArray, gte } from 'drizzle-orm'
+import { eq, and, sql, inArray, gte, lte } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getEffectiveCapabilities } from './capabilities.server'
 import type { EntryType, ReleaseLevel } from '~/db/schema'
@@ -91,6 +91,8 @@ export function buildFeedQueryConditions(
   if (!filters.includeHidden) {
     conditions.push(eq(feedEntries.showInFeed, true))
     conditions.push(gte(feedEntries.publishedAt, new Date(0)))
+    // Exclude future entries (unless admin viewing hidden)
+    conditions.push(lte(feedEntries.publishedAt, new Date()))
   }
 
   // Entry type filter

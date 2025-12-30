@@ -380,8 +380,7 @@ function RouteComp() {
                     href={partner.href}
                     target="_blank"
                     rel="noreferrer"
-                    className="bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg
-                     dark:bg-black/50 dark:shadow-none overflow-hidden"
+                    className="bg-white dark:bg-gray-900 shadow-xs border border-gray-300 dark:border-gray-800 rounded-lg overflow-hidden"
                   >
                     <div className="p-6">
                       <div className="mb-4 h-24 flex items-center justify-center">

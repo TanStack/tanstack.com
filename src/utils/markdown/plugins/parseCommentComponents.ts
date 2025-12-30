@@ -83,7 +83,7 @@ export const rehypeParseCommentComponents = () => {
         if (
           isCommentNode(candidate) &&
           candidate.value.trim().toLowerCase() ===
-          `${END_PREFIX}${normalizeComponentName(componentName)}`
+            `${END_PREFIX}${normalizeComponentName(componentName)}`
         ) {
           endIndex = cursor
           break

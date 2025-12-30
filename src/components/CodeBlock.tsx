@@ -19,7 +19,6 @@ const LANG_ALIASES: Record<string, string> = {
   text: 'plaintext',
 }
 
-
 // Lazy highlighter singleton
 let highlighterPromise: Promise<HighlighterGeneric<any, any>> | null = null
 let mermaidInstance: Mermaid | null = null
@@ -91,10 +90,10 @@ function extractPreAttributes(html: string): {
 }
 
 export function CodeBlock({
-                            isEmbedded,
-                            showTypeCopyButton = true,
-                            ...props
-                          }: React.HTMLProps<HTMLPreElement> & {
+  isEmbedded,
+  showTypeCopyButton = true,
+  ...props
+}: React.HTMLProps<HTMLPreElement> & {
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
 }) {
@@ -107,10 +106,10 @@ export function CodeBlock({
   const children = props.children as
     | undefined
     | {
-    props: {
-      children: string
-    }
-  }
+        props: {
+          children: string
+        }
+      }
 
   const [copied, setCopied] = React.useState(false)
   const ref = React.useRef<any>(null)
@@ -131,7 +130,7 @@ export function CodeBlock({
 
   React[
     typeof document !== 'undefined' ? 'useLayoutEffect' : 'useEffect'
-    ](() => {
+  ](() => {
     ;(async () => {
       const themes = ['github-light', 'tokyo-night']
       const normalizedLang = LANG_ALIASES[lang] || lang

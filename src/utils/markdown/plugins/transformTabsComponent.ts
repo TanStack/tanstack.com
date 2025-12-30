@@ -26,7 +26,7 @@ function extractTabPanels(node): TabExtraction | null {
 
   const tabs: TabDescriptor[] = []
   const panels = []
-  let currentPanel= null
+  let currentPanel = null
 
   children.forEach((child: any) => {
     if (isHeading(child)) {
@@ -93,17 +93,15 @@ export function transformTabsComponent(node) {
     return
   }
 
-  const panelElements = result.panels.map(
-    (panelChildren, index) => ({
-      type: 'element',
-      tagName: 'md-tab-panel',
-      properties: {
-        'data-tab-slug': result.tabs[index]?.slug ?? `tab-${index + 1}`,
-        'data-tab-index': String(index),
-      },
-      children: panelChildren,
-    }),
-  )
+  const panelElements = result.panels.map((panelChildren, index) => ({
+    type: 'element',
+    tagName: 'md-tab-panel',
+    properties: {
+      'data-tab-slug': result.tabs[index]?.slug ?? `tab-${index + 1}`,
+      'data-tab-index': String(index),
+    },
+    children: panelChildren,
+  }))
 
   node.properties = {
     ...node.properties,

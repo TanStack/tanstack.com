@@ -11,11 +11,11 @@ authors:
 React Server Components are a genuine leap for React. They reduce bundle size, stream UI as it resolves, and move work off the client.
 
 But the way RSCs have been implemented so far comes with a tradeoff: **the server owns the component tree**.  
-Your client code opts into interactivity with `'use client'`. **Composition flows one direction**—server decides, client receives. The React model you know—props, context, client-led composition—gets fragmented across environments.
+Your client code opts into interactivity with `'use client'`. **Composition flows one direction**: server decides, client receives. The React model you know (props, context, client-led composition) gets fragmented across environments.
 
 What if it didn't have to?
 
-What if RSCs were actually components? **Fetchable. Cacheable. Composable by the client.** Primitives that flow through your router, your cache, your data layer—without special directives or framework lock-in.
+What if RSCs were actually components? **Fetchable. Cacheable. Composable by the client.** Primitives that flow through your router, your cache, your data layer, without special directives or framework lock-in.
 
 That's what we built in **TanStack Start**.
 
@@ -261,24 +261,6 @@ You choose patterns **per-route, per-component, per-use-case**. The architecture
 
 ---
 
-## The Philosophy
-
-React Server Components are powerful. They unlock patterns that weren't possible before.
-
-But the traditional model makes a choice: **the server owns the tree, and interactivity is an escape hatch.** That works for content-heavy sites. It creates friction for apps that are fundamentally interactive.
-
-**TanStack Start doesn't make that choice for you.**
-
-> RSCs are a serialization format, a way to stream React elements from the server. They're a primitive, not a paradigm. Use them when they help. Compose around them when you need control. The client and server are peers, not a hierarchy.
-
-The server can render interactive elements directly. It can also defer to the client through slots. **The client still owns the final composition.**  
-You decide the balance, per-component, based on what makes sense.
-
-Because it's not about client or server.  
-**It's about using both, intentionally.**
-
----
-
 ## Current Status: Experimental
 
 This is the first experimental release of RSCs in TanStack Start. A few things to know:
@@ -299,7 +281,7 @@ If you hit rough edges, [open an issue](https://github.com/tanstack/router/issue
 
 Next.js App Router is server-first: your component tree lives on the server by default, and you opt into client interactivity with `'use client'` boundaries.
 
-TanStack Start is **isomorphic-first**: your tree lives wherever makes sense, and RSCs are a primitive you pull in when helpful. The key difference is **client-led composition**—Composite Components expose slots so the client can assemble the final tree, not just accept a server-owned one.
+TanStack Start is **isomorphic-first**: your tree lives wherever makes sense, and RSCs are a primitive you pull in when helpful. The key difference is **client-led composition**. Composite Components expose slots so the client can assemble the final tree, not just accept a server-owned one.
 
 Both approaches support RSCs. They differ in who owns the tree by default and how composition flows.
 

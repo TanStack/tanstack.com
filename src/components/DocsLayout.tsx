@@ -128,7 +128,7 @@ function DocsMenuStrip({
             <div
               key={index}
               className={twMerge(
-                'flex-1 min-h-[4px] max-h-[9px] rounded-sm',
+                'flex-1 min-h-[4px] max-h-[9px] min-w-[20px] rounded-sm',
                 item.isSection
                   ? 'w-full bg-current opacity-15'
                   : isActive

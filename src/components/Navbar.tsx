@@ -202,7 +202,10 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                   ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
                   : 'lg:w-0 lg:opacity-0 lg:-translate-x-full',
               )}
-              onClick={toggleMenu}
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleMenu()
+              }}
               onPointerEnter={() => {
                 if (window.innerWidth < 1024) {
                   return

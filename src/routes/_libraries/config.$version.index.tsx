@@ -41,7 +41,7 @@ function FormVersionIndex() {
           actions={
             <a
               href={`/config/latest/docs`}
-              className="inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors bg-gray-500 text-white"
+              className="inline-block py-2 px-4 rounded-lg font-black transition-colors bg-gray-500 text-white"
             >
               Get Started
             </a>

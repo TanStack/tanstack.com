@@ -70,7 +70,7 @@ function LearnPage() {
           <Link
             to={'https://query.gg?s=tanstack' as string}
             target="_blank"
-            className="min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-800 shadow-black/20 shadow-md hover:shadow-lg hover:shadow-black/20 divide-y divide-white/30 transition-all duration-200 hover:scale-105 overflow-hidden block opacity-80"
+            className="min-w-[300px] max-w-[300px] rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xs hover:shadow-sm divide-y divide-gray-200 dark:divide-gray-800 transition-all duration-200 hover:scale-105 overflow-hidden block opacity-80"
           >
             <LogoQueryGG className="w-full" />
             <div className="flex flex-col gap-6 pt-2 p-4 lg:p-8 ">

@@ -222,7 +222,7 @@ export function CompactMaintainerCard({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`View ${maintainer.name}'s GitHub profile`}
-      className="group relative min-h-40 block rounded-lg shadow-md overflow-hidden"
+      className="group relative min-h-40 block rounded-lg shadow-xs border border-gray-200 dark:border-gray-800 overflow-hidden"
       tabIndex={0}
       style={{
         backgroundImage: `url(${maintainer.avatar})`,
@@ -252,7 +252,7 @@ export function MaintainerRowCard({
 
   return (
     <div
-      className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md w-full"
+      className="group bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xs border border-gray-200 dark:border-gray-800 w-full"
       aria-label={`Maintainer row card for ${maintainer.name}`}
     >
       <div className="flex items-center gap-4 p-4">
@@ -360,7 +360,7 @@ export function MaintainerCard({
 
   return (
     <div
-      className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md"
+      className="group bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xs border border-gray-200 dark:border-gray-800"
       aria-label={`Maintainer card for ${maintainer.name}`}
     >
       <a

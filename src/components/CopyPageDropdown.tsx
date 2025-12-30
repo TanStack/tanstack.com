@@ -47,17 +47,39 @@ function ChatGPTIcon({ className }: { className?: string }) {
   )
 }
 
-export function CopyPageDropdown() {
+// Cache for fetched markdown content
+const markdownCache = new Map<string, string>()
+
+type CopyPageDropdownProps = {
+  /** GitHub repo (e.g., 'tanstack/tanstack.com'). If provided, fetches from GitHub. */
+  repo?: string
+  /** GitHub branch (e.g., 'main'). Required if repo is provided. */
+  branch?: string
+  /** File path in the repo (e.g., 'src/blog/my-post.md'). Required if repo is provided. */
+  filePath?: string
+}
+
+export function CopyPageDropdown({
+  repo,
+  branch,
+  filePath,
+}: CopyPageDropdownProps = {}) {
   const [open, setOpen] = React.useState(false)
   const [copied, setCopied] = React.useState(false)
   const { notify } = useToast()
 
+  // Determine if we should fetch from GitHub or use the page URL
+  const useGitHub = repo && branch && filePath
+  const gitHubUrl = useGitHub
+    ? `https://raw.githubusercontent.com/${repo}/${branch}/${filePath}`
+    : null
+  const pageMarkdownUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}${typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') : ''}.md`
+
   const handleCopyPage = async () => {
-    const url = `${window.location.origin}${window.location.pathname.replace(/\/$/, '')}.md`
-    try {
-      const response = await fetch(url)
-      if (!response.ok) throw new Error('Failed to fetch')
-      const content = await response.text()
+    const urlToFetch = gitHubUrl || pageMarkdownUrl
+    const cached = markdownCache.get(urlToFetch)
+
+    const copyContent = async (content: string, source: string) => {
       await navigator.clipboard.writeText(content)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
@@ -65,28 +87,53 @@ export function CopyPageDropdown() {
         <div>
           <div className="font-medium">Copied to clipboard</div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            Markdown content copied
-          </div>
-        </div>,
-      )
-    } catch {
-      // Fallback to copying the URL
-      await navigator.clipboard.writeText(window.location.href)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-      notify(
-        <div>
-          <div className="font-medium">Copied to clipboard</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            Page URL copied
+            {source}
           </div>
         </div>,
       )
     }
+
+    if (cached) {
+      await copyContent(cached, 'Markdown content copied from cache')
+      return
+    }
+
+    try {
+      const response = await fetch(urlToFetch)
+      if (!response.ok) throw new Error('Failed to fetch')
+      const content = await response.text()
+      markdownCache.set(urlToFetch, content)
+      await copyContent(
+        content,
+        gitHubUrl
+          ? 'Markdown content copied from GitHub'
+          : 'Markdown content copied',
+      )
+    } catch {
+      // Fallback: try to copy current page content if available
+      const pageContent =
+        document.querySelector('.styled-markdown-content')?.textContent || ''
+      if (pageContent) {
+        await copyContent(pageContent, 'Copied rendered page content')
+      } else {
+        // Last resort: copy the URL
+        await navigator.clipboard.writeText(window.location.href)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+        notify(
+          <div>
+            <div className="font-medium">Copied to clipboard</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              Page URL copied
+            </div>
+          </div>,
+        )
+      }
+    }
   }
 
   const handleViewMarkdown = () => {
-    const url = `${window.location.origin}${window.location.pathname.replace(/\/$/, '')}.md`
+    const url = gitHubUrl || pageMarkdownUrl
     window.open(url, '_blank')
   }
 

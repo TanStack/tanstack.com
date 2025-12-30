@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
+import { Card } from '~/components/Card'
 import { partners, PartnerImage } from '~/utils/partners'
 import { seo } from '~/utils/seo'
 import { z } from 'zod'
@@ -375,12 +376,13 @@ function RouteComp() {
                     : null
 
                 return (
-                  <a
+                  <Card
                     key={partner.id}
+                    as="a"
                     href={partner.href}
                     target="_blank"
                     rel="noreferrer"
-                    className="bg-white dark:bg-gray-900 shadow-xs border border-gray-300 dark:border-gray-800 rounded-lg overflow-hidden"
+                    className="overflow-hidden"
                   >
                     <div className="p-6">
                       <div className="mb-4 h-24 flex items-center justify-center">
@@ -419,7 +421,7 @@ function RouteComp() {
                         )}
                       </div>
                     </div>
-                  </a>
+                  </Card>
                 )
               })}
             </div>

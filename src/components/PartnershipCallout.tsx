@@ -1,5 +1,6 @@
 import { getLibrary, LibraryId } from '~/libraries'
 import { HeartHandshake } from 'lucide-react'
+import { Card } from './Card'
 
 interface PartnershipCalloutProps {
   libraryId: LibraryId
@@ -9,11 +10,10 @@ export function PartnershipCallout({ libraryId }: PartnershipCalloutProps) {
   const library = getLibrary(libraryId)
 
   return (
-    <div
+    <Card
       className="relative flex-1 flex flex-col items-center text-sm text-center
-                  bg-white/50 shadow-md rounded-lg
                     divide-y-2 divide-gray-500/10 overflow-hidden
-                    dark:bg-black/40 dark:shadow-none w-[500px] max-w-full mx-auto"
+                    w-[500px] max-w-full mx-auto"
     >
       <span className="flex items-center gap-2 p-8 text-3xl text-rose-500 font-black uppercase">
         {library.name.replace('TanStack ', '')} <HeartHandshake /> You?
@@ -31,6 +31,6 @@ export function PartnershipCallout({ libraryId }: PartnershipCalloutProps) {
           Let's chat
         </a>
       </div>
-    </div>
+    </Card>
   )
 }

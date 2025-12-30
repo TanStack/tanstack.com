@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { format, formatDistanceToNow } from 'date-fns'
 import { Markdown } from '~/components/Markdown'
+import { Card } from '~/components/Card'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
 import { twMerge } from 'tailwind-merge'
@@ -148,10 +149,11 @@ export function FeedEntryTimeline({
   const externalLink = getExternalLink()
 
   return (
-    <article
+    <Card
+      as="article"
       className={twMerge(
-        'bg-white dark:bg-black/40 border border-gray-200 dark:border-gray-700 rounded-lg p-6 transition-all',
-        'hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-700',
+        'p-6 transition-all',
+        'hover:shadow-sm hover:border-gray-300 dark:hover:border-gray-700',
         entry.featured &&
           'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800',
       )}
@@ -358,6 +360,6 @@ export function FeedEntryTimeline({
           </a>
         </div>
       )}
-    </article>
+    </Card>
   )
 }

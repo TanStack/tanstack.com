@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { routerProject } from '~/libraries/router'
 import { Footer } from '~/components/Footer'
+import { Card } from '~/components/Card'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { PartnersSection } from '~/components/PartnersSection'
@@ -65,7 +66,7 @@ function RouterVersionIndex() {
       {/* Minimal code example card */}
       <div className="px-4 space-y-4 flex flex-col items-center ">
         <div className="text-3xl font-black">Just a quick look...</div>
-        <div className="group relative bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xl max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
+        <Card className="group relative overflow-hidden max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
           <div>
             <FrameworkIconTabs
               frameworks={routerProject.frameworks}
@@ -131,12 +132,12 @@ export default function App() {
             <Link
               to="/$libraryId/$version/docs"
               params={{ libraryId: library.id, version }}
-              className="inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors bg-emerald-500 text-white"
+              className="inline-block py-2 px-4 rounded-lg font-black transition-colors bg-emerald-500 text-white"
             >
               Get Started
             </Link>
           </div>
-        </div>
+        </Card>
       </div>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />

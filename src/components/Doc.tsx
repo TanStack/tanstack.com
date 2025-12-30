@@ -1,17 +1,14 @@
 import * as React from 'react'
-import { FoldHorizontal, SquarePen, UnfoldHorizontal } from 'lucide-react'
+import { FoldHorizontal, UnfoldHorizontal } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { useWidthToggle } from '~/components/DocsLayout'
-import { DocTitle } from '~/components/DocTitle'
-import { Markdown } from '~/components/Markdown'
 import { AdGate } from '~/contexts/AdsContext'
-import { CopyPageDropdown } from './CopyPageDropdown'
 import { GamHeader } from './Gam'
 import { Toc } from './Toc'
 import { TocMobile } from './TocMobile'
-import { DocFeedbackProvider } from './DocFeedbackProvider'
 import { renderMarkdown } from '~/utils/markdown'
 import { DocBreadcrumb } from './DocBreadcrumb'
+import { MarkdownContent } from './MarkdownContent'
 import type { ConfigSchema } from '~/utils/config'
 
 type DocProps = {
@@ -137,63 +134,35 @@ export function Doc({
               <DocBreadcrumb config={config} title={title} />
             </div>
           )}
-          {title ? (
-            <div className="flex flex-wrap items-center justify-between gap-2 pr-2 lg:pr-4">
-              <DocTitle>{title}</DocTitle>
-              <div className="flex items-center gap-2 shrink-0">
-                <CopyPageDropdown />
-
-                {setIsFullWidth && (
-                  <button
-                    onClick={() => setIsFullWidth(!isFullWidth)}
-                    className="p-2 mr-4 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors shrink-0 hidden [@media(min-width:1535px)]:inline-flex"
-                    title={isFullWidth ? 'Constrain width' : 'Expand width'}
-                  >
-                    {isFullWidth ? (
-                      <FoldHorizontal className="w-4 h-4" />
-                    ) : (
-                      <UnfoldHorizontal className="w-4 h-4" />
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : null}
-          <div className="h-4" />
-          <div className="h-px bg-gray-500 opacity-20" />
-          <div className="h-4" />
-          <div
-            ref={markdownContainerRef}
-            className={twMerge(
-              'prose prose-gray dark:prose-invert max-w-none',
-              '[font-size:14px]',
-              isTocVisible && 'sm:pr-2 lg:pr-4 xl:pr-6',
-              'styled-markdown-content',
-            )}
-          >
-            {libraryId && libraryVersion && pagePath ? (
-              <DocFeedbackProvider
-                pagePath={pagePath}
-                libraryId={libraryId}
-                libraryVersion={libraryVersion}
-              >
-                <Markdown htmlMarkup={markup} />
-              </DocFeedbackProvider>
-            ) : (
-              <Markdown htmlMarkup={markup} />
-            )}
-          </div>
-          <div className="h-12" />
-          <div className="w-full h-px bg-gray-500 opacity-30" />
-          <div className="flex py-4 opacity-70">
-            <a
-              href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
-              className="flex items-center gap-2"
-            >
-              <SquarePen /> Edit on GitHub
-            </a>
-          </div>
-          <div className="h-24" />
+          <MarkdownContent
+            title={title}
+            repo={repo}
+            branch={branch}
+            filePath={filePath}
+            htmlMarkup={markup}
+            containerRef={markdownContainerRef}
+            proseClassName={
+              isTocVisible ? 'sm:pr-2 lg:pr-4 xl:pr-6' : undefined
+            }
+            libraryId={libraryId}
+            libraryVersion={libraryVersion}
+            pagePath={pagePath}
+            titleBarActions={
+              setIsFullWidth ? (
+                <button
+                  onClick={() => setIsFullWidth(!isFullWidth)}
+                  className="p-2 mr-4 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors shrink-0 hidden [@media(min-width:1535px)]:inline-flex"
+                  title={isFullWidth ? 'Constrain width' : 'Expand width'}
+                >
+                  {isFullWidth ? (
+                    <FoldHorizontal className="w-4 h-4" />
+                  ) : (
+                    <UnfoldHorizontal className="w-4 h-4" />
+                  )}
+                </button>
+              ) : null
+            }
+          />
         </div>
 
         {isTocVisible && (

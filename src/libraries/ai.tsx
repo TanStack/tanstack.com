@@ -11,7 +11,7 @@ const textStyles = `text-pink-600 dark:text-pink-500`
 export const aiProject = {
   id: 'ai',
   name: 'TanStack AI',
-  cardStyles: `shadow-xl shadow-pink-700/20 dark:shadow-lg dark:shadow-pink-500/20 text-pink-500 dark:text-pink-400 border-2 border-transparent hover:border-current`,
+  cardStyles: `text-pink-500 dark:text-pink-400 hover:border-current`,
   to: '/ai',
   tagline: `A powerful, open-source AI SDK with a unified interface across multiple providers`,
   description: `A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.`,

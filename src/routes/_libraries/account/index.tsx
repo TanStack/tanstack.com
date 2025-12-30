@@ -5,6 +5,7 @@ import { useCapabilities } from '~/hooks/useCapabilities'
 import { useToast } from '~/components/ToastProvider'
 import { updateAdPreference } from '~/utils/users.server'
 import { LogOut } from 'lucide-react'
+import { Card } from '~/components/Card'
 
 export const Route = createFileRoute('/_libraries/account/')({
   component: AccountSettingsPage,
@@ -62,7 +63,7 @@ function AccountSettingsPage() {
   }
 
   return (
-    <div className="dark:bg-black/30 bg-white rounded-lg shadow-lg p-4 flex flex-col gap-y-6 max-w-lg">
+    <Card className="p-4 flex flex-col gap-y-6 max-w-lg">
       <div>
         <h3 className="font-bold mb-2 text-lg text-gray-900 dark:text-white">
           Connections
@@ -118,6 +119,6 @@ function AccountSettingsPage() {
           <LogOut /> Logout
         </button>
       </div>
-    </div>
+    </Card>
   )
 }

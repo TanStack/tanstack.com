@@ -13,13 +13,10 @@ import { z } from 'zod'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 import * as React from 'react'
-import { twMerge } from 'tailwind-merge'
-import { DocTitle } from '~/components/DocTitle'
-import { Markdown } from '~/components/Markdown'
-import { CopyMarkdownButton } from '~/components/CopyMarkdownButton'
+import { MarkdownContent } from '~/components/MarkdownContent'
 import { GamFooter, GamHeader } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
-import { ArrowLeft, SquarePen } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 function handleRedirects(docsPath: string) {
   if (docsPath.includes('directives-the-new-framework-lock-in')) {
@@ -105,10 +102,11 @@ export const Route = createFileRoute('/_libraries/blog/$')({
 function BlogPost() {
   const { title, content, filePath, authors, published } = Route.useLoaderData()
 
-  const blogContent = `_by ${formatAuthors(authors)} on ${format(
+  const blogContent = `<small>_by ${formatAuthors(authors)} on ${format(
     new Date(published || 0),
     'MMM dd, yyyy',
-  )}._
+  )}._</small>
+
 ${content}`
 
   const repo = 'tanstack/tanstack.com'
@@ -133,7 +131,7 @@ ${content}`
               </div>
             </AdGate>
             <div className="px-4">
-              <div className="w-full max-w-[936px] mx-auto">
+              <div className="w-full max-w-[900px] mx-auto">
                 <div className="mt-4 mb-2 md:mb-6 lg:mb-8">
                   <Link
                     from="/blog/$"
@@ -145,45 +143,17 @@ ${content}`
                   </Link>
                 </div>
               </div>
-              <div className="w-full max-w-[936px] mx-auto">
+              <div className="w-full max-w-[900px] mx-auto">
                 <div className="flex-1 min-h-0 flex flex-col">
                   <div className="w-full flex bg-white/70 dark:bg-black/40 rounded-xl">
                     <div className="flex overflow-auto flex-col w-full p-2 lg:p-4 xl:p-6">
-                      {title ? (
-                        <div className="flex items-center justify-between gap-4 pr-2 lg:pr-4">
-                          <DocTitle>{title}</DocTitle>
-                          <div className="flex items-center gap-4">
-                            <CopyMarkdownButton
-                              repo={repo}
-                              branch={branch}
-                              filePath={filePath}
-                            />
-                          </div>
-                        </div>
-                      ) : null}
-                      <div className="h-4" />
-                      <div className="h-px bg-gray-500 opacity-20" />
-                      <div className="h-4" />
-                      <div
-                        className={twMerge(
-                          'prose prose-gray dark:prose-invert max-w-none',
-                          '[font-size:14px]',
-                          'styled-markdown-content',
-                        )}
-                      >
-                        <Markdown rawContent={blogContent} />
-                      </div>
-                      <div className="h-12" />
-                      <div className="w-full h-px bg-gray-500 opacity-30" />
-                      <div className="flex py-4 opacity-70">
-                        <a
-                          href={`https://github.com/${repo}/edit/${branch}/${filePath}`}
-                          className="flex items-center gap-2"
-                        >
-                          <SquarePen /> Edit on GitHub
-                        </a>
-                      </div>
-                      <div className="h-24" />
+                      <MarkdownContent
+                        title={title}
+                        rawContent={blogContent}
+                        repo={repo}
+                        branch={branch}
+                        filePath={filePath}
+                      />
                     </div>
                   </div>
                 </div>

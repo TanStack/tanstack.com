@@ -26,6 +26,7 @@ import {
 import { formatDistanceToNow } from 'date-fns'
 import { Download, RefreshCw } from 'lucide-react'
 import { NpmIcon } from '~/components/icons/NpmIcon'
+import { Card } from '~/components/Card'
 
 type NpmPackage = {
   id: string
@@ -323,7 +324,7 @@ function NpmStatsAdmin() {
             </div>
           </div>
         ) : orgStats ? (
-          <div className="mb-8 p-6 bg-gradient-to-br from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-xl shadow-lg border border-emerald-200 dark:border-emerald-800">
+          <Card className="mb-8 p-6 bg-gradient-to-br from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-xl border-emerald-200 dark:border-emerald-800">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
@@ -421,15 +422,15 @@ function NpmStatsAdmin() {
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         ) : (
-          <div className="mb-8 p-6 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+          <Card className="mb-8 p-6 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
             <div className="text-center">
               <p className="text-yellow-800 dark:text-yellow-400 font-medium">
                 No org stats available. Click "Refresh All Stats" to populate.
               </p>
             </div>
-          </div>
+          </Card>
         )}
 
         {/* Library Stats Section */}
@@ -477,11 +478,11 @@ function NpmStatsAdmin() {
               </TableBody>
             </Table>
           ) : (
-            <div className="text-center py-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <Card className="text-center py-8">
               <p className="text-gray-600 dark:text-gray-400">
                 No library stats available.
               </p>
-            </div>
+            </Card>
           )}
         </div>
 
@@ -495,11 +496,11 @@ function NpmStatsAdmin() {
               <div className="text-gray-600 dark:text-gray-400">Loading...</div>
             </div>
           ) : packages.length === 0 ? (
-            <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <Card className="text-center py-12">
               <p className="text-gray-600 dark:text-gray-400">
                 No packages found.
               </p>
-            </div>
+            </Card>
           ) : (
             <Table>
               <TableHeader>

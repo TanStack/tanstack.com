@@ -5,7 +5,7 @@ authors:
   - Alem Tuzlak
 ---
 
-With the latest release we brought a major architectural change to how we do adapters. Instead of one monolithic adapter that does everything, we split into smaller adapters—each in charge of a single functionality.
+With the latest release we brought a major architectural change to how we do adapters. Instead of one monolithic adapter that does everything, we split into smaller adapters. Each in charge of a single functionality.
 
 Here's why.
 
@@ -29,7 +29,7 @@ We were trying to solve three things: bundle splitting, ease of development, and
 
 We don't want to give you a single function that bundles every possible functionality into your code, leaving kilobytes of data you never even use.
 
-The fix was straightforward: break up the monolith into micro-adapters. As every enterprise knows, this is the answer to all business problems—split it into micro-services. Or in our case, micro-adapters.
+The fix was straightforward: break up the monolith into micro-adapters. As every enterprise knows, this is the answer to all business problems. Split it into micro-services. Or in our case, micro-adapters.
 
 After the split, the single `openai` function turned into `openaiText`, `openaiImage`, `openaiSummarize`, and so on. You choose what you need. We give you the adapter to plug.
 
@@ -48,7 +48,7 @@ Here's how it looks with split adapters:
 
 1. Support 30 different adapters
 2. Add a new `BaseImageAdapter`
-3. Update however many adapters we want—1 or 30—to export an image adapter with the implemented functionality
+3. Update however many adapters we want (1 or 30) to export an image adapter with the implemented functionality
 4. Incrementally roll out support for adapters we don't include in the initial release
 
 This approach lets us be incremental and minimal in the surface area we impact. Supporting new functionalities becomes trivial because we don't have the overhead of adding it to every adapter at once.
@@ -73,7 +73,7 @@ adapter.image('model')
 adapter.text('model')
 ```
 
-Looks nicer. Feels more split. Same problem—it still bundles everything.
+Looks nicer. Feels more split. Same problem. It still bundles everything.
 
 We could have used a custom bundling approach in TanStack Start to strip unused parts from the bundle. But we don't want to force you to use our framework for the best experience. This library is for the web ecosystem, not just TanStack users. That approach was out of the question.
 

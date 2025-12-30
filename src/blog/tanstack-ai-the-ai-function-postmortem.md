@@ -36,7 +36,7 @@ ai({
 })
 ```
 
-Simple. Single function. Powers everything AI-related. Clear naming—you're using AI. Types constrained to each adapter's capabilities. Pass image options to an image adapter, text options to a text adapter.
+Simple. Single function. Powers everything AI-related. Clear naming. You're using AI. Types constrained to each adapter's capabilities. Pass image options to an image adapter, text options to a text adapter.
 
 Change models? Type errors if something's not supported. Change adapters? Type errors if something's not supported.
 
@@ -54,7 +54,7 @@ The simplicity of `ai()` for end users hid enormous implementation complexity.
 
 **Attempt 1: Function Overloads**
 
-We tried using function overloads to constrain each adapter's options. Too many scenarios. The overloads resolved to wrong signatures—you could end up providing video options instead of image options. We got it to 99% working, but the 1% felt wrong and was a bigger hurdle than you'd think.
+We tried using function overloads to constrain each adapter's options. Too many scenarios. The overloads resolved to wrong signatures. You could end up providing video options instead of image options. We got it to 99% working, but the 1% felt wrong and was a bigger hurdle than you'd think.
 
 Having 10+ overloads is cumbersome. Get the order wrong and it all falls apart. This would exponentially increase the difficulty of contributions and lowered our confidence in shipping stable releases.
 
@@ -68,7 +68,7 @@ We'll take complexity on our side over forcing you to use `as` casts or `any` ty
 
 ### The aiOptions Nightmare
 
-We added a `createXXXOptions` API—`createTextOptions`, `createImageOptions`, etc. You can construct options as ready-made agents and pass them into functions, overriding what you need.
+We added a `createXXXOptions` API. `createTextOptions`, `createImageOptions`, etc. You can construct options as ready-made agents and pass them into functions, overriding what you need.
 
 To match the theme, we called it `aiOptions`. It would constrain everything to the modality and provider:
 
@@ -82,13 +82,13 @@ ai(opts)
 
 Here's where we hit the wall.
 
-When `aiOptions` returned readonly values, spreading into `ai()` worked. But `aiOptions` was loosely typed—you could pass anything in.
+When `aiOptions` returned readonly values, spreading into `ai()` worked. But `aiOptions` was loosely typed. You could pass anything in.
 
 When we fixed `aiOptions` to accept only valid properties, the spread would cast the `ai()` function to `any`. Then it would accept anything.
 
 We went in circles. Get one part working, break another. Fix that, break the first thing.
 
-I believe it could have been done. Our approach was probably just wrong—some subtle bug in the system causing everything to break. But that proves the point: it was too complex to wrap your head around and find the root cause. Any fix would have to propagate through all the adapters. Very costly.
+I believe it could have been done. Our approach was probably just wrong. Some subtle bug in the system causing everything to break. But that proves the point: it was too complex to wrap your head around and find the root cause. Any fix would have to propagate through all the adapters. Very costly.
 
 We spent almost a week trying to get this API to work perfectly. We couldn't. Maybe another week would have done it. But then what? How would we fix bugs in this brittle type system? How would we find root causes?
 
@@ -98,7 +98,7 @@ Even if we'd gotten it working, there was another problem.
 
 We'd just split our adapters into smaller pieces so bundlers could tree-shake what you don't use. Then we put all that complexity right back into `ai()`.
 
-We don't want to be the lodash of AI libraries—bundling everything you don't use and calling it a day. If a huge adapter that bundles everything is not okay, a single function that does the same thing is definitely not okay.
+We don't want to be the lodash of AI libraries, bundling everything you don't use and calling it a day. If a huge adapter that bundles everything is not okay, a single function that does the same thing is definitely not okay.
 
 ## The Warnings We Missed
 
@@ -112,7 +112,7 @@ The warning sign we missed? LLMs couldn't reliably generate code for this API.
 
 Think about that. We're building tools for AI, and AI couldn't figure out how to use them. That should have been a massive clue that humans wouldn't reliably write to this API unaided either.
 
-LLMs like function names that indicate what the thing does. `ai()`—who knows? `generateImage()`—crystal clear.
+LLMs like function names that indicate what the thing does. `ai()`? Who knows. `generateImage()`? Crystal clear.
 
 When we finally asked the LLMs directly what they thought of the API, they were 4-0 against `ai()` and for the more descriptive approach we ended up with.
 
@@ -147,7 +147,7 @@ adapter.image('model')
 adapter.text('model')
 ```
 
-Looks nicer. Feels more unified. Same problem—still bundles everything.
+Looks nicer. Feels more unified. Same problem: still bundles everything.
 
 We could have done custom bundling in TanStack Start to strip unused parts, but we don't want to force you to use our framework for the best experience. This library is for the web ecosystem, not just TanStack users.
 

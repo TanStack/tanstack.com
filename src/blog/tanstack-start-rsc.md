@@ -11,11 +11,11 @@ authors:
 React Server Components are a genuine leap for React. They reduce bundle size, stream UI as it resolves, and move work off the client.
 
 But the way RSCs have been implemented so far comes with a tradeoff: **the server owns the component tree**.  
-Your client code opts into interactivity with `'use client'`. **Composition flows one direction**—server decides, client receives. The React model you know—props, context, bidirectional composition—gets fragmented across environments.
+Your client code opts into interactivity with `'use client'`. **Composition flows one direction**: server decides, client receives. The React model you know (props, context, bidirectional composition) gets fragmented across environments.
 
 What if it didn't have to?
 
-What if RSCs were actually components? **Fetchable. Cacheable. Composable in both directions.** Primitives that flow through your router, your cache, your data layer—without special directives or framework lock-in.
+What if RSCs were actually components? **Fetchable. Cacheable. Composable in both directions.** Primitives that flow through your router, your cache, your data layer, without special directives or framework lock-in.
 
 That's what we built in **TanStack Start**.
 
@@ -25,15 +25,15 @@ That's what we built in **TanStack Start**.
 
 Before diving into the model, it's worth understanding when server components shine:
 
-- **Heavy dependencies stay on the server.** Markdown parsers, syntax highlighters, date formatting libraries—these can add hundreds of KB to your bundle. With RSCs, that code runs on the server and only the rendered output ships to the client.
+- **Heavy dependencies stay on the server.** Markdown parsers, syntax highlighters, date formatting libraries can add hundreds of KB to your bundle. With RSCs, that code runs on the server and only the rendered output ships to the client.
 
 - **Colocated data fetching.** TanStack Router already eliminates waterfalls by parallelizing route loaders. RSCs offer a different ergonomic: awaiting data directly in the component that renders it, which can be convenient for static or slow-changing content.
 
-- **Sensitive logic stays secure.** API keys, database queries, business logic—none of it reaches the client bundle.
+- **Sensitive logic stays secure.** API keys, database queries, business logic: none of it reaches the client bundle.
 
 - **Streaming for perceived performance.** Instead of waiting for all data before showing anything, RSCs stream UI progressively. Users see content immediately while slower parts load in the background.
 
-RSCs aren't about replacing client interactivity—they're about choosing where work happens. **The question is: who controls that choice?**
+RSCs aren't about replacing client interactivity. They're about choosing where work happens. **The question is: who controls that choice?**
 
 ---
 
@@ -55,9 +55,9 @@ In the traditional model, you'd create a new client component, a new file, a new
 
 **TanStack Start flips the constraint.**
 
-**Server components can render interactive elements directly**—`<Link>`, `<Button>`, anything marked `'use client'`. That part works the same.
+**Server components can render interactive elements directly**: `<Link>`, `<Button>`, anything marked `'use client'`. That part works the same.
 
-But they can also **declare slots**—regions where the client decides what to render. Not by creating new components or files, but through plain props: children, render functions, whatever pattern you already use. These aren't special APIs—`renderActions` in the example below is just a prop name we chose. You can name your render props anything you want.
+But they can also **declare slots**, regions where the client decides what to render. Not by creating new components or files, but through plain props: children, render functions, whatever pattern you already use. These aren't special APIs. `renderActions` in the example below is just a prop name we chose. You can name your render props anything you want.
 
 ```tsx
 // Server
@@ -76,7 +76,7 @@ const getPost = createServerFn().handler(async ({ data }) => {
         <h1>{post.title}</h1>
         <p>{post.body}</p>
 
-        {/* Server renders this directly—it's interactive via 'use client' */}
+        {/* Server renders this directly, it's interactive via 'use client' */}
         <Link to="/posts/$postId" params={{ postId: post.nextPostId }}>
           Next Post
         </Link>
@@ -107,7 +107,7 @@ function PostPage({ postId }) {
   return (
     <Post
       renderActions={({ postId, authorId }) => (
-        // Full client interactivity—hooks, state, context, all of it
+        // Full client interactivity: hooks, state, context, all of it
         <PostActions postId={postId} authorId={authorId} />
       )}
     >
@@ -126,9 +126,9 @@ That's inversion of control.
 
 ## RSCs as a Primitive
 
-Here's the shift: in TanStack Start, **server components aren't a paradigm**. They're a _primitive_—a serialization format that flows through your existing architecture.
+Here's the shift: in TanStack Start, **server components aren't a paradigm**. They're a _primitive_, a serialization format that flows through your existing architecture.
 
-When `createServerFn` returns a server component, that component is a **stream**. This means you don't have to wait for the entire component to finish rendering before sending HTML to the client. Parts of the UI can render immediately while slower async work (database queries, API calls) resolves in the background. The client sees a Suspense fallback, then the final content streams in when ready—no full page reload, no blocking.
+When `createServerFn` returns a server component, that component is a **stream**. This means you don't have to wait for the entire component to finish rendering before sending HTML to the client. Parts of the UI can render immediately while slower async work (database queries, API calls) resolves in the background. The client sees a Suspense fallback, then the final content streams in when ready. No full page reload, no blocking.
 
 This works for SSR (streaming HTML during initial page load) and for client-side fetches (streaming RSC payloads during navigation or data refetches).
 
@@ -179,7 +179,7 @@ Every property access and function call is tracked:
 - `props.children` → serialized as a slot placeholder
 - `props.renderActions({ postId, authorId })` → serialized with the arguments attached
 
-You can destructure props normally—`({ children, renderActions })` works just as well as `props.children`. The proxy handles both patterns.
+You can destructure props normally. `({ children, renderActions })` works just as well as `props.children`. The proxy handles both patterns.
 
 **Over the wire, it's a React element stream** with embedded placeholders. On the client:
 
@@ -247,13 +247,13 @@ But the traditional model makes a choice: **the server owns the tree, and intera
 
 **TanStack Start doesn't make that choice for you.**
 
-> RSCs are a serialization format—a way to stream React elements from the server. They're a primitive, not a paradigm. Use them when they help. Compose around them when you need control. The client and server are peers, not a hierarchy.
+> RSCs are a serialization format, a way to stream React elements from the server. They're a primitive, not a paradigm. Use them when they help. Compose around them when you need control. The client and server are peers, not a hierarchy.
 
 The server can render interactive elements directly. It can also defer to the client through slots. **Composition flows both directions.**  
 You decide the balance, per-component, based on what makes sense.
 
 Because it's not about client or server.  
-**It's about using both—intentionally.**
+**It's about using both, intentionally.**
 
 ---
 
@@ -261,11 +261,11 @@ Because it's not about client or server.
 
 This is the first experimental release of RSCs in TanStack Start. A few things to know:
 
-**React's Flight serializer** — This release uses React's native RSC Flight protocol for serialization. That means TanStack Start's usual serialization features aren't available within server components for now. Standard JavaScript primitives, Dates, and React elements serialize fine. Custom serialization plugins and extended types will come in a future release as we unify the serialization layers.
+**React's Flight serializer**: This release uses React's native RSC Flight protocol for serialization. That means TanStack Start's usual serialization features aren't available within server components for now. Standard JavaScript primitives, Dates, and React elements serialize fine. Custom serialization plugins and extended types will come in a future release as we unify the serialization layers.
 
-**API surface** — The `createServerComponent` API and slot patterns shown here are stable in design but may see refinements based on feedback. We're shipping early to learn from real usage.
+**API surface**: The `createServerComponent` API and slot patterns shown here are stable in design but may see refinements based on feedback. We're shipping early to learn from real usage.
 
-**Performance** — Streaming works today. We're continuing to optimize the ReplayableStream buffering, frame protocol efficiency, and cache integration.
+**Performance**: Streaming works today. We're continuing to optimize the ReplayableStream buffering, frame protocol efficiency, and cache integration.
 
 If you hit rough edges, [open an issue](https://github.com/tanstack/router/issues) or drop into [Discord](https://tlinz.com/discord). This is the time to shape the API.
 
@@ -277,13 +277,13 @@ If you hit rough edges, [open an issue](https://github.com/tanstack/router/issue
 
 Next.js App Router is server-first: your component tree lives on the server by default, and you opt into client interactivity with `'use client'` boundaries.
 
-TanStack Start is **isomorphic-first**: your tree lives wherever makes sense, and RSCs are a primitive you pull in when helpful. The key difference is **bidirectional composition**—server components can defer to the client through slots, not just the other way around.
+TanStack Start is **isomorphic-first**: your tree lives wherever makes sense, and RSCs are a primitive you pull in when helpful. The key difference is **bidirectional composition**: server components can defer to the client through slots, not just the other way around.
 
 Both approaches support RSCs. They differ in who owns the tree by default and how composition flows.
 
 ### Can I use this with my existing Next.js/Remix app?
 
-Not directly—TanStack Start is its own framework built on TanStack Router. But if you're using TanStack Query or TanStack Router already, the mental model transfers. Server components become another data source that Query can cache and Router can load.
+Not directly. TanStack Start is its own framework built on TanStack Router. But if you're using TanStack Query or TanStack Router already, the mental model transfers. Server components become another data source that Query can cache and Router can load.
 
 ### Do I have to use RSCs?
 
@@ -291,7 +291,7 @@ No. RSCs are entirely opt-in. You can build fully client-side SPAs with TanStack
 
 ### What about React 19 / `use` / Server Actions?
 
-TanStack Start's RSC implementation builds on React's Flight protocol and works with React 19. Server Actions are a separate primitive—`createServerFn` serves a similar purpose but integrates with TanStack's middleware, validation, and caching model. We're watching the Server Actions API and will align where it makes sense.
+TanStack Start's RSC implementation builds on React's Flight protocol and works with React 19. Server Actions are a separate primitive. `createServerFn` serves a similar purpose but integrates with TanStack's middleware, validation, and caching model. We're watching the Server Actions API and will align where it makes sense.
 
 ### When will TanStack Start's full serialization work inside RSCs?
 
@@ -326,7 +326,7 @@ Not currently. Server functions that return UI must wrap it in `createServerComp
 
 ### Do `cloneElement` and React Context work with server component children?
 
-**`cloneElement`**: This won't work as you might expect. When children are passed from client to server, they're serialized as slot placeholders—not actual React elements the server can manipulate. The server can't inspect or clone client-provided children.
+**`cloneElement`**: This won't work as you might expect. When children are passed from client to server, they're serialized as slot placeholders, not actual React elements the server can manipulate. The server can't inspect or clone client-provided children.
 
 **React Context**: Context providers rendered by the server component _will_ wrap client children. If your server component renders `<ThemeProvider value="dark">{children}</ThemeProvider>`, the client children can consume that context. However, the context must be defined in a way that works across the server/client boundary (typically with `'use client'` on the provider component).
 

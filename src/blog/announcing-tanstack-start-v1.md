@@ -37,7 +37,7 @@ That page will stay current with the exact commands for the RC and the final 1.0
 
 ## Path to 1.0 stable
 
-We plan to cut 1.0 shortly after collecting RC feedback. Expect a few small RC iterations; any breaking changes will be clearly documented. As we approach stable, only light polish remains—no major API shifts.
+We plan to cut 1.0 shortly after collecting RC feedback. Expect a few small RC iterations; any breaking changes will be clearly documented. As we approach stable, only light polish remains. No major API shifts.
 
 > **Note:** React Server Components support is in active development and will land as a non-breaking v1.x addition.
 
@@ -67,6 +67,6 @@ Their collaboration is a pivotal force driving the open web forward. Explore the
 
 ## Your feedback counts
 
-This is the moment when your feedback matters most. Try the RC in a new or existing project and tell us what you think via the docs feedback links. If you hit an issue, the migration notes and examples in the docs will help—and we’ll be quick to respond.
+This is the moment when your feedback matters most. Try the RC in a new or existing project and tell us what you think via the docs feedback links. If you hit an issue, the migration notes and examples in the docs will help. And we’ll be quick to respond.
 
 Thanks for building with us. Let’s ship 1.0, together.

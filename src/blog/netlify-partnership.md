@@ -18,7 +18,7 @@ Netlify has earned its reputation as the ultimate deployment platform for modern
 
 ## Why Netlify?
 
-Netlify is more than just a deployment provider—they’ve worked closely with us to ensure that deploying TanStack Start applications is not just fast, but optimized for the best possible developer experience. Whether you’re building interactive UIs, data-heavy dashboards, real-time tools, or AI-powered applications, Netlify’s platform makes the process seamless.
+Netlify is more than just a deployment provider. They’ve worked closely with us to ensure that deploying TanStack Start applications is not just fast, but optimized for the best possible developer experience. Whether you’re building interactive UIs, data-heavy dashboards, real-time tools, or AI-powered applications, Netlify’s platform makes the process seamless.
 
 As part of this partnership, Netlify has also launched a **full-stack AI chatbot starter template** that showcases TanStack Start’s powerful data management capabilities alongside Netlify Functions. This template provides:
 

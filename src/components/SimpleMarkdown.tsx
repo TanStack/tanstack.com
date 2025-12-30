@@ -56,7 +56,7 @@ const markdownComponents: Record<string, React.FC<any>> = {
   ),
 }
 
-const options: HTMLReactParserOptions = {
+let options: HTMLReactParserOptions = {
   replace: (domNode) => {
     if (domNode instanceof Element && domNode.attribs) {
       const replacer = markdownComponents[domNode.name]

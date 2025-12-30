@@ -26,7 +26,7 @@ import {
   Unauthenticated,
   AuthLoading,
 } from '~/components/AuthComponents'
-import { libraries } from '~/libraries'
+import { libraries, findLibrary } from '~/libraries'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { GithubIcon } from '~/components/icons/GithubIcon'
@@ -40,9 +40,15 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
   const capabilities = useCapabilities()
 
-  const Title =
-    [...matches].reverse().find((m) => m.staticData.Title)?.staticData.Title ??
-    null
+  const { Title, library } = React.useMemo(() => {
+    const match = [...matches].reverse().find((m) => m.staticData.Title)
+    const libraryId = match?.params?.libraryId
+
+    return {
+      Title: match?.staticData.Title ?? null,
+      library: libraryId ? findLibrary(libraryId) : null,
+    }
+  }, [matches])
 
   const canAdmin = capabilities.includes('admin')
 
@@ -133,34 +139,30 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
 
   const socialLinks = (
-    <div className="flex items-center">
+    <div className="flex items-center [&_a]:p-1.5 [&_a]:opacity-50 [&_a:hover]:opacity-100 [&_a]:transition-opacity [&_svg]:text-sm">
       <a
-        href="https://x.com/tan_stack"
-        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
-        aria-label="Follow TanStack on X.com"
+        href={`https://github.com/${library?.repo ?? 'tanstack'}`}
+        aria-label={`Follow ${library?.name ?? 'TanStack'} on GitHub`}
       >
-        <BrandXIcon className="text-sm" />
+        <GithubIcon />
+      </a>
+      <a href="https://x.com/tan_stack" aria-label="Follow TanStack on X.com">
+        <BrandXIcon />
       </a>
       <a
         href="https://bsky.app/profile/tanstack.com"
-        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
-        aria-label="Follow TanStack on Bluesky"
+        aria-label="Follow TanStack on Besky"
       >
-        <BSkyIcon className="text-sm" />
+        <BSkyIcon />
       </a>
       <a
         href="https://instagram.com/tan_stack"
-        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
         aria-label="Follow TanStack on Instagram"
       >
-        <InstagramIcon className="text-sm" />
+        <InstagramIcon />
       </a>
-      <a
-        href="https://tlinz.com/discord"
-        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
-        aria-label="Join TanStack Discord"
-      >
-        <DiscordIcon className="text-sm" />
+      <a href="https://tlinz.com/discord" aria-label="Join TanStack Discord">
+        <DiscordIcon />
       </a>
     </div>
   )

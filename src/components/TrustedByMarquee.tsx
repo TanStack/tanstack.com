@@ -49,7 +49,7 @@ export function TrustedByMarquee({
                 key={i}
                 src={logoSrc}
                 alt={brand}
-                className="max-w-24 max-h-14 w-auto h-auto object-contain opacity-50 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-200 dark:invert dark:opacity-70 shrink-0"
+                className="max-w-24 max-h-14 w-auto h-auto object-contain opacity-50 grayscale hover:opacity-100 transition-all duration-200 dark:invert dark:opacity-70 shrink-0"
               />
             ) : (
               <span

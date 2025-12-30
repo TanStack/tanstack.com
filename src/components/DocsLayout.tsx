@@ -605,7 +605,7 @@ export function DocsLayout({
         sm:top-[var(--navbar-height)]
         "
         >
-          <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pl-4 pb-4">
+          <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pb-4">
             <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden -mr-px">
               <div className="w-full flex gap-2 justify-between border-b border-gray-500/20 px-3 py-2">
                 <Link

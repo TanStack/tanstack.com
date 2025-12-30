@@ -11,11 +11,11 @@ authors:
 React Server Components are a genuine leap for React. They reduce bundle size, stream UI as it resolves, and move work off the client.
 
 But the way RSCs have been implemented so far comes with a tradeoff: **the server owns the component tree**.  
-Your client code opts into interactivity with `'use client'`. **Composition flows one direction**: server decides, client receives. The React model you know (props, context, bidirectional composition) gets fragmented across environments.
+Your client code opts into interactivity with `'use client'`. **Composition flows one direction**—server decides, client receives. The React model you know—props, context, client-led composition—gets fragmented across environments.
 
 What if it didn't have to?
 
-What if RSCs were actually components? **Fetchable. Cacheable. Composable in both directions.** Primitives that flow through your router, your cache, your data layer, without special directives or framework lock-in.
+What if RSCs were actually components? **Fetchable. Cacheable. Composable by the client.** Primitives that flow through your router, your cache, your data layer—without special directives or framework lock-in.
 
 That's what we built in **TanStack Start**.
 
@@ -51,13 +51,24 @@ In the traditional model, you'd create a new client component, a new file, a new
 
 ---
 
-## Bidirectional Composition
+## Composite Components
 
-**TanStack Start flips the constraint.**
+**TanStack Start treats RSC output as a composable UI value.**
 
-**Server components can render interactive elements directly**: `<Link>`, `<Button>`, anything marked `'use client'`. That part works the same.
+A **Composite Component** is a server-produced React component that the client can fetch, cache, stream, and then **assemble into its own UI tree**. It’s not “the server owns the tree and the client hydrates what it gets”. It’s the server shipping UI _pieces_ that remain composable at the client.
 
-But they can also **declare slots**, regions where the client decides what to render. Not by creating new components or files, but through plain props: children, render functions, whatever pattern you already use. These aren't special APIs. `renderActions` in the example below is just a prop name we chose. You can name your render props anything you want.
+Composite Components give you two levels of composition:
+
+### 1) Intra-component slotting (composition inside one component)
+
+A Composite Component can render real server UI, _and_ expose **slots** using plain React patterns:
+
+- `children`
+- render props (like `renderActions`)
+
+These aren’t framework-specific APIs. They’re just props.
+
+The important nuance: client-provided UI crosses the boundary as **opaque slot placeholders**. The server can position those placeholders (because it owns the frame), but it can’t inspect, clone, or transform client subtrees. That’s what keeps the model predictable.
 
 ```tsx
 // Server
@@ -81,12 +92,12 @@ const getPost = createServerFn().handler(async ({ data }) => {
           Next Post
         </Link>
 
-        {/* Server defers this to the client */}
+        {/* Server requests client UI at a specific point */}
         <footer>
           {props.renderActions?.({ postId: post.id, authorId: post.authorId })}
         </footer>
 
-        {/* Client decides what goes here */}
+        {/* Client fills this slot */}
         {props.children}
       </article>
     ),
@@ -117,10 +128,21 @@ function PostPage({ postId }) {
 }
 ```
 
-**The server rendered the `<Link>` directly.** It also passed `postId` and `authorId` through the slot so the client could render `<PostActions>` with that data. And it left children open for the client to fill with `<Comments>`.
+Here the server renders the `<Link>` directly, but leaves **join points** for the client:
 
-**Both directions. Same component. No new files. No new boundaries.**  
-That's inversion of control.
+- a render prop slot for `<PostActions>` (with server-provided arguments)
+- a `children` slot for `<Comments>`
+
+### 2) Inter-component composition (composition across many components)
+
+Once a Composite Component is just “data you can render”, the client can treat it like a building block:
+
+- interleave multiple Composite Components in a brand-new tree
+- wrap them in client providers/layout
+- nest one Composite Component inside another by passing it through slots
+- reorder/swap them based on client state
+
+Same component. Same mental model. No new boundaries for every deferral.
 
 ---
 
@@ -249,7 +271,7 @@ But the traditional model makes a choice: **the server owns the tree, and intera
 
 > RSCs are a serialization format, a way to stream React elements from the server. They're a primitive, not a paradigm. Use them when they help. Compose around them when you need control. The client and server are peers, not a hierarchy.
 
-The server can render interactive elements directly. It can also defer to the client through slots. **Composition flows both directions.**  
+The server can render interactive elements directly. It can also defer to the client through slots. **The client still owns the final composition.**  
 You decide the balance, per-component, based on what makes sense.
 
 Because it's not about client or server.  
@@ -277,7 +299,7 @@ If you hit rough edges, [open an issue](https://github.com/tanstack/router/issue
 
 Next.js App Router is server-first: your component tree lives on the server by default, and you opt into client interactivity with `'use client'` boundaries.
 
-TanStack Start is **isomorphic-first**: your tree lives wherever makes sense, and RSCs are a primitive you pull in when helpful. The key difference is **bidirectional composition**: server components can defer to the client through slots, not just the other way around.
+TanStack Start is **isomorphic-first**: your tree lives wherever makes sense, and RSCs are a primitive you pull in when helpful. The key difference is **client-led composition**—Composite Components expose slots so the client can assemble the final tree, not just accept a server-owned one.
 
 Both approaches support RSCs. They differ in who owns the tree by default and how composition flows.
 
@@ -289,7 +311,7 @@ Not directly. TanStack Start is its own framework built on TanStack Router. But 
 
 No. RSCs are entirely opt-in. You can build fully client-side SPAs with TanStack Start, use traditional SSR without server components, or go fully static. RSCs are one tool in the spectrum, not a requirement.
 
-### What about React 19 / `use` / Server Actions?
+### What about React 19 / `use server` / Server Actions?
 
 TanStack Start's RSC implementation builds on React's Flight protocol and works with React 19. Server Actions are a separate primitive. `createServerFn` serves a similar purpose but integrates with TanStack's middleware, validation, and caching model. We're watching the Server Actions API and will align where it makes sense.
 

@@ -81,7 +81,7 @@ export function MarkdownContent({
         ref={containerRef}
         className={twMerge(
           'prose prose-gray dark:prose-invert max-w-none',
-          '[font-size:14px]',
+          '[font-size:16px]',
           'styled-markdown-content',
           proseClassName,
         )}

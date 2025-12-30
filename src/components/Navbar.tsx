@@ -28,6 +28,7 @@ import {
 } from '~/components/AuthComponents'
 import { libraries } from '~/libraries'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { useClickOutside } from '~/hooks/useClickOutside'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
@@ -67,27 +68,16 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [showMenu, setShowMenu] = React.useState(false)
-  const smallMenuRef = React.useRef<HTMLDivElement>(null)
 
   const toggleMenu = () => {
     setShowMenu((prev) => !prev)
   }
 
   // Close mobile menu when clicking outside
-  React.useEffect(() => {
-    if (!showMenu) return
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement
-      // Check if click is outside the small menu
-      if (smallMenuRef.current && !smallMenuRef.current.contains(target)) {
-        setShowMenu(false)
-      }
-    }
-
-    document.addEventListener('click', handleClickOutside)
-    return () => document.removeEventListener('click', handleClickOutside)
-  }, [showMenu])
+  const smallMenuRef = useClickOutside<HTMLDivElement>({
+    enabled: showMenu,
+    onClickOutside: () => setShowMenu(false),
+  })
 
   const loginButton = (
     <>
@@ -176,7 +166,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
 
   const navbar = (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
     <div
       className={twMerge(
         'w-full p-2 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
@@ -184,9 +173,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         'border-b border-gray-500/20',
       )}
       ref={containerRef}
-      onClick={() => {
-        setShowMenu(false)
-      }}
     >
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 font-black text-xl uppercase">
@@ -202,10 +188,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                   ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
                   : 'lg:w-0 lg:opacity-0 lg:-translate-x-full',
               )}
-              onClick={(e) => {
-                e.stopPropagation()
-                toggleMenu()
-              }}
+              onClick={toggleMenu}
               onPointerEnter={() => {
                 if (window.innerWidth < 1024) {
                   return

@@ -4,6 +4,7 @@ import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
+import { useClickOutside } from '~/hooks/useClickOutside'
 import { last } from '~/utils/utils'
 import type { ConfigSchema, MenuItem } from '~/utils/config'
 import { Framework } from '~/libraries'
@@ -92,10 +93,13 @@ function DocsMenuStrip({
   }
 
   return (
-    <div
-      className="flex flex-col gap-2 py-2 px-2 cursor-pointer h-full w-full"
+    <button
+      type="button"
+      className="flex flex-col gap-2 py-2 px-2 cursor-pointer h-full w-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-400/50"
       onPointerEnter={onHover}
+      onFocus={onHover}
       onClick={onClick}
+      aria-label="Open documentation menu"
     >
       {/* FrameworkSelect + VersionSelect icons */}
       <div className="flex flex-col gap-2 shrink-0">
@@ -140,7 +144,7 @@ function DocsMenuStrip({
           )
         })}
       </div>
-    </div>
+    </button>
   )
 }
 
@@ -346,9 +350,9 @@ export function DocsLayout({
           {group?.label}
         </LabelComp>
         <div className="h-2" />
-        <ul className="text-[.85em] leading-6 list-none">
+        <ul className="text-[.85em] leading-snug list-none">
           {group?.children?.map((child, i) => {
-            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-0.5 rounded-lg hover:bg-gray-500/10 opacity-60 hover:opacity-100`
+            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-1.5 rounded-lg hover:bg-gray-500/10 opacity-60 hover:opacity-100`
 
             return (
               <li key={i}>
@@ -386,7 +390,7 @@ export function DocsLayout({
                         >
                           <div
                             className={twMerge(
-                              'overflow-auto w-full',
+                              'w-full',
                               props.isActive
                                 ? `font-bold text-transparent bg-clip-text bg-linear-to-r ${colorFrom} ${colorTo}`
                                 : '',
@@ -423,7 +427,7 @@ export function DocsLayout({
             Documentation
           </div>
         </summary>
-        <div className="flex flex-col gap-4 p-4 whitespace-nowrap overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">
+        <div className="flex flex-col gap-4 p-4 overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">
           <div className="flex flex-col gap-1">
             <FrameworkSelect libraryId={libraryId} />
             <VersionSelect libraryId={libraryId} />
@@ -438,6 +442,15 @@ export function DocsLayout({
   // State and timer for auto-hide behavior (similar to Navbar)
   const [showLargeMenu, setShowLargeMenu] = React.useState(false)
   const leaveTimer = React.useRef<NodeJS.Timeout | undefined>(undefined)
+
+  // Close menu when clicking outside (only on sm-xl screens where it's an overlay)
+  const expandedMenuRef = useClickOutside<HTMLDivElement>({
+    enabled:
+      showLargeMenu &&
+      typeof window !== 'undefined' &&
+      window.innerWidth < 1280,
+    onClickOutside: () => setShowLargeMenu(false),
+  })
 
   const largeMenu = (
     <>
@@ -467,7 +480,8 @@ export function DocsLayout({
           }}
           onClick={() => {
             if (window.innerWidth < 1280) {
-              setShowLargeMenu((prev) => !prev)
+              clearTimeout(leaveTimer.current)
+              setShowLargeMenu(true)
             }
           }}
         />
@@ -475,12 +489,13 @@ export function DocsLayout({
 
       {/* Expanded menu - always visible on xl+, toggleable overlay on sm-xl */}
       <div
+        ref={expandedMenuRef}
         className={twMerge(
           'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
-          'flex-col gap-4',
+          'flex-col',
           'h-[calc(100dvh-var(--navbar-height))] top-[var(--navbar-height)]',
           'z-20 border-r border-gray-500/20',
-          'transition-all duration-300 p-4',
+          'transition-all duration-300',
           // Hidden on smallest screens, flex on sm+
           'hidden sm:flex',
           // On sm to xl: fixed overlay that slides in from left-0 (covers the strip)
@@ -505,12 +520,14 @@ export function DocsLayout({
           }
         }}
       >
-        <div className="flex flex-col gap-1">
-          <FrameworkSelect libraryId={libraryId} />
-          <VersionSelect libraryId={libraryId} />
-        </div>
-        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-4">
-          {menuItems}
+        <div className="flex-1 flex flex-col overflow-y-auto">
+          <div className="flex flex-col gap-1 p-4">
+            <FrameworkSelect libraryId={libraryId} />
+            <VersionSelect libraryId={libraryId} />
+          </div>
+          <div className="flex-1 flex flex-col gap-4 text-base px-4 pt-0 pb-4">
+            {menuItems}
+          </div>
         </div>
       </div>
     </>

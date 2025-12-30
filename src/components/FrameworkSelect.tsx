@@ -12,10 +12,21 @@ export function FrameworkSelect({ libraryId }: { libraryId: LibraryId }) {
   const frameworkConfig = useFrameworkConfig({
     frameworks: library.frameworks,
   })
+  const selectedFramework = frameworkConfig.available.find(
+    (f) => f.value === frameworkConfig.selected,
+  )
   return (
     <Select
-      className="min-w-[120px]"
-      label={frameworkConfig.label}
+      className="w-full"
+      icon={
+        selectedFramework?.logo ? (
+          <img
+            src={selectedFramework.logo}
+            alt={selectedFramework.label}
+            className="w-4 h-4"
+          />
+        ) : undefined
+      }
       selected={frameworkConfig.selected}
       available={frameworkConfig.available}
       onSelect={frameworkConfig.onSelect}

@@ -50,7 +50,7 @@ export function LibraryTestimonials({
 
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   return (
-    <div className="flex-shrink-0 w-72 md:w-80 rounded-lg bg-white dark:bg-gray-800 p-5 shadow-lg border border-gray-200 dark:border-gray-700">
+    <div className="flex-shrink-0 w-72 md:w-80 rounded-lg bg-white dark:bg-gray-800 p-5 shadow-md border border-gray-200 dark:border-gray-700">
       <div className="flex items-start gap-1 mb-3">
         {[...Array(5)].map((_, j) => (
           <Star

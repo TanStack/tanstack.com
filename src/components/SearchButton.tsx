@@ -15,15 +15,15 @@ export function SearchButton({ className }: SearchButtonProps) {
     <button
       onClick={openSearch}
       className={twMerge(
-        'flex items-center justify-between w-full p-1 pl-2 text-left bg-gray-500/10 dark:bg-gray-500/20 rounded-lg opacity-80 hover:opacity-100 transition-opacity duration-300 gap-2',
+        'flex items-center justify-between w-full px-2 py-1 text-left bg-gray-500/10 dark:bg-gray-500/20 rounded-md opacity-80 hover:opacity-100 transition-opacity duration-300 gap-2',
         className,
       )}
     >
-      <div className="flex items-center gap-1 text-sm">
-        <Search /> Search...
+      <div className="flex items-center gap-1 text-xs">
+        <Search className="w-3 h-3" /> Search...
       </div>
-      <div className="flex items-center bg-white/50 dark:bg-gray-500/50 rounded-md px-2 py-1 gap-1 font-bold text-xs whitespace-nowrap">
-        <Command /> + K
+      <div className="flex items-center bg-white/50 dark:bg-gray-500/50 rounded px-1.5 py-0.5 gap-0.5 font-medium text-[10px] whitespace-nowrap">
+        <Command className="w-2.5 h-2.5" /> K
       </div>
     </button>
   )

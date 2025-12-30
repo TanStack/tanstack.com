@@ -11,9 +11,12 @@ export function BackgroundGradient() {
   const matches = useMatches()
 
   if (!libraryId) {
-    const matchIndex = matches.findIndex((m) => m.id === '/_libraries')
+    const matchIndex = matches.findIndex((m) => m.routeId === '/_libraries')
     const match = matches[matchIndex + 1]
-    libraryId = match.routeId.split('/')[2]
+    if (match) {
+      // Route ID format: /_libraries/query/$version/ -> split gives ['', '_libraries', 'query', '$version', '']
+      libraryId = match.routeId.split('/')[2]
+    }
   }
 
   const library = findLibrary(libraryId as any)

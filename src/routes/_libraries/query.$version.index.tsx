@@ -72,7 +72,7 @@ function VersionIndex() {
             <div className="text-3xl font-black">Just a quick look...</div>
             <div
               className={twMerge(
-                `group bg-white/60 dark:bg-black/40 rounded-lg overflow-hidden shadow-xl
+                `group bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xl
             max-w-full mx-auto
             [&_pre]:bg-transparent! [&_pre]:p-4!`,
               )}
@@ -277,7 +277,7 @@ export class TodosComponent {
             </div>
           </div>
           <div className="px-4">
-            <div className="relative w-full bg-white/50 dark:bg-black/50 rounded-lg overflow-hidden shadow-xl">
+            <div className="relative w-full bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xl">
               <div className="">
                 <FrameworkIconTabs
                   frameworks={queryProject.frameworks}

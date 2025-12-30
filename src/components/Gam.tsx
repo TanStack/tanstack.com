@@ -90,8 +90,8 @@ function GamAd({
 
   const popupClasses =
     popupPosition === 'top'
-      ? 'absolute bottom-full right-0 opacity-0 group-hover:opacity-100 transition-all duration-300 z-10'
-      : 'absolute top-full right-0 opacity-0 group-hover:opacity-100  transition-all duration-300 z-10'
+      ? 'absolute bottom-full right-0 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 z-10'
+      : 'absolute top-full right-0 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 z-10'
 
   borderClassName = twMerge('rounded-xl overflow-hidden', borderClassName)
 
@@ -99,7 +99,7 @@ function GamAd({
     <div {...props} className={twMerge('relative group', className)}>
       <div
         className={twMerge(
-          'absolute inset-0 bg-white/50 dark:bg-black/20 shadow-xl shadow-black/2',
+          'absolute inset-0 bg-white/50 dark:bg-black/20 shadow-md',
           borderClassName,
           placeholderClassName,
           'pointer-events-none',
@@ -132,14 +132,14 @@ function GamAd({
       <div className={twMerge('flex gap-1', popupClasses)}>
         <Link
           to="/ads"
-          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 px-2 py-1 bg-white/90 dark:bg-gray-700 rounded-lg shadow-lg whitespace-nowrap"
+          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 px-2 py-1 bg-white/90 dark:bg-gray-700 rounded-lg shadow-md whitespace-nowrap"
         >
           Learn about TanStack Ads
         </Link>
         <Link
           to="/ads"
           hash="hide-ads"
-          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 px-2 py-1 bg-white/90 dark:bg-gray-700 rounded-lg shadow-lg whitespace-nowrap"
+          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 px-2 py-1 bg-white/90 dark:bg-gray-700 rounded-lg shadow-md whitespace-nowrap"
         >
           Hide Ads
         </Link>

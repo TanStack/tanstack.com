@@ -12,26 +12,27 @@ export function PartnersGrid({ partnersList }: PartnersGridProps) {
     (partner) => partner.status === 'active',
   )
 
+  // Sort by score descending so larger partners come first
+  const sortedItems = [...items].sort((a, b) => b.score - a.score)
+
   return (
-    <div className={`flex flex-wrap gap-6 justify-center relative max-w-full`}>
-      {items.map((partner) => {
+    <div className="flex flex-wrap justify-center items-stretch border border-gray-200 dark:border-gray-800 max-w-full">
+      {sortedItems.map((partner) => {
+        // Size the cell based on score
+        const width = Math.max(Math.round(120 + 280 * partner.score), 150)
+
         return (
           <a
             key={partner.name}
             href={partner.href}
             target="_blank"
             rel="noreferrer"
-            className="bg-white/80 shadow-xl shadow-gray-500/20 rounded-lg dark:border border-gray-500/20 dark:bg-black/40 dark:shadow-none
-              flex grow-1 justify-center p-8 hover:scale-[1.05] transition-all duration-100 ease-out max-w-full"
+            className="flex items-center justify-center p-6
+              border-r border-b border-gray-200 dark:border-gray-800
+              hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors duration-150 ease-out"
+            style={{ width, flexGrow: partner.score }}
           >
-            <div
-              className="z-0 row-start-1 col-start-1 flex items-center justify-center transition-all duration-200 max-w-full"
-              style={{
-                width: Math.max(Math.round(100 + 300 * partner.score), 150),
-              }}
-            >
-              <PartnerImage config={partner.image} alt={partner.name} />
-            </div>
+            <PartnerImage config={partner.image} alt={partner.name} />
           </a>
         )
       })}

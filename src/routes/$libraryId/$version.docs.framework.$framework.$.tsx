@@ -3,6 +3,7 @@ import {
   isNotFound,
   redirect,
   useLocation,
+  getRouteApi,
 } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { Doc } from '~/components/Doc'
@@ -10,6 +11,8 @@ import { loadDocs } from '~/utils/docs'
 import { getBranch, getLibrary } from '~/libraries'
 import { capitalize } from '~/utils/utils'
 import { DocContainer } from '~/components/DocContainer'
+
+const docsRouteApi = getRouteApi('/$libraryId/$version/docs')
 
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/$',
@@ -64,6 +67,7 @@ export const Route = createFileRoute(
 
 function Docs() {
   const { title, content, filePath } = Route.useLoaderData()
+  const { config } = docsRouteApi.useLoaderData()
   const { version, libraryId } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
@@ -80,10 +84,12 @@ function Docs() {
         filePath={filePath}
         colorFrom={library.colorFrom}
         colorTo={library.colorTo}
+        textColor={library.textColor}
         shouldRenderToc
         libraryId={libraryId}
         libraryVersion={version === 'latest' ? library.latestVersion : version}
         pagePath={location.pathname}
+        config={config}
       />
     </DocContainer>
   )

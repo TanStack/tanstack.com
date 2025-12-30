@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { X, TextAlignStart, ArrowLeft, ArrowRight } from 'lucide-react'
+import { TextAlignStart, ArrowLeft, ArrowRight, Menu, Tag } from 'lucide-react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
@@ -11,11 +11,100 @@ import { frameworkOptions } from '~/libraries/frameworks'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { twMerge } from 'tailwind-merge'
 import { partners, PartnerImage } from '~/utils/partners'
-import { GamFooter, GamVrec1 } from './Gam'
+import { GamFooter, GamHeader, GamVrec1 } from './Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
+
+// Component for the collapsed menu strip showing box indicators
+// Minimap style: boxes with flex height filling available vertical space
+function DocsMenuStrip({
+  menuConfig,
+  activeItem,
+  colorFrom,
+  colorTo,
+  frameworkLogo,
+  onHover,
+  onClick,
+}: {
+  menuConfig: MenuItem[]
+  activeItem: string | undefined
+  colorFrom: string
+  colorTo: string
+  frameworkLogo: string | undefined
+  onHover: () => void
+  onClick: () => void
+}) {
+  // Flatten all menu items with section markers
+  const itemsWithSections: Array<{
+    to?: string
+    label: React.ReactNode
+    isSection: boolean
+  }> = []
+  menuConfig.forEach((group) => {
+    itemsWithSections.push({ label: group.label, isSection: true })
+    group.children?.forEach((child) => {
+      itemsWithSections.push({
+        to: child.to,
+        label: child.label,
+        isSection: false,
+      })
+    })
+  })
+
+  return (
+    <div
+      className="flex flex-col gap-2 py-2 px-2 cursor-pointer h-full w-full"
+      onPointerEnter={onHover}
+      onClick={onClick}
+    >
+      {/* FrameworkSelect + VersionSelect icons */}
+      <div className="flex flex-col gap-2 shrink-0">
+        <div className="flex items-center justify-center">
+          <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
+            {frameworkLogo ? (
+              <img src={frameworkLogo} alt="" className="w-4 h-4" />
+            ) : (
+              <Menu className="w-3.5 h-3.5 opacity-60" />
+            )}
+          </span>
+        </div>
+        <div className="flex items-center justify-center">
+          <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
+            <Tag className="w-3.5 h-3.5 opacity-60" />
+          </span>
+        </div>
+      </div>
+
+      {/* Minimap: flex-height boxes filling remaining space */}
+      <div className="flex-1 flex flex-col gap-1 min-h-0">
+        {itemsWithSections.map((item, index) => {
+          const isActive = !item.isSection && item.to === activeItem
+
+          return (
+            <div
+              key={index}
+              className={twMerge(
+                'flex-1 min-h-[4px] max-h-[9px] rounded-sm',
+                item.isSection
+                  ? 'w-full bg-current opacity-15'
+                  : isActive
+                    ? `ml-2 w-[calc(100%-0.5rem)] bg-linear-to-r ${colorFrom} ${colorTo}`
+                    : 'ml-2 w-[calc(100%-0.5rem)] bg-current opacity-[0.06]',
+              )}
+              title={
+                typeof item.label === 'string'
+                  ? item.label
+                  : `Item ${index + 1}`
+              }
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 // Helper to get text color class from framework badge
 const getFrameworkTextColor = (frameworkValue: string | undefined) => {
@@ -178,6 +267,12 @@ export function DocsLayout({
   const prevItem = flatMenu[index - 1]
   const nextItem = flatMenu[index + 1]
 
+  // Get current framework's logo for the preview strip
+  const currentFramework = useCurrentFramework(frameworks)
+  const currentFrameworkOption = frameworkOptions.find(
+    (f) => f.value === currentFramework.framework,
+  )
+
   const [isFullWidth, setIsFullWidth] = useLocalStorage('docsFullWidth', false)
 
   const activePartners = partners.filter(
@@ -203,13 +298,13 @@ export function DocsLayout({
         className="[&>summary]:before:mr-1 [&>summary]:marker:text-[0.8em] [&>summary]:marker:leading-4 relative select-none"
         {...detailsProps}
       >
-        <LabelComp className="text-[.8em] uppercase font-black leading-4 ts-sidebar-label">
+        <LabelComp className="text-[.8em] font-bold leading-4 px-2 ts-sidebar-label">
           {group?.label}
         </LabelComp>
         <div className="h-2" />
         <ul className="text-[.85em] leading-6 list-none">
           {group?.children?.map((child, i) => {
-            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-[.1rem] rounded-lg hover:bg-gray-500/10`
+            const linkClasses = `flex gap-2 items-center justify-between group px-2 py-0.5 rounded-lg hover:bg-gray-500/10 opacity-60 hover:opacity-100`
 
             return (
               <li key={i}>
@@ -239,7 +334,12 @@ export function DocsLayout({
                   >
                     {(props) => {
                       return (
-                        <div className={twMerge(linkClasses)}>
+                        <div
+                          className={twMerge(
+                            linkClasses,
+                            props.isActive && 'opacity-100',
+                          )}
+                        >
                           <div
                             className={twMerge(
                               'overflow-auto w-full',
@@ -248,21 +348,8 @@ export function DocsLayout({
                                 : '',
                             )}
                           >
-                            {/* <div className="transition group-hover:delay-700 duration-300 group-hover:duration-[2s] group-hover:translate-x-[-50%]"> */}
                             {child.label}
-                            {/* </div> */}
                           </div>
-                          {child.badge ? (
-                            <div
-                              className={`text-xs ${
-                                props.isActive ? 'opacity-100' : 'opacity-40'
-                              } group-hover:opacity-100 font-bold transition-opacity ${getFrameworkTextColor(
-                                child.badge,
-                              )}`}
-                            >
-                              {child.badge}
-                            </div>
-                          ) : null}
                         </div>
                       )
                     }}
@@ -278,7 +365,7 @@ export function DocsLayout({
 
   const smallMenu = (
     <div
-      className="lg:hidden bg-white/50 sticky top-[var(--navbar-height)]
+      className="sm:hidden bg-white/50 sticky top-[var(--navbar-height)]
     max-h-[calc(100dvh-var(--navbar-height))] overflow-y-auto z-20 dark:bg-black/60 backdrop-blur-lg"
     >
       <details
@@ -288,13 +375,12 @@ export function DocsLayout({
       >
         <summary className="py-2 px-4 flex gap-2 items-center justify-between">
           <div className="flex-1 flex gap-4 items-center">
-            <TextAlignStart className="icon-open cursor-pointer" />
-            <X className="icon-close cursor-pointer" />
+            <Menu className="cursor-pointer" />
             Documentation
           </div>
         </summary>
         <div className="flex flex-col gap-4 p-4 whitespace-nowrap overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-1">
             <FrameworkSelect libraryId={libraryId} />
             <VersionSelect libraryId={libraryId} />
           </div>
@@ -305,22 +391,84 @@ export function DocsLayout({
     </div>
   )
 
+  // State and timer for auto-hide behavior (similar to Navbar)
+  const [showLargeMenu, setShowLargeMenu] = React.useState(false)
+  const leaveTimer = React.useRef<NodeJS.Timeout | undefined>(undefined)
+
   const largeMenu = (
-    <div
-      className="bg-white/50 dark:bg-black/30 shadow-xl max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]
-      hidden lg:flex flex-col gap-4 sticky
-      h-[calc(100dvh-var(--navbar-height))] lg:top-[var(--navbar-height)]
-      z-20 dark:border-r
-      border-gray-500/20 transition-all duration-500 py-2"
-    >
-      <div className="flex gap-2 px-4">
-        <FrameworkSelect libraryId={libraryId} />
-        <VersionSelect libraryId={libraryId} />
+    <>
+      {/* Collapsed strip - visible on sm to xl, hidden on xl+. Lower z-index so expanded menu covers it */}
+      <div
+        className={twMerge(
+          'hidden sm:flex xl:hidden flex-col',
+          'sticky top-[var(--navbar-height)] h-[calc(100dvh-var(--navbar-height))]',
+          'z-10 border-r border-gray-500/20',
+          'bg-white/50 dark:bg-black/30',
+          'w-14',
+        )}
+      >
+        <DocsMenuStrip
+          menuConfig={menuConfig}
+          activeItem={relativePathname}
+          colorFrom={colorFrom}
+          colorTo={colorTo}
+          frameworkLogo={currentFrameworkOption?.logo}
+          onHover={() => {
+            if (window.innerWidth < 1280) {
+              // Only auto-show on lg screens, not xl+
+              clearTimeout(leaveTimer.current)
+              setShowLargeMenu(true)
+            }
+          }}
+          onClick={() => {
+            if (window.innerWidth < 1280) {
+              setShowLargeMenu((prev) => !prev)
+            }
+          }}
+        />
       </div>
-      <div className="flex-1 flex flex-col gap-4 px-4 whitespace-nowrap overflow-y-auto text-base pb-8">
-        {menuItems}
+
+      {/* Expanded menu - always visible on xl+, toggleable overlay on sm-xl */}
+      <div
+        className={twMerge(
+          'max-w-[250px] xl:max-w-[300px] 2xl:max-w-[400px]',
+          'flex-col gap-4',
+          'h-[calc(100dvh-var(--navbar-height))] top-[var(--navbar-height)]',
+          'z-20 border-r border-gray-500/20',
+          'transition-all duration-300 p-4',
+          // Hidden on smallest screens, flex on sm+
+          'hidden sm:flex',
+          // On sm to xl: fixed overlay that slides in from left-0 (covers the strip)
+          'sm:fixed sm:left-0 sm:bg-white sm:dark:bg-black/95 sm:backdrop-blur-lg sm:shadow-xl',
+          // On xl+: sticky positioning, no overlay styling
+          'xl:sticky xl:bg-transparent xl:dark:bg-transparent xl:backdrop-blur-none xl:shadow-none',
+          // Slide animation for sm-xl screens (off-screen by default, slides in when shown)
+          // On xl+: always visible (no translate)
+          !showLargeMenu && 'sm:-translate-x-full xl:translate-x-0',
+          showLargeMenu && 'sm:translate-x-0',
+        )}
+        onPointerEnter={() => {
+          if (window.innerWidth < 1280) {
+            clearTimeout(leaveTimer.current)
+          }
+        }}
+        onPointerLeave={() => {
+          if (window.innerWidth < 1280) {
+            leaveTimer.current = setTimeout(() => {
+              setShowLargeMenu(false)
+            }, 300)
+          }
+        }}
+      >
+        <div className="flex flex-col gap-1">
+          <FrameworkSelect libraryId={libraryId} />
+          <VersionSelect libraryId={libraryId} />
+        </div>
+        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-4">
+          {menuItems}
+        </div>
       </div>
-    </div>
+    </>
   )
 
   return (
@@ -328,25 +476,28 @@ export function DocsLayout({
       <div
         className={`
           min-h-[calc(100dvh-var(--navbar-height))]
-          flex flex-col lg:flex-row
+          flex flex-col sm:flex-row
           w-full transition-all duration-300`}
       >
         {smallMenu}
         {largeMenu}
-        <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative mb-8">
+        <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative px-4 sm:px-0 sm:pl-8">
           <div
             className={twMerge(
-              `max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] lg:min-h-0`,
-              !isExample && !isFullWidth && 'mx-auto w-[1208px]', // page width
+              `max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] sm:min-h-0`,
+              !isExample && !isFullWidth && 'mx-auto w-[900px]', // page width
             )}
           >
             {children}
           </div>
           <AdGate>
-            <div className="px-2 xl:px-4 flex">
-              <div className="mb-8 !py-0! mx-auto max-w-full justify-center">
+            {/* <div className="flex border-t border-gray-500/20">
+              <div className="py-4 px-2 xl:px-4 mx-auto max-w-full justify-center">
                 <GamFooter popupPosition="top" />
               </div>
+            </div> */}
+            <div className="py-2 pb-4 lg:py-4 lg:pb-6 xl:py-6 xl:pb-8 max-w-full">
+              <GamHeader />
             </div>
           </AdGate>
           <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
@@ -356,7 +507,7 @@ export function DocsLayout({
                   from="/$libraryId/$version/docs"
                   to={prevItem.to}
                   params
-                  className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
+                  className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-md flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
                 >
                   <div className="flex gap-2 items-center font-bold">
                     <ArrowLeft />
@@ -371,7 +522,7 @@ export function DocsLayout({
                   from="/$libraryId/$version/docs"
                   to={nextItem.to}
                   params
-                  className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-lg shadow-black/20 flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
+                  className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-md flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
                 >
                   <div className="flex gap-2 items-center font-bold">
                     <span
@@ -387,53 +538,55 @@ export function DocsLayout({
           </div>
         </div>
         <div
-          className="lg:-ml-2 lg:pl-2 w-full lg:w-[300px] shrink-0 lg:sticky
-        lg:top-[var(--navbar-height)]
+          className="w-full sm:w-[300px] shrink-0 sm:sticky
+        sm:top-[var(--navbar-height)]
         "
         >
-          <div className="lg:sticky lg:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center lg:flex-col gap-2">
-            <div className="bg-white/70 dark:bg-black/40 border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border border-r-0 border-t-0 rounded-bl-lg">
-              <div className="px-2 w-full flex gap-2 justify-between">
-                <Link
-                  className="uppercase font-black text-center pt-2 pb-1 opacity-60 hover:opacity-100 text-xs"
-                  to="/partners"
-                >
-                  Partners
-                </Link>
-                <a
-                  href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="uppercase font-black text-center pt-2 pb-1 opacity-60 hover:opacity-100 text-xs block hover:underline"
-                >
-                  Become a Partner
-                </a>
-              </div>
-              <div
-                className="flex flex-wrap justify-center px-4 py-2
-                gap-x-3
-                gap-y-3
-                [@media(min-width:1600px)]:gap-y-4
-                [@media(min-width:1920px)]:gap-y-6
-              "
-              >
+          <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pl-4 pb-4">
+            <div className="flex flex-col">
+              <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden -mr-px">
+                <div className="w-full flex gap-2 justify-between border-b border-gray-500/20 px-3 py-2">
+                  <Link
+                    className="font-medium opacity-60 hover:opacity-100 text-xs"
+                    to="/partners"
+                  >
+                    Partners
+                  </Link>
+                  <a
+                    href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
+                  >
+                    Become a Partner
+                  </a>
+                </div>
                 {activePartners
                   .filter((d) => d.id !== 'ui-dev')
                   .map((partner) => {
+                    // flexBasis as percentage based on score, flexGrow to fill remaining row space
+                    const widthPercent = Math.round(partner.score * 100)
+
                     return (
                       <a
                         key={partner.name}
                         href={partner.href}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex grow-1 justify-center"
+                        className="flex items-center justify-center px-3 py-2
+                          border-r border-b border-gray-500/20
+                          hover:bg-gray-500/10 transition-colors duration-150 ease-out"
+                        style={{
+                          flexBasis: `${widthPercent}%`,
+                          flexGrow: 1,
+                          flexShrink: 0,
+                        }}
                       >
                         <div
-                          className="z-0 flex items-center justify-center max-w-full"
                           style={{
                             width: Math.max(
-                              50 + Math.round(200 * partner.score),
-                              100,
+                              60 + Math.round(140 * partner.score),
+                              70,
                             ),
                           }}
                         >
@@ -448,10 +601,15 @@ export function DocsLayout({
               </div>
             </div>
             <AdGate>
-              <GamVrec1 popupPosition="top" />
+              <div className="max-w-full overflow-hidden">
+                <GamVrec1
+                  popupPosition="top"
+                  borderClassName="rounded-l-xl rounded-r-none"
+                />
+              </div>
             </AdGate>
             {libraryId === 'query' ? (
-              <div className="p-4 bg-white/70 dark:bg-black/40 border-b border-gray-500/20 shadow-xl divide-y divide-gray-500/20 flex flex-col border-t border-l rounded-l-lg">
+              <div className="p-4 bg-white/70 dark:bg-black/40 rounded-lg flex flex-col">
                 <DocsCalloutQueryGG />
               </div>
             ) : null}

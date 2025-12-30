@@ -3,7 +3,14 @@ import { Doc } from '~/components/Doc'
 import { loadDocs } from '~/utils/docs'
 import { findLibrary, getBranch, getLibrary } from '~/libraries'
 import { DocContainer } from '~/components/DocContainer'
-import { notFound, createFileRoute, useLocation } from '@tanstack/react-router'
+import {
+  notFound,
+  createFileRoute,
+  useLocation,
+  getRouteApi,
+} from '@tanstack/react-router'
+
+const docsRouteApi = getRouteApi('/$libraryId/$version/docs')
 
 export const Route = createFileRoute('/$libraryId/$version/docs/$')({
   staleTime: 1000 * 60 * 5,
@@ -70,6 +77,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
 function Docs() {
   const { version, libraryId, _splat } = Route.useParams()
   const { title, content, filePath } = Route.useLoaderData()
+  const { config } = docsRouteApi.useLoaderData()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
   const location = useLocation()
@@ -84,10 +92,12 @@ function Docs() {
         filePath={filePath}
         colorFrom={library.colorFrom}
         colorTo={library.colorTo}
+        textColor={library.textColor}
         shouldRenderToc
         libraryId={libraryId}
         libraryVersion={version === 'latest' ? library.latestVersion : version}
         pagePath={location.pathname}
+        config={config}
       />
     </DocContainer>
   )

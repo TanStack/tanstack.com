@@ -15,7 +15,6 @@ import {
   Hammer,
   User,
   Lock,
-  X,
   Menu,
   Rss,
 } from 'lucide-react'
@@ -79,11 +78,13 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         const loginEl = (
           <Link
             to="/login"
-            className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
-            hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
+            className="flex items-center gap-1 rounded-md px-2 py-1.5
+            bg-black dark:bg-white text-white dark:text-black
+            hover:bg-gray-800 dark:hover:bg-gray-200
+            transition-colors duration-200 text-xs font-medium"
           >
-            <User className="text-sm" />
-            <div>Log In</div>
+            <User className="w-3.5 h-3.5" />
+            <span>Log In</span>
           </Link>
         )
 
@@ -99,21 +100,25 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         {!canAdmin ? (
           <Link
             to="/account"
-            className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
-            hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
+            className="flex items-center gap-1 rounded-md px-2 py-1.5
+            border border-gray-200 dark:border-gray-700
+            hover:bg-gray-100 dark:hover:bg-gray-800
+            transition-colors duration-200 text-xs font-medium"
           >
-            <User className="text-sm" />
-            <div>Account</div>
+            <User className="w-3.5 h-3.5" />
+            <span>Account</span>
           </Link>
         ) : null}
         {canAdmin ? (
           <Link
             to="/admin"
-            className="flex items-center gap-1 bg-gray-500/20 rounded-lg p-2 opacity-80
-            hover:opacity-100 whitespace-nowrap uppercase font-black text-xs"
+            className="flex items-center gap-1 rounded-md px-2 py-1.5
+            border border-gray-200 dark:border-gray-700
+            hover:bg-gray-100 dark:hover:bg-gray-800
+            transition-colors duration-200 text-xs font-medium"
           >
-            <Lock className="text-sm" />
-            <div>Admin</div>
+            <Lock className="w-3.5 h-3.5" />
+            <span>Admin</span>
           </Link>
         ) : null}
       </Authenticated>
@@ -121,34 +126,34 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   )
 
   const socialLinks = (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center">
       <a
         href="https://x.com/tan_stack"
-        className="opacity-70 hover:opacity-100"
+        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
         aria-label="Follow TanStack on X.com"
       >
-        <BrandXIcon className="text-xl" />
+        <BrandXIcon className="text-sm" />
       </a>
       <a
         href="https://bsky.app/profile/tanstack.com"
-        className="opacity-70 hover:opacity-100"
-        aria-label="Follow TanStack on Besky"
+        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
+        aria-label="Follow TanStack on Bluesky"
       >
-        <BSkyIcon className="text-xl" />
+        <BSkyIcon className="text-sm" />
       </a>
       <a
         href="https://instagram.com/tan_stack"
-        className="opacity-70 hover:opacity-100"
+        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
         aria-label="Follow TanStack on Instagram"
       >
-        <InstagramIcon className="text-xl" />
+        <InstagramIcon className="text-sm" />
       </a>
       <a
         href="https://tlinz.com/discord"
-        className="opacity-70 hover:opacity-100"
+        className="p-1.5 opacity-50 hover:opacity-100 transition-opacity"
         aria-label="Join TanStack Discord"
       >
-        <DiscordIcon className="text-xl" />
+        <DiscordIcon className="text-sm" />
       </a>
     </div>
   )
@@ -156,9 +161,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const navbar = (
     <div
       className={twMerge(
-        'w-full p-2 fixed top-0 z-[100] bg-white/70 dark:bg-black/70 backdrop-blur-lg shadow-xl shadow-black/3',
+        'w-full p-2 fixed top-0 z-[100] bg-white/90 dark:bg-black/90 backdrop-blur-lg',
         'flex items-center justify-between gap-4',
-        'dark:border-b border-gray-500/20',
+        'border-b border-gray-500/20',
       )}
       ref={containerRef}
     >
@@ -184,7 +189,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 setShowMenu(true)
               }}
             >
-              {showMenu ? <X /> : <Menu />}
+              <Menu />
             </button>
             <Link
               to="/"
@@ -214,21 +219,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           </BrandContextMenu>
           {Title ? <Title /> : null}
         </div>
-        <div className="flex-1 max-w-[180px] font-normal hidden lg:block">
-          <SearchButton />
-        </div>
       </div>
       <div className="hidden lg:flex flex-1 justify-end min-w-0">
         <FeedTicker />
       </div>
       <div className="flex items-center gap-2">
-        <div className="hidden sm:block">{socialLinks}</div>
-        <div className="ml-auto">
-          <ThemeToggle />
+        <div className="hidden min-[750px]:block">{socialLinks}</div>
+        <div className="hidden sm:block">
+          <SearchButton />
         </div>
-        <div className="hidden sm:flex items-center gap-2 flex-wrap">
-          {loginButton}
-        </div>
+        <ThemeToggle />
+        <div className="hidden xs:flex items-center gap-2">{loginButton}</div>
       </div>
     </div>
   )
@@ -579,7 +580,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </div>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
         <div
-          className="space-y-px text-sm p-2 border-b border-gray-500/10 dark:border-gray-500/20"
+          className="space-y-px text-sm p-2 border-b border-gray-500/20"
           onClick={(event) => {
             const target = event.target as HTMLElement
             if (target.closest('a')) {
@@ -604,15 +605,13 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         className={twMerge(
           `px] hidden lg:flex flex-col
       h-[calc(100dvh-var(--navbar-height))] sticky top-[var(--navbar-height)] z-20
-      bg-white/50 dark:bg-black/30 shadow-xl dark:border-r border-gray-500/20`,
+      bg-white/50 dark:bg-black/30 border-r border-gray-500/20`,
           'transition-all duration-300',
           'z-50',
-          inlineMenu
-            ? ''
-            : [
-                'fixed bg-white dark:bg-black/90 backdrop-blur-lg -translate-x-full',
-                showMenu && 'translate-x-0',
-              ],
+          !inlineMenu &&
+            'fixed bg-white dark:bg-black/90 backdrop-blur-lg shadow-xl',
+          !inlineMenu && !showMenu && '-translate-x-full',
+          !inlineMenu && showMenu && 'translate-x-0',
         )}
         onPointerEnter={() => {
           clearTimeout(leaveTimer.current)
@@ -623,7 +622,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           }, 300)
         }}
       >
-        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[50px]">
+        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[50px] min-w-[260px]">
           <div className="flex flex-col gap-1 text-sm p-2">{items}</div>
         </div>
       </div>

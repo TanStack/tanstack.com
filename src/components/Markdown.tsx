@@ -12,7 +12,7 @@ import parse, {
 import type { Mermaid } from 'mermaid'
 import { useToast } from '~/components/ToastProvider'
 import { twMerge } from 'tailwind-merge'
-import { useMarkdownHeadings } from '~/components/MarkdownHeadingContext'
+
 import { renderMarkdown } from '~/utils/markdown'
 import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 import { Tabs } from '~/components/Tabs'
@@ -388,8 +388,6 @@ type MarkdownProps = {
 }
 
 export function Markdown({ rawContent, htmlMarkup }: MarkdownProps) {
-  const { setHeadings } = useMarkdownHeadings()
-
   const rendered = React.useMemo(() => {
     if (rawContent) {
       return renderMarkdown(rawContent)
@@ -401,10 +399,6 @@ export function Markdown({ rawContent, htmlMarkup }: MarkdownProps) {
 
     return { markup: '', headings: [] }
   }, [rawContent, htmlMarkup])
-
-  React.useEffect(() => {
-    setHeadings(rendered.headings)
-  }, [rendered.headings, setHeadings])
 
   return React.useMemo(() => {
     if (!rendered.markup) {

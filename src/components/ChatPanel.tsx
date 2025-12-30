@@ -12,7 +12,7 @@ export function ChatPanel({ messages, typingUserMessage }: ChatPanelProps) {
 
   return (
     <div
-      className={`flex flex-col w-full md:w-[400px] h-full rounded-xl overflow-hidden shadow-2xl ${
+      className={`flex flex-col w-full md:w-[400px] h-full rounded-xl overflow-hidden shadow-lg ${
         isDark
           ? 'bg-gradient-to-b from-gray-900/95 to-gray-950/95 border border-gray-800/50 backdrop-blur-sm'
           : 'bg-gradient-to-b from-white/95 to-gray-50/95 border border-gray-200/50 backdrop-blur-sm'

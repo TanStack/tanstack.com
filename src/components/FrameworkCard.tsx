@@ -49,7 +49,7 @@ export function FrameworkCard({
         'border-2 border-gray-200 dark:border-gray-800/50 rounded-xl',
         'shadow-md p-6 transition-all duration-300 ease-out',
         'bg-white/90 dark:bg-black/40 backdrop-blur-sm',
-        'hover:shadow-xl hover:-translate-y-1',
+        'hover:shadow-lg',
         'flex flex-col gap-4 group',
         'min-h-[180px]',
         'relative',

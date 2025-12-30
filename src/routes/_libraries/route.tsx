@@ -19,7 +19,7 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
   const activeLibrary = useLocation({
     select: (location) => {
       return libraries.find((library) => {
-        return location.pathname.startsWith(library.to!)
+        return 'to' in library && location.pathname.startsWith(library.to!)
       })
     },
   })
@@ -27,7 +27,9 @@ export function LibrariesLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {children}
-      {activeLibrary?.scarfId ? <Scarf id={activeLibrary.scarfId} /> : null}
+      {'scarfId' in (activeLibrary || {}) ? (
+        <Scarf id={(activeLibrary as { scarfId: string }).scarfId} />
+      ) : null}
     </>
   )
 }

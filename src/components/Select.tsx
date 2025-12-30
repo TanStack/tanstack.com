@@ -1,7 +1,7 @@
-import { Fragment } from 'react'
+import { Fragment, ReactNode } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 
-import { Check, ChevronDown } from 'lucide-react'
+import { Check, ChevronsUpDown } from 'lucide-react'
 
 export type SelectOption = {
   label: string
@@ -11,7 +11,7 @@ export type SelectOption = {
 
 export type SelectProps<T extends SelectOption> = {
   className?: string
-  label: string
+  icon?: ReactNode
   selected: string
   available: T[]
   onSelect: (selected: T) => void
@@ -19,7 +19,7 @@ export type SelectProps<T extends SelectOption> = {
 
 export function Select<T extends SelectOption>({
   className = '',
-  label,
+  icon,
   selected,
   available,
   onSelect,
@@ -35,30 +35,35 @@ export function Select<T extends SelectOption>({
   }
 
   return (
-    <div className={`top-16 w-full flex-1 ${className}`}>
-      <div className="text-[.8em] uppercase font-black">{label}</div>
+    <div className={`w-full ${className}`}>
       <form
         onSubmit={(e) => {
           e.preventDefault()
         }}
       >
         <Listbox name="framework" value={selectedOption} onChange={onSelect}>
-          <div className="relative mt-1">
-            <Listbox.Button className="relative items-center  w-full gap-2 flex hover:bg-gray-100/70 dark:hover:bg-gray-800 cursor-default border-2 dark:border-gray-700/80 rounded-md py-2 pl-2 pr-10 text-left focus:outline-none focus-visible:border-indigo-500  sm:text-sm">
-              {selectedOption.logo ? (
-                <figure className="flex">
+          <div className="relative">
+            <Listbox.Button className="relative items-center w-full gap-2 flex hover:bg-gray-500/10 cursor-default rounded-md py-1.5 px-2 text-left focus:outline-none sm:text-sm">
+              {icon ? (
+                <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
+                  {icon}
+                </span>
+              ) : selectedOption.logo ? (
+                <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
                   <img
-                    height={18}
-                    width={18}
+                    height={16}
+                    width={16}
                     src={selectedOption.logo}
                     alt={`${selectedOption.label} logo`}
                   />
-                </figure>
+                </span>
               ) : null}
-              <span className="truncate">{selectedOption.label}</span>
+              <span className="truncate font-medium">
+                {selectedOption.label}
+              </span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <ChevronDown
-                  className="h-4 w-4 text-gray-400"
+                <ChevronsUpDown
+                  className="h-4 w-4 opacity-40"
                   aria-hidden="true"
                 />
               </span>
@@ -69,7 +74,7 @@ export function Select<T extends SelectOption>({
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="absolute z-10 dark:bg-gray-800 dark:border-2 border-gray-600/70 mt-1 max-h-60 w-fit overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+              <Listbox.Options className="absolute z-10 dark:bg-gray-800 border border-gray-500/20 mt-1 max-h-60 w-fit overflow-auto rounded-md bg-white py-1 text-base shadow-md ring-1 ring-black/5 focus:outline-none sm:text-sm">
                 {Object.values(available).map((option) => (
                   <Listbox.Option
                     key={option.value}

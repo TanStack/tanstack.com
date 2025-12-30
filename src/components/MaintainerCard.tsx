@@ -22,7 +22,7 @@ function RoleBadge({
 
   if (isCreator) {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-linear-to-r from-purple-500 to-pink-500 text-white shadow-lg">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-linear-to-r from-purple-500 to-pink-500 text-white shadow-sm">
         {role}
       </span>
     )
@@ -222,7 +222,7 @@ export function CompactMaintainerCard({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`View ${maintainer.name}'s GitHub profile`}
-      className="group relative min-h-40 block rounded-lg shadow-lg overflow-hidden"
+      className="group relative min-h-40 block rounded-lg shadow-md overflow-hidden"
       tabIndex={0}
       style={{
         backgroundImage: `url(${maintainer.avatar})`,
@@ -252,7 +252,7 @@ export function MaintainerRowCard({
 
   return (
     <div
-      className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg w-full"
+      className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md w-full"
       aria-label={`Maintainer row card for ${maintainer.name}`}
     >
       <div className="flex items-center gap-4 p-4">
@@ -360,7 +360,7 @@ export function MaintainerCard({
 
   return (
     <div
-      className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg"
+      className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md"
       aria-label={`Maintainer card for ${maintainer.name}`}
     >
       <a

@@ -272,7 +272,7 @@ export function CopyPageDropdown({
                 )}
                 onSelect={item.onSelect}
               >
-                <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center text-gray-700 dark:text-gray-400">
                   <item.icon className="w-4 h-4" />
                 </div>
                 <div className="flex flex-col gap-0.5">

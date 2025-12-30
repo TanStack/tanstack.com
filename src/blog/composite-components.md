@@ -70,6 +70,8 @@ The important nuance: client-provided UI crosses the boundary as **opaque slot p
 
 #### Server
 
+#### Server
+
 ```tsx
 const getPost = createServerFn().handler(async ({ data }) => {
   const post = await db.posts.get(data.postId)

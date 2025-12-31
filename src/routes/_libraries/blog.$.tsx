@@ -1,9 +1,4 @@
-import {
-  Link,
-  notFound,
-  createFileRoute,
-  redirect,
-} from '@tanstack/react-router'
+import { notFound, createFileRoute, redirect } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
@@ -16,9 +11,8 @@ import * as React from 'react'
 import { MarkdownContent } from '~/components/MarkdownContent'
 import { GamHeader } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
-import { ArrowLeft } from 'lucide-react'
 import { Toc } from '~/components/Toc'
-import { TocMobile } from '~/components/TocMobile'
+import { Breadcrumbs } from '~/components/Breadcrumbs'
 import { renderMarkdown } from '~/utils/markdown'
 
 function handleRedirects(docsPath: string) {
@@ -190,20 +184,15 @@ ${content}`
                 <div className="flex-1 min-h-0 flex flex-col">
                   <div className="w-full flex justify-center">
                     <div className="w-full max-w-[700px] p-2 lg:p-4 xl:p-6">
-                      <div className="mt-2 mb-2">
-                        <Link
-                          from="/blog/$"
-                          to="/blog"
-                          className="font-black inline-flex items-center gap-2 p-1"
-                        >
-                          <ArrowLeft />
-                          Back to Blog
-                        </Link>
-                      </div>
+                      <Breadcrumbs
+                        section="Blog"
+                        sectionTo="/blog"
+                        headings={isTocVisible ? headings : undefined}
+                        tocHiddenBreakpoint="md"
+                      />
                     </div>
                     <div className="max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block" />
                   </div>
-                  {isTocVisible && <TocMobile headings={headings} />}
                   <div className="w-full flex justify-center">
                     <div className="flex overflow-auto flex-col w-full max-w-[700px] p-2 lg:p-4 xl:p-6 pt-0">
                       <MarkdownContent
@@ -216,7 +205,7 @@ ${content}`
                       />
                     </div>
                     {isTocVisible && (
-                      <div className="pl-2 xl:pl-6 2xl:pl-8 max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block py-4">
+                      <div className="pl-4 max-w-32 md:max-w-36 xl:max-w-44 2xl:max-w-56 w-full hidden md:block py-4">
                         <Toc
                           headings={headings}
                           activeHeadings={activeHeadings}

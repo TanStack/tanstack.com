@@ -28,7 +28,7 @@ export function Toc({
   activeHeadings,
 }: TocProps) {
   return (
-    <nav className="flex flex-col sticky top-[var(--navbar-height)] max-h-[calc(100dvh-var(--navbar-height))]">
+    <nav className="flex flex-col sticky top-[var(--navbar-height)] max-h-[calc(100dvh-var(--navbar-height))] overflow-hidden">
       <div className="py-1">
         <h3 className="text-[.8em] lg:text-[.825em] xl:text-[.875em] 2xl:text-[.9em] font-bold">
           On this page
@@ -60,7 +60,10 @@ export function Toc({
                 behavior: 'smooth',
               }}
             >
-              <span dangerouslySetInnerHTML={{ __html: heading.text }} />
+              <span
+                className="truncate block"
+                dangerouslySetInnerHTML={{ __html: heading.text }}
+              />
             </Link>
           </li>
         ))}

@@ -12,6 +12,7 @@ import parse, {
 import { renderMarkdown } from '~/utils/markdown'
 import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 import { Tabs } from '~/components/Tabs'
+import { CodeBlock } from './CodeBlock'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 

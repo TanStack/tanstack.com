@@ -176,7 +176,7 @@ export function CodeBlock({
       <pre ref={ref} className={`shiki github-light h-full`}>
         <code>{lang === 'mermaid' ? <svg /> : code}</code>
       </pre>
-      <pre className={`shiki tokyo-night`}>
+      <pre className={`shiki vitesse-dark`}>
         <code>{lang === 'mermaid' ? <svg /> : code}</code>
       </pre>
     </>,
@@ -186,7 +186,7 @@ export function CodeBlock({
     typeof document !== 'undefined' ? 'useLayoutEffect' : 'useEffect'
   ](() => {
     ;(async () => {
-      const themes = ['github-light', 'tokyo-night']
+      const themes = ['github-light', 'vitesse-dark']
       const normalizedLang = LANG_ALIASES[lang] || lang
       const effectiveLang =
         normalizedLang === 'mermaid' ? 'plaintext' : normalizedLang
@@ -302,7 +302,7 @@ let highlighterPromise: Promise<HighlighterGeneric<any, any>> | null = null
 async function getHighlighter(language: string) {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
-      themes: ['github-light', 'tokyo-night'],
+      themes: ['github-light', 'vitesse-dark'],
       langs: [
         'typescript',
         'javascript',

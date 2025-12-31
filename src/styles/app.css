@@ -343,7 +343,7 @@ pre {
 pre.shiki {
   overflow-x: auto;
 
-  &.tokyo-night {
+  &.vitesse-dark {
     @apply text-gray-400;
   }
 }
@@ -371,12 +371,26 @@ pre.shiki .language-id {
   display: none;
 }
 
+span.line {
+  display: inline-block;
+  width: 100%;
+}
+
+pre.has-diff span.diff {
+  width: calc(100% + 20px);
+  margin-left: -10px;
+  padding-right: 20px;
+  padding-left: 10px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
 pre.has-diff span.remove {
-  background-color: #ff000036;
+  background-color: #f43f5e29;
 }
 
 pre.has-diff span.add {
-  background-color: #00ff0036;
+  background-color: #10b98129;
 }
 /* Visually differentiates twoslash code samples  */
 pre.twoslash {
@@ -650,7 +664,7 @@ pre .logger.log-log svg {
   margin-right: 9px;
 }
 
-html:not(.dark) .shiki.tokyo-night {
+html:not(.dark) .shiki.vitesse-dark {
   display: none;
 }
 
@@ -659,11 +673,11 @@ html.dark .shiki.github-light {
 }
 
 /* Improve comment contrast in dark mode */
-html.dark .shiki.tokyo-night .token.comment,
-html.dark .shiki.tokyo-night span[style*='color:#565F89'],
-html.dark .shiki.tokyo-night span[style*='color: #565F89'],
-html.dark .shiki.tokyo-night span[style*='color:#51597D'],
-html.dark .shiki.tokyo-night span[style*='color: #51597D'] {
+html.dark .shiki.vitesse-dark .token.comment,
+html.dark .shiki.vitesse-dark span[style*='color:#565F89'],
+html.dark .shiki.vitesse-dark span[style*='color: #565F89'],
+html.dark .shiki.vitesse-dark span[style*='color:#51597D'],
+html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   color: #9099c0 !important;
 }
 

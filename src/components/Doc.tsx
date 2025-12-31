@@ -5,7 +5,6 @@ import { useWidthToggle } from '~/components/DocsLayout'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from './Gam'
 import { Toc } from './Toc'
-import { TocMobile } from './TocMobile'
 import { renderMarkdown } from '~/utils/markdown'
 import { DocBreadcrumb } from './DocBreadcrumb'
 import { MarkdownContent } from './MarkdownContent'
@@ -111,7 +110,6 @@ export function Doc({
 
   return (
     <div className="flex-1 min-h-0 flex flex-col">
-      {shouldRenderToc ? <TocMobile headings={headings} /> : null}
       <AdGate>
         <div className="py-2 pb-6 lg:py-4 lg:pb-8 xl:py-6 xl:pb-10 max-w-full">
           <GamHeader />
@@ -123,15 +121,13 @@ export function Doc({
           isTocVisible && 'max-w-full',
         )}
       >
-        <div
-          className={twMerge(
-            'flex overflow-auto flex-col w-full sm:pr-2 lg:pr-4 xl:pr-6',
-            isTocVisible && 'pr-0!',
-          )}
-        >
-          {config && title && (
-            <div className="mb-3 pr-2 lg:pr-4">
-              <DocBreadcrumb config={config} title={title} />
+        <div className="flex overflow-auto flex-col w-full">
+          {config && (
+            <div className="mb-3">
+              <DocBreadcrumb
+                config={config}
+                headings={isTocVisible ? headings : undefined}
+              />
             </div>
           )}
           <MarkdownContent
@@ -141,9 +137,6 @@ export function Doc({
             filePath={filePath}
             htmlMarkup={markup}
             containerRef={markdownContainerRef}
-            proseClassName={
-              isTocVisible ? 'sm:pr-2 lg:pr-4 xl:pr-6' : undefined
-            }
             libraryId={libraryId}
             libraryVersion={libraryVersion}
             pagePath={pagePath}
@@ -166,7 +159,7 @@ export function Doc({
         </div>
 
         {isTocVisible && (
-          <div className="pl-2 xl:pl-6 2xl:pl-8 max-w-32 lg:max-w-36 xl:max-w-44 2xl:max-w-56 3xl:max-w-64 w-full hidden lg:block transition-all">
+          <div className="pl-4 max-w-32 lg:max-w-36 xl:max-w-44 2xl:max-w-56 3xl:max-w-64 w-full hidden lg:block transition-all">
             <Toc
               headings={headings}
               activeHeadings={activeHeadings}

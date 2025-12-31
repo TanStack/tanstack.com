@@ -1,6 +1,7 @@
 import { useParams } from '@tanstack/react-router'
-import { ChevronRight } from 'lucide-react'
+import { Breadcrumbs } from './Breadcrumbs'
 import type { ConfigSchema } from '~/utils/config'
+import type { MarkdownHeading } from '~/utils/markdown/processor'
 
 function findSectionForDoc(
   config: ConfigSchema,
@@ -31,10 +32,10 @@ function findSectionForDoc(
 
 export function DocBreadcrumb({
   config,
-  title,
+  headings,
 }: {
   config: ConfigSchema
-  title: string
+  headings?: MarkdownHeading[]
 }) {
   const { _splat, framework } = useParams({ strict: false })
 
@@ -51,15 +52,10 @@ export function DocBreadcrumb({
   }
 
   return (
-    <nav
-      aria-label="Breadcrumb"
-      className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-    >
-      <span>{section}</span>
-      <ChevronRight className="w-3.5 h-3.5 opacity-50 shrink-0" />
-      <span className="text-gray-700 dark:text-gray-200 font-medium truncate max-w-[300px]">
-        {title}
-      </span>
-    </nav>
+    <Breadcrumbs
+      section={section}
+      headings={headings}
+      tocHiddenBreakpoint="lg"
+    />
   )
 }

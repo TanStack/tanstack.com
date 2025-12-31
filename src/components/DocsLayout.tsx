@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { TextAlignStart, ArrowLeft, ArrowRight, Menu, Tag } from 'lucide-react'
+import { TextAlignStart, ArrowLeft, ArrowRight, Menu } from 'lucide-react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
@@ -27,6 +27,7 @@ function DocsMenuStrip({
   colorFrom,
   colorTo,
   frameworkLogo,
+  version,
   onHover,
   onClick,
 }: {
@@ -36,6 +37,7 @@ function DocsMenuStrip({
   colorFrom: string
   colorTo: string
   frameworkLogo: string | undefined
+  version: string
   onHover: () => void
   onClick: () => void
 }) {
@@ -104,7 +106,7 @@ function DocsMenuStrip({
       {/* FrameworkSelect + VersionSelect icons */}
       <div className="flex flex-col gap-2 shrink-0">
         <div className="flex items-center justify-center">
-          <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
+          <span className="flex items-center justify-center w-6 h-6">
             {frameworkLogo ? (
               <img src={frameworkLogo} alt="" className="w-4 h-4" />
             ) : (
@@ -113,8 +115,8 @@ function DocsMenuStrip({
           </span>
         </div>
         <div className="flex items-center justify-center">
-          <span className="flex items-center justify-center w-6 h-6 rounded border border-gray-500/20">
-            <Tag className="w-3.5 h-3.5 opacity-60" />
+          <span className="flex items-center justify-center px-1 py-0.5 text-[9px] font-medium opacity-60 border border-gray-500/30 rounded">
+            {version}
           </span>
         </div>
       </div>
@@ -280,7 +282,7 @@ export function DocsLayout({
   repo,
   children,
 }: DocsLayoutProps) {
-  const { libraryId } = useParams({
+  const { libraryId, version } = useParams({
     from: '/$libraryId/$version/docs',
   })
   const { _splat } = useParams({ strict: false })
@@ -471,6 +473,7 @@ export function DocsLayout({
           colorFrom={colorFrom}
           colorTo={colorTo}
           frameworkLogo={currentFrameworkOption?.logo}
+          version={version}
           onHover={() => {
             if (window.innerWidth < 1280) {
               // Only auto-show on lg screens, not xl+
@@ -544,7 +547,7 @@ export function DocsLayout({
       >
         {smallMenu}
         {largeMenu}
-        <div className="flex flex-col max-w-full min-w-0 w-full min-h-0 relative px-4 sm:px-0 sm:pl-8">
+        <div className="flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative px-4 sm:px-8">
           <div
             className={twMerge(
               `max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] sm:min-h-0`,
@@ -605,8 +608,8 @@ export function DocsLayout({
         sm:top-[var(--navbar-height)]
         "
         >
-          <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pl-4 pb-4">
-            <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden -mr-px">
+          <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pb-4 max-w-full overflow-hidden">
+            <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden w-full">
               <div className="w-full flex gap-2 justify-between border-b border-gray-500/20 px-3 py-2">
                 <Link
                   className="font-medium opacity-60 hover:opacity-100 text-xs"

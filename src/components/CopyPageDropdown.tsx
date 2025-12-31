@@ -248,9 +248,9 @@ export function CopyPageDropdown({
       <button
         onClick={handleCopyPage}
         className={twMerge(
-          'inline-flex items-center justify-center gap-2',
-          'py-1.5 pl-3 pr-3',
-          'text-sm font-medium',
+          'inline-flex items-center justify-center gap-1.5',
+          'py-1 pl-2 pr-2',
+          'text-xs font-medium',
           'text-gray-700 dark:text-gray-300',
           'hover:bg-gray-50 dark:hover:bg-gray-700',
           'transition-colors duration-200',
@@ -258,29 +258,29 @@ export function CopyPageDropdown({
       >
         {copied ? (
           <>
-            <Check className="w-3.5 h-3.5" />
+            <Check className="w-3 h-3" />
             Copied!
           </>
         ) : (
           <>
-            <Copy className="w-3.5 h-3.5" />
+            <Copy className="w-3 h-3" />
             Copy page
           </>
         )}
       </button>
-      <div className="w-px h-5 bg-gray-200 dark:bg-gray-700" />
+      <div className="w-px h-4 bg-gray-200 dark:bg-gray-700" />
       <DropdownMenu.Root open={open} onOpenChange={setOpen}>
         <DropdownMenu.Trigger asChild>
           <button
             className={twMerge(
               'inline-flex items-center justify-center',
-              'px-2 py-1.5',
+              'px-1.5 py-1',
               'text-gray-500 dark:text-gray-400',
               'hover:bg-gray-50 dark:hover:bg-gray-700',
               'transition-colors duration-200',
             )}
           >
-            <ChevronDown className="w-3.5 h-3.5" />
+            <ChevronDown className="w-3 h-3" />
           </button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>

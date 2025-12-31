@@ -21,11 +21,11 @@ import { Copy } from 'lucide-react'
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
 const CustomHeading = ({
-  Comp,
-  id,
-  children,
-  ...props
-}: HTMLProps<HTMLHeadingElement> & {
+                         Comp,
+                         id,
+                         children,
+                         ...props
+                       }: HTMLProps<HTMLHeadingElement> & {
   Comp: HeadingLevel
 }) => {
   // Convert children to array and strip any inner anchor (native 'a' or MarkdownLink)
@@ -93,12 +93,12 @@ const markdownComponents: Record<string, React.FC> = {
     <iframe {...props} className="w-full" title="Embedded Content" />
   ),
   img: ({
-    alt,
-    src,
-    className,
-    children: _,
-    ...props
-  }: HTMLProps<HTMLImageElement>) => (
+          alt,
+          src,
+          className,
+          children: _,
+          ...props
+        }: HTMLProps<HTMLImageElement>) => (
     <img
       {...props}
       src={src ? getNetlifyImageUrl(src) : undefined}
@@ -144,10 +144,10 @@ async function getMermaid(): Promise<Mermaid> {
 }
 
 export function CodeBlock({
-  isEmbedded,
-  showTypeCopyButton = true,
-  ...props
-}: React.HTMLProps<HTMLPreElement> & {
+                            isEmbedded,
+                            showTypeCopyButton = true,
+                            ...props
+                          }: React.HTMLProps<HTMLPreElement> & {
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
 }) {
@@ -160,10 +160,10 @@ export function CodeBlock({
   const children = props.children as
     | undefined
     | {
-        props: {
-          children: string
-        }
-      }
+    props: {
+      children: string
+    }
+  }
 
   const [copied, setCopied] = React.useState(false)
   const ref = React.useRef<any>(null)
@@ -184,7 +184,7 @@ export function CodeBlock({
 
   React[
     typeof document !== 'undefined' ? 'useLayoutEffect' : 'useEffect'
-  ](() => {
+    ](() => {
     ;(async () => {
       const themes = ['github-light', 'vitesse-dark']
       const normalizedLang = LANG_ALIASES[lang] || lang

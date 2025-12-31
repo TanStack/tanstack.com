@@ -162,8 +162,9 @@ Streams are universal. They work with:
 - **TanStack Query** → Cache server components, refetch in the background, deduplicate requests
 - **TanStack DB** (coming soon) → Sync server component state, offline support, optimistic updates
 
+### In a route loader
+
 ```tsx
-// In a route loader
 export const Route = createFileRoute('/posts/$postId')({
   loader: async ({ params }) => ({
     Post: await getPost({ data: { postId: params.postId } }),
@@ -182,8 +183,9 @@ function PostPage() {
 }
 ```
 
+### With Query caching
+
 ```tsx
-// With Query caching
 const { data: Layout } = useQuery({
   queryKey: ['layout'],
   queryFn: () => getLayout(),

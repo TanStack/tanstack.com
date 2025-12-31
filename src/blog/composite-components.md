@@ -15,9 +15,11 @@ Your client code opts into interactivity with `'use client'`. **Composition flow
 
 What if it didn't have to?
 
-What if RSCs were actually components? **Fetchable. Cacheable. Composable by the client.** Primitives that flow through your router, your cache, your data layer, without special directives or framework lock-in.
+What if RSCs were actually components? **Fetchable. Cacheable. Composable by the client.** Primitives that flow through your router, your cache, your data layer. No new directives beyond React's standard `'use client'`. A wire format that's standard Flight.
 
 That's what we built in **TanStack Start**.
+
+> **Status:** RSC support ships as an experimental feature in TanStack Start RC and will remain experimental into early v1. The API design is stable but expect refinements. See the [Start documentation](https://tanstack.com/start) for setup instructions.
 
 ---
 
@@ -39,15 +41,11 @@ RSCs aren't about replacing client interactivity. They're about choosing where w
 
 ## The One-Way Problem
 
-In existing RSC implementations, the server is the only place that decides what interactive elements to render.
+Existing RSC implementations support interleaving server and client components. You can pass `children` from a client component into a server component. Next.js documents this pattern explicitly. That works.
 
-Need a `<Link>` with prefetching? **Server** renders it with `'use client'`.  
-Need a dashboard widget? Server renders the boundary, marks it client. **The server is always the decision-maker. The client is always the recipient.**
+But the server still produces the final RSC tree on each navigation. The client receives a server-owned tree wholesale. It can't independently request server-rendered subtrees and compose them based on client state. It can't cache a server component and reuse it across navigations. It can't fetch two server components and interleave them in a client-defined layout.
 
-This works. **But it's also limiting.**
-
-What if the server wants to render some interactive elements directly (like `<Link>`) but also **defer entire regions of interactivity back to the client**?  
-In the traditional model, you'd create a new client component, a new file, a new boundary. **Every deferral is a seam.**
+**Next supports slotting, but the server still produces the final tree per request. What if RSC output were first-class data that the client could request, cache, and compose?**
 
 ---
 
@@ -156,6 +154,8 @@ When `createServerFn` returns a server component, that component is a **stream**
 
 This works for SSR (streaming HTML during initial page load) and for client-side fetches (streaming RSC payloads during navigation or data refetches).
 
+The examples in this post await data before creating the component for simplicity. In practice, you can await inside the component body with nested `<Suspense>` boundaries to stream UI progressively as each piece resolves.
+
 Streams are universal. They work with:
 
 - **TanStack Router** → Load server components in route loaders, stream them during navigation
@@ -191,7 +191,7 @@ const { data: Layout } = useQuery({
 })
 ```
 
-**The server component is just data.** Fetch it, cache it, transform it, compose it. **No special APIs. No framework-specific caching layers.** Just streams flowing through tools you already know.
+**The server component is just data.** Fetch it, cache it, compose it. **No special APIs. No framework-specific caching layers.** Just streams flowing through tools you already know.
 
 ---
 
@@ -204,6 +204,8 @@ Every property access and function call is tracked:
 - `props.renderActions({ postId, authorId })` → serialized with the arguments attached
 
 You can destructure props normally. `({ children, renderActions })` works just as well as `props.children`. The proxy handles both patterns.
+
+**A few rules apply:** Slot placeholders are opaque on the server. You can't `Object.keys()` the props proxy and expect to enumerate what was passed (you'll get nothing useful). You can't `JSON.stringify()` a render prop. Calls to render props are recorded in invocation order and replayed on the client in the same order. The [documentation](/start/latest/docs/server-components) covers the full contract.
 
 **Over the wire, it's a React element stream** with embedded placeholders. On the client:
 
@@ -221,7 +223,7 @@ props.renderActions({               renderActions prop is called
                                     with full hooks/state/context
 ```
 
-**Type safety flows through automatically.** The function signature on the server determines what arguments your client function receives:
+**Type safety flows through in TypeScript when client and server share types.** The function signature on the server determines what arguments your client function receives:
 
 ```tsx
 const getPost = createServerFn().handler(async ({ data }) => {
@@ -265,7 +267,7 @@ You choose patterns **per-route, per-component, per-use-case**. The architecture
 
 ## Current Status: Experimental
 
-This is the first experimental release of RSCs in TanStack Start. A few things to know:
+RSC support ships as an experimental feature in TanStack Start RC and will remain experimental into early v1. A few things to know:
 
 **React's Flight serializer**: This release uses React's native RSC Flight protocol for serialization. That means TanStack Start's usual serialization features aren't available within server components for now. Standard JavaScript primitives, Dates, and React elements serialize fine. Custom serialization plugins and extended types will come in a future release as we unify the serialization layers.
 
@@ -336,11 +338,15 @@ Not currently. Server functions that return UI must wrap it in `createServerComp
 
 **React Context**: Context providers rendered by the server component _will_ wrap client children. If your server component renders `<ThemeProvider value="dark">{children}</ThemeProvider>`, the client children can consume that context. However, the context must be defined in a way that works across the server/client boundary (typically with `'use client'` on the provider component).
 
+### Any security considerations?
+
+RSC endpoints accept and emit serialized payloads, so treat them like any API surface: authenticate requests, validate inputs, and keep React patched. Recent React advisories have touched RSC and server function serialization, so staying current matters.
+
 ---
 
 ## Get Started
 
-TanStack Start's RSC model is available now in experimental.
+TanStack Start's RSC model is available now as an experimental feature.
 
 - [Documentation](https://tanstack.com/start)
 - [GitHub](https://github.com/tanstack/router)

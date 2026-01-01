@@ -342,7 +342,11 @@ Not currently. Server functions that return UI must wrap it in `createServerComp
 
 ### Any security considerations?
 
-RSC endpoints accept and emit serialized payloads, so treat them like any API surface: authenticate requests, validate inputs, and keep React patched. Recent React advisories have touched RSC and server function serialization, so staying current matters.
+TanStack Start's RSC model has a fundamentally different security surface than other RSC implementations. **We don't send flight data to the server, nor do we parse it there.** Flight payloads flow one direction: from server to client. The server produces RSC streams; the client consumes them.
+
+Additionally, **TanStack Start does not support React Server Functions** (the `'use server'` directive that creates server-callable endpoints from client code). Recent React security advisories around RSC and server function serialization specifically target vulnerabilities in parsing untrusted flight data on the server and in server function argument handling—neither of which apply to TanStack Start's architecture.
+
+That said, treat your server functions like any API surface: authenticate requests, validate inputs, and keep React patched.
 
 ---
 

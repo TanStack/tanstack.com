@@ -98,7 +98,6 @@ export function MarkdownContent({
           <SquarePen /> Edit on GitHub
         </a>
       </div>
-      <div className="h-24" />
     </>
   )
 }

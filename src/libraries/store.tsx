@@ -41,7 +41,7 @@ export const storeProject = {
     },
     {
       icon: <GithubIcon />,
-      label: 'Github',
+      label: 'GitHub',
       to: `https://github.com/${repo}`,
     },
   ],

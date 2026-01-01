@@ -35,7 +35,7 @@ export const configProject = {
     },
     {
       icon: <GithubIcon />,
-      label: 'Github',
+      label: 'GitHub',
       to: `https://github.com/${repo}`,
     },
   ],

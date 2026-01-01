@@ -61,7 +61,7 @@ export function Toc({
               }}
             >
               <span
-                className="truncate block"
+                className="block break-words overflow-hidden"
                 dangerouslySetInnerHTML={{ __html: heading.text }}
               />
             </Link>

@@ -5,6 +5,8 @@ import { Copy } from 'lucide-react'
 import type { Mermaid } from 'mermaid'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import { createHighlighter, type HighlighterGeneric } from 'shiki'
+import { Button } from './Button'
+import { ButtonGroup } from './ButtonGroup'
 
 // Language aliases mapping
 const LANG_ALIASES: Record<string, string> = {
@@ -185,17 +187,17 @@ export function CodeBlock({
       style={props.style}
     >
       {showTypeCopyButton ? (
-        <div
+        <ButtonGroup
           className={twMerge(
-            `absolute flex items-stretch bg-white text-sm z-10 rounded-md`,
-            `dark:bg-gray-800 overflow-hidden divide-x divide-gray-500/20`,
-            'shadow-md',
+            'absolute z-10 text-sm',
             isEmbedded ? 'top-2 right-4' : '-top-3 right-2',
           )}
         >
-          {lang ? <div className="px-2">{lang}</div> : null}
-          <button
-            className="px-2 py-1 flex items-center text-gray-500 hover:bg-gray-500 hover:text-gray-100 dark:hover:text-gray-200 transition duration-200"
+          {lang ? (
+            <span className="px-2 py-1 text-xs font-medium">{lang}</span>
+          ) : null}
+          <Button
+            className="border-0 rounded-none"
             onClick={() => {
               let copyContent =
                 typeof ref.current?.innerText === 'string'
@@ -221,8 +223,8 @@ export function CodeBlock({
             aria-label="Copy code to clipboard"
           >
             {copied ? <span className="text-xs">Copied!</span> : <Copy />}
-          </button>
-        </div>
+          </Button>
+        </ButtonGroup>
       ) : null}
       {codeElement}
     </div>

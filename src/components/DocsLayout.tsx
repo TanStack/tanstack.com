@@ -196,7 +196,7 @@ export function DocNavigation() {
   if (!prevItem && !nextItem) return null
 
   return (
-    <div className="sticky flex items-stretch bottom-2 z-10 right-0 text-xs md:text-sm print:hidden mt-8">
+    <div className="sticky flex items-stretch bottom-2 z-10 right-0 text-[10px] sm:text-xs md:text-sm print:hidden">
       <div className="flex-1 flex justify-start">
         {prevItem ? (
           <Card
@@ -204,11 +204,11 @@ export function DocNavigation() {
             from="/$libraryId/$version/docs"
             to={prevItem.to}
             params
-            className="py-2 px-3 flex items-center gap-2"
+            className="py-1 px-2 sm:py-2 sm:px-3 flex items-center gap-1 sm:gap-2"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
             <div className="flex flex-col">
-              <span className="text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
+              <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
                 Previous
               </span>
               <span className="font-bold">{prevItem.label}</span>
@@ -223,19 +223,21 @@ export function DocNavigation() {
             from="/$libraryId/$version/docs"
             to={nextItem.to}
             params
-            className="py-2 px-3 flex items-center gap-2"
+            className="py-1 px-2 sm:py-2 sm:px-3 flex items-center gap-1 sm:gap-2"
           >
             <div className="flex flex-col items-end">
-              <span className="text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
+              <span className="hidden sm:block text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
                 Next
               </span>
               <span
-                className={`font-bold bg-linear-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
+                className={`font-bold text-right bg-linear-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
               >
                 {nextItem.label}
               </span>
             </div>
-            <ChevronRight className={twMerge('w-4 h-4', textColor)} />
+            <ChevronRight
+              className={twMerge('w-3 h-3 sm:w-4 sm:h-4', textColor)}
+            />
           </Card>
         ) : null}
       </div>
@@ -636,7 +638,7 @@ export function DocsLayout({
                 <GamFooter popupPosition="top" />
               </div>
             </div> */}
-              <div className="py-2 pb-4 lg:py-4 lg:pb-6 xl:py-6 xl:pb-8 max-w-full">
+              <div className="py-8 lg:py-12 xl:py-16 max-w-full">
                 <GamHeader />
               </div>
             </AdGate>

@@ -807,6 +807,37 @@ mark {
   }
 }
 
+/* Dropdown animations */
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes dropdown-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+}
+
+.dropdown-content {
+  animation: dropdown-in 150ms ease-out;
+}
+
+.dropdown-content[data-state='closed'] {
+  animation: dropdown-out 100ms ease-in;
+}
+
 /* Doc Feedback Styles */
 .doc-feedback-block {
   transition:

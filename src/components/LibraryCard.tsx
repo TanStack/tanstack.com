@@ -26,7 +26,7 @@ export default function LibraryCard({
       {...props}
       className={twMerge(
         // General
-        'p-8 relative group z-0 min-h-[250px] xl:min-h-[220px] shadow-sm hover:shadow-none',
+        'p-8 relative group z-0 min-h-[250px] xl:min-h-[220px] shadow-sm hover:shadow-none bg-white dark:bg-gray-900',
 
         // Transition
         'transition-all duration-300 ease-out',

@@ -1,6 +1,5 @@
-import { Book, Wallpaper, WandSparkles } from 'lucide-react'
+import { WandSparkles } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/store'
 
@@ -16,6 +15,7 @@ export const storeProject = {
   ogImage: 'https://github.com/tanstack/store/raw/main/media/repo-header.png',
   badge: 'alpha',
   bgStyle: 'bg-twine-700',
+  borderStyle: 'border-twine-700/50',
   textStyle: 'text-twine-500',
   repo,
   latestBranch: 'main',
@@ -28,23 +28,6 @@ export const storeProject = {
   frameworks: ['react', 'preact', 'solid', 'svelte', 'vue', 'angular'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/store/latest/docs',
-    },
-    {
-      icon: <Wallpaper />,
-      label: 'Examples',
-      to: '/store/latest/docs/framework/react/examples/simple',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'Github',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   featureHighlights: [
     {
       title: 'Battle-Tested',

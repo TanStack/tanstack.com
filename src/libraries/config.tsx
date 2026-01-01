@@ -1,6 +1,5 @@
-import { Book, WandSparkles, Zap } from 'lucide-react'
+import { WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/config'
@@ -17,6 +16,7 @@ export const configProject = {
   ogImage: 'https://github.com/tanstack/config/raw/main/media/repo-header.png',
   badge: undefined,
   bgStyle: 'bg-slate-500',
+  borderStyle: 'border-slate-500/50',
   textStyle: 'text-slate-500',
   repo,
   latestBranch: 'main',
@@ -27,18 +27,6 @@ export const configProject = {
   colorTo: 'to-gray-700',
   textColor: 'text-gray-700',
   frameworks: [],
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/config/latest/docs',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'Github',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   featureHighlights: [
     {
       title: 'Intuitive Configuration',

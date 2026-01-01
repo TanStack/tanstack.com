@@ -1,12 +1,5 @@
-import {
-  Book,
-  MessageCircleQuestionMark,
-  PlugZap,
-  RotateCw,
-  Wallpaper,
-} from 'lucide-react'
+import { MessageCircleQuestionMark, PlugZap, RotateCw } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/ranger'
 
@@ -22,6 +15,7 @@ export const rangerProject = {
   ogImage: 'https://github.com/tanstack/ranger/raw/main/media/headerv1.png',
   badge: undefined,
   bgStyle: 'bg-slate-500',
+  borderStyle: 'border-slate-500/50',
   textStyle: 'text-slate-500',
   repo,
   latestBranch: 'main',
@@ -33,23 +27,6 @@ export const rangerProject = {
   textColor: 'text-gray-700',
   frameworks: ['react'],
   scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/ranger/latest/docs/overview',
-    },
-    {
-      icon: <Wallpaper />,
-      label: 'Examples',
-      to: '/ranger/latest/docs/framework/react/examples/basic',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'Github',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   featureHighlights: [
     {
       title: 'Typesafe & powerful, yet familiarly simple',

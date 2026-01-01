@@ -1,9 +1,15 @@
 'use client'
 import * as React from 'react'
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { ChevronDown, Copy, Check } from 'lucide-react'
-import { twMerge } from 'tailwind-merge'
 import { useToast } from '~/components/ToastProvider'
+import { Button } from './Button'
+import { ButtonGroup } from './ButtonGroup'
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+} from './Dropdown'
 
 // Markdown icon component matching the screenshot
 function MarkdownIcon({ className }: { className?: string }) {
@@ -235,27 +241,8 @@ export function CopyPageDropdown({
   ]
 
   return (
-    <div
-      className={twMerge(
-        'inline-flex items-center',
-        'rounded-md',
-        'border border-gray-200 dark:border-gray-700',
-        'bg-white dark:bg-gray-800',
-        'shadow-sm',
-        'overflow-hidden',
-      )}
-    >
-      <button
-        onClick={handleCopyPage}
-        className={twMerge(
-          'inline-flex items-center justify-center gap-1.5',
-          'py-1 pl-2 pr-2',
-          'text-xs font-medium',
-          'text-gray-700 dark:text-gray-300',
-          'hover:bg-gray-50 dark:hover:bg-gray-700',
-          'transition-colors duration-200',
-        )}
-      >
+    <ButtonGroup>
+      <Button className="border-0 rounded-none" onClick={handleCopyPage}>
         {copied ? (
           <>
             <Check className="w-3 h-3" />
@@ -267,61 +254,35 @@ export function CopyPageDropdown({
             Copy page
           </>
         )}
-      </button>
-      <div className="w-px h-4 bg-gray-200 dark:bg-gray-700" />
-      <DropdownMenu.Root open={open} onOpenChange={setOpen}>
-        <DropdownMenu.Trigger asChild>
-          <button
-            className={twMerge(
-              'inline-flex items-center justify-center',
-              'px-1.5 py-1',
-              'text-gray-500 dark:text-gray-400',
-              'hover:bg-gray-50 dark:hover:bg-gray-700',
-              'transition-colors duration-200',
-            )}
-          >
+      </Button>
+      <Dropdown open={open} onOpenChange={setOpen}>
+        <DropdownTrigger>
+          <Button className="border-0 rounded-none px-1.5">
             <ChevronDown className="w-3 h-3" />
-          </button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content
-            sideOffset={6}
-            align="end"
-            className={twMerge(
-              'z-[1000] min-w-72 rounded-lg p-1.5',
-              'border border-gray-200 dark:border-gray-700',
-              'bg-white dark:bg-gray-800',
-              'shadow-lg',
-              'animate-in fade-in-0 zoom-in-95 duration-150',
-            )}
-          >
-            {menuItems.map((item) => (
-              <DropdownMenu.Item
-                key={item.label}
-                className={twMerge(
-                  'flex cursor-pointer select-none items-center gap-3 rounded-md px-3 py-2.5 outline-none',
-                  'hover:bg-gray-100 dark:hover:bg-gray-700/50',
-                  'focus:bg-gray-100 dark:focus:bg-gray-700/50',
-                  'transition-colors duration-150',
-                )}
-                onSelect={item.onSelect}
-              >
-                <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center text-gray-700 dark:text-gray-400">
-                  <item.icon className="w-4 h-4" />
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-medium text-sm text-gray-900 dark:text-gray-100">
-                    {item.label}
-                  </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {item.description}
-                  </span>
-                </div>
-              </DropdownMenu.Item>
-            ))}
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
-      </DropdownMenu.Root>
-    </div>
+          </Button>
+        </DropdownTrigger>
+        <DropdownContent align="end" className="min-w-72">
+          {menuItems.map((item) => (
+            <DropdownItem
+              key={item.label}
+              onSelect={item.onSelect}
+              className="gap-3 px-3 py-2.5"
+            >
+              <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center text-gray-700 dark:text-gray-400">
+                <item.icon className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                  {item.label}
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {item.description}
+                </span>
+              </div>
+            </DropdownItem>
+          ))}
+        </DropdownContent>
+      </Dropdown>
+    </ButtonGroup>
   )
 }

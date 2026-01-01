@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { type MouseEventHandler, useEffect, useRef } from 'react'
 import { useToast } from '~/components/ToastProvider'
 import { Check, Copy } from 'lucide-react'
+import { Button } from './Button'
 
 export function useCopyButton(
   onCopy: () => void | Promise<void>,
@@ -106,23 +107,21 @@ export function CopyMarkdownButton({
   })
 
   return (
-    <button
+    <Button
       disabled={isLoading}
-      className="py-1 px-2 text-sm bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-md flex items-center justify-center backdrop-blur-sm rounded-lg overflow-hidden"
+      className="bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-md backdrop-blur-sm"
       onClick={onClick}
       title="Copy markdown source"
     >
-      <div className="flex gap-2 items-center">
-        {checked ? (
-          <>
-            <Check className="w-3 h-3" /> Copied to Clipboard
-          </>
-        ) : (
-          <>
-            <Copy className="w-3 h-3" /> Copy Markdown
-          </>
-        )}
-      </div>
-    </button>
+      {checked ? (
+        <>
+          <Check className="w-3 h-3" /> Copied to Clipboard
+        </>
+      ) : (
+        <>
+          <Copy className="w-3 h-3" /> Copy Markdown
+        </>
+      )}
+    </Button>
   )
 }

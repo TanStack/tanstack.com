@@ -124,7 +124,7 @@ export function Doc({
           isTocVisible && 'max-w-full',
         )}
       >
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full min-w-0">
           {config && (
             <div className="mb-3">
               <DocBreadcrumb
@@ -163,7 +163,7 @@ export function Doc({
         </div>
 
         {isTocVisible && (
-          <div className="pl-4 max-w-32 lg:max-w-36 xl:max-w-44 2xl:max-w-56 3xl:max-w-64 w-full hidden lg:block transition-all">
+          <div className="pl-4 w-32 lg:w-36 xl:w-44 2xl:w-56 3xl:w-64 shrink-0 hidden lg:block transition-all">
             <Toc
               headings={headings}
               activeHeadings={activeHeadings}

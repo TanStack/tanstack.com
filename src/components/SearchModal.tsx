@@ -1,6 +1,12 @@
 import * as React from 'react'
-import { Dialog, Listbox } from '@headlessui/react'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { twMerge } from 'tailwind-merge'
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+} from './Dropdown'
 import {
   InstantSearch,
   SearchBox,
@@ -401,7 +407,7 @@ function LibraryRefinement() {
     }
   }, [items, refineLibrary, subpathname, setSelectedLibrary])
 
-  const handleChange = (value: string) => {
+  const handleSelect = (value: string) => {
     setSelectedLibrary(value)
     refineLibrary(value)
   }
@@ -409,9 +415,9 @@ function LibraryRefinement() {
   const currentLibrary = libraries.find((l) => l.id === selectedLibrary)
 
   return (
-    <Listbox value={selectedLibrary} onChange={handleChange}>
-      <div className="relative">
-        <Listbox.Button className="flex items-center gap-1 text-sm focus:outline-none cursor-pointer font-bold">
+    <Dropdown>
+      <DropdownTrigger asChild={false}>
+        <button className="flex items-center gap-1 text-sm focus:outline-none cursor-pointer font-bold">
           {currentLibrary ? (
             <span className="uppercase font-black [letter-spacing:-.05em]">
               <span className="opacity-50">TanStack</span>{' '}
@@ -423,47 +429,37 @@ function LibraryRefinement() {
             <span>All Libraries</span>
           )}
           <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-        </Listbox.Button>
-        <Listbox.Options className="absolute z-50 mt-1 max-h-[60vh] w-64 overflow-auto rounded-lg bg-white dark:bg-gray-900 shadow-md ring-1 ring-black/5 dark:ring-white/10 focus:outline-none text-sm">
-          <Listbox.Option
-            value=""
-            className={({ active }) =>
-              twMerge(
-                'cursor-pointer select-none px-3 py-2 font-bold',
-                active ? 'bg-gray-100 dark:bg-gray-800' : '',
-              )
-            }
-          >
-            All Libraries
-          </Listbox.Option>
-          {items.map((item) => {
-            const lib = libraries.find((l) => l.id === item.value)
-            return (
-              <Listbox.Option
-                key={item.value}
-                value={item.value}
-                className={({ active }) =>
-                  twMerge(
-                    'cursor-pointer select-none px-3 py-2 flex items-center justify-between',
-                    active ? 'bg-gray-100 dark:bg-gray-800' : '',
-                  )
-                }
-              >
-                <span className="uppercase font-black [letter-spacing:-.05em]">
-                  <span className="opacity-50">TanStack</span>{' '}
-                  <span className={lib ? (lib as any).textStyle : ''}>
-                    {item.label.toUpperCase()}
-                  </span>
+        </button>
+      </DropdownTrigger>
+      <DropdownContent
+        align="start"
+        className="max-h-[60vh] w-64 overflow-auto"
+      >
+        <DropdownItem onSelect={() => handleSelect('')} className="font-bold">
+          All Libraries
+        </DropdownItem>
+        {items.map((item) => {
+          const lib = libraries.find((l) => l.id === item.value)
+          return (
+            <DropdownItem
+              key={item.value}
+              onSelect={() => handleSelect(item.value)}
+              className="justify-between"
+            >
+              <span className="uppercase font-black [letter-spacing:-.05em]">
+                <span className="opacity-50">TanStack</span>{' '}
+                <span className={lib ? (lib as any).textStyle : ''}>
+                  {item.label.toUpperCase()}
                 </span>
-                <span className="text-gray-400 text-xs font-normal">
-                  ({item.count})
-                </span>
-              </Listbox.Option>
-            )
-          })}
-        </Listbox.Options>
-      </div>
-    </Listbox>
+              </span>
+              <span className="text-gray-400 text-xs font-normal">
+                ({item.count})
+              </span>
+            </DropdownItem>
+          )
+        })}
+      </DropdownContent>
+    </Dropdown>
   )
 }
 
@@ -506,7 +502,7 @@ function FrameworkRefinement() {
     }
   }, [items, refineFramework, subpathname, setSelectedFramework])
 
-  const handleChange = (value: string) => {
+  const handleSelect = (value: string) => {
     setSelectedFramework(value)
     refineFramework(value)
     // Persist the framework preference (localStorage + DB if logged in)
@@ -520,9 +516,9 @@ function FrameworkRefinement() {
   )
 
   return (
-    <Listbox value={selectedFramework} onChange={handleChange}>
-      <div className="relative">
-        <Listbox.Button className="flex items-center gap-1 text-sm font-bold focus:outline-none cursor-pointer">
+    <Dropdown>
+      <DropdownTrigger asChild={false}>
+        <button className="flex items-center gap-1 text-sm font-bold focus:outline-none cursor-pointer">
           {currentFramework && (
             <img
               src={currentFramework.logo}
@@ -536,45 +532,33 @@ function FrameworkRefinement() {
               : 'All Frameworks'}
           </span>
           <ChevronDown className="w-3.5 h-3.5 opacity-50" />
-        </Listbox.Button>
-        <Listbox.Options className="absolute z-50 mt-1 max-h-[60vh] w-52 overflow-auto rounded-lg bg-white dark:bg-gray-900 shadow-md ring-1 ring-black/5 dark:ring-white/10 focus:outline-none text-sm">
-          <Listbox.Option
-            value=""
-            className={({ active }) =>
-              twMerge(
-                'cursor-pointer select-none px-3 py-2 font-bold',
-                active ? 'bg-gray-100 dark:bg-gray-800' : '',
-              )
-            }
-          >
-            All Frameworks
-          </Listbox.Option>
-          {items.map((item) => {
-            const fw = frameworkOptions.find((f) => f.value === item.value)
-            return (
-              <Listbox.Option
-                key={item.value}
-                value={item.value}
-                className={({ active }) =>
-                  twMerge(
-                    'cursor-pointer select-none px-3 py-2 flex items-center justify-between',
-                    active ? 'bg-gray-100 dark:bg-gray-800' : '',
-                  )
-                }
-              >
-                <span className="flex items-center gap-2">
-                  {fw && (
-                    <img src={fw.logo} alt={fw.label} className="w-4 h-4" />
-                  )}
-                  <span className="font-bold">{capitalize(item.label)}</span>
-                </span>
-                <span className="text-gray-400 text-xs">({item.count})</span>
-              </Listbox.Option>
-            )
-          })}
-        </Listbox.Options>
-      </div>
-    </Listbox>
+        </button>
+      </DropdownTrigger>
+      <DropdownContent
+        align="start"
+        className="max-h-[60vh] w-52 overflow-auto"
+      >
+        <DropdownItem onSelect={() => handleSelect('')} className="font-bold">
+          All Frameworks
+        </DropdownItem>
+        {items.map((item) => {
+          const fw = frameworkOptions.find((f) => f.value === item.value)
+          return (
+            <DropdownItem
+              key={item.value}
+              onSelect={() => handleSelect(item.value)}
+              className="justify-between"
+            >
+              <span className="flex items-center gap-2">
+                {fw && <img src={fw.logo} alt={fw.label} className="w-4 h-4" />}
+                <span className="font-bold">{capitalize(item.label)}</span>
+              </span>
+              <span className="text-gray-400 text-xs">({item.count})</span>
+            </DropdownItem>
+          )
+        })}
+      </DropdownContent>
+    </Dropdown>
   )
 }
 
@@ -731,16 +715,14 @@ export function SearchModal() {
   }, [isOpen, openSearch])
 
   return (
-    <Dialog
-      open={isOpen}
-      onClose={closeSearch}
-      className="fixed inset-0 z-1000 overflow-y-auto"
-      ref={containerRef}
-      onKeyDown={handleKeyDown}
-    >
-      <div className="min-h-screen text-center">
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 xl:bg-black/30 backdrop-blur-sm" />
-        <div className="inline-block w-[98%] xl:w-full max-w-3xl mt-8 text-left align-middle transition-all transform bg-white/80 dark:bg-black/80 shadow-lg rounded-lg xl:rounded-xl divide-y divide-gray-500/20 backdrop-blur-lg dark:border dark:border-white/20">
+    <DialogPrimitive.Root open={isOpen} onOpenChange={closeSearch}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[999] bg-black/60 xl:bg-black/30 backdrop-blur-sm" />
+        <DialogPrimitive.Content
+          className="fixed z-[1000] top-8 left-1/2 -translate-x-1/2 w-[98%] xl:w-full max-w-3xl text-left bg-white/80 dark:bg-black/80 shadow-lg rounded-lg xl:rounded-xl divide-y divide-gray-500/20 backdrop-blur-lg dark:border dark:border-white/20 outline-none"
+          ref={containerRef}
+          onKeyDown={handleKeyDown}
+        >
           <InstantSearch searchClient={searchClient} indexName="tanstack-test">
             <SearchFiltersProvider>
               <Configure
@@ -791,9 +773,9 @@ export function SearchModal() {
               <SearchResults focusedIndex={focusedIndex} />
             </SearchFiltersProvider>
           </InstantSearch>
-        </div>
-      </div>
-    </Dialog>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   )
 }
 

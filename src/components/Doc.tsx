@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { FoldHorizontal, UnfoldHorizontal } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { useWidthToggle } from '~/components/DocsLayout'
+import { useWidthToggle, DocNavigation } from '~/components/DocsLayout'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from './Gam'
 import { Toc } from './Toc'
@@ -26,6 +26,8 @@ type DocProps = {
   pagePath?: string
   // Breadcrumb props (optional)
   config?: ConfigSchema
+  // Footer content rendered after markdown
+  footer?: React.ReactNode
 }
 
 export function Doc({
@@ -42,6 +44,7 @@ export function Doc({
   libraryVersion,
   pagePath,
   config,
+  footer,
 }: DocProps) {
   // Extract headings synchronously during render to avoid hydration mismatch
   const { headings, markup } = React.useMemo(
@@ -121,7 +124,7 @@ export function Doc({
           isTocVisible && 'max-w-full',
         )}
       >
-        <div className="flex overflow-auto flex-col w-full">
+        <div className="flex flex-col w-full">
           {config && (
             <div className="mb-3">
               <DocBreadcrumb
@@ -156,6 +159,7 @@ export function Doc({
               ) : null
             }
           />
+          {footer ?? <DocNavigation />}
         </div>
 
         {isTocVisible && (

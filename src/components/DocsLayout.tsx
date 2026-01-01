@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { TextAlignStart, ArrowLeft, ArrowRight, Menu } from 'lucide-react'
+import { TextAlignStart, ChevronLeft, ChevronRight, Menu } from 'lucide-react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
@@ -17,6 +17,7 @@ import { AdGate } from '~/contexts/AdsContext'
 import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
+import { Card } from './Card'
 
 // Component for the collapsed menu strip showing box indicators
 // Minimap style: boxes with flex height filling available vertical space
@@ -170,6 +171,76 @@ export const useWidthToggle = () => {
     throw new Error('useWidthToggle must be used within a WidthToggleProvider')
   }
   return context
+}
+
+// Create context for doc navigation (prev/next)
+type DocNavItem = { label: React.ReactNode; to: string }
+const DocNavigationContext = React.createContext<{
+  prevItem?: DocNavItem
+  nextItem?: DocNavItem
+  colorFrom: string
+  colorTo: string
+  textColor: string
+} | null>(null)
+
+export const useDocNavigation = () => {
+  return React.useContext(DocNavigationContext)
+}
+
+export function DocNavigation() {
+  const context = useDocNavigation()
+  if (!context) return null
+
+  const { prevItem, nextItem, colorFrom, colorTo, textColor } = context
+
+  if (!prevItem && !nextItem) return null
+
+  return (
+    <div className="sticky flex items-stretch bottom-2 z-10 right-0 text-xs md:text-sm print:hidden mt-8">
+      <div className="flex-1 flex justify-start">
+        {prevItem ? (
+          <Card
+            as={Link}
+            from="/$libraryId/$version/docs"
+            to={prevItem.to}
+            params
+            className="py-2 px-3 flex items-center gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <div className="flex flex-col">
+              <span className="text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
+                Previous
+              </span>
+              <span className="font-bold">{prevItem.label}</span>
+            </div>
+          </Card>
+        ) : null}
+      </div>
+      <div className="flex-1 flex justify-end">
+        {nextItem ? (
+          <Card
+            as={Link}
+            from="/$libraryId/$version/docs"
+            to={nextItem.to}
+            params
+            className="py-2 px-3 flex items-center gap-2"
+          >
+            <div className="flex flex-col items-end">
+              <span className="text-[10px] uppercase tracking-wider opacity-60 mb-0.5">
+                Next
+              </span>
+              <span
+                className={`font-bold bg-linear-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
+              >
+                {nextItem.label}
+              </span>
+            </div>
+            <ChevronRight className={twMerge('w-4 h-4', textColor)} />
+          </Card>
+        ) : null}
+      </div>
+    </div>
+  )
 }
 
 const useMenuConfig = ({
@@ -538,146 +609,114 @@ export function DocsLayout({
 
   return (
     <WidthToggleContext.Provider value={{ isFullWidth, setIsFullWidth }}>
-      <div
-        className={`
+      <DocNavigationContext.Provider
+        value={{ prevItem, nextItem, colorFrom, colorTo, textColor }}
+      >
+        <div
+          className={`
           min-h-[calc(100dvh-var(--navbar-height))]
           flex flex-col sm:flex-row
           w-full transition-all duration-300
           [overflow-x:clip]`}
-      >
-        {smallMenu}
-        {largeMenu}
-        <div className="flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative px-4 sm:px-8">
-          <div
-            className={twMerge(
-              `max-w-full min-w-0 flex justify-center w-full min-h-[88dvh] sm:min-h-0`,
-              !isExample && !isFullWidth && 'mx-auto w-[900px]', // page width
-            )}
-          >
-            {children}
-          </div>
-          <AdGate>
-            {/* <div className="flex border-t border-gray-500/20">
+        >
+          {smallMenu}
+          {largeMenu}
+          <div className="flex flex-col max-w-full min-w-0 flex-1 min-h-0 relative px-4 sm:px-8">
+            <div
+              className={twMerge(
+                `max-w-full min-w-0 flex flex-col justify-center w-full min-h-[88dvh] sm:min-h-0`,
+                !isExample && !isFullWidth && 'mx-auto w-[900px]', // page width
+              )}
+            >
+              {children}
+            </div>
+            <AdGate>
+              {/* <div className="flex border-t border-gray-500/20">
               <div className="py-4 px-2 xl:px-4 mx-auto max-w-full justify-center">
                 <GamFooter popupPosition="top" />
               </div>
             </div> */}
-            <div className="py-2 pb-4 lg:py-4 lg:pb-6 xl:py-6 xl:pb-8 max-w-full">
-              <GamHeader />
-            </div>
-          </AdGate>
-          <div className="sticky flex items-center flex-wrap bottom-2 z-10 right-0 text-xs md:text-sm px-1 print:hidden">
-            <div className="w-1/2 px-1 flex justify-end flex-wrap">
-              {prevItem ? (
-                <Link
-                  from="/$libraryId/$version/docs"
-                  to={prevItem.to}
-                  params
-                  className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-md flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
-                >
-                  <div className="flex gap-2 items-center font-bold">
-                    <ArrowLeft />
-                    {prevItem.label}
-                  </div>
-                </Link>
-              ) : null}
-            </div>
-            <div className="w-1/2 px-1 flex justify-start flex-wrap">
-              {nextItem ? (
-                <Link
-                  from="/$libraryId/$version/docs"
-                  to={nextItem.to}
-                  params
-                  className="py-1 px-2 bg-white/70 text-black dark:bg-gray-500/40 dark:text-white shadow-md flex items-center justify-center backdrop-blur-sm z-20 rounded-lg overflow-hidden"
-                >
-                  <div className="flex gap-2 items-center font-bold">
-                    <span
-                      className={`bg-linear-to-r ${colorFrom} ${colorTo} bg-clip-text text-transparent`}
-                    >
-                      {nextItem.label}
-                    </span>{' '}
-                    <ArrowRight className={textColor} />
-                  </div>
-                </Link>
-              ) : null}
-            </div>
+              <div className="py-2 pb-4 lg:py-4 lg:pb-6 xl:py-6 xl:pb-8 max-w-full">
+                <GamHeader />
+              </div>
+            </AdGate>
           </div>
-        </div>
-        <div
-          className="w-full sm:w-[300px] shrink-0 sm:sticky
+          <div
+            className="w-full sm:w-[300px] shrink-0 sm:sticky
         sm:top-[var(--navbar-height)]
         "
-        >
-          <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pb-4 max-w-full overflow-hidden">
-            <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden w-full">
-              <div className="w-full flex gap-2 justify-between border-b border-gray-500/20 px-3 py-2">
-                <Link
-                  className="font-medium opacity-60 hover:opacity-100 text-xs"
-                  to="/partners"
-                >
-                  Partners
-                </Link>
-                <a
-                  href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
-                >
-                  Become a Partner
-                </a>
-              </div>
-              {activePartners
-                .filter((d) => d.id !== 'ui-dev')
-                .map((partner) => {
-                  // flexBasis as percentage based on score, flexGrow to fill remaining row space
-                  const widthPercent = Math.round(partner.score * 100)
+          >
+            <div className="sm:sticky sm:top-[var(--navbar-height)] ml-auto flex flex-wrap flex-row justify-center sm:flex-col gap-4 pb-4 max-w-full overflow-hidden">
+              <div className="flex flex-wrap items-stretch border-l border-gray-500/20 rounded-bl-lg overflow-hidden w-full">
+                <div className="w-full flex gap-2 justify-between border-b border-gray-500/20 px-3 py-2">
+                  <Link
+                    className="font-medium opacity-60 hover:opacity-100 text-xs"
+                    to="/partners"
+                  >
+                    Partners
+                  </Link>
+                  <a
+                    href="https://docs.google.com/document/d/1Hg2MzY2TU6U3hFEZ3MLe2oEOM3JS4-eByti3kdJU3I8"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium opacity-60 hover:opacity-100 text-xs hover:underline"
+                  >
+                    Become a Partner
+                  </a>
+                </div>
+                {activePartners
+                  .filter((d) => d.id !== 'ui-dev')
+                  .map((partner) => {
+                    // flexBasis as percentage based on score, flexGrow to fill remaining row space
+                    const widthPercent = Math.round(partner.score * 100)
 
-                  return (
-                    <a
-                      key={partner.name}
-                      href={partner.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center justify-center px-3 py-2
+                    return (
+                      <a
+                        key={partner.name}
+                        href={partner.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center justify-center px-3 py-2
                           border-r border-b border-gray-500/20
                           hover:bg-gray-500/10 transition-colors duration-150 ease-out"
-                      style={{
-                        flexBasis: `${widthPercent}%`,
-                        flexGrow: 1,
-                        flexShrink: 0,
-                      }}
-                    >
-                      <div
                         style={{
-                          width: Math.max(
-                            60 + Math.round(140 * partner.score),
-                            70,
-                          ),
+                          flexBasis: `${widthPercent}%`,
+                          flexGrow: 1,
+                          flexShrink: 0,
                         }}
                       >
-                        <PartnerImage
-                          config={partner.image}
-                          alt={partner.name}
-                        />
-                      </div>
-                    </a>
-                  )
-                })}
-            </div>
-            <AdGate>
-              <GamVrec1
-                popupPosition="top"
-                borderClassName="rounded-l-xl rounded-r-none"
-              />
-            </AdGate>
-            {libraryId === 'query' ? (
-              <div className="p-4 bg-white/70 dark:bg-black/40 rounded-lg flex flex-col">
-                <DocsCalloutQueryGG />
+                        <div
+                          style={{
+                            width: Math.max(
+                              60 + Math.round(140 * partner.score),
+                              70,
+                            ),
+                          }}
+                        >
+                          <PartnerImage
+                            config={partner.image}
+                            alt={partner.name}
+                          />
+                        </div>
+                      </a>
+                    )
+                  })}
               </div>
-            ) : null}
+              <AdGate>
+                <GamVrec1
+                  popupPosition="top"
+                  borderClassName="rounded-l-xl rounded-r-none"
+                />
+              </AdGate>
+              {libraryId === 'query' ? (
+                <div className="p-4 bg-white/70 dark:bg-black/40 rounded-lg flex flex-col">
+                  <DocsCalloutQueryGG />
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
-      </div>
+      </DocNavigationContext.Provider>
     </WidthToggleContext.Provider>
   )
 }

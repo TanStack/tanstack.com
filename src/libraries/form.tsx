@@ -1,6 +1,5 @@
-import { Book, Wallpaper, WandSparkles, Zap } from 'lucide-react'
+import { WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/form'
@@ -17,6 +16,7 @@ export const formProject = {
   ogImage: 'https://github.com/tanstack/form/raw/main/media/repo-header.png',
   badge: 'new',
   bgStyle: 'bg-yellow-500',
+  borderStyle: 'border-yellow-500/50',
   textStyle: 'text-yellow-500',
   repo,
   latestBranch: 'main',
@@ -28,23 +28,6 @@ export const formProject = {
   textColor: 'text-yellow-600',
   frameworks: ['react', 'vue', 'angular', 'solid', 'lit', 'svelte'],
   scarfId: '72ec4452-5d77-427c-b44a-57515d2d83aa',
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/form/latest/docs',
-    },
-    {
-      icon: <Wallpaper />,
-      label: 'Examples',
-      to: '/form/latest/docs/framework/react/examples/simple',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'Github',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   testimonials: [
     {
       quote:

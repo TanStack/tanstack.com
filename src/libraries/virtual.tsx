@@ -1,6 +1,5 @@
-import { Book, PersonStanding, Wallpaper, Zap } from 'lucide-react'
+import { PersonStanding, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/virtual'
@@ -17,6 +16,7 @@ export const virtualProject = {
   ogImage: 'https://github.com/tanstack/query/raw/main/media/header.png',
   badge: undefined,
   bgStyle: 'bg-purple-500',
+  borderStyle: 'border-purple-500/50',
   textStyle: 'text-purple-500',
   repo,
   latestBranch: 'main',
@@ -30,23 +30,6 @@ export const virtualProject = {
   defaultDocs: 'introduction',
   scarfId: '32372eb1-91e0-48e7-8df1-4808a7be6b94',
   legacyPackages: ['react-virtual'],
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/virtual/latest/docs/introduction',
-    },
-    {
-      icon: <Wallpaper />,
-      label: 'Examples',
-      to: '/virtual/latest/docs/framework/react/examples/dynamic',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'Github',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   testimonials: [
     {
       quote:

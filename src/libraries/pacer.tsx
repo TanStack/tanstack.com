@@ -1,11 +1,4 @@
-import { GithubIcon } from '~/components/icons/GithubIcon'
-import {
-  ArrowRightLeft,
-  Book,
-  CircleGauge,
-  Wallpaper,
-  WandSparkles,
-} from 'lucide-react'
+import { ArrowRightLeft, CircleGauge, WandSparkles } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 
 const repo = 'tanstack/pacer'
@@ -22,6 +15,7 @@ export const pacerProject = {
   ogImage: 'https://github.com/tanstack/pacer/raw/main/media/repo-header.png',
   badge: 'beta',
   bgStyle: `bg-lime-700`,
+  borderStyle: 'border-lime-700/50',
   textStyle: `text-lime-500`,
   repo,
   latestBranch: 'main',
@@ -34,23 +28,6 @@ export const pacerProject = {
   frameworks: ['react', 'preact', 'solid'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/pacer/latest/docs',
-    },
-    {
-      icon: <Wallpaper />,
-      label: 'Examples',
-      to: '/pacer/latest/docs/framework/react/examples/debounce',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'Github',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   featureHighlights: [
     {
       title: 'Flexible & Type-Safe',

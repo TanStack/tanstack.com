@@ -35,6 +35,7 @@ export type Library = {
   description: string
   ogImage?: string
   bgStyle: string
+  borderStyle: string
   textStyle: string
   badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh' | 'RC'
   repo: string
@@ -54,7 +55,6 @@ export type Library = {
   showVercelUrl?: boolean
   showNetlifyUrl?: boolean
   showCloudflareUrl?: boolean
-  menu: LibraryMenuItem[]
   featureHighlights?: {
     title: string
     icon: React.ReactNode
@@ -68,12 +68,6 @@ export type Library = {
   legacyPackages?: string[]
   installPath?: string
   corePackageName?: string
-}
-
-export type LibraryMenuItem = {
-  icon: React.ReactNode
-  label: React.ReactNode
-  to: string
 }
 
 export type Testimonial = {

@@ -1,6 +1,5 @@
-import { Book, WandSparkles, Zap } from 'lucide-react'
+import { WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/devtools'
@@ -18,6 +17,7 @@ export const devtoolsProject = {
     'https://github.com/tanstack/devtools/raw/main/media/repo-header.png',
   badge: 'alpha',
   bgStyle: 'bg-slate-400',
+  borderStyle: 'border-slate-400/50',
   textStyle: 'text-slate-400',
   repo,
   latestBranch: 'main',
@@ -28,18 +28,6 @@ export const devtoolsProject = {
   colorTo: 'to-slate-600',
   textColor: 'text-slate-600',
   frameworks: ['react', 'preact', 'solid', 'vanilla'],
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/devtools/latest/docs',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'Github',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   featureHighlights: [
     {
       title: 'Unified Devtools Panel',

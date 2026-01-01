@@ -1,7 +1,6 @@
 import { Library } from '.'
-import { Book, Plug, Zap } from 'lucide-react'
+import { Plug, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/ai'
@@ -18,6 +17,7 @@ export const aiProject = {
   ogImage: 'https://github.com/tanstack/ai/raw/main/media/repo-header.png',
   badge: 'alpha',
   bgStyle: `bg-pink-700`,
+  borderStyle: 'border-pink-700/50',
   textStyle: `text-pink-500`,
   repo,
   latestBranch: 'main',
@@ -30,18 +30,6 @@ export const aiProject = {
   frameworks: ['react', 'solid', 'vanilla'],
   scarfId: undefined,
   defaultDocs: 'getting-started/overview',
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/ai/latest/docs',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'Github',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   featureHighlights: [
     {
       title: 'Multi-Provider Support',

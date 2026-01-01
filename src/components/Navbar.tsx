@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge'
 import { BrandContextMenu } from './BrandContextMenu'
 import { Link, useLocation, useMatches } from '@tanstack/react-router'
 import {
+  ChevronRight,
   Code,
   Users,
   Music,
@@ -16,7 +17,9 @@ import {
   User,
   Lock,
   Menu,
+  X,
   Rss,
+  Home,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
@@ -35,6 +38,11 @@ import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { AnnouncementBanner } from '~/components/AnnouncementBanner'
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from '~/components/Collapsible'
 
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
@@ -74,15 +82,19 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [showMenu, setShowMenu] = React.useState(false)
+  const isPointerInsideButtonRef = React.useRef(false)
 
   const toggleMenu = () => {
     setShowMenu((prev) => !prev)
   }
 
+  const largeMenuRef = React.useRef<HTMLDivElement>(null)
+
   // Close mobile menu when clicking outside
   const smallMenuRef = useClickOutside<HTMLDivElement>({
     enabled: showMenu,
     onClickOutside: () => setShowMenu(false),
+    additionalRefs: [largeMenuRef],
   })
 
   const loginButton = (
@@ -195,10 +207,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 if (window.innerWidth < 1024) {
                   return
                 }
+                if (isPointerInsideButtonRef.current) {
+                  return
+                }
+                isPointerInsideButtonRef.current = true
                 setShowMenu(true)
               }}
+              onPointerLeave={() => {
+                isPointerInsideButtonRef.current = false
+              }}
             >
-              <Menu />
+              {showMenu ? <X /> : <Menu />}
             </button>
             <Link
               to="/"
@@ -288,6 +307,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             })
         })().map((library, i) => {
           const [prefix, name] = library.name.split(' ')
+          const isActive = library.to === activeLibrary?.to
 
           return (
             <div key={i}>
@@ -301,43 +321,32 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                   </span>
                 </a>
               ) : (
-                <div>
-                  <Link to={library.to}>
-                    {(props: { isActive: boolean }) => {
-                      return (
-                        <div
-                          className={twMerge(
-                            linkClasses,
-                            props.isActive
-                              ? 'bg-gray-500/10 dark:bg-gray-500/30'
-                              : '',
-                          )}
+                <Collapsible defaultOpen={isActive}>
+                  {({ open }) => (
+                    <>
+                      <CollapsibleTrigger
+                        className={twMerge(
+                          linkClasses,
+                          'w-full',
+                          isActive ? 'bg-gray-500/10 dark:bg-gray-500/30' : '',
+                        )}
+                      >
+                        <span
+                          style={{
+                            viewTransitionName: `library-name-${library.id}`,
+                          }}
                         >
                           <span
-                            style={{
-                              viewTransitionName: `library-name-${library.id}`,
-                            }}
+                            className={twMerge(
+                              'font-light dark:font-bold dark:opacity-40',
+                              isActive ? `font-bold dark:opacity-100` : '',
+                            )}
                           >
-                            <span
-                              className={twMerge(
-                                'font-light dark:font-bold dark:opacity-40',
-                                props.isActive
-                                  ? `font-bold dark:opacity-100`
-                                  : '',
-                              )}
-                            >
-                              {prefix}
-                            </span>{' '}
-                            <span
-                              className={twMerge(
-                                library.textStyle,
-                                // isPending &&
-                                //   `[view-transition-name:library-name]`
-                              )}
-                            >
-                              {name}
-                            </span>
-                          </span>
+                            {prefix}
+                          </span>{' '}
+                          <span className={library.textStyle}>{name}</span>
+                        </span>
+                        <div className="flex items-center gap-1">
                           {library.badge ? (
                             <span
                               className={twMerge(
@@ -352,46 +361,67 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                               {library.badge}
                             </span>
                           ) : null}
+                          <ChevronRight
+                            className={twMerge(
+                              'w-4 h-4 transition-transform duration-200',
+                              open && 'rotate-90',
+                            )}
+                          />
                         </div>
-                      )
-                    }}
-                  </Link>
-                  <div
-                    className={twMerge(
-                      library.to === activeLibrary?.to ? 'block' : 'hidden',
-                    )}
-                  >
-                    {library.menu?.map((item, i) => {
-                      return (
-                        <Link
-                          to={item.to}
-                          key={i}
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div
                           className={twMerge(
-                            'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
-                            'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30',
+                            'ml-2 my-1 p-1 border-l-2 flex flex-col gap-px',
+                            library.borderStyle,
                           )}
                         >
-                          {item.icon}
-                          {item.label}
-                        </Link>
-                      )
-                    })}
-                    <Link
-                      to={`/$libraryId/$version/docs/contributors`}
-                      params={{
-                        libraryId: library.id,
-                        version: 'latest',
-                      }}
-                      className={twMerge(
-                        'flex gap-2 items-center px-2 ml-2 my-1 py-0.5',
-                        'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/30',
-                      )}
-                    >
-                      <Users />
-                      Contributors
-                    </Link>
-                  </div>
-                </div>
+                          <Link
+                            to={`${library.to}/latest`}
+                            className={twMerge(
+                              'flex gap-2 items-center px-2 py-0.5',
+                              'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/20',
+                            )}
+                            activeOptions={{ exact: true }}
+                            activeProps={{
+                              className:
+                                'bg-gray-500/10 dark:bg-gray-500/20 font-bold',
+                            }}
+                          >
+                            <Home className="w-4 h-4" />
+                            Home
+                          </Link>
+                          <Link
+                            to={`/${library.id}/latest/docs`}
+                            className={twMerge(
+                              'flex gap-2 items-center px-2 py-0.5',
+                              'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/20',
+                            )}
+                            activeProps={{
+                              className:
+                                'bg-gray-500/10 dark:bg-gray-500/20 font-bold',
+                            }}
+                          >
+                            <BookOpen className="w-4 h-4" />
+                            Docs
+                          </Link>
+                          <a
+                            href={`https://github.com/${library.repo}`}
+                            className={twMerge(
+                              'flex gap-2 items-center px-2 py-0.5',
+                              'rounded-lg hover:bg-gray-500/10 dark:hover:bg-gray-500/20',
+                            )}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <GithubIcon className="w-4 h-4" />
+                            GitHub
+                          </a>
+                        </div>
+                      </CollapsibleContent>
+                    </>
+                  )}
+                </Collapsible>
               )}
             </div>
           )
@@ -586,6 +616,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         <div
           onClick={(event) => {
             const target = event.target as HTMLElement
+            if (target.closest('[data-collapsible-trigger]')) {
+              return
+            }
             if (target.closest('a') || target.closest('button')) {
               setShowMenu(false)
             }
@@ -613,6 +646,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const largeMenu = (
     <>
       <div
+        ref={largeMenuRef}
         className={twMerge(
           `px] hidden lg:flex flex-col
       h-[calc(100dvh-var(--navbar-height))] sticky top-[var(--navbar-height)] z-20

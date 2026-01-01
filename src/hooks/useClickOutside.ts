@@ -7,6 +7,8 @@ type UseClickOutsideOptions = {
   onClickOutside: () => void
   /** Whether to also close on Escape key press (default: true) */
   closeOnEscape?: boolean
+  /** Additional refs to consider as "inside" */
+  additionalRefs?: React.RefObject<HTMLElement | null>[]
 }
 
 /**
@@ -27,6 +29,7 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>({
   enabled,
   onClickOutside,
   closeOnEscape = true,
+  additionalRefs = [],
 }: UseClickOutsideOptions): React.RefObject<T | null> {
   const ref = React.useRef<T>(null)
 
@@ -34,9 +37,21 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>({
     if (!enabled) return
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClickOutside()
+      const target = event.target as Node
+
+      // Check if click is inside the main ref
+      if (ref.current?.contains(target)) {
+        return
       }
+
+      // Check if click is inside any additional refs
+      for (const additionalRef of additionalRefs) {
+        if (additionalRef.current?.contains(target)) {
+          return
+        }
+      }
+
+      onClickOutside()
     }
 
     const handleEscape = (event: KeyboardEvent) => {
@@ -56,7 +71,7 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>({
         document.removeEventListener('keydown', handleEscape)
       }
     }
-  }, [enabled, onClickOutside, closeOnEscape])
+  }, [enabled, onClickOutside, closeOnEscape, additionalRefs])
 
   return ref
 }

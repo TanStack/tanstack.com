@@ -1,13 +1,6 @@
-import {
-  Book,
-  DatabaseZap,
-  MessageCircleQuestionMark,
-  PlugZap,
-  Wallpaper,
-} from 'lucide-react'
+import { DatabaseZap, MessageCircleQuestionMark, PlugZap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 
 const repo = 'tanstack/router'
 
@@ -22,6 +15,7 @@ export const routerProject = {
   description: `A powerful React router for client-side and full-stack react applications. Fully type-safe APIs, first-class search-params for managing state in the URL and seamless integration with the existing React ecosystem.`,
   ogImage: 'https://github.com/tanstack/router/raw/main/media/header.png',
   bgStyle: 'bg-emerald-500',
+  borderStyle: 'border-emerald-500/50',
   textStyle: textStyles,
   badge: undefined,
   repo,
@@ -42,23 +36,6 @@ export const routerProject = {
   showVercelUrl: false,
   showNetlifyUrl: true,
   showCloudflareUrl: true,
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/router/latest/docs/framework/react/overview',
-    },
-    {
-      icon: <Wallpaper />,
-      label: 'Examples',
-      to: '/router/latest/docs/framework/react/examples/kitchen-sink-file-based',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'GitHub',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   testimonials: [
     {
       quote:

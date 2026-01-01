@@ -1,7 +1,6 @@
-import { Book, Network, Rocket, ServerCrash, Wallpaper } from 'lucide-react'
+import { Network, Rocket, ServerCrash } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { YinYangIcon } from '~/components/icons/YinYangIcon'
 
 const repo = 'tanstack/router'
@@ -16,6 +15,7 @@ export const startProject = {
   tagline: `Full-stack Framework powered by TanStack Router for React and Solid`,
   description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.`,
   bgStyle: 'bg-cyan-500',
+  borderStyle: 'border-cyan-500/50',
   textStyle: 'text-cyan-500',
   badge: 'RC',
   repo,
@@ -36,23 +36,6 @@ export const startProject = {
   showCloudflareUrl: true,
   // hide stackblitz until they support Async Local Storage
   hideStackblitzUrl: true,
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/start/latest/docs/framework/react/overview',
-    },
-    {
-      icon: <Wallpaper />,
-      label: 'Examples',
-      to: '/start/latest/docs/framework/react/examples/start-basic',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'GitHub',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   testimonials: [
     {
       quote:

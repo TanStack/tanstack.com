@@ -1,7 +1,6 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { Book, PersonStanding, Wallpaper, Zap } from 'lucide-react'
+import { PersonStanding, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/table'
@@ -18,6 +17,7 @@ export const tableProject = {
   ogImage: 'https://github.com/tanstack/table/raw/main/media/repo-header.png',
   badge: undefined,
   bgStyle: 'bg-blue-500',
+  borderStyle: 'border-blue-500/50',
   textStyle: 'text-blue-500',
   repo,
   latestBranch: 'main',
@@ -50,23 +50,6 @@ export const tableProject = {
       'from=reactTableV7',
     )
   },
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/table/latest/docs/introduction',
-    },
-    {
-      icon: <Wallpaper />,
-      label: 'Examples',
-      to: '/table/latest/docs/framework/react/examples/basic',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'Github',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   testimonials: [
     {
       quote:

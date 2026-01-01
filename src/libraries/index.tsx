@@ -11,15 +11,10 @@ import { pacerProject } from './pacer'
 import { dbProject } from './db'
 import { aiProject } from './ai'
 import { devtoolsProject } from './devtools'
-import {
-  type Framework,
-  type Library,
-  type LibraryId,
-  type LibraryMenuItem,
-} from './types'
+import { type Framework, type Library, type LibraryId } from './types'
 
 // Re-export types for backward compatibility
-export type { Framework, Library, LibraryId, LibraryMenuItem }
+export type { Framework, Library, LibraryId }
 
 // Note: frameworkOptions is NOT exported here to avoid bundling SVG imports
 // in server/background functions. Import it directly from './frameworks' in client components.

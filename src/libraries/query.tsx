@@ -1,7 +1,6 @@
 import { handleRedirects } from '~/utils/handleRedirects.server'
-import { Book, Wallpaper, WandSparkles, Zap } from 'lucide-react'
+import { WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/query'
@@ -19,6 +18,7 @@ export const queryProject = {
   ogImage: 'https://github.com/tanstack/query/raw/main/media/repo-header.png',
   badge: undefined,
   bgStyle: 'bg-red-500',
+  borderStyle: 'border-red-500/50',
   textStyle: 'text-red-500',
   repo,
   latestBranch: 'main',
@@ -58,23 +58,6 @@ export const queryProject = {
       'from=communityLinks',
     )
   },
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/query/latest/docs/framework/react/overview',
-    },
-    {
-      icon: <Wallpaper />,
-      label: 'Examples',
-      to: '/query/latest/docs/framework/react/examples/basic',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'GitHub',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   testimonials: [
     {
       quote:

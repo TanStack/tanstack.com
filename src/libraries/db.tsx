@@ -1,7 +1,5 @@
 import { GalleryVerticalEnd, Zap } from 'lucide-react'
-import { Book } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-import { GithubIcon } from '~/components/icons/GithubIcon'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 
 const repo = 'tanstack/db'
@@ -18,6 +16,7 @@ export const dbProject = {
   ogImage: 'https://github.com/tanstack/db/raw/main/media/repo-header.png',
   badge: 'beta',
   bgStyle: `bg-orange-700`,
+  borderStyle: 'border-orange-700/50',
   textStyle: `text-orange-500`,
   repo,
   latestBranch: 'main',
@@ -30,18 +29,6 @@ export const dbProject = {
   frameworks: ['react', 'vue', 'solid', 'svelte', 'vanilla'],
   scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
-  menu: [
-    {
-      icon: <Book />,
-      label: 'Docs',
-      to: '/db/latest/docs',
-    },
-    {
-      icon: <GithubIcon />,
-      label: 'Github',
-      to: `https://github.com/${repo}`,
-    },
-  ],
   featureHighlights: [
     {
       title: 'Collections',

@@ -313,12 +313,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             <div key={i}>
               {library.to?.startsWith('http') ? (
                 <a href={library.to} className={linkClasses}>
-                  <span>
-                    <span className="font-light dark:font-bold dark:opacity-40">
-                      {prefix}
-                    </span>{' '}
-                    <span className={library.textStyle}>{name}</span>
-                  </span>
+                  <span className={library.textStyle}>{name}</span>
                 </a>
               ) : (
                 <Collapsible defaultOpen={isActive}>
@@ -335,16 +330,12 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                           style={{
                             viewTransitionName: `library-name-${library.id}`,
                           }}
+                          className={twMerge(
+                            library.textStyle,
+                            isActive ? 'font-bold' : '',
+                          )}
                         >
-                          <span
-                            className={twMerge(
-                              'font-light dark:font-bold dark:opacity-40',
-                              isActive ? `font-bold dark:opacity-100` : '',
-                            )}
-                          >
-                            {prefix}
-                          </span>{' '}
-                          <span className={library.textStyle}>{name}</span>
+                          {name}
                         </span>
                         <div className="flex items-center gap-1">
                           {library.badge ? (

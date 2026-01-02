@@ -273,7 +273,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
 
   const items = (
-    <div className="md:flex gap-2 [&>*]:flex-1 lg:block">
+    <div className="sm:flex gap-2 [&>*]:flex-1 lg:block">
       <div>
         {(() => {
           const sidebarLibraryIds = [

@@ -26,7 +26,9 @@ import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminStatsRouteImport } from './routes/admin/stats'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
+import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
 import { Route as AdminGithubStatsRouteImport } from './routes/admin/github-stats'
+import { Route as AdminAuditRouteImport } from './routes/admin/audit'
 import { Route as LibrariesWorkshopsRouteImport } from './routes/_libraries/workshops'
 import { Route as LibrariesTermsRouteImport } from './routes/_libraries/terms'
 import { Route as LibrariesTenetsRouteImport } from './routes/_libraries/tenets'
@@ -175,9 +177,19 @@ const AdminNpmStatsRoute = AdminNpmStatsRouteImport.update({
   path: '/npm-stats',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminLoginsRoute = AdminLoginsRouteImport.update({
+  id: '/logins',
+  path: '/logins',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminGithubStatsRoute = AdminGithubStatsRouteImport.update({
   id: '/github-stats',
   path: '/github-stats',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const LibrariesWorkshopsRoute = LibrariesWorkshopsRouteImport.update({
@@ -546,7 +558,9 @@ export interface FileRoutesByFullPath {
   '/tenets': typeof LibrariesTenetsRoute
   '/terms': typeof LibrariesTermsRoute
   '/workshops': typeof LibrariesWorkshopsRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
+  '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -624,7 +638,9 @@ export interface FileRoutesByTo {
   '/tenets': typeof LibrariesTenetsRoute
   '/terms': typeof LibrariesTermsRoute
   '/workshops': typeof LibrariesWorkshopsRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
+  '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -707,7 +723,9 @@ export interface FileRoutesById {
   '/_libraries/tenets': typeof LibrariesTenetsRoute
   '/_libraries/terms': typeof LibrariesTermsRoute
   '/_libraries/workshops': typeof LibrariesWorkshopsRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/github-stats': typeof AdminGithubStatsRoute
+  '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/stats': typeof AdminStatsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -791,7 +809,9 @@ export interface FileRouteTypes {
     | '/tenets'
     | '/terms'
     | '/workshops'
+    | '/admin/audit'
     | '/admin/github-stats'
+    | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/stats'
     | '/admin/users'
@@ -869,7 +889,9 @@ export interface FileRouteTypes {
     | '/tenets'
     | '/terms'
     | '/workshops'
+    | '/admin/audit'
     | '/admin/github-stats'
+    | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/stats'
     | '/admin/users'
@@ -951,7 +973,9 @@ export interface FileRouteTypes {
     | '/_libraries/tenets'
     | '/_libraries/terms'
     | '/_libraries/workshops'
+    | '/admin/audit'
     | '/admin/github-stats'
+    | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/stats'
     | '/admin/users'
@@ -1148,11 +1172,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminNpmStatsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/logins': {
+      id: '/admin/logins'
+      path: '/logins'
+      fullPath: '/admin/logins'
+      preLoaderRoute: typeof AdminLoginsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/github-stats': {
       id: '/admin/github-stats'
       path: '/github-stats'
       fullPath: '/admin/github-stats'
       preLoaderRoute: typeof AdminGithubStatsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/_libraries/workshops': {
@@ -1766,7 +1804,9 @@ const LibrariesRouteRouteWithChildren = LibrariesRouteRoute._addFileChildren(
 )
 
 interface AdminRouteRouteChildren {
+  AdminAuditRoute: typeof AdminAuditRoute
   AdminGithubStatsRoute: typeof AdminGithubStatsRoute
+  AdminLoginsRoute: typeof AdminLoginsRoute
   AdminNpmStatsRoute: typeof AdminNpmStatsRoute
   AdminStatsRoute: typeof AdminStatsRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -1782,7 +1822,9 @@ interface AdminRouteRouteChildren {
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminAuditRoute: AdminAuditRoute,
   AdminGithubStatsRoute: AdminGithubStatsRoute,
+  AdminLoginsRoute: AdminLoginsRoute,
   AdminNpmStatsRoute: AdminNpmStatsRoute,
   AdminStatsRoute: AdminStatsRoute,
   AdminUsersRoute: AdminUsersRoute,

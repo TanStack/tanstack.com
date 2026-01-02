@@ -167,7 +167,6 @@ export function CodeBlock({
 
       setCodeElement(
         <div
-          // className={`m-0 text-sm rounded-md w-full border border-gray-500/20 dark:border-gray-500/30`}
           className={twMerge(
             isEmbedded ? 'h-full [&>pre]:h-full [&>pre]:rounded-none' : '',
           )}
@@ -181,7 +180,7 @@ export function CodeBlock({
   return (
     <div
       className={twMerge(
-        'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md [*[data-tab]_&]:only:border-0',
+        'codeblock w-full max-w-full relative not-prose border border-gray-500/20 rounded-md [&_pre]:rounded-md',
         props.className,
       )}
       style={props.style}

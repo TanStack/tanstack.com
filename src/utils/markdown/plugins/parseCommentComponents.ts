@@ -1,6 +1,6 @@
 import { unified } from 'unified'
 import rehypeParse from 'rehype-parse'
-import { visit } from 'unist-util-visit'
+import { SKIP, visit } from 'unist-util-visit'
 
 const COMPONENT_PREFIX = '::'
 const START_PREFIX = '::start:'

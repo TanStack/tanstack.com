@@ -4,6 +4,7 @@ import { users } from '~/db/schema'
 import { eq, and, or, ilike, sql } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getBulkEffectiveCapabilities } from './capabilities.server'
+import { recordAuditLog } from './audit.server'
 import { z } from 'zod'
 import type { Capability } from '~/db/schema'
 
@@ -368,7 +369,9 @@ export const updateUserCapabilities = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     // Validate admin capability
-    await requireCapability({ data: { capability: 'admin' } })
+    const { currentUser } = await requireCapability({
+      data: { capability: 'admin' },
+    })
 
     // Validate that target user exists
     const targetUser = await db.query.users.findFirst({
@@ -380,11 +383,24 @@ export const updateUserCapabilities = createServerFn({ method: 'POST' })
     }
 
     const capabilities = data.capabilities
+    const previousCapabilities = targetUser.capabilities
 
     await db
       .update(users)
       .set({ capabilities, updatedAt: new Date() })
       .where(eq(users.id, data.userId))
+
+    // Record audit log
+    await recordAuditLog({
+      actorId: currentUser.userId,
+      action: 'user.capabilities.update',
+      targetType: 'user',
+      targetId: data.userId,
+      details: {
+        before: previousCapabilities,
+        after: capabilities,
+      },
+    })
 
     return { success: true }
   })
@@ -399,7 +415,9 @@ export const adminSetAdsDisabled = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     // Validate admin capability
-    await requireCapability({ data: { capability: 'admin' } })
+    const { currentUser } = await requireCapability({
+      data: { capability: 'admin' },
+    })
 
     // Validate that target user exists
     const targetUser = await db.query.users.findFirst({
@@ -410,10 +428,24 @@ export const adminSetAdsDisabled = createServerFn({ method: 'POST' })
       throw new Error('Target user not found')
     }
 
+    const previousAdsDisabled = targetUser.adsDisabled
+
     await db
       .update(users)
       .set({ adsDisabled: data.adsDisabled, updatedAt: new Date() })
       .where(eq(users.id, data.userId))
+
+    // Record audit log
+    await recordAuditLog({
+      actorId: currentUser.userId,
+      action: 'user.adsDisabled.update',
+      targetType: 'user',
+      targetId: data.userId,
+      details: {
+        before: previousAdsDisabled,
+        after: data.adsDisabled,
+      },
+    })
 
     return { success: true }
   })
@@ -428,11 +460,19 @@ export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     // Validate admin capability
-    await requireCapability({ data: { capability: 'admin' } })
+    const { currentUser } = await requireCapability({
+      data: { capability: 'admin' },
+    })
 
     const validatedCapabilities = data.capabilities
 
-    // Update all users
+    // Update all users and collect audit data
+    const auditData: Array<{
+      userId: string
+      before: Capability[]
+      after: Capability[]
+    }> = []
+
     await Promise.all(
       data.userIds.map(async (userId) => {
         const targetUser = await db.query.users.findFirst({
@@ -443,13 +483,34 @@ export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
           throw new Error(`User ${userId} not found`)
         }
 
-        const capabilities = validatedCapabilities
+        auditData.push({
+          userId,
+          before: targetUser.capabilities,
+          after: validatedCapabilities,
+        })
 
         await db
           .update(users)
-          .set({ capabilities, updatedAt: new Date() })
+          .set({ capabilities: validatedCapabilities, updatedAt: new Date() })
           .where(eq(users.id, userId))
       }),
+    )
+
+    // Record audit logs for each user
+    await Promise.all(
+      auditData.map((audit) =>
+        recordAuditLog({
+          actorId: currentUser.userId,
+          action: 'user.capabilities.update',
+          targetType: 'user',
+          targetId: audit.userId,
+          details: {
+            before: audit.before,
+            after: audit.after,
+            bulkOperation: true,
+          },
+        }),
+      ),
     )
 
     return { success: true, updated: data.userIds.length }
@@ -464,6 +525,9 @@ export const revokeUserSessions = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data: { userId } }) => {
+    // Get current user for audit log
+    const currentUser = await getAuthenticatedUser()
+
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),
       columns: {
@@ -479,6 +543,18 @@ export const revokeUserSessions = createServerFn({ method: 'POST' })
       .update(users)
       .set({ sessionVersion: user.sessionVersion + 1, updatedAt: new Date() })
       .where(eq(users.id, userId))
+
+    // Record audit log
+    await recordAuditLog({
+      actorId: currentUser.userId,
+      action: 'user.sessions.revoke',
+      targetType: 'user',
+      targetId: userId,
+      details: {
+        previousVersion: user.sessionVersion,
+        newVersion: user.sessionVersion + 1,
+      },
+    })
 
     return { success: true }
   })

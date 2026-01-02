@@ -36,6 +36,23 @@ export const docFeedbackStatusEnum = pgEnum('doc_feedback_status', [
   'denied',
 ])
 export const bannerScopeEnum = pgEnum('banner_scope', ['global', 'targeted'])
+export const auditActionEnum = pgEnum('audit_action', [
+  'user.capabilities.update',
+  'user.adsDisabled.update',
+  'user.sessions.revoke',
+  'role.create',
+  'role.update',
+  'role.delete',
+  'role.assignment.create',
+  'role.assignment.delete',
+  'banner.create',
+  'banner.update',
+  'banner.delete',
+  'feed.entry.create',
+  'feed.entry.update',
+  'feed.entry.delete',
+  'feedback.moderate',
+])
 export const bannerStyleEnum = pgEnum('banner_style', [
   'info',
   'warning',
@@ -62,6 +79,22 @@ export type DocFeedbackStatus = 'pending' | 'approved' | 'denied'
 export type BannerScope = 'global' | 'targeted'
 export type BannerStyle = 'info' | 'warning' | 'success' | 'promo'
 export type EntryType = 'release' | 'blog' | 'announcement'
+export type AuditAction =
+  | 'user.capabilities.update'
+  | 'user.adsDisabled.update'
+  | 'user.sessions.revoke'
+  | 'role.create'
+  | 'role.update'
+  | 'role.delete'
+  | 'role.assignment.create'
+  | 'role.assignment.delete'
+  | 'banner.create'
+  | 'banner.update'
+  | 'banner.delete'
+  | 'feed.entry.create'
+  | 'feed.entry.update'
+  | 'feed.entry.delete'
+  | 'feedback.moderate'
 
 // Constants
 export const VALID_CAPABILITIES: readonly Capability[] = [
@@ -678,6 +711,67 @@ export type NewAnnouncementDismissal = InferInsertModel<
   typeof announcementDismissals
 >
 
+// Login history table (tracks user logins for analytics and security)
+export const loginHistory = pgTable(
+  'login_history',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    provider: oauthProviderEnum('provider').notNull(),
+    ipAddress: varchar('ip_address', { length: 45 }), // IPv6 max length
+    userAgent: text('user_agent'),
+    isNewUser: boolean('is_new_user').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    userIdIdx: index('login_history_user_id_idx').on(table.userId),
+    createdAtIdx: index('login_history_created_at_idx').on(table.createdAt),
+    providerIdx: index('login_history_provider_idx').on(table.provider),
+  }),
+)
+
+export type LoginHistory = InferSelectModel<typeof loginHistory>
+export type NewLoginHistory = InferInsertModel<typeof loginHistory>
+
+// Audit logs table (tracks admin actions for security and compliance)
+export const auditLogs = pgTable(
+  'audit_logs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Who performed the action
+    actorId: uuid('actor_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    // What action was performed
+    action: auditActionEnum('action').notNull(),
+    // Target of the action (user, role, banner, etc.)
+    targetType: varchar('target_type', { length: 50 }).notNull(), // 'user', 'role', 'banner', 'feed_entry', 'feedback'
+    targetId: varchar('target_id', { length: 255 }).notNull(), // UUID or other identifier
+    // Details of the change
+    details: jsonb('details'), // { before: {...}, after: {...} } or other relevant data
+    // Request metadata
+    ipAddress: varchar('ip_address', { length: 45 }),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    actorIdIdx: index('audit_logs_actor_id_idx').on(table.actorId),
+    actionIdx: index('audit_logs_action_idx').on(table.action),
+    targetTypeIdx: index('audit_logs_target_type_idx').on(table.targetType),
+    targetIdIdx: index('audit_logs_target_id_idx').on(table.targetId),
+    createdAtIdx: index('audit_logs_created_at_idx').on(table.createdAt),
+  }),
+)
+
+export type AuditLog = InferSelectModel<typeof auditLogs>
+export type NewAuditLog = InferInsertModel<typeof auditLogs>
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
@@ -686,6 +780,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   docFeedback: many(docFeedback),
   announcementDismissals: many(announcementDismissals),
   bannerDismissals: many(bannerDismissals),
+  loginHistory: many(loginHistory),
+  auditLogs: many(auditLogs),
 }))
 
 export const rolesRelations = relations(roles, ({ many }) => ({
@@ -758,3 +854,17 @@ export const bannerDismissalsRelations = relations(
     }),
   }),
 )
+
+export const loginHistoryRelations = relations(loginHistory, ({ one }) => ({
+  user: one(users, {
+    fields: [loginHistory.userId],
+    references: [users.id],
+  }),
+}))
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  actor: one(users, {
+    fields: [auditLogs.actorId],
+    references: [users.id],
+  }),
+}))

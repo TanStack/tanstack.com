@@ -6,6 +6,7 @@ import { db } from '~/db/client'
 import { roles, roleAssignments, users } from '~/db/schema'
 import { eq, and, inArray } from 'drizzle-orm'
 import { getEffectiveCapabilities } from './capabilities.server'
+import { recordAuditLog } from './audit.server'
 
 export const listRoles = createServerFn({ method: 'POST' })
   .inputValidator(
@@ -96,7 +97,7 @@ export const createRole = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    await requireAdmin()
+    const { currentUser } = await requireAdmin()
 
     // Check if role with same name already exists
     const existing = await db.query.roles.findFirst({
@@ -115,6 +116,19 @@ export const createRole = createServerFn({ method: 'POST' })
         capabilities: data.capabilities,
       })
       .returning()
+
+    // Record audit log
+    await recordAuditLog({
+      actorId: currentUser.userId,
+      action: 'role.create',
+      targetType: 'role',
+      targetId: newRole.id,
+      details: {
+        name: data.name,
+        description: data.description,
+        capabilities: data.capabilities,
+      },
+    })
 
     return { roleId: newRole.id, success: true }
   })
@@ -139,7 +153,7 @@ export const updateRole = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    await requireAdmin()
+    const { currentUser } = await requireAdmin()
 
     const role = await db.query.roles.findFirst({
       where: eq(roles.id, data.roleId),
@@ -176,13 +190,33 @@ export const updateRole = createServerFn({ method: 'POST' })
 
     await db.update(roles).set(updates).where(eq(roles.id, data.roleId))
 
+    // Record audit log
+    await recordAuditLog({
+      actorId: currentUser.userId,
+      action: 'role.update',
+      targetType: 'role',
+      targetId: data.roleId,
+      details: {
+        before: {
+          name: role.name,
+          description: role.description,
+          capabilities: role.capabilities,
+        },
+        after: {
+          name: data.name ?? role.name,
+          description: data.description ?? role.description,
+          capabilities: data.capabilities ?? role.capabilities,
+        },
+      },
+    })
+
     return { success: true }
   })
 
 export const deleteRole = createServerFn({ method: 'POST' })
   .inputValidator(z.object({ roleId: z.string().uuid() }))
   .handler(async ({ data }) => {
-    await requireAdmin()
+    const { currentUser } = await requireAdmin()
 
     const role = await db.query.roles.findFirst({
       where: eq(roles.id, data.roleId),
@@ -199,6 +233,19 @@ export const deleteRole = createServerFn({ method: 'POST' })
 
     // Delete the role
     await db.delete(roles).where(eq(roles.id, data.roleId))
+
+    // Record audit log
+    await recordAuditLog({
+      actorId: currentUser.userId,
+      action: 'role.delete',
+      targetType: 'role',
+      targetId: data.roleId,
+      details: {
+        name: role.name,
+        description: role.description,
+        capabilities: role.capabilities,
+      },
+    })
 
     return { success: true }
   })
@@ -256,7 +303,7 @@ export const assignRolesToUser = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    await requireAdmin()
+    const { currentUser } = await requireAdmin()
 
     // Validate that user exists
     const user = await db.query.users.findFirst({
@@ -295,6 +342,19 @@ export const assignRolesToUser = createServerFn({ method: 'POST' })
           toDelete.map((ra) => ra.id),
         ),
       )
+
+      // Record audit logs for removed assignments
+      await Promise.all(
+        toDelete.map((ra) =>
+          recordAuditLog({
+            actorId: currentUser.userId,
+            action: 'role.assignment.delete',
+            targetType: 'user',
+            targetId: data.userId,
+            details: { roleId: ra.roleId },
+          }),
+        ),
+      )
     }
 
     // Create new assignments
@@ -307,6 +367,19 @@ export const assignRolesToUser = createServerFn({ method: 'POST' })
           userId: data.userId,
           roleId,
         })),
+      )
+
+      // Record audit logs for new assignments
+      await Promise.all(
+        toCreate.map((roleId) =>
+          recordAuditLog({
+            actorId: currentUser.userId,
+            action: 'role.assignment.create',
+            targetType: 'user',
+            targetId: data.userId,
+            details: { roleId },
+          }),
+        ),
       )
     }
 
@@ -425,7 +498,7 @@ export const removeUsersFromRole = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    await requireAdmin()
+    const { currentUser } = await requireAdmin()
 
     // Validate that role exists
     const role = await db.query.roles.findFirst({
@@ -446,6 +519,19 @@ export const removeUsersFromRole = createServerFn({ method: 'POST' })
         ),
       )
 
+    // Record audit logs for each user
+    await Promise.all(
+      data.userIds.map((userId) =>
+        recordAuditLog({
+          actorId: currentUser.userId,
+          action: 'role.assignment.delete',
+          targetType: 'user',
+          targetId: userId,
+          details: { roleId: data.roleId, roleName: role.name },
+        }),
+      ),
+    )
+
     return { success: true }
   })
 
@@ -457,7 +543,7 @@ export const bulkAssignRolesToUsers = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    await requireAdmin()
+    const { currentUser } = await requireAdmin()
 
     // Validate that all users exist
     const existingUsers = await db.query.users.findMany({
@@ -487,7 +573,7 @@ export const bulkAssignRolesToUsers = createServerFn({ method: 'POST' })
     )
 
     // Create new assignments (skip duplicates)
-    const toCreate = []
+    const toCreate: Array<{ userId: string; roleId: string }> = []
     for (const userId of data.userIds) {
       for (const roleId of data.roleIds) {
         const key = `${userId}:${roleId}`
@@ -499,6 +585,22 @@ export const bulkAssignRolesToUsers = createServerFn({ method: 'POST' })
 
     if (toCreate.length > 0) {
       await db.insert(roleAssignments).values(toCreate)
+
+      // Record audit logs for new assignments
+      await Promise.all(
+        toCreate.map((assignment) =>
+          recordAuditLog({
+            actorId: currentUser.userId,
+            action: 'role.assignment.create',
+            targetType: 'user',
+            targetId: assignment.userId,
+            details: {
+              roleId: assignment.roleId,
+              bulkOperation: true,
+            },
+          }),
+        ),
+      )
     }
 
     return { success: true, assigned: toCreate.length }

@@ -10,9 +10,11 @@ import {
   X,
   TextAlignStart,
   ChartLine,
+  LogIn,
   MessagesSquare,
   Home,
   Rss,
+  Shield,
   ShieldHalf,
   StickyNote,
   Users,
@@ -89,6 +91,16 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       label: 'Roles',
       icon: <ShieldHalf />,
       to: '/admin/roles',
+    },
+    {
+      label: 'Login History',
+      icon: <LogIn />,
+      to: '/admin/logins',
+    },
+    {
+      label: 'Audit Logs',
+      icon: <Shield />,
+      to: '/admin/audit',
     },
     {
       label: 'Feedback',

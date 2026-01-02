@@ -19,6 +19,102 @@ import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
 import { VersionSelect } from './VersionSelect'
 import { Card } from './Card'
 
+// Mobile partners strip - inline in the docs toggle bar
+function MobilePartnersStrip({
+  partners,
+  onLabelClick,
+}: {
+  partners: Array<{
+    name: string
+    href: string
+    image: Parameters<typeof PartnerImage>[0]['config']
+  }>
+  onLabelClick?: () => void
+}) {
+  const innerRef = React.useRef<HTMLDivElement>(null)
+  const [isHovered, setIsHovered] = React.useState(false)
+
+  React.useEffect(() => {
+    const inner = innerRef.current
+    if (!inner) return
+
+    let animationId: number
+    let timeoutId: ReturnType<typeof setTimeout>
+    let scrollPosition = 0
+    const scrollSpeed = 0.08 // pixels per frame - very slow
+    const startDelay = 4000 // wait 4 seconds before starting
+
+    const animate = () => {
+      if (!isHovered && inner) {
+        scrollPosition += scrollSpeed
+        // Reset when we've scrolled past the first set
+        if (scrollPosition >= inner.scrollWidth / 2) {
+          scrollPosition = 0
+        }
+        inner.style.transform = `translateX(${-scrollPosition}px)`
+      }
+      animationId = requestAnimationFrame(animate)
+    }
+
+    timeoutId = setTimeout(() => {
+      animationId = requestAnimationFrame(animate)
+    }, startDelay)
+
+    return () => {
+      clearTimeout(timeoutId)
+      cancelAnimationFrame(animationId)
+    }
+  }, [isHovered])
+
+  return (
+    <div
+      className="flex-1 flex items-center gap-2 min-w-0"
+      onClick={(e) => e.preventDefault()}
+    >
+      <button
+        type="button"
+        className="text-[9px] uppercase tracking-wide font-medium text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 shrink-0"
+        onClick={(e) => {
+          e.stopPropagation()
+          onLabelClick?.()
+        }}
+      >
+        Partners
+      </button>
+      <div
+        className="relative flex-1 overflow-hidden min-w-0"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onTouchStart={() => setIsHovered(true)}
+        onTouchEnd={() => setIsHovered(false)}
+      >
+        <div className="overflow-hidden">
+          <div
+            ref={innerRef}
+            className="flex items-center gap-4 w-max py-1 will-change-transform"
+          >
+            {/* Duplicate partners for seamless loop */}
+            {[...partners, ...partners].map((partner, i) => (
+              <a
+                key={`${partner.name}-${i}`}
+                href={partner.href}
+                target="_blank"
+                rel="noreferrer"
+                className="shrink-0 flex items-center opacity-50 hover:opacity-100 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="h-4 flex items-center [&_img]:h-full [&_img]:w-auto [&_div]:h-full">
+                  <PartnerImage config={partner.image} alt={partner.name} />
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Component for the collapsed menu strip showing box indicators
 // Minimap style: boxes with flex height filling available vertical space
 function DocsMenuStrip({
@@ -496,11 +592,21 @@ export function DocsLayout({
         id="docs-details"
         className="border-b border-gray-500/20"
       >
-        <summary className="py-2 px-4 flex gap-2 items-center justify-between">
-          <div className="flex-1 flex gap-4 items-center">
+        <summary className="py-2 px-4 flex gap-2 items-center">
+          <div className="flex gap-2 items-center shrink-0 pr-2">
             <Menu className="cursor-pointer" />
-            Documentation
+            Docs
           </div>
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 shrink-0" />
+          <MobilePartnersStrip
+            partners={activePartners}
+            onLabelClick={() => {
+              const details = detailsRef.current as HTMLDetailsElement | null
+              if (details) {
+                details.open = !details.open
+              }
+            }}
+          />
         </summary>
         <div className="flex flex-col gap-4 p-4 overflow-y-auto border-t border-gray-500/20 bg-white/20 text-lg dark:bg-black/20">
           <div className="flex flex-col gap-1">

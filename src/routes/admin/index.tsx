@@ -920,117 +920,116 @@ function AdsTab({
     return <LoadingState />
   }
 
+  const waitlistPercentage = (
+    (stats.ads.waitlistCount / stats.totalUsers) *
+    100
+  ).toFixed(1)
+
   return (
     <div className="space-y-6">
+      {/* Waitlist Demand - Primary Focus */}
+      <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <List className="text-2xl text-purple-500" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Ad-Free Waitlist Demand
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+              Users on Waitlist
+            </div>
+            <div className="text-4xl font-bold text-gray-900 dark:text-white">
+              {stats.ads.waitlistCount.toLocaleString()}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+              % of Total Users
+            </div>
+            <div className="text-4xl font-bold text-purple-600 dark:text-purple-400">
+              {waitlistPercentage}%
+            </div>
+          </div>
+
+          <div>
+            <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+              Total Users
+            </div>
+            <div className="text-4xl font-bold text-gray-900 dark:text-white">
+              {stats.totalUsers.toLocaleString()}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-purple-200 dark:border-purple-700">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+            Waitlist Demand
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-600 h-3 rounded-full overflow-hidden">
+            <div
+              className="bg-purple-600 dark:bg-purple-500 h-3 rounded-full transition-all"
+              style={{
+                width: `${Math.min(parseFloat(waitlistPercentage), 100)}%`,
+              }}
+            />
+          </div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+            {stats.ads.waitlistCount.toLocaleString()} of{' '}
+            {stats.totalUsers.toLocaleString()} users interested in hiding ads
+          </div>
+        </div>
+      </Card>
+
+      {/* Current Ads Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Ads Hiding Waitlist Card */}
-        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <List className="text-2xl text-purple-500" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Ads Hiding Waitlist
-            </h3>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                Total on Waitlist
-              </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                {stats.ads.waitlistCount.toLocaleString()}
-              </div>
-            </div>
-
-            <div>
-              <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                Waitlist with Ads Disabled
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stats.ads.waitlistWithAdsDisabledCount.toLocaleString()}
-                </div>
-                <div className="text-sm font-medium text-purple-600 dark:text-purple-400">
-                  {stats.ads.waitlistConversionRate}% conversion
-                </div>
-              </div>
-            </div>
-
-            {stats.ads.waitlistCount > 0 && (
-              <div className="pt-4 border-t border-purple-200 dark:border-purple-700">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                  Waitlist Status
-                </div>
-                <div className="flex gap-2">
-                  <div className="flex-1 bg-purple-600 dark:bg-purple-700 h-2 rounded-full"></div>
-                  <div className="flex-1 bg-gray-200 dark:bg-gray-600 h-2 rounded-full"></div>
-                </div>
-                <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  <span>Active: {stats.ads.waitlistWithAdsDisabledCount}</span>
-                  <span>
-                    Waiting:{' '}
-                    {stats.ads.waitlistCount -
-                      stats.ads.waitlistWithAdsDisabledCount}
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* Ads Disabled Capability Card */}
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800 p-6">
+        <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
             <EyeOff className="text-2xl text-green-500" />
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Ads Disabled Status
+              Users with Ads Disabled
             </h3>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                Users with Ads Disabled
-              </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                {stats.ads.disabledCount.toLocaleString()}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {((stats.ads.disabledCount / stats.totalUsers) * 100).toFixed(
-                  1,
-                )}
-                % of total users
-              </div>
-            </div>
+          <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+            {stats.ads.disabledCount.toLocaleString()}
+          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {((stats.ads.disabledCount / stats.totalUsers) * 100).toFixed(1)}%
+            of total users
+          </div>
 
-            <div>
-              <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                Users with DisableAds Capability
-              </div>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats.ads.capabilityCount.toLocaleString()}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Capability granted via roles/direct
-              </div>
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="w-full bg-gray-200 dark:bg-gray-600 h-2 rounded-full overflow-hidden">
+              <div
+                className="bg-green-600 dark:bg-green-700 h-2 rounded-full"
+                style={{
+                  width: `${Math.min(
+                    (stats.ads.disabledCount / stats.totalUsers) * 100,
+                    100,
+                  )}%`,
+                }}
+              />
             </div>
+          </div>
+        </Card>
 
-            <div className="pt-4 border-t border-green-200 dark:border-green-700">
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                Coverage
-              </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-600 h-2 rounded-full overflow-hidden">
-                <div
-                  className="bg-green-600 dark:bg-green-700 h-2 rounded-full"
-                  style={{
-                    width: `${Math.min(
-                      (stats.ads.disabledCount / stats.totalUsers) * 100,
-                      100,
-                    )}%`,
-                  }}
-                ></div>
-              </div>
-            </div>
+        <Card className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Shield className="text-2xl text-blue-500" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              DisableAds Capability
+            </h3>
+          </div>
+
+          <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+            {stats.ads.capabilityCount.toLocaleString()}
+          </div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            Users with capability granted via roles
           </div>
         </Card>
       </div>

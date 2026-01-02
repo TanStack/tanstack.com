@@ -32,7 +32,11 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>({
   additionalRefs = [],
 }: UseClickOutsideOptions): React.RefObject<T | null> {
   const ref = React.useRef<T>(null)
-  const touchStartRef = React.useRef<{ x: number; y: number } | null>(null)
+  const touchStartRef = React.useRef<{
+    x: number
+    y: number
+    outside: boolean
+  } | null>(null)
 
   React.useEffect(() => {
     if (!enabled) return
@@ -45,39 +49,48 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>({
       return false
     }
 
-    const handlePointerDown = (event: PointerEvent) => {
-      if (event.pointerType === 'touch') {
-        // Track touch start position to detect scrolls vs taps
-        touchStartRef.current = { x: event.clientX, y: event.clientY }
-        return
-      }
+    // Mouse: handle on mousedown for immediate response
+    const handleMouseDown = (event: MouseEvent) => {
+      // If this mousedown was generated from a touch, ignore it
+      if ((event as any).sourceCapabilities?.firesTouchEvents) return
 
-      // Mouse/pen: handle immediately
       if (!isInsideRefs(event.target as Node)) {
         onClickOutside()
       }
     }
 
-    const handlePointerUp = (event: PointerEvent) => {
-      if (event.pointerType !== 'touch') return
+    // Touch: only close if tap started AND ended outside
+    const handleTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0]
+      if (touch) {
+        const target = event.target as Node
+        const startedOutside = !isInsideRefs(target)
+        touchStartRef.current = {
+          x: touch.clientX,
+          y: touch.clientY,
+          outside: startedOutside,
+        }
+      }
+    }
 
+    const handleTouchEnd = (event: TouchEvent) => {
       const start = touchStartRef.current
       touchStartRef.current = null
 
       if (!start) return
 
+      // Only consider closing if touch started outside
+      if (!start.outside) return
+
+      const touch = event.changedTouches[0]
+      if (!touch) return
+
       // If finger moved more than 10px, it's a scroll not a tap
-      const dx = Math.abs(event.clientX - start.x)
-      const dy = Math.abs(event.clientY - start.y)
+      const dx = Math.abs(touch.clientX - start.x)
+      const dy = Math.abs(touch.clientY - start.y)
       if (dx > 10 || dy > 10) return
 
-      if (!isInsideRefs(event.target as Node)) {
-        onClickOutside()
-      }
-    }
-
-    const handlePointerCancel = () => {
-      touchStartRef.current = null
+      onClickOutside()
     }
 
     const handleEscape = (event: KeyboardEvent) => {
@@ -86,17 +99,17 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>({
       }
     }
 
-    document.addEventListener('pointerdown', handlePointerDown)
-    document.addEventListener('pointerup', handlePointerUp)
-    document.addEventListener('pointercancel', handlePointerCancel)
+    document.addEventListener('mousedown', handleMouseDown)
+    document.addEventListener('touchstart', handleTouchStart, { passive: true })
+    document.addEventListener('touchend', handleTouchEnd)
     if (closeOnEscape) {
       document.addEventListener('keydown', handleEscape)
     }
 
     return () => {
-      document.removeEventListener('pointerdown', handlePointerDown)
-      document.removeEventListener('pointerup', handlePointerUp)
-      document.removeEventListener('pointercancel', handlePointerCancel)
+      document.removeEventListener('mousedown', handleMouseDown)
+      document.removeEventListener('touchstart', handleTouchStart)
+      document.removeEventListener('touchend', handleTouchEnd)
       if (closeOnEscape) {
         document.removeEventListener('keydown', handleEscape)
       }

@@ -24,7 +24,6 @@ import { Route as LibrariesIndexRouteImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
-import { Route as AdminStatsRouteImport } from './routes/admin/stats'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
 import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
 import { Route as AdminGithubStatsRouteImport } from './routes/admin/github-stats'
@@ -165,11 +164,6 @@ const AuthSignoutRoute = AuthSignoutRouteImport.update({
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
-  getParentRoute: () => AdminRouteRoute,
-} as any)
-const AdminStatsRoute = AdminStatsRouteImport.update({
-  id: '/stats',
-  path: '/stats',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminNpmStatsRoute = AdminNpmStatsRouteImport.update({
@@ -562,7 +556,6 @@ export interface FileRoutesByFullPath {
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
-  '/admin/stats': typeof AdminStatsRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
@@ -642,7 +635,6 @@ export interface FileRoutesByTo {
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
-  '/admin/stats': typeof AdminStatsRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/$libraryId': typeof LibraryIdIndexRoute
@@ -727,7 +719,6 @@ export interface FileRoutesById {
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
-  '/admin/stats': typeof AdminStatsRoute
   '/admin/users': typeof AdminUsersRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
@@ -813,7 +804,6 @@ export interface FileRouteTypes {
     | '/admin/github-stats'
     | '/admin/logins'
     | '/admin/npm-stats'
-    | '/admin/stats'
     | '/admin/users'
     | '/auth/signout'
     | '/$libraryId/'
@@ -893,7 +883,6 @@ export interface FileRouteTypes {
     | '/admin/github-stats'
     | '/admin/logins'
     | '/admin/npm-stats'
-    | '/admin/stats'
     | '/admin/users'
     | '/auth/signout'
     | '/$libraryId'
@@ -977,7 +966,6 @@ export interface FileRouteTypes {
     | '/admin/github-stats'
     | '/admin/logins'
     | '/admin/npm-stats'
-    | '/admin/stats'
     | '/admin/users'
     | '/auth/signout'
     | '/$libraryId/'
@@ -1156,13 +1144,6 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRouteRoute
-    }
-    '/admin/stats': {
-      id: '/admin/stats'
-      path: '/stats'
-      fullPath: '/admin/stats'
-      preLoaderRoute: typeof AdminStatsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/npm-stats': {
@@ -1808,7 +1789,6 @@ interface AdminRouteRouteChildren {
   AdminGithubStatsRoute: typeof AdminGithubStatsRoute
   AdminLoginsRoute: typeof AdminLoginsRoute
   AdminNpmStatsRoute: typeof AdminNpmStatsRoute
-  AdminStatsRoute: typeof AdminStatsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminBannersIdRoute: typeof AdminBannersIdRoute
@@ -1826,7 +1806,6 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminGithubStatsRoute: AdminGithubStatsRoute,
   AdminLoginsRoute: AdminLoginsRoute,
   AdminNpmStatsRoute: AdminNpmStatsRoute,
-  AdminStatsRoute: AdminStatsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminBannersIdRoute: AdminBannersIdRoute,

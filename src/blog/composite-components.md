@@ -164,6 +164,8 @@ Streams are universal. They work with:
 
 ### In a route loader
 
+TanStack Router caches loader data automatically. The cache key is the route path plus its params—when params change, the loader refetches:
+
 ```tsx
 export const Route = createFileRoute('/posts/$postId')({
   loader: async ({ params }) => ({
@@ -183,13 +185,74 @@ function PostPage() {
 }
 ```
 
+Navigate from `/posts/abc` to `/posts/xyz` and the loader runs again because `$postId` changed. Navigate back to `/posts/abc` and Router serves the cached server component instantly (within the default `gcTime`).
+
+For dependencies beyond route params, use `loaderDeps` to include search params or other reactive values in the cache key:
+
+```tsx
+export const Route = createFileRoute('/posts/$postId')({
+  loaderDeps: ({ search }) => ({
+    tab: search.tab,
+    sort: search.sort,
+  }),
+  loader: async ({ params, deps }) => ({
+    Post: await getPost({
+      data: {
+        postId: params.postId,
+        tab: deps.tab,
+        sort: deps.sort,
+      },
+    }),
+  }),
+  component: PostPage,
+})
+```
+
+Now the cache key includes both the route param and search params. Change `?tab=comments` to `?tab=related` and the server component refetches. Change back and you get a cache hit.
+
+**Router handles this automatically.** No manual cache keys, no query configuration. The server component is fetched when dependencies change and cached when they don't.
+
 ### With Query caching
+
+Because server components are just data, they integrate naturally with TanStack Query's caching model. The query key determines cache identity—include route params and the cache automatically invalidates when they change:
+
+```tsx
+function PostPage() {
+  const { postId } = Route.useParams()
+
+  const { data: Post } = useQuery({
+    queryKey: ['post', postId],
+    queryFn: () => getPost({ data: { postId } }),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  if (!Post) return <PostSkeleton />
+
+  return (
+    <Post renderActions={({ postId }) => <PostActions postId={postId} />}>
+      <Comments postId={postId} />
+    </Post>
+  )
+}
+```
+
+**What happens when the user navigates:**
+
+- `/posts/abc` → fetches and caches the server component for post `abc`
+- `/posts/xyz` → cache miss on `['post', 'xyz']`, fetches post `xyz`
+- `/posts/abc` → cache hit, instant render from cache (within staleTime)
+
+The server component for post `abc` is still in the cache. Navigate back and it renders immediately—no network request, no loading state. The entire rendered UI tree is preserved.
+
+This works because **the RSC payload is the cache value**. Query doesn't know or care that it's caching a server component. It's just bytes that happen to decode into a React element tree.
+
+For static content that rarely changes, you can cache aggressively:
 
 ```tsx
 const { data: Layout } = useQuery({
   queryKey: ['layout'],
   queryFn: () => getLayout(),
-  staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  staleTime: Infinity, // Cache forever, refetch manually
 })
 ```
 
@@ -302,10 +365,6 @@ No. RSCs are entirely opt-in. You can build fully client-side SPAs with TanStack
 ### What about React 19 / `use server` / Server Actions?
 
 TanStack Start's RSC implementation builds on React's Flight protocol and works with React 19. Server Actions are a separate primitive. `createServerFn` serves a similar purpose but integrates with TanStack's middleware, validation, and caching model. We're watching the Server Actions API and will align where it makes sense.
-
-### When will TanStack Start's full serialization work inside RSCs?
-
-It's on the roadmap. The current release uses React's Flight serializer directly, which handles the core use cases. Unifying with TanStack Start's serializer for custom types, extended serialization, and tighter TanStack DB integration is planned for a future release.
 
 ### Can I define my component outside of `createServerComponent`?
 

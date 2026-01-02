@@ -193,15 +193,15 @@ For dependencies beyond route params, use `loaderDeps` to include search params 
 export const Route = createFileRoute('/posts/$postId')({
   loaderDeps: ({ search }) => ({
     tab: search.tab,
-    sort: search.sort
+    sort: search.sort,
   }),
   loader: async ({ params, deps }) => ({
     Post: await getPost({
       data: {
         postId: params.postId,
         tab: deps.tab,
-        sort: deps.sort
-      }
+        sort: deps.sort,
+      },
     }),
   }),
   component: PostPage,

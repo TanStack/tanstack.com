@@ -24,7 +24,7 @@ export function Tabs({ tabs, id, children }: TabsProps) {
 
   return (
     <div className="not-prose my-4">
-      <div className="flex items-center justify-start gap-2 rounded-t-md border-1 border-b-none border-gray-200 dark:border-gray-800 overflow-x-auto scrollbar-hide bg-white dark:bg-gray-950">
+      <div className="flex items-center justify-start gap-2 rounded-t-md border-1 border-b-none border-gray-200 dark:border-gray-800 overflow-x-auto overflow-y-hidden bg-white dark:bg-gray-950">
         {tabs.map((tab) => {
           return (
             <Tab
@@ -37,7 +37,7 @@ export function Tabs({ tabs, id, children }: TabsProps) {
           )
         })}
       </div>
-      <div className="border border-gray-500/20 rounded-b-md p-4 bg-white dark:bg-gray-900">
+      <div className="border border-gray-500/20 rounded-b-md p-4 bg-gray-100 dark:bg-gray-900">
         {children.map((child, index) => {
           const tab = tabs[index]
           if (!tab) return null
@@ -76,9 +76,9 @@ const Tab = ({
       title={tab.name}
       type="button"
       onClick={() => setActiveSlug(tab.slug)}
-      className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 -mb-[1px] border-b-2 text-sm font-bold transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 rounded-t-md ${
+      className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 -mb-[1px] border-b-2 text-sm font-bold transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-t-md overflow-y-none ${
         activeSlug === tab.slug
-          ? 'border-current text-current bg-gray-900'
+          ? 'border-current text-current bg-gray-100 dark:bg-gray-900'
           : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
       }`}
     >

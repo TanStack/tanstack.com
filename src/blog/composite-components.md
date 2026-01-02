@@ -164,6 +164,8 @@ Streams are universal. They work with:
 
 ### In a route loader
 
+TanStack Router caches loader data automatically. The cache key is the route path plus its params—when params change, the loader refetches:
+
 ```tsx
 export const Route = createFileRoute('/posts/$postId')({
   loader: async ({ params }) => ({
@@ -182,6 +184,33 @@ function PostPage() {
   )
 }
 ```
+
+Navigate from `/posts/abc` to `/posts/xyz` and the loader runs again because `$postId` changed. Navigate back to `/posts/abc` and Router serves the cached server component instantly (within the default `gcTime`).
+
+For dependencies beyond route params, use `loaderDeps` to include search params or other reactive values in the cache key:
+
+```tsx
+export const Route = createFileRoute('/posts/$postId')({
+  loaderDeps: ({ search }) => ({
+    tab: search.tab,
+    sort: search.sort
+  }),
+  loader: async ({ params, deps }) => ({
+    Post: await getPost({
+      data: {
+        postId: params.postId,
+        tab: deps.tab,
+        sort: deps.sort
+      }
+    }),
+  }),
+  component: PostPage,
+})
+```
+
+Now the cache key includes both the route param and search params. Change `?tab=comments` to `?tab=related` and the server component refetches. Change back and you get a cache hit.
+
+**Router handles this automatically.** No manual cache keys, no query configuration. The server component is fetched when dependencies change and cached when they don't.
 
 ### With Query caching
 

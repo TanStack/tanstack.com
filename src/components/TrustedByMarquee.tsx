@@ -36,6 +36,10 @@ export function TrustedByMarquee({
         Trusted in Production by
       </div>
       <div className="relative w-full">
+        {/* Left fade */}
+        <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white dark:from-black to-transparent z-10 pointer-events-none" />
+        {/* Right fade */}
+        <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white dark:from-black to-transparent z-10 pointer-events-none" />
         <div
           className="flex gap-8 items-center whitespace-nowrap will-change-transform animate-[marquee_linear_infinite]"
           style={{

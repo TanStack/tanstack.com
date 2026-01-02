@@ -4,6 +4,7 @@ import { requireAdmin } from './roles.server'
 import { db } from '~/db/client'
 import { loginHistory, auditLogs, users, type AuditAction } from '~/db/schema'
 import { desc, eq, sql, and, gte, lte } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/pg-core'
 
 // Query login history (admin only)
 export const listLoginHistory = createServerFn({ method: 'POST' })
@@ -148,7 +149,10 @@ export const listAuditLogs = createServerFn({ method: 'POST' })
 
     const totalCount = Number(countResult.count)
 
-    // Get paginated results with actor info
+    // Create alias for target user (when targetType is 'user')
+    const targetUser = alias(users, 'targetUser')
+
+    // Get paginated results with actor and target user info
     const results = await db
       .select({
         id: auditLogs.id,
@@ -163,9 +167,19 @@ export const listAuditLogs = createServerFn({ method: 'POST' })
         actorName: users.name,
         actorEmail: users.email,
         actorImage: users.image,
+        targetUserName: targetUser.name,
+        targetUserEmail: targetUser.email,
+        targetUserImage: targetUser.image,
       })
       .from(auditLogs)
       .leftJoin(users, eq(auditLogs.actorId, users.id))
+      .leftJoin(
+        targetUser,
+        and(
+          eq(auditLogs.targetType, 'user'),
+          sql`${auditLogs.targetId}::uuid = ${targetUser.id}`,
+        ),
+      )
       .where(whereClause)
       .orderBy(desc(auditLogs.createdAt))
       .limit(limit)
@@ -184,6 +198,9 @@ export const listAuditLogs = createServerFn({ method: 'POST' })
       actorName: r.actorName,
       actorEmail: r.actorEmail,
       actorImage: r.actorImage,
+      targetUserName: r.targetUserName,
+      targetUserEmail: r.targetUserEmail,
+      targetUserImage: r.targetUserImage,
     }))
 
     return {
@@ -294,6 +311,22 @@ export const getActivityStats = createServerFn({ method: 'POST' }).handler(
       .groupBy(sql`date(${loginHistory.createdAt})`)
       .orderBy(sql`date(${loginHistory.createdAt})`)
 
+    // Top users by login count (last 30 days)
+    const topUsersByLogins = await db
+      .select({
+        userId: loginHistory.userId,
+        count: sql<number>`count(*)`,
+        userName: users.name,
+        userEmail: users.email,
+        userImage: users.image,
+      })
+      .from(loginHistory)
+      .leftJoin(users, eq(loginHistory.userId, users.id))
+      .where(gte(loginHistory.createdAt, last30Days))
+      .groupBy(loginHistory.userId, users.name, users.email, users.image)
+      .orderBy(desc(sql`count(*)`))
+      .limit(10)
+
     return {
       logins: {
         total: Number(totalLogins.count),
@@ -329,6 +362,13 @@ export const getActivityStats = createServerFn({ method: 'POST' }).handler(
       dailyLogins: dailyLogins.map((d) => ({
         date: d.date,
         count: Number(d.count),
+      })),
+      topUsersByLogins: topUsersByLogins.map((u) => ({
+        userId: u.userId,
+        count: Number(u.count),
+        userName: u.userName,
+        userEmail: u.userEmail,
+        userImage: u.userImage,
       })),
     }
   },

@@ -38,6 +38,9 @@ type AuditLogEntry = {
   actorName: string | null
   actorEmail: string | null
   actorImage: string | null
+  targetUserName: string | null
+  targetUserEmail: string | null
+  targetUserImage: string | null
 }
 
 const ACTION_LABELS: Record<string, string> = {
@@ -239,22 +242,55 @@ function AuditPage() {
         },
       },
       {
-        accessorKey: 'targetType',
-        header: 'Target Type',
-        cell: ({ getValue }) => (
-          <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-            {getValue() as string}
-          </span>
-        ),
-      },
-      {
-        accessorKey: 'targetId',
-        header: 'Target ID',
-        cell: ({ getValue }) => (
-          <span className="text-sm text-gray-600 dark:text-gray-400 font-mono text-xs">
-            {(getValue() as string).substring(0, 8)}...
-          </span>
-        ),
+        id: 'target',
+        header: 'Target',
+        cell: ({ row }) => {
+          const entry = row.original
+          // If target is a user and we have their info, show it
+          if (
+            entry.targetType === 'user' &&
+            (entry.targetUserName || entry.targetUserEmail)
+          ) {
+            const displayName =
+              entry.targetUserName || entry.targetUserEmail || 'Unknown'
+            return (
+              <div className="flex items-center gap-2">
+                <div className="flex-shrink-0 h-6 w-6">
+                  {entry.targetUserImage ? (
+                    <img
+                      className="h-6 w-6 rounded-full"
+                      src={entry.targetUserImage}
+                      alt=""
+                    />
+                  ) : (
+                    <div className="h-6 w-6 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                      <User className="w-3 h-3 text-gray-500 dark:text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div className="text-sm text-gray-900 dark:text-white">
+                    {displayName}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                    {entry.targetId.substring(0, 8)}...
+                  </div>
+                </div>
+              </div>
+            )
+          }
+          // For non-user targets, show type and ID
+          return (
+            <div>
+              <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
+                {entry.targetType}
+              </span>
+              <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                {entry.targetId.substring(0, 8)}...
+              </div>
+            </div>
+          )
+        },
       },
       {
         id: 'details',

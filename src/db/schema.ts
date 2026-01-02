@@ -12,6 +12,7 @@ import {
   real,
   index,
   uniqueIndex,
+  date,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
@@ -772,6 +773,32 @@ export const auditLogs = pgTable(
 export type AuditLog = InferSelectModel<typeof auditLogs>
 export type NewAuditLog = InferInsertModel<typeof auditLogs>
 
+// Daily user activity table (one row per user per day for DAU/streak tracking)
+export const userActivity = pgTable(
+  'user_activity',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    date: date('date', { mode: 'string' }).notNull(), // YYYY-MM-DD format
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    userDateUnique: uniqueIndex('user_activity_user_date_unique').on(
+      table.userId,
+      table.date,
+    ),
+    userIdIdx: index('user_activity_user_id_idx').on(table.userId),
+    dateIdx: index('user_activity_date_idx').on(table.date),
+  }),
+)
+
+export type UserActivity = InferSelectModel<typeof userActivity>
+export type NewUserActivity = InferInsertModel<typeof userActivity>
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
@@ -782,6 +809,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   bannerDismissals: many(bannerDismissals),
   loginHistory: many(loginHistory),
   auditLogs: many(auditLogs),
+  userActivity: many(userActivity),
 }))
 
 export const rolesRelations = relations(roles, ({ many }) => ({
@@ -865,6 +893,13 @@ export const loginHistoryRelations = relations(loginHistory, ({ one }) => ({
 export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   actor: one(users, {
     fields: [auditLogs.actorId],
+    references: [users.id],
+  }),
+}))
+
+export const userActivityRelations = relations(userActivity, ({ one }) => ({
+  user: one(users, {
+    fields: [userActivity.userId],
     references: [users.id],
   }),
 }))

@@ -536,7 +536,7 @@ export function DocsLayout({
           'sticky top-[var(--navbar-height)] h-[calc(100dvh-var(--navbar-height))]',
           'z-10 border-r border-gray-500/20',
           'bg-white/50 dark:bg-black/30',
-          'w-14',
+          'w-10',
         )}
       >
         <DocsMenuStrip
@@ -583,12 +583,14 @@ export function DocsLayout({
           !showLargeMenu && 'sm:-translate-x-full xl:translate-x-0',
           showLargeMenu && 'sm:translate-x-0',
         )}
-        onPointerEnter={() => {
+        onPointerEnter={(e) => {
+          if (e.pointerType === 'touch') return
           if (window.innerWidth < 1280) {
             clearTimeout(leaveTimer.current)
           }
         }}
-        onPointerLeave={() => {
+        onPointerLeave={(e) => {
+          if (e.pointerType === 'touch') return
           if (window.innerWidth < 1280) {
             leaveTimer.current = setTimeout(() => {
               setShowLargeMenu(false)

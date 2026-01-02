@@ -82,20 +82,21 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [showMenu, setShowMenu] = React.useState(false)
-  const isPointerInsideButtonRef = React.useRef(false)
-
-  const toggleMenu = () => {
-    setShowMenu((prev) => !prev)
-  }
+  const pointerInsideButtonRef = React.useRef(false)
 
   const largeMenuRef = React.useRef<HTMLDivElement>(null)
+  const menuButtonRef = React.useRef<HTMLButtonElement>(null)
 
   // Close mobile menu when clicking outside
   const smallMenuRef = useClickOutside<HTMLDivElement>({
     enabled: showMenu,
     onClickOutside: () => setShowMenu(false),
-    additionalRefs: [largeMenuRef],
+    additionalRefs: [largeMenuRef, menuButtonRef],
   })
+
+  const toggleMenu = () => {
+    setShowMenu((prev) => !prev)
+  }
 
   const loginButton = (
     <>
@@ -202,19 +203,22 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                   ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
                   : 'lg:w-0 lg:opacity-0 lg:-translate-x-full',
               )}
+              ref={menuButtonRef}
               onClick={toggleMenu}
-              onPointerEnter={() => {
-                if (window.innerWidth < 1024) {
+              onPointerEnter={(e) => {
+                // Only open on hover for desktop pointer devices
+                if (window.innerWidth < 1024 || e.pointerType === 'touch') {
                   return
                 }
-                if (isPointerInsideButtonRef.current) {
+                // Don't reopen if pointer is already inside (e.g. after clicking X)
+                if (pointerInsideButtonRef.current) {
                   return
                 }
-                isPointerInsideButtonRef.current = true
+                pointerInsideButtonRef.current = true
                 setShowMenu(true)
               }}
               onPointerLeave={() => {
-                isPointerInsideButtonRef.current = false
+                pointerInsideButtonRef.current = false
               }}
             >
               {showMenu ? <X /> : <Menu />}
@@ -649,16 +653,18 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           !inlineMenu && !showMenu && '-translate-x-full',
           !inlineMenu && showMenu && 'translate-x-0',
         )}
-        onPointerEnter={() => {
+        onPointerEnter={(e) => {
+          if (e.pointerType === 'touch') return
           clearTimeout(leaveTimer.current)
         }}
-        onPointerLeave={() => {
+        onPointerLeave={(e) => {
+          if (e.pointerType === 'touch') return
           leaveTimer.current = setTimeout(() => {
             setShowMenu(false)
           }, 300)
         }}
       >
-        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[50px] min-w-[260px]">
+        <div className="flex-1 flex flex-col gap-4 whitespace-nowrap overflow-y-auto text-base pb-[50px] min-w-[220px]">
           <div className="flex flex-col gap-1 text-sm p-2">{items}</div>
         </div>
       </div>

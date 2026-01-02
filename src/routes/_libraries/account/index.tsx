@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useToast } from '~/components/ToastProvider'
 import { updateAdPreference } from '~/utils/users.server'
-import { LogOut } from 'lucide-react'
+import { getMyStreak } from '~/utils/activity.functions'
+import { LogOut, Flame, Trophy, Calendar } from 'lucide-react'
 import { Card } from '~/components/Card'
 
 export const Route = createFileRoute('/_libraries/account/')({
@@ -16,6 +18,12 @@ function AccountSettingsPage() {
   const capabilities = useCapabilities()
   const { notify } = useToast()
   const navigate = useNavigate()
+
+  const streakQuery = useQuery({
+    queryKey: ['my-streak'],
+    queryFn: () => getMyStreak(),
+    enabled: !!userQuery.data,
+  })
 
   // Get values directly from the current user data
   const user = userQuery.data
@@ -111,6 +119,44 @@ function AccountSettingsPage() {
           </div>
         </div>
       )}
+      <div>
+        <h3 className="font-bold mb-2 text-lg text-gray-900 dark:text-white">
+          Activity
+        </h3>
+        {streakQuery.isLoading ? (
+          <div className="text-sm text-gray-500">Loading...</div>
+        ) : streakQuery.data ? (
+          <div className="grid grid-cols-3 gap-3 text-sm">
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+              <Flame className="w-5 h-5 text-orange-500 mb-1" />
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                {streakQuery.data.currentStreak}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Current Streak
+              </span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+              <Trophy className="w-5 h-5 text-yellow-500 mb-1" />
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                {streakQuery.data.longestStreak}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Best Streak
+              </span>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+              <Calendar className="w-5 h-5 text-blue-500 mb-1" />
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                {streakQuery.data.totalActiveDays}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Active Days
+              </span>
+            </div>
+          </div>
+        ) : null}
+      </div>
       <div className="">
         <button
           onClick={signOut}

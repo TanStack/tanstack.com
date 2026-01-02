@@ -9,10 +9,9 @@ import {
 import {
   X,
   TextAlignStart,
-  ChartLine,
+  LayoutDashboard,
   LogIn,
   MessagesSquare,
-  Home,
   Rss,
   Shield,
   ShieldHalf,
@@ -70,17 +69,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     requiredCapability?: string
   })[] = [
     {
-      label: 'Admin Dashboard',
-      icon: <Home />,
+      label: 'Dashboard',
+      icon: <LayoutDashboard />,
       to: '/admin',
-      activeOptions: {
-        exact: true,
-      },
-    },
-    {
-      label: 'Statistics',
-      icon: <ChartLine />,
-      to: '/admin/stats',
     },
     {
       label: 'Users',

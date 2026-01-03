@@ -347,7 +347,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                             <span
                               className={twMerge(
                                 `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/30 rounded-md text-[.7rem] text-white`,
-                                'opacity-50 group-hover:opacity-100 transition-opacity',
+                                'opacity-90 group-hover:opacity-100 transition-opacity',
                                 'bg-gradient-to-r',
                                 library.colorFrom,
                                 library.colorTo,

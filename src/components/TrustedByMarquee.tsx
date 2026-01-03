@@ -25,23 +25,23 @@ type TrustedByMarqueeProps = {
 
 export function TrustedByMarquee({
   brands,
-  speed = 40,
+  speed = 150,
   className,
 }: TrustedByMarqueeProps) {
   const animationDuration = `${(brands.length * 200) / speed}s`
 
   return (
-    <div className={twMerge('overflow-hidden w-full', className)}>
+    <div className={twMerge('overflow-hidden w-full group', className)}>
       <div className="uppercase tracking-wider text-sm font-semibold text-center text-gray-400 mb-6">
         Trusted in Production by
       </div>
       <div className="relative w-full">
         {/* Left fade */}
-        <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white dark:from-black to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#fdfdfd] dark:from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
         {/* Right fade */}
-        <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white dark:from-black to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#fdfdfd] dark:from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
         <div
-          className="flex gap-8 items-center whitespace-nowrap will-change-transform animate-[marquee_linear_infinite]"
+          className="flex gap-8 items-center whitespace-nowrap will-change-transform animate-[marquee_linear_infinite] group-hover:[animation-play-state:paused]"
           style={{
             animationDuration,
           }}

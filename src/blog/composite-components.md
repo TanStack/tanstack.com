@@ -8,14 +8,11 @@ authors:
 
 ![Composite Components](/blog-assets/composite-components/header.jpg)
 
-React Server Components are a genuine leap for React. They reduce bundle size, stream UI as it resolves, and move work off the client.
+React Server Components (RSC) are a genuine leap for React. They reduce bundle size, stream UI as it resolves, and move work off the client.
 
-But the way RSCs have been implemented so far comes with a tradeoff: **the server owns the component tree**.  
-Your client code opts into interactivity with `'use client'`. **Composition flows one direction**: server decides, client receives. The React model you know (props, context, client-led composition) gets fragmented across environments.
+But existing implementations come with a tradeoff: the server owns the component tree. Your client code opts into interactivity with `'use client'`, and composition flows one direction: server decides, client receives.
 
-What if it didn't have to?
-
-What if RSCs were actually components? **Fetchable. Cacheable. Composable by the client.** Primitives that flow through your router, your cache, your data layer. No new directives beyond React's standard `'use client'`. A wire format that's standard Flight.
+What if RSCs  were actually components that the client could fetch, cache, and compose on its own terms?
 
 That's what we built in **TanStack Start**.
 
@@ -23,50 +20,58 @@ That's what we built in **TanStack Start**.
 
 ---
 
+## What Are Composite Components?
+
+A **Composite Component** is a server-rendered React component that the client can fetch, cache, and assemble into its own UI tree.
+
+The server ships UI _pieces_. The client decides how to arrange them.
+
+This inverts the typical RSC model. Instead of the client hydrating a server-owned tree, the client pulls server-rendered fragments and composes them using familiar React patterns: props, children, render props. No `'use client'` directives needed: your client components are already client components. You pass them into slots, and they render with full interactivity.
+
+Why this matters in practice:
+
+- Cache RSC output across navigations
+- Interleave server UI with client state
+- Reuse the same server fragments in multiple layouts
+
+Composite Components integrate with the tools you already use:
+
+- **TanStack Router** loads them in route loaders and caches them automatically
+- **TanStack Query** caches them with fine-grained control over staleness and refetching
+- **TanStack DB** (coming soon) will sync them with offline support and optimistic updates
+
+The wire format is standard React Flight. The mental model is: server components are data.
+
+---
+
 ## Why RSCs Matter
 
-Before diving into the model, it's worth understanding when server components shine:
+Before diving into the patterns, here's when server components help:
 
-- **Heavy dependencies stay on the server.** Markdown parsers, syntax highlighters, date formatting libraries can add hundreds of KB to your bundle. With RSCs, that code runs on the server and only the rendered output ships to the client.
+- **Heavy dependencies stay on the server.** Markdown parsers, syntax highlighters, and date formatting libraries can add hundreds of KB to your bundle. With RSCs, that code runs on the server and only the rendered output ships to the client.
 
-- **Colocated data fetching.** TanStack Router already eliminates waterfalls by parallelizing route loaders. RSCs offer a different ergonomic: awaiting data directly in the component that renders it, which can be convenient for static or slow-changing content.
+- **Colocated data fetching.** TanStack Router already eliminates waterfalls by parallelizing route loaders. RSCs offer a different ergonomic: Await data directly in the component that renders it. This can be convenient for static or slow-changing content.
 
 - **Sensitive logic stays secure.** API keys, database queries, business logic: none of it reaches the client bundle.
 
-- **Streaming for perceived performance.** Instead of waiting for all data before showing anything, RSCs stream UI progressively. Users see content immediately while slower parts load in the background.
+- **Streaming for perceived performance.** RSCs stream UI progressively. Users see content immediately while slower parts load in the background.
 
-RSCs aren't about replacing client interactivity. They're about choosing where work happens. **The question is: who controls that choice?**
-
----
-
-## The One-Way Problem
-
-Existing RSC implementations support interleaving server and client components. You can pass `children` from a client component into a server component. Next.js documents this pattern explicitly. That works.
-
-But the server still produces the final RSC tree on each navigation. The client receives a server-owned tree wholesale. It can't independently request server-rendered subtrees and compose them based on client state. It can't cache a server component and reuse it across navigations. It can't fetch two server components and interleave them in a client-defined layout.
-
-**Next supports slotting, but the server still produces the final tree per request. What if RSC output were first-class data that the client could request, cache, and compose?**
+RSCs aren't about replacing client interactivity. They're about choosing where work happens.
 
 ---
 
-## Composite Components
+## Composition Patterns
 
-**TanStack Start treats RSC output as a composable UI value.**
+Composite Components support two levels of composition.
 
-A **Composite Component** is a server-produced React component that the client can fetch, cache, stream, and then **assemble into its own UI tree**. It’s not “the server owns the tree and the client hydrates what it gets”. It’s the server shipping UI _pieces_ that remain composable at the client.
+### Intra-component: Slots Inside One Component
 
-Composite Components give you two levels of composition:
-
-### 1) Intra-component slotting (composition inside one component)
-
-A Composite Component can render real server UI, _and_ expose **slots** using plain React patterns:
+A Composite Component can render server UI while exposing **slots** for client content. Slots use plain React patterns:
 
 - `children`
 - render props (like `renderActions`)
 
-These aren’t framework-specific APIs. They’re just props.
-
-The important nuance: client-provided UI crosses the boundary as **opaque slot placeholders**. The server can position those placeholders (because it owns the frame), but it can’t inspect, clone, or transform client subtrees. That’s what keeps the model predictable.
+Because the client owns the component tree, the components you pass into slots are regular client components. No `'use client'` directive required. The server positions them as opaque placeholders but can't inspect, clone, or transform them. That's what keeps the model predictable.
 
 #### Server
 
@@ -86,17 +91,17 @@ const getPost = createServerFn().handler(async ({ data }) => {
         <h1>{post.title}</h1>
         <p>{post.body}</p>
 
-        {/* Server renders this directly, it's interactive via 'use client' */}
+        {/* Server renders this link directly */}
         <Link to="/posts/$postId" params={{ postId: post.nextPostId }}>
           Next Post
         </Link>
 
-        {/* Server requests client UI at a specific point */}
+        {/* Slot: server requests client UI here */}
         <footer>
           {props.renderActions?.({ postId: post.id, authorId: post.authorId })}
         </footer>
 
-        {/* Client fills this slot */}
+        {/* Slot: client fills this with children */}
         {props.children}
       </article>
     ),
@@ -108,17 +113,15 @@ const getPost = createServerFn().handler(async ({ data }) => {
 
 ```tsx
 function PostPage({ postId }) {
-  const { data: Post } = useQuery({
+  const { data: Post } = useSuspenseQuery({
     queryKey: ['post', postId],
     queryFn: () => getPost({ data: { postId } }),
   })
 
-  if (!Post) return <PostSkeleton />
-
   return (
     <Post
       renderActions={({ postId, authorId }) => (
-        // Full client interactivity: hooks, state, context, all of it
+        // Full client interactivity: hooks, state, context
         <PostActions postId={postId} authorId={authorId} />
       )}
     >
@@ -128,43 +131,49 @@ function PostPage({ postId }) {
 }
 ```
 
-Here the server renders the `<Link>` directly, but leaves **join points** for the client:
+The server renders the `<Link>` directly and leaves join points for the client:
 
-- a render prop slot for `<PostActions>` (with server-provided arguments)
-- a `children` slot for `<Comments>`
+- A render prop slot for `<PostActions>` (with server-provided arguments)
+- A `children` slot for `<Comments>`
 
-### 2) Inter-component composition (composition across many components)
+### Inter-component: Composition Across Components
 
-Once a Composite Component is just “data you can render”, the client can treat it like a building block:
+Since a Composite Component is just data, the client can treat it as a building block:
 
-- interleave multiple Composite Components in a brand-new tree
-- wrap them in client providers/layout
-- nest one Composite Component inside another by passing it through slots
-- reorder/swap them based on client state
+- Interleave multiple Composite Components in a new tree
+- Wrap them in client providers or layouts
+- Nest one inside another via slots
+- Reorder or swap them based on client state
 
-Same component. Same mental model. No new boundaries for every deferral.
+Same mental model as regular React components.
+
+### Bundling Multiple RSCs
+
+Sometimes you want to fetch a few server-rendered fragments together, like a header, a content region, and a footer. A single server function can return multiple Composite Components in one request:
+
+```tsx
+const getPageLayout = createServerFn().handler(async () => {
+  const [Header, Content, Footer] = await Promise.all([
+    createServerComponent(<header>...</header>),
+    createServerComponent(<main>...</main>),
+    createServerComponent(<footer>...</footer>),
+  ])
+
+  return { Header, Content, Footer }
+})
+```
+
+This keeps network overhead low while still giving you composable pieces. Each returned component can still expose its own slots.
 
 ---
 
-## RSCs as a Primitive
+## Caching
 
-Here's the shift: in TanStack Start, **server components aren't a paradigm**. They're a _primitive_, a serialization format that flows through your existing architecture.
+Server components are streams. TanStack Start integrates them with two caching layers.
 
-When `createServerFn` returns a server component, that component is a **stream**. This means you don't have to wait for the entire component to finish rendering before sending HTML to the client. Parts of the UI can render immediately while slower async work (database queries, API calls) resolves in the background. The client sees a Suspense fallback, then the final content streams in when ready. No full page reload, no blocking.
+### Router: Automatic Route-Based Caching
 
-This works for SSR (streaming HTML during initial page load) and for client-side fetches (streaming RSC payloads during navigation or data refetches).
-
-The examples in this post await data before creating the component for simplicity. In practice, you can await inside the component body with nested `<Suspense>` boundaries to stream UI progressively as each piece resolves.
-
-Streams are universal. They work with:
-
-- **TanStack Router** → Load server components in route loaders, stream them during navigation
-- **TanStack Query** → Cache server components, refetch in the background, deduplicate requests
-- **TanStack DB** (coming soon) → Sync server component state, offline support, optimistic updates
-
-### In a route loader
-
-TanStack Router caches loader data automatically. The cache key is the route path plus its params—when params change, the loader refetches:
+TanStack Router caches loader data automatically. The cache key is the route path plus its params:
 
 ```tsx
 export const Route = createFileRoute('/posts/$postId')({
@@ -185,9 +194,9 @@ function PostPage() {
 }
 ```
 
-Navigate from `/posts/abc` to `/posts/xyz` and the loader runs again because `$postId` changed. Navigate back to `/posts/abc` and Router serves the cached server component instantly (within the default `gcTime`).
+Navigate from `/posts/abc` to `/posts/xyz` and the loader runs again. Navigate back to `/posts/abc` and Router serves the cached component instantly.
 
-For dependencies beyond route params, use `loaderDeps` to include search params or other reactive values in the cache key:
+For dependencies beyond route params, use `loaderDeps`:
 
 ```tsx
 export const Route = createFileRoute('/posts/$postId')({
@@ -208,25 +217,23 @@ export const Route = createFileRoute('/posts/$postId')({
 })
 ```
 
-Now the cache key includes both the route param and search params. Change `?tab=comments` to `?tab=related` and the server component refetches. Change back and you get a cache hit.
+Now the cache key includes search params. Updating the `tab` search param will cause the component to be refetched. Change back and you get a cache hit.
 
-**Router handles this automatically.** No manual cache keys, no query configuration. The server component is fetched when dependencies change and cached when they don't.
+Router caching is effectively zero-config for most routes. No manual cache keys, no query configuration.
 
-### With Query caching
+### Query: Fine-Grained Control
 
-Because server components are just data, they integrate naturally with TanStack Query's caching model. The query key determines cache identity—include route params and the cache automatically invalidates when they change:
+When you need more control, use TanStack Query. With Suspense you can treat the server component like any other async resource. You still get explicit cache keys, stale time, background refetching, and all the other Query features:
 
 ```tsx
 function PostPage() {
   const { postId } = Route.useParams()
 
-  const { data: Post } = useQuery({
+  const { data: Post } = useSuspenseQuery({
     queryKey: ['post', postId],
     queryFn: () => getPost({ data: { postId } }),
     staleTime: 5 * 60 * 1000,
   })
-
-  if (!Post) return <PostSkeleton />
 
   return (
     <Post renderActions={({ postId }) => <PostActions postId={postId} />}>
@@ -236,43 +243,32 @@ function PostPage() {
 }
 ```
 
-**What happens when the user navigates:**
+Navigate away and back: cache hit, instant render, no network request. The RSC payload is the cache value. Query doesn't know it's caching a server component. It's just bytes that decode into a React element tree.
 
-- `/posts/abc` → fetches and caches the server component for post `abc`
-- `/posts/xyz` → cache miss on `['post', 'xyz']`, fetches post `xyz`
-- `/posts/abc` → cache hit, instant render from cache (within staleTime)
-
-The server component for post `abc` is still in the cache. Navigate back and it renders immediately—no network request, no loading state. The entire rendered UI tree is preserved.
-
-This works because **the RSC payload is the cache value**. Query doesn't know or care that it's caching a server component. It's just bytes that happen to decode into a React element tree.
-
-For static content that rarely changes, you can cache aggressively:
+For static content, cache aggressively. This typically pairs well with a Suspense boundary at a layout level:
 
 ```tsx
-const { data: Layout } = useQuery({
+const { data: Layout } = useSuspenseQuery({
   queryKey: ['layout'],
   queryFn: () => getLayout(),
-  staleTime: Infinity, // Cache forever, refetch manually
+  staleTime: Infinity,
 })
 ```
-
-**The server component is just data.** Fetch it, cache it, compose it. **No special APIs. No framework-specific caching layers.** Just streams flowing through tools you already know.
 
 ---
 
 ## How It Works
 
-When your server component accesses props, it's accessing a **proxy**.  
-Every property access and function call is tracked:
+When your server component accesses props, it accesses a proxy. Every property access and function call is tracked:
 
-- `props.children` → serialized as a slot placeholder
-- `props.renderActions({ postId, authorId })` → serialized with the arguments attached
+- `props.children` serializes as a slot placeholder
+- `props.renderActions({ postId, authorId })` serializes with the arguments attached
 
-You can destructure props normally. `({ children, renderActions })` works just as well as `props.children`. The proxy handles both patterns.
+You can destructure props normally. The proxy handles both `props.children` and `({ children })`.
 
-**A few rules apply:** Slot placeholders are opaque on the server. You can't `Object.keys()` the props proxy and expect to enumerate what was passed (you'll get nothing useful). You can't `JSON.stringify()` a render prop. Calls to render props are recorded in invocation order and replayed on the client in the same order. The [documentation](/start/latest/docs/server-components) covers the full contract.
+**Rules:** Slot placeholders are opaque on the server. You can't enumerate props with `Object.keys()` or serialize a render prop with `JSON.stringify()`. The [documentation](/start/latest/docs/server-components) covers the full contract.
 
-**Over the wire, it's a React element stream** with embedded placeholders. On the client:
+Over the wire, it's a React element stream with embedded placeholders. On the client:
 
 1. The stream decodes into a React element tree
 2. Placeholders match the props you passed when rendering
@@ -280,15 +276,15 @@ You can destructure props normally. `({ children, renderActions })` works just a
 
 ```
 Server                              Client
-───────                             ──────
+------                              ------
 props.renderActions({               renderActions prop is called
-  postId: "abc",             →      with { postId: "abc", authorId: "xyz" }
+  postId: "abc",             ->     with { postId: "abc", authorId: "xyz" }
   authorId: "xyz"
 })                                  Your function runs client-side
                                     with full hooks/state/context
 ```
 
-**Type safety flows through in TypeScript when client and server share types.** The function signature on the server determines what arguments your client function receives:
+Type safety flows through when client and server share types. The function signature on the server determines what arguments your client function receives.
 
 ```tsx
 const getPost = createServerFn().handler(async ({ data }) => {
@@ -301,10 +297,22 @@ const getPost = createServerFn().handler(async ({ data }) => {
         authorId: string
       }) => React.ReactNode
     }) => {
-      // TypeScript knows exactly what props.renderActions receives
-      props.renderActions?.({ postId: post.id, authorId: post.authorId })
-      // ...
-    },
+    <article>
+      {/* ... */}
+      <footer>
+        {props.renderActions?.({ postId: post.id, authorId: post.authorId })}
+      </footer>
+    </article>
+  ))
+})
+
+function PostPage({ postId }) {
+  return (
+    <Post
+      renderActions={(args: PostActionsArgs) => (
+        <PostActions postId={args.postId} authorId={args.authorId} />
+      )}
+    />
   )
 })
 ```
@@ -332,15 +340,15 @@ You choose patterns **per-route, per-component, per-use-case**. The architecture
 
 ## Current Status: Experimental
 
-RSC support ships as an experimental feature in TanStack Start RC and will remain experimental into early v1. A few things to know:
+RSC support is experimental in TanStack Start RC and will remain experimental into early v1.
 
-**React's Flight serializer**: This release uses React's native RSC Flight protocol for serialization. That means TanStack Start's usual serialization features aren't available within server components for now. Standard JavaScript primitives, Dates, and React elements serialize fine. Custom serialization plugins and extended types will come in a future release as we unify the serialization layers.
+**Serialization:** This release uses React's native Flight protocol. TanStack Start's usual serialization features aren't available within server components for now.
 
-**API surface**: The `createServerComponent` API and slot patterns shown here are stable in design but may see refinements based on feedback. We're shipping early to learn from real usage.
+**API surface:** The `createServerComponent` API and slot patterns are stable in design but may see refinements.
 
-**Performance**: Streaming works today. We're continuing to optimize the ReplayableStream buffering, frame protocol efficiency, and cache integration.
 
-If you hit rough edges, [open an issue](https://github.com/tanstack/router/issues) or drop into [Discord](https://tlinz.com/discord). This is the time to shape the API.
+
+If you hit rough edges, [open an issue](https://github.com/tanstack/router/issues) or join the [Discord](https://tlinz.com/discord).
 
 ---
 
@@ -348,25 +356,25 @@ If you hit rough edges, [open an issue](https://github.com/tanstack/router/issue
 
 ### How does this compare to Next.js App Router?
 
-Next.js App Router is server-first: your component tree lives on the server by default, and you opt into client interactivity with `'use client'` boundaries.
+Next.js App Router is server-first: your component tree lives on the server by default, and you opt into client interactivity with `'use client'`.
 
-TanStack Start is **isomorphic-first**: your tree lives wherever makes sense, and RSCs are a primitive you pull in when helpful. The key difference is **client-led composition**. Composite Components expose slots so the client can assemble the final tree, not just accept a server-owned one.
+TanStack Start is **isomorphic-first**: your tree lives wherever makes sense. The key difference is **client-led composition**. Composite Components expose slots so the client assembles the final tree.
 
-Both approaches support RSCs. They differ in who owns the tree by default and how composition flows.
+### Can I use this with Next.js or Remix?
 
-### Can I use this with my existing Next.js/Remix app?
-
-Not directly. TanStack Start is its own framework built on TanStack Router. But if you're using TanStack Query or TanStack Router already, the mental model transfers. Server components become another data source that Query can cache and Router can load.
+Not directly. TanStack Start is its own framework. But if you use TanStack Query or Router, the mental model transfers.
 
 ### Do I have to use RSCs?
 
-No. RSCs are entirely opt-in. You can build fully client-side SPAs with TanStack Start, use traditional SSR without server components, or go fully static. RSCs are one tool in the spectrum, not a requirement.
+No. RSCs are opt-in. You can build fully client-side routes (including `ssr: false`), use traditional SSR without server components, or go fully static.
 
-### What about React 19 / `use server` / Server Actions?
+Composite Components are just another primitive. They compose with Start features like Selective SSR and with TanStack Query and Router caching, instead of replacing them.
 
-TanStack Start's RSC implementation builds on React's Flight protocol and works with React 19. Server Actions are a separate primitive. `createServerFn` serves a similar purpose but integrates with TanStack's middleware, validation, and caching model. We're watching the Server Actions API and will align where it makes sense.
+### What about React 19 and Server Actions?
 
-### Can I define my component outside of `createServerComponent`?
+TanStack Start uses React's Flight protocol and works with React 19. `createServerFn` serves a similar purpose to Server Actions but integrates with TanStack's middleware, validation, and caching. We're watching the Server Actions API and will align where it makes sense.
+
+### Can I define components outside `createServerComponent`?
 
 Yes. `createServerComponent` initiates the RSC stream generation, but your component can be defined separately and invoked inside:
 
@@ -389,21 +397,21 @@ const getPost = createServerFn().handler(async ({ data }) => {
 })
 ```
 
-### Can I return raw JSX instead of using `createServerComponent`?
+### Can I return raw JSX without `createServerComponent`?
 
-Not currently. Server functions that return UI must wrap it in `createServerComponent`. This is what enables the streaming, slot handling, and client rehydration. Plain JSX returned from a server function won't have the RSC serialization behavior.
+Not currently. `createServerComponent` enables streaming, slot handling, and client rehydration. Plain JSX from a server function won't have RSC behavior.
 
 ### Do `cloneElement` and React Context work with server component children?
 
-**`cloneElement`**: This won't work as you might expect. When children are passed from client to server, they're serialized as slot placeholders, not actual React elements the server can manipulate. The server can't inspect or clone client-provided children.
+**cloneElement:** No. Client children are slot placeholders. The server can't inspect or clone them.
 
-**React Context**: Context providers rendered by the server component _will_ wrap client children. If your server component renders `<ThemeProvider value="dark">{children}</ThemeProvider>`, the client children can consume that context. However, the context must be defined in a way that works across the server/client boundary (typically with `'use client'` on the provider component).
+**React Context:** Yes. Providers in server components wrap client children. The context must work across the boundary (typically `'use client'` on the provider component).
 
-### Any security considerations?
+### Security considerations?
 
-TanStack Start's RSC model has a fundamentally different security surface than other RSC implementations. **We don't send flight data to the server, nor do we parse it there.** Flight payloads flow one direction: from server to client. The server produces RSC streams; the client consumes them.
+TanStack Start doesn't send Flight data to the server or parse it there. Payloads flow one direction: server to client.
 
-Additionally, **TanStack Start does not support React Server Functions** (the `'use server'` directive that creates server-callable endpoints from client code). Recent React security advisories around RSC and server function serialization specifically target vulnerabilities in parsing untrusted flight data on the server and in server function argument handling—neither of which apply to TanStack Start's architecture.
+TanStack Start doesn't support React Server Functions (the `'use server'` directive). Recent security advisories target vulnerabilities in parsing untrusted Flight data on the server, which doesn't apply here.
 
 That said, treat your server functions like any API surface: authenticate requests, validate inputs, and keep React patched.
 

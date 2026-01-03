@@ -24,6 +24,7 @@ export const capabilityEnum = pgEnum('capability', [
   'builder',
   'feed',
   'moderate-feedback',
+  'moderate-showcases',
 ])
 // Note: feed_category enum was dropped in migration 0011
 export const oauthProviderEnum = pgEnum('oauth_provider', ['github', 'google'])
@@ -53,6 +54,10 @@ export const auditActionEnum = pgEnum('audit_action', [
   'feed.entry.update',
   'feed.entry.delete',
   'feedback.moderate',
+  'showcase.create',
+  'showcase.update',
+  'showcase.delete',
+  'showcase.moderate',
 ])
 export const bannerStyleEnum = pgEnum('banner_style', [
   'info',
@@ -66,6 +71,25 @@ export const entryTypeEnum = pgEnum('entry_type', [
   'announcement',
 ])
 
+export const showcaseStatusEnum = pgEnum('showcase_status', [
+  'pending',
+  'approved',
+  'denied',
+])
+
+export const showcaseUseCaseEnum = pgEnum('showcase_use_case', [
+  'blog',
+  'e-commerce',
+  'saas',
+  'dashboard',
+  'documentation',
+  'portfolio',
+  'social',
+  'developer-tool',
+  'marketing',
+  'media',
+])
+
 // Type exports
 export type Capability =
   | 'admin'
@@ -73,6 +97,7 @@ export type Capability =
   | 'builder'
   | 'feed'
   | 'moderate-feedback'
+  | 'moderate-showcases'
 // Note: FeedCategory type was removed - use EntryType instead
 export type OAuthProvider = 'github' | 'google'
 export type DocFeedbackType = 'note' | 'improvement'
@@ -80,6 +105,18 @@ export type DocFeedbackStatus = 'pending' | 'approved' | 'denied'
 export type BannerScope = 'global' | 'targeted'
 export type BannerStyle = 'info' | 'warning' | 'success' | 'promo'
 export type EntryType = 'release' | 'blog' | 'announcement'
+export type ShowcaseStatus = 'pending' | 'approved' | 'denied'
+export type ShowcaseUseCase =
+  | 'blog'
+  | 'e-commerce'
+  | 'saas'
+  | 'dashboard'
+  | 'documentation'
+  | 'portfolio'
+  | 'social'
+  | 'developer-tool'
+  | 'marketing'
+  | 'media'
 export type AuditAction =
   | 'user.capabilities.update'
   | 'user.adsDisabled.update'
@@ -96,6 +133,10 @@ export type AuditAction =
   | 'feed.entry.update'
   | 'feed.entry.delete'
   | 'feedback.moderate'
+  | 'showcase.create'
+  | 'showcase.update'
+  | 'showcase.delete'
+  | 'showcase.moderate'
 
 // Constants
 export const VALID_CAPABILITIES: readonly Capability[] = [
@@ -104,6 +145,20 @@ export const VALID_CAPABILITIES: readonly Capability[] = [
   'builder',
   'feed',
   'moderate-feedback',
+  'moderate-showcases',
+] as const
+
+export const SHOWCASE_USE_CASES: readonly ShowcaseUseCase[] = [
+  'blog',
+  'e-commerce',
+  'saas',
+  'dashboard',
+  'documentation',
+  'portfolio',
+  'social',
+  'developer-tool',
+  'marketing',
+  'media',
 ] as const
 export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
 export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
@@ -125,6 +180,7 @@ export const users = pgTable(
     name: varchar('name', { length: 255 }),
     displayUsername: varchar('display_username', { length: 255 }),
     image: text('image'),
+    oauthImage: text('oauth_image'),
     capabilities: capabilityEnum('capabilities').array().notNull().default([]),
     adsDisabled: boolean('ads_disabled').default(false),
     interestedInHidingAds: boolean('interested_in_hiding_ads').default(false),
@@ -800,6 +856,72 @@ export const userActivity = pgTable(
 export type UserActivity = InferSelectModel<typeof userActivity>
 export type NewUserActivity = InferInsertModel<typeof userActivity>
 
+// Showcases table (user-submitted projects using TanStack libraries)
+export const showcases = pgTable(
+  'showcases',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+
+    // Project info
+    name: varchar('name', { length: 255 }).notNull(),
+    tagline: varchar('tagline', { length: 500 }).notNull(),
+    description: text('description'),
+    url: text('url').notNull(),
+    logoUrl: text('logo_url'),
+    screenshotUrl: text('screenshot_url').notNull(),
+
+    // Libraries (stored as array of library IDs)
+    libraries: text('libraries').array().notNull(),
+
+    // Use cases (multi-select)
+    useCases: showcaseUseCaseEnum('use_cases').array().notNull().default([]),
+
+    // Featured flag (admin-set for homepage prominence)
+    isFeatured: boolean('is_featured').notNull().default(false),
+
+    // Moderation
+    status: showcaseStatusEnum('status').notNull().default('pending'),
+    moderatedBy: uuid('moderated_by').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    moderatedAt: timestamp('moderated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    moderationNote: text('moderation_note'),
+
+    // Popularity ranking (from Tranco list, lower = more popular, null = unranked)
+    trancoRank: integer('tranco_rank'),
+    trancoRankUpdatedAt: timestamp('tranco_rank_updated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+
+    // Timestamps
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    userIdIdx: index('showcases_user_id_idx').on(table.userId),
+    statusIdx: index('showcases_status_idx').on(table.status),
+    isFeaturedIdx: index('showcases_is_featured_idx').on(table.isFeatured),
+    createdAtIdx: index('showcases_created_at_idx').on(table.createdAt),
+    moderatedByIdx: index('showcases_moderated_by_idx').on(table.moderatedBy),
+    trancoRankIdx: index('showcases_tranco_rank_idx').on(table.trancoRank),
+    // Note: GIN indexes for libraries and useCases arrays created via SQL migration
+  }),
+)
+
+export type Showcase = InferSelectModel<typeof showcases>
+export type NewShowcase = InferInsertModel<typeof showcases>
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
@@ -811,6 +933,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   loginHistory: many(loginHistory),
   auditLogs: many(auditLogs),
   userActivity: many(userActivity),
+  showcases: many(showcases),
 }))
 
 export const rolesRelations = relations(roles, ({ many }) => ({
@@ -901,6 +1024,17 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
 export const userActivityRelations = relations(userActivity, ({ one }) => ({
   user: one(users, {
     fields: [userActivity.userId],
+    references: [users.id],
+  }),
+}))
+
+export const showcasesRelations = relations(showcases, ({ one }) => ({
+  user: one(users, {
+    fields: [showcases.userId],
+    references: [users.id],
+  }),
+  moderator: one(users, {
+    fields: [showcases.moderatedBy],
     references: [users.id],
   }),
 }))

@@ -22,16 +22,18 @@ import {
 import { twMerge } from 'tailwind-merge'
 // Using public asset URL
 import { ClientAdminAuth } from '~/components/ClientAuth'
-import { requireCapability } from '~/utils/auth.server'
+import { requireAnyAdminCapability } from '~/utils/auth.server'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { NpmIcon } from '~/components/icons/NpmIcon'
+import { Sparkles } from 'lucide-react'
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
-    // Call server function directly from beforeLoad (works in both SSR and client)
+    // Allow access if user has any admin-like capability
+    // Each sub-route checks specific capabilities
     try {
-      const user = await requireCapability({ data: { capability: 'admin' } })
+      const user = await requireAnyAdminCapability()
       return { user }
     } catch {
       throw redirect({ to: '/login' })
@@ -106,6 +108,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       requiredCapability: 'moderate-feedback',
     },
     {
+      label: 'Showcases',
+      icon: <Sparkles />,
+      to: '/admin/showcases',
+      requiredCapability: 'moderate-showcases',
+    },
+    {
       label: 'Feed',
       icon: <Rss />,
       to: '/admin/feed',
@@ -129,9 +137,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   // Filter menu items based on required capabilities
   // Admin users have access to everything
+  // Non-admin users only see items they have specific capability for
   const isAdmin = capabilities.includes('admin')
   const adminItems = allAdminItems.filter((item) => {
-    if (!item.requiredCapability) return true
+    // Items without requiredCapability are admin-only
+    if (!item.requiredCapability) return isAdmin
+    // Items with requiredCapability: admin sees all, others need the capability
     return isAdmin || capabilities.includes(item.requiredCapability as any)
   })
 

@@ -16,6 +16,7 @@ export type Capability =
   | 'builder'
   | 'feed'
   | 'moderate-feedback'
+  | 'moderate-showcases'
 
 export const VALID_CAPABILITIES: readonly Capability[] = [
   'admin',
@@ -23,6 +24,7 @@ export const VALID_CAPABILITIES: readonly Capability[] = [
   'builder',
   'feed',
   'moderate-feedback',
+  'moderate-showcases',
 ] as const
 
 // ============================================================================
@@ -65,6 +67,7 @@ export interface AuthUser {
   email: string
   name: string | null
   image: string | null
+  oauthImage: string | null
   displayUsername: string | null
   capabilities: Capability[]
   adsDisabled: boolean | null
@@ -80,6 +83,7 @@ export interface DbUser {
   email: string
   name: string | null
   image: string | null
+  oauthImage: string | null
   displayUsername: string | null
   capabilities: Capability[]
   adsDisabled: boolean | null
@@ -105,6 +109,7 @@ export interface IUserRepository {
     email: string
     name?: string
     image?: string
+    oauthImage?: string
     displayUsername?: string
     capabilities?: Capability[]
   }): Promise<DbUser>
@@ -113,7 +118,8 @@ export interface IUserRepository {
     data: Partial<{
       email: string
       name: string
-      image: string
+      image: string | null
+      oauthImage: string
       displayUsername: string
       capabilities: Capability[]
       adsDisabled: boolean

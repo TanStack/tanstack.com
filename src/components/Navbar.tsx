@@ -1,9 +1,15 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { BrandContextMenu } from './BrandContextMenu'
-import { Link, useLocation, useMatches } from '@tanstack/react-router'
+import {
+  Link,
+  useLocation,
+  useMatches,
+  useNavigate,
+} from '@tanstack/react-router'
 import {
   ChevronRight,
+  ChevronDown,
   Code,
   Users,
   Music,
@@ -21,6 +27,8 @@ import {
   Rss,
   Home,
   Grid2X2,
+  LogOut,
+  Settings,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
@@ -32,6 +40,7 @@ import {
 } from '~/components/AuthComponents'
 import { libraries, findLibrary } from '~/libraries'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useClickOutside } from '~/hooks/useClickOutside'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
@@ -39,6 +48,16 @@ import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { AnnouncementBanner } from '~/components/AnnouncementBanner'
+import { Avatar } from '~/components/Avatar'
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+  DropdownSeparator,
+} from '~/components/Dropdown'
+import { authClient } from '~/utils/auth.client'
+import { useToast } from '~/components/ToastProvider'
 import {
   Collapsible,
   CollapsibleTrigger,
@@ -48,6 +67,22 @@ import {
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
   const capabilities = useCapabilities()
+  const user = useCurrentUser()
+  const navigate = useNavigate()
+  const { notify } = useToast()
+
+  const signOut = async () => {
+    await authClient.signOut()
+    navigate({ to: '/login' })
+    notify(
+      <div>
+        <div className="font-medium">Signed out</div>
+        <div className="text-gray-500 dark:text-gray-400 text-xs">
+          You have been logged out
+        </div>
+      </div>,
+    )
+  }
 
   const { Title, library } = React.useMemo(() => {
     const match = [...matches].reverse().find((m) => m.staticData.Title)
@@ -59,7 +94,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     }
   }, [matches])
 
-  const canAdmin = capabilities.includes('admin')
+  const canAdmin = capabilities.some((cap) =>
+    (['admin', 'moderate-feedback', 'moderate-showcases'] as const).includes(
+      cap,
+    ),
+  )
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -124,30 +163,46 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       })()}
 
       <Authenticated>
-        {!canAdmin ? (
-          <Link
-            to="/account"
-            className="flex items-center gap-1 rounded-md px-2 py-1.5
-            border border-gray-200 dark:border-gray-700
-            hover:bg-gray-100 dark:hover:bg-gray-800
-            transition-colors duration-200 text-xs font-medium"
-          >
-            <User className="w-3.5 h-3.5" />
-            <span>Account</span>
-          </Link>
-        ) : null}
-        {canAdmin ? (
-          <Link
-            to="/admin"
-            className="flex items-center gap-1 rounded-md px-2 py-1.5
-            bg-black dark:bg-white text-white dark:text-black
-            hover:bg-gray-800 dark:hover:bg-gray-200
-            transition-colors duration-200 text-xs font-medium"
-          >
-            <Lock className="w-3.5 h-3.5" />
-            <span>Admin</span>
-          </Link>
-        ) : null}
+        <Dropdown>
+          <DropdownTrigger>
+            <div className="flex items-center gap-1 cursor-pointer h-[26px]">
+              <Avatar
+                image={user?.image}
+                oauthImage={user?.oauthImage}
+                name={user?.name}
+                email={user?.email}
+                size="xs"
+                className="w-[26px] h-[26px]"
+              />
+              <ChevronDown className="w-3 h-3 opacity-50" />
+            </div>
+          </DropdownTrigger>
+          <DropdownContent align="end">
+            <div className="px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400">
+              {user?.email}
+            </div>
+            <DropdownSeparator />
+            <DropdownItem asChild>
+              <Link to="/account" className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                <span>Account</span>
+              </Link>
+            </DropdownItem>
+            {canAdmin && (
+              <DropdownItem asChild>
+                <Link to="/admin" className="flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  <span>Admin</span>
+                </Link>
+              </DropdownItem>
+            )}
+            <DropdownSeparator />
+            <DropdownItem onSelect={signOut}>
+              <LogOut className="w-4 h-4" />
+              <span>Sign out</span>
+            </DropdownItem>
+          </DropdownContent>
+        </Dropdown>
       </Authenticated>
     </>
   )

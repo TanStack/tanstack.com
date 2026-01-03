@@ -20,6 +20,7 @@ export const listRoles = createServerFn({ method: 'POST' })
             'builder',
             'feed',
             'moderate-feedback',
+            'moderate-showcases',
           ]),
         )
         .optional(),

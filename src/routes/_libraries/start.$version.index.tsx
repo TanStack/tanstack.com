@@ -19,6 +19,7 @@ import { GamHeader } from '~/components/Gam'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { Book, Wallpaper } from 'lucide-react'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
+import { LibraryShowcases } from '~/components/ShowcaseSection'
 
 const library = getLibrary('start')
 
@@ -142,6 +143,10 @@ function VersionIndex() {
       </div>
 
       <PartnersSection libraryId="start" />
+
+      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+        <LibraryShowcases libraryId="start" libraryName="TanStack Start" />
+      </div>
 
       <LazySponsorSection />
 

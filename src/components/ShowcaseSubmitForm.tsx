@@ -1,0 +1,326 @@
+import * as React from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
+import { submitShowcase } from '~/utils/showcase.functions'
+import { libraries } from '~/libraries'
+import { SHOWCASE_USE_CASES, type ShowcaseUseCase } from '~/db/schema'
+import {
+  getAutoIncludedLibraries,
+  USE_CASE_LABELS,
+} from '~/utils/showcase.client'
+import { useToast } from './ToastProvider'
+import { Check, AlertCircle } from 'lucide-react'
+import { Button } from './Button'
+import { ImageUpload } from './ImageUpload'
+
+// Filter to only show libraries with proper configuration
+const selectableLibraries = libraries.filter(
+  (lib) =>
+    lib.name && lib.id !== 'react-charts' && lib.id !== 'create-tsrouter-app',
+)
+
+export function ShowcaseSubmitForm() {
+  const navigate = useNavigate()
+  const { notify } = useToast()
+
+  const [name, setName] = React.useState('')
+  const [tagline, setTagline] = React.useState('')
+  const [description, setDescription] = React.useState('')
+  const [url, setUrl] = React.useState('')
+  const [logoUrl, setLogoUrl] = React.useState<string | undefined>()
+  const [screenshotUrl, setScreenshotUrl] = React.useState<string | undefined>()
+  const [selectedLibraries, setSelectedLibraries] = React.useState<string[]>([])
+  const [selectedUseCases, setSelectedUseCases] = React.useState<
+    ShowcaseUseCase[]
+  >([])
+
+  // Get auto-included libraries based on selection
+  const autoIncluded = React.useMemo(
+    () => getAutoIncludedLibraries(selectedLibraries),
+    [selectedLibraries],
+  )
+
+  const submitMutation = useMutation({
+    mutationFn: submitShowcase,
+    onSuccess: () => {
+      notify(
+        <div>
+          <div className="font-medium">Showcase submitted!</div>
+          <div className="text-gray-500 dark:text-gray-400 text-xs">
+            Your project is pending review. We'll notify you when it's approved.
+          </div>
+        </div>,
+      )
+      navigate({ to: '/showcase/mine' })
+    },
+    onError: (error: Error) => {
+      notify(
+        <div>
+          <div className="font-medium">Submission failed</div>
+          <div className="text-gray-500 dark:text-gray-400 text-xs">
+            {error.message}
+          </div>
+        </div>,
+      )
+    },
+  })
+
+  const toggleLibrary = (libraryId: string) => {
+    // Can't toggle auto-included libraries
+    if (autoIncluded[libraryId]) return
+
+    setSelectedLibraries((prev) =>
+      prev.includes(libraryId)
+        ? prev.filter((id) => id !== libraryId)
+        : [...prev, libraryId],
+    )
+  }
+
+  const toggleUseCase = (useCase: ShowcaseUseCase) => {
+    setSelectedUseCases((prev) =>
+      prev.includes(useCase)
+        ? prev.filter((c) => c !== useCase)
+        : [...prev, useCase],
+    )
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (selectedLibraries.length === 0) {
+      notify(
+        <div>
+          <div className="font-medium">Select at least one library</div>
+        </div>,
+      )
+      return
+    }
+
+    if (!screenshotUrl) {
+      notify(
+        <div>
+          <div className="font-medium">Screenshot is required</div>
+        </div>,
+      )
+      return
+    }
+
+    submitMutation.mutate({
+      data: {
+        name,
+        tagline,
+        description: description || undefined,
+        url,
+        logoUrl,
+        screenshotUrl,
+        libraries: selectedLibraries,
+        useCases: selectedUseCases,
+      },
+    })
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="max-w-2xl mx-auto px-4 py-12">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Submit Your Project
+        </h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">
+          Share what you've built with TanStack libraries. Your submission will
+          be reviewed before appearing in the showcase.
+        </p>
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          {/* Project Name */}
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Project Name *
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              maxLength={255}
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="My Awesome App"
+            />
+          </div>
+
+          {/* Tagline */}
+          <div>
+            <label
+              htmlFor="tagline"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Tagline *
+            </label>
+            <input
+              type="text"
+              id="tagline"
+              value={tagline}
+              onChange={(e) => setTagline(e.target.value)}
+              required
+              maxLength={500}
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="A brief description of your project"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              {tagline.length}/500 characters
+            </p>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              placeholder="Tell us more about your project..."
+            />
+          </div>
+
+          {/* Project URL */}
+          <div>
+            <label
+              htmlFor="url"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Project URL *
+            </label>
+            <input
+              type="url"
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              required
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="https://your-project.com"
+            />
+          </div>
+
+          {/* Screenshot */}
+          <ImageUpload
+            value={screenshotUrl}
+            onChange={setScreenshotUrl}
+            label="Screenshot"
+            hint="16:9 aspect ratio recommended"
+            required
+            aspectRatio="video"
+          />
+
+          {/* Logo */}
+          <ImageUpload
+            value={logoUrl}
+            onChange={setLogoUrl}
+            label="Logo"
+            hint="Optional: Square logo for your project"
+            aspectRatio="square"
+          />
+
+          {/* Libraries */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              TanStack Libraries Used *
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {selectableLibraries.map((lib) => {
+                const isSelected = selectedLibraries.includes(lib.id)
+                const isAutoIncluded = !!autoIncluded[lib.id]
+
+                return (
+                  <button
+                    key={lib.id}
+                    type="button"
+                    onClick={() => toggleLibrary(lib.id)}
+                    disabled={isAutoIncluded}
+                    className={`relative flex items-center gap-2 px-4 py-3 rounded-lg border transition-colors text-left ${
+                      isSelected || isAutoIncluded
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                    } ${isAutoIncluded ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  >
+                    {(isSelected || isAutoIncluded) && (
+                      <Check className="w-4 h-4 text-blue-600" />
+                    )}
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      {lib.name?.replace('TanStack ', '')}
+                    </span>
+                    {isAutoIncluded && (
+                      <span className="absolute -top-2 -right-2 px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded-full">
+                        auto
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+            {selectedLibraries.length === 0 && (
+              <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                Select at least one library
+              </p>
+            )}
+          </div>
+
+          {/* Use Cases */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              Use Cases
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {SHOWCASE_USE_CASES.map((useCase) => {
+                const isSelected = selectedUseCases.includes(useCase)
+
+                return (
+                  <button
+                    key={useCase}
+                    type="button"
+                    onClick={() => toggleUseCase(useCase)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      isSelected
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {USE_CASE_LABELS[useCase]}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Optional: Help others discover your project by category
+            </p>
+          </div>
+
+          {/* Submit Button */}
+          <div className="pt-4">
+            <Button
+              type="submit"
+              disabled={
+                submitMutation.isPending ||
+                selectedLibraries.length === 0 ||
+                !screenshotUrl
+              }
+              className="w-full justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg border-none"
+            >
+              {submitMutation.isPending ? 'Submitting...' : 'Submit for Review'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,72 @@
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { z } from 'zod'
+import { seo } from '~/utils/seo'
+import { ShowcaseModerationPage } from '~/components/ShowcaseModerationPage'
+import { listShowcasesForModerationQueryOptions } from '~/queries/showcases'
+import { requireCapability } from '~/utils/auth.server'
+import { libraries, type LibraryId } from '~/libraries'
+
+const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
+const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
+
+export const Route = createFileRoute('/admin/showcases/')({
+  staleTime: 1000 * 60 * 5, // 5 minutes
+  beforeLoad: async () => {
+    try {
+      const user = await requireCapability({
+        data: { capability: 'moderate-showcases' },
+      })
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
+  validateSearch: (search) => {
+    const parsed = z
+      .object({
+        page: z.number().optional().default(1).catch(1),
+        pageSize: z.number().int().positive().optional().default(50).catch(50),
+        status: z
+          .array(z.enum(['pending', 'approved', 'denied']))
+          .optional()
+          .catch(undefined),
+        libraryId: librarySchema.optional().catch(undefined),
+        isFeatured: z.boolean().optional().catch(undefined),
+      })
+      .parse(search)
+
+    return parsed
+  },
+  loaderDeps: ({ search }) => ({
+    page: search.page,
+    pageSize: search.pageSize,
+    status: search.status,
+    libraryId: search.libraryId,
+    isFeatured: search.isFeatured,
+  }),
+  loader: async ({ deps, context: { queryClient } }) => {
+    await queryClient.ensureQueryData(
+      listShowcasesForModerationQueryOptions({
+        pagination: {
+          page: deps.page,
+          pageSize: deps.pageSize,
+        },
+        filters: {
+          status: deps.status,
+          libraryId: deps.libraryId,
+          isFeatured: deps.isFeatured,
+        },
+      }),
+    )
+  },
+  headers: () => ({
+    'cache-control': 'private, max-age=0, must-revalidate',
+  }),
+  component: ShowcaseModerationPage,
+  head: () => ({
+    meta: seo({
+      title: 'Moderate Showcases | Admin | TanStack',
+      description: 'Moderate product showcase submissions',
+    }),
+  }),
+})

@@ -20,6 +20,7 @@ import { ossStatsQuery } from '~/queries/stats'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LibraryShowcases } from '~/components/ShowcaseSection'
 
 const library = getLibrary('router')
 
@@ -145,6 +146,10 @@ export default function App() {
       <LibraryTestimonials testimonials={routerProject.testimonials} />
 
       <PartnersSection libraryId="router" />
+
+      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+        <LibraryShowcases libraryId="router" libraryName="TanStack Router" />
+      </div>
 
       <FeatureGrid
         title="Feature Rich and Lightweight"

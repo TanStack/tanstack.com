@@ -27,6 +27,7 @@ import { TrustedByMarquee } from '~/components/TrustedByMarquee'
 import { Layers, Zap, Shield, Code2 } from 'lucide-react'
 import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
+import { FeaturedShowcases } from '~/components/ShowcaseSection'
 
 export const textColors = [
   `text-rose-500`,
@@ -362,6 +363,10 @@ function Index() {
               View Previous Partners →
             </Link>
           </div>
+        </div>
+
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+          <FeaturedShowcases />
         </div>
 
         {recentPosts && recentPosts.length > 0 && (

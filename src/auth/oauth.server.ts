@@ -60,7 +60,7 @@ export class OAuthService implements IOAuthService {
         const updates: {
           email?: string
           name?: string
-          image?: string
+          oauthImage?: string
           updatedAt?: Date
         } = {}
 
@@ -70,8 +70,9 @@ export class OAuthService implements IOAuthService {
         if (profile.name && user.name !== profile.name) {
           updates.name = profile.name
         }
-        if (profile.image && user.image !== profile.image) {
-          updates.image = profile.image
+        // Always update oauthImage from provider (it may have changed)
+        if (profile.image && user.oauthImage !== profile.image) {
+          updates.oauthImage = profile.image
         }
 
         if (Object.keys(updates).length > 0) {
@@ -101,6 +102,7 @@ export class OAuthService implements IOAuthService {
         const updates: {
           name?: string
           image?: string
+          oauthImage?: string
           updatedAt?: Date
         } = {}
 
@@ -109,6 +111,10 @@ export class OAuthService implements IOAuthService {
         }
         if (profile.image && !existingUser.image) {
           updates.image = profile.image
+        }
+        // Always update oauthImage from provider
+        if (profile.image && existingUser.oauthImage !== profile.image) {
+          updates.oauthImage = profile.image
         }
 
         if (Object.keys(updates).length > 0) {
@@ -124,6 +130,7 @@ export class OAuthService implements IOAuthService {
           email: profile.email,
           name: profile.name,
           image: profile.image,
+          oauthImage: profile.image,
           displayUsername: profile.name,
           capabilities: [],
         })

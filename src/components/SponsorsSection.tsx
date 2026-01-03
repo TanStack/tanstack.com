@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Await } from '@tanstack/react-router'
 import { Spinner } from '~/components/Spinner'
 import SponsorPack from '~/components/SponsorPack'
+import { buttonStyles } from '~/components/Button'
 import { twMerge } from 'tailwind-merge'
 
 type SponsorsSectionProps = {
@@ -40,7 +41,8 @@ export function SponsorsSection({
           <a
             href="https://github.com/sponsors/tannerlinsley"
             className={twMerge(
-              'inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors',
+              buttonStyles,
+              'inline-flex py-2 px-4 uppercase font-extrabold',
               ctaClassName,
             )}
           >

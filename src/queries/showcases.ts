@@ -1,0 +1,78 @@
+import { queryOptions } from '@tanstack/react-query'
+import {
+  getMyShowcases,
+  getApprovedShowcases,
+  getShowcasesByLibrary,
+  getFeaturedShowcases,
+  listShowcasesForModeration,
+  getShowcase,
+} from '~/utils/showcase.functions'
+import type { ShowcaseStatus, ShowcaseUseCase } from '~/db/schema'
+
+export interface ShowcasePagination {
+  page: number
+  pageSize: number
+}
+
+export interface ShowcaseFilters {
+  status?: ShowcaseStatus[]
+  libraryId?: string
+  useCases?: ShowcaseUseCase[]
+  userId?: string
+  isFeatured?: boolean
+  featured?: boolean
+}
+
+export const getMyShowcasesQueryOptions = (params: {
+  pagination: ShowcasePagination
+}) =>
+  queryOptions({
+    queryKey: ['showcases', 'mine', params],
+    queryFn: () => getMyShowcases({ data: params }),
+  })
+
+export const getApprovedShowcasesQueryOptions = (params: {
+  pagination: ShowcasePagination
+  filters?: {
+    libraryId?: string
+    useCases?: ShowcaseUseCase[]
+    featured?: boolean
+  }
+}) =>
+  queryOptions({
+    queryKey: ['showcases', 'approved', params],
+    queryFn: () => getApprovedShowcases({ data: params }),
+  })
+
+export const getShowcasesByLibraryQueryOptions = (params: {
+  libraryId: string
+  limit?: number
+}) =>
+  queryOptions({
+    queryKey: ['showcases', 'library', params.libraryId, params.limit],
+    queryFn: () =>
+      getShowcasesByLibrary({
+        data: { libraryId: params.libraryId, limit: params.limit ?? 6 },
+      }),
+  })
+
+export const getFeaturedShowcasesQueryOptions = (params: { limit?: number }) =>
+  queryOptions({
+    queryKey: ['showcases', 'featured', params.limit],
+    queryFn: () => getFeaturedShowcases({ data: { limit: params.limit ?? 6 } }),
+  })
+
+export const listShowcasesForModerationQueryOptions = (params: {
+  pagination: ShowcasePagination
+  filters?: ShowcaseFilters
+}) =>
+  queryOptions({
+    queryKey: ['showcases', 'moderation', params],
+    queryFn: () => listShowcasesForModeration({ data: params }),
+  })
+
+export const getShowcaseQueryOptions = (showcaseId: string) =>
+  queryOptions({
+    queryKey: ['showcases', 'detail', showcaseId],
+    queryFn: () => getShowcase({ data: { showcaseId } }),
+  })

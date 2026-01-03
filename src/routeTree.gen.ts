@@ -19,10 +19,14 @@ import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as LibrariesRouteRouteImport } from './routes/_libraries/route'
 import { Route as LibraryIdRouteRouteImport } from './routes/$libraryId/route'
 import { Route as StatsIndexRouteImport } from './routes/stats/index'
+import { Route as ShowcaseIndexRouteImport } from './routes/showcase/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as LibrariesIndexRouteImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
+import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
+import { Route as ShowcaseMineRouteImport } from './routes/showcase/mine'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
+import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
 import { Route as AdminLoginsRouteImport } from './routes/admin/logins'
@@ -47,6 +51,7 @@ import { Route as LibrariesAdsRouteImport } from './routes/_libraries/ads'
 import { Route as LibrariesAccountRouteImport } from './routes/_libraries/account'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
+import { Route as AdminShowcasesIndexRouteImport } from './routes/admin/showcases.index'
 import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
 import { Route as AdminNotesIndexRouteImport } from './routes/admin/notes.index'
 import { Route as AdminFeedbackIndexRouteImport } from './routes/admin/feedback.index'
@@ -141,6 +146,11 @@ const StatsIndexRoute = StatsIndexRouteImport.update({
   path: '/stats/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShowcaseIndexRoute = ShowcaseIndexRouteImport.update({
+  id: '/showcase/',
+  path: '/showcase/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -156,9 +166,24 @@ const LibraryIdIndexRoute = LibraryIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LibraryIdRouteRoute,
 } as any)
+const ShowcaseSubmitRoute = ShowcaseSubmitRouteImport.update({
+  id: '/showcase/submit',
+  path: '/showcase/submit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseMineRoute = ShowcaseMineRouteImport.update({
+  id: '/showcase/mine',
+  path: '/showcase/mine',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthSignoutRoute = AuthSignoutRouteImport.update({
   id: '/auth/signout',
   path: '/auth/signout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
+  id: '/api/uploadthing',
+  path: '/api/uploadthing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -281,6 +306,11 @@ const StatsNpmIndexRoute = StatsNpmIndexRouteImport.update({
   id: '/stats/npm/',
   path: '/stats/npm/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminShowcasesIndexRoute = AdminShowcasesIndexRouteImport.update({
+  id: '/showcases/',
+  path: '/showcases/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminRolesIndexRoute = AdminRolesIndexRouteImport.update({
   id: '/roles/',
@@ -557,10 +587,14 @@ export interface FileRoutesByFullPath {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/signout': typeof AuthSignoutRoute
+  '/showcase/mine': typeof ShowcaseMineRoute
+  '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/account/feedback': typeof LibrariesAccountFeedbackRoute
@@ -582,6 +616,7 @@ export interface FileRoutesByFullPath {
   '/admin/feedback': typeof AdminFeedbackIndexRoute
   '/admin/notes': typeof AdminNotesIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
+  '/admin/showcases': typeof AdminShowcasesIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -636,10 +671,14 @@ export interface FileRoutesByTo {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/signout': typeof AuthSignoutRoute
+  '/showcase/mine': typeof ShowcaseMineRoute
+  '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
   '/admin': typeof AdminIndexRoute
+  '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
   '/account/feedback': typeof LibrariesAccountFeedbackRoute
   '/account/notes': typeof LibrariesAccountNotesRoute
@@ -660,6 +699,7 @@ export interface FileRoutesByTo {
   '/admin/feedback': typeof AdminFeedbackIndexRoute
   '/admin/notes': typeof AdminNotesIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
+  '/admin/showcases': typeof AdminShowcasesIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -720,10 +760,14 @@ export interface FileRoutesById {
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/signout': typeof AuthSignoutRoute
+  '/showcase/mine': typeof ShowcaseMineRoute
+  '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/_libraries/': typeof LibrariesIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/_libraries/account/feedback': typeof LibrariesAccountFeedbackRoute
@@ -745,6 +789,7 @@ export interface FileRoutesById {
   '/admin/feedback/': typeof AdminFeedbackIndexRoute
   '/admin/notes/': typeof AdminNotesIndexRoute
   '/admin/roles/': typeof AdminRolesIndexRoute
+  '/admin/showcases/': typeof AdminShowcasesIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -805,10 +850,14 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/uploadthing'
     | '/auth/signout'
+    | '/showcase/mine'
+    | '/showcase/submit'
     | '/$libraryId/'
     | '/'
     | '/admin/'
+    | '/showcase'
     | '/stats'
     | '/$libraryId/$version/docs'
     | '/account/feedback'
@@ -830,6 +879,7 @@ export interface FileRouteTypes {
     | '/admin/feedback'
     | '/admin/notes'
     | '/admin/roles'
+    | '/admin/showcases'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -884,10 +934,14 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/uploadthing'
     | '/auth/signout'
+    | '/showcase/mine'
+    | '/showcase/submit'
     | '/$libraryId'
     | '/'
     | '/admin'
+    | '/showcase'
     | '/stats'
     | '/account/feedback'
     | '/account/notes'
@@ -908,6 +962,7 @@ export interface FileRouteTypes {
     | '/admin/feedback'
     | '/admin/notes'
     | '/admin/roles'
+    | '/admin/showcases'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -967,10 +1022,14 @@ export interface FileRouteTypes {
     | '/admin/logins'
     | '/admin/npm-stats'
     | '/admin/users'
+    | '/api/uploadthing'
     | '/auth/signout'
+    | '/showcase/mine'
+    | '/showcase/submit'
     | '/$libraryId/'
     | '/_libraries/'
     | '/admin/'
+    | '/showcase/'
     | '/stats/'
     | '/$libraryId/$version/docs'
     | '/_libraries/account/feedback'
@@ -992,6 +1051,7 @@ export interface FileRouteTypes {
     | '/admin/feedback/'
     | '/admin/notes/'
     | '/admin/roles/'
+    | '/admin/showcases/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -1029,7 +1089,11 @@ export interface RootRouteChildren {
   MerchRoute: typeof MerchRoute
   PartnersEmbedRoute: typeof PartnersEmbedRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
+  ApiUploadthingRoute: typeof ApiUploadthingRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
+  ShowcaseMineRoute: typeof ShowcaseMineRoute
+  ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
+  ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
   ApiAdminSyncRoute: typeof ApiAdminSyncRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
@@ -1111,6 +1175,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/showcase/': {
+      id: '/showcase/'
+      path: '/showcase'
+      fullPath: '/showcase'
+      preLoaderRoute: typeof ShowcaseIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -1132,11 +1203,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdIndexRouteImport
       parentRoute: typeof LibraryIdRouteRoute
     }
+    '/showcase/submit': {
+      id: '/showcase/submit'
+      path: '/showcase/submit'
+      fullPath: '/showcase/submit'
+      preLoaderRoute: typeof ShowcaseSubmitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase/mine': {
+      id: '/showcase/mine'
+      path: '/showcase/mine'
+      fullPath: '/showcase/mine'
+      preLoaderRoute: typeof ShowcaseMineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/signout': {
       id: '/auth/signout'
       path: '/auth/signout'
       fullPath: '/auth/signout'
       preLoaderRoute: typeof AuthSignoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/uploadthing': {
+      id: '/api/uploadthing'
+      path: '/api/uploadthing'
+      fullPath: '/api/uploadthing'
+      preLoaderRoute: typeof ApiUploadthingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -1306,6 +1398,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/stats/npm'
       preLoaderRoute: typeof StatsNpmIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/showcases/': {
+      id: '/admin/showcases/'
+      path: '/showcases'
+      fullPath: '/admin/showcases'
+      preLoaderRoute: typeof AdminShowcasesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/admin/roles/': {
       id: '/admin/roles/'
@@ -1799,6 +1898,7 @@ interface AdminRouteRouteChildren {
   AdminFeedbackIndexRoute: typeof AdminFeedbackIndexRoute
   AdminNotesIndexRoute: typeof AdminNotesIndexRoute
   AdminRolesIndexRoute: typeof AdminRolesIndexRoute
+  AdminShowcasesIndexRoute: typeof AdminShowcasesIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
@@ -1816,6 +1916,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminFeedbackIndexRoute: AdminFeedbackIndexRoute,
   AdminNotesIndexRoute: AdminNotesIndexRoute,
   AdminRolesIndexRoute: AdminRolesIndexRoute,
+  AdminShowcasesIndexRoute: AdminShowcasesIndexRoute,
 }
 
 const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
@@ -1832,7 +1933,11 @@ const rootRouteChildren: RootRouteChildren = {
   MerchRoute: MerchRoute,
   PartnersEmbedRoute: PartnersEmbedRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
+  ApiUploadthingRoute: ApiUploadthingRoute,
   AuthSignoutRoute: AuthSignoutRoute,
+  ShowcaseMineRoute: ShowcaseMineRoute,
+  ShowcaseSubmitRoute: ShowcaseSubmitRoute,
+  ShowcaseIndexRoute: ShowcaseIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
   ApiAdminSyncRoute: ApiAdminSyncRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,

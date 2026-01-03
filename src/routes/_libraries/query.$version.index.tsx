@@ -23,6 +23,7 @@ import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LibraryShowcases } from '~/components/ShowcaseSection'
 
 const library = getLibrary('query')
 
@@ -296,6 +297,10 @@ export class TodosComponent {
           </div>
 
           <PartnersSection libraryId="query" />
+
+          <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+            <LibraryShowcases libraryId="query" libraryName="TanStack Query" />
+          </div>
 
           <div className="px-4">
             <QueryGGBanner />

@@ -82,3 +82,39 @@ export async function requireCapabilityUser(capability: string) {
     throw new Error(`Missing required capability: ${capability}`)
   }
 }
+
+/**
+ * Capabilities that grant access to the admin area
+ */
+export const ADMIN_CAPABILITIES: readonly Capability[] = [
+  'admin',
+  'moderate-feedback',
+  'moderate-showcases',
+  'feed',
+] as const
+
+/**
+ * Server function to require any admin-like capability
+ * Used for accessing the /admin area (each sub-route checks specific capabilities)
+ */
+export const requireAnyAdminCapability = createServerFn({
+  method: 'POST',
+}).handler(async () => {
+  const request = getRequest()
+  const authService = getAuthService()
+  const user = await authService.getCurrentUser(request)
+
+  if (!user) {
+    throw new Error('Not authenticated')
+  }
+
+  const hasAdminCapability = user.capabilities.some((cap) =>
+    ADMIN_CAPABILITIES.includes(cap as Capability),
+  )
+
+  if (!hasAdminCapability) {
+    throw new Error('Admin access required')
+  }
+
+  return user
+})

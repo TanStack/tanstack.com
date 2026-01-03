@@ -106,6 +106,7 @@ export class AuthService implements IAuthService {
       email: user.email,
       name: user.name,
       image: user.image,
+      oauthImage: user.oauthImage,
       displayUsername: user.displayUsername,
       capabilities,
       adsDisabled: user.adsDisabled,

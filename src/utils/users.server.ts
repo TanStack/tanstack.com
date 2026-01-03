@@ -558,3 +558,44 @@ export const revokeUserSessions = createServerFn({ method: 'POST' })
 
     return { success: true }
   })
+
+// Revert profile image to OAuth provider image
+export const revertProfileImage = createServerFn({ method: 'POST' }).handler(
+  async () => {
+    const currentUser = await getAuthenticatedUser()
+
+    // Get the user's oauthImage
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, currentUser.userId),
+      columns: {
+        oauthImage: true,
+      },
+    })
+
+    if (!user?.oauthImage) {
+      throw new Error('No OAuth image available to revert to')
+    }
+
+    // Set image to null, display will fall back to oauthImage
+    await db
+      .update(users)
+      .set({ image: null, updatedAt: new Date() })
+      .where(eq(users.id, currentUser.userId))
+
+    return { success: true, image: null, oauthImage: user.oauthImage }
+  },
+)
+
+// Remove profile image entirely (show initials/fallback)
+export const removeProfileImage = createServerFn({ method: 'POST' }).handler(
+  async () => {
+    const currentUser = await getAuthenticatedUser()
+
+    await db
+      .update(users)
+      .set({ image: null, updatedAt: new Date() })
+      .where(eq(users.id, currentUser.userId))
+
+    return { success: true }
+  },
+)

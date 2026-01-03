@@ -772,10 +772,6 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply bg-gray-100 dark:bg-gray-900;
 }
 
-[data-tab] > .codeblock:not(:only-child) pre {
-  @apply dark:bg-white/5! bg-black/5!;
-}
-
 [data-tab] > .markdown-alert [aria-label] svg {
   @apply stroke-current fill-current;
 }

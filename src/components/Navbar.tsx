@@ -20,6 +20,7 @@ import {
   X,
   Rss,
   Home,
+  Grid2X2,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
@@ -429,21 +430,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           }}
         >
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-4 justify-between">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </div>
+            <Grid2X2 className="w-4 h-4" />
             <div>More Libraries</div>
           </div>
         </Link>

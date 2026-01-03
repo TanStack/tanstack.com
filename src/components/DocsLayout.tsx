@@ -33,6 +33,8 @@ function MobilePartnersStrip({
 }) {
   const innerRef = React.useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = React.useState(false)
+  const scrollPositionRef = React.useRef(0)
+  const hasStartedRef = React.useRef(false)
 
   React.useEffect(() => {
     const inner = innerRef.current
@@ -40,25 +42,29 @@ function MobilePartnersStrip({
 
     let animationId: number
     let timeoutId: ReturnType<typeof setTimeout>
-    let scrollPosition = 0
-    const scrollSpeed = 0.08 // pixels per frame - very slow
-    const startDelay = 4000 // wait 4 seconds before starting
+    const scrollSpeed = 0.15 // pixels per frame
+    const startDelay = 4000 // wait 4 seconds before starting (first time only)
 
     const animate = () => {
       if (!isHovered && inner) {
-        scrollPosition += scrollSpeed
+        scrollPositionRef.current += scrollSpeed
         // Reset when we've scrolled past the first set
-        if (scrollPosition >= inner.scrollWidth / 2) {
-          scrollPosition = 0
+        if (scrollPositionRef.current >= inner.scrollWidth / 2) {
+          scrollPositionRef.current = 0
         }
-        inner.style.transform = `translateX(${-scrollPosition}px)`
+        inner.style.transform = `translateX(${-scrollPositionRef.current}px)`
       }
       animationId = requestAnimationFrame(animate)
     }
 
-    timeoutId = setTimeout(() => {
+    if (!hasStartedRef.current) {
+      timeoutId = setTimeout(() => {
+        hasStartedRef.current = true
+        animationId = requestAnimationFrame(animate)
+      }, startDelay)
+    } else {
       animationId = requestAnimationFrame(animate)
-    }, startDelay)
+    }
 
     return () => {
       clearTimeout(timeoutId)

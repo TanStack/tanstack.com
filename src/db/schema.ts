@@ -566,6 +566,7 @@ export const docFeedback = pgTable(
     libraryVersion: varchar('library_version', { length: 50 }).notNull(), // e.g., "v5.0.0"
     blockSelector: text('block_selector').notNull(), // hierarchical selector for resilience
     blockContentHash: varchar('block_content_hash', { length: 64 }), // SHA-256 hash for drift detection
+    blockMarkdown: text('block_markdown'), // Captured content at time of feedback (guards against doc drift)
 
     // State
     status: docFeedbackStatusEnum('status').notNull().default('pending'),

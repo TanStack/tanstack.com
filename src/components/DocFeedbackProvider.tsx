@@ -41,6 +41,9 @@ export function DocFeedbackProvider({
   const [blockContentHashes, setBlockContentHashes] = React.useState<
     Map<string, string>
   >(new Map())
+  const [blockMarkdowns, setBlockMarkdowns] = React.useState<
+    Map<string, string>
+  >(new Map())
   const [hoveredBlockId, setHoveredBlockId] = React.useState<string | null>(
     null,
   )
@@ -81,6 +84,7 @@ export function DocFeedbackProvider({
     const blocks = findReferenceableBlocks(container)
     const selectorMap = new Map<string, string>()
     const hashMap = new Map<string, string>()
+    const markdownMap = new Map<string, string>()
     const listeners = new Map<
       HTMLElement,
       { enter: (e: MouseEvent) => void; leave: (e: MouseEvent) => void }
@@ -94,6 +98,7 @@ export function DocFeedbackProvider({
         const identifier = await getBlockIdentifier(block)
         selectorMap.set(blockId, identifier.selector)
         hashMap.set(blockId, identifier.contentHash)
+        markdownMap.set(blockId, block.textContent?.trim() || '')
 
         // Add hover handlers with visual feedback
         const handleMouseEnter = (e: MouseEvent) => {
@@ -139,6 +144,7 @@ export function DocFeedbackProvider({
     ).then(() => {
       setBlockSelectors(new Map(selectorMap))
       setBlockContentHashes(new Map(hashMap))
+      setBlockMarkdowns(new Map(markdownMap))
 
       // Visual indicators will be updated by the separate effect below
     })
@@ -298,6 +304,7 @@ export function DocFeedbackProvider({
           type={creatingState.type}
           blockSelector={blockSelectors.get(creatingState.blockId) || ''}
           blockContentHash={blockContentHashes.get(creatingState.blockId) || ''}
+          blockMarkdown={blockMarkdowns.get(creatingState.blockId) || ''}
           pagePath={pagePath}
           libraryId={libraryId}
           libraryVersion={libraryVersion}
@@ -439,6 +446,7 @@ function CreatingFeedbackPortal({
   type,
   blockSelector,
   blockContentHash,
+  blockMarkdown,
   pagePath,
   libraryId,
   libraryVersion,
@@ -448,6 +456,7 @@ function CreatingFeedbackPortal({
   type: 'note' | 'improvement'
   blockSelector: string
   blockContentHash?: string
+  blockMarkdown?: string
   pagePath: string
   libraryId: string
   libraryVersion: string
@@ -492,6 +501,7 @@ function CreatingFeedbackPortal({
       type={type}
       blockSelector={blockSelector}
       blockContentHash={blockContentHash}
+      blockMarkdown={blockMarkdown}
       pagePath={pagePath}
       libraryId={libraryId}
       libraryVersion={libraryVersion}
@@ -506,6 +516,7 @@ function CreatingFeedbackNote({
   type,
   blockSelector,
   blockContentHash,
+  blockMarkdown,
   pagePath,
   libraryId,
   libraryVersion,
@@ -514,6 +525,7 @@ function CreatingFeedbackNote({
   type: 'note' | 'improvement'
   blockSelector: string
   blockContentHash?: string
+  blockMarkdown?: string
   pagePath: string
   libraryId: string
   libraryVersion: string
@@ -577,6 +589,7 @@ function CreatingFeedbackNote({
         libraryVersion: variables.data.libraryVersion,
         blockSelector: variables.data.blockSelector,
         blockContentHash: variables.data.blockContentHash || null,
+        blockMarkdown: variables.data.blockMarkdown || null,
         status: 'pending',
         isDetached: false,
         isCollapsed: false,
@@ -645,6 +658,7 @@ function CreatingFeedbackNote({
         libraryVersion,
         blockSelector,
         blockContentHash,
+        blockMarkdown,
       },
     })
   }

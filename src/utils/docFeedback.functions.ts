@@ -32,6 +32,7 @@ export const createDocFeedback = createServerFn({ method: 'POST' })
         libraryVersion: z.string(),
         blockSelector: z.string(),
         blockContentHash: z.string().optional(),
+        blockMarkdown: z.string().optional(),
       }),
       z.object({
         type: z.literal('improvement'),
@@ -43,6 +44,7 @@ export const createDocFeedback = createServerFn({ method: 'POST' })
         libraryVersion: z.string(),
         blockSelector: z.string(),
         blockContentHash: z.string().optional(),
+        blockMarkdown: z.string().optional(),
       }),
     ]),
   )
@@ -77,6 +79,7 @@ export const createDocFeedback = createServerFn({ method: 'POST' })
         libraryVersion: data.libraryVersion,
         blockSelector: data.blockSelector,
         blockContentHash: data.blockContentHash,
+        blockMarkdown: data.blockMarkdown,
         characterCount,
         status: 'pending' as DocFeedbackStatus,
       })

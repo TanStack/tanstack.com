@@ -13,6 +13,8 @@ import {
   SESSION_DURATION_MS,
   SESSION_MAX_AGE_SECONDS,
 } from '~/auth/index.server'
+import { recordLogin } from '~/utils/audit.server'
+import { recordDailyActivity } from '~/utils/activity.server'
 
 export const Route = createFileRoute('/api/auth/callback/$provider')({
   server: {
@@ -132,6 +134,19 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
             )
             throw new Error('User not found after OAuth account creation')
           }
+
+          // Record login event and daily activity (fire and forget, don't block auth flow)
+          Promise.all([
+            recordLogin({
+              userId: user.id,
+              provider,
+              isNewUser: result.isNewUser,
+              request,
+            }),
+            recordDailyActivity(user.id),
+          ]).catch((err) => {
+            console.error('[AUTH:WARN] Failed to record login/activity event:', err)
+          })
 
           // Create signed session cookie
           const sessionService = getSessionService()

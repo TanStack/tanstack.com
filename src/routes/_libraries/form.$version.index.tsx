@@ -21,6 +21,7 @@ import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
+import { LibraryShowcases } from '~/components/ShowcaseSection'
 
 const library = getLibrary('form')
 
@@ -266,6 +267,10 @@ export class SimpleForm extends LitElement {
         </div>
 
         <PartnersSection libraryId="form" />
+
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+          <LibraryShowcases libraryId="form" libraryName="TanStack Form" />
+        </div>
 
         <LazySponsorSection />
 

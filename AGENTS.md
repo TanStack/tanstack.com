@@ -156,34 +156,41 @@ Since `listRoles` is wrapped in `createServerFn`, TanStack Start will properly h
 
 ## Development & Build Commands
 
-### Use `build` for Testing Build Output
+### Don't Build After Every Change
 
-**The `dev` command does not end - it runs indefinitely in watch mode.**
+**Do not run builds after every change, especially for visual changes.**
 
-When agents need to test build output or verify that the project builds successfully, use the `build` command instead of `dev`. The `build` command will complete and exit, making it suitable for automated testing and verification.
+This is a visual website, not a library. Assume changes work unless the user reports otherwise. Running builds after every change wastes time and context.
 
-### Testing Limitations
+### Debugging Visual Issues
 
-**Agents cannot run end-to-end tests without a headless browser.**
+When the user reports something doesn't work or look right:
 
-This is a TanStack Start application that requires a browser environment to fully test. Agents can:
+1. Use the Playwright MCP to view the page and debug visually
+2. Use builds (`pnpm build`) only when investigating build/bundler issues
+3. Use TypeScript compilation (`pnpm tsc --noEmit`) for type errors
 
-- ✅ Run TypeScript compilation (`pnpm tsc --noEmit`) to check for type errors
-- ✅ Run the build command (`pnpm build`) to verify the project builds successfully
-- ✅ Inspect build output and generated files
+### Use `build` for Build-Specific Issues
 
-Agents cannot:
+**The `dev` command does not end, it runs indefinitely in watch mode.**
 
-- ❌ Start the dev server and interact with the application (no headless browser)
-- ❌ Test UI functionality or user interactions
-- ❌ Verify runtime behavior in the browser
-- ❌ Test API endpoints that require browser context
+Only use `build` when:
 
-For runtime testing and verification, developers should:
+- Investigating bundler or build-time errors
+- Verifying production output
+- The user specifically asks to verify the build
 
-1. Review the code changes
-2. Start the dev server manually (`pnpm dev`)
-3. Test the functionality in a browser
+### Testing with Playwright
+
+**Use the Playwright MCP for visual debugging and verification.**
+
+When debugging issues or verifying visual changes work correctly:
+
+- Navigate to the relevant page using Playwright
+- Take snapshots or screenshots to verify the UI
+- Interact with elements to test functionality
+
+This is the preferred method for verifying visual changes since this is a visual site.
 
 ## UI Style Guide 2026
 

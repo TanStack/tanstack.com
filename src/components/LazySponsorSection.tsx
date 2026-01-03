@@ -3,6 +3,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
+import { buttonStyles } from './Button'
 import SponsorPack from './SponsorPack'
 import PlaceholderSponsorPack from './PlaceholderSponsorPack'
 
@@ -58,7 +59,8 @@ export function LazySponsorSection({
           <a
             href="https://github.com/sponsors/tannerlinsley"
             className={twMerge(
-              'inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors',
+              buttonStyles,
+              'inline-flex py-2 px-4 uppercase font-extrabold',
               ctaClassName,
             )}
           >

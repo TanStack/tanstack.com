@@ -50,6 +50,7 @@ export class DrizzleUserRepository implements IUserRepository {
     email: string
     name?: string
     image?: string
+    oauthImage?: string
     displayUsername?: string
     capabilities?: Capability[]
   }): Promise<DbUser> {
@@ -59,6 +60,7 @@ export class DrizzleUserRepository implements IUserRepository {
         email: data.email,
         name: data.name,
         image: data.image,
+        oauthImage: data.oauthImage,
         displayUsername: data.displayUsername,
         capabilities: data.capabilities || [],
       })
@@ -76,7 +78,8 @@ export class DrizzleUserRepository implements IUserRepository {
     data: Partial<{
       email: string
       name: string
-      image: string
+      image: string | null
+      oauthImage: string
       displayUsername: string
       capabilities: Capability[]
       adsDisabled: boolean
@@ -111,6 +114,7 @@ export class DrizzleUserRepository implements IUserRepository {
       email: user.email,
       name: user.name,
       image: user.image,
+      oauthImage: user.oauthImage,
       displayUsername: user.displayUsername,
       capabilities: user.capabilities as Capability[],
       adsDisabled: user.adsDisabled,

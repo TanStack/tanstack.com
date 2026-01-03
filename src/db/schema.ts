@@ -12,6 +12,7 @@ import {
   real,
   index,
   uniqueIndex,
+  date,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
@@ -23,6 +24,7 @@ export const capabilityEnum = pgEnum('capability', [
   'builder',
   'feed',
   'moderate-feedback',
+  'moderate-showcases',
 ])
 // Note: feed_category enum was dropped in migration 0011
 export const oauthProviderEnum = pgEnum('oauth_provider', ['github', 'google'])
@@ -36,6 +38,27 @@ export const docFeedbackStatusEnum = pgEnum('doc_feedback_status', [
   'denied',
 ])
 export const bannerScopeEnum = pgEnum('banner_scope', ['global', 'targeted'])
+export const auditActionEnum = pgEnum('audit_action', [
+  'user.capabilities.update',
+  'user.adsDisabled.update',
+  'user.sessions.revoke',
+  'role.create',
+  'role.update',
+  'role.delete',
+  'role.assignment.create',
+  'role.assignment.delete',
+  'banner.create',
+  'banner.update',
+  'banner.delete',
+  'feed.entry.create',
+  'feed.entry.update',
+  'feed.entry.delete',
+  'feedback.moderate',
+  'showcase.create',
+  'showcase.update',
+  'showcase.delete',
+  'showcase.moderate',
+])
 export const bannerStyleEnum = pgEnum('banner_style', [
   'info',
   'warning',
@@ -48,6 +71,25 @@ export const entryTypeEnum = pgEnum('entry_type', [
   'announcement',
 ])
 
+export const showcaseStatusEnum = pgEnum('showcase_status', [
+  'pending',
+  'approved',
+  'denied',
+])
+
+export const showcaseUseCaseEnum = pgEnum('showcase_use_case', [
+  'blog',
+  'e-commerce',
+  'saas',
+  'dashboard',
+  'documentation',
+  'portfolio',
+  'social',
+  'developer-tool',
+  'marketing',
+  'media',
+])
+
 // Type exports
 export type Capability =
   | 'admin'
@@ -55,6 +97,7 @@ export type Capability =
   | 'builder'
   | 'feed'
   | 'moderate-feedback'
+  | 'moderate-showcases'
 // Note: FeedCategory type was removed - use EntryType instead
 export type OAuthProvider = 'github' | 'google'
 export type DocFeedbackType = 'note' | 'improvement'
@@ -62,6 +105,38 @@ export type DocFeedbackStatus = 'pending' | 'approved' | 'denied'
 export type BannerScope = 'global' | 'targeted'
 export type BannerStyle = 'info' | 'warning' | 'success' | 'promo'
 export type EntryType = 'release' | 'blog' | 'announcement'
+export type ShowcaseStatus = 'pending' | 'approved' | 'denied'
+export type ShowcaseUseCase =
+  | 'blog'
+  | 'e-commerce'
+  | 'saas'
+  | 'dashboard'
+  | 'documentation'
+  | 'portfolio'
+  | 'social'
+  | 'developer-tool'
+  | 'marketing'
+  | 'media'
+export type AuditAction =
+  | 'user.capabilities.update'
+  | 'user.adsDisabled.update'
+  | 'user.sessions.revoke'
+  | 'role.create'
+  | 'role.update'
+  | 'role.delete'
+  | 'role.assignment.create'
+  | 'role.assignment.delete'
+  | 'banner.create'
+  | 'banner.update'
+  | 'banner.delete'
+  | 'feed.entry.create'
+  | 'feed.entry.update'
+  | 'feed.entry.delete'
+  | 'feedback.moderate'
+  | 'showcase.create'
+  | 'showcase.update'
+  | 'showcase.delete'
+  | 'showcase.moderate'
 
 // Constants
 export const VALID_CAPABILITIES: readonly Capability[] = [
@@ -70,6 +145,20 @@ export const VALID_CAPABILITIES: readonly Capability[] = [
   'builder',
   'feed',
   'moderate-feedback',
+  'moderate-showcases',
+] as const
+
+export const SHOWCASE_USE_CASES: readonly ShowcaseUseCase[] = [
+  'blog',
+  'e-commerce',
+  'saas',
+  'dashboard',
+  'documentation',
+  'portfolio',
+  'social',
+  'developer-tool',
+  'marketing',
+  'media',
 ] as const
 export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
 export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
@@ -91,6 +180,7 @@ export const users = pgTable(
     name: varchar('name', { length: 255 }),
     displayUsername: varchar('display_username', { length: 255 }),
     image: text('image'),
+    oauthImage: text('oauth_image'),
     capabilities: capabilityEnum('capabilities').array().notNull().default([]),
     adsDisabled: boolean('ads_disabled').default(false),
     interestedInHidingAds: boolean('interested_in_hiding_ads').default(false),
@@ -532,6 +622,7 @@ export const docFeedback = pgTable(
     libraryVersion: varchar('library_version', { length: 50 }).notNull(), // e.g., "v5.0.0"
     blockSelector: text('block_selector').notNull(), // hierarchical selector for resilience
     blockContentHash: varchar('block_content_hash', { length: 64 }), // SHA-256 hash for drift detection
+    blockMarkdown: text('block_markdown'), // Captured content at time of feedback (guards against doc drift)
 
     // State
     status: docFeedbackStatusEnum('status').notNull().default('pending'),
@@ -678,6 +769,159 @@ export type NewAnnouncementDismissal = InferInsertModel<
   typeof announcementDismissals
 >
 
+// Login history table (tracks user logins for analytics and security)
+export const loginHistory = pgTable(
+  'login_history',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    provider: oauthProviderEnum('provider').notNull(),
+    ipAddress: varchar('ip_address', { length: 45 }), // IPv6 max length
+    userAgent: text('user_agent'),
+    isNewUser: boolean('is_new_user').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    userIdIdx: index('login_history_user_id_idx').on(table.userId),
+    createdAtIdx: index('login_history_created_at_idx').on(table.createdAt),
+    providerIdx: index('login_history_provider_idx').on(table.provider),
+  }),
+)
+
+export type LoginHistory = InferSelectModel<typeof loginHistory>
+export type NewLoginHistory = InferInsertModel<typeof loginHistory>
+
+// Audit logs table (tracks admin actions for security and compliance)
+export const auditLogs = pgTable(
+  'audit_logs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Who performed the action
+    actorId: uuid('actor_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    // What action was performed
+    action: auditActionEnum('action').notNull(),
+    // Target of the action (user, role, banner, etc.)
+    targetType: varchar('target_type', { length: 50 }).notNull(), // 'user', 'role', 'banner', 'feed_entry', 'feedback'
+    targetId: varchar('target_id', { length: 255 }).notNull(), // UUID or other identifier
+    // Details of the change
+    details: jsonb('details'), // { before: {...}, after: {...} } or other relevant data
+    // Request metadata
+    ipAddress: varchar('ip_address', { length: 45 }),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    actorIdIdx: index('audit_logs_actor_id_idx').on(table.actorId),
+    actionIdx: index('audit_logs_action_idx').on(table.action),
+    targetTypeIdx: index('audit_logs_target_type_idx').on(table.targetType),
+    targetIdIdx: index('audit_logs_target_id_idx').on(table.targetId),
+    createdAtIdx: index('audit_logs_created_at_idx').on(table.createdAt),
+  }),
+)
+
+export type AuditLog = InferSelectModel<typeof auditLogs>
+export type NewAuditLog = InferInsertModel<typeof auditLogs>
+
+// Daily user activity table (one row per user per day for DAU/streak tracking)
+export const userActivity = pgTable(
+  'user_activity',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    date: date('date', { mode: 'string' }).notNull(), // YYYY-MM-DD format
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    userDateUnique: uniqueIndex('user_activity_user_date_unique').on(
+      table.userId,
+      table.date,
+    ),
+    userIdIdx: index('user_activity_user_id_idx').on(table.userId),
+    dateIdx: index('user_activity_date_idx').on(table.date),
+  }),
+)
+
+export type UserActivity = InferSelectModel<typeof userActivity>
+export type NewUserActivity = InferInsertModel<typeof userActivity>
+
+// Showcases table (user-submitted projects using TanStack libraries)
+export const showcases = pgTable(
+  'showcases',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+
+    // Project info
+    name: varchar('name', { length: 255 }).notNull(),
+    tagline: varchar('tagline', { length: 500 }).notNull(),
+    description: text('description'),
+    url: text('url').notNull(),
+    logoUrl: text('logo_url'),
+    screenshotUrl: text('screenshot_url').notNull(),
+
+    // Libraries (stored as array of library IDs)
+    libraries: text('libraries').array().notNull(),
+
+    // Use cases (multi-select)
+    useCases: showcaseUseCaseEnum('use_cases').array().notNull().default([]),
+
+    // Featured flag (admin-set for homepage prominence)
+    isFeatured: boolean('is_featured').notNull().default(false),
+
+    // Moderation
+    status: showcaseStatusEnum('status').notNull().default('pending'),
+    moderatedBy: uuid('moderated_by').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    moderatedAt: timestamp('moderated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+    moderationNote: text('moderation_note'),
+
+    // Popularity ranking (from Tranco list, lower = more popular, null = unranked)
+    trancoRank: integer('tranco_rank'),
+    trancoRankUpdatedAt: timestamp('tranco_rank_updated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }),
+
+    // Timestamps
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    userIdIdx: index('showcases_user_id_idx').on(table.userId),
+    statusIdx: index('showcases_status_idx').on(table.status),
+    isFeaturedIdx: index('showcases_is_featured_idx').on(table.isFeatured),
+    createdAtIdx: index('showcases_created_at_idx').on(table.createdAt),
+    moderatedByIdx: index('showcases_moderated_by_idx').on(table.moderatedBy),
+    trancoRankIdx: index('showcases_tranco_rank_idx').on(table.trancoRank),
+    // Note: GIN indexes for libraries and useCases arrays created via SQL migration
+  }),
+)
+
+export type Showcase = InferSelectModel<typeof showcases>
+export type NewShowcase = InferInsertModel<typeof showcases>
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
@@ -686,6 +930,10 @@ export const usersRelations = relations(users, ({ many }) => ({
   docFeedback: many(docFeedback),
   announcementDismissals: many(announcementDismissals),
   bannerDismissals: many(bannerDismissals),
+  loginHistory: many(loginHistory),
+  auditLogs: many(auditLogs),
+  userActivity: many(userActivity),
+  showcases: many(showcases),
 }))
 
 export const rolesRelations = relations(roles, ({ many }) => ({
@@ -758,3 +1006,35 @@ export const bannerDismissalsRelations = relations(
     }),
   }),
 )
+
+export const loginHistoryRelations = relations(loginHistory, ({ one }) => ({
+  user: one(users, {
+    fields: [loginHistory.userId],
+    references: [users.id],
+  }),
+}))
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  actor: one(users, {
+    fields: [auditLogs.actorId],
+    references: [users.id],
+  }),
+}))
+
+export const userActivityRelations = relations(userActivity, ({ one }) => ({
+  user: one(users, {
+    fields: [userActivity.userId],
+    references: [users.id],
+  }),
+}))
+
+export const showcasesRelations = relations(showcases, ({ one }) => ({
+  user: one(users, {
+    fields: [showcases.userId],
+    references: [users.id],
+  }),
+  moderator: one(users, {
+    fields: [showcases.moderatedBy],
+    references: [users.id],
+  }),
+}))

@@ -1,7 +1,11 @@
 import * as React from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
+import {
+  getApprovedShowcasesQueryOptions,
+  getMyShowcaseVotesQueryOptions,
+} from '~/queries/showcases'
+import { voteShowcase } from '~/utils/showcase.functions'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
 import { SubmitShowcasePlaceholder } from './ShowcaseSection'
 import { PaginationControls } from './PaginationControls'
@@ -10,10 +14,13 @@ import { SHOWCASE_USE_CASES, type ShowcaseUseCase } from '~/db/types'
 import { Plus } from 'lucide-react'
 import { USE_CASE_LABELS } from '~/utils/showcase.client'
 import { Button } from './Button'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 export function ShowcaseGallery() {
   const navigate = useNavigate({ from: '/showcase/' })
   const search = useSearch({ from: '/showcase/' })
+  const queryClient = useQueryClient()
+  const currentUser = useCurrentUser()
 
   const { data, isLoading } = useQuery(
     getApprovedShowcasesQueryOptions({
@@ -27,6 +34,150 @@ export function ShowcaseGallery() {
       },
     }),
   )
+
+  const showcaseIds = React.useMemo(
+    () => data?.showcases.map((s) => s.showcase.id) ?? [],
+    [data?.showcases],
+  )
+
+  const { data: votesData } = useQuery({
+    ...getMyShowcaseVotesQueryOptions(showcaseIds),
+    enabled: !!currentUser && showcaseIds.length > 0,
+  })
+
+  const votesMap = React.useMemo(() => {
+    const map = new Map<string, 1 | -1>()
+    votesData?.votes.forEach((v) => {
+      if (v.value === 1 || v.value === -1) {
+        map.set(v.showcaseId, v.value)
+      }
+    })
+    return map
+  }, [votesData])
+
+  const voteMutation = useMutation({
+    mutationFn: (params: { showcaseId: string; value: 1 | -1 }) =>
+      voteShowcase({ data: params }),
+    onMutate: async ({ showcaseId, value }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['showcases'] })
+
+      // Snapshot previous values
+      const previousShowcases = queryClient.getQueryData(
+        getApprovedShowcasesQueryOptions({
+          pagination: { page: search.page, pageSize: 24 },
+          filters: {
+            libraryId: search.libraryId,
+            useCases: search.useCases as ShowcaseUseCase[],
+          },
+        }).queryKey,
+      )
+      const previousVotes = queryClient.getQueryData(
+        getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+      )
+
+      // Optimistically update votes
+      queryClient.setQueryData(
+        getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+        (old: typeof votesData) => {
+          if (!old) return { votes: [{ showcaseId, value }] }
+          const existingVote = old.votes.find(
+            (v) => v.showcaseId === showcaseId,
+          )
+          if (existingVote) {
+            if (existingVote.value === value) {
+              // Toggle off
+              return {
+                votes: old.votes.filter((v) => v.showcaseId !== showcaseId),
+              }
+            } else {
+              // Change vote
+              return {
+                votes: old.votes.map((v) =>
+                  v.showcaseId === showcaseId ? { ...v, value } : v,
+                ),
+              }
+            }
+          } else {
+            // New vote
+            return { votes: [...old.votes, { showcaseId, value }] }
+          }
+        },
+      )
+
+      // Optimistically update showcase score
+      queryClient.setQueryData(
+        getApprovedShowcasesQueryOptions({
+          pagination: { page: search.page, pageSize: 24 },
+          filters: {
+            libraryId: search.libraryId,
+            useCases: search.useCases as ShowcaseUseCase[],
+          },
+        }).queryKey,
+        (old: typeof data) => {
+          if (!old) return old
+          const currentVote = votesMap.get(showcaseId)
+          return {
+            ...old,
+            showcases: old.showcases.map((s) => {
+              if (s.showcase.id !== showcaseId) return s
+              let scoreDelta: number = value
+              if (currentVote === value) {
+                // Toggling off
+                scoreDelta = -value
+              } else if (currentVote) {
+                // Changing vote
+                scoreDelta = value * 2
+              }
+              return {
+                ...s,
+                showcase: {
+                  ...s.showcase,
+                  voteScore: s.showcase.voteScore + scoreDelta,
+                },
+              }
+            }),
+          }
+        },
+      )
+
+      return { previousShowcases, previousVotes }
+    },
+    onError: (_err, _vars, context) => {
+      // Rollback on error
+      if (context?.previousShowcases) {
+        queryClient.setQueryData(
+          getApprovedShowcasesQueryOptions({
+            pagination: { page: search.page, pageSize: 24 },
+            filters: {
+              libraryId: search.libraryId,
+              useCases: search.useCases as ShowcaseUseCase[],
+            },
+          }).queryKey,
+          context.previousShowcases,
+        )
+      }
+      if (context?.previousVotes) {
+        queryClient.setQueryData(
+          getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+          context.previousVotes,
+        )
+      }
+    },
+    onSettled: () => {
+      // Refetch to sync with server
+      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+    },
+  })
+
+  const handleVote = (showcaseId: string, value: 1 | -1) => {
+    if (!currentUser) {
+      // Redirect to login
+      navigate({ to: '/auth/login', search: { redirect: '/showcase' } })
+      return
+    }
+    voteMutation.mutate({ showcaseId, value })
+  }
 
   const handleLibraryFilter = (libraryId: string | undefined) => {
     navigate({
@@ -182,6 +333,12 @@ export function ShowcaseGallery() {
                   key={showcase.id}
                   showcase={showcase}
                   user={user}
+                  currentUserVote={votesMap.get(showcase.id)}
+                  onVote={(value) => handleVote(showcase.id, value)}
+                  isVoting={
+                    voteMutation.isPending &&
+                    voteMutation.variables?.showcaseId === showcase.id
+                  }
                 />
               ))}
             </div>

@@ -6,6 +6,7 @@ import {
   getFeaturedShowcases,
   listShowcasesForModeration,
   getShowcase,
+  getMyShowcaseVotes,
 } from '~/utils/showcase.functions'
 import type { ShowcaseStatus, ShowcaseUseCase } from '~/db/types'
 
@@ -75,4 +76,11 @@ export const getShowcaseQueryOptions = (showcaseId: string) =>
   queryOptions({
     queryKey: ['showcases', 'detail', showcaseId],
     queryFn: () => getShowcase({ data: { showcaseId } }),
+  })
+
+export const getMyShowcaseVotesQueryOptions = (showcaseIds: string[]) =>
+  queryOptions({
+    queryKey: ['showcases', 'votes', 'mine', showcaseIds],
+    queryFn: () => getMyShowcaseVotes({ data: { showcaseIds } }),
+    enabled: showcaseIds.length > 0,
   })

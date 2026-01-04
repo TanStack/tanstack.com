@@ -144,6 +144,16 @@ export interface Showcase {
   moderationNote: string | null
   trancoRank: number | null
   trancoRankUpdatedAt: Date | null
+  voteScore: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface ShowcaseVote {
+  id: string
+  showcaseId: string
+  userId: string
+  value: number
   createdAt: Date
   updatedAt: Date
 }

@@ -3,6 +3,7 @@ import * as v from 'valibot'
 import { db } from '~/db/client'
 import {
   showcases,
+  showcaseVotes,
   users,
   auditLogs,
   SHOWCASE_USE_CASES,
@@ -14,13 +15,13 @@ import { getAuthenticatedUser } from './auth.server-helpers'
 import {
   requireModerateShowcases,
   validateShowcaseOwnership,
-  checkShowcaseRateLimit,
+  checkPendingSubmissionLimit,
   expandLibraryDependencies,
   isValidUrl,
 } from './showcase.server'
 import { libraries } from '~/libraries'
 import { getTrancoRank } from './tranco.server'
-import { notifyAdmin, formatShowcaseSubmittedEmail } from './email.server'
+import { notifyModerators, formatShowcaseSubmittedEmail } from './email.server'
 
 // Valid library IDs for validation
 const validLibraryIds = libraries.map((lib) => lib.id)
@@ -65,11 +66,11 @@ export const submitShowcase = createServerFn({ method: 'POST' })
       throw new Error('Authentication required')
     }
 
-    // Check rate limit
-    const rateLimitExceeded = await checkShowcaseRateLimit(user.userId)
-    if (rateLimitExceeded) {
+    // Check pending submission limit
+    const limitReached = await checkPendingSubmissionLimit(user.userId)
+    if (limitReached) {
       throw new Error(
-        'Rate limit exceeded. Please wait before submitting more showcases.',
+        'You have reached the limit of 5 pending submissions. Please wait for existing submissions to be reviewed.',
       )
     }
 
@@ -139,15 +140,16 @@ export const submitShowcase = createServerFn({ method: 'POST' })
       .where(eq(users.id, user.userId))
       .limit(1)
 
-    notifyAdmin(
-      formatShowcaseSubmittedEmail({
+    notifyModerators({
+      capability: 'moderate-showcases',
+      ...formatShowcaseSubmittedEmail({
         name: data.name,
         url: data.url,
         tagline: data.tagline,
         libraries: expandedLibraries,
         userName: userRecord[0]?.name || undefined,
       }),
-    )
+    })
 
     return {
       success: true,
@@ -434,6 +436,7 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
       .where(whereClause)
       .orderBy(
         desc(showcases.isFeatured),
+        desc(showcases.voteScore),
         sql`${showcases.trancoRank} ASC NULLS LAST`,
         desc(showcases.createdAt),
       )
@@ -481,6 +484,7 @@ export const getShowcasesByLibrary = createServerFn({ method: 'POST' })
       )
       .orderBy(
         desc(showcases.isFeatured),
+        desc(showcases.voteScore),
         sql`${showcases.trancoRank} ASC NULLS LAST`,
         desc(showcases.createdAt),
       )
@@ -515,6 +519,7 @@ export const getFeaturedShowcases = createServerFn({ method: 'POST' })
       .where(eq(showcases.status, 'approved' as ShowcaseStatus))
       .orderBy(
         desc(showcases.isFeatured),
+        desc(showcases.voteScore),
         sql`${showcases.trancoRank} ASC NULLS LAST`,
         desc(showcases.createdAt),
       )
@@ -823,4 +828,124 @@ export const adminDeleteShowcase = createServerFn({ method: 'POST' })
     })
 
     return { success: true }
+  })
+
+/**
+ * Vote on a showcase (upvote or downvote)
+ * If user already voted with the same value, removes the vote (toggle off)
+ * If user voted with different value, updates to new value
+ */
+export const voteShowcase = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      showcaseId: v.pipe(v.string(), v.uuid()),
+      value: v.picklist([1, -1]),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const user = await getAuthenticatedUser()
+
+    if (!user) {
+      throw new Error('Authentication required')
+    }
+
+    // Check showcase exists and is approved
+    const [showcase] = await db
+      .select({ id: showcases.id, status: showcases.status })
+      .from(showcases)
+      .where(eq(showcases.id, data.showcaseId))
+      .limit(1)
+
+    if (!showcase) {
+      throw new Error('Showcase not found')
+    }
+
+    if (showcase.status !== 'approved') {
+      throw new Error('Can only vote on approved showcases')
+    }
+
+    // Check for existing vote
+    const [existingVote] = await db
+      .select()
+      .from(showcaseVotes)
+      .where(
+        and(
+          eq(showcaseVotes.showcaseId, data.showcaseId),
+          eq(showcaseVotes.userId, user.userId),
+        ),
+      )
+      .limit(1)
+
+    if (existingVote) {
+      if (existingVote.value === data.value) {
+        // Same vote, toggle off (remove)
+        await db
+          .delete(showcaseVotes)
+          .where(eq(showcaseVotes.id, existingVote.id))
+      } else {
+        // Different vote, update
+        await db
+          .update(showcaseVotes)
+          .set({ value: data.value, updatedAt: new Date() })
+          .where(eq(showcaseVotes.id, existingVote.id))
+      }
+    } else {
+      // No existing vote, insert new one
+      await db.insert(showcaseVotes).values({
+        showcaseId: data.showcaseId,
+        userId: user.userId,
+        value: data.value,
+      })
+    }
+
+    // Recalculate and update voteScore
+    const [scoreResult] = await db
+      .select({
+        score: sql<number>`COALESCE(SUM(${showcaseVotes.value}), 0)::int`,
+      })
+      .from(showcaseVotes)
+      .where(eq(showcaseVotes.showcaseId, data.showcaseId))
+
+    await db
+      .update(showcases)
+      .set({ voteScore: scoreResult?.score ?? 0 })
+      .where(eq(showcases.id, data.showcaseId))
+
+    return { success: true, voteScore: scoreResult?.score ?? 0 }
+  })
+
+/**
+ * Get current user's votes for a batch of showcases
+ */
+export const getMyShowcaseVotes = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      showcaseIds: v.array(v.pipe(v.string(), v.uuid())),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const user = await getAuthenticatedUser()
+
+    if (!user) {
+      return { votes: [] }
+    }
+
+    if (data.showcaseIds.length === 0) {
+      return { votes: [] }
+    }
+
+    const votes = await db
+      .select({
+        showcaseId: showcaseVotes.showcaseId,
+        value: showcaseVotes.value,
+      })
+      .from(showcaseVotes)
+      .where(
+        and(
+          eq(showcaseVotes.userId, user.userId),
+          inArray(showcaseVotes.showcaseId, data.showcaseIds),
+        ),
+      )
+
+    return { votes }
   })

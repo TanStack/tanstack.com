@@ -13,7 +13,15 @@ import {
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
 import type { Showcase } from '~/db/types'
-import { Check, X, Star, ExternalLink, Trash2 } from 'lucide-react'
+import {
+  Check,
+  X,
+  Star,
+  ExternalLink,
+  Trash2,
+  ThumbsUp,
+  ThumbsDown,
+} from 'lucide-react'
 import { libraries } from '~/libraries'
 
 interface ShowcaseModerationListProps {
@@ -148,6 +156,7 @@ export function ShowcaseModerationList({
             <TableHeaderCell>User</TableHeaderCell>
             <TableHeaderCell>Libraries</TableHeaderCell>
             <TableHeaderCell className="w-20">Featured</TableHeaderCell>
+            <TableHeaderCell className="w-20">Votes</TableHeaderCell>
             <TableHeaderCell className="w-24">Rank</TableHeaderCell>
             <TableHeaderCell className="w-32">Date</TableHeaderCell>
             <TableHeaderCell className="w-40">Actions</TableHeaderCell>
@@ -262,6 +271,33 @@ export function ShowcaseModerationList({
                       />
                     </button>
                   </TableCell>
+                  <TableCell>
+                    <div
+                      className={twMerge(
+                        'flex items-center gap-1 text-xs font-medium',
+                        showcase.voteScore > 0 &&
+                          'text-emerald-600 dark:text-emerald-400',
+                        showcase.voteScore < 0 &&
+                          'text-red-600 dark:text-red-400',
+                        showcase.voteScore === 0 &&
+                          'text-gray-400 dark:text-gray-500',
+                      )}
+                    >
+                      {showcase.voteScore > 0 ? (
+                        <ThumbsUp className="w-3.5 h-3.5" />
+                      ) : showcase.voteScore < 0 ? (
+                        <ThumbsDown className="w-3.5 h-3.5" />
+                      ) : null}
+                      {showcase.voteScore !== 0 ? (
+                        <span>
+                          {showcase.voteScore > 0 ? '+' : ''}
+                          {showcase.voteScore}
+                        </span>
+                      ) : (
+                        <span>0</span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-xs text-gray-600 dark:text-gray-400">
                     {showcase.trancoRank
                       ? `#${showcase.trancoRank.toLocaleString()}`
@@ -317,7 +353,7 @@ export function ShowcaseModerationList({
                 {isExpanded && (
                   <TableRow>
                     <TableCell
-                      colSpan={9}
+                      colSpan={10}
                       className="bg-gray-50 dark:bg-gray-900"
                     >
                       <div className="p-4 space-y-4">
@@ -399,6 +435,39 @@ export function ShowcaseModerationList({
                             </div>
                           </div>
                         )}
+
+                        {/* Vote Score */}
+                        <div>
+                          <h4 className="text-sm font-semibold mb-2">
+                            Community Votes:
+                          </h4>
+                          <div
+                            className={twMerge(
+                              'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium',
+                              showcase.voteScore > 0 &&
+                                'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+                              showcase.voteScore < 0 &&
+                                'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
+                              showcase.voteScore === 0 &&
+                                'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400',
+                            )}
+                          >
+                            {showcase.voteScore > 0 ? (
+                              <ThumbsUp className="w-4 h-4" />
+                            ) : showcase.voteScore < 0 ? (
+                              <ThumbsDown className="w-4 h-4" />
+                            ) : null}
+                            <span>
+                              {showcase.voteScore > 0 ? '+' : ''}
+                              {showcase.voteScore} votes
+                            </span>
+                          </div>
+                          {showcase.voteScore < 0 && (
+                            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                              Negative score may indicate community concerns
+                            </p>
+                          )}
+                        </div>
 
                         {/* Moderation Note Input (for pending only) */}
                         {isPending && (

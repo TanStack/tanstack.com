@@ -1,23 +1,72 @@
 import { Resend } from 'resend'
+import { db } from '~/db/client'
+import { users, roles, roleAssignments } from '~/db/schema'
+import { eq, sql } from 'drizzle-orm'
+import type { Capability } from '~/db/types'
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null
 
-const ADMIN_EMAIL = 'tanner@tanstack.com'
 const FROM_EMAIL = 'TanStack <notifications@tanstack.com>'
 
-type AdminNotification = {
+type ModeratorNotification = {
+  capability: Capability
   subject: string
   text: string
   html?: string
 }
 
-export async function notifyAdmin({ subject, text, html }: AdminNotification) {
+/**
+ * Get email addresses of users who have a specific capability.
+ * This checks both direct user capabilities and role-based capabilities.
+ * Does NOT include users who only have 'admin' capability.
+ */
+async function getUserEmailsWithCapability(
+  capability: Capability,
+): Promise<string[]> {
+  // Query users who have the capability directly OR via a role
+  // Explicitly check for the specific capability, not 'admin'
+  const result = await db
+    .select({
+      email: users.email,
+    })
+    .from(users)
+    .leftJoin(roleAssignments, eq(roleAssignments.userId, users.id))
+    .leftJoin(roles, eq(roles.id, roleAssignments.roleId))
+    .where(
+      sql`(
+        ${capability} = ANY(${users.capabilities})
+        OR ${capability} = ANY(${roles.capabilities})
+      )`,
+    )
+
+  // Deduplicate emails (user might match via multiple roles)
+  const emails = [...new Set(result.map((r) => r.email))]
+  return emails
+}
+
+export async function notifyModerators({
+  capability,
+  subject,
+  text,
+  html,
+}: ModeratorNotification) {
+  const emails = await getUserEmailsWithCapability(capability)
+
+  if (emails.length === 0) {
+    console.log(
+      `[Email] No moderators with ${capability} capability, skipping notification:`,
+      { subject },
+    )
+    return
+  }
+
   if (!resend) {
     console.log('[Email] Resend not configured, skipping notification:', {
       subject,
       text,
+      to: emails,
     })
     return
   }
@@ -25,13 +74,13 @@ export async function notifyAdmin({ subject, text, html }: AdminNotification) {
   try {
     await resend.emails.send({
       from: FROM_EMAIL,
-      to: ADMIN_EMAIL,
+      to: emails,
       subject: `[TanStack] ${subject}`,
       text,
       html: html || text.replace(/\n/g, '<br>'),
     })
   } catch (error) {
-    console.error('[Email] Failed to send admin notification:', error)
+    console.error('[Email] Failed to send moderator notification:', error)
   }
 }
 
@@ -75,23 +124,6 @@ Content:
 ${feedback.content}
 
 Review it at: https://tanstack.com/admin/feedback`
-
-  return { subject, text }
-}
-
-export function formatUserSignupEmail(user: {
-  name?: string | null
-  email: string
-  provider: string
-}) {
-  const subject = `New User: ${user.name || user.email}`
-  const text = `A new user has signed up.
-
-Name: ${user.name || 'Not provided'}
-Email: ${user.email}
-Provider: ${user.provider}
-
-View users at: https://tanstack.com/admin/users`
 
   return { subject, text }
 }

@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
   Table,
@@ -164,10 +165,22 @@ export function FeedbackModerationList({
                   onClick={() => toggleExpanded(feedback.id)}
                 >
                   <TableCell className="font-mono text-xs">
-                    {(page - 1) * pageSize + index + 1}
+                    <Link
+                      to="/admin/feedback_/$id"
+                      params={{ id: feedback.id }}
+                      className="hover:text-blue-600 dark:hover:text-blue-400"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {(page - 1) * pageSize + index + 1}
+                    </Link>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
+                    <Link
+                      to="/admin/feedback_/$id"
+                      params={{ id: feedback.id }}
+                      className="flex items-center gap-2 hover:opacity-80"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {feedback.type === 'note' ? (
                         <MessageSquare className="text-blue-500" />
                       ) : (
@@ -176,7 +189,7 @@ export function FeedbackModerationList({
                       <span className="text-xs">
                         {feedback.type === 'note' ? 'Note' : 'Improvement'}
                       </span>
-                    </div>
+                    </Link>
                   </TableCell>
                   <TableCell>
                     <span

@@ -246,6 +246,44 @@ function AuditPage() {
         header: 'Target',
         cell: ({ row }) => {
           const entry = row.original
+
+          // Determine if we can link to a detail page
+          const getTargetLink = () => {
+            switch (entry.targetType) {
+              case 'user':
+                return {
+                  to: '/admin/users/$userId',
+                  params: { userId: entry.targetId },
+                }
+              case 'role':
+                return {
+                  to: '/admin/roles/$roleId',
+                  params: { roleId: entry.targetId },
+                }
+              case 'banner':
+                return {
+                  to: '/admin/banners/$id',
+                  params: { id: entry.targetId },
+                }
+              case 'feed_entry':
+                return { to: '/admin/feed/$id', params: { id: entry.targetId } }
+              case 'showcase':
+                return {
+                  to: '/admin/showcases_/$id',
+                  params: { id: entry.targetId },
+                }
+              case 'feedback':
+                return {
+                  to: '/admin/feedback_/$id',
+                  params: { id: entry.targetId },
+                }
+              default:
+                return null
+            }
+          }
+
+          const linkProps = getTargetLink()
+
           // If target is a user and we have their info, show it
           if (
             entry.targetType === 'user' &&
@@ -253,7 +291,7 @@ function AuditPage() {
           ) {
             const displayName =
               entry.targetUserName || entry.targetUserEmail || 'Unknown'
-            return (
+            const content = (
               <div className="flex items-center gap-2">
                 <div className="flex-shrink-0 h-6 w-6">
                   {entry.targetUserImage ? (
@@ -278,17 +316,33 @@ function AuditPage() {
                 </div>
               </div>
             )
+            return linkProps ? (
+              <Link {...linkProps} className="hover:opacity-80">
+                {content}
+              </Link>
+            ) : (
+              content
+            )
           }
+
           // For non-user targets, show type and ID
-          return (
+          const content = (
             <div>
               <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-                {entry.targetType}
+                {entry.targetType.replace('_', ' ')}
               </span>
               <div className="text-xs text-gray-500 dark:text-gray-400 font-mono">
                 {entry.targetId.substring(0, 8)}...
               </div>
             </div>
+          )
+
+          return linkProps ? (
+            <Link {...linkProps} className="hover:opacity-80 block">
+              {content}
+            </Link>
+          ) : (
+            content
           )
         },
       },

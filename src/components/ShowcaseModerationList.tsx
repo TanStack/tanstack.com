@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import {
   Table,
@@ -168,7 +169,12 @@ export function ShowcaseModerationList({
                     {(page - 1) * pageSize + index + 1}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-3">
+                    <Link
+                      to="/admin/showcases_/$id"
+                      params={{ id: showcase.id }}
+                      className="flex items-center gap-3 hover:opacity-80"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {showcase.logoUrl && (
                         <img
                           src={showcase.logoUrl}
@@ -184,7 +190,7 @@ export function ShowcaseModerationList({
                           {showcase.tagline}
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   </TableCell>
                   <TableCell>
                     <span

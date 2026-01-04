@@ -100,9 +100,15 @@ export const ADMIN_CAPABILITIES: readonly Capability[] = [
 export const requireAnyAdminCapability = createServerFn({
   method: 'POST',
 }).handler(async () => {
+  console.log('[requireAnyAdminCapability] Starting...')
   const request = getRequest()
+  console.log('[requireAnyAdminCapability] Got request')
   const authService = getAuthService()
+  console.log(
+    '[requireAnyAdminCapability] Got authService, calling getCurrentUser...',
+  )
   const user = await authService.getCurrentUser(request)
+  console.log('[requireAnyAdminCapability] Got user:', user?.email)
 
   if (!user) {
     throw new Error('Not authenticated')

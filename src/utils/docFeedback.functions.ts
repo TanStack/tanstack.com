@@ -563,6 +563,36 @@ export const getDocFeedbackForPage = createServerFn({ method: 'POST' })
   })
 
 /**
+ * Get single feedback for admin detail view
+ */
+export const adminGetDocFeedback = createServerFn({ method: 'POST' })
+  .inputValidator(z.object({ feedbackId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    await requireModerateFeedback()
+
+    const result = await db
+      .select({
+        feedback: docFeedback,
+        user: {
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          image: users.image,
+        },
+      })
+      .from(docFeedback)
+      .leftJoin(users, eq(docFeedback.userId, users.id))
+      .where(eq(docFeedback.id, data.feedbackId))
+      .limit(1)
+
+    if (!result[0]) {
+      return null
+    }
+
+    return result[0]
+  })
+
+/**
  * Mark feedback as detached (when block no longer exists)
  */
 export const markFeedbackDetached = createServerFn({ method: 'POST' })

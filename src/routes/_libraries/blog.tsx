@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
+import { Button } from '~/components/Button'
 
 export const Route = createFileRoute('/_libraries/blog')({
   head: () => ({
@@ -18,12 +19,13 @@ export function PostNotFound() {
         <div className="text-3xl leading-none">Not Found</div>
       </h1>
       <div className="text-lg">Post not found.</div>
-      <Link
+      <Button
+        as={Link}
         to="/blog"
-        className={`py-2 px-4 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+        className="bg-gray-600 border-gray-600 hover:bg-gray-700 text-white"
       >
         Blog Home
-      </Link>
+      </Button>
     </div>
   )
 }

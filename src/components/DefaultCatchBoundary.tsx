@@ -6,6 +6,7 @@ import {
   useMatch,
   useRouter,
 } from '@tanstack/react-router'
+import { Button } from './Button'
 
 // type DefaultCatchBoundaryType = {
 //   status: number
@@ -33,32 +34,34 @@ export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
       </h1>
       <ErrorComponent error={error} />
       <div className="flex gap-2 items-center flex-wrap">
-        <button
+        <Button
           onClick={() => {
             router.invalidate()
           }}
-          className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+          className="bg-gray-600 border-gray-600 hover:bg-gray-700 text-white"
         >
           Try Again
-        </button>
+        </Button>
         {isRoot ? (
-          <Link
+          <Button
+            as={Link}
             to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
+            className="bg-gray-600 border-gray-600 hover:bg-gray-700 text-white"
           >
             TanStack Home
-          </Link>
+          </Button>
         ) : (
-          <Link
+          <Button
+            as={Link}
             to="/"
-            className={`px-2 py-1 bg-gray-600 dark:bg-gray-700 rounded text-white uppercase font-extrabold`}
-            onClick={(e) => {
+            className="bg-gray-600 border-gray-600 hover:bg-gray-700 text-white"
+            onClick={(e: React.MouseEvent) => {
               e.preventDefault()
               window.history.back()
             }}
           >
             Go Back
-          </Link>
+          </Button>
         )}
       </div>
     </div>

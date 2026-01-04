@@ -3,7 +3,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { twMerge } from 'tailwind-merge'
 import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
-import { buttonStyles } from './Button'
+import { Button } from './Button'
 import SponsorPack from './SponsorPack'
 import PlaceholderSponsorPack from './PlaceholderSponsorPack'
 
@@ -28,7 +28,7 @@ export function LazySponsorSection({
   title = 'Sponsors',
   aspectRatio = '1/1',
   showCTA = true,
-  ctaClassName = 'bg-emerald-500 text-white',
+  ctaClassName = 'bg-emerald-500 border-emerald-500 hover:bg-emerald-600 text-white',
 }: LazySponsorSectionProps) {
   const { ref, isIntersecting } = useIntersectionObserver({
     rootMargin: '50%', // Half viewport height - triggers when about half a page away
@@ -55,17 +55,14 @@ export function LazySponsorSection({
         )}
       </div>
       {showCTA ? (
-        <div className="text-center">
-          <a
+        <div className="flex justify-center">
+          <Button
+            as="a"
             href="https://github.com/sponsors/tannerlinsley"
-            className={twMerge(
-              buttonStyles,
-              'inline-flex py-2 px-4 uppercase font-extrabold',
-              ctaClassName,
-            )}
+            className={twMerge('py-2 px-4 text-sm', ctaClassName)}
           >
             Become a Sponsor!
-          </a>
+          </Button>
         </div>
       ) : null}
     </div>

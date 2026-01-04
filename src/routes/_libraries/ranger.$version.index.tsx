@@ -49,7 +49,8 @@ function VersionIndex() {
               params: { libraryId: library.id, version },
             },
             label: 'Get Started',
-            className: 'bg-slate-500 text-white',
+            className:
+              'bg-slate-500 border-slate-500 hover:bg-slate-600 text-white',
           }}
         />
 
@@ -105,7 +106,7 @@ function VersionIndex() {
             params: { libraryId: library.id, version },
           }}
           label="Get Started!"
-          className="bg-slate-500 text-white"
+          className="bg-slate-500 border-slate-500 hover:bg-slate-600 text-white"
         />
         <Footer />
       </div>

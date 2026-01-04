@@ -13,6 +13,7 @@ import OpenSourceStats from '~/components/OpenSourceStats'
 import { ossStatsQuery } from '~/queries/stats'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
+import { Button } from '~/components/Button'
 
 const library = getLibrary('store')
 
@@ -44,7 +45,8 @@ function StoreVersionIndex() {
               params: { libraryId: library.id },
             },
             label: 'Get Started',
-            className: 'bg-stone-600 text-white',
+            className:
+              'bg-stone-600 border-stone-600 hover:bg-stone-700 text-white',
           }}
         />
 
@@ -87,17 +89,17 @@ function StoreVersionIndex() {
                   { label: 'Vue', value: 'vue' },
                 ] as const
               ).map((item) => (
-                <button
+                <Button
                   key={item.value}
-                  className={`inline-block py-2 px-4 rounded text-black uppercase font-extrabold ${
+                  className={
                     item.value === framework
-                      ? 'bg-gray-500'
-                      : 'bg-gray-300 dark:bg-gray-700 hover:bg-gray-400'
-                  }`}
+                      ? 'bg-gray-500 border-gray-500 text-white'
+                      : 'bg-gray-300 border-gray-300 dark:bg-gray-700 dark:border-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-black dark:text-white'
+                  }
                   onClick={() => setFramework(item.value)}
                 >
                   {item.label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -145,7 +147,7 @@ function StoreVersionIndex() {
             params: { libraryId: library.id },
           }}
           label="Get Started!"
-          className="bg-stone-700 text-white"
+          className="bg-stone-700 border-stone-700 hover:bg-stone-800 text-white"
         />
         <Footer />
       </div>

@@ -54,7 +54,8 @@ function RouteComp() {
             params: { libraryId: library.id, version },
           },
           label: 'Get Started',
-          className: 'bg-purple-500 text-white',
+          className:
+            'bg-purple-500 border-purple-500 hover:bg-purple-600 text-white',
         }}
       />
 
@@ -198,13 +199,6 @@ export class VirtualList extends LitElement {
             )
           })()}
         </Card>
-        <Link
-          to="/$libraryId/$version/docs"
-          params={{ libraryId: library.id, version }}
-          className="inline-block py-2 px-4 rounded-lg font-black transition-colors bg-purple-500 text-white"
-        >
-          Get Started
-        </Link>
       </div>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
@@ -288,7 +282,7 @@ export class VirtualList extends LitElement {
           params: { libraryId: library.id, version },
         }}
         label="Get Started!"
-        className="bg-purple-500 text-white"
+        className="bg-purple-500 border-purple-500 hover:bg-purple-600 text-white"
       />
       <Footer />
     </div>

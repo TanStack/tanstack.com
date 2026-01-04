@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Await } from '@tanstack/react-router'
 import { Spinner } from '~/components/Spinner'
 import SponsorPack from '~/components/SponsorPack'
-import { buttonStyles } from '~/components/Button'
+import { Button } from '~/components/Button'
 import { twMerge } from 'tailwind-merge'
 
 type SponsorsSectionProps = {
@@ -18,7 +18,7 @@ export function SponsorsSection({
   title = 'Sponsors',
   aspectRatio = '1/1',
   showCTA = true,
-  ctaClassName = 'bg-emerald-500 text-white',
+  ctaClassName = 'bg-emerald-500 border-emerald-500 hover:bg-emerald-600 text-white',
 }: SponsorsSectionProps) {
   return (
     <div className="relative text-lg overflow-hidden">
@@ -37,17 +37,14 @@ export function SponsorsSection({
         </Await>
       </div>
       {showCTA ? (
-        <div className="text-center">
-          <a
+        <div className="flex justify-center">
+          <Button
+            as="a"
             href="https://github.com/sponsors/tannerlinsley"
-            className={twMerge(
-              buttonStyles,
-              'inline-flex py-2 px-4 uppercase font-extrabold',
-              ctaClassName,
-            )}
+            className={twMerge('py-2 px-4 text-sm', ctaClassName)}
           >
             Become a Sponsor!
-          </a>
+          </Button>
         </div>
       ) : null}
     </div>

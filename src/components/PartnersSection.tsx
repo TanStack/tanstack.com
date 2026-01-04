@@ -37,7 +37,7 @@ export function PartnersSection({
           <PartnersGrid />
           <PartnershipCallout libraryId={libraryId} />
           {showPreviousLink ? (
-            <div className="text-center mt-6">
+            <div className="flex justify-center mt-6">
               <Button
                 as={Link}
                 to="/partners"

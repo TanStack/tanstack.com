@@ -45,7 +45,8 @@ function AIVersionIndex() {
               params: { libraryId: library.id, version },
             },
             label: 'Get Started',
-            className: 'bg-pink-500 text-white',
+            className:
+              'bg-pink-500 border-pink-500 hover:bg-pink-600 text-white',
           }}
         />
         <AILibraryHero
@@ -56,7 +57,8 @@ function AIVersionIndex() {
               params: { libraryId: library.id, version },
             },
             label: 'Get Started',
-            className: 'bg-pink-500 text-white',
+            className:
+              'bg-pink-500 border-pink-500 hover:bg-pink-600 text-white',
           }}
         />
         <div className="w-fit mx-auto px-4">
@@ -153,7 +155,7 @@ function AIVersionIndex() {
             params: { libraryId: library.id, version },
           }}
           label="Get Started!"
-          className="bg-purple-500 text-white"
+          className="bg-purple-500 border-purple-500 hover:bg-purple-600 text-white"
         />
         <Footer />
       </div>

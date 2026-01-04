@@ -55,7 +55,8 @@ function FormVersionIndex() {
               params: { libraryId: library.id, version },
             },
             label: 'Get Started',
-            className: 'bg-yellow-400 text-black',
+            className:
+              'bg-yellow-400 border-yellow-400 hover:bg-yellow-500 text-black',
           }}
         />
 
@@ -204,13 +205,6 @@ export class SimpleForm extends LitElement {
               )
             })()}
           </Card>
-          <Link
-            to="/$libraryId/$version/docs"
-            params={{ libraryId: library.id, version }}
-            className="inline-block py-2 px-4 rounded-lg font-black transition-colors bg-yellow-500 text-black"
-          >
-            Get Started
-          </Link>
         </div>
 
         <FeatureGrid
@@ -282,7 +276,7 @@ export class SimpleForm extends LitElement {
             params: { libraryId: library.id, version },
           }}
           label="Get Started!"
-          className="bg-yellow-500 text-black"
+          className="bg-yellow-500 border-yellow-500 hover:bg-yellow-600 text-black"
         />
         <Footer />
       </div>

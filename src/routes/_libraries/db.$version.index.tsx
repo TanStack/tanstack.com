@@ -44,7 +44,8 @@ function DBVersionIndex() {
               params: { libraryId: library.id },
             },
             label: 'Get Started',
-            className: 'bg-orange-500 text-white',
+            className:
+              'bg-orange-500 border-orange-500 hover:bg-orange-600 text-white',
           }}
         />
         <div className="w-fit mx-auto px-4">
@@ -104,7 +105,7 @@ function DBVersionIndex() {
             params: { libraryId: library.id },
           }}
           label="Get Started!"
-          className="bg-orange-500 text-white"
+          className="bg-orange-500 border-orange-500 hover:bg-orange-600 text-white"
         />
         <Footer />
       </div>

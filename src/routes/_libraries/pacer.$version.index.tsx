@@ -45,7 +45,8 @@ function PacerVersionIndex() {
               params: { libraryId: library.id },
             },
             label: 'Get Started',
-            className: 'bg-lime-600 hover:bg-lime-700 text-white',
+            className:
+              'bg-lime-600 border-lime-600 hover:bg-lime-700 text-white',
           }}
         />
 
@@ -111,7 +112,7 @@ function PacerVersionIndex() {
             params: { libraryId: library.id },
           }}
           label="Get Started!"
-          className="bg-lime-600 hover:bg-lime-700 text-white"
+          className="bg-lime-600 border-lime-600 hover:bg-lime-700 hover:border-lime-700 text-white"
         />
         <Footer />
       </div>

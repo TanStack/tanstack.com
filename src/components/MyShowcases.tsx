@@ -6,7 +6,7 @@ import { deleteShowcase } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
 import { useToast } from './ToastProvider'
 import { Plus, Trash2, ExternalLink, Clock, Check, X } from 'lucide-react'
-import type { Showcase } from '~/db/schema'
+import type { Showcase } from '~/db/types'
 import { Button } from './Button'
 
 const libraryMap = new Map(libraries.map((lib) => [lib.id, lib]))

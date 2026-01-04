@@ -6,7 +6,7 @@ import {
   FilterCheckbox,
   FilterBar,
 } from '~/components/FilterComponents'
-import type { DocFeedbackStatus } from '~/db/schema'
+import type { DocFeedbackStatus } from '~/db/types'
 
 interface FeedbackModerationFiltersProps {
   filters: {

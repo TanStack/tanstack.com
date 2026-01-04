@@ -17,7 +17,7 @@ import {
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
 import { format } from 'date-fns'
-import type { ShowcaseUseCase } from '~/db/schema'
+import type { ShowcaseUseCase } from '~/db/types'
 
 export const Route = createFileRoute('/admin/showcases_/$id')({
   component: ShowcaseDetailPage,

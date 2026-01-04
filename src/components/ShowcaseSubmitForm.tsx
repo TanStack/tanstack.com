@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { submitShowcase } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
-import { SHOWCASE_USE_CASES, type ShowcaseUseCase } from '~/db/schema'
+import { SHOWCASE_USE_CASES, type ShowcaseUseCase } from '~/db/types'
 import {
   getAutoIncludedLibraries,
   USE_CASE_LABELS,

@@ -17,6 +17,29 @@ import {
 import { relations } from 'drizzle-orm'
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
 
+// Re-export client-safe types and constants
+export type {
+  Capability,
+  OAuthProvider,
+  DocFeedbackType,
+  DocFeedbackStatus,
+  BannerScope,
+  BannerStyle,
+  EntryType,
+  ShowcaseStatus,
+  ShowcaseUseCase,
+  AuditAction,
+  ReleaseLevel,
+} from './types'
+
+export {
+  VALID_CAPABILITIES,
+  SHOWCASE_USE_CASES,
+  RELEASE_LEVELS,
+  ENTRY_TYPES,
+  MANUAL_ENTRY_TYPES,
+} from './types'
+
 // Enums
 export const capabilityEnum = pgEnum('capability', [
   'admin',
@@ -90,86 +113,8 @@ export const showcaseUseCaseEnum = pgEnum('showcase_use_case', [
   'media',
 ])
 
-// Type exports
-export type Capability =
-  | 'admin'
-  | 'disableAds'
-  | 'builder'
-  | 'feed'
-  | 'moderate-feedback'
-  | 'moderate-showcases'
-// Note: FeedCategory type was removed - use EntryType instead
-export type OAuthProvider = 'github' | 'google'
-export type DocFeedbackType = 'note' | 'improvement'
-export type DocFeedbackStatus = 'pending' | 'approved' | 'denied'
-export type BannerScope = 'global' | 'targeted'
-export type BannerStyle = 'info' | 'warning' | 'success' | 'promo'
-export type EntryType = 'release' | 'blog' | 'announcement'
-export type ShowcaseStatus = 'pending' | 'approved' | 'denied'
-export type ShowcaseUseCase =
-  | 'blog'
-  | 'e-commerce'
-  | 'saas'
-  | 'dashboard'
-  | 'documentation'
-  | 'portfolio'
-  | 'social'
-  | 'developer-tool'
-  | 'marketing'
-  | 'media'
-export type AuditAction =
-  | 'user.capabilities.update'
-  | 'user.adsDisabled.update'
-  | 'user.sessions.revoke'
-  | 'role.create'
-  | 'role.update'
-  | 'role.delete'
-  | 'role.assignment.create'
-  | 'role.assignment.delete'
-  | 'banner.create'
-  | 'banner.update'
-  | 'banner.delete'
-  | 'feed.entry.create'
-  | 'feed.entry.update'
-  | 'feed.entry.delete'
-  | 'feedback.moderate'
-  | 'showcase.create'
-  | 'showcase.update'
-  | 'showcase.delete'
-  | 'showcase.moderate'
-
-// Constants
-export const VALID_CAPABILITIES: readonly Capability[] = [
-  'admin',
-  'disableAds',
-  'builder',
-  'feed',
-  'moderate-feedback',
-  'moderate-showcases',
-] as const
-
-export const SHOWCASE_USE_CASES: readonly ShowcaseUseCase[] = [
-  'blog',
-  'e-commerce',
-  'saas',
-  'dashboard',
-  'documentation',
-  'portfolio',
-  'social',
-  'developer-tool',
-  'marketing',
-  'media',
-] as const
-export const RELEASE_LEVELS = ['major', 'minor', 'patch'] as const
-export type ReleaseLevel = (typeof RELEASE_LEVELS)[number]
-export const ENTRY_TYPES: readonly EntryType[] = [
-  'release',
-  'blog',
-  'announcement',
-] as const
-export const MANUAL_ENTRY_TYPES: readonly EntryType[] = [
-  'announcement',
-] as const
+// Note: Types and constants are defined in ./types.ts and re-exported above
+// This keeps client-safe exports separate from server-only drizzle schema
 
 // Users table
 export const users = pgTable(

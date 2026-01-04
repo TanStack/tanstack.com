@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { seo } from '~/utils/seo'
 import { ShowcaseGallery } from '~/components/ShowcaseGallery'
 import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
-import { SHOWCASE_USE_CASES } from '~/db/schema'
+import { SHOWCASE_USE_CASES } from '~/db/types'
 
 const useCaseSchema = z.enum(SHOWCASE_USE_CASES as [string, ...string[]])
 

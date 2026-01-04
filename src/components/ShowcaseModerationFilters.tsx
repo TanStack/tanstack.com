@@ -6,7 +6,7 @@ import {
   FilterCheckbox,
   FilterBar,
 } from '~/components/FilterComponents'
-import type { ShowcaseStatus } from '~/db/schema'
+import type { ShowcaseStatus } from '~/db/types'
 
 interface ShowcaseModerationFiltersProps {
   filters: {

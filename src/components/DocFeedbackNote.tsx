@@ -6,7 +6,7 @@ import {
   updateDocFeedback,
   updateDocFeedbackCollapsed,
 } from '~/utils/docFeedback.functions'
-import type { DocFeedback } from '~/db/schema'
+import type { DocFeedback } from '~/db/types'
 import {
   ChevronDown,
   ChevronUp,

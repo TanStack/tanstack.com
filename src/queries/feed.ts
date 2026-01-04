@@ -6,7 +6,7 @@ import {
   getFeedStats,
   getFeedFacetCounts,
 } from '~/utils/feed.functions'
-import type { EntryType, ReleaseLevel } from '~/db/schema'
+import type { EntryType, ReleaseLevel } from '~/db/types'
 
 export interface FeedFilters {
   entryTypes?: EntryType[]

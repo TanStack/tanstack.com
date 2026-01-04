@@ -14,7 +14,7 @@ import {
   TableRow,
   TableCell,
 } from '~/components/TableComponents'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { useState, useMemo, useCallback } from 'react'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useCapabilities } from '~/hooks/useCapabilities'
@@ -41,10 +41,14 @@ type Role = {
 
 export const Route = createFileRoute('/admin/roles/')({
   component: RolesPage,
-  validateSearch: z.object({
-    name: z.string().optional(),
-    cap: z.union([z.string(), z.array(z.string())]).optional(),
-  }),
+  validateSearch: (search) =>
+    v.parse(
+      v.object({
+        name: v.optional(v.string()),
+        cap: v.optional(v.union([v.string(), v.array(v.string())])),
+      }),
+      search,
+    ),
 })
 
 function RolesPage() {

@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
-import { format } from 'date-fns'
+import { format } from '~/utils/dates'
 import type { ShowcaseUseCase } from '~/db/types'
 
 export const Route = createFileRoute('/admin/showcases_/$id')({

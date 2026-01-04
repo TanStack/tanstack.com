@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import * as v from 'valibot'
 import type { Capability } from '~/db/schema'
 import { requireAdmin } from './roles.server'
 import { db } from '~/db/client'
@@ -10,11 +10,11 @@ import { recordAuditLog } from './audit.server'
 
 export const listRoles = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      nameFilter: z.string().optional(),
-      capabilityFilter: z
-        .array(
-          z.enum([
+    v.object({
+      nameFilter: v.optional(v.string()),
+      capabilityFilter: v.optional(
+        v.array(
+          v.picklist([
             'admin',
             'disableAds',
             'builder',
@@ -22,8 +22,8 @@ export const listRoles = createServerFn({ method: 'POST' })
             'moderate-feedback',
             'moderate-showcases',
           ]),
-        )
-        .optional(),
+        ),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -65,7 +65,7 @@ export const listRoles = createServerFn({ method: 'POST' })
   })
 
 export const getRole = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ roleId: z.string().uuid() }))
+  .inputValidator(v.object({ roleId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -89,11 +89,17 @@ export const getRole = createServerFn({ method: 'POST' })
 
 export const createRole = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      name: z.string(),
-      description: z.string().optional(),
-      capabilities: z.array(
-        z.enum(['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback']),
+    v.object({
+      name: v.string(),
+      description: v.optional(v.string()),
+      capabilities: v.array(
+        v.picklist([
+          'admin',
+          'disableAds',
+          'builder',
+          'feed',
+          'moderate-feedback',
+        ]),
       ),
     }),
   )
@@ -136,21 +142,21 @@ export const createRole = createServerFn({ method: 'POST' })
 
 export const updateRole = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      roleId: z.string().uuid(),
-      name: z.string().optional(),
-      description: z.string().optional(),
-      capabilities: z
-        .array(
-          z.enum([
+    v.object({
+      roleId: v.pipe(v.string(), v.uuid()),
+      name: v.optional(v.string()),
+      description: v.optional(v.string()),
+      capabilities: v.optional(
+        v.array(
+          v.picklist([
             'admin',
             'disableAds',
             'builder',
             'feed',
             'moderate-feedback',
           ]),
-        )
-        .optional(),
+        ),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -215,7 +221,7 @@ export const updateRole = createServerFn({ method: 'POST' })
   })
 
 export const deleteRole = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ roleId: z.string().uuid() }))
+  .inputValidator(v.object({ roleId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const { currentUser } = await requireAdmin()
 
@@ -252,7 +258,9 @@ export const deleteRole = createServerFn({ method: 'POST' })
   })
 
 export const getUserRoles = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ userId: z.string().uuid().optional() }))
+  .inputValidator(
+    v.object({ userId: v.optional(v.pipe(v.string(), v.uuid())) }),
+  )
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -298,9 +306,9 @@ export const getUserRoles = createServerFn({ method: 'POST' })
 
 export const assignRolesToUser = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      userId: z.string().uuid(),
-      roleIds: z.array(z.string().uuid()),
+    v.object({
+      userId: v.pipe(v.string(), v.uuid()),
+      roleIds: v.array(v.pipe(v.string(), v.uuid())),
     }),
   )
   .handler(async ({ data }) => {
@@ -388,7 +396,9 @@ export const assignRolesToUser = createServerFn({ method: 'POST' })
   })
 
 export const getUserEffectiveCapabilities = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ userId: z.string().uuid().optional() }))
+  .inputValidator(
+    v.object({ userId: v.optional(v.pipe(v.string(), v.uuid())) }),
+  )
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -400,7 +410,7 @@ export const getUserEffectiveCapabilities = createServerFn({ method: 'POST' })
   })
 
 export const getBulkUserRoles = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ userIds: z.array(z.string().uuid()) }))
+  .inputValidator(v.object({ userIds: v.array(v.pipe(v.string(), v.uuid())) }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -418,7 +428,10 @@ export const getBulkUserRoles = createServerFn({ method: 'POST' })
     )
 
     // Group by user
-    const result: Record<string, (typeof roles)[number][]> = {}
+    type RoleRow = NonNullable<
+      Awaited<ReturnType<typeof db.query.roles.findFirst>>
+    >
+    const result: Record<string, RoleRow[]> = {}
     for (const userId of data.userIds) {
       result[userId] = []
     }
@@ -431,7 +444,17 @@ export const getBulkUserRoles = createServerFn({ method: 'POST' })
     }
 
     // Transform to match expected format
-    const transformed: Record<string, any[]> = {}
+    const transformed: Record<
+      string,
+      Array<{
+        _id: string
+        name: string
+        description: string | null
+        capabilities: Capability[]
+        createdAt: number
+        updatedAt: number
+      }>
+    > = {}
     for (const [userId, userRoles] of Object.entries(result)) {
       transformed[userId] = userRoles.map((role) => ({
         _id: role.id,
@@ -447,7 +470,7 @@ export const getBulkUserRoles = createServerFn({ method: 'POST' })
   })
 
 export const getBulkEffectiveCapabilities = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ userIds: z.array(z.string().uuid()) }))
+  .inputValidator(v.object({ userIds: v.array(v.pipe(v.string(), v.uuid())) }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -463,7 +486,7 @@ export const getBulkEffectiveCapabilities = createServerFn({ method: 'POST' })
   })
 
 export const getUsersWithRole = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ roleId: z.string().uuid() }))
+  .inputValidator(v.object({ roleId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -493,9 +516,9 @@ export const getUsersWithRole = createServerFn({ method: 'POST' })
 
 export const removeUsersFromRole = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      roleId: z.string().uuid(),
-      userIds: z.array(z.string().uuid()),
+    v.object({
+      roleId: v.pipe(v.string(), v.uuid()),
+      userIds: v.array(v.pipe(v.string(), v.uuid())),
     }),
   )
   .handler(async ({ data }) => {
@@ -538,9 +561,9 @@ export const removeUsersFromRole = createServerFn({ method: 'POST' })
 
 export const bulkAssignRolesToUsers = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      userIds: z.array(z.string().uuid()),
-      roleIds: z.array(z.string().uuid()),
+    v.object({
+      userIds: v.array(v.pipe(v.string(), v.uuid())),
+      roleIds: v.array(v.pipe(v.string(), v.uuid())),
     }),
   )
   .handler(async ({ data }) => {

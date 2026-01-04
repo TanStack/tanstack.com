@@ -1,32 +1,16 @@
 import { ArrowRightLeft, CircleGauge, WandSparkles } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-
-const repo = 'tanstack/pacer'
+import { pacer } from './libraries'
 
 const textStyles = `text-lime-600 dark:text-lime-500`
 
 export const pacerProject = {
-  id: 'pacer',
-  name: 'TanStack Pacer',
-  cardStyles: `text-lime-500 dark:text-lime-400 hover:border-current`,
-  to: '/pacer',
-  tagline: `Framework agnostic debouncing, throttling, rate limiting, queuing, and batching utilities`,
+  ...pacer,
   description: `Optimize your application's performance with TanStack Pacer's core primitives: Debouncing, Throttling, Rate Limiting, Queuing, and Batching.`,
   ogImage: 'https://github.com/tanstack/pacer/raw/main/media/repo-header.png',
-  badge: 'beta',
-  bgStyle: `bg-lime-700`,
-  borderStyle: 'border-lime-700/50',
-  textStyle: `text-lime-500`,
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v0',
-  availableVersions: ['v0'],
   bgRadial: 'from-lime-500 via-lime-700/50 to-transparent',
-  colorFrom: `from-lime-500`,
-  colorTo: `to-lime-700`,
   textColor: `text-lime-700`,
-  frameworks: ['react', 'preact', 'solid'],
-  scarfId: '302d0fef-cb3f-43c6-b45c-f055b9745edb',
   defaultDocs: 'overview',
   featureHighlights: [
     {

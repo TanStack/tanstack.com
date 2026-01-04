@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 // Re-export pure functions for use in server functions
 export {
@@ -211,14 +211,14 @@ function calculateDelta(
  */
 export const getOSSStats = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      library: z
-        .object({
-          id: z.string(),
-          repo: z.string(),
-          frameworks: z.array(z.string()).optional(),
-        })
-        .optional(),
+    v.object({
+      library: v.optional(
+        v.object({
+          id: v.string(),
+          repo: v.string(),
+          frameworks: v.optional(v.array(v.string())),
+        }),
+      ),
     }),
   )
   .handler(async ({ data }): Promise<OSSStatsWithDelta> => {
@@ -328,19 +328,19 @@ export const getOSSStats = createServerFn({ method: 'POST' })
  */
 export const fetchNpmDownloadsBulk = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      packageGroups: z.array(
-        z.object({
-          packages: z.array(
-            z.object({
-              name: z.string(),
-              hidden: z.boolean().optional(),
+    v.object({
+      packageGroups: v.array(
+        v.object({
+          packages: v.array(
+            v.object({
+              name: v.string(),
+              hidden: v.optional(v.boolean()),
             }),
           ),
         }),
       ),
-      startDate: z.string(), // YYYY-MM-DD
-      endDate: z.string(), // YYYY-MM-DD
+      startDate: v.string(), // YYYY-MM-DD
+      endDate: v.string(), // YYYY-MM-DD
     }),
   )
   .handler(async ({ data }) => {
@@ -596,9 +596,9 @@ export const fetchNpmDownloadsBulk = createServerFn({ method: 'POST' })
  */
 export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
   .inputValidator(
-    z.object({
-      packageName: z.string(),
-      year: z.string(), // YYYY format or "current" for current year
+    v.object({
+      packageName: v.string(),
+      year: v.string(), // YYYY format or "current" for current year
     }),
   )
   .handler(async ({ data }) => {
@@ -645,13 +645,15 @@ export const fetchNpmDownloadChunk = createServerFn({ method: 'GET' })
     const cacheMaxAge = isCurrentYear ? 3600 : 31536000 // 1 hour / 1 year
     const cdnMaxAge = isCurrentYear ? 3600 : 31536000 // 1 hour / 1 year
 
-    setResponseHeaders({
-      // Use Netlify-specific header for best performance
-      // 'durable' shares cached responses across all edge nodes
-      'Netlify-CDN-Cache-Control': `public, max-age=${cdnMaxAge}, durable${isCurrentYear ? '' : ', stale-while-revalidate=86400'}`,
-      // Also set standard Cache-Control for browser caching
-      'Cache-Control': `public, max-age=${cacheMaxAge}`,
-    })
+    setResponseHeaders(
+      new Headers({
+        // Use Netlify-specific header for best performance
+        // 'durable' shares cached responses across all edge nodes
+        'Netlify-CDN-Cache-Control': `public, max-age=${cdnMaxAge}, durable${isCurrentYear ? '' : ', stale-while-revalidate=86400'}`,
+        // Also set standard Cache-Control for browser caching
+        'Cache-Control': `public, max-age=${cacheMaxAge}`,
+      }),
+    )
 
     // Import cache functions
     const { getCachedNpmDownloadChunk, setCachedNpmDownloadChunk } =

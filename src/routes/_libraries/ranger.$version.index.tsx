@@ -62,7 +62,7 @@ function VersionIndex() {
         </AdGate>
 
         <LibraryFeatureHighlights
-          featureHighlights={library.featureHighlights}
+          featureHighlights={rangerProject.featureHighlights}
         />
 
         <div className="flex flex-col gap-4">

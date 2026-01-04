@@ -1,88 +1,44 @@
-import { queryProject } from './query'
-import { formProject } from './form'
-import { configProject } from './config'
-import { routerProject } from './router'
-import { startProject } from './start'
-import { tableProject } from './table'
-import { virtualProject } from './virtual'
-import { rangerProject } from './ranger'
-import { storeProject } from './store'
-import { pacerProject } from './pacer'
-import { dbProject } from './db'
-import { aiProject } from './ai'
-import { devtoolsProject } from './devtools'
-import { type Framework, type Library, type LibraryId } from './types'
+// Re-export everything from the base libraries file
+// This is the 90% use case - lightweight data for navigation, lists, etc.
+export {
+  libraries,
+  librariesByGroup,
+  librariesGroupNamesMap,
+  libraryIds,
+  findLibrary,
+  getLibrary,
+  // Individual library exports
+  query,
+  router,
+  start,
+  table,
+  form,
+  virtual,
+  ranger,
+  store,
+  pacer,
+  db,
+  ai,
+  config,
+  devtools,
+} from './libraries'
 
-// Re-export types for backward compatibility
-export type { Framework, Library, LibraryId }
+// Re-export types
+export type { Framework, Library, LibraryId, LibrarySlim } from './types'
 
-// Note: frameworkOptions is NOT exported here to avoid bundling SVG imports
-// in server/background functions. Import it directly from './frameworks' in client components.
+// NOTE: Extended library projects (queryProject, routerProject, etc.) with
+// testimonials, featureHighlights (containing React components) are NOT
+// re-exported here to keep this import lightweight.
+//
+// Import them directly in routes that need the full library landing page data:
+//   import { queryProject } from '~/libraries/query'
+//   import { tableProject } from '~/libraries/table'
+//   etc.
+//
+// Similarly, frameworkOptions is in './frameworks' to avoid bundling SVG imports
+// in server/background functions.
 
-export const libraries = [
-  startProject,
-  routerProject,
-  queryProject,
-  tableProject,
-  formProject,
-  dbProject,
-  aiProject,
-  virtualProject,
-  pacerProject,
-  storeProject,
-  rangerProject,
-  configProject,
-  devtoolsProject,
-  {
-    id: 'react-charts',
-    name: 'React Charts',
-    repo: 'tanstack/react-charts',
-  },
-  {
-    id: 'create-tsrouter-app',
-    name: 'Create TS Router App',
-    repo: 'tanstack/create-tsrouter-app',
-  },
-]
-
-export const librariesByGroup = {
-  state: [
-    startProject,
-    routerProject,
-    queryProject,
-    dbProject,
-    storeProject,
-    aiProject,
-  ],
-  headlessUI: [tableProject, formProject],
-  performance: [virtualProject, pacerProject],
-  tooling: [devtoolsProject, configProject],
-}
-
-export const librariesGroupNamesMap = {
-  state: 'Data and State Management',
-  headlessUI: 'Headless UI',
-  performance: 'Performance',
-  tooling: 'Tooling',
-}
-
-export function getLibrary(id: LibraryId): Library {
-  const library = libraries.find((d) => d.id === id)!
-
-  if (!library) {
-    throw new Error(`Library with id "${id}" not found!`)
-  }
-
-  return library as Library
-}
-
-export function findLibrary(id: string): Library | undefined {
-  try {
-    return getLibrary(id as any)
-  } catch (error) {
-    return undefined
-  }
-}
+import type { Library } from './types'
 
 export function getBranch(library: Library, argVersion?: string) {
   if (!library) {

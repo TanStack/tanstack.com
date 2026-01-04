@@ -1,21 +1,22 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseGallery } from '~/components/ShowcaseGallery'
 import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
 import { SHOWCASE_USE_CASES } from '~/db/types'
 
-const useCaseSchema = z.enum(SHOWCASE_USE_CASES as [string, ...string[]])
+const useCaseSchema = v.picklist(SHOWCASE_USE_CASES as [string, ...string[]])
 
 export const Route = createFileRoute('/showcase/')({
   validateSearch: (search) => {
-    const parsed = z
-      .object({
-        page: z.number().optional().default(1).catch(1),
-        libraryId: z.string().optional().catch(undefined),
-        useCases: z.array(useCaseSchema).optional().catch(undefined),
-      })
-      .parse(search)
+    const parsed = v.parse(
+      v.object({
+        page: v.optional(v.number(), 1),
+        libraryId: v.optional(v.string()),
+        useCases: v.optional(v.array(useCaseSchema)),
+      }),
+      search,
+    )
 
     return parsed
   },

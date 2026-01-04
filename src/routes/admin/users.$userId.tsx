@@ -5,7 +5,7 @@ import { getUserRoles } from '~/utils/roles.functions'
 import { getUserEffectiveCapabilities } from '~/utils/roles.functions'
 import { ArrowLeft, User, Shield, Calendar, Mail, AtSign } from 'lucide-react'
 import { Card } from '~/components/Card'
-import { format } from 'date-fns'
+import { format } from '~/utils/dates'
 
 export const Route = createFileRoute('/admin/users/$userId')({
   component: UserDetailPage,

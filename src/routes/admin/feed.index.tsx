@@ -4,7 +4,7 @@ import {
   useSetFeedEntryFeatured,
   useDeleteFeedEntry,
 } from '~/utils/mutations'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { Plus } from 'lucide-react'
 import { FeedEntry } from '~/components/FeedEntry'
 import { FeedSyncStatus } from '~/components/admin/FeedSyncStatus'
@@ -15,14 +15,9 @@ import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { libraries, type LibraryId } from '~/libraries'
 import { ENTRY_TYPES, RELEASE_LEVELS } from '~/utils/feedSchema'
 const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
-const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
-const entryTypeSchema = z.enum(ENTRY_TYPES)
-const releaseLevelSchema = z.enum(RELEASE_LEVELS)
-const viewModeSchema = z
-  .enum(['table', 'timeline'])
-  .optional()
-  .default('table')
-  .catch('table')
+const librarySchema = v.picklist(libraryIds as [LibraryId, ...LibraryId[]])
+const entryTypeSchema = v.picklist(ENTRY_TYPES)
+const releaseLevelSchema = v.picklist(RELEASE_LEVELS)
 
 export const Route = createFileRoute('/admin/feed/')({
   component: FeedAdminPage,
@@ -30,28 +25,34 @@ export const Route = createFileRoute('/admin/feed/')({
     const hasReleaseLevels = 'releaseLevels' in search
     const releaseLevelsValue = search.releaseLevels
 
-    return z
-      .object({
-        entryTypes: z.array(entryTypeSchema).optional().catch(undefined),
-        libraries: z.array(librarySchema).optional().catch(undefined),
-        partners: z.array(z.string()).optional().catch(undefined),
-        tags: z.array(z.string()).optional().catch(undefined),
+    return v.parse(
+      v.object({
+        entryTypes: v.optional(v.array(entryTypeSchema)),
+        libraries: v.optional(v.array(librarySchema)),
+        partners: v.optional(v.array(v.string())),
+        tags: v.optional(v.array(v.string())),
         releaseLevels: hasReleaseLevels
-          ? z
-              .array(releaseLevelSchema)
-              .catch(
-                Array.isArray(releaseLevelsValue) ? releaseLevelsValue : [],
-              )
-          : z.array(releaseLevelSchema).optional().catch(undefined),
-        includePrerelease: z.boolean().optional().catch(undefined),
-        featured: z.boolean().optional().catch(undefined),
-        search: z.string().optional().catch(undefined),
-        page: z.number().optional().default(1).catch(1),
-        pageSize: z.number().int().positive().optional().default(50).catch(50),
-        viewMode: viewModeSchema,
-        expanded: z.array(z.string()).optional().catch(undefined),
-      })
-      .parse(search)
+          ? v.fallback(
+              v.array(releaseLevelSchema),
+              Array.isArray(releaseLevelsValue) ? releaseLevelsValue : [],
+            )
+          : v.optional(v.array(releaseLevelSchema)),
+        includePrerelease: v.optional(v.boolean()),
+        featured: v.optional(v.boolean()),
+        search: v.optional(v.string()),
+        page: v.optional(v.number(), 1),
+        pageSize: v.optional(
+          v.pipe(v.number(), v.integer(), v.minValue(1)),
+          50,
+        ),
+        viewMode: v.optional(
+          v.fallback(v.picklist(['table', 'timeline']), 'table'),
+          'table',
+        ),
+        expanded: v.optional(v.array(v.string())),
+      }),
+      search,
+    )
   },
 })
 

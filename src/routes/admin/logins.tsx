@@ -19,7 +19,7 @@ import {
   flexRender,
   type ColumnDef,
 } from '@tanstack/react-table'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { listLoginHistory } from '~/utils/audit.functions'
 import { Lock, LogIn, User } from 'lucide-react'
@@ -40,12 +40,16 @@ type LoginHistoryEntry = {
 
 export const Route = createFileRoute('/admin/logins')({
   component: LoginsPage,
-  validateSearch: z.object({
-    userId: z.string().optional(),
-    provider: z.enum(['github', 'google']).optional(),
-    page: z.number().int().nonnegative().optional(),
-    pageSize: z.number().int().positive().optional(),
-  }),
+  validateSearch: (search) =>
+    v.parse(
+      v.object({
+        userId: v.optional(v.string()),
+        provider: v.optional(v.picklist(['github', 'google'])),
+        page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+        pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+      }),
+      search,
+    ),
 })
 
 function LoginsPage() {

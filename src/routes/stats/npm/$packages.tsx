@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import {
   parsePackagesFromUrl,
@@ -12,14 +12,14 @@ import {
 import { Spinner } from '~/components/Spinner'
 
 export const Route = createFileRoute('/stats/npm/$packages')({
-  validateSearch: z.object({
-    range: timeRangeSchema.optional().default('365-days').catch('365-days'),
-    transform: transformModeSchema.optional().default('none').catch('none'),
-    facetX: z.enum(['name']).optional().catch(undefined),
-    facetY: z.enum(['name']).optional().catch(undefined),
-    binType: binTypeSchema.optional().default('weekly').catch('weekly'),
-    showDataMode: showDataModeSchema.optional().default('all').catch('all'),
-    height: z.number().optional().default(400).catch(400),
+  validateSearch: v.object({
+    range: v.fallback(v.optional(timeRangeSchema, '365-days'), '365-days'),
+    transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
+    facetX: v.fallback(v.optional(v.picklist(['name'])), undefined),
+    facetY: v.fallback(v.optional(v.picklist(['name'])), undefined),
+    binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
+    showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
+    height: v.fallback(v.optional(v.number(), 400), 400),
   }),
   loader: ({ params }) => {
     const packages = parsePackagesFromUrl(params.packages)
@@ -89,7 +89,7 @@ function RouteComponent() {
     navigate({
       to: '/stats/npm',
       search: {
-        packageGroups: packages.map((name) => ({
+        packageGroups: packages.map((name: string) => ({
           packages: [{ name }],
         })),
         ...search,

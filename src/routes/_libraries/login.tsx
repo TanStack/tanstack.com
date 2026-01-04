@@ -4,16 +4,18 @@ import { useIsDark } from '~/hooks/useIsDark'
 import { BrandContextMenu } from '~/components/BrandContextMenu'
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { getCurrentUser } from '~/utils/auth.server'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { GoogleIcon } from '~/components/icons/GoogleIcon'
 import { Card } from '~/components/Card'
 
+const searchSchema = v.object({
+  error: v.optional(v.string()),
+})
+
 export const Route = createFileRoute('/_libraries/login')({
   component: LoginPage,
-  validateSearch: z.object({
-    error: z.string().optional(),
-  }),
+  validateSearch: searchSchema,
   loader: async () => {
     // Call server function directly from loader (works in both SSR and client)
     const user = await getCurrentUser()

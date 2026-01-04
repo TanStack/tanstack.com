@@ -88,7 +88,7 @@ function VersionIndex() {
         <GamHeader />
       </AdGate>
 
-      <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
+      <LibraryFeatureHighlights featureHighlights={startProject.featureHighlights} />
 
       <LibraryTestimonials testimonials={startProject.testimonials} />
 

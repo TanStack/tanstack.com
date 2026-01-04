@@ -58,7 +58,7 @@ function FormVersionIndex() {
         </AdGate>
 
         <LibraryFeatureHighlights
-          featureHighlights={library.featureHighlights}
+          featureHighlights={configProject.featureHighlights}
         />
 
         <div className="px-4 sm:px-6 lg:px-8 mx-auto container">

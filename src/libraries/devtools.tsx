@@ -1,33 +1,18 @@
 import { WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
-
-const repo = 'tanstack/devtools'
+import { devtools } from './libraries'
 
 const textStyles = 'text-gray-700 dark:text-gray-500'
 
 export const devtoolsProject = {
-  id: 'devtools',
-  name: 'TanStack Devtools',
-  cardStyles: `text-slate-400 hover:border-current`,
-  to: '/devtools',
-  tagline: `Centralized devtools panel for TanStack libraries and other custom devtools`,
+  ...devtools,
   description: `A unified devtools panel that houses all TanStack devtools and allows you to create and integrate your own custom devtools.`,
   ogImage:
     'https://github.com/tanstack/devtools/raw/main/media/repo-header.png',
-  badge: 'alpha',
-  bgStyle: 'bg-slate-400',
-  borderStyle: 'border-slate-400/50',
-  textStyle: 'text-slate-400',
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v0',
-  availableVersions: ['v0'],
   bgRadial: 'from-slate-400 via-slate-600/50 to-transparent',
-  colorFrom: 'from-slate-400',
-  colorTo: 'to-slate-600',
   textColor: 'text-slate-600',
-  frameworks: ['react', 'preact', 'solid', 'vanilla'],
   featureHighlights: [
     {
       title: 'Unified Devtools Panel',

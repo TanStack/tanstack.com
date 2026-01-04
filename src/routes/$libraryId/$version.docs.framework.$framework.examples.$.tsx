@@ -15,7 +15,7 @@ import {
 } from '~/utils/sandbox'
 import { seo } from '~/utils/seo'
 import { capitalize, slugToTitle } from '~/utils/utils'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { CodeExplorer } from '~/components/CodeExplorer'
 import type { GitHubFileNode } from '~/utils/documents.server'
 import { ExternalLink } from 'lucide-react'
@@ -49,9 +49,9 @@ export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/examples/$',
 )({
   component: RouteComponent,
-  validateSearch: z.object({
-    path: z.string().optional(),
-    panel: z.string().optional(),
+  validateSearch: v.object({
+    path: v.optional(v.string()),
+    panel: v.optional(v.string()),
   }),
   loaderDeps: ({ search }) => ({ path: search.path }),
   loader: async ({ params, context: { queryClient }, deps: { path } }) => {

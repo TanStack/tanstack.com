@@ -2,34 +2,18 @@ import { handleRedirects } from '~/utils/handleRedirects.server'
 import { WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
-
-const repo = 'tanstack/query'
+import { query } from './libraries'
 
 const textStyles = 'text-red-500 dark:text-red-400'
 
 export const queryProject = {
-  id: 'query',
-  name: 'TanStack Query',
-  cardStyles: `text-red-500 hover:border-current`,
-  to: '/query',
-  tagline: `Powerful asynchronous state management, server-state utilities and data fetching`,
+  ...query,
   description:
     'Powerful asynchronous state management, server-state utilities and data fetching. Fetch, cache, update, and wrangle all forms of async data in your TS/JS, React, Vue, Solid, Svelte & Angular applications all without touching any "global state"',
   ogImage: 'https://github.com/tanstack/query/raw/main/media/repo-header.png',
-  badge: undefined,
-  bgStyle: 'bg-red-500',
-  borderStyle: 'border-red-500/50',
-  textStyle: 'text-red-500',
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v5',
-  availableVersions: ['v5', 'v4', 'v3'],
   bgRadial: 'from-red-500 via-red-500/60 to-transparent',
-  colorFrom: 'from-red-500',
-  colorTo: 'to-amber-500',
   textColor: 'text-amber-500',
-  frameworks: ['react', 'solid', 'vue', 'svelte', 'angular'],
-  scarfId: '53afb586-3934-4624-a37a-e680c1528e17',
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/installation',
   legacyPackages: ['react-query'],

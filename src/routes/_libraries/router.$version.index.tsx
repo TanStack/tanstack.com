@@ -133,7 +133,7 @@ export default function App() {
         </Card>
       </div>
 
-      <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
+      <LibraryFeatureHighlights featureHighlights={routerProject.featureHighlights} />
 
       <LibraryTestimonials testimonials={routerProject.testimonials} />
 

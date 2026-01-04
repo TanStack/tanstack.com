@@ -58,7 +58,7 @@ function PacerVersionIndex() {
         </AdGate>
 
         <LibraryFeatureHighlights
-          featureHighlights={library.featureHighlights}
+          featureHighlights={pacerProject.featureHighlights}
         />
 
         <div className="px-4 sm:px-6 lg:px-8 mx-auto">

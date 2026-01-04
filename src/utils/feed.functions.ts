@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/db/client'
 import { feedEntries, feedConfig } from '~/db/schema'
 import { eq, and, sql } from 'drizzle-orm'
-import { z } from 'zod'
+import * as v from 'valibot'
 import type { EntryType } from '~/db/schema'
 import {
   requireAdmin,
@@ -37,30 +37,36 @@ function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {
 
 export const listFeedEntries = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      pagination: z.object({
-        limit: z.number(),
-        page: z.number().optional(),
+    v.object({
+      pagination: v.object({
+        limit: v.number(),
+        page: v.optional(v.number()),
       }),
-      filters: z
-        .object({
-          entryTypes: z
-            .array(
-              z.enum(['release', 'blog', 'announcement', 'partner', 'update']),
-            )
-            .optional(),
-          libraries: z.array(z.string()).optional(),
-          partners: z.array(z.string()).optional(),
-          tags: z.array(z.string()).optional(),
-          releaseLevels: z
-            .array(z.enum(['major', 'minor', 'patch']))
-            .optional(),
-          includePrerelease: z.boolean().optional(),
-          featured: z.boolean().optional(),
-          search: z.string().optional(),
-          includeHidden: z.boolean().optional(),
-        })
-        .optional(),
+      filters: v.optional(
+        v.object({
+          entryTypes: v.optional(
+            v.array(
+              v.picklist([
+                'release',
+                'blog',
+                'announcement',
+                'partner',
+                'update',
+              ]),
+            ),
+          ),
+          libraries: v.optional(v.array(v.string())),
+          partners: v.optional(v.array(v.string())),
+          tags: v.optional(v.array(v.string())),
+          releaseLevels: v.optional(
+            v.array(v.picklist(['major', 'minor', 'patch'])),
+          ),
+          includePrerelease: v.optional(v.boolean()),
+          featured: v.optional(v.boolean()),
+          search: v.optional(v.string()),
+          includeHidden: v.optional(v.boolean()),
+        }),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -126,7 +132,7 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
 
 // Server function wrapper for getFeedEntry
 export const getFeedEntry = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ id: z.string() }))
+  .inputValidator(v.object({ id: v.string() }))
   .handler(async ({ data }) => {
     const entry = await db.query.feedEntries.findFirst({
       where: eq(feedEntries.entryId, data.id),
@@ -141,7 +147,7 @@ export const getFeedEntry = createServerFn({ method: 'POST' })
 
 // Server function wrapper for getFeedEntryById
 export const getFeedEntryById = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ id: z.string() }))
+  .inputValidator(v.object({ id: v.string() }))
   .handler(async ({ data }) => {
     const entry = await db.query.feedEntries.findFirst({
       where: eq(feedEntries.entryId, data.id),
@@ -186,26 +192,32 @@ export const getFeedStats = createServerFn({ method: 'POST' }).handler(
 // Server function wrapper for getFeedFacetCounts
 export const getFeedFacetCounts = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      filters: z
-        .object({
-          entryTypes: z
-            .array(
-              z.enum(['release', 'blog', 'announcement', 'partner', 'update']),
-            )
-            .optional(),
-          libraries: z.array(z.string()).optional(),
-          partners: z.array(z.string()).optional(),
-          tags: z.array(z.string()).optional(),
-          releaseLevels: z
-            .array(z.enum(['major', 'minor', 'patch']))
-            .optional(),
-          includePrerelease: z.boolean().optional(),
-          featured: z.boolean().optional(),
-          search: z.string().optional(),
-          includeHidden: z.boolean().optional(),
-        })
-        .optional(),
+    v.object({
+      filters: v.optional(
+        v.object({
+          entryTypes: v.optional(
+            v.array(
+              v.picklist([
+                'release',
+                'blog',
+                'announcement',
+                'partner',
+                'update',
+              ]),
+            ),
+          ),
+          libraries: v.optional(v.array(v.string())),
+          partners: v.optional(v.array(v.string())),
+          tags: v.optional(v.array(v.string())),
+          releaseLevels: v.optional(
+            v.array(v.picklist(['major', 'minor', 'patch'])),
+          ),
+          includePrerelease: v.optional(v.boolean()),
+          featured: v.optional(v.boolean()),
+          search: v.optional(v.string()),
+          includeHidden: v.optional(v.boolean()),
+        }),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -299,9 +311,9 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
 // Server function wrapper for searchFeedEntries
 export const searchFeedEntries = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      search: z.string(),
-      limit: z.number().optional(),
+    v.object({
+      search: v.string(),
+      limit: v.optional(v.number()),
     }),
   )
   .handler(async ({ data }) => {
@@ -329,7 +341,7 @@ export const searchFeedEntries = createServerFn({ method: 'POST' })
 
 // Server function wrapper for getFeedConfig
 export const getFeedConfig = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ key: z.string() }))
+  .inputValidator(v.object({ key: v.string() }))
   .handler(async ({ data }) => {
     const config = await db.query.feedConfig.findFirst({
       where: eq(feedConfig.key, data.key),
@@ -348,20 +360,20 @@ export const getFeedConfig = createServerFn({ method: 'POST' })
 // Server function wrapper for createFeedEntry
 export const createFeedEntry = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      id: z.string(),
-      entryType: z.enum(['release', 'blog', 'announcement']),
-      title: z.string(),
-      content: z.string(),
-      excerpt: z.string().optional(),
-      publishedAt: z.number(),
-      metadata: z.any().optional(),
-      libraryIds: z.array(z.string()),
-      partnerIds: z.array(z.string()).optional(),
-      tags: z.array(z.string()),
-      showInFeed: z.boolean(),
-      featured: z.boolean().optional(),
-      autoSynced: z.boolean(),
+    v.object({
+      id: v.string(),
+      entryType: v.picklist(['release', 'blog', 'announcement']),
+      title: v.string(),
+      content: v.string(),
+      excerpt: v.optional(v.string()),
+      publishedAt: v.number(),
+      metadata: v.optional(v.any()),
+      libraryIds: v.array(v.string()),
+      partnerIds: v.optional(v.array(v.string())),
+      tags: v.array(v.string()),
+      showInFeed: v.boolean(),
+      featured: v.optional(v.boolean()),
+      autoSynced: v.boolean(),
     }),
   )
   .handler(async ({ data }) => {
@@ -412,20 +424,20 @@ export const createFeedEntry = createServerFn({ method: 'POST' })
 // Server function wrapper for updateFeedEntry
 export const updateFeedEntry = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      id: z.string(),
-      entryType: z.enum(['release', 'blog', 'announcement']).optional(),
-      title: z.string().optional(),
-      content: z.string().optional(),
-      excerpt: z.string().optional(),
-      publishedAt: z.number().optional(),
-      metadata: z.any().optional(),
-      libraryIds: z.array(z.string()).optional(),
-      partnerIds: z.array(z.string()).optional(),
-      tags: z.array(z.string()).optional(),
-      showInFeed: z.boolean().optional(),
-      featured: z.boolean().optional(),
-      lastSyncedAt: z.number().optional(),
+    v.object({
+      id: v.string(),
+      entryType: v.optional(v.picklist(['release', 'blog', 'announcement'])),
+      title: v.optional(v.string()),
+      content: v.optional(v.string()),
+      excerpt: v.optional(v.string()),
+      publishedAt: v.optional(v.number()),
+      metadata: v.optional(v.any()),
+      libraryIds: v.optional(v.array(v.string())),
+      partnerIds: v.optional(v.array(v.string())),
+      tags: v.optional(v.array(v.string())),
+      showInFeed: v.optional(v.boolean()),
+      featured: v.optional(v.boolean()),
+      lastSyncedAt: v.optional(v.number()),
     }),
   )
   .handler(async ({ data }) => {
@@ -491,7 +503,7 @@ export const updateFeedEntry = createServerFn({ method: 'POST' })
 
 // Server function wrapper for deleteFeedEntry
 export const deleteFeedEntry = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ id: z.string() }))
+  .inputValidator(v.object({ id: v.string() }))
   .handler(async ({ data }) => {
     await requireAdmin()
 
@@ -515,9 +527,9 @@ export const deleteFeedEntry = createServerFn({ method: 'POST' })
 // Server function wrapper for toggleFeedEntryVisibility
 export const toggleFeedEntryVisibility = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      id: z.string(),
-      showInFeed: z.boolean(),
+    v.object({
+      id: v.string(),
+      showInFeed: v.boolean(),
     }),
   )
   .handler(async ({ data }) => {
@@ -542,9 +554,9 @@ export const toggleFeedEntryVisibility = createServerFn({ method: 'POST' })
 // Server function wrapper for setFeedEntryFeatured
 export const setFeedEntryFeatured = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      id: z.string(),
-      featured: z.boolean(),
+    v.object({
+      id: v.string(),
+      featured: v.boolean(),
     }),
   )
   .handler(async ({ data }) => {
@@ -569,9 +581,9 @@ export const setFeedEntryFeatured = createServerFn({ method: 'POST' })
 // Server function wrapper for setFeedConfig
 export const setFeedConfig = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      key: z.string(),
-      value: z.any(),
+    v.object({
+      key: v.string(),
+      value: v.any(),
     }),
   )
   .handler(async ({ data }) => {

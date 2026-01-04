@@ -2,8 +2,8 @@ import { createFileRoute, Link, notFound } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { useCapabilities } from '~/hooks/useCapabilities'
-import { z } from 'zod'
-import { format, formatDistanceToNow } from 'date-fns'
+import * as v from 'valibot'
+import { format, formatDistanceToNow } from '~/utils/dates'
 import { Markdown } from '~/components/Markdown'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
@@ -11,6 +11,8 @@ import { twMerge } from 'tailwind-merge'
 import type { FeedEntry } from '~/components/FeedEntry'
 import { getFeedEntryByIdQueryOptions } from '~/queries/feed'
 import { ArrowLeft } from 'lucide-react'
+
+const searchSchema = v.object({})
 
 export const Route = createFileRoute('/_libraries/feed/$id')({
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -40,7 +42,7 @@ export const Route = createFileRoute('/_libraries/feed/$id')({
     'Netlify-Vary': 'query=payload',
   }),
   component: FeedItemPage,
-  validateSearch: z.object({}),
+  validateSearch: searchSchema,
   head: ({ loaderData }) => {
     const entry = loaderData?.entry
 

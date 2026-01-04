@@ -1,32 +1,16 @@
 import { MessageCircleQuestionMark, PlugZap, RotateCw } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
-
-const repo = 'tanstack/ranger'
+import { ranger } from './libraries'
 
 const textStyles = 'text-gray-700 dark:text-gray-500'
 
 export const rangerProject = {
-  id: 'ranger',
-  name: 'TanStack Ranger',
-  cardStyles: `text-slate-500 hover:border-current`,
-  to: '/ranger',
-  tagline: `Headless range and multi-range slider utilities.`,
+  ...ranger,
   description: `Headless, lightweight, and extensible primitives for building range and multi-range sliders.`,
   ogImage: 'https://github.com/tanstack/ranger/raw/main/media/headerv1.png',
-  badge: undefined,
-  bgStyle: 'bg-slate-500',
-  borderStyle: 'border-slate-500/50',
-  textStyle: 'text-slate-500',
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v0',
-  availableVersions: ['v0'],
   bgRadial: 'from-gray-500 via-gray-700/50 to-transparent',
-  colorFrom: 'from-gray-500',
-  colorTo: 'to-gray-700',
   textColor: 'text-gray-700',
-  frameworks: ['react'],
-  scarfId: 'dd278e06-bb3f-420c-85c6-6e42d14d8f61',
   featureHighlights: [
     {
       title: 'Typesafe & powerful, yet familiarly simple',

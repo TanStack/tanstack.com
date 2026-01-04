@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { useState } from 'react'
 import * as React from 'react'
 import { X, ListFilter, Grid2X2, Grid3X3, LayoutList } from 'lucide-react'
@@ -20,7 +20,7 @@ import {
 } from '~/libraries/maintainers'
 import { Library, libraries } from '~/libraries'
 
-const librarySchema = z.enum([
+const librarySchema = v.picklist([
   'start',
   'router',
   'query',
@@ -37,18 +37,20 @@ const librarySchema = z.enum([
   'devtools',
 ])
 
-const viewModeSchema = z.enum(['compact', 'full', 'row'])
-const groupBySchema = z.enum(['none', 'core', 'library', 'role'])
-const sortBySchema = z.enum(['none', 'name', 'role', 'contributions'])
+const viewModeSchema = v.picklist(['compact', 'full', 'row'])
+const groupBySchema = v.picklist(['none', 'core', 'library', 'role'])
+const sortBySchema = v.picklist(['none', 'name', 'role', 'contributions'])
+
+const searchSchema = v.object({
+  libraries: v.fallback(v.optional(v.array(librarySchema)), undefined),
+  viewMode: v.fallback(v.optional(viewModeSchema, 'compact'), 'compact'),
+  groupBy: v.fallback(v.optional(groupBySchema, 'none'), 'none'),
+  sortBy: v.fallback(v.optional(sortBySchema, 'none'), 'none'),
+})
 
 export const Route = createFileRoute('/_libraries/maintainers')({
   component: RouteComponent,
-  validateSearch: z.object({
-    libraries: z.array(librarySchema).optional().catch(undefined),
-    viewMode: viewModeSchema.optional().default('compact').catch('compact'),
-    groupBy: groupBySchema.optional().default('none').catch('none'),
-    sortBy: sortBySchema.optional().default('none').catch('none'),
-  }),
+  validateSearch: searchSchema,
   head: () => ({
     meta: seo({
       title: 'Maintainers | TanStack',

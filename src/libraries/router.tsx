@@ -1,38 +1,22 @@
 import { DatabaseZap, MessageCircleQuestionMark, PlugZap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
-
-const repo = 'tanstack/router'
+import { router } from './libraries'
 
 const textStyles = 'text-emerald-500 dark:text-emerald-400'
 
 export const routerProject = {
-  id: 'router',
-  name: 'TanStack Router',
-  cardStyles: twMerge(`${textStyles} hover:border-current`),
-  to: '/router',
-  tagline: `Type-safe Routing for React and Solid applications`,
+  ...router,
   description: `A powerful React router for client-side and full-stack react applications. Fully type-safe APIs, first-class search-params for managing state in the URL and seamless integration with the existing React ecosystem.`,
   ogImage: 'https://github.com/tanstack/router/raw/main/media/header.png',
-  bgStyle: 'bg-emerald-500',
-  borderStyle: 'border-emerald-500/50',
-  textStyle: textStyles,
-  badge: undefined,
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v1',
-  availableVersions: ['v1'],
   docsRoot: 'docs/router',
   bgRadial: 'from-emerald-500 via-lime-600/50 to-transparent',
-  colorFrom: 'from-emerald-500',
-  colorTo: 'to-lime-600',
   textColor: textStyles,
-  frameworks: ['react', 'solid'],
-  scarfId: '3d14fff2-f326-4929-b5e1-6ecf953d24f4',
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/installation',
   legacyPackages: ['react-location'],
-  hideCodesandboxUrl: true,
+  hideCodesandboxUrl: true as const,
   showVercelUrl: false,
   showNetlifyUrl: true,
   showCloudflareUrl: true,
@@ -134,7 +118,7 @@ export const routerProject = {
       ),
     },
   ],
-  handleRedirects(href) {
+  handleRedirects(href: string) {
     if (href.includes('router/latest/docs/framework/react/start')) {
       throw redirect({
         href: href.replace(

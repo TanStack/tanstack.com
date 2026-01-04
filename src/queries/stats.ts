@@ -1,7 +1,7 @@
 import { queryOptions } from '@tanstack/react-query'
 import { getOSSStats } from '~/utils/stats.server'
 import type { StatsQueryParams } from '~/utils/stats.server'
-import type { Library } from '~/libraries'
+import type { LibrarySlim } from '~/libraries'
 
 export type {
   Library as StatsLibrary,
@@ -15,7 +15,7 @@ export const ossStatsQueryOptions = (params?: StatsQueryParams) =>
     staleTime: 1000 * 60 * 15, // Cache for 15 minutes
   })
 
-export function ossStatsQuery({ library }: { library?: Library } = {}) {
+export function ossStatsQuery({ library }: { library?: LibrarySlim } = {}) {
   return ossStatsQueryOptions({
     library: library
       ? {

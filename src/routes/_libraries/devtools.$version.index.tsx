@@ -59,7 +59,7 @@ function DevtoolsVersionIndex() {
         </AdGate>
 
         <LibraryFeatureHighlights
-          featureHighlights={library.featureHighlights}
+          featureHighlights={devtoolsProject.featureHighlights}
         />
 
         <div className="px-4 sm:px-6 lg:px-8 mx-auto container">

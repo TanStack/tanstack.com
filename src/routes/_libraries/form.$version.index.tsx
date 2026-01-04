@@ -68,7 +68,7 @@ function FormVersionIndex() {
         </AdGate>
 
         <LibraryFeatureHighlights
-          featureHighlights={library.featureHighlights}
+          featureHighlights={formProject.featureHighlights}
         />
 
         <LibraryTestimonials testimonials={formProject.testimonials} />

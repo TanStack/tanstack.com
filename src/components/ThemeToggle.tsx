@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useTheme } from './ThemeProvider'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, SunMoon } from 'lucide-react'
 import { Button } from './Button'
 
 export function ThemeToggle() {
@@ -17,9 +17,15 @@ export function ThemeToggle() {
 
   return (
     <Button onClick={handleToggleMode}>
-      <Sun className="w-3.5 h-3.5 hidden light:block" />
-      <Moon className="w-3.5 h-3.5 hidden dark:block" />
-      <span>{label}</span>
+      {themeMode === 'auto' ? (
+        <SunMoon className="w-3.5 h-3.5" />
+      ) : (
+        <>
+          <Sun className="w-3.5 h-3.5 hidden light:block" />
+          <Moon className="w-3.5 h-3.5 hidden dark:block" />
+        </>
+      )}
+      <span className="hidden sm:inline">{label}</span>
     </Button>
   )
 }

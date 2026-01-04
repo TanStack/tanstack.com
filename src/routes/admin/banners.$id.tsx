@@ -4,11 +4,11 @@ import { BannerEditor } from '~/components/admin/BannerEditor'
 import { getBanner, type BannerWithMeta } from '~/utils/banner.functions'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { z } from 'zod'
+import * as v from 'valibot'
 
 export const Route = createFileRoute('/admin/banners/$id')({
   component: BannerEditorPage,
-  validateSearch: z.object({}),
+  validateSearch: (search) => v.parse(v.object({}), search),
 })
 
 function BannerEditorPage() {

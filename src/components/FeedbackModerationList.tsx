@@ -166,7 +166,7 @@ export function FeedbackModerationList({
                 >
                   <TableCell className="font-mono text-xs">
                     <Link
-                      to="/admin/feedback_/$id"
+                      to="/admin/feedback/$id"
                       params={{ id: feedback.id }}
                       className="hover:text-blue-600 dark:hover:text-blue-400"
                       onClick={(e) => e.stopPropagation()}
@@ -176,7 +176,7 @@ export function FeedbackModerationList({
                   </TableCell>
                   <TableCell>
                     <Link
-                      to="/admin/feedback_/$id"
+                      to="/admin/feedback/$id"
                       params={{ id: feedback.id }}
                       className="flex items-center gap-2 hover:opacity-80"
                       onClick={(e) => e.stopPropagation()}

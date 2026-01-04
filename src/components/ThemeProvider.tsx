@@ -2,22 +2,22 @@ import { ScriptOnce } from '@tanstack/react-router'
 import { createClientOnlyFn, createIsomorphicFn } from '@tanstack/react-start'
 import * as React from 'react'
 import { createContext, ReactNode, useEffect, useState } from 'react'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { THEME_COLORS } from '~/utils/utils'
 
-const themeModeSchema = z.enum(['light', 'dark', 'auto'])
-const resolvedThemeSchema = z.enum(['light', 'dark'])
+const themeModeSchema = v.picklist(['light', 'dark', 'auto'])
+const resolvedThemeSchema = v.picklist(['light', 'dark'])
 const themeKey = 'theme'
 
-type ThemeMode = z.infer<typeof themeModeSchema>
-type ResolvedTheme = z.infer<typeof resolvedThemeSchema>
+type ThemeMode = v.InferOutput<typeof themeModeSchema>
+type ResolvedTheme = v.InferOutput<typeof resolvedThemeSchema>
 
 const getStoredThemeMode = createIsomorphicFn()
   .server((): ThemeMode => 'auto')
   .client((): ThemeMode => {
     try {
       const storedTheme = localStorage.getItem(themeKey)
-      return themeModeSchema.parse(storedTheme)
+      return v.parse(themeModeSchema, storedTheme)
     } catch {
       return 'auto'
     }
@@ -25,7 +25,7 @@ const getStoredThemeMode = createIsomorphicFn()
 
 const setStoredThemeMode = createClientOnlyFn((theme: ThemeMode) => {
   try {
-    const parsedTheme = themeModeSchema.parse(theme)
+    const parsedTheme = v.parse(themeModeSchema, theme)
     localStorage.setItem(themeKey, parsedTheme)
   } catch {}
 })

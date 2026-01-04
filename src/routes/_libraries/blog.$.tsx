@@ -3,8 +3,8 @@ import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { formatAuthors } from '~/utils/blog'
-import { format } from 'date-fns'
-import { z } from 'zod'
+import { format } from '~/utils/dates'
+import * as v from 'valibot'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 import * as React from 'react'
@@ -24,7 +24,7 @@ function handleRedirects(docsPath: string) {
 }
 
 const fetchBlogPost = createServerFn({ method: 'GET' })
-  .inputValidator(z.string().optional())
+  .inputValidator(v.optional(v.string()))
   .handler(async ({ data: docsPath }) => {
     if (!docsPath) {
       throw new Error('Invalid docs path')

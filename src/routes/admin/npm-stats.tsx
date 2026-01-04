@@ -23,7 +23,7 @@ import {
   getLibraryNpmStats,
   refreshAllNpmStats,
 } from '~/utils/stats-admin.server'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from '~/utils/dates'
 import { Download, RefreshCw } from 'lucide-react'
 import { NpmIcon } from '~/components/icons/NpmIcon'
 import { Card } from '~/components/Card'

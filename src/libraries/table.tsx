@@ -2,46 +2,21 @@ import { handleRedirects } from '~/utils/handleRedirects.server'
 import { PersonStanding, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
-
-const repo = 'tanstack/table'
+import { table } from './libraries'
 
 const textStyles = 'text-blue-500 dark:text-blue-400'
 
 export const tableProject = {
-  id: 'table',
-  name: 'TanStack Table',
-  cardStyles: `text-blue-500 hover:border-current`,
-  to: '/table',
-  tagline: `Headless UI for building powerful tables & datagrids`,
+  ...table,
   description: `Supercharge your tables or build a datagrid from scratch for TS/JS, React, Vue, Solid, Svelte, Qwik, Angular, and Lit while retaining 100% control over markup and styles.`,
   ogImage: 'https://github.com/tanstack/table/raw/main/media/repo-header.png',
-  badge: undefined,
-  bgStyle: 'bg-blue-500',
-  borderStyle: 'border-blue-500/50',
-  textStyle: 'text-blue-500',
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v8',
-  availableVersions: ['v8'],
   bgRadial: 'from-cyan-500 via-blue-600/50 to-transparent',
-  colorFrom: 'from-cyan-500',
-  colorTo: 'to-blue-600',
   textColor: 'text-blue-600',
-  frameworks: [
-    'angular',
-    'lit',
-    'qwik',
-    'react',
-    'solid',
-    'svelte',
-    'vue',
-    'vanilla',
-  ],
-  scarfId: 'dc8b39e1-3fe9-4f3a-8e56-d4e2cf420a9e',
   defaultDocs: 'introduction',
   corePackageName: 'table-core',
   legacyPackages: ['react-table'],
-  handleRedirects: (href) => {
+  handleRedirects: (href: string) => {
     handleRedirects(
       reactTableV7List,
       href,

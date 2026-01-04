@@ -19,7 +19,7 @@ import {
   flexRender,
   type ColumnDef,
 } from '@tanstack/react-table'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { listAuditLogs } from '~/utils/audit.functions'
 import { Lock, Shield, User, ChevronDown, ChevronUp } from 'lucide-react'
@@ -81,13 +81,17 @@ const ACTION_COLORS: Record<string, string> = {
 
 export const Route = createFileRoute('/admin/audit')({
   component: AuditPage,
-  validateSearch: z.object({
-    actorId: z.string().optional(),
-    action: z.string().optional(),
-    targetType: z.string().optional(),
-    page: z.number().int().nonnegative().optional(),
-    pageSize: z.number().int().positive().optional(),
-  }),
+  validateSearch: (search) =>
+    v.parse(
+      v.object({
+        actorId: v.optional(v.string()),
+        action: v.optional(v.string()),
+        targetType: v.optional(v.string()),
+        page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+        pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+      }),
+      search,
+    ),
 })
 
 function DetailsCell({ details }: { details: string | null }) {

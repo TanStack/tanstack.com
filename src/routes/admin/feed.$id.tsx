@@ -5,10 +5,10 @@ import type { FeedEntry } from '~/components/FeedEntry'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { getFeedEntryQueryOptions } from '~/queries/feed'
-import { z } from 'zod'
+import * as v from 'valibot'
 export const Route = createFileRoute('/admin/feed/$id')({
   component: FeedEditorPage,
-  validateSearch: z.object({}),
+  validateSearch: (search) => v.parse(v.object({}), search),
 })
 
 function FeedEditorPage() {

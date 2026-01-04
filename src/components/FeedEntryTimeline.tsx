@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { format, formatDistanceToNow } from 'date-fns'
+import { format, formatDistanceToNow } from '~/utils/dates'
 import { Markdown } from '~/components/Markdown'
 import { Card } from '~/components/Card'
 import { libraries } from '~/libraries'

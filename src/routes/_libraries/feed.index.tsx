@@ -1,55 +1,47 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { FeedPage as FeedPageComponent } from '~/components/FeedPage'
 import { listFeedEntriesQueryOptions } from '~/queries/feed'
-import { libraries, type LibraryId } from '~/libraries'
+import { libraryIds, type LibraryId } from '~/libraries'
 import { ENTRY_TYPES, RELEASE_LEVELS } from '~/utils/feedSchema'
 import { FEED_DEFAULTS } from '~/utils/feedDefaults'
 
-// Create zod enums from single source of truth
-const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
-const librarySchema = z.enum(libraryIds as [LibraryId, ...LibraryId[]])
-const entryTypeSchema = z.enum(ENTRY_TYPES)
-const releaseLevelSchema = z.enum(RELEASE_LEVELS)
-const viewModeSchema = z
-  .enum(['table', 'timeline'])
-  .optional()
-  .default('table')
-  .catch('table')
+const librarySchema = v.picklist(libraryIds as [LibraryId, ...LibraryId[]])
+const entryTypeSchema = v.picklist(ENTRY_TYPES)
+const releaseLevelSchema = v.picklist(RELEASE_LEVELS)
+const viewModeSchema = v.fallback(
+  v.optional(v.picklist(['table', 'timeline']), 'table'),
+  'table',
+)
+
+const searchSchema = v.object({
+  entryTypes: v.fallback(v.optional(v.array(entryTypeSchema)), undefined),
+  libraries: v.fallback(v.optional(v.array(librarySchema)), undefined),
+  partners: v.fallback(v.optional(v.array(v.string())), undefined),
+  tags: v.fallback(v.optional(v.array(v.string())), undefined),
+  releaseLevels: v.fallback(v.optional(v.array(releaseLevelSchema)), undefined),
+  includePrerelease: v.fallback(v.optional(v.boolean()), undefined),
+  featured: v.fallback(v.optional(v.boolean()), undefined),
+  search: v.fallback(v.optional(v.string()), undefined),
+  page: v.fallback(
+    v.optional(v.number(), FEED_DEFAULTS.page),
+    FEED_DEFAULTS.page,
+  ),
+  pageSize: v.fallback(
+    v.optional(
+      v.pipe(v.number(), v.integer(), v.minValue(1)),
+      FEED_DEFAULTS.pageSize,
+    ),
+    FEED_DEFAULTS.pageSize,
+  ),
+  viewMode: viewModeSchema,
+  expanded: v.fallback(v.optional(v.array(v.string())), undefined),
+})
 
 export const Route = createFileRoute('/_libraries/feed/')({
   staleTime: 1000 * 60 * 5, // 5 minutes
-  validateSearch: (search) => {
-    const parsed = z
-      .object({
-        entryTypes: z.array(entryTypeSchema).optional().catch(undefined),
-        libraries: z.array(librarySchema).optional().catch(undefined),
-        partners: z.array(z.string()).optional().catch(undefined),
-        tags: z.array(z.string()).optional().catch(undefined),
-        releaseLevels: z.array(releaseLevelSchema).optional().catch(undefined),
-        includePrerelease: z.boolean().optional().catch(undefined),
-        featured: z.boolean().optional().catch(undefined),
-        search: z.string().optional().catch(undefined),
-        page: z
-          .number()
-          .optional()
-          .default(FEED_DEFAULTS.page)
-          .catch(FEED_DEFAULTS.page),
-        pageSize: z
-          .number()
-          .int()
-          .positive()
-          .optional()
-          .default(FEED_DEFAULTS.pageSize)
-          .catch(FEED_DEFAULTS.pageSize),
-        viewMode: viewModeSchema,
-        expanded: z.array(z.string()).optional().catch(undefined),
-      })
-      .parse(search)
-
-    return parsed
-  },
+  validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({
     page: search.page,
     pageSize: search.pageSize,

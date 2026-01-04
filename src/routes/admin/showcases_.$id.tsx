@@ -13,6 +13,8 @@ import {
   X,
   ExternalLink,
   Clock,
+  ThumbsUp,
+  ThumbsDown,
 } from 'lucide-react'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
@@ -212,6 +214,35 @@ function ShowcaseDetailPage() {
                   </dd>
                 </div>
               )}
+              <div>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                  {showcase.voteScore >= 0 ? (
+                    <ThumbsUp className="w-4 h-4" />
+                  ) : (
+                    <ThumbsDown className="w-4 h-4" />
+                  )}
+                  Community Votes
+                </dt>
+                <dd className="mt-1">
+                  <span
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium ${
+                      showcase.voteScore > 0
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                        : showcase.voteScore < 0
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                    }`}
+                  >
+                    {showcase.voteScore > 0 ? '+' : ''}
+                    {showcase.voteScore}
+                  </span>
+                  {showcase.voteScore < 0 && (
+                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      Negative score may indicate community concerns
+                    </p>
+                  )}
+                </dd>
+              </div>
             </dl>
           </Card>
 

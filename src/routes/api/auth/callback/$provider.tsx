@@ -15,7 +15,6 @@ import {
 } from '~/auth/index.server'
 import { recordLogin } from '~/utils/audit.server'
 import { recordDailyActivity } from '~/utils/activity.server'
-import { notifyAdmin, formatUserSignupEmail } from '~/utils/email.server'
 
 export const Route = createFileRoute('/api/auth/callback/$provider')({
   server: {
@@ -145,16 +144,6 @@ export const Route = createFileRoute('/api/auth/callback/$provider')({
               request,
             }),
             recordDailyActivity(user.id),
-            // Notify admin of new user signups
-            result.isNewUser
-              ? notifyAdmin(
-                  formatUserSignupEmail({
-                    name: user.name,
-                    email: user.email,
-                    provider,
-                  }),
-                )
-              : Promise.resolve(),
           ]).catch((err) => {
             console.error('[AUTH:WARN] Failed to record login/activity event:', err)
           })

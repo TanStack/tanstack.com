@@ -17,7 +17,7 @@ import {
   canModerateFeedback,
   checkRateLimit,
 } from './docFeedback.server'
-import { notifyAdmin, formatFeedbackSubmittedEmail } from './email.server'
+import { notifyModerators, formatFeedbackSubmittedEmail } from './email.server'
 
 /**
  * Create new doc feedback
@@ -97,15 +97,16 @@ export const createDocFeedback = createServerFn({ method: 'POST' })
       .where(eq(users.id, user.userId))
       .limit(1)
 
-    notifyAdmin(
-      formatFeedbackSubmittedEmail({
+    notifyModerators({
+      capability: 'moderate-feedback',
+      ...formatFeedbackSubmittedEmail({
         type: data.type,
         pagePath: data.pagePath,
         libraryId: data.libraryId,
         content: data.content,
         userName: userRecord[0]?.name || undefined,
       }),
-    )
+    })
 
     return {
       success: true,

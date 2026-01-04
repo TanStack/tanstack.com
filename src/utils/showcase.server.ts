@@ -1,6 +1,6 @@
 import { db } from '~/db/client'
 import { showcases } from '~/db/schema'
-import { and, eq, gte, sql } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { requireCapability } from './auth.server'
 import { getEffectiveCapabilities } from './capabilities.server'
 
@@ -45,21 +45,19 @@ export async function validateShowcaseOwnership(
 }
 
 /**
- * Check rate limit for showcase submissions
- * Returns true if rate limit is exceeded, false otherwise
+ * Check if user has reached the pending submission limit
+ * Returns true if limit is reached, false otherwise
  */
-export async function checkShowcaseRateLimit(userId: string): Promise<boolean> {
-  // Limit: 5 submissions per day
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
-
-  const recentSubmissions = await db
+export async function checkPendingSubmissionLimit(
+  userId: string,
+): Promise<boolean> {
+  // Limit: 5 pending submissions max
+  const pendingSubmissions = await db
     .select({ count: sql<number>`COUNT(*)::int` })
     .from(showcases)
-    .where(
-      and(eq(showcases.userId, userId), gte(showcases.createdAt, oneDayAgo)),
-    )
+    .where(and(eq(showcases.userId, userId), eq(showcases.status, 'pending')))
 
-  const count = recentSubmissions[0]?.count ?? 0
+  const count = pendingSubmissions[0]?.count ?? 0
   return count >= 5
 }
 

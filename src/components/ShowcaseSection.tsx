@@ -1,13 +1,16 @@
 import * as React from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link, useNavigate } from '@tanstack/react-router'
 import {
   getFeaturedShowcasesQueryOptions,
   getShowcasesByLibraryQueryOptions,
+  getMyShowcaseVotesQueryOptions,
 } from '~/queries/showcases'
+import { voteShowcase } from '~/utils/showcase.functions'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
 import { buttonStyles } from './Button'
 import { ArrowRight, Plus } from 'lucide-react'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 interface ShowcaseSectionProps {
   title?: string
@@ -59,6 +62,10 @@ export function ShowcaseSection({
   showViewAll = true,
   minItems = 3,
 }: ShowcaseSectionProps) {
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const currentUser = useCurrentUser()
+
   const queryOptions = libraryId
     ? getShowcasesByLibraryQueryOptions({ libraryId, limit })
     : getFeaturedShowcasesQueryOptions({ limit })
@@ -67,6 +74,117 @@ export function ShowcaseSection({
 
   const showcases = data?.showcases || []
   const placeholdersNeeded = Math.max(0, minItems - showcases.length)
+
+  const showcaseIds = React.useMemo(
+    () => showcases.map((s) => s.showcase.id),
+    [showcases],
+  )
+
+  const { data: votesData } = useQuery({
+    ...getMyShowcaseVotesQueryOptions(showcaseIds),
+    enabled: !!currentUser && showcaseIds.length > 0,
+  })
+
+  const votesMap = React.useMemo(() => {
+    const map = new Map<string, 1 | -1>()
+    votesData?.votes.forEach((v) => {
+      if (v.value === 1 || v.value === -1) {
+        map.set(v.showcaseId, v.value)
+      }
+    })
+    return map
+  }, [votesData])
+
+  const voteMutation = useMutation({
+    mutationFn: (params: { showcaseId: string; value: 1 | -1 }) =>
+      voteShowcase({ data: params }),
+    onMutate: async ({ showcaseId, value }) => {
+      await queryClient.cancelQueries({ queryKey: ['showcases'] })
+
+      const previousShowcases = queryClient.getQueryData(queryOptions.queryKey)
+      const previousVotes = queryClient.getQueryData(
+        getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+      )
+
+      // Optimistically update votes
+      queryClient.setQueryData(
+        getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+        (old: typeof votesData) => {
+          if (!old) return { votes: [{ showcaseId, value }] }
+          const existingVote = old.votes.find(
+            (v) => v.showcaseId === showcaseId,
+          )
+          if (existingVote) {
+            if (existingVote.value === value) {
+              return {
+                votes: old.votes.filter((v) => v.showcaseId !== showcaseId),
+              }
+            } else {
+              return {
+                votes: old.votes.map((v) =>
+                  v.showcaseId === showcaseId ? { ...v, value } : v,
+                ),
+              }
+            }
+          } else {
+            return { votes: [...old.votes, { showcaseId, value }] }
+          }
+        },
+      )
+
+      // Optimistically update showcase score
+      queryClient.setQueryData(queryOptions.queryKey, (old: typeof data) => {
+        if (!old) return old
+        const currentVote = votesMap.get(showcaseId)
+        return {
+          ...old,
+          showcases: old.showcases.map((s) => {
+            if (s.showcase.id !== showcaseId) return s
+            let scoreDelta: number = value
+            if (currentVote === value) {
+              scoreDelta = -value
+            } else if (currentVote) {
+              scoreDelta = value * 2
+            }
+            return {
+              ...s,
+              showcase: {
+                ...s.showcase,
+                voteScore: s.showcase.voteScore + scoreDelta,
+              },
+            }
+          }),
+        }
+      })
+
+      return { previousShowcases, previousVotes }
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previousShowcases) {
+        queryClient.setQueryData(
+          queryOptions.queryKey,
+          context.previousShowcases,
+        )
+      }
+      if (context?.previousVotes) {
+        queryClient.setQueryData(
+          getMyShowcaseVotesQueryOptions(showcaseIds).queryKey,
+          context.previousVotes,
+        )
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+    },
+  })
+
+  const handleVote = (showcaseId: string, value: 1 | -1) => {
+    if (!currentUser) {
+      navigate({ to: '/auth/login', search: { redirect: '/showcase' } })
+      return
+    }
+    voteMutation.mutate({ showcaseId, value })
+  }
 
   return (
     <section className="py-16">
@@ -88,7 +206,17 @@ export function ShowcaseSection({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {showcases.map(({ showcase, user }) => (
-            <ShowcaseCard key={showcase.id} showcase={showcase} user={user} />
+            <ShowcaseCard
+              key={showcase.id}
+              showcase={showcase}
+              user={user}
+              currentUserVote={votesMap.get(showcase.id)}
+              onVote={(value) => handleVote(showcase.id, value)}
+              isVoting={
+                voteMutation.isPending &&
+                voteMutation.variables?.showcaseId === showcase.id
+              }
+            />
           ))}
           {Array.from({ length: placeholdersNeeded }).map((_, i) => (
             <SubmitShowcasePlaceholder

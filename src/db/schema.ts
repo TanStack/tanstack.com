@@ -12,6 +12,7 @@ import {
   real,
   index,
   uniqueIndex,
+  unique,
   date,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
@@ -845,6 +846,9 @@ export const showcases = pgTable(
       mode: 'date',
     }),
 
+    // Vote score (cached sum of upvotes - downvotes)
+    voteScore: integer('vote_score').notNull().default(0),
+
     // Timestamps
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
       .notNull()
@@ -860,12 +864,42 @@ export const showcases = pgTable(
     createdAtIdx: index('showcases_created_at_idx').on(table.createdAt),
     moderatedByIdx: index('showcases_moderated_by_idx').on(table.moderatedBy),
     trancoRankIdx: index('showcases_tranco_rank_idx').on(table.trancoRank),
+    voteScoreIdx: index('showcases_vote_score_idx').on(table.voteScore),
     // Note: GIN indexes for libraries and useCases arrays created via SQL migration
   }),
 )
 
 export type Showcase = InferSelectModel<typeof showcases>
 export type NewShowcase = InferInsertModel<typeof showcases>
+
+// Showcase votes table (user votes on showcases)
+export const showcaseVotes = pgTable(
+  'showcase_votes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    showcaseId: uuid('showcase_id')
+      .notNull()
+      .references(() => showcases.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    value: integer('value').notNull(), // 1 for upvote, -1 for downvote
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    showcaseUserUnique: unique().on(table.showcaseId, table.userId),
+    showcaseIdIdx: index('showcase_votes_showcase_id_idx').on(table.showcaseId),
+    userIdIdx: index('showcase_votes_user_id_idx').on(table.userId),
+  }),
+)
+
+export type ShowcaseVote = InferSelectModel<typeof showcaseVotes>
+export type NewShowcaseVote = InferInsertModel<typeof showcaseVotes>
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
@@ -879,6 +913,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   auditLogs: many(auditLogs),
   userActivity: many(userActivity),
   showcases: many(showcases),
+  showcaseVotes: many(showcaseVotes),
 }))
 
 export const rolesRelations = relations(roles, ({ many }) => ({
@@ -973,13 +1008,25 @@ export const userActivityRelations = relations(userActivity, ({ one }) => ({
   }),
 }))
 
-export const showcasesRelations = relations(showcases, ({ one }) => ({
+export const showcasesRelations = relations(showcases, ({ one, many }) => ({
   user: one(users, {
     fields: [showcases.userId],
     references: [users.id],
   }),
   moderator: one(users, {
     fields: [showcases.moderatedBy],
+    references: [users.id],
+  }),
+  votes: many(showcaseVotes),
+}))
+
+export const showcaseVotesRelations = relations(showcaseVotes, ({ one }) => ({
+  showcase: one(showcases, {
+    fields: [showcaseVotes.showcaseId],
+    references: [showcases.id],
+  }),
+  user: one(users, {
+    fields: [showcaseVotes.userId],
     references: [users.id],
   }),
 }))

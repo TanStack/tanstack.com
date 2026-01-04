@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { Button } from './Button'
 
 declare global {
   interface Window {
@@ -174,25 +175,25 @@ export default function CookieConsent() {
             </Link>{' '}
             for details.
           </span>
-          <div className="flex gap-2 flex-wrap items-center text-white font-black">
-            <button
+          <div className="flex gap-2 flex-wrap items-center">
+            <Button
               onClick={rejectAllCookies}
-              className="rounded-md px-2 py-0.5 bg-rose-500 uppercase hover:bg-rose-600"
+              className="bg-rose-500 border-rose-500 hover:bg-rose-600 text-white"
             >
               Reject All
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={openSettings}
-              className="rounded-md px-2 py-0.5 bg-gray-500 uppercase hover:bg-gray-600"
+              className="bg-gray-500 border-gray-500 hover:bg-gray-600 text-white"
             >
               Customize
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={acceptAllCookies}
-              className="rounded-md px-2 py-0.5 bg-emerald-500 uppercase hover:bg-emerald-600"
+              className="bg-emerald-500 border-emerald-500 hover:bg-emerald-600 text-white"
             >
               Accept All
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -255,12 +256,12 @@ export default function CookieConsent() {
                 </label>
               </div>
               <div className="mt-6">
-                <button
+                <Button
                   onClick={closeSettings}
-                  className="bg-emerald-500 text-white px-4 py-2 rounded-md hover:bg-emerald-600"
+                  className="bg-emerald-500 border-emerald-500 hover:bg-emerald-600 text-white"
                 >
                   Save
-                </button>
+                </Button>
               </div>
             </div>
           </div>

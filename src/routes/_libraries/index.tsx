@@ -250,7 +250,7 @@ function Index() {
           )}
         </div>
 
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 text-center">
+        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 flex justify-center">
           <Button as={Link} to="/libraries">
             More Libraries →
           </Button>
@@ -457,7 +457,7 @@ function Index() {
                   </div>
                   <div className={`text-sm mt-2`}>{course.description}</div>
                   <div
-                    className={`inline-block mt-4 px-4 py-2 bg-green-700 text-white rounded shadow uppercase font-black text-sm`}
+                    className={`inline-block mt-4 px-4 py-2 bg-green-700 text-white rounded shadow font-black text-sm`}
                   >
                     Check it out →
                   </div>
@@ -478,7 +478,7 @@ function Index() {
                   OSS Sponsors
                 </a>
               }
-              ctaClassName="inline-block p-4 bg-green-700 rounded text-white uppercase font-black"
+              ctaClassName="inline-block p-4 bg-green-700 rounded text-white font-black"
             />
           </div>
           <div className={`h-4`} />
@@ -511,7 +511,7 @@ function Index() {
               <MaintainerCard key={maintainer.github} maintainer={maintainer} />
             ))}
           </div>
-          <div className="text-center mt-6">
+          <div className="flex justify-center mt-6">
             <Button as={Link} to="/maintainers">
               View All Maintainers →
             </Button>
@@ -557,15 +557,15 @@ function Index() {
               </p>
             </div>
             <div className={`flex items-center justify-center`}>
-              <a
+              <Button
+                as="a"
                 href="https://discord.com/invite/WrRKjPJ"
                 target="_blank"
-                className={`block w-full mt-4 px-4 py-2 bg-white text-discord
-                text-center rounded shadow-lg z-10 uppercase font-black`}
                 rel="noreferrer"
+                className="w-full mt-4 bg-white border-white hover:bg-gray-100 text-discord justify-center shadow-lg text-sm"
               >
                 Join TanStack Discord
-              </a>
+              </Button>
             </div>
           </div>
         </div>
@@ -637,16 +637,14 @@ function Index() {
                     type="text"
                     required
                   />
-                  <button
+                  <Button
                     type="submit"
-                    className={`bg-[#ED203D] text-white rounded uppercase font-black`}
+                    className="bg-[#ED203D] border-[#ED203D] hover:bg-[#d41c35] text-white justify-center"
                   >
-                    <span>
-                      {bytesSignupMutation.status === 'pending'
-                        ? 'Loading ...'
-                        : 'Subscribe'}
-                    </span>
-                  </button>
+                    {bytesSignupMutation.status === 'pending'
+                      ? 'Loading ...'
+                      : 'Subscribe'}
+                  </Button>
                 </div>
                 {bytesSignupMutation.error ? (
                   <p

@@ -46,7 +46,8 @@ function DevtoolsVersionIndex() {
               params: { libraryId: library.id },
             },
             label: 'Get Started',
-            className: 'bg-slate-500 hover:bg-slate-600 text-white',
+            className:
+              'bg-slate-500 border-slate-500 hover:bg-slate-600 text-white',
           }}
         />
 
@@ -106,7 +107,7 @@ function DevtoolsVersionIndex() {
             params: { libraryId: library.id },
           }}
           label="Get Started!"
-          className="bg-slate-500 hover:bg-slate-600 text-white"
+          className="bg-slate-500 border-slate-500 hover:bg-slate-600 hover:border-slate-600 text-white"
         />
         <Footer />
       </div>

@@ -1,8 +1,7 @@
 import * as React from 'react'
 import type { LinkProps } from '@tanstack/react-router'
 import { Link } from '@tanstack/react-router'
-import { twMerge } from 'tailwind-merge'
-import { buttonStyles } from './Button'
+import { Button } from './Button'
 
 type BottomCTAProps = {
   linkProps: Omit<LinkProps, 'className' | 'children'>
@@ -24,16 +23,13 @@ export function BottomCTA({
         Only one thing left to do...
       </div>
       <div>
-        <Link
+        <Button
+          as={Link}
           {...linkProps}
-          className={twMerge(
-            buttonStyles,
-            'inline-flex py-2 px-4 font-black shadow-xs hover:shadow-sm',
-            className,
-          )}
+          className={`py-2 px-4 text-sm shadow-xs hover:shadow-sm ${className}`}
         >
           {label}
-        </Link>
+        </Button>
       </div>
     </div>
   )

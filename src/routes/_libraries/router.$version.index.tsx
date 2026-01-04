@@ -53,7 +53,8 @@ function RouterVersionIndex() {
             params: { libraryId: library.id, version },
           },
           label: 'Get Started',
-          className: 'bg-emerald-500 text-white',
+          className:
+            'bg-emerald-500 border-emerald-500 hover:bg-emerald-600 text-white',
         }}
       />
 
@@ -129,15 +130,6 @@ export default function App() {
               </CodeBlock>
             )
           })()}
-          <div className="mt-4 text-center">
-            <Link
-              to="/$libraryId/$version/docs"
-              params={{ libraryId: library.id, version }}
-              className="inline-block py-2 px-4 rounded-lg font-black transition-colors bg-emerald-500 text-white"
-            >
-              Get Started
-            </Link>
-          </div>
         </Card>
       </div>
 
@@ -216,7 +208,7 @@ export default function App() {
           params: { libraryId: library.id, version },
         }}
         label="Get Started!"
-        className="bg-emerald-500 text-white"
+        className="bg-emerald-500 border-emerald-500 hover:bg-emerald-600 text-white"
       />
       <Footer />
     </div>

@@ -131,7 +131,7 @@ export function ShowcaseModerationList({
     return (
       <div className="text-center py-12">
         <p className="text-gray-600 dark:text-gray-400">
-          No showcases found matching the current filters.
+          No projects found matching the current filters.
         </p>
       </div>
     )

@@ -1,6 +1,7 @@
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { useMounted } from '~/hooks/useMounted'
 import { Link, useMatches } from '@tanstack/react-router'
+import { Button } from './Button'
 
 export function RedirectVersionBanner(props: {
   version: string
@@ -39,22 +40,23 @@ export function RedirectVersionBanner(props: {
           version?
         </p>
         <div className="flex gap-2 flex-col lg:flex-row items-center">
-          <Link
+          <Button
+            as={Link}
             to={activeMatch.fullPath}
             params={{
               version: 'latest',
             }}
             replace
-            className="bg-black dark:bg-white dark:text-black text-white w-full lg:w-auto py-1 px-2 rounded-md uppercase font-black text-xs"
+            className="bg-black border-black hover:bg-gray-800 dark:bg-white dark:border-white dark:hover:bg-gray-200 dark:text-black text-white w-full lg:w-auto justify-center"
           >
             Latest
-          </Link>
-          <button
+          </Button>
+          <Button
             onClick={() => setShowModal(false)}
-            className="bg-black dark:bg-white dark:text-black text-white w-full lg:w-auto py-1 px-2 rounded-md uppercase font-black text-xs"
+            className="bg-black border-black hover:bg-gray-800 dark:bg-white dark:border-white dark:hover:bg-gray-200 dark:text-black text-white w-full lg:w-auto justify-center"
           >
             Hide
-          </button>
+          </Button>
         </div>
       </div>
     )

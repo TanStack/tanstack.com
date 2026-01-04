@@ -55,7 +55,7 @@ function TableVersionIndex() {
             params: { libraryId: library.id, version },
           },
           label: 'Get Started',
-          className: 'bg-blue-500 text-white',
+          className: 'bg-blue-500 border-blue-500 hover:bg-blue-600 text-white',
         }}
       />
 
@@ -388,13 +388,6 @@ table.getRowModel().rows.forEach((row) => {
             )
           })()}
         </Card>
-        <Link
-          to="/$libraryId/$version/docs"
-          params={{ libraryId: library.id, version }}
-          className="inline-block py-2 px-4 rounded-lg font-black transition-colors bg-blue-500 text-white"
-        >
-          Get Started
-        </Link>
       </div>
 
       <LibraryFeatureHighlights featureHighlights={library.featureHighlights} />
@@ -477,7 +470,7 @@ table.getRowModel().rows.forEach((row) => {
           params: { libraryId: library.id, version },
         }}
         label="Get Started!"
-        className="bg-teal-500 text-white"
+        className="bg-teal-500 border-teal-500 hover:bg-teal-600 text-white"
       />
       <Footer />
     </div>

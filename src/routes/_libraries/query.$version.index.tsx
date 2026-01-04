@@ -58,7 +58,8 @@ function VersionIndex() {
                 params: { libraryId: library.id, version },
               },
               label: 'Read the Docs',
-              className: 'bg-red-500 text-white',
+              className:
+                'bg-red-500 border-red-500 hover:bg-red-600 text-white',
             }}
           />
 
@@ -208,13 +209,6 @@ export class TodosComponent {
                 })()}
               </div>
             </Card>
-            <Link
-              to="/$libraryId/$version/docs"
-              params={{ libraryId: library.id, version }}
-              className="inline-block py-2 px-4 rounded-lg font-black transition-colors bg-red-500 text-white"
-            >
-              Get Started
-            </Link>
           </div>
           <LibraryFeatureHighlights
             featureHighlights={library.featureHighlights}
@@ -316,7 +310,7 @@ export class TodosComponent {
               params: { libraryId: library.id, version },
             }}
             label="Read the Docs!"
-            className="bg-red-500 text-white"
+            className="bg-red-500 border-red-500 hover:bg-red-600 text-white"
           />
           <Footer />
         </div>

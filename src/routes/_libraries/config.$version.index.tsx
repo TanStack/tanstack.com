@@ -8,6 +8,7 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
+import { Button } from '~/components/Button'
 import { PartnersSection } from '~/components/PartnersSection'
 import OpenSourceStats from '~/components/OpenSourceStats'
 import { ossStatsQuery } from '~/queries/stats'
@@ -39,12 +40,13 @@ function FormVersionIndex() {
         <LibraryHero
           project={configProject}
           actions={
-            <a
+            <Button
+              as="a"
               href={`/config/latest/docs`}
-              className="inline-block py-2 px-4 rounded-lg font-black transition-colors bg-gray-500 text-white"
+              className="bg-gray-500 border-gray-500 hover:bg-gray-600 text-white"
             >
               Get Started
-            </a>
+            </Button>
           }
         />
 
@@ -101,7 +103,7 @@ function FormVersionIndex() {
             params: { libraryId: library.id },
           }}
           label="Get Started!"
-          className="bg-gray-500 text-white"
+          className="bg-gray-500 border-gray-500 hover:bg-gray-600 text-white"
         />
         <Footer />
       </div>

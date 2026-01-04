@@ -18,7 +18,11 @@ interface ShowcaseSectionProps {
   minItems?: number
 }
 
-function SubmitShowcasePlaceholder({ libraryId }: { libraryId?: string }) {
+export function SubmitShowcasePlaceholder({
+  libraryId,
+}: {
+  libraryId?: string
+}) {
   return (
     <Link
       to="/showcase/submit"

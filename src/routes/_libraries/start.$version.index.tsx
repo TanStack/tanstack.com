@@ -13,6 +13,7 @@ import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import OpenSourceStats from '~/components/OpenSourceStats'
+import { Button } from '~/components/Button'
 import { ossStatsQuery } from '~/queries/stats'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
@@ -53,7 +54,8 @@ function VersionIndex() {
         project={startProject}
         actions={
           <div className="flex justify-center gap-4 flex-wrap">
-            <Link
+            <Button
+              as={Link}
               from={'/$libraryId/$version'}
               to={'./docs/framework/$framework/$'}
               params={{
@@ -62,18 +64,19 @@ function VersionIndex() {
                 _splat: 'quick-start',
               }}
               hash={'impatient'}
-              className={`py-2 px-4 bg-transparent text-cyan-600 dark:text-cyan-400 border-2 border-cyan-500 dark:border-cyan-600 rounded-lg font-black`}
+              className="bg-transparent border-cyan-500 dark:border-cyan-600 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10"
             >
               Try it in 60 seconds
-            </Link>
-            <Link
+            </Button>
+            <Button
+              as={Link}
               from="/$libraryId/$version"
               to="./docs"
               params={{ libraryId: library.id }}
-              className={`py-2 px-4 bg-cyan-500 dark:bg-cyan-600 rounded-lg text-white font-black flex items-center`}
+              className="bg-cyan-500 border-cyan-500 hover:bg-cyan-600 dark:bg-cyan-600 dark:border-cyan-600 text-white"
             >
               Get Started
-            </Link>
+            </Button>
           </div>
         }
       />
@@ -159,7 +162,7 @@ function VersionIndex() {
           params: { libraryId: library.id },
         }}
         label="Get Started!"
-        className="bg-cyan-500 text-white"
+        className="bg-cyan-500 border-cyan-500 hover:bg-cyan-600 text-white"
       />
       <Footer />
     </div>

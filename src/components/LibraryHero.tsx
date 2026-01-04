@@ -2,6 +2,7 @@ import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Link, LinkProps } from '@tanstack/react-router'
 import type { Library } from '~/libraries'
+import { Button } from './Button'
 
 type LibraryHeroProps = {
   project: Library
@@ -48,15 +49,13 @@ export function LibraryHero({ project, cta, actions }: LibraryHeroProps) {
       {actions ? (
         <div>{actions}</div>
       ) : cta ? (
-        <Link
+        <Button
+          as={Link}
           {...cta.linkProps}
-          className={twMerge(
-            'inline-block py-2 px-4 rounded uppercase font-extrabold transition-colors',
-            cta.className,
-          )}
+          className={twMerge('py-2 px-4 text-sm', cta.className)}
         >
           {cta.label}
-        </Link>
+        </Button>
       ) : null}
     </div>
   )

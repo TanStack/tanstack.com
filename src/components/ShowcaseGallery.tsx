@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
 import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
+import { SubmitShowcasePlaceholder } from './ShowcaseSection'
 import { PaginationControls } from './PaginationControls'
 import { libraries } from '~/libraries'
 import { SHOWCASE_USE_CASES, type ShowcaseUseCase } from '~/db/schema'
@@ -201,28 +202,26 @@ export function ShowcaseGallery() {
               </div>
             )}
           </>
-        ) : (
+        ) : hasFilters ? (
           <div className="text-center py-16">
             <p className="text-gray-600 dark:text-gray-400 text-lg">
-              No showcases found{hasFilters ? ' matching your filters' : ' yet'}
-              .
+              No projects found matching your filters.
             </p>
-            {hasFilters && (
-              <button
-                onClick={clearFilters}
-                className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                Clear filters
-              </button>
-            )}
-            <Button
-              as={Link}
-              to="/showcase/submit"
-              className="inline-flex mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg border-none"
+            <button
+              onClick={clearFilters}
+              className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
             >
-              <Plus className="w-5 h-5" />
-              Submit Your Project
-            </Button>
+              Clear filters
+            </button>
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <p className="text-gray-600 dark:text-gray-400 text-lg mb-8">
+              No projects found.
+            </p>
+            <div className="max-w-sm mx-auto">
+              <SubmitShowcasePlaceholder />
+            </div>
           </div>
         )}
       </div>

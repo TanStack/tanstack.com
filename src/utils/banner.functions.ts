@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/db/client'
 import { banners, bannerDismissals } from '~/db/schema'
 import { eq, and, gte, lte, or, sql } from 'drizzle-orm'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { loadUser } from './auth.server'
 import { requireAdmin } from './feed.server'
 import type { BannerScope, BannerStyle } from '~/db/schema'
@@ -30,8 +30,8 @@ export type BannerWithMeta = ActiveBanner & {
 // Server function to get active banners for a given path
 export const getActiveBanners = createServerFn({ method: 'GET' })
   .inputValidator(
-    z.object({
-      pathname: z.string(),
+    v.object({
+      pathname: v.string(),
     }),
   )
   .handler(async ({ data }): Promise<ActiveBanner[]> => {
@@ -103,8 +103,8 @@ export const getDismissedBannerIds = createServerFn({ method: 'GET' }).handler(
 // Server function to dismiss a banner for the current user
 export const dismissBanner = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      bannerId: z.string().uuid(),
+    v.object({
+      bannerId: v.pipe(v.string(), v.uuid()),
     }),
   )
   .handler(async ({ data }): Promise<{ success: boolean }> => {
@@ -143,8 +143,8 @@ export const dismissBanner = createServerFn({ method: 'POST' })
 // List all banners (admin)
 export const listBanners = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      includeInactive: z.boolean().optional(),
+    v.object({
+      includeInactive: v.optional(v.boolean()),
     }),
   )
   .handler(async ({ data }): Promise<BannerWithMeta[]> => {
@@ -179,7 +179,7 @@ export const listBanners = createServerFn({ method: 'POST' })
 
 // Get single banner by ID (admin)
 export const getBanner = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .inputValidator(v.object({ id: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }): Promise<BannerWithMeta | null> => {
     await requireAdmin()
 
@@ -212,18 +212,24 @@ export const getBanner = createServerFn({ method: 'POST' })
 // Create new banner (admin)
 export const createBanner = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      title: z.string().min(1, 'Title is required'),
-      content: z.string().optional(),
-      linkUrl: z.string().url().optional().or(z.literal('')),
-      linkText: z.string().optional(),
-      style: z.enum(['info', 'warning', 'success', 'promo']).default('info'),
-      scope: z.enum(['global', 'targeted']).default('global'),
-      pathPrefixes: z.array(z.string()).default([]),
-      isActive: z.boolean().default(true),
-      startsAt: z.number().optional(),
-      expiresAt: z.number().optional(),
-      priority: z.number().default(0),
+    v.object({
+      title: v.pipe(v.string(), v.minLength(1, 'Title is required')),
+      content: v.optional(v.string()),
+      linkUrl: v.union([
+        v.optional(v.pipe(v.string(), v.url())),
+        v.literal(''),
+      ]),
+      linkText: v.optional(v.string()),
+      style: v.optional(
+        v.picklist(['info', 'warning', 'success', 'promo']),
+        'info',
+      ),
+      scope: v.optional(v.picklist(['global', 'targeted']), 'global'),
+      pathPrefixes: v.optional(v.array(v.string()), []),
+      isActive: v.optional(v.boolean(), true),
+      startsAt: v.optional(v.number()),
+      expiresAt: v.optional(v.number()),
+      priority: v.optional(v.number(), 0),
     }),
   )
   .handler(async ({ data }): Promise<{ id: string }> => {
@@ -252,19 +258,22 @@ export const createBanner = createServerFn({ method: 'POST' })
 // Update banner (admin)
 export const updateBanner = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      id: z.string().uuid(),
-      title: z.string().min(1).optional(),
-      content: z.string().optional(),
-      linkUrl: z.string().url().optional().or(z.literal('')),
-      linkText: z.string().optional(),
-      style: z.enum(['info', 'warning', 'success', 'promo']).optional(),
-      scope: z.enum(['global', 'targeted']).optional(),
-      pathPrefixes: z.array(z.string()).optional(),
-      isActive: z.boolean().optional(),
-      startsAt: z.number().nullable().optional(),
-      expiresAt: z.number().nullable().optional(),
-      priority: z.number().optional(),
+    v.object({
+      id: v.pipe(v.string(), v.uuid()),
+      title: v.optional(v.pipe(v.string(), v.minLength(1))),
+      content: v.optional(v.string()),
+      linkUrl: v.union([
+        v.optional(v.pipe(v.string(), v.url())),
+        v.literal(''),
+      ]),
+      linkText: v.optional(v.string()),
+      style: v.optional(v.picklist(['info', 'warning', 'success', 'promo'])),
+      scope: v.optional(v.picklist(['global', 'targeted'])),
+      pathPrefixes: v.optional(v.array(v.string())),
+      isActive: v.optional(v.boolean()),
+      startsAt: v.optional(v.nullable(v.number())),
+      expiresAt: v.optional(v.nullable(v.number())),
+      priority: v.optional(v.number()),
     }),
   )
   .handler(async ({ data }): Promise<{ success: boolean }> => {
@@ -319,7 +328,7 @@ export const updateBanner = createServerFn({ method: 'POST' })
 
 // Delete banner (admin)
 export const deleteBanner = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ id: z.string().uuid() }))
+  .inputValidator(v.object({ id: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }): Promise<{ success: boolean }> => {
     await requireAdmin()
 
@@ -340,9 +349,9 @@ export const deleteBanner = createServerFn({ method: 'POST' })
 // Toggle banner active state (admin)
 export const toggleBannerActive = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      id: z.string().uuid(),
-      isActive: z.boolean(),
+    v.object({
+      id: v.pipe(v.string(), v.uuid()),
+      isActive: v.boolean(),
     }),
   )
   .handler(async ({ data }): Promise<{ success: boolean }> => {

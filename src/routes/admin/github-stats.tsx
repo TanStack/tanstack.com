@@ -21,7 +21,7 @@ import {
   refreshGitHubStats,
   refreshAllGitHubStats,
 } from '~/utils/stats-admin.server'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from '~/utils/dates'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { Box, RefreshCw, Star, Users } from 'lucide-react'
 import { Card } from '~/components/Card'

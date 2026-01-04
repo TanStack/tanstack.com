@@ -3,7 +3,7 @@ import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { partners, PartnerImage } from '~/utils/partners'
 import { seo } from '~/utils/seo'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { Library } from '~/libraries'
 import { useState } from 'react'
 import * as React from 'react'
@@ -36,7 +36,7 @@ const availableLibraries = [
   configProject,
 ]
 
-const librarySchema = z.enum([
+const librarySchema = v.picklist([
   'start',
   'router',
   'query',
@@ -54,14 +54,16 @@ const librarySchema = z.enum([
   'create-tsrouter-app',
 ])
 
-const statusSchema = z.enum(['active', 'inactive'])
+const statusSchema = v.picklist(['active', 'inactive'])
+
+const searchSchema = v.object({
+  libraries: v.fallback(v.optional(v.array(librarySchema)), undefined),
+  status: v.fallback(v.optional(statusSchema, 'active'), 'active'),
+})
 
 export const Route = createFileRoute('/_libraries/partners')({
   component: RouteComp,
-  validateSearch: z.object({
-    libraries: z.array(librarySchema).optional().catch(undefined),
-    status: statusSchema.optional().default('active').catch('active'),
-  }),
+  validateSearch: searchSchema,
   head: () => ({
     meta: seo({
       title: 'Partners',

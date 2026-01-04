@@ -5,7 +5,7 @@ import { eq, and, or, ilike, sql } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getBulkEffectiveCapabilities } from './capabilities.server'
 import { recordAuditLog } from './audit.server'
-import { z } from 'zod'
+import * as v from 'valibot'
 import type { Capability } from '~/db/schema'
 
 // Helper function to validate user capability
@@ -33,24 +33,25 @@ const requireCapability = createServerFn({ method: 'POST' })
 // Server function wrapper for listUsers
 export const listUsers = createServerFn({ method: 'POST' })
   .inputValidator(
-    z
-      .object({
-        pagination: z.object({
-          limit: z.number(),
-          page: z.number().optional(),
+    v.pipe(
+      v.object({
+        pagination: v.object({
+          limit: v.number(),
+          page: v.optional(v.number()),
         }),
-        emailFilter: z.string().optional(),
-        nameFilter: z.string().optional(),
-        capabilityFilter: z.array(z.string()).optional(),
-        noCapabilitiesFilter: z.boolean().optional(),
-        adsDisabledFilter: z.boolean().optional(),
-        interestedInHidingAdsFilter: z.boolean().optional(),
-        useEffectiveCapabilities: z.boolean().optional().default(true),
-      })
-      .transform((data) => ({
+        emailFilter: v.optional(v.string()),
+        nameFilter: v.optional(v.string()),
+        capabilityFilter: v.optional(v.array(v.string())),
+        noCapabilitiesFilter: v.optional(v.boolean()),
+        adsDisabledFilter: v.optional(v.boolean()),
+        interestedInHidingAdsFilter: v.optional(v.boolean()),
+        useEffectiveCapabilities: v.optional(v.boolean(), true),
+      }),
+      v.transform((data) => ({
         ...data,
         capabilityFilter: data.capabilityFilter as Capability[] | undefined,
       })),
+    ),
   )
   .handler(async ({ data }) => {
     if (!data || !data.pagination) {
@@ -301,7 +302,7 @@ export const listUsers = createServerFn({ method: 'POST' })
 
 // Get a single user by ID (admin only)
 export const getUser = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ userId: z.string().uuid() }))
+  .inputValidator(v.object({ userId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     await requireCapability({ data: { capability: 'admin' } })
 
@@ -333,7 +334,7 @@ export const getUser = createServerFn({ method: 'POST' })
 
 // Server function wrapper for updateAdPreference
 export const updateAdPreference = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ adsDisabled: z.boolean() }))
+  .inputValidator(v.object({ adsDisabled: v.boolean() }))
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -350,7 +351,7 @@ export const updateAdPreference = createServerFn({ method: 'POST' })
 
 // Server function wrapper for setInterestedInHidingAds
 export const setInterestedInHidingAds = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ interested: z.boolean() }))
+  .inputValidator(v.object({ interested: v.boolean() }))
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -376,7 +377,11 @@ export const setInterestedInHidingAds = createServerFn({ method: 'POST' })
 
 // Server function to update user's last used framework preference
 export const updateLastUsedFramework = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ framework: z.string().min(1).max(50) }))
+  .inputValidator(
+    v.object({
+      framework: v.pipe(v.string(), v.minLength(1), v.maxLength(50)),
+    }),
+  )
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -394,9 +399,11 @@ export const updateLastUsedFramework = createServerFn({ method: 'POST' })
 // Server function wrapper for updateUserCapabilities (admin only)
 export const updateUserCapabilities = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      userId: z.string().uuid(),
-      capabilities: z.array(z.enum(['admin', 'disableAds', 'builder', 'feed'])),
+    v.object({
+      userId: v.pipe(v.string(), v.uuid()),
+      capabilities: v.array(
+        v.picklist(['admin', 'disableAds', 'builder', 'feed']),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -440,9 +447,9 @@ export const updateUserCapabilities = createServerFn({ method: 'POST' })
 // Server function wrapper for adminSetAdsDisabled (admin only)
 export const adminSetAdsDisabled = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      userId: z.string().uuid(),
-      adsDisabled: z.boolean(),
+    v.object({
+      userId: v.pipe(v.string(), v.uuid()),
+      adsDisabled: v.boolean(),
     }),
   )
   .handler(async ({ data }) => {
@@ -485,9 +492,11 @@ export const adminSetAdsDisabled = createServerFn({ method: 'POST' })
 // Server function wrapper for bulkUpdateUserCapabilities (admin only)
 export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      userIds: z.array(z.string().uuid()),
-      capabilities: z.array(z.enum(['admin', 'disableAds', 'builder', 'feed'])),
+    v.object({
+      userIds: v.array(v.pipe(v.string(), v.uuid())),
+      capabilities: v.array(
+        v.picklist(['admin', 'disableAds', 'builder', 'feed']),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -552,8 +561,8 @@ export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
 // This invalidates all signed cookies for the user
 export const revokeUserSessions = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      userId: z.string(),
+    v.object({
+      userId: v.string(),
     }),
   )
   .handler(async ({ data: { userId } }) => {

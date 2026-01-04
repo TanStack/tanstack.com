@@ -1,34 +1,18 @@
 import { PersonStanding, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
-
-const repo = 'tanstack/virtual'
+import { virtual } from './libraries'
 
 const textStyles = 'text-violet-700 dark:text-violet-400'
 
 export const virtualProject = {
-  id: 'virtual',
-  name: 'TanStack Virtual',
-  cardStyles: `text-purple-500 hover:border-current`,
-  to: '/virtual',
-  tagline: `Headless UI for Virtualizing Large Element Lists`,
+  ...virtual,
   description: `Virtualize only the visible content for massive scrollable DOM nodes at 60FPS in TS/JS, React, Vue, Solid, Svelte, Lit & Angular while retaining 100% control over markup and styles.`,
   ogImage: 'https://github.com/tanstack/query/raw/main/media/header.png',
-  badge: undefined,
-  bgStyle: 'bg-purple-500',
-  borderStyle: 'border-purple-500/50',
-  textStyle: 'text-purple-500',
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v3',
-  availableVersions: ['v3'],
   bgRadial: 'from-purple-500 via-violet-600/50 to-transparent',
-  colorFrom: 'from-purple-500',
-  colorTo: 'to-violet-600',
   textColor: 'text-purple-600',
-  frameworks: ['react', 'solid', 'vue', 'svelte', 'lit', 'angular'],
   defaultDocs: 'introduction',
-  scarfId: '32372eb1-91e0-48e7-8df1-4808a7be6b94',
   legacyPackages: ['react-virtual'],
   testimonials: [
     {

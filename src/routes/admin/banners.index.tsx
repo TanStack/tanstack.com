@@ -20,16 +20,20 @@ import {
   ToggleLeft,
   ExternalLink,
 } from 'lucide-react'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from '~/utils/dates'
 
 export const Route = createFileRoute('/admin/banners/')({
   component: BannersAdminPage,
-  validateSearch: z.object({
-    includeInactive: z.boolean().optional().default(true).catch(true),
-  }),
+  validateSearch: (search) =>
+    v.parse(
+      v.object({
+        includeInactive: v.optional(v.boolean(), true),
+      }),
+      search,
+    ),
 })
 
 const STYLE_CONFIG = {

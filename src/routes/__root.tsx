@@ -12,14 +12,21 @@ import { QueryClient } from '@tanstack/react-query'
 import appCss from '~/styles/app.css?url'
 import { seo } from '~/utils/seo'
 import ogImage from '~/images/og.png'
-import { TanStackRouterDevtoolsInProd } from '@tanstack/react-router-devtools'
+const LazyRouterDevtools = React.lazy(() =>
+  import('@tanstack/react-router-devtools').then((m) => ({
+    default: m.TanStackRouterDevtoolsInProd,
+  })),
+)
 import { NotFound } from '~/components/NotFound'
 import { DefaultCatchBoundary } from '~/components/DefaultCatchBoundary'
 import { GamScripts } from '~/components/Gam'
 
 import { SearchProvider } from '~/contexts/SearchContext'
-import { SearchModal } from '~/components/SearchModal'
 import { ToastProvider } from '~/components/ToastProvider'
+
+const LazySearchModal = React.lazy(() =>
+  import('~/components/SearchModal').then((m) => ({ default: m.SearchModal })),
+)
 import { Spinner } from '~/components/Spinner'
 import { ThemeProvider } from '~/components/ThemeProvider'
 import { Navbar } from '~/components/Navbar'
@@ -194,9 +201,7 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
           <React.Suspense fallback={null}>
             {hideNavbar ? children : <Navbar>{children}</Navbar>}
           </React.Suspense>
-          {showDevtools ? (
-            <TanStackRouterDevtoolsInProd position="bottom-right" />
-          ) : null}
+          {showDevtools ? <LazyRouterDevtools position="bottom-right" /> : null}
           {canShowLoading ? (
             <div
               className={`fixed top-0 left-0 h-[300px] w-full
@@ -218,7 +223,7 @@ function HtmlWrapper({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           ) : null}
-          <SearchModal />
+          <LazySearchModal />
         </ToastProvider>
         <noscript>
           <iframe

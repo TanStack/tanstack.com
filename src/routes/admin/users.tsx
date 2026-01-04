@@ -31,7 +31,7 @@ import {
   useBulkAssignRolesToUsers,
   useBulkUpdateUserCapabilities,
 } from '~/utils/mutations'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { listUsersQueryOptions } from '~/queries/users'
 import {
@@ -156,17 +156,21 @@ function EffectiveCapabilitiesCell({
 
 export const Route = createFileRoute('/admin/users')({
   component: UsersPage,
-  validateSearch: z.object({
-    email: z.string().optional(),
-    name: z.string().optional(),
-    cap: z.union([z.string(), z.array(z.string())]).optional(),
-    noCapabilities: z.boolean().optional(),
-    ads: z.enum(['all', 'true', 'false']).optional(),
-    waitlist: z.enum(['all', 'true', 'false']).optional(),
-    page: z.number().int().nonnegative().optional(),
-    pageSize: z.number().int().positive().optional(),
-    useEffectiveCapabilities: z.boolean().optional().default(true),
-  }),
+  validateSearch: (search) =>
+    v.parse(
+      v.object({
+        email: v.optional(v.string()),
+        name: v.optional(v.string()),
+        cap: v.optional(v.union([v.string(), v.array(v.string())])),
+        noCapabilities: v.optional(v.boolean()),
+        ads: v.optional(v.picklist(['all', 'true', 'false'])),
+        waitlist: v.optional(v.picklist(['all', 'true', 'false'])),
+        page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+        pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+        useEffectiveCapabilities: v.optional(v.boolean(), true),
+      }),
+      search,
+    ),
 })
 
 function UsersPage() {

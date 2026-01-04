@@ -58,7 +58,7 @@ function StoreVersionIndex() {
         </AdGate>
 
         <LibraryFeatureHighlights
-          featureHighlights={library.featureHighlights}
+          featureHighlights={storeProject.featureHighlights}
         />
         <PartnersSection libraryId="store" />
 

@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { db } from '~/db/client'
 import {
   showcases,
@@ -20,27 +20,42 @@ import {
 } from './showcase.server'
 import { libraries } from '~/libraries'
 import { getTrancoRank } from './tranco.server'
+import { notifyAdmin, formatShowcaseSubmittedEmail } from './email.server'
 
 // Valid library IDs for validation
 const validLibraryIds = libraries.map((lib) => lib.id)
 
-// Zod schema for use cases
-const useCaseSchema = z.enum(SHOWCASE_USE_CASES as [string, ...string[]])
+// Valibot schema for use cases
+const useCaseSchema = v.picklist(SHOWCASE_USE_CASES as [string, ...string[]])
 
 /**
  * Submit a new showcase
  */
 export const submitShowcase = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      name: z.string().min(1, 'Name is required').max(255),
-      tagline: z.string().min(1, 'Tagline is required').max(500),
-      description: z.string().optional(),
-      url: z.string().min(1, 'URL is required'),
-      logoUrl: z.string().optional(),
-      screenshotUrl: z.string().min(1, 'Screenshot URL is required'),
-      libraries: z.array(z.string()).min(1, 'At least one library is required'),
-      useCases: z.array(useCaseSchema).default([]),
+    v.object({
+      name: v.pipe(
+        v.string(),
+        v.minLength(1, 'Name is required'),
+        v.maxLength(255),
+      ),
+      tagline: v.pipe(
+        v.string(),
+        v.minLength(1, 'Tagline is required'),
+        v.maxLength(500),
+      ),
+      description: v.optional(v.string()),
+      url: v.pipe(v.string(), v.minLength(1, 'URL is required')),
+      logoUrl: v.optional(v.string()),
+      screenshotUrl: v.pipe(
+        v.string(),
+        v.minLength(1, 'Screenshot URL is required'),
+      ),
+      libraries: v.pipe(
+        v.array(v.string()),
+        v.minLength(1, 'At least one library is required'),
+      ),
+      useCases: v.optional(v.array(useCaseSchema), []),
     }),
   )
   .handler(async ({ data }) => {
@@ -117,6 +132,23 @@ export const submitShowcase = createServerFn({ method: 'POST' })
       },
     })
 
+    // Notify admin of new submission
+    const userRecord = await db
+      .select({ name: users.name })
+      .from(users)
+      .where(eq(users.id, user.userId))
+      .limit(1)
+
+    notifyAdmin(
+      formatShowcaseSubmittedEmail({
+        name: data.name,
+        url: data.url,
+        tagline: data.tagline,
+        libraries: expandedLibraries,
+        userName: userRecord[0]?.name || undefined,
+      }),
+    )
+
     return {
       success: true,
       showcaseId: newShowcase.id,
@@ -128,16 +160,30 @@ export const submitShowcase = createServerFn({ method: 'POST' })
  */
 export const updateShowcase = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      showcaseId: z.string().uuid(),
-      name: z.string().min(1, 'Name is required').max(255),
-      tagline: z.string().min(1, 'Tagline is required').max(500),
-      description: z.string().optional(),
-      url: z.string().min(1, 'URL is required'),
-      logoUrl: z.string().optional(),
-      screenshotUrl: z.string().min(1, 'Screenshot URL is required'),
-      libraries: z.array(z.string()).min(1, 'At least one library is required'),
-      useCases: z.array(useCaseSchema).default([]),
+    v.object({
+      showcaseId: v.pipe(v.string(), v.uuid()),
+      name: v.pipe(
+        v.string(),
+        v.minLength(1, 'Name is required'),
+        v.maxLength(255),
+      ),
+      tagline: v.pipe(
+        v.string(),
+        v.minLength(1, 'Tagline is required'),
+        v.maxLength(500),
+      ),
+      description: v.optional(v.string()),
+      url: v.pipe(v.string(), v.minLength(1, 'URL is required')),
+      logoUrl: v.optional(v.string()),
+      screenshotUrl: v.pipe(
+        v.string(),
+        v.minLength(1, 'Screenshot URL is required'),
+      ),
+      libraries: v.pipe(
+        v.array(v.string()),
+        v.minLength(1, 'At least one library is required'),
+      ),
+      useCases: v.optional(v.array(useCaseSchema), []),
     }),
   )
   .handler(async ({ data }) => {
@@ -234,7 +280,7 @@ export const updateShowcase = createServerFn({ method: 'POST' })
  * Delete a showcase
  */
 export const deleteShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ showcaseId: z.string().uuid() }))
+  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const user = await getAuthenticatedUser()
 
@@ -272,10 +318,10 @@ export const deleteShowcase = createServerFn({ method: 'POST' })
  */
 export const getMyShowcases = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      pagination: z.object({
-        page: z.number().default(1),
-        pageSize: z.number().default(20),
+    v.object({
+      pagination: v.object({
+        page: v.optional(v.number(), 1),
+        pageSize: v.optional(v.number(), 20),
       }),
     }),
   )
@@ -322,18 +368,18 @@ export const getMyShowcases = createServerFn({ method: 'POST' })
  */
 export const getApprovedShowcases = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      pagination: z.object({
-        page: z.number().default(1),
-        pageSize: z.number().default(24),
+    v.object({
+      pagination: v.object({
+        page: v.optional(v.number(), 1),
+        pageSize: v.optional(v.number(), 24),
       }),
-      filters: z
-        .object({
-          libraryId: z.string().optional(),
-          useCases: z.array(useCaseSchema).optional(),
-          featured: z.boolean().optional(),
-        })
-        .optional(),
+      filters: v.optional(
+        v.object({
+          libraryId: v.optional(v.string()),
+          useCases: v.optional(v.array(useCaseSchema)),
+          featured: v.optional(v.boolean()),
+        }),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -410,9 +456,9 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
  */
 export const getShowcasesByLibrary = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      libraryId: z.string(),
-      limit: z.number().default(6),
+    v.object({
+      libraryId: v.string(),
+      limit: v.optional(v.number(), 6),
     }),
   )
   .handler(async ({ data }) => {
@@ -449,8 +495,8 @@ export const getShowcasesByLibrary = createServerFn({ method: 'POST' })
  */
 export const getFeaturedShowcases = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      limit: z.number().default(6),
+    v.object({
+      limit: v.optional(v.number(), 6),
     }),
   )
   .handler(async ({ data }) => {
@@ -482,19 +528,21 @@ export const getFeaturedShowcases = createServerFn({ method: 'POST' })
  */
 export const listShowcasesForModeration = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      pagination: z.object({
-        page: z.number().default(1),
-        pageSize: z.number().default(50),
+    v.object({
+      pagination: v.object({
+        page: v.optional(v.number(), 1),
+        pageSize: v.optional(v.number(), 50),
       }),
-      filters: z
-        .object({
-          status: z.array(z.enum(['pending', 'approved', 'denied'])).optional(),
-          libraryId: z.string().optional(),
-          userId: z.string().uuid().optional(),
-          isFeatured: z.boolean().optional(),
-        })
-        .optional(),
+      filters: v.optional(
+        v.object({
+          status: v.optional(
+            v.array(v.picklist(['pending', 'approved', 'denied'])),
+          ),
+          libraryId: v.optional(v.string()),
+          userId: v.optional(v.pipe(v.string(), v.uuid())),
+          isFeatured: v.optional(v.boolean()),
+        }),
+      ),
     }),
   )
   .handler(async ({ data }) => {
@@ -549,7 +597,10 @@ export const listShowcasesForModeration = createServerFn({ method: 'POST' })
       .from(showcases)
       .leftJoin(users, eq(showcases.userId, users.id))
       .where(whereClause)
-      .orderBy(desc(showcases.createdAt))
+      .orderBy(
+        sql`CASE ${showcases.status} WHEN 'pending' THEN 0 WHEN 'approved' THEN 1 WHEN 'denied' THEN 2 END`,
+        desc(showcases.createdAt),
+      )
       .limit(pageSize)
       .offset(offset)
 
@@ -569,10 +620,10 @@ export const listShowcasesForModeration = createServerFn({ method: 'POST' })
  */
 export const moderateShowcase = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      showcaseId: z.string().uuid(),
-      action: z.enum(['approve', 'deny']),
-      moderationNote: z.string().optional(),
+    v.object({
+      showcaseId: v.pipe(v.string(), v.uuid()),
+      action: v.picklist(['approve', 'deny']),
+      moderationNote: v.optional(v.string()),
     }),
   )
   .handler(async ({ data }) => {
@@ -625,9 +676,9 @@ export const moderateShowcase = createServerFn({ method: 'POST' })
  */
 export const setShowcaseFeatured = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      showcaseId: z.string().uuid(),
-      isFeatured: z.boolean(),
+    v.object({
+      showcaseId: v.pipe(v.string(), v.uuid()),
+      isFeatured: v.boolean(),
     }),
   )
   .handler(async ({ data }) => {
@@ -672,9 +723,14 @@ export const setShowcaseFeatured = createServerFn({ method: 'POST' })
  * Get a single showcase by ID (public for approved, owner for any status)
  */
 export const getShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ showcaseId: z.string().uuid() }))
+  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
-    const user = await getAuthenticatedUser()
+    let user
+    try {
+      user = await getAuthenticatedUser()
+    } catch {
+      // User not authenticated, that's okay for approved showcases
+    }
 
     const [result] = await db
       .select({
@@ -709,7 +765,7 @@ export const getShowcase = createServerFn({ method: 'POST' })
  * Get a single showcase by ID for admin (moderate-showcases capability required)
  */
 export const adminGetShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ showcaseId: z.string().uuid() }))
+  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     await requireModerateShowcases()
 
@@ -739,7 +795,7 @@ export const adminGetShowcase = createServerFn({ method: 'POST' })
  * Admin delete a showcase (moderate-showcases capability required)
  */
 export const adminDeleteShowcase = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ showcaseId: z.string().uuid() }))
+  .inputValidator(v.object({ showcaseId: v.pipe(v.string(), v.uuid()) }))
   .handler(async ({ data }) => {
     const moderator = await requireModerateShowcases()
 

@@ -2,40 +2,24 @@ import { Network, Rocket, ServerCrash } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { redirect } from '@tanstack/react-router'
 import { YinYangIcon } from '~/components/icons/YinYangIcon'
-
-const repo = 'tanstack/router'
+import { start } from './libraries'
 
 const textStyles = 'text-cyan-600 dark:text-cyan-500'
 
 export const startProject = {
-  id: 'start',
-  name: 'TanStack Start',
-  cardStyles: `text-cyan-500 dark:text-white-400 hover:border-current`,
-  to: '/start',
-  tagline: `Full-stack Framework powered by TanStack Router for React and Solid`,
+  ...start,
   description: `Full-document SSR, Streaming, Server Functions, bundling and more, powered by TanStack Router and Vite - Ready to deploy to your favorite hosting provider.`,
-  bgStyle: 'bg-cyan-500',
-  borderStyle: 'border-cyan-500/50',
-  textStyle: 'text-cyan-500',
-  badge: 'RC',
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v0',
-  availableVersions: ['v0'],
   docsRoot: 'docs/start',
   bgRadial: 'from-cyan-500 via-teal-600/50 to-transparent',
-  colorFrom: 'from-teal-500',
-  colorTo: 'to-cyan-500',
   textColor: 'text-cyan-600',
-  embedEditor: 'codesandbox',
-  frameworks: ['react', 'solid'],
+  embedEditor: 'codesandbox' as const,
   defaultDocs: 'framework/react/overview',
   installPath: 'framework/$framework/build-from-scratch',
-  scarfId: 'b6e2134f-e805-401d-95c3-2a7765d49a3d',
   showNetlifyUrl: true,
   showCloudflareUrl: true,
   // hide stackblitz until they support Async Local Storage
-  hideStackblitzUrl: true,
+  hideStackblitzUrl: true as const,
   testimonials: [
     {
       quote:
@@ -165,7 +149,7 @@ export const startProject = {
       ),
     },
   ],
-  handleRedirects: (href) => {
+  handleRedirects: (href: string) => {
     // Redirect from /api-routes to /server-routes
     if (
       href.match(

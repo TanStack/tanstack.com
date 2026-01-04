@@ -148,6 +148,7 @@ export function ShowcaseModerationList({
             <TableHeaderCell>User</TableHeaderCell>
             <TableHeaderCell>Libraries</TableHeaderCell>
             <TableHeaderCell className="w-20">Featured</TableHeaderCell>
+            <TableHeaderCell className="w-24">Rank</TableHeaderCell>
             <TableHeaderCell className="w-32">Date</TableHeaderCell>
             <TableHeaderCell className="w-40">Actions</TableHeaderCell>
           </TableHeaderRow>
@@ -170,7 +171,7 @@ export function ShowcaseModerationList({
                   </TableCell>
                   <TableCell>
                     <Link
-                      to="/admin/showcases_/$id"
+                      to="/admin/showcases/$id"
                       params={{ id: showcase.id }}
                       className="flex items-center gap-3 hover:opacity-80"
                       onClick={(e) => e.stopPropagation()}
@@ -262,6 +263,11 @@ export function ShowcaseModerationList({
                     </button>
                   </TableCell>
                   <TableCell className="text-xs text-gray-600 dark:text-gray-400">
+                    {showcase.trancoRank
+                      ? `#${showcase.trancoRank.toLocaleString()}`
+                      : '-'}
+                  </TableCell>
+                  <TableCell className="text-xs text-gray-600 dark:text-gray-400">
                     {new Date(showcase.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
@@ -311,7 +317,7 @@ export function ShowcaseModerationList({
                 {isExpanded && (
                   <TableRow>
                     <TableCell
-                      colSpan={8}
+                      colSpan={9}
                       className="bg-gray-50 dark:bg-gray-900"
                     >
                       <div className="p-4 space-y-4">

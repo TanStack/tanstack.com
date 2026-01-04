@@ -1,5 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { requireAdmin } from './roles.server'
 import { db } from '~/db/client'
 import { loginHistory, auditLogs, users, type AuditAction } from '~/db/schema'
@@ -9,15 +9,15 @@ import { alias } from 'drizzle-orm/pg-core'
 // Query login history (admin only)
 export const listLoginHistory = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      pagination: z.object({
-        limit: z.number(),
-        page: z.number().optional(),
+    v.object({
+      pagination: v.object({
+        limit: v.number(),
+        page: v.optional(v.number()),
       }),
-      userId: z.string().uuid().optional(),
-      provider: z.enum(['github', 'google']).optional(),
-      dateFrom: z.string().optional(),
-      dateTo: z.string().optional(),
+      userId: v.optional(v.pipe(v.string(), v.uuid())),
+      provider: v.optional(v.picklist(['github', 'google'])),
+      dateFrom: v.optional(v.string()),
+      dateTo: v.optional(v.string()),
     }),
   )
   .handler(async ({ data }) => {
@@ -93,17 +93,17 @@ export const listLoginHistory = createServerFn({ method: 'POST' })
 // Query audit logs (admin only)
 export const listAuditLogs = createServerFn({ method: 'POST' })
   .inputValidator(
-    z.object({
-      pagination: z.object({
-        limit: z.number(),
-        page: z.number().optional(),
+    v.object({
+      pagination: v.object({
+        limit: v.number(),
+        page: v.optional(v.number()),
       }),
-      actorId: z.string().uuid().optional(),
-      action: z.string().optional(),
-      targetType: z.string().optional(),
-      targetId: z.string().optional(),
-      dateFrom: z.string().optional(),
-      dateTo: z.string().optional(),
+      actorId: v.optional(v.pipe(v.string(), v.uuid())),
+      action: v.optional(v.string()),
+      targetType: v.optional(v.string()),
+      targetId: v.optional(v.string()),
+      dateFrom: v.optional(v.string()),
+      dateTo: v.optional(v.string()),
     }),
   )
   .handler(async ({ data }) => {

@@ -1,4 +1,4 @@
-import type { Framework, Library } from './types'
+import type { Framework, Library, LibrarySlim } from './types'
 import { getLibrary } from './index'
 
 export interface Maintainer {
@@ -503,14 +503,14 @@ export function getLibraryContributors(
     : contributors
 }
 
-export function getPersonsCreatorOf(person: Maintainer): Library[] {
+export function getPersonsCreatorOf(person: Maintainer): LibrarySlim[] {
   return person.creatorOf?.map((libraryId) => getLibrary(libraryId)) || []
 }
 
 export function getPersonsMaintainerOf(
   person: Maintainer,
   includeCreatorOf = true,
-): Library[] {
+): LibrarySlim[] {
   const creatorOf = getPersonsCreatorOf(person)
   const maintainerOf =
     person.maintainerOf?.map((libraryId) => getLibrary(libraryId)) || []

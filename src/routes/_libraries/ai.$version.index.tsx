@@ -68,7 +68,7 @@ function AIVersionIndex() {
           <GamHeader />
         </AdGate>
         <LibraryFeatureHighlights
-          featureHighlights={library.featureHighlights}
+          featureHighlights={aiProject.featureHighlights}
         />
         <div className="px-4 sm:px-6 lg:px-8 mx-auto">
           <div className=" sm:text-center pb-16">

@@ -1,49 +1,50 @@
-import { z } from 'zod'
+import * as v from 'valibot'
 
-export const packageGroupSchema = z.object({
-  packages: z.array(
-    z.object({
-      name: z.string(),
-      hidden: z.boolean().optional(),
+export const packageGroupSchema = v.object({
+  packages: v.array(
+    v.object({
+      name: v.string(),
+      hidden: v.optional(v.boolean()),
     }),
   ),
-  color: z.string().nullable().optional(),
-  baseline: z.boolean().optional(),
+  color: v.optional(v.nullable(v.string())),
+  baseline: v.optional(v.boolean()),
 })
 
-export const packageComparisonSchema = z.object({
-  title: z.string(),
-  packageGroups: z.array(packageGroupSchema),
-  baseline: z.string().optional(),
+export const packageComparisonSchema = v.object({
+  title: v.string(),
+  packageGroups: v.array(packageGroupSchema),
+  baseline: v.optional(v.string()),
 })
 
-export function getPopularComparisons(): z.input<
+// Default comparison for route validation - extracted to avoid bundling all comparisons
+// This is used in validateSearch defaults and must be kept in sync with the first comparison
+export const defaultPackageGroups: v.InferInput<typeof packageGroupSchema>[] = [
+  {
+    packages: [{ name: '@tanstack/react-query' }, { name: 'react-query' }],
+    color: '#FF4500',
+  },
+  {
+    packages: [{ name: 'swr' }],
+    color: '#ec4899',
+  },
+  {
+    packages: [{ name: '@apollo/client' }],
+    color: '#6B46C1',
+  },
+  {
+    packages: [{ name: '@trpc/client' }],
+    color: '#2596BE',
+  },
+]
+
+export function getPopularComparisons(): v.InferInput<
   typeof packageComparisonSchema
 >[] {
   return [
     {
       title: 'Data Fetching',
-      packageGroups: [
-        {
-          packages: [
-            { name: '@tanstack/react-query' },
-            { name: 'react-query' },
-          ],
-          color: '#FF4500',
-        },
-        {
-          packages: [{ name: 'swr' }],
-          color: '#ec4899',
-        },
-        {
-          packages: [{ name: '@apollo/client' }],
-          color: '#6B46C1',
-        },
-        {
-          packages: [{ name: '@trpc/client' }],
-          color: '#2596BE',
-        },
-      ],
+      packageGroups: defaultPackageGroups,
     },
     {
       title: 'State Management',

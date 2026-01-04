@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { z } from 'zod'
+import * as v from 'valibot'
 import { useDebouncedValue, useThrottledCallback } from '@tanstack/react-pacer'
 import {
   X,
@@ -19,7 +19,11 @@ import { Card } from '~/components/Card'
 import * as d3 from 'd3'
 import { HexColorPicker } from 'react-colorful'
 import { seo } from '~/utils/seo'
-import { getPopularComparisons, packageGroupSchema } from './-comparisons'
+import {
+  getPopularComparisons,
+  packageGroupSchema,
+  defaultPackageGroups,
+} from './-comparisons'
 import { GamHeader, GamVrec1 } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { twMerge } from 'tailwind-merge'
@@ -33,36 +37,37 @@ import {
 import { Command } from 'cmdk'
 import { Spinner } from '~/components/Spinner'
 
-const transformModeSchema = z.enum(['none', 'normalize-y'])
-const binTypeSchema = z.enum(['yearly', 'monthly', 'weekly', 'daily'])
-const showDataModeSchema = z.enum(['all', 'complete'])
+const transformModeSchema = v.picklist(['none', 'normalize-y'])
+const binTypeSchema = v.picklist(['yearly', 'monthly', 'weekly', 'daily'])
+const showDataModeSchema = v.picklist(['all', 'complete'])
 export const Route = createFileRoute('/stats/npm/')({
-  validateSearch: z.object({
-    packageGroups: z
-      .array(packageGroupSchema)
-      .optional()
-      .default(getPopularComparisons()[0].packageGroups)
-      .catch(getPopularComparisons()[0].packageGroups),
-    range: z
-      .enum([
-        '7-days',
-        '30-days',
-        '90-days',
-        '180-days',
+  validateSearch: v.object({
+    packageGroups: v.fallback(
+      v.optional(v.array(packageGroupSchema), defaultPackageGroups),
+      defaultPackageGroups,
+    ),
+    range: v.fallback(
+      v.optional(
+        v.picklist([
+          '7-days',
+          '30-days',
+          '90-days',
+          '180-days',
+          '365-days',
+          '730-days',
+          '1825-days',
+          'all-time',
+        ]),
         '365-days',
-        '730-days',
-        '1825-days',
-        'all-time',
-      ])
-      .optional()
-      .default('365-days')
-      .catch('365-days'),
-    transform: transformModeSchema.optional().default('none').catch('none'),
-    facetX: z.enum(['name']).optional().catch(undefined),
-    facetY: z.enum(['name']).optional().catch(undefined),
-    binType: binTypeSchema.optional().default('weekly').catch('weekly'),
-    showDataMode: showDataModeSchema.optional().default('all').catch('all'),
-    height: z.number().optional().default(400).catch(400),
+      ),
+      '365-days',
+    ),
+    transform: v.fallback(v.optional(transformModeSchema, 'none'), 'none'),
+    facetX: v.fallback(v.optional(v.picklist(['name'])), undefined),
+    facetY: v.fallback(v.optional(v.picklist(['name'])), undefined),
+    binType: v.fallback(v.optional(binTypeSchema, 'weekly'), 'weekly'),
+    showDataMode: v.fallback(v.optional(showDataModeSchema, 'all'), 'all'),
+    height: v.fallback(v.optional(v.number(), 400), 400),
   }),
   loaderDeps: ({ search }) => ({
     packageList: search.packageGroups
@@ -209,7 +214,7 @@ type TimeRange =
   | '1825-days'
   | 'all-time'
 
-type BinType = z.infer<typeof binTypeSchema>
+type BinType = v.InferOutput<typeof binTypeSchema>
 
 const binningOptions = [
   {
@@ -246,7 +251,7 @@ const binningOptionsByType = binningOptions.reduce(
   {} as Record<BinType, (typeof binningOptions)[number]>,
 )
 
-type TransformMode = z.infer<typeof transformModeSchema>
+type TransformMode = v.InferOutput<typeof transformModeSchema>
 
 const defaultColors = [
   '#1f77b4', // blue
@@ -281,7 +286,7 @@ function npmQueryOptions({
   packageGroups,
   range,
 }: {
-  packageGroups: z.infer<typeof packageGroupSchema>[]
+  packageGroups: v.InferOutput<typeof packageGroupSchema>[]
   range: TimeRange
 }) {
   const now = d3.utcDay(new Date())
@@ -395,7 +400,7 @@ function npmQueryOptions({
 // Get or assign colors for packages
 function getPackageColor(
   packageName: string,
-  packages: z.infer<typeof packageGroupSchema>[],
+  packages: v.InferOutput<typeof packageGroupSchema>[],
 ) {
   // Find the package group that contains this package
   const packageInfo = packages.find((pkg) =>
@@ -492,7 +497,7 @@ const showDataModeOptions = [
   { value: 'complete', label: 'Hide Partial Data' },
 ] as const
 
-type ShowDataMode = z.infer<typeof showDataModeSchema>
+type ShowDataMode = v.InferOutput<typeof showDataModeSchema>
 
 function NpmStatsChart({
   queryData,
@@ -511,7 +516,7 @@ function NpmStatsChart({
       >
   transform: TransformMode
   binType: BinType
-  packages: z.infer<typeof packageGroupSchema>[]
+  packages: v.InferOutput<typeof packageGroupSchema>[]
   range: TimeRange
   facetX?: FacetValue
   facetY?: FacetValue

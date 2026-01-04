@@ -211,7 +211,7 @@ export class TodosComponent {
             </Card>
           </div>
           <LibraryFeatureHighlights
-            featureHighlights={library.featureHighlights}
+            featureHighlights={queryProject.featureHighlights}
           />
 
           <LibraryTestimonials testimonials={queryProject.testimonials} />

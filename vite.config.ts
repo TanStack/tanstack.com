@@ -25,6 +25,36 @@ export default defineConfig({
         // Externalize postgres from client bundle
         return id.includes('postgres')
       },
+      output: {
+        manualChunks: (id) => {
+          // Vendor chunk splitting for better caching
+          if (id.includes('node_modules')) {
+            // Search-related deps (only loaded when search modal opens)
+            if (
+              id.includes('algoliasearch') ||
+              id.includes('instantsearch') ||
+              id.includes('react-instantsearch')
+            ) {
+              return 'search'
+            }
+            // Charting deps (only loaded on stats/admin pages)
+            if (
+              id.includes('@observablehq/plot') ||
+              (id.includes('d3') && !id.includes('d3-'))
+            ) {
+              return 'd3-charts'
+            }
+            // Visualization deps
+            if (id.includes('@visx/')) {
+              return 'visx'
+            }
+            // Lucide icons (tree-shaken but still significant)
+            if (id.includes('lucide-react')) {
+              return 'icons'
+            }
+          }
+        },
+      },
     },
   },
   plugins: [
@@ -32,7 +62,21 @@ export default defineConfig({
       projects: ['./tsconfig.json'],
     }),
 
-    tanstackStart(),
+    tanstackStart({
+      router: {
+        codeSplittingOptions: {
+          defaultBehavior: [
+            [
+              'component',
+              'pendingComponent',
+              'errorComponent',
+              'notFoundComponent',
+              'loader',
+            ],
+          ],
+        },
+      },
+    }),
     // Only enable Netlify plugin during build or when NETLIFY env is set
     ...(process.env.NETLIFY || process.env.NODE_ENV === 'production'
       ? [netlify()]
@@ -47,9 +91,10 @@ export default defineConfig({
     contentCollections(),
     tailwindcss(),
     analyzer({
-      enabled: false,
-      openAnalyzer: true,
-      defaultSizes: 'gzip',
+      enabled: true,
+      analyzerMode: 'json',
+      fileName: 'bundle-analysis',
+      defaultSizes: 'stat',
     }),
   ],
 })

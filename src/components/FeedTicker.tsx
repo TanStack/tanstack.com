@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { listFeedEntriesQueryOptions } from '~/queries/feed'
 import { Link } from '@tanstack/react-router'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from '~/utils/dates'
 import { libraries } from '~/libraries'
 
 const DISPLAY_DURATION = 7000 // 7 seconds in milliseconds

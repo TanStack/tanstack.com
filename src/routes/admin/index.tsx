@@ -23,17 +23,19 @@ import {
   Users,
 } from 'lucide-react'
 import { Card } from '~/components/Card'
-import { z } from 'zod'
-
-const searchSchema = z.object({
-  tab: z
-    .enum(['overview', 'users', 'activity', 'ads'])
-    .optional()
-    .default('overview'),
-})
+import * as v from 'valibot'
 
 export const Route = createFileRoute('/admin/')({
-  validateSearch: searchSchema,
+  validateSearch: (search) =>
+    v.parse(
+      v.object({
+        tab: v.optional(
+          v.picklist(['overview', 'users', 'activity', 'ads']),
+          'overview',
+        ),
+      }),
+      search,
+    ),
   component: AdminPage,
 })
 

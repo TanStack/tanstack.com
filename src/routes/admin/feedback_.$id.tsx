@@ -19,7 +19,7 @@ import {
 } from 'lucide-react'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
-import { format } from 'date-fns'
+import { format } from '~/utils/dates'
 
 export const Route = createFileRoute('/admin/feedback_/$id')({
   component: FeedbackDetailPage,

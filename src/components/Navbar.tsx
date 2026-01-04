@@ -1,6 +1,8 @@
 import * as React from 'react'
 import { twMerge } from 'tailwind-merge'
-import { BrandContextMenu } from './BrandContextMenu'
+const LazyBrandContextMenu = React.lazy(() =>
+  import('./BrandContextMenu').then((m) => ({ default: m.BrandContextMenu })),
+)
 import {
   Link,
   useLocation,
@@ -9,7 +11,6 @@ import {
 } from '@tanstack/react-router'
 import {
   ChevronRight,
-  ChevronDown,
   Code,
   Users,
   Music,
@@ -21,25 +22,27 @@ import {
   Paintbrush,
   Hammer,
   User,
-  Lock,
   Menu,
   X,
   Rss,
   Home,
   Grid2X2,
-  LogOut,
-  Settings,
   Sparkles,
+  Settings,
+  Lock,
+  LogOut,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
-import { FeedTicker } from './FeedTicker'
+const LazyFeedTicker = React.lazy(() =>
+  import('./FeedTicker').then((m) => ({ default: m.FeedTicker })),
+)
 import {
   Authenticated,
   Unauthenticated,
   AuthLoading,
 } from '~/components/AuthComponents'
-import { libraries, findLibrary } from '~/libraries'
+import { libraries, findLibrary, type LibrarySlim } from '~/libraries'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useClickOutside } from '~/hooks/useClickOutside'
@@ -48,15 +51,16 @@ import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { InstagramIcon } from '~/components/icons/InstagramIcon'
 import { BSkyIcon } from '~/components/icons/BSkyIcon'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
-import { AnnouncementBanner } from '~/components/AnnouncementBanner'
-import { Avatar } from '~/components/Avatar'
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownContent,
-  DropdownItem,
-  DropdownSeparator,
-} from '~/components/Dropdown'
+const LazyAnnouncementBanner = React.lazy(() =>
+  import('~/components/AnnouncementBanner').then((m) => ({
+    default: m.AnnouncementBanner,
+  })),
+)
+const LazyAuthenticatedUserMenu = React.lazy(() =>
+  import('~/components/AuthenticatedUserMenu').then((m) => ({
+    default: m.AuthenticatedUserMenu,
+  })),
+)
 import { authClient } from '~/utils/auth.client'
 import { useToast } from '~/components/ToastProvider'
 import {
@@ -139,6 +143,57 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     setShowMenu((prev) => !prev)
   }
 
+  const LogoSection = () => (
+    <>
+      <button
+        aria-label="Open Menu"
+        className={twMerge(
+          'flex items-center justify-center',
+          'transition-all duration-300 h-8 px-2 py-1 lg:px-0',
+          Title
+            ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
+            : 'lg:w-0 lg:opacity-0 lg:-translate-x-full',
+        )}
+        ref={menuButtonRef}
+        onClick={toggleMenu}
+        onPointerEnter={(e) => {
+          if (window.innerWidth < 1024 || e.pointerType === 'touch') return
+          if (pointerInsideButtonRef.current) return
+          pointerInsideButtonRef.current = true
+          setShowMenu(true)
+        }}
+        onPointerLeave={() => {
+          pointerInsideButtonRef.current = false
+        }}
+      >
+        {showMenu ? <X /> : <Menu />}
+      </button>
+      <Link
+        to="/"
+        className={twMerge(`inline-flex items-center gap-1.5 cursor-pointer`)}
+      >
+        <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
+          <img
+            src={'/images/logos/logo-color-100.png'}
+            alt=""
+            className="row-start-1 col-start-1 w-full group-hover:opacity-0"
+          />
+          <img
+            src={'/images/logos/logo-black.svg'}
+            alt=""
+            className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
+          />
+          <img
+            src={'/images/logos/logo-white.svg'}
+            alt=""
+            className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
+          />
+        </div>
+        <div>TanStack</div>
+      </Link>
+    </>
+  )
+
   const loginButton = (
     <>
       {(() => {
@@ -164,46 +219,13 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       })()}
 
       <Authenticated>
-        <Dropdown>
-          <DropdownTrigger>
-            <div className="flex items-center gap-1 cursor-pointer h-[26px]">
-              <Avatar
-                image={user?.image}
-                oauthImage={user?.oauthImage}
-                name={user?.name}
-                email={user?.email}
-                size="xs"
-                className="w-[26px] h-[26px]"
-              />
-              <ChevronDown className="w-3 h-3 opacity-50" />
-            </div>
-          </DropdownTrigger>
-          <DropdownContent align="end">
-            <div className="px-2 py-1.5 text-xs text-gray-500 dark:text-gray-400">
-              {user?.email}
-            </div>
-            <DropdownSeparator />
-            <DropdownItem asChild>
-              <Link to="/account" className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                <span>Account</span>
-              </Link>
-            </DropdownItem>
-            {canAdmin && (
-              <DropdownItem asChild>
-                <Link to="/admin" className="flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  <span>Admin</span>
-                </Link>
-              </DropdownItem>
-            )}
-            <DropdownSeparator />
-            <DropdownItem onSelect={signOut}>
-              <LogOut className="w-4 h-4" />
-              <span>Sign out</span>
-            </DropdownItem>
-          </DropdownContent>
-        </Dropdown>
+        <React.Suspense fallback={<div className="w-[26px] h-[26px]" />}>
+          <LazyAuthenticatedUserMenu
+            user={user}
+            canAdmin={canAdmin}
+            onSignOut={signOut}
+          />
+        </React.Suspense>
       </Authenticated>
     </>
   )
@@ -248,69 +270,20 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     >
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 font-black text-xl uppercase">
-          <BrandContextMenu
-            className={twMerge(`flex items-center gap-1.5 group`)}
-          >
-            <button
-              aria-label="Open Menu"
-              className={twMerge(
-                'flex items-center justify-center',
-                'transition-all duration-300 h-8 px-2 py-1 lg:px-0',
-                Title
-                  ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
-                  : 'lg:w-0 lg:opacity-0 lg:-translate-x-full',
-              )}
-              ref={menuButtonRef}
-              onClick={toggleMenu}
-              onPointerEnter={(e) => {
-                // Only open on hover for desktop pointer devices
-                if (window.innerWidth < 1024 || e.pointerType === 'touch') {
-                  return
-                }
-                // Don't reopen if pointer is already inside (e.g. after clicking X)
-                if (pointerInsideButtonRef.current) {
-                  return
-                }
-                pointerInsideButtonRef.current = true
-                setShowMenu(true)
-              }}
-              onPointerLeave={() => {
-                pointerInsideButtonRef.current = false
-              }}
+          <React.Suspense fallback={<LogoSection />}>
+            <LazyBrandContextMenu
+              className={twMerge(`flex items-center gap-1.5 group`)}
             >
-              {showMenu ? <X /> : <Menu />}
-            </button>
-            <Link
-              to="/"
-              className={twMerge(
-                `inline-flex items-center gap-1.5 cursor-pointer`,
-              )}
-            >
-              <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
-                <img
-                  src={'/images/logos/logo-color-100.png'}
-                  alt=""
-                  className="row-start-1 col-start-1 w-full group-hover:opacity-0"
-                />
-                <img
-                  src={'/images/logos/logo-black.svg'}
-                  alt=""
-                  className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
-                />
-                <img
-                  src={'/images/logos/logo-white.svg'}
-                  alt=""
-                  className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
-                />
-              </div>
-              <div>TanStack</div>
-            </Link>
-          </BrandContextMenu>
+              <LogoSection />
+            </LazyBrandContextMenu>
+          </React.Suspense>
           {Title ? <Title /> : null}
         </div>
       </div>
       <div className="hidden xl:flex flex-1 justify-end min-w-0">
-        <FeedTicker />
+        <React.Suspense fallback={null}>
+          <LazyFeedTicker />
+        </React.Suspense>
       </div>
       <div className="flex items-center gap-2">
         <div className="hidden min-[750px]:block">{socialLinks}</div>
@@ -318,7 +291,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <SearchButton />
         </div>
         <ThemeToggle />
-        <div className="hidden xs:flex items-center gap-2">{loginButton}</div>
+        <div className="flex items-center gap-2">{loginButton}</div>
       </div>
     </div>
   )
@@ -354,7 +327,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             .filter(
               (
                 d,
-              ): d is Library & {
+              ): d is LibrarySlim & {
                 to: string
                 textStyle: string
                 badge?: string
@@ -640,6 +613,51 @@ export function Navbar({ children }: { children: React.ReactNode }) {
               </Link>
             )
           })}
+        <Authenticated>
+          <div className="py-2">
+            <div className="bg-gray-500/10 h-px" />
+          </div>
+          <Link
+            to="/account"
+            className={twMerge(linkClasses, 'font-normal')}
+            activeProps={{
+              className: twMerge(
+                'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
+              ),
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <Settings />
+              <div>Account</div>
+            </div>
+          </Link>
+          {canAdmin ? (
+            <Link
+              to="/admin"
+              className={twMerge(linkClasses, 'font-normal')}
+              activeProps={{
+                className: twMerge(
+                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
+                ),
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <Lock />
+                <div>Admin</div>
+              </div>
+            </Link>
+          ) : null}
+          <button
+            type="button"
+            onClick={signOut}
+            className={twMerge(linkClasses, 'font-normal w-full')}
+          >
+            <div className="flex items-center gap-2">
+              <LogOut />
+              <div>Sign Out</div>
+            </div>
+          </button>
+        </Authenticated>
       </div>
     </div>
   )
@@ -724,7 +742,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       {navbar}
       {/* Sticky announcement banners below the nav */}
       <div className="sticky top-[var(--navbar-height)] z-[99]">
-        <AnnouncementBanner />
+        <React.Suspense fallback={null}>
+          <LazyAnnouncementBanner />
+        </React.Suspense>
       </div>
       <div
         className={twMerge(

@@ -1,32 +1,17 @@
 import { WandSparkles, Zap } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
-
-const repo = 'tanstack/config'
+import { config } from './libraries'
 
 const textStyles = 'text-gray-700 dark:text-gray-500'
 
 export const configProject = {
-  id: 'config',
-  name: 'TanStack Config',
-  cardStyles: `text-slate-500 hover:border-current`,
-  to: '/config',
-  tagline: `Configuration and tools for publishing and maintaining high-quality JavaScript packages`,
+  ...config,
   description: `Opinionated tooling to lint, build, test, version, and publish JS/TS packages — minimal config, consistent results.`,
   ogImage: 'https://github.com/tanstack/config/raw/main/media/repo-header.png',
-  badge: undefined,
-  bgStyle: 'bg-slate-500',
-  borderStyle: 'border-slate-500/50',
-  textStyle: 'text-slate-500',
-  repo,
   latestBranch: 'main',
-  latestVersion: 'v0',
-  availableVersions: ['v0'],
   bgRadial: 'from-gray-500 via-gray-700/50 to-transparent',
-  colorFrom: 'from-gray-500',
-  colorTo: 'to-gray-700',
   textColor: 'text-gray-700',
-  frameworks: [],
   featureHighlights: [
     {
       title: 'Intuitive Configuration',

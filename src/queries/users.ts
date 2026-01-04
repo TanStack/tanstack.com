@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
 import { listUsers } from '~/utils/users.server'
-import type { Capability } from '~/db/schema'
+import type { Capability } from '~/db/types'
 
 export interface ListUsersFilters {
   pagination: {

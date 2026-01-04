@@ -1,5 +1,5 @@
 import * as React from 'react'
-import type { DocFeedback } from '~/db/schema'
+import type { DocFeedback } from '~/db/types'
 
 interface DocFeedbackContextValue {
   // User feedback for the current page

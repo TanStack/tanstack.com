@@ -1,4 +1,4 @@
-import type { ShowcaseUseCase } from '~/db/schema'
+import type { ShowcaseUseCase } from '~/db/types'
 
 /**
  * Library dependencies: Start automatically includes Router

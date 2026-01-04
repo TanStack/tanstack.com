@@ -11,7 +11,7 @@ import {
 } from './TableComponents'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
-import type { DocFeedback } from '~/db/schema'
+import type { DocFeedback } from '~/db/types'
 import { calculatePoints } from '~/utils/docFeedback.client'
 import { ExternalLink, TriangleAlert } from 'lucide-react'
 

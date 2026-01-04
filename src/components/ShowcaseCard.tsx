@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { ExternalLink } from 'lucide-react'
 import { libraries } from '~/libraries'
-import type { Showcase } from '~/db/schema'
+import type { Showcase } from '~/db/types'
 
 interface ShowcaseCardProps {
   showcase: Showcase

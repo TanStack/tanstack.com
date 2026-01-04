@@ -11,7 +11,7 @@ import {
   findReferenceableBlocks,
   getBlockIdentifier,
 } from '~/utils/docFeedback.client'
-import type { DocFeedback } from '~/db/schema'
+import type { DocFeedback } from '~/db/types'
 import { Lightbulb, MessageSquare } from 'lucide-react'
 
 interface DocFeedbackProviderProps {

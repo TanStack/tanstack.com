@@ -12,7 +12,7 @@ import {
 } from './TableComponents'
 import { PaginationControls } from './PaginationControls'
 import { Spinner } from './Spinner'
-import type { Showcase } from '~/db/schema'
+import type { Showcase } from '~/db/types'
 import { Check, X, Star, ExternalLink, Trash2 } from 'lucide-react'
 import { libraries } from '~/libraries'
 

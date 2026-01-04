@@ -7,7 +7,7 @@ import {
   listShowcasesForModeration,
   getShowcase,
 } from '~/utils/showcase.functions'
-import type { ShowcaseStatus, ShowcaseUseCase } from '~/db/schema'
+import type { ShowcaseStatus, ShowcaseUseCase } from '~/db/types'
 
 export interface ShowcasePagination {
   page: number

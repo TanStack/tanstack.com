@@ -201,7 +201,9 @@ export class VirtualList extends LitElement {
         </Card>
       </div>
 
-      <LibraryFeatureHighlights featureHighlights={virtualProject.featureHighlights} />
+      <LibraryFeatureHighlights
+        featureHighlights={virtualProject.featureHighlights}
+      />
 
       <LibraryTestimonials testimonials={virtualProject.testimonials} />
 

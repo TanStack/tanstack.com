@@ -390,7 +390,9 @@ table.getRowModel().rows.forEach((row) => {
         </Card>
       </div>
 
-      <LibraryFeatureHighlights featureHighlights={tableProject.featureHighlights} />
+      <LibraryFeatureHighlights
+        featureHighlights={tableProject.featureHighlights}
+      />
 
       <LibraryTestimonials testimonials={tableProject.testimonials} />
 

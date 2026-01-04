@@ -28,6 +28,7 @@ import { Layers, Zap, Shield, Code2 } from 'lucide-react'
 import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
+import { Button } from '~/components/Button'
 
 export const textColors = [
   `text-rose-500`,
@@ -250,25 +251,9 @@ function Index() {
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mt-8 text-center">
-          <Link
-            to="/libraries"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs hover:shadow-sm hover:border-gray-400 dark:hover:border-gray-600 hover:-translate-y-1 transition-all duration-300 text-gray-900 dark:text-gray-100 font-medium"
-          >
-            <span>More Libraries</span>
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </Link>
+          <Button as={Link} to="/libraries">
+            More Libraries →
+          </Button>
         </div>
 
         {/* Why TanStack Section */}
@@ -527,12 +512,9 @@ function Index() {
             ))}
           </div>
           <div className="text-center mt-6">
-            <Link
-              to="/maintainers"
-              className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-            >
+            <Button as={Link} to="/maintainers">
               View All Maintainers →
-            </Link>
+            </Button>
           </div>
         </div>
 

@@ -706,6 +706,36 @@ export const getShowcase = createServerFn({ method: 'POST' })
   })
 
 /**
+ * Get a single showcase by ID for admin (moderate-showcases capability required)
+ */
+export const adminGetShowcase = createServerFn({ method: 'POST' })
+  .inputValidator(z.object({ showcaseId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    await requireModerateShowcases()
+
+    const [result] = await db
+      .select({
+        showcase: showcases,
+        user: {
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          image: users.image,
+        },
+      })
+      .from(showcases)
+      .leftJoin(users, eq(showcases.userId, users.id))
+      .where(eq(showcases.id, data.showcaseId))
+      .limit(1)
+
+    if (!result) {
+      return null
+    }
+
+    return { showcase: result.showcase, user: result.user }
+  })
+
+/**
  * Admin delete a showcase (moderate-showcases capability required)
  */
 export const adminDeleteShowcase = createServerFn({ method: 'POST' })

@@ -9,7 +9,7 @@ export function NpmIcon({
   return (
     <svg
       viewBox="0 0 576 512"
-      stroke-width="0"
+      strokeWidth="0"
       fill="currentColor"
       stroke="currentColor"
       width={width}

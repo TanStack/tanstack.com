@@ -64,7 +64,10 @@ import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packag
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiAdminSyncRouteImport } from './routes/api/admin/sync'
+import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users.$userId'
+import { Route as AdminShowcasesIdRouteImport } from './routes/admin/showcases_.$id'
 import { Route as AdminRolesRoleIdRouteImport } from './routes/admin/roles.$roleId'
+import { Route as AdminFeedbackIdRouteImport } from './routes/admin/feedback_.$id'
 import { Route as AdminFeedIdRouteImport } from './routes/admin/feed.$id'
 import { Route as AdminBannersIdRouteImport } from './routes/admin/banners.$id'
 import { Route as LibrariesFeedIdRouteImport } from './routes/_libraries/feed.$id'
@@ -372,9 +375,24 @@ const ApiAdminSyncRoute = ApiAdminSyncRouteImport.update({
   path: '/api/admin/sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersUserIdRoute = AdminUsersUserIdRouteImport.update({
+  id: '/$userId',
+  path: '/$userId',
+  getParentRoute: () => AdminUsersRoute,
+} as any)
+const AdminShowcasesIdRoute = AdminShowcasesIdRouteImport.update({
+  id: '/showcases_/$id',
+  path: '/showcases/$id',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminRolesRoleIdRoute = AdminRolesRoleIdRouteImport.update({
   id: '/roles/$roleId',
   path: '/roles/$roleId',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminFeedbackIdRoute = AdminFeedbackIdRouteImport.update({
+  id: '/feedback_/$id',
+  path: '/feedback/$id',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminFeedIdRoute = AdminFeedIdRouteImport.update({
@@ -586,7 +604,7 @@ export interface FileRoutesByFullPath {
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
-  '/admin/users': typeof AdminUsersRoute
+  '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/mine': typeof ShowcaseMineRoute
@@ -603,7 +621,10 @@ export interface FileRoutesByFullPath {
   '/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/banners/$id': typeof AdminBannersIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
+  '/admin/feedback/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
+  '/admin/showcases/$id': typeof AdminShowcasesIdRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
@@ -670,7 +691,7 @@ export interface FileRoutesByTo {
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
-  '/admin/users': typeof AdminUsersRoute
+  '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/mine': typeof ShowcaseMineRoute
@@ -686,7 +707,10 @@ export interface FileRoutesByTo {
   '/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/banners/$id': typeof AdminBannersIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
+  '/admin/feedback/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
+  '/admin/showcases/$id': typeof AdminShowcasesIdRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
@@ -759,7 +783,7 @@ export interface FileRoutesById {
   '/admin/github-stats': typeof AdminGithubStatsRoute
   '/admin/logins': typeof AdminLoginsRoute
   '/admin/npm-stats': typeof AdminNpmStatsRoute
-  '/admin/users': typeof AdminUsersRoute
+  '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/mine': typeof ShowcaseMineRoute
@@ -776,7 +800,10 @@ export interface FileRoutesById {
   '/_libraries/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/banners/$id': typeof AdminBannersIdRoute
   '/admin/feed/$id': typeof AdminFeedIdRoute
+  '/admin/feedback_/$id': typeof AdminFeedbackIdRoute
   '/admin/roles/$roleId': typeof AdminRolesRoleIdRoute
+  '/admin/showcases_/$id': typeof AdminShowcasesIdRoute
+  '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
@@ -866,7 +893,10 @@ export interface FileRouteTypes {
     | '/feed/$id'
     | '/admin/banners/$id'
     | '/admin/feed/$id'
+    | '/admin/feedback/$id'
     | '/admin/roles/$roleId'
+    | '/admin/showcases/$id'
+    | '/admin/users/$userId'
     | '/api/admin/sync'
     | '/api/github/webhook'
     | '/auth/$provider/start'
@@ -949,7 +979,10 @@ export interface FileRouteTypes {
     | '/feed/$id'
     | '/admin/banners/$id'
     | '/admin/feed/$id'
+    | '/admin/feedback/$id'
     | '/admin/roles/$roleId'
+    | '/admin/showcases/$id'
+    | '/admin/users/$userId'
     | '/api/admin/sync'
     | '/api/github/webhook'
     | '/auth/$provider/start'
@@ -1038,7 +1071,10 @@ export interface FileRouteTypes {
     | '/_libraries/feed/$id'
     | '/admin/banners/$id'
     | '/admin/feed/$id'
+    | '/admin/feedback_/$id'
     | '/admin/roles/$roleId'
+    | '/admin/showcases_/$id'
+    | '/admin/users/$userId'
     | '/api/admin/sync'
     | '/api/github/webhook'
     | '/auth/$provider/start'
@@ -1490,11 +1526,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAdminSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users/$userId': {
+      id: '/admin/users/$userId'
+      path: '/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AdminUsersUserIdRouteImport
+      parentRoute: typeof AdminUsersRoute
+    }
+    '/admin/showcases_/$id': {
+      id: '/admin/showcases_/$id'
+      path: '/showcases/$id'
+      fullPath: '/admin/showcases/$id'
+      preLoaderRoute: typeof AdminShowcasesIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/roles/$roleId': {
       id: '/admin/roles/$roleId'
       path: '/roles/$roleId'
       fullPath: '/admin/roles/$roleId'
       preLoaderRoute: typeof AdminRolesRoleIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/feedback_/$id': {
+      id: '/admin/feedback_/$id'
+      path: '/feedback/$id'
+      fullPath: '/admin/feedback/$id'
+      preLoaderRoute: typeof AdminFeedbackIdRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/feed/$id': {
@@ -1883,16 +1940,30 @@ const LibrariesRouteRouteWithChildren = LibrariesRouteRoute._addFileChildren(
   LibrariesRouteRouteChildren,
 )
 
+interface AdminUsersRouteChildren {
+  AdminUsersUserIdRoute: typeof AdminUsersUserIdRoute
+}
+
+const AdminUsersRouteChildren: AdminUsersRouteChildren = {
+  AdminUsersUserIdRoute: AdminUsersUserIdRoute,
+}
+
+const AdminUsersRouteWithChildren = AdminUsersRoute._addFileChildren(
+  AdminUsersRouteChildren,
+)
+
 interface AdminRouteRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
   AdminGithubStatsRoute: typeof AdminGithubStatsRoute
   AdminLoginsRoute: typeof AdminLoginsRoute
   AdminNpmStatsRoute: typeof AdminNpmStatsRoute
-  AdminUsersRoute: typeof AdminUsersRoute
+  AdminUsersRoute: typeof AdminUsersRouteWithChildren
   AdminIndexRoute: typeof AdminIndexRoute
   AdminBannersIdRoute: typeof AdminBannersIdRoute
   AdminFeedIdRoute: typeof AdminFeedIdRoute
+  AdminFeedbackIdRoute: typeof AdminFeedbackIdRoute
   AdminRolesRoleIdRoute: typeof AdminRolesRoleIdRoute
+  AdminShowcasesIdRoute: typeof AdminShowcasesIdRoute
   AdminBannersIndexRoute: typeof AdminBannersIndexRoute
   AdminFeedIndexRoute: typeof AdminFeedIndexRoute
   AdminFeedbackIndexRoute: typeof AdminFeedbackIndexRoute
@@ -1906,11 +1977,13 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminGithubStatsRoute: AdminGithubStatsRoute,
   AdminLoginsRoute: AdminLoginsRoute,
   AdminNpmStatsRoute: AdminNpmStatsRoute,
-  AdminUsersRoute: AdminUsersRoute,
+  AdminUsersRoute: AdminUsersRouteWithChildren,
   AdminIndexRoute: AdminIndexRoute,
   AdminBannersIdRoute: AdminBannersIdRoute,
   AdminFeedIdRoute: AdminFeedIdRoute,
+  AdminFeedbackIdRoute: AdminFeedbackIdRoute,
   AdminRolesRoleIdRoute: AdminRolesRoleIdRoute,
+  AdminShowcasesIdRoute: AdminShowcasesIdRoute,
   AdminBannersIndexRoute: AdminBannersIndexRoute,
   AdminFeedIndexRoute: AdminFeedIndexRoute,
   AdminFeedbackIndexRoute: AdminFeedbackIndexRoute,

@@ -716,7 +716,12 @@ function UsersPage() {
           const user = row.original
           const displayName = user.name || user.displayUsername || ''
           return (
-            <div className="flex items-center gap-3">
+            <Link
+              to="/admin/users/$userId"
+              params={{ userId: user._id }}
+              className="flex items-center gap-3 hover:opacity-80"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex-shrink-0 h-10 w-10">
                 {user.image ? (
                   <img
@@ -735,7 +740,7 @@ function UsersPage() {
                   {displayName}
                 </div>
               )}
-            </div>
+            </Link>
           )
         },
       },

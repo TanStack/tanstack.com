@@ -299,6 +299,38 @@ export const listUsers = createServerFn({ method: 'POST' })
     }
   })
 
+// Get a single user by ID (admin only)
+export const getUser = createServerFn({ method: 'POST' })
+  .inputValidator(z.object({ userId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    await requireCapability({ data: { capability: 'admin' } })
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, data.userId),
+    })
+
+    if (!user) {
+      return null
+    }
+
+    return {
+      _id: user.id,
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      image: user.image,
+      oauthImage: user.oauthImage,
+      displayUsername: user.displayUsername,
+      capabilities: user.capabilities,
+      adsDisabled: user.adsDisabled,
+      interestedInHidingAds: user.interestedInHidingAds,
+      lastUsedFramework: user.lastUsedFramework,
+      sessionVersion: user.sessionVersion,
+      createdAt: user.createdAt.getTime(),
+      updatedAt: user.updatedAt.getTime(),
+    }
+  })
+
 // Server function wrapper for updateAdPreference
 export const updateAdPreference = createServerFn({ method: 'POST' })
   .inputValidator(z.object({ adsDisabled: z.boolean() }))

@@ -14,10 +14,10 @@ export default defineConfig({
   },
   ssr: {
     external: ['postgres'],
-    noExternal: ['drizzle-orm'],
+    noExternal: ['drizzle-orm', '@takumi-rs/image-response', '@takumi-rs/core'],
   },
   optimizeDeps: {
-    exclude: ['postgres'],
+    exclude: ['postgres', '@takumi-rs/core'],
   },
   build: {
     rollupOptions: {

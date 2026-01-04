@@ -89,6 +89,7 @@ import { Route as LibrariesDbVersionIndexRouteImport } from './routes/_libraries
 import { Route as LibrariesConfigVersionIndexRouteImport } from './routes/_libraries/config.$version.index'
 import { Route as LibrariesAiVersionIndexRouteImport } from './routes/_libraries/ai.$version.index'
 import { Route as LibraryIdVersionDocsIndexRouteImport } from './routes/$libraryId/$version.docs.index'
+import { Route as ApiOgBlogSplatRouteImport } from './routes/api/og/blog.$'
 import { Route as ApiAuthCallbackProviderRouteImport } from './routes/api/auth/callback/$provider'
 import { Route as LibraryIdVersionDocsChar123Char125DotmdRouteImport } from './routes/$libraryId/$version.docs.{$}[.]md'
 import { Route as LibraryIdVersionDocsContributorsRouteImport } from './routes/$libraryId/$version.docs.contributors'
@@ -513,6 +514,11 @@ const LibraryIdVersionDocsIndexRoute =
     path: '/',
     getParentRoute: () => LibraryIdVersionDocsRoute,
   } as any)
+const ApiOgBlogSplatRoute = ApiOgBlogSplatRouteImport.update({
+  id: '/api/og/blog/$',
+  path: '/api/og/blog/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthCallbackProviderRoute = ApiAuthCallbackProviderRouteImport.update({
   id: '/api/auth/callback/$provider',
   path: '/api/auth/callback/$provider',
@@ -644,6 +650,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/og/blog/$': typeof ApiOgBlogSplatRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/ai/$version': typeof LibrariesAiVersionIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
@@ -730,6 +737,7 @@ export interface FileRoutesByTo {
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/og/blog/$': typeof ApiOgBlogSplatRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsIndexRoute
   '/ai/$version': typeof LibrariesAiVersionIndexRoute
   '/config/$version': typeof LibrariesConfigVersionIndexRoute
@@ -823,6 +831,7 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs/contributors': typeof LibraryIdVersionDocsContributorsRoute
   '/$libraryId/$version/docs/{$}.md': typeof LibraryIdVersionDocsChar123Char125DotmdRoute
   '/api/auth/callback/$provider': typeof ApiAuthCallbackProviderRoute
+  '/api/og/blog/$': typeof ApiOgBlogSplatRoute
   '/$libraryId/$version/docs/': typeof LibraryIdVersionDocsIndexRoute
   '/_libraries/ai/$version/': typeof LibrariesAiVersionIndexRoute
   '/_libraries/config/$version/': typeof LibrariesConfigVersionIndexRoute
@@ -916,6 +925,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/og/blog/$'
     | '/$libraryId/$version/docs/'
     | '/ai/$version'
     | '/config/$version'
@@ -1002,6 +1012,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/og/blog/$'
     | '/$libraryId/$version/docs'
     | '/ai/$version'
     | '/config/$version'
@@ -1094,6 +1105,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs/contributors'
     | '/$libraryId/$version/docs/{$}.md'
     | '/api/auth/callback/$provider'
+    | '/api/og/blog/$'
     | '/$libraryId/$version/docs/'
     | '/_libraries/ai/$version/'
     | '/_libraries/config/$version/'
@@ -1137,6 +1149,7 @@ export interface RootRouteChildren {
   StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
+  ApiOgBlogSplatRoute: typeof ApiOgBlogSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1701,6 +1714,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIdVersionDocsIndexRouteImport
       parentRoute: typeof LibraryIdVersionDocsRoute
     }
+    '/api/og/blog/$': {
+      id: '/api/og/blog/$'
+      path: '/api/og/blog/$'
+      fullPath: '/api/og/blog/$'
+      preLoaderRoute: typeof ApiOgBlogSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/callback/$provider': {
       id: '/api/auth/callback/$provider'
       path: '/api/auth/callback/$provider'
@@ -2018,6 +2038,7 @@ const rootRouteChildren: RootRouteChildren = {
   StatsNpmPackagesRoute: StatsNpmPackagesRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
+  ApiOgBlogSplatRoute: ApiOgBlogSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -151,6 +151,25 @@ export function ShowcaseSubmitForm() {
             />
           </div>
 
+          {/* Project URL */}
+          <div>
+            <label
+              htmlFor="url"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Project URL *
+            </label>
+            <input
+              type="url"
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              required
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="https://your-project.com"
+            />
+          </div>
+
           {/* Tagline */}
           <div>
             <label
@@ -189,25 +208,6 @@ export function ShowcaseSubmitForm() {
               rows={4}
               className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               placeholder="Tell us more about your project..."
-            />
-          </div>
-
-          {/* Project URL */}
-          <div>
-            <label
-              htmlFor="url"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Project URL *
-            </label>
-            <input
-              type="url"
-              id="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              required
-              className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="https://your-project.com"
             />
           </div>
 

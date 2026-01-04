@@ -103,7 +103,7 @@ export function ImageUpload({
     ? 'w-24'
     : aspectRatio === 'video'
       ? 'max-w-md'
-      : 'w-32'
+      : 'w-40'
 
   return (
     <div className={className}>
@@ -154,38 +154,38 @@ export function ImageUpload({
           )}
         >
           {isUploading ? (
-            <>
+            <div className="p-4 text-center">
               <Loader2
                 className={twMerge(
-                  'text-blue-500 animate-spin',
+                  'text-blue-500 animate-spin mx-auto',
                   isSmall ? 'w-5 h-5' : 'w-8 h-8',
                 )}
               />
               {!isSmall && (
-                <span className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                <span className="mt-2 block text-sm text-gray-600 dark:text-gray-400">
                   Uploading...
                 </span>
               )}
-            </>
+            </div>
           ) : (
-            <>
+            <div className="p-4 text-center">
               <Upload
                 className={twMerge(
-                  'text-gray-400',
+                  'text-gray-400 mx-auto',
                   isSmall ? 'w-5 h-5' : 'w-8 h-8',
                 )}
               />
               {!isSmall && (
                 <>
-                  <span className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  <span className="mt-2 block text-sm text-gray-600 dark:text-gray-400">
                     Click or drag to upload
                   </span>
-                  <span className="mt-1 text-xs text-gray-500">
+                  <span className="mt-1 block text-xs text-gray-500">
                     PNG, JPG up to 4MB
                   </span>
                 </>
               )}
-            </>
+            </div>
           )}
         </div>
       )}

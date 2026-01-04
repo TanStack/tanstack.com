@@ -29,6 +29,7 @@ import {
   Grid2X2,
   LogOut,
   Settings,
+  Sparkles,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
@@ -540,6 +541,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: 'Partners',
             icon: <Users />,
             to: '/partners',
+          },
+          {
+            label: 'Showcase',
+            icon: <Sparkles />,
+            to: '/showcase',
           },
           {
             label: 'Blog',

@@ -4,6 +4,7 @@ import { partners } from '~/utils/partners'
 import { PartnersGrid } from './PartnersGrid'
 import { PartnershipCallout } from './PartnershipCallout'
 import { LibraryId } from '~/libraries'
+import { Button } from './Button'
 
 type PartnersSectionProps = {
   libraryId?: LibraryId
@@ -37,17 +38,17 @@ export function PartnersSection({
           <PartnershipCallout libraryId={libraryId} />
           {showPreviousLink ? (
             <div className="text-center mt-6">
-              <Link
+              <Button
+                as={Link}
                 to="/partners"
                 search={
                   libraryId
                     ? { libraries: [libraryId], status: 'inactive' }
                     : { status: 'inactive' }
                 }
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs hover:shadow-sm hover:border-gray-400 dark:hover:border-gray-700 transition-all"
               >
                 View Previous Partners →
-              </Link>
+              </Button>
             </div>
           ) : null}
         </div>

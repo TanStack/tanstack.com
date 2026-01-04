@@ -90,11 +90,14 @@ export default defineConfig({
     }),
     contentCollections(),
     tailwindcss(),
-    analyzer({
-      enabled: true,
-      analyzerMode: 'json',
-      fileName: 'bundle-analysis',
-      defaultSizes: 'stat',
-    }),
+    ...(process.env.ANALYZE
+      ? [
+          analyzer({
+            analyzerMode: 'json',
+            fileName: 'bundle-analysis',
+            defaultSizes: 'stat',
+          }),
+        ]
+      : []),
   ],
 })

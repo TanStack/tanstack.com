@@ -70,18 +70,20 @@ function BannersAdminPage() {
 
   const bannersQuery = useQuery({
     queryKey: ['banners', { includeInactive: search.includeInactive }],
-    queryFn: () => listBanners({ includeInactive: search.includeInactive }),
+    queryFn: () =>
+      listBanners({ data: { includeInactive: search.includeInactive } }),
   })
 
   const toggleActiveMutation = useMutation({
-    mutationFn: toggleBannerActive,
+    mutationFn: (params: { id: string; isActive: boolean }) =>
+      toggleBannerActive({ data: params }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['banners'] })
     },
   })
 
   const deleteMutation = useMutation({
-    mutationFn: deleteBanner,
+    mutationFn: (params: { id: string }) => deleteBanner({ data: params }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['banners'] })
     },
@@ -151,7 +153,10 @@ function BannersAdminPage() {
             checked={search.includeInactive}
             onChange={(e) =>
               navigate({
-                search: (s) => ({ ...s, includeInactive: e.target.checked }),
+                search: (s: { includeInactive?: boolean }) => ({
+                  ...s,
+                  includeInactive: e.target.checked,
+                }),
                 replace: true,
               })
             }

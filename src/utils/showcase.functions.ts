@@ -6,7 +6,6 @@ import {
   showcaseVotes,
   users,
   auditLogs,
-  SHOWCASE_USE_CASES,
   type ShowcaseStatus,
   type ShowcaseUseCase,
 } from '~/db/schema'
@@ -22,12 +21,10 @@ import {
 import { libraries } from '~/libraries'
 import { getTrancoRank } from './tranco.server'
 import { notifyModerators, formatShowcaseSubmittedEmail } from './email.server'
+import { showcaseUseCaseSchema, showcaseStatusSchema } from './schemas'
 
 // Valid library IDs for validation
 const validLibraryIds = libraries.map((lib) => lib.id)
-
-// Valibot schema for use cases
-const useCaseSchema = v.picklist(SHOWCASE_USE_CASES as [string, ...string[]])
 
 /**
  * Submit a new showcase
@@ -56,7 +53,7 @@ export const submitShowcase = createServerFn({ method: 'POST' })
         v.array(v.string()),
         v.minLength(1, 'At least one library is required'),
       ),
-      useCases: v.optional(v.array(useCaseSchema), []),
+      useCases: v.optional(v.array(showcaseUseCaseSchema), []),
     }),
   )
   .handler(async ({ data }) => {
@@ -185,7 +182,7 @@ export const updateShowcase = createServerFn({ method: 'POST' })
         v.array(v.string()),
         v.minLength(1, 'At least one library is required'),
       ),
-      useCases: v.optional(v.array(useCaseSchema), []),
+      useCases: v.optional(v.array(showcaseUseCaseSchema), []),
     }),
   )
   .handler(async ({ data }) => {
@@ -378,7 +375,7 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
       filters: v.optional(
         v.object({
           libraryId: v.optional(v.string()),
-          useCases: v.optional(v.array(useCaseSchema)),
+          useCases: v.optional(v.array(showcaseUseCaseSchema)),
           featured: v.optional(v.boolean()),
         }),
       ),
@@ -540,9 +537,7 @@ export const listShowcasesForModeration = createServerFn({ method: 'POST' })
       }),
       filters: v.optional(
         v.object({
-          status: v.optional(
-            v.array(v.picklist(['pending', 'approved', 'denied'])),
-          ),
+          status: v.optional(v.array(showcaseStatusSchema)),
           libraryId: v.optional(v.string()),
           userId: v.optional(v.pipe(v.string(), v.uuid())),
           isFeatured: v.optional(v.boolean()),

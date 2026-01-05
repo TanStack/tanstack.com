@@ -6,32 +6,11 @@
  * server and client code.
  */
 
-// ============================================================================
-// Capability Types
-// ============================================================================
+// Re-export shared types from db/types.ts (single source of truth)
+export type { Capability, OAuthProvider } from '~/db/types'
+export { CAPABILITIES as VALID_CAPABILITIES } from '~/db/types'
 
-export type Capability =
-  | 'admin'
-  | 'disableAds'
-  | 'builder'
-  | 'feed'
-  | 'moderate-feedback'
-  | 'moderate-showcases'
-
-export const VALID_CAPABILITIES: readonly Capability[] = [
-  'admin',
-  'disableAds',
-  'builder',
-  'feed',
-  'moderate-feedback',
-  'moderate-showcases',
-] as const
-
-// ============================================================================
-// OAuth Types
-// ============================================================================
-
-export type OAuthProvider = 'github' | 'google'
+import type { Capability, OAuthProvider } from '~/db/types'
 
 export interface OAuthProfile {
   id: string

@@ -117,30 +117,30 @@ export type AuthGuards = ReturnType<typeof createAuthGuards>
 /**
  * Create a guard that wraps a handler with capability check
  */
-export function withCapability<T extends (...args: unknown[]) => unknown>(
+export function withCapability<TArgs extends unknown[], TReturn>(
   guards: AuthGuards,
   capability: Capability,
   getRequest: () => Request,
-  handler: (user: AuthUser, ...args: Parameters<T>) => ReturnType<T>,
-): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
-  return async (...args: Parameters<T>) => {
+  handler: (user: AuthUser, ...args: TArgs) => TReturn,
+) {
+  return async (...args: TArgs): Promise<Awaited<TReturn>> => {
     const request = getRequest()
     const user = await guards.requireCapability(request, capability)
-    return handler(user, ...args) as Awaited<ReturnType<T>>
+    return (await handler(user, ...args)) as Awaited<TReturn>
   }
 }
 
 /**
  * Create a guard that wraps a handler with auth check
  */
-export function withAuth<T extends (...args: unknown[]) => unknown>(
+export function withAuth<TArgs extends unknown[], TReturn>(
   guards: AuthGuards,
   getRequest: () => Request,
-  handler: (user: AuthUser, ...args: Parameters<T>) => ReturnType<T>,
-): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
-  return async (...args: Parameters<T>) => {
+  handler: (user: AuthUser, ...args: TArgs) => TReturn,
+) {
+  return async (...args: TArgs): Promise<Awaited<TReturn>> => {
     const request = getRequest()
     const user = await guards.requireAuth(request)
-    return handler(user, ...args) as Awaited<ReturnType<T>>
+    return (await handler(user, ...args)) as Awaited<TReturn>
   }
 }

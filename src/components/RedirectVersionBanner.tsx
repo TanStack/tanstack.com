@@ -30,9 +30,7 @@ export function RedirectVersionBanner(props: {
           You are currently reading <strong>{version}</strong> docs. Redirect to{' '}
           <Link
             to={activeMatch.fullPath}
-            params={{
-              version: 'latest',
-            }}
+            params={{ version: 'latest' } as never}
             className="font-bold underline"
           >
             latest
@@ -43,9 +41,7 @@ export function RedirectVersionBanner(props: {
           <Button
             as={Link}
             to={activeMatch.fullPath}
-            params={{
-              version: 'latest',
-            }}
+            params={{ version: 'latest' } as never}
             replace
             className="bg-black border-black hover:bg-gray-800 dark:bg-white dark:border-white dark:hover:bg-gray-200 dark:text-black text-white w-full lg:w-auto justify-center"
           >

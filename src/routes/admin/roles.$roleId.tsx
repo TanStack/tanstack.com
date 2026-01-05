@@ -95,7 +95,7 @@ function RoleDetailPage() {
     }
   }, [selectedUserIds, usersWithRole])
 
-  const columns = useMemo<ColumnDef<User, any>[]>(
+  const columns = useMemo<ColumnDef<any, any>[]>(
     () => [
       {
         id: 'select',

@@ -70,11 +70,12 @@ export function NotesModerationFilters({
     })
   }
 
-  const hasActiveFilters =
+  const hasActiveFilters = Boolean(
     filters.libraryId ||
     filters.isDetached ||
     filters.dateFrom ||
-    filters.dateTo
+    filters.dateTo,
+  )
 
   return (
     <FilterBar
@@ -113,7 +114,7 @@ export function NotesModerationFilters({
         <FilterCheckbox
           label="Show Detached Only"
           checked={filters.isDetached || false}
-          onChange={handleDetachedChange}
+          onChange={() => handleDetachedChange(!filters.isDetached)}
         />
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
           Notes where the referenced block has moved or been deleted

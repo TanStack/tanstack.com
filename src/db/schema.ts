@@ -33,86 +33,56 @@ export type {
   ReleaseLevel,
 } from './types'
 
-export {
-  VALID_CAPABILITIES,
-  SHOWCASE_USE_CASES,
-  RELEASE_LEVELS,
+import {
+  CAPABILITIES,
+  OAUTH_PROVIDERS,
+  DOC_FEEDBACK_TYPES,
+  DOC_FEEDBACK_STATUSES,
+  BANNER_SCOPES,
+  BANNER_STYLES,
   ENTRY_TYPES,
+  SHOWCASE_STATUSES,
+  SHOWCASE_USE_CASES,
+  AUDIT_ACTIONS,
+} from './types'
+
+export {
+  CAPABILITIES,
+  VALID_CAPABILITIES,
+  OAUTH_PROVIDERS,
+  DOC_FEEDBACK_TYPES,
+  DOC_FEEDBACK_STATUSES,
+  BANNER_SCOPES,
+  BANNER_STYLES,
+  ENTRY_TYPES,
+  SHOWCASE_STATUSES,
+  SHOWCASE_USE_CASES,
+  AUDIT_ACTIONS,
+  RELEASE_LEVELS,
   MANUAL_ENTRY_TYPES,
 } from './types'
 
-// Enums
-export const capabilityEnum = pgEnum('capability', [
-  'admin',
-  'disableAds',
-  'builder',
-  'feed',
-  'moderate-feedback',
-  'moderate-showcases',
-])
+// Enums - using imported constants as single source of truth
+export const capabilityEnum = pgEnum('capability', CAPABILITIES)
 // Note: feed_category enum was dropped in migration 0011
-export const oauthProviderEnum = pgEnum('oauth_provider', ['github', 'google'])
-export const docFeedbackTypeEnum = pgEnum('doc_feedback_type', [
-  'note',
-  'improvement',
-])
-export const docFeedbackStatusEnum = pgEnum('doc_feedback_status', [
-  'pending',
-  'approved',
-  'denied',
-])
-export const bannerScopeEnum = pgEnum('banner_scope', ['global', 'targeted'])
-export const auditActionEnum = pgEnum('audit_action', [
-  'user.capabilities.update',
-  'user.adsDisabled.update',
-  'user.sessions.revoke',
-  'role.create',
-  'role.update',
-  'role.delete',
-  'role.assignment.create',
-  'role.assignment.delete',
-  'banner.create',
-  'banner.update',
-  'banner.delete',
-  'feed.entry.create',
-  'feed.entry.update',
-  'feed.entry.delete',
-  'feedback.moderate',
-  'showcase.create',
-  'showcase.update',
-  'showcase.delete',
-  'showcase.moderate',
-])
-export const bannerStyleEnum = pgEnum('banner_style', [
-  'info',
-  'warning',
-  'success',
-  'promo',
-])
-export const entryTypeEnum = pgEnum('entry_type', [
-  'release',
-  'blog',
-  'announcement',
-])
-
-export const showcaseStatusEnum = pgEnum('showcase_status', [
-  'pending',
-  'approved',
-  'denied',
-])
-
-export const showcaseUseCaseEnum = pgEnum('showcase_use_case', [
-  'blog',
-  'e-commerce',
-  'saas',
-  'dashboard',
-  'documentation',
-  'portfolio',
-  'social',
-  'developer-tool',
-  'marketing',
-  'media',
-])
+export const oauthProviderEnum = pgEnum('oauth_provider', OAUTH_PROVIDERS)
+export const docFeedbackTypeEnum = pgEnum(
+  'doc_feedback_type',
+  DOC_FEEDBACK_TYPES,
+)
+export const docFeedbackStatusEnum = pgEnum(
+  'doc_feedback_status',
+  DOC_FEEDBACK_STATUSES,
+)
+export const bannerScopeEnum = pgEnum('banner_scope', BANNER_SCOPES)
+export const bannerStyleEnum = pgEnum('banner_style', BANNER_STYLES)
+export const entryTypeEnum = pgEnum('entry_type', ENTRY_TYPES)
+export const showcaseStatusEnum = pgEnum('showcase_status', SHOWCASE_STATUSES)
+export const showcaseUseCaseEnum = pgEnum(
+  'showcase_use_case',
+  SHOWCASE_USE_CASES,
+)
+export const auditActionEnum = pgEnum('audit_action', AUDIT_ACTIONS)
 
 // Note: Types and constants are defined in ./types.ts and re-exported above
 // This keeps client-safe exports separate from server-only drizzle schema

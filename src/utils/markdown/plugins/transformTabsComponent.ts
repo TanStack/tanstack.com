@@ -3,6 +3,15 @@ import { toString } from 'hast-util-to-string'
 
 import { headingLevel, isHeading, slugify } from './helpers'
 
+type HastNode = {
+  type: string
+  tagName: string
+  properties?: Record<string, unknown>
+  children?: HastNode[]
+}
+
+type HastElement = HastNode
+
 type TabDescriptor = {
   slug: string
   name: string
@@ -11,22 +20,22 @@ type TabDescriptor = {
 
 type TabExtraction = {
   tabs: TabDescriptor[]
-  panels: Element[][]
+  panels: HastNode[][]
 }
 
-function extractTabPanels(node): TabExtraction | null {
+function extractTabPanels(node: HastNode): TabExtraction | null {
   const children = node.children ?? []
   const headings = children.filter(isHeading)
 
   let sectionStarted = false
   let largestHeadingLevel = Infinity
-  headings.forEach((heading) => {
+  headings.forEach((heading: HastNode) => {
     largestHeadingLevel = Math.min(largestHeadingLevel, headingLevel(heading))
   })
 
   const tabs: TabDescriptor[] = []
-  const panels = []
-  let currentPanel = null
+  const panels: HastNode[][] = []
+  let currentPanel: HastNode[] | null = null
 
   children.forEach((child: any) => {
     if (isHeading(child)) {
@@ -44,12 +53,13 @@ function extractTabPanels(node): TabExtraction | null {
         }
 
         const headingId =
-          (child.properties?.id && String(child.properties.id)) ||
-          slugify(toString(child), `tab-${tabs.length + 1}`)
+          typeof child.properties?.id === 'string'
+            ? child.properties.id
+            : slugify(toString(child as any), `tab-${tabs.length + 1}`)
 
         tabs.push({
           slug: headingId,
-          name: toString(child),
+          name: toString(child as any),
           headers: [],
         })
 
@@ -76,18 +86,22 @@ function extractTabPanels(node): TabExtraction | null {
 
   panels.forEach((panelChildren, index) => {
     const nestedHeadings: string[] = []
-    visit({ type: 'root', children: panelChildren }, 'element', (child) => {
-      if (isHeading(child) && typeof child.properties?.id === 'string') {
-        nestedHeadings.push(String(child.properties.id))
-      }
-    })
+    visit(
+      { type: 'root', children: panelChildren },
+      'element',
+      (child: HastNode) => {
+        if (isHeading(child) && typeof child.properties?.id === 'string') {
+          nestedHeadings.push(String(child.properties.id))
+        }
+      },
+    )
     tabs[index]!.headers = nestedHeadings
   })
 
   return { tabs, panels }
 }
 
-export function transformTabsComponent(node) {
+export function transformTabsComponent(node: HastNode) {
   const result = extractTabPanels(node)
   if (!result) {
     return

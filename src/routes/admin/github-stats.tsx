@@ -56,7 +56,7 @@ function GitHubStatsAdmin() {
 
   const { data: cacheEntries, isLoading } = useQuery({
     queryKey: ['admin', 'github-stats-cache'],
-    queryFn: () => listGitHubStatsCache({ data: {} }),
+    queryFn: () => listGitHubStatsCache(),
   })
 
   const [refreshingKey, setRefreshingKey] = useState<string | null>(null)
@@ -76,7 +76,7 @@ function GitHubStatsAdmin() {
   })
 
   const refreshAllMutation = useMutation({
-    mutationFn: () => refreshAllGitHubStats({ data: {} }),
+    mutationFn: () => refreshAllGitHubStats(),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['admin', 'github-stats-cache'],

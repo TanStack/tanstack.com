@@ -711,6 +711,15 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
       let failCount = 0
 
       await new Promise<void>((resolve) => {
+        const checkIdle = () => {
+          if (successCount + failCount >= packageNames.length) {
+            console.log(
+              `[NPM Stats] Completed: ${successCount} successful, ${failCount} failed`,
+            )
+            resolve()
+          }
+        }
+
         const queue = new AsyncQueuer(
           async (packageName: string) => {
             return await fetchSingleNpmPackageFresh(packageName, 3)
@@ -731,6 +740,7 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
                   } packages`,
                 )
               }
+              checkIdle()
             },
             onError: (error, packageName) => {
               failCount++
@@ -740,18 +750,18 @@ export async function computeNpmOrgStats(org: string): Promise<NpmStats> {
               // Store 0 for failed packages
               const zeroStats = { downloads: 0 }
               results.set(packageName, zeroStats)
-            },
-            onIdle: () => {
-              console.log(
-                `[NPM Stats] Completed: ${successCount} successful, ${failCount} failed`,
-              )
-              resolve()
+              checkIdle()
             },
           },
         )
 
         // Add all packages to the queue
         packageNames.forEach((packageName) => queue.addItem(packageName))
+
+        // Handle edge case where no packages to process
+        if (packageNames.length === 0) {
+          resolve()
+        }
       })
 
       // Calculate total downloads, aggregate rate, and find most recent update

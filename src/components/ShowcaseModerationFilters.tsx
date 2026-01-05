@@ -6,7 +6,7 @@ import {
   FilterCheckbox,
   FilterBar,
 } from '~/components/FilterComponents'
-import type { ShowcaseStatus } from '~/db/types'
+import { SHOWCASE_STATUSES, type ShowcaseStatus } from '~/db/types'
 
 interface ShowcaseModerationFiltersProps {
   filters: {
@@ -20,8 +20,6 @@ interface ShowcaseModerationFiltersProps {
     isFeatured?: boolean
   }) => void
 }
-
-const STATUSES: ShowcaseStatus[] = ['pending', 'approved', 'denied']
 
 export function ShowcaseModerationFilters({
   filters,
@@ -92,7 +90,7 @@ export function ShowcaseModerationFilters({
         expandedSections={expandedSections}
         onToggleSection={toggleSection}
       >
-        {STATUSES.map((status) => {
+        {SHOWCASE_STATUSES.map((status) => {
           const statusLabels = {
             pending: 'Pending Review',
             approved: 'Approved',

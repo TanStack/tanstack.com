@@ -23,8 +23,6 @@ export const Route = createFileRoute(
         repo: library.repo,
         branch: getBranch(library, version),
         docsPath: `${root}/community-resources`,
-        currentPath: ctx.location.pathname,
-        redirectPath: `/${library.id}/${version}/docs/overview`,
       })
 
       return { doc }

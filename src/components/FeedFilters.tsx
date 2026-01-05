@@ -9,7 +9,8 @@ import {
   RELEASE_LEVELS,
   type EntryType,
   type ReleaseLevel,
-} from '~/utils/feedSchema'
+  type FeedViewMode,
+} from '~/db/types'
 import {
   FilterSection,
   FilterCheckbox,
@@ -39,8 +40,8 @@ interface FeedFiltersProps {
   featured?: boolean
   search?: string
   facetCounts?: FeedFacetCounts
-  viewMode?: 'table' | 'timeline'
-  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
+  viewMode?: FeedViewMode
+  onViewModeChange?: (viewMode: FeedViewMode) => void
   onFiltersChange: (filters: {
     entryTypes?: EntryType[]
     libraries?: LibraryId[]

@@ -4,10 +4,7 @@ import { seo } from '~/utils/seo'
 import { ShowcaseModerationPage } from '~/components/ShowcaseModerationPage'
 import { listShowcasesForModerationQueryOptions } from '~/queries/showcases'
 import { requireCapability } from '~/utils/auth.server'
-import { libraries, type LibraryId } from '~/libraries'
-
-const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
-const librarySchema = v.picklist(libraryIds as [LibraryId, ...LibraryId[]])
+import { libraryIdSchema, showcaseStatusSchema } from '~/utils/schemas'
 
 export const Route = createFileRoute('/admin/showcases/')({
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -29,10 +26,8 @@ export const Route = createFileRoute('/admin/showcases/')({
           v.pipe(v.number(), v.integer(), v.minValue(1)),
           50,
         ),
-        status: v.optional(
-          v.array(v.picklist(['pending', 'approved', 'denied'])),
-        ),
-        libraryId: v.optional(librarySchema),
+        status: v.optional(v.array(showcaseStatusSchema)),
+        libraryId: v.optional(libraryIdSchema),
         isFeatured: v.optional(v.boolean()),
       }),
       search,

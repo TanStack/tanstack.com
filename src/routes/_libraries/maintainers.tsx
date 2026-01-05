@@ -19,30 +19,14 @@ import {
   getRoleForFilteredLibraries,
 } from '~/libraries/maintainers'
 import { Library, libraries } from '~/libraries'
-
-const librarySchema = v.picklist([
-  'start',
-  'router',
-  'query',
-  'table',
-  'form',
-  'virtual',
-  'ranger',
-  'store',
-  'pacer',
-  'db',
-  'config',
-  'react-charts',
-  'create-tsrouter-app',
-  'devtools',
-])
+import { libraryIdSchema } from '~/utils/schemas'
 
 const viewModeSchema = v.picklist(['compact', 'full', 'row'])
 const groupBySchema = v.picklist(['none', 'core', 'library', 'role'])
 const sortBySchema = v.picklist(['none', 'name', 'role', 'contributions'])
 
 const searchSchema = v.object({
-  libraries: v.fallback(v.optional(v.array(librarySchema)), undefined),
+  libraries: v.fallback(v.optional(v.array(libraryIdSchema)), undefined),
   viewMode: v.fallback(v.optional(viewModeSchema, 'compact'), 'compact'),
   groupBy: v.fallback(v.optional(groupBySchema, 'none'), 'none'),
   sortBy: v.fallback(v.optional(sortBySchema, 'none'), 'none'),

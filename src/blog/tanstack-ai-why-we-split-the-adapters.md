@@ -1,9 +1,11 @@
 ---
-title: 'Why We Split the Adapters'
+title: 'TanStack AI: Why We Split the Adapters'
 published: 2026-01-02
 authors:
   - Alem Tuzlak
 ---
+
+![TanStack AI: Why We Split the Adapters](/blog-assets/tanstack-ai-why-we-split-the-adapters/header.jpeg)
 
 With the latest release we brought a major architectural change to how we do adapters. Instead of one monolithic adapter that does everything, we split into smaller adapters. Each in charge of a single functionality.
 

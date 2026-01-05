@@ -6,7 +6,11 @@ import { getAuthenticatedUser } from './auth.server-helpers'
 import { getBulkEffectiveCapabilities } from './capabilities.server'
 import { recordAuditLog } from './audit.server'
 import * as v from 'valibot'
-import type { Capability } from '~/db/schema'
+import { VALID_CAPABILITIES, type Capability } from '~/db/types'
+
+const capabilityPicklist = v.picklist(
+  VALID_CAPABILITIES as unknown as [Capability, ...Capability[]],
+)
 
 // Helper function to validate user capability
 // Optimized: getEffectiveCapabilities is already called in getAuthenticatedUser,
@@ -401,9 +405,7 @@ export const updateUserCapabilities = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({
       userId: v.pipe(v.string(), v.uuid()),
-      capabilities: v.array(
-        v.picklist(['admin', 'disableAds', 'builder', 'feed']),
-      ),
+      capabilities: v.array(capabilityPicklist),
     }),
   )
   .handler(async ({ data }) => {
@@ -494,9 +496,7 @@ export const bulkUpdateUserCapabilities = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({
       userIds: v.array(v.pipe(v.string(), v.uuid())),
-      capabilities: v.array(
-        v.picklist(['admin', 'disableAds', 'builder', 'feed']),
-      ),
+      capabilities: v.array(capabilityPicklist),
     }),
   )
   .handler(async ({ data }) => {

@@ -13,6 +13,7 @@ import {
   getFeedFacetCountsQueryOptions,
   type FeedFilters,
 } from '~/queries/feed'
+import type { FeedViewMode } from '~/db/types'
 
 // Re-export FeedFilters as FeedFiltersState for backwards compatibility
 export type FeedFiltersState = FeedFilters
@@ -21,7 +22,7 @@ interface FeedPageProps {
   search: FeedFiltersState & {
     page?: number
     pageSize?: number
-    viewMode?: 'table' | 'timeline'
+    viewMode?: FeedViewMode
     expanded?: string[]
   }
   onNavigate: (updates: {
@@ -29,7 +30,7 @@ interface FeedPageProps {
       FeedFiltersState & {
         page?: number
         pageSize?: number
-        viewMode?: 'table' | 'timeline'
+        viewMode?: FeedViewMode
         expanded?: string[]
       }
     >
@@ -198,7 +199,7 @@ export function FeedPage({
     })
   }
 
-  const handleViewModeChange = (viewMode: 'table' | 'timeline') => {
+  const handleViewModeChange = (viewMode: FeedViewMode) => {
     onNavigate({
       search: {
         ...search,

@@ -99,7 +99,10 @@ export function CodeBlock({
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
 }) {
-  let lang = props?.children?.props?.className?.replace('language-', '')
+  const childElement = props.children as
+    | undefined
+    | { props?: { className?: string; children?: string } }
+  let lang = childElement?.props?.className?.replace('language-', '')
 
   if (lang === 'diff') {
     lang = 'plaintext'
@@ -135,15 +138,16 @@ export function CodeBlock({
   ](() => {
     ;(async () => {
       const themes = ['github-light', 'vitesse-dark']
-      const normalizedLang = LANG_ALIASES[lang] || lang
+      const langStr = lang || 'plaintext'
+      const normalizedLang = LANG_ALIASES[langStr] || langStr
       const effectiveLang =
         normalizedLang === 'mermaid' ? 'plaintext' : normalizedLang
 
-      const highlighter = await getHighlighter(lang)
+      const highlighter = await getHighlighter(langStr)
 
       const htmls = await Promise.all(
         themes.map(async (theme) => {
-          const output = highlighter.codeToHtml(code, {
+          const output = highlighter.codeToHtml(code || '', {
             lang: effectiveLang,
             theme,
             transformers: [transformerNotationDiff()],

@@ -8,6 +8,7 @@ import {
 import type { Library } from '~/libraries'
 
 export const Route = createFileRoute('/llms.txt')({
+  // @ts-ignore server property not in route types yet
   server: {
     handlers: {
       GET: async () => {

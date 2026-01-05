@@ -3,7 +3,6 @@ import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { partners, PartnerImage } from '~/utils/partners'
 import { seo } from '~/utils/seo'
-import * as v from 'valibot'
 import { Library } from '~/libraries'
 import { useState } from 'react'
 import * as React from 'react'
@@ -20,6 +19,7 @@ import { pacerProject } from '~/libraries/pacer'
 import { rangerProject } from '~/libraries/ranger'
 import { storeProject } from '~/libraries/store'
 import { virtualProject } from '~/libraries/virtual'
+import { libraryIdSchema } from '~/utils/schemas'
 
 const availableLibraries = [
   startProject,
@@ -36,28 +36,12 @@ const availableLibraries = [
   configProject,
 ]
 
-const librarySchema = v.picklist([
-  'start',
-  'router',
-  'query',
-  'table',
-  'form',
-  'virtual',
-  'ranger',
-  'store',
-  'pacer',
-  'db',
-  'ai',
-  'config',
-  'react-charts',
-  'devtools',
-  'create-tsrouter-app',
-])
+import * as v from 'valibot'
 
 const statusSchema = v.picklist(['active', 'inactive'])
 
 const searchSchema = v.object({
-  libraries: v.fallback(v.optional(v.array(librarySchema)), undefined),
+  libraries: v.fallback(v.optional(v.array(libraryIdSchema)), undefined),
   status: v.fallback(v.optional(statusSchema, 'active'), 'active'),
 })
 
@@ -332,7 +316,7 @@ function RouteComp() {
     status?: 'active' | 'inactive' | undefined
   }) => {
     navigate({
-      search: (s) => ({
+      search: (s: typeof search) => ({
         ...s,
         ...updates,
       }),

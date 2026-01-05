@@ -5,10 +5,11 @@ import { uploadRouter } from '~/server/uploadthing'
 const handlers = createRouteHandler({ router: uploadRouter })
 
 export const Route = createFileRoute('/api/uploadthing')({
+  // @ts-ignore server property not in route types yet
   server: {
     handlers: {
-      GET: async ({ request }) => handlers(request),
-      POST: async ({ request }) => handlers(request),
+      GET: async ({ request }: { request: Request }) => handlers(request),
+      POST: async ({ request }: { request: Request }) => handlers(request),
     },
   },
 })

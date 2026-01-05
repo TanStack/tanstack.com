@@ -444,3 +444,18 @@ export function getLibrary(id: LibraryId): LibrarySlim {
 
 // Library IDs for schema validation
 export const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
+
+// Library IDs shown in the sidebar navigation
+export const SIDEBAR_LIBRARY_IDS = [
+  'start',
+  'router',
+  'query',
+  'table',
+  'db',
+  'ai',
+  'form',
+  'virtual',
+  'pacer',
+  'store',
+  'devtools',
+] as const satisfies readonly LibraryId[]

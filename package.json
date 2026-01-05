@@ -17,7 +17,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "test": "pnpm run test:smoke",
+    "test:smoke": "playwright test"
   },
   "dependencies": {
     "@auth/core": "0.37.0",
@@ -53,6 +55,7 @@
     "cmdk": "^1.1.1",
     "d3": "^7.9.0",
     "date-fns": "^2.30.0",
+    "discord-interactions": "^4.4.0",
     "drizzle-orm": "^0.44.7",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "gray-matter": "^4.0.3",
@@ -93,6 +96,7 @@
     "@content-collections/core": "^0.8.2",
     "@content-collections/vite": "^0.2.4",
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.57.0",
     "@shikijs/transformers": "^1.10.3",
     "@types/node": "^24.3.0",
     "@types/pg": "^8.15.6",

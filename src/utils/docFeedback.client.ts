@@ -21,7 +21,7 @@ export function generateBlockSelector(element: HTMLElement): string {
   let depth = 0
   while (current && depth < 5) {
     const tag = current.tagName.toLowerCase()
-    const parent = current.parentElement
+    const parent: HTMLElement | null = current.parentElement
 
     // Skip feedback wrapper elements
     if (current.hasAttribute('data-feedback-wrapper')) {
@@ -32,7 +32,7 @@ export function generateBlockSelector(element: HTMLElement): string {
     if (parent) {
       // Find index among siblings with same tag (excluding feedback wrappers)
       const siblings = Array.from(parent.children).filter(
-        (child) =>
+        (child: Element) =>
           child.tagName.toLowerCase() === tag &&
           !child.hasAttribute('data-feedback-wrapper'),
       )
@@ -181,8 +181,8 @@ export async function findBlockBySelector(
 
       if (!current) return null
 
-      const children = Array.from(current.children).filter(
-        (child) => child.tagName.toLowerCase() === tag,
+      const children: Element[] = Array.from(current.children).filter(
+        (child: Element) => child.tagName.toLowerCase() === tag,
       )
 
       if (index >= children.length) {

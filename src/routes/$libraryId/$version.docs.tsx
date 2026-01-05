@@ -50,7 +50,7 @@ function DocsRoute() {
       version={version === 'latest' ? library.latestVersion : version!}
       colorFrom={library.colorFrom}
       colorTo={library.colorTo}
-      textColor={library.textColor}
+      textColor={library.textColor || ''}
       config={config}
       frameworks={library.frameworks}
       versions={library.availableVersions}

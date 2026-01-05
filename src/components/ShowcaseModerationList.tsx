@@ -229,7 +229,7 @@ export function ShowcaseModerationList({
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {showcase.libraries.slice(0, 3).map((libId) => {
-                        const lib = libraryMap.get(libId)
+                        const lib = libraryMap.get(libId as any)
                         return (
                           <span
                             key={libId}
@@ -391,7 +391,7 @@ export function ShowcaseModerationList({
                             </h4>
                             <div className="flex flex-wrap gap-1">
                               {showcase.libraries.map((libId) => {
-                                const lib = libraryMap.get(libId)
+                                const lib = libraryMap.get(libId as any)
                                 return (
                                   <span
                                     key={libId}

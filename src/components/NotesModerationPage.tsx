@@ -7,7 +7,7 @@ import { NotesModerationList } from './NotesModerationList'
 import { Spinner } from '~/components/Spinner'
 
 export function NotesModerationPage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate({ from: '/admin/notes/' })
   const search = useSearch({ from: '/admin/notes/' })
 
   const { data, isLoading, error } = useQuery(
@@ -28,7 +28,7 @@ export function NotesModerationPage() {
 
   const handleFilterChange = (filters: Partial<typeof search>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: typeof search) => ({
         ...prev,
         ...filters,
         page: 1, // Reset to first page on filter change
@@ -38,13 +38,13 @@ export function NotesModerationPage() {
 
   const handlePageChange = (newPage: number) => {
     navigate({
-      search: (prev) => ({ ...prev, page: newPage }),
+      search: (prev: typeof search) => ({ ...prev, page: newPage }),
     })
   }
 
   const handlePageSizeChange = (newPageSize: number) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: typeof search) => ({
         ...prev,
         pageSize: newPageSize,
         page: 1,

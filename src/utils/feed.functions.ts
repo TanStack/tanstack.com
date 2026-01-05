@@ -11,6 +11,7 @@ import {
   buildFeedQueryConditions,
   filterByReleaseLevel,
 } from './feed.server'
+import { entryTypeSchema, releaseLevelSchema } from './schemas'
 
 // Transform database entry to API response format
 function transformFeedEntry(entry: typeof feedEntries.$inferSelect) {
@@ -44,17 +45,7 @@ export const listFeedEntries = createServerFn({ method: 'POST' })
       }),
       filters: v.optional(
         v.object({
-          entryTypes: v.optional(
-            v.array(
-              v.picklist([
-                'release',
-                'blog',
-                'announcement',
-                'partner',
-                'update',
-              ]),
-            ),
-          ),
+          entryTypes: v.optional(v.array(entryTypeSchema)),
           libraries: v.optional(v.array(v.string())),
           partners: v.optional(v.array(v.string())),
           tags: v.optional(v.array(v.string())),
@@ -195,17 +186,7 @@ export const getFeedFacetCounts = createServerFn({ method: 'POST' })
     v.object({
       filters: v.optional(
         v.object({
-          entryTypes: v.optional(
-            v.array(
-              v.picklist([
-                'release',
-                'blog',
-                'announcement',
-                'partner',
-                'update',
-              ]),
-            ),
-          ),
+          entryTypes: v.optional(v.array(entryTypeSchema)),
           libraries: v.optional(v.array(v.string())),
           partners: v.optional(v.array(v.string())),
           tags: v.optional(v.array(v.string())),
@@ -362,7 +343,7 @@ export const createFeedEntry = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({
       id: v.string(),
-      entryType: v.picklist(['release', 'blog', 'announcement']),
+      entryType: entryTypeSchema,
       title: v.string(),
       content: v.string(),
       excerpt: v.optional(v.string()),
@@ -426,7 +407,7 @@ export const updateFeedEntry = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({
       id: v.string(),
-      entryType: v.optional(v.picklist(['release', 'blog', 'announcement'])),
+      entryType: v.optional(entryTypeSchema),
       title: v.optional(v.string()),
       content: v.optional(v.string()),
       excerpt: v.optional(v.string()),

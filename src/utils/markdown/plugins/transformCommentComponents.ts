@@ -4,7 +4,7 @@ import { normalizeComponentName } from './helpers'
 import { transformTabsComponent } from './transformTabsComponent'
 
 export const rehypeTransformCommentComponents = () => {
-  return (tree) => {
+  return (tree: any) => {
     visit(tree, 'element', (node) => {
       if (node.tagName !== 'md-comment-component') {
         return

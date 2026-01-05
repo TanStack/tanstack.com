@@ -6,7 +6,7 @@ import {
   FilterCheckbox,
   FilterBar,
 } from '~/components/FilterComponents'
-import type { DocFeedbackStatus } from '~/db/types'
+import { DOC_FEEDBACK_STATUSES, type DocFeedbackStatus } from '~/db/types'
 
 interface FeedbackModerationFiltersProps {
   filters: {
@@ -18,8 +18,6 @@ interface FeedbackModerationFiltersProps {
   }
   onFilterChange: (filters: any) => void
 }
-
-const STATUSES: DocFeedbackStatus[] = ['pending', 'approved', 'denied']
 
 export function FeedbackModerationFilters({
   filters,
@@ -107,7 +105,7 @@ export function FeedbackModerationFilters({
         expandedSections={expandedSections}
         onToggleSection={toggleSection}
       >
-        {STATUSES.map((status) => {
+        {DOC_FEEDBACK_STATUSES.map((status) => {
           const statusLabels = {
             pending: 'Pending Review',
             approved: 'Approved',

@@ -8,6 +8,15 @@ type DisplaySponsor = Awaited<
   ReturnType<typeof getSponsorsForSponsorPack>
 >[number]
 
+type PackNode =
+  | DisplaySponsor
+  | {
+      children: DisplaySponsor[]
+      name: string
+      radius: number
+      distance: number
+    }
+
 export default function SponsorPack({
   sponsors,
 }: {
@@ -25,9 +34,13 @@ export default function SponsorPack({
 
   const root = React.useMemo(
     () =>
-      hierarchy(pack)
-        .sum((d) => 0.0007 + d.size)
-        .sort((a, b) => (b.data.size ?? 0) - (a.data.size ?? 0)),
+      hierarchy<PackNode>(pack)
+        .sum((d) => 0.0007 + ('size' in d ? d.size : 0))
+        .sort(
+          (a, b) =>
+            ('size' in b.data ? b.data.size : 0) -
+            ('size' in a.data ? a.data.size : 0),
+        ),
     [pack],
   )
 
@@ -71,13 +84,14 @@ export default function SponsorPack({
                     {[...circles].reverse().map((circle, i) => {
                       const tooltipX = circle.x > width / 2 ? 'left' : 'right'
                       const tooltipY = circle.y > width / 2 ? 'top' : 'bottom'
+                      const sponsor = circle.data as DisplaySponsor
 
                       return (
                         <a
                           key={`circle-${i}`}
                           href={
-                            circle.data.linkUrl ||
-                            `https://github.com/${circle.data.login}`
+                            sponsor.linkUrl ||
+                            `https://github.com/${sponsor.login}`
                           }
                           className={
                             `spon-link ` +
@@ -98,9 +112,9 @@ export default function SponsorPack({
                                     `}
                             style={{
                               backgroundImage: `url(${
-                                circle.data.imageUrl ||
+                                sponsor.imageUrl ||
                                 `https://avatars0.githubusercontent.com/${
-                                  circle.data.login
+                                  sponsor.login
                                 }?v=3&s=${Math.round(circle.r * 2)}`
                               })`,
                             }}
@@ -123,7 +137,7 @@ export default function SponsorPack({
                             )}
                           >
                             <p className={`whitespace-nowrap font-bold`}>
-                              {circle.data.name || circle.data.login}
+                              {sponsor.name || sponsor.login}
                             </p>
                           </div>
                         </a>

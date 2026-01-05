@@ -58,11 +58,13 @@ function VersionIndex() {
               as={Link}
               from={'/$libraryId/$version'}
               to={'./docs/framework/$framework/$'}
-              params={{
-                libraryId: library.id,
-                framework: 'react',
-                _splat: 'quick-start',
-              }}
+              params={
+                {
+                  libraryId: library.id,
+                  framework: 'react',
+                  _splat: 'quick-start',
+                } as never
+              }
               hash={'impatient'}
               className="bg-transparent border-cyan-500 dark:border-cyan-600 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10"
             >
@@ -72,7 +74,7 @@ function VersionIndex() {
               as={Link}
               from="/$libraryId/$version"
               to="./docs"
-              params={{ libraryId: library.id }}
+              params={{ libraryId: library.id } as never}
               className="bg-cyan-500 border-cyan-500 hover:bg-cyan-600 dark:bg-cyan-600 dark:border-cyan-600 text-white"
             >
               Get Started

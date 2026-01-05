@@ -42,9 +42,9 @@ export function PartnersSection({
                 as={Link}
                 to="/partners"
                 search={
-                  libraryId
+                  (libraryId
                     ? { libraries: [libraryId], status: 'inactive' }
-                    : { status: 'inactive' }
+                    : { status: 'inactive' }) as any
                 }
               >
                 View Previous Partners →

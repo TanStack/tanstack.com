@@ -38,6 +38,13 @@ type LoginHistoryEntry = {
   userImage: string | null
 }
 
+type LoginsSearch = {
+  userId?: string
+  provider?: 'github' | 'google'
+  page?: number
+  pageSize?: number
+}
+
 export const Route = createFileRoute('/admin/logins')({
   component: LoginsPage,
   validateSearch: (search) =>
@@ -261,7 +268,7 @@ function LoginsPage() {
                 onChange={(value) => {
                   navigate({
                     resetScroll: false,
-                    search: (prev) => ({
+                    search: (prev: LoginsSearch) => ({
                       ...prev,
                       userId: value || undefined,
                       page: 0,
@@ -282,7 +289,7 @@ function LoginsPage() {
                   const value = e.target.value as 'github' | 'google' | ''
                   navigate({
                     resetScroll: false,
-                    search: (prev) => ({
+                    search: (prev: LoginsSearch) => ({
                       ...prev,
                       provider: value || undefined,
                       page: 0,
@@ -381,13 +388,13 @@ function LoginsPage() {
               onPageChange={(page) => {
                 navigate({
                   resetScroll: false,
-                  search: (prev) => ({ ...prev, page }),
+                  search: (prev: LoginsSearch) => ({ ...prev, page }),
                 })
               }}
               onPageSizeChange={(newPageSize) => {
                 navigate({
                   resetScroll: false,
-                  search: (prev) => ({
+                  search: (prev: LoginsSearch) => ({
                     ...prev,
                     pageSize: newPageSize,
                     page: 0,

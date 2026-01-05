@@ -63,6 +63,7 @@ import { Route as LibrariesAccountIndexRouteImport } from './routes/_libraries/a
 import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
+import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
 import { Route as ApiAdminSyncRouteImport } from './routes/api/admin/sync'
 import { Route as AdminUsersUserIdRouteImport } from './routes/admin/users.$userId'
 import { Route as AdminShowcasesIdRouteImport } from './routes/admin/showcases_.$id'
@@ -370,6 +371,11 @@ const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
   path: '/api/github/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDiscordInteractionsRoute = ApiDiscordInteractionsRouteImport.update({
+  id: '/api/discord/interactions',
+  path: '/api/discord/interactions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAdminSyncRoute = ApiAdminSyncRouteImport.update({
   id: '/api/admin/sync',
   path: '/api/admin/sync',
@@ -626,6 +632,7 @@ export interface FileRoutesByFullPath {
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
+  '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -712,6 +719,7 @@ export interface FileRoutesByTo {
   '/admin/showcases/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
+  '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -805,6 +813,7 @@ export interface FileRoutesById {
   '/admin/showcases_/$id': typeof AdminShowcasesIdRoute
   '/admin/users/$userId': typeof AdminUsersUserIdRoute
   '/api/admin/sync': typeof ApiAdminSyncRoute
+  '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -898,6 +907,7 @@ export interface FileRouteTypes {
     | '/admin/showcases/$id'
     | '/admin/users/$userId'
     | '/api/admin/sync'
+    | '/api/discord/interactions'
     | '/api/github/webhook'
     | '/auth/$provider/start'
     | '/stats/npm/$packages'
@@ -984,6 +994,7 @@ export interface FileRouteTypes {
     | '/admin/showcases/$id'
     | '/admin/users/$userId'
     | '/api/admin/sync'
+    | '/api/discord/interactions'
     | '/api/github/webhook'
     | '/auth/$provider/start'
     | '/stats/npm/$packages'
@@ -1076,6 +1087,7 @@ export interface FileRouteTypes {
     | '/admin/showcases_/$id'
     | '/admin/users/$userId'
     | '/api/admin/sync'
+    | '/api/discord/interactions'
     | '/api/github/webhook'
     | '/auth/$provider/start'
     | '/stats/npm/$packages'
@@ -1132,6 +1144,7 @@ export interface RootRouteChildren {
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
   ApiAdminSyncRoute: typeof ApiAdminSyncRoute
+  ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
   StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
@@ -1517,6 +1530,13 @@ declare module '@tanstack/react-router' {
       path: '/api/github/webhook'
       fullPath: '/api/github/webhook'
       preLoaderRoute: typeof ApiGithubWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/discord/interactions': {
+      id: '/api/discord/interactions'
+      path: '/api/discord/interactions'
+      fullPath: '/api/discord/interactions'
+      preLoaderRoute: typeof ApiDiscordInteractionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/admin/sync': {
@@ -2013,6 +2033,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShowcaseIndexRoute: ShowcaseIndexRoute,
   StatsIndexRoute: StatsIndexRoute,
   ApiAdminSyncRoute: ApiAdminSyncRoute,
+  ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
   StatsNpmPackagesRoute: StatsNpmPackagesRoute,

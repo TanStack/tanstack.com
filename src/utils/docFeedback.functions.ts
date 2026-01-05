@@ -18,6 +18,7 @@ import {
   checkRateLimit,
 } from './docFeedback.server'
 import { notifyModerators, formatFeedbackSubmittedEmail } from './email.server'
+import { docFeedbackStatusSchema, docFeedbackTypeSchema } from './schemas'
 
 /**
  * Create new doc feedback
@@ -233,11 +234,9 @@ export const getUserDocFeedback = createServerFn({ method: 'POST' })
       }),
       filters: v.optional(
         v.object({
-          status: v.optional(
-            v.array(v.picklist(['pending', 'approved', 'denied'])),
-          ),
+          status: v.optional(v.array(docFeedbackStatusSchema)),
           libraryId: v.optional(v.string()),
-          type: v.optional(v.array(v.picklist(['note', 'improvement']))),
+          type: v.optional(v.array(docFeedbackTypeSchema)),
         }),
       ),
     }),
@@ -318,10 +317,8 @@ export const listDocFeedbackForModeration = createServerFn({ method: 'POST' })
       }),
       filters: v.optional(
         v.object({
-          status: v.optional(
-            v.array(v.picklist(['pending', 'approved', 'denied'])),
-          ),
-          type: v.optional(v.array(v.picklist(['note', 'improvement']))),
+          status: v.optional(v.array(docFeedbackStatusSchema)),
+          type: v.optional(v.array(docFeedbackTypeSchema)),
           libraryId: v.optional(v.string()),
           isDetached: v.optional(v.boolean()),
           userId: v.optional(v.pipe(v.string(), v.uuid())),

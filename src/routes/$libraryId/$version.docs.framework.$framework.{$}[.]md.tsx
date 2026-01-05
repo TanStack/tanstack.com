@@ -5,9 +5,21 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/{$}.md',
 )({
+  // @ts-ignore server property not in route types yet
   server: {
     handlers: {
-      GET: async ({ request, params }) => {
+      GET: async ({
+        request,
+        params,
+      }: {
+        request: Request
+        params: {
+          libraryId: string
+          version: string
+          framework: string
+          _splat: string
+        }
+      }) => {
         const url = new URL(request.url)
 
         const { libraryId, version, framework, _splat: docsPath } = params
@@ -23,8 +35,6 @@ export const Route = createFileRoute(
           repo: library.repo,
           branch: getBranch(library, version),
           docsPath: `${root}/framework/${framework}/${docsPath}`,
-          currentPath: url.pathname,
-          redirectPath: `/${library.id}/${version}/docs/overview`,
         })
 
         const markdownContent = `# ${doc.title}\n${doc.content}`

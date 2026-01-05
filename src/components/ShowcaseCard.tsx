@@ -76,80 +76,82 @@ export function ShowcaseCard({
       </a>
 
       {/* Footer with libraries and voting */}
-      <div className="px-4 pb-4 flex items-center justify-between gap-2 mt-auto">
-        {/* Libraries */}
-        <div className="flex flex-wrap gap-1.5 min-w-0 flex-1">
-          {showcase.libraries.slice(0, 3).map((libId) => {
-            const lib = libraryMap.get(libId as LibraryId)
-            return (
-              <span
-                key={libId}
-                className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 truncate"
-              >
-                {lib?.name?.replace('TanStack ', '') || libId}
+      <div className="px-4 pb-4 mt-auto">
+        <div className="flex items-end justify-between gap-2">
+          {/* Libraries */}
+          <div className="flex flex-wrap gap-1.5 min-w-0">
+            {showcase.libraries.slice(0, 3).map((libId) => {
+              const lib = libraryMap.get(libId as LibraryId)
+              return (
+                <span
+                  key={libId}
+                  className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                >
+                  {lib?.name?.replace('TanStack ', '') || libId}
+                </span>
+              )
+            })}
+            {showcase.libraries.length > 3 && (
+              <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500">
+                +{showcase.libraries.length - 3}
               </span>
-            )
-          })}
-          {showcase.libraries.length > 3 && (
-            <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500">
-              +{showcase.libraries.length - 3}
-            </span>
-          )}
-        </div>
-
-        {/* Voting */}
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onVote?.(1)
-            }}
-            disabled={isVoting}
-            className={twMerge(
-              'p-1.5 rounded-md transition-colors',
-              currentUserVote === 1
-                ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30'
-                : 'text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-100 dark:hover:bg-gray-700',
-              isVoting && 'opacity-50 cursor-not-allowed',
             )}
-            title="Upvote"
-          >
-            <ThumbsUp
-              className="w-4 h-4"
-              fill={currentUserVote === 1 ? 'currentColor' : 'none'}
-            />
-          </button>
+          </div>
 
-          {displayScore > 0 && (
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[1.5rem] text-center">
-              {displayScore}
-            </span>
-          )}
+          {/* Voting */}
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onVote?.(1)
+              }}
+              disabled={isVoting}
+              className={twMerge(
+                'p-1.5 rounded-md transition-colors',
+                currentUserVote === 1
+                  ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30'
+                  : 'text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-gray-100 dark:hover:bg-gray-700',
+                isVoting && 'opacity-50 cursor-not-allowed',
+              )}
+              title="Upvote"
+            >
+              <ThumbsUp
+                className="w-4 h-4"
+                fill={currentUserVote === 1 ? 'currentColor' : 'none'}
+              />
+            </button>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              onVote?.(-1)
-            }}
-            disabled={isVoting}
-            className={twMerge(
-              'p-1.5 rounded-md transition-colors',
-              currentUserVote === -1
-                ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30'
-                : 'text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700',
-              isVoting && 'opacity-50 cursor-not-allowed',
+            {displayScore > 0 && (
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[1.5rem] text-center">
+                {displayScore}
+              </span>
             )}
-            title="Downvote"
-          >
-            <ThumbsDown
-              className="w-4 h-4"
-              fill={currentUserVote === -1 ? 'currentColor' : 'none'}
-            />
-          </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onVote?.(-1)
+              }}
+              disabled={isVoting}
+              className={twMerge(
+                'p-1.5 rounded-md transition-colors',
+                currentUserVote === -1
+                  ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30'
+                  : 'text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700',
+                isVoting && 'opacity-50 cursor-not-allowed',
+              )}
+              title="Downvote"
+            >
+              <ThumbsDown
+                className="w-4 h-4"
+                fill={currentUserVote === -1 ? 'currentColor' : 'none'}
+              />
+            </button>
+          </div>
         </div>
       </div>
     </div>

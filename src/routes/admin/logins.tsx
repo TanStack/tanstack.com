@@ -1,14 +1,14 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
 import { Spinner } from '~/components/Spinner'
-import { FilterBar, FilterSearch } from '~/components/FilterComponents'
+import { LoginsTopBarFilters } from '~/components/LoginsTopBarFilters'
 import {
   Table,
   TableHeader,
   TableHeaderRow,
-  TableHeaderCell,
+  SortableTableHeaderCell,
   TableBody,
   TableRow,
   TableCell,
@@ -18,6 +18,7 @@ import {
   getCoreRowModel,
   flexRender,
   type ColumnDef,
+  type Column,
 } from '@tanstack/react-table'
 import * as v from 'valibot'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
@@ -43,6 +44,8 @@ type LoginsSearch = {
   provider?: 'github' | 'google'
   page?: number
   pageSize?: number
+  sortBy?: string
+  sortDir?: 'asc' | 'desc'
 }
 
 export const Route = createFileRoute('/admin/logins')({
@@ -54,6 +57,8 @@ export const Route = createFileRoute('/admin/logins')({
         provider: v.optional(v.picklist(['github', 'google'])),
         page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
         pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+        sortBy: v.optional(v.string()),
+        sortDir: v.optional(v.picklist(['asc', 'desc'])),
       }),
       search,
     ),
@@ -64,6 +69,8 @@ function LoginsPage() {
   const search = Route.useSearch()
   const userIdFilter = search.userId ?? ''
   const providerFilter = search.provider
+  const sortBy = search.sortBy
+  const sortDir = search.sortDir
 
   const currentPageIndex = search.page ?? 0
   const pageSize = search.pageSize ?? 25
@@ -80,6 +87,8 @@ function LoginsPage() {
         pageSize,
         userId: userIdFilter,
         provider: providerFilter,
+        sortBy,
+        sortDir,
       },
     ],
     queryFn: () =>
@@ -91,6 +100,8 @@ function LoginsPage() {
           },
           userId: userIdFilter || undefined,
           provider: providerFilter,
+          sortBy,
+          sortDir,
         },
       }),
     placeholderData: keepPreviousData,
@@ -107,6 +118,48 @@ function LoginsPage() {
       },
     })
   }
+
+  const handleSort = useCallback(
+    (column: Column<LoginHistoryEntry, unknown>) => {
+      const columnId = column.id
+      const sortDescFirst = column.columnDef.meta?.sortDescFirst ?? false
+
+      if (sortBy !== columnId) {
+        // New column: apply default direction
+        navigate({
+          resetScroll: false,
+          search: (prev: LoginsSearch) => ({
+            ...prev,
+            sortBy: columnId,
+            sortDir: sortDescFirst ? 'desc' : 'asc',
+            page: 0,
+          }),
+        })
+      } else if (sortDescFirst ? sortDir === 'desc' : sortDir === 'asc') {
+        // First click was default, flip to opposite
+        navigate({
+          resetScroll: false,
+          search: (prev: LoginsSearch) => ({
+            ...prev,
+            sortDir: sortDescFirst ? 'asc' : 'desc',
+            page: 0,
+          }),
+        })
+      } else {
+        // Third click: clear sort
+        navigate({
+          resetScroll: false,
+          search: (prev: LoginsSearch) => ({
+            ...prev,
+            sortBy: undefined,
+            sortDir: undefined,
+            page: 0,
+          }),
+        })
+      }
+    },
+    [sortBy, sortDir, navigate],
+  )
 
   const columns = useMemo<ColumnDef<LoginHistoryEntry, unknown>[]>(
     () => [
@@ -193,6 +246,7 @@ function LoginsPage() {
       {
         accessorKey: 'createdAt',
         header: 'Time',
+        meta: { sortable: true, sortDescFirst: true },
         cell: ({ getValue }) => {
           const timestamp = getValue() as number
           const date = new Date(timestamp)
@@ -251,73 +305,39 @@ function LoginsPage() {
 
   return (
     <div className="w-full p-4">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar Filters */}
-        <aside className="lg:w-64 lg:flex-shrink-0">
-          <FilterBar
-            title="Filters"
-            onClearFilters={handleClearFilters}
-            hasActiveFilters={hasActiveFilters}
-          >
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                User ID
-              </label>
-              <FilterSearch
-                value={userIdFilter}
-                onChange={(value) => {
-                  navigate({
-                    resetScroll: false,
-                    search: (prev: LoginsSearch) => ({
-                      ...prev,
-                      userId: value || undefined,
-                      page: 0,
-                    }),
-                  })
-                }}
-                placeholder="Filter by user ID"
-              />
-            </div>
+      <div className="flex flex-col gap-4">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <LogIn className="text-2xl text-blue-500" />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Login History
+          </h1>
+          {loginsQuery.isFetching && (
+            <Spinner className="text-gray-500 dark:text-gray-400" />
+          )}
+        </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Provider
-              </label>
-              <select
-                value={providerFilter || ''}
-                onChange={(e) => {
-                  const value = e.target.value as 'github' | 'google' | ''
-                  navigate({
-                    resetScroll: false,
-                    search: (prev: LoginsSearch) => ({
-                      ...prev,
-                      provider: value || undefined,
-                      page: 0,
-                    }),
-                  })
-                }}
-                className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All providers</option>
-                <option value="github">GitHub</option>
-                <option value="google">Google</option>
-              </select>
-            </div>
-          </FilterBar>
-        </aside>
+        {/* Top Bar Filters */}
+        <LoginsTopBarFilters
+          filters={{
+            userId: userIdFilter || undefined,
+            provider: providerFilter,
+          }}
+          onFilterChange={(newFilters) => {
+            navigate({
+              resetScroll: false,
+              search: (prev: LoginsSearch) => ({
+                ...prev,
+                ...newFilters,
+                page: 0,
+              }),
+            })
+          }}
+          onClearFilters={handleClearFilters}
+        />
 
         {/* Main Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-4">
-            <LogIn className="text-2xl text-blue-500" />
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Login History
-            </h1>
-            {loginsQuery.isFetching && (
-              <Spinner className="text-gray-500 dark:text-gray-400" />
-            )}
-          </div>
-
           {/* Stats Cards */}
           {loginsQuery.data && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -338,14 +358,21 @@ function LoginsPage() {
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableHeaderRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHeaderCell key={header.id}>
+                    <SortableTableHeaderCell
+                      key={header.id}
+                      sortable={header.column.columnDef.meta?.sortable}
+                      sortDirection={
+                        sortBy === header.column.id ? sortDir || false : false
+                      }
+                      onSort={() => handleSort(header.column)}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
                             header.getContext(),
                           )}
-                    </TableHeaderCell>
+                    </SortableTableHeaderCell>
                   ))}
                 </TableHeaderRow>
               ))}

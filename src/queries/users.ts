@@ -14,6 +14,8 @@ export interface ListUsersFilters {
   adsDisabledFilter?: boolean
   interestedInHidingAdsFilter?: boolean
   useEffectiveCapabilities?: boolean
+  sortBy?: string
+  sortDir?: 'asc' | 'desc'
 }
 
 export const listUsersQueryOptions = (filters: ListUsersFilters) =>

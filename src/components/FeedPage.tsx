@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useMounted } from '~/hooks/useMounted'
 import { FeedList } from '~/components/FeedList'
-import { FeedFilters as FeedFiltersComponent } from '~/components/FeedFilters'
+import { FeedTopBarFilters } from '~/components/FeedTopBarFilters'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
 import { useFeedInfiniteQuery } from '~/hooks/useFeedInfiniteQuery'
 import { FeedEntry } from '~/components/FeedEntry'
@@ -239,31 +239,29 @@ export function FeedPage({
 
   return (
     <div className="p-2 sm:p-4 pb-0 flex flex-col max-w-full gap-2 sm:gap-4 relative">
-      <div className="flex-1 space-y-2 sm:space-y-4 w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-2 min-h-0">
-        <aside className="lg:w-64 flex-shrink-0 lg:self-start sticky top-[calc(var(--navbar-height)+1rem)] z-10">
-          <FeedFiltersComponent
-            libraries={libraries.filter(
-              (lib): lib is import('~/libraries/types').Library =>
-                'tagline' in lib,
-            )}
-            partners={partners}
-            selectedEntryTypes={effectiveFilters.entryTypes}
-            selectedLibraries={effectiveFilters.libraries}
-            selectedPartners={effectiveFilters.partners}
-            selectedTags={effectiveFilters.tags}
-            selectedReleaseLevels={
-              effectiveFilters.releaseLevels ?? [...FEED_DEFAULTS.releaseLevels]
-            }
-            includePrerelease={effectiveFilters.includePrerelease}
-            featured={effectiveFilters.featured}
-            search={effectiveFilters.search}
-            facetCounts={facetCountsQuery.data}
-            viewMode={viewMode}
-            onViewModeChange={handleViewModeChange}
-            onFiltersChange={handleFiltersChange}
-            onClearFilters={handleClearFilters}
-          />
-        </aside>
+      <div className="w-full max-w-7xl mx-auto space-y-3">
+        <FeedTopBarFilters
+          libraries={libraries.filter(
+            (lib): lib is import('~/libraries/types').Library =>
+              'tagline' in lib,
+          )}
+          partners={partners}
+          selectedEntryTypes={effectiveFilters.entryTypes}
+          selectedLibraries={effectiveFilters.libraries}
+          selectedPartners={effectiveFilters.partners}
+          selectedTags={effectiveFilters.tags}
+          selectedReleaseLevels={
+            effectiveFilters.releaseLevels ?? [...FEED_DEFAULTS.releaseLevels]
+          }
+          includePrerelease={effectiveFilters.includePrerelease}
+          featured={effectiveFilters.featured}
+          search={effectiveFilters.search}
+          facetCounts={facetCountsQuery.data}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
+          onFiltersChange={handleFiltersChange}
+          onClearFilters={handleClearFilters}
+        />
         <main className="flex-1 min-w-0 relative flex flex-col">
           <FeedList
             query={isTimelineMode ? undefined : feedQuery}

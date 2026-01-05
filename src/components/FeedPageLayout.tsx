@@ -15,6 +15,7 @@ import {
   type FeedFilters,
 } from '~/queries/feed'
 import { Spinner } from '~/components/Spinner'
+import type { FeedViewMode } from '~/db/types'
 
 // Re-export FeedFilters as FeedFiltersState for backwards compatibility
 export type FeedFiltersState = FeedFilters
@@ -29,8 +30,8 @@ interface FeedPageLayoutContextValue {
   onClearFilters: () => void
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
-  viewMode?: 'table' | 'timeline'
-  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
+  viewMode?: FeedViewMode
+  onViewModeChange?: (viewMode: FeedViewMode) => void
   expandedIds?: string[]
   onExpandedChange?: (expandedIds: string[]) => void
   adminActions?: {
@@ -64,8 +65,8 @@ interface FeedPageLayoutRootProps {
   onClearFilters: () => void
   onPageChange: (page: number) => void
   onPageSizeChange: (pageSize: number) => void
-  viewMode?: 'table' | 'timeline'
-  onViewModeChange?: (viewMode: 'table' | 'timeline') => void
+  viewMode?: FeedViewMode
+  onViewModeChange?: (viewMode: FeedViewMode) => void
   expandedIds?: string[]
   onExpandedChange?: (expandedIds: string[]) => void
   adminActions?: {

@@ -4,10 +4,7 @@ import { seo } from '~/utils/seo'
 import { NotesModerationPage } from '~/components/NotesModerationPage'
 import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
 import { requireCapability } from '~/utils/auth.server'
-import { libraries, type LibraryId } from '~/libraries'
-
-const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
-const librarySchema = v.picklist(libraryIds as [LibraryId, ...LibraryId[]])
+import { libraryIdSchema } from '~/utils/schemas'
 
 export const Route = createFileRoute('/admin/notes/')({
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -29,7 +26,7 @@ export const Route = createFileRoute('/admin/notes/')({
           v.pipe(v.number(), v.integer(), v.minValue(1)),
           50,
         ),
-        libraryId: v.optional(librarySchema),
+        libraryId: v.optional(libraryIdSchema),
         isDetached: v.optional(v.boolean()),
         dateFrom: v.optional(v.string()),
         dateTo: v.optional(v.string()),

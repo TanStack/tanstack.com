@@ -14,9 +14,12 @@ type SyncResult = {
  * Can be called manually from admin UI or via scheduled function
  */
 export async function syncAllSources(): Promise<SyncResult> {
-  const results = {
-    github: { success: false, error: null as string | null },
-    blog: { success: false, error: null as string | null },
+  const results: {
+    github: { success: boolean; error: string | null; syncedCount?: number }
+    blog: { success: boolean; error: string | null }
+  } = {
+    github: { success: false, error: null },
+    blog: { success: false, error: null },
   }
 
   // Sync GitHub releases (last 48 hours / 2 days)

@@ -23,7 +23,14 @@ import {
   getCoreRowModel,
   flexRender,
   type ColumnDef,
+  type RowData,
 } from '@tanstack/react-table'
+
+declare module '@tanstack/react-table' {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    align?: 'left' | 'right' | 'center'
+  }
+}
 import {
   useUpdateUserCapabilities,
   useAdminSetAdsDisabled,
@@ -31,6 +38,7 @@ import {
   useBulkAssignRolesToUsers,
   useBulkUpdateUserCapabilities,
 } from '~/utils/mutations'
+import { VALID_CAPABILITIES, type Capability } from '~/db/types'
 import * as v from 'valibot'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { listUsersQueryOptions } from '~/queries/users'
@@ -45,6 +53,7 @@ import { Lock, Save, SquarePen, X, User } from 'lucide-react'
 // User type for table
 type User = {
   _id: string
+  userId: string
   email: string
   name?: string
   displayUsername?: string
@@ -52,6 +61,20 @@ type User = {
   capabilities?: string[]
   adsDisabled?: boolean
   interestedInHidingAds?: boolean
+  createdAt?: number
+  updatedAt?: number
+}
+
+type UsersSearch = {
+  email?: string
+  name?: string
+  cap?: string | string[]
+  noCapabilities?: boolean
+  ads?: 'all' | 'true' | 'false'
+  waitlist?: 'all' | 'true' | 'false'
+  page?: number
+  pageSize?: number
+  useEffectiveCapabilities?: boolean
 }
 
 // Component to display/edit user roles (now uses bulk data)
@@ -175,7 +198,9 @@ export const Route = createFileRoute('/admin/users')({
 
 function UsersPage() {
   const [editingUserId, setEditingUserId] = useState<string | null>(null)
-  const [editingCapabilities, setEditingCapabilities] = useState<string[]>([])
+  const [editingCapabilities, setEditingCapabilities] = useState<Capability[]>(
+    [],
+  )
   const [editingRoleIds, setEditingRoleIds] = useState<string[]>([])
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [bulkActionRoleId, setBulkActionRoleId] = useState<string | null>(null)
@@ -236,7 +261,7 @@ function UsersPage() {
             onChange={(e) => {
               navigate({
                 resetScroll: false,
-                search: (prev) => ({
+                search: (prev: UsersSearch) => ({
                   ...prev,
                   useEffectiveCapabilities: e.target.checked,
                   page: 0,
@@ -269,7 +294,7 @@ function UsersPage() {
           onChange={(value) => {
             navigate({
               resetScroll: false,
-              search: (prev) => ({
+              search: (prev: UsersSearch) => ({
                 ...prev,
                 email: value || undefined,
                 page: 0,
@@ -293,7 +318,7 @@ function UsersPage() {
           onChange={(value) => {
             navigate({
               resetScroll: false,
-              search: (prev) => ({
+              search: (prev: UsersSearch) => ({
                 ...prev,
                 name: value || undefined,
                 page: 0,
@@ -315,7 +340,7 @@ function UsersPage() {
         onSelectAll={() => {
           navigate({
             resetScroll: false,
-            search: (prev) => ({
+            search: (prev: UsersSearch) => ({
               ...prev,
               cap: availableCapabilities,
               page: 0,
@@ -325,7 +350,7 @@ function UsersPage() {
         onSelectNone={() => {
           navigate({
             resetScroll: false,
-            search: (prev) => ({
+            search: (prev: UsersSearch) => ({
               ...prev,
               cap: undefined,
               noCapabilities: undefined,
@@ -351,7 +376,7 @@ function UsersPage() {
           onChange={() => {
             navigate({
               resetScroll: false,
-              search: (prev) => ({
+              search: (prev: UsersSearch) => ({
                 ...prev,
                 noCapabilities: !noCapabilitiesFilter || undefined,
                 page: 0,
@@ -386,10 +411,10 @@ function UsersPage() {
           <select
             value={adsDisabledFilter}
             onChange={(e) => {
-              const value = e.target.value
+              const value = e.target.value as UsersSearch['ads']
               navigate({
                 resetScroll: false,
-                search: (prev) => ({
+                search: (prev: UsersSearch) => ({
                   ...prev,
                   ads: value,
                   page: 0,
@@ -413,10 +438,10 @@ function UsersPage() {
           <select
             value={waitlistFilter}
             onChange={(e) => {
-              const value = e.target.value
+              const value = e.target.value as UsersSearch['waitlist']
               navigate({
                 resetScroll: false,
-                search: (prev) => ({
+                search: (prev: UsersSearch) => ({
                   ...prev,
                   waitlist: value,
                   page: 0,
@@ -486,14 +511,11 @@ function UsersPage() {
   })
   const bulkEffectiveCapabilities = bulkEffectiveCapabilitiesQuery.data
 
-  const availableCapabilities = useMemo(
-    () => ['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback'],
-    [],
-  )
+  const availableCapabilities = VALID_CAPABILITIES
 
   const handleEditUser = useCallback((user: User) => {
     setEditingUserId(user._id)
-    setEditingCapabilities(user.capabilities || [])
+    setEditingCapabilities((user.capabilities || []) as Capability[])
     setEditingRoleIds([])
   }, [])
 
@@ -562,7 +584,7 @@ function UsersPage() {
   }, [])
 
   const toggleCapability = useCallback(
-    (capability: string) => {
+    (capability: Capability) => {
       if (editingCapabilities.includes(capability)) {
         setEditingCapabilities(
           editingCapabilities.filter((c) => c !== capability),
@@ -627,7 +649,7 @@ function UsersPage() {
   }, [selectedUserIds, bulkActionRoleId, bulkAssignRolesToUsers])
 
   const handleBulkUpdateCapabilities = useCallback(
-    async (capabilities: string[]) => {
+    async (capabilities: Capability[]) => {
       if (selectedUserIds.size === 0) return
 
       if (
@@ -672,11 +694,11 @@ function UsersPage() {
   const handleCapabilityToggle = useCallback(
     (capability: string) => {
       const newFilters = capabilityFilters.includes(capability)
-        ? capabilityFilters.filter((c) => c !== capability)
+        ? capabilityFilters.filter((c: string) => c !== capability)
         : [...capabilityFilters, capability]
       navigate({
         resetScroll: false,
-        search: (prev) => ({
+        search: (prev: UsersSearch) => ({
           ...prev,
           cap: newFilters.length > 0 ? newFilters : undefined,
           page: 0,
@@ -934,7 +956,7 @@ function UsersPage() {
 
   // Create table instance
   const table = useReactTable({
-    data: usersQuery?.data?.page || [],
+    data: (usersQuery?.data?.page || []) as User[],
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
@@ -1162,13 +1184,13 @@ function UsersPage() {
               onPageChange={(page) => {
                 navigate({
                   resetScroll: false,
-                  search: (prev) => ({ ...prev, page }),
+                  search: (prev: UsersSearch) => ({ ...prev, page }),
                 })
               }}
               onPageSizeChange={(newPageSize) => {
                 navigate({
                   resetScroll: false,
-                  search: (prev) => ({
+                  search: (prev: UsersSearch) => ({
                     ...prev,
                     pageSize: newPageSize,
                     page: 0,

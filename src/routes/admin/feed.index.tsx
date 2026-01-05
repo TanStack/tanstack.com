@@ -12,12 +12,11 @@ import { FeedPage as FeedPageComponent } from '~/components/FeedPage'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
-import { libraries, type LibraryId } from '~/libraries'
-import { ENTRY_TYPES, RELEASE_LEVELS } from '~/utils/feedSchema'
-const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
-const librarySchema = v.picklist(libraryIds as [LibraryId, ...LibraryId[]])
-const entryTypeSchema = v.picklist(ENTRY_TYPES)
-const releaseLevelSchema = v.picklist(RELEASE_LEVELS)
+import {
+  libraryIdSchema,
+  entryTypeSchema,
+  releaseLevelSchema,
+} from '~/utils/schemas'
 
 export const Route = createFileRoute('/admin/feed/')({
   component: FeedAdminPage,
@@ -28,7 +27,7 @@ export const Route = createFileRoute('/admin/feed/')({
     return v.parse(
       v.object({
         entryTypes: v.optional(v.array(entryTypeSchema)),
-        libraries: v.optional(v.array(librarySchema)),
+        libraries: v.optional(v.array(libraryIdSchema)),
         partners: v.optional(v.array(v.string())),
         tags: v.optional(v.array(v.string())),
         releaseLevels: hasReleaseLevels
@@ -88,7 +87,7 @@ function FeedAdminPage() {
     entry: FeedEntry,
     isVisible: boolean,
   ) => {
-    await toggleVisibility.mutateAsync({ id: entry.id, isVisible })
+    await toggleVisibility.mutateAsync({ id: entry.id, showInFeed: isVisible })
     feedQuery.refetch()
   }
 

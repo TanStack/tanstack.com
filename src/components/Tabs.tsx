@@ -1,6 +1,6 @@
-import { getRouteApi } from '@tanstack/react-router'
+import { useParams } from '@tanstack/react-router'
 import * as React from 'react'
-import { getFrameworkOptions } from '~/libraries/frameworks'
+import { frameworkOptions } from '~/libraries/frameworks'
 
 export type TabDefinition = {
   slug: string
@@ -15,8 +15,8 @@ export type TabsProps = {
 }
 
 export function Tabs({ tabs, id, children }: TabsProps) {
-  const Route = getRouteApi()
-  const { framework } = Route.useParams()
+  const params = useParams({ strict: false })
+  const framework = 'framework' in params ? params.framework : undefined
 
   const [activeSlug, setActiveSlug] = React.useState(
     () => tabs.find((tab) => tab.slug === framework)?.slug || tabs[0].slug,
@@ -58,7 +58,6 @@ export function Tabs({ tabs, id, children }: TabsProps) {
 }
 
 const Tab = ({
-  key,
   tab,
   activeSlug,
   setActiveSlug,
@@ -68,10 +67,12 @@ const Tab = ({
   activeSlug: string
   setActiveSlug: React.Dispatch<React.SetStateAction<string>>
 }) => {
-  const options = React.useMemo(() => getFrameworkOptions(tab.slug), [tab.slug])
+  const option = React.useMemo(
+    () => frameworkOptions.find((o) => o.value === tab.slug),
+    [tab.slug],
+  )
   return (
     <button
-      key={key}
       aria-label={tab.name}
       title={tab.name}
       type="button"
@@ -82,8 +83,8 @@ const Tab = ({
           : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
       }`}
     >
-      {options[0] ? (
-        <img src={options[0].logo} alt="" className="w-4 h-4 -ml-1" />
+      {option ? (
+        <img src={option.logo} alt="" className="w-4 h-4 -ml-1" />
       ) : null}
       <span>{tab.name}</span>
     </button>

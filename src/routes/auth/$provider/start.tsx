@@ -8,9 +8,16 @@ import {
 } from '~/auth/index.server'
 
 export const Route = createFileRoute('/auth/$provider/start')({
+  // @ts-ignore server property not in route types yet
   server: {
     handlers: {
-      GET: async ({ request, params }) => {
+      GET: async ({
+        request,
+        params,
+      }: {
+        request: Request
+        params: { provider: string }
+      }) => {
         const provider = params.provider as 'github' | 'google'
 
         if (provider !== 'github' && provider !== 'google') {

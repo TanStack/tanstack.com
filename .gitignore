@@ -28,3 +28,4 @@ dist
 # Content Collections generated files
 .content-collections
 
+test-results

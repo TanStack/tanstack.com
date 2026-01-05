@@ -120,32 +120,36 @@ export function BannerEditor({ banner, onSave, onCancel }: BannerEditorProps) {
     try {
       if (isNew) {
         await createMutation.mutateAsync({
-          title,
-          content: content || undefined,
-          linkUrl: linkUrl || undefined,
-          linkText: linkText || undefined,
-          style,
-          scope,
-          pathPrefixes,
-          isActive,
-          startsAt: startsAt ? new Date(startsAt).getTime() : undefined,
-          expiresAt: expiresAt ? new Date(expiresAt).getTime() : undefined,
-          priority,
+          data: {
+            title,
+            content: content || undefined,
+            linkUrl: linkUrl || undefined,
+            linkText: linkText || undefined,
+            style,
+            scope,
+            pathPrefixes,
+            isActive,
+            startsAt: startsAt ? new Date(startsAt).getTime() : undefined,
+            expiresAt: expiresAt ? new Date(expiresAt).getTime() : undefined,
+            priority,
+          },
         })
       } else {
         await updateMutation.mutateAsync({
-          id: banner.id,
-          title,
-          content: content || undefined,
-          linkUrl: linkUrl || undefined,
-          linkText: linkText || undefined,
-          style,
-          scope,
-          pathPrefixes,
-          isActive,
-          startsAt: startsAt ? new Date(startsAt).getTime() : null,
-          expiresAt: expiresAt ? new Date(expiresAt).getTime() : null,
-          priority,
+          data: {
+            id: banner.id,
+            title,
+            content: content || undefined,
+            linkUrl: linkUrl || undefined,
+            linkText: linkText || undefined,
+            style,
+            scope,
+            pathPrefixes,
+            isActive,
+            startsAt: startsAt ? new Date(startsAt).getTime() : null,
+            expiresAt: expiresAt ? new Date(expiresAt).getTime() : null,
+            priority,
+          },
         })
       }
       onSave()

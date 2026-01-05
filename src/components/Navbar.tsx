@@ -42,7 +42,13 @@ import {
   Unauthenticated,
   AuthLoading,
 } from '~/components/AuthComponents'
-import { libraries, findLibrary, type LibrarySlim } from '~/libraries'
+import {
+  libraries,
+  findLibrary,
+  SIDEBAR_LIBRARY_IDS,
+  type LibrarySlim,
+} from '~/libraries'
+import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useClickOutside } from '~/hooks/useClickOutside'
@@ -100,9 +106,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [matches])
 
   const canAdmin = capabilities.some((cap) =>
-    (['admin', 'moderate-feedback', 'moderate-showcases'] as const).includes(
-      cap,
-    ),
+    (ADMIN_ACCESS_CAPABILITIES as readonly string[]).includes(cap),
   )
 
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -310,19 +314,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     <div className="md:flex gap-2 [&>*]:flex-1 lg:block">
       <div>
         {(() => {
-          const sidebarLibraryIds = [
-            'start',
-            'router',
-            'query',
-            'table',
-            'db',
-            'ai',
-            'form',
-            'virtual',
-            'pacer',
-            'store',
-            'devtools',
-          ]
           return libraries
             .filter(
               (
@@ -332,11 +323,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 textStyle: string
                 badge?: string
                 colorFrom: string
-              } => d.to !== undefined && sidebarLibraryIds.includes(d.id),
+              } =>
+                d.to !== undefined &&
+                (SIDEBAR_LIBRARY_IDS as readonly string[]).includes(d.id),
             )
             .sort((a, b) => {
-              const indexA = sidebarLibraryIds.indexOf(a.id)
-              const indexB = sidebarLibraryIds.indexOf(b.id)
+              const indexA = SIDEBAR_LIBRARY_IDS.indexOf(
+                a.id as (typeof SIDEBAR_LIBRARY_IDS)[number],
+              )
+              const indexB = SIDEBAR_LIBRARY_IDS.indexOf(
+                b.id as (typeof SIDEBAR_LIBRARY_IDS)[number],
+              )
               return indexA - indexB
             })
         })().map((library, i) => {
@@ -469,7 +466,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       </div>
       <div>
         <Authenticated>
-          {capabilities.some((capability) =>
+          {capabilities.some((capability: string) =>
             (['builder', 'admin'] as const).includes(
               capability as 'builder' | 'admin',
             ),
@@ -578,41 +575,30 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             icon: <Paintbrush />,
             to: '/brand-guide',
           },
-        ]
-          .filter((item) => {
-            // Filter out items that require capabilities the user doesn't have
-            if (item.requiresCapability) {
-              return (
-                capabilities.includes(item.requiresCapability) ||
-                capabilities.includes('admin')
-              )
-            }
-            return true
-          })
-          .map((item, i) => {
-            return (
-              <Link
-                to={item.to}
-                key={i}
-                className={twMerge(linkClasses, 'font-normal')}
-                activeProps={{
-                  className: twMerge(
-                    'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
-                  ),
-                }}
-                target={item.to.startsWith('http') ? '_blank' : undefined}
-              >
-                <div className="flex items-center gap-2 w-full">
-                  <div className="flex items-center gap-4 justify-between">
-                    {item.icon}
-                  </div>
-                  <div className="flex items-center justify-between flex-1 gap-2">
-                    {typeof item.label === 'string' ? item.label : item.label}
-                  </div>
+        ].map((item, i) => {
+          return (
+            <Link
+              to={item.to}
+              key={i}
+              className={twMerge(linkClasses, 'font-normal')}
+              activeProps={{
+                className: twMerge(
+                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
+                ),
+              }}
+              target={item.to.startsWith('http') ? '_blank' : undefined}
+            >
+              <div className="flex items-center gap-2 w-full">
+                <div className="flex items-center gap-4 justify-between">
+                  {item.icon}
                 </div>
-              </Link>
-            )
-          })}
+                <div className="flex items-center justify-between flex-1 gap-2">
+                  {typeof item.label === 'string' ? item.label : item.label}
+                </div>
+              </div>
+            </Link>
+          )
+        })}
         <Authenticated>
           <div className="py-2">
             <div className="bg-gray-500/10 h-px" />

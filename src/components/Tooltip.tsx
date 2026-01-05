@@ -42,7 +42,7 @@ export function Tooltip({
       {React.cloneElement(children, {
         ref: refs.setReference,
         ...getReferenceProps(),
-      })}
+      } as any)}
       <FloatingPortal>
         {isOpen && (
           <div

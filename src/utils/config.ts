@@ -75,11 +75,13 @@ export const getTanstackDocsConfig = createServerFn({ method: 'GET' })
         throw new Error('Valibot validation failed')
       }
 
-      setResponseHeaders({
-        'Cache-Control': 'public, max-age=0, must-revalidate',
-        'Netlify-CDN-Cache-Control':
-          'public, max-age=300, durable, stale-while-revalidate=300',
-      })
+      setResponseHeaders(
+        new Headers({
+          'Cache-Control': 'public, max-age=0, must-revalidate',
+          'Netlify-CDN-Cache-Control':
+            'public, max-age=300, durable, stale-while-revalidate=300',
+        }),
+      )
 
       return validationResult.output
     } catch (e) {

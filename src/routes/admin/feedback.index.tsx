@@ -4,10 +4,7 @@ import { seo } from '~/utils/seo'
 import { FeedbackModerationPage } from '~/components/FeedbackModerationPage'
 import { listDocFeedbackForModerationQueryOptions } from '~/queries/docFeedback'
 import { requireCapability } from '~/utils/auth.server'
-import { libraries, type LibraryId } from '~/libraries'
-
-const libraryIds = libraries.map((lib) => lib.id) as readonly LibraryId[]
-const librarySchema = v.picklist(libraryIds as [LibraryId, ...LibraryId[]])
+import { libraryIdSchema, docFeedbackStatusSchema } from '~/utils/schemas'
 
 export const Route = createFileRoute('/admin/feedback/')({
   staleTime: 1000 * 60 * 5, // 5 minutes
@@ -29,10 +26,8 @@ export const Route = createFileRoute('/admin/feedback/')({
           v.pipe(v.number(), v.integer(), v.minValue(1)),
           50,
         ),
-        status: v.optional(
-          v.array(v.picklist(['pending', 'approved', 'denied'])),
-        ),
-        libraryId: v.optional(librarySchema),
+        status: v.optional(v.array(docFeedbackStatusSchema)),
+        libraryId: v.optional(libraryIdSchema),
         isDetached: v.optional(v.boolean()),
         dateFrom: v.optional(v.string()),
         dateTo: v.optional(v.string()),

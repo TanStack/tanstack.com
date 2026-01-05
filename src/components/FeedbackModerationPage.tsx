@@ -60,7 +60,7 @@ export function FeedbackModerationPage() {
 
   const handleFilterChange = (filters: Partial<typeof search>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: typeof search) => ({
         ...prev,
         ...filters,
         page: 1, // Reset to first page on filter change
@@ -70,13 +70,13 @@ export function FeedbackModerationPage() {
 
   const handlePageChange = (newPage: number) => {
     navigate({
-      search: (prev) => ({ ...prev, page: newPage }),
+      search: (prev: typeof search) => ({ ...prev, page: newPage }),
     })
   }
 
   const handlePageSizeChange = (newPageSize: number) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: typeof search) => ({
         ...prev,
         pageSize: newPageSize,
         page: 1,

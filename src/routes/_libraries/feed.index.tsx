@@ -3,21 +3,17 @@ import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { FeedPage as FeedPageComponent } from '~/components/FeedPage'
 import { listFeedEntriesQueryOptions } from '~/queries/feed'
-import { libraryIds, type LibraryId } from '~/libraries'
-import { ENTRY_TYPES, RELEASE_LEVELS } from '~/utils/feedSchema'
 import { FEED_DEFAULTS } from '~/utils/feedDefaults'
-
-const librarySchema = v.picklist(libraryIds as [LibraryId, ...LibraryId[]])
-const entryTypeSchema = v.picklist(ENTRY_TYPES)
-const releaseLevelSchema = v.picklist(RELEASE_LEVELS)
-const viewModeSchema = v.fallback(
-  v.optional(v.picklist(['table', 'timeline']), 'table'),
-  'table',
-)
+import {
+  libraryIdSchema,
+  entryTypeSchema,
+  releaseLevelSchema,
+  feedViewModeSchema,
+} from '~/utils/schemas'
 
 const searchSchema = v.object({
   entryTypes: v.fallback(v.optional(v.array(entryTypeSchema)), undefined),
-  libraries: v.fallback(v.optional(v.array(librarySchema)), undefined),
+  libraries: v.fallback(v.optional(v.array(libraryIdSchema)), undefined),
   partners: v.fallback(v.optional(v.array(v.string())), undefined),
   tags: v.fallback(v.optional(v.array(v.string())), undefined),
   releaseLevels: v.fallback(v.optional(v.array(releaseLevelSchema)), undefined),
@@ -35,7 +31,7 @@ const searchSchema = v.object({
     ),
     FEED_DEFAULTS.pageSize,
   ),
-  viewMode: viewModeSchema,
+  viewMode: v.fallback(v.optional(feedViewModeSchema, 'table'), 'table'),
   expanded: v.fallback(v.optional(v.array(v.string())), undefined),
 })
 
@@ -101,7 +97,7 @@ function FeedPage() {
       search={search}
       onNavigate={(updates) => {
         navigate({
-          search: (s) => ({ ...s, ...updates.search }),
+          search: (s: typeof search) => ({ ...s, ...updates.search }),
           replace: updates.replace ?? true,
           resetScroll: updates.resetScroll ?? false,
         })

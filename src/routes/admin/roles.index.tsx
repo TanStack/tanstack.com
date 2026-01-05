@@ -20,14 +20,24 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useCreateRole, useUpdateRole, useDeleteRole } from '~/utils/mutations'
-import { listRoles } from '~/utils/roles.functions'
+import { listRoles, sendTestModeratorEmail } from '~/utils/roles.functions'
 import { Spinner } from '~/components/Spinner'
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
 } from '@tanstack/react-table'
-import { Lock, SquarePen, Plus, Save, X, Trash, Users } from 'lucide-react'
+import {
+  Lock,
+  SquarePen,
+  Plus,
+  Save,
+  X,
+  Trash,
+  Users,
+  Mail,
+} from 'lucide-react'
+import { VALID_CAPABILITIES, type Capability } from '~/db/types'
 
 // Role type for table
 type Role = {
@@ -55,8 +65,16 @@ function RolesPage() {
   const [editingRoleId, setEditingRoleId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
   const [editingDescription, setEditingDescription] = useState('')
-  const [editingCapabilities, setEditingCapabilities] = useState<string[]>([])
+  const [editingCapabilities, setEditingCapabilities] = useState<Capability[]>(
+    [],
+  )
   const [isCreating, setIsCreating] = useState(false)
+  const [testEmailCapability, setTestEmailCapability] =
+    useState<Capability>('moderate-showcases')
+  const [testEmailStatus, setTestEmailStatus] = useState<{
+    loading: boolean
+    result?: { success: boolean; emails: string[]; error?: string }
+  }>({ loading: false })
 
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
@@ -180,10 +198,7 @@ function RolesPage() {
   const updateRole = useUpdateRole()
   const deleteRole = useDeleteRole()
 
-  const availableCapabilities = useMemo(
-    () => ['admin', 'disableAds', 'builder', 'feed', 'moderate-feedback'],
-    [],
-  )
+  const availableCapabilities = VALID_CAPABILITIES
 
   const handleCreateRole = useCallback(() => {
     setIsCreating(true)
@@ -196,7 +211,7 @@ function RolesPage() {
     setEditingRoleId(role._id)
     setEditingName(role.name)
     setEditingDescription(role.description || '')
-    setEditingCapabilities(role.capabilities || [])
+    setEditingCapabilities((role.capabilities || []) as Capability[])
     setIsCreating(false)
   }, [])
 
@@ -259,10 +274,10 @@ function RolesPage() {
   )
 
   const toggleCapability = useCallback(
-    (capability: string) => {
+    (capability: Capability) => {
       if (editingCapabilities.includes(capability)) {
         setEditingCapabilities(
-          editingCapabilities.filter((c: string) => c !== capability),
+          editingCapabilities.filter((c) => c !== capability),
         )
       } else {
         setEditingCapabilities([...editingCapabilities, capability])
@@ -286,6 +301,25 @@ function RolesPage() {
     },
     [capabilityFilters, navigate],
   )
+
+  const handleSendTestEmail = useCallback(async () => {
+    setTestEmailStatus({ loading: true })
+    try {
+      const result = await sendTestModeratorEmail({
+        data: { capability: testEmailCapability },
+      })
+      setTestEmailStatus({ loading: false, result })
+    } catch (error) {
+      setTestEmailStatus({
+        loading: false,
+        result: {
+          success: false,
+          emails: [],
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      })
+    }
+  }, [testEmailCapability])
 
   // Define columns using the column helper
   const columns = useMemo(
@@ -506,6 +540,53 @@ function RolesPage() {
             hasActiveFilters={hasActiveFilters}
           >
             {renderFilterContent()}
+
+            {/* Test Email Section */}
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                Test Email Notifications
+              </h3>
+              <div className="space-y-3">
+                <select
+                  value={testEmailCapability}
+                  onChange={(e) =>
+                    setTestEmailCapability(e.target.value as Capability)
+                  }
+                  className="w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+                >
+                  {VALID_CAPABILITIES.filter(
+                    (cap) => cap === 'admin' || cap.startsWith('moderate-'),
+                  ).map((cap) => (
+                    <option key={cap} value={cap}>
+                      {cap}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  onClick={handleSendTestEmail}
+                  disabled={testEmailStatus.loading}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
+                >
+                  <Mail className="w-4 h-4" />
+                  {testEmailStatus.loading ? 'Sending...' : 'Send Test Email'}
+                </button>
+                {testEmailStatus.result && (
+                  <div
+                    className={`text-xs p-2 rounded ${
+                      testEmailStatus.result.success
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                        : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                    }`}
+                  >
+                    {testEmailStatus.result.success ? (
+                      <>Sent to: {testEmailStatus.result.emails.join(', ')}</>
+                    ) : (
+                      <>{testEmailStatus.result.error}</>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </FilterBar>
         </aside>
 

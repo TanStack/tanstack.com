@@ -30,8 +30,6 @@ export const Route = createFileRoute(
         docsPath: `${
           library.docsRoot || 'docs'
         }/framework/${framework}/${docsPath}`,
-        currentPath: ctx.location.pathname,
-        redirectPath: `/${library.id}/${version}/docs/overview`,
       })
     } catch (error) {
       // If doc not found, redirect to framework docs root instead of showing 404

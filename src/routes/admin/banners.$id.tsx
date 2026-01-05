@@ -22,7 +22,7 @@ function BannerEditorPage() {
 
   const bannerQuery = useQuery({
     queryKey: ['banner', id],
-    queryFn: () => getBanner({ id }),
+    queryFn: () => getBanner({ data: { id } }),
     enabled: !isNew,
   })
 

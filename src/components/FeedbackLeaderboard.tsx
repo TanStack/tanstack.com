@@ -29,13 +29,13 @@ export function FeedbackLeaderboard() {
 
   const handlePageChange = (newPage: number) => {
     navigate({
-      search: (prev) => ({ ...prev, page: newPage }),
+      search: (prev: typeof search) => ({ ...prev, page: newPage }),
     })
   }
 
   const handlePageSizeChange = (newPageSize: number) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: typeof search) => ({
         ...prev,
         pageSize: newPageSize,
         page: 1, // Reset to first page

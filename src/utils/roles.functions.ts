@@ -1,29 +1,23 @@
 import { createServerFn } from '@tanstack/react-start'
 import * as v from 'valibot'
-import type { Capability } from '~/db/schema'
+import { VALID_CAPABILITIES, type Capability } from '~/db/types'
 import { requireAdmin } from './roles.server'
 import { db } from '~/db/client'
 import { roles, roleAssignments, users } from '~/db/schema'
 import { eq, and, inArray } from 'drizzle-orm'
 import { getEffectiveCapabilities } from './capabilities.server'
 import { recordAuditLog } from './audit.server'
+import { sendTestEmail } from './email.server'
+
+const capabilityPicklist = v.picklist(
+  VALID_CAPABILITIES as unknown as [Capability, ...Capability[]],
+)
 
 export const listRoles = createServerFn({ method: 'POST' })
   .inputValidator(
     v.object({
       nameFilter: v.optional(v.string()),
-      capabilityFilter: v.optional(
-        v.array(
-          v.picklist([
-            'admin',
-            'disableAds',
-            'builder',
-            'feed',
-            'moderate-feedback',
-            'moderate-showcases',
-          ]),
-        ),
-      ),
+      capabilityFilter: v.optional(v.array(capabilityPicklist)),
     }),
   )
   .handler(async ({ data }) => {
@@ -92,15 +86,7 @@ export const createRole = createServerFn({ method: 'POST' })
     v.object({
       name: v.string(),
       description: v.optional(v.string()),
-      capabilities: v.array(
-        v.picklist([
-          'admin',
-          'disableAds',
-          'builder',
-          'feed',
-          'moderate-feedback',
-        ]),
-      ),
+      capabilities: v.array(capabilityPicklist),
     }),
   )
   .handler(async ({ data }) => {
@@ -146,17 +132,7 @@ export const updateRole = createServerFn({ method: 'POST' })
       roleId: v.pipe(v.string(), v.uuid()),
       name: v.optional(v.string()),
       description: v.optional(v.string()),
-      capabilities: v.optional(
-        v.array(
-          v.picklist([
-            'admin',
-            'disableAds',
-            'builder',
-            'feed',
-            'moderate-feedback',
-          ]),
-        ),
-      ),
+      capabilities: v.optional(v.array(capabilityPicklist)),
     }),
   )
   .handler(async ({ data }) => {
@@ -628,4 +604,11 @@ export const bulkAssignRolesToUsers = createServerFn({ method: 'POST' })
     }
 
     return { success: true, assigned: toCreate.length }
+  })
+
+export const sendTestModeratorEmail = createServerFn({ method: 'POST' })
+  .inputValidator(v.object({ capability: capabilityPicklist }))
+  .handler(async ({ data }) => {
+    await requireAdmin()
+    return sendTestEmail(data.capability)
   })

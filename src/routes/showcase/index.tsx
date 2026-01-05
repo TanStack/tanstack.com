@@ -3,9 +3,7 @@ import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseGallery } from '~/components/ShowcaseGallery'
 import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
-import { SHOWCASE_USE_CASES } from '~/db/types'
-
-const useCaseSchema = v.picklist(SHOWCASE_USE_CASES as [string, ...string[]])
+import { showcaseUseCaseSchema } from '~/utils/schemas'
 
 export const Route = createFileRoute('/showcase/')({
   validateSearch: (search) => {
@@ -13,7 +11,7 @@ export const Route = createFileRoute('/showcase/')({
       v.object({
         page: v.optional(v.number(), 1),
         libraryId: v.optional(v.string()),
-        useCases: v.optional(v.array(useCaseSchema)),
+        useCases: v.optional(v.array(showcaseUseCaseSchema)),
       }),
       search,
     )

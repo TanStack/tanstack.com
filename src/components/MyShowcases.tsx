@@ -143,7 +143,7 @@ export function MyShowcases() {
                     {/* Libraries */}
                     <div className="flex flex-wrap gap-1 mt-3">
                       {showcase.libraries.map((libId) => {
-                        const lib = libraryMap.get(libId)
+                        const lib = libraryMap.get(libId as any)
                         return (
                           <span
                             key={libId}

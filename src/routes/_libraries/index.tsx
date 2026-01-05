@@ -53,27 +53,37 @@ const courses = [
   },
 ]
 
-const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(async () => {
-  setResponseHeaders(
-    new Headers({
-      'Cache-Control': 'public, max-age=0, must-revalidate',
-      'Netlify-CDN-Cache-Control':
-        'public, max-age=300, durable, stale-while-revalidate=300',
-    }),
-  )
+type BlogFrontMatter = {
+  slug: string
+  title: string
+  published: string
+  excerpt: string | undefined
+  authors: string[]
+}
 
-  return getPublishedPosts()
-    .slice(0, 3)
-    .map((post) => {
-      return {
-        slug: post.slug,
-        title: post.title,
-        published: post.published,
-        excerpt: post.excerpt,
-        authors: post.authors,
-      }
-    })
-})
+const fetchRecentPosts = createServerFn({ method: 'GET' }).handler(
+  async (): Promise<BlogFrontMatter[]> => {
+    setResponseHeaders(
+      new Headers({
+        'Cache-Control': 'public, max-age=0, must-revalidate',
+        'Netlify-CDN-Cache-Control':
+          'public, max-age=300, durable, stale-while-revalidate=300',
+      }),
+    )
+
+    return getPublishedPosts()
+      .slice(0, 3)
+      .map((post) => {
+        return {
+          slug: post.slug,
+          title: post.title,
+          published: post.published,
+          excerpt: post.excerpt,
+          authors: post.authors,
+        }
+      })
+  },
+)
 
 export const Route = createFileRoute('/_libraries/')({
   loader: async ({ context: { queryClient } }) => {
@@ -108,7 +118,9 @@ function Index() {
     fn: bytesSignupServerFn,
   })
   const { notify } = useToast()
-  const { recentPosts } = Route.useLoaderData()
+  const { recentPosts } = Route.useLoaderData() as {
+    recentPosts: BlogFrontMatter[]
+  }
 
   // sponsorsPromise no longer needed - using lazy loading
 
@@ -372,7 +384,7 @@ function Index() {
                       as={Link}
                       key={slug}
                       to="/blog/$"
-                      params={{ _splat: slug }}
+                      params={{ _splat: slug } as never}
                       className={`flex flex-col gap-3 justify-between p-4
                       transition-all hover:shadow-md hover:border-blue-500
                     `}

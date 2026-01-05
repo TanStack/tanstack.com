@@ -8,13 +8,23 @@ import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 
+type BlogFrontMatter = {
+  slug: string
+  title: string
+  published: string
+  excerpt: string | undefined
+  authors: string[]
+}
+
 const fetchFrontMatters = createServerFn({ method: 'GET' }).handler(
   async () => {
-    setResponseHeaders({
-      'Cache-Control': 'public, max-age=0, must-revalidate',
-      'Netlify-CDN-Cache-Control':
-        'public, max-age=300, durable, stale-while-revalidate=300',
-    })
+    setResponseHeaders(
+      new Headers({
+        'Cache-Control': 'public, max-age=0, must-revalidate',
+        'Netlify-CDN-Cache-Control':
+          'public, max-age=300, durable, stale-while-revalidate=300',
+      }),
+    )
 
     return getPublishedPosts().map((post) => {
       return {
@@ -49,7 +59,7 @@ export const Route = createFileRoute('/_libraries/blog/')({
 })
 
 function BlogIndex() {
-  const frontMatters = Route.useLoaderData()
+  const frontMatters = Route.useLoaderData() as BlogFrontMatter[]
 
   return (
     <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
@@ -67,7 +77,7 @@ function BlogIndex() {
                 key={slug}
                 as={Link}
                 to="/blog/$"
-                params={{ _splat: slug }}
+                params={{ _splat: slug } as never}
                 className="relative flex flex-col gap-4 justify-between p-4 md:p-8 transition-all hover:shadow-sm hover:border-blue-500"
               >
                 <div>

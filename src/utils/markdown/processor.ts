@@ -26,7 +26,7 @@ export type MarkdownRenderResult = {
   headings: MarkdownHeading[]
 }
 
-export function renderMarkdown(content): MarkdownRenderResult {
+export function renderMarkdown(content: string): MarkdownRenderResult {
   const headings: MarkdownHeading[] = []
 
   const processor = unified()
@@ -38,7 +38,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
     .use(rehypeCallouts, {
       theme: 'github',
       props: {
-        containerProps(node, type) {
+        containerProps(node: any, type: string) {
           return {
             className: `markdown-alert markdown-alert-${type}`,
             children: node.children,
@@ -65,7 +65,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
           }
         },
       },
-    })
+    } as any)
     .use(rehypeSlug)
     .use(rehypeTransformCommentComponents)
     .use(rehypeAutolinkHeadings, {
@@ -74,7 +74,7 @@ export function renderMarkdown(content): MarkdownRenderResult {
         className: ['anchor-heading'],
       },
     })
-    .use((tree, file) => rehypeCollectHeadings(tree, file, headings))
+    .use(() => rehypeCollectHeadings(headings))
 
   const file = processor.use(rehypeStringify).processSync(content)
 

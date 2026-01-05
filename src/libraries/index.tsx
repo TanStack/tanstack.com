@@ -5,6 +5,7 @@ export {
   librariesByGroup,
   librariesGroupNamesMap,
   libraryIds,
+  SIDEBAR_LIBRARY_IDS,
   findLibrary,
   getLibrary,
   // Individual library exports

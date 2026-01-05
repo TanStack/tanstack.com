@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Table, List, ChevronDown } from 'lucide-react'
 import { useDebouncedValue } from '@tanstack/react-pacer'
 import { twMerge } from 'tailwind-merge'
+import type { FeedViewMode } from '~/db/types'
 
 // FilterSection - Collapsible section with select all/none
 interface FilterSectionProps {
@@ -179,7 +180,7 @@ interface FilterBarProps {
   hasActiveFilters?: boolean
   mobileControls?: React.ReactNode
   desktopHeader?: React.ReactNode
-  viewMode?: 'table' | 'timeline'
+  viewMode?: FeedViewMode
 }
 
 export function FilterBar({
@@ -247,8 +248,8 @@ export function FilterBar({
 
 // ViewModeToggle - View mode toggle buttons (table/timeline)
 interface ViewModeToggleProps {
-  viewMode: 'table' | 'timeline'
-  onViewModeChange: (viewMode: 'table' | 'timeline') => void
+  viewMode: FeedViewMode
+  onViewModeChange: (viewMode: FeedViewMode) => void
   compact?: boolean
 }
 

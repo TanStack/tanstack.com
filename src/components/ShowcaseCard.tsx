@@ -30,7 +30,7 @@ export function ShowcaseCard({
   return (
     <div
       className={twMerge(
-        'group relative rounded-xl overflow-hidden bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700',
+        'group relative rounded-xl overflow-hidden bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 flex flex-col h-full',
         className,
       )}
     >
@@ -39,7 +39,7 @@ export function ShowcaseCard({
         href={showcase.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="block"
+        className="block flex-1 flex flex-col"
       >
         {/* Screenshot */}
         <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-900">
@@ -65,7 +65,7 @@ export function ShowcaseCard({
         </div>
 
         {/* Content */}
-        <div className="p-4">
+        <div className="p-4 flex-1">
           <h3 className="font-bold text-lg text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             {showcase.name}
           </h3>
@@ -76,7 +76,7 @@ export function ShowcaseCard({
       </a>
 
       {/* Footer with libraries and voting */}
-      <div className="px-4 pb-4 flex items-center justify-between gap-2">
+      <div className="px-4 pb-4 flex items-center justify-between gap-2 mt-auto">
         {/* Libraries */}
         <div className="flex flex-wrap gap-1.5 min-w-0 flex-1">
           {showcase.libraries.slice(0, 3).map((libId) => {

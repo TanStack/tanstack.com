@@ -3,17 +3,12 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
 import { Spinner } from '~/components/Spinner'
-import {
-  FilterBar,
-  FilterSearch,
-  FilterCheckbox,
-  FilterSection,
-} from '~/components/FilterComponents'
+import { UsersTopBarFilters } from '~/components/UsersTopBarFilters'
 import {
   Table,
   TableHeader,
   TableHeaderRow,
-  TableHeaderCell,
+  SortableTableHeaderCell,
   TableBody,
   TableRow,
   TableCell,
@@ -23,14 +18,8 @@ import {
   getCoreRowModel,
   flexRender,
   type ColumnDef,
-  type RowData,
+  type Column,
 } from '@tanstack/react-table'
-
-declare module '@tanstack/react-table' {
-  interface ColumnMeta<TData extends RowData, TValue> {
-    align?: 'left' | 'right' | 'center'
-  }
-}
 import {
   useUpdateUserCapabilities,
   useAdminSetAdsDisabled,
@@ -75,6 +64,8 @@ type UsersSearch = {
   page?: number
   pageSize?: number
   useEffectiveCapabilities?: boolean
+  sortBy?: string
+  sortDir?: 'asc' | 'desc'
 }
 
 // Component to display/edit user roles (now uses bulk data)
@@ -191,6 +182,8 @@ export const Route = createFileRoute('/admin/users')({
         page: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
         pageSize: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
         useEffectiveCapabilities: v.optional(v.boolean(), true),
+        sortBy: v.optional(v.string()),
+        sortDir: v.optional(v.picklist(['asc', 'desc'])),
       }),
       search,
     ),
@@ -204,20 +197,6 @@ function UsersPage() {
   const [editingRoleIds, setEditingRoleIds] = useState<string[]>([])
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [bulkActionRoleId, setBulkActionRoleId] = useState<string | null>(null)
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >({
-    capabilities: true,
-    ads: true,
-  })
-
-  const toggleSection = (section: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }))
-  }
-
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
   const emailFilter = search.email ?? ''
@@ -231,6 +210,8 @@ function UsersPage() {
   const adsDisabledFilter = search.ads ?? 'all'
   const waitlistFilter = search.waitlist ?? 'all'
   const useEffectiveCapabilities = search.useEffectiveCapabilities ?? true
+  const sortBy = search.sortBy
+  const sortDir = search.sortDir
 
   const hasActiveFilters =
     emailFilter !== '' ||
@@ -250,214 +231,20 @@ function UsersPage() {
     })
   }
 
-  const renderFilterContent = () => (
-    <>
-      {/* Capability Filter Mode Toggle */}
-      <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-        <label className="flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={useEffectiveCapabilities}
-            onChange={(e) => {
-              navigate({
-                resetScroll: false,
-                search: (prev: UsersSearch) => ({
-                  ...prev,
-                  useEffectiveCapabilities: e.target.checked,
-                  page: 0,
-                }),
-              })
-            }}
-            className="mr-2 h-4 w-4 accent-blue-600"
-          />
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            Filter by effective capabilities
-          </span>
-        </label>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
-          {useEffectiveCapabilities
-            ? 'Includes capabilities from roles'
-            : 'Direct capabilities only'}
-        </p>
-      </div>
-
-      {/* Email Filter */}
-      <div className="mb-2">
-        <label
-          htmlFor="email-filter"
-          className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
-        >
-          Email
-        </label>
-        <FilterSearch
-          value={emailFilter}
-          onChange={(value) => {
-            navigate({
-              resetScroll: false,
-              search: (prev: UsersSearch) => ({
-                ...prev,
-                email: value || undefined,
-                page: 0,
-              }),
-            })
-          }}
-          placeholder="Filter by email"
-        />
-      </div>
-
-      {/* Name Filter */}
-      <div className="mb-2">
-        <label
-          htmlFor="name-filter"
-          className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
-        >
-          Name
-        </label>
-        <FilterSearch
-          value={nameFilter}
-          onChange={(value) => {
-            navigate({
-              resetScroll: false,
-              search: (prev: UsersSearch) => ({
-                ...prev,
-                name: value || undefined,
-                page: 0,
-              }),
-            })
-          }}
-          placeholder="Filter by name"
-        />
-      </div>
-
-      {/* Capabilities Filter */}
-      <FilterSection
-        title={
-          useEffectiveCapabilities
-            ? 'Capabilities (Effective)'
-            : 'Capabilities (Direct)'
-        }
-        sectionKey="capabilities"
-        onSelectAll={() => {
-          navigate({
-            resetScroll: false,
-            search: (prev: UsersSearch) => ({
-              ...prev,
-              cap: availableCapabilities,
-              page: 0,
-            }),
-          })
-        }}
-        onSelectNone={() => {
-          navigate({
-            resetScroll: false,
-            search: (prev: UsersSearch) => ({
-              ...prev,
-              cap: undefined,
-              noCapabilities: undefined,
-              page: 0,
-            }),
-          })
-        }}
-        isAllSelected={
-          capabilityFilters.length === availableCapabilities.length &&
-          !noCapabilitiesFilter
-        }
-        isSomeSelected={
-          (capabilityFilters.length > 0 &&
-            capabilityFilters.length < availableCapabilities.length) ||
-          noCapabilitiesFilter
-        }
-        expandedSections={expandedSections}
-        onToggleSection={toggleSection}
-      >
-        <FilterCheckbox
-          label="No capabilities"
-          checked={noCapabilitiesFilter}
-          onChange={() => {
-            navigate({
-              resetScroll: false,
-              search: (prev: UsersSearch) => ({
-                ...prev,
-                noCapabilities: !noCapabilitiesFilter || undefined,
-                page: 0,
-              }),
-            })
-          }}
-        />
-        {availableCapabilities.map((cap) => (
-          <FilterCheckbox
-            key={cap}
-            label={cap}
-            checked={capabilityFilters.includes(cap)}
-            onChange={() => handleCapabilityToggle(cap)}
-          />
-        ))}
-      </FilterSection>
-
-      {/* Ads Filters */}
-      <FilterSection
-        title="Ads"
-        sectionKey="ads"
-        expandedSections={expandedSections}
-        onToggleSection={toggleSection}
-      >
-        <div className="mb-2">
-          <label
-            htmlFor="ads-disabled-filter"
-            className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
-          >
-            Status
-          </label>
-          <select
-            value={adsDisabledFilter}
-            onChange={(e) => {
-              const value = e.target.value as UsersSearch['ads']
-              navigate({
-                resetScroll: false,
-                search: (prev: UsersSearch) => ({
-                  ...prev,
-                  ads: value,
-                  page: 0,
-                }),
-              })
-            }}
-            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All ad statuses</option>
-            <option value="true">Ads disabled</option>
-            <option value="false">Ads enabled</option>
-          </select>
-        </div>
-        <div>
-          <label
-            htmlFor="waitlist-filter"
-            className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
-          >
-            Waitlist
-          </label>
-          <select
-            value={waitlistFilter}
-            onChange={(e) => {
-              const value = e.target.value as UsersSearch['waitlist']
-              navigate({
-                resetScroll: false,
-                search: (prev: UsersSearch) => ({
-                  ...prev,
-                  waitlist: value,
-                  page: 0,
-                }),
-              })
-            }}
-            className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All ads waitlist statuses</option>
-            <option value="true">On ads waitlist</option>
-            <option value="false">Not on ads waitlist</option>
-          </select>
-        </div>
-      </FilterSection>
-    </>
+  const handleFiltersChange = useCallback(
+    (newFilters: Partial<UsersSearch>) => {
+      navigate({
+        resetScroll: false,
+        search: (prev: UsersSearch) => ({
+          ...prev,
+          ...newFilters,
+          page: 0,
+        }),
+      })
+    },
+    [navigate],
   )
+
   const currentPageIndex = search.page ?? 0
 
   const userQuery = useCurrentUserQuery()
@@ -479,6 +266,8 @@ function UsersPage() {
       interestedInHidingAdsFilter:
         waitlistFilter === 'all' ? undefined : waitlistFilter === 'true',
       useEffectiveCapabilities,
+      sortBy,
+      sortDir,
     }),
     placeholderData: keepPreviousData,
   })
@@ -708,6 +497,48 @@ function UsersPage() {
     [capabilityFilters, navigate],
   )
 
+  const handleSort = useCallback(
+    (column: Column<User, unknown>) => {
+      const columnId = column.id
+      const sortDescFirst = column.columnDef.meta?.sortDescFirst ?? false
+
+      if (sortBy !== columnId) {
+        // New column: apply default direction
+        navigate({
+          resetScroll: false,
+          search: (prev: UsersSearch) => ({
+            ...prev,
+            sortBy: columnId,
+            sortDir: sortDescFirst ? 'desc' : 'asc',
+            page: 0,
+          }),
+        })
+      } else if (sortDescFirst ? sortDir === 'desc' : sortDir === 'asc') {
+        // First click was default, flip to opposite
+        navigate({
+          resetScroll: false,
+          search: (prev: UsersSearch) => ({
+            ...prev,
+            sortDir: sortDescFirst ? 'asc' : 'desc',
+            page: 0,
+          }),
+        })
+      } else {
+        // Third click: clear sort
+        navigate({
+          resetScroll: false,
+          search: (prev: UsersSearch) => ({
+            ...prev,
+            sortBy: undefined,
+            sortDir: undefined,
+            page: 0,
+          }),
+        })
+      }
+    },
+    [sortBy, sortDir, navigate],
+  )
+
   // Define columns using the column helper
   const columns = useMemo<ColumnDef<User, any>[]>(
     () => [
@@ -738,6 +569,7 @@ function UsersPage() {
       {
         id: 'user',
         header: 'User',
+        meta: { sortable: true },
         cell: ({ row }) => {
           const user = row.original
           const displayName = user.name || user.displayUsername || ''
@@ -773,6 +605,7 @@ function UsersPage() {
       {
         accessorKey: 'email',
         header: 'Email',
+        meta: { sortable: true },
         cell: ({ getValue }) => (
           <div className="text-sm text-gray-900 dark:text-white">
             {getValue()}
@@ -1016,29 +849,32 @@ function UsersPage() {
 
   return (
     <div className="w-full p-4">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar Filters */}
-        <aside className="lg:w-64 lg:flex-shrink-0">
-          <FilterBar
-            title="Filters"
-            onClearFilters={handleClearFilters}
-            hasActiveFilters={hasActiveFilters}
-          >
-            {renderFilterContent()}
-          </FilterBar>
-        </aside>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Manage Users
+          </h1>
+          {usersQuery.isFetching && (
+            <Spinner className="text-gray-500 dark:text-gray-400" />
+          )}
+        </div>
 
-        {/* Main Content */}
+        <UsersTopBarFilters
+          filters={{
+            email: emailFilter || undefined,
+            name: nameFilter || undefined,
+            capabilities:
+              capabilityFilters.length > 0 ? capabilityFilters : undefined,
+            noCapabilities: noCapabilitiesFilter || undefined,
+            adsDisabled: adsDisabledFilter,
+            waitlist: waitlistFilter,
+            useEffectiveCapabilities,
+          }}
+          onFilterChange={handleFiltersChange}
+          onClearFilters={handleClearFilters}
+        />
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-4">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Manage Users
-            </h1>
-            {usersQuery.isFetching && (
-              <Spinner className="text-gray-500 dark:text-gray-400" />
-            )}
-          </div>
-
           {selectedUserIds.size > 0 && (
             <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <div className="flex items-center justify-between mb-4">
@@ -1115,13 +951,18 @@ function UsersPage() {
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableHeaderRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHeaderCell
+                    <SortableTableHeaderCell
                       key={header.id}
                       align={
                         header.column.columnDef.meta?.align === 'right'
                           ? 'right'
                           : 'left'
                       }
+                      sortable={header.column.columnDef.meta?.sortable}
+                      sortDirection={
+                        sortBy === header.column.id ? sortDir || false : false
+                      }
+                      onSort={() => handleSort(header.column)}
                     >
                       {header.isPlaceholder
                         ? null
@@ -1129,7 +970,7 @@ function UsersPage() {
                             header.column.columnDef.header,
                             header.getContext(),
                           )}
-                    </TableHeaderCell>
+                    </SortableTableHeaderCell>
                   ))}
                 </TableHeaderRow>
               ))}

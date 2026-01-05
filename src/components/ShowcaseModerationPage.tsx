@@ -6,8 +6,9 @@ import {
   moderateShowcase,
   setShowcaseFeatured,
   adminDeleteShowcase,
+  voteShowcase,
 } from '~/utils/showcase.functions'
-import { ShowcaseModerationFilters } from './ShowcaseModerationFilters'
+import { ShowcaseModerationTopBar } from './ShowcaseModerationTopBar'
 import { ShowcaseModerationList } from './ShowcaseModerationList'
 import { useToast } from '~/components/ToastProvider'
 import { Spinner } from '~/components/Spinner'
@@ -107,6 +108,13 @@ export function ShowcaseModerationPage() {
     },
   })
 
+  const voteMutation = useMutation({
+    mutationFn: voteShowcase,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['showcases'] })
+    },
+  })
+
   const handleFilterChange = (filters: Partial<typeof search>) => {
     navigate({
       search: (prev: typeof search) => ({
@@ -162,32 +170,34 @@ export function ShowcaseModerationPage() {
     })
   }
 
+  const handleVote = (showcaseId: string, value: 1 | -1) => {
+    voteMutation.mutate({
+      data: { showcaseId, value },
+    })
+  }
+
   return (
     <div className="w-full p-4">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar Filters */}
-        <aside className="lg:w-64 lg:flex-shrink-0">
-          <ShowcaseModerationFilters
-            filters={{
-              status: search.status,
-              libraryId: search.libraryId,
-              isFeatured: search.isFeatured,
-            }}
-            onFilterChange={handleFilterChange}
-          />
-        </aside>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Moderate Showcases
+          </h1>
+          {isLoading && (
+            <Spinner className="text-gray-500 dark:text-gray-400" />
+          )}
+        </div>
 
-        {/* Main Content */}
+        <ShowcaseModerationTopBar
+          filters={{
+            status: search.status,
+            libraryId: search.libraryId,
+            isFeatured: search.isFeatured,
+          }}
+          onFilterChange={handleFilterChange}
+        />
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-4">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Moderate Showcases
-            </h1>
-            {isLoading && (
-              <Spinner className="text-gray-500 dark:text-gray-400" />
-            )}
-          </div>
-
           <ShowcaseModerationList
             data={data}
             isLoading={isLoading}
@@ -199,6 +209,7 @@ export function ShowcaseModerationPage() {
             onModerate={handleModerate}
             onToggleFeatured={handleToggleFeatured}
             onDelete={handleDelete}
+            onVote={handleVote}
             isModeratingId={
               moderateMutation.variables?.data.showcaseId ||
               deleteMutation.variables?.data.showcaseId

@@ -3,7 +3,7 @@ import * as v from 'valibot'
 import { requireAdmin } from './roles.server'
 import { db } from '~/db/client'
 import { loginHistory, auditLogs, users, type AuditAction } from '~/db/schema'
-import { desc, eq, sql, and, gte, lte } from 'drizzle-orm'
+import { desc, asc, eq, sql, and, gte, lte } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
 
 // Query login history (admin only)
@@ -18,6 +18,8 @@ export const listLoginHistory = createServerFn({ method: 'POST' })
       provider: v.optional(v.picklist(['github', 'google'])),
       dateFrom: v.optional(v.string()),
       dateTo: v.optional(v.string()),
+      sortBy: v.optional(v.string()),
+      sortDir: v.optional(v.picklist(['asc', 'desc'])),
     }),
   )
   .handler(async ({ data }) => {
@@ -47,6 +49,18 @@ export const listLoginHistory = createServerFn({ method: 'POST' })
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
+    // Build order by clause
+    const getOrderByClause = () => {
+      const dir = data.sortDir === 'asc' ? asc : desc
+      switch (data.sortBy) {
+        case 'createdAt':
+          return dir(loginHistory.createdAt)
+        default:
+          return desc(loginHistory.createdAt)
+      }
+    }
+    const orderByClause = getOrderByClause()
+
     // Get total count
     const [countResult] = await db
       .select({ count: sql<number>`count(*)` })
@@ -72,7 +86,7 @@ export const listLoginHistory = createServerFn({ method: 'POST' })
       .from(loginHistory)
       .leftJoin(users, eq(loginHistory.userId, users.id))
       .where(whereClause)
-      .orderBy(desc(loginHistory.createdAt))
+      .orderBy(orderByClause)
       .limit(limit)
       .offset(offset)
 

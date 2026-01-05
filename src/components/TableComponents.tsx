@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 
 // Table - Main table wrapper
 interface TableProps {
@@ -83,6 +84,65 @@ export function TableHeaderCell({
       style={width ? { width } : undefined}
     >
       {children}
+    </th>
+  )
+}
+
+// SortableTableHeaderCell - Header cell with optional sorting
+interface SortableTableHeaderCellProps {
+  children?: React.ReactNode
+  className?: string
+  align?: 'left' | 'right' | 'center'
+  width?: string
+  compact?: boolean
+  sortable?: boolean
+  sortDirection?: 'asc' | 'desc' | false
+  onSort?: () => void
+}
+
+export function SortableTableHeaderCell({
+  children,
+  className = '',
+  align = 'left',
+  width,
+  compact = true,
+  sortable = false,
+  sortDirection = false,
+  onSort,
+}: SortableTableHeaderCellProps) {
+  const alignClass =
+    align === 'right'
+      ? 'text-right'
+      : align === 'center'
+        ? 'text-center'
+        : 'text-left'
+  const paddingClass = compact ? 'px-2 py-1.5' : 'px-4 py-2'
+  const textSizeClass = compact ? 'text-[10px]' : 'text-xs'
+  const baseClass = `${paddingClass} ${alignClass} ${textSizeClass} font-semibold text-gray-600 dark:text-gray-400 uppercase whitespace-nowrap ${className}`
+
+  if (!sortable) {
+    return (
+      <th className={baseClass} style={width ? { width } : undefined}>
+        {children}
+      </th>
+    )
+  }
+
+  return (
+    <th className={baseClass} style={width ? { width } : undefined}>
+      <button
+        type="button"
+        onClick={onSort}
+        className={`inline-flex items-center gap-1 uppercase hover:text-gray-900 dark:hover:text-gray-200 transition-colors ${
+          align === 'right' ? 'flex-row-reverse' : ''
+        }`}
+      >
+        {children}
+        <span className="w-3 h-3 flex items-center justify-center">
+          {sortDirection === 'asc' && <ChevronUp className="w-3 h-3" />}
+          {sortDirection === 'desc' && <ChevronDown className="w-3 h-3" />}
+        </span>
+      </button>
     </th>
   )
 }

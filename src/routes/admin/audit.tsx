@@ -3,7 +3,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
 import { Spinner } from '~/components/Spinner'
-import { FilterBar, FilterSearch } from '~/components/FilterComponents'
+import { AuditTopBarFilters } from '~/components/AuditTopBarFilters'
 import {
   Table,
   TableHeader,
@@ -416,102 +416,40 @@ function AuditPage() {
 
   return (
     <div className="w-full p-4">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar Filters */}
-        <aside className="lg:w-64 lg:flex-shrink-0">
-          <FilterBar
-            title="Filters"
-            onClearFilters={handleClearFilters}
-            hasActiveFilters={hasActiveFilters}
-          >
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Actor ID
-              </label>
-              <FilterSearch
-                value={actorIdFilter}
-                onChange={(value) => {
-                  navigate({
-                    resetScroll: false,
-                    search: {
-                      ...search,
-                      actorId: value || undefined,
-                      page: 0,
-                    },
-                  })
-                }}
-                placeholder="Filter by actor ID"
-              />
-            </div>
+      <div className="flex flex-col gap-4">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <Shield className="text-2xl text-blue-500" />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Audit Logs
+          </h1>
+          {auditQuery.isFetching && (
+            <Spinner className="text-gray-500 dark:text-gray-400" />
+          )}
+        </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Action
-              </label>
-              <select
-                value={actionFilter}
-                onChange={(e) => {
-                  navigate({
-                    resetScroll: false,
-                    search: {
-                      ...search,
-                      action: e.target.value || undefined,
-                      page: 0,
-                    },
-                  })
-                }}
-                className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All actions</option>
-                {Object.entries(ACTION_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Target Type
-              </label>
-              <select
-                value={targetTypeFilter}
-                onChange={(e) => {
-                  navigate({
-                    resetScroll: false,
-                    search: {
-                      ...search,
-                      targetType: e.target.value || undefined,
-                      page: 0,
-                    },
-                  })
-                }}
-                className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All types</option>
-                <option value="user">User</option>
-                <option value="role">Role</option>
-                <option value="banner">Banner</option>
-                <option value="feed_entry">Feed Entry</option>
-                <option value="feedback">Feedback</option>
-              </select>
-            </div>
-          </FilterBar>
-        </aside>
+        {/* Top Bar Filters */}
+        <AuditTopBarFilters
+          filters={{
+            actorId: actorIdFilter || undefined,
+            action: actionFilter || undefined,
+            targetType: targetTypeFilter || undefined,
+          }}
+          onFilterChange={(newFilters) => {
+            navigate({
+              resetScroll: false,
+              search: {
+                ...search,
+                ...newFilters,
+                page: 0,
+              },
+            })
+          }}
+          onClearFilters={handleClearFilters}
+        />
 
         {/* Main Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-4">
-            <Shield className="text-2xl text-blue-500" />
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Audit Logs
-            </h1>
-            {auditQuery.isFetching && (
-              <Spinner className="text-gray-500 dark:text-gray-400" />
-            )}
-          </div>
-
           {/* Stats Cards */}
           {auditQuery.data && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

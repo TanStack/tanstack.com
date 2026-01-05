@@ -38,6 +38,7 @@ export const getApprovedShowcasesQueryOptions = (params: {
     libraryId?: string
     useCases?: ShowcaseUseCase[]
     featured?: boolean
+    q?: string
   }
 }) =>
   queryOptions({

@@ -16,7 +16,13 @@ export type TabsProps = {
   onTabChange?: (slug: string) => void
 }
 
-export function Tabs({ tabs, id, children, activeSlug: controlledActiveSlug, onTabChange }: TabsProps) {
+export function Tabs({
+  tabs,
+  id,
+  children,
+  activeSlug: controlledActiveSlug,
+  onTabChange,
+}: TabsProps) {
   const params = useParams({ strict: false })
   const framework = 'framework' in params ? params.framework : undefined
 
@@ -26,13 +32,16 @@ export function Tabs({ tabs, id, children, activeSlug: controlledActiveSlug, onT
 
   // Use controlled state if provided, otherwise use internal state
   const activeSlug = controlledActiveSlug ?? internalActiveSlug
-  const setActiveSlug = React.useCallback((slug: string) => {
-    if (onTabChange) {
-      onTabChange(slug)
-    } else {
-      setInternalActiveSlug(slug)
-    }
-  }, [onTabChange])
+  const setActiveSlug = React.useCallback(
+    (slug: string) => {
+      if (onTabChange) {
+        onTabChange(slug)
+      } else {
+        setInternalActiveSlug(slug)
+      }
+    },
+    [onTabChange],
+  )
 
   return (
     <div className="not-prose my-4">

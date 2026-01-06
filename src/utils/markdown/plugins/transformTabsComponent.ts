@@ -38,7 +38,6 @@ function parseAttributes(node: HastNode): Record<string, string> {
   return {}
 }
 
-
 function resolveMode(attributes: Record<string, string>): InstallMode {
   const mode = attributes.mode?.toLowerCase()
   return mode === 'dev-install' ? 'dev-install' : 'install'
@@ -189,7 +188,6 @@ function extractTabPanels(node: HastNode): TabExtraction | null {
   if (!tabs.length) {
     return null
   }
-
 
   return { tabs, panels }
 }

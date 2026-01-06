@@ -8,14 +8,15 @@ import { SHOWCASE_USE_CASES, type ShowcaseUseCase } from '~/db/types'
 import { USE_CASE_LABELS } from '~/utils/showcase.client'
 
 interface ShowcaseFilters {
-  libraryId?: string
+  libraryIds?: string[]
   useCases?: ShowcaseUseCase[]
   q?: string
 }
 
 interface ShowcaseTopBarFiltersProps {
   filters: ShowcaseFilters
-  onLibraryChange: (libraryId: string | undefined) => void
+  onLibraryToggle: (libraryId: string) => void
+  onClearLibraries: () => void
   onUseCaseToggle: (useCase: ShowcaseUseCase) => void
   onClearUseCases: () => void
   onClearFilters: () => void
@@ -32,20 +33,17 @@ const LIBRARY_OPTIONS = libraries
 
 export function ShowcaseTopBarFilters({
   filters,
-  onLibraryChange,
+  onLibraryToggle,
+  onClearLibraries,
   onUseCaseToggle,
   onClearUseCases,
   onClearFilters,
   onSearchChange,
 }: ShowcaseTopBarFiltersProps) {
   const hasActiveFilters =
-    !!filters.libraryId ||
+    (filters.libraryIds && filters.libraryIds.length > 0) ||
     (filters.useCases && filters.useCases.length > 0) ||
     !!filters.q
-
-  const selectedLibrary = LIBRARY_OPTIONS.find(
-    (lib) => lib.id === filters.libraryId,
-  )
 
   return (
     <TopBarFilter
@@ -59,23 +57,18 @@ export function ShowcaseTopBarFilters({
     >
       {/* Library Facet */}
       <FacetFilterButton
-        label={
-          selectedLibrary ? `Library: ${selectedLibrary.label}` : 'Library'
-        }
-        hasSelection={!!filters.libraryId}
-        onClear={() => onLibraryChange(undefined)}
+        label="Library"
+        hasSelection={filters.libraryIds && filters.libraryIds.length > 0}
+        selectionCount={filters.libraryIds?.length}
+        onClear={onClearLibraries}
       >
         <div className="space-y-0.5">
           {LIBRARY_OPTIONS.map((lib) => (
             <FilterCheckbox
               key={lib.id}
               label={lib.label}
-              checked={filters.libraryId === lib.id}
-              onChange={() =>
-                onLibraryChange(
-                  filters.libraryId === lib.id ? undefined : lib.id,
-                )
-              }
+              checked={filters.libraryIds?.includes(lib.id) ?? false}
+              onChange={() => onLibraryToggle(lib.id)}
             />
           ))}
         </div>

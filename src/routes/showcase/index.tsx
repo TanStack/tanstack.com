@@ -3,14 +3,14 @@ import * as v from 'valibot'
 import { seo } from '~/utils/seo'
 import { ShowcaseGallery } from '~/components/ShowcaseGallery'
 import { getApprovedShowcasesQueryOptions } from '~/queries/showcases'
-import { showcaseUseCaseSchema } from '~/utils/schemas'
+import { libraryIdSchema, showcaseUseCaseSchema } from '~/utils/schemas'
 
 export const Route = createFileRoute('/showcase/')({
   validateSearch: (search) => {
     const parsed = v.parse(
       v.object({
         page: v.optional(v.number(), 1),
-        libraryId: v.optional(v.string()),
+        libraryIds: v.optional(v.array(libraryIdSchema)),
         useCases: v.optional(v.array(showcaseUseCaseSchema)),
         q: v.optional(v.string()),
       }),
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/showcase/')({
   },
   loaderDeps: ({ search }) => ({
     page: search.page,
-    libraryId: search.libraryId,
+    libraryIds: search.libraryIds,
     useCases: search.useCases,
     q: search.q,
   }),
@@ -33,8 +33,8 @@ export const Route = createFileRoute('/showcase/')({
           pageSize: 24,
         },
         filters: {
-          libraryId: deps.libraryId,
-          useCases: deps.useCases as any,
+          libraryIds: deps.libraryIds,
+          useCases: deps.useCases,
           q: deps.q,
         },
       }),

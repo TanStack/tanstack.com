@@ -9,6 +9,7 @@
 
 import { getRequest } from '@tanstack/react-start/server'
 import { getAuthService, getSessionService } from '~/auth/index.server'
+import { recordDailyActivity } from './activity.server'
 
 /**
  * Get current user from request
@@ -29,6 +30,11 @@ export async function getAuthenticatedUser() {
   if (!user) {
     throw new Error('Not authenticated')
   }
+
+  // Record daily activity for streak tracking (fire and forget)
+  recordDailyActivity(user.userId).catch(() => {
+    // Silently ignore errors to not break auth flow
+  })
 
   return user
 }

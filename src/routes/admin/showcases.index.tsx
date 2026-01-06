@@ -27,7 +27,7 @@ export const Route = createFileRoute('/admin/showcases/')({
           50,
         ),
         status: v.optional(v.array(showcaseStatusSchema)),
-        libraryId: v.optional(libraryIdSchema),
+        libraryId: v.optional(v.array(libraryIdSchema)),
         isFeatured: v.optional(v.boolean()),
       }),
       search,

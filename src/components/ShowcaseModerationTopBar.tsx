@@ -13,12 +13,12 @@ import {
 interface ShowcaseModerationTopBarProps {
   filters: {
     status?: ShowcaseStatus[]
-    libraryId?: string
+    libraryId?: string[]
     isFeatured?: boolean
   }
   onFilterChange: (filters: {
     status?: ShowcaseStatus[]
-    libraryId?: string
+    libraryId?: string[]
     isFeatured?: boolean
   }) => void
 }
@@ -41,8 +41,12 @@ export function ShowcaseModerationTopBar({
     onFilterChange({ status: updated.length > 0 ? updated : undefined })
   }
 
-  const handleLibraryChange = (libraryId: string | undefined) => {
-    onFilterChange({ libraryId })
+  const toggleLibrary = (libraryId: string) => {
+    const current = filters.libraryId || []
+    const updated = current.includes(libraryId)
+      ? current.filter((l) => l !== libraryId)
+      : [...current, libraryId]
+    onFilterChange({ libraryId: updated.length > 0 ? updated : undefined })
   }
 
   const handleFeaturedChange = (value: boolean | undefined) => {
@@ -81,9 +85,12 @@ export function ShowcaseModerationTopBar({
           onRemove={() => onFilterChange({ status: undefined })}
         />
       )}
-      {filters.libraryId && (
+      {filters.libraryId && filters.libraryId.length > 0 && (
         <FilterChip
-          label={`Library: ${getLibraryName(filters.libraryId)}`}
+          label={getFilterChipLabel(
+            'Library',
+            filters.libraryId.map((id) => getLibraryName(id)),
+          )}
           onRemove={() => onFilterChange({ libraryId: undefined })}
         />
       )}
@@ -115,19 +122,27 @@ export function ShowcaseModerationTopBar({
         </FilterDropdownSection>
 
         {/* Library Filter */}
-        <FilterDropdownSection title="Library" defaultExpanded>
-          <select
-            value={filters.libraryId || ''}
-            onChange={(e) => handleLibraryChange(e.target.value || undefined)}
-            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Libraries</option>
-            {libraries.map((lib) => (
-              <option key={lib.id} value={lib.id}>
-                {lib.name}
-              </option>
-            ))}
-          </select>
+        <FilterDropdownSection
+          title="Library"
+          defaultExpanded
+          onSelectAll={() =>
+            onFilterChange({ libraryId: libraries.map((l) => l.id) })
+          }
+          onSelectNone={() => onFilterChange({ libraryId: undefined })}
+          isAllSelected={filters.libraryId?.length === libraries.length}
+          isSomeSelected={
+            (filters.libraryId?.length ?? 0) > 0 &&
+            (filters.libraryId?.length ?? 0) < libraries.length
+          }
+        >
+          {libraries.map((lib) => (
+            <FilterCheckbox
+              key={lib.id}
+              label={lib.name}
+              checked={filters.libraryId?.includes(lib.id) || false}
+              onChange={() => toggleLibrary(lib.id)}
+            />
+          ))}
         </FilterDropdownSection>
 
         {/* Featured Filter */}

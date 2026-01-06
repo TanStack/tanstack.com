@@ -17,7 +17,7 @@ export interface ShowcasePagination {
 
 export interface ShowcaseFilters {
   status?: ShowcaseStatus[]
-  libraryId?: string
+  libraryId?: string[]
   useCases?: ShowcaseUseCase[]
   userId?: string
   isFeatured?: boolean

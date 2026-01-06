@@ -63,7 +63,15 @@ export function FeedPage({
       const saved = localStorage.getItem('feedFilters')
       if (saved) {
         try {
-          setSavedFilters(JSON.parse(saved))
+          const parsed = JSON.parse(saved)
+          // Convert null values back to undefined (they were nullified for JSON serialization)
+          const restored = Object.fromEntries(
+            Object.entries(parsed).map(([k, v]) => [
+              k,
+              v === null ? undefined : v,
+            ]),
+          )
+          setSavedFilters(restored as typeof search)
         } catch {
           // Ignore parse errors
         }
@@ -75,9 +83,11 @@ export function FeedPage({
     }
   }, [mounted])
 
-  // Merge saved filters with URL params (URL params take precedence)
+  // Use search params directly - savedFilters is only used to restore preferences
+  // when navigating back to the page (the filters are already in the URL from the
+  // previous save). We only fall back to savedFilters for viewMode since that's
+  // not always in the URL.
   const effectiveFilters = {
-    ...savedFilters,
     ...search,
     viewMode:
       search.viewMode ??
@@ -156,9 +166,22 @@ export function FeedPage({
     })
 
     // Save to localStorage
+    // Note: JSON.stringify strips undefined values, so we need to explicitly
+    // null out fields that are being cleared to overwrite saved values
     if (typeof window !== 'undefined') {
-      const updatedFilters = { ...search, ...newFilters, page: 1 }
-      localStorage.setItem('feedFilters', JSON.stringify(updatedFilters))
+      const updatedFilters = {
+        ...search,
+        ...newFilters,
+        page: 1,
+      }
+      // Convert undefined to null for JSON serialization, then back on parse
+      const forStorage = Object.fromEntries(
+        Object.entries(updatedFilters).map(([k, v]) => [
+          k,
+          v === undefined ? null : v,
+        ]),
+      )
+      localStorage.setItem('feedFilters', JSON.stringify(forStorage))
       setSavedFilters(updatedFilters)
     }
   }

@@ -79,6 +79,7 @@ export function FeedTopBarFilters({
 
   React.useEffect(() => {
     onFiltersChange({ search: debouncedSearch || undefined })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch])
 
   React.useEffect(() => {

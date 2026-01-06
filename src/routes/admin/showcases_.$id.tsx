@@ -1,6 +1,13 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { adminGetShowcase, moderateShowcase } from '~/utils/showcase.functions'
+import { useState } from 'react'
+import {
+  adminGetShowcase,
+  moderateShowcase,
+  adminUpdateShowcase,
+  adminDeleteShowcase,
+  voteShowcase,
+} from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
 import { USE_CASE_LABELS } from '~/utils/showcase.client'
 import {
@@ -15,11 +22,21 @@ import {
   Clock,
   ThumbsUp,
   ThumbsDown,
+  Pencil,
+  Trash2,
+  Save,
+  RotateCcw,
 } from 'lucide-react'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
+import { ImageUpload } from '~/components/ImageUpload'
 import { format } from '~/utils/dates'
-import type { ShowcaseUseCase } from '~/db/types'
+import {
+  SHOWCASE_STATUSES,
+  SHOWCASE_USE_CASES,
+  type ShowcaseUseCase,
+  type ShowcaseStatus,
+} from '~/db/types'
 
 export const Route = createFileRoute('/admin/showcases_/$id')({
   component: ShowcaseDetailPage,
@@ -27,7 +44,24 @@ export const Route = createFileRoute('/admin/showcases_/$id')({
 
 function ShowcaseDetailPage() {
   const { id } = Route.useParams()
+  const navigate = Route.useNavigate()
   const queryClient = useQueryClient()
+  const [isEditing, setIsEditing] = useState(false)
+  const [formData, setFormData] = useState<{
+    name: string
+    tagline: string
+    description: string
+    url: string
+    logoUrl: string
+    screenshotUrl: string
+    libraries: string[]
+    useCases: ShowcaseUseCase[]
+    status: ShowcaseStatus
+    isFeatured: boolean
+    moderationNote: string
+    trancoRank: number | null
+    voteScore: number
+  } | null>(null)
 
   const showcaseQuery = useQuery({
     queryKey: ['admin', 'showcase', id],
@@ -51,6 +85,90 @@ function ShowcaseDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['admin', 'showcases'] })
     },
   })
+
+  const updateMutation = useMutation({
+    mutationFn: (data: Parameters<typeof adminUpdateShowcase>[0]['data']) =>
+      adminUpdateShowcase({ data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'showcase', id] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'showcases'] })
+      setIsEditing(false)
+      setFormData(null)
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: () => adminDeleteShowcase({ data: { showcaseId: id } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'showcases'] })
+      navigate({ to: '/admin/showcases' })
+    },
+  })
+
+  const voteMutation = useMutation({
+    mutationFn: (params: { value: 1 | -1 }) =>
+      voteShowcase({ data: { showcaseId: id, value: params.value } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'showcase', id] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'showcases'] })
+    },
+  })
+
+  const startEditing = () => {
+    if (!showcaseQuery.data) return
+    const { showcase } = showcaseQuery.data
+    setFormData({
+      name: showcase.name,
+      tagline: showcase.tagline,
+      description: showcase.description || '',
+      url: showcase.url,
+      logoUrl: showcase.logoUrl || '',
+      screenshotUrl: showcase.screenshotUrl,
+      libraries: showcase.libraries,
+      useCases: showcase.useCases,
+      status: showcase.status,
+      isFeatured: showcase.isFeatured,
+      moderationNote: showcase.moderationNote || '',
+      trancoRank: showcase.trancoRank,
+      voteScore: showcase.voteScore,
+    })
+    setIsEditing(true)
+  }
+
+  const cancelEditing = () => {
+    setIsEditing(false)
+    setFormData(null)
+  }
+
+  const handleSave = () => {
+    if (!formData) return
+    updateMutation.mutate({
+      showcaseId: id,
+      name: formData.name,
+      tagline: formData.tagline,
+      description: formData.description || null,
+      url: formData.url,
+      logoUrl: formData.logoUrl || null,
+      screenshotUrl: formData.screenshotUrl,
+      libraries: formData.libraries,
+      useCases: formData.useCases,
+      status: formData.status,
+      isFeatured: formData.isFeatured,
+      moderationNote: formData.moderationNote || null,
+      trancoRank: formData.trancoRank,
+      voteScore: formData.voteScore,
+    })
+  }
+
+  const handleDelete = () => {
+    if (
+      confirm(
+        'Are you sure you want to delete this showcase? This cannot be undone.',
+      )
+    ) {
+      deleteMutation.mutate()
+    }
+  }
 
   if (showcaseQuery.isLoading) {
     return (
@@ -90,7 +208,22 @@ function ShowcaseDetailPage() {
   }
 
   const { showcase, user } = data
-  const showcaseLibraries = showcase.libraries
+  const displayData = formData || {
+    name: showcase.name,
+    tagline: showcase.tagline,
+    description: showcase.description || '',
+    url: showcase.url,
+    logoUrl: showcase.logoUrl || '',
+    screenshotUrl: showcase.screenshotUrl,
+    libraries: showcase.libraries,
+    useCases: showcase.useCases,
+    status: showcase.status,
+    isFeatured: showcase.isFeatured,
+    moderationNote: showcase.moderationNote || '',
+    trancoRank: showcase.trancoRank,
+    voteScore: showcase.voteScore,
+  }
+  const showcaseLibraries = displayData.libraries
     .map((libId: string) => libraries.find((l) => l.id === libId))
     .filter(Boolean)
 
@@ -102,21 +235,85 @@ function ShowcaseDetailPage() {
     denied: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
   }
 
+  const inputClass =
+    'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+  const labelClass =
+    'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'
+
   return (
     <div className="w-full p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <Link
-            to="/admin/showcases"
-            className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Showcases
-          </Link>
+          <div className="flex items-center justify-between mb-4">
+            <Link
+              to="/admin/showcases"
+              className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Showcases
+            </Link>
+            <div className="flex items-center gap-2">
+              {isEditing ? (
+                <>
+                  <Button
+                    onClick={cancelEditing}
+                    disabled={updateMutation.isPending}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSave}
+                    className="bg-green-600 hover:bg-green-700 text-white border-green-600"
+                    disabled={updateMutation.isPending}
+                  >
+                    <Save className="w-4 h-4" />
+                    {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    onClick={startEditing}
+                    className="hover:text-blue-600 hover:border-blue-300 dark:hover:border-blue-700"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Edit
+                  </Button>
+                  <Button
+                    onClick={handleDelete}
+                    className="hover:text-red-600 hover:border-red-300 dark:hover:border-red-700"
+                    disabled={deleteMutation.isPending}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {updateMutation.isError && (
+            <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300 text-sm">
+              {updateMutation.error.message}
+            </div>
+          )}
 
           <div className="flex items-start gap-4">
-            {showcase.logoUrl ? (
+            {isEditing ? (
+              <div className="w-16 h-16 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+                {formData?.logoUrl ? (
+                  <img
+                    src={formData.logoUrl}
+                    alt="Logo preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Sparkles className="w-8 h-8 text-gray-400" />
+                )}
+              </div>
+            ) : showcase.logoUrl ? (
               <img
                 src={showcase.logoUrl}
                 alt={showcase.name}
@@ -128,38 +325,82 @@ function ShowcaseDetailPage() {
               </div>
             )}
             <div className="flex-1">
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {showcase.name}
-                </h1>
-                <span
-                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColors[showcase.status as keyof typeof statusColors]}`}
-                >
-                  {showcase.status}
-                </span>
-                {showcase.isFeatured && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-                    Featured
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {showcase.tagline}
-              </p>
+              {isEditing ? (
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={formData?.name || ''}
+                    onChange={(e) =>
+                      setFormData((prev) =>
+                        prev ? { ...prev, name: e.target.value } : null,
+                      )
+                    }
+                    className={`${inputClass} text-xl font-bold`}
+                    placeholder="Showcase name"
+                  />
+                  <input
+                    type="text"
+                    value={formData?.tagline || ''}
+                    onChange={(e) =>
+                      setFormData((prev) =>
+                        prev ? { ...prev, tagline: e.target.value } : null,
+                      )
+                    }
+                    className={inputClass}
+                    placeholder="Tagline"
+                  />
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {showcase.name}
+                    </h1>
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusColors[showcase.status as keyof typeof statusColors]}`}
+                    >
+                      {showcase.status}
+                    </span>
+                    {showcase.isFeatured && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                        Featured
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {showcase.tagline}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
 
         {/* Screenshot */}
-        {showcase.screenshotUrl && (
-          <Card className="p-4 mb-6">
+        <Card className="p-4 mb-6">
+          {isEditing ? (
+            <ImageUpload
+              value={formData?.screenshotUrl || undefined}
+              onChange={(url) =>
+                setFormData((prev) =>
+                  prev ? { ...prev, screenshotUrl: url || '' } : null,
+                )
+              }
+              label="Screenshot"
+              hint="16:9 aspect ratio recommended"
+              required
+              aspectRatio="video"
+            />
+          ) : showcase.screenshotUrl ? (
             <img
               src={showcase.screenshotUrl}
               alt={`${showcase.name} screenshot`}
               className="w-full rounded-lg"
             />
-          </Card>
-        )}
+          ) : (
+            <div className="text-center py-8 text-gray-500">No screenshot</div>
+          )}
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Basic Info */}
@@ -167,83 +408,189 @@ function ShowcaseDetailPage() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Showcase Details
             </h2>
-            <dl className="space-y-4">
-              <div>
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <LinkIcon className="w-4 h-4" />
-                  URL
-                </dt>
-                <dd className="mt-1">
-                  <a
-                    href={showcase.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1"
-                  >
-                    {showcase.url}
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </dd>
-              </div>
-              {showcase.description && (
+            {isEditing ? (
+              <div className="space-y-4">
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Description
+                  <label className={labelClass}>URL</label>
+                  <input
+                    type="text"
+                    value={formData?.url || ''}
+                    onChange={(e) =>
+                      setFormData((prev) =>
+                        prev ? { ...prev, url: e.target.value } : null,
+                      )
+                    }
+                    className={inputClass}
+                    placeholder="https://..."
+                  />
+                </div>
+                <ImageUpload
+                  value={formData?.logoUrl || undefined}
+                  onChange={(url) =>
+                    setFormData((prev) =>
+                      prev ? { ...prev, logoUrl: url || '' } : null,
+                    )
+                  }
+                  label="Logo"
+                  hint="Optional: Square logo for your project"
+                  aspectRatio="square"
+                  size="small"
+                />
+                <div>
+                  <label className={labelClass}>Description (optional)</label>
+                  <textarea
+                    value={formData?.description || ''}
+                    onChange={(e) =>
+                      setFormData((prev) =>
+                        prev ? { ...prev, description: e.target.value } : null,
+                      )
+                    }
+                    className={`${inputClass} min-h-[100px]`}
+                    placeholder="Describe the showcase..."
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Tranco Rank</label>
+                  <input
+                    type="number"
+                    value={formData?.trancoRank ?? ''}
+                    onChange={(e) =>
+                      setFormData((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              trancoRank: e.target.value
+                                ? parseInt(e.target.value, 10)
+                                : null,
+                            }
+                          : null,
+                      )
+                    }
+                    className={inputClass}
+                    placeholder="e.g. 1000"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Lower = more popular. Leave empty for unranked.
+                  </p>
+                </div>
+                <div>
+                  <label className={labelClass}>Vote Score</label>
+                  <input
+                    type="number"
+                    value={formData?.voteScore ?? 0}
+                    onChange={(e) =>
+                      setFormData((prev) =>
+                        prev
+                          ? {
+                              ...prev,
+                              voteScore: parseInt(e.target.value, 10) || 0,
+                            }
+                          : null,
+                      )
+                    }
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+            ) : (
+              <dl className="space-y-4">
+                <div>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    <LinkIcon className="w-4 h-4" />
+                    URL
                   </dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
-                    {showcase.description}
+                  <dd className="mt-1">
+                    <a
+                      href={showcase.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 flex items-center gap-1"
+                    >
+                      {showcase.url}
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
                   </dd>
                 </div>
-              )}
-              <div>
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  Submitted
-                </dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                  {format(new Date(showcase.createdAt), 'PPpp')}
-                </dd>
-              </div>
-              {showcase.trancoRank && (
+                {showcase.description && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Description
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-white whitespace-pre-wrap">
+                      {showcase.description}
+                    </dd>
+                  </div>
+                )}
                 <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Tranco Rank
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Submitted
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white">
-                    #{showcase.trancoRank.toLocaleString()}
+                    {format(new Date(showcase.createdAt), 'PPpp')}
                   </dd>
                 </div>
-              )}
-              <div>
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                  {showcase.voteScore >= 0 ? (
-                    <ThumbsUp className="w-4 h-4" />
-                  ) : (
-                    <ThumbsDown className="w-4 h-4" />
-                  )}
-                  Community Votes
-                </dt>
-                <dd className="mt-1">
-                  <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium ${
-                      showcase.voteScore > 0
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                        : showcase.voteScore < 0
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                    }`}
-                  >
-                    {showcase.voteScore > 0 ? '+' : ''}
-                    {showcase.voteScore}
-                  </span>
-                  {showcase.voteScore < 0 && (
-                    <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                      Negative score may indicate community concerns
-                    </p>
-                  )}
-                </dd>
-              </div>
-            </dl>
+                {showcase.trancoRank && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Tranco Rank
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 dark:text-white">
+                      #{showcase.trancoRank.toLocaleString()}
+                    </dd>
+                  </div>
+                )}
+                <div>
+                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    {showcase.voteScore >= 0 ? (
+                      <ThumbsUp className="w-4 h-4" />
+                    ) : (
+                      <ThumbsDown className="w-4 h-4" />
+                    )}
+                    Community Votes
+                  </dt>
+                  <dd className="mt-1">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => voteMutation.mutate({ value: 1 })}
+                        disabled={voteMutation.isPending}
+                        className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-gray-500 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                        title="Upvote"
+                      >
+                        <ThumbsUp className="w-4 h-4" />
+                      </button>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium ${
+                          showcase.voteScore > 0
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                            : showcase.voteScore < 0
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                        }`}
+                      >
+                        {showcase.voteScore > 0 ? '+' : ''}
+                        {showcase.voteScore}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => voteMutation.mutate({ value: -1 })}
+                        disabled={voteMutation.isPending}
+                        className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        title="Downvote"
+                      >
+                        <ThumbsDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {showcase.voteScore < 0 && (
+                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                        Negative score may indicate community concerns
+                      </p>
+                    )}
+                  </dd>
+                </div>
+              </dl>
+            )}
           </Card>
 
           {/* Submitter */}
@@ -287,16 +634,46 @@ function ShowcaseDetailPage() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Libraries Used
             </h2>
-            <div className="flex flex-wrap gap-2">
-              {showcaseLibraries.map((lib: any) => (
-                <span
-                  key={lib.id}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                >
-                  {lib.name}
-                </span>
-              ))}
-            </div>
+            {isEditing ? (
+              <div className="flex flex-wrap gap-2">
+                {libraries.map((lib) => {
+                  const isSelected = formData?.libraries.includes(lib.id)
+                  return (
+                    <button
+                      key={lib.id}
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => {
+                          if (!prev) return null
+                          const newLibs = isSelected
+                            ? prev.libraries.filter((l) => l !== lib.id)
+                            : [...prev.libraries, lib.id]
+                          return { ...prev, libraries: newLibs }
+                        })
+                      }
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                        isSelected
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      {lib.name}
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {showcaseLibraries.map((lib) => (
+                  <span
+                    key={lib!.id}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                  >
+                    {lib!.name}
+                  </span>
+                ))}
+              </div>
+            )}
           </Card>
 
           {/* Use Cases */}
@@ -304,27 +681,128 @@ function ShowcaseDetailPage() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Use Cases
             </h2>
-            <div className="flex flex-wrap gap-2">
-              {showcase.useCases && showcase.useCases.length > 0 ? (
-                showcase.useCases.map((useCase: ShowcaseUseCase) => (
-                  <span
-                    key={useCase}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-                  >
-                    {USE_CASE_LABELS[useCase] || useCase}
+            {isEditing ? (
+              <div className="flex flex-wrap gap-2">
+                {SHOWCASE_USE_CASES.map((useCase) => {
+                  const isSelected = formData?.useCases.includes(useCase)
+                  return (
+                    <button
+                      key={useCase}
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => {
+                          if (!prev) return null
+                          const newUseCases = isSelected
+                            ? prev.useCases.filter((uc) => uc !== useCase)
+                            : [...prev.useCases, useCase]
+                          return { ...prev, useCases: newUseCases }
+                        })
+                      }
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                        isSelected
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      {USE_CASE_LABELS[useCase] || useCase}
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {showcase.useCases && showcase.useCases.length > 0 ? (
+                  showcase.useCases.map((useCase: ShowcaseUseCase) => (
+                    <span
+                      key={useCase}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                    >
+                      {USE_CASE_LABELS[useCase] || useCase}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    None specified
                   </span>
-                ))
-              ) : (
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  None specified
-                </span>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </Card>
         </div>
 
+        {/* Status & Featured (edit mode only) */}
+        {isEditing && (
+          <Card className="p-6 mt-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Status & Visibility
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Status</label>
+                <select
+                  value={formData?.status || 'pending'}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev
+                        ? { ...prev, status: e.target.value as ShowcaseStatus }
+                        : null,
+                    )
+                  }
+                  className={inputClass}
+                >
+                  {SHOWCASE_STATUSES.map((status) => (
+                    <option key={status} value={status}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Featured</label>
+                <div className="flex items-center gap-3 mt-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormData((prev) =>
+                        prev ? { ...prev, isFeatured: !prev.isFeatured } : null,
+                      )
+                    }
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      formData?.isFeatured
+                        ? 'bg-purple-600'
+                        : 'bg-gray-300 dark:bg-gray-600'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        formData?.isFeatured ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {formData?.isFeatured ? 'Featured' : 'Not featured'}
+                  </span>
+                </div>
+              </div>
+              <div className="md:col-span-2">
+                <label className={labelClass}>Moderation Note (optional)</label>
+                <textarea
+                  value={formData?.moderationNote || ''}
+                  onChange={(e) =>
+                    setFormData((prev) =>
+                      prev ? { ...prev, moderationNote: e.target.value } : null,
+                    )
+                  }
+                  className={`${inputClass} min-h-[80px]`}
+                  placeholder="Add a note about this moderation decision..."
+                />
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Moderation Actions */}
-        {showcase.status === 'pending' && (
+        {!isEditing && showcase.status === 'pending' && (
           <Card className="p-6 mt-6">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Clock className="w-5 h-5" />
@@ -334,9 +812,9 @@ function ShowcaseDetailPage() {
               <Button
                 onClick={() => moderateMutation.mutate({ action: 'approve' })}
                 disabled={moderateMutation.isPending}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 text-white border-green-600"
               >
-                <Check className="w-4 h-4 mr-2" />
+                <Check className="w-4 h-4" />
                 Approve
               </Button>
               <Button
@@ -347,9 +825,9 @@ function ShowcaseDetailPage() {
                   })
                 }
                 disabled={moderateMutation.isPending}
-                className="bg-red-600 hover:bg-red-700"
+                className="hover:text-red-600 hover:border-red-300 dark:hover:border-red-700"
               >
-                <X className="w-4 h-4 mr-2" />
+                <X className="w-4 h-4" />
                 Deny
               </Button>
             </div>
@@ -357,33 +835,35 @@ function ShowcaseDetailPage() {
         )}
 
         {/* Moderation Info */}
-        {showcase.status !== 'pending' && showcase.moderatedAt && (
-          <Card className="p-6 mt-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Moderation Info
-            </h2>
-            <dl className="space-y-2">
-              <div>
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Moderated At
-                </dt>
-                <dd className="text-sm text-gray-900 dark:text-white">
-                  {format(new Date(showcase.moderatedAt), 'PPpp')}
-                </dd>
-              </div>
-              {showcase.moderationNote && (
+        {!isEditing &&
+          showcase.status !== 'pending' &&
+          showcase.moderatedAt && (
+            <Card className="p-6 mt-6">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Moderation Info
+              </h2>
+              <dl className="space-y-2">
                 <div>
                   <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Note
+                    Moderated At
                   </dt>
                   <dd className="text-sm text-gray-900 dark:text-white">
-                    {showcase.moderationNote}
+                    {format(new Date(showcase.moderatedAt), 'PPpp')}
                   </dd>
                 </div>
-              )}
-            </dl>
-          </Card>
-        )}
+                {showcase.moderationNote && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Note
+                    </dt>
+                    <dd className="text-sm text-gray-900 dark:text-white">
+                      {showcase.moderationNote}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </Card>
+          )}
 
         {/* Related */}
         <Card className="p-6 mt-6">

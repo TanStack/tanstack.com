@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/db/client'
 import { users } from '~/db/schema'
-import { eq, and, or, ilike, sql } from 'drizzle-orm'
+import { eq, and, or, ilike, sql, asc, desc } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getBulkEffectiveCapabilities } from './capabilities.server'
 import { recordAuditLog } from './audit.server'
@@ -50,6 +50,8 @@ export const listUsers = createServerFn({ method: 'POST' })
         adsDisabledFilter: v.optional(v.boolean()),
         interestedInHidingAdsFilter: v.optional(v.boolean()),
         useEffectiveCapabilities: v.optional(v.boolean(), true),
+        sortBy: v.optional(v.string()),
+        sortDir: v.optional(v.picklist(['asc', 'desc'])),
       }),
       v.transform((data) => ({
         ...data,
@@ -130,6 +132,22 @@ export const listUsers = createServerFn({ method: 'POST' })
     // Get filtered users with proper SQL pagination
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
+    // Build order by clause
+    const getOrderByClause = () => {
+      const dir = data.sortDir === 'asc' ? asc : desc
+      switch (data.sortBy) {
+        case 'email':
+          return dir(users.email)
+        case 'user':
+          return dir(users.name)
+        case 'createdAt':
+          return dir(users.createdAt)
+        default:
+          return desc(users.createdAt)
+      }
+    }
+    const orderByClause = getOrderByClause()
+
     const queryStartTime = Date.now()
 
     // If filtering by effective capabilities, we need to fetch all matching users first,
@@ -146,7 +164,7 @@ export const listUsers = createServerFn({ method: 'POST' })
         .select()
         .from(users)
         .where(whereClause)
-        .orderBy(sql`${users.createdAt} DESC`)
+        .orderBy(orderByClause)
 
       // Get effective capabilities for all matching users
       const userIds = allMatchingUsers.map((u) => u.id)
@@ -249,7 +267,7 @@ export const listUsers = createServerFn({ method: 'POST' })
         .select()
         .from(users)
         .where(whereClause)
-        .orderBy(sql`${users.createdAt} DESC`)
+        .orderBy(orderByClause)
         .limit(limit)
         .offset(offset)
 

@@ -1,10 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import {
-  FilterBar,
-  FilterSearch,
-  FilterCheckbox,
-  FilterSection,
-} from '~/components/FilterComponents'
+import { RolesTopBarFilters } from '~/components/RolesTopBarFilters'
 import {
   Table,
   TableHeader,
@@ -85,19 +80,6 @@ function RolesPage() {
     [search.cap],
   )
 
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >({
-    capabilities: true,
-  })
-
-  const toggleSection = (section: string) => {
-    setExpandedSections((prev: Record<string, boolean>) => ({
-      ...prev,
-      [section]: !prev[section],
-    }))
-  }
-
   const hasActiveFilters = nameFilter !== '' || capabilityFilters.length > 0
 
   const handleClearFilters = () => {
@@ -107,73 +89,18 @@ function RolesPage() {
     })
   }
 
-  const renderFilterContent = () => (
-    <>
-      {/* Name Filter */}
-      <div className="mb-2">
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2"
-        >
-          Name / Description
-        </label>
-        <FilterSearch
-          value={nameFilter}
-          onChange={(value) => {
-            navigate({
-              resetScroll: false,
-              search: (prev: any) => ({
-                ...prev,
-                name: value || undefined,
-              }),
-            })
-          }}
-          placeholder="Filter by name or description"
-        />
-      </div>
-
-      {/* Capabilities Filter */}
-      <FilterSection
-        title="Capabilities"
-        sectionKey="capabilities"
-        onSelectAll={() => {
-          navigate({
-            resetScroll: false,
-            search: (prev: any) => ({
-              ...prev,
-              cap: availableCapabilities,
-            }),
-          })
-        }}
-        onSelectNone={() => {
-          navigate({
-            resetScroll: false,
-            search: (prev: any) => ({
-              ...prev,
-              cap: undefined,
-            }),
-          })
-        }}
-        isAllSelected={
-          capabilityFilters.length === availableCapabilities.length
-        }
-        isSomeSelected={
-          capabilityFilters.length > 0 &&
-          capabilityFilters.length < availableCapabilities.length
-        }
-        expandedSections={expandedSections}
-        onToggleSection={toggleSection}
-      >
-        {availableCapabilities.map((cap) => (
-          <FilterCheckbox
-            key={cap}
-            label={cap}
-            checked={capabilityFilters.includes(cap)}
-            onChange={() => handleCapabilityFilterToggle(cap)}
-          />
-        ))}
-      </FilterSection>
-    </>
+  const handleFiltersChange = useCallback(
+    (newFilters: { name?: string; capabilities?: string[] }) => {
+      navigate({
+        resetScroll: false,
+        search: (prev: any) => ({
+          ...prev,
+          name: newFilters.name,
+          cap: newFilters.capabilities,
+        }),
+      })
+    },
+    [navigate],
   )
 
   const userQuery = useCurrentUserQuery()
@@ -531,87 +458,65 @@ function RolesPage() {
 
   return (
     <div className="w-full p-4">
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Sidebar Filters */}
-        <aside className="lg:w-64 lg:flex-shrink-0">
-          <FilterBar
-            title="Filters"
-            onClearFilters={handleClearFilters}
-            hasActiveFilters={hasActiveFilters}
-          >
-            {renderFilterContent()}
-
-            {/* Test Email Section */}
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-                Test Email Notifications
-              </h3>
-              <div className="space-y-3">
-                <select
-                  value={testEmailCapability}
-                  onChange={(e) =>
-                    setTestEmailCapability(e.target.value as Capability)
-                  }
-                  className="w-full px-3 py-2 text-sm border rounded-md bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
-                >
-                  {VALID_CAPABILITIES.filter(
-                    (cap) => cap === 'admin' || cap.startsWith('moderate-'),
-                  ).map((cap) => (
-                    <option key={cap} value={cap}>
-                      {cap}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={handleSendTestEmail}
-                  disabled={testEmailStatus.loading}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
-                >
-                  <Mail className="w-4 h-4" />
-                  {testEmailStatus.loading ? 'Sending...' : 'Send Test Email'}
-                </button>
-                {testEmailStatus.result && (
-                  <div
-                    className={`text-xs p-2 rounded ${
-                      testEmailStatus.result.success
-                        ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
-                        : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
-                    }`}
-                  >
-                    {testEmailStatus.result.success ? (
-                      <>Sent to: {testEmailStatus.result.emails.join(', ')}</>
-                    ) : (
-                      <>{testEmailStatus.result.error}</>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </FilterBar>
-        </aside>
-
-        {/* Main Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Manage Roles
-              </h1>
-              {rolesQuery.isFetching && (
-                <Spinner className="text-gray-500 dark:text-gray-400" />
-              )}
-            </div>
-            {!isCreating && (
-              <button
-                onClick={handleCreateRole}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Create Role
-              </button>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Manage Roles
+            </h1>
+            {rolesQuery.isFetching && (
+              <Spinner className="text-gray-500 dark:text-gray-400" />
             )}
           </div>
+          {!isCreating && (
+            <button
+              onClick={handleCreateRole}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Create Role
+            </button>
+          )}
+        </div>
 
+        <RolesTopBarFilters
+          filters={{
+            name: nameFilter || undefined,
+            capabilities:
+              capabilityFilters.length > 0 ? capabilityFilters : undefined,
+          }}
+          onFilterChange={handleFiltersChange}
+          onClearFilters={handleClearFilters}
+          extraContent={
+            <div className="flex items-center gap-2">
+              <select
+                value={testEmailCapability}
+                onChange={(e) =>
+                  setTestEmailCapability(e.target.value as Capability)
+                }
+                className="px-2 py-1.5 text-sm border rounded-lg bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
+              >
+                {VALID_CAPABILITIES.filter(
+                  (cap) => cap === 'admin' || cap.startsWith('moderate-'),
+                ).map((cap) => (
+                  <option key={cap} value={cap}>
+                    {cap}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleSendTestEmail}
+                disabled={testEmailStatus.loading}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
+              >
+                <Mail className="w-4 h-4" />
+                {testEmailStatus.loading ? 'Sending...' : 'Test Email'}
+              </button>
+            </div>
+          }
+        />
+
+        <div className="flex-1 min-w-0">
           {isCreating && (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 mb-4">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">

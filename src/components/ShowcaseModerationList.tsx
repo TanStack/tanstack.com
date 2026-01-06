@@ -57,6 +57,7 @@ interface ShowcaseModerationListProps {
   ) => void
   onToggleFeatured: (showcaseId: string, isFeatured: boolean) => void
   onDelete: (showcaseId: string) => void
+  onVote: (showcaseId: string, value: 1 | -1) => void
   isModeratingId?: string
 }
 
@@ -73,6 +74,7 @@ export function ShowcaseModerationList({
   onModerate,
   onToggleFeatured,
   onDelete,
+  onVote,
   isModeratingId,
 }: ShowcaseModerationListProps) {
   const [expandedIds, setExpandedIds] = React.useState<Set<string>>(new Set())
@@ -124,6 +126,39 @@ export function ShowcaseModerationList({
     totalPages: 0,
   }
 
+  // Compute display rank for approved showcases based on actual display order:
+  // 1. Featured first, 2. Vote score desc, 3. Tranco rank asc (nulls last), 4. Created date desc
+  const approvedShowcases = showcaseList
+    .filter((e) => e.showcase.status === 'approved')
+    .sort((a, b) => {
+      // Featured first
+      if (a.showcase.isFeatured !== b.showcase.isFeatured) {
+        return a.showcase.isFeatured ? -1 : 1
+      }
+      // Vote score desc
+      if (a.showcase.voteScore !== b.showcase.voteScore) {
+        return b.showcase.voteScore - a.showcase.voteScore
+      }
+      // Tranco rank asc (nulls last)
+      const aRank = a.showcase.trancoRank
+      const bRank = b.showcase.trancoRank
+      if (aRank !== bRank) {
+        if (aRank === null) return 1
+        if (bRank === null) return -1
+        return aRank - bRank
+      }
+      // Created date desc
+      return (
+        new Date(b.showcase.createdAt).getTime() -
+        new Date(a.showcase.createdAt).getTime()
+      )
+    })
+
+  const displayRankMap = new Map<string, number>()
+  approvedShowcases.forEach((entry, index) => {
+    displayRankMap.set(entry.showcase.id, index + 1)
+  })
+
   if (isLoading) {
     return (
       <div className="text-center py-12">
@@ -157,7 +192,8 @@ export function ShowcaseModerationList({
             <TableHeaderCell>Libraries</TableHeaderCell>
             <TableHeaderCell className="w-20">Featured</TableHeaderCell>
             <TableHeaderCell className="w-20">Votes</TableHeaderCell>
-            <TableHeaderCell className="w-24">Rank</TableHeaderCell>
+            <TableHeaderCell className="w-20">Display</TableHeaderCell>
+            <TableHeaderCell className="w-24">Tranco</TableHeaderCell>
             <TableHeaderCell className="w-32">Date</TableHeaderCell>
             <TableHeaderCell className="w-40">Actions</TableHeaderCell>
           </TableHeaderRow>
@@ -179,12 +215,7 @@ export function ShowcaseModerationList({
                     {(page - 1) * pageSize + index + 1}
                   </TableCell>
                   <TableCell>
-                    <Link
-                      to="/admin/showcases/$id"
-                      params={{ id: showcase.id }}
-                      className="flex items-center gap-3 hover:opacity-80"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <div className="flex items-center gap-3">
                       {showcase.logoUrl && (
                         <img
                           src={showcase.logoUrl}
@@ -193,14 +224,19 @@ export function ShowcaseModerationList({
                         />
                       )}
                       <div>
-                        <div className="font-medium text-sm">
+                        <Link
+                          to="/admin/showcases/$id"
+                          params={{ id: showcase.id }}
+                          className="font-medium text-sm hover:text-blue-600 dark:hover:text-blue-400"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           {showcase.name}
-                        </div>
+                        </Link>
                         <div className="text-xs text-gray-500 truncate max-w-[200px]">
                           {showcase.tagline}
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <span
@@ -271,32 +307,46 @@ export function ShowcaseModerationList({
                       />
                     </button>
                   </TableCell>
-                  <TableCell>
-                    <div
-                      className={twMerge(
-                        'flex items-center gap-1 text-xs font-medium',
-                        showcase.voteScore > 0 &&
-                          'text-emerald-600 dark:text-emerald-400',
-                        showcase.voteScore < 0 &&
-                          'text-red-600 dark:text-red-400',
-                        showcase.voteScore === 0 &&
-                          'text-gray-400 dark:text-gray-500',
-                      )}
-                    >
-                      {showcase.voteScore > 0 ? (
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center gap-0.5">
+                      <button
+                        onClick={() => onVote(showcase.id, 1)}
+                        className="p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                        title="Upvote"
+                      >
                         <ThumbsUp className="w-3.5 h-3.5" />
-                      ) : showcase.voteScore < 0 ? (
+                      </button>
+                      <span
+                        className={twMerge(
+                          'text-xs font-medium min-w-[24px] text-center',
+                          showcase.voteScore > 0 &&
+                            'text-emerald-600 dark:text-emerald-400',
+                          showcase.voteScore < 0 &&
+                            'text-red-600 dark:text-red-400',
+                          showcase.voteScore === 0 &&
+                            'text-gray-400 dark:text-gray-500',
+                        )}
+                      >
+                        {showcase.voteScore > 0 ? '+' : ''}
+                        {showcase.voteScore}
+                      </span>
+                      <button
+                        onClick={() => onVote(showcase.id, -1)}
+                        className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        title="Downvote"
+                      >
                         <ThumbsDown className="w-3.5 h-3.5" />
-                      ) : null}
-                      {showcase.voteScore !== 0 ? (
-                        <span>
-                          {showcase.voteScore > 0 ? '+' : ''}
-                          {showcase.voteScore}
-                        </span>
-                      ) : (
-                        <span>0</span>
-                      )}
+                      </button>
                     </div>
+                  </TableCell>
+                  <TableCell className="text-xs">
+                    {showcase.status === 'approved' ? (
+                      <span className="font-medium text-blue-600 dark:text-blue-400">
+                        #{displayRankMap.get(showcase.id)}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-xs text-gray-600 dark:text-gray-400">
                     {showcase.trancoRank
@@ -353,7 +403,7 @@ export function ShowcaseModerationList({
                 {isExpanded && (
                   <TableRow>
                     <TableCell
-                      colSpan={10}
+                      colSpan={11}
                       className="bg-gray-50 dark:bg-gray-900"
                     >
                       <div className="p-4 space-y-4">

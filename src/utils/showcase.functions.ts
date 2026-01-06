@@ -377,6 +377,7 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
           libraryId: v.optional(v.string()),
           useCases: v.optional(v.array(showcaseUseCaseSchema)),
           featured: v.optional(v.boolean()),
+          q: v.optional(v.string()),
         }),
       ),
     }),
@@ -405,6 +406,18 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
 
     if (filters.featured !== undefined) {
       conditions.push(eq(showcases.isFeatured, filters.featured))
+    }
+
+    if (filters.q && filters.q.trim()) {
+      const searchTerm = `%${filters.q.trim().toLowerCase()}%`
+      conditions.push(
+        sql`(
+          LOWER(${showcases.name}) LIKE ${searchTerm} OR
+          LOWER(${showcases.tagline}) LIKE ${searchTerm} OR
+          LOWER(COALESCE(${showcases.description}, '')) LIKE ${searchTerm} OR
+          LOWER(${showcases.url}) LIKE ${searchTerm}
+        )`,
+      )
     }
 
     const whereClause = and(...conditions)
@@ -789,6 +802,139 @@ export const adminGetShowcase = createServerFn({ method: 'POST' })
     }
 
     return { showcase: result.showcase, user: result.user }
+  })
+
+/**
+ * Admin update a showcase (moderate-showcases capability required)
+ * Allows editing all fields without resetting status
+ */
+export const adminUpdateShowcase = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      showcaseId: v.pipe(v.string(), v.uuid()),
+      name: v.pipe(
+        v.string(),
+        v.minLength(1, 'Name is required'),
+        v.maxLength(255),
+      ),
+      tagline: v.pipe(
+        v.string(),
+        v.minLength(1, 'Tagline is required'),
+        v.maxLength(500),
+      ),
+      description: v.optional(v.nullable(v.string())),
+      url: v.pipe(v.string(), v.minLength(1, 'URL is required')),
+      logoUrl: v.optional(v.nullable(v.string())),
+      screenshotUrl: v.pipe(
+        v.string(),
+        v.minLength(1, 'Screenshot URL is required'),
+      ),
+      libraries: v.pipe(
+        v.array(v.string()),
+        v.minLength(1, 'At least one library is required'),
+      ),
+      useCases: v.array(showcaseUseCaseSchema),
+      status: showcaseStatusSchema,
+      isFeatured: v.boolean(),
+      moderationNote: v.optional(v.nullable(v.string())),
+      trancoRank: v.optional(v.nullable(v.number())),
+      voteScore: v.number(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const moderator = await requireModerateShowcases()
+
+    // Validate URL format
+    if (!isValidUrl(data.url)) {
+      throw new Error('Invalid URL format')
+    }
+
+    if (data.logoUrl && !isValidUrl(data.logoUrl)) {
+      throw new Error('Invalid logo URL format')
+    }
+
+    if (!isValidUrl(data.screenshotUrl)) {
+      throw new Error('Invalid screenshot URL format')
+    }
+
+    // Validate library IDs
+    const invalidLibraries = data.libraries.filter(
+      (lib) => !validLibraryIds.includes(lib as any),
+    )
+    if (invalidLibraries.length > 0) {
+      throw new Error(`Invalid library IDs: ${invalidLibraries.join(', ')}`)
+    }
+
+    // Get existing for audit log
+    const existing = await db
+      .select()
+      .from(showcases)
+      .where(eq(showcases.id, data.showcaseId))
+      .limit(1)
+
+    if (!existing[0]) {
+      throw new Error('Showcase not found')
+    }
+
+    // Expand library dependencies
+    const expandedLibraries = expandLibraryDependencies(data.libraries)
+
+    // Check if URL changed for Tranco rank update
+    const urlChanged = existing[0].url !== data.url
+    let trancoRank = data.trancoRank
+    if (urlChanged) {
+      trancoRank = await getTrancoRank(data.url)
+    }
+
+    // Update showcase
+    await db
+      .update(showcases)
+      .set({
+        name: data.name,
+        tagline: data.tagline,
+        description: data.description ?? null,
+        url: data.url,
+        logoUrl: data.logoUrl ?? null,
+        screenshotUrl: data.screenshotUrl,
+        libraries: expandedLibraries,
+        useCases: data.useCases,
+        status: data.status,
+        isFeatured: data.isFeatured,
+        moderationNote: data.moderationNote ?? null,
+        moderatedBy: moderator.userId,
+        moderatedAt: new Date(),
+        voteScore: data.voteScore,
+        trancoRank: trancoRank ?? null,
+        trancoRankUpdatedAt:
+          urlChanged && trancoRank
+            ? new Date()
+            : existing[0].trancoRankUpdatedAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(showcases.id, data.showcaseId))
+
+    // Log the update
+    await db.insert(auditLogs).values({
+      actorId: moderator.userId,
+      action: 'showcase.update',
+      targetType: 'showcase',
+      targetId: data.showcaseId,
+      details: {
+        updatedBy: 'admin',
+        before: existing[0],
+        after: {
+          name: data.name,
+          tagline: data.tagline,
+          url: data.url,
+          libraries: expandedLibraries,
+          status: data.status,
+          isFeatured: data.isFeatured,
+          voteScore: data.voteScore,
+        },
+      },
+    })
+
+    return { success: true }
   })
 
 /**

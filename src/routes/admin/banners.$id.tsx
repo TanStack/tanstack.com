@@ -88,11 +88,11 @@ function BannerEditorPage() {
             </div>
           }
         >
-        <BannerEditor
-          banner={isNew ? null : (bannerQuery.data as BannerWithMeta)}
-          onSave={() => navigate({ to: '/admin/banners' })}
-          onCancel={() => navigate({ to: '/admin/banners' })}
-        />
+          <BannerEditor
+            banner={isNew ? null : (bannerQuery.data as BannerWithMeta)}
+            onSave={() => navigate({ to: '/admin/banners' })}
+            onCancel={() => navigate({ to: '/admin/banners' })}
+          />
         </Suspense>
       </div>
     </div>

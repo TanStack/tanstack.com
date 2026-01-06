@@ -87,13 +87,15 @@ function FeedEditorPage() {
             </div>
           }
         >
-        <FeedEntryEditor
-          entry={
-            isNew ? null : ((entryQuery.data as FeedEntry | undefined) ?? null)
-          }
-          onSave={() => navigate({ to: '/admin/feed' })}
-          onCancel={() => navigate({ to: '/admin/feed' })}
-        />
+          <FeedEntryEditor
+            entry={
+              isNew
+                ? null
+                : ((entryQuery.data as FeedEntry | undefined) ?? null)
+            }
+            onSave={() => navigate({ to: '/admin/feed' })}
+            onCancel={() => navigate({ to: '/admin/feed' })}
+          />
         </Suspense>
       </div>
     </div>

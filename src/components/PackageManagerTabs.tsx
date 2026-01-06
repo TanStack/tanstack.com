@@ -1,16 +1,29 @@
-import * as React from 'react'
-import {
-  useLocalCurrentFramework,
-} from './FrameworkSelect'
+import { useLocalCurrentFramework } from './FrameworkSelect'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useParams } from '@tanstack/react-router'
-import { useLocalStorage } from '~/utils/useLocalStorage'
+import { create } from 'zustand'
 import { Tabs, type TabDefinition } from './Tabs'
 import { CodeBlock } from './CodeBlock'
 import type { Framework } from '~/libraries/types'
 
 type PackageManager = 'bun' | 'npm' | 'pnpm' | 'yarn'
 type InstallMode = 'install' | 'dev-install'
+
+// Use zustand for cross-component synchronization
+// This ensures all PackageManagerTabs instances on the page stay in sync
+const usePackageManagerStore = create<{
+  packageManager: PackageManager
+  setPackageManager: (pm: PackageManager) => void
+}>((set) => ({
+  packageManager:
+    typeof document !== 'undefined'
+      ? (localStorage.getItem('packageManager') as PackageManager) || 'npm'
+      : 'npm',
+  setPackageManager: (pm: PackageManager) => {
+    localStorage.setItem('packageManager', pm)
+    set({ packageManager: pm })
+  },
+}))
 
 type PackageManagerTabsProps = {
   id: string
@@ -73,8 +86,8 @@ export function PackageManagerTabs({
   packagesByFramework,
   mode,
 }: PackageManagerTabsProps) {
-  const [storedPackageManager, setStoredPackageManager] =
-    useLocalStorage<PackageManager>('packageManager', PACKAGE_MANAGERS[0])
+  const { packageManager: storedPackageManager, setPackageManager } =
+    usePackageManagerStore()
 
   const { framework: paramsFramework } = useParams({ strict: false })
   const localCurrentFramework = useLocalCurrentFramework()
@@ -123,7 +136,7 @@ export function PackageManagerTabs({
       tabs={tabs}
       children={children}
       activeSlug={selectedPackageManager}
-      onTabChange={(slug) => setStoredPackageManager(slug as PackageManager)}
+      onTabChange={(slug) => setPackageManager(slug as PackageManager)}
     />
   )
 }

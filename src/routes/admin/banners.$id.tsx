@@ -1,10 +1,16 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { BannerEditor } from '~/components/admin/BannerEditor'
+import { lazy, Suspense } from 'react'
 import { getBanner, type BannerWithMeta } from '~/utils/banner.functions'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import * as v from 'valibot'
+
+const BannerEditor = lazy(() =>
+  import('~/components/admin/BannerEditor').then((m) => ({
+    default: m.BannerEditor,
+  })),
+)
 
 export const Route = createFileRoute('/admin/banners/$id')({
   component: BannerEditorPage,
@@ -75,11 +81,19 @@ function BannerEditorPage() {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto">
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center p-8">
+              <div>Loading editor...</div>
+            </div>
+          }
+        >
         <BannerEditor
           banner={isNew ? null : (bannerQuery.data as BannerWithMeta)}
           onSave={() => navigate({ to: '/admin/banners' })}
           onCancel={() => navigate({ to: '/admin/banners' })}
         />
+        </Suspense>
       </div>
     </div>
   )

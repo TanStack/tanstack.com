@@ -37,6 +37,24 @@ export default defineConfig({
             ) {
               return 'search'
             }
+            // Syntax highlighting (lazy-loaded via mermaid/shiki)
+            if (id.includes('shiki') || id.includes('mermaid')) {
+              return 'syntax-highlight'
+            }
+            // Radix UI components (used throughout)
+            if (id.includes('@radix-ui/')) {
+              return 'radix-ui'
+            }
+            // Markdown processing (unified/remark/rehype)
+            if (
+              id.includes('unified') ||
+              id.includes('remark') ||
+              id.includes('rehype') ||
+              id.includes('hast-') ||
+              id.includes('mdast-')
+            ) {
+              return 'markdown-processing'
+            }
             // Charting deps (only loaded on stats/admin pages)
             if (
               id.includes('@observablehq/plot') ||

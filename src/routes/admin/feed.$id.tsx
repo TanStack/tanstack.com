@@ -1,11 +1,18 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { FeedEntryEditor } from '~/components/admin/FeedEntryEditor'
+import { lazy, Suspense } from 'react'
 import type { FeedEntry } from '~/components/FeedEntry'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { getFeedEntryQueryOptions } from '~/queries/feed'
 import * as v from 'valibot'
+
+const FeedEntryEditor = lazy(() =>
+  import('~/components/admin/FeedEntryEditor').then((m) => ({
+    default: m.FeedEntryEditor,
+  })),
+)
+
 export const Route = createFileRoute('/admin/feed/$id')({
   component: FeedEditorPage,
   validateSearch: (search) => v.parse(v.object({}), search),
@@ -73,6 +80,13 @@ function FeedEditorPage() {
   return (
     <div className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center p-8">
+              <div>Loading editor...</div>
+            </div>
+          }
+        >
         <FeedEntryEditor
           entry={
             isNew ? null : ((entryQuery.data as FeedEntry | undefined) ?? null)
@@ -80,6 +94,7 @@ function FeedEditorPage() {
           onSave={() => navigate({ to: '/admin/feed' })}
           onCancel={() => navigate({ to: '/admin/feed' })}
         />
+        </Suspense>
       </div>
     </div>
   )

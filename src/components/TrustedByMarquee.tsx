@@ -53,6 +53,7 @@ export function TrustedByMarquee({
                 key={i}
                 src={logoSrc}
                 alt={brand}
+                loading="lazy"
                 className="max-w-24 max-h-14 w-auto h-auto object-contain opacity-50 grayscale hover:opacity-100 transition-all duration-200 dark:invert dark:opacity-70 shrink-0"
               />
             ) : (

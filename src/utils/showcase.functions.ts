@@ -383,7 +383,7 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
       }),
       filters: v.optional(
         v.object({
-          libraryId: v.optional(v.string()),
+          libraryIds: v.optional(v.array(v.string())),
           useCases: v.optional(v.array(showcaseUseCaseSchema)),
           featured: v.optional(v.boolean()),
           q: v.optional(v.string()),
@@ -398,8 +398,15 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
     // Build where conditions
     const conditions = [eq(showcases.status, 'approved' as ShowcaseStatus)]
 
-    if (filters.libraryId) {
-      conditions.push(arrayContains(showcases.libraries, [filters.libraryId]))
+    if (filters.libraryIds && filters.libraryIds.length > 0) {
+      // Match showcases that have ANY of the selected libraries
+      conditions.push(
+        or(
+          ...filters.libraryIds.map((libId) =>
+            arrayContains(showcases.libraries, [libId]),
+          ),
+        )!,
+      )
     }
 
     if (filters.useCases && filters.useCases.length > 0) {

@@ -273,13 +273,19 @@ function NpmStatsAdmin() {
     getCoreRowModel: getCoreRowModel(),
   })
 
+  const packages = useMemo(
+    () =>
+      [...(packagesData?.packages ?? [])].sort(
+        (a, b) => (b.downloads ?? 0) - (a.downloads ?? 0),
+      ),
+    [packagesData?.packages],
+  )
+
   const packagesTable = useReactTable({
-    data: packagesData?.packages ?? [],
+    data: packages,
     columns: packageColumns,
     getCoreRowModel: getCoreRowModel(),
   })
-
-  const packages = packagesData?.packages ?? []
 
   return (
     <div className="w-full p-4">

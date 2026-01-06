@@ -28,7 +28,7 @@ export function ShowcaseGallery() {
         pageSize: 24,
       },
       filters: {
-        libraryId: search.libraryId,
+        libraryIds: search.libraryIds,
         useCases: search.useCases as ShowcaseUseCase[],
         q: search.q,
       },
@@ -67,7 +67,7 @@ export function ShowcaseGallery() {
         getApprovedShowcasesQueryOptions({
           pagination: { page: search.page, pageSize: 24 },
           filters: {
-            libraryId: search.libraryId,
+            libraryIds: search.libraryIds,
             useCases: search.useCases as ShowcaseUseCase[],
             q: search.q,
           },
@@ -111,7 +111,7 @@ export function ShowcaseGallery() {
         getApprovedShowcasesQueryOptions({
           pagination: { page: search.page, pageSize: 24 },
           filters: {
-            libraryId: search.libraryId,
+            libraryIds: search.libraryIds,
             useCases: search.useCases as ShowcaseUseCase[],
             q: search.q,
           },
@@ -152,7 +152,7 @@ export function ShowcaseGallery() {
           getApprovedShowcasesQueryOptions({
             pagination: { page: search.page, pageSize: 24 },
             filters: {
-              libraryId: search.libraryId,
+              libraryIds: search.libraryIds,
               useCases: search.useCases as ShowcaseUseCase[],
               q: search.q,
             },
@@ -182,11 +182,25 @@ export function ShowcaseGallery() {
     voteMutation.mutate({ showcaseId, value })
   }
 
-  const handleLibraryFilter = (libraryId: string | undefined) => {
+  const handleLibraryToggle = (libraryId: string) => {
+    const current = search.libraryIds || []
+    const updated = current.includes(libraryId)
+      ? current.filter((id: string) => id !== libraryId)
+      : [...current, libraryId]
     navigate({
       search: (prev: typeof search) => ({
         ...prev,
-        libraryId,
+        libraryIds: updated.length > 0 ? updated : undefined,
+        page: 1,
+      }),
+    })
+  }
+
+  const clearLibraries = () => {
+    navigate({
+      search: (prev: typeof search) => ({
+        ...prev,
+        libraryIds: undefined,
         page: 1,
       }),
     })
@@ -236,7 +250,7 @@ export function ShowcaseGallery() {
     navigate({
       search: {
         page: 1,
-        libraryId: undefined,
+        libraryIds: undefined,
         useCases: undefined,
         q: undefined,
       },
@@ -244,7 +258,7 @@ export function ShowcaseGallery() {
   }
 
   const hasFilters =
-    search.libraryId ||
+    (search.libraryIds && search.libraryIds.length > 0) ||
     (search.useCases && search.useCases.length > 0) ||
     search.q
 
@@ -279,11 +293,12 @@ export function ShowcaseGallery() {
         <div className="max-w-7xl mx-auto px-4 py-3">
           <ShowcaseTopBarFilters
             filters={{
-              libraryId: search.libraryId,
+              libraryIds: search.libraryIds,
               useCases: search.useCases as ShowcaseUseCase[],
               q: search.q,
             }}
-            onLibraryChange={handleLibraryFilter}
+            onLibraryToggle={handleLibraryToggle}
+            onClearLibraries={clearLibraries}
             onUseCaseToggle={handleUseCaseFilter}
             onClearUseCases={clearUseCases}
             onClearFilters={clearFilters}

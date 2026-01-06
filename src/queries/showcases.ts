@@ -35,7 +35,7 @@ export const getMyShowcasesQueryOptions = (params: {
 export const getApprovedShowcasesQueryOptions = (params: {
   pagination: ShowcasePagination
   filters?: {
-    libraryId?: string
+    libraryIds?: string[]
     useCases?: ShowcaseUseCase[]
     featured?: boolean
     q?: string

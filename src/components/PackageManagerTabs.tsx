@@ -1,5 +1,9 @@
 import * as React from 'react'
-import { useCurrentFramework } from './FrameworkSelect'
+import {
+  useLocalCurrentFramework,
+} from './FrameworkSelect'
+import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { useParams } from '@tanstack/react-router'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { Tabs, type TabDefinition } from './Tabs'
 import { CodeBlock } from './CodeBlock'
@@ -10,7 +14,7 @@ type InstallMode = 'install' | 'dev-install'
 
 type PackageManagerTabsProps = {
   id: string
-  packagesByFramework: Record<string, string>
+  packagesByFramework: Record<string, string[]>
   mode: InstallMode
   frameworks: Framework[]
 }
@@ -19,51 +23,74 @@ const PACKAGE_MANAGERS: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun']
 
 function getInstallCommand(
   packageManager: PackageManager,
-  packages: string,
+  packages: string[],
   mode: InstallMode,
-): string {
+): string[] {
+  const commands: string[] = []
+
   if (mode === 'dev-install') {
-    switch (packageManager) {
-      case 'npm':
-        return `npm i -D ${packages}`
-      case 'pnpm':
-        return `pnpm add -D ${packages}`
-      case 'yarn':
-        return `yarn add -D ${packages}`
-      case 'bun':
-        return `bun add -d ${packages}`
+    for (const pkg of packages) {
+      switch (packageManager) {
+        case 'npm':
+          commands.push(`npm i -D ${pkg}`)
+          break
+        case 'pnpm':
+          commands.push(`pnpm add -D ${pkg}`)
+          break
+        case 'yarn':
+          commands.push(`yarn add -D ${pkg}`)
+          break
+        case 'bun':
+          commands.push(`bun add -d ${pkg}`)
+          break
+      }
     }
+    return commands
   }
 
   // install mode
-  switch (packageManager) {
-    case 'npm':
-      return `npm i ${packages}`
-    case 'pnpm':
-      return `pnpm add ${packages}`
-    case 'yarn':
-      return `yarn add ${packages}`
-    case 'bun':
-      return `bun add ${packages}`
+  for (const pkg of packages) {
+    switch (packageManager) {
+      case 'npm':
+        commands.push(`npm i ${pkg}`)
+        break
+      case 'pnpm':
+        commands.push(`pnpm add ${pkg}`)
+        break
+      case 'yarn':
+        commands.push(`yarn add ${pkg}`)
+        break
+      case 'bun':
+        commands.push(`bun add ${pkg}`)
+        break
+    }
   }
+  return commands
 }
 
 export function PackageManagerTabs({
   id,
   packagesByFramework,
   mode,
-  frameworks,
 }: PackageManagerTabsProps) {
-  const { framework: currentFramework } = useCurrentFramework(frameworks)
   const [storedPackageManager, setStoredPackageManager] =
     useLocalStorage<PackageManager>('packageManager', PACKAGE_MANAGERS[0])
 
-  // Normalize framework key to lowercase for lookup
-  const normalizedFramework = currentFramework.toLowerCase()
+  const { framework: paramsFramework } = useParams({ strict: false })
+  const localCurrentFramework = useLocalCurrentFramework()
+  const userQuery = useCurrentUserQuery()
+  const userFramework = userQuery.data?.lastUsedFramework
+
+  const actualFramework = (paramsFramework ||
+    userFramework ||
+    localCurrentFramework.currentFramework ||
+    'react') as Framework
+
+  const normalizedFramework = actualFramework.toLowerCase()
   const packages = packagesByFramework[normalizedFramework]
 
   // Hide component if current framework not in package list
-  if (!packages) {
+  if (!packages || packages.length === 0) {
     return null
   }
 
@@ -81,10 +108,11 @@ export function PackageManagerTabs({
 
   // Generate children (command blocks) for each package manager
   const children = PACKAGE_MANAGERS.map((pm) => {
-    const command = getInstallCommand(pm, packages, mode)
+    const commands = getInstallCommand(pm, packages, mode)
+    const commandText = commands.join('\n')
     return (
       <CodeBlock key={pm}>
-        <code className="language-bash">{command}</code>
+        <code className="language-bash">{commandText}</code>
       </CodeBlock>
     )
   })

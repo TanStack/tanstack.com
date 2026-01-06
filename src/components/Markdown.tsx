@@ -13,6 +13,8 @@ import { renderMarkdown } from '~/utils/markdown'
 import { getNetlifyImageUrl } from '~/utils/netlifyImage'
 import { Tabs } from '~/components/Tabs'
 import { CodeBlock } from './CodeBlock'
+import { PackageManagerTabs } from './PackageManagerTabs'
+import type { Framework } from '~/libraries/types'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -112,6 +114,7 @@ const options: HTMLReactParserOptions = {
       if (domNode.name === 'md-comment-component') {
         const componentName = domNode.attribs['data-component']
         const rawAttributes = domNode.attribs['data-attributes']
+        const pmMeta = domNode.attribs['data-package-manager-meta']
         const attributes: Record<string, any> = {}
         try {
           Object.assign(attributes, JSON.parse(rawAttributes))
@@ -121,9 +124,39 @@ const options: HTMLReactParserOptions = {
 
         switch (componentName?.toLowerCase()) {
           case 'tabs': {
+            // Check if this is a package-manager tabs (has metadata)
+            if (pmMeta) {
+              try {
+                const { packagesByFramework, mode } = JSON.parse(pmMeta)
+                const id =
+                  attributes.id ||
+                  `package-manager-tabs-${Math.random().toString(36).slice(2, 9)}`
+                const frameworks = Object.keys(
+                  packagesByFramework,
+                ) as Framework[]
+
+                return (
+                  <PackageManagerTabs
+                    id={id}
+                    packagesByFramework={packagesByFramework}
+                    mode={mode}
+                    frameworks={frameworks}
+                  />
+                )
+              } catch {
+                // Fall through to default tabs if parsing fails
+              }
+            }
+
+            // Default tabs variant
             const tabs = attributes.tabs
             const id =
               attributes.id || `tabs-${Math.random().toString(36).slice(2, 9)}`
+
+            if (!tabs || !Array.isArray(tabs)) {
+              return null
+            }
+
             const panelElements = domNode.children?.filter(
               (child): child is Element =>
                 child instanceof Element && child.name === 'md-tab-panel',

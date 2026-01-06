@@ -9,7 +9,16 @@ import {
   type ShowcaseStatus,
   type ShowcaseUseCase,
 } from '~/db/schema'
-import { eq, and, sql, desc, asc, inArray, arrayContains } from 'drizzle-orm'
+import {
+  eq,
+  and,
+  or,
+  sql,
+  desc,
+  asc,
+  inArray,
+  arrayContains,
+} from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import {
   requireModerateShowcases,
@@ -551,7 +560,7 @@ export const listShowcasesForModeration = createServerFn({ method: 'POST' })
       filters: v.optional(
         v.object({
           status: v.optional(v.array(showcaseStatusSchema)),
-          libraryId: v.optional(v.string()),
+          libraryId: v.optional(v.array(v.string())),
           userId: v.optional(v.pipe(v.string(), v.uuid())),
           isFeatured: v.optional(v.boolean()),
         }),
@@ -573,8 +582,15 @@ export const listShowcasesForModeration = createServerFn({ method: 'POST' })
       )
     }
 
-    if (filters.libraryId) {
-      conditions.push(arrayContains(showcases.libraries, [filters.libraryId]))
+    if (filters.libraryId && filters.libraryId.length > 0) {
+      // Match showcases that have ANY of the selected libraries
+      conditions.push(
+        or(
+          ...filters.libraryId.map((libId) =>
+            arrayContains(showcases.libraries, [libId]),
+          ),
+        )!,
+      )
     }
 
     if (filters.userId) {

@@ -41,6 +41,21 @@ export function TopBarFilter({
 }: TopBarFilterProps) {
   const [mobileExpanded, setMobileExpanded] = useState(false)
 
+  // Separate AddFilterButton from other children (chips)
+  const childArray = React.Children.toArray(children)
+  const addFilterButton = childArray.find(
+    (child) =>
+      React.isValidElement(child) &&
+      (child.type as { displayName?: string }).displayName ===
+        'AddFilterButton',
+  )
+  const filterChips = childArray.filter(
+    (child) =>
+      !React.isValidElement(child) ||
+      (child.type as { displayName?: string }).displayName !==
+        'AddFilterButton',
+  )
+
   return (
     <div
       className={twMerge(
@@ -115,7 +130,8 @@ export function TopBarFilter({
               size="sm"
             />
           )}
-          {children}
+          {addFilterButton}
+          {filterChips}
           {hasActiveFilters && onClearAll && (
             <button
               onClick={onClearAll}

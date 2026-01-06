@@ -129,11 +129,13 @@ export function SortableTableHeaderCell({
   }
 
   return (
-    <th className={baseClass} style={width ? { width } : undefined}>
-      <button
-        type="button"
-        onClick={onSort}
-        className={`inline-flex items-center gap-1 uppercase hover:text-gray-900 dark:hover:text-gray-200 transition-colors ${
+    <th
+      className={`${baseClass} group cursor-pointer hover:text-gray-900 dark:hover:text-gray-200 transition-colors`}
+      style={width ? { width } : undefined}
+      onClick={onSort}
+    >
+      <span
+        className={`inline-flex items-center gap-1 ${
           align === 'right' ? 'flex-row-reverse' : ''
         }`}
       >
@@ -141,8 +143,11 @@ export function SortableTableHeaderCell({
         <span className="w-3 h-3 flex items-center justify-center">
           {sortDirection === 'asc' && <ChevronUp className="w-3 h-3" />}
           {sortDirection === 'desc' && <ChevronDown className="w-3 h-3" />}
+          {!sortDirection && (
+            <ChevronUp className="w-3 h-3 opacity-0 group-hover:opacity-40 transition-opacity" />
+          )}
         </span>
-      </button>
+      </span>
     </th>
   )
 }

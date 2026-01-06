@@ -93,10 +93,11 @@ function RolesPage() {
     (newFilters: { name?: string; capabilities?: string[] }) => {
       navigate({
         resetScroll: false,
-        search: (prev: any) => ({
+        search: (prev: { name?: string; cap?: string | string[] }) => ({
           ...prev,
-          name: newFilters.name,
-          cap: newFilters.capabilities,
+          name: 'name' in newFilters ? newFilters.name : prev.name,
+          cap:
+            'capabilities' in newFilters ? newFilters.capabilities : prev.cap,
         }),
       })
     },

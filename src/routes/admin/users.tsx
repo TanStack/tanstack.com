@@ -232,12 +232,34 @@ function UsersPage() {
   }
 
   const handleFiltersChange = useCallback(
-    (newFilters: Partial<UsersSearch>) => {
+    (newFilters: {
+      email?: string
+      name?: string
+      capabilities?: string[]
+      noCapabilities?: boolean
+      adsDisabled?: 'all' | 'true' | 'false'
+      waitlist?: 'all' | 'true' | 'false'
+      useEffectiveCapabilities?: boolean
+    }) => {
       navigate({
         resetScroll: false,
         search: (prev: UsersSearch) => ({
           ...prev,
-          ...newFilters,
+          email: 'email' in newFilters ? newFilters.email : prev.email,
+          name: 'name' in newFilters ? newFilters.name : prev.name,
+          cap:
+            'capabilities' in newFilters ? newFilters.capabilities : prev.cap,
+          noCapabilities:
+            'noCapabilities' in newFilters
+              ? newFilters.noCapabilities
+              : prev.noCapabilities,
+          ads: 'adsDisabled' in newFilters ? newFilters.adsDisabled : prev.ads,
+          waitlist:
+            'waitlist' in newFilters ? newFilters.waitlist : prev.waitlist,
+          useEffectiveCapabilities:
+            'useEffectiveCapabilities' in newFilters
+              ? newFilters.useEffectiveCapabilities
+              : prev.useEffectiveCapabilities,
           page: 0,
         }),
       })

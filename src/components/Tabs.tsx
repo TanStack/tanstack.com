@@ -12,15 +12,27 @@ export type TabsProps = {
   tabs: Array<TabDefinition>
   children: Array<React.ReactNode>
   id: string
+  activeSlug?: string
+  onTabChange?: (slug: string) => void
 }
 
-export function Tabs({ tabs, id, children }: TabsProps) {
+export function Tabs({ tabs, id, children, activeSlug: controlledActiveSlug, onTabChange }: TabsProps) {
   const params = useParams({ strict: false })
   const framework = 'framework' in params ? params.framework : undefined
 
-  const [activeSlug, setActiveSlug] = React.useState(
+  const [internalActiveSlug, setInternalActiveSlug] = React.useState(
     () => tabs.find((tab) => tab.slug === framework)?.slug || tabs[0].slug,
   )
+
+  // Use controlled state if provided, otherwise use internal state
+  const activeSlug = controlledActiveSlug ?? internalActiveSlug
+  const setActiveSlug = React.useCallback((slug: string) => {
+    if (onTabChange) {
+      onTabChange(slug)
+    } else {
+      setInternalActiveSlug(slug)
+    }
+  }, [onTabChange])
 
   return (
     <div className="not-prose my-4">
@@ -65,7 +77,7 @@ const Tab = ({
   id: string
   tab: TabDefinition
   activeSlug: string
-  setActiveSlug: React.Dispatch<React.SetStateAction<string>>
+  setActiveSlug: (slug: string) => void
 }) => {
   const option = React.useMemo(
     () => frameworkOptions.find((o) => o.value === tab.slug),

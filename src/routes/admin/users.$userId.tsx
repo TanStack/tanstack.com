@@ -1,13 +1,27 @@
-import { createFileRoute, Link, notFound } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  notFound,
+  redirect,
+} from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { getUser } from '~/utils/users.server'
 import { getUserRoles } from '~/utils/roles.functions'
 import { getUserEffectiveCapabilities } from '~/utils/roles.functions'
 import { ArrowLeft, User, Shield, Calendar, Mail, AtSign } from 'lucide-react'
+import { requireCapability } from '~/utils/auth.server'
 import { Card } from '~/components/Card'
 import { format } from '~/utils/dates'
 
 export const Route = createFileRoute('/admin/users/$userId')({
+  beforeLoad: async () => {
+    try {
+      const user = await requireCapability({ data: { capability: 'admin' } })
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
   component: UserDetailPage,
 })
 

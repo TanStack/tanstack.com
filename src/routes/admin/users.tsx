@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
@@ -46,6 +46,7 @@ import {
 import { useAdminGuard } from '~/hooks/useAdminGuard'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { handleAdminError } from '~/utils/adminErrors'
+import { requireCapability } from '~/utils/auth.server'
 
 // User type for table - matches the shape returned by listUsers
 type User = {
@@ -177,6 +178,14 @@ function EffectiveCapabilitiesCell({
 }
 
 export const Route = createFileRoute('/admin/users')({
+  beforeLoad: async () => {
+    try {
+      const user = await requireCapability({ data: { capability: 'admin' } })
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
   component: UsersPage,
   validateSearch: (search) =>
     v.parse(

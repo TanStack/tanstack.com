@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { RolesTopBarFilters } from '~/components/RolesTopBarFilters'
 import {
   Table,
@@ -38,6 +38,7 @@ import {
   AdminEmptyState,
 } from '~/components/admin'
 import { useAdminGuard } from '~/hooks/useAdminGuard'
+import { requireCapability } from '~/utils/auth.server'
 import { useToggleArray } from '~/hooks/useToggleArray'
 import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
 
@@ -52,6 +53,14 @@ interface Role {
 }
 
 export const Route = createFileRoute('/admin/roles/')({
+  beforeLoad: async () => {
+    try {
+      const user = await requireCapability({ data: { capability: 'admin' } })
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
   component: RolesPage,
   validateSearch: (search) =>
     v.parse(

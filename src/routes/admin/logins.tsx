@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useMemo, useCallback } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
@@ -31,6 +31,7 @@ import {
   StatsCard,
 } from '~/components/admin'
 import { useAdminGuard } from '~/hooks/useAdminGuard'
+import { requireCapability } from '~/utils/auth.server'
 
 type LoginHistoryEntry = {
   id: string
@@ -55,6 +56,14 @@ type LoginsSearch = {
 }
 
 export const Route = createFileRoute('/admin/logins')({
+  beforeLoad: async () => {
+    try {
+      const user = await requireCapability({ data: { capability: 'admin' } })
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
   component: LoginsPage,
   validateSearch: (search) =>
     v.parse(

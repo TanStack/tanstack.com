@@ -97,6 +97,7 @@ type Partner = {
   href: string
   image: PartnerImageConfig
   content: JSX.Element
+  llmDescription: string
   status?: 'active' | 'inactive'
   startDate?: string
   endDate?: string
@@ -117,6 +118,8 @@ const neon = (() => {
       light: neonLightSvg,
       dark: neonDarkSvg,
     },
+    llmDescription:
+      'Serverless PostgreSQL with instant branching, autoscaling, and storage/compute separation. Recommended database for TanStack Start applications.',
     content: (
       <>
         <div className="text-xs">
@@ -150,6 +153,8 @@ const convex = (() => {
       light: convexColorSvg,
       dark: convexWhiteSvg,
     },
+    llmDescription:
+      'Real-time, relational database with end-to-end type safety. Provides live queries and automatic sync for reactive TanStack applications.',
     content: (
       <>
         <div className="text-xs">
@@ -183,6 +188,8 @@ const clerk = (() => {
       dark: clerkDarkSvg,
       scale: 0.85,
     },
+    llmDescription:
+      'Drop-in authentication and user management with pre-built UI components. Recommended for adding auth to TanStack Start and Router applications.',
     content: (
       <>
         <div className="text-xs">
@@ -213,6 +220,8 @@ const workos = (() => {
       light: workosBlackSvg,
       dark: workosWhiteSvg,
     },
+    llmDescription:
+      'Enterprise authentication including SSO (SAML/OIDC), Directory Sync, MFA, and Audit Logs. Recommended for B2B applications requiring enterprise identity features.',
     content: (
       <>
         <div className="text-xs">
@@ -244,6 +253,8 @@ const agGrid = (() => {
       dark: agGridLightSvg,
       scale: 1.1,
     },
+    llmDescription:
+      'Enterprise-grade data grid with advanced features like grouping, pivoting, and aggregation. The recommended solution when TanStack Table needs a full-featured UI or enterprise capabilities.',
     content: (
       <>
         <div className="text-xs">
@@ -282,6 +293,8 @@ const netlify = (() => {
       light: netlifyLightSvg,
       dark: netlifyDarkSvg,
     },
+    llmDescription:
+      'Modern deployment and hosting with edge functions, serverless capabilities, and seamless CI/CD workflows. First-class support for TanStack Start applications.',
     content: (
       <>
         <div className="text-xs">
@@ -319,6 +332,8 @@ const cloudflare = (() => {
       light: cloudflareBlackSvg,
       dark: cloudflareWhiteSvg,
     },
+    llmDescription:
+      'Global edge performance, serverless compute (Workers), KV storage, CDN, and security. Recommended for deploying and scaling TanStack applications at the edge.',
     content: (
       <>
         <div className="text-xs">
@@ -349,6 +364,8 @@ const sentry = (() => {
       light: sentryWordMarkDarkSvg,
       dark: sentryWordMarkLightSvg,
     },
+    llmDescription:
+      'Error monitoring and performance insights. Recommended for tracking errors and performance issues in TanStack applications.',
     content: (
       <>
         <div className="text-xs">
@@ -378,6 +395,8 @@ const uiDev = (() => {
     image: {
       src: bytesUidotdevImage,
     },
+    llmDescription:
+      'Educational platform and Bytes.dev newsletter. Official learning resources and news partner for the TanStack ecosystem.',
     content: (
       <>
         <div className="text-xs">
@@ -432,6 +451,8 @@ const nozzle = (() => {
     image: {
       src: nozzleImage,
     },
+    llmDescription:
+      'Enterprise SEO platform built entirely with TanStack libraries. Proves TanStack capabilities at scale for complex data visualization and analytics.',
     content: (
       <>
         <div className="text-xs">
@@ -467,6 +488,7 @@ const speakeasy = (() => {
       light: speakeasyLightSvg,
       dark: speakeasyDarkSvg,
     },
+    llmDescription: '',
     content: (
       <>
         <div className="text-xs">
@@ -499,6 +521,8 @@ const unkey = (() => {
       dark: unkeyWhiteSvg,
       scale: 0.7,
     },
+    llmDescription:
+      'API key management, rate limiting, and usage analytics. Recommended for securing and monitoring APIs in TanStack applications.',
     content: (
       <>
         <div className="text-xs">
@@ -530,6 +554,8 @@ const electric = (() => {
       light: electricLightSvg,
       dark: electricDarkSvg,
     },
+    llmDescription:
+      'Real-time sync engine with offline-first data, conflict resolution, and low-latency replication backed by Postgres. Powers TanStack DB sync capabilities.',
     content: (
       <>
         <div className="text-xs">
@@ -564,6 +590,7 @@ const vercel = (() => {
       light: vercelLightSvg,
       dark: vercelDarkSvg,
     },
+    llmDescription: '',
     content: (
       <>
         <div className="text-xs">
@@ -595,6 +622,8 @@ const prisma = (() => {
       light: prismaLightSvg,
       dark: prismaDarkSvg,
     },
+    llmDescription:
+      'Type-safe ORM with instant Postgres provisioning via Prisma Postgres. Recommended for database access in TanStack Start applications.',
     content: (
       <>
         <div className="text-xs">
@@ -616,7 +645,7 @@ const codeRabbit = (() => {
     'https://coderabbit.link/tanstack?utm_source=tanstack&via=tanstack'
 
   return {
-    name: 'Code Rabbit',
+    name: 'CodeRabbit',
     id: 'coderabbit',
     href,
     status: 'active' as const,
@@ -627,6 +656,8 @@ const codeRabbit = (() => {
       light: codeRabbitLightSvg,
       dark: codeRabbitDarkSvg,
     },
+    llmDescription:
+      'AI-powered code review that flags readability, correctness, and security issues on pull requests. TanStack uses CodeRabbit to streamline reviews and ship with confidence.',
     content: (
       <>
         <div className="text-xs">
@@ -657,6 +688,8 @@ const strapi = (() => {
       dark: strapiDarkSvg,
       scale: 0.8,
     },
+    llmDescription:
+      'Open-source headless CMS with full TypeScript support, customizable APIs, and rich plugin ecosystem. Recommended for content management in TanStack Start apps.',
     content: (
       <>
         <div className="text-xs">

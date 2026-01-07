@@ -1,4 +1,4 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute, redirect } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
@@ -30,6 +30,7 @@ import {
   StatsCard,
 } from '~/components/admin'
 import { useAdminGuard } from '~/hooks/useAdminGuard'
+import { requireCapability } from '~/utils/auth.server'
 
 type AuditLogEntry = {
   id: string
@@ -86,6 +87,14 @@ const ACTION_COLORS: Record<string, string> = {
 }
 
 export const Route = createFileRoute('/admin/audit')({
+  beforeLoad: async () => {
+    try {
+      const user = await requireCapability({ data: { capability: 'admin' } })
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
   component: AuditPage,
   validateSearch: (search) =>
     v.parse(

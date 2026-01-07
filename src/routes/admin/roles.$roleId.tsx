@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useState, useMemo, useCallback } from 'react'
 import { useRemoveUsersFromRole } from '~/utils/mutations'
 import { useQuery } from '@tanstack/react-query'
@@ -11,8 +11,17 @@ import {
   type ColumnDef,
 } from '@tanstack/react-table'
 import { ArrowLeft, Lock, Trash, User, Users } from 'lucide-react'
+import { requireCapability } from '~/utils/auth.server'
 
 export const Route = createFileRoute('/admin/roles/$roleId')({
+  beforeLoad: async () => {
+    try {
+      const user = await requireCapability({ data: { capability: 'admin' } })
+      return { user }
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
   component: RoleDetailPage,
 })
 

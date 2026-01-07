@@ -80,21 +80,25 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       label: 'Users',
       icon: <Users />,
       to: '/admin/users',
+      requiredCapability: 'admin',
     },
     {
       label: 'Roles',
       icon: <ShieldHalf />,
       to: '/admin/roles',
+      requiredCapability: 'admin',
     },
     {
       label: 'Login History',
       icon: <LogIn />,
       to: '/admin/logins',
+      requiredCapability: 'admin',
     },
     {
       label: 'Audit Logs',
       icon: <Shield />,
       to: '/admin/audit',
+      requiredCapability: 'admin',
     },
     {
       label: 'Feedback',
@@ -141,9 +145,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   // Non-admin users only see items they have specific capability for
   const isAdmin = capabilities.includes('admin')
   const adminItems = allAdminItems.filter((item) => {
-    // Items without requiredCapability are admin-only
-    if (!item.requiredCapability) return isAdmin
-    // Items with requiredCapability: admin sees all, others need the capability
+    // Items without requiredCapability are visible to all admin-access users
+    if (!item.requiredCapability) return true
+    // Items with requiredCapability: admin sees all, others need the specific capability
     return isAdmin || capabilities.includes(item.requiredCapability)
   })
 

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
+import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
 import { Route as MerchRouteImport } from './routes/merch'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
@@ -44,7 +45,6 @@ import { Route as LibrariesMaintainersRouteImport } from './routes/_libraries/ma
 import { Route as LibrariesLoginRouteImport } from './routes/_libraries/login'
 import { Route as LibrariesLearnRouteImport } from './routes/_libraries/learn'
 import { Route as LibrariesFeedbackLeaderboardRouteImport } from './routes/_libraries/feedback-leaderboard'
-import { Route as LibrariesExploreRouteImport } from './routes/_libraries/explore'
 import { Route as LibrariesEthosRouteImport } from './routes/_libraries/ethos'
 import { Route as LibrariesDashboardRouteImport } from './routes/_libraries/dashboard'
 import { Route as LibrariesBrandGuideRouteImport } from './routes/_libraries/brand-guide'
@@ -106,6 +106,11 @@ import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport
 const SponsorsEmbedRoute = SponsorsEmbedRouteImport.update({
   id: '/sponsors-embed',
   path: '/sponsors-embed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RssDotxmlRoute = RssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersEmbedRoute = PartnersEmbedRouteImport.update({
@@ -278,11 +283,6 @@ const LibrariesFeedbackLeaderboardRoute =
     path: '/feedback-leaderboard',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
-const LibrariesExploreRoute = LibrariesExploreRouteImport.update({
-  id: '/explore',
-  path: '/explore',
-  getParentRoute: () => LibrariesRouteRoute,
-} as any)
 const LibrariesEthosRoute = LibrariesEthosRouteImport.update({
   id: '/ethos',
   path: '/ethos',
@@ -599,6 +599,7 @@ export interface FileRoutesByFullPath {
   '/llms.txt': typeof LlmsDottxtRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/account': typeof LibrariesAccountRouteWithChildren
@@ -607,7 +608,6 @@ export interface FileRoutesByFullPath {
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
-  '/explore': typeof LibrariesExploreRoute
   '/feedback-leaderboard': typeof LibrariesFeedbackLeaderboardRoute
   '/learn': typeof LibrariesLearnRoute
   '/login': typeof LibrariesLoginRoute
@@ -691,13 +691,13 @@ export interface FileRoutesByTo {
   '/llms.txt': typeof LlmsDottxtRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/ads': typeof LibrariesAdsRoute
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
-  '/explore': typeof LibrariesExploreRoute
   '/feedback-leaderboard': typeof LibrariesFeedbackLeaderboardRoute
   '/learn': typeof LibrariesLearnRoute
   '/login': typeof LibrariesLoginRoute
@@ -784,6 +784,7 @@ export interface FileRoutesById {
   '/llms.txt': typeof LlmsDottxtRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/_libraries/account': typeof LibrariesAccountRouteWithChildren
@@ -792,7 +793,6 @@ export interface FileRoutesById {
   '/_libraries/brand-guide': typeof LibrariesBrandGuideRoute
   '/_libraries/dashboard': typeof LibrariesDashboardRoute
   '/_libraries/ethos': typeof LibrariesEthosRoute
-  '/_libraries/explore': typeof LibrariesExploreRoute
   '/_libraries/feedback-leaderboard': typeof LibrariesFeedbackLeaderboardRoute
   '/_libraries/learn': typeof LibrariesLearnRoute
   '/_libraries/login': typeof LibrariesLoginRoute
@@ -880,6 +880,7 @@ export interface FileRouteTypes {
     | '/llms.txt'
     | '/merch'
     | '/partners-embed'
+    | '/rss.xml'
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/account'
@@ -888,7 +889,6 @@ export interface FileRouteTypes {
     | '/brand-guide'
     | '/dashboard'
     | '/ethos'
-    | '/explore'
     | '/feedback-leaderboard'
     | '/learn'
     | '/login'
@@ -972,13 +972,13 @@ export interface FileRouteTypes {
     | '/llms.txt'
     | '/merch'
     | '/partners-embed'
+    | '/rss.xml'
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/ads'
     | '/brand-guide'
     | '/dashboard'
     | '/ethos'
-    | '/explore'
     | '/feedback-leaderboard'
     | '/learn'
     | '/login'
@@ -1064,6 +1064,7 @@ export interface FileRouteTypes {
     | '/llms.txt'
     | '/merch'
     | '/partners-embed'
+    | '/rss.xml'
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/_libraries/account'
@@ -1072,7 +1073,6 @@ export interface FileRouteTypes {
     | '/_libraries/brand-guide'
     | '/_libraries/dashboard'
     | '/_libraries/ethos'
-    | '/_libraries/explore'
     | '/_libraries/feedback-leaderboard'
     | '/_libraries/learn'
     | '/_libraries/login'
@@ -1160,6 +1160,7 @@ export interface RootRouteChildren {
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   MerchRoute: typeof MerchRoute
   PartnersEmbedRoute: typeof PartnersEmbedRoute
+  RssDotxmlRoute: typeof RssDotxmlRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
@@ -1184,6 +1185,13 @@ declare module '@tanstack/react-router' {
       path: '/sponsors-embed'
       fullPath: '/sponsors-embed'
       preLoaderRoute: typeof SponsorsEmbedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rss.xml': {
+      id: '/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/rss.xml'
+      preLoaderRoute: typeof RssDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners-embed': {
@@ -1422,13 +1430,6 @@ declare module '@tanstack/react-router' {
       path: '/feedback-leaderboard'
       fullPath: '/feedback-leaderboard'
       preLoaderRoute: typeof LibrariesFeedbackLeaderboardRouteImport
-      parentRoute: typeof LibrariesRouteRoute
-    }
-    '/_libraries/explore': {
-      id: '/_libraries/explore'
-      path: '/explore'
-      fullPath: '/explore'
-      preLoaderRoute: typeof LibrariesExploreRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/ethos': {
@@ -1930,7 +1931,6 @@ interface LibrariesRouteRouteChildren {
   LibrariesBrandGuideRoute: typeof LibrariesBrandGuideRoute
   LibrariesDashboardRoute: typeof LibrariesDashboardRoute
   LibrariesEthosRoute: typeof LibrariesEthosRoute
-  LibrariesExploreRoute: typeof LibrariesExploreRoute
   LibrariesFeedbackLeaderboardRoute: typeof LibrariesFeedbackLeaderboardRoute
   LibrariesLearnRoute: typeof LibrariesLearnRoute
   LibrariesLoginRoute: typeof LibrariesLoginRoute
@@ -1967,7 +1967,6 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesBrandGuideRoute: LibrariesBrandGuideRoute,
   LibrariesDashboardRoute: LibrariesDashboardRoute,
   LibrariesEthosRoute: LibrariesEthosRoute,
-  LibrariesExploreRoute: LibrariesExploreRoute,
   LibrariesFeedbackLeaderboardRoute: LibrariesFeedbackLeaderboardRoute,
   LibrariesLearnRoute: LibrariesLearnRoute,
   LibrariesLoginRoute: LibrariesLoginRoute,
@@ -2066,6 +2065,7 @@ const rootRouteChildren: RootRouteChildren = {
   LlmsDottxtRoute: LlmsDottxtRoute,
   MerchRoute: MerchRoute,
   PartnersEmbedRoute: PartnersEmbedRoute,
+  RssDotxmlRoute: RssDotxmlRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,

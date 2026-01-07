@@ -23,6 +23,17 @@ interface DocFeedbackNoteProps {
   inline?: boolean
 }
 
+// Types for the query cache data structures
+interface DocPageCacheData {
+  userFeedback: DocFeedback[]
+}
+
+interface AccountPageCacheData {
+  feedback: DocFeedback[]
+}
+
+type DocFeedbackCacheData = DocPageCacheData | AccountPageCacheData | unknown
+
 export function DocFeedbackNote({
   note,
   anchorName,
@@ -87,27 +98,34 @@ export function DocFeedbackNote({
       })
 
       // Optimistically remove the note from all matching queries
-      queryClient.setQueriesData({ queryKey: ['docFeedback'] }, (old: any) => {
-        if (!old) return old
+      queryClient.setQueriesData(
+        { queryKey: ['docFeedback'] },
+        (old: DocFeedbackCacheData) => {
+          if (!old || typeof old !== 'object') return old
 
-        // Handle doc page structure (userFeedback)
-        if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
-          return {
-            ...old,
-            userFeedback: old.userFeedback.filter((f: any) => f.id !== note.id),
+          // Handle doc page structure (userFeedback)
+          if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
+            return {
+              ...old,
+              userFeedback: old.userFeedback.filter(
+                (f: DocFeedback) => f.id !== note.id,
+              ),
+            }
           }
-        }
 
-        // Handle account/notes page structure (feedback)
-        if ('feedback' in old && Array.isArray(old.feedback)) {
-          return {
-            ...old,
-            feedback: old.feedback.filter((f: any) => f.id !== note.id),
+          // Handle account/notes page structure (feedback)
+          if ('feedback' in old && Array.isArray(old.feedback)) {
+            return {
+              ...old,
+              feedback: old.feedback.filter(
+                (f: DocFeedback) => f.id !== note.id,
+              ),
+            }
           }
-        }
 
-        return old
-      })
+          return old
+        },
+      )
 
       return { previousData }
     },
@@ -138,43 +156,46 @@ export function DocFeedbackNote({
       })
 
       // Optimistically update the note content
-      queryClient.setQueriesData({ queryKey: ['docFeedback'] }, (old: any) => {
-        if (!old) return old
+      queryClient.setQueriesData(
+        { queryKey: ['docFeedback'] },
+        (old: DocFeedbackCacheData) => {
+          if (!old || typeof old !== 'object') return old
 
-        // Handle doc page structure (userFeedback)
-        if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
-          return {
-            ...old,
-            userFeedback: old.userFeedback.map((f: any) =>
-              f.id === note.id
-                ? {
-                    ...f,
-                    content: variables.data.content,
-                    updatedAt: new Date(),
-                  }
-                : f,
-            ),
+          // Handle doc page structure (userFeedback)
+          if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
+            return {
+              ...old,
+              userFeedback: old.userFeedback.map((f: DocFeedback) =>
+                f.id === note.id
+                  ? {
+                      ...f,
+                      content: variables.data.content,
+                      updatedAt: new Date(),
+                    }
+                  : f,
+              ),
+            }
           }
-        }
 
-        // Handle account/notes page structure (feedback)
-        if ('feedback' in old && Array.isArray(old.feedback)) {
-          return {
-            ...old,
-            feedback: old.feedback.map((f: any) =>
-              f.id === note.id
-                ? {
-                    ...f,
-                    content: variables.data.content,
-                    updatedAt: new Date(),
-                  }
-                : f,
-            ),
+          // Handle account/notes page structure (feedback)
+          if ('feedback' in old && Array.isArray(old.feedback)) {
+            return {
+              ...old,
+              feedback: old.feedback.map((f: DocFeedback) =>
+                f.id === note.id
+                  ? {
+                      ...f,
+                      content: variables.data.content,
+                      updatedAt: new Date(),
+                    }
+                  : f,
+              ),
+            }
           }
-        }
 
-        return old
-      })
+          return old
+        },
+      )
 
       return { previousData }
     },
@@ -209,35 +230,38 @@ export function DocFeedbackNote({
       })
 
       // Optimistically toggle collapsed state
-      queryClient.setQueriesData({ queryKey: ['docFeedback'] }, (old: any) => {
-        if (!old) return old
+      queryClient.setQueriesData(
+        { queryKey: ['docFeedback'] },
+        (old: DocFeedbackCacheData) => {
+          if (!old || typeof old !== 'object') return old
 
-        // Handle doc page structure (userFeedback)
-        if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
-          return {
-            ...old,
-            userFeedback: old.userFeedback.map((f: any) =>
-              f.id === note.id
-                ? { ...f, isCollapsed: variables.data.isCollapsed }
-                : f,
-            ),
+          // Handle doc page structure (userFeedback)
+          if ('userFeedback' in old && Array.isArray(old.userFeedback)) {
+            return {
+              ...old,
+              userFeedback: old.userFeedback.map((f: DocFeedback) =>
+                f.id === note.id
+                  ? { ...f, isCollapsed: variables.data.isCollapsed }
+                  : f,
+              ),
+            }
           }
-        }
 
-        // Handle account/notes page structure (feedback)
-        if ('feedback' in old && Array.isArray(old.feedback)) {
-          return {
-            ...old,
-            feedback: old.feedback.map((f: any) =>
-              f.id === note.id
-                ? { ...f, isCollapsed: variables.data.isCollapsed }
-                : f,
-            ),
+          // Handle account/notes page structure (feedback)
+          if ('feedback' in old && Array.isArray(old.feedback)) {
+            return {
+              ...old,
+              feedback: old.feedback.map((f: DocFeedback) =>
+                f.id === note.id
+                  ? { ...f, isCollapsed: variables.data.isCollapsed }
+                  : f,
+              ),
+            }
           }
-        }
 
-        return old
-      })
+          return old
+        },
+      )
 
       return { previousData }
     },

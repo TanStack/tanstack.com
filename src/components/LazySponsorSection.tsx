@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { twMerge } from 'tailwind-merge'
+import { ArrowRight } from 'lucide-react'
 import { useIntersectionObserver } from '~/hooks/useIntersectionObserver'
 import { getSponsorsForSponsorPack } from '~/server/sponsors'
 import { Button } from './Button'
@@ -11,7 +11,6 @@ type LazySponsorSectionProps = {
   title?: React.ReactNode
   aspectRatio?: string
   showCTA?: boolean
-  ctaClassName?: string
 }
 
 function SponsorPackWithQuery() {
@@ -28,7 +27,6 @@ export function LazySponsorSection({
   title = 'Sponsors',
   aspectRatio = '1/1',
   showCTA = true,
-  ctaClassName = 'bg-emerald-500 border-emerald-500 hover:bg-emerald-600 text-white',
 }: LazySponsorSectionProps) {
   const { ref, isIntersecting } = useIntersectionObserver({
     rootMargin: '50%', // Half viewport height - triggers when about half a page away
@@ -36,35 +34,30 @@ export function LazySponsorSection({
   })
 
   return (
-    <div ref={ref} className="relative text-lg overflow-hidden">
-      <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-        {title}
-      </h3>
-      <div
-        className="my-4 flex flex-wrap mx-auto max-w-(--breakpoint-lg) relative"
-        style={{ aspectRatio }}
-      >
-        {!isIntersecting ? (
-          // Realistic placeholder bubbles - maintain exact same dimensions to prevent CLS
-          <PlaceholderSponsorPack />
-        ) : (
-          // Load with suspense when intersecting
-          <React.Suspense fallback={<PlaceholderSponsorPack />}>
-            <SponsorPackWithQuery />
-          </React.Suspense>
-        )}
-      </div>
-      {showCTA ? (
-        <div className="flex justify-center">
-          <Button
-            as="a"
-            href="https://github.com/sponsors/tannerlinsley"
-            className={twMerge('py-2 px-4 text-sm', ctaClassName)}
-          >
-            Become a Sponsor!
-          </Button>
+    <div
+      ref={ref}
+      className="px-4 w-full lg:max-w-(--breakpoint-lg) md:mx-auto"
+    >
+      <div className="space-y-8">
+        <h3 className="text-3xl font-bold">{title}</h3>
+        <div className="flex flex-wrap relative w-full" style={{ aspectRatio }}>
+          {!isIntersecting ? (
+            <PlaceholderSponsorPack />
+          ) : (
+            <React.Suspense fallback={<PlaceholderSponsorPack />}>
+              <SponsorPackWithQuery />
+            </React.Suspense>
+          )}
         </div>
-      ) : null}
+        {showCTA ? (
+          <div className="flex justify-center">
+            <Button as="a" href="https://github.com/sponsors/tannerlinsley">
+              Become a Sponsor
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        ) : null}
+      </div>
     </div>
   )
 }

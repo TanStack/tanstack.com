@@ -27,6 +27,7 @@ import { useCapabilities } from '~/hooks/useCapabilities'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { NpmIcon } from '~/components/icons/NpmIcon'
 import { Sparkles } from 'lucide-react'
+import type { Capability } from '~/db/types'
 
 export const Route = createFileRoute('/admin')({
   beforeLoad: async () => {
@@ -68,7 +69,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const allAdminItems: (LinkOptions & {
     label: string
     icon: React.ReactNode
-    requiredCapability?: string
+    requiredCapability?: Capability
   })[] = [
     {
       label: 'Dashboard',
@@ -143,7 +144,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     // Items without requiredCapability are admin-only
     if (!item.requiredCapability) return isAdmin
     // Items with requiredCapability: admin sees all, others need the capability
-    return isAdmin || capabilities.includes(item.requiredCapability as any)
+    return isAdmin || capabilities.includes(item.requiredCapability)
   })
 
   const menuItems = (

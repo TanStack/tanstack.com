@@ -482,11 +482,9 @@ export function DocsLayout({
   )
 
   const docsMatch = matches.find((d) => d.pathname.includes('/docs'))
+  const docsPathname = docsMatch?.pathname ?? ''
 
-  const relativePathname = lastMatch.pathname.replace(
-    docsMatch!.pathname + '/',
-    '',
-  )
+  const relativePathname = lastMatch.pathname.replace(docsPathname + '/', '')
 
   const index = internalFlatMenu.findIndex((d) => d?.to === relativePathname)
   const prevItem = internalFlatMenu[index - 1]

@@ -333,9 +333,10 @@ function RouteComp() {
 
     // Library filter
     if (search.libraries && search.libraries.length > 0) {
+      const selectedLibraries = search.libraries
       // Include partners that match any of the selected libraries
       return partner.libraries?.some((lib) =>
-        search.libraries!.includes(lib as Library['id']),
+        selectedLibraries.includes(lib as Library['id']),
       )
     }
 
@@ -393,15 +394,15 @@ function RouteComp() {
                     ({search.status === 'inactive' ? 'previous' : 'current'})
                   </span>
                 )}
-                {hasLibraryFilter && (
+                {hasLibraryFilter && search.libraries && (
                   <span>
                     {' '}
                     for{' '}
-                    {search.libraries!.length === 1
+                    {search.libraries.length === 1
                       ? 'library'
                       : 'libraries'}:{' '}
                     <span className="font-medium">
-                      {search.libraries!.join(', ')}
+                      {search.libraries.join(', ')}
                     </span>
                   </span>
                 )}

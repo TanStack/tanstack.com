@@ -10,13 +10,14 @@ import { FeedEntry } from '~/components/FeedEntry'
 import { FeedSyncStatus } from '~/components/admin/FeedSyncStatus'
 import { FeedPage as FeedPageComponent } from '~/components/FeedPage'
 import { useFeedQuery } from '~/hooks/useFeedQuery'
-import { useCapabilities } from '~/hooks/useCapabilities'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import {
   libraryIdSchema,
   entryTypeSchema,
   releaseLevelSchema,
 } from '~/utils/schemas'
+import { AdminAccessDenied, AdminLoading } from '~/components/admin'
+import { useAdminGuard } from '~/hooks/useAdminGuard'
+import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
 
 export const Route = createFileRoute('/admin/feed/')({
   component: FeedAdminPage,
@@ -56,12 +57,9 @@ export const Route = createFileRoute('/admin/feed/')({
 })
 
 function FeedAdminPage() {
+  const guard = useAdminGuard()
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
-
-  const userQuery = useCurrentUserQuery()
-  const user = userQuery.data
-  const capabilities = useCapabilities()
 
   const feedQuery = useFeedQuery({
     page: search.page ?? 1,
@@ -96,12 +94,14 @@ function FeedAdminPage() {
     feedQuery.refetch()
   }
 
-  const handleDelete = async (entry: FeedEntry) => {
-    if (window.confirm(`Are you sure you want to delete "${entry.title}"?`)) {
+  const { handleDelete } = useDeleteWithConfirmation({
+    getItemName: (entry: FeedEntry) => entry.title,
+    deleteFn: async (entry) => {
       await deleteEntry.mutateAsync({ id: entry.id })
       feedQuery.refetch()
-    }
-  }
+    },
+    itemLabel: 'entry',
+  })
 
   const handleEdit = (entry: FeedEntry) => {
     navigate({
@@ -110,26 +110,11 @@ function FeedAdminPage() {
     })
   }
 
-  if (user === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    )
+  if (guard.status === 'loading') {
+    return <AdminLoading />
   }
-
-  const canAdmin = capabilities.includes('admin')
-  if (user && !canAdmin) {
-    return (
-      <div className="flex-1 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            You don't have permission to access the admin area.
-          </p>
-        </div>
-      </div>
-    )
+  if (guard.status === 'denied') {
+    return <AdminAccessDenied />
   }
 
   return (

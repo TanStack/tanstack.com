@@ -2,7 +2,6 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
-import { Spinner } from '~/components/Spinner'
 import { UsersTopBarFilters } from '~/components/UsersTopBarFilters'
 import {
   Table,
@@ -29,7 +28,6 @@ import {
 } from '~/utils/mutations'
 import { VALID_CAPABILITIES, type Capability } from '~/db/types'
 import * as v from 'valibot'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { listUsersQueryOptions } from '~/queries/users'
 import {
   listRolesQueryOptions,
@@ -37,21 +35,31 @@ import {
   getBulkEffectiveCapabilitiesQueryOptions,
 } from '~/queries/roles'
 import { getUserRoles } from '~/utils/roles.functions'
-import { Lock, Save, SquarePen, X, User } from 'lucide-react'
+import { Save, SquarePen, X, Users } from 'lucide-react'
+import {
+  AdminAccessDenied,
+  AdminLoading,
+  AdminPageHeader,
+  AdminEmptyState,
+  UserAvatar,
+} from '~/components/admin'
+import { useAdminGuard } from '~/hooks/useAdminGuard'
+import { useToggleArray } from '~/hooks/useToggleArray'
+import { handleAdminError } from '~/utils/adminErrors'
 
-// User type for table
+// User type for table - matches the shape returned by listUsers
 type User = {
   _id: string
   userId: string
   email: string
-  name?: string
-  displayUsername?: string
-  image?: string
-  capabilities?: string[]
-  adsDisabled?: boolean
-  interestedInHidingAds?: boolean
-  createdAt?: number
-  updatedAt?: number
+  name: string | null
+  displayUsername: string | null
+  image: string | null
+  capabilities: Capability[]
+  adsDisabled: boolean | null
+  interestedInHidingAds: boolean | null
+  createdAt: number
+  updatedAt: number
 }
 
 type UsersSearch = {
@@ -190,11 +198,12 @@ export const Route = createFileRoute('/admin/users')({
 })
 
 function UsersPage() {
+  const guard = useAdminGuard()
   const [editingUserId, setEditingUserId] = useState<string | null>(null)
-  const [editingCapabilities, setEditingCapabilities] = useState<Capability[]>(
-    [],
-  )
-  const [editingRoleIds, setEditingRoleIds] = useState<string[]>([])
+  const [editingCapabilities, toggleCapability, setEditingCapabilities] =
+    useToggleArray<Capability>([])
+  const [editingRoleIds, toggleRole, setEditingRoleIds] =
+    useToggleArray<string>([])
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [bulkActionRoleId, setBulkActionRoleId] = useState<string | null>(null)
   const navigate = Route.useNavigate()
@@ -268,10 +277,8 @@ function UsersPage() {
   )
 
   const currentPageIndex = search.page ?? 0
-
-  const userQuery = useCurrentUserQuery()
-  const user = userQuery.data
   const pageSize = search.pageSize ?? 10
+
   const usersQuery = useQuery({
     ...listUsersQueryOptions({
       pagination: {
@@ -374,11 +381,7 @@ function UsersPage() {
       setEditingUserId(null)
       setEditingRoleIds([])
     } catch (error) {
-      console.error(
-        'Failed to update user:',
-        error instanceof Error ? error.message : 'Unknown error',
-      )
-      alert(error instanceof Error ? error.message : 'Failed to update user')
+      handleAdminError(error, 'Failed to update user')
     }
   }, [
     editingUserId,
@@ -386,37 +389,14 @@ function UsersPage() {
     editingRoleIds,
     updateUserCapabilities,
     assignRolesToUser,
+    setEditingRoleIds,
   ])
 
   const handleCancelEdit = useCallback(() => {
     setEditingUserId(null)
     setEditingCapabilities([])
     setEditingRoleIds([])
-  }, [])
-
-  const toggleCapability = useCallback(
-    (capability: Capability) => {
-      if (editingCapabilities.includes(capability)) {
-        setEditingCapabilities(
-          editingCapabilities.filter((c) => c !== capability),
-        )
-      } else {
-        setEditingCapabilities([...editingCapabilities, capability])
-      }
-    },
-    [editingCapabilities],
-  )
-
-  const toggleRole = useCallback(
-    (roleId: string) => {
-      if (editingRoleIds.includes(roleId)) {
-        setEditingRoleIds(editingRoleIds.filter((id) => id !== roleId))
-      } else {
-        setEditingRoleIds([...editingRoleIds, roleId])
-      }
-    },
-    [editingRoleIds],
-  )
+  }, [setEditingCapabilities, setEditingRoleIds])
 
   const toggleUserSelection = useCallback(
     (userId: string) => {
@@ -451,16 +431,12 @@ function UsersPage() {
       setSelectedUserIds(new Set())
       setBulkActionRoleId(null)
     } catch (error) {
-      console.error(
-        'Failed to assign role to users:',
-        error instanceof Error ? error.message : 'Unknown error',
-      )
-      alert(error instanceof Error ? error.message : 'Failed to assign role')
+      handleAdminError(error, 'Failed to assign role')
     }
   }, [selectedUserIds, bulkActionRoleId, bulkAssignRolesToUsers])
 
   const handleBulkUpdateCapabilities = useCallback(
-    async (capabilities: Capability[]) => {
+    async (caps: Capability[]) => {
       if (selectedUserIds.size === 0) return
 
       if (
@@ -474,19 +450,11 @@ function UsersPage() {
       try {
         await bulkUpdateUserCapabilities.mutateAsync({
           userIds: Array.from(selectedUserIds),
-          capabilities: capabilities,
+          capabilities: caps,
         })
         setSelectedUserIds(new Set())
       } catch (error) {
-        console.error(
-          'Failed to update user capabilities:',
-          error instanceof Error ? error.message : 'Unknown error',
-        )
-        alert(
-          error instanceof Error
-            ? error.message
-            : 'Failed to update capabilities',
-        )
+        handleAdminError(error, 'Failed to update capabilities')
       }
     },
     [selectedUserIds, bulkUpdateUserCapabilities],
@@ -593,28 +561,20 @@ function UsersPage() {
         header: 'User',
         meta: { sortable: true },
         cell: ({ row }) => {
-          const user = row.original
-          const displayName = user.name || user.displayUsername || ''
+          const userData = row.original
+          const displayName = userData.name || userData.displayUsername || ''
           return (
             <Link
               to="/admin/users/$userId"
-              params={{ userId: user._id }}
+              params={{ userId: userData._id }}
               className="flex items-center gap-3 hover:opacity-80"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex-shrink-0 h-10 w-10">
-                {user.image ? (
-                  <img
-                    className="h-10 w-10 rounded-full"
-                    src={user.image}
-                    alt=""
-                  />
-                ) : (
-                  <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <User className="text-gray-500 dark:text-gray-400 text-xs" />
-                  </div>
-                )}
-              </div>
+              <UserAvatar
+                image={userData.image}
+                name={userData.name}
+                size="lg"
+              />
               {displayName && (
                 <div className="text-sm font-medium text-gray-900 dark:text-white">
                   {displayName}
@@ -817,36 +777,12 @@ function UsersPage() {
     manualPagination: true,
   })
 
-  // If not authenticated, show loading
-  if (user === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    )
+  // Auth guard
+  if (guard.status === 'loading') {
+    return <AdminLoading />
   }
-
-  // If authenticated but no admin capability, show unauthorized
-  const capabilities = user?.capabilities || []
-  const canAdmin = capabilities.includes('admin')
-  if (user && !canAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            You don't have permission to access the admin area.
-          </p>
-          <Link
-            to="/"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-          >
-            Back to Home
-          </Link>
-        </div>
-      </div>
-    )
+  if (guard.status === 'denied') {
+    return <AdminAccessDenied />
   }
 
   if (!usersQuery) {
@@ -872,14 +808,11 @@ function UsersPage() {
   return (
     <div className="w-full p-4">
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Manage Users
-          </h1>
-          {usersQuery.isFetching && (
-            <Spinner className="text-gray-500 dark:text-gray-400" />
-          )}
-        </div>
+        <AdminPageHeader
+          icon={<Users />}
+          title="Manage Users"
+          isLoading={usersQuery.isFetching}
+        />
 
         <UsersTopBarFilters
           filters={{
@@ -1022,15 +955,11 @@ function UsersPage() {
           </Table>
 
           {(!usersQuery.data || usersQuery.data?.page.length === 0) && (
-            <div className="text-center py-12">
-              <User className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                No users found
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                There are currently no users in the system.
-              </p>
-            </div>
+            <AdminEmptyState
+              icon={<Users className="w-12 h-12" />}
+              title="No users found"
+              description="There are currently no users in the system."
+            />
           )}
 
           {/* Pagination Controls - Bottom (Sticky) */}

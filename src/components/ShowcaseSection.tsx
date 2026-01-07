@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import {
   getFeaturedShowcasesQueryOptions,
   getShowcasesByLibraryQueryOptions,
@@ -11,6 +11,7 @@ import { ShowcaseCard, ShowcaseCardSkeleton } from './ShowcaseCard'
 import { buttonStyles } from './Button'
 import { ArrowRight, Plus } from 'lucide-react'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useLoginModal } from '~/contexts/LoginModalContext'
 
 interface ShowcaseSectionProps {
   title?: string
@@ -62,9 +63,9 @@ export function ShowcaseSection({
   showViewAll = true,
   minItems = 3,
 }: ShowcaseSectionProps) {
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const currentUser = useCurrentUser()
+  const { openLoginModal } = useLoginModal()
 
   const queryOptions = libraryId
     ? getShowcasesByLibraryQueryOptions({ libraryId, limit })
@@ -180,7 +181,9 @@ export function ShowcaseSection({
 
   const handleVote = (showcaseId: string, value: 1 | -1) => {
     if (!currentUser) {
-      navigate({ to: '/auth/login', search: { redirect: '/showcase' } })
+      openLoginModal({
+        onSuccess: () => voteMutation.mutate({ showcaseId, value }),
+      })
       return
     }
     voteMutation.mutate({ showcaseId, value })

@@ -35,14 +35,70 @@ function decodeHtmlEntities(str: string): string {
   return textarea.value
 }
 
-// Custom Highlight component that decodes HTML entities
-function DecodedHighlight({ attribute, hit }: { attribute: string; hit: any }) {
-  // Navigate nested paths for both raw value and highlight result
-  const getNestedValue = (obj: any, path: string) =>
-    path.split('.').reduce((o, key) => o?.[key], obj)
+// Algolia hit types - our docs-specific shape
+interface AlgoliaHierarchy {
+  lvl0?: string
+  lvl1?: string
+  lvl2?: string
+  lvl3?: string
+  lvl4?: string
+  lvl5?: string
+  lvl6?: string
+  [key: string]: string | undefined
+}
 
-  const highlighted = getNestedValue(hit._highlightResult, attribute)?.value
-  const raw = getNestedValue(hit, attribute)
+interface AlgoliaHighlightResult {
+  value?: string
+  matchLevel?: string
+  matchedWords?: string[]
+}
+
+// Docs-specific hit shape from Algolia
+// Using Record for flexibility with the Algolia SDK types
+interface AlgoliaHit extends Record<string, unknown> {
+  objectID: string
+  url: string
+  library?: string
+  hierarchy: AlgoliaHierarchy
+  content?: string
+  type?: string
+  __position: number
+  __queryID?: string
+  _highlightResult?: Record<string, unknown>
+  _snippetResult?: Record<string, unknown>
+}
+
+// Custom Highlight component that decodes HTML entities
+function DecodedHighlight({
+  attribute,
+  hit,
+}: {
+  attribute: string
+  hit: AlgoliaHit
+}) {
+  // Navigate nested paths for both raw value and highlight result
+  const getNestedValue = (
+    obj: Record<string, unknown> | undefined,
+    path: string,
+  ): unknown => {
+    let current: unknown = obj
+    for (const key of path.split('.')) {
+      if (current == null || typeof current !== 'object') return undefined
+      current = (current as Record<string, unknown>)[key]
+    }
+    return current
+  }
+
+  const highlighted = (
+    getNestedValue(
+      hit._highlightResult as Record<string, unknown>,
+      attribute,
+    ) as AlgoliaHighlightResult | undefined
+  )?.value
+  const raw = getNestedValue(
+    hit as unknown as Record<string, unknown>,
+    attribute,
+  ) as string | undefined
 
   if (!highlighted) {
     return <>{decodeHtmlEntities(raw || '')}</>
@@ -231,7 +287,7 @@ const Hit = ({
   refinedLibrary,
   refinedFramework,
 }: {
-  hit: any
+  hit: AlgoliaHit
   isFocused?: boolean
   refinedLibrary: string | null
   refinedFramework: string | null
@@ -357,7 +413,10 @@ const Hit = ({
           </h3>
           {hit.content ? (
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5 ml-8 line-clamp-2 [&_mark]:font-black [&_mark]:!bg-transparent [&_mark]:text-black [&_mark]:dark:text-white [&_mark]:inline [&_mark]:!p-0 [&_mark]:!m-0 [&_mark]:!rounded-none">
-              <Snippet attribute="content" hit={hit} />
+              <Snippet
+                attribute="content"
+                hit={hit as Parameters<typeof Snippet>[0]['hit']}
+              />
             </p>
           ) : null}
         </div>
@@ -421,7 +480,7 @@ function LibraryRefinement() {
           {currentLibrary ? (
             <span className="uppercase font-black [letter-spacing:-.05em]">
               <span className="opacity-50">TanStack</span>{' '}
-              <span className={(currentLibrary as any).textStyle}>
+              <span className={currentLibrary.textStyle}>
                 {currentLibrary.id.toUpperCase()}
               </span>
             </span>
@@ -448,7 +507,7 @@ function LibraryRefinement() {
             >
               <span className="uppercase font-black [letter-spacing:-.05em]">
                 <span className="opacity-50">TanStack</span>{' '}
-                <span className={lib ? (lib as any).textStyle : ''}>
+                <span className={lib?.textStyle ?? ''}>
                   {item.label.toUpperCase()}
                 </span>
               </span>
@@ -894,7 +953,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
                       }}
                       className={twMerge(
                         'px-2 py-1 text-xs font-black uppercase rounded text-white transition-opacity hover:opacity-80',
-                        (lib as any).bgStyle,
+                        lib.bgStyle,
                       )}
                     >
                       {lib.id}
@@ -957,7 +1016,7 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
       {hits.map((hit, index) => (
         <Hit
           key={hit.objectID}
-          hit={hit}
+          hit={hit as AlgoliaHit}
           isFocused={index === focusedIndex}
           refinedLibrary={refinedLibrary}
           refinedFramework={refinedFramework}

@@ -31,9 +31,7 @@ export function PartnersSection({
     <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto mx-auto max-w-full">
       {filtered.length ? (
         <div className="space-y-8">
-          <h3 className="text-center text-3xl leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-8">
-            {title}
-          </h3>
+          <h3 className="text-3xl font-bold">{title}</h3>
           <PartnersGrid />
           <PartnershipCallout libraryId={libraryId} />
           {showPreviousLink ? (

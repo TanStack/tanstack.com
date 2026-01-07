@@ -34,7 +34,7 @@ const CustomHeading = ({
       (child.type === 'a' || child.type === MarkdownLink)
     ) {
       // replace anchor child with its own children so outer anchor remains the only link
-      return (child.props as any).children ?? null
+      return (child.props as { children?: React.ReactNode }).children ?? null
     }
     return child
   })

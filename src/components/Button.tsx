@@ -8,22 +8,33 @@ export const buttonStyles = [
   'cursor-pointer transition-colors duration-200 text-xs font-medium',
 ].join(' ')
 
-type ButtonProps<T extends React.ElementType = 'button'> = {
-  as?: T
+type ButtonOwnProps<TElement extends React.ElementType = 'button'> = {
+  as?: TElement
   children: React.ReactNode
   className?: string
-} & Omit<React.ComponentPropsWithoutRef<T>, 'as' | 'className' | 'children'>
+}
 
-export function Button<T extends React.ElementType = 'button'>({
+type ButtonProps<TElement extends React.ElementType = 'button'> =
+  ButtonOwnProps<TElement> &
+    Omit<
+      React.ComponentPropsWithoutRef<TElement>,
+      keyof ButtonOwnProps<TElement>
+    >
+
+type ButtonComponent = <TElement extends React.ElementType = 'button'>(
+  props: ButtonProps<TElement>,
+) => React.ReactNode
+
+export const Button: ButtonComponent = ({
   as,
   children,
   className,
   ...props
-}: ButtonProps<T>) {
+}) => {
   const Component = as || 'button'
-  return (
-    <Component className={twMerge(buttonStyles, className)} {...props}>
-      {children}
-    </Component>
+  return React.createElement(
+    Component,
+    { className: twMerge(buttonStyles, className), ...props },
+    children,
   )
 }

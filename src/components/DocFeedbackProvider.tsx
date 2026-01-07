@@ -7,6 +7,7 @@ import { DocFeedbackFloatingButton } from './DocFeedbackFloatingButton'
 import { getDocFeedbackForPageQueryOptions } from '~/queries/docFeedback'
 import { createDocFeedback } from '~/utils/docFeedback.functions'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useLoginModal } from '~/contexts/LoginModalContext'
 import {
   findReferenceableBlocks,
   getBlockIdentifier,
@@ -28,6 +29,7 @@ export function DocFeedbackProvider({
   libraryVersion,
 }: DocFeedbackProviderProps) {
   const user = useCurrentUser()
+  const { openLoginModal } = useLoginModal()
   const containerRef = React.useRef<HTMLDivElement>(null)
 
   const [creatingState, setCreatingState] = React.useState<{
@@ -76,9 +78,9 @@ export function DocFeedbackProvider({
     )
   }, [feedbackData, user])
 
-  // Find blocks and compute selectors after render
+  // Find blocks and compute selectors after render (runs for all users to show teasers)
   React.useEffect(() => {
-    if (!user || !containerRef.current) return
+    if (!containerRef.current) return
 
     const container = containerRef.current
     const blocks = findReferenceableBlocks(container)
@@ -164,7 +166,7 @@ export function DocFeedbackProvider({
         }
       })
     }
-  }, [user, children])
+  }, [children])
 
   // Update block indicators when notes or improvements change
   React.useEffect(() => {
@@ -205,6 +207,17 @@ export function DocFeedbackProvider({
       const selector = blockSelectors.get(blockId)
       if (!selector) return
 
+      // If not logged in, show login modal
+      if (!user) {
+        openLoginModal({
+          onSuccess: () => {
+            // After login, open the creating interface
+            setCreatingState({ blockId, type })
+          },
+        })
+        return
+      }
+
       // Check if there's existing feedback for this block
       const existingNote = userNotes.find((n) => n.blockSelector === selector)
       const existingImprovement = userImprovements.find(
@@ -226,27 +239,25 @@ export function DocFeedbackProvider({
         type,
       })
     },
-    [blockSelectors, userNotes, userImprovements],
+    [blockSelectors, userNotes, userImprovements, user, openLoginModal],
   )
-
-  if (!user) {
-    return <div ref={containerRef}>{children}</div>
-  }
 
   return (
     <div ref={containerRef} className="relative">
       {children}
 
-      {/* Render floating buttons for each block */}
+      {/* Render floating buttons for each block (visible to all users) */}
       {Array.from(blockSelectors.keys()).map((blockId) => {
         const selector = blockSelectors.get(blockId)
         if (!selector) return null
 
-        // Check if this block has a note or improvement
-        const note = userNotes.find((n) => n.blockSelector === selector)
-        const improvement = userImprovements.find(
-          (n) => n.blockSelector === selector,
-        )
+        // Check if this block has a note or improvement (only for logged-in users)
+        const note = user
+          ? userNotes.find((n) => n.blockSelector === selector)
+          : undefined
+        const improvement = user
+          ? userImprovements.find((n) => n.blockSelector === selector)
+          : undefined
         const isHovered = hoveredBlockId === blockId
 
         return (
@@ -267,7 +278,7 @@ export function DocFeedbackProvider({
         )
       })}
 
-      {/* Render notes inline */}
+      {/* Render notes inline (only for logged-in users) */}
       {userNotes.map((note) => {
         // Find the block ID for this note's selector
         const blockId = Array.from(blockSelectors.entries()).find(

@@ -27,6 +27,7 @@ import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
 import { Route as ShowcaseMineRouteImport } from './routes/showcase/mine'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
+import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
@@ -44,6 +45,7 @@ import { Route as LibrariesMaintainersRouteImport } from './routes/_libraries/ma
 import { Route as LibrariesLoginRouteImport } from './routes/_libraries/login'
 import { Route as LibrariesLearnRouteImport } from './routes/_libraries/learn'
 import { Route as LibrariesFeedbackLeaderboardRouteImport } from './routes/_libraries/feedback-leaderboard'
+import { Route as LibrariesExploreRouteImport } from './routes/_libraries/explore'
 import { Route as LibrariesEthosRouteImport } from './routes/_libraries/ethos'
 import { Route as LibrariesDashboardRouteImport } from './routes/_libraries/dashboard'
 import { Route as LibrariesBrandGuideRouteImport } from './routes/_libraries/brand-guide'
@@ -191,6 +193,11 @@ const AuthSignoutRoute = AuthSignoutRouteImport.update({
   path: '/auth/signout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthPopupSuccessRoute = AuthPopupSuccessRouteImport.update({
+  id: '/auth/popup-success',
+  path: '/auth/popup-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
   id: '/api/uploadthing',
   path: '/api/uploadthing',
@@ -277,6 +284,11 @@ const LibrariesFeedbackLeaderboardRoute =
     path: '/feedback-leaderboard',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
+const LibrariesExploreRoute = LibrariesExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => LibrariesRouteRoute,
+} as any)
 const LibrariesEthosRoute = LibrariesEthosRouteImport.update({
   id: '/ethos',
   path: '/ethos',
@@ -602,6 +614,7 @@ export interface FileRoutesByFullPath {
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
+  '/explore': typeof LibrariesExploreRoute
   '/feedback-leaderboard': typeof LibrariesFeedbackLeaderboardRoute
   '/learn': typeof LibrariesLearnRoute
   '/login': typeof LibrariesLoginRoute
@@ -619,6 +632,7 @@ export interface FileRoutesByFullPath {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
@@ -691,6 +705,7 @@ export interface FileRoutesByTo {
   '/brand-guide': typeof LibrariesBrandGuideRoute
   '/dashboard': typeof LibrariesDashboardRoute
   '/ethos': typeof LibrariesEthosRoute
+  '/explore': typeof LibrariesExploreRoute
   '/feedback-leaderboard': typeof LibrariesFeedbackLeaderboardRoute
   '/learn': typeof LibrariesLearnRoute
   '/login': typeof LibrariesLoginRoute
@@ -708,6 +723,7 @@ export interface FileRoutesByTo {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
@@ -785,6 +801,7 @@ export interface FileRoutesById {
   '/_libraries/brand-guide': typeof LibrariesBrandGuideRoute
   '/_libraries/dashboard': typeof LibrariesDashboardRoute
   '/_libraries/ethos': typeof LibrariesEthosRoute
+  '/_libraries/explore': typeof LibrariesExploreRoute
   '/_libraries/feedback-leaderboard': typeof LibrariesFeedbackLeaderboardRoute
   '/_libraries/learn': typeof LibrariesLearnRoute
   '/_libraries/login': typeof LibrariesLoginRoute
@@ -802,6 +819,7 @@ export interface FileRoutesById {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
@@ -880,6 +898,7 @@ export interface FileRouteTypes {
     | '/brand-guide'
     | '/dashboard'
     | '/ethos'
+    | '/explore'
     | '/feedback-leaderboard'
     | '/learn'
     | '/login'
@@ -897,6 +916,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/popup-success'
     | '/auth/signout'
     | '/showcase/mine'
     | '/showcase/submit'
@@ -969,6 +989,7 @@ export interface FileRouteTypes {
     | '/brand-guide'
     | '/dashboard'
     | '/ethos'
+    | '/explore'
     | '/feedback-leaderboard'
     | '/learn'
     | '/login'
@@ -986,6 +1007,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/popup-success'
     | '/auth/signout'
     | '/showcase/mine'
     | '/showcase/submit'
@@ -1062,6 +1084,7 @@ export interface FileRouteTypes {
     | '/_libraries/brand-guide'
     | '/_libraries/dashboard'
     | '/_libraries/ethos'
+    | '/_libraries/explore'
     | '/_libraries/feedback-leaderboard'
     | '/_libraries/learn'
     | '/_libraries/login'
@@ -1079,6 +1102,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/popup-success'
     | '/auth/signout'
     | '/showcase/mine'
     | '/showcase/submit'
@@ -1151,6 +1175,7 @@ export interface RootRouteChildren {
   RssDotxmlRoute: typeof RssDotxmlRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
+  AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
   ShowcaseMineRoute: typeof ShowcaseMineRoute
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
@@ -1293,6 +1318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/popup-success': {
+      id: '/auth/popup-success'
+      path: '/auth/popup-success'
+      fullPath: '/auth/popup-success'
+      preLoaderRoute: typeof AuthPopupSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/uploadthing': {
       id: '/api/uploadthing'
       path: '/api/uploadthing'
@@ -1410,6 +1442,13 @@ declare module '@tanstack/react-router' {
       path: '/feedback-leaderboard'
       fullPath: '/feedback-leaderboard'
       preLoaderRoute: typeof LibrariesFeedbackLeaderboardRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
+    '/_libraries/explore': {
+      id: '/_libraries/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof LibrariesExploreRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/ethos': {
@@ -1911,6 +1950,7 @@ interface LibrariesRouteRouteChildren {
   LibrariesBrandGuideRoute: typeof LibrariesBrandGuideRoute
   LibrariesDashboardRoute: typeof LibrariesDashboardRoute
   LibrariesEthosRoute: typeof LibrariesEthosRoute
+  LibrariesExploreRoute: typeof LibrariesExploreRoute
   LibrariesFeedbackLeaderboardRoute: typeof LibrariesFeedbackLeaderboardRoute
   LibrariesLearnRoute: typeof LibrariesLearnRoute
   LibrariesLoginRoute: typeof LibrariesLoginRoute
@@ -1947,6 +1987,7 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesBrandGuideRoute: LibrariesBrandGuideRoute,
   LibrariesDashboardRoute: LibrariesDashboardRoute,
   LibrariesEthosRoute: LibrariesEthosRoute,
+  LibrariesExploreRoute: LibrariesExploreRoute,
   LibrariesFeedbackLeaderboardRoute: LibrariesFeedbackLeaderboardRoute,
   LibrariesLearnRoute: LibrariesLearnRoute,
   LibrariesLoginRoute: LibrariesLoginRoute,
@@ -2048,6 +2089,7 @@ const rootRouteChildren: RootRouteChildren = {
   RssDotxmlRoute: RssDotxmlRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
+  AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
   ShowcaseMineRoute: ShowcaseMineRoute,
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,

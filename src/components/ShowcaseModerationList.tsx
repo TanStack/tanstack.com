@@ -61,7 +61,7 @@ interface ShowcaseModerationListProps {
   isModeratingId?: string
 }
 
-const libraryMap = new Map(libraries.map((lib) => [lib.id, lib]))
+const libraryMap = new Map(libraries.map((lib) => [lib.id as string, lib]))
 
 export function ShowcaseModerationList({
   data,
@@ -265,7 +265,7 @@ export function ShowcaseModerationList({
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {showcase.libraries.slice(0, 3).map((libId) => {
-                        const lib = libraryMap.get(libId as any)
+                        const lib = libraryMap.get(libId)
                         return (
                           <span
                             key={libId}
@@ -441,7 +441,7 @@ export function ShowcaseModerationList({
                             </h4>
                             <div className="flex flex-wrap gap-1">
                               {showcase.libraries.map((libId) => {
-                                const lib = libraryMap.get(libId as any)
+                                const lib = libraryMap.get(libId)
                                 return (
                                   <span
                                     key={libId}

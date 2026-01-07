@@ -3,6 +3,7 @@ import { env } from '~/utils/env'
 import {
   generateOAuthState,
   createOAuthStateCookie,
+  createOAuthPopupCookie,
   buildGitHubAuthUrl,
   buildGoogleAuthUrl,
 } from '~/auth/index.server'
@@ -31,6 +32,13 @@ export const Route = createFileRoute('/auth/$provider/start')({
         const isProduction = process.env.NODE_ENV === 'production'
         const stateCookie = createOAuthStateCookie(state, isProduction)
 
+        // Check if this is a popup OAuth flow
+        const url = new URL(request.url)
+        const isPopup = url.searchParams.get('popup') === 'true'
+        const popupCookie = isPopup
+          ? createOAuthPopupCookie(isProduction)
+          : null
+
         // Build OAuth URL based on provider
         const origin = env.SITE_URL || new URL(request.url).origin
         const redirectUri = `${origin}/api/auth/callback/${provider}`
@@ -53,12 +61,16 @@ export const Route = createFileRoute('/auth/$provider/start')({
         }
 
         // Return redirect with state cookie set
+        const headers = new Headers()
+        headers.set('Location', authUrl)
+        headers.append('Set-Cookie', stateCookie)
+        if (popupCookie) {
+          headers.append('Set-Cookie', popupCookie)
+        }
+
         return new Response(null, {
           status: 302,
-          headers: {
-            Location: authUrl,
-            'Set-Cookie': stateCookie,
-          },
+          headers,
         })
       },
     },

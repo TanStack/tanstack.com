@@ -11,10 +11,8 @@ export function FeatureGrid({ title, items, gridClassName }: FeatureGridProps) {
   return (
     <div className="px-4 sm:px-6 lg:px-8 mx-auto">
       {title ? (
-        <div className=" sm:text-center pb-16">
-          <h3 className="text-3xl text-center mx-auto leading-tight font-extrabold tracking-tight sm:text-4xl lg:leading-none mt-2">
-            {title}
-          </h3>
+        <div className="pb-8">
+          <h3 className="text-3xl font-bold">{title}</h3>
         </div>
       ) : null}
       <div

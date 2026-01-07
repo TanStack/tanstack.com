@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SponsorsEmbedRouteImport } from './routes/sponsors-embed'
+import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as PartnersEmbedRouteImport } from './routes/partners-embed'
 import { Route as MerchRouteImport } from './routes/merch'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
@@ -104,6 +105,11 @@ import { Route as LibraryIdVersionDocsFrameworkFrameworkExamplesSplatRouteImport
 const SponsorsEmbedRoute = SponsorsEmbedRouteImport.update({
   id: '/sponsors-embed',
   path: '/sponsors-embed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RssDotxmlRoute = RssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnersEmbedRoute = PartnersEmbedRouteImport.update({
@@ -587,6 +593,7 @@ export interface FileRoutesByFullPath {
   '/llms.txt': typeof LlmsDottxtRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/account': typeof LibrariesAccountRouteWithChildren
@@ -677,6 +684,7 @@ export interface FileRoutesByTo {
   '/llms.txt': typeof LlmsDottxtRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/ads': typeof LibrariesAdsRoute
@@ -768,6 +776,7 @@ export interface FileRoutesById {
   '/llms.txt': typeof LlmsDottxtRoute
   '/merch': typeof MerchRoute
   '/partners-embed': typeof PartnersEmbedRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/sponsors-embed': typeof SponsorsEmbedRoute
   '/$libraryId/$version': typeof LibraryIdVersionRouteWithChildren
   '/_libraries/account': typeof LibrariesAccountRouteWithChildren
@@ -862,6 +871,7 @@ export interface FileRouteTypes {
     | '/llms.txt'
     | '/merch'
     | '/partners-embed'
+    | '/rss.xml'
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/account'
@@ -952,6 +962,7 @@ export interface FileRouteTypes {
     | '/llms.txt'
     | '/merch'
     | '/partners-embed'
+    | '/rss.xml'
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/ads'
@@ -1042,6 +1053,7 @@ export interface FileRouteTypes {
     | '/llms.txt'
     | '/merch'
     | '/partners-embed'
+    | '/rss.xml'
     | '/sponsors-embed'
     | '/$libraryId/$version'
     | '/_libraries/account'
@@ -1136,6 +1148,7 @@ export interface RootRouteChildren {
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   MerchRoute: typeof MerchRoute
   PartnersEmbedRoute: typeof PartnersEmbedRoute
+  RssDotxmlRoute: typeof RssDotxmlRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
@@ -1159,6 +1172,13 @@ declare module '@tanstack/react-router' {
       path: '/sponsors-embed'
       fullPath: '/sponsors-embed'
       preLoaderRoute: typeof SponsorsEmbedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rss.xml': {
+      id: '/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/rss.xml'
+      preLoaderRoute: typeof RssDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partners-embed': {
@@ -2025,6 +2045,7 @@ const rootRouteChildren: RootRouteChildren = {
   LlmsDottxtRoute: LlmsDottxtRoute,
   MerchRoute: MerchRoute,
   PartnersEmbedRoute: PartnersEmbedRoute,
+  RssDotxmlRoute: RssDotxmlRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
   AuthSignoutRoute: AuthSignoutRoute,

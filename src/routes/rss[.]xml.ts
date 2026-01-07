@@ -1,4 +1,5 @@
-import { createAPIFileRoute } from '@tanstack/react-start/api'
+import { createFileRoute } from '@tanstack/react-router'
+import { setResponseHeader } from '@tanstack/react-start/server'
 import { getPublishedPosts, formatAuthors } from '~/utils/blog'
 
 function escapeXml(unsafe: string): string {
@@ -20,12 +21,14 @@ function generateRSSFeed() {
       const postUrl = `${siteUrl}/blog/${post.slug}`
       const pubDate = new Date(post.published).toUTCString()
       const author = formatAuthors(post.authors)
-      
+
       // Use excerpt if available, otherwise try to get first paragraph from content
       let description = post.excerpt || ''
       if (!description && post.content) {
         // Extract first paragraph after frontmatter
-        const contentWithoutFrontmatter = post.content.replace(/^---[\s\S]*?---/, '').trim()
+        const contentWithoutFrontmatter = post.content
+          .replace(/^---[\s\S]*?---/, '')
+          .trim()
         const firstParagraph = contentWithoutFrontmatter.split('\n\n')[0]
         description = firstParagraph.replace(/!\[[^\]]*\]\([^)]*\)/g, '') // Remove images
       }
@@ -57,15 +60,25 @@ function generateRSSFeed() {
 </rss>`
 }
 
-export const APIRoute = createAPIFileRoute('/rss.xml')({
-  GET: async () => {
-    const rss = generateRSSFeed()
+export const Route = createFileRoute('/rss.xml')({
+  // @ts-ignore server property not in route types yet
+  server: {
+    handlers: {
+      GET: async () => {
+        const content = generateRSSFeed()
 
-    return new Response(rss, {
-      headers: {
-        'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=300, s-maxage=3600',
+        setResponseHeader('Content-Type', 'application/xml; charset=utf-8')
+        setResponseHeader(
+          'Cache-Control',
+          'public, max-age=300, must-revalidate',
+        )
+        setResponseHeader(
+          'CDN-Cache-Control',
+          'max-age=3600, stale-while-revalidate=3600',
+        )
+
+        return new Response(content)
       },
-    })
+    },
   },
 })

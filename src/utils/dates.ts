@@ -81,6 +81,14 @@ export function format(date: Date | number, formatStr: string): string {
         day: 'numeric',
       })
 
+    case 'MMMM d, yyyy':
+      // "April 29, 2023"
+      return d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+
     case 'yyyy-MM-dd':
       // "2023-04-29"
       return d.toISOString().split('T')[0]

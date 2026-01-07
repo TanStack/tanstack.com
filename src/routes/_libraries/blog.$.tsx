@@ -101,7 +101,7 @@ function BlogPost() {
 
   const blogContent = `<small>_by ${formatAuthors(authors)} on ${format(
     new Date(published || 0),
-    'MMM dd, yyyy',
+    'MMM d, yyyy',
   )}._</small>
 
 ${content}`

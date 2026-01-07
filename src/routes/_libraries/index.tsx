@@ -1,5 +1,4 @@
-import { Link, MatchRoute, createFileRoute } from '@tanstack/react-router'
-import { twMerge } from 'tailwind-merge'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import discordImage from '~/images/discord-logo-white.svg'
@@ -385,11 +384,11 @@ function Index() {
                                 dateTime={published}
                                 title={format(
                                   new Date(published),
-                                  'MMM dd, yyyy',
+                                  'MMM d, yyyy',
                                 )}
                               >
                                 {' '}
-                                on {format(new Date(published), 'MMM dd, yyyy')}
+                                on {format(new Date(published), 'MMM d, yyyy')}
                               </time>
                             ) : null}
                           </p>

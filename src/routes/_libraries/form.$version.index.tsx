@@ -1,7 +1,5 @@
-import * as React from 'react'
-
+import { createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
-import { Card } from '~/components/Card'
 import { formProject } from '~/libraries/form'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
@@ -10,18 +8,16 @@ import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { BottomCTA } from '~/components/BottomCTA'
-import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
-import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
-import OpenSourceStats from '~/components/OpenSourceStats'
+import { MaintainersSection } from '~/components/MaintainersSection'
 import { ossStatsQuery } from '~/queries/stats'
-import { CodeBlock } from '~/components/CodeBlock'
-import { AdGate } from '~/contexts/AdsContext'
-import { GamHeader } from '~/components/Gam'
-import { Link, createFileRoute } from '@tanstack/react-router'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryShowcases } from '~/components/ShowcaseSection'
+import { LibraryPageContainer } from '~/components/LibraryPageContainer'
+import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { CodeExampleCard } from '~/components/CodeExampleCard'
+import { StackBlitzSection } from '~/components/StackBlitzSection'
 
 const library = getLibrary('form')
 
@@ -38,69 +34,21 @@ export const Route = createFileRoute('/_libraries/form/$version/')({
   },
 })
 
-function FormVersionIndex() {
-  // sponsorsPromise no longer needed - using lazy loading
-  const { version } = Route.useParams()
-  const branch = getBranch(formProject, version)
-  const [framework, setFramework] = React.useState<Framework>('react')
-
-  return (
-    <>
-      <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
-        <LibraryHero
-          project={formProject}
-          cta={{
-            linkProps: {
-              to: '/$libraryId/$version/docs',
-              params: { libraryId: library.id, version },
-            },
-            label: 'Get Started',
-            className:
-              'bg-yellow-400 border-yellow-400 hover:bg-yellow-500 text-black',
-          }}
-        />
-
-        <div className="w-fit mx-auto px-4">
-          <OpenSourceStats library={library} />
-        </div>
-        <AdGate>
-          <GamHeader />
-        </AdGate>
-
-        <LibraryFeatureHighlights
-          featureHighlights={formProject.featureHighlights}
-        />
-
-        <LibraryTestimonials testimonials={formProject.testimonials} />
-
-        {/* Minimal code example card */}
-        <div className="px-4 space-y-4 flex flex-col items-center ">
-          <div className="text-3xl font-black">Just a quick look...</div>
-          <Card className="relative group overflow-hidden max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
-            <div>
-              <FrameworkIconTabs
-                frameworks={formProject.frameworks}
-                value={framework}
-                onChange={setFramework}
-              />
-            </div>
-            {(() => {
-              const codeByFramework: Partial<
-                Record<Framework, { lang: string; code: string }>
-              > = {
-                react: {
-                  lang: 'tsx',
-                  code: `import { useForm } from '@tanstack/react-form'
+const codeExamples: Partial<Record<Framework, { lang: string; code: string }>> =
+  {
+    react: {
+      lang: 'tsx',
+      code: `import { useForm } from '@tanstack/react-form'
 
 const form = useForm({
   defaultValues: { name: '' },
   onSubmit: async ({ value }) => console.log(value),
 })
 // Bind inputs to form.state and form.handleSubmit`,
-                },
-                vue: {
-                  lang: 'vue',
-                  code: `<script setup lang="ts">
+    },
+    vue: {
+      lang: 'vue',
+      code: `<script setup lang="ts">
 import { useForm } from '@tanstack/vue-form'
 
 const form = useForm({
@@ -115,16 +63,16 @@ const form = useForm({
     <button type="submit">Submit</button>
   </form>
 </template>`,
-                },
-                angular: {
-                  lang: 'ts',
-                  code: `import { Component } from '@angular/core'
+    },
+    angular: {
+      lang: 'ts',
+      code: `import { Component } from '@angular/core'
 import { createAngularForm } from '@tanstack/angular-form'
 
 @Component({
   standalone: true,
   selector: 'app-form',
-  template: '<form (submit)="form.handleSubmit($event)"><input [value]="form.state().values.name" (input)="form.setFieldValue(\"name\", $any($event.target).value)" /><button type="submit">Submit</button></form>',
+  template: '<form (submit)="form.handleSubmit($event)"><input [value]="form.state().values.name" (input)="form.setFieldValue(\\"name\\", $any($event.target).value)" /><button type="submit">Submit</button></form>',
 })
 export class AppComponent {
   form = createAngularForm(() => ({
@@ -132,10 +80,10 @@ export class AppComponent {
     onSubmit: async ({ value }) => console.log(value),
   }))
 }`,
-                },
-                solid: {
-                  lang: 'tsx',
-                  code: `import { createForm } from '@tanstack/solid-form'
+    },
+    solid: {
+      lang: 'tsx',
+      code: `import { createForm } from '@tanstack/solid-form'
 
 export default function SimpleForm() {
   const form = createForm({
@@ -150,10 +98,10 @@ export default function SimpleForm() {
     </form>
   )
 }`,
-                },
-                svelte: {
-                  lang: 'svelte',
-                  code: `<script lang="ts">
+    },
+    svelte: {
+      lang: 'svelte',
+      code: `<script lang="ts">
   import { createForm } from '@tanstack/svelte-form'
   const form = createForm({
     defaultValues: { name: '' },
@@ -165,10 +113,10 @@ export default function SimpleForm() {
   <input bind:value={form.state.values.name} />
   <button type="submit">Submit</button>
 </form>`,
-                },
-                lit: {
-                  lang: 'ts',
-                  code: `import { LitElement, customElement, html } from 'lit'
+    },
+    lit: {
+      lang: 'ts',
+      code: `import { LitElement, customElement, html } from 'lit'
 import { createLitForm } from '@tanstack/lit-form'
 
 @customElement('simple-form')
@@ -185,101 +133,99 @@ export class SimpleForm extends LitElement {
     </form>\`
   }
 }`,
-                },
-              }
+    },
+  }
 
-              const selected =
-                codeByFramework[framework] || codeByFramework.react!
+function FormVersionIndex() {
+  const { version } = Route.useParams()
+  const branch = getBranch(formProject, version)
 
-              return (
-                <>
-                  <CodeBlock
-                    className="mt-0 border-0"
-                    showTypeCopyButton={false as any}
-                  >
-                    <code className={`language-${selected.lang}`}>
-                      {selected.code}
-                    </code>
-                  </CodeBlock>
-                </>
-              )
-            })()}
-          </Card>
-        </div>
-
-        <FeatureGrid
-          title="No dependencies. All the Features."
-          items={[
-            'Framework agnostic design',
-            'First Class TypeScript Support',
-            'Headless',
-            'Tiny / Zero Deps',
-            'Granularly Reactive Components/Hooks',
-            'Extensibility and plugin architecture',
-            'Modular architecture',
-            'Form/Field validation',
-            'Async Validation',
-            'Built-in Async Validation Debouncing',
-            'Configurable Validation Events',
-            'Deeply Nested Object/Array Fields',
-          ]}
-        />
-
-        <div className="flex flex-col gap-4">
-          <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
-            <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
-              Less code, fewer edge cases.
-            </h3>
-            <p className="my-4 text-xl leading-7  text-gray-600">
-              Instead of encouraging hasty abstractions and hook-focused APIs,
-              TanStack Form embraces composition where it counts by giving you
-              headless APIs via components (and hooks if you want them of
-              course). TanStack Form is designed to be used directly in your
-              components and UI. This means less code, fewer edge cases, and
-              deeper control over your UI. Try it out with one of the examples
-              below!
-            </p>
-          </div>
-        </div>
-
-        <div className="px-4">
-          <div className="relative w-full bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xl">
-            <div className="">
-              <FrameworkIconTabs
-                frameworks={formProject.frameworks}
-                value={framework}
-                onChange={setFramework}
-              />
-            </div>
-            <StackBlitzEmbed
-              repo={formProject.repo}
-              branch={branch}
-              examplePath={`examples/${framework}/simple`}
-              title={`tanstack//${framework}-form: simple`}
-            />
-          </div>
-        </div>
-
-        <PartnersSection libraryId="form" />
-
-        <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <LibraryShowcases libraryId="form" libraryName="TanStack Form" />
-        </div>
-
-        <LazySponsorSection />
-
-        <LandingPageGad />
-
-        <BottomCTA
-          linkProps={{
+  return (
+    <LibraryPageContainer>
+      <LibraryHero
+        project={formProject}
+        cta={{
+          linkProps: {
             to: '/$libraryId/$version/docs',
             params: { libraryId: library.id, version },
-          }}
-          label="Get Started!"
-          className="bg-yellow-500 border-yellow-500 hover:bg-yellow-600 text-black"
-        />
-        <Footer />
+          },
+          label: 'Get Started',
+          className:
+            'bg-yellow-400 border-yellow-400 hover:bg-yellow-500 text-black',
+        }}
+      />
+
+      <LibraryStatsSection library={library} />
+
+      <LibraryFeatureHighlights
+        featureHighlights={formProject.featureHighlights}
+      />
+
+      <LibraryTestimonials testimonials={formProject.testimonials} />
+
+      <CodeExampleCard
+        frameworks={formProject.frameworks}
+        codeByFramework={codeExamples}
+      />
+
+      <FeatureGrid
+        title="No dependencies. All the Features."
+        items={[
+          'Framework agnostic design',
+          'First Class TypeScript Support',
+          'Headless',
+          'Tiny / Zero Deps',
+          'Granularly Reactive Components/Hooks',
+          'Extensibility and plugin architecture',
+          'Modular architecture',
+          'Form/Field validation',
+          'Async Validation',
+          'Built-in Async Validation Debouncing',
+          'Configurable Validation Events',
+          'Deeply Nested Object/Array Fields',
+        ]}
+      />
+
+      <div className="flex flex-col gap-4">
+        <div className="px-4 sm:px-6 lg:px-8 mx-auto container max-w-3xl">
+          <h3 className="text-3xl font-bold">Less code, fewer edge cases.</h3>
+          <p className="my-4 text-xl leading-7 text-gray-600">
+            Instead of encouraging hasty abstractions and hook-focused APIs,
+            TanStack Form embraces composition where it counts by giving you
+            headless APIs via components (and hooks if you want them of course).
+            TanStack Form is designed to be used directly in your components and
+            UI. This means less code, fewer edge cases, and deeper control over
+            your UI. Try it out with one of the examples below!
+          </p>
+        </div>
       </div>
-    </>
+
+      <StackBlitzSection
+        project={formProject}
+        branch={branch}
+        examplePath="examples/${framework}/simple"
+        title={(framework) => `tanstack//${framework}-form: simple`}
+      />
+
+      <MaintainersSection libraryId="form" />
+      <PartnersSection libraryId="form" />
+
+      <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
+        <LibraryShowcases libraryId="form" libraryName="TanStack Form" />
+      </div>
+
+      <LazySponsorSection />
+      <LandingPageGad />
+
+      <BottomCTA
+        linkProps={{
+          to: '/$libraryId/$version/docs',
+          params: { libraryId: library.id, version },
+        }}
+        label="Get Started!"
+        className="bg-yellow-500 border-yellow-500 hover:bg-yellow-600 text-black"
+      />
+      <Footer />
+    </LibraryPageContainer>
   )
 }

@@ -12,18 +12,15 @@ import {
 import * as v from 'valibot'
 import { useState, useMemo, useCallback } from 'react'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import { useCapabilities } from '~/hooks/useCapabilities'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useCreateRole, useUpdateRole, useDeleteRole } from '~/utils/mutations'
 import { listRoles, sendTestModeratorEmail } from '~/utils/roles.functions'
-import { Spinner } from '~/components/Spinner'
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
+  type Row,
 } from '@tanstack/react-table'
 import {
-  Lock,
   SquarePen,
   Plus,
   Save,
@@ -31,15 +28,25 @@ import {
   Trash,
   Users,
   Mail,
+  Shield,
 } from 'lucide-react'
 import { VALID_CAPABILITIES, type Capability } from '~/db/types'
+import {
+  AdminAccessDenied,
+  AdminLoading,
+  AdminPageHeader,
+  AdminEmptyState,
+} from '~/components/admin'
+import { useAdminGuard } from '~/hooks/useAdminGuard'
+import { useToggleArray } from '~/hooks/useToggleArray'
+import { useDeleteWithConfirmation } from '~/hooks/useDeleteWithConfirmation'
 
-// Role type for table
-type Role = {
+// Role type for table - matches the shape returned by listRoles
+interface Role {
   _id: string
   name: string
-  description?: string
-  capabilities: string[]
+  description: string | null
+  capabilities: Capability[]
   createdAt: number
   updatedAt: number
 }
@@ -57,12 +64,12 @@ export const Route = createFileRoute('/admin/roles/')({
 })
 
 function RolesPage() {
+  const guard = useAdminGuard()
   const [editingRoleId, setEditingRoleId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
   const [editingDescription, setEditingDescription] = useState('')
-  const [editingCapabilities, setEditingCapabilities] = useState<Capability[]>(
-    [],
-  )
+  const [editingCapabilities, toggleCapability, setEditingCapabilities] =
+    useToggleArray<Capability>([])
   const [isCreating, setIsCreating] = useState(false)
   const [testEmailCapability, setTestEmailCapability] =
     useState<Capability>('moderate-showcases')
@@ -79,8 +86,6 @@ function RolesPage() {
       Array.isArray(search.cap) ? search.cap : search.cap ? [search.cap] : [],
     [search.cap],
   )
-
-  const hasActiveFilters = nameFilter !== '' || capabilityFilters.length > 0
 
   const handleClearFilters = () => {
     navigate({
@@ -104,9 +109,6 @@ function RolesPage() {
     [navigate],
   )
 
-  const userQuery = useCurrentUserQuery()
-  const user = userQuery.data
-  const capabilities = useCapabilities()
   const rolesQuery = useQuery({
     queryKey: ['admin', 'roles', nameFilter, capabilityFilters],
     queryFn: async () => {
@@ -184,35 +186,15 @@ function RolesPage() {
     setEditingName('')
     setEditingDescription('')
     setEditingCapabilities([])
-  }, [])
+  }, [setEditingCapabilities])
 
-  const handleDeleteRole = useCallback(
-    async (roleId: string) => {
-      if (!window.confirm('Are you sure you want to delete this role?')) {
-        return
-      }
-      try {
-        await deleteRole.mutateAsync({ roleId: roleId })
-      } catch (error) {
-        console.error('Failed to delete role:', error)
-        alert(error instanceof Error ? error.message : 'Failed to delete role')
-      }
+  const { handleDelete: handleDeleteRole } = useDeleteWithConfirmation({
+    getItemName: (role: Role) => role.name,
+    deleteFn: async (role) => {
+      await deleteRole.mutateAsync({ roleId: role._id })
     },
-    [deleteRole],
-  )
-
-  const toggleCapability = useCallback(
-    (capability: Capability) => {
-      if (editingCapabilities.includes(capability)) {
-        setEditingCapabilities(
-          editingCapabilities.filter((c) => c !== capability),
-        )
-      } else {
-        setEditingCapabilities([...editingCapabilities, capability])
-      }
-    },
-    [editingCapabilities],
-  )
+    itemLabel: 'role',
+  })
 
   const handleCapabilityFilterToggle = useCallback(
     (capability: string) => {
@@ -221,7 +203,7 @@ function RolesPage() {
         : [...capabilityFilters, capability]
       navigate({
         resetScroll: false,
-        search: (prev: any) => ({
+        search: (prev: { name?: string; cap?: string | string[] }) => ({
           ...prev,
           cap: newFilters.length > 0 ? newFilters : undefined,
         }),
@@ -255,7 +237,7 @@ function RolesPage() {
       {
         accessorKey: 'name',
         header: 'Name',
-        cell: ({ row }: { row: any }) => {
+        cell: ({ row }: { row: Row<Role> }) => {
           const role = row.original
           return editingRoleId === role._id ||
             (isCreating && role._id === 'new') ? (
@@ -276,7 +258,7 @@ function RolesPage() {
       {
         accessorKey: 'description',
         header: 'Description',
-        cell: ({ row }: { row: any }) => {
+        cell: ({ row }: { row: Row<Role> }) => {
           const role = row.original
           return editingRoleId === role._id ||
             (isCreating && role._id === 'new') ? (
@@ -299,7 +281,7 @@ function RolesPage() {
       {
         id: 'capabilities',
         header: 'Capabilities',
-        cell: ({ row }: { row: any }) => {
+        cell: ({ row }: { row: Row<Role> }) => {
           const role = row.original
           return editingRoleId === role._id ||
             (isCreating && role._id === 'new') ? (
@@ -320,7 +302,7 @@ function RolesPage() {
             </div>
           ) : (
             <div className="flex flex-wrap gap-1">
-              {(role.capabilities || []).map((capability: string) => (
+              {(role.capabilities || []).map((capability) => (
                 <span
                   key={capability}
                   className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
@@ -340,7 +322,7 @@ function RolesPage() {
       {
         id: 'actions',
         header: 'Actions',
-        cell: ({ row }: { row: any }) => {
+        cell: ({ row }: { row: Row<Role> }) => {
           const role = row.original
           if (
             editingRoleId === role._id ||
@@ -380,7 +362,7 @@ function RolesPage() {
                 <SquarePen className="w-4 h-4" />
               </button>
               <button
-                onClick={() => handleDeleteRole(role._id)}
+                onClick={() => handleDeleteRole(role)}
                 className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
               >
                 <Trash className="w-4 h-4" />
@@ -412,29 +394,12 @@ function RolesPage() {
     getCoreRowModel: getCoreRowModel(),
   })
 
-  // If not authenticated, show loading
-  if (user === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    )
+  // Auth guard
+  if (guard.status === 'loading') {
+    return <AdminLoading />
   }
-
-  // If authenticated but no admin capability, show unauthorized
-  const canAdmin = capabilities.includes('admin')
-  if (user && !canAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            You don't have permission to access the admin area.
-          </p>
-        </div>
-      </div>
-    )
+  if (guard.status === 'denied') {
+    return <AdminAccessDenied />
   }
 
   if (!roles) {
@@ -460,25 +425,22 @@ function RolesPage() {
   return (
     <div className="w-full p-4">
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Manage Roles
-            </h1>
-            {rolesQuery.isFetching && (
-              <Spinner className="text-gray-500 dark:text-gray-400" />
-            )}
-          </div>
-          {!isCreating && (
-            <button
-              onClick={handleCreateRole}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Create Role
-            </button>
-          )}
-        </div>
+        <AdminPageHeader
+          icon={<Shield />}
+          title="Manage Roles"
+          isLoading={rolesQuery.isFetching}
+          actions={
+            !isCreating && (
+              <button
+                onClick={handleCreateRole}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Create Role
+              </button>
+            )
+          }
+        />
 
         <RolesTopBarFilters
           filters={{
@@ -605,7 +567,11 @@ function RolesPage() {
                     <TableHeaderCell
                       key={header.id}
                       align={
-                        (header.column.columnDef.meta as any)?.align === 'right'
+                        (
+                          header.column.columnDef.meta as
+                            | { align?: 'left' | 'right' }
+                            | undefined
+                        )?.align === 'right'
                           ? 'right'
                           : 'left'
                       }
@@ -629,7 +595,11 @@ function RolesPage() {
                       key={cell.id}
                       className="whitespace-nowrap"
                       align={
-                        (cell.column.columnDef.meta as any)?.align === 'right'
+                        (
+                          cell.column.columnDef.meta as
+                            | { align?: 'left' | 'right' }
+                            | undefined
+                        )?.align === 'right'
                           ? 'right'
                           : 'left'
                       }
@@ -646,14 +616,11 @@ function RolesPage() {
           </Table>
 
           {(!roles || roles.length === 0) && (
-            <div className="text-center py-12">
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                No roles found
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Create your first role to get started.
-              </p>
-            </div>
+            <AdminEmptyState
+              icon={<Shield className="w-12 h-12" />}
+              title="No roles found"
+              description="Create your first role to get started."
+            />
           )}
         </div>
       </div>

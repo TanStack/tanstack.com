@@ -1,24 +1,34 @@
 import { useState, useEffect } from 'react'
 
-function getWithExpiry<T>(key: string) {
-  if (typeof window !== 'undefined') {
-    const itemStr = localStorage.getItem(key)
-    // if the item doesn't exist, return undefined
-    if (!itemStr) {
-      return undefined
-    }
+function getWithExpiry<T>(key: string): T | undefined {
+  if (typeof window === 'undefined') {
+    return undefined
+  }
+
+  const itemStr = localStorage.getItem(key)
+  if (!itemStr) {
+    return undefined
+  }
+
+  try {
     const item: { value: T; ttl: number } = JSON.parse(itemStr)
+
     // If there is no TTL set, return the value
     if (!item.ttl) {
       return item.value
     }
-    // compare the expiry time of the item with the current time
+
+    // If the item is expired, delete the item from storage
     if (new Date().getTime() > item.ttl) {
-      // If the item is expired, delete the item from storage
       localStorage.removeItem(key)
       return undefined
     }
+
     return item.value
+  } catch {
+    // If JSON parsing fails, remove the corrupted item and return undefined
+    localStorage.removeItem(key)
+    return undefined
   }
 }
 

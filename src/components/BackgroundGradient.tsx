@@ -19,7 +19,7 @@ export function BackgroundGradient() {
     }
   }
 
-  const library = findLibrary(libraryId as any)
+  const library = findLibrary(libraryId)
 
   return (
     <div

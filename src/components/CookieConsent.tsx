@@ -45,10 +45,18 @@ const EU_COUNTRIES = [
 export default function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
-  const consentSettings =
-    typeof document !== 'undefined'
-      ? JSON.parse(localStorage.getItem('cookie_consent') || '{}')
-      : { analytics: false, ads: false }
+  const consentSettings = (() => {
+    if (typeof document === 'undefined') {
+      return { analytics: false, ads: false }
+    }
+    try {
+      const stored = localStorage.getItem('cookie_consent')
+      if (!stored) return { analytics: false, ads: false }
+      return JSON.parse(stored) as { analytics: boolean; ads: boolean }
+    } catch {
+      return { analytics: false, ads: false }
+    }
+  })()
 
   const blockGoogleScripts = () => {
     document.querySelectorAll('script').forEach((script) => {

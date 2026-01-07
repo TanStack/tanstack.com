@@ -380,23 +380,24 @@ function RouteComponent() {
 
     // Filter by libraries
     if (search.libraries && search.libraries.length > 0) {
+      const selectedLibraries = search.libraries
       filtered = filtered.filter((maintainer) => {
         const maintainerLibraries = getPersonsMaintainerOf(maintainer)
         return (
           maintainerLibraries.some((lib) =>
-            search.libraries!.includes(lib.id as Library['id']),
+            selectedLibraries.includes(lib.id as Library['id']),
           ) ||
           maintainer.creatorOf?.some((lib) =>
-            search.libraries!.includes(lib),
+            selectedLibraries.includes(lib),
           ) ||
           maintainer.maintainerOf?.some((lib) =>
-            search.libraries!.includes(lib),
+            selectedLibraries.includes(lib),
           ) ||
           maintainer.contributorOf?.some((lib) =>
-            search.libraries!.includes(lib),
+            selectedLibraries.includes(lib),
           ) ||
           maintainer.consultantOf?.some((lib) =>
-            search.libraries!.includes(lib),
+            selectedLibraries.includes(lib),
           )
         )
       })

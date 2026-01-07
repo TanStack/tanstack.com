@@ -115,7 +115,6 @@ export function FeedTicker() {
       <Link
         to="/feed/$id"
         params={{ id: entry._id }}
-        search={{} as any}
         className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors group"
       >
         {/* Entry type badge */}

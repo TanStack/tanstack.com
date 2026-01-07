@@ -24,7 +24,7 @@ import { setResponseHeaders } from '@tanstack/react-start/server'
 import { AdGate } from '~/contexts/AdsContext'
 import { GamHeader } from '~/components/Gam'
 import { TrustedByMarquee } from '~/components/TrustedByMarquee'
-import { Layers, Zap, Shield, Code2 } from 'lucide-react'
+import { Layers, Zap, Shield, Code2, ArrowRight } from 'lucide-react'
 import { Card } from '~/components/Card'
 import LibraryCard from '~/components/LibraryCard'
 import { FeaturedShowcases } from '~/components/ShowcaseSection'
@@ -270,9 +270,9 @@ function Index() {
 
         {/* Why TanStack Section */}
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <div className="text-center mb-8">
-            <h3 className="text-3xl font-bold mb-3">Why TanStack?</h3>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <div className="mb-8">
+            <h3 className="text-3xl font-bold">Why TanStack?</h3>
+            <p className="text-gray-600 dark:text-gray-400 mt-2">
               Our libraries are built on principles that put developers first
             </p>
           </div>
@@ -318,31 +318,16 @@ function Index() {
               </p>
             </Card>
           </div>
-          <div className="text-center mt-8">
-            <Link
-              to="/tenets"
-              className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-            >
+          <div className="flex justify-center mt-8">
+            <Button as={Link} to="/tenets">
               Read our product tenets
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </Link>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
           </div>
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3 id="partners" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+          <h3 id="partners" className="text-3xl font-bold mb-6 scroll-mt-24">
             <a
               href="#partners"
               className="hover:underline decoration-gray-400 dark:decoration-gray-600"
@@ -351,13 +336,12 @@ function Index() {
             </a>
           </h3>
           <PartnersGrid />
-          <div className="text-center mt-6">
-            <Link
-              to="/partners"
-              search={{ status: 'inactive' }}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xs hover:shadow-sm hover:border-gray-400 dark:hover:border-gray-700 transition-all"
-            >
-              View Previous Partners →
+          <div className="flex justify-center mt-6">
+            <Link to="/partners" search={{ status: 'inactive' }}>
+              <Button as="span">
+                View Previous Partners
+                <ArrowRight className="w-4 h-4" />
+              </Button>
             </Link>
           </div>
         </div>
@@ -368,7 +352,7 @@ function Index() {
 
         {recentPosts && recentPosts.length > 0 && (
           <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-            <h3 id="blog" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+            <h3 id="blog" className="text-3xl font-bold mb-6 scroll-mt-24">
               <a
                 href="#blog"
                 className="hover:underline decoration-gray-400 dark:decoration-gray-600"
@@ -428,19 +412,17 @@ function Index() {
                 },
               )}
             </div>
-            <div className="text-center mt-6">
-              <Link
-                to="/blog"
-                className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
-              >
-                View All Posts →
-              </Link>
+            <div className="flex justify-center mt-6">
+              <Button as={Link} to="/blog">
+                View All Posts
+                <ArrowRight className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         )}
 
         <div className={`lg:max-w-(--breakpoint-lg) px-4 mx-auto`}>
-          <h3 id="courses" className={`text-4xl font-light mb-6 scroll-mt-24`}>
+          <h3 id="courses" className="text-3xl font-bold mb-6 scroll-mt-24">
             <a
               href="#courses"
               className="hover:underline decoration-gray-400 dark:decoration-gray-600"
@@ -490,7 +472,6 @@ function Index() {
                   OSS Sponsors
                 </a>
               }
-              ctaClassName="inline-block p-4 bg-green-700 rounded text-white font-black"
             />
           </div>
           <div className={`h-4`} />
@@ -507,10 +488,7 @@ function Index() {
         </div>
 
         <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
-          <h3
-            id="maintainers"
-            className={`text-4xl font-light mb-6 scroll-mt-24`}
-          >
+          <h3 id="maintainers" className="text-3xl font-bold mb-6 scroll-mt-24">
             <a
               href="#maintainers"
               className="hover:underline decoration-gray-400 dark:decoration-gray-600"
@@ -554,7 +532,7 @@ function Index() {
               />
             </div>
             <div className={`sm:col-span-2`}>
-              <h3 id="discord" className={`text-3xl scroll-mt-24`}>
+              <h3 id="discord" className="text-3xl font-bold scroll-mt-24">
                 <a
                   href="#discord"
                   className="hover:underline decoration-white/50"
@@ -617,7 +595,7 @@ function Index() {
               >
                 <div>
                   <div className={`relative inline-block`}>
-                    <h3 id="bytes" className={`text-3xl scroll-mt-24`}>
+                    <h3 id="bytes" className="text-3xl font-bold scroll-mt-24">
                       <a
                         href="#bytes"
                         className="hover:underline decoration-gray-400 dark:decoration-gray-600"

@@ -1,5 +1,3 @@
-import * as React from 'react'
-
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -11,21 +9,21 @@ import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
+import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
-import OpenSourceStats from '~/components/OpenSourceStats'
 import { Button } from '~/components/Button'
 import { ossStatsQuery } from '~/queries/stats'
-import { AdGate } from '~/contexts/AdsContext'
-import { GamHeader } from '~/components/Gam'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { Book, Wallpaper } from 'lucide-react'
 import { BrandXIcon } from '~/components/icons/BrandXIcon'
 import { LibraryShowcases } from '~/components/ShowcaseSection'
+import { LibraryPageContainer } from '~/components/LibraryPageContainer'
+import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 
 const library = getLibrary('start')
 
 export const Route = createFileRoute('/_libraries/start/$version/')({
-  component: VersionIndex,
+  component: StartVersionIndex,
   head: () => ({
     meta: seo({
       title: startProject.name,
@@ -37,19 +35,9 @@ export const Route = createFileRoute('/_libraries/start/$version/')({
   },
 })
 
-function VersionIndex() {
-  // sponsorsPromise no longer needed - using lazy loading
-  const [isDark, setIsDark] = React.useState(true)
-
-  React.useEffect(() => {
-    if (isDark) {
-      //
-    }
-    setIsDark(window.matchMedia?.(`(prefers-color-scheme: dark)`).matches)
-  }, [isDark])
-
+function StartVersionIndex() {
   return (
-    <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
+    <LibraryPageContainer>
       <LibraryHero
         project={startProject}
         actions={
@@ -83,12 +71,7 @@ function VersionIndex() {
         }
       />
 
-      <div className="w-fit mx-auto px-4">
-        <OpenSourceStats library={library} />
-      </div>
-      <AdGate>
-        <GamHeader />
-      </AdGate>
+      <LibraryStatsSection library={library} />
 
       <LibraryFeatureHighlights
         featureHighlights={startProject.featureHighlights}
@@ -132,7 +115,7 @@ function VersionIndex() {
           </Link>
           <a
             href={`https://github.com/tanstack/tanstack.com`}
-            className={`flex items-center gap-2 py-2 px-4 bg-cyan-700 rounded-lg text-white font-black`}
+            className="flex items-center gap-2 py-2 px-4 bg-cyan-700 rounded-lg text-white font-black"
           >
             <GithubIcon className="min-w-4" /> TanStack.com Source
           </a>
@@ -145,10 +128,11 @@ function VersionIndex() {
             rel="noreferrer"
           >
             <BrandXIcon className="min-w-4" /> Tweet about it!
-          </a>{' '}
+          </a>
         </div>
       </div>
 
+      <MaintainersSection libraryId="start" />
       <PartnersSection libraryId="start" />
 
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
@@ -156,7 +140,6 @@ function VersionIndex() {
       </div>
 
       <LazySponsorSection />
-
       <LandingPageGad />
 
       <BottomCTA
@@ -169,6 +152,6 @@ function VersionIndex() {
         className="bg-cyan-500 border-cyan-500 hover:bg-cyan-600 text-white"
       />
       <Footer />
-    </div>
+    </LibraryPageContainer>
   )
 }

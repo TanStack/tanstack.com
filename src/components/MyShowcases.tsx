@@ -9,7 +9,7 @@ import { Plus, Trash2, ExternalLink, Clock, Check, X } from 'lucide-react'
 import type { Showcase } from '~/db/types'
 import { Button } from './Button'
 
-const libraryMap = new Map(libraries.map((lib) => [lib.id, lib]))
+const libraryMap = new Map(libraries.map((lib) => [lib.id as string, lib]))
 
 export function MyShowcases() {
   const queryClient = useQueryClient()
@@ -143,7 +143,7 @@ export function MyShowcases() {
                     {/* Libraries */}
                     <div className="flex flex-wrap gap-1 mt-3">
                       {showcase.libraries.map((libId) => {
-                        const lib = libraryMap.get(libId as any)
+                        const lib = libraryMap.get(libId)
                         return (
                           <span
                             key={libId}

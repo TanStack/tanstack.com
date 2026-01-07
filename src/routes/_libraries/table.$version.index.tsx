@@ -1,27 +1,27 @@
-import * as React from 'react'
+import { useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
 import { tableProject } from '~/libraries/table'
 import { Footer } from '~/components/Footer'
 import { Card } from '~/components/Card'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { PartnersSection } from '~/components/PartnersSection'
+import { MaintainersSection } from '~/components/MaintainersSection'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
 import { StackBlitzEmbed } from '~/components/StackBlitzEmbed'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import { CodeBlock } from '~/components/CodeBlock'
-import { Link, createFileRoute } from '@tanstack/react-router'
 import { BottomCTA } from '~/components/BottomCTA'
 import { Framework, getBranch, getLibrary } from '~/libraries'
 import { seo } from '~/utils/seo'
 import { getExampleStartingPath } from '~/utils/sandbox'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import LandingPageGad from '~/components/LandingPageGad'
-import OpenSourceStats from '~/components/OpenSourceStats'
 import { ossStatsQuery } from '~/queries/stats'
-import { AdGate } from '~/contexts/AdsContext'
-import { GamHeader } from '~/components/Gam'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
 import { LibraryShowcases } from '~/components/ShowcaseSection'
+import { LibraryPageContainer } from '~/components/LibraryPageContainer'
+import { LibraryStatsSection } from '~/components/LibraryStatsSection'
 
 const library = getLibrary('table')
 
@@ -38,50 +38,11 @@ export const Route = createFileRoute('/_libraries/table/$version/')({
   },
 })
 
-function TableVersionIndex() {
-  // sponsorsPromise no longer needed - using lazy loading
-  const { version } = Route.useParams()
-  const branch = getBranch(tableProject, version)
-  const [framework, setFramework] = React.useState<Framework>('react')
-  const sandboxFirstFileName = getExampleStartingPath(framework)
-
-  return (
-    <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
-      <LibraryHero
-        project={tableProject}
-        cta={{
-          linkProps: {
-            to: '/$libraryId/$version/docs',
-            params: { libraryId: library.id, version },
-          },
-          label: 'Get Started',
-          className: 'bg-blue-500 border-blue-500 hover:bg-blue-600 text-white',
-        }}
-      />
-
-      <div className="w-fit mx-auto px-4">
-        <OpenSourceStats library={library} />
-      </div>
-      <AdGate>
-        <GamHeader />
-      </AdGate>
-
-      {/* Minimal code example card */}
-      <div className="px-4 space-y-4 flex flex-col items-center w">
-        <div className="text-3xl font-black">Just a quick look...</div>
-        <Card className="group relative overflow-hidden max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
-          <FrameworkIconTabs
-            frameworks={tableProject.frameworks}
-            value={framework}
-            onChange={setFramework}
-          />
-          {(() => {
-            const codeByFramework: Partial<
-              Record<Framework, { lang: string; code: string }>
-            > = {
-              react: {
-                lang: 'tsx',
-                code: `import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table'
+const codeExamples: Partial<Record<Framework, { lang: string; code: string }>> =
+  {
+    react: {
+      lang: 'tsx',
+      code: `import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table'
 
 const data = [{ id: 1, name: 'Ada' }]
 const columns = [{ accessorKey: 'name', header: 'Name' }]
@@ -116,10 +77,10 @@ export default function SimpleTable() {
     </table>
   )
 }`,
-              },
-              angular: {
-                lang: 'ts',
-                code: `import { Component, signal } from '@angular/core'
+    },
+    angular: {
+      lang: 'ts',
+      code: `import { Component, signal } from '@angular/core'
 import { createAngularTable, getCoreRowModel, FlexRenderDirective, type ColumnDef } from '@tanstack/angular-table'
 
 type Person = { id: number; name: string }
@@ -168,10 +129,10 @@ export class AppComponent {
     getCoreRowModel: getCoreRowModel(),
   }))
 }`,
-              },
-              solid: {
-                lang: 'tsx',
-                code: `import { createSolidTable, getCoreRowModel, flexRender } from '@tanstack/solid-table'
+    },
+    solid: {
+      lang: 'tsx',
+      code: `import { createSolidTable, getCoreRowModel, flexRender } from '@tanstack/solid-table'
 
 const data = [{ id: 1, name: 'Ada' }]
 const columns = [{ accessorKey: 'name', header: 'Name' }]
@@ -202,10 +163,10 @@ export default function SimpleTable() {
     </table>
   )
 }`,
-              },
-              vue: {
-                lang: 'vue',
-                code: `<script setup lang="ts">
+    },
+    vue: {
+      lang: 'vue',
+      code: `<script setup lang="ts">
 import { useVueTable, getCoreRowModel, flexRender } from '@tanstack/vue-table'
 
 const data = [{ id: 1, name: 'Ada' }]
@@ -231,10 +192,10 @@ const table = useVueTable({ data, columns, getCoreRowModel: getCoreRowModel() })
     </tbody>
   </table>
 </template>`,
-              },
-              svelte: {
-                lang: 'svelte',
-                code: `<script lang="ts">
+    },
+    svelte: {
+      lang: 'svelte',
+      code: `<script lang="ts">
   import { createSvelteTable, getCoreRowModel, flexRender } from '@tanstack/svelte-table'
   const data = [{ id: 1, name: 'Ada' }]
   const columns = [{ accessorKey: 'name', header: 'Name' }]
@@ -261,10 +222,10 @@ const table = useVueTable({ data, columns, getCoreRowModel: getCoreRowModel() })
     {/each}
   </tbody>
 </table>`,
-              },
-              lit: {
-                lang: 'ts',
-                code: `import { LitElement, customElement, html } from 'lit'
+    },
+    lit: {
+      lang: 'ts',
+      code: `import { LitElement, customElement, html } from 'lit'
 import { createLitTable, getCoreRowModel, flexRender } from '@tanstack/lit-table'
 
 const data = [{ id: 1, name: 'Ada' }]
@@ -289,10 +250,10 @@ export class SimpleTable extends LitElement {
     </table>\`
   }
 }`,
-              },
-              qwik: {
-                lang: 'tsx',
-                code: `import { component$ } from '@builder.io/qwik'
+    },
+    qwik: {
+      lang: 'tsx',
+      code: `import { component$ } from '@builder.io/qwik'
 import { createQwikTable, getCoreRowModel, flexRender } from '@tanstack/qwik-table'
 
 const data = [{ id: 1, name: 'Ada' }]
@@ -323,10 +284,10 @@ export default component$(() => {
     </table>
   )
 })`,
-              },
-              vanilla: {
-                lang: 'ts',
-                code: `import { createTable, getCoreRowModel, flexRender } from '@tanstack/table-core'
+    },
+    vanilla: {
+      lang: 'ts',
+      code: `import { createTable, getCoreRowModel, flexRender } from '@tanstack/table-core'
 
 const data = [{ id: 1, name: 'Ada' }]
 const columns = [{ accessorKey: 'name', header: 'Name' }]
@@ -354,39 +315,62 @@ table.getRowModel().rows.forEach((row) => {
   })
   tbody.appendChild(tr)
 })`,
-              },
-            }
+    },
+  }
 
-            const selected = codeByFramework[framework]
+function TableVersionIndex() {
+  const { version } = Route.useParams()
+  const branch = getBranch(tableProject, version)
+  const [framework, setFramework] = useState<Framework>('react')
+  const sandboxFirstFileName = getExampleStartingPath(framework)
 
-            if (!selected) {
-              return (
-                <div className="p-6 text-center text-lg w-full bg-gray-900 text-white">
-                  Looking for the <strong>@tanstack/{framework}-table</strong>{' '}
-                  example? We could use your help to build the{' '}
-                  <strong>@tanstack/{framework}-table</strong> adapter! Join the{' '}
-                  <a
-                    href="https://tlinz.com/discord"
-                    className="text-teal-400 font-bold underline"
-                  >
-                    TanStack Discord Server
-                  </a>{' '}
-                  and let's get to work!
-                </div>
-              )
-            }
+  const selectedCode = codeExamples[framework]
 
-            return (
-              <CodeBlock
-                className="mt-0 border-0"
-                showTypeCopyButton={false as any}
+  return (
+    <LibraryPageContainer>
+      <LibraryHero
+        project={tableProject}
+        cta={{
+          linkProps: {
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version },
+          },
+          label: 'Get Started',
+          className: 'bg-blue-500 border-blue-500 hover:bg-blue-600 text-white',
+        }}
+      />
+
+      <LibraryStatsSection library={library} />
+
+      {/* Custom code example card with fallback for unsupported frameworks */}
+      <div className="px-4 space-y-4 flex flex-col items-center">
+        <div className="text-3xl font-black">Just a quick look...</div>
+        <Card className="group relative overflow-hidden max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
+          <FrameworkIconTabs
+            frameworks={tableProject.frameworks}
+            value={framework}
+            onChange={setFramework}
+          />
+          {selectedCode ? (
+            <CodeBlock className="mt-0 border-0" showTypeCopyButton={false}>
+              <code className={`language-${selectedCode.lang}`}>
+                {selectedCode.code}
+              </code>
+            </CodeBlock>
+          ) : (
+            <div className="p-6 text-center text-lg w-full bg-gray-900 text-white">
+              Looking for the <strong>@tanstack/{framework}-table</strong>{' '}
+              example? We could use your help to build the{' '}
+              <strong>@tanstack/{framework}-table</strong> adapter! Join the{' '}
+              <a
+                href="https://tlinz.com/discord"
+                className="text-teal-400 font-bold underline"
               >
-                <code className={`language-${selected.lang}`}>
-                  {selected.code}
-                </code>
-              </CodeBlock>
-            )
-          })()}
+                TanStack Discord Server
+              </a>{' '}
+              and let's get to work!
+            </div>
+          )}
         </Card>
       </div>
 
@@ -422,15 +406,13 @@ table.getRowModel().rows.forEach((row) => {
           'Nested/Grouped Headers',
           'Footers',
         ]}
-        gridClassName="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4  mx-auto"
+        gridClassName="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4 mx-auto"
       />
 
       <div className="flex flex-col gap-4">
-        <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
-          <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
-            Take it for a spin!
-          </h3>
-          <p className="my-4 text-xl leading-7  text-gray-600">
+        <div className="px-4 sm:px-6 lg:px-8 mx-auto container max-w-3xl">
+          <h3 className="text-3xl font-bold">Take it for a spin!</h3>
+          <p className="my-4 text-xl leading-7 text-gray-600">
             With some basic styles, some table markup and few columns, you're
             already well on your way to creating a drop-dead powerful table.
           </p>
@@ -439,13 +421,11 @@ table.getRowModel().rows.forEach((row) => {
 
       <div className="px-4">
         <div className="relative w-full bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xl">
-          <div className="">
-            <FrameworkIconTabs
-              frameworks={tableProject.frameworks}
-              value={framework}
-              onChange={setFramework}
-            />
-          </div>
+          <FrameworkIconTabs
+            frameworks={tableProject.frameworks}
+            value={framework}
+            onChange={setFramework}
+          />
           <StackBlitzEmbed
             repo={tableProject.repo}
             branch={branch}
@@ -456,6 +436,7 @@ table.getRowModel().rows.forEach((row) => {
         </div>
       </div>
 
+      <MaintainersSection libraryId="table" />
       <PartnersSection libraryId="table" />
 
       <div className="px-4 lg:max-w-(--breakpoint-lg) md:mx-auto">
@@ -463,7 +444,6 @@ table.getRowModel().rows.forEach((row) => {
       </div>
 
       <LazySponsorSection />
-
       <LandingPageGad />
 
       <BottomCTA
@@ -475,6 +455,6 @@ table.getRowModel().rows.forEach((row) => {
         className="bg-teal-500 border-teal-500 hover:bg-teal-600 text-white"
       />
       <Footer />
-    </div>
+    </LibraryPageContainer>
   )
 }

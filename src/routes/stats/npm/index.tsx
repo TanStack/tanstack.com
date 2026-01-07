@@ -663,18 +663,19 @@ function NpmStatsChart({
 
   const correctedPackageData = binnedPackageData.map((packageGroup) => {
     const first = packageGroup.downloads[0]
+    const firstDownloads = first?.downloads ?? 0
 
     return {
       ...packageGroup,
       downloads: packageGroup.downloads.map((d) => {
         if (baseLineValuesByDate) {
           d.downloads =
-            d.downloads / (baseLineValuesByDate.get(d.date.getTime()) || 0)
+            d.downloads / (baseLineValuesByDate.get(d.date.getTime()) || 1)
         }
 
         return {
           ...d,
-          change: d.downloads - first.downloads,
+          change: d.downloads - firstDownloads,
         }
       }),
     }
@@ -1593,6 +1594,7 @@ function RouteComponent() {
           <div className="flex flex-wrap gap-1 sm:gap-2">
             {packageGroups.map((pkg, index) => {
               const mainPackage = pkg.packages[0]
+              if (!mainPackage) return null
               const packageList = pkg.packages
               const isCombined = packageList.length > 1
               const subPackages = packageList.filter(
@@ -1995,8 +1997,10 @@ function RouteComponent() {
                           const lastBin =
                             binnedDownloads[binnedDownloads.length - 1]
 
+                          if (!firstBin || !lastBin) return null
+
                           const growth = lastBin[1] - firstBin[1]
-                          const growthPercentage = growth / firstBin[1]
+                          const growthPercentage = growth / (firstBin[1] || 1)
 
                           return {
                             package: firstPackage.name,
@@ -2012,26 +2016,39 @@ function RouteComponent() {
                             index,
                           }
                         })
-                        .filter(Boolean)
+                        .filter(
+                          (
+                            stat,
+                          ): stat is {
+                            package: string
+                            totalDownloads: number
+                            binDownloads: number
+                            growth: number
+                            growthPercentage: number
+                            color: string
+                            hidden: boolean | undefined
+                            index: number
+                          } => stat != null,
+                        )
                         .sort((a, b) =>
                           transform === 'normalize-y'
-                            ? b!.growth - a!.growth
-                            : b!.binDownloads - a!.binDownloads,
+                            ? b.growth - a.growth
+                            : b.binDownloads - a.binDownloads,
                         )
                         .map((stat) => (
-                          <tr key={stat!.package}>
+                          <tr key={stat.package}>
                             <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
                               <div className="flex items-center gap-2">
                                 <Tooltip content="Change color">
                                   <button
                                     onClick={(e) =>
-                                      handleColorClick(stat!.package, e)
+                                      handleColorClick(stat.package, e)
                                     }
                                     className="hover:opacity-80"
                                   >
                                     <div
                                       className="w-4 h-4 rounded"
-                                      style={{ backgroundColor: stat!.color }}
+                                      style={{ backgroundColor: stat.color }}
                                     />
                                   </button>
                                 </Tooltip>
@@ -2041,20 +2058,20 @@ function RouteComponent() {
                                       <button
                                         onClick={() =>
                                           togglePackageVisibility(
-                                            stat!.index,
-                                            stat!.package,
+                                            stat.index,
+                                            stat.package,
                                           )
                                         }
                                         className="p-0.5 hover:text-blue-500 flex items-center gap-1"
                                       >
                                         <span
                                           className={
-                                            stat!.hidden ? 'opacity-50' : ''
+                                            stat.hidden ? 'opacity-50' : ''
                                           }
                                         >
-                                          {stat!.package}
+                                          {stat.package}
                                         </span>
-                                        {stat!.hidden ? (
+                                        {stat.hidden ? (
                                           <EyeOff className="" />
                                         ) : null}
                                       </button>
@@ -2062,7 +2079,7 @@ function RouteComponent() {
                                     <Tooltip content="Remove package">
                                       <button
                                         onClick={() =>
-                                          handleRemovePackageName(stat!.index)
+                                          handleRemovePackageName(stat.index)
                                         }
                                         className="p-0.5 text-gray-500 hover:text-red-500"
                                       >
@@ -2074,10 +2091,10 @@ function RouteComponent() {
                               </div>
                             </td>
                             <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
-                              {formatNumber(stat!.totalDownloads)}
+                              {formatNumber(stat.totalDownloads)}
                             </td>
                             <td className="px-3 sm:px-6 py-1 sm:py-2 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-right">
-                              {formatNumber(stat!.binDownloads)}
+                              {formatNumber(stat.binDownloads)}
                             </td>
                           </tr>
                         ))}

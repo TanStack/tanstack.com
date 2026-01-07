@@ -26,7 +26,7 @@ import codeRabbitLightSvg from '~/images/coderabbit-light.svg'
 import codeRabbitDarkSvg from '~/images/coderabbit-dark.svg'
 import strapiLightSvg from '~/images/strapi-light.svg'
 import strapiDarkSvg from '~/images/strapi-dark.svg'
-import { libraries, Library } from '~/libraries'
+import { libraries, type Library } from '~/libraries'
 import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
 import workosBlackSvg from '~/images/workos-black.svg'
@@ -693,4 +693,4 @@ export const partners: Partner[] = [
   nozzle,
   vercel,
   speakeasy,
-] as any
+] as Partner[]

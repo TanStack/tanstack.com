@@ -1,8 +1,7 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import { useMemo, useCallback } from 'react'
 import { PaginationControls } from '~/components/PaginationControls'
-import { Spinner } from '~/components/Spinner'
 import { LoginsTopBarFilters } from '~/components/LoginsTopBarFilters'
 import {
   Table,
@@ -21,10 +20,17 @@ import {
   type Column,
 } from '@tanstack/react-table'
 import * as v from 'valibot'
-import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { listLoginHistory } from '~/utils/audit.functions'
-import { Lock, LogIn, User } from 'lucide-react'
-import { Card } from '~/components/Card'
+import { LogIn } from 'lucide-react'
+import {
+  AdminAccessDenied,
+  AdminLoading,
+  AdminPageHeader,
+  AdminEmptyState,
+  UserAvatar,
+  StatsCard,
+} from '~/components/admin'
+import { useAdminGuard } from '~/hooks/useAdminGuard'
 
 type LoginHistoryEntry = {
   id: string
@@ -65,6 +71,7 @@ export const Route = createFileRoute('/admin/logins')({
 })
 
 function LoginsPage() {
+  const guard = useAdminGuard()
   const navigate = Route.useNavigate()
   const search = Route.useSearch()
   const userIdFilter = search.userId ?? ''
@@ -74,9 +81,6 @@ function LoginsPage() {
 
   const currentPageIndex = search.page ?? 0
   const pageSize = search.pageSize ?? 25
-
-  const userQuery = useCurrentUserQuery()
-  const user = userQuery.data
 
   const loginsQuery = useQuery({
     queryKey: [
@@ -171,19 +175,7 @@ function LoginsPage() {
           const displayName = entry.userName || entry.userEmail || 'Unknown'
           return (
             <div className="flex items-center gap-3">
-              <div className="flex-shrink-0 h-8 w-8">
-                {entry.userImage ? (
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src={entry.userImage}
-                    alt=""
-                  />
-                ) : (
-                  <div className="h-8 w-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                    <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  </div>
-                )}
-              </div>
+              <UserAvatar image={entry.userImage} name={entry.userName} />
               <div>
                 <div className="text-sm font-medium text-gray-900 dark:text-white">
                   {displayName}
@@ -269,35 +261,12 @@ function LoginsPage() {
     manualPagination: true,
   })
 
-  // Check auth
-  if (user === undefined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    )
+  // Auth guard
+  if (guard.status === 'loading') {
+    return <AdminLoading />
   }
-
-  const capabilities = user?.capabilities || []
-  const canAdmin = capabilities.includes('admin')
-  if (user && !canAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Lock className="text-4xl text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            You don't have permission to access the admin area.
-          </p>
-          <Link
-            to="/"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-          >
-            Back to Home
-          </Link>
-        </div>
-      </div>
-    )
+  if (guard.status === 'denied') {
+    return <AdminAccessDenied />
   }
 
   const canGoPrevious = currentPageIndex > 0
@@ -306,16 +275,11 @@ function LoginsPage() {
   return (
     <div className="w-full p-4">
       <div className="flex flex-col gap-4">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <LogIn className="text-2xl text-blue-500" />
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Login History
-          </h1>
-          {loginsQuery.isFetching && (
-            <Spinner className="text-gray-500 dark:text-gray-400" />
-          )}
-        </div>
+        <AdminPageHeader
+          icon={<LogIn />}
+          title="Login History"
+          isLoading={loginsQuery.isFetching}
+        />
 
         {/* Top Bar Filters */}
         <LoginsTopBarFilters
@@ -341,14 +305,10 @@ function LoginsPage() {
           {/* Stats Cards */}
           {loginsQuery.data && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card className="p-4">
-                <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Total Records
-                </div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {loginsQuery.data.counts.total.toLocaleString()}
-                </div>
-              </Card>
+              <StatsCard
+                label="Total Records"
+                value={loginsQuery.data.counts.total}
+              />
             </div>
           )}
 
@@ -394,15 +354,11 @@ function LoginsPage() {
           </Table>
 
           {(!loginsQuery.data || loginsQuery.data?.page.length === 0) && (
-            <div className="text-center py-12">
-              <LogIn className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-                No login records found
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Login history will appear here once users start logging in.
-              </p>
-            </div>
+            <AdminEmptyState
+              icon={<LogIn className="w-12 h-12" />}
+              title="No login records found"
+              description="Login history will appear here once users start logging in."
+            />
           )}
 
           {/* Pagination */}

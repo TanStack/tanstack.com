@@ -2,11 +2,14 @@ import { createServerFn } from '@tanstack/react-start'
 import { db } from '~/db/client'
 import { users } from '~/db/schema'
 import { eq, and, or, ilike, sql, asc, desc } from 'drizzle-orm'
+import type { InferSelectModel } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import { getBulkEffectiveCapabilities } from './capabilities.server'
 import { recordAuditLog } from './audit.server'
 import * as v from 'valibot'
 import { VALID_CAPABILITIES, type Capability } from '~/db/types'
+
+type UserRecord = InferSelectModel<typeof users>
 
 const capabilityPicklist = v.picklist(
   VALID_CAPABILITIES as unknown as [Capability, ...Capability[]],
@@ -152,8 +155,8 @@ export const listUsers = createServerFn({ method: 'POST' })
 
     // If filtering by effective capabilities, we need to fetch all matching users first,
     // then filter by effective capabilities in memory, then paginate
-    let allMatchingUsers: any[] = []
-    let filteredUsers: any[] = []
+    let allMatchingUsers: UserRecord[] = []
+    let filteredUsers: UserRecord[] = []
 
     if (
       useEffectiveCapabilities &&
@@ -224,7 +227,7 @@ export const listUsers = createServerFn({ method: 'POST' })
       }
 
       // Transform to match expected format
-      const transformedPage = page.map((user: any) => ({
+      const transformedPage = page.map((user) => ({
         _id: user.id,
         userId: user.id,
         email: user.email,
@@ -296,7 +299,7 @@ export const listUsers = createServerFn({ method: 'POST' })
       }
 
       // Transform to match expected format
-      const transformedPage = page.map((user: any) => ({
+      const transformedPage = page.map((user) => ({
         _id: user.id,
         userId: user.id,
         email: user.email,

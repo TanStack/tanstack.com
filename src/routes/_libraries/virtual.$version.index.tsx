@@ -1,10 +1,9 @@
-import * as React from 'react'
-
+import { useState } from 'react'
+import { createFileRoute } from '@tanstack/react-router'
 import { virtualProject } from '~/libraries/virtual'
 import { getLibrary } from '~/libraries'
 import { LibraryFeatureHighlights } from '~/components/LibraryFeatureHighlights'
 import { Footer } from '~/components/Footer'
-import { Card } from '~/components/Card'
 import { LibraryHero } from '~/components/LibraryHero'
 import { FeatureGrid } from '~/components/FeatureGrid'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -15,18 +14,17 @@ import { Framework, getBranch } from '~/libraries'
 import { seo } from '~/utils/seo'
 import LandingPageGad from '~/components/LandingPageGad'
 import { PartnersSection } from '~/components/PartnersSection'
+import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryTestimonials } from '~/components/LibraryTestimonials'
-import OpenSourceStats from '~/components/OpenSourceStats'
 import { ossStatsQuery } from '~/queries/stats'
-import { CodeBlock } from '~/components/CodeBlock'
-import { Link, createFileRoute } from '@tanstack/react-router'
-import { AdGate } from '~/contexts/AdsContext'
-import { GamHeader } from '~/components/Gam'
+import { LibraryPageContainer } from '~/components/LibraryPageContainer'
+import { LibraryStatsSection } from '~/components/LibraryStatsSection'
+import { CodeExampleCard } from '~/components/CodeExampleCard'
 
 const library = getLibrary('virtual')
 
 export const Route = createFileRoute('/_libraries/virtual/$version/')({
-  component: RouteComp,
+  component: VirtualVersionIndex,
   head: () => ({
     meta: seo({
       title: virtualProject.name,
@@ -38,52 +36,11 @@ export const Route = createFileRoute('/_libraries/virtual/$version/')({
   },
 })
 
-function RouteComp() {
-  // sponsorsPromise no longer needed - using lazy loading
-  const { version } = Route.useParams()
-  const [framework, setFramework] = React.useState<Framework>('react')
-  const branch = getBranch(virtualProject, version)
-
-  return (
-    <div className="flex flex-col gap-20 md:gap-32 max-w-full pt-32">
-      <LibraryHero
-        project={virtualProject}
-        cta={{
-          linkProps: {
-            to: '/$libraryId/$version/docs',
-            params: { libraryId: library.id, version },
-          },
-          label: 'Get Started',
-          className:
-            'bg-purple-500 border-purple-500 hover:bg-purple-600 text-white',
-        }}
-      />
-
-      <div className="w-fit mx-auto px-4">
-        <OpenSourceStats library={library} />
-      </div>
-      <AdGate>
-        <GamHeader />
-      </AdGate>
-
-      {/* Minimal code example card */}
-      <div className="px-4 space-y-4 flex flex-col items-center ">
-        <div className="text-3xl font-black">Just a quick look...</div>
-        <Card className="relative group overflow-hidden max-w-full mx-auto [&_pre]:bg-transparent! [&_pre]:p-4!">
-          <div>
-            <FrameworkIconTabs
-              frameworks={virtualProject.frameworks}
-              value={framework}
-              onChange={setFramework}
-            />
-          </div>
-          {(() => {
-            const codeByFramework: Partial<
-              Record<Framework, { lang: string; code: string }>
-            > = {
-              react: {
-                lang: 'tsx',
-                code: `import { useVirtualizer } from '@tanstack/react-virtual'
+const codeExamples: Partial<Record<Framework, { lang: string; code: string }>> =
+  {
+    react: {
+      lang: 'tsx',
+      code: `import { useVirtualizer } from '@tanstack/react-virtual'
 
 const rowVirtualizer = useVirtualizer({
   count: 1000,
@@ -91,10 +48,10 @@ const rowVirtualizer = useVirtualizer({
   estimateSize: () => 36,
 })
 // Map virtual rows to your UI`,
-              },
-              solid: {
-                lang: 'tsx',
-                code: `import { createVirtualizer } from '@tanstack/solid-virtual'
+    },
+    solid: {
+      lang: 'tsx',
+      code: `import { createVirtualizer } from '@tanstack/solid-virtual'
 
 const parentRef: HTMLElement | undefined = undefined
 
@@ -104,10 +61,10 @@ const rowVirtualizer = createVirtualizer({
   estimateSize: () => 36,
 })
 // Map rowVirtualizer.getVirtualItems() to your UI`,
-              },
-              vue: {
-                lang: 'vue',
-                code: `<script setup lang="ts">
+    },
+    vue: {
+      lang: 'vue',
+      code: `<script setup lang="ts">
 import { ref } from 'vue'
 import { useVirtualizer } from '@tanstack/vue-virtual'
 
@@ -125,10 +82,10 @@ const rowVirtualizer = useVirtualizer({
     <!-- Render rowVirtualizer.getVirtualItems() -->
   </div>
 </template>`,
-              },
-              svelte: {
-                lang: 'svelte',
-                code: `<script lang="ts">
+    },
+    svelte: {
+      lang: 'svelte',
+      code: `<script lang="ts">
   import { createVirtualizer } from '@tanstack/svelte-virtual'
   let parentRef: HTMLDivElement
   const rowVirtualizer = createVirtualizer({
@@ -141,10 +98,10 @@ const rowVirtualizer = useVirtualizer({
 <div bind:this={parentRef} style="overflow:auto; height:300px">
   <!-- Render $rowVirtualizer.getVirtualItems() -->
 </div>`,
-              },
-              angular: {
-                lang: 'ts',
-                code: `import { Component, ElementRef, viewChild } from '@angular/core'
+    },
+    angular: {
+      lang: 'ts',
+      code: `import { Component, ElementRef, viewChild } from '@angular/core'
 import { createAngularVirtualizer } from '@tanstack/angular-virtual'
 
 @Component({
@@ -160,10 +117,10 @@ export class VirtualListComponent {
     estimateSize: () => 36,
   }))
 }`,
-              },
-              lit: {
-                lang: 'ts',
-                code: `import { LitElement, customElement, html } from 'lit'
+    },
+    lit: {
+      lang: 'ts',
+      code: `import { LitElement, customElement, html } from 'lit'
 import { createLitVirtualizer } from '@tanstack/lit-virtual'
 
 @customElement('virtual-list')
@@ -179,27 +136,35 @@ export class VirtualList extends LitElement {
     return html\`<div style="overflow:auto; height:300px"></div>\`
   }
 }`,
-              },
-            }
+    },
+  }
 
-            const selected =
-              codeByFramework[framework] || codeByFramework.react!
+function VirtualVersionIndex() {
+  const { version } = Route.useParams()
+  const [framework, setFramework] = useState<Framework>('react')
+  const branch = getBranch(virtualProject, version)
 
-            return (
-              <>
-                <CodeBlock
-                  className="mt-0 border-0"
-                  showTypeCopyButton={false as any}
-                >
-                  <code className={`language-${selected.lang}`}>
-                    {selected.code}
-                  </code>
-                </CodeBlock>
-              </>
-            )
-          })()}
-        </Card>
-      </div>
+  return (
+    <LibraryPageContainer>
+      <LibraryHero
+        project={virtualProject}
+        cta={{
+          linkProps: {
+            to: '/$libraryId/$version/docs',
+            params: { libraryId: library.id, version },
+          },
+          label: 'Get Started',
+          className:
+            'bg-purple-500 border-purple-500 hover:bg-purple-600 text-white',
+        }}
+      />
+
+      <LibraryStatsSection library={library} />
+
+      <CodeExampleCard
+        frameworks={virtualProject.frameworks}
+        codeByFramework={codeExamples}
+      />
 
       <LibraryFeatureHighlights
         featureHighlights={virtualProject.featureHighlights}
@@ -223,15 +188,13 @@ export class VirtualList extends LitElement {
           'Scrolling Utilities',
           'Sticky Items',
         ]}
-        gridClassName="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4  mx-auto"
+        gridClassName="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-4 mx-auto"
       />
 
       <div className="flex flex-col gap-4">
-        <div className="px-4 sm:px-6 lg:px-8  mx-auto container max-w-3xl sm:text-center">
-          <h3 className="text-3xl text-center leading-8 font-extrabold tracking-tight sm:text-4xl sm:leading-10 lg:leading-none mt-2">
-            Take it for a spin!
-          </h3>
-          <p className="my-4 text-xl leading-7  text-gray-600">
+        <div className="px-4 sm:px-6 lg:px-8 mx-auto container max-w-3xl">
+          <h3 className="text-3xl font-bold">Take it for a spin!</h3>
+          <p className="my-4 text-xl leading-7 text-gray-600">
             With just a few divs and some inline styles, you're already well on
             your way to creating an extremely powerful virtualization
             experience.
@@ -241,13 +204,11 @@ export class VirtualList extends LitElement {
 
       <div className="px-4">
         <div className="relative w-full bg-white dark:bg-gray-900 rounded-lg overflow-hidden shadow-xl">
-          <div className="">
-            <FrameworkIconTabs
-              frameworks={virtualProject.frameworks}
-              value={framework}
-              onChange={setFramework}
-            />
-          </div>
+          <FrameworkIconTabs
+            frameworks={virtualProject.frameworks}
+            value={framework}
+            onChange={setFramework}
+          />
           {['vue', 'solid', 'svelte'].includes(framework) ? (
             <div className="p-6 text-center text-lg w-full bg-black text-white">
               Looking for the <strong>@tanstack/{framework}-virtual</strong>{' '}
@@ -272,10 +233,9 @@ export class VirtualList extends LitElement {
         </div>
       </div>
 
+      <MaintainersSection libraryId="virtual" />
       <PartnersSection libraryId="virtual" />
-
       <LazySponsorSection />
-
       <LandingPageGad />
 
       <BottomCTA
@@ -287,6 +247,6 @@ export class VirtualList extends LitElement {
         className="bg-purple-500 border-purple-500 hover:bg-purple-600 text-white"
       />
       <Footer />
-    </div>
+    </LibraryPageContainer>
   )
 }

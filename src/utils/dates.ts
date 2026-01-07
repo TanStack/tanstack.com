@@ -42,6 +42,7 @@ export function format(date: Date | number, formatStr: string): string {
   // Common format patterns
   switch (formatStr) {
     case 'PPP':
+    case 'MMMM d, yyyy':
       // "April 29, 2023"
       return d.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -65,14 +66,6 @@ export function format(date: Date | number, formatStr: string): string {
         day: '2-digit',
       })
 
-    case 'MMMM d, yyyy':
-      // "April 29, 2023"
-      return d.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-
     case 'MMM d, yyyy':
       // "Apr 29, 2023"
       return d.toLocaleDateString('en-US', {
@@ -81,11 +74,11 @@ export function format(date: Date | number, formatStr: string): string {
         day: 'numeric',
       })
 
-    case 'MMMM d, yyyy':
-      // "April 29, 2023"
+    case 'MMM dd, yyyy':
+      // "Apr 29, 2023" (same as above, just different format string)
       return d.toLocaleDateString('en-US', {
         year: 'numeric',
-        month: 'long',
+        month: 'short',
         day: 'numeric',
       })
 

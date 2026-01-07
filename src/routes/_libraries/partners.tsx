@@ -398,7 +398,9 @@ function RouteComp() {
                   <span>
                     {' '}
                     for{' '}
-                    {search.libraries.length === 1 ? 'library' : 'libraries'}:{' '}
+                    {search.libraries.length === 1
+                      ? 'library'
+                      : 'libraries'}:{' '}
                     <span className="font-medium">
                       {search.libraries.join(', ')}
                     </span>

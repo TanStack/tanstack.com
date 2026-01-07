@@ -186,7 +186,7 @@ export function buildGitHubAuthUrl(
     clientId,
   )}&redirect_uri=${encodeURIComponent(
     redirectUri,
-  )}&scope=user:email&state=${state}`
+  )}&scope=user:email&state=${encodeURIComponent(state)}`
 }
 
 /**
@@ -201,7 +201,7 @@ export function buildGoogleAuthUrl(
     clientId,
   )}&redirect_uri=${encodeURIComponent(
     redirectUri,
-  )}&response_type=code&scope=openid email profile&state=${state}`
+  )}&response_type=code&scope=openid email profile&state=${encodeURIComponent(state)}`
 }
 
 /**

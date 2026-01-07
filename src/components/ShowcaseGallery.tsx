@@ -14,12 +14,14 @@ import type { ShowcaseUseCase } from '~/db/types'
 import { Plus } from 'lucide-react'
 import { Button } from './Button'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useLoginModal } from '~/contexts/LoginModalContext'
 
 export function ShowcaseGallery() {
   const navigate = useNavigate({ from: '/showcase/' })
   const search = useSearch({ from: '/showcase/' })
   const queryClient = useQueryClient()
   const currentUser = useCurrentUser()
+  const { openLoginModal } = useLoginModal()
 
   const { data, isLoading } = useQuery(
     getApprovedShowcasesQueryOptions({
@@ -175,8 +177,9 @@ export function ShowcaseGallery() {
 
   const handleVote = (showcaseId: string, value: 1 | -1) => {
     if (!currentUser) {
-      // Redirect to login
-      navigate({ to: '/login', search: { redirect: '/showcase' } })
+      openLoginModal({
+        onSuccess: () => voteMutation.mutate({ showcaseId, value }),
+      })
       return
     }
     voteMutation.mutate({ showcaseId, value })

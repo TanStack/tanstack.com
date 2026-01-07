@@ -64,6 +64,9 @@ export {
   createOAuthStateCookie,
   clearOAuthStateCookie,
   getOAuthStateCookie,
+  createOAuthPopupCookie,
+  clearOAuthPopupCookie,
+  isOAuthPopupMode,
   SESSION_DURATION_MS,
   SESSION_MAX_AGE_SECONDS,
 } from './session.server'

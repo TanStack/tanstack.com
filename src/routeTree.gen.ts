@@ -26,6 +26,7 @@ import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
 import { Route as ShowcaseMineRouteImport } from './routes/showcase/mine'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
+import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
 import { Route as AdminNpmStatsRouteImport } from './routes/admin/npm-stats'
@@ -184,6 +185,11 @@ const ShowcaseMineRoute = ShowcaseMineRouteImport.update({
 const AuthSignoutRoute = AuthSignoutRouteImport.update({
   id: '/auth/signout',
   path: '/auth/signout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthPopupSuccessRoute = AuthPopupSuccessRouteImport.update({
+  id: '/auth/popup-success',
+  path: '/auth/popup-success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
@@ -619,6 +625,7 @@ export interface FileRoutesByFullPath {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
@@ -708,6 +715,7 @@ export interface FileRoutesByTo {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
@@ -802,6 +810,7 @@ export interface FileRoutesById {
   '/admin/npm-stats': typeof AdminNpmStatsRoute
   '/admin/users': typeof AdminUsersRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
+  '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
@@ -897,6 +906,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/popup-success'
     | '/auth/signout'
     | '/showcase/mine'
     | '/showcase/submit'
@@ -986,6 +996,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/popup-success'
     | '/auth/signout'
     | '/showcase/mine'
     | '/showcase/submit'
@@ -1079,6 +1090,7 @@ export interface FileRouteTypes {
     | '/admin/npm-stats'
     | '/admin/users'
     | '/api/uploadthing'
+    | '/auth/popup-success'
     | '/auth/signout'
     | '/showcase/mine'
     | '/showcase/submit'
@@ -1150,6 +1162,7 @@ export interface RootRouteChildren {
   PartnersEmbedRoute: typeof PartnersEmbedRoute
   SponsorsEmbedRoute: typeof SponsorsEmbedRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
+  AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
   ShowcaseMineRoute: typeof ShowcaseMineRoute
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
@@ -1283,6 +1296,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/signout'
       fullPath: '/auth/signout'
       preLoaderRoute: typeof AuthSignoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/popup-success': {
+      id: '/auth/popup-success'
+      path: '/auth/popup-success'
+      fullPath: '/auth/popup-success'
+      preLoaderRoute: typeof AuthPopupSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/uploadthing': {
@@ -2048,6 +2068,7 @@ const rootRouteChildren: RootRouteChildren = {
   PartnersEmbedRoute: PartnersEmbedRoute,
   SponsorsEmbedRoute: SponsorsEmbedRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
+  AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
   ShowcaseMineRoute: ShowcaseMineRoute,
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,

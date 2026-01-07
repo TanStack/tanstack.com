@@ -180,7 +180,7 @@ export function ShowcaseSection({
 
   const handleVote = (showcaseId: string, value: 1 | -1) => {
     if (!currentUser) {
-      navigate({ to: '/auth/login', search: { redirect: '/showcase' } })
+      navigate({ to: '/login', search: { redirect: '/showcase' } })
       return
     }
     voteMutation.mutate({ showcaseId, value })

@@ -6,7 +6,6 @@ import type { Mermaid } from 'mermaid'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import { createHighlighter, type HighlighterGeneric } from 'shiki'
 import { Button } from './Button'
-import { ButtonGroup } from './ButtonGroup'
 
 // Language aliases mapping
 const LANG_ALIASES: Record<string, string> = {
@@ -99,6 +98,12 @@ export function CodeBlock({
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
 }) {
+  const rawTitle = ((props as any).dataCodeTitle ||
+    (props as any)['data-code-title']) as string | undefined
+
+  // Filter out "undefined" strings and empty strings
+  const title = rawTitle && rawTitle !== 'undefined' ? rawTitle : undefined
+
   const childElement = props.children as
     | undefined
     | { props?: { className?: string; children?: string } }
@@ -189,46 +194,50 @@ export function CodeBlock({
       )}
       style={props.style}
     >
-      {showTypeCopyButton ? (
-        <ButtonGroup
-          className={twMerge(
-            'absolute z-10 text-sm',
-            isEmbedded ? 'top-2 right-4' : '-top-3 right-2',
-          )}
-        >
-          {lang ? (
-            <span className="px-2 py-1 text-xs font-medium">{lang}</span>
-          ) : null}
-          <Button
-            className="border-0 rounded-none"
-            onClick={() => {
-              let copyContent =
-                typeof ref.current?.innerText === 'string'
-                  ? ref.current.innerText
-                  : ''
+      {(title || showTypeCopyButton) && (
+        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-500/20 bg-gray-500/5">
+          {/* Title on the left */}
+          <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {title || ''}
+          </div>
 
-              if (copyContent.endsWith('\n')) {
-                copyContent = copyContent.slice(0, -1)
-              }
+          {/* Copy button on the right, visible only on hover */}
+            <Button
+              className={twMerge(
+                'border-0 rounded-md transition-opacity',
+              )}
+              onClick={() => {
+                let copyContent =
+                  typeof ref.current?.innerText === 'string'
+                    ? ref.current.innerText
+                    : ''
 
-              navigator.clipboard.writeText(copyContent)
-              setCopied(true)
-              setTimeout(() => setCopied(false), 2000)
-              notify(
-                <div>
-                  <div className="font-medium">Copied code</div>
-                  <div className="text-gray-500 dark:text-gray-400 text-xs">
-                    Code block copied to clipboard
-                  </div>
-                </div>,
-              )
-            }}
-            aria-label="Copy code to clipboard"
-          >
-            {copied ? <span className="text-xs">Copied!</span> : <Copy />}
-          </Button>
-        </ButtonGroup>
-      ) : null}
+                if (copyContent.endsWith('\n')) {
+                  copyContent = copyContent.slice(0, -1)
+                }
+
+                navigator.clipboard.writeText(copyContent)
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2000)
+                notify(
+                  <div>
+                    <div className="font-medium">Copied code</div>
+                    <div className="text-gray-500 dark:text-gray-400 text-xs">
+                      Code block copied to clipboard
+                    </div>
+                  </div>,
+                )
+              }}
+              aria-label="Copy code to clipboard"
+            >
+              {copied ? (
+                <span className="text-xs">Copied!</span>
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
+            </Button>
+        </div>
+      )}
       {codeElement}
     </div>
   )

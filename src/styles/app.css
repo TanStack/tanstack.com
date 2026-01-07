@@ -861,3 +861,12 @@ mark {
   width: 1em;
   height: 1em;
 }
+
+/* Consecutive code blocks - no gap when under headings */
+[data-tab] .codeblock + .codeblock {
+  @apply mt-0 border-t-0 rounded-t-none;
+}
+
+[data-tab] .codeblock:has(+ .codeblock) {
+  @apply rounded-b-none;
+}

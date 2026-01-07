@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { setResponseHeader } from '@tanstack/react-start/server'
-import { getPublishedPosts, formatAuthors } from '~/utils/blog'
 
 function escapeXml(unsafe: string): string {
   return unsafe
@@ -11,7 +10,9 @@ function escapeXml(unsafe: string): string {
     .replace(/'/g, '&apos;')
 }
 
-function generateRSSFeed() {
+async function generateRSSFeed() {
+  const { getPublishedPosts, formatAuthors } = await import('~/utils/blog')
+
   const posts = getPublishedPosts().slice(0, 50) // Most recent 50 posts
   const siteUrl = 'https://tanstack.com'
   const buildDate = new Date().toUTCString()
@@ -30,7 +31,7 @@ function generateRSSFeed() {
           .replace(/^---[\s\S]*?---/, '')
           .trim()
         const firstParagraph = contentWithoutFrontmatter.split('\n\n')[0]
-        description = firstParagraph.replace(/!\[[^\]]*\]\([^)]*\)/g, '') // Remove images
+        description = firstParagraph.replace(/!\[[^\]]*]\([^)]*\)/g, '') // Remove images
       }
 
       return `
@@ -61,11 +62,11 @@ function generateRSSFeed() {
 }
 
 export const Route = createFileRoute('/rss.xml')({
-  // @ts-ignore server property not in route types yet
+  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async () => {
-        const content = generateRSSFeed()
+        const content = await generateRSSFeed()
 
         setResponseHeader('Content-Type', 'application/xml; charset=utf-8')
         setResponseHeader(

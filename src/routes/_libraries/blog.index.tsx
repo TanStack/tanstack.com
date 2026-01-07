@@ -7,6 +7,7 @@ import { Footer } from '~/components/Footer'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
 import { setResponseHeaders } from '@tanstack/react-start/server'
+import { RssIcon } from 'lucide-react'
 
 type BlogFrontMatter = {
   slug: string
@@ -65,7 +66,19 @@ function BlogIndex() {
     <div className="flex flex-col max-w-full min-h-screen gap-12 p-4 md:p-8 pb-0">
       <div className="flex-1 space-y-12 w-full max-w-4xl mx-auto">
         <header className="">
-          <h1 className="text-3xl font-black">Blog</h1>
+          <div className="flex gap-3 items-baseline">
+            <h1 className="text-3xl font-black">Blog</h1>
+            <a
+              href="/rss.xml"
+              target="_blank"
+              rel="noreferrer"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors text-xl"
+              title="RSS Feed"
+            >
+              <RssIcon />
+            </a>
+          </div>
+
           <p className="text-lg mt-4 text-gray-600 dark:text-gray-400">
             The latest news and blog posts from TanStack
           </p>

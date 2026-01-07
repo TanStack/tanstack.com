@@ -22,7 +22,7 @@ type TabExtraction = {
 }
 
 type PackageManagerExtraction = {
-  packagesByFramework: Record<string, string>
+  packagesByFramework: Record<string, string[]>
   mode: InstallMode
 }
 
@@ -53,7 +53,7 @@ function normalizeFrameworkKey(key: string): string {
  */
 function parseFrameworkLine(text: string): {
   framework: string
-  packages: string
+  packages: string[]
 } | null {
   const colonIndex = text.indexOf(':')
   if (colonIndex === -1) {
@@ -61,9 +61,10 @@ function parseFrameworkLine(text: string): {
   }
 
   const framework = normalizeFrameworkKey(text.slice(0, colonIndex))
-  const packages = text.slice(colonIndex + 1).trim()
+  const packagesStr = text.slice(colonIndex + 1).trim()
+  const packages = packagesStr.split(/\s+/).filter(Boolean)
 
-  if (!framework || !packages) {
+  if (!framework || packages.length === 0) {
     return null
   }
 
@@ -75,7 +76,7 @@ function extractPackageManagerData(
   mode: InstallMode,
 ): PackageManagerExtraction | null {
   const children = node.children ?? []
-  const packagesByFramework: Record<string, string> = {}
+  const packagesByFramework: Record<string, string[]> = {}
 
   // Recursively extract text from all children (including nested in <p> tags)
   function extractText(nodes: any[]): string {
@@ -99,7 +100,12 @@ function extractPackageManagerData(
 
     const parsed = parseFrameworkLine(trimmed)
     if (parsed) {
-      packagesByFramework[parsed.framework] = parsed.packages
+      // Support multiple entries for same framework by concatenating packages
+      if (packagesByFramework[parsed.framework]) {
+        packagesByFramework[parsed.framework].push(...parsed.packages)
+      } else {
+        packagesByFramework[parsed.framework] = parsed.packages
+      }
     }
   }
 

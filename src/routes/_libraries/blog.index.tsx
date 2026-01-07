@@ -101,10 +101,10 @@ function BlogIndex() {
                       {published ? (
                         <time
                           dateTime={published}
-                          title={format(new Date(published), 'MMM dd, yyyy')}
+                          title={format(new Date(published), 'MMM d, yyyy')}
                         >
                           {' '}
-                          on {format(new Date(published), 'MMM dd, yyyy')}
+                          on {format(new Date(published), 'MMM d, yyyy')}
                         </time>
                       ) : null}
                     </p>

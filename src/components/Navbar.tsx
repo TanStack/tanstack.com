@@ -346,7 +346,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 <a href={library.to} className={linkClasses}>
                   <span
                     className={twMerge(
-                      'w-3 h-3 rounded-sm border border-black/20 dark:border-white/20',
+                      'w-3 h-3 rounded-sm border border-white/50',
                       library.bgStyle,
                     )}
                   />
@@ -365,7 +365,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                       >
                         <span
                           className={twMerge(
-                            'w-3 h-3 rounded-sm border border-black/20 dark:border-white/20',
+                            'w-3 h-3 rounded-sm',
                             library.bgStyle,
                           )}
                         />

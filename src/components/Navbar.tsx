@@ -308,7 +308,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     },
   })
 
-  const linkClasses = `flex items-center justify-between gap-2 group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
+  const linkClasses = `flex items-center justify-between gap-2 group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-bold`
 
   const items = (
     <div className="md:flex gap-2 [&>*]:flex-1 lg:block">

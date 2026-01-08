@@ -1,7 +1,17 @@
+import { useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
 import { UPGRADES, UPGRADE_ORDER } from '../utils/upgrades'
+import { useCapabilities } from '~/hooks/useCapabilities'
 
 export function DebugPanel() {
+  const capabilities = useCapabilities()
+  const [isCollapsed, setIsCollapsed] = useState(true)
+
+  // Only show for admin or maintainer roles
+  const canAccess = capabilities.some((cap) =>
+    ['admin', 'maintainer'].includes(cap),
+  )
+
   const {
     phase,
     stage,
@@ -14,6 +24,8 @@ export function DebugPanel() {
     shipStats,
     boatHealth,
   } = useGameStore()
+
+  if (!canAccess) return null
 
   const discoverAllIslands = () => {
     const { islands, discoverIsland } = useGameStore.getState()
@@ -92,14 +104,23 @@ export function DebugPanel() {
 
   if (phase === 'intro') {
     return (
-      <div className="absolute top-4 left-4 z-50 bg-black/80 text-white p-3 rounded-lg text-xs font-mono space-y-2">
-        <div className="text-yellow-400 font-bold">DEBUG</div>
+      <div className="absolute top-4 left-4 z-50">
         <button
-          onClick={skipToPlaying}
-          className="block w-full px-2 py-1 bg-blue-600 hover:bg-blue-500 rounded"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="bg-black/80 text-yellow-400 font-bold px-3 py-1.5 rounded-lg text-xs font-mono hover:bg-black/90 transition-colors"
         >
-          Skip Intro
+          {isCollapsed ? '🔧' : '✕'} DEBUG
         </button>
+        {!isCollapsed && (
+          <div className="mt-1 bg-black/80 text-white p-3 rounded-lg text-xs font-mono space-y-2">
+            <button
+              onClick={skipToPlaying}
+              className="block w-full px-2 py-1 bg-blue-600 hover:bg-blue-500 rounded"
+            >
+              Skip Intro
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -110,121 +131,130 @@ export function DebugPanel() {
   ).length
 
   return (
-    <div className="absolute top-4 left-4 z-50 bg-black/80 text-white p-3 rounded-lg text-xs font-mono space-y-2 max-w-52">
-      <div className="text-yellow-400 font-bold">DEBUG</div>
-      <div className="text-gray-400">
-        Phase: {phase} | Stage: {stage}
-      </div>
-      <div className="text-gray-400">
-        Islands: {discoveredIslands.size}/{islands.length}
-      </div>
-      <div className="text-gray-400">
-        Coins: {coinsCollected}/{coins.length}
-      </div>
+    <div className="absolute top-4 left-4 z-50">
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="bg-black/80 text-yellow-400 font-bold px-3 py-1.5 rounded-lg text-xs font-mono hover:bg-black/90 transition-colors"
+      >
+        {isCollapsed ? '🔧' : '✕'} DEBUG
+      </button>
+      {!isCollapsed && (
+        <div className="mt-1 bg-black/80 text-white p-3 rounded-lg text-xs font-mono space-y-2 max-w-52">
+          <div className="text-gray-400">
+            Phase: {phase} | Stage: {stage}
+          </div>
+          <div className="text-gray-400">
+            Islands: {discoveredIslands.size}/{islands.length}
+          </div>
+          <div className="text-gray-400">
+            Coins: {coinsCollected}/{coins.length}
+          </div>
 
-      {stage === 'battle' && (
-        <>
-          <div className="text-gray-400">
-            Partners: {discoveredPartners}/{partnerIslands.length}
-          </div>
-          <div className="text-gray-400">
-            Upgrades: {unlockedUpgrades.length}/{UPGRADE_ORDER.length}
-          </div>
-          <div className="text-gray-400">
-            HP: {Math.round(boatHealth)}/{shipStats.maxHealth}
-          </div>
-          {unlockedUpgrades.length > 0 && (
-            <div className="text-green-400 text-[10px]">
-              {unlockedUpgrades.map((u) => u.name).join(', ')}
-            </div>
+          {stage === 'battle' && (
+            <>
+              <div className="text-gray-400">
+                Partners: {discoveredPartners}/{partnerIslands.length}
+              </div>
+              <div className="text-gray-400">
+                Upgrades: {unlockedUpgrades.length}/{UPGRADE_ORDER.length}
+              </div>
+              <div className="text-gray-400">
+                HP: {Math.round(boatHealth)}/{shipStats.maxHealth}
+              </div>
+              {unlockedUpgrades.length > 0 && (
+                <div className="text-green-400 text-[10px]">
+                  {unlockedUpgrades.map((u) => u.name).join(', ')}
+                </div>
+              )}
+            </>
           )}
-        </>
-      )}
 
-      <div className="border-t border-gray-600 pt-2 space-y-1">
-        {stage === 'exploration' && (
-          <>
-            <button
-              onClick={discoverAllIslands}
-              className="block w-full px-2 py-1 bg-green-600 hover:bg-green-500 rounded"
-            >
-              Discover All (except last)
-            </button>
-            <button
-              onClick={discoverLastIsland}
-              className="block w-full px-2 py-1 bg-orange-600 hover:bg-orange-500 rounded"
-            >
-              Discover Last (trigger upgrade)
-            </button>
-            <button
-              onClick={() => collectCoins(10)}
-              className="block w-full px-2 py-1 bg-yellow-600 hover:bg-yellow-500 rounded"
-            >
-              Collect 10 Coins
-            </button>
-            <button
-              onClick={() => collectCoins(50)}
-              className="block w-full px-2 py-1 bg-yellow-600 hover:bg-yellow-500 rounded"
-            >
-              Collect All Coins
-            </button>
-            <button
-              onClick={skipToBattle}
-              className="block w-full px-2 py-1 bg-purple-600 hover:bg-purple-500 rounded"
-            >
-              Skip to Battle Stage
-            </button>
-          </>
-        )}
+          <div className="border-t border-gray-600 pt-2 space-y-1">
+            {stage === 'exploration' && (
+              <>
+                <button
+                  onClick={discoverAllIslands}
+                  className="block w-full px-2 py-1 bg-green-600 hover:bg-green-500 rounded"
+                >
+                  Discover All (except last)
+                </button>
+                <button
+                  onClick={discoverLastIsland}
+                  className="block w-full px-2 py-1 bg-orange-600 hover:bg-orange-500 rounded"
+                >
+                  Discover Last (trigger upgrade)
+                </button>
+                <button
+                  onClick={() => collectCoins(10)}
+                  className="block w-full px-2 py-1 bg-yellow-600 hover:bg-yellow-500 rounded"
+                >
+                  Collect 10 Coins
+                </button>
+                <button
+                  onClick={() => collectCoins(50)}
+                  className="block w-full px-2 py-1 bg-yellow-600 hover:bg-yellow-500 rounded"
+                >
+                  Collect All Coins
+                </button>
+                <button
+                  onClick={skipToBattle}
+                  className="block w-full px-2 py-1 bg-purple-600 hover:bg-purple-500 rounded"
+                >
+                  Skip to Battle Stage
+                </button>
+              </>
+            )}
 
-        {stage === 'battle' && (
-          <>
+            {stage === 'battle' && (
+              <>
+                <button
+                  onClick={discoverNextPartner}
+                  className="block w-full px-2 py-1 bg-green-600 hover:bg-green-500 rounded"
+                >
+                  Discover Next Partner
+                </button>
+                <button
+                  onClick={grantNextUpgrade}
+                  className="block w-full px-2 py-1 bg-cyan-600 hover:bg-cyan-500 rounded"
+                >
+                  Grant Next Upgrade
+                </button>
+                <button
+                  onClick={grantAllUpgrades}
+                  className="block w-full px-2 py-1 bg-cyan-700 hover:bg-cyan-600 rounded"
+                >
+                  Grant All Upgrades
+                </button>
+                <button
+                  onClick={() => takeDamage(25)}
+                  className="block w-full px-2 py-1 bg-red-600 hover:bg-red-500 rounded"
+                >
+                  Take 25 Damage
+                </button>
+                <button
+                  onClick={healFull}
+                  className="block w-full px-2 py-1 bg-pink-600 hover:bg-pink-500 rounded"
+                >
+                  Heal to Full
+                </button>
+                <button
+                  onClick={() => takeDamage(999)}
+                  className="block w-full px-2 py-1 bg-red-800 hover:bg-red-700 rounded"
+                >
+                  Kill Player (Test Game Over)
+                </button>
+              </>
+            )}
+
             <button
-              onClick={discoverNextPartner}
-              className="block w-full px-2 py-1 bg-green-600 hover:bg-green-500 rounded"
-            >
-              Discover Next Partner
-            </button>
-            <button
-              onClick={grantNextUpgrade}
-              className="block w-full px-2 py-1 bg-cyan-600 hover:bg-cyan-500 rounded"
-            >
-              Grant Next Upgrade
-            </button>
-            <button
-              onClick={grantAllUpgrades}
-              className="block w-full px-2 py-1 bg-cyan-700 hover:bg-cyan-600 rounded"
-            >
-              Grant All Upgrades
-            </button>
-            <button
-              onClick={() => takeDamage(25)}
+              onClick={() => useGameStore.getState().reset()}
               className="block w-full px-2 py-1 bg-red-600 hover:bg-red-500 rounded"
             >
-              Take 25 Damage
+              Reset Game
             </button>
-            <button
-              onClick={healFull}
-              className="block w-full px-2 py-1 bg-pink-600 hover:bg-pink-500 rounded"
-            >
-              Heal to Full
-            </button>
-            <button
-              onClick={() => takeDamage(999)}
-              className="block w-full px-2 py-1 bg-red-800 hover:bg-red-700 rounded"
-            >
-              Kill Player (Test Game Over)
-            </button>
-          </>
-        )}
-
-        <button
-          onClick={() => useGameStore.getState().reset()}
-          className="block w-full px-2 py-1 bg-red-600 hover:bg-red-500 rounded"
-        >
-          Reset Game
-        </button>
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

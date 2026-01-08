@@ -188,6 +188,7 @@ function AuditPage() {
         },
       }),
     placeholderData: keepPreviousData,
+    staleTime: 0,
   })
 
   const hasActiveFilters =

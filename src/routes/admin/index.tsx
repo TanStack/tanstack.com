@@ -92,18 +92,19 @@ function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ['admin', 'user-stats'],
     queryFn: () => getUserStats(),
-    // enabled: false, // TEMP: disabled for debugging
+    staleTime: 0,
   })
 
   const { data: activityStats, isLoading: activityLoading } = useQuery({
     queryKey: ['admin', 'activity-stats'],
     queryFn: () => getActivityStats(),
-    // enabled: false, // TEMP: disabled for debugging
+    staleTime: 0,
   })
 
   const { data: dauStats, isLoading: dauLoading } = useQuery({
     queryKey: ['admin', 'dau-stats'],
     queryFn: () => getActivityStatsAdmin(),
+    staleTime: 0,
   })
 
   const tabs = [

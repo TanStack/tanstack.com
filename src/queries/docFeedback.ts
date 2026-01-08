@@ -42,6 +42,7 @@ export const listDocFeedbackForModerationQueryOptions = (params: {
   queryOptions({
     queryKey: ['docFeedback', 'moderation', params],
     queryFn: () => listDocFeedbackForModeration({ data: params }),
+    staleTime: 0,
   })
 
 export const getDocFeedbackLeaderboardQueryOptions = (params: {

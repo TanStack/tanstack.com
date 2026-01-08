@@ -73,6 +73,7 @@ export const listShowcasesForModerationQueryOptions = (params: {
   queryOptions({
     queryKey: ['showcases', 'moderation', params],
     queryFn: () => listShowcasesForModeration({ data: params }),
+    staleTime: 0,
   })
 
 export const getShowcaseQueryOptions = (showcaseId: string) =>

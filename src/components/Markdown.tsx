@@ -15,6 +15,8 @@ import { Tabs } from '~/components/Tabs'
 import { CodeBlock } from './CodeBlock'
 import { PackageManagerTabs } from './PackageManagerTabs'
 import type { Framework } from '~/libraries/types'
+import { FileTabs } from './FileTabs'
+import { FrameworkCodeBlock } from './FrameworkCodeBlock'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -124,7 +126,6 @@ const options: HTMLReactParserOptions = {
 
         switch (componentName?.toLowerCase()) {
           case 'tabs': {
-            // Check if this is a package-manager tabs (has metadata)
             if (pmMeta) {
               try {
                 const { packagesByFramework, mode } = JSON.parse(pmMeta)
@@ -148,7 +149,73 @@ const options: HTMLReactParserOptions = {
               }
             }
 
-            // Default tabs variant
+            // Check if this is files variant
+            const filesMeta = domNode.attribs['data-files-meta']
+            if (filesMeta) {
+              try {
+                const tabs = attributes.tabs || []
+                const id =
+                  attributes.id ||
+                  `files-tabs-${Math.random().toString(36).slice(2, 9)}`
+
+                const panelElements = domNode.children?.filter(
+                  (child): child is Element =>
+                    child instanceof Element && child.name === 'md-tab-panel',
+                )
+
+                const children = panelElements?.map((panel) =>
+                  domToReact(panel.children as any, options),
+                )
+
+                return (
+                  <FileTabs id={id} tabs={tabs} children={children as any} />
+                )
+              } catch {
+                // Fall through to default tabs if parsing fails
+              }
+            }
+
+            const frameworkMeta = domNode.attribs['data-framework-meta']
+            if (frameworkMeta) {
+              try {
+                const { codeBlocksByFramework } = JSON.parse(frameworkMeta)
+                const availableFrameworks = JSON.parse(
+                  domNode.attribs['data-available-frameworks'] || '[]',
+                )
+                const id =
+                  attributes.id ||
+                  `framework-${Math.random().toString(36).slice(2, 9)}`
+
+                const panelElements = domNode.children?.filter(
+                  (child): child is Element =>
+                    child instanceof Element && child.name === 'md-tab-panel',
+                )
+
+                // Build panelsByFramework map
+                const panelsByFramework: Record<string, React.ReactNode> = {}
+                panelElements?.forEach((panel) => {
+                  const fw = panel.attribs['data-framework']
+                  if (fw) {
+                    panelsByFramework[fw] = domToReact(
+                      panel.children as any,
+                      options,
+                    )
+                  }
+                })
+
+                return (
+                  <FrameworkCodeBlock
+                    id={id}
+                    codeBlocksByFramework={codeBlocksByFramework}
+                    availableFrameworks={availableFrameworks}
+                    panelsByFramework={panelsByFramework}
+                  />
+                )
+              } catch {
+                // Fall through to default tabs if parsing fails
+              }
+            }
+
             const tabs = attributes.tabs
             const id =
               attributes.id || `tabs-${Math.random().toString(36).slice(2, 9)}`
@@ -162,9 +229,11 @@ const options: HTMLReactParserOptions = {
                 child instanceof Element && child.name === 'md-tab-panel',
             )
 
-            const children = panelElements?.map((panel) =>
-              domToReact(panel.children as any, options),
-            )
+            const children = panelElements?.map((panel) => {
+              const result = domToReact(panel.children as any, options)
+              // Wrap in fragment to ensure it's a single React node
+              return <>{result}</>
+            })
 
             return <Tabs id={id} tabs={tabs} children={children as any} />
           }

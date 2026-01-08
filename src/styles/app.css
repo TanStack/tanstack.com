@@ -895,7 +895,11 @@ mark {
   @apply absolute right-2 top-2 bg-transparent border-0 p-0 z-10;
 }
 
-.package-manager-tabs [data-tab] .codeblock > div:first-child > div:first-child {
+.package-manager-tabs
+  [data-tab]
+  .codeblock
+  > div:first-child
+  > div:first-child {
   @apply hidden;
 }
 

@@ -99,10 +99,8 @@ export function CodeBlock({
   showTypeCopyButton?: boolean
 }) {
   // Extract title from data-code-title attribute, handling both camelCase and kebab-case
-  const rawTitle = (
-    (props as any)?.dataCodeTitle ||
-    (props as any)?.['data-code-title']
-  ) as string | undefined
+  const rawTitle = ((props as any)?.dataCodeTitle ||
+    (props as any)?.['data-code-title']) as string | undefined
 
   // Filter out "undefined" strings, null, and empty strings
   const title =
@@ -134,9 +132,9 @@ export function CodeBlock({
   const code = children?.props.children
 
   const [codeElement, setCodeElement] = React.useState(
-      <pre ref={ref} className={`shiki h-full github-light dark:vitesse-dark`}>
-        <code>{lang === 'mermaid' ? <svg /> : code}</code>
-      </pre>
+    <pre ref={ref} className={`shiki h-full github-light dark:vitesse-dark`}>
+      <code>{lang === 'mermaid' ? <svg /> : code}</code>
+    </pre>,
   )
 
   React[
@@ -198,43 +196,41 @@ export function CodeBlock({
       {(title || showTypeCopyButton) && (
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-500/20 bg-gray-50 dark:bg-gray-900">
           <div className="text-xs text-gray-700 dark:text-gray-300">
-            {title || (lang?.toLowerCase() === 'bash' ? 'sh' : lang ?? '')}
+            {title || (lang?.toLowerCase() === 'bash' ? 'sh' : (lang ?? ''))}
           </div>
 
-            <Button
-              className={twMerge(
-                'border-0 rounded-md transition-opacity',
-              )}
-              onClick={() => {
-                let copyContent =
-                  typeof ref.current?.innerText === 'string'
-                    ? ref.current.innerText
-                    : ''
+          <Button
+            className={twMerge('border-0 rounded-md transition-opacity')}
+            onClick={() => {
+              let copyContent =
+                typeof ref.current?.innerText === 'string'
+                  ? ref.current.innerText
+                  : ''
 
-                if (copyContent.endsWith('\n')) {
-                  copyContent = copyContent.slice(0, -1)
-                }
+              if (copyContent.endsWith('\n')) {
+                copyContent = copyContent.slice(0, -1)
+              }
 
-                navigator.clipboard.writeText(copyContent)
-                setCopied(true)
-                setTimeout(() => setCopied(false), 2000)
-                notify(
-                  <div className="flex flex-col">
-                    <span className="font-medium">Copied code</span>
-                    <span className="text-gray-500 dark:text-gray-400 text-xs">
-                      Code block copied to clipboard
-                    </span>
-                  </div>,
-                )
-              }}
-              aria-label="Copy code to clipboard"
-            >
-              {copied ? (
-                <span className="text-xs">Copied!</span>
-              ) : (
-                <Copy className="w-4 h-4" />
-              )}
-            </Button>
+              navigator.clipboard.writeText(copyContent)
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
+              notify(
+                <div className="flex flex-col">
+                  <span className="font-medium">Copied code</span>
+                  <span className="text-gray-500 dark:text-gray-400 text-xs">
+                    Code block copied to clipboard
+                  </span>
+                </div>,
+              )
+            }}
+            aria-label="Copy code to clipboard"
+          >
+            {copied ? (
+              <span className="text-xs">Copied!</span>
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
+          </Button>
         </div>
       )}
       {codeElement}

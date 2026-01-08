@@ -216,7 +216,6 @@ const options: HTMLReactParserOptions = {
               }
             }
 
-            // Default tabs variant
             const tabs = attributes.tabs
             const id =
               attributes.id || `tabs-${Math.random().toString(36).slice(2, 9)}`
@@ -230,9 +229,11 @@ const options: HTMLReactParserOptions = {
                 child instanceof Element && child.name === 'md-tab-panel',
             )
 
-            const children = panelElements?.map((panel) =>
-              domToReact(panel.children as any, options),
-            )
+            const children = panelElements?.map((panel) => {
+              const result = domToReact(panel.children as any, options)
+              // Wrap in fragment to ensure it's a single React node
+              return <>{result}</>
+            })
 
             return <Tabs id={id} tabs={tabs} children={children as any} />
           }

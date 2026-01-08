@@ -234,7 +234,6 @@ function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
 
   for (const child of children) {
     if (isHeading(child)) {
-
       currentFramework = toString(child as any)
         .trim()
         .toLowerCase()

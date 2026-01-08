@@ -29,7 +29,9 @@ export function Tabs({
   const framework = params?.framework ?? undefined
 
   const [internalActiveSlug, setInternalActiveSlug] = React.useState(() => {
-    const match = framework ? tabsProp.find((tab) => tab.slug === framework) : undefined
+    const match = framework
+      ? tabsProp.find((tab) => tab.slug === framework)
+      : undefined
     return match?.slug ?? tabsProp[0]?.slug ?? ''
   })
 
@@ -37,9 +39,9 @@ export function Tabs({
   const setActiveSlug = React.useCallback(
     (slug: string) => {
       if (onTabChange) {
-        onTabChange(slug);
+        onTabChange(slug)
       } else {
-        setInternalActiveSlug(slug);
+        setInternalActiveSlug(slug)
       }
     },
     [onTabChange],

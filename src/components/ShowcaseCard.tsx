@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 import { ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { libraries, type LibraryId } from '~/libraries'
@@ -34,11 +35,10 @@ export function ShowcaseCard({
         className,
       )}
     >
-      {/* Main link area */}
-      <a
-        href={showcase.url}
-        target="_blank"
-        rel="noopener noreferrer"
+      {/* Main link area - links to detail page */}
+      <Link
+        to="/showcase/$id"
+        params={{ id: showcase.id }}
         className="block flex-1 flex flex-col"
       >
         {/* Screenshot */}
@@ -58,10 +58,6 @@ export function ShowcaseCard({
               />
             </div>
           )}
-          {/* External link indicator */}
-          <div className="absolute top-3 right-3 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 opacity-0 group-hover:opacity-100 transition-opacity">
-            <ExternalLink className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-          </div>
         </div>
 
         {/* Content */}
@@ -73,6 +69,18 @@ export function ShowcaseCard({
             {showcase.tagline}
           </p>
         </div>
+      </Link>
+
+      {/* External link button - separate from card link */}
+      <a
+        href={showcase.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
+        title="Visit site"
+      >
+        <ExternalLink className="w-4 h-4 text-gray-600 dark:text-gray-300" />
       </a>
 
       {/* Footer with libraries and voting */}

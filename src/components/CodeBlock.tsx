@@ -6,7 +6,6 @@ import type { Mermaid } from 'mermaid'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import { createHighlighter, type HighlighterGeneric } from 'shiki'
 import { Button } from './Button'
-import { ButtonGroup } from './ButtonGroup'
 
 // Language aliases mapping
 const LANG_ALIASES: Record<string, string> = {
@@ -99,6 +98,16 @@ export function CodeBlock({
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
 }) {
+  // Extract title from data-code-title attribute, handling both camelCase and kebab-case
+  const rawTitle = ((props as any)?.dataCodeTitle ||
+    (props as any)?.['data-code-title']) as string | undefined
+
+  // Filter out "undefined" strings, null, and empty strings
+  const title =
+    rawTitle && rawTitle !== 'undefined' && rawTitle.trim().length > 0
+      ? rawTitle.trim()
+      : undefined
+
   const childElement = props.children as
     | undefined
     | { props?: { className?: string; children?: string } }
@@ -123,14 +132,9 @@ export function CodeBlock({
   const code = children?.props.children
 
   const [codeElement, setCodeElement] = React.useState(
-    <>
-      <pre ref={ref} className={`shiki github-light h-full`}>
-        <code>{lang === 'mermaid' ? <svg /> : code}</code>
-      </pre>
-      <pre className={`shiki vitesse-dark`}>
-        <code>{lang === 'mermaid' ? <svg /> : code}</code>
-      </pre>
-    </>,
+    <pre ref={ref} className={`shiki h-full github-light dark:vitesse-dark`}>
+      <code>{lang === 'mermaid' ? <svg /> : code}</code>
+    </pre>,
   )
 
   React[
@@ -189,18 +193,14 @@ export function CodeBlock({
       )}
       style={props.style}
     >
-      {showTypeCopyButton ? (
-        <ButtonGroup
-          className={twMerge(
-            'absolute z-10 text-sm',
-            isEmbedded ? 'top-2 right-4' : '-top-3 right-2',
-          )}
-        >
-          {lang ? (
-            <span className="px-2 py-1 text-xs font-medium">{lang}</span>
-          ) : null}
+      {(title || showTypeCopyButton) && (
+        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-500/20 bg-gray-50 dark:bg-gray-900">
+          <div className="text-xs text-gray-700 dark:text-gray-300">
+            {title || (lang?.toLowerCase() === 'bash' ? 'sh' : (lang ?? ''))}
+          </div>
+
           <Button
-            className="border-0 rounded-none"
+            className={twMerge('border-0 rounded-md transition-opacity')}
             onClick={() => {
               let copyContent =
                 typeof ref.current?.innerText === 'string'
@@ -215,20 +215,24 @@ export function CodeBlock({
               setCopied(true)
               setTimeout(() => setCopied(false), 2000)
               notify(
-                <div>
-                  <div className="font-medium">Copied code</div>
-                  <div className="text-gray-500 dark:text-gray-400 text-xs">
+                <div className="flex flex-col">
+                  <span className="font-medium">Copied code</span>
+                  <span className="text-gray-500 dark:text-gray-400 text-xs">
                     Code block copied to clipboard
-                  </div>
+                  </span>
                 </div>,
               )
             }}
             aria-label="Copy code to clipboard"
           >
-            {copied ? <span className="text-xs">Copied!</span> : <Copy />}
+            {copied ? (
+              <span className="text-xs">Copied!</span>
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
           </Button>
-        </ButtonGroup>
-      ) : null}
+        </div>
+      )}
       {codeElement}
     </div>
   )

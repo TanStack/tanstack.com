@@ -131,12 +131,14 @@ export function PackageManagerTabs({
   })
 
   return (
-    <Tabs
-      id={id}
-      tabs={tabs}
-      children={children}
-      activeSlug={selectedPackageManager}
-      onTabChange={(slug) => setPackageManager(slug as PackageManager)}
-    />
+    <div className="package-manager-tabs">
+      <Tabs
+        id={id}
+        tabs={tabs}
+        children={children}
+        activeSlug={selectedPackageManager}
+        onTabChange={(slug) => setPackageManager(slug as PackageManager)}
+      />
+    </div>
   )
 }

@@ -1113,3 +1113,52 @@ export const getMyShowcaseVotes = createServerFn({ method: 'POST' })
 
     return { votes }
   })
+
+/**
+ * Get related showcases (same libraries, excluding current showcase)
+ */
+export const getRelatedShowcases = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      showcaseId: v.pipe(v.string(), v.uuid()),
+      libraries: v.array(v.string()),
+      limit: v.optional(v.number(), 4),
+    }),
+  )
+  .handler(async ({ data }) => {
+    if (data.libraries.length === 0) {
+      return { showcases: [] }
+    }
+
+    const showcaseList = await db
+      .select({
+        showcase: showcases,
+        user: {
+          id: users.id,
+          name: users.name,
+          image: users.image,
+        },
+      })
+      .from(showcases)
+      .leftJoin(users, eq(showcases.userId, users.id))
+      .where(
+        and(
+          eq(showcases.status, 'approved' as ShowcaseStatus),
+          sql`${showcases.id} != ${data.showcaseId}`,
+          or(
+            ...data.libraries.map((libId) =>
+              arrayContains(showcases.libraries, [libId]),
+            ),
+          ),
+        ),
+      )
+      .orderBy(
+        desc(showcases.isFeatured),
+        desc(showcases.voteScore),
+        sql`${showcases.trancoRank} ASC NULLS LAST`,
+        desc(showcases.createdAt),
+      )
+      .limit(data.limit)
+
+    return { showcases: showcaseList }
+  })

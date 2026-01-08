@@ -128,6 +128,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     if (themeMode !== 'auto') return
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handler = () => {
+      updateThemeClass('auto')
       setResolvedTheme(getSystemTheme())
     }
     mediaQuery.addEventListener('change', handler)

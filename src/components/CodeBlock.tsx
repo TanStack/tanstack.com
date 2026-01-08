@@ -128,14 +128,9 @@ export function CodeBlock({
   const code = children?.props.children
 
   const [codeElement, setCodeElement] = React.useState(
-    <>
-      <pre ref={ref} className={`shiki github-light h-full`}>
+      <pre ref={ref} className={`shiki h-full github-light dark:vitesse-dark`}>
         <code>{lang === 'mermaid' ? <svg /> : code}</code>
       </pre>
-      <pre className={`shiki vitesse-dark`}>
-        <code>{lang === 'mermaid' ? <svg /> : code}</code>
-      </pre>
-    </>,
   )
 
   React[
@@ -196,12 +191,10 @@ export function CodeBlock({
     >
       {(title || showTypeCopyButton) && (
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-500/20 bg-gray-500/5">
-          {/* Title on the left */}
           <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {title || ''}
           </div>
 
-          {/* Copy button on the right, visible only on hover */}
             <Button
               className={twMerge(
                 'border-0 rounded-md transition-opacity',
@@ -220,11 +213,11 @@ export function CodeBlock({
                 setCopied(true)
                 setTimeout(() => setCopied(false), 2000)
                 notify(
-                  <div>
-                    <div className="font-medium">Copied code</div>
-                    <div className="text-gray-500 dark:text-gray-400 text-xs">
+                  <div className="flex flex-col">
+                    <span className="font-medium">Copied code</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-xs">
                       Code block copied to clipboard
-                    </div>
+                    </span>
                   </div>,
                 )
               }}

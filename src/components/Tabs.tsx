@@ -9,28 +9,32 @@ export type TabDefinition = {
 }
 
 export type TabsProps = {
-  tabs: Array<TabDefinition>
-  children: Array<React.ReactNode>
+  tabs?: Array<TabDefinition>
+  children?: Array<React.ReactNode> | React.ReactNode
   id: string
   activeSlug?: string
   onTabChange?: (slug: string) => void
 }
 
 export function Tabs({
-  tabs,
+  tabs: tabsProp = [],
   id,
-  children,
+  children: childrenProp,
   activeSlug: controlledActiveSlug,
   onTabChange,
 }: TabsProps) {
+  const childrenArray = React.Children.toArray(childrenProp)
+
   const params = useParams({ strict: false })
-  const framework = 'framework' in params ? params.framework : undefined
+  const framework = params?.framework ?? undefined
 
-  const [internalActiveSlug, setInternalActiveSlug] = React.useState(
-    () => tabs.find((tab) => tab.slug === framework)?.slug || tabs[0].slug,
-  )
+  const [internalActiveSlug, setInternalActiveSlug] = React.useState(() => {
+    const match = framework
+      ? tabsProp.find((tab) => tab.slug === framework)
+      : undefined
+    return match?.slug ?? tabsProp[0]?.slug ?? ''
+  })
 
-  // Use controlled state if provided, otherwise use internal state
   const activeSlug = controlledActiveSlug ?? internalActiveSlug
   const setActiveSlug = React.useCallback(
     (slug: string) => {
@@ -43,10 +47,12 @@ export function Tabs({
     [onTabChange],
   )
 
+  if (tabsProp.length === 0) return null
+
   return (
     <div className="not-prose my-4">
       <div className="flex items-center justify-start gap-2 rounded-t-md border-1 border-b-none border-gray-200 dark:border-gray-800 overflow-x-auto overflow-y-hidden bg-white dark:bg-gray-950">
-        {tabs.map((tab) => {
+        {tabsProp.map((tab) => {
           return (
             <Tab
               key={`${id}-${tab.slug}`}
@@ -59,8 +65,8 @@ export function Tabs({
         })}
       </div>
       <div className="border border-gray-500/20 rounded-b-md p-4 bg-gray-100 dark:bg-gray-900">
-        {children.map((child, index) => {
-          const tab = tabs[index]
+        {childrenArray.map((child, index) => {
+          const tab = tabsProp[index]
           if (!tab) return null
           return (
             <div
@@ -78,36 +84,37 @@ export function Tabs({
   )
 }
 
-const Tab = ({
-  tab,
-  activeSlug,
-  setActiveSlug,
-}: {
-  id: string
-  tab: TabDefinition
-  activeSlug: string
-  setActiveSlug: (slug: string) => void
-}) => {
-  const option = React.useMemo(
-    () => frameworkOptions.find((o) => o.value === tab.slug),
-    [tab.slug],
-  )
-  return (
-    <button
-      aria-label={tab.name}
-      title={tab.name}
-      type="button"
-      onClick={() => setActiveSlug(tab.slug)}
-      className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 -mb-[1px] border-b-2 text-sm font-bold transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-t-md overflow-y-none ${
-        activeSlug === tab.slug
-          ? 'border-current text-current bg-gray-100 dark:bg-gray-900'
-          : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
-      }`}
-    >
-      {option ? (
-        <img src={option.logo} alt="" className="w-4 h-4 -ml-1" />
-      ) : null}
-      <span>{tab.name}</span>
-    </button>
-  )
-}
+const Tab = React.memo(
+  ({
+    tab,
+    activeSlug,
+    setActiveSlug,
+  }: {
+    id?: string
+    tab: TabDefinition
+    activeSlug: string
+    setActiveSlug: (slug: string) => void
+  }) => {
+    const option = React.useMemo(
+      () => frameworkOptions.find((o) => o.value === tab.slug),
+      [tab.slug],
+    )
+
+    return (
+      <button
+        aria-label={tab.name}
+        title={tab.name}
+        type="button"
+        onClick={() => setActiveSlug(tab.slug)}
+        className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 -mb-[1px] border-b-2 text-sm font-bold transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 rounded-t-md overflow-y-none ${
+          activeSlug === tab.slug
+            ? 'border-current text-current bg-gray-100 dark:bg-gray-900'
+            : 'border-transparent text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+        }`}
+      >
+        {option && <img src={option.logo} alt="" className="w-4 h-4 -ml-1" />}
+        <span>{tab.name}</span>
+      </button>
+    )
+  },
+)

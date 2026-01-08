@@ -67,36 +67,10 @@ export function format(date: Date | number, formatStr: string): string {
       })
 
     case 'MMM d, yyyy':
+    case 'MMM dd, yyyy':
       // "Apr 29, 2023"
       return d.toLocaleDateString('en-US', {
         year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      })
-
-    case 'MMM dd, yyyy':
-      // "Apr 29, 2023" (same as above, just different format string)
-      return d.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      })
-
-    case 'MMMM d, yyyy':
-      // "April 29, 2023"
-      return d.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-
-    case 'yyyy-MM-dd':
-      // "2023-04-29"
-      return d.toISOString().split('T')[0]
-
-    case 'MMM d':
-      // "Apr 29"
-      return d.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
       })

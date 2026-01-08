@@ -148,6 +148,30 @@ const options: HTMLReactParserOptions = {
               }
             }
 
+            // Check if this is files variant
+            const filesMeta = domNode.attribs['data-files-meta']
+            if (filesMeta) {
+              try {
+                const tabs = attributes.tabs || []
+                const id =
+                  attributes.id ||
+                  `files-tabs-${Math.random().toString(36).slice(2, 9)}`
+
+                const panelElements = domNode.children?.filter(
+                  (child): child is Element =>
+                    child instanceof Element && child.name === 'md-tab-panel',
+                )
+
+                const children = panelElements?.map((panel) =>
+                  domToReact(panel.children as any, options),
+                )
+
+                return <Tabs id={id} tabs={tabs} children={children as any} />
+              } catch {
+                // Fall through to default tabs if parsing fails
+              }
+            }
+
             // Default tabs variant
             const tabs = attributes.tabs
             const id =

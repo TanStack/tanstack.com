@@ -98,11 +98,17 @@ export function CodeBlock({
   isEmbedded?: boolean
   showTypeCopyButton?: boolean
 }) {
-  const rawTitle = ((props as any).dataCodeTitle ||
-    (props as any)['data-code-title']) as string | undefined
+  // Extract title from data-code-title attribute, handling both camelCase and kebab-case
+  const rawTitle = (
+    (props as any)?.dataCodeTitle ||
+    (props as any)?.['data-code-title']
+  ) as string | undefined
 
-  // Filter out "undefined" strings and empty strings
-  const title = rawTitle && rawTitle !== 'undefined' ? rawTitle : undefined
+  // Filter out "undefined" strings, null, and empty strings
+  const title =
+    rawTitle && rawTitle !== 'undefined' && rawTitle.trim().length > 0
+      ? rawTitle.trim()
+      : undefined
 
   const childElement = props.children as
     | undefined
@@ -192,7 +198,7 @@ export function CodeBlock({
       {(title || showTypeCopyButton) && (
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-500/20 bg-gray-50 dark:bg-gray-900">
           <div className="text-xs text-gray-700 dark:text-gray-300">
-            {title ? title : lang?.toLowerCase() == 'bash' ? 'sh' : '' }
+            {title || (lang?.toLowerCase() === 'bash' ? 'sh' : lang ?? '')}
           </div>
 
             <Button

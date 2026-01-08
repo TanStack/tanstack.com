@@ -337,7 +337,7 @@ export function transformTabsComponent(node: HastNode) {
   const variant = attributes.variant?.toLowerCase()
 
   // Handle package-manager variant
-  if (variant === 'package-manager') {
+  if (variant === 'package-manager' || variant === 'package-managers') {
     const mode = resolveMode(attributes)
     const result = extractPackageManagerData(node, mode)
 

@@ -4,12 +4,13 @@ import {
   FilterCheckbox,
 } from '~/components/FilterComponents'
 import { libraries } from '~/libraries'
-import { SHOWCASE_USE_CASES, type ShowcaseUseCase } from '~/db/types'
+import { SHOWCASE_USE_CASES_UI, type ShowcaseUseCase } from '~/db/types'
 import { USE_CASE_LABELS } from '~/utils/showcase.client'
 
 interface ShowcaseFilters {
   libraryIds?: string[]
   useCases?: ShowcaseUseCase[]
+  hasSourceCode?: boolean
   q?: string
 }
 
@@ -19,6 +20,7 @@ interface ShowcaseTopBarFiltersProps {
   onClearLibraries: () => void
   onUseCaseToggle: (useCase: ShowcaseUseCase) => void
   onClearUseCases: () => void
+  onToggleOpenSource: () => void
   onClearFilters: () => void
   onSearchChange: (q: string) => void
 }
@@ -37,12 +39,14 @@ export function ShowcaseTopBarFilters({
   onClearLibraries,
   onUseCaseToggle,
   onClearUseCases,
+  onToggleOpenSource,
   onClearFilters,
   onSearchChange,
 }: ShowcaseTopBarFiltersProps) {
   const hasActiveFilters =
     (filters.libraryIds && filters.libraryIds.length > 0) ||
     (filters.useCases && filters.useCases.length > 0) ||
+    filters.hasSourceCode ||
     !!filters.q
 
   return (
@@ -82,7 +86,7 @@ export function ShowcaseTopBarFilters({
         onClear={onClearUseCases}
       >
         <div className="space-y-0.5">
-          {SHOWCASE_USE_CASES.map((useCase) => (
+          {SHOWCASE_USE_CASES_UI.map((useCase) => (
             <FilterCheckbox
               key={useCase}
               label={USE_CASE_LABELS[useCase]}
@@ -92,6 +96,13 @@ export function ShowcaseTopBarFilters({
           ))}
         </div>
       </FacetFilterButton>
+
+      {/* Open Source Toggle */}
+      <FilterCheckbox
+        label="Open Source"
+        checked={filters.hasSourceCode ?? false}
+        onChange={onToggleOpenSource}
+      />
     </TopBarFilter>
   )
 }

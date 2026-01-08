@@ -32,6 +32,7 @@ export function ShowcaseGallery() {
       filters: {
         libraryIds: search.libraryIds,
         useCases: search.useCases as ShowcaseUseCase[],
+        hasSourceCode: search.hasSourceCode,
         q: search.q,
       },
     }),
@@ -233,6 +234,16 @@ export function ShowcaseGallery() {
     })
   }
 
+  const handleToggleOpenSource = () => {
+    navigate({
+      search: (prev: typeof search) => ({
+        ...prev,
+        hasSourceCode: prev.hasSourceCode ? undefined : true,
+        page: 1,
+      }),
+    })
+  }
+
   const handlePageChange = (newPage: number) => {
     navigate({
       search: (prev: typeof search) => ({ ...prev, page: newPage + 1 }),
@@ -255,6 +266,7 @@ export function ShowcaseGallery() {
         page: 1,
         libraryIds: undefined,
         useCases: undefined,
+        hasSourceCode: undefined,
         q: undefined,
       },
     })
@@ -263,6 +275,7 @@ export function ShowcaseGallery() {
   const hasFilters =
     (search.libraryIds && search.libraryIds.length > 0) ||
     (search.useCases && search.useCases.length > 0) ||
+    search.hasSourceCode ||
     search.q
 
   return (
@@ -298,12 +311,14 @@ export function ShowcaseGallery() {
             filters={{
               libraryIds: search.libraryIds,
               useCases: search.useCases as ShowcaseUseCase[],
+              hasSourceCode: search.hasSourceCode,
               q: search.q,
             }}
             onLibraryToggle={handleLibraryToggle}
             onClearLibraries={clearLibraries}
             onUseCaseToggle={handleUseCaseFilter}
             onClearUseCases={clearUseCases}
+            onToggleOpenSource={handleToggleOpenSource}
             onClearFilters={clearFilters}
             onSearchChange={handleSearchChange}
           />

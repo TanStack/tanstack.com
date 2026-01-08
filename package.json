@@ -87,6 +87,7 @@
     "shiki": "^1.4.0",
     "tailwind-merge": "^1.14.0",
     "three": "^0.182.0",
+    "troika-three-text": "^0.52.4",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
     "uploadthing": "^7.7.4",

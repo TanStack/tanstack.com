@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
-import { ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { ExternalLink, ThumbsUp, ThumbsDown, Code } from 'lucide-react'
 import { libraries, type LibraryId } from '~/libraries'
 import type { Showcase } from '~/db/types'
 
@@ -71,17 +71,31 @@ export function ShowcaseCard({
         </div>
       </Link>
 
-      {/* External link button - separate from card link */}
-      <a
-        href={showcase.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
-        className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
-        title="Visit site"
-      >
-        <ExternalLink className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-      </a>
+      {/* Action buttons - separate from card link */}
+      <div className="absolute top-3 right-3 flex gap-2">
+        {showcase.sourceUrl && (
+          <a
+            href={showcase.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
+            title="View source code"
+          >
+            <Code className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+          </a>
+        )}
+        <a
+          href={showcase.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="p-2 rounded-full bg-white/90 dark:bg-gray-800/90 shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
+          title="Visit site"
+        >
+          <ExternalLink className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+        </a>
+      </div>
 
       {/* Footer with libraries and voting */}
       <div className="px-4 pb-4 mt-auto">

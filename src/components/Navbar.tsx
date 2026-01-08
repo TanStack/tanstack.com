@@ -308,7 +308,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     },
   })
 
-  const linkClasses = `flex items-center justify-between group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
+  const linkClasses = `flex items-center justify-between gap-2 group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
 
   const items = (
     <div className="md:flex gap-2 [&>*]:flex-1 lg:block">
@@ -344,7 +344,13 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             <div key={i}>
               {library.to?.startsWith('http') ? (
                 <a href={library.to} className={linkClasses}>
-                  <span className={library.textStyle}>{name}</span>
+                  <span
+                    className={twMerge(
+                      'w-3 h-3 rounded-sm border border-black/20 dark:border-white/20',
+                      library.bgStyle,
+                    )}
+                  />
+                  {name}
                 </a>
               ) : (
                 <Collapsible defaultOpen={isActive}>
@@ -358,11 +364,17 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                         )}
                       >
                         <span
+                          className={twMerge(
+                            'w-3 h-3 rounded-sm border border-black/20 dark:border-white/20',
+                            library.bgStyle,
+                          )}
+                        />
+                        <span
                           style={{
                             viewTransitionName: `library-name-${library.id}`,
                           }}
                           className={twMerge(
-                            library.textStyle,
+                            'flex-1 text-left',
                             isActive ? 'font-bold' : '',
                           )}
                         >

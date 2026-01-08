@@ -25,7 +25,6 @@ import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as LibrariesIndexRouteImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
-import { Route as ShowcaseMineRouteImport } from './routes/showcase/mine'
 import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
@@ -78,6 +77,7 @@ import { Route as AdminFeedIdRouteImport } from './routes/admin/feed.$id'
 import { Route as AdminBannersIdRouteImport } from './routes/admin/banners.$id'
 import { Route as LibrariesFeedIdRouteImport } from './routes/_libraries/feed.$id'
 import { Route as LibrariesBlogSplatRouteImport } from './routes/_libraries/blog.$'
+import { Route as LibrariesAccountSubmissionsRouteImport } from './routes/_libraries/account/submissions'
 import { Route as LibrariesAccountNotesRouteImport } from './routes/_libraries/account/notes'
 import { Route as LibrariesAccountFeedbackRouteImport } from './routes/_libraries/account/feedback'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
@@ -183,11 +183,6 @@ const LibraryIdIndexRoute = LibraryIdIndexRouteImport.update({
 const ShowcaseSubmitRoute = ShowcaseSubmitRouteImport.update({
   id: '/showcase/submit',
   path: '/showcase/submit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShowcaseMineRoute = ShowcaseMineRouteImport.update({
-  id: '/showcase/mine',
-  path: '/showcase/mine',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShowcaseIdRoute = ShowcaseIdRouteImport.update({
@@ -451,6 +446,12 @@ const LibrariesBlogSplatRoute = LibrariesBlogSplatRouteImport.update({
   path: '/$',
   getParentRoute: () => LibrariesBlogRoute,
 } as any)
+const LibrariesAccountSubmissionsRoute =
+  LibrariesAccountSubmissionsRouteImport.update({
+    id: '/submissions',
+    path: '/submissions',
+    getParentRoute: () => LibrariesAccountRoute,
+  } as any)
 const LibrariesAccountNotesRoute = LibrariesAccountNotesRouteImport.update({
   id: '/notes',
   path: '/notes',
@@ -647,7 +648,6 @@ export interface FileRoutesByFullPath {
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/$id': typeof ShowcaseIdRoute
-  '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
@@ -657,6 +657,7 @@ export interface FileRoutesByFullPath {
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/account/feedback': typeof LibrariesAccountFeedbackRoute
   '/account/notes': typeof LibrariesAccountNotesRoute
+  '/account/submissions': typeof LibrariesAccountSubmissionsRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/banners/$id': typeof AdminBannersIdRoute
@@ -740,7 +741,6 @@ export interface FileRoutesByTo {
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/$id': typeof ShowcaseIdRoute
-  '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId': typeof LibraryIdIndexRoute
   '/': typeof LibrariesIndexRoute
@@ -749,6 +749,7 @@ export interface FileRoutesByTo {
   '/stats': typeof StatsIndexRoute
   '/account/feedback': typeof LibrariesAccountFeedbackRoute
   '/account/notes': typeof LibrariesAccountNotesRoute
+  '/account/submissions': typeof LibrariesAccountSubmissionsRoute
   '/blog/$': typeof LibrariesBlogSplatRoute
   '/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/banners/$id': typeof AdminBannersIdRoute
@@ -838,7 +839,6 @@ export interface FileRoutesById {
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
   '/showcase/$id': typeof ShowcaseIdRoute
-  '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
   '/_libraries/': typeof LibrariesIndexRoute
@@ -848,6 +848,7 @@ export interface FileRoutesById {
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
   '/_libraries/account/feedback': typeof LibrariesAccountFeedbackRoute
   '/_libraries/account/notes': typeof LibrariesAccountNotesRoute
+  '/_libraries/account/submissions': typeof LibrariesAccountSubmissionsRoute
   '/_libraries/blog/$': typeof LibrariesBlogSplatRoute
   '/_libraries/feed/$id': typeof LibrariesFeedIdRoute
   '/admin/banners/$id': typeof AdminBannersIdRoute
@@ -937,7 +938,6 @@ export interface FileRouteTypes {
     | '/auth/popup-success'
     | '/auth/signout'
     | '/showcase/$id'
-    | '/showcase/mine'
     | '/showcase/submit'
     | '/$libraryId/'
     | '/'
@@ -947,6 +947,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/account/feedback'
     | '/account/notes'
+    | '/account/submissions'
     | '/blog/$'
     | '/feed/$id'
     | '/admin/banners/$id'
@@ -1030,7 +1031,6 @@ export interface FileRouteTypes {
     | '/auth/popup-success'
     | '/auth/signout'
     | '/showcase/$id'
-    | '/showcase/mine'
     | '/showcase/submit'
     | '/$libraryId'
     | '/'
@@ -1039,6 +1039,7 @@ export interface FileRouteTypes {
     | '/stats'
     | '/account/feedback'
     | '/account/notes'
+    | '/account/submissions'
     | '/blog/$'
     | '/feed/$id'
     | '/admin/banners/$id'
@@ -1127,7 +1128,6 @@ export interface FileRouteTypes {
     | '/auth/popup-success'
     | '/auth/signout'
     | '/showcase/$id'
-    | '/showcase/mine'
     | '/showcase/submit'
     | '/$libraryId/'
     | '/_libraries/'
@@ -1137,6 +1137,7 @@ export interface FileRouteTypes {
     | '/$libraryId/$version/docs'
     | '/_libraries/account/feedback'
     | '/_libraries/account/notes'
+    | '/_libraries/account/submissions'
     | '/_libraries/blog/$'
     | '/_libraries/feed/$id'
     | '/admin/banners/$id'
@@ -1202,7 +1203,6 @@ export interface RootRouteChildren {
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
   ShowcaseIdRoute: typeof ShowcaseIdRoute
-  ShowcaseMineRoute: typeof ShowcaseMineRoute
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
   StatsIndexRoute: typeof StatsIndexRoute
@@ -1328,13 +1328,6 @@ declare module '@tanstack/react-router' {
       path: '/showcase/submit'
       fullPath: '/showcase/submit'
       preLoaderRoute: typeof ShowcaseSubmitRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/showcase/mine': {
-      id: '/showcase/mine'
-      path: '/showcase/mine'
-      fullPath: '/showcase/mine'
-      preLoaderRoute: typeof ShowcaseMineRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/showcase/$id': {
@@ -1701,6 +1694,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesBlogSplatRouteImport
       parentRoute: typeof LibrariesBlogRoute
     }
+    '/_libraries/account/submissions': {
+      id: '/_libraries/account/submissions'
+      path: '/submissions'
+      fullPath: '/account/submissions'
+      preLoaderRoute: typeof LibrariesAccountSubmissionsRouteImport
+      parentRoute: typeof LibrariesAccountRoute
+    }
     '/_libraries/account/notes': {
       id: '/_libraries/account/notes'
       path: '/notes'
@@ -1957,12 +1957,14 @@ const LibraryIdRouteRouteWithChildren = LibraryIdRouteRoute._addFileChildren(
 interface LibrariesAccountRouteChildren {
   LibrariesAccountFeedbackRoute: typeof LibrariesAccountFeedbackRoute
   LibrariesAccountNotesRoute: typeof LibrariesAccountNotesRoute
+  LibrariesAccountSubmissionsRoute: typeof LibrariesAccountSubmissionsRoute
   LibrariesAccountIndexRoute: typeof LibrariesAccountIndexRoute
 }
 
 const LibrariesAccountRouteChildren: LibrariesAccountRouteChildren = {
   LibrariesAccountFeedbackRoute: LibrariesAccountFeedbackRoute,
   LibrariesAccountNotesRoute: LibrariesAccountNotesRoute,
+  LibrariesAccountSubmissionsRoute: LibrariesAccountSubmissionsRoute,
   LibrariesAccountIndexRoute: LibrariesAccountIndexRoute,
 }
 
@@ -2132,7 +2134,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
   ShowcaseIdRoute: ShowcaseIdRoute,
-  ShowcaseMineRoute: ShowcaseMineRoute,
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,
   StatsIndexRoute: StatsIndexRoute,

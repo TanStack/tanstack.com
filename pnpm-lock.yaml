@@ -203,6 +203,9 @@ importers:
       three:
         specifier: ^0.182.0
         version: 0.182.0
+      troika-three-text:
+        specifier: ^0.52.4
+        version: 0.52.4(three@0.182.0)
       unified:
         specifier: ^11.0.5
         version: 11.0.5

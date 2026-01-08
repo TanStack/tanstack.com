@@ -5,6 +5,7 @@ import { db } from '~/db/client'
 import { loginHistory, auditLogs, users, type AuditAction } from '~/db/schema'
 import { desc, asc, eq, sql, and, gte, lte } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core'
+import { ALL_TIME_FLOOR_DATE } from './chart'
 
 // Query login history (admin only)
 export const listLoginHistory = createServerFn({ method: 'POST' })
@@ -387,3 +388,38 @@ export const getActivityStats = createServerFn({ method: 'POST' }).handler(
     }
   },
 )
+
+/**
+ * Get daily login data for charts with configurable time range
+ */
+export const getLoginsChartData = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      days: v.optional(v.nullable(v.number())), // null = all time
+    }),
+  )
+  .handler(async ({ data: { days } }) => {
+    await requireAdmin()
+
+    // Calculate start date based on days parameter
+    const startDate =
+      days === null || days === undefined
+        ? ALL_TIME_FLOOR_DATE
+        : new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+
+    // Get daily login counts from start date
+    const dailyLogins = await db
+      .select({
+        date: sql<string>`date(${loginHistory.createdAt})`,
+        count: sql<number>`count(*)`,
+      })
+      .from(loginHistory)
+      .where(gte(loginHistory.createdAt, startDate))
+      .groupBy(sql`date(${loginHistory.createdAt})`)
+      .orderBy(sql`date(${loginHistory.createdAt})`)
+
+    return dailyLogins.map((d) => ({
+      date: d.date,
+      count: Number(d.count),
+    }))
+  })

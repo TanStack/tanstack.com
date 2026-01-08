@@ -4,7 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { submitShowcase, updateShowcase } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
 import {
-  SHOWCASE_USE_CASES,
+  SHOWCASE_USE_CASES_UI,
   type Showcase,
   type ShowcaseUseCase,
 } from '~/db/types'
@@ -50,6 +50,8 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
   const [selectedUseCases, setSelectedUseCases] = React.useState<
     ShowcaseUseCase[]
   >(showcase?.useCases ?? [])
+  const [isOpenSource, setIsOpenSource] = React.useState(!!showcase?.sourceUrl)
+  const [sourceUrl, setSourceUrl] = React.useState(showcase?.sourceUrl ?? '')
 
   // Get auto-included libraries based on selection
   const autoIncluded = React.useMemo(
@@ -70,7 +72,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
         </div>
       </div>,
     )
-    navigate({ to: '/showcase/mine' })
+    navigate({ to: '/account/submissions' })
   }
 
   const onError = (error: Error) => {
@@ -140,6 +142,19 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
       return
     }
 
+    // Validate source URL is provided when open source is checked
+    if (isOpenSource && !sourceUrl) {
+      notify(
+        <div>
+          <div className="font-medium">Source code URL is required</div>
+          <div className="text-gray-500 dark:text-gray-400 text-xs">
+            Please provide a link to your source code repository.
+          </div>
+        </div>,
+      )
+      return
+    }
+
     // Warn user if editing an approved showcase
     if (isEditMode && showcase.status === 'approved') {
       const confirmed = confirm(
@@ -157,6 +172,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
       url,
       logoUrl,
       screenshotUrl,
+      sourceUrl: isOpenSource ? sourceUrl : undefined,
       libraries: selectedLibraries,
       useCases: selectedUseCases,
     }
@@ -282,6 +298,47 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
             aspectRatio="square"
           />
 
+          {/* Open Source */}
+          <div className="space-y-3">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isOpenSource}
+                onChange={(e) => {
+                  setIsOpenSource(e.target.checked)
+                  if (!e.target.checked) setSourceUrl('')
+                }}
+                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                This project is open source
+              </span>
+            </label>
+
+            {isOpenSource && (
+              <div>
+                <label
+                  htmlFor="sourceUrl"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Source Code URL *
+                </label>
+                <input
+                  type="url"
+                  id="sourceUrl"
+                  value={sourceUrl}
+                  onChange={(e) => setSourceUrl(e.target.value)}
+                  required
+                  className="mt-1 block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="https://github.com/username/repo"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Link to GitHub, GitLab, or other repository
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Libraries */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -333,7 +390,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
               Use Cases
             </label>
             <div className="flex flex-wrap gap-2">
-              {SHOWCASE_USE_CASES.map((useCase) => {
+              {SHOWCASE_USE_CASES_UI.map((useCase) => {
                 const isSelected = selectedUseCases.includes(useCase)
 
                 return (
@@ -362,7 +419,7 @@ export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
             {isEditMode && (
               <Button
                 type="button"
-                onClick={() => navigate({ to: '/showcase/mine' })}
+                onClick={() => navigate({ to: '/account/submissions' })}
                 className="flex-1 justify-center px-6 py-3 font-medium rounded-lg"
               >
                 Cancel

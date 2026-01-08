@@ -1,19 +1,21 @@
 import * as v from 'valibot'
 
-// Shared schemas for npm stats routes
+// Re-export shared types from chart utils
+export {
+  binTypeSchema,
+  type BinType,
+  binningOptions,
+  getBinFunction,
+} from '~/utils/chart'
+
+// NPM-specific schemas (extends shared with additional time ranges)
 export const transformModeSchema = v.picklist(['none', 'normalize-y'])
-export const binTypeSchema = v.picklist([
-  'yearly',
-  'monthly',
-  'weekly',
-  'daily',
-])
 export const showDataModeSchema = v.picklist(['all', 'complete'])
 
 export type TransformMode = v.InferOutput<typeof transformModeSchema>
-export type BinType = v.InferOutput<typeof binTypeSchema>
 export type ShowDataMode = v.InferOutput<typeof showDataModeSchema>
 
+// NPM stats has additional time ranges (730 days, 1825 days) beyond shared chart utils
 export const timeRangeSchema = v.picklist([
   '7-days',
   '30-days',

@@ -25,6 +25,8 @@ export const ENTRY_TYPES = ['release', 'blog', 'announcement'] as const
 
 export const SHOWCASE_STATUSES = ['pending', 'approved', 'denied'] as const
 
+// Note: 'open-source' is kept in enum for DB compatibility but hidden from UI
+// Open source status is now derived from sourceUrl field
 export const SHOWCASE_USE_CASES = [
   'blog',
   'e-commerce',
@@ -38,6 +40,11 @@ export const SHOWCASE_USE_CASES = [
   'media',
   'open-source',
 ] as const
+
+// Use cases shown in the UI (excludes deprecated 'open-source')
+export const SHOWCASE_USE_CASES_UI = SHOWCASE_USE_CASES.filter(
+  (uc) => uc !== 'open-source',
+)
 
 export const AUDIT_ACTIONS = [
   'user.capabilities.update',
@@ -145,6 +152,7 @@ export interface Showcase {
   url: string
   logoUrl: string | null
   screenshotUrl: string
+  sourceUrl: string | null
   libraries: string[]
   useCases: ShowcaseUseCase[]
   isFeatured: boolean

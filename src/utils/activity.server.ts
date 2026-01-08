@@ -1,6 +1,7 @@
 import { db } from '~/db/client'
 import { userActivity, users } from '~/db/schema'
 import { eq, sql, desc, gte, and } from 'drizzle-orm'
+import { ALL_TIME_FLOOR_DATE } from './chart'
 
 // Get today's date in YYYY-MM-DD format (UTC)
 export function getTodayDate(): string {
@@ -290,13 +291,17 @@ export async function getStreakLeaderboard(limit: number = 10): Promise<
   })
 }
 
-// Get daily active user counts for chart (last 30 days)
-export async function getDailyActiveUserCounts(): Promise<
-  Array<{ date: string; count: number }>
-> {
-  const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split('T')[0]
+// Get daily active user counts for chart with configurable time range
+// days = null means all time (from ALL_TIME_FLOOR_DATE)
+export async function getDailyActiveUserCounts(
+  days: number | null = 30,
+): Promise<Array<{ date: string; count: number }>> {
+  const startDate =
+    days === null
+      ? ALL_TIME_FLOOR_DATE.toISOString().split('T')[0]
+      : new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0]
 
   const results = await db
     .select({
@@ -304,7 +309,7 @@ export async function getDailyActiveUserCounts(): Promise<
       count: sql<number>`count(distinct ${userActivity.userId})`,
     })
     .from(userActivity)
-    .where(gte(userActivity.date, last30Days))
+    .where(gte(userActivity.date, startDate))
     .groupBy(userActivity.date)
     .orderBy(userActivity.date)
 

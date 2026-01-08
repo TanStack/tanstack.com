@@ -12,6 +12,7 @@ export const Route = createFileRoute('/showcase/')({
         page: v.optional(v.number(), 1),
         libraryIds: v.optional(v.array(libraryIdSchema)),
         useCases: v.optional(v.array(showcaseUseCaseSchema)),
+        hasSourceCode: v.optional(v.boolean()),
         q: v.optional(v.string()),
       }),
       search,
@@ -23,6 +24,7 @@ export const Route = createFileRoute('/showcase/')({
     page: search.page,
     libraryIds: search.libraryIds,
     useCases: search.useCases,
+    hasSourceCode: search.hasSourceCode,
     q: search.q,
   }),
   loader: async ({ deps, context: { queryClient } }) => {
@@ -35,6 +37,7 @@ export const Route = createFileRoute('/showcase/')({
         filters: {
           libraryIds: deps.libraryIds,
           useCases: deps.useCases,
+          hasSourceCode: deps.hasSourceCode,
           q: deps.q,
         },
       }),

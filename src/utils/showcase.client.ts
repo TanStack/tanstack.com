@@ -55,5 +55,5 @@ export const USE_CASE_LABELS: Record<ShowcaseUseCase, string> = {
   'developer-tool': 'Developer Tool',
   marketing: 'Marketing',
   media: 'Media',
-  'open-source': 'Open Source',
+  'open-source': 'Open Source', // Kept for backward compatibility, not shown in UI
 }

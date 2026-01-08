@@ -53,7 +53,7 @@ export function AuthenticatedUserMenu({
           </Link>
         </DropdownItem>
         <DropdownItem asChild>
-          <Link to="/showcase/mine" className="flex items-center gap-2">
+          <Link to="/account/submissions" className="flex items-center gap-2">
             <Sparkles className="w-4 h-4" />
             <span>My Showcases</span>
           </Link>

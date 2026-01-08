@@ -3,10 +3,12 @@
  */
 
 import { createServerFn } from '@tanstack/react-start'
+import * as v from 'valibot'
 import { db } from '~/db/client'
 import { users } from '~/db/schema'
 import { requireCapability } from './auth.server'
 import { sql, gte, and, eq, lt } from 'drizzle-orm'
+import { ALL_TIME_FLOOR_DATE } from './chart'
 
 /**
  * Get comprehensive user statistics including:
@@ -186,3 +188,40 @@ export const getUserStats = createServerFn({ method: 'POST' }).handler(
     }
   },
 )
+
+/**
+ * Get daily signup data for charts with configurable time range
+ */
+export const getSignupsChartData = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      days: v.optional(v.nullable(v.number())), // null = all time
+    }),
+  )
+  .handler(async ({ data: { days } }) => {
+    await requireCapability({ data: { capability: 'admin' } })
+
+    // Calculate start date based on days parameter
+    const startDate =
+      days === null || days === undefined
+        ? ALL_TIME_FLOOR_DATE
+        : new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+
+    // Get daily signup counts from start date
+    const dailySignupsData = await db
+      .select({
+        date: sql<string>`DATE(${users.createdAt} AT TIME ZONE 'UTC')`.as(
+          'date',
+        ),
+        count: sql<number>`COUNT(*)::int`.as('count'),
+      })
+      .from(users)
+      .where(gte(users.createdAt, startDate))
+      .groupBy(sql`DATE(${users.createdAt} AT TIME ZONE 'UTC')`)
+      .orderBy(sql`DATE(${users.createdAt} AT TIME ZONE 'UTC')`)
+
+    return dailySignupsData.map((row) => ({
+      date: row.date,
+      count: row.count,
+    }))
+  })

@@ -18,6 +18,7 @@ import {
   asc,
   inArray,
   arrayContains,
+  isNotNull,
 } from 'drizzle-orm'
 import { getAuthenticatedUser } from './auth.server-helpers'
 import {
@@ -58,6 +59,7 @@ export const submitShowcase = createServerFn({ method: 'POST' })
         v.string(),
         v.minLength(1, 'Screenshot URL is required'),
       ),
+      sourceUrl: v.optional(v.string()),
       libraries: v.pipe(
         v.array(v.string()),
         v.minLength(1, 'At least one library is required'),
@@ -93,6 +95,10 @@ export const submitShowcase = createServerFn({ method: 'POST' })
       throw new Error('Invalid screenshot URL format')
     }
 
+    if (data.sourceUrl && !isValidUrl(data.sourceUrl)) {
+      throw new Error('Invalid source code URL format')
+    }
+
     // Validate library IDs
     const invalidLibraries = data.libraries.filter(
       (lib) => !validLibraryIds.includes(lib as any),
@@ -118,6 +124,7 @@ export const submitShowcase = createServerFn({ method: 'POST' })
         url: data.url,
         logoUrl: data.logoUrl,
         screenshotUrl: data.screenshotUrl,
+        sourceUrl: data.sourceUrl,
         libraries: expandedLibraries,
         useCases: data.useCases as ShowcaseUseCase[],
         status: 'pending',
@@ -187,6 +194,7 @@ export const updateShowcase = createServerFn({ method: 'POST' })
         v.string(),
         v.minLength(1, 'Screenshot URL is required'),
       ),
+      sourceUrl: v.optional(v.string()),
       libraries: v.pipe(
         v.array(v.string()),
         v.minLength(1, 'At least one library is required'),
@@ -215,6 +223,10 @@ export const updateShowcase = createServerFn({ method: 'POST' })
 
     if (!isValidUrl(data.screenshotUrl)) {
       throw new Error('Invalid screenshot URL format')
+    }
+
+    if (data.sourceUrl && !isValidUrl(data.sourceUrl)) {
+      throw new Error('Invalid source code URL format')
     }
 
     // Validate library IDs
@@ -251,6 +263,7 @@ export const updateShowcase = createServerFn({ method: 'POST' })
         url: data.url,
         logoUrl: data.logoUrl,
         screenshotUrl: data.screenshotUrl,
+        sourceUrl: data.sourceUrl ?? null,
         libraries: expandedLibraries,
         useCases: data.useCases as ShowcaseUseCase[],
         status: 'pending',
@@ -386,6 +399,7 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
           libraryIds: v.optional(v.array(v.string())),
           useCases: v.optional(v.array(showcaseUseCaseSchema)),
           featured: v.optional(v.boolean()),
+          hasSourceCode: v.optional(v.boolean()),
           q: v.optional(v.string()),
         }),
       ),
@@ -422,6 +436,10 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
 
     if (filters.featured !== undefined) {
       conditions.push(eq(showcases.isFeatured, filters.featured))
+    }
+
+    if (filters.hasSourceCode === true) {
+      conditions.push(isNotNull(showcases.sourceUrl))
     }
 
     if (filters.q && filters.q.trim()) {
@@ -852,6 +870,7 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
         v.string(),
         v.minLength(1, 'Screenshot URL is required'),
       ),
+      sourceUrl: v.optional(v.nullable(v.string())),
       libraries: v.pipe(
         v.array(v.string()),
         v.minLength(1, 'At least one library is required'),
@@ -874,6 +893,10 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
 
     if (data.logoUrl && !isValidUrl(data.logoUrl)) {
       throw new Error('Invalid logo URL format')
+    }
+
+    if (data.sourceUrl && !isValidUrl(data.sourceUrl)) {
+      throw new Error('Invalid source code URL format')
     }
 
     if (!isValidUrl(data.screenshotUrl)) {
@@ -919,6 +942,7 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
         url: data.url,
         logoUrl: data.logoUrl ?? null,
         screenshotUrl: data.screenshotUrl,
+        sourceUrl: data.sourceUrl ?? null,
         libraries: expandedLibraries,
         useCases: data.useCases,
         status: data.status,

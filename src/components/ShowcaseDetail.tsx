@@ -7,6 +7,7 @@ import {
   ThumbsUp,
   ThumbsDown,
   Sparkles,
+  Code,
 } from 'lucide-react'
 import { Button } from './Button'
 import { twMerge } from 'tailwind-merge'
@@ -258,16 +259,30 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
               </p>
             </div>
           </div>
-          <Button
-            as="a"
-            href={showcase.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white hover:bg-gray-700 dark:hover:bg-gray-200 shrink-0"
-          >
-            Visit Site
-            <ExternalLink className="w-4 h-4" />
-          </Button>
+          <div className="flex gap-2 shrink-0">
+            {showcase.sourceUrl && (
+              <Button
+                as="a"
+                href={showcase.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 text-sm"
+              >
+                View Source
+                <Code className="w-4 h-4" />
+              </Button>
+            )}
+            <Button
+              as="a"
+              href={showcase.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white hover:bg-gray-700 dark:hover:bg-gray-200"
+            >
+              Visit Site
+              <ExternalLink className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Description */}

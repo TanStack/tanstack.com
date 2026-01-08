@@ -33,7 +33,7 @@ import { ImageUpload } from '~/components/ImageUpload'
 import { format } from '~/utils/dates'
 import {
   SHOWCASE_STATUSES,
-  SHOWCASE_USE_CASES,
+  SHOWCASE_USE_CASES_UI,
   type ShowcaseUseCase,
   type ShowcaseStatus,
 } from '~/db/types'
@@ -54,6 +54,7 @@ function ShowcaseDetailPage() {
     url: string
     logoUrl: string
     screenshotUrl: string
+    sourceUrl: string | null
     libraries: string[]
     useCases: ShowcaseUseCase[]
     status: ShowcaseStatus
@@ -124,6 +125,7 @@ function ShowcaseDetailPage() {
       url: showcase.url,
       logoUrl: showcase.logoUrl || '',
       screenshotUrl: showcase.screenshotUrl,
+      sourceUrl: showcase.sourceUrl,
       libraries: showcase.libraries,
       useCases: showcase.useCases,
       status: showcase.status,
@@ -150,6 +152,7 @@ function ShowcaseDetailPage() {
       url: formData.url,
       logoUrl: formData.logoUrl || null,
       screenshotUrl: formData.screenshotUrl,
+      sourceUrl: formData.sourceUrl,
       libraries: formData.libraries,
       useCases: formData.useCases,
       status: formData.status,
@@ -437,6 +440,27 @@ function ShowcaseDetailPage() {
                   size="small"
                 />
                 <div>
+                  <label className={labelClass}>
+                    Source Code URL (optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={formData?.sourceUrl || ''}
+                    onChange={(e) =>
+                      setFormData((prev) =>
+                        prev
+                          ? { ...prev, sourceUrl: e.target.value || null }
+                          : null,
+                      )
+                    }
+                    className={inputClass}
+                    placeholder="https://github.com/..."
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Link to GitHub, GitLab, or other repository
+                  </p>
+                </div>
+                <div>
                   <label className={labelClass}>Description (optional)</label>
                   <textarea
                     value={formData?.description || ''}
@@ -683,7 +707,7 @@ function ShowcaseDetailPage() {
             </h2>
             {isEditing ? (
               <div className="flex flex-wrap gap-2">
-                {SHOWCASE_USE_CASES.map((useCase) => {
+                {SHOWCASE_USE_CASES_UI.map((useCase) => {
                   const isSelected = formData?.useCases.includes(useCase)
                   return (
                     <button

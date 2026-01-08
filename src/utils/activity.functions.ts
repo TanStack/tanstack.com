@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import * as v from 'valibot'
 import {
   recordDailyActivity,
   getUserStreak,
@@ -46,3 +47,17 @@ export const getActivityStatsAdmin = createServerFn({ method: 'POST' }).handler(
     }
   },
 )
+
+/**
+ * Get daily active user data for charts with configurable time range
+ */
+export const getDauChartData = createServerFn({ method: 'POST' })
+  .inputValidator(
+    v.object({
+      days: v.optional(v.nullable(v.number())), // null = all time
+    }),
+  )
+  .handler(async ({ data: { days } }) => {
+    await requireAdmin()
+    return getDailyActiveUserCounts(days ?? null)
+  })

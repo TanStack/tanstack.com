@@ -788,6 +788,7 @@ export const showcases = pgTable(
     url: text('url').notNull(),
     logoUrl: text('logo_url'),
     screenshotUrl: text('screenshot_url').notNull(),
+    sourceUrl: text('source_url'),
 
     // Libraries (stored as array of library IDs)
     libraries: text('libraries').array().notNull(),

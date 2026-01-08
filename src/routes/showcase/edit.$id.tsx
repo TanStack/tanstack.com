@@ -21,7 +21,7 @@ export const Route = createFileRoute('/showcase/edit/$id')({
 
     // Verify ownership for editing
     if (result.showcase.userId !== context.user.userId) {
-      throw redirect({ to: '/showcase/mine' })
+      throw redirect({ to: '/account/submissions' })
     }
 
     return { showcase: result.showcase }

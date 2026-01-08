@@ -222,7 +222,7 @@ export function CompactMaintainerCard({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`View ${maintainer.name}'s GitHub profile`}
-      className="group relative min-h-40 h-full block rounded-lg shadow-xs border border-gray-200 dark:border-gray-800 overflow-hidden"
+      className="group relative aspect-square block rounded-lg shadow-xs border border-gray-200 dark:border-gray-800 overflow-hidden"
       tabIndex={0}
       style={{
         backgroundImage: `url(${maintainer.avatar})`,

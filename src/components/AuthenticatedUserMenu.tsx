@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
-import { ChevronDown, Settings, Lock, LogOut } from 'lucide-react'
+import { ChevronDown, Settings, Lock, LogOut, Sparkles } from 'lucide-react'
 import { Avatar } from '~/components/Avatar'
 import {
   Dropdown,
@@ -50,6 +50,12 @@ export function AuthenticatedUserMenu({
           <Link to="/account" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             <span>Account</span>
+          </Link>
+        </DropdownItem>
+        <DropdownItem asChild>
+          <Link to="/showcase/mine" className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            <span>My Showcases</span>
           </Link>
         </DropdownItem>
         {canAdmin && (

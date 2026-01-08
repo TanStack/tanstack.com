@@ -51,7 +51,10 @@ export async function notifyModerators(notification: ModeratorNotification) {
   }
 
   if (notification._feedback) {
-    await notifyFeedbackSubmitted(notification._feedback)
+    // Only send Discord notifications for improvements, not personal notes
+    if (notification._feedback.type === 'improvement') {
+      await notifyFeedbackSubmitted(notification._feedback)
+    }
     return
   }
 

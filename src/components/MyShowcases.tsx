@@ -5,9 +5,17 @@ import { getMyShowcasesQueryOptions } from '~/queries/showcases'
 import { deleteShowcase } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
 import { useToast } from './ToastProvider'
-import { Plus, Trash2, ExternalLink, Clock, Check, X } from 'lucide-react'
+import {
+  Plus,
+  Trash2,
+  ExternalLink,
+  Clock,
+  Check,
+  X,
+  Pencil,
+} from 'lucide-react'
 import type { Showcase } from '~/db/types'
-import { Button } from './Button'
+import { Button, buttonStyles } from './Button'
 
 const libraryMap = new Map(libraries.map((lib) => [lib.id as string, lib]))
 
@@ -174,6 +182,14 @@ export function MyShowcases() {
                         <ExternalLink className="w-3 h-3" />
                         Visit
                       </Button>
+                      <Link
+                        to="/showcase/edit/$id"
+                        params={{ id: showcase.id }}
+                        className={buttonStyles}
+                      >
+                        <Pencil className="w-3 h-3" />
+                        Edit
+                      </Link>
                       <Button onClick={() => handleDelete(showcase.id)}>
                         <Trash2 className="w-3 h-3" />
                         Delete

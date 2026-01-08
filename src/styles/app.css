@@ -908,3 +908,18 @@ mark {
 .package-manager-tabs [data-tab] .codeblock {
   @apply rounded-b-md;
 }
+
+/* Framework code blocks - minimal style for single code blocks */
+.framework-code-block > .codeblock {
+  @apply my-4 rounded-md;
+}
+
+/* Hide the title bar but keep copy button accessible for single blocks */
+.framework-code-block > .codeblock > div:first-child {
+  @apply absolute right-2 top-2 bg-transparent border-0 p-0 z-10;
+}
+
+/* Hide the title text, keep only the button */
+.framework-code-block > .codeblock > div:first-child > div:first-child {
+  @apply hidden;
+}

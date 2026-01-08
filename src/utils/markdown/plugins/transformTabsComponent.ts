@@ -40,6 +40,25 @@ type FilesExtraction = {
   }>
 }
 
+type FrameworkExtraction = {
+  codeBlocksByFramework: Record<
+    string,
+    Array<{
+      title: string
+      code: string
+      language: string
+      preNode: HastNode
+    }>
+  >
+}
+
+type FrameworkCodeBlock = {
+  title: string
+  code: string
+  language: string
+  preNode: HastNode
+}
+
 function parseAttributes(node: HastNode): Record<string, string> {
   const rawAttributes = node.properties?.['data-attributes']
   if (typeof rawAttributes === 'string') {
@@ -156,10 +175,8 @@ function extractCodeBlockData(preNode: HastNode): {
     }
   }
 
-  // Extract title from data attribute (set by rehypeCodeMeta)
   let title = ''
   const props = preNode.properties || {}
-  // Check both camelCase and kebab-case versions
   if (typeof props['dataCodeTitle'] === 'string') {
     title = props['dataCodeTitle'] as string
   } else if (typeof props['data-code-title'] === 'string') {
@@ -185,7 +202,6 @@ function extractFilesData(node: HastNode): FilesExtraction | null {
   const files: FilesExtraction['files'] = []
 
   for (const child of children) {
-    // Look for <pre> elements (code blocks)
     if (child.type === 'element' && child.tagName === 'pre') {
       const codeBlockData = extractCodeBlockData(child)
       if (!codeBlockData) continue
@@ -194,7 +210,7 @@ function extractFilesData(node: HastNode): FilesExtraction | null {
         title: codeBlockData.title || 'Untitled',
         code: codeBlockData.code,
         language: codeBlockData.language,
-        preNode: child, // Store the original pre node with all its properties
+        preNode: child,
       })
     }
   }
@@ -204,6 +220,54 @@ function extractFilesData(node: HastNode): FilesExtraction | null {
   }
 
   return { files }
+}
+
+/**
+ * Extract framework-specific code blocks for variant="framework" tabs.
+ * Groups code blocks by their data-framework attribute.
+ */
+function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
+  const children = node.children ?? []
+  const codeBlocksByFramework: Record<string, FrameworkCodeBlock[]> = {}
+
+  let currentFramework: string | null = null
+
+  for (const child of children) {
+    if (isHeading(child)) {
+
+      currentFramework = toString(child as any)
+        .trim()
+        .toLowerCase()
+      continue
+    }
+
+    // Look for <pre> elements (code blocks) under current framework
+    if (
+      child.type === 'element' &&
+      child.tagName === 'pre' &&
+      currentFramework
+    ) {
+      const codeBlockData = extractCodeBlockData(child)
+      if (!codeBlockData) continue
+
+      if (!codeBlocksByFramework[currentFramework]) {
+        codeBlocksByFramework[currentFramework] = []
+      }
+
+      codeBlocksByFramework[currentFramework].push({
+        title: codeBlockData.title || 'Untitled',
+        code: codeBlockData.code,
+        language: codeBlockData.language,
+        preNode: child,
+      })
+    }
+  }
+
+  if (Object.keys(codeBlocksByFramework).length === 0) {
+    return null
+  }
+
+  return { codeBlocksByFramework }
 }
 
 function extractTabPanels(node: HastNode): TabExtraction | null {
@@ -331,6 +395,46 @@ export function transformTabsComponent(node: HastNode) {
       // Use the original preNode which already has data-code-title from rehypeCodeMeta
       children: [file.preNode],
     }))
+    return
+  }
+
+  if (variant === 'framework') {
+    const result = extractFrameworkData(node)
+
+    if (!result) {
+      return
+    }
+
+    node.properties = node.properties || {}
+    node.properties['data-framework-meta'] = JSON.stringify({
+      codeBlocksByFramework: Object.fromEntries(
+        Object.entries(result.codeBlocksByFramework).map(([fw, blocks]) => [
+          fw,
+          blocks.map((b) => ({
+            title: b.title,
+            code: b.code,
+            language: b.language,
+          })),
+        ]),
+      ),
+    })
+
+    // Store available frameworks for the component
+    const availableFrameworks = Object.keys(result.codeBlocksByFramework)
+    node.properties['data-available-frameworks'] =
+      JSON.stringify(availableFrameworks)
+
+    node.children = availableFrameworks.map((fw) => {
+      const blocks = result.codeBlocksByFramework[fw]
+      return {
+        type: 'element',
+        tagName: 'md-tab-panel',
+        properties: {
+          'data-framework': fw,
+        },
+        children: blocks.map((block) => block.preNode),
+      }
+    })
     return
   }
 

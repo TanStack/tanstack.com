@@ -131,6 +131,7 @@ type Partner = {
   startDate?: string
   endDate?: string
   score: number
+  brandColor?: string // Primary brand color for game elements
 }
 
 const neon = (() => {
@@ -143,6 +144,7 @@ const neon = (() => {
     status: 'active' as const,
     score: 0.297,
     href,
+    brandColor: '#00E599',
     image: {
       light: neonLightSvg,
       dark: neonDarkSvg,
@@ -179,6 +181,7 @@ const convex = (() => {
     status: 'active' as const,
     score: 0.286,
     href,
+    brandColor: '#F3A712',
     image: {
       light: convexColorSvg,
       dark: convexWhiteSvg,
@@ -214,6 +217,7 @@ const clerk = (() => {
     libraries: ['start', 'router'],
     status: 'active' as const,
     score: 0.286,
+    brandColor: '#6C47FF',
     image: {
       light: clerkLightSvg,
       dark: clerkDarkSvg,
@@ -248,6 +252,7 @@ const workos = (() => {
     libraries: ['start', 'router'] as const,
     status: 'active' as const,
     score: 0.314,
+    brandColor: '#6363F1',
     image: {
       light: workosBlackSvg,
       dark: workosWhiteSvg,
@@ -281,6 +286,7 @@ const agGrid = (() => {
     status: 'active' as const,
     score: 0.497,
     href,
+    brandColor: '#FF8C00',
     image: {
       light: agGridDarkSvg,
       dark: agGridLightSvg,
@@ -323,6 +329,7 @@ const netlify = (() => {
     status: 'active' as const,
     score: 0.343,
     href,
+    brandColor: '#00C7B7',
     image: {
       light: netlifyLightSvg,
       dark: netlifyDarkSvg,
@@ -363,6 +370,7 @@ const cloudflare = (() => {
     status: 'active' as const,
     score: 0.857,
     startDate: 'Sep 2025',
+    brandColor: '#F6821F',
     image: {
       light: cloudflareBlackSvg,
       dark: cloudflareWhiteSvg,
@@ -396,6 +404,7 @@ const sentry = (() => {
     status: 'active' as const,
     score: 0.229,
     href,
+    brandColor: '#362D59',
     image: {
       light: sentryWordMarkDarkSvg,
       dark: sentryWordMarkLightSvg,
@@ -556,6 +565,7 @@ const unkey = (() => {
     status: 'active' as const,
     score: 0.051,
     href,
+    brandColor: '#222222',
     image: {
       light: unkeyBlackSvg,
       dark: unkeyWhiteSvg,
@@ -591,6 +601,7 @@ const electric = (() => {
     status: 'active' as const,
     score: 0.283,
     href,
+    brandColor: '#7e78db',
     image: {
       light: electricLightSvg,
       dark: electricDarkSvg,
@@ -661,6 +672,7 @@ const prisma = (() => {
     libraries: ['db', 'start'] as const,
     startDate: 'Aug 2025',
     score: 0.143,
+    brandColor: '#2D3748',
     image: {
       light: prismaLightSvg,
       dark: prismaDarkSvg,
@@ -696,6 +708,7 @@ const codeRabbit = (() => {
     libraries: libraries.map((l) => l.id),
     startDate: 'Aug 2025',
     score: 1,
+    brandColor: '#FF6B2B',
     image: {
       light: codeRabbitLightSvg,
       dark: codeRabbitDarkSvg,
@@ -728,6 +741,7 @@ const strapi = (() => {
     status: 'active' as const,
     score: 0.069,
     href,
+    brandColor: '#4945FF',
     image: {
       light: strapiLightSvg,
       dark: strapiDarkSvg,

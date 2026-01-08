@@ -871,3 +871,17 @@ mark {
 [data-tab] .codeblock:has(+ .codeblock) {
   @apply rounded-b-none;
 }
+/* File tabs variant - minimal code blocks with floating copy button */
+.file-tabs-panel .codeblock {
+  @apply rounded-t-none border-t-0 my-0;
+}
+
+/* Hide the title bar but keep copy button accessible */
+.file-tabs-panel .codeblock > div:first-child {
+  @apply absolute right-2 top-2 bg-transparent border-0 p-0 z-10;
+}
+
+/* Hide the title text, keep only the button */
+.file-tabs-panel .codeblock > div:first-child > div:first-child {
+  @apply hidden;
+}

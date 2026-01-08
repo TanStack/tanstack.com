@@ -15,6 +15,7 @@ import { Tabs } from '~/components/Tabs'
 import { CodeBlock } from './CodeBlock'
 import { PackageManagerTabs } from './PackageManagerTabs'
 import type { Framework } from '~/libraries/types'
+import { FileTabs } from './FileTabs'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -166,7 +167,9 @@ const options: HTMLReactParserOptions = {
                   domToReact(panel.children as any, options),
                 )
 
-                return <Tabs id={id} tabs={tabs} children={children as any} />
+                return (
+                  <FileTabs id={id} tabs={tabs} children={children as any} />
+                )
               } catch {
                 // Fall through to default tabs if parsing fails
               }

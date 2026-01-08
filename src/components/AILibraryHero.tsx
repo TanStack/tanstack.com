@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { LinkProps } from '@tanstack/react-router'
 import type { Library } from '~/libraries'
-import { useIsDark } from '~/hooks/useIsDark'
 import { ChatPanel } from './ChatPanel'
 import { AnimationPhase } from '~/stores/aiLibraryHeroAnimation'
 import { useAILibraryHeroAnimation } from '~/hooks/useAILibraryHeroAnimation'
@@ -51,11 +50,13 @@ type AILibraryHeroProps = {
   actions?: React.ReactNode
 }
 
-export function AILibraryHero({}: AILibraryHeroProps) {
-  const isDark = useIsDark()
-  const strokeColor = isDark ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)'
-  const textColor = isDark ? '#ffffff' : '#000000'
+const HIGHLIGHT_COLOR = 'rgba(255, 255, 240, 0.95)'
 
+export function AILibraryHero({}: AILibraryHeroProps) {
+  const strokeColor = 'var(--hero-stroke)'
+  const textColor = 'var(--hero-text)'
+  const glassGradientStart = 'var(--hero-glass-start)'
+  const glassGradientEnd = 'var(--hero-glass-end)'
   // Use the animation hook - handles all animation state and orchestration
   const { store } = useAILibraryHeroAnimation()
 
@@ -145,8 +146,7 @@ export function AILibraryHero({}: AILibraryHeroProps) {
     // Active path: selected framework -> client -> ai -> selected server
     // Only return off-white if we're in a highlighting phase AND this is the active path
     if (isFrameworkSelected && isServerSelected) {
-      // Off-white color when active
-      return isDark ? 'rgba(255, 255, 240, 0.95)' : 'rgba(255, 255, 240, 0.95)'
+      return HIGHLIGHT_COLOR
     }
 
     // Not the active path, return original color
@@ -180,6 +180,18 @@ export function AILibraryHero({}: AILibraryHeroProps) {
       <style
         dangerouslySetInnerHTML={{
           __html: `
+            :root {
+              --hero-stroke: rgba(0, 0, 0, 0.6);
+              --hero-text: #000000;
+              --hero-glass-start: rgba(255, 255, 255, 0.8);
+              --hero-glass-end: rgba(255, 255, 255, 0.6);
+            }
+            :root.dark {
+              --hero-stroke: rgba(255, 255, 255, 0.8);
+              --hero-text: #ffffff;
+              --hero-glass-start: rgba(255, 255, 255, 0.55);
+              --hero-glass-end: rgba(255, 255, 255, 0.55);
+            }
             @keyframes pulse-down {
               0% {
                 opacity: 0.6;
@@ -221,12 +233,12 @@ export function AILibraryHero({}: AILibraryHeroProps) {
       />
       <div className="relative flex flex-col items-center gap-8 text-center px-4 overflow-visible">
         {/* Diagram and Chat Panel Container */}
-        <div
-          className="relative z-10 w-full max-w-7xl mx-auto flex flex-row flex-wrap gap-8 lg:gap-12"
-          style={{ height: SVG_HEIGHT }}
-        >
+        <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-12">
           {/* SVG Diagram */}
-          <div className="relative w-full lg:flex-1 overflow-visible h-full">
+          <div
+            className="relative w-full lg:flex-1 overflow-visible"
+            style={{ height: SVG_HEIGHT }}
+          >
             <svg
               key={`${phase}-${selectedFramework}-${selectedServer}`}
               xmlns="http://www.w3.org/2000/svg"
@@ -285,20 +297,12 @@ export function AILibraryHero({}: AILibraryHeroProps) {
                 >
                   <stop
                     offset="0%"
-                    stopColor={
-                      isDark
-                        ? 'rgba(255, 255, 255, 0.55)'
-                        : 'rgba(255, 255, 255, 0.8)'
-                    }
+                    stopColor={glassGradientStart}
                     stopOpacity="1"
                   />
                   <stop
                     offset="100%"
-                    stopColor={
-                      isDark
-                        ? 'rgba(255, 255, 255, 0.55)'
-                        : 'rgba(255, 255, 255, 0.6)'
-                    }
+                    stopColor={glassGradientEnd}
                     stopOpacity="1"
                   />
                 </linearGradient>
@@ -313,20 +317,12 @@ export function AILibraryHero({}: AILibraryHeroProps) {
                 >
                   <stop
                     offset="0%"
-                    stopColor={
-                      isDark
-                        ? 'rgba(255, 255, 255, 0.55)'
-                        : 'rgba(255, 255, 255, 0.75)'
-                    }
+                    stopColor={glassGradientStart}
                     stopOpacity="1"
                   />
                   <stop
                     offset="100%"
-                    stopColor={
-                      isDark
-                        ? 'rgba(255, 255, 255, 0.55)'
-                        : 'rgba(255, 255, 255, 0.55)'
-                    }
+                    stopColor={glassGradientEnd}
                     stopOpacity="1"
                   />
                 </linearGradient>
@@ -613,9 +609,7 @@ export function AILibraryHero({}: AILibraryHeroProps) {
                       phase === AnimationPhase.SHOWING_CHAT ||
                         phase === AnimationPhase.PULSING_CONNECTIONS ||
                         phase === AnimationPhase.STREAMING_RESPONSE
-                      ? isDark
-                        ? 'rgba(255, 255, 240, 0.95)'
-                        : 'rgba(255, 255, 240, 0.95)'
+                      ? HIGHLIGHT_COLOR
                       : strokeColor
                 }
                 strokeWidth={
@@ -826,7 +820,10 @@ export function AILibraryHero({}: AILibraryHeroProps) {
           </div>
 
           {/* Chat Panel */}
-          <div className="w-full md:w-[400px] flex-shrink-0 h-full">
+          <div
+            className="w-full max-w-[400px] lg:w-[400px] flex-shrink-0"
+            style={{ height: SVG_HEIGHT }}
+          >
             <ChatPanel
               messages={messages}
               typingUserMessage={typingUserMessage}

@@ -26,6 +26,7 @@ import { Route as LibrariesIndexRouteImport } from './routes/_libraries/index'
 import { Route as LibraryIdIndexRouteImport } from './routes/$libraryId/index'
 import { Route as ShowcaseSubmitRouteImport } from './routes/showcase/submit'
 import { Route as ShowcaseMineRouteImport } from './routes/showcase/mine'
+import { Route as ShowcaseIdRouteImport } from './routes/showcase/$id'
 import { Route as AuthSignoutRouteImport } from './routes/auth/signout'
 import { Route as AuthPopupSuccessRouteImport } from './routes/auth/popup-success'
 import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
@@ -186,6 +187,11 @@ const ShowcaseSubmitRoute = ShowcaseSubmitRouteImport.update({
 const ShowcaseMineRoute = ShowcaseMineRouteImport.update({
   id: '/showcase/mine',
   path: '/showcase/mine',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShowcaseIdRoute = ShowcaseIdRouteImport.update({
+  id: '/showcase/$id',
+  path: '/showcase/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignoutRoute = AuthSignoutRouteImport.update({
@@ -634,6 +640,7 @@ export interface FileRoutesByFullPath {
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
+  '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
@@ -725,6 +732,7 @@ export interface FileRoutesByTo {
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
+  '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId': typeof LibraryIdIndexRoute
@@ -821,6 +829,7 @@ export interface FileRoutesById {
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/auth/popup-success': typeof AuthPopupSuccessRoute
   '/auth/signout': typeof AuthSignoutRoute
+  '/showcase/$id': typeof ShowcaseIdRoute
   '/showcase/mine': typeof ShowcaseMineRoute
   '/showcase/submit': typeof ShowcaseSubmitRoute
   '/$libraryId/': typeof LibraryIdIndexRoute
@@ -918,6 +927,7 @@ export interface FileRouteTypes {
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
+    | '/showcase/$id'
     | '/showcase/mine'
     | '/showcase/submit'
     | '/$libraryId/'
@@ -1009,6 +1019,7 @@ export interface FileRouteTypes {
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
+    | '/showcase/$id'
     | '/showcase/mine'
     | '/showcase/submit'
     | '/$libraryId'
@@ -1104,6 +1115,7 @@ export interface FileRouteTypes {
     | '/api/uploadthing'
     | '/auth/popup-success'
     | '/auth/signout'
+    | '/showcase/$id'
     | '/showcase/mine'
     | '/showcase/submit'
     | '/$libraryId/'
@@ -1177,6 +1189,7 @@ export interface RootRouteChildren {
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   AuthPopupSuccessRoute: typeof AuthPopupSuccessRoute
   AuthSignoutRoute: typeof AuthSignoutRoute
+  ShowcaseIdRoute: typeof ShowcaseIdRoute
   ShowcaseMineRoute: typeof ShowcaseMineRoute
   ShowcaseSubmitRoute: typeof ShowcaseSubmitRoute
   ShowcaseIndexRoute: typeof ShowcaseIndexRoute
@@ -1309,6 +1322,13 @@ declare module '@tanstack/react-router' {
       path: '/showcase/mine'
       fullPath: '/showcase/mine'
       preLoaderRoute: typeof ShowcaseMineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase/$id': {
+      id: '/showcase/$id'
+      path: '/showcase/$id'
+      fullPath: '/showcase/$id'
+      preLoaderRoute: typeof ShowcaseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/signout': {
@@ -2091,6 +2111,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiUploadthingRoute: ApiUploadthingRoute,
   AuthPopupSuccessRoute: AuthPopupSuccessRoute,
   AuthSignoutRoute: AuthSignoutRoute,
+  ShowcaseIdRoute: ShowcaseIdRoute,
   ShowcaseMineRoute: ShowcaseMineRoute,
   ShowcaseSubmitRoute: ShowcaseSubmitRoute,
   ShowcaseIndexRoute: ShowcaseIndexRoute,

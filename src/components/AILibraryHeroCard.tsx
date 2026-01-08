@@ -1,6 +1,3 @@
-import * as React from 'react'
-import { useIsDark } from '~/hooks/useIsDark'
-
 type AILibraryHeroCardProps = {
   x: number
   y: number
@@ -42,18 +39,13 @@ export function AILibraryHeroCard({
   transform,
   fill = 'url(#glassGradient)',
 }: AILibraryHeroCardProps) {
-  const isDark = useIsDark()
-
-  // Determine which logo to use
-  const logoToUse =
-    logo || (isDark && logoDark ? logoDark : logoLight) || logoLight || logoDark
+  const hasLogo = logo || logoLight || logoDark
+  const hasSeparateLogos = !logo && logoLight && logoDark
 
   const centerY = y + height / 2
-  // Position logo to the left of text, both centered vertically
-  const logoX = logoToUse ? x + 12 : 0
+  const logoX = hasLogo ? x + 12 : 0
   const logoY = centerY - logoSize / 2
-  const textX = logoToUse ? x + logoSize + 20 : x + width / 2
-  // Better vertical alignment: text baseline should align with logo center
+  const textX = hasLogo ? x + logoSize + 20 : x + width / 2
   const textY = centerY + fontSize * 0.35
 
   return (
@@ -71,9 +63,44 @@ export function AILibraryHeroCard({
         filter="url(#glass)"
         opacity={opacity}
       />
-      {logoToUse && (
+      {logo && (
         <image
-          href={logoToUse}
+          href={logo}
+          x={logoX}
+          y={logoY}
+          width={logoSize}
+          height={logoSize}
+          opacity={opacity}
+          preserveAspectRatio="xMidYMid meet"
+        />
+      )}
+      {hasSeparateLogos && (
+        <>
+          <image
+            href={logoLight}
+            x={logoX}
+            y={logoY}
+            width={logoSize}
+            height={logoSize}
+            opacity={opacity}
+            preserveAspectRatio="xMidYMid meet"
+            className="dark:hidden"
+          />
+          <image
+            href={logoDark}
+            x={logoX}
+            y={logoY}
+            width={logoSize}
+            height={logoSize}
+            opacity={opacity}
+            preserveAspectRatio="xMidYMid meet"
+            className="hidden dark:block"
+          />
+        </>
+      )}
+      {!logo && !hasSeparateLogos && (logoLight || logoDark) && (
+        <image
+          href={logoLight || logoDark}
           x={logoX}
           y={logoY}
           width={logoSize}
@@ -89,7 +116,7 @@ export function AILibraryHeroCard({
         fontFamily="Helvetica"
         fontSize={fontSize}
         fontWeight={fontWeight}
-        textAnchor={logoToUse ? 'start' : 'middle'}
+        textAnchor={hasLogo ? 'start' : 'middle'}
         opacity={opacity}
       >
         {label}

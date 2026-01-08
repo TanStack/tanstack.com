@@ -79,6 +79,7 @@ function getRandomRotationCount(base: number, variance: number): number {
 export function useAILibraryHeroAnimation() {
   const timeoutsRef = useRef<NodeJS.Timeout[]>([])
   const store = useAILibraryHeroAnimationStore()
+  const hasStartedRef = useRef(false)
 
   const addTimeout = useCallback((fn: () => void, delay: number) => {
     const timeout = setTimeout(fn, delay)
@@ -330,11 +331,17 @@ export function useAILibraryHeroAnimation() {
     }, TIMING.restartDelay)
   }, [addTimeout, store, selectStackCombination, processMessage])
 
-  // Effect to run animation on mount
+  // Effect to run animation on mount - only run once
   useEffect(() => {
+    if (hasStartedRef.current) return
+    hasStartedRef.current = true
     startAnimation()
-    return clearAllTimeouts
-  }, [startAnimation, clearAllTimeouts])
+    return () => {
+      clearAllTimeouts()
+      hasStartedRef.current = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return { store }
 }

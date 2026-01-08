@@ -57,13 +57,6 @@ const updateThemeClass = createClientOnlyFn((themeMode: ThemeMode) => {
   }
 })
 
-const setupPreferredListener = createClientOnlyFn(() => {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-  const handler = () => updateThemeClass('auto')
-  mediaQuery.addEventListener('change', handler)
-  return () => mediaQuery.removeEventListener('change', handler)
-})
-
 const getNextTheme = createClientOnlyFn((current: ThemeMode): ThemeMode => {
   const themes: ThemeMode[] =
     getSystemTheme() === 'dark'
@@ -111,20 +104,42 @@ const ThemeContext = createContext<ThemeContextProps | undefined>(undefined)
 type ThemeProviderProps = {
   children: ReactNode
 }
+const getResolvedThemeFromDOM = createIsomorphicFn()
+  .server((): ResolvedTheme => 'light')
+  .client((): ResolvedTheme => {
+    return document.documentElement.classList.contains('dark')
+      ? 'dark'
+      : 'light'
+  })
+
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [themeMode, setThemeMode] = useState<ThemeMode>(getStoredThemeMode)
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(
+    getResolvedThemeFromDOM,
+  )
 
+  // Sync resolved theme from DOM on mount (handles SSR -> client transition)
+  useEffect(() => {
+    setResolvedTheme(getResolvedThemeFromDOM())
+  }, [])
+
+  // Listen for system theme changes when in auto mode
   useEffect(() => {
     if (themeMode !== 'auto') return
-    return setupPreferredListener()
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = () => {
+      updateThemeClass('auto')
+      setResolvedTheme(getSystemTheme())
+    }
+    mediaQuery.addEventListener('change', handler)
+    return () => mediaQuery.removeEventListener('change', handler)
   }, [themeMode])
-
-  const resolvedTheme = themeMode === 'auto' ? getSystemTheme() : themeMode
 
   const setTheme = (newTheme: ThemeMode) => {
     setThemeMode(newTheme)
     setStoredThemeMode(newTheme)
     updateThemeClass(newTheme)
+    setResolvedTheme(newTheme === 'auto' ? getSystemTheme() : newTheme)
   }
 
   const toggleMode = () => {

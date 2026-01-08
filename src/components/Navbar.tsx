@@ -272,11 +272,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       )}
       ref={containerRef}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center">
         <div className="flex items-center gap-2 font-black text-xl uppercase">
           <React.Suspense fallback={<LogoSection />}>
             <LazyBrandContextMenu
-              className={twMerge(`flex items-center gap-1.5 group`)}
+              className={twMerge(`flex items-center group`)}
             >
               <LogoSection />
             </LazyBrandContextMenu>

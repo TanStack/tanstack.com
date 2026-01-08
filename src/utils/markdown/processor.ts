@@ -7,7 +7,7 @@ import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeStringify from 'rehype-stringify'
-import { visit } from 'unist-util-visit'
+
 import {
   rehypeCollectHeadings,
   rehypeParseCommentComponents,

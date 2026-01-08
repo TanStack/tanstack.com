@@ -343,8 +343,10 @@ pre {
 pre.shiki {
   overflow-x: auto;
 
+  @apply bg-white;
+
   &.vitesse-dark {
-    @apply text-gray-400;
+    @apply text-gray-400 bg-gray-950;
   }
 }
 pre.shiki:hover .dim {
@@ -408,7 +410,6 @@ pre.twoslash data-lsp:hover::before {
   position: absolute;
   transform: translate(0, 1rem);
 
-  background-color: #3f3f3f;
   color: #fff;
   text-align: left;
   padding: 5px 8px;

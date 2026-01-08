@@ -190,7 +190,7 @@ export function CodeBlock({
       style={props.style}
     >
       {(title || showTypeCopyButton) && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-500/20 bg-gray-500/5">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-500/20 bg-gray-50 dark:bg-gray-900">
           <div className="text-xs text-gray-700 dark:text-gray-300">
             {title ? title : lang?.toLowerCase() == 'bash' ? 'sh' : '' }
           </div>

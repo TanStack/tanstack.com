@@ -1,0 +1,282 @@
+import { useRef, useState, useMemo, Suspense } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { RoundedBoxGeometry, Text } from '@react-three/drei'
+import * as THREE from 'three'
+import type { IslandData } from '../utils/islandGenerator'
+import { getLibraryColor } from '../utils/colors'
+import { set3DObjectClicked } from '../ui/TouchControls'
+
+// Import partner logos
+import neonLogo from '~/images/neon-dark.svg'
+import convexLogo from '~/images/convex-color.svg'
+import clerkLogo from '~/images/clerk-logo-dark.svg'
+import workosLogo from '~/images/workos-black.svg'
+import sentryLogo from '~/images/sentry-wordmark-dark.svg'
+import agGridLogo from '~/images/ag-grid-dark.svg'
+import netlifyLogo from '~/images/netlify-dark.svg'
+import unkeyLogo from '~/images/unkey-black.svg'
+import electricLogo from '~/images/electric-dark.svg'
+import prismaLogo from '~/images/prisma-dark.svg'
+import coderabbitLogo from '~/images/coderabbit-dark.svg'
+import strapiLogo from '~/images/strapi-dark.svg'
+import cloudflareLogo from '~/images/cloudflare-black.svg'
+
+interface IslandInfo3DProps {
+  island: IslandData
+  exiting?: boolean
+}
+
+const FRAMEWORK_COLORS: Record<string, string> = {
+  react: '#61DAFB',
+  vue: '#4FC08D',
+  solid: '#2C4F7C',
+  svelte: '#FF3E00',
+  angular: '#DD0031',
+  lit: '#325CCC',
+  qwik: '#18B6F6',
+  preact: '#673AB8',
+  vanilla: '#F7DF1E',
+}
+
+// Partner logo URLs (dark versions for white/light backgrounds)
+const PARTNER_LOGOS: Record<string, string> = {
+  neon: neonLogo,
+  convex: convexLogo,
+  clerk: clerkLogo,
+  workos: workosLogo,
+  sentry: sentryLogo,
+  'ag-grid': agGridLogo,
+  netlify: netlifyLogo,
+  unkey: unkeyLogo,
+  electric: electricLogo,
+  prisma: prismaLogo,
+  coderabbit: coderabbitLogo,
+  strapi: strapiLogo,
+  cloudflare: cloudflareLogo,
+}
+
+// Partner logo component
+function PartnerLogo({ partnerId }: { partnerId: string }) {
+  const logoUrl = PARTNER_LOGOS[partnerId]
+
+  const texture = useMemo(() => {
+    if (!logoUrl) return null
+    const loader = new THREE.TextureLoader()
+    const tex = loader.load(logoUrl)
+    tex.colorSpace = THREE.SRGBColorSpace
+    return tex
+  }, [logoUrl])
+
+  if (!texture) return null
+
+  return (
+    <mesh position={[0, 0, 0.1]}>
+      <planeGeometry args={[3.5, 1.2]} />
+      <meshBasicMaterial map={texture} transparent alphaTest={0.1} />
+    </mesh>
+  )
+}
+
+export function IslandInfo3D({ island, exiting = false }: IslandInfo3DProps) {
+  const groupRef = useRef<THREE.Group>(null)
+  const scaleRef = useRef(0)
+  const velocityRef = useRef(0)
+  const [hovered, setHovered] = useState(false)
+  const { library, partner, position } = island
+
+  const color =
+    island.type === 'library' && library
+      ? getLibraryColor(library.id)
+      : island.type === 'partner' && partner?.brandColor
+        ? partner.brandColor
+        : island.type === 'partner'
+          ? '#f59e0b'
+          : '#8b5cf6'
+
+  const name = library?.name ?? partner?.name ?? 'Unknown'
+  const tagline = library?.tagline ?? 'Partner Island'
+  const isPartner = island.type === 'partner' && partner
+
+  const handleClick = () => {
+    if (partner?.href) {
+      window.open(partner.href, '_blank')
+    } else if (library) {
+      window.location.href = `/${library.id}`
+    }
+  }
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      const t = state.clock.elapsedTime
+
+      // Spring animation for scale (bounce in/out)
+      const target = exiting ? 0 : 1
+      const stiffness = exiting ? 300 : 180
+      const damping = exiting ? 20 : 12
+
+      const displacement = scaleRef.current - target
+      const springForce = -stiffness * displacement
+      const dampingForce = -damping * velocityRef.current
+      const acceleration = springForce + dampingForce
+
+      velocityRef.current += acceleration * delta
+      scaleRef.current += velocityRef.current * delta
+
+      // Clamp to prevent overshoot issues
+      scaleRef.current = Math.max(0, Math.min(1.2, scaleRef.current))
+
+      groupRef.current.scale.setScalar(scaleRef.current)
+
+      // Bob animation
+      groupRef.current.position.y = 2.8 + Math.sin(t * 1.5) * 0.1
+    }
+  })
+
+  const infoPos: [number, number, number] = [
+    position[0] + 1,
+    position[1] + 0.5 + island.scale * 1.5,
+    position[2] + 1,
+  ]
+
+  return (
+    <group position={infoPos}>
+      <group
+        ref={groupRef}
+        rotation={[-Math.PI * 0.12, Math.PI * 0.25, Math.PI * 0.1]}
+        scale={0}
+        onClick={handleClick}
+        onPointerDown={() => set3DObjectClicked()}
+        onPointerOver={() => {
+          setHovered(true)
+          document.body.style.cursor = 'pointer'
+        }}
+        onPointerOut={() => {
+          setHovered(false)
+          document.body.style.cursor = 'auto'
+        }}
+      >
+        <mesh position={[0, 0, -0.1]}>
+          <RoundedBoxGeometry
+            args={[5.2, 2.4, 0.15]}
+            radius={0.25}
+            smoothness={4}
+          />
+          <meshStandardMaterial
+            color="#FFFFFF"
+            transparent
+            opacity={hovered ? 0.5 : 0.3}
+          />
+        </mesh>
+
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[5, 2.2, 0.15]} />
+          <meshStandardMaterial
+            color={color}
+            transparent
+            opacity={0.95}
+            emissive={hovered ? color : '#000000'}
+            emissiveIntensity={hovered ? 0.2 : 0}
+          />
+        </mesh>
+
+        {/* Partner logo or library name */}
+        {isPartner ? (
+          <Suspense fallback={null}>
+            <PartnerLogo partnerId={partner.id} />
+          </Suspense>
+        ) : (
+          <>
+            <Suspense fallback={null}>
+              <Text
+                position={[0, 0.6, 0.1]}
+                fontSize={0.4}
+                color="#FFFFFF"
+                anchorX="center"
+                anchorY="middle"
+                fontWeight={700}
+                maxWidth={4.5}
+              >
+                {name}
+              </Text>
+            </Suspense>
+
+            {library?.badge && (
+              <group position={[2.2, 0.9, 0.1]}>
+                <mesh>
+                  <boxGeometry args={[0.7, 0.3, 0.08]} />
+                  <meshStandardMaterial
+                    color="#FFFFFF"
+                    transparent
+                    opacity={0.3}
+                  />
+                </mesh>
+                <Suspense fallback={null}>
+                  <Text
+                    position={[0, 0, 0.05]}
+                    fontSize={0.15}
+                    color="#FFFFFF"
+                    anchorX="center"
+                    anchorY="middle"
+                    fontWeight={600}
+                  >
+                    {library.badge.toUpperCase()}
+                  </Text>
+                </Suspense>
+              </group>
+            )}
+
+            <Suspense fallback={null}>
+              <Text
+                position={[0, 0, 0.1]}
+                fontSize={0.18}
+                color="#FFFFFF"
+                anchorX="center"
+                anchorY="middle"
+                maxWidth={4.2}
+                textAlign="center"
+                lineHeight={1.3}
+              >
+                {hovered ? 'Click to visit docs' : tagline}
+              </Text>
+            </Suspense>
+          </>
+        )}
+
+        {library?.frameworks && library.frameworks.length > 0 && (
+          <group position={[0, -0.7, 0]}>
+            {library.frameworks.slice(0, 6).map((fw, i) => {
+              const totalWidth = Math.min(library.frameworks!.length, 6) * 0.7
+              const startX = -totalWidth / 2 + 0.35
+              const x = startX + i * 0.7
+
+              return (
+                <group key={fw} position={[x, 0, 0.1]}>
+                  <mesh>
+                    <boxGeometry args={[0.6, 0.28, 0.08]} />
+                    <meshStandardMaterial
+                      color={FRAMEWORK_COLORS[fw] || '#888888'}
+                      transparent
+                      opacity={0.9}
+                    />
+                  </mesh>
+                  <Suspense fallback={null}>
+                    <Text
+                      position={[0, 0, 0.05]}
+                      fontSize={0.12}
+                      color="#FFFFFF"
+                      anchorX="center"
+                      anchorY="middle"
+                      fontWeight={600}
+                    >
+                      {fw.charAt(0).toUpperCase() + fw.slice(1, 5)}
+                    </Text>
+                  </Suspense>
+                </group>
+              )
+            })}
+          </group>
+        )}
+      </group>
+    </group>
+  )
+}

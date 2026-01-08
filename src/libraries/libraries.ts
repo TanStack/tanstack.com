@@ -245,7 +245,7 @@ export const pacer: LibrarySlim = {
     'Framework agnostic debouncing, throttling, rate limiting, queuing, and batching utilities',
   description:
     "Optimize your application's performance with TanStack Pacer's core primitives: Debouncing, Throttling, Rate Limiting, Queuing, and Batching.",
-  bgStyle: 'bg-lime-700',
+  bgStyle: 'bg-lime-600',
   borderStyle: 'border-lime-700/50',
   textStyle: 'text-lime-500',
   textColor: 'text-lime-700',
@@ -272,7 +272,7 @@ export const db: LibrarySlim = {
   description:
     'TanStack DB gives you a reactive, client-first store for your API data with collections, live queries and optimistic mutations that keep your UI reactive, consistent and blazing fast 🔥',
   badge: 'beta',
-  bgStyle: 'bg-orange-700',
+  bgStyle: 'bg-orange-500',
   borderStyle: 'border-orange-700/50',
   textStyle: 'text-orange-500',
   textColor: 'text-orange-700',
@@ -299,7 +299,7 @@ export const ai: LibrarySlim = {
   description:
     'A powerful, open-source AI SDK with a unified interface across multiple providers. No vendor lock-in, no proprietary formats, just clean TypeScript and honest open source.',
   badge: 'alpha',
-  bgStyle: 'bg-pink-700',
+  bgStyle: 'bg-pink-500',
   borderStyle: 'border-pink-700/50',
   textStyle: 'text-pink-500',
   textColor: 'text-pink-700',

@@ -31,6 +31,8 @@ import cloudflareWhiteSvg from '~/images/cloudflare-white.svg'
 import cloudflareBlackSvg from '~/images/cloudflare-black.svg'
 import workosBlackSvg from '~/images/workos-black.svg'
 import workosWhiteSvg from '~/images/workos-white.svg'
+import powersyncBlackSvg from '~/images/powersync-black.svg'
+import powersyncWhiteSvg from '~/images/powersync-white.svg'
 
 function LearnMoreButton() {
   return (
@@ -752,6 +754,42 @@ const strapi = (() => {
   }
 })()
 
+const powerSync = (() => {
+  const href = 'https://powersync.com?utm_source=tanstack'
+
+  return {
+    name: 'PowerSync',
+    id: 'powersync',
+    libraries: ['db'] as const,
+    status: 'active' as const,
+    startDate: 'Jan 2026',
+    score: 0.143,
+    href,
+    image: {
+      light: powersyncBlackSvg,
+      dark: powersyncWhiteSvg,
+    },
+    llmDescription:
+      'Sync engine that connects backend databases (Postgres, MongoDB, MySQL) with in-app SQLite for offline-first, real-time reactive applications.',
+    category: 'database',
+    content: (
+      <>
+        <div className="text-xs">
+          PowerSync and TanStack are teaming up to bring{' '}
+          <strong>offline-first sync</strong> to modern applications. PowerSync
+          automatically syncs your backend database with in-app SQLite,
+          delivering <strong>instant reactivity</strong>,{' '}
+          <strong>real-time updates</strong>, and{' '}
+          <strong>seamless offline support</strong>. Paired with TanStack DB,
+          developers can build collaborative, always-available apps without
+          wrestling with complex sync logic.
+        </div>
+        <LearnMoreButton />
+      </>
+    ),
+  }
+})()
+
 export const partners: Partner[] = [
   codeRabbit,
   cloudflare,
@@ -762,6 +800,7 @@ export const partners: Partner[] = [
   clerk,
   convex,
   electric,
+  powerSync,
   sentry,
   prisma,
   strapi,

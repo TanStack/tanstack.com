@@ -62,12 +62,11 @@ function RouteComp() {
         <section className="space-y-4">
           <p>
             But here's the reality: TanStack is{' '}
-            <strong>100% privately owned</strong> with no paid products, no
-            venture capital, and no acquisition plans. We're a small,
-            independent team dedicated to creating open source software used by
-            millions of developers daily. To keep building and maintaining these
-            tools for the long term, we need sustainable funding—and that's
-            where advertising comes in.
+            <strong>independently operated</strong> with no paid products and no
+            venture capital. We're a small, focused team dedicated to creating
+            open source software used by millions of developers daily. To keep
+            building and maintaining these tools for the long term, we need
+            sustainable funding—and that's where advertising comes in.
           </p>
         </section>
 
@@ -120,10 +119,10 @@ function RouteComp() {
             </Link>
           </h2>
           <p>
-            TanStack remains <strong>100% privately owned</strong> with no
-            external investors, no controlling interests, and no hidden agendas.
-            Our independence means we can focus on what matters: building great
-            tools for developers.
+            TanStack remains <strong>independently operated</strong> with no
+            controlling interests over our technical direction and no hidden
+            agendas. Our independence means we can focus on what matters:
+            building great tools for developers.
           </p>
           <p>
             The revenue from ads helps us maintain our libraries, support our

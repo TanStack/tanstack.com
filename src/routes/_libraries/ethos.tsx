@@ -23,10 +23,9 @@ const sections = [
     borderColor: 'hover:border-amber-500/50',
     content: (
       <p>
-        TanStack LLC is currently <strong>100% privately owned</strong> by its
-        founder with no external investors, no controlling interests, and no
-        hidden agendas. It's currently funded by media and marketing
-        partnerships with companies that share our core values:{' '}
+        TanStack is <strong>independently operated</strong> with no controlling
+        interests over our technical direction and no hidden agendas. We're
+        funded by partnerships with companies that share our core values:{' '}
         <strong>
           the open web, open standards, and the freedom to compose and deploy
           anything you want, anywhere you please.

@@ -7,13 +7,13 @@ import rehypeRaw from 'rehype-raw'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeStringify from 'rehype-stringify'
-import { visit } from 'unist-util-visit'
-import { toString } from 'hast-util-to-string'
+
 import {
   rehypeCollectHeadings,
   rehypeParseCommentComponents,
   rehypeTransformCommentComponents,
 } from '~/utils/markdown/plugins'
+import { extractCodeMeta } from '~/utils/markdown/plugins/extractCodeMeta'
 
 export type MarkdownHeading = {
   id: string
@@ -33,6 +33,7 @@ export function renderMarkdown(content: string): MarkdownRenderResult {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype, { allowDangerousHtml: true })
+    .use(extractCodeMeta)
     .use(rehypeRaw)
     .use(rehypeParseCommentComponents)
     .use(rehypeCallouts, {

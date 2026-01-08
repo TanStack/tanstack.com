@@ -1,9 +1,13 @@
 import * as React from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { submitShowcase } from '~/utils/showcase.functions'
+import { submitShowcase, updateShowcase } from '~/utils/showcase.functions'
 import { libraries } from '~/libraries'
-import { SHOWCASE_USE_CASES, type ShowcaseUseCase } from '~/db/types'
+import {
+  SHOWCASE_USE_CASES,
+  type Showcase,
+  type ShowcaseUseCase,
+} from '~/db/types'
 import {
   getAutoIncludedLibraries,
   USE_CASE_LABELS,
@@ -19,20 +23,33 @@ const selectableLibraries = libraries.filter(
     lib.name && lib.id !== 'react-charts' && lib.id !== 'create-tsrouter-app',
 )
 
-export function ShowcaseSubmitForm() {
+interface ShowcaseSubmitFormProps {
+  showcase?: Showcase
+}
+
+export function ShowcaseSubmitForm({ showcase }: ShowcaseSubmitFormProps) {
   const navigate = useNavigate()
   const { notify } = useToast()
+  const isEditMode = !!showcase
 
-  const [name, setName] = React.useState('')
-  const [tagline, setTagline] = React.useState('')
-  const [description, setDescription] = React.useState('')
-  const [url, setUrl] = React.useState('')
-  const [logoUrl, setLogoUrl] = React.useState<string | undefined>()
-  const [screenshotUrl, setScreenshotUrl] = React.useState<string | undefined>()
-  const [selectedLibraries, setSelectedLibraries] = React.useState<string[]>([])
+  const [name, setName] = React.useState(showcase?.name ?? '')
+  const [tagline, setTagline] = React.useState(showcase?.tagline ?? '')
+  const [description, setDescription] = React.useState(
+    showcase?.description ?? '',
+  )
+  const [url, setUrl] = React.useState(showcase?.url ?? '')
+  const [logoUrl, setLogoUrl] = React.useState<string | undefined>(
+    showcase?.logoUrl ?? undefined,
+  )
+  const [screenshotUrl, setScreenshotUrl] = React.useState<string | undefined>(
+    showcase?.screenshotUrl ?? undefined,
+  )
+  const [selectedLibraries, setSelectedLibraries] = React.useState<string[]>(
+    showcase?.libraries ?? [],
+  )
   const [selectedUseCases, setSelectedUseCases] = React.useState<
     ShowcaseUseCase[]
-  >([])
+  >(showcase?.useCases ?? [])
 
   // Get auto-included libraries based on selection
   const autoIncluded = React.useMemo(
@@ -40,30 +57,48 @@ export function ShowcaseSubmitForm() {
     [selectedLibraries],
   )
 
-  const submitMutation = useMutation({
+  const onSuccess = () => {
+    notify(
+      <div>
+        <div className="font-medium">
+          {isEditMode ? 'Showcase updated!' : 'Showcase submitted!'}
+        </div>
+        <div className="text-gray-500 dark:text-gray-400 text-xs">
+          {isEditMode
+            ? 'Your changes are pending review. Votes have been preserved.'
+            : "Your project is pending review. We'll notify you when it's approved."}
+        </div>
+      </div>,
+    )
+    navigate({ to: '/showcase/mine' })
+  }
+
+  const onError = (error: Error) => {
+    notify(
+      <div>
+        <div className="font-medium">
+          {isEditMode ? 'Update failed' : 'Submission failed'}
+        </div>
+        <div className="text-gray-500 dark:text-gray-400 text-xs">
+          {error.message}
+        </div>
+      </div>,
+    )
+  }
+
+  const createMutation = useMutation({
     mutationFn: submitShowcase,
-    onSuccess: () => {
-      notify(
-        <div>
-          <div className="font-medium">Showcase submitted!</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            Your project is pending review. We'll notify you when it's approved.
-          </div>
-        </div>,
-      )
-      navigate({ to: '/showcase/mine' })
-    },
-    onError: (error: Error) => {
-      notify(
-        <div>
-          <div className="font-medium">Submission failed</div>
-          <div className="text-gray-500 dark:text-gray-400 text-xs">
-            {error.message}
-          </div>
-        </div>,
-      )
-    },
+    onSuccess,
+    onError,
   })
+
+  const editMutation = useMutation({
+    mutationFn: updateShowcase,
+    onSuccess,
+    onError,
+  })
+
+  const isPending = createMutation.isPending || editMutation.isPending
 
   const toggleLibrary = (libraryId: string) => {
     // Can't toggle auto-included libraries
@@ -105,29 +140,46 @@ export function ShowcaseSubmitForm() {
       return
     }
 
-    submitMutation.mutate({
-      data: {
-        name,
-        tagline,
-        description: description || undefined,
-        url,
-        logoUrl,
-        screenshotUrl,
-        libraries: selectedLibraries,
-        useCases: selectedUseCases,
-      },
-    })
+    // Warn user if editing an approved showcase
+    if (isEditMode && showcase.status === 'approved') {
+      const confirmed = confirm(
+        'Saving changes will reset your showcase to pending review until re-approved. Your votes will be preserved. Continue?',
+      )
+      if (!confirmed) {
+        return
+      }
+    }
+
+    const formData = {
+      name,
+      tagline,
+      description: description || undefined,
+      url,
+      logoUrl,
+      screenshotUrl,
+      libraries: selectedLibraries,
+      useCases: selectedUseCases,
+    }
+
+    if (isEditMode) {
+      editMutation.mutate({
+        data: { ...formData, showcaseId: showcase.id },
+      })
+    } else {
+      createMutation.mutate({ data: formData })
+    }
   }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-2xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Submit Your Project
+          {isEditMode ? 'Edit Your Project' : 'Submit Your Project'}
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Share what you've built with TanStack libraries. Your submission will
-          be reviewed before appearing in the showcase.
+          {isEditMode
+            ? 'Update your showcase submission. Changes will require re-approval but votes will be preserved.'
+            : "Share what you've built with TanStack libraries. Your submission will be reviewed before appearing in the showcase."}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -306,17 +358,30 @@ export function ShowcaseSubmitForm() {
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="pt-4 flex gap-3">
+            {isEditMode && (
+              <Button
+                type="button"
+                onClick={() => navigate({ to: '/showcase/mine' })}
+                className="flex-1 justify-center px-6 py-3 font-medium rounded-lg"
+              >
+                Cancel
+              </Button>
+            )}
             <Button
               type="submit"
               disabled={
-                submitMutation.isPending ||
-                selectedLibraries.length === 0 ||
-                !screenshotUrl
+                isPending || selectedLibraries.length === 0 || !screenshotUrl
               }
-              className="w-full justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg border-none"
+              className={`${isEditMode ? 'flex-1' : 'w-full'} justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg border-none`}
             >
-              {submitMutation.isPending ? 'Submitting...' : 'Submit for Review'}
+              {isPending
+                ? isEditMode
+                  ? 'Saving...'
+                  : 'Submitting...'
+                : isEditMode
+                  ? 'Save Changes'
+                  : 'Submit for Review'}
             </Button>
           </div>
         </form>

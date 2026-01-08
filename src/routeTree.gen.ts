@@ -65,6 +65,7 @@ import { Route as LibrariesFeedIndexRouteImport } from './routes/_libraries/feed
 import { Route as LibrariesBlogIndexRouteImport } from './routes/_libraries/blog.index'
 import { Route as LibrariesAccountIndexRouteImport } from './routes/_libraries/account/index'
 import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
+import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
@@ -385,6 +386,11 @@ const StatsNpmPackagesRoute = StatsNpmPackagesRouteImport.update({
   path: '/stats/npm/$packages',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShowcaseEditIdRoute = ShowcaseEditIdRouteImport.update({
+  id: '/showcase/edit/$id',
+  path: '/showcase/edit/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   id: '/auth/$provider/start',
   path: '/auth/$provider/start',
@@ -663,6 +669,7 @@ export interface FileRoutesByFullPath {
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/account/': typeof LibrariesAccountIndexRoute
   '/blog/': typeof LibrariesBlogIndexRoute
@@ -754,6 +761,7 @@ export interface FileRoutesByTo {
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/account': typeof LibrariesAccountIndexRoute
   '/blog': typeof LibrariesBlogIndexRoute
@@ -852,6 +860,7 @@ export interface FileRoutesById {
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
+  '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
   '/_libraries/account/': typeof LibrariesAccountIndexRoute
   '/_libraries/blog/': typeof LibrariesBlogIndexRoute
@@ -950,6 +959,7 @@ export interface FileRouteTypes {
     | '/api/discord/interactions'
     | '/api/github/webhook'
     | '/auth/$provider/start'
+    | '/showcase/edit/$id'
     | '/stats/npm/$packages'
     | '/account/'
     | '/blog/'
@@ -1041,6 +1051,7 @@ export interface FileRouteTypes {
     | '/api/discord/interactions'
     | '/api/github/webhook'
     | '/auth/$provider/start'
+    | '/showcase/edit/$id'
     | '/stats/npm/$packages'
     | '/account'
     | '/blog'
@@ -1138,6 +1149,7 @@ export interface FileRouteTypes {
     | '/api/discord/interactions'
     | '/api/github/webhook'
     | '/auth/$provider/start'
+    | '/showcase/edit/$id'
     | '/stats/npm/$packages'
     | '/_libraries/account/'
     | '/_libraries/blog/'
@@ -1198,6 +1210,7 @@ export interface RootRouteChildren {
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
+  ShowcaseEditIdRoute: typeof ShowcaseEditIdRoute
   StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
@@ -1595,6 +1608,13 @@ declare module '@tanstack/react-router' {
       path: '/stats/npm/$packages'
       fullPath: '/stats/npm/$packages'
       preLoaderRoute: typeof StatsNpmPackagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/showcase/edit/$id': {
+      id: '/showcase/edit/$id'
+      path: '/showcase/edit/$id'
+      fullPath: '/showcase/edit/$id'
+      preLoaderRoute: typeof ShowcaseEditIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/$provider/start': {
@@ -2120,6 +2140,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
+  ShowcaseEditIdRoute: ShowcaseEditIdRoute,
   StatsNpmPackagesRoute: StatsNpmPackagesRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,

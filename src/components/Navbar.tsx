@@ -272,11 +272,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       )}
       ref={containerRef}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center">
         <div className="flex items-center gap-2 font-black text-xl uppercase">
           <React.Suspense fallback={<LogoSection />}>
             <LazyBrandContextMenu
-              className={twMerge(`flex items-center gap-1.5 group`)}
+              className={twMerge(`flex items-center group`)}
             >
               <LogoSection />
             </LazyBrandContextMenu>
@@ -308,7 +308,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     },
   })
 
-  const linkClasses = `flex items-center justify-between gap-2 group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-black`
+  const linkClasses = `flex items-center justify-between gap-2 group px-2 py-1 rounded-lg hover:bg-gray-500/10 font-bold`
 
   const items = (
     <div className="md:flex gap-2 [&>*]:flex-1 lg:block">
@@ -346,7 +346,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 <a href={library.to} className={linkClasses}>
                   <span
                     className={twMerge(
-                      'w-3 h-3 rounded-sm border border-black/20 dark:border-white/20',
+                      'w-3 h-3 rounded-sm border border-white/50',
                       library.bgStyle,
                     )}
                   />
@@ -365,7 +365,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                       >
                         <span
                           className={twMerge(
-                            'w-3 h-3 rounded-sm border border-black/20 dark:border-white/20',
+                            'w-3 h-3 rounded-sm',
                             library.bgStyle,
                           )}
                         />

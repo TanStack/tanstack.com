@@ -271,10 +271,22 @@ export function FeedbackModerationList({
                       className="bg-gray-50 dark:bg-gray-900"
                     >
                       <div className="p-4 space-y-4">
-                        {/* Content */}
+                        {/* Original Block Content */}
+                        {feedback.blockMarkdown && (
+                          <div>
+                            <h4 className="text-sm font-semibold mb-2">
+                              Original Block Content:
+                            </h4>
+                            <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs max-h-40 overflow-auto">
+                              {feedback.blockMarkdown}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Feedback */}
                         <div>
                           <h4 className="text-sm font-semibold mb-2">
-                            Content:
+                            Feedback:
                           </h4>
                           <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-700">
                             {feedback.content}

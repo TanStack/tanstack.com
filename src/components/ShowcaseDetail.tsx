@@ -8,6 +8,7 @@ import {
   ThumbsDown,
   Sparkles,
 } from 'lucide-react'
+import { Button } from './Button'
 import { twMerge } from 'tailwind-merge'
 import { libraries, type LibraryId } from '~/libraries'
 import { USE_CASE_LABELS } from '~/utils/showcase.client'
@@ -257,15 +258,16 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
               </p>
             </div>
           </div>
-          <a
+          <Button
+            as="a"
             href={showcase.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shrink-0"
+            className="px-4 py-2 text-sm bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white hover:bg-gray-700 dark:hover:bg-gray-200 shrink-0"
           >
             Visit Site
             <ExternalLink className="w-4 h-4" />
-          </a>
+          </Button>
         </div>
 
         {/* Description */}

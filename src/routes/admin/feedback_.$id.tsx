@@ -154,10 +154,22 @@ function FeedbackDetailPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Content */}
+          {/* Original Block Content */}
+          {feedback.blockMarkdown && (
+            <Card className="p-6 lg:col-span-2">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Original Block Content
+              </h2>
+              <div className="text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 p-3 rounded font-mono whitespace-pre-wrap max-h-60 overflow-auto">
+                {feedback.blockMarkdown}
+              </div>
+            </Card>
+          )}
+
+          {/* Feedback */}
           <Card className="p-6 lg:col-span-2">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Feedback Content
+              Feedback
             </h2>
             <div className="prose dark:prose-invert max-w-none">
               <p className="whitespace-pre-wrap text-gray-900 dark:text-white">
@@ -191,16 +203,6 @@ function FeedbackDetailPage() {
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900 dark:text-white font-mono text-xs break-all">
                     {feedback.blockSelector}
-                  </dd>
-                </div>
-              )}
-              {feedback.blockMarkdown && (
-                <div>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Original Block Content
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 p-2 rounded font-mono text-xs whitespace-pre-wrap max-h-40 overflow-auto">
-                    {feedback.blockMarkdown}
                   </dd>
                 </div>
               )}

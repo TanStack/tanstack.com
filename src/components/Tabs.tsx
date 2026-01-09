@@ -50,8 +50,8 @@ export function Tabs({
   if (tabsProp.length === 0) return null
 
   return (
-    <div className="not-prose my-4">
-      <div className="flex items-center justify-start gap-2 rounded-t-md border-1 border-b-none border-gray-200 dark:border-gray-800 overflow-x-auto overflow-y-hidden bg-white dark:bg-gray-950">
+    <div className="my-4">
+      <div className="not-prose flex items-center justify-start gap-2 rounded-t-md border-1 border-b-none border-gray-200 dark:border-gray-800 overflow-x-auto overflow-y-hidden bg-white dark:bg-gray-950">
         {tabsProp.map((tab) => {
           return (
             <Tab
@@ -64,7 +64,7 @@ export function Tabs({
           )
         })}
       </div>
-      <div className="border border-gray-500/20 rounded-b-md p-4 bg-gray-100 dark:bg-gray-900">
+      <div className={`border border-gray-500/20 rounded-b-md bg-gray-100 dark:bg-gray-900`}>
         {childrenArray.map((child, index) => {
           const tab = tabsProp[index]
           if (!tab) return null
@@ -73,7 +73,7 @@ export function Tabs({
               key={`${id}-${tab.slug}`}
               data-tab={tab.slug}
               hidden={tab.slug !== activeSlug}
-              className="prose dark:prose-invert max-w-none flex flex-col gap-2 text-base"
+              className="max-w-none flex flex-col gap-2 text-base"
             >
               {child}
             </div>

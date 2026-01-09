@@ -893,11 +893,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             }
           }}
         >
-          <div className="flex items-center justify-between px-3 pt-3 gap-2 sm:hidden">
-            <div className="flex-1">
-              <SearchButton className="w-full py-3 text-base [&_svg]:w-5 [&_svg]:h-5" />
-            </div>
-            <div className="xs:hidden">{loginButton}</div>
+          <div className="px-3 pt-3 sm:hidden">
+            <SearchButton className="w-full py-3 text-base [&_svg]:w-5 [&_svg]:h-5" />
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-base p-3 border-b border-gray-500/20">
             {items}

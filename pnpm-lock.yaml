@@ -243,6 +243,9 @@ importers:
       '@shikijs/transformers':
         specifier: ^1.10.3
         version: 1.10.3
+      '@types/hast':
+        specifier: ^3.0.4
+        version: 3.0.4
       '@types/node':
         specifier: ^24.3.0
         version: 24.3.0

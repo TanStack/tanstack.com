@@ -241,12 +241,9 @@ function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
     }
 
     // Look for <pre> elements (code blocks) under current framework
-    if (
-      child.type === 'element' &&
-      child.tagName === 'pre' &&
-      currentFramework
-    ) {
-      const codeBlockData = extractCodeBlockData(child)
+    const c = child as HastNode
+    if (c.type === 'element' && c.tagName === 'pre' && currentFramework) {
+      const codeBlockData = extractCodeBlockData(c)
       if (!codeBlockData) continue
 
       if (!codeBlocksByFramework[currentFramework]) {
@@ -257,7 +254,7 @@ function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
         title: codeBlockData.title || 'Untitled',
         code: codeBlockData.code,
         language: codeBlockData.language,
-        preNode: child,
+        preNode: c,
       })
     }
   }

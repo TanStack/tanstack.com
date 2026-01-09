@@ -64,7 +64,9 @@ export function Tabs({
           )
         })}
       </div>
-      <div className={`border border-gray-500/20 rounded-b-md bg-gray-100 dark:bg-gray-900`}>
+      <div
+        className={`border border-gray-500/20 rounded-b-md bg-gray-100 dark:bg-gray-900`}
+      >
         {childrenArray.map((child, index) => {
           const tab = tabsProp[index]
           if (!tab) return null
@@ -96,8 +98,13 @@ const Tab = React.memo(
     setActiveSlug: (slug: string) => void
   }) => {
     const option = React.useMemo(
-      () => frameworkOptions.find((o) => o.value === tab.slug),
-      [tab.slug],
+      () =>
+        frameworkOptions.find(
+          (o) =>
+            o.value === tab.slug.toLowerCase() ||
+            o.label.toLowerCase() === tab.name.toLowerCase(),
+        ),
+      [tab.slug, tab.name],
     )
 
     return (

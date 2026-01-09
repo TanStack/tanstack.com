@@ -915,19 +915,19 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         ref={largeMenuRef}
         className={twMerge(
           `hidden md:flex flex-col
-      h-[calc(100dvh-var(--navbar-height))] sticky top-[var(--navbar-height)] z-20
+      h-[calc(100dvh-var(--navbar-height))] z-20
       bg-white/50 dark:bg-black/30 border-r border-gray-500/20`,
           'transition-all duration-300',
           'z-50',
           // md breakpoint: always flyout
-          'md:fixed md:bg-white md:dark:bg-black/90 md:backdrop-blur-lg md:shadow-xl',
+          'md:fixed md:top-[var(--navbar-height)] md:bg-white md:dark:bg-black/90 md:backdrop-blur-lg md:shadow-xl',
           !showMenu && 'md:-translate-x-full',
           showMenu && 'md:translate-x-0',
           // lg breakpoint: inline when no Title, flyout when Title
           inlineMenu &&
-            'lg:relative lg:translate-x-0 lg:bg-white/50 lg:dark:bg-black/30 lg:backdrop-blur-none lg:shadow-none',
+            'lg:sticky lg:top-[var(--navbar-height)] lg:translate-x-0 lg:bg-white/50 lg:dark:bg-black/30 lg:backdrop-blur-none lg:shadow-none',
           !inlineMenu &&
-            'lg:fixed lg:bg-white lg:dark:bg-black/90 lg:backdrop-blur-lg lg:shadow-xl',
+            'lg:fixed lg:top-[var(--navbar-height)] lg:bg-white lg:dark:bg-black/90 lg:backdrop-blur-lg lg:shadow-xl',
           !inlineMenu && !showMenu && 'lg:-translate-x-full',
           !inlineMenu && showMenu && 'lg:translate-x-0',
         )}

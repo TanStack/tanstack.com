@@ -1,7 +1,8 @@
+import type { Root } from 'hast'
 import { visit } from 'unist-util-visit'
 
 export function extractCodeMeta() {
-  return (tree) => {
+  return (tree: Root) => {
     visit(tree, 'element', (node: any) => {
       if (node && node.tagName === 'pre') {
         const codeChild = Array.isArray(node.children)

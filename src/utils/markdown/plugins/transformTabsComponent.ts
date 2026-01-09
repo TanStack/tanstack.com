@@ -50,6 +50,7 @@ type FrameworkExtraction = {
       preNode: HastNode
     }>
   >
+  contentByFramework: Record<string, HastNode[]>
 }
 
 type FrameworkCodeBlock = {
@@ -223,12 +224,13 @@ function extractFilesData(node: HastNode): FilesExtraction | null {
 }
 
 /**
- * Extract framework-specific code blocks for variant="framework" tabs.
- * Groups code blocks by their data-framework attribute.
+ * Extract framework-specific content for variant="framework" tabs.
+ * Groups all content (code blocks and general content) by framework headings.
  */
 function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
   const children = node.children ?? []
   const codeBlocksByFramework: Record<string, FrameworkCodeBlock[]> = {}
+  const contentByFramework: Record<string, HastNode[]> = {}
 
   let currentFramework: string | null = null
 
@@ -237,21 +239,24 @@ function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
       currentFramework = toString(child as any)
         .trim()
         .toLowerCase()
+      // Initialize arrays for this framework
+      if (currentFramework && !contentByFramework[currentFramework]) {
+        contentByFramework[currentFramework] = []
+        codeBlocksByFramework[currentFramework] = []
+      }
       continue
     }
 
+    // Skip if no framework heading found yet
+    if (!currentFramework) continue
+
+    // Add all content to contentByFramework
+    contentByFramework[currentFramework].push(child)
+
     // Look for <pre> elements (code blocks) under current framework
-    if (
-      child.type === 'element' &&
-      child.tagName === 'pre' &&
-      currentFramework
-    ) {
+    if (child.type === 'element' && child.tagName === 'pre') {
       const codeBlockData = extractCodeBlockData(child)
       if (!codeBlockData) continue
-
-      if (!codeBlocksByFramework[currentFramework]) {
-        codeBlocksByFramework[currentFramework] = []
-      }
 
       codeBlocksByFramework[currentFramework].push({
         title: codeBlockData.title || 'Untitled',
@@ -262,11 +267,12 @@ function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
     }
   }
 
-  if (Object.keys(codeBlocksByFramework).length === 0) {
+  // Return null only if no frameworks found at all
+  if (Object.keys(contentByFramework).length === 0) {
     return null
   }
 
-  return { codeBlocksByFramework }
+  return { codeBlocksByFramework, contentByFramework }
 }
 
 function extractTabPanels(node: HastNode): TabExtraction | null {
@@ -419,19 +425,19 @@ export function transformTabsComponent(node: HastNode) {
     })
 
     // Store available frameworks for the component
-    const availableFrameworks = Object.keys(result.codeBlocksByFramework)
+    const availableFrameworks = Object.keys(result.contentByFramework)
     node.properties['data-available-frameworks'] =
       JSON.stringify(availableFrameworks)
 
     node.children = availableFrameworks.map((fw) => {
-      const blocks = result.codeBlocksByFramework[fw]
+      const content = result.contentByFramework[fw] || []
       return {
         type: 'element',
         tagName: 'md-tab-panel',
         properties: {
           'data-framework': fw,
         },
-        children: blocks.map((block) => block.preNode),
+        children: content,
       }
     })
     return

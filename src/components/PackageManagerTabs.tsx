@@ -27,7 +27,7 @@ const usePackageManagerStore = create<{
 
 type PackageManagerTabsProps = {
   id: string
-  packagesByFramework: Record<string, string[]>
+  packagesByFramework: Record<string, string[][]>
   mode: InstallMode
   frameworks: Framework[]
 }
@@ -36,44 +36,48 @@ const PACKAGE_MANAGERS: PackageManager[] = ['npm', 'pnpm', 'yarn', 'bun']
 
 function getInstallCommand(
   packageManager: PackageManager,
-  packages: string[],
+  packageGroups: string[][],
   mode: InstallMode,
 ): string[] {
   const commands: string[] = []
 
-  if (mode === "local-install") {
-    for (const pkg of packages) {
+  if (mode === 'local-install') {
+    // Each group becomes one command line
+    for (const packages of packageGroups) {
+      const pkgStr = packages.join(' ')
       switch (packageManager) {
         case 'npm':
-          commands.push(`npx ${pkg}`)
+          commands.push(`npx ${pkgStr}`)
           break
         case 'pnpm':
-          commands.push(`pnpx ${pkg}`)
+          commands.push(`pnpx ${pkgStr}`)
           break
         case 'yarn':
-          commands.push(`yarn dlx ${pkg}`)
+          commands.push(`yarn dlx ${pkgStr}`)
           break
         case 'bun':
-          commands.push(`bunx ${pkg}`)
+          commands.push(`bunx ${pkgStr}`)
           break
       }
     }
+    return commands
   }
 
   if (mode === 'dev-install') {
-    for (const pkg of packages) {
+    for (const packages of packageGroups) {
+      const pkgStr = packages.join(' ')
       switch (packageManager) {
         case 'npm':
-          commands.push(`npm i -D ${pkg}`)
+          commands.push(`npm i -D ${pkgStr}`)
           break
         case 'pnpm':
-          commands.push(`pnpm add -D ${pkg}`)
+          commands.push(`pnpm add -D ${pkgStr}`)
           break
         case 'yarn':
-          commands.push(`yarn add -D ${pkg}`)
+          commands.push(`yarn add -D ${pkgStr}`)
           break
         case 'bun':
-          commands.push(`bun add -d ${pkg}`)
+          commands.push(`bun add -d ${pkgStr}`)
           break
       }
     }
@@ -81,19 +85,20 @@ function getInstallCommand(
   }
 
   // install mode
-  for (const pkg of packages) {
+  for (const packages of packageGroups) {
+    const pkgStr = packages.join(' ')
     switch (packageManager) {
       case 'npm':
-        commands.push(`npm i ${pkg}`)
+        commands.push(`npm i ${pkgStr}`)
         break
       case 'pnpm':
-        commands.push(`pnpm add ${pkg}`)
+        commands.push(`pnpm add ${pkgStr}`)
         break
       case 'yarn':
-        commands.push(`yarn add ${pkg}`)
+        commands.push(`yarn add ${pkgStr}`)
         break
       case 'bun':
-        commands.push(`bun add ${pkg}`)
+        commands.push(`bun add ${pkgStr}`)
         break
     }
   }
@@ -119,10 +124,10 @@ export function PackageManagerTabs({
     'react') as Framework
 
   const normalizedFramework = actualFramework.toLowerCase()
-  const packages = packagesByFramework[normalizedFramework]
+  const packageGroups = packagesByFramework[normalizedFramework]
 
   // Hide component if current framework not in package list
-  if (!packages || packages.length === 0) {
+  if (!packageGroups || packageGroups.length === 0) {
     return null
   }
 
@@ -140,7 +145,7 @@ export function PackageManagerTabs({
 
   // Generate children (command blocks) for each package manager
   const children = PACKAGE_MANAGERS.map((pm) => {
-    const commands = getInstallCommand(pm, packages, mode)
+    const commands = getInstallCommand(pm, packageGroups, mode)
     const commandText = commands.join('\n')
     return (
       <CodeBlock key={pm}>

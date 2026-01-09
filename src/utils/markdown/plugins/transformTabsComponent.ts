@@ -27,7 +27,7 @@ type TabExtraction = {
 }
 
 type PackageManagerExtraction = {
-  packagesByFramework: Record<string, string[]>
+  packagesByFramework: Record<string, string[][]>
   mode: InstallMode
 }
 
@@ -74,7 +74,9 @@ function parseAttributes(node: HastNode): Record<string, string> {
 
 function resolveMode(attributes: Record<string, string>): InstallMode {
   const mode = attributes.mode?.toLowerCase()
-  return mode === 'dev-install' ? 'dev-install' : 'install'
+  if (mode === 'dev-install') return 'dev-install'
+  if (mode === 'local-install') return 'local-install'
+  return 'install'
 }
 
 function normalizeFrameworkKey(key: string): string {
@@ -123,7 +125,7 @@ function extractPackageManagerData(
   mode: InstallMode,
 ): PackageManagerExtraction | null {
   const children = node.children ?? []
-  const packagesByFramework: Record<string, string[]> = {}
+  const packagesByFramework: Record<string, string[][]> = {}
 
   const allText = extractText(children)
   const lines = allText.split('\n')
@@ -134,11 +136,13 @@ function extractPackageManagerData(
 
     const parsed = parseFrameworkLine(trimmed)
     if (parsed) {
-      // Support multiple entries for same framework by concatenating packages
+      // Each line becomes a separate entry (array of packages)
+      // Multiple packages on same line = install together
+      // Multiple lines = install separately
       if (packagesByFramework[parsed.framework]) {
-        packagesByFramework[parsed.framework].push(...parsed.packages)
+        packagesByFramework[parsed.framework].push(parsed.packages)
       } else {
-        packagesByFramework[parsed.framework] = parsed.packages
+        packagesByFramework[parsed.framework] = [parsed.packages]
       }
     }
   }

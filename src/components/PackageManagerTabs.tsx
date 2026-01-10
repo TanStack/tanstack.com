@@ -7,7 +7,12 @@ import { CodeBlock } from './CodeBlock'
 import type { Framework } from '~/libraries/types'
 
 type PackageManager = 'bun' | 'npm' | 'pnpm' | 'yarn'
-type InstallMode = 'install' | 'dev-install' | 'local-install' | 'create' | 'custom'
+type InstallMode =
+  | 'install'
+  | 'dev-install'
+  | 'local-install'
+  | 'create'
+  | 'custom'
 
 // Use zustand for cross-component synchronization
 // This ensures all PackageManagerTabs instances on the page stay in sync

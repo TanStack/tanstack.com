@@ -7,7 +7,7 @@ import { CodeBlock } from './CodeBlock'
 import type { Framework } from '~/libraries/types'
 
 type PackageManager = 'bun' | 'npm' | 'pnpm' | 'yarn'
-type InstallMode = 'install' | 'dev-install' | 'local-install'
+type InstallMode = 'install' | 'dev-install' | 'local-install' | 'create'
 
 // Use zustand for cross-component synchronization
 // This ensures all PackageManagerTabs instances on the page stay in sync
@@ -40,6 +40,26 @@ function getInstallCommand(
   mode: InstallMode,
 ): string[] {
   const commands: string[] = []
+
+  if (mode === 'create') {
+    for (const packages of packageGroups) {
+      const pkgStr = packages.join(' ')
+      switch (packageManager) {
+        case 'npm':
+          commands.push(`npm create ${pkgStr}`)
+          break
+        case 'pnpm':
+          commands.push(`pnpm create ${pkgStr}`)
+          break
+        case 'yarn':
+          commands.push(`yarn create ${pkgStr}`)
+          break
+        case 'bun':
+          commands.push(`bun create ${pkgStr}`)
+          break
+      }
+    }
+  }
 
   if (mode === 'local-install') {
     // Each group becomes one command line

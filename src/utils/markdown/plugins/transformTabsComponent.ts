@@ -266,7 +266,7 @@ function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
         title: codeBlockData.title || 'Untitled',
         code: codeBlockData.code,
         language: codeBlockData.language,
-        preNode: c,
+        preNode: child,
       })
     }
   }

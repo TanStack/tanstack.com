@@ -1,16 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useGameStore } from '../hooks/useGameStore'
 import { UPGRADES, UPGRADE_ORDER } from '../utils/upgrades'
-import { useCapabilities } from '~/hooks/useCapabilities'
+import { getCurrentUser } from '~/utils/auth.server'
 
 export function DebugPanel() {
-  const capabilities = useCapabilities()
   const [isCollapsed, setIsCollapsed] = useState(true)
 
-  // Only show for admin or maintainer roles
-  const canAccess = capabilities.some((cap) =>
+  // Fetch user directly without route context dependency
+  const userQuery = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => getCurrentUser(),
+    staleTime: 30 * 1000,
+  })
+
+  const capabilities = userQuery.data?.capabilities || []
+  const canAccess = capabilities.some((cap: string) =>
     ['admin', 'maintainer'].includes(cap),
   )
+
+  // Default to open for admins/maintainers once we know they have access
+  useEffect(() => {
+    if (canAccess) {
+      setIsCollapsed(false)
+    }
+  }, [canAccess])
 
   const {
     phase,
@@ -23,6 +37,8 @@ export function DebugPanel() {
     unlockedUpgrades,
     shipStats,
     boatHealth,
+    showCollisionDebug,
+    setShowCollisionDebug,
   } = useGameStore()
 
   if (!canAccess) return null
@@ -104,7 +120,7 @@ export function DebugPanel() {
 
   if (phase === 'intro') {
     return (
-      <div className="absolute top-4 left-4 z-50">
+      <div className="absolute top-1/2 -translate-y-1/2 left-4 z-50">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="bg-black/80 text-yellow-400 font-bold px-3 py-1.5 rounded-lg text-xs font-mono hover:bg-black/90 transition-colors"
@@ -131,7 +147,7 @@ export function DebugPanel() {
   ).length
 
   return (
-    <div className="absolute top-4 left-4 z-50">
+    <div className="absolute top-1/2 -translate-y-1/2 left-4 z-50">
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="bg-black/80 text-yellow-400 font-bold px-3 py-1.5 rounded-lg text-xs font-mono hover:bg-black/90 transition-colors"
@@ -252,6 +268,16 @@ export function DebugPanel() {
             >
               Reset Game
             </button>
+
+            <label className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showCollisionDebug}
+                onChange={(e) => setShowCollisionDebug(e.target.checked)}
+                className="rounded"
+              />
+              <span>Show Collision Bounds</span>
+            </label>
           </div>
         </div>
       )}

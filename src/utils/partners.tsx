@@ -132,6 +132,7 @@ type Partner = {
   endDate?: string
   score: number
   brandColor?: string // Primary brand color for game elements
+  tagline?: string // Short tagline for game info cards
 }
 
 const neon = (() => {
@@ -145,6 +146,7 @@ const neon = (() => {
     score: 0.297,
     href,
     brandColor: '#00E599',
+    tagline: 'Serverless Postgres',
     image: {
       light: neonLightSvg,
       dark: neonDarkSvg,
@@ -182,6 +184,7 @@ const convex = (() => {
     score: 0.286,
     href,
     brandColor: '#F3A712',
+    tagline: 'Real-time Database',
     image: {
       light: convexColorSvg,
       dark: convexWhiteSvg,
@@ -218,6 +221,7 @@ const clerk = (() => {
     status: 'active' as const,
     score: 0.286,
     brandColor: '#6C47FF',
+    tagline: 'Authentication',
     image: {
       light: clerkLightSvg,
       dark: clerkDarkSvg,
@@ -253,6 +257,7 @@ const workos = (() => {
     status: 'active' as const,
     score: 0.314,
     brandColor: '#6363F1',
+    tagline: 'Enterprise Auth',
     image: {
       light: workosBlackSvg,
       dark: workosWhiteSvg,
@@ -287,6 +292,7 @@ const agGrid = (() => {
     score: 0.497,
     href,
     brandColor: '#FF8C00',
+    tagline: 'Enterprise Data Grid',
     image: {
       light: agGridDarkSvg,
       dark: agGridLightSvg,
@@ -330,6 +336,7 @@ const netlify = (() => {
     score: 0.343,
     href,
     brandColor: '#00C7B7',
+    tagline: 'Web Deployment',
     image: {
       light: netlifyLightSvg,
       dark: netlifyDarkSvg,
@@ -371,6 +378,7 @@ const cloudflare = (() => {
     score: 0.857,
     startDate: 'Sep 2025',
     brandColor: '#F6821F',
+    tagline: 'Edge Deployment',
     image: {
       light: cloudflareBlackSvg,
       dark: cloudflareWhiteSvg,
@@ -405,6 +413,7 @@ const sentry = (() => {
     score: 0.229,
     href,
     brandColor: '#362D59',
+    tagline: 'Error Monitoring',
     image: {
       light: sentryWordMarkDarkSvg,
       dark: sentryWordMarkLightSvg,
@@ -438,6 +447,7 @@ const uiDev = (() => {
     status: 'active' as const,
     score: 0.014,
     href,
+    tagline: 'Dev Education',
     image: {
       src: bytesUidotdevImage,
     },
@@ -495,6 +505,7 @@ const nozzle = (() => {
     href,
     status: 'active' as const,
     score: 0.014,
+    tagline: 'Enterprise SEO',
     image: {
       src: nozzleImage,
     },
@@ -566,6 +577,7 @@ const unkey = (() => {
     score: 0.051,
     href,
     brandColor: '#222222',
+    tagline: 'API Key Management',
     image: {
       light: unkeyBlackSvg,
       dark: unkeyWhiteSvg,
@@ -602,6 +614,7 @@ const electric = (() => {
     score: 0.283,
     href,
     brandColor: '#7e78db',
+    tagline: 'Sync Engine',
     image: {
       light: electricLightSvg,
       dark: electricDarkSvg,
@@ -673,6 +686,7 @@ const prisma = (() => {
     startDate: 'Aug 2025',
     score: 0.143,
     brandColor: '#2D3748',
+    tagline: 'Database ORM',
     image: {
       light: prismaLightSvg,
       dark: prismaDarkSvg,
@@ -709,6 +723,7 @@ const codeRabbit = (() => {
     startDate: 'Aug 2025',
     score: 1,
     brandColor: '#FF6B2B',
+    tagline: 'AI Code Review',
     image: {
       light: codeRabbitLightSvg,
       dark: codeRabbitDarkSvg,
@@ -742,6 +757,7 @@ const strapi = (() => {
     score: 0.069,
     href,
     brandColor: '#4945FF',
+    tagline: 'Headless CMS',
     image: {
       light: strapiLightSvg,
       dark: strapiDarkSvg,
@@ -779,6 +795,7 @@ const powerSync = (() => {
     startDate: 'Jan 2026',
     score: 0.143,
     href,
+    tagline: 'Offline-first Sync',
     image: {
       light: powersyncBlackSvg,
       dark: powersyncWhiteSvg,

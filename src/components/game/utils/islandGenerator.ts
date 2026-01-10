@@ -5,6 +5,10 @@ export interface IslandLobe {
   offsetX: number
   offsetZ: number
   scale: number // Relative to main island scale
+  // Precomputed world-space collision data
+  worldX: number
+  worldZ: number
+  collisionRadius: number
 }
 
 // Slim partner data for the game (avoids importing full partners with images)
@@ -13,6 +17,9 @@ export interface PartnerSlim {
   name: string
   href: string
   brandColor?: string
+  logoLight?: string // Logo for dark backgrounds (white/light version)
+  logoDark?: string // Logo for light backgrounds (dark version)
+  tagline?: string // Short tagline for info card
 }
 
 export interface IslandData {
@@ -29,6 +36,7 @@ export interface IslandData {
   elongation: number
   bumpiness: number
   lobes: IslandLobe[] // Additional spherical caps that make up the island
+  collisionRadius: number // Precomputed main island collision radius
 }
 
 // Seeded random for consistent generation
@@ -114,17 +122,32 @@ export function generateIslands(libraries: LibrarySlim[]): IslandData[] {
     // 0-2 additional lobes based on randomness
     const lobeCount = Math.floor(seededRandom(seed + 9) * 3) // 0, 1, or 2
     const lobes: IslandLobe[] = []
+    const cosR = Math.cos(rotation)
+    const sinR = Math.sin(rotation)
     for (let i = 0; i < lobeCount; i++) {
       const lobeSeed = seed + 100 + i * 10
       const angle = seededRandom(lobeSeed) * Math.PI * 2
       const distance = 1.5 + seededRandom(lobeSeed + 1) * 1.0 // Distance from center
       const lobeScale = 0.5 + seededRandom(lobeSeed + 2) * 0.4 // 50-90% of main scale
+      const offsetX = Math.cos(angle) * distance
+      const offsetZ = Math.sin(angle) * distance
+      // Apply island rotation to get world-space offset
+      // THREE.js Y rotation (right-hand rule, Y up): x' = x*cos + z*sin, z' = -x*sin + z*cos
+      const rotatedX = (offsetX * cosR + offsetZ * sinR) * scale
+      const rotatedZ = (-offsetX * sinR + offsetZ * cosR) * scale
       lobes.push({
-        offsetX: Math.cos(angle) * distance,
-        offsetZ: Math.sin(angle) * distance,
+        offsetX,
+        offsetZ,
         scale: lobeScale,
+        // Precomputed world-space collision data (with rotation applied)
+        worldX: x + rotatedX,
+        worldZ: z + rotatedZ,
+        collisionRadius: 3.0 * elongation * lobeScale * scale,
       })
     }
+
+    // Main island collision radius
+    const collisionRadius = 3.0 * elongation * scale
 
     islands.push({
       id: library.id,
@@ -139,6 +162,7 @@ export function generateIslands(libraries: LibrarySlim[]): IslandData[] {
       elongation,
       bumpiness,
       lobes,
+      collisionRadius,
     })
   })
 
@@ -225,17 +249,32 @@ export function generateExpandedIslands(partners: PartnerSlim[]): IslandData[] {
     // More lobes for partner islands
     const lobeCount = 1 + Math.floor(seededRandom(seed + 9) * 2) // 1-2 lobes
     const lobes: IslandLobe[] = []
+    const cosR = Math.cos(rotation)
+    const sinR = Math.sin(rotation)
     for (let i = 0; i < lobeCount; i++) {
       const lobeSeed = seed + 100 + i * 10
       const lobeAngle = seededRandom(lobeSeed) * Math.PI * 2
       const distance = 1.8 + seededRandom(lobeSeed + 1) * 1.2
       const lobeScale = 0.55 + seededRandom(lobeSeed + 2) * 0.35
+      const offsetX = Math.cos(lobeAngle) * distance
+      const offsetZ = Math.sin(lobeAngle) * distance
+      // Apply island rotation to get world-space offset
+      // THREE.js Y rotation (right-hand rule, Y up): x' = x*cos + z*sin, z' = -x*sin + z*cos
+      const rotatedX = (offsetX * cosR + offsetZ * sinR) * scale
+      const rotatedZ = (-offsetX * sinR + offsetZ * cosR) * scale
       lobes.push({
-        offsetX: Math.cos(lobeAngle) * distance,
-        offsetZ: Math.sin(lobeAngle) * distance,
+        offsetX,
+        offsetZ,
         scale: lobeScale,
+        // Precomputed world-space collision data (with rotation applied)
+        worldX: x + rotatedX,
+        worldZ: z + rotatedZ,
+        collisionRadius: 3.0 * elongation * lobeScale * scale,
       })
     }
+
+    // Main island collision radius
+    const collisionRadius = 3.0 * elongation * scale
 
     islands.push({
       id: `partner-${partner.id}`,
@@ -250,6 +289,7 @@ export function generateExpandedIslands(partners: PartnerSlim[]): IslandData[] {
       elongation,
       bumpiness,
       lobes,
+      collisionRadius,
     })
   })
 

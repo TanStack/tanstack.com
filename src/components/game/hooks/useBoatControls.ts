@@ -153,6 +153,8 @@ export function useBoatControls() {
       isTurningLeft,
       isTurningRight,
       islands,
+      expandedIslands,
+      stage,
       rockColliders,
       coins,
       coinsCollected,
@@ -163,6 +165,10 @@ export function useBoatControls() {
     } = useGameStore.getState()
 
     if (phase !== 'playing') return
+
+    // Combine islands for collision in battle stage (includes partner islands)
+    const allIslands =
+      stage === 'battle' ? [...islands, ...expandedIslands] : islands
 
     // Fire gatling while space is held (if unlocked)
     if (spaceHeldRef.current && shipStats.gatlingGuns) {
@@ -252,11 +258,11 @@ export function useBoatControls() {
     let newX = boatPosition[0] + moveX
     let newZ = boatPosition[2] + moveZ
 
-    // Check island collision - apply gentle repulsion
+    // Check island collision - apply gentle repulsion (includes partner islands)
     const islandCollision = checkIslandCollision(
       newX,
       newZ,
-      islands,
+      allIslands,
       BOAT_RADIUS,
     )
     if (islandCollision.collides) {
@@ -284,7 +290,7 @@ export function useBoatControls() {
     const islandCollision2 = checkIslandCollision(
       newX,
       newZ,
-      islands,
+      allIslands,
       BOAT_RADIUS,
     )
     if (islandCollision2.collides) {
@@ -345,10 +351,7 @@ export function useBoatControls() {
       setBoatPosition(newPosition)
     }
 
-    // Check for nearby islands - include expanded islands in battle stage
-    const { stage, expandedIslands } = useGameStore.getState()
-    const allIslands =
-      stage === 'battle' ? [...islands, ...expandedIslands] : islands
+    // Check for nearby islands (uses allIslands which includes partner islands in battle stage)
     const nearby = findNearestIsland(newPosition, allIslands, 10)
     const {
       nearbyIsland,

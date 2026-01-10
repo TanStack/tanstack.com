@@ -20,6 +20,13 @@ export function Dinghy({ color = '#FFF5E6' }: DinghyProps) {
     const tintColor = new THREE.Color(color)
 
     clone.traverse((child) => {
+      // Hide cannon parts - the rowboat model has a cannon we don't want for early game
+      const name = child.name.toLowerCase()
+      if (name.includes('cannon') || name.includes('gun')) {
+        child.visible = false
+        return
+      }
+
       if (child instanceof THREE.Mesh) {
         child.castShadow = true
         child.receiveShadow = true

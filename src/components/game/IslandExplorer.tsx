@@ -1,7 +1,7 @@
 // Main Island Explorer game component
-// This file imports R3F/Drei dependencies - only loaded when route is accessed
+// Uses vanilla Three.js engine for better performance
 
-import { GameScene } from './scene/GameScene'
+import { VanillaGameScene } from './scene/VanillaGameScene'
 import { IntroOverlay } from './ui/IntroOverlay'
 import { GameHUD } from './ui/GameHUD'
 import { TouchControls } from './ui/TouchControls'
@@ -19,7 +19,7 @@ export default function IslandExplorer() {
     <div className="relative w-full h-[calc(100dvh-var(--navbar-height))] bg-sky-500">
       {/* 3D Scene */}
       <div className="absolute inset-0">
-        <GameScene />
+        <VanillaGameScene />
       </div>
 
       {/* Vignette overlay for depth */}

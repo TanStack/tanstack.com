@@ -1,25 +1,10 @@
-import { useRef, useState, useMemo, Suspense } from 'react'
+import { useRef, useState, Suspense } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RoundedBoxGeometry, Text } from '@react-three/drei'
 import * as THREE from 'three'
 import type { IslandData } from '../utils/islandGenerator'
 import { getLibraryColor } from '../utils/colors'
 import { set3DObjectClicked } from '../ui/TouchControls'
-
-// Import partner logos
-import neonLogo from '~/images/neon-dark.svg'
-import convexLogo from '~/images/convex-color.svg'
-import clerkLogo from '~/images/clerk-logo-dark.svg'
-import workosLogo from '~/images/workos-black.svg'
-import sentryLogo from '~/images/sentry-wordmark-dark.svg'
-import agGridLogo from '~/images/ag-grid-dark.svg'
-import netlifyLogo from '~/images/netlify-dark.svg'
-import unkeyLogo from '~/images/unkey-black.svg'
-import electricLogo from '~/images/electric-dark.svg'
-import prismaLogo from '~/images/prisma-dark.svg'
-import coderabbitLogo from '~/images/coderabbit-dark.svg'
-import strapiLogo from '~/images/strapi-dark.svg'
-import cloudflareLogo from '~/images/cloudflare-black.svg'
 
 interface IslandInfo3DProps {
   island: IslandData
@@ -36,45 +21,6 @@ const FRAMEWORK_COLORS: Record<string, string> = {
   qwik: '#18B6F6',
   preact: '#673AB8',
   vanilla: '#F7DF1E',
-}
-
-// Partner logo URLs (dark versions for white/light backgrounds)
-const PARTNER_LOGOS: Record<string, string> = {
-  neon: neonLogo,
-  convex: convexLogo,
-  clerk: clerkLogo,
-  workos: workosLogo,
-  sentry: sentryLogo,
-  'ag-grid': agGridLogo,
-  netlify: netlifyLogo,
-  unkey: unkeyLogo,
-  electric: electricLogo,
-  prisma: prismaLogo,
-  coderabbit: coderabbitLogo,
-  strapi: strapiLogo,
-  cloudflare: cloudflareLogo,
-}
-
-// Partner logo component
-function PartnerLogo({ partnerId }: { partnerId: string }) {
-  const logoUrl = PARTNER_LOGOS[partnerId]
-
-  const texture = useMemo(() => {
-    if (!logoUrl) return null
-    const loader = new THREE.TextureLoader()
-    const tex = loader.load(logoUrl)
-    tex.colorSpace = THREE.SRGBColorSpace
-    return tex
-  }, [logoUrl])
-
-  if (!texture) return null
-
-  return (
-    <mesh position={[0, 0, 0.1]}>
-      <planeGeometry args={[3.5, 1.2]} />
-      <meshBasicMaterial map={texture} transparent alphaTest={0.1} />
-    </mesh>
-  )
 }
 
 export function IslandInfo3D({ island, exiting = false }: IslandInfo3DProps) {
@@ -95,7 +41,7 @@ export function IslandInfo3D({ island, exiting = false }: IslandInfo3DProps) {
 
   const name = library?.name ?? partner?.name ?? 'Unknown'
   const tagline = library?.tagline ?? 'Partner Island'
-  const isPartner = island.type === 'partner' && partner
+  const isPartner = island.type === 'partner' && !!partner
 
   const handleClick = () => {
     if (partner?.href) {
@@ -179,68 +125,62 @@ export function IslandInfo3D({ island, exiting = false }: IslandInfo3DProps) {
           />
         </mesh>
 
-        {/* Partner logo or library name */}
-        {isPartner ? (
-          <Suspense fallback={null}>
-            <PartnerLogo partnerId={partner.id} />
-          </Suspense>
-        ) : (
-          <>
+        {/* Name */}
+        <Suspense fallback={null}>
+          <Text
+            position={[0, 0.6, 0.1]}
+            fontSize={0.4}
+            color="#FFFFFF"
+            anchorX="center"
+            anchorY="middle"
+            fontWeight={700}
+            maxWidth={4.5}
+          >
+            {name}
+          </Text>
+        </Suspense>
+
+        {/* Badge for libraries */}
+        {library?.badge && (
+          <group position={[2.2, 0.9, 0.1]}>
+            <mesh>
+              <boxGeometry args={[0.7, 0.3, 0.08]} />
+              <meshStandardMaterial color="#FFFFFF" transparent opacity={0.3} />
+            </mesh>
             <Suspense fallback={null}>
               <Text
-                position={[0, 0.6, 0.1]}
-                fontSize={0.4}
+                position={[0, 0, 0.05]}
+                fontSize={0.15}
                 color="#FFFFFF"
                 anchorX="center"
                 anchorY="middle"
-                fontWeight={700}
-                maxWidth={4.5}
+                fontWeight={600}
               >
-                {name}
+                {library.badge.toUpperCase()}
               </Text>
             </Suspense>
-
-            {library?.badge && (
-              <group position={[2.2, 0.9, 0.1]}>
-                <mesh>
-                  <boxGeometry args={[0.7, 0.3, 0.08]} />
-                  <meshStandardMaterial
-                    color="#FFFFFF"
-                    transparent
-                    opacity={0.3}
-                  />
-                </mesh>
-                <Suspense fallback={null}>
-                  <Text
-                    position={[0, 0, 0.05]}
-                    fontSize={0.15}
-                    color="#FFFFFF"
-                    anchorX="center"
-                    anchorY="middle"
-                    fontWeight={600}
-                  >
-                    {library.badge.toUpperCase()}
-                  </Text>
-                </Suspense>
-              </group>
-            )}
-
-            <Suspense fallback={null}>
-              <Text
-                position={[0, 0, 0.1]}
-                fontSize={0.18}
-                color="#FFFFFF"
-                anchorX="center"
-                anchorY="middle"
-                maxWidth={4.2}
-                textAlign="center"
-                lineHeight={1.3}
-              >
-                {hovered ? 'Click to visit docs' : tagline}
-              </Text>
-            </Suspense>
-          </>
+          </group>
         )}
+
+        {/* Tagline */}
+        <Suspense fallback={null}>
+          <Text
+            position={[0, 0, 0.1]}
+            fontSize={0.18}
+            color="#FFFFFF"
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={4.2}
+            textAlign="center"
+            lineHeight={1.3}
+          >
+            {hovered
+              ? isPartner
+                ? 'Click to visit'
+                : 'Click to visit docs'
+              : tagline}
+          </Text>
+        </Suspense>
 
         {library?.frameworks && library.frameworks.length > 0 && (
           <group position={[0, -0.7, 0]}>

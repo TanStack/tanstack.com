@@ -1,32 +1,80 @@
 import { useEffect, useState } from 'react'
-import { useGameStore } from '../hooks/useGameStore'
+import { useGameStore, type OtherPlayer } from '../hooks/useGameStore'
 import { getLibraryColor } from '../utils/colors'
 
-// Minimap dimensions - diamond shape
-const MINIMAP_WIDTH = 160
-const MINIMAP_HEIGHT = 95 // Shorter to create isometric diamond look
+// Minimap dimensions - diamond shape, responsive
+const MIN_WIDTH = 140
+const MAX_WIDTH = 280
+const ASPECT_RATIO = 0.59 // Height/Width ratio for isometric diamond
+
+function getMinimapSize() {
+  const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 800
+  const targetWidth = Math.round(screenWidth * 0.2)
+  const width = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, targetWidth))
+  const height = Math.round(width * ASPECT_RATIO)
+  return { width, height }
+}
+
+// AI territory constants (must match AISystem.ts)
+const TERRITORY_LEASH = 60
+
+interface AIShipWithHome extends OtherPlayer {
+  homePosition?: [number, number]
+}
 
 export function Minimap() {
   const { phase, islands, expandedIslands, discoveredIslands } = useGameStore()
+  const [minimapSize, setMinimapSize] = useState(getMinimapSize)
   const [boatState, setBoatState] = useState({
     x: 0,
     z: 0,
     rotation: 0,
     worldBoundary: 85,
   })
+  const [aiShips, setAiShips] = useState<AIShipWithHome[]>([])
+  const [debugMode, setDebugMode] = useState(false)
+
+  // Handle resize
+  useEffect(() => {
+    const handleResize = () => setMinimapSize(getMinimapSize())
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     if (phase !== 'playing') return
 
     const interval = setInterval(() => {
-      const { boatPosition, boatRotation, worldBoundary } =
-        useGameStore.getState()
+      const {
+        boatPosition,
+        boatRotation,
+        worldBoundary,
+        otherPlayers,
+        showCollisionDebug,
+      } = useGameStore.getState()
       setBoatState({
         x: boatPosition[0],
         z: boatPosition[2],
         rotation: boatRotation,
         worldBoundary,
       })
+      setDebugMode(showCollisionDebug)
+      // Calculate home positions based on AI index (same logic as AISystem)
+      const ais = otherPlayers
+        .filter((p) => p.isAI)
+        .map((ai, i, arr) => {
+          const sectorAngle = (i / arr.length) * Math.PI * 2
+          // Match AISystem: 40-75% of world boundary, use midpoint
+          const radius = worldBoundary * 0.575
+          return {
+            ...ai,
+            homePosition: [
+              Math.cos(sectorAngle) * radius,
+              Math.sin(sectorAngle) * radius,
+            ] as [number, number],
+          }
+        })
+      setAiShips(ais)
     }, 50)
 
     return () => clearInterval(interval)
@@ -34,36 +82,26 @@ export function Minimap() {
 
   if (phase !== 'playing') return null
 
+  const { width: W, height: H } = minimapSize
+
   // All islands (core + expanded)
   const allIslands = [...islands, ...expandedIslands]
 
   // Convert world position to isometric minimap position
-  // Camera is at (+X, +Y, +Z) looking toward origin, so:
-  // - Moving +X in world = moving right on screen
-  // - Moving +Z in world = moving down-left on screen
-  // For isometric: we rotate 45 degrees and squash vertically
   const worldToMinimap = (worldX: number, worldZ: number) => {
-    // Normalize to -1 to 1 based on current world boundary
     const nx = worldX / boatState.worldBoundary
     const nz = worldZ / boatState.worldBoundary
 
-    // Isometric projection (rotate 45 degrees)
-    // Screen X = worldX - worldZ (diagonal)
-    // Screen Y = (worldX + worldZ) / 2 (compressed depth)
     const isoX = (nx - nz) * 0.5
     const isoY = (nx + nz) * 0.5
 
-    // Map to minimap coordinates (center is middle of minimap)
     return {
-      x: MINIMAP_WIDTH / 2 + isoX * (MINIMAP_WIDTH / 2) * 0.9,
-      y: MINIMAP_HEIGHT / 2 + isoY * (MINIMAP_HEIGHT / 2) * 0.9,
+      x: W / 2 + isoX * (W / 2) * 0.9,
+      y: H / 2 + isoY * (H / 2) * 0.9,
     }
   }
 
   const boatPos = worldToMinimap(boatState.x, boatState.z)
-
-  // Arrow rotation: convert world rotation to screen rotation
-  // Boat rotation 0 = facing +Z = down-left in isometric view
   const arrowRotation = -boatState.rotation * (180 / Math.PI) + 225
 
   const discoveredIslandsList = allIslands.filter((island) =>
@@ -71,21 +109,17 @@ export function Minimap() {
   )
 
   // Diamond path for background
-  const diamondPath = `M ${MINIMAP_WIDTH / 2} 2 L ${MINIMAP_WIDTH - 2} ${MINIMAP_HEIGHT / 2} L ${MINIMAP_WIDTH / 2} ${MINIMAP_HEIGHT - 2} L 2 ${MINIMAP_HEIGHT / 2} Z`
+  const diamondPath = `M ${W / 2} 2 L ${W - 2} ${H / 2} L ${W / 2} ${H - 2} L 2 ${H / 2} Z`
+
+  // Scale factors for elements based on minimap size
+  const scale = W / 160
 
   return (
     <div
       className="absolute bottom-4 left-4 z-10 pointer-events-none"
-      style={{
-        width: MINIMAP_WIDTH,
-        height: MINIMAP_HEIGHT,
-      }}
+      style={{ width: W, height: H }}
     >
-      <svg
-        width={MINIMAP_WIDTH}
-        height={MINIMAP_HEIGHT}
-        style={{ overflow: 'visible' }}
-      >
+      <svg width={W} height={H} style={{ overflow: 'visible' }}>
         {/* Background diamond */}
         <path
           d={diamondPath}
@@ -102,6 +136,37 @@ export function Minimap() {
         </defs>
 
         <g clipPath="url(#diamond-clip)">
+          {/* Debug: AI territory leash boundaries */}
+          {debugMode &&
+            aiShips.map((ai) => {
+              if (!ai.homePosition) return null
+              const homePos = worldToMinimap(
+                ai.homePosition[0],
+                ai.homePosition[1],
+              )
+              // Convert leash radius to minimap scale
+              const leashRadiusNormalized =
+                TERRITORY_LEASH / boatState.worldBoundary
+              // Isometric ellipse (squashed vertically)
+              const rx = leashRadiusNormalized * (W / 2) * 0.9 * 0.5
+              const ry = leashRadiusNormalized * (H / 2) * 0.9 * 0.5
+              return (
+                <ellipse
+                  key={`leash-${ai.id}`}
+                  cx={homePos.x}
+                  cy={homePos.y}
+                  rx={rx}
+                  ry={ry}
+                  fill="none"
+                  stroke={ai.color || '#e74c3c'}
+                  strokeWidth={1}
+                  strokeDasharray="3,2"
+                  opacity={0.5}
+                  transform={`rotate(45, ${homePos.x}, ${homePos.y})`}
+                />
+              )
+            })}
+
           {/* Discovered islands */}
           {discoveredIslandsList.map((island) => {
             const pos = worldToMinimap(island.position[0], island.position[2])
@@ -111,7 +176,7 @@ export function Minimap() {
                 : island.type === 'partner'
                   ? '#f59e0b'
                   : '#8b5cf6'
-            const size = 1.5 + island.scale * 1
+            const size = (1.5 + island.scale * 1) * scale
 
             return (
               <circle
@@ -125,9 +190,48 @@ export function Minimap() {
             )
           })}
 
+          {/* Debug: AI home positions */}
+          {debugMode &&
+            aiShips.map((ai) => {
+              if (!ai.homePosition) return null
+              const homePos = worldToMinimap(
+                ai.homePosition[0],
+                ai.homePosition[1],
+              )
+              return (
+                <circle
+                  key={`home-${ai.id}`}
+                  cx={homePos.x}
+                  cy={homePos.y}
+                  r={3 * scale}
+                  fill={ai.color || '#e74c3c'}
+                  opacity={0.3}
+                />
+              )
+            })}
+
+          {/* AI ships */}
+          {aiShips.map((ai) => {
+            const pos = worldToMinimap(ai.position[0], ai.position[2])
+            const rotation = -ai.rotation * (180 / Math.PI) + 225
+            return (
+              <g
+                key={ai.id}
+                transform={`translate(${pos.x}, ${pos.y}) rotate(${rotation}) scale(${scale})`}
+              >
+                <polygon
+                  points="0,-4 3,3 0,1.5 -3,3"
+                  fill={ai.color || '#e74c3c'}
+                  stroke="white"
+                  strokeWidth={1}
+                />
+              </g>
+            )
+          })}
+
           {/* Boat arrow */}
           <g
-            transform={`translate(${boatPos.x}, ${boatPos.y}) rotate(${arrowRotation})`}
+            transform={`translate(${boatPos.x}, ${boatPos.y}) rotate(${arrowRotation}) scale(${scale})`}
           >
             <polygon
               points="0,-4 2.5,3 0,1.5 -2.5,3"
@@ -137,6 +241,11 @@ export function Minimap() {
             />
           </g>
         </g>
+
+        {/* Debug: show AI count and world boundary */}
+        <text x={5} y={12} fill="yellow" fontSize={8 * scale}>
+          AI: {aiShips.length} | WB: {boatState.worldBoundary}
+        </text>
       </svg>
     </div>
   )

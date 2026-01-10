@@ -1,4 +1,5 @@
 import type { IslandData } from './islandGenerator'
+import type { OtherPlayer } from '../hooks/useGameStore'
 
 export interface RockCollider {
   position: [number, number]
@@ -66,8 +67,35 @@ export function generateRockColliders(
   return colliders
 }
 
-// Check if a position collides with any island
-// Returns gentle push force to repel boat away
+// Simple 2D circle collision check
+// Returns push vector if colliding
+function checkCircle(
+  x: number,
+  z: number,
+  centerX: number,
+  centerZ: number,
+  radius: number,
+  boatRadius: number,
+): { pushX: number; pushZ: number } | null {
+  const dx = x - centerX
+  const dz = z - centerZ
+  const distSq = dx * dx + dz * dz
+  const minDist = radius + boatRadius
+
+  if (distSq < minDist * minDist && distSq > 0) {
+    const dist = Math.sqrt(distSq)
+    const overlap = minDist - dist
+    const pushStrength = overlap * 0.15
+    return {
+      pushX: (dx / dist) * pushStrength,
+      pushZ: (dz / dist) * pushStrength,
+    }
+  }
+  return null
+}
+
+// Check if a position collides with any island (main body + lobes)
+// Uses precomputed collision data from IslandData
 export function checkIslandCollision(
   x: number,
   z: number,
@@ -79,26 +107,38 @@ export function checkIslandCollision(
   let collides = false
 
   for (const island of islands) {
-    const dx = x - island.position[0]
-    const dz = z - island.position[2]
-    const dist = Math.sqrt(dx * dx + dz * dz)
+    const [ix, , iz] = island.position
 
-    // Island collision radius - base size plus scaling factor
-    // Smaller islands get relatively larger hitboxes to be more consistent
-    const baseRadius = 2.5
-    const scaleBonus = island.scale * island.elongation * 1.5
-    const islandRadius = baseRadius + scaleBonus
-    const minDist = islandRadius + boatRadius
-
-    if (dist < minDist && dist > 0) {
+    // Main island - uses precomputed collisionRadius
+    const mainPush = checkCircle(
+      x,
+      z,
+      ix,
+      iz,
+      island.collisionRadius,
+      boatRadius,
+    )
+    if (mainPush) {
       collides = true
-      // Gentle, smooth push - scaled by how deep inside
-      const overlap = minDist - dist
-      const pushStrength = overlap * 0.15 // Gentle multiplier
-      const nx = dx / dist
-      const nz = dz / dist
-      totalPushX += nx * pushStrength
-      totalPushZ += nz * pushStrength
+      totalPushX += mainPush.pushX
+      totalPushZ += mainPush.pushZ
+    }
+
+    // Lobes - use precomputed worldX, worldZ, collisionRadius
+    for (const lobe of island.lobes) {
+      const lobePush = checkCircle(
+        x,
+        z,
+        lobe.worldX,
+        lobe.worldZ,
+        lobe.collisionRadius,
+        boatRadius,
+      )
+      if (lobePush) {
+        collides = true
+        totalPushX += lobePush.pushX
+        totalPushZ += lobePush.pushZ
+      }
     }
   }
 
@@ -126,13 +166,62 @@ export function checkRockCollision(
 
     if (dist < minDist && dist > 0) {
       collides = true
-      // Gentle, smooth push
       const overlap = minDist - dist
-      const pushStrength = overlap * 0.2 // Gentle multiplier
+      const pushStrength = overlap * 0.2
       const nx = dx / dist
       const nz = dz / dist
       totalPushX += nx * pushStrength
       totalPushZ += nz * pushStrength
+    }
+  }
+
+  return { collides, pushX: totalPushX, pushZ: totalPushZ }
+}
+
+// Check ship-to-ship collision
+// Used for AI ships colliding with player and other AI ships
+export function checkShipCollision(
+  x: number,
+  z: number,
+  shipRadius: number,
+  playerPosition: [number, number, number],
+  playerRadius: number,
+  otherShips: OtherPlayer[],
+  excludeId?: string,
+): { collides: boolean; pushX: number; pushZ: number } {
+  let totalPushX = 0
+  let totalPushZ = 0
+  let collides = false
+
+  // Check collision with player
+  const dxPlayer = x - playerPosition[0]
+  const dzPlayer = z - playerPosition[2]
+  const distPlayer = Math.sqrt(dxPlayer * dxPlayer + dzPlayer * dzPlayer)
+  const minDistPlayer = shipRadius + playerRadius
+
+  if (distPlayer < minDistPlayer && distPlayer > 0) {
+    collides = true
+    const overlap = minDistPlayer - distPlayer
+    const pushStrength = overlap * 0.2
+    totalPushX += (dxPlayer / distPlayer) * pushStrength
+    totalPushZ += (dzPlayer / distPlayer) * pushStrength
+  }
+
+  // Check collision with other AI ships
+  for (const ship of otherShips) {
+    if (ship.id === excludeId) continue
+
+    const dx = x - ship.position[0]
+    const dz = z - ship.position[2]
+    const dist = Math.sqrt(dx * dx + dz * dz)
+    const minDist = shipRadius * 2 // Both ships have same radius
+
+    if (dist < minDist && dist > 0) {
+      collides = true
+      const overlap = minDist - dist
+      const pushStrength = overlap * 0.15
+      totalPushX += (dx / dist) * pushStrength
+      totalPushZ += (dz / dist) * pushStrength
     }
   }
 

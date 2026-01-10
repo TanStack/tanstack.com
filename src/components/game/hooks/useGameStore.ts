@@ -20,6 +20,9 @@ export type BoatType = 'dinghy' | 'ship'
 export type GameStage = 'exploration' | 'battle'
 
 // Other players/AI in the world
+// AI difficulty tier (affects stats)
+export type AIDifficulty = 'easy' | 'medium' | 'hard' | 'elite'
+
 export interface OtherPlayer {
   id: string
   isAI: boolean
@@ -29,6 +32,8 @@ export interface OtherPlayer {
   boatType: BoatType
   color: string
   health: number
+  maxHealth?: number // For AI ships
+  difficulty?: AIDifficulty // For AI ships
 }
 
 // Cannonball projectile
@@ -153,6 +158,10 @@ interface GameState {
   setCompassTarget: (island: IslandData | null) => void
   clearCompassOnDiscover: (islandId: string) => void
 
+  // Debug
+  showCollisionDebug: boolean
+  setShowCollisionDebug: (show: boolean) => void
+
   // Upgrade to ship (called when all core islands discovered)
   upgradeToShip: () => void
 
@@ -201,6 +210,7 @@ const initialState = {
   isShopOpen: false,
   compassTarget: null as IslandData | null,
   speedBoostEndTime: null as number | null,
+  showCollisionDebug: false,
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -311,6 +321,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
+
+  setShowCollisionDebug: (show) => set({ showCollisionDebug: show }),
 
   setBoundaryEdges: (boundaryEdges) => set({ boundaryEdges }),
 

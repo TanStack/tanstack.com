@@ -15,7 +15,6 @@ import {
   or,
   sql,
   desc,
-  asc,
   inArray,
   arrayContains,
   isNotNull,
@@ -23,18 +22,19 @@ import {
 import { getAuthenticatedUser } from './auth.server-helpers'
 import {
   requireModerateShowcases,
-  validateShowcaseOwnership,
-  checkPendingSubmissionLimit,
   expandLibraryDependencies,
   isValidUrl,
+  validLibraryIds,
+  // Core operations
+  submitShowcaseCore,
+  updateShowcaseCore,
+  deleteShowcaseCore,
+  getMyShowcasesCore,
+  searchShowcasesCore,
+  getShowcaseCore,
 } from './showcase.server'
-import { libraries } from '~/libraries'
 import { getTrancoRank } from './tranco.server'
-import { notifyModerators, formatShowcaseSubmittedEmail } from './email.server'
 import { showcaseUseCaseSchema, showcaseStatusSchema } from './schemas'
-
-// Valid library IDs for validation
-const validLibraryIds = libraries.map((lib) => lib.id)
 
 /**
  * Submit a new showcase
@@ -74,50 +74,8 @@ export const submitShowcase = createServerFn({ method: 'POST' })
       throw new Error('Authentication required')
     }
 
-    // Check pending submission limit
-    const limitReached = await checkPendingSubmissionLimit(user.userId)
-    if (limitReached) {
-      throw new Error(
-        'You have reached the limit of 5 pending submissions. Please wait for existing submissions to be reviewed.',
-      )
-    }
-
-    // Validate URL format
-    if (!isValidUrl(data.url)) {
-      throw new Error('Invalid URL format')
-    }
-
-    if (data.logoUrl && !isValidUrl(data.logoUrl)) {
-      throw new Error('Invalid logo URL format')
-    }
-
-    if (!isValidUrl(data.screenshotUrl)) {
-      throw new Error('Invalid screenshot URL format')
-    }
-
-    if (data.sourceUrl && !isValidUrl(data.sourceUrl)) {
-      throw new Error('Invalid source code URL format')
-    }
-
-    // Validate library IDs
-    const invalidLibraries = data.libraries.filter(
-      (lib) => !validLibraryIds.includes(lib as any),
-    )
-    if (invalidLibraries.length > 0) {
-      throw new Error(`Invalid library IDs: ${invalidLibraries.join(', ')}`)
-    }
-
-    // Expand library dependencies (e.g., Start includes Router)
-    const expandedLibraries = expandLibraryDependencies(data.libraries)
-
-    // Fetch Tranco rank for popularity sorting
-    const trancoRank = await getTrancoRank(data.url)
-
-    // Create showcase
-    const [newShowcase] = await db
-      .insert(showcases)
-      .values({
-        userId: user.userId,
+    const result = await submitShowcaseCore(
+      {
         name: data.name,
         tagline: data.tagline,
         description: data.description,
@@ -125,48 +83,15 @@ export const submitShowcase = createServerFn({ method: 'POST' })
         logoUrl: data.logoUrl,
         screenshotUrl: data.screenshotUrl,
         sourceUrl: data.sourceUrl,
-        libraries: expandedLibraries,
-        useCases: data.useCases as ShowcaseUseCase[],
-        status: 'pending',
-        trancoRank,
-        trancoRankUpdatedAt: trancoRank ? new Date() : null,
-      })
-      .returning()
-
-    // Log the creation
-    await db.insert(auditLogs).values({
-      actorId: user.userId,
-      action: 'showcase.create',
-      targetType: 'showcase',
-      targetId: newShowcase.id,
-      details: {
-        name: data.name,
-        url: data.url,
-        libraries: expandedLibraries,
+        libraries: data.libraries,
+        useCases: data.useCases ?? [],
       },
-    })
-
-    // Notify admin of new submission
-    const userRecord = await db
-      .select({ name: users.name })
-      .from(users)
-      .where(eq(users.id, user.userId))
-      .limit(1)
-
-    notifyModerators({
-      capability: 'moderate-showcases',
-      ...formatShowcaseSubmittedEmail({
-        name: data.name,
-        url: data.url,
-        tagline: data.tagline,
-        libraries: expandedLibraries,
-        userName: userRecord[0]?.name || undefined,
-      }),
-    })
+      { userId: user.userId, source: 'web' },
+    )
 
     return {
       success: true,
-      showcaseId: newShowcase.id,
+      showcaseId: result.id,
     }
   })
 
@@ -209,92 +134,21 @@ export const updateShowcase = createServerFn({ method: 'POST' })
       throw new Error('Authentication required')
     }
 
-    // Validate ownership
-    await validateShowcaseOwnership(data.showcaseId, user.userId)
-
-    // Validate URL format
-    if (!isValidUrl(data.url)) {
-      throw new Error('Invalid URL format')
-    }
-
-    if (data.logoUrl && !isValidUrl(data.logoUrl)) {
-      throw new Error('Invalid logo URL format')
-    }
-
-    if (!isValidUrl(data.screenshotUrl)) {
-      throw new Error('Invalid screenshot URL format')
-    }
-
-    if (data.sourceUrl && !isValidUrl(data.sourceUrl)) {
-      throw new Error('Invalid source code URL format')
-    }
-
-    // Validate library IDs
-    const invalidLibraries = data.libraries.filter(
-      (lib) => !validLibraryIds.includes(lib as any),
-    )
-    if (invalidLibraries.length > 0) {
-      throw new Error(`Invalid library IDs: ${invalidLibraries.join(', ')}`)
-    }
-
-    // Expand library dependencies
-    const expandedLibraries = expandLibraryDependencies(data.libraries)
-
-    // Get existing showcase for audit log and URL comparison
-    const existing = await db
-      .select()
-      .from(showcases)
-      .where(eq(showcases.id, data.showcaseId))
-      .limit(1)
-
-    // Re-fetch Tranco rank if URL changed
-    const urlChanged = existing[0]?.url !== data.url
-    const trancoRank = urlChanged
-      ? await getTrancoRank(data.url)
-      : existing[0]?.trancoRank
-
-    // Update showcase - edits reset to pending
-    await db
-      .update(showcases)
-      .set({
+    return await updateShowcaseCore(
+      {
+        showcaseId: data.showcaseId,
         name: data.name,
         tagline: data.tagline,
         description: data.description,
         url: data.url,
         logoUrl: data.logoUrl,
         screenshotUrl: data.screenshotUrl,
-        sourceUrl: data.sourceUrl ?? null,
-        libraries: expandedLibraries,
-        useCases: data.useCases as ShowcaseUseCase[],
-        status: 'pending',
-        moderatedBy: null,
-        moderatedAt: null,
-        moderationNote: null,
-        updatedAt: new Date(),
-        ...(urlChanged && {
-          trancoRank,
-          trancoRankUpdatedAt: trancoRank ? new Date() : null,
-        }),
-      })
-      .where(eq(showcases.id, data.showcaseId))
-
-    // Log the update
-    await db.insert(auditLogs).values({
-      actorId: user.userId,
-      action: 'showcase.update',
-      targetType: 'showcase',
-      targetId: data.showcaseId,
-      details: {
-        before: existing[0],
-        after: {
-          name: data.name,
-          url: data.url,
-          libraries: expandedLibraries,
-        },
+        sourceUrl: data.sourceUrl,
+        libraries: data.libraries,
+        useCases: data.useCases ?? [],
       },
-    })
-
-    return { success: true }
+      { userId: user.userId, source: 'web' },
+    )
   })
 
 /**
@@ -309,29 +163,10 @@ export const deleteShowcase = createServerFn({ method: 'POST' })
       throw new Error('Authentication required')
     }
 
-    // Validate ownership
-    await validateShowcaseOwnership(data.showcaseId, user.userId)
-
-    // Get existing for audit log
-    const existing = await db
-      .select()
-      .from(showcases)
-      .where(eq(showcases.id, data.showcaseId))
-      .limit(1)
-
-    // Delete showcase
-    await db.delete(showcases).where(eq(showcases.id, data.showcaseId))
-
-    // Log the deletion
-    await db.insert(auditLogs).values({
-      actorId: user.userId,
-      action: 'showcase.delete',
-      targetType: 'showcase',
-      targetId: data.showcaseId,
-      details: { deleted: existing[0] },
+    return await deleteShowcaseCore(data.showcaseId, {
+      userId: user.userId,
+      source: 'web',
     })
-
-    return { success: true }
   })
 
 /**
@@ -353,35 +188,10 @@ export const getMyShowcases = createServerFn({ method: 'POST' })
       throw new Error('Authentication required')
     }
 
-    const { page, pageSize } = data.pagination
-
-    // Get total count
-    const [countResult] = await db
-      .select({ count: sql<number>`COUNT(*)::int` })
-      .from(showcases)
-      .where(eq(showcases.userId, user.userId))
-
-    const total = countResult?.count ?? 0
-
-    // Get paginated results
-    const offset = (page - 1) * pageSize
-    const showcaseList = await db
-      .select()
-      .from(showcases)
-      .where(eq(showcases.userId, user.userId))
-      .orderBy(desc(showcases.createdAt))
-      .limit(pageSize)
-      .offset(offset)
-
-    return {
-      showcases: showcaseList,
-      pagination: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.ceil(total / pageSize),
-      },
-    }
+    return await getMyShowcasesCore({
+      userId: user.userId,
+      pagination: data.pagination,
+    })
   })
 
 /**
@@ -406,96 +216,10 @@ export const getApprovedShowcases = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    const { page, pageSize } = data.pagination
-    const filters = data.filters ?? {}
-
-    // Build where conditions
-    const conditions = [eq(showcases.status, 'approved' as ShowcaseStatus)]
-
-    if (filters.libraryIds && filters.libraryIds.length > 0) {
-      // Match showcases that have ANY of the selected libraries
-      conditions.push(
-        or(
-          ...filters.libraryIds.map((libId) =>
-            arrayContains(showcases.libraries, [libId]),
-          ),
-        )!,
-      )
-    }
-
-    if (filters.useCases && filters.useCases.length > 0) {
-      // Match any of the selected use cases using array overlap operator
-      // Need to cast the array properly for PostgreSQL
-      conditions.push(
-        sql`${showcases.useCases} && ARRAY[${sql.join(
-          filters.useCases.map((uc) => sql`${uc}`),
-          sql`, `,
-        )}]::showcase_use_case[]`,
-      )
-    }
-
-    if (filters.featured !== undefined) {
-      conditions.push(eq(showcases.isFeatured, filters.featured))
-    }
-
-    if (filters.hasSourceCode === true) {
-      conditions.push(isNotNull(showcases.sourceUrl))
-    }
-
-    if (filters.q && filters.q.trim()) {
-      const searchTerm = `%${filters.q.trim().toLowerCase()}%`
-      conditions.push(
-        sql`(
-          LOWER(${showcases.name}) LIKE ${searchTerm} OR
-          LOWER(${showcases.tagline}) LIKE ${searchTerm} OR
-          LOWER(COALESCE(${showcases.description}, '')) LIKE ${searchTerm} OR
-          LOWER(${showcases.url}) LIKE ${searchTerm}
-        )`,
-      )
-    }
-
-    const whereClause = and(...conditions)
-
-    // Get total count
-    const [countResult] = await db
-      .select({ count: sql<number>`COUNT(*)::int` })
-      .from(showcases)
-      .where(whereClause)
-
-    const total = countResult?.count ?? 0
-
-    // Get paginated results with user info
-    const offset = (page - 1) * pageSize
-    const showcaseList = await db
-      .select({
-        showcase: showcases,
-        user: {
-          id: users.id,
-          name: users.name,
-          image: users.image,
-        },
-      })
-      .from(showcases)
-      .leftJoin(users, eq(showcases.userId, users.id))
-      .where(whereClause)
-      .orderBy(
-        desc(showcases.isFeatured),
-        desc(showcases.voteScore),
-        sql`${showcases.trancoRank} ASC NULLS LAST`,
-        desc(showcases.createdAt),
-      )
-      .limit(pageSize)
-      .offset(offset)
-
-    return {
-      showcases: showcaseList,
-      pagination: {
-        page,
-        pageSize,
-        total,
-        totalPages: Math.ceil(total / pageSize),
-      },
-    }
+    return await searchShowcasesCore({
+      pagination: data.pagination,
+      filters: data.filters,
+    })
   })
 
 /**
@@ -509,32 +233,11 @@ export const getShowcasesByLibrary = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    const showcaseList = await db
-      .select({
-        showcase: showcases,
-        user: {
-          id: users.id,
-          name: users.name,
-          image: users.image,
-        },
-      })
-      .from(showcases)
-      .leftJoin(users, eq(showcases.userId, users.id))
-      .where(
-        and(
-          eq(showcases.status, 'approved' as ShowcaseStatus),
-          arrayContains(showcases.libraries, [data.libraryId]),
-        ),
-      )
-      .orderBy(
-        desc(showcases.isFeatured),
-        desc(showcases.voteScore),
-        sql`${showcases.trancoRank} ASC NULLS LAST`,
-        desc(showcases.createdAt),
-      )
-      .limit(data.limit)
-
-    return { showcases: showcaseList }
+    const result = await searchShowcasesCore({
+      filters: { libraryIds: [data.libraryId] },
+      pagination: { page: 1, pageSize: data.limit },
+    })
+    return { showcases: result.showcases }
   })
 
 /**
@@ -548,28 +251,10 @@ export const getFeaturedShowcases = createServerFn({ method: 'POST' })
     }),
   )
   .handler(async ({ data }) => {
-    // Get approved showcases, prioritizing featured ones, then by popularity
-    const showcaseList = await db
-      .select({
-        showcase: showcases,
-        user: {
-          id: users.id,
-          name: users.name,
-          image: users.image,
-        },
-      })
-      .from(showcases)
-      .leftJoin(users, eq(showcases.userId, users.id))
-      .where(eq(showcases.status, 'approved' as ShowcaseStatus))
-      .orderBy(
-        desc(showcases.isFeatured),
-        desc(showcases.voteScore),
-        sql`${showcases.trancoRank} ASC NULLS LAST`,
-        desc(showcases.createdAt),
-      )
-      .limit(data.limit)
-
-    return { showcases: showcaseList }
+    const result = await searchShowcasesCore({
+      pagination: { page: 1, pageSize: data.limit },
+    })
+    return { showcases: result.showcases }
   })
 
 /**
@@ -786,33 +471,7 @@ export const getShowcase = createServerFn({ method: 'POST' })
       // User not authenticated, that's okay for approved showcases
     }
 
-    const [result] = await db
-      .select({
-        showcase: showcases,
-        user: {
-          id: users.id,
-          name: users.name,
-          image: users.image,
-        },
-      })
-      .from(showcases)
-      .leftJoin(users, eq(showcases.userId, users.id))
-      .where(eq(showcases.id, data.showcaseId))
-      .limit(1)
-
-    if (!result) {
-      throw new Error('Showcase not found')
-    }
-
-    // Check access: public if approved, or owner can see their own
-    if (
-      result.showcase.status !== 'approved' &&
-      result.showcase.userId !== user?.userId
-    ) {
-      throw new Error('Showcase not found')
-    }
-
-    return { showcase: result.showcase, user: result.user }
+    return await getShowcaseCore(data.showcaseId, { userId: user?.userId })
   })
 
 /**
@@ -905,7 +564,7 @@ export const adminUpdateShowcase = createServerFn({ method: 'POST' })
 
     // Validate library IDs
     const invalidLibraries = data.libraries.filter(
-      (lib) => !validLibraryIds.includes(lib as any),
+      (lib) => !validLibraryIds.includes(lib),
     )
     if (invalidLibraries.length > 0) {
       throw new Error(`Invalid library IDs: ${invalidLibraries.join(', ')}`)

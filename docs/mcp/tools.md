@@ -3,7 +3,9 @@ id: tools
 title: Available Tools
 ---
 
-The TanStack MCP Server exposes three tools for accessing documentation. Each tool is designed for a specific use case.
+The TanStack MCP Server exposes tools for accessing documentation and managing showcase submissions.
+
+## Documentation Tools
 
 ## list_libraries
 
@@ -141,3 +143,201 @@ Search results include URLs that reveal the documentation path structure. For ex
 
 - Library: `query`
 - Path: `framework/react/guides/queries`
+
+---
+
+## Showcase Tools
+
+These tools allow you to interact with the TanStack showcase, a gallery of projects built with TanStack libraries.
+
+### search_showcases
+
+Search approved showcase projects. No authentication required.
+
+#### Parameters
+
+| Parameter       | Type     | Required | Description                                                  |
+| --------------- | -------- | -------- | ------------------------------------------------------------ |
+| `query`         | string   | No       | Text search across name, tagline, description, and URL       |
+| `libraryIds`    | string[] | No       | Filter by TanStack library IDs (e.g., `["query", "router"]`) |
+| `useCases`      | string[] | No       | Filter by use cases (e.g., `["saas", "dashboard"]`)          |
+| `hasSourceCode` | boolean  | No       | Filter to only open source projects                          |
+| `featured`      | boolean  | No       | Filter to only featured projects                             |
+| `limit`         | number   | No       | Max results (default: 20, max: 100)                          |
+| `offset`        | number   | No       | Pagination offset (default: 0)                               |
+
+#### Valid Library IDs
+
+`query`, `router`, `start`, `table`, `form`, `virtual`, `ranger`, `store`, `pacer`, `db`, `ai`, `config`, `devtools`
+
+#### Valid Use Cases
+
+`blog`, `e-commerce`, `saas`, `dashboard`, `documentation`, `portfolio`, `social`, `developer-tool`, `marketing`, `media`
+
+#### Example
+
+```json
+{
+  "name": "search_showcases",
+  "arguments": {
+    "libraryIds": ["query", "router"],
+    "useCases": ["saas"],
+    "limit": 10
+  }
+}
+```
+
+---
+
+### get_showcase
+
+Get details of a specific showcase project by ID.
+
+#### Parameters
+
+| Parameter | Type   | Required | Description   |
+| --------- | ------ | -------- | ------------- |
+| `id`      | string | Yes      | Showcase UUID |
+
+#### Example
+
+```json
+{
+  "name": "get_showcase",
+  "arguments": {
+    "id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+---
+
+### submit_showcase
+
+Submit a new project to the TanStack showcase. **Requires authentication.** Submissions are reviewed by moderators before appearing publicly.
+
+#### Parameters
+
+| Parameter       | Type     | Required | Description                            |
+| --------------- | -------- | -------- | -------------------------------------- |
+| `name`          | string   | Yes      | Project name (max 255 characters)      |
+| `tagline`       | string   | Yes      | Short description (max 500 characters) |
+| `description`   | string   | No       | Full description                       |
+| `url`           | string   | Yes      | Project URL                            |
+| `screenshotUrl` | string   | Yes      | Screenshot URL                         |
+| `sourceUrl`     | string   | No       | Source code URL (GitHub, etc.)         |
+| `logoUrl`       | string   | No       | Logo URL                               |
+| `libraries`     | string[] | Yes      | TanStack library IDs used              |
+| `useCases`      | string[] | Yes      | Use case categories                    |
+
+#### Example
+
+```json
+{
+  "name": "submit_showcase",
+  "arguments": {
+    "name": "My Awesome App",
+    "tagline": "A dashboard built with TanStack Query and Router",
+    "url": "https://myapp.com",
+    "screenshotUrl": "https://myapp.com/screenshot.png",
+    "sourceUrl": "https://github.com/user/myapp",
+    "libraries": ["query", "router"],
+    "useCases": ["dashboard", "saas"]
+  }
+}
+```
+
+---
+
+### update_showcase
+
+Update an existing showcase submission. **Requires authentication and ownership.** Updates reset the showcase to pending review.
+
+#### Parameters
+
+| Parameter       | Type     | Required | Description                      |
+| --------------- | -------- | -------- | -------------------------------- |
+| `id`            | string   | Yes      | Showcase UUID to update          |
+| `name`          | string   | Yes      | Project name                     |
+| `tagline`       | string   | Yes      | Short description                |
+| `description`   | string   | No       | Full description                 |
+| `url`           | string   | Yes      | Project URL                      |
+| `screenshotUrl` | string   | Yes      | Screenshot URL                   |
+| `sourceUrl`     | string   | No       | Source code URL (null to remove) |
+| `logoUrl`       | string   | No       | Logo URL (null to remove)        |
+| `libraries`     | string[] | Yes      | TanStack library IDs             |
+| `useCases`      | string[] | Yes      | Use case categories              |
+
+#### Example
+
+```json
+{
+  "name": "update_showcase",
+  "arguments": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "My Updated App",
+    "tagline": "Now with TanStack Form!",
+    "url": "https://myapp.com",
+    "screenshotUrl": "https://myapp.com/new-screenshot.png",
+    "libraries": ["query", "router", "form"],
+    "useCases": ["dashboard", "saas"]
+  }
+}
+```
+
+---
+
+### delete_showcase
+
+Delete a showcase submission. **Requires authentication and ownership.**
+
+#### Parameters
+
+| Parameter | Type   | Required | Description             |
+| --------- | ------ | -------- | ----------------------- |
+| `id`      | string | Yes      | Showcase UUID to delete |
+
+#### Example
+
+```json
+{
+  "name": "delete_showcase",
+  "arguments": {
+    "id": "550e8400-e29b-41d4-a716-446655440000"
+  }
+}
+```
+
+---
+
+### list_my_showcases
+
+List your own showcase submissions. **Requires authentication.** Returns all your submissions including pending and denied ones.
+
+#### Parameters
+
+| Parameter | Type   | Required | Description                                       |
+| --------- | ------ | -------- | ------------------------------------------------- |
+| `status`  | string | No       | Filter by status: `pending`, `approved`, `denied` |
+| `limit`   | number | No       | Max results (default: 20, max: 100)               |
+| `offset`  | number | No       | Pagination offset (default: 0)                    |
+
+#### Example
+
+```json
+{
+  "name": "list_my_showcases",
+  "arguments": {
+    "status": "pending",
+    "limit": 10
+  }
+}
+```
+
+---
+
+## Rate Limits
+
+- **Read operations** (documentation, search): 60 requests per minute
+- **Write operations** (submit, update, delete): 10 requests per hour
+- **Pending submission limit**: Maximum 5 pending submissions per user

@@ -1,19 +1,10 @@
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js'
-import { createMcpServer } from './server'
+import { createMcpServer, type McpAuthContext } from './server'
 import {
   validateApiKey,
   checkRateLimit,
   cleanupRateLimits,
 } from './auth.server'
-
-// Check if auth is enabled (defaults based on NODE_ENV)
-function isAuthEnabled(): boolean {
-  const env = process.env.MCP_AUTH_ENABLED
-  if (env === 'true' || env === '1') return true
-  if (env === 'false' || env === '0') return false
-  // Default: disabled in dev, enabled in prod
-  return process.env.NODE_ENV === 'production'
-}
 
 /**
  * Create a JSON-RPC error response
@@ -41,60 +32,55 @@ function jsonRpcError(
 }
 
 export async function handleMcpRequest(request: Request): Promise<Response> {
-  const authEnabled = isAuthEnabled()
+  // Validate auth
+  const authHeader = request.headers.get('Authorization')
 
-  let rateLimitIdentifier: string | undefined
-  let rateLimitPerMinute: number | undefined
-
-  if (authEnabled) {
-    const authHeader = request.headers.get('Authorization')
-
-    if (!authHeader) {
-      return jsonRpcError(
-        -32001,
-        'Authentication required. Get an API key at https://tanstack.com/account/api-keys',
-        401,
-      )
-    }
-
-    // Validate API key
-    const authResult = await validateApiKey(authHeader)
-
-    if (!authResult.success) {
-      return jsonRpcError(-32001, authResult.error, authResult.status)
-    }
-
-    rateLimitIdentifier = authResult.keyId
-    rateLimitPerMinute = authResult.rateLimitPerMinute
-
-    // Check rate limit
-    const rateLimit = await checkRateLimit(
-      rateLimitIdentifier,
-      'api_key',
-      rateLimitPerMinute,
+  if (!authHeader) {
+    return jsonRpcError(
+      -32001,
+      'Authentication required. Get an API key at https://tanstack.com/account/api-keys',
+      401,
     )
+  }
 
-    if (!rateLimit.allowed) {
-      return jsonRpcError(-32002, 'Rate limit exceeded', 429, {
-        'X-RateLimit-Limit': rateLimitPerMinute.toString(),
-        'X-RateLimit-Remaining': '0',
-        'X-RateLimit-Reset': Math.floor(
-          rateLimit.resetAt.getTime() / 1000,
-        ).toString(),
-        'Retry-After': Math.ceil(
-          (rateLimit.resetAt.getTime() - Date.now()) / 1000,
-        ).toString(),
-      })
-    }
+  const authResult = await validateApiKey(authHeader)
 
-    // Periodically cleanup old rate limit records (1% chance per request)
-    if (Math.random() < 0.01) {
-      cleanupRateLimits().catch(() => {})
-    }
+  if (!authResult.success) {
+    return jsonRpcError(-32001, authResult.error, authResult.status)
+  }
+
+  const authContext: McpAuthContext = {
+    userId: authResult.userId,
+    keyId: authResult.keyId,
+  }
+
+  // Check rate limit
+  const rateLimit = await checkRateLimit(
+    authResult.keyId,
+    'api_key',
+    authResult.rateLimitPerMinute,
+  )
+
+  if (!rateLimit.allowed) {
+    return jsonRpcError(-32002, 'Rate limit exceeded', 429, {
+      'X-RateLimit-Limit': authResult.rateLimitPerMinute.toString(),
+      'X-RateLimit-Remaining': '0',
+      'X-RateLimit-Reset': Math.floor(
+        rateLimit.resetAt.getTime() / 1000,
+      ).toString(),
+      'Retry-After': Math.ceil(
+        (rateLimit.resetAt.getTime() - Date.now()) / 1000,
+      ).toString(),
+    })
+  }
+
+  // Periodically cleanup old rate limit records (1% chance per request)
+  if (Math.random() < 0.01) {
+    cleanupRateLimits().catch(() => {})
   }
 
   // Create a new server and transport for each request (stateless serverless mode)
-  const server = createMcpServer()
+  const server = createMcpServer(authContext)
 
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // Stateless mode - no sessions
@@ -108,18 +94,14 @@ export async function handleMcpRequest(request: Request): Promise<Response> {
     // Handle the request
     const response = await transport.handleRequest(request)
 
-    // Add rate limit headers to successful responses if auth is enabled
-    if (authEnabled && rateLimitPerMinute) {
-      const headers = new Headers(response.headers)
-      headers.set('X-RateLimit-Limit', rateLimitPerMinute.toString())
-      return new Response(response.body, {
-        status: response.status,
-        statusText: response.statusText,
-        headers,
-      })
-    }
-
-    return response
+    // Add rate limit headers to successful responses
+    const headers = new Headers(response.headers)
+    headers.set('X-RateLimit-Limit', authResult.rateLimitPerMinute.toString())
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    })
   } catch (error) {
     // Return error response for unhandled errors
     return jsonRpcError(

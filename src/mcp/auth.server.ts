@@ -3,7 +3,7 @@ import { mcpApiKeys, mcpRateLimits, users } from '~/db/schema'
 import { eq, sql } from 'drizzle-orm'
 
 export type AuthResult =
-  | { success: true; keyId: string; rateLimitPerMinute: number }
+  | { success: true; keyId: string; userId: string; rateLimitPerMinute: number }
   | { success: false; error: string; status: number }
 
 /**
@@ -90,6 +90,14 @@ export async function validateApiKey(
     }
   }
 
+  if (!apiKey.userId) {
+    return {
+      success: false,
+      error: 'API key has no associated user',
+      status: 401,
+    }
+  }
+
   if (!apiKey.isActive) {
     return {
       success: false,
@@ -106,9 +114,9 @@ export async function validateApiKey(
     }
   }
 
-  // Check that user has 'mcp' capability
+  // Check that user has 'mcp' capability or is admin
   const capabilities = apiKey.userCapabilities ?? []
-  if (!capabilities.includes('mcp')) {
+  if (!capabilities.includes('mcp') && !capabilities.includes('admin')) {
     return {
       success: false,
       error: 'User does not have MCP access',
@@ -125,6 +133,7 @@ export async function validateApiKey(
   return {
     success: true,
     keyId: apiKey.id,
+    userId: apiKey.userId,
     rateLimitPerMinute: apiKey.rateLimitPerMinute,
   }
 }
@@ -200,12 +209,57 @@ export function getClientIp(request: Request): string {
 }
 
 /**
- * Clean up old rate limit records (older than 5 minutes)
+ * Check write rate limit for a user (10 writes per hour by default)
+ * Used for MCP write operations like submitting/updating showcases
+ */
+export async function checkWriteRateLimit(
+  userId: string,
+  limitPerHour: number = 10,
+): Promise<{ allowed: boolean; remaining: number; resetAt: Date }> {
+  const now = new Date()
+  // Round down to the current hour
+  const windowStart = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    now.getHours(),
+    0,
+    0,
+    0,
+  )
+  const resetAt = new Date(windowStart.getTime() + 60 * 60 * 1000) // 1 hour
+
+  // Try to increment existing record, or insert new one
+  const result = await db
+    .insert(mcpRateLimits)
+    .values({
+      identifier: userId,
+      identifierType: 'user_write',
+      windowStart,
+      requestCount: 1,
+    })
+    .onConflictDoUpdate({
+      target: [mcpRateLimits.identifier, mcpRateLimits.windowStart],
+      set: {
+        requestCount: sql`${mcpRateLimits.requestCount} + 1`,
+      },
+    })
+    .returning({ requestCount: mcpRateLimits.requestCount })
+
+  const currentCount = result[0]?.requestCount ?? 1
+  const remaining = Math.max(0, limitPerHour - currentCount)
+  const allowed = currentCount <= limitPerHour
+
+  return { allowed, remaining, resetAt }
+}
+
+/**
+ * Clean up old rate limit records (older than 2 hours for hourly limits)
  * Call periodically to prevent table bloat
  */
 export async function cleanupRateLimits(): Promise<void> {
-  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
+  const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000)
   await db
     .delete(mcpRateLimits)
-    .where(sql`${mcpRateLimits.windowStart} < ${fiveMinutesAgo}`)
+    .where(sql`${mcpRateLimits.windowStart} < ${twoHoursAgo}`)
 }

@@ -32,13 +32,26 @@ See [Connecting](./connecting) for client-specific setup instructions.
 
 ## Available Tools
 
-The MCP server exposes three tools:
+The MCP server exposes tools for documentation and showcase management:
 
-| Tool             | Description                                                  |
-| ---------------- | ------------------------------------------------------------ |
-| `list_libraries` | List all TanStack libraries with their versions and metadata |
-| `get_doc`        | Fetch a specific documentation page by library and path      |
-| `search_docs`    | Full-text search across all TanStack documentation           |
+### Documentation Tools
+
+| Tool             | Description                                                  | Auth Required |
+| ---------------- | ------------------------------------------------------------ | ------------- |
+| `list_libraries` | List all TanStack libraries with their versions and metadata | No            |
+| `get_doc`        | Fetch a specific documentation page by library and path      | No            |
+| `search_docs`    | Full-text search across all TanStack documentation           | No            |
+
+### Showcase Tools
+
+| Tool                | Description                                | Auth Required |
+| ------------------- | ------------------------------------------ | ------------- |
+| `search_showcases`  | Search approved TanStack showcase projects | No            |
+| `get_showcase`      | Get details of a specific showcase project | No            |
+| `submit_showcase`   | Submit a new project to the showcase       | Yes           |
+| `update_showcase`   | Update your existing showcase submission   | Yes           |
+| `delete_showcase`   | Delete your showcase submission            | Yes           |
+| `list_my_showcases` | List your own showcase submissions         | Yes           |
 
 See [Available Tools](./tools) for detailed parameter documentation.
 

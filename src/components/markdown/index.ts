@@ -1,7 +1,10 @@
 export { Markdown } from './Markdown'
 export { MarkdownLink } from './MarkdownLink'
 export { MarkdownContent } from './MarkdownContent'
-export { MarkdownHeadingProvider, useMarkdownHeadings } from './MarkdownHeadingContext'
+export {
+  MarkdownHeadingProvider,
+  useMarkdownHeadings,
+} from './MarkdownHeadingContext'
 export { CodeBlock } from './CodeBlock'
 export { Tabs } from './Tabs'
 export { FileTabs } from './FileTabs'

@@ -4,10 +4,11 @@ import type { HTMLReactParserOptions } from 'html-react-parser'
 
 // Helper to resolve different module shapes (named export vs default)
 function resolveModuleDefault(mod: any, key: string): React.ComponentType<any> {
-  if (!mod) return (undefined as any)
+  if (!mod) return undefined as any
   if (mod[key] && typeof mod[key] === 'function') return mod[key]
   if (mod.default) {
-    if (mod.default[key] && typeof mod.default[key] === 'function') return mod.default[key]
+    if (mod.default[key] && typeof mod.default[key] === 'function')
+      return mod.default[key]
     if (typeof mod.default === 'function') return mod.default
   }
   if (typeof mod === 'function') return mod
@@ -15,7 +16,9 @@ function resolveModuleDefault(mod: any, key: string): React.ComponentType<any> {
 }
 
 const FrameworkContent = React.lazy<React.ComponentType<any>>(() =>
-  import('./FrameworkContent').then((mod) => ({ default: resolveModuleDefault(mod, 'FrameworkContent') })),
+  import('./FrameworkContent').then((mod) => ({
+    default: resolveModuleDefault(mod, 'FrameworkContent'),
+  })),
 )
 
 export function handleFrameworkComponent(

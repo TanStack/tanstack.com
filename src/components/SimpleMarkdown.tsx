@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { MarkdownLink } from '~/components/MarkdownLink'
+import { MarkdownLink } from '~/components/markdown/MarkdownLink'
 import type { HTMLProps } from 'react'
 import parse, {
   attributesToProps,

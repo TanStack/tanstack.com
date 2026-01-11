@@ -10,7 +10,7 @@ import {
 import { useToast } from '~/components/ToastProvider'
 import { Card } from '~/components/Card'
 import { Button } from '~/components/Button'
-import { CodeBlock } from '~/components/CodeBlock'
+import { CodeBlock } from '~/components/markdown/CodeBlock'
 import {
   Key,
   Plus,

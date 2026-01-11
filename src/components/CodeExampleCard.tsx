@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Card } from '~/components/Card'
-import { CodeBlock } from '~/components/CodeBlock'
+import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { FrameworkIconTabs } from '~/components/FrameworkIconTabs'
 import type { Framework } from '~/libraries'
 

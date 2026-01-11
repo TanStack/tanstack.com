@@ -7,7 +7,7 @@ export type VariantHandler = (
   attributes: Record<string, string>,
 ) => boolean
 
-type InstallMode = 'install' | 'dev-install'
+type InstallMode = 'install' | 'dev-install' | 'local-install'
 
 type HastNode = {
   type: string

@@ -1,4 +1,4 @@
-import { notFound, createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, notFound, redirect } from '@tanstack/react-router'
 import { seo } from '~/utils/seo'
 import { PostNotFound } from './blog'
 import { createServerFn } from '@tanstack/react-start'
@@ -8,7 +8,7 @@ import * as v from 'valibot'
 import { setResponseHeaders } from '@tanstack/react-start/server'
 import { allPosts } from 'content-collections'
 import * as React from 'react'
-import { MarkdownContent } from '~/components/MarkdownContent'
+import { MarkdownContent } from '~/components/markdown/MarkdownContent'
 import { GamHeader } from '~/components/Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { Toc } from '~/components/Toc'
@@ -73,10 +73,10 @@ export const Route = createFileRoute('/_libraries/blog/$')({
       if (!headerImage) return undefined
 
       // Use Netlify Image CDN to optimize for social media (1200x630 is the standard for og:image)
-      const netlifyImageUrl = `https://tanstack.com/.netlify/images?url=${encodeURIComponent(
+
+      return `https://tanstack.com/.netlify/images?url=${encodeURIComponent(
         headerImage,
       )}&w=1200&h=630&fit=cover&fm=jpg&q=80`
-      return netlifyImageUrl
     }
 
     return {

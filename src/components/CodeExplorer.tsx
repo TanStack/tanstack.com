@@ -1,5 +1,5 @@
 import React from 'react'
-import { CodeBlock } from '~/components/CodeBlock'
+import { CodeBlock } from '~/components/markdown/CodeBlock'
 import { FileExplorer } from './FileExplorer'
 import { InteractiveSandbox } from './InteractiveSandbox'
 import { CodeExplorerTopBar } from './CodeExplorerTopBar'

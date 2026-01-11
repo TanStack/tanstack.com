@@ -24,9 +24,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:integrations/query"
-      ],
+      "expectedDocsFound": ["router:integrations/query"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -90,9 +88,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/queries"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/queries"],
       "expectedDocsMissed": [],
       "totalSearches": 2,
       "passed": true,
@@ -117,9 +113,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/server-functions"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/server-functions"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -156,9 +150,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/search-params"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/search-params"],
       "expectedDocsMissed": [],
       "totalSearches": 2,
       "passed": true,
@@ -183,9 +175,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:guide/column-defs"
-      ],
+      "expectedDocsFound": ["table:guide/column-defs"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -209,9 +199,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "form:framework/react/guides/validation"
-      ],
+      "expectedDocsFound": ["form:framework/react/guides/validation"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -248,12 +236,8 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "virtual:api/virtualizer"
-      ],
-      "expectedDocsMissed": [
-        "virtual:framework/react/examples/dynamic"
-      ],
+      "expectedDocsFound": ["virtual:api/virtualizer"],
+      "expectedDocsMissed": ["virtual:framework/react/examples/dynamic"],
       "totalSearches": 2,
       "passed": true,
       "score": 85,
@@ -277,9 +261,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/mutations"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/mutations"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -304,9 +286,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/data-loading"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/data-loading"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -331,9 +311,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/optimistic-updates"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/optimistic-updates"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -358,9 +336,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/infinite-queries"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/infinite-queries"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -412,9 +388,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/dependent-queries"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/dependent-queries"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -439,9 +413,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/prefetching"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/prefetching"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -466,9 +438,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/suspense"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/suspense"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -493,9 +463,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/devtools"
-      ],
+      "expectedDocsFound": ["query:framework/react/devtools"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -520,9 +488,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/code-splitting"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/code-splitting"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -547,9 +513,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/navigation-blocking"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/navigation-blocking"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -601,9 +565,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/not-found-errors"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/not-found-errors"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -628,9 +590,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/path-params"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/path-params"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -655,9 +615,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/preloading"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/preloading"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -682,9 +640,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/devtools"
-      ],
+      "expectedDocsFound": ["router:framework/react/devtools"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -709,9 +665,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:guide/sorting"
-      ],
+      "expectedDocsFound": ["table:guide/sorting"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -736,9 +690,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:guide/column-filtering"
-      ],
+      "expectedDocsFound": ["table:guide/column-filtering"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -763,9 +715,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:guide/pagination"
-      ],
+      "expectedDocsFound": ["table:guide/pagination"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -790,9 +740,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:guide/row-selection"
-      ],
+      "expectedDocsFound": ["table:guide/row-selection"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -829,9 +777,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:framework/react/examples/virtualized-rows"
-      ],
+      "expectedDocsFound": ["table:framework/react/examples/virtualized-rows"],
       "expectedDocsMissed": [],
       "totalSearches": 2,
       "passed": true,
@@ -868,9 +814,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:guide/pagination"
-      ],
+      "expectedDocsFound": ["table:guide/pagination"],
       "expectedDocsMissed": [],
       "totalSearches": 2,
       "passed": true,
@@ -895,9 +839,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "form:framework/react/guides/arrays"
-      ],
+      "expectedDocsFound": ["form:framework/react/guides/arrays"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -922,9 +864,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "form:framework/react/guides/dynamic-validation"
-      ],
+      "expectedDocsFound": ["form:framework/react/guides/dynamic-validation"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -949,9 +889,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "form:framework/react/guides/basic-concepts"
-      ],
+      "expectedDocsFound": ["form:framework/react/guides/basic-concepts"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -976,9 +914,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "virtual:api/virtualizer"
-      ],
+      "expectedDocsFound": ["virtual:api/virtualizer"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1003,9 +939,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "virtual:framework/react/react-virtual"
-      ],
+      "expectedDocsFound": ["virtual:framework/react/react-virtual"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1034,9 +968,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "virtual:api/virtualizer"
-      ],
+      "expectedDocsFound": ["virtual:api/virtualizer"],
       "expectedDocsMissed": [],
       "totalSearches": 2,
       "passed": true,
@@ -1061,9 +993,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/hosting"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/hosting"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1088,9 +1018,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/hosting"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/hosting"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1115,9 +1043,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/middleware"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/middleware"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1142,9 +1068,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/server-routes"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/server-routes"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1169,9 +1093,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/static-prerendering"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/static-prerendering"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1196,9 +1118,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "store:framework/react/quick-start"
-      ],
+      "expectedDocsFound": ["store:framework/react/quick-start"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1223,9 +1143,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "store:reference/classes/Derived"
-      ],
+      "expectedDocsFound": ["store:reference/classes/Derived"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1262,9 +1180,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/vue/overview"
-      ],
+      "expectedDocsFound": ["query:framework/vue/overview"],
       "expectedDocsMissed": [],
       "totalSearches": 2,
       "passed": false,
@@ -1301,9 +1217,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/solid/overview"
-      ],
+      "expectedDocsFound": ["query:framework/solid/overview"],
       "expectedDocsMissed": [],
       "totalSearches": 2,
       "passed": false,
@@ -1328,9 +1242,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/overview"
-      ],
+      "expectedDocsFound": ["router:framework/react/overview"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1355,9 +1267,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/testing"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/testing"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1382,9 +1292,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/typescript"
-      ],
+      "expectedDocsFound": ["query:framework/react/typescript"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1409,9 +1317,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/scroll-restoration"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/scroll-restoration"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1436,9 +1342,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/data-loading"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/data-loading"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1463,9 +1367,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/data-loading"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/data-loading"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1490,9 +1392,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/server-functions"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/server-functions"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1544,9 +1444,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/disabling-queries"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/disabling-queries"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1571,9 +1469,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/caching"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/caching"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1598,9 +1494,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/dependent-queries"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/dependent-queries"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1623,9 +1517,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/migrating-to-v5"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/migrating-to-v5"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1662,9 +1554,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/quick-start"
-      ],
+      "expectedDocsFound": ["query:framework/react/quick-start"],
       "expectedDocsMissed": [],
       "totalSearches": 2,
       "passed": true,
@@ -1688,9 +1578,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:guide/sorting"
-      ],
+      "expectedDocsFound": ["table:guide/sorting"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1715,9 +1603,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:guide/column-visibility"
-      ],
+      "expectedDocsFound": ["table:guide/column-visibility"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1742,9 +1628,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:guide/row-selection"
-      ],
+      "expectedDocsFound": ["table:guide/row-selection"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1765,9 +1649,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "virtual:api/virtualizer"
-      ],
+      "expectedDocsFound": ["virtual:api/virtualizer"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1792,9 +1674,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "query:framework/react/guides/parallel-queries"
-      ],
+      "expectedDocsFound": ["query:framework/react/guides/parallel-queries"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1873,9 +1753,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/routing/routing-concepts"
-      ],
+      "expectedDocsFound": ["router:framework/react/routing/routing-concepts"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1900,9 +1778,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/routing/routing-concepts"
-      ],
+      "expectedDocsFound": ["router:framework/react/routing/routing-concepts"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -1981,9 +1857,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/routing/routing-concepts"
-      ],
+      "expectedDocsFound": ["router:framework/react/routing/routing-concepts"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2035,9 +1909,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/search-params"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/search-params"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2089,9 +1961,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/route-masking"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/route-masking"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2116,9 +1986,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/ssr"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/ssr"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2170,9 +2038,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/execution-model"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/execution-model"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2224,9 +2090,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/authentication"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/authentication"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2278,9 +2142,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/server-functions"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/server-functions"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2305,9 +2167,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/tailwind-integration"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/tailwind-integration"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2332,9 +2192,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/databases"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/databases"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2359,9 +2217,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/migrate-from-next-js"
-      ],
+      "expectedDocsFound": ["start:framework/react/migrate-from-next-js"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2386,9 +2242,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/build-from-scratch"
-      ],
+      "expectedDocsFound": ["start:framework/react/build-from-scratch"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2410,9 +2264,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/rendering-markdown"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/rendering-markdown"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2437,9 +2289,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/hosting"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/hosting"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2464,9 +2314,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/comparison"
-      ],
+      "expectedDocsFound": ["start:framework/react/comparison"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2491,9 +2339,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:integrations/query"
-      ],
+      "expectedDocsFound": ["router:integrations/query"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2518,9 +2364,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/faq"
-      ],
+      "expectedDocsFound": ["router:framework/react/faq"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2545,9 +2389,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/routing/routing-concepts"
-      ],
+      "expectedDocsFound": ["router:framework/react/routing/routing-concepts"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2572,9 +2414,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/routing/routing-concepts"
-      ],
+      "expectedDocsFound": ["router:framework/react/routing/routing-concepts"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2599,9 +2439,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/search-params"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/search-params"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2626,9 +2464,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/custom-link"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/custom-link"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2653,9 +2489,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/guide/data-loading"
-      ],
+      "expectedDocsFound": ["router:framework/react/guide/data-loading"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2676,9 +2510,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "router:framework/react/api/router/RouterType"
-      ],
+      "expectedDocsFound": ["router:framework/react/api/router/RouterType"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2703,9 +2535,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/server-functions"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/server-functions"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2757,9 +2587,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/databases"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/databases"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2811,9 +2639,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/hosting"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/hosting"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2838,9 +2664,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:introduction"
-      ],
+      "expectedDocsFound": ["table:introduction"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2864,9 +2688,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/databases"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/databases"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -2931,9 +2753,7 @@
         }
       ],
       "expectedDocsFound": [],
-      "expectedDocsMissed": [
-        "start:framework/react/guide/error-handling"
-      ],
+      "expectedDocsMissed": ["start:framework/react/guide/error-handling"],
       "totalSearches": 2,
       "passed": false,
       "score": 65,
@@ -2970,9 +2790,7 @@
         }
       ],
       "expectedDocsFound": [],
-      "expectedDocsMissed": [
-        "start:framework/react/guide/rendering-markdown"
-      ],
+      "expectedDocsMissed": ["start:framework/react/guide/rendering-markdown"],
       "totalSearches": 2,
       "passed": false,
       "score": 65,
@@ -2995,9 +2813,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/databases"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/databases"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -3049,9 +2865,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/hosting"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/hosting"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -3076,9 +2890,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/observability"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/observability"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -3103,9 +2915,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "table:introduction"
-      ],
+      "expectedDocsFound": ["table:introduction"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -3156,9 +2966,7 @@
           ]
         }
       ],
-      "expectedDocsFound": [
-        "start:framework/react/guide/databases"
-      ],
+      "expectedDocsFound": ["start:framework/react/guide/databases"],
       "expectedDocsMissed": [],
       "totalSearches": 1,
       "passed": true,
@@ -3196,9 +3004,7 @@
         }
       ],
       "expectedDocsFound": [],
-      "expectedDocsMissed": [
-        "pacer:overview"
-      ],
+      "expectedDocsMissed": ["pacer:overview"],
       "totalSearches": 2,
       "passed": false,
       "score": 65,
@@ -3235,9 +3041,7 @@
         }
       ],
       "expectedDocsFound": [],
-      "expectedDocsMissed": [
-        "db:overview"
-      ],
+      "expectedDocsMissed": ["db:overview"],
       "totalSearches": 2,
       "passed": true,
       "score": 85,

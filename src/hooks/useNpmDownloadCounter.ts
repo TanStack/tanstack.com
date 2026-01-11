@@ -10,6 +10,7 @@ export function useNpmDownloadCounter(
 ): React.RefCallback<HTMLElement> {
   const baseCount = npmData.totalDownloads ?? 0
   const ratePerDay = npmData.ratePerDay ?? 0
+  // eslint-disable-next-line react-hooks/purity
   const updatedAt = npmData.updatedAt ?? Date.now()
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(

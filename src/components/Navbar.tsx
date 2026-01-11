@@ -73,6 +73,95 @@ import {
 } from '~/components/Collapsible'
 import { Card } from '~/components/Card'
 
+type LogoProps = {
+  showMenu: boolean
+  setShowMenu: React.Dispatch<React.SetStateAction<boolean>>
+  menuButtonRef: React.RefObject<HTMLButtonElement | null>
+  title?: React.ComponentType<any> | null
+}
+
+const LogoSection = ({
+  showMenu,
+  setShowMenu,
+  menuButtonRef,
+  title,
+}: LogoProps) => {
+  const pointerInsideButtonRef = React.useRef(false)
+  const toggleMenu = () => {
+    setShowMenu((prev) => !prev)
+  }
+  return (
+    <>
+      <button
+        aria-label="Open Menu"
+        className={twMerge(
+          'flex items-center justify-center',
+          'transition-all duration-300 h-8 px-2 py-1 lg:px-0',
+          // At lg: only visible when Title exists (flyout mode)
+          // Below lg: always visible
+          title
+            ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
+            : 'lg:w-0 lg:opacity-0 lg:-translate-x-full',
+        )}
+        ref={menuButtonRef}
+        onClick={toggleMenu}
+        onPointerEnter={(e) => {
+          // Enable hover to open flyout at md+ (but not touch)
+          if (window.innerWidth < 768 || e.pointerType === 'touch') return
+          if (pointerInsideButtonRef.current) return
+          pointerInsideButtonRef.current = true
+          setShowMenu(true)
+        }}
+        onPointerLeave={() => {
+          pointerInsideButtonRef.current = false
+        }}
+      >
+        {showMenu ? <X /> : <Menu />}
+      </button>
+      <Link
+        to="/"
+        className={twMerge(`inline-flex items-center gap-1.5 cursor-pointer`)}
+      >
+        <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
+          <img
+            src={'/images/logos/logo-color-100.png'}
+            alt=""
+            className="row-start-1 col-start-1 w-full group-hover:opacity-0"
+          />
+          <img
+            src={'/images/logos/logo-black.svg'}
+            alt=""
+            className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
+          />
+          <img
+            src={'/images/logos/logo-white.svg'}
+            alt=""
+            className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
+          />
+        </div>
+        <div>TanStack</div>
+      </Link>
+    </>
+  )
+}
+
+const MobileCard = ({
+  children,
+  isActive,
+}: {
+  children: React.ReactNode
+  isActive?: boolean
+}) => (
+  <Card
+    className={twMerge(
+      'md:contents border-gray-200/50 dark:border-gray-700/50 shadow-sm',
+      isActive && 'ring-2 ring-gray-400/30 dark:ring-gray-500/30',
+    )}
+  >
+    {children}
+  </Card>
+)
+
 export function Navbar({ children }: { children: React.ReactNode }) {
   const matches = useMatches()
   const capabilities = useCapabilities()
@@ -131,8 +220,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [showMenu, setShowMenu] = React.useState(false)
-  const pointerInsideButtonRef = React.useRef(false)
-
   const largeMenuRef = React.useRef<HTMLDivElement>(null)
   const menuButtonRef = React.useRef<HTMLButtonElement>(null)
 
@@ -142,64 +229,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     onClickOutside: () => setShowMenu(false),
     additionalRefs: [largeMenuRef, menuButtonRef],
   })
-
-  const toggleMenu = () => {
-    setShowMenu((prev) => !prev)
-  }
-
-  const LogoSection = () => (
-    <>
-      <button
-        aria-label="Open Menu"
-        className={twMerge(
-          'flex items-center justify-center',
-          'transition-all duration-300 h-8 px-2 py-1 lg:px-0',
-          // At lg: only visible when Title exists (flyout mode)
-          // Below lg: always visible
-          Title
-            ? 'lg:w-9 lg:opacity-100 lg:translate-x-0'
-            : 'lg:w-0 lg:opacity-0 lg:-translate-x-full',
-        )}
-        ref={menuButtonRef}
-        onClick={toggleMenu}
-        onPointerEnter={(e) => {
-          // Enable hover to open flyout at md+ (but not touch)
-          if (window.innerWidth < 768 || e.pointerType === 'touch') return
-          if (pointerInsideButtonRef.current) return
-          pointerInsideButtonRef.current = true
-          setShowMenu(true)
-        }}
-        onPointerLeave={() => {
-          pointerInsideButtonRef.current = false
-        }}
-      >
-        {showMenu ? <X /> : <Menu />}
-      </button>
-      <Link
-        to="/"
-        className={twMerge(`inline-flex items-center gap-1.5 cursor-pointer`)}
-      >
-        <div className="w-[30px] inline-grid items-center grid-cols-1 grid-rows-1 [&>*]:transition-opacity [&>*]:duration-1000">
-          <img
-            src={'/images/logos/logo-color-100.png'}
-            alt=""
-            className="row-start-1 col-start-1 w-full group-hover:opacity-0"
-          />
-          <img
-            src={'/images/logos/logo-black.svg'}
-            alt=""
-            className="row-start-1 col-start-1 w-full dark:opacity-0 opacity-0 group-hover:opacity-100"
-          />
-          <img
-            src={'/images/logos/logo-white.svg'}
-            alt=""
-            className="row-start-1 col-start-1 w-full light:opacity-0 dark:block opacity-0 group-hover:opacity-100"
-          />
-        </div>
-        <div>TanStack</div>
-      </Link>
-    </>
-  )
 
   const loginButton = (
     <>
@@ -278,11 +307,25 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     >
       <div className="flex items-center min-w-0">
         <div className="flex items-center gap-2 font-black text-xl uppercase min-w-0">
-          <React.Suspense fallback={<LogoSection />}>
+          <React.Suspense
+            fallback={
+              <LogoSection
+                menuButtonRef={menuButtonRef}
+                setShowMenu={setShowMenu}
+                showMenu={showMenu}
+                title={Title}
+              />
+            }
+          >
             <LazyBrandContextMenu
               className={twMerge(`flex items-center group flex-shrink-0`)}
             >
-              <LogoSection />
+              <LogoSection
+                menuButtonRef={menuButtonRef}
+                setShowMenu={setShowMenu}
+                showMenu={showMenu}
+                title={Title}
+              />
             </LazyBrandContextMenu>
           </React.Suspense>
           {Title ? (
@@ -317,23 +360,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   })
 
   const linkClasses = `flex items-center justify-between gap-2 group px-3 py-3 md:px-2 md:py-1 rounded-lg hover:bg-gray-500/10 font-bold text-base md:text-sm`
-
-  const MobileCard = ({
-    children,
-    isActive,
-  }: {
-    children: React.ReactNode
-    isActive?: boolean
-  }) => (
-    <Card
-      className={twMerge(
-        'md:contents border-gray-200/50 dark:border-gray-700/50 shadow-sm',
-        isActive && 'ring-2 ring-gray-400/30 dark:ring-gray-500/30',
-      )}
-    >
-      {children}
-    </Card>
-  )
 
   const items = (
     <div className="contents md:block">

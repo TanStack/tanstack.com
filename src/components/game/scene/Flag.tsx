@@ -49,7 +49,6 @@ export function Flag({
   const confettiSpawnedRef = useRef(false)
 
   const [hovered, setHovered] = useState(false)
-  const isPartner = !!partnerId
 
   // Create isoceles triangle geometry for flag
   // Long edge on left (touching pole), point on right (centered vertically)

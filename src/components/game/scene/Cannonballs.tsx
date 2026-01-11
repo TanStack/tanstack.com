@@ -47,6 +47,7 @@ function SplashEffect({
   onComplete: () => void
 }) {
   const groupRef = useRef<THREE.Group>(null)
+  // eslint-disable-next-line react-hooks/purity
   const startTime = useRef(Date.now())
 
   useFrame(() => {
@@ -217,6 +218,7 @@ export function Cannonballs() {
       {cannonballs.map((ball) => (
         <Cannonball key={ball.id} id={ball.id} />
       ))}
+      {/* eslint-disable-next-line react-hooks/refs */}
       {splashEffects.current.map((splash) => (
         <SplashEffect
           key={splash.id}

@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 export { useAdsPreference } from '~/hooks/useAdPreference'
 
-export type UserSettings = {}
+export type UserSettings = Record<string, unknown>
 
 type UserSettingsState = {
   settings: UserSettings

@@ -62,6 +62,7 @@ export default [
     rules: {
       ...reactHooks.configs.recommended.rules,
       ...jsxA11y.configs.recommended.rules,
+      'react-hooks/set-state-in-effect': 'warn',
     },
   },
 ]

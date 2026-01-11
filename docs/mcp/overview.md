@@ -53,6 +53,15 @@ The MCP server exposes tools for documentation and showcase management:
 | `delete_showcase`   | Delete your showcase submission            | Yes           |
 | `list_my_showcases` | List your own showcase submissions         | Yes           |
 
+### NPM Stats Tools
+
+| Tool                        | Description                                             | Auth Required |
+| --------------------------- | ------------------------------------------------------- | ------------- |
+| `get_npm_stats`             | Get aggregated download stats for TanStack or a library | No            |
+| `list_npm_comparisons`      | List preset package comparisons (Data Fetching, etc.)   | No            |
+| `compare_npm_packages`      | Compare download stats for multiple packages over time  | No            |
+| `get_npm_package_downloads` | Get detailed historical downloads for a single package  | No            |
+
 See [Available Tools](./tools) for detailed parameter documentation.
 
 ## How It Works

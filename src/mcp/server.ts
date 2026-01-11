@@ -14,6 +14,19 @@ import {
   listMyShowcases,
   listMyShowcasesSchema,
 } from './tools/list-my-showcases'
+import { getNpmStats, getNpmStatsSchema } from './tools/get-npm-stats'
+import {
+  listNpmComparisons,
+  listNpmComparisonsSchema,
+} from './tools/list-npm-comparisons'
+import {
+  compareNpmPackages,
+  compareNpmPackagesSchema,
+} from './tools/compare-npm-packages'
+import {
+  getNpmPackageDownloads,
+  getNpmPackageDownloadsSchema,
+} from './tools/get-npm-package-downloads'
 
 export type McpAuthContext = {
   userId: string
@@ -276,6 +289,134 @@ export function createMcpServer(authContext?: McpAuthContext) {
       try {
         const parsed = listMyShowcasesSchema.parse(args)
         const result = await listMyShowcases(parsed, authContext)
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    },
+  )
+
+  // ============================================================================
+  // NPM Stats Tools
+  // ============================================================================
+
+  // Register get_npm_stats tool
+  server.tool(
+    'get_npm_stats',
+    'Get aggregated NPM download statistics for TanStack org or a specific library. Returns total downloads, growth rate, and package breakdown.',
+    getNpmStatsSchema.shape,
+    async (args) => {
+      try {
+        const parsed = getNpmStatsSchema.parse(args)
+        const result = await getNpmStats(parsed)
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    },
+  )
+
+  // Register list_npm_comparisons tool
+  server.tool(
+    'list_npm_comparisons',
+    'List available preset package comparisons (Data Fetching, State Management, Routing, etc.). Use with compare_npm_packages for quick comparisons.',
+    listNpmComparisonsSchema.shape,
+    async (args) => {
+      try {
+        const parsed = listNpmComparisonsSchema.parse(args)
+        const result = await listNpmComparisons(parsed)
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    },
+  )
+
+  // Register compare_npm_packages tool
+  server.tool(
+    'compare_npm_packages',
+    'Compare NPM download statistics for multiple packages over a time range. Returns daily/weekly/monthly download data for visualization and analysis.',
+    compareNpmPackagesSchema.shape,
+    async (args) => {
+      try {
+        const parsed = compareNpmPackagesSchema.parse(args)
+        const result = await compareNpmPackages(parsed)
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    },
+  )
+
+  // Register get_npm_package_downloads tool
+  server.tool(
+    'get_npm_package_downloads',
+    'Get detailed historical download data for a single NPM package. Returns daily download counts for analysis.',
+    getNpmPackageDownloadsSchema.shape,
+    async (args) => {
+      try {
+        const parsed = getNpmPackageDownloadsSchema.parse(args)
+        const result = await getNpmPackageDownloads(parsed)
         return {
           content: [
             {

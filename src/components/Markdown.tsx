@@ -16,7 +16,7 @@ import { CodeBlock } from './CodeBlock'
 import { PackageManagerTabs } from './PackageManagerTabs'
 import type { Framework } from '~/libraries/types'
 import { FileTabs } from './FileTabs'
-import { FrameworkCodeBlock } from './FrameworkCodeBlock'
+import { FrameworkContent } from './FrameworkContent'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -175,47 +175,6 @@ const options: HTMLReactParserOptions = {
               }
             }
 
-            const frameworkMeta = domNode.attribs['data-framework-meta']
-            if (frameworkMeta) {
-              try {
-                const { codeBlocksByFramework } = JSON.parse(frameworkMeta)
-                const availableFrameworks = JSON.parse(
-                  domNode.attribs['data-available-frameworks'] || '[]',
-                )
-                const id =
-                  attributes.id ||
-                  `framework-${Math.random().toString(36).slice(2, 9)}`
-
-                const panelElements = domNode.children?.filter(
-                  (child): child is Element =>
-                    child instanceof Element && child.name === 'md-tab-panel',
-                )
-
-                // Build panelsByFramework map
-                const panelsByFramework: Record<string, React.ReactNode> = {}
-                panelElements?.forEach((panel) => {
-                  const fw = panel.attribs['data-framework']
-                  if (fw) {
-                    panelsByFramework[fw] = domToReact(
-                      panel.children as any,
-                      options,
-                    )
-                  }
-                })
-
-                return (
-                  <FrameworkCodeBlock
-                    id={id}
-                    codeBlocksByFramework={codeBlocksByFramework}
-                    availableFrameworks={availableFrameworks}
-                    panelsByFramework={panelsByFramework}
-                  />
-                )
-              } catch {
-                // Fall through to default tabs if parsing fails
-              }
-            }
-
             const tabs = attributes.tabs
             const id =
               attributes.id || `tabs-${Math.random().toString(36).slice(2, 9)}`
@@ -236,6 +195,50 @@ const options: HTMLReactParserOptions = {
             })
 
             return <Tabs id={id} tabs={tabs} children={children as any} />
+          }
+          case 'framework': {
+            const frameworkMeta = domNode.attribs['data-framework-meta']
+            if (!frameworkMeta) {
+              return null
+            }
+
+            try {
+              const { codeBlocksByFramework } = JSON.parse(frameworkMeta)
+              const availableFrameworks = JSON.parse(
+                domNode.attribs['data-available-frameworks'] || '[]',
+              )
+              const id =
+                attributes.id ||
+                `framework-${Math.random().toString(36).slice(2, 9)}`
+
+              const panelElements = domNode.children?.filter(
+                (child): child is Element =>
+                  child instanceof Element && child.name === 'md-framework-panel',
+              )
+
+              // Build panelsByFramework map
+              const panelsByFramework: Record<string, React.ReactNode> = {}
+              panelElements?.forEach((panel) => {
+                const fw = panel.attribs['data-framework']
+                if (fw) {
+                  panelsByFramework[fw] = domToReact(
+                    panel.children as any,
+                    options,
+                  )
+                }
+              })
+
+              return (
+                <FrameworkContent
+                  id={id}
+                  codeBlocksByFramework={codeBlocksByFramework}
+                  availableFrameworks={availableFrameworks}
+                  panelsByFramework={panelsByFramework}
+                />
+              )
+            } catch {
+              return null
+            }
           }
           default:
             return <div>{domToReact(domNode.children as any, options)}</div>

@@ -12,6 +12,7 @@ import {
   rehypeCollectHeadings,
   rehypeParseCommentComponents,
   rehypeTransformCommentComponents,
+  rehypeTransformFrameworkComponents,
 } from '~/utils/markdown/plugins'
 import { extractCodeMeta } from '~/utils/markdown/plugins/extractCodeMeta'
 
@@ -68,6 +69,7 @@ export function renderMarkdown(content: string): MarkdownRenderResult {
       },
     } as any)
     .use(rehypeSlug)
+    .use(rehypeTransformFrameworkComponents)
     .use(rehypeTransformCommentComponents)
     .use(rehypeAutolinkHeadings, {
       behavior: 'wrap',

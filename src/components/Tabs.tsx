@@ -75,7 +75,7 @@ export function Tabs({
               key={`${id}-${tab.slug}`}
               data-tab={tab.slug}
               hidden={tab.slug !== activeSlug}
-              className="max-w-none flex flex-col gap-2 text-base"
+              className="max-w-none flex flex-col gap-2 text-base px-4"
             >
               {child}
             </div>

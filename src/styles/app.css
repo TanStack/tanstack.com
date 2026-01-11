@@ -722,7 +722,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply border-blue-500/90;
 }
 
-.markdown-alert.markdown-alert-note svg {
+.markdown-alert.markdown-alert-note .markdown-alert-title svg {
   @apply fill-blue-500/90;
 }
 
@@ -730,7 +730,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply border-yellow-500/90;
 }
 
-.markdown-alert.markdown-alert-warning svg {
+.markdown-alert.markdown-alert-warning .markdown-alert-title svg {
   @apply fill-yellow-500/90;
 }
 
@@ -738,7 +738,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply border-red-500/90;
 }
 
-.markdown-alert.markdown-alert-caution svg {
+.markdown-alert.markdown-alert-caution .markdown-alert-title svg {
   @apply fill-red-500/90;
 }
 
@@ -746,7 +746,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply border-green-500/90;
 }
 
-.markdown-alert.markdown-alert-tip svg {
+.markdown-alert.markdown-alert-tip .markdown-alert-title svg {
   @apply fill-green-500/90;
 }
 
@@ -754,7 +754,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply border-purple-500/90;
 }
 
-.markdown-alert.markdown-alert-important svg {
+.markdown-alert.markdown-alert-important .markdown-alert-title svg {
   @apply fill-purple-500/90;
 }
 

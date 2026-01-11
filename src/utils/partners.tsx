@@ -92,7 +92,7 @@ export function PartnerImage({
   )
 }
 
-const partnerCategories = [
+export const partnerCategories = [
   'code-review',
   'deployment',
   'data-grid',

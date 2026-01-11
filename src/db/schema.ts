@@ -1016,7 +1016,7 @@ export const mcpApiKeys = pgTable(
     // Optional user association
     userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
     // Rate limit tier (requests per minute)
-    rateLimitPerMinute: integer('rate_limit_per_minute').notNull().default(60),
+    rateLimitPerMinute: integer('rate_limit_per_minute').notNull().default(200),
     // Key state
     isActive: boolean('is_active').notNull().default(true),
     lastUsedAt: timestamp('last_used_at', { withTimezone: true, mode: 'date' }),

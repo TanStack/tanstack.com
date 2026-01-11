@@ -32,6 +32,9 @@ npx tsx scripts/mcp-eval/run-eval.ts --tag query
 
 # Use a different MCP endpoint
 MCP_URL=https://tanstack.com/api/mcp npx tsx scripts/mcp-eval/run-eval.ts
+
+# Authenticate with an API key (required for production)
+MCP_API_KEY=your-api-key MCP_URL=http://localhost:3000/api/mcp npx tsx scripts/mcp-eval/run-eval.ts
 ```
 
 ## Test Case Structure

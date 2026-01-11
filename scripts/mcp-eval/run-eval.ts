@@ -13,6 +13,7 @@
 import testCases from './test-cases.json'
 
 const MCP_URL = process.env.MCP_URL || 'http://localhost:3001/api/mcp'
+const MCP_API_KEY = process.env.MCP_API_KEY
 
 interface SearchResult {
   title: string
@@ -50,13 +51,19 @@ interface TestResult {
 }
 
 async function callMcp(method: string, params: object): Promise<McpResponse> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json, text/event-stream',
+  }
+
+  if (MCP_API_KEY) {
+    headers['Authorization'] = `Bearer ${MCP_API_KEY}`
+  }
+
   // First initialize
   await fetch(MCP_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json, text/event-stream',
-    },
+    headers,
     body: JSON.stringify({
       jsonrpc: '2.0',
       id: 0,
@@ -72,10 +79,7 @@ async function callMcp(method: string, params: object): Promise<McpResponse> {
   // Then call the tool
   const response = await fetch(MCP_URL, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json, text/event-stream',
-    },
+    headers,
     body: JSON.stringify({
       jsonrpc: '2.0',
       id: 1,

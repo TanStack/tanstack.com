@@ -6,7 +6,10 @@ import {
   useMatch,
   useRouter,
 } from '@tanstack/react-router'
+import * as Sentry from '@sentry/tanstackstart-react'
+
 import { Button } from './Button'
+import { useEffect } from 'react'
 
 // type DefaultCatchBoundaryType = {
 //   status: number
@@ -17,6 +20,9 @@ import { Button } from './Button'
 
 export function DefaultCatchBoundary({ error }: ErrorComponentProps) {
   const router = useRouter()
+  useEffect(() => {
+    Sentry.captureException(error)
+  }, [error])
   const isRoot = useMatch({
     strict: false,
     select: (state) => state.id === rootRouteId,

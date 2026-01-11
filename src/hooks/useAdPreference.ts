@@ -1,5 +1,6 @@
 import { useCurrentUserQuery } from './useCurrentUser'
 import { useCapabilities } from './useCapabilities'
+import { hasCapability } from '~/db/types'
 import * as React from 'react'
 
 const STORAGE_KEY = 'tanstack-ads-preference'
@@ -23,8 +24,7 @@ export function useAdsPreference() {
   } else {
     const user = userQuery.data
     const adsDisabled = user.adsDisabled ?? false
-    const canDisableAds =
-      capabilities.includes('admin') || capabilities.includes('disableAds')
+    const canDisableAds = hasCapability(capabilities, 'disableAds')
     adsEnabled = !canDisableAds || !adsDisabled
   }
 

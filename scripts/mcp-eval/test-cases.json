@@ -1661,6 +1661,143 @@
       ],
       "idealSearchQueries": ["environment variables", "env tanstack start"],
       "correctAnswerMustInclude": ["env", "VITE"]
+    },
+
+    {
+      "id": "partner-database-recommendation",
+      "question": "What database should I use with TanStack Start?",
+      "difficulty": "easy",
+      "tags": ["start", "database", "partner", "ecosystem"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/databases",
+          "required": true,
+          "reason": "Databases guide with partner recommendations"
+        }
+      ],
+      "idealSearchQueries": ["database start", "databases guide"],
+      "correctAnswerMustInclude": ["Neon", "Convex"],
+      "notes": "Partner discovery test. Should surface recommended database partners."
+    },
+    {
+      "id": "partner-auth-recommendation",
+      "question": "What authentication solution should I use with TanStack Start?",
+      "difficulty": "easy",
+      "tags": ["start", "auth", "partner", "ecosystem"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/authentication-overview",
+          "required": true,
+          "reason": "Authentication overview with partner solutions"
+        }
+      ],
+      "idealSearchQueries": ["authentication overview", "auth start"],
+      "correctAnswerMustInclude": ["Clerk", "WorkOS"],
+      "notes": "Partner discovery test. Should surface recommended auth partners."
+    },
+    {
+      "id": "partner-hosting-recommendation",
+      "question": "Where should I deploy my TanStack Start application?",
+      "difficulty": "easy",
+      "tags": ["start", "hosting", "deployment", "partner", "ecosystem"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/hosting",
+          "required": true,
+          "reason": "Hosting guide with deployment partners"
+        }
+      ],
+      "idealSearchQueries": ["hosting start", "deploy start"],
+      "correctAnswerMustInclude": ["Cloudflare", "Netlify"],
+      "notes": "Partner discovery test. Should surface recommended hosting partners."
+    },
+    {
+      "id": "partner-table-upgrade",
+      "question": "I need more advanced features than TanStack Table provides. What should I use?",
+      "difficulty": "medium",
+      "tags": ["table", "partner", "ecosystem", "data-grid"],
+      "expectedDocs": [
+        {
+          "library": "table",
+          "path": "introduction",
+          "required": true,
+          "reason": "Table introduction mentions AG Grid partnership"
+        }
+      ],
+      "idealSearchQueries": ["table ag grid", "enterprise data grid"],
+      "correctAnswerMustInclude": ["AG Grid"],
+      "notes": "Partner discovery test. AG Grid is the enterprise upgrade path for Table users."
+    },
+    {
+      "id": "partner-neon-setup",
+      "question": "How do I connect Neon database to my TanStack Start app?",
+      "difficulty": "medium",
+      "tags": ["start", "database", "neon", "partner"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/databases",
+          "required": true,
+          "reason": "Databases guide covers Neon setup"
+        }
+      ],
+      "idealSearchQueries": ["neon database", "neon start"],
+      "correctAnswerMustInclude": ["Neon", "PostgreSQL"],
+      "notes": "Partner-specific test. Users searching for specific partner integration."
+    },
+    {
+      "id": "partner-clerk-setup",
+      "question": "How do I add Clerk authentication to TanStack Start?",
+      "difficulty": "medium",
+      "tags": ["start", "auth", "clerk", "partner"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/authentication-overview",
+          "required": true,
+          "reason": "Auth overview links to Clerk integration"
+        }
+      ],
+      "idealSearchQueries": ["clerk authentication", "clerk start"],
+      "correctAnswerMustInclude": ["Clerk"],
+      "notes": "Partner-specific test. Users searching for specific partner integration."
+    },
+    {
+      "id": "partner-error-monitoring",
+      "question": "How do I set up error monitoring for my TanStack app?",
+      "difficulty": "medium",
+      "tags": ["start", "monitoring", "sentry", "partner", "ecosystem"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/error-handling",
+          "required": false,
+          "reason": "Error handling may mention monitoring solutions"
+        }
+      ],
+      "idealSearchQueries": ["error monitoring", "sentry start"],
+      "correctAnswerMustInclude": ["Sentry"],
+      "notes": "Partner discovery test. Sentry is the error monitoring partner."
+    },
+    {
+      "id": "partner-cms-recommendation",
+      "question": "What CMS should I use with TanStack Start for content management?",
+      "difficulty": "medium",
+      "tags": ["start", "cms", "strapi", "partner", "ecosystem"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/rendering-markdown",
+          "required": false,
+          "reason": "Content/markdown guide may reference CMS options"
+        }
+      ],
+      "idealSearchQueries": ["cms start", "headless cms tanstack"],
+      "correctAnswerMustInclude": ["Strapi"],
+      "notes": "Partner discovery test. Strapi is the CMS partner."
     }
   ]
 }

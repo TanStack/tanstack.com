@@ -45,7 +45,7 @@ import {
   SIDEBAR_LIBRARY_IDS,
   type LibrarySlim,
 } from '~/libraries'
-import { ADMIN_ACCESS_CAPABILITIES } from '~/db/types'
+import { ADMIN_ACCESS_CAPABILITIES, hasCapability } from '~/db/types'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useClickOutside } from '~/hooks/useClickOutside'
@@ -196,7 +196,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
     (ADMIN_ACCESS_CAPABILITIES as readonly string[]).includes(cap),
   )
 
-  const canApiKeys = capabilities.includes('api-keys')
+  const canApiKeys = hasCapability(capabilities, 'api-keys')
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 

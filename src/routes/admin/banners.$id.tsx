@@ -4,6 +4,7 @@ import { BannerEditor } from '~/components/admin/BannerEditor'
 import { getBanner, type BannerWithMeta } from '~/utils/banner.functions'
 import { useCapabilities } from '~/hooks/useCapabilities'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
+import { hasCapability } from '~/db/types'
 import * as v from 'valibot'
 
 export const Route = createFileRoute('/admin/banners/$id')({
@@ -34,7 +35,7 @@ function BannerEditorPage() {
     )
   }
 
-  const canAdmin = capabilities.includes('admin')
+  const canAdmin = hasCapability(capabilities, 'admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">

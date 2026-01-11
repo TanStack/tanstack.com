@@ -1,6 +1,6 @@
 import { useCurrentUserQuery } from './useCurrentUser'
 import { useCapabilities } from './useCapabilities'
-import type { Capability } from '~/db/types'
+import { hasCapability, type Capability } from '~/db/types'
 
 type AdminGuardLoading = { status: 'loading' }
 type AdminGuardDenied = { status: 'denied' }
@@ -18,6 +18,8 @@ export type AdminGuardResult =
  * Hook to check if the current user has admin access.
  * Returns a discriminated union for easy pattern matching.
  *
+ * Note: Users with 'admin' capability are granted access to all capabilities.
+ *
  * @example
  * const guard = useAdminGuard()
  * if (guard.status === 'loading') return <AdminLoading />
@@ -34,7 +36,7 @@ export function useAdminGuard(
     return { status: 'loading' }
   }
 
-  if (!userQuery.data || !capabilities.includes(requiredCapability)) {
+  if (!userQuery.data || !hasCapability(capabilities, requiredCapability)) {
     return { status: 'denied' }
   }
 

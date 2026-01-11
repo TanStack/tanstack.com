@@ -13,6 +13,7 @@ import { MaintainersSection } from '~/components/MaintainersSection'
 import { LibraryPageContainer } from '~/components/LibraryPageContainer'
 import { Key } from 'lucide-react'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { hasCapability } from '~/db/types'
 
 const library = getLibrary('mcp')
 
@@ -29,7 +30,7 @@ export const Route = createFileRoute('/_libraries/mcp/$version/')({
 
 function McpVersionIndex() {
   const capabilities = useCapabilities()
-  const canApiKeys = capabilities.includes('api-keys')
+  const canApiKeys = hasCapability(capabilities, 'api-keys')
 
   return (
     <LibraryPageContainer>

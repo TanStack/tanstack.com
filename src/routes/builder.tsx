@@ -1,5 +1,6 @@
 import { redirect, createFileRoute } from '@tanstack/react-router'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { hasCapability } from '~/db/types'
 import { requireCapability } from '~/utils/auth.server'
 
 export const Route = createFileRoute('/builder')({
@@ -18,8 +19,7 @@ export const Route = createFileRoute('/builder')({
 function RouteComponent() {
   const capabilities = useCapabilities()
 
-  const canAccess =
-    capabilities.includes('admin') || capabilities.includes('builder')
+  const canAccess = hasCapability(capabilities, 'builder')
 
   return (
     <div className="flex items-center justify-center h-screen">

@@ -562,7 +562,7 @@ export class AISystem {
       }
 
       let newRotation = player.rotation
-      let angleDiff = normalizeAngle(targetAngle - newRotation)
+      const angleDiff = normalizeAngle(targetAngle - newRotation)
 
       const turnAmount = stats.turnSpeed * dt
       if (Math.abs(angleDiff) > 0.02) {

@@ -346,6 +346,7 @@ pre {
 }
 pre.shiki {
   overflow-x: auto;
+  padding: 1rem;
 
   @apply bg-white;
 

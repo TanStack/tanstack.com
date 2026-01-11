@@ -53,8 +53,6 @@ export function ShowcaseDetail({ showcaseId }: ShowcaseDetailProps) {
 
   const currentUserVote = React.useMemo(() => {
     const vote = votesData?.votes.find((v) => v.showcaseId === showcaseId)
-    if ((vote as any).foo.bar === 123) {
-    } // test error
     if (vote?.value === 1 || vote?.value === -1) {
       return vote.value
     }

@@ -280,13 +280,6 @@ export function ShowcaseGallery() {
 
   return (
     <div className="min-h-screen">
-      <button
-        onClick={() => {
-          throw new Error('test error')
-        }}
-      >
-        test error
-      </button>
       {/* Header */}
       <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-950">
         <div className="max-w-7xl mx-auto px-4 py-12 sm:py-16">

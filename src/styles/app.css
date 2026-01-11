@@ -938,7 +938,7 @@ mark {
 
 /* Hide the title bar but keep copy button accessible */
 .file-tabs-panel .codeblock > div:first-child {
-  @apply absolute right-2 top-2 bg-transparent border-0 p-0 z-10;
+  @apply absolute right-2 top-2 bg-transparent border-none p-0 z-10;
 }
 
 /* Hide the title text, keep only the button */
@@ -952,7 +952,11 @@ mark {
 }
 
 .package-manager-tabs [data-tab] .codeblock > div:first-child {
-  @apply absolute right-2 top-2 bg-transparent border-0 p-0 z-10;
+  @apply absolute right-2 top-2 bg-transparent border-none p-0 z-10;
+}
+
+.package-manager-tabs .codeblock {
+  border: none;
 }
 
 .package-manager-tabs
@@ -965,7 +969,7 @@ mark {
 
 /* Remove padding from tab content wrapper for package manager */
 .package-manager-tabs .not-prose > div:last-child {
-  @apply p-0 border-0 rounded-b-none bg-transparent;
+  @apply p-0 border-none rounded-b-none bg-transparent;
 }
 
 /* Restore bottom border radius on the code block itself */
@@ -973,17 +977,7 @@ mark {
   @apply rounded-b-md;
 }
 
-/* Framework code blocks - minimal style for single code blocks */
+/* Framework code blocks - single blocks look like regular code blocks */
 .framework-code-block > .codeblock {
-  @apply my-4 rounded-md;
-}
-
-/* Hide the title bar but keep copy button accessible for single blocks */
-.framework-code-block > .codeblock > div:first-child {
-  @apply absolute right-2 top-2 bg-transparent border-0 p-0 z-10;
-}
-
-/* Hide the title text, keep only the button */
-.framework-code-block > .codeblock > div:first-child > div:first-child {
-  @apply hidden;
+  @apply my-4;
 }

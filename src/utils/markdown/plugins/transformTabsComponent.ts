@@ -27,7 +27,7 @@ type TabExtraction = {
 }
 
 type PackageManagerExtraction = {
-  packagesByFramework: Record<string, string[]>
+  packagesByFramework: Record<string, string[][]>
   mode: InstallMode
 }
 
@@ -50,6 +50,7 @@ type FrameworkExtraction = {
       preNode: HastNode
     }>
   >
+  contentByFramework: Record<string, HastNode[]>
 }
 
 type FrameworkCodeBlock = {
@@ -73,7 +74,9 @@ function parseAttributes(node: HastNode): Record<string, string> {
 
 function resolveMode(attributes: Record<string, string>): InstallMode {
   const mode = attributes.mode?.toLowerCase()
-  return mode === 'dev-install' ? 'dev-install' : 'install'
+  if (mode === 'dev-install') return 'dev-install'
+  if (mode === 'local-install') return 'local-install'
+  return 'install'
 }
 
 function normalizeFrameworkKey(key: string): string {
@@ -122,7 +125,7 @@ function extractPackageManagerData(
   mode: InstallMode,
 ): PackageManagerExtraction | null {
   const children = node.children ?? []
-  const packagesByFramework: Record<string, string[]> = {}
+  const packagesByFramework: Record<string, string[][]> = {}
 
   const allText = extractText(children)
   const lines = allText.split('\n')
@@ -133,11 +136,13 @@ function extractPackageManagerData(
 
     const parsed = parseFrameworkLine(trimmed)
     if (parsed) {
-      // Support multiple entries for same framework by concatenating packages
+      // Each line becomes a separate entry (array of packages)
+      // Multiple packages on same line = install together
+      // Multiple lines = install separately
       if (packagesByFramework[parsed.framework]) {
-        packagesByFramework[parsed.framework].push(...parsed.packages)
+        packagesByFramework[parsed.framework].push(parsed.packages)
       } else {
-        packagesByFramework[parsed.framework] = parsed.packages
+        packagesByFramework[parsed.framework] = [parsed.packages]
       }
     }
   }
@@ -223,12 +228,13 @@ function extractFilesData(node: HastNode): FilesExtraction | null {
 }
 
 /**
- * Extract framework-specific code blocks for variant="framework" tabs.
- * Groups code blocks by their data-framework attribute.
+ * Extract framework-specific content for variant="framework" tabs.
+ * Groups all content (code blocks and general content) by framework headings.
  */
 function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
   const children = node.children ?? []
   const codeBlocksByFramework: Record<string, FrameworkCodeBlock[]> = {}
+  const contentByFramework: Record<string, HastNode[]> = {}
 
   let currentFramework: string | null = null
 
@@ -237,33 +243,40 @@ function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
       currentFramework = toString(child as any)
         .trim()
         .toLowerCase()
+      // Initialize arrays for this framework
+      if (currentFramework && !contentByFramework[currentFramework]) {
+        contentByFramework[currentFramework] = []
+        codeBlocksByFramework[currentFramework] = []
+      }
       continue
     }
 
-    // Look for <pre> elements (code blocks) under current framework
-    const c = child as HastNode
-    if (c.type === 'element' && c.tagName === 'pre' && currentFramework) {
-      const codeBlockData = extractCodeBlockData(c)
-      if (!codeBlockData) continue
+    // Skip if no framework heading found yet
+    if (!currentFramework) continue
 
-      if (!codeBlocksByFramework[currentFramework]) {
-        codeBlocksByFramework[currentFramework] = []
-      }
+    // Add all content to contentByFramework
+    contentByFramework[currentFramework].push(child)
+
+    // Look for <pre> elements (code blocks) under current framework
+    if (child.type === 'element' && child.tagName === 'pre') {
+      const codeBlockData = extractCodeBlockData(child)
+      if (!codeBlockData) continue
 
       codeBlocksByFramework[currentFramework].push({
         title: codeBlockData.title || 'Untitled',
         code: codeBlockData.code,
         language: codeBlockData.language,
-        preNode: c,
+        preNode: child,
       })
     }
   }
 
-  if (Object.keys(codeBlocksByFramework).length === 0) {
+  // Return null only if no frameworks found at all
+  if (Object.keys(contentByFramework).length === 0) {
     return null
   }
 
-  return { codeBlocksByFramework }
+  return { codeBlocksByFramework, contentByFramework }
 }
 
 function extractTabPanels(node: HastNode): TabExtraction | null {
@@ -416,19 +429,19 @@ export function transformTabsComponent(node: HastNode) {
     })
 
     // Store available frameworks for the component
-    const availableFrameworks = Object.keys(result.codeBlocksByFramework)
+    const availableFrameworks = Object.keys(result.contentByFramework)
     node.properties['data-available-frameworks'] =
       JSON.stringify(availableFrameworks)
 
     node.children = availableFrameworks.map((fw) => {
-      const blocks = result.codeBlocksByFramework[fw]
+      const content = result.contentByFramework[fw] || []
       return {
         type: 'element',
         tagName: 'md-tab-panel',
         properties: {
           'data-framework': fw,
         },
-        children: blocks.map((block) => block.preNode),
+        children: content,
       }
     })
     return

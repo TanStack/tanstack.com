@@ -7,7 +7,7 @@ import { GamHeader } from './Gam'
 import { Toc } from './Toc'
 import { renderMarkdown } from '~/utils/markdown'
 import { DocBreadcrumb } from './DocBreadcrumb'
-import { MarkdownContent } from './MarkdownContent'
+import { MarkdownContent } from '~/components/markdown'
 import type { ConfigSchema } from '~/utils/config'
 
 type DocProps = {

@@ -414,7 +414,9 @@ function ShowcaseDetailPage() {
             {isEditing ? (
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="url" className={labelClass}>URL</label>
+                  <label htmlFor="url" className={labelClass}>
+                    URL
+                  </label>
                   <input
                     id="url"
                     type="text"
@@ -463,7 +465,9 @@ function ShowcaseDetailPage() {
                   </p>
                 </div>
                 <div>
-                  <label htmlFor="description" className={labelClass}>Description (optional)</label>
+                  <label htmlFor="description" className={labelClass}>
+                    Description (optional)
+                  </label>
                   <textarea
                     id="description"
                     value={formData?.description || ''}
@@ -477,7 +481,9 @@ function ShowcaseDetailPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="trancoRank" className={labelClass}>Tranco Rank</label>
+                  <label htmlFor="trancoRank" className={labelClass}>
+                    Tranco Rank
+                  </label>
                   <input
                     id="trancoRank"
                     type="number"
@@ -502,7 +508,9 @@ function ShowcaseDetailPage() {
                   </p>
                 </div>
                 <div>
-                  <label htmlFor="voteScore" className={labelClass}>Vote Score</label>
+                  <label htmlFor="voteScore" className={labelClass}>
+                    Vote Score
+                  </label>
                   <input
                     id="voteScore"
                     type="number"
@@ -767,7 +775,9 @@ function ShowcaseDetailPage() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="status" className={labelClass}>Status</label>
+                <label htmlFor="status" className={labelClass}>
+                  Status
+                </label>
                 <select
                   id="status"
                   value={formData?.status || 'pending'}
@@ -788,7 +798,9 @@ function ShowcaseDetailPage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="featured" className={labelClass}>Featured</label>
+                <label htmlFor="featured" className={labelClass}>
+                  Featured
+                </label>
                 <div className="flex items-center gap-3 mt-2">
                   <button
                     id="featured"
@@ -816,7 +828,9 @@ function ShowcaseDetailPage() {
                 </div>
               </div>
               <div className="md:col-span-2">
-                <label htmlFor="note" className={labelClass}>Moderation Note (optional)</label>
+                <label htmlFor="note" className={labelClass}>
+                  Moderation Note (optional)
+                </label>
                 <textarea
                   id="note"
                   value={formData?.moderationNote || ''}

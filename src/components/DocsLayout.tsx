@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { TextAlignStart, ChevronLeft, ChevronRight, Menu } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Menu } from 'lucide-react'
 import { GithubIcon } from '~/components/icons/GithubIcon'
 import { DiscordIcon } from '~/components/icons/DiscordIcon'
 import { Link, useMatches, useParams } from '@tanstack/react-router'
@@ -12,7 +12,7 @@ import { frameworkOptions } from '~/libraries/frameworks'
 import { DocsCalloutQueryGG } from '~/components/DocsCalloutQueryGG'
 import { twMerge } from 'tailwind-merge'
 import { partners, PartnerImage } from '~/utils/partners'
-import { GamFooter, GamHeader, GamVrec1 } from './Gam'
+import { GamHeader, GamVrec1 } from './Gam'
 import { AdGate } from '~/contexts/AdsContext'
 import { SearchButton } from './SearchButton'
 import { FrameworkSelect, useCurrentFramework } from './FrameworkSelect'
@@ -73,6 +73,7 @@ function MobilePartnersStrip({
   }, [isHovered])
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
     <div
       className="flex-1 flex items-center gap-2 min-w-0"
       onClick={(e) => e.preventDefault()}

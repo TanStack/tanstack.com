@@ -59,7 +59,7 @@ export async function getUserStreak(userId: string): Promise<{
   let currentStreak = 0
   if (lastActiveDate === today || lastActiveDate === yesterday) {
     currentStreak = 1
-    let expectedDate = new Date(lastActiveDate)
+    const expectedDate = new Date(lastActiveDate)
 
     for (let i = 1; i < dates.length; i++) {
       expectedDate.setDate(expectedDate.getDate() - 1)
@@ -209,7 +209,7 @@ export async function getStreakLeaderboard(limit: number = 10): Promise<
     let currentStreak = 0
     if (lastActiveDate === today || lastActiveDate === yesterday) {
       currentStreak = 1
-      let expectedDate = new Date(lastActiveDate)
+      const expectedDate = new Date(lastActiveDate)
 
       for (let i = 1; i < dates.length; i++) {
         expectedDate.setDate(expectedDate.getDate() - 1)

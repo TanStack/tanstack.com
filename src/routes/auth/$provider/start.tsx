@@ -9,7 +9,7 @@ import {
 } from '~/auth/index.server'
 
 export const Route = createFileRoute('/auth/$provider/start')({
-  // @ts-ignore server property not in route types yet
+  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async ({

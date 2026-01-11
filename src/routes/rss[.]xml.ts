@@ -61,7 +61,7 @@ function generateRSSFeed() {
 }
 
 export const Route = createFileRoute('/rss.xml')({
-  // @ts-ignore server property not in route types yet
+  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async () => {

@@ -25,15 +25,6 @@ export const Route = createFileRoute('/admin/roles/$roleId')({
   component: RoleDetailPage,
 })
 
-type User = {
-  _id: string
-  email: string
-  name?: string
-  displayUsername?: string
-  image?: string
-  capabilities?: string[]
-}
-
 function RoleDetailPage() {
   const { roleId } = Route.useParams()
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())

@@ -5,7 +5,7 @@ import { createFileRoute, notFound } from '@tanstack/react-router'
 export const Route = createFileRoute(
   '/$libraryId/$version/docs/framework/$framework/{$}.md',
 )({
-  // @ts-ignore server property not in route types yet
+  // @ts-expect-error server property not in route types yet
   server: {
     handlers: {
       GET: async ({

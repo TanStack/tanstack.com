@@ -414,8 +414,9 @@ function ShowcaseDetailPage() {
             {isEditing ? (
               <div className="space-y-4">
                 <div>
-                  <label className={labelClass}>URL</label>
+                  <label htmlFor="url" className={labelClass}>URL</label>
                   <input
+                    id="url"
                     type="text"
                     value={formData?.url || ''}
                     onChange={(e) =>
@@ -440,10 +441,11 @@ function ShowcaseDetailPage() {
                   size="small"
                 />
                 <div>
-                  <label className={labelClass}>
+                  <label htmlFor="src" className={labelClass}>
                     Source Code URL (optional)
                   </label>
                   <input
+                    id="src"
                     type="url"
                     value={formData?.sourceUrl || ''}
                     onChange={(e) =>
@@ -461,8 +463,9 @@ function ShowcaseDetailPage() {
                   </p>
                 </div>
                 <div>
-                  <label className={labelClass}>Description (optional)</label>
+                  <label htmlFor="description" className={labelClass}>Description (optional)</label>
                   <textarea
+                    id="description"
                     value={formData?.description || ''}
                     onChange={(e) =>
                       setFormData((prev) =>
@@ -474,8 +477,9 @@ function ShowcaseDetailPage() {
                   />
                 </div>
                 <div>
-                  <label className={labelClass}>Tranco Rank</label>
+                  <label htmlFor="trancoRank" className={labelClass}>Tranco Rank</label>
                   <input
+                    id="trancoRank"
                     type="number"
                     value={formData?.trancoRank ?? ''}
                     onChange={(e) =>
@@ -498,8 +502,9 @@ function ShowcaseDetailPage() {
                   </p>
                 </div>
                 <div>
-                  <label className={labelClass}>Vote Score</label>
+                  <label htmlFor="voteScore" className={labelClass}>Vote Score</label>
                   <input
+                    id="voteScore"
                     type="number"
                     value={formData?.voteScore ?? 0}
                     onChange={(e) =>
@@ -762,8 +767,9 @@ function ShowcaseDetailPage() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Status</label>
+                <label htmlFor="status" className={labelClass}>Status</label>
                 <select
+                  id="status"
                   value={formData?.status || 'pending'}
                   onChange={(e) =>
                     setFormData((prev) =>
@@ -782,9 +788,10 @@ function ShowcaseDetailPage() {
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Featured</label>
+                <label htmlFor="featured" className={labelClass}>Featured</label>
                 <div className="flex items-center gap-3 mt-2">
                   <button
+                    id="featured"
                     type="button"
                     onClick={() =>
                       setFormData((prev) =>
@@ -809,8 +816,9 @@ function ShowcaseDetailPage() {
                 </div>
               </div>
               <div className="md:col-span-2">
-                <label className={labelClass}>Moderation Note (optional)</label>
+                <label htmlFor="note" className={labelClass}>Moderation Note (optional)</label>
                 <textarea
+                  id="note"
                   value={formData?.moderationNote || ''}
                   onChange={(e) =>
                     setFormData((prev) =>

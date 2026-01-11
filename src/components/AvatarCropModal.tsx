@@ -134,10 +134,11 @@ export function AvatarCropModal({
           </div>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="zoom" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Zoom
             </label>
             <input
+              id="zoom"
               type="range"
               min={1}
               max={3}

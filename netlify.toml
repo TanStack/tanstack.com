@@ -1,5 +1,5 @@
 [build.environment]
-  NODE_OPTIONS = "--max-old-space-size=4096"
+  NODE_OPTIONS = "--max-old-space-size=4096 --import dist/server/instrument.server.mjs"
 
 [build]
   command = "vite build && cp src/instrument.server.mjs dist/server"

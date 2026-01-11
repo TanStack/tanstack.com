@@ -127,7 +127,7 @@ export function Island({ data, isDiscovered }: IslandProps) {
 
     // Beach chair position - on the sand ring, avoid sign zone
     let chairAngle = seededRandom(seed + 200) * Math.PI * 2
-    let chairRadius = 2.0 + seededRandom(seed + 201) * 0.5
+    const chairRadius = 2.0 + seededRandom(seed + 201) * 0.5
     let chairX = Math.cos(chairAngle) * chairRadius
     let chairZ = Math.sin(chairAngle) * chairRadius
 

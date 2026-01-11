@@ -469,7 +469,9 @@ function Resizable({
   const startHeightRef = React.useRef<number>(height)
 
   const onHeightChangeRef = React.useRef(onHeightChange)
-  onHeightChangeRef.current = onHeightChange
+  React.useEffect(() => {
+    onHeightChangeRef.current = onHeightChange
+  })
 
   React.useEffect(() => {
     if (!dragEl) return

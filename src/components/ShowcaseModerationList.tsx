@@ -522,10 +522,14 @@ export function ShowcaseModerationList({
                         {/* Moderation Note Input (for pending only) */}
                         {isPending && (
                           <div>
-                            <label className="block text-sm font-semibold mb-2">
+                            <label
+                              htmlFor="note"
+                              className="block text-sm font-semibold mb-2"
+                            >
                               Internal Moderation Note (optional):
                             </label>
                             <textarea
+                              id="note"
                               value={moderationNotes[showcase.id] || ''}
                               onChange={(e) =>
                                 handleModerationNoteChange(

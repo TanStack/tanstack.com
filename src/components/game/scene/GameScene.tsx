@@ -102,6 +102,7 @@ function IsometricCamera() {
   useEffect(() => {
     // Set up orthographic-like perspective
     if (camera instanceof THREE.PerspectiveCamera) {
+      // eslint-disable-next-line react-hooks/immutability
       camera.fov = BASE_FOV
       camera.updateProjectionMatrix()
     }
@@ -121,6 +122,7 @@ function IsometricCamera() {
           targetFov,
           0.1,
         )
+        // eslint-disable-next-line react-hooks/immutability
         camera.fov = currentFov.current
         camera.updateProjectionMatrix()
       }

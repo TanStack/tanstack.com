@@ -319,7 +319,7 @@ export const listNpmOrgStatsCache = createServerFn({ method: 'POST' }).handler(
           orgName: entry.orgName,
           totalDownloads: entry.totalDownloads,
           ratePerDay: totalRatePerDay > 0 ? totalRatePerDay : undefined,
-          packageStats: entry.packageStats as {},
+          packageStats: entry.packageStats as never,
           expiresAt: entry.expiresAt,
           createdAt: entry.createdAt,
           updatedAt: entry.updatedAt,

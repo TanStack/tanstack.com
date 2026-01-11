@@ -177,8 +177,10 @@ function BannersAdminPage() {
               const styleConfig = STYLE_CONFIG[banner.style]
               const Icon = styleConfig.icon
               const isExpired =
+                // eslint-disable-next-line react-hooks/purity
                 banner.expiresAt && banner.expiresAt < Date.now()
               const hasntStarted =
+                // eslint-disable-next-line react-hooks/purity
                 banner.startsAt && banner.startsAt > Date.now()
 
               return (

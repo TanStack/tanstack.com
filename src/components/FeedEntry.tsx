@@ -40,6 +40,7 @@ interface FeedEntryProps {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 export function FeedEntry({
   entry,
   showFullContent = false,

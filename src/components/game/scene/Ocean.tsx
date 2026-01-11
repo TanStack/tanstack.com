@@ -183,6 +183,7 @@ export function Ocean() {
 
   useFrame((state) => {
     if (material.uniforms) {
+      // eslint-disable-next-line react-hooks/immutability
       material.uniforms.uTime.value = state.clock.elapsedTime
     }
   })

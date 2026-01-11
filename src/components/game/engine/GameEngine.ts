@@ -157,6 +157,7 @@ export class GameEngine {
     this.canvas.addEventListener('pointermove', this.handlePointerMove)
 
     // Store for HMR
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     __hmrEngine = this
   }
 
@@ -267,7 +268,7 @@ export class GameEngine {
       const expandedIslands = useGameStore.getState().expandedIslands
 
       // Generate showcase islands if showcase was unlocked
-      let showcaseIslands = initialState.showcaseIslands
+      const showcaseIslands = initialState.showcaseIslands
       // Generate corner islands if corners were unlocked
       let cornerIslands = initialState.cornerIslands
       if (initialState.cornersUnlocked && cornerIslands.length === 0) {

@@ -189,14 +189,15 @@ function useSearchFilters() {
 function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
   const userQuery = useCurrentUserQuery()
   const [selectedLibrary, setSelectedLibrary] = React.useState('')
+  const lastUsedFramework = userQuery.data?.lastUsedFramework
 
   // Get initial framework from user preference (DB if logged in, localStorage otherwise)
   const getInitialFramework = React.useCallback(() => {
-    if (userQuery.data?.lastUsedFramework) {
-      return userQuery.data.lastUsedFramework
+    if (lastUsedFramework) {
+      return lastUsedFramework
     }
     return getStoredFrameworkPreference() || ''
-  }, [userQuery.data?.lastUsedFramework])
+  }, [lastUsedFramework])
 
   const [selectedFramework, setSelectedFramework] =
     React.useState(getInitialFramework)

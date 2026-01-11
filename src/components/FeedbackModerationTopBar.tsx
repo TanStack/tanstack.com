@@ -163,10 +163,14 @@ export function FeedbackModerationTopBar({
         <FilterDropdownSection title="Date Range">
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              <label
+                htmlFor="from"
+                className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+              >
                 From
               </label>
               <input
+                id="from"
                 type="date"
                 value={filters.dateFrom || ''}
                 onChange={(e) =>
@@ -176,10 +180,14 @@ export function FeedbackModerationTopBar({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              <label
+                htmlFor="to"
+                className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+              >
                 To
               </label>
               <input
+                id="to"
                 type="date"
                 value={filters.dateTo || ''}
                 onChange={(e) =>

@@ -20,11 +20,7 @@ type TocProps = {
   activeHeadings: Array<string>
 }
 
-export function Toc({
-  headings,
-  textColor,
-  activeHeadings,
-}: TocProps) {
+export function Toc({ headings, textColor, activeHeadings }: TocProps) {
   return (
     <nav className="flex flex-col sticky top-[var(--navbar-height)] max-h-[calc(100dvh-var(--navbar-height))] overflow-hidden">
       <div className="py-1">

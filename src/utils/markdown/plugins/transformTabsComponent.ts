@@ -40,7 +40,6 @@ type FilesExtraction = {
   }>
 }
 
-
 function parseAttributes(node: HastNode): Record<string, string> {
   const rawAttributes = node.properties?.['data-attributes']
   if (typeof rawAttributes === 'string') {

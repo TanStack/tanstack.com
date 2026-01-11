@@ -130,22 +130,24 @@ function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700">
-          {tabs.map((t) => (
-            <Link
-              key={t.id}
-              to="/admin"
-              search={{ tab: t.id }}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                tab === t.id
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
-              }`}
-            >
-              {t.icon}
-              {t.label}
-            </Link>
-          ))}
+        <div className="flex gap-1 mb-6 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+          <div className="flex gap-1 min-w-max">
+            {tabs.map((t) => (
+              <Link
+                key={t.id}
+                to="/admin"
+                search={{ tab: t.id }}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                  tab === t.id
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                }`}
+              >
+                {t.icon}
+                {t.label}
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Tab Content */}

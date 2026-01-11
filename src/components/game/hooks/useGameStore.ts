@@ -6,9 +6,107 @@ import {
   type ShipStats,
   BASE_SHIP_STATS,
   applyUpgrade,
-  UPGRADE_ORDER,
+  PARTNER_UPGRADE_ORDER,
+  SHOWCASE_UPGRADE_ORDER,
 } from '../utils/upgrades'
 import { type ShopItemType, SHOP_ITEMS } from '../utils/shopItems'
+
+// Keys for localStorage persistence
+const STORAGE_KEY = 'tanstack-island-explorer'
+
+// State that gets persisted to localStorage
+// This is the SINGLE SOURCE OF TRUTH for what gets saved
+interface PersistedState {
+  // Progress
+  discoveredIslands: string[]
+  coinsCollected: number
+  collectedCoinIds: number[] // Which specific coins are collected
+  unlockedUpgrades: Upgrade[]
+  shipStats: ShipStats
+  kills: number
+  deaths: number
+
+  // Game state
+  stage: GameStage
+  boatType: BoatType
+  showcaseUnlocked: boolean // Whether showcase expansion is unlocked
+  cornersUnlocked: boolean // Whether corner boss islands are unlocked
+
+  // Position
+  boatPosition: [number, number, number]
+  boatRotation: number
+  boatHealth: number
+
+  // Active effects
+  compassTargetId: string | null // Store ID, not full object
+  speedBoostEndTime: number | null
+}
+
+// Debounced save to localStorage
+let saveTimeout: ReturnType<typeof setTimeout> | null = null
+const SAVE_DEBOUNCE_MS = 2000
+
+function saveToLocalStorage(state: PersistedState): void {
+  if (saveTimeout) clearTimeout(saveTimeout)
+  saveTimeout = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    } catch {
+      // Ignore storage errors
+    }
+  }, SAVE_DEBOUNCE_MS)
+}
+
+function loadFromLocalStorage(): PersistedState | null {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      return JSON.parse(saved) as PersistedState
+    }
+  } catch {
+    // Ignore parse errors
+  }
+  return null
+}
+
+// Helper to extract persistable state from full game state
+function extractPersistedState(state: {
+  discoveredIslands: Set<string>
+  coinsCollected: number
+  coins: CoinData[]
+  unlockedUpgrades: Upgrade[]
+  shipStats: ShipStats
+  kills: number
+  deaths: number
+  stage: GameStage
+  boatType: BoatType
+  showcaseUnlocked: boolean
+  cornersUnlocked: boolean
+  boatPosition: [number, number, number]
+  boatRotation: number
+  boatHealth: number
+  compassTarget: IslandData | null
+  speedBoostEndTime: number | null
+}): PersistedState {
+  return {
+    discoveredIslands: Array.from(state.discoveredIslands),
+    coinsCollected: state.coinsCollected,
+    collectedCoinIds: state.coins.filter((c) => c.collected).map((c) => c.id),
+    unlockedUpgrades: state.unlockedUpgrades,
+    shipStats: state.shipStats,
+    kills: state.kills,
+    deaths: state.deaths,
+    stage: state.stage,
+    boatType: state.boatType,
+    showcaseUnlocked: state.showcaseUnlocked,
+    cornersUnlocked: state.cornersUnlocked,
+    boatPosition: state.boatPosition,
+    boatRotation: state.boatRotation,
+    boatHealth: state.boatHealth,
+    compassTargetId: state.compassTarget?.id ?? null,
+    speedBoostEndTime: state.speedBoostEndTime,
+  }
+}
 
 export interface CoinData {
   id: number
@@ -21,7 +119,7 @@ export type GameStage = 'exploration' | 'battle'
 
 // Other players/AI in the world
 // AI difficulty tier (affects stats)
-export type AIDifficulty = 'easy' | 'medium' | 'hard' | 'elite'
+export type AIDifficulty = 'easy' | 'medium' | 'hard' | 'elite' | 'boss'
 
 export interface OtherPlayer {
   id: string
@@ -106,8 +204,16 @@ interface GameState {
   // Islands (core library islands + expanded partner/showcase islands)
   islands: IslandData[]
   expandedIslands: IslandData[] // Partner/showcase islands in expanded zone
+  showcaseIslands: IslandData[] // Showcase islands (unlocked after all partners)
+  cornerIslands: IslandData[] // Corner boss islands
+  showcaseUnlocked: boolean // Whether showcase expansion is unlocked
+  cornersUnlocked: boolean // Whether corner boss islands are unlocked
   setIslands: (islands: IslandData[]) => void
   setExpandedIslands: (islands: IslandData[]) => void
+  setShowcaseIslands: (islands: IslandData[]) => void
+  setCornerIslands: (islands: IslandData[]) => void
+  unlockShowcase: () => void
+  unlockCorners: () => void
 
   // Rock colliders
   rockColliders: RockCollider[]
@@ -162,6 +268,12 @@ interface GameState {
   showCollisionDebug: boolean
   setShowCollisionDebug: (show: boolean) => void
 
+  // Stats tracking
+  kills: number
+  deaths: number
+  addKill: () => void
+  addDeath: () => void
+
   // Upgrade to ship (called when all core islands discovered)
   upgradeToShip: () => void
 
@@ -170,6 +282,9 @@ interface GameState {
 
   // Restart battle (keep discoveries, reset battle state)
   restartBattle: () => void
+
+  // Start over (full reset including localStorage)
+  startOver: () => void
 }
 
 // Initial world boundary for exploration stage
@@ -199,6 +314,10 @@ const initialState = {
   discoveryProgress: 0,
   islands: [] as IslandData[],
   expandedIslands: [] as IslandData[],
+  showcaseIslands: [] as IslandData[],
+  cornerIslands: [] as IslandData[],
+  showcaseUnlocked: false,
+  cornersUnlocked: false,
   rockColliders: [] as RockCollider[],
   coins: [] as CoinData[],
   coinsCollected: 0,
@@ -211,10 +330,54 @@ const initialState = {
   compassTarget: null as IslandData | null,
   speedBoostEndTime: null as number | null,
   showCollisionDebug: false,
+  kills: 0,
+  deaths: 0,
 }
 
-export const useGameStore = create<GameState>((set, get) => ({
+// Load initial state from localStorage if available
+const loadedState = loadFromLocalStorage()
+
+// Store loaded compass target ID to restore after islands are generated
+let pendingCompassTargetId: string | null = loadedState?.compassTargetId ?? null
+let pendingCollectedCoinIds: number[] = loadedState?.collectedCoinIds ?? []
+
+export const useGameStore = create<GameState>()((set, get) => ({
   ...initialState,
+  // Override with loaded state if available
+  ...(loadedState
+    ? {
+        discoveredIslands: new Set(loadedState.discoveredIslands || []),
+        coinsCollected:
+          loadedState.coinsCollected ?? initialState.coinsCollected,
+        unlockedUpgrades:
+          loadedState.unlockedUpgrades ?? initialState.unlockedUpgrades,
+        shipStats: loadedState.shipStats ?? initialState.shipStats,
+        kills: loadedState.kills ?? initialState.kills,
+        deaths: loadedState.deaths ?? initialState.deaths,
+        stage: loadedState.stage ?? initialState.stage,
+        boatType: loadedState.boatType ?? initialState.boatType,
+        boatPosition: loadedState.boatPosition ?? initialState.boatPosition,
+        boatRotation: loadedState.boatRotation ?? initialState.boatRotation,
+        boatHealth: loadedState.boatHealth ?? initialState.boatHealth,
+        // Restore speed boost if it hasn't expired
+        speedBoostEndTime:
+          loadedState.speedBoostEndTime &&
+          loadedState.speedBoostEndTime > Date.now()
+            ? loadedState.speedBoostEndTime
+            : null,
+        phase:
+          loadedState.discoveredIslands &&
+          loadedState.discoveredIslands.length > 0
+            ? ('playing' as const)
+            : ('intro' as const),
+        worldBoundary:
+          loadedState.stage === 'battle'
+            ? EXPANDED_WORLD_BOUNDARY
+            : INITIAL_WORLD_BOUNDARY,
+        showcaseUnlocked: loadedState.showcaseUnlocked ?? false,
+        cornersUnlocked: loadedState.cornersUnlocked ?? false,
+      }
+    : {}),
 
   setPhase: (phase) => set({ phase }),
   setStage: (stage) => set({ stage }),
@@ -264,6 +427,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       discoveredIslands,
       islands,
       expandedIslands,
+      showcaseIslands,
+      showcaseUnlocked,
+      cornersUnlocked,
       stage,
       unlockedUpgrades,
       compassTarget,
@@ -284,15 +450,65 @@ export const useGameStore = create<GameState>((set, get) => ({
         get().upgradeToShip()
       }
 
-      // In battle stage, check if this is a partner island and grant next upgrade in order
+      // In battle stage, handle partner/showcase island discoveries
       if (stage === 'battle') {
         const partnerIsland = expandedIslands.find((i) => i.id === id)
+        const showcaseIsland = showcaseIslands.find((i) => i.id === id)
+
         if (partnerIsland && partnerIsland.type === 'partner') {
-          // Grant next upgrade in the fixed order
-          const nextUpgrade = UPGRADE_ORDER[unlockedUpgrades.length]
+          // Count discovered partner islands
+          const discoveredPartnerCount = Array.from(newDiscovered).filter(
+            (discoveredId) =>
+              expandedIslands.some(
+                (i) => i.id === discoveredId && i.type === 'partner',
+              ),
+          ).length
+
+          // Grant next partner upgrade (0-indexed)
+          const upgradeIndex = discoveredPartnerCount - 1
+          const nextUpgrade = PARTNER_UPGRADE_ORDER[upgradeIndex]
           if (nextUpgrade) {
             get().applyShipUpgrade(nextUpgrade)
             set({ lastUnlockedUpgrade: nextUpgrade })
+          }
+
+          // Check if all partner islands discovered - unlock showcase
+          const totalPartnerIslands = expandedIslands.filter(
+            (i) => i.type === 'partner',
+          ).length
+          if (
+            !showcaseUnlocked &&
+            discoveredPartnerCount === totalPartnerIslands
+          ) {
+            get().unlockShowcase()
+          }
+        }
+
+        if (showcaseIsland && showcaseIsland.type === 'showcase') {
+          // Count discovered showcase islands (exclude corner islands which also use showcase type)
+          const realShowcaseIslands = showcaseIslands.filter(
+            (i) => !i.id.startsWith('corner-'),
+          )
+          const discoveredShowcaseCount = Array.from(newDiscovered).filter(
+            (discoveredId) =>
+              realShowcaseIslands.some((i) => i.id === discoveredId),
+          ).length
+
+          // Grant next showcase upgrade (0-indexed)
+          const upgradeIndex = discoveredShowcaseCount - 1
+          const nextUpgrade = SHOWCASE_UPGRADE_ORDER[upgradeIndex]
+          if (nextUpgrade) {
+            get().applyShipUpgrade(nextUpgrade)
+            set({ lastUnlockedUpgrade: nextUpgrade })
+          }
+
+          // Check if all showcase islands discovered - unlock corners
+          if (
+            !cornersUnlocked &&
+            discoveredShowcaseCount === realShowcaseIslands.length &&
+            realShowcaseIslands.length > 0
+          ) {
+            get().unlockCorners()
           }
         }
       }
@@ -302,12 +518,72 @@ export const useGameStore = create<GameState>((set, get) => ({
   setNearbyIsland: (nearbyIsland) => set({ nearbyIsland }),
   setDiscoveryProgress: (discoveryProgress) => set({ discoveryProgress }),
 
-  setIslands: (islands) => set({ islands }),
-  setExpandedIslands: (expandedIslands) => set({ expandedIslands }),
+  setIslands: (islands) => {
+    set({ islands })
+    // Restore compass target from pending ID if we have one
+    if (pendingCompassTargetId) {
+      const target = islands.find((i) => i.id === pendingCompassTargetId)
+      if (target) {
+        set({ compassTarget: target })
+        pendingCompassTargetId = null
+      }
+    }
+  },
+  setExpandedIslands: (expandedIslands) => {
+    set({ expandedIslands })
+    // Also check expanded islands for compass target
+    if (pendingCompassTargetId) {
+      const target = expandedIslands.find(
+        (i) => i.id === pendingCompassTargetId,
+      )
+      if (target) {
+        set({ compassTarget: target })
+        pendingCompassTargetId = null
+      }
+    }
+  },
+
+  setShowcaseIslands: (showcaseIslands) => {
+    set({ showcaseIslands })
+    // Check showcase islands for compass target
+    if (pendingCompassTargetId) {
+      const target = showcaseIslands.find(
+        (i) => i.id === pendingCompassTargetId,
+      )
+      if (target) {
+        set({ compassTarget: target })
+        pendingCompassTargetId = null
+      }
+    }
+  },
+
+  unlockShowcase: () => {
+    set({ showcaseUnlocked: true })
+  },
+
+  setCornerIslands: (cornerIslands) => {
+    set({ cornerIslands })
+  },
+
+  unlockCorners: () => {
+    set({ cornersUnlocked: true })
+  },
 
   setRockColliders: (rockColliders) => set({ rockColliders }),
 
-  setCoins: (coins) => set({ coins }),
+  setCoins: (coins) => {
+    // Restore collected state from pending IDs
+    if (pendingCollectedCoinIds.length > 0) {
+      const collectedSet = new Set(pendingCollectedCoinIds)
+      const restoredCoins = coins.map((c) =>
+        collectedSet.has(c.id) ? { ...c, collected: true } : c,
+      )
+      set({ coins: restoredCoins })
+      pendingCollectedCoinIds = []
+    } else {
+      set({ coins })
+    }
+  },
 
   collectCoin: (id) => {
     const { coins, coinsCollected } = get()
@@ -323,6 +599,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
 
   setShowCollisionDebug: (show) => set({ showCollisionDebug: show }),
+
+  addKill: () => set((state) => ({ kills: state.kills + 1 })),
+  addDeath: () => set((state) => ({ deaths: state.deaths + 1 })),
 
   setBoundaryEdges: (boundaryEdges) => set({ boundaryEdges }),
 
@@ -521,18 +800,46 @@ export const useGameStore = create<GameState>((set, get) => ({
       rockColliders: get().rockColliders,
       coins: get().coins.map((c) => ({ ...c, collected: false })),
       discoveredIslands: new Set<string>(),
+      kills: 0,
+      deaths: 0,
     }),
+
+  startOver: () => {
+    // Clear localStorage
+    localStorage.removeItem(STORAGE_KEY)
+    // Full reset
+    set({
+      ...initialState,
+      islands: get().islands,
+      expandedIslands: [], // Clear expanded islands
+      showcaseIslands: [], // Clear showcase islands
+      cornerIslands: [], // Clear corner islands
+      showcaseUnlocked: false,
+      cornersUnlocked: false,
+      rockColliders: get().rockColliders,
+      coins: get().coins.map((c) => ({ ...c, collected: false })),
+      discoveredIslands: new Set<string>(),
+    })
+  },
 
   restartBattle: () => {
     const {
       islands,
       expandedIslands,
+      showcaseIslands,
+      cornerIslands,
+      showcaseUnlocked,
+      cornersUnlocked,
       rockColliders,
       coins,
       discoveredIslands,
       unlockedUpgrades,
       shipStats,
     } = get()
+
+    // World boundary depends on showcase unlock status
+    const worldBoundary = showcaseUnlocked ? 500 : EXPANDED_WORLD_BOUNDARY
+
     set({
       phase: 'playing',
       stage: 'battle',
@@ -545,7 +852,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       isMovingBackward: false,
       isTurningLeft: false,
       isTurningRight: false,
-      worldBoundary: EXPANDED_WORLD_BOUNDARY,
+      worldBoundary,
       otherPlayers: [],
       cannonballs: [],
       lastFireTime: 0,
@@ -554,10 +861,14 @@ export const useGameStore = create<GameState>((set, get) => ({
       speedBoostEndTime: null,
       nearbyIsland: null,
       discoveryProgress: 0,
-      coinsCollected: 0, // Reset coins on death
+      coinsCollected: Math.floor(get().coinsCollected / 2), // Lose half coins on death
       // Keep these
       islands,
       expandedIslands,
+      showcaseIslands,
+      cornerIslands,
+      showcaseUnlocked,
+      cornersUnlocked,
       rockColliders,
       coins,
       discoveredIslands,
@@ -566,3 +877,28 @@ export const useGameStore = create<GameState>((set, get) => ({
     })
   },
 }))
+
+// Periodic auto-save (every 5 seconds) instead of on every state change
+setInterval(() => {
+  const state = useGameStore.getState()
+  // Only save if game is active
+  if (state.phase === 'playing' || state.phase === 'gameover') {
+    saveToLocalStorage(extractPersistedState(state))
+  }
+}, 5000)
+
+// Also save when page is about to unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    const state = useGameStore.getState()
+    // Immediate save (bypass debounce)
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(extractPersistedState(state)),
+      )
+    } catch {
+      // Ignore
+    }
+  })
+}

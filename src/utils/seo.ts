@@ -3,11 +3,13 @@ export const seo = ({
   description,
   keywords,
   image,
+  noindex,
 }: {
   title: string
   description?: string
   image?: string
   keywords?: string
+  noindex?: boolean
 }) => {
   const tags = [
     { title },
@@ -27,6 +29,7 @@ export const seo = ({
           { property: 'og:image', content: image },
         ]
       : []),
+    ...(noindex ? [{ name: 'robots', content: 'noindex, nofollow' }] : []),
   ]
 
   return tags

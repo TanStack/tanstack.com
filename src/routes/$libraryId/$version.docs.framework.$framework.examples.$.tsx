@@ -103,6 +103,7 @@ export const Route = createFileRoute(
         description: `An example showing how to implement ${slugToTitle(
           params._splat || '',
         )} in ${capitalize(params.framework)} using ${library.name}.`,
+        noindex: library.visible === false,
       }),
     }
   },

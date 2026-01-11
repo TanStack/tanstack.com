@@ -35,7 +35,7 @@ export function CompassIndicator() {
       const normX = len > 0 ? screenX / len : 0
       const normY = len > 0 ? screenY / len : 0
 
-      const edgeDistance = 42
+      const edgeDistance = 25
       const finalX = normX * edgeDistance
       const finalY = normY * edgeDistance
 

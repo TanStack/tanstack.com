@@ -184,36 +184,59 @@ export function IslandInfo3D({ island, exiting = false }: IslandInfo3DProps) {
 
         {library?.frameworks && library.frameworks.length > 0 && (
           <group position={[0, -0.7, 0]}>
-            {library.frameworks.slice(0, 6).map((fw, i) => {
-              const totalWidth = Math.min(library.frameworks!.length, 6) * 0.7
-              const startX = -totalWidth / 2 + 0.35
-              const x = startX + i * 0.7
+            {(() => {
+              const frameworks = library.frameworks!.slice(0, 6)
+              const gap = 0.08
+              const paddingX = 0.12
+              const charWidth = 0.1
+              const boxHeight = 0.28
 
-              return (
-                <group key={fw} position={[x, 0, 0.1]}>
-                  <mesh>
-                    <boxGeometry args={[0.6, 0.28, 0.08]} />
-                    <meshStandardMaterial
-                      color={FRAMEWORK_COLORS[fw] || '#888888'}
-                      transparent
-                      opacity={0.9}
-                    />
-                  </mesh>
-                  <Suspense fallback={null}>
-                    <Text
-                      position={[0, 0, 0.05]}
-                      fontSize={0.12}
-                      color="#FFFFFF"
-                      anchorX="center"
-                      anchorY="middle"
-                      fontWeight={600}
-                    >
-                      {fw.charAt(0).toUpperCase() + fw.slice(1, 5)}
-                    </Text>
-                  </Suspense>
-                </group>
-              )
-            })}
+              // Calculate widths for each framework
+              const widths = frameworks.map((fw) => {
+                const label = fw.charAt(0).toUpperCase() + fw.slice(1)
+                return label.length * charWidth + paddingX * 2
+              })
+
+              const totalWidth =
+                widths.reduce((a, b) => a + b, 0) +
+                gap * (frameworks.length - 1)
+              let currentX = -totalWidth / 2
+
+              return frameworks.map((fw, i) => {
+                const label = fw.charAt(0).toUpperCase() + fw.slice(1)
+                const boxWidth = widths[i]
+                const x = currentX + boxWidth / 2
+                currentX += boxWidth + gap
+
+                return (
+                  <group key={fw} position={[x, 0, 0.1]}>
+                    <mesh>
+                      <boxGeometry args={[boxWidth, boxHeight, 0.08]} />
+                      <meshStandardMaterial
+                        color={FRAMEWORK_COLORS[fw] || '#888888'}
+                        transparent
+                        opacity={0.9}
+                      />
+                    </mesh>
+                    <Suspense fallback={null}>
+                      <Text
+                        position={[0, 0, 0.05]}
+                        fontSize={0.12}
+                        color="#FFFFFF"
+                        anchorX="center"
+                        anchorY="middle"
+                        fontWeight={600}
+                        maxWidth={boxWidth - 0.04}
+                        overflowWrap="normal"
+                        whiteSpace="nowrap"
+                      >
+                        {label}
+                      </Text>
+                    </Suspense>
+                  </group>
+                )
+              })
+            })()}
           </group>
         )}
       </group>

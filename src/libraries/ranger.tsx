@@ -2,15 +2,13 @@ import { MessageCircleQuestionMark, PlugZap, RotateCw } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { ranger } from './libraries'
 
-const textStyles = 'text-gray-700 dark:text-gray-500'
+const textStyles = 'text-black dark:text-gray-100'
 
 export const rangerProject = {
   ...ranger,
   description: `Headless, lightweight, and extensible primitives for building range and multi-range sliders.`,
   ogImage: 'https://github.com/tanstack/ranger/raw/main/media/headerv1.png',
   latestBranch: 'main',
-  bgRadial: 'from-gray-500 via-gray-700/50 to-transparent',
-  textColor: 'text-gray-700',
   featureHighlights: [
     {
       title: 'Typesafe & powerful, yet familiarly simple',

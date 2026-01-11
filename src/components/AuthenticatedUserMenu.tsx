@@ -1,6 +1,13 @@
 import * as React from 'react'
 import { Link } from '@tanstack/react-router'
-import { ChevronDown, Settings, Lock, LogOut, Sparkles } from 'lucide-react'
+import {
+  ChevronDown,
+  Settings,
+  Lock,
+  LogOut,
+  Sparkles,
+  Key,
+} from 'lucide-react'
 import { Avatar } from '~/components/Avatar'
 import {
   Dropdown,
@@ -18,12 +25,14 @@ interface AuthenticatedUserMenuProps {
     email?: string | null
   } | null
   canAdmin: boolean
+  canApiKeys: boolean
   onSignOut: () => void
 }
 
 export function AuthenticatedUserMenu({
   user,
   canAdmin,
+  canApiKeys,
   onSignOut,
 }: AuthenticatedUserMenuProps) {
   return (
@@ -58,6 +67,14 @@ export function AuthenticatedUserMenu({
             <span>My Showcases</span>
           </Link>
         </DropdownItem>
+        {canApiKeys && (
+          <DropdownItem asChild>
+            <Link to="/account/api-keys" className="flex items-center gap-2">
+              <Key className="w-4 h-4" />
+              <span>API Keys</span>
+            </Link>
+          </DropdownItem>
+        )}
         {canAdmin && (
           <DropdownItem asChild>
             <Link to="/admin" className="flex items-center gap-2">

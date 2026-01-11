@@ -96,7 +96,18 @@ export function useAIOpponents() {
   useEffect(() => {
     // Check stage inside effect, subscribe via interval to avoid re-render loop
     const checkAndInit = () => {
-      const { stage, worldBoundary } = useGameStore.getState()
+      const { stage, otherPlayers, worldBoundary } = useGameStore.getState()
+
+      // Reset initialized flag if we're in battle but have no AI ships (restart scenario)
+      if (
+        stage === 'battle' &&
+        initialized.current &&
+        otherPlayers.length === 0
+      ) {
+        initialized.current = false
+        aiStates.current.clear()
+      }
+
       if (stage === 'battle' && !initialized.current) {
         const aiOpponents = generateAIOpponents(4, worldBoundary)
         setOtherPlayers(aiOpponents)

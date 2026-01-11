@@ -97,6 +97,16 @@ export class CannonballSystem {
         }
         return player
       })
+
+      // Count kills (ships that dropped to 0 health)
+      const killedCount = updatedPlayers.filter((p) => p.health <= 0).length
+      if (killedCount > 0) {
+        const { addKill } = useGameStore.getState()
+        for (let i = 0; i < killedCount; i++) {
+          addKill()
+        }
+      }
+
       setOtherPlayers(updatedPlayers.filter((p) => p.health > 0))
     }
 

@@ -49,6 +49,7 @@ export const Route = createFileRoute('/$libraryId')({
           : '',
         description: library.description,
         image: library.ogImage,
+        noindex: library.visible === false,
       }),
     }
   },

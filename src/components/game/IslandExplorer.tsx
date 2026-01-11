@@ -13,6 +13,7 @@ import { IslandIndicator } from './ui/IslandIndicator'
 import { Shop } from './ui/Shop'
 import { CompassIndicator } from './ui/CompassIndicator'
 import { GameOverOverlay } from './ui/GameOverOverlay'
+import { StatsHUD } from './ui/StatsHUD'
 
 export default function IslandExplorer() {
   return (
@@ -37,6 +38,7 @@ export default function IslandExplorer() {
       <CompleteOverlay />
       <GameOverOverlay />
       <GameHUD />
+      <StatsHUD />
       <Minimap />
       <IslandIndicator />
       <CompassIndicator />

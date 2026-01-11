@@ -1,7 +1,7 @@
 import { useGameStore } from '../../hooks/useGameStore'
 
 const DISCOVERY_RADIUS = 8
-const DISCOVERY_TIME = 8 // Seconds to fully discover
+const DISCOVERY_TIME = 3 // Seconds to fully discover
 
 export class DiscoverySystem {
   update(delta: number): void {

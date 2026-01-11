@@ -42,12 +42,37 @@ async function fetchRemote(
 }
 
 /**
+ * Validate that a filepath doesn't attempt path traversal
+ */
+function isValidFilepath(filepath: string): boolean {
+  const normalized = path.normalize(filepath)
+  return (
+    !normalized.startsWith('..') &&
+    !normalized.includes('/../') &&
+    !path.isAbsolute(normalized)
+  )
+}
+
+/**
  * Return text content of file from local file system
  */
 async function fetchFs(repo: string, filepath: string) {
-  // const __dirname = fileURLToPath(new URL('.', import.meta.url))
+  if (!isValidFilepath(filepath)) {
+    console.warn(`[fetchFs] Invalid filepath rejected: ${filepath}\n`)
+    return ''
+  }
+
   const dirname = import.meta.url.split('://').at(-1)!
-  const localFilePath = path.resolve(dirname, `../../../../${repo}`, filepath)
+  const baseDir = path.resolve(dirname, `../../../../${repo}`)
+  const localFilePath = path.resolve(baseDir, filepath)
+
+  if (!localFilePath.startsWith(baseDir)) {
+    console.warn(
+      `[fetchFs] Path traversal attempt blocked: ${filepath} resolved to ${localFilePath}\n`,
+    )
+    return ''
+  }
+
   const exists = fs.existsSync(localFilePath)
   if (!exists) {
     console.warn(

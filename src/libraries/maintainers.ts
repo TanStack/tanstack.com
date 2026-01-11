@@ -38,6 +38,7 @@ export const allMaintainers: Maintainer[] = [
       'ranger',
       'store',
       'pacer',
+      'mcp',
       'react-charts',
     ],
     frameworkExpertise: ['react', 'solid'],

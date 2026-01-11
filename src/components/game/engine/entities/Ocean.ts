@@ -4,16 +4,19 @@ import { COLORS } from '../../utils/colors'
 // Simple fallback for debugging - set to true to use basic material
 const USE_SIMPLE_OCEAN = false
 
+// Max islands we can pass to shader (WebGL uniform limit)
+const MAX_ISLANDS = 64
+
 export class Ocean {
   mesh: THREE.Mesh
   private material: THREE.ShaderMaterial | THREE.MeshStandardMaterial
 
   constructor() {
     const geometry = new THREE.PlaneGeometry(
-      500,
-      500,
-      USE_SIMPLE_OCEAN ? 1 : 200,
-      USE_SIMPLE_OCEAN ? 1 : 200,
+      2000,
+      2000,
+      USE_SIMPLE_OCEAN ? 1 : 400,
+      USE_SIMPLE_OCEAN ? 1 : 400,
     )
     geometry.rotateX(-Math.PI / 2)
 
@@ -29,6 +32,9 @@ export class Ocean {
       return
     }
 
+    // Initialize island positions array (x, z pairs flattened)
+    const islandPositions = new Float32Array(MAX_ISLANDS * 2)
+
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
@@ -37,6 +43,8 @@ export class Ocean {
         uSurfaceColor: { value: new THREE.Color(COLORS.ocean.surface) },
         uShallowColor: { value: new THREE.Color(COLORS.ocean.shallow) },
         uFoamColor: { value: new THREE.Color(COLORS.ocean.foam) },
+        uIslandPositions: { value: islandPositions },
+        uIslandCount: { value: 0 },
       },
       vertexShader: `
         uniform float uTime;
@@ -104,6 +112,8 @@ export class Ocean {
         uniform vec3 uSurfaceColor;
         uniform vec3 uShallowColor;
         uniform vec3 uFoamColor;
+        uniform float uIslandPositions[128]; // 64 islands * 2 (x,z)
+        uniform int uIslandCount;
         varying vec2 vUv;
         varying float vElevation;
         varying vec3 vWorldPos;
@@ -132,13 +142,36 @@ export class Ocean {
         
         void main() {
           float distFromCenter = length(vWorldPos.xz);
-          float depthFactor = clamp(distFromCenter / 80.0, 0.0, 1.0);
+          
+          // Calculate proximity to any island (for shallow water gradient)
+          float islandProximity = 0.0;
+          for (int i = 0; i < 64; i++) {
+            if (i >= uIslandCount) break;
+            vec2 islandPos = vec2(uIslandPositions[i * 2], uIslandPositions[i * 2 + 1]);
+            float dist = length(vWorldPos.xz - islandPos);
+            // Gradient radius around each island
+            float gradientRadius = 40.0;
+            float proximity = 1.0 - clamp(dist / gradientRadius, 0.0, 1.0);
+            // Smooth falloff
+            proximity = proximity * proximity * (3.0 - 2.0 * proximity);
+            islandProximity = max(islandProximity, proximity);
+          }
+          
+          // Depth factor now considers island proximity
+          float baseDepthFactor = clamp(distFromCenter / 80.0, 0.0, 1.0);
+          float depthFactor = baseDepthFactor * (1.0 - islandProximity * 0.8);
           
           float normElev = clamp((vElevation + 0.8) / 1.6, 0.0, 1.0);
           
           vec3 nearColor = mix(uSurfaceColor, uShallowColor, normElev);
           vec3 farColor = mix(uDeepColor, uMidColor, normElev * 0.5);
           vec3 color = mix(nearColor, farColor, depthFactor * 0.7);
+          
+          // Extra shallow tint near islands
+          if (islandProximity > 0.0) {
+            vec3 shallowTint = mix(uSurfaceColor, uShallowColor, 0.6);
+            color = mix(color, shallowTint, islandProximity * 0.5);
+          }
           
           float colorNoise = snoise(vWorldPos.xz * 0.02) * 0.5 + 0.5;
           color = mix(color, color * 0.9, colorNoise * 0.15);
@@ -189,6 +222,22 @@ export class Ocean {
     if (this.material instanceof THREE.ShaderMaterial) {
       this.material.uniforms.uTime.value = time
     }
+  }
+
+  // Update island positions for the shader gradient effect
+  setIslandPositions(positions: Array<[number, number]>): void {
+    if (!(this.material instanceof THREE.ShaderMaterial)) return
+
+    const count = Math.min(positions.length, MAX_ISLANDS)
+    const posArray = this.material.uniforms.uIslandPositions
+      .value as Float32Array
+
+    for (let i = 0; i < count; i++) {
+      posArray[i * 2] = positions[i][0]
+      posArray[i * 2 + 1] = positions[i][1]
+    }
+
+    this.material.uniforms.uIslandCount.value = count
   }
 
   dispose(): void {

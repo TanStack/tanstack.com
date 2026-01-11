@@ -24,11 +24,14 @@ import { CannonballSystem } from './systems/CannonballSystem'
 import {
   generateIslands,
   generateExpandedIslands,
+  generateShowcaseIslands,
+  generateCornerIslands,
 } from '../utils/islandGenerator'
 import { generateRockColliders } from '../utils/collision'
-import { generateCoins } from '../utils/coinGenerator'
+import { generateCoins, generateExpandedCoins } from '../utils/coinGenerator'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'
+import { fetchGameShowcases } from '../utils/showcases'
 
 // Filter to only active partners
 const ACTIVE_PARTNERS = partners
@@ -63,6 +66,7 @@ export class GameEngine {
   private animationFrameId: number | null = null
   private unsubscribers: Array<() => void> = []
   private isDisposed = false
+  private isPaused = false
   private raycaster = new THREE.Raycaster()
   private pointer = new THREE.Vector2()
 
@@ -144,6 +148,9 @@ export class GameEngine {
 
     // Handle resize
     window.addEventListener('resize', this.handleResize)
+
+    // Handle visibility change (pause when tab not active)
+    document.addEventListener('visibilitychange', this.handleVisibilityChange)
 
     // Handle clicks for info signs
     this.canvas.addEventListener('click', this.handleClick)
@@ -242,16 +249,112 @@ export class GameEngine {
     this.islands.setIslands(islands, [])
     this.oceanRocks.generate(islands, 30, 140)
     this.coins.setCoins(useGameStore.getState().coins)
+
+    // Set ocean island gradients
+    this.updateOceanIslandPositions(islands, [], [])
   }
 
   private setupSubscriptions(): void {
+    const initialState = useGameStore.getState()
+
+    // Handle loading directly into battle stage (page reload while in battle)
+    if (initialState.stage === 'battle' && initialState.phase === 'playing') {
+      // Generate expanded islands if needed
+      if (initialState.expandedIslands.length === 0) {
+        const partnerIslands = generateExpandedIslands(ACTIVE_PARTNERS)
+        initialState.setExpandedIslands(partnerIslands)
+      }
+      const expandedIslands = useGameStore.getState().expandedIslands
+
+      // Generate showcase islands if showcase was unlocked
+      let showcaseIslands = initialState.showcaseIslands
+      // Generate corner islands if corners were unlocked
+      let cornerIslands = initialState.cornerIslands
+      if (initialState.cornersUnlocked && cornerIslands.length === 0) {
+        cornerIslands = generateCornerIslands()
+        initialState.setCornerIslands(cornerIslands)
+      }
+
+      if (initialState.showcaseUnlocked && showcaseIslands.length === 0) {
+        // Fetch and generate showcase islands async
+        fetchGameShowcases().then((showcases) => {
+          if (showcases.length > 0) {
+            const generated = generateShowcaseIslands(showcases)
+            initialState.setShowcaseIslands(generated)
+            this.islands.setIslands(
+              initialState.islands,
+              expandedIslands,
+              generated,
+              cornerIslands,
+            )
+            this.updateOceanIslandPositions(
+              initialState.islands,
+              expandedIslands,
+              generated,
+              cornerIslands,
+            )
+          }
+        })
+      }
+
+      this.islands.setIslands(
+        initialState.islands,
+        expandedIslands,
+        showcaseIslands,
+        cornerIslands,
+      )
+
+      // Update ocean gradients for current islands
+      this.updateOceanIslandPositions(
+        initialState.islands,
+        expandedIslands,
+        showcaseIslands,
+        cornerIslands,
+      )
+
+      // Generate expanded coins if needed (check if we have coins in outer ring)
+      const hasExpandedCoins = initialState.coins.some(
+        (c) => Math.abs(c.position[0]) > 90 || Math.abs(c.position[2]) > 90,
+      )
+      if (!hasExpandedCoins) {
+        const allIslands = [
+          ...initialState.islands,
+          ...expandedIslands,
+          ...showcaseIslands,
+        ]
+        const expandedCoins = generateExpandedCoins(
+          initialState.coins,
+          allIslands,
+        )
+        initialState.setCoins(expandedCoins)
+      }
+
+      // Set boat type
+      this.boat.setBoatType(initialState.boatType)
+
+      // Spawn AI
+      this.aiSystem.spawn(6)
+
+      // Spawn outer rim AIs if showcase is unlocked
+      if (initialState.showcaseUnlocked) {
+        this.aiSystem.spawn(8, true)
+      }
+
+      // Spawn corner bosses if corners unlocked
+      if (initialState.cornersUnlocked) {
+        this.aiSystem.spawnCornerBosses()
+      }
+    }
+
     // Track previous values for change detection
-    let prevPhase = useGameStore.getState().phase
-    let prevBoatType = useGameStore.getState().boatType
-    let prevStage = useGameStore.getState().stage
-    let prevCoins = useGameStore.getState().coins
-    let prevOtherPlayers = useGameStore.getState().otherPlayers
-    let prevCannonballs = useGameStore.getState().cannonballs
+    let prevPhase = initialState.phase
+    let prevBoatType = initialState.boatType
+    let prevStage = initialState.stage
+    let prevCoins = initialState.coins
+    let prevOtherPlayers = initialState.otherPlayers
+    let prevCannonballs = initialState.cannonballs
+    let prevShowcaseUnlocked = initialState.showcaseUnlocked
+    let prevCornersUnlocked = initialState.cornersUnlocked
 
     this.unsubscribers.push(
       useGameStore.subscribe((state) => {
@@ -272,6 +375,8 @@ export class GameEngine {
             // Reset stage tracking
             prevStage = 'exploration'
             prevBoatType = 'dinghy'
+            prevShowcaseUnlocked = false
+            prevCornersUnlocked = false
           }
         }
 
@@ -289,12 +394,110 @@ export class GameEngine {
               const partnerIslands = generateExpandedIslands(ACTIVE_PARTNERS)
               state.setExpandedIslands(partnerIslands)
             }
+            const expandedIslands = useGameStore.getState().expandedIslands
             this.islands.setIslands(
               state.islands,
-              useGameStore.getState().expandedIslands,
+              expandedIslands,
+              state.showcaseIslands,
+              state.cornerIslands,
             )
+
+            // Update ocean gradients
+            this.updateOceanIslandPositions(
+              state.islands,
+              expandedIslands,
+              state.showcaseIslands,
+              state.cornerIslands,
+            )
+
+            // Generate expanded coins for outer ring
+            const allIslands = [
+              ...state.islands,
+              ...expandedIslands,
+              ...state.showcaseIslands,
+            ]
+            const expandedCoins = generateExpandedCoins(state.coins, allIslands)
+            state.setCoins(expandedCoins)
+
             this.aiSystem.spawn(6)
           }
+        }
+
+        // Showcase unlock (generate showcase islands - NOT corner islands yet)
+        if (state.showcaseUnlocked && !prevShowcaseUnlocked) {
+          prevShowcaseUnlocked = true
+
+          // Expand world boundary for showcase zone
+          state.setWorldBoundary(500)
+
+          // Spawn tough outer rim AIs for the showcase zone
+          this.aiSystem.spawn(8, true)
+
+          // Fetch and generate showcase islands async (no corner islands yet)
+          if (state.showcaseIslands.length === 0) {
+            fetchGameShowcases().then((showcases) => {
+              if (showcases.length > 0) {
+                const generated = generateShowcaseIslands(showcases)
+                state.setShowcaseIslands(generated)
+
+                // Update islands entity with showcase islands
+                this.islands.setIslands(
+                  state.islands,
+                  state.expandedIslands,
+                  generated,
+                  state.cornerIslands,
+                )
+                // Update ocean gradients
+                this.updateOceanIslandPositions(
+                  state.islands,
+                  state.expandedIslands,
+                  generated,
+                  state.cornerIslands,
+                )
+              }
+            })
+          } else {
+            this.islands.setIslands(
+              state.islands,
+              state.expandedIslands,
+              state.showcaseIslands,
+              state.cornerIslands,
+            )
+            // Update ocean gradients
+            this.updateOceanIslandPositions(
+              state.islands,
+              state.expandedIslands,
+              state.showcaseIslands,
+              state.cornerIslands,
+            )
+          }
+        }
+
+        // Corners unlock (after all showcases discovered)
+        if (state.cornersUnlocked && !prevCornersUnlocked) {
+          prevCornersUnlocked = true
+
+          // Generate corner islands
+          const cornerIslands = generateCornerIslands()
+          state.setCornerIslands(cornerIslands)
+
+          // Spawn corner boss AIs
+          this.aiSystem.spawnCornerBosses()
+
+          // Update islands entity with corner islands
+          this.islands.setIslands(
+            state.islands,
+            state.expandedIslands,
+            state.showcaseIslands,
+            cornerIslands,
+          )
+          // Update ocean gradients
+          this.updateOceanIslandPositions(
+            state.islands,
+            state.expandedIslands,
+            state.showcaseIslands,
+            cornerIslands,
+          )
         }
 
         // Coins update
@@ -305,8 +508,36 @@ export class GameEngine {
 
         // Other players update (AI ships)
         if (state.otherPlayers !== prevOtherPlayers) {
+          const hadPlayers = prevOtherPlayers.length > 0
+          const nowEmpty = state.otherPlayers.length === 0
           prevOtherPlayers = state.otherPlayers
           this.aiShips.updatePlayers(state.otherPlayers)
+
+          // Respawn AI if we're in battle stage and players were cleared (restart after death)
+          if (
+            state.stage === 'battle' &&
+            state.phase === 'playing' &&
+            nowEmpty &&
+            hadPlayers
+          ) {
+            // Reset AI system state so spawn works again
+            this.aiSystem.reset()
+
+            // Delay spawn slightly to let state settle
+            setTimeout(() => {
+              // Get fresh state to check unlock status
+              const currentState = useGameStore.getState()
+              this.aiSystem.spawn(6)
+              // Spawn outer rim AIs if showcase is unlocked
+              if (currentState.showcaseUnlocked) {
+                this.aiSystem.spawn(8, true)
+              }
+              // Spawn corner bosses if corners are unlocked
+              if (currentState.cornersUnlocked) {
+                this.aiSystem.spawnCornerBosses()
+              }
+            }, 100)
+          }
         }
 
         // Cannonballs update
@@ -335,6 +566,9 @@ export class GameEngine {
 
     this.animationFrameId = requestAnimationFrame(this.loop)
 
+    // Skip updates when tab is not visible
+    if (this.isPaused) return
+
     const delta = this.clock.getDelta()
     const time = this.clock.getElapsedTime()
 
@@ -360,6 +594,16 @@ export class GameEngine {
         this.aiSystem.update(delta)
         this.cannonballSystem.update(delta, this.cannonballs)
         this.aiDebug.update()
+
+        // Health regeneration
+        const { boatHealth, shipStats, setBoatHealth } = useGameStore.getState()
+        if (boatHealth < shipStats.maxHealth && shipStats.healthRegen > 0) {
+          const newHealth = Math.min(
+            shipStats.maxHealth,
+            boatHealth + shipStats.healthRegen * delta,
+          )
+          setBoatHealth(newHealth)
+        }
       }
 
       // Update entities
@@ -399,6 +643,14 @@ export class GameEngine {
     this.resize(width, height)
   }
 
+  private handleVisibilityChange = (): void => {
+    this.isPaused = document.hidden
+    if (!document.hidden) {
+      // Reset clock delta when resuming to avoid large time jumps
+      this.clock.getDelta()
+    }
+  }
+
   private handleClick = (event: MouseEvent): void => {
     const infoGroup = this.raycastInfoGroup(event.clientX, event.clientY)
     if (!infoGroup) return
@@ -409,8 +661,10 @@ export class GameEngine {
 
     if (island.type === 'partner' && island.partner?.href) {
       window.open(island.partner.href, '_blank')
+    } else if (island.type === 'showcase' && island.showcase?.url) {
+      window.open(island.showcase.url, '_blank')
     } else if (island.type === 'library' && island.library) {
-      window.location.href = `/${island.library.id}`
+      window.open(`/${island.library.id}`, '_blank')
     }
   }
 
@@ -418,6 +672,28 @@ export class GameEngine {
     const infoGroup = this.raycastInfoGroup(event.clientX, event.clientY)
     this.canvas.style.cursor = infoGroup ? 'pointer' : 'auto'
     this.islands.setInfoHover(infoGroup)
+  }
+
+  private updateOceanIslandPositions(
+    islands: Array<{ position: [number, number, number] }>,
+    expandedIslands: Array<{ position: [number, number, number] }>,
+    showcaseIslands: Array<{ position: [number, number, number] }>,
+    cornerIslands: Array<{ position: [number, number, number] }> = [],
+  ): void {
+    const positions: Array<[number, number]> = []
+    for (const island of islands) {
+      positions.push([island.position[0], island.position[2]])
+    }
+    for (const island of expandedIslands) {
+      positions.push([island.position[0], island.position[2]])
+    }
+    for (const island of showcaseIslands) {
+      positions.push([island.position[0], island.position[2]])
+    }
+    for (const island of cornerIslands) {
+      positions.push([island.position[0], island.position[2]])
+    }
+    this.ocean.setIslandPositions(positions)
   }
 
   private raycastInfoGroup(
@@ -472,8 +748,14 @@ export class GameEngine {
     this.scene.add(this.islands.group)
 
     // Re-initialize with current game data
-    const { islands, expandedIslands, coins } = useGameStore.getState()
-    this.islands.setIslands(islands, expandedIslands)
+    const { islands, expandedIslands, showcaseIslands, cornerIslands } =
+      useGameStore.getState()
+    this.islands.setIslands(
+      islands,
+      expandedIslands,
+      showcaseIslands,
+      cornerIslands,
+    )
   }
 
   dispose(): void {
@@ -516,6 +798,10 @@ export class GameEngine {
     }
 
     window.removeEventListener('resize', this.handleResize)
+    document.removeEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange,
+    )
     this.canvas.removeEventListener('click', this.handleClick)
     this.canvas.removeEventListener('pointermove', this.handlePointerMove)
   }

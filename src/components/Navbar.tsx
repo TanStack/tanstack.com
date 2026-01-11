@@ -28,9 +28,6 @@ import {
   Home,
   Grid2X2,
   Sparkles,
-  Settings,
-  Lock,
-  LogOut,
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
@@ -109,6 +106,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
   const canAdmin = capabilities.some((cap) =>
     (ADMIN_ACCESS_CAPABILITIES as readonly string[]).includes(cap),
   )
+
+  const canApiKeys = capabilities.includes('api-keys')
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -231,6 +230,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
           <LazyAuthenticatedUserMenu
             user={user}
             canAdmin={canAdmin}
+            canApiKeys={canApiKeys}
             onSignOut={signOut}
           />
         </React.Suspense>
@@ -276,16 +276,20 @@ export function Navbar({ children }: { children: React.ReactNode }) {
       )}
       ref={containerRef}
     >
-      <div className="flex items-center">
-        <div className="flex items-center gap-2 font-black text-xl uppercase">
+      <div className="flex items-center min-w-0">
+        <div className="flex items-center gap-2 font-black text-xl uppercase min-w-0">
           <React.Suspense fallback={<LogoSection />}>
             <LazyBrandContextMenu
-              className={twMerge(`flex items-center group`)}
+              className={twMerge(`flex items-center group flex-shrink-0`)}
             >
               <LogoSection />
             </LazyBrandContextMenu>
           </React.Suspense>
-          {Title ? <Title /> : null}
+          {Title ? (
+            <div className="truncate">
+              <Title />
+            </div>
+          ) : null}
         </div>
       </div>
       <div className="hidden xl:flex flex-1 justify-end min-w-0">
@@ -346,6 +350,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                 colorFrom: string
               } =>
                 d.to !== undefined &&
+                d.visible !== false &&
                 (SIDEBAR_LIBRARY_IDS as readonly string[]).includes(d.id),
             )
             .sort((a, b) => {
@@ -426,7 +431,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                       {library.badge ? (
                         <span
                           className={twMerge(
-                            `px-2 py-px uppercase font-black rounded-md text-[.65rem] text-white`,
+                            `px-2 py-px uppercase font-black rounded-md text-[.65rem]`,
+                            library.badgeTextStyle ?? 'text-white',
                             'bg-gradient-to-r',
                             library.colorFrom,
                             library.colorTo,
@@ -472,7 +478,8 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                               {library.badge ? (
                                 <span
                                   className={twMerge(
-                                    `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/30 rounded-md text-[.7rem] text-white`,
+                                    `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/30 rounded-md text-[.7rem]`,
+                                    library.badgeTextStyle ?? 'text-white',
                                     'opacity-90 group-hover:opacity-100 transition-opacity',
                                     'bg-gradient-to-r',
                                     library.colorFrom,
@@ -762,110 +769,6 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             </React.Fragment>
           )
         })}
-        <Authenticated>
-          {/* Mobile separator */}
-          <div className="col-span-2 sm:col-span-3 py-3 md:hidden">
-            <div className="bg-gray-500/10 h-px" />
-          </div>
-          <div className="py-2 hidden md:block col-span-2">
-            <div className="bg-gray-500/10 h-px" />
-          </div>
-          {/* Mobile: Account card */}
-          <MobileCard>
-            <Link
-              to="/account"
-              className={twMerge(linkClasses, 'font-normal md:hidden')}
-              activeProps={{
-                className: twMerge(
-                  'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
-                ),
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                <div>Account</div>
-              </div>
-            </Link>
-          </MobileCard>
-          {/* Desktop: Account link */}
-          <Link
-            to="/account"
-            className={twMerge(linkClasses, 'font-normal hidden md:flex')}
-            activeProps={{
-              className: twMerge(
-                'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
-              ),
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              <div>Account</div>
-            </div>
-          </Link>
-          {canAdmin ? (
-            <>
-              {/* Mobile: Admin card */}
-              <MobileCard>
-                <Link
-                  to="/admin"
-                  className={twMerge(linkClasses, 'font-normal md:hidden')}
-                  activeProps={{
-                    className: twMerge(
-                      'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
-                    ),
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <Lock className="w-5 h-5" />
-                    <div>Admin</div>
-                  </div>
-                </Link>
-              </MobileCard>
-              {/* Desktop: Admin link */}
-              <Link
-                to="/admin"
-                className={twMerge(linkClasses, 'font-normal hidden md:flex')}
-                activeProps={{
-                  className: twMerge(
-                    'font-bold! bg-gray-500/10 dark:bg-gray-500/30',
-                  ),
-                }}
-              >
-                <div className="flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  <div>Admin</div>
-                </div>
-              </Link>
-            </>
-          ) : null}
-          {/* Mobile: Sign Out card */}
-          <MobileCard>
-            <button
-              type="button"
-              onClick={signOut}
-              className={twMerge(linkClasses, 'font-normal w-full md:hidden')}
-            >
-              <div className="flex items-center gap-2">
-                <LogOut className="w-5 h-5" />
-                <div>Sign Out</div>
-              </div>
-            </button>
-          </MobileCard>
-          {/* Desktop: Sign Out button */}
-          <button
-            type="button"
-            onClick={signOut}
-            className={twMerge(
-              linkClasses,
-              'font-normal w-full hidden md:flex',
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <LogOut className="w-4 h-4" />
-              <div>Sign Out</div>
-            </div>
-          </button>
-        </Authenticated>
       </div>
     </div>
   )

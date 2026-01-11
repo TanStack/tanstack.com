@@ -58,8 +58,18 @@ export class Islands {
     this.group = new THREE.Group()
   }
 
-  setIslands(coreIslands: IslandData[], expandedIslands: IslandData[]): void {
-    const allIslands = [...coreIslands, ...expandedIslands]
+  setIslands(
+    coreIslands: IslandData[],
+    expandedIslands: IslandData[],
+    showcaseIslands: IslandData[] = [],
+    cornerIslands: IslandData[] = [],
+  ): void {
+    const allIslands = [
+      ...coreIslands,
+      ...expandedIslands,
+      ...showcaseIslands,
+      ...cornerIslands,
+    ]
 
     // Remove islands that no longer exist
     for (const [id, instance] of this.instances) {
@@ -142,7 +152,7 @@ export class Islands {
     group.rotation.y = data.rotation
     group.scale.setScalar(data.scale)
 
-    const { library, partner } = data
+    const { library, partner, showcase } = data
     const libraryColor =
       data.type === 'library' && library
         ? getLibraryColor(library.id)
@@ -150,9 +160,11 @@ export class Islands {
           ? partner.brandColor
           : data.type === 'partner'
             ? '#f59e0b'
-            : '#8b5cf6'
+            : data.type === 'showcase'
+              ? '#8b5cf6' // Purple for showcase islands
+              : '#8b5cf6'
 
-    const seedId = library?.id ?? partner?.id ?? data.id
+    const seedId = library?.id ?? partner?.id ?? showcase?.id ?? data.id
     const seed = seedId.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
 
     // Create island geometry
@@ -179,7 +191,7 @@ export class Islands {
     islandMesh.receiveShadow = true
     group.add(islandMesh)
 
-    // Foam and water rings
+    // Foam ring (white edge around island - shallow water handled by ocean shader)
     const foamRing = new THREE.Mesh(
       new THREE.RingGeometry(islandRadius * 0.97, islandRadius * 1.03, 64),
       new THREE.MeshStandardMaterial({
@@ -191,18 +203,6 @@ export class Islands {
     foamRing.rotation.x = -Math.PI / 2
     foamRing.position.y = 0.08
     group.add(foamRing)
-
-    const waterRing = new THREE.Mesh(
-      new THREE.RingGeometry(islandRadius * 1.0, islandRadius * 1.25, 64),
-      new THREE.MeshStandardMaterial({
-        color: COLORS.ocean.shallow,
-        transparent: true,
-        opacity: 0.5,
-      }),
-    )
-    waterRing.rotation.x = -Math.PI / 2
-    waterRing.position.y = 0.05
-    group.add(waterRing)
 
     // Palm tints (used for main island and lobes)
     const palmTints = ['#AAFFAA', '#CCFFCC', '#88FF88', '#BBFFBB', '#99FF99']
@@ -239,7 +239,7 @@ export class Islands {
       lobeMesh.receiveShadow = true
       lobeGroup.add(lobeMesh)
 
-      // Lobe foam ring
+      // Lobe foam ring (shallow water handled by ocean shader)
       const lobeFoam = new THREE.Mesh(
         new THREE.RingGeometry(
           lobeIslandRadius * 0.97,
@@ -255,23 +255,6 @@ export class Islands {
       lobeFoam.rotation.x = -Math.PI / 2
       lobeFoam.position.y = 0.08
       lobeGroup.add(lobeFoam)
-
-      // Lobe water ring
-      const lobeWater = new THREE.Mesh(
-        new THREE.RingGeometry(
-          lobeIslandRadius * 1.0,
-          lobeIslandRadius * 1.2,
-          32,
-        ),
-        new THREE.MeshStandardMaterial({
-          color: COLORS.ocean.shallow,
-          transparent: true,
-          opacity: 0.4,
-        }),
-      )
-      lobeWater.rotation.x = -Math.PI / 2
-      lobeWater.position.y = 0.05
-      lobeGroup.add(lobeWater)
 
       // Add palm trees to lobe (1-2 based on lobe size)
       const lobeSeed = seed + 1000 + i * 100
@@ -473,7 +456,6 @@ export class Islands {
     const colors: number[] = []
 
     const foamColor = new THREE.Color('#E8F4F8')
-    const shallowColor = new THREE.Color(COLORS.ocean.shallow)
     const sandColorLight = new THREE.Color(COLORS.sand.light)
     const sandColorMid = new THREE.Color(COLORS.sand.mid)
     const grassColorDark = new THREE.Color('#1B5E20')
@@ -488,20 +470,17 @@ export class Islands {
       const absoluteY = y + sphereCenterY
       const colorNoise = Math.sin(angle * 7 + seed) * 0.5 + 0.5
 
-      const waterY = -0.6
+      // Start at foam line - shallow water is handled by ocean shader
       const foamY = -0.35
       const sandY = -0.25
       const grassY = 0.0
 
       let color: THREE.Color
 
-      if (absoluteY < waterY) {
-        color = shallowColor.clone()
-        color.lerp(new THREE.Color('#1A8A9A'), colorNoise * 0.2)
-      } else if (absoluteY < foamY) {
-        const foamAmount = THREE.MathUtils.smoothstep(absoluteY, waterY, foamY)
-        color = shallowColor.clone().lerp(foamColor, foamAmount)
-        color.lerp(new THREE.Color('#FFFFFF'), colorNoise * 0.3 * foamAmount)
+      if (absoluteY < foamY) {
+        // Below foam line - use foam/white color (will be under water visually)
+        color = foamColor.clone()
+        color.lerp(new THREE.Color('#FFFFFF'), colorNoise * 0.3)
       } else if (absoluteY < sandY) {
         const sandProgress = THREE.MathUtils.smoothstep(absoluteY, foamY, sandY)
         const wetSand = sandColorLight.clone().lerp(foamColor, 0.15)
@@ -937,10 +916,12 @@ export class Islands {
 
   private createInfoCard(data: IslandData, color: string): THREE.Group {
     const info = new THREE.Group()
-    const { library, partner } = data
-    const name = library?.name ?? partner?.name ?? 'Unknown'
-    const tagline = library?.tagline ?? 'Partner Island'
+    const { library, partner, showcase } = data
+    const name = library?.name ?? partner?.name ?? showcase?.name ?? 'Unknown'
+    const tagline =
+      library?.tagline ?? partner?.tagline ?? showcase?.tagline ?? ''
     const isPartner = data.type === 'partner' && !!partner
+    const isShowcase = data.type === 'showcase' && !!showcase
 
     // Background box
     const bgGeo = new THREE.BoxGeometry(5, 2.2, 0.15)
@@ -1046,6 +1027,40 @@ export class Islands {
       partnerTagline.position.set(0, -0.3, 0.12)
       info.add(partnerTagline)
       partnerTagline.sync()
+    } else if (isShowcase) {
+      // Showcase layout: "TanStack Showcase" label, name, and tagline
+      const showcaseLabel = new Text()
+      showcaseLabel.text = 'TanStack Showcase'
+      showcaseLabel.fontSize = 0.16
+      showcaseLabel.color = 0xffffff
+      showcaseLabel.anchorX = 'center'
+      showcaseLabel.anchorY = 'middle'
+      showcaseLabel.position.set(0, 0.7, 0.12)
+      info.add(showcaseLabel)
+      showcaseLabel.sync()
+
+      const nameText = new Text()
+      nameText.text = name
+      nameText.fontSize = 0.4
+      nameText.color = 0xffffff
+      nameText.anchorX = 'center'
+      nameText.anchorY = 'middle'
+      nameText.fontWeight = 'bold'
+      nameText.position.set(0, 0.2, 0.12)
+      info.add(nameText)
+      nameText.sync()
+
+      const showcaseTagline = new Text()
+      showcaseTagline.text = tagline
+      showcaseTagline.fontSize = 0.18
+      showcaseTagline.color = 0xffffff
+      showcaseTagline.anchorX = 'center'
+      showcaseTagline.anchorY = 'middle'
+      showcaseTagline.maxWidth = 4.2
+      showcaseTagline.textAlign = 'center'
+      showcaseTagline.position.set(0, -0.35, 0.12)
+      info.add(showcaseTagline)
+      showcaseTagline.sync()
     } else {
       // Library layout: Name and tagline
       const nameText = new Text()

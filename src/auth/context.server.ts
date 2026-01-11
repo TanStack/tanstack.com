@@ -21,7 +21,19 @@ import {
 // ============================================================================
 
 function getSessionSecret(): string {
-  return process.env.SESSION_SECRET || 'dev-secret-key-change-in-production'
+  const secret = process.env.SESSION_SECRET
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'SESSION_SECRET environment variable is required in production',
+      )
+    }
+    console.warn(
+      '[Auth] SESSION_SECRET not set, using insecure default for development only',
+    )
+    return 'dev-secret-key-change-in-production'
+  }
+  return secret
 }
 
 function isProduction(): boolean {

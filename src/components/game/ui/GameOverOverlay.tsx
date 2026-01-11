@@ -2,13 +2,21 @@ import { useEffect, useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
 
 export function GameOverOverlay() {
-  const { phase, restartBattle } = useGameStore()
+  const { phase, restartBattle, addDeath } = useGameStore()
   const [animationStep, setAnimationStep] = useState(0)
+  const [deathCounted, setDeathCounted] = useState(false)
 
   useEffect(() => {
     if (phase !== 'gameover') {
       setAnimationStep(0)
+      setDeathCounted(false)
       return
+    }
+
+    // Count the death once when game over starts
+    if (!deathCounted) {
+      addDeath()
+      setDeathCounted(true)
     }
 
     const timers = [
@@ -18,7 +26,7 @@ export function GameOverOverlay() {
     ]
 
     return () => timers.forEach(clearTimeout)
-  }, [phase])
+  }, [phase, deathCounted, addDeath])
 
   if (phase !== 'gameover') return null
 

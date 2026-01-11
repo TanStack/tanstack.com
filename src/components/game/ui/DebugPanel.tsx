@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useGameStore } from '../hooks/useGameStore'
-import { UPGRADES, UPGRADE_ORDER } from '../utils/upgrades'
+import {
+  UPGRADES,
+  PARTNER_UPGRADE_ORDER,
+  SHOWCASE_UPGRADE_ORDER,
+} from '../utils/upgrades'
+
+const UPGRADE_ORDER = [...PARTNER_UPGRADE_ORDER, ...SHOWCASE_UPGRADE_ORDER]
 import { getCurrentUser } from '~/utils/auth.server'
 
 export function DebugPanel() {
@@ -31,6 +37,8 @@ export function DebugPanel() {
     stage,
     islands,
     expandedIslands,
+    showcaseIslands,
+    showcaseUnlocked,
     coins,
     discoveredIslands,
     coinsCollected,
@@ -92,6 +100,25 @@ export function DebugPanel() {
     }
   }
 
+  const discoverAllPartners = () => {
+    const { expandedIslands, discoverIsland } = useGameStore.getState()
+    const partnerIslands = expandedIslands.filter((i) => i.type === 'partner')
+    partnerIslands.forEach((island) => {
+      discoverIsland(island.id)
+    })
+  }
+
+  const discoverNextShowcase = () => {
+    const { showcaseIslands, discoveredIslands, discoverIsland } =
+      useGameStore.getState()
+    const undiscovered = showcaseIslands.find(
+      (i) => !discoveredIslands.has(i.id),
+    )
+    if (undiscovered) {
+      discoverIsland(undiscovered.id)
+    }
+  }
+
   const grantNextUpgrade = () => {
     const { unlockedUpgrades, applyShipUpgrade } = useGameStore.getState()
     const nextUpgrade = UPGRADE_ORDER[unlockedUpgrades.length]
@@ -145,6 +172,9 @@ export function DebugPanel() {
   const discoveredPartners = partnerIslands.filter((i) =>
     discoveredIslands.has(i.id),
   ).length
+  const discoveredShowcases = showcaseIslands.filter((i) =>
+    discoveredIslands.has(i.id),
+  ).length
 
   return (
     <div className="absolute top-1/2 -translate-y-1/2 left-4 z-50">
@@ -155,130 +185,114 @@ export function DebugPanel() {
         {isCollapsed ? '🔧' : '✕'} DEBUG
       </button>
       {!isCollapsed && (
-        <div className="mt-1 bg-black/80 text-white p-3 rounded-lg text-xs font-mono space-y-2 max-w-52">
-          <div className="text-gray-400">
-            Phase: {phase} | Stage: {stage}
-          </div>
-          <div className="text-gray-400">
-            Islands: {discoveredIslands.size}/{islands.length}
-          </div>
-          <div className="text-gray-400">
-            Coins: {coinsCollected}/{coins.length}
-          </div>
-
-          {stage === 'battle' && (
+        <div className="mt-1 bg-black/80 text-white p-3 rounded-lg text-xs font-mono space-y-1 max-w-52">
+          {stage === 'exploration' && (
             <>
-              <div className="text-gray-400">
-                Partners: {discoveredPartners}/{partnerIslands.length}
-              </div>
-              <div className="text-gray-400">
-                Upgrades: {unlockedUpgrades.length}/{UPGRADE_ORDER.length}
-              </div>
-              <div className="text-gray-400">
-                HP: {Math.round(boatHealth)}/{shipStats.maxHealth}
-              </div>
-              {unlockedUpgrades.length > 0 && (
-                <div className="text-green-400 text-[10px]">
-                  {unlockedUpgrades.map((u) => u.name).join(', ')}
-                </div>
-              )}
+              <button
+                onClick={discoverAllIslands}
+                className="block w-full px-2 py-1 bg-green-600 hover:bg-green-500 rounded"
+              >
+                Discover All (except last)
+              </button>
+              <button
+                onClick={discoverLastIsland}
+                className="block w-full px-2 py-1 bg-orange-600 hover:bg-orange-500 rounded"
+              >
+                Discover Last (trigger upgrade)
+              </button>
+              <button
+                onClick={skipToBattle}
+                className="block w-full px-2 py-1 bg-purple-600 hover:bg-purple-500 rounded"
+              >
+                Skip to Battle Stage
+              </button>
             </>
           )}
 
-          <div className="border-t border-gray-600 pt-2 space-y-1">
-            {stage === 'exploration' && (
-              <>
+          {stage === 'battle' && (
+            <>
+              <button
+                onClick={discoverNextPartner}
+                className="block w-full px-2 py-1 bg-green-600 hover:bg-green-500 rounded"
+              >
+                Discover Next Partner
+              </button>
+              <button
+                onClick={discoverAllPartners}
+                className="block w-full px-2 py-1 bg-amber-600 hover:bg-amber-500 rounded"
+              >
+                Discover All Partners
+              </button>
+              {showcaseUnlocked && (
                 <button
-                  onClick={discoverAllIslands}
-                  className="block w-full px-2 py-1 bg-green-600 hover:bg-green-500 rounded"
-                >
-                  Discover All (except last)
-                </button>
-                <button
-                  onClick={discoverLastIsland}
-                  className="block w-full px-2 py-1 bg-orange-600 hover:bg-orange-500 rounded"
-                >
-                  Discover Last (trigger upgrade)
-                </button>
-                <button
-                  onClick={() => collectCoins(10)}
-                  className="block w-full px-2 py-1 bg-yellow-600 hover:bg-yellow-500 rounded"
-                >
-                  Collect 10 Coins
-                </button>
-                <button
-                  onClick={() => collectCoins(50)}
-                  className="block w-full px-2 py-1 bg-yellow-600 hover:bg-yellow-500 rounded"
-                >
-                  Collect All Coins
-                </button>
-                <button
-                  onClick={skipToBattle}
+                  onClick={discoverNextShowcase}
                   className="block w-full px-2 py-1 bg-purple-600 hover:bg-purple-500 rounded"
                 >
-                  Skip to Battle Stage
+                  Discover Next Showcase
                 </button>
-              </>
-            )}
+              )}
+              <button
+                onClick={grantNextUpgrade}
+                className="block w-full px-2 py-1 bg-cyan-600 hover:bg-cyan-500 rounded"
+              >
+                Grant Next Upgrade
+              </button>
+              <button
+                onClick={grantAllUpgrades}
+                className="block w-full px-2 py-1 bg-cyan-700 hover:bg-cyan-600 rounded"
+              >
+                Grant All Upgrades
+              </button>
+              <button
+                onClick={() => takeDamage(25)}
+                className="block w-full px-2 py-1 bg-red-600 hover:bg-red-500 rounded"
+              >
+                Take 25 Damage
+              </button>
+              <button
+                onClick={healFull}
+                className="block w-full px-2 py-1 bg-pink-600 hover:bg-pink-500 rounded"
+              >
+                Heal to Full
+              </button>
+              <button
+                onClick={() => takeDamage(999)}
+                className="block w-full px-2 py-1 bg-red-800 hover:bg-red-700 rounded"
+              >
+                Kill Player
+              </button>
+            </>
+          )}
 
-            {stage === 'battle' && (
-              <>
-                <button
-                  onClick={discoverNextPartner}
-                  className="block w-full px-2 py-1 bg-green-600 hover:bg-green-500 rounded"
-                >
-                  Discover Next Partner
-                </button>
-                <button
-                  onClick={grantNextUpgrade}
-                  className="block w-full px-2 py-1 bg-cyan-600 hover:bg-cyan-500 rounded"
-                >
-                  Grant Next Upgrade
-                </button>
-                <button
-                  onClick={grantAllUpgrades}
-                  className="block w-full px-2 py-1 bg-cyan-700 hover:bg-cyan-600 rounded"
-                >
-                  Grant All Upgrades
-                </button>
-                <button
-                  onClick={() => takeDamage(25)}
-                  className="block w-full px-2 py-1 bg-red-600 hover:bg-red-500 rounded"
-                >
-                  Take 25 Damage
-                </button>
-                <button
-                  onClick={healFull}
-                  className="block w-full px-2 py-1 bg-pink-600 hover:bg-pink-500 rounded"
-                >
-                  Heal to Full
-                </button>
-                <button
-                  onClick={() => takeDamage(999)}
-                  className="block w-full px-2 py-1 bg-red-800 hover:bg-red-700 rounded"
-                >
-                  Kill Player (Test Game Over)
-                </button>
-              </>
-            )}
+          <button
+            onClick={() => collectCoins(10)}
+            className="block w-full px-2 py-1 bg-yellow-600 hover:bg-yellow-500 rounded"
+          >
+            Collect 10 Coins
+          </button>
+          <button
+            onClick={() => collectCoins(50)}
+            className="block w-full px-2 py-1 bg-yellow-600 hover:bg-yellow-500 rounded"
+          >
+            Collect All Coins
+          </button>
 
-            <button
-              onClick={() => useGameStore.getState().reset()}
-              className="block w-full px-2 py-1 bg-red-600 hover:bg-red-500 rounded"
-            >
-              Reset Game
-            </button>
+          <button
+            onClick={() => useGameStore.getState().reset()}
+            className="block w-full px-2 py-1 bg-red-600 hover:bg-red-500 rounded"
+          >
+            Reset Game
+          </button>
 
-            <label className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-600 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showCollisionDebug}
-                onChange={(e) => setShowCollisionDebug(e.target.checked)}
-                className="rounded"
-              />
-              <span>Show Collision Bounds</span>
-            </label>
-          </div>
+          <label className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-600 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showCollisionDebug}
+              onChange={(e) => setShowCollisionDebug(e.target.checked)}
+              className="rounded"
+            />
+            <span>Show Collision Bounds</span>
+          </label>
         </div>
       )}
     </div>

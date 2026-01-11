@@ -36,6 +36,7 @@ export const Route = createFileRoute(
       meta: seo({
         title: `${library.name} Community Resources`,
         description: `A collection of community resources for ${library.name}.`,
+        noindex: library.visible === false,
       }),
     }
   },

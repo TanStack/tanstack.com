@@ -154,7 +154,8 @@ export default function LibraryCard({
           className={twMerge(
             `absolute -top-2 -right-2 z-40 px-2 py-1 rounded-md`,
             ['bg-gradient-to-r', library.colorFrom, library.colorTo],
-            'uppercase text-white font-black italic text-xs',
+            'uppercase font-black italic text-xs',
+            library.badgeTextStyle ?? 'text-white',
           )}
           style={{
             animation: 'pulseScale 3s infinite',

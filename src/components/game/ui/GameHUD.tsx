@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
-import {
-  Compass,
-  Volume2,
-  VolumeX,
-  Map,
-  Coins,
-  ShoppingBag,
-} from 'lucide-react'
+import { Compass, Map, Coins, ShoppingBag } from 'lucide-react'
 
 export function GameHUD() {
   const {
@@ -16,10 +9,12 @@ export function GameHUD() {
     discoveredIslands,
     islands,
     expandedIslands,
+    showcaseIslands,
+    cornerIslands,
+    showcaseUnlocked,
+    cornersUnlocked,
     boatRotation,
     coinsCollected,
-    isMuted,
-    toggleMute,
     boatHealth,
     shipStats,
     lastFireTime,
@@ -34,6 +29,12 @@ export function GameHUD() {
   const [showUpgradeNotification, setShowUpgradeNotification] = useState(false)
   const [showCoinHint, setShowCoinHint] = useState(false)
   const [coinHintDismissed, setCoinHintDismissed] = useState(false)
+  const [showShowcaseUnlock, setShowShowcaseUnlock] = useState(false)
+  const [showcaseUnlockShown, setShowcaseUnlockShown] = useState(false)
+  const [showCornersUnlock, setShowCornersUnlock] = useState(false)
+  const [cornersUnlockShown, setCornersUnlockShown] = useState(false)
+  const [damageFlash, setDamageFlash] = useState(false)
+  const [prevHealth, setPrevHealth] = useState(boatHealth)
 
   // Update cooldown progress
   useEffect(() => {
@@ -78,10 +79,39 @@ export function GameHUD() {
     }
   }, [stage, phase, boatHealth, setPhase])
 
-  // Total islands depends on stage
+  // Show showcase unlock notification
+  useEffect(() => {
+    if (showcaseUnlocked && !showcaseUnlockShown) {
+      setShowShowcaseUnlock(true)
+      setShowcaseUnlockShown(true)
+    }
+  }, [showcaseUnlocked, showcaseUnlockShown])
+
+  // Show corners unlock notification
+  useEffect(() => {
+    if (cornersUnlocked && !cornersUnlockShown) {
+      setShowCornersUnlock(true)
+      setCornersUnlockShown(true)
+    }
+  }, [cornersUnlocked, cornersUnlockShown])
+
+  // Flash health bar when taking damage
+  useEffect(() => {
+    if (boatHealth < prevHealth) {
+      setDamageFlash(true)
+      const timer = setTimeout(() => setDamageFlash(false), 150)
+      return () => clearTimeout(timer)
+    }
+    setPrevHealth(boatHealth)
+  }, [boatHealth, prevHealth])
+
+  // Total islands depends on stage (includes showcase + corner islands when unlocked)
   const totalIslands =
     stage === 'battle'
-      ? islands.length + expandedIslands.length
+      ? islands.length +
+        expandedIslands.length +
+        showcaseIslands.length +
+        cornerIslands.length
       : islands.length
 
   if (phase !== 'playing') return null
@@ -148,30 +178,21 @@ export function GameHUD() {
             islands
           </span>
         </div>
-
-        {/* Mute button */}
-        <button
-          onClick={toggleMute}
-          className="pointer-events-auto bg-black/30 backdrop-blur-sm rounded-xl p-2 text-white hover:bg-black/40 transition-colors"
-          title={isMuted ? 'Unmute' : 'Mute'}
-        >
-          {isMuted ? (
-            <VolumeX className="w-5 h-5" />
-          ) : (
-            <Volume2 className="w-5 h-5" />
-          )}
-        </button>
       </div>
 
       {/* Bottom bar - Battle stage only */}
       {stage === 'battle' && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
           {/* Health bar */}
-          <div className="bg-black/40 backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-3">
+          <div
+            className={`backdrop-blur-sm rounded-full px-4 py-2 flex items-center gap-3 transition-colors duration-75 ${
+              damageFlash ? 'bg-red-500/70' : 'bg-black/40'
+            }`}
+          >
             <span className="text-red-400 text-sm font-medium">HP</span>
             <div className="w-32 h-3 bg-black/50 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-red-600 to-red-400 transition-all duration-200"
+                className="h-full bg-gradient-to-r from-red-600 to-red-400"
                 style={{
                   width: `${(boatHealth / shipStats.maxHealth) * 100}%`,
                 }}
@@ -213,6 +234,53 @@ export function GameHUD() {
             <div className="text-yellow-100/80 text-sm">
               {upgradeInfo.description}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Showcase unlock notification */}
+      {showShowcaseUnlock && (
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in duration-300">
+          <div className="bg-gradient-to-br from-purple-500/90 to-violet-600/90 backdrop-blur-md rounded-2xl px-8 py-6 text-center shadow-2xl border border-purple-300/30 max-w-sm">
+            <div className="text-5xl mb-3">🏝️</div>
+            <div className="text-white font-bold text-xl mb-2">
+              Showcase Islands Unlocked!
+            </div>
+            <div className="text-purple-100/80 text-sm leading-relaxed mb-4">
+              New islands have appeared in the outer seas. Discover them for
+              powerful late-game upgrades!
+            </div>
+            <button
+              onClick={() => setShowShowcaseUnlock(false)}
+              className="pointer-events-auto px-6 py-2 bg-white/20 hover:bg-white/30 text-white font-medium rounded-lg transition-colors"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Corners unlock notification */}
+      {showCornersUnlock && (
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-in fade-in zoom-in duration-300">
+          <div className="bg-gradient-to-br from-gray-900/95 to-red-950/95 backdrop-blur-md rounded-2xl px-8 py-6 text-center shadow-2xl border border-red-500/30 max-w-sm">
+            <div className="text-5xl mb-3">💀</div>
+            <div className="text-red-400 font-bold text-xl mb-2">
+              The Four Corners Await
+            </div>
+            <div className="text-gray-300/90 text-sm leading-relaxed mb-4">
+              Ancient islands have emerged in each corner of the sea, guarded by
+              fearsome captains. Only the most skilled sailors dare approach.
+            </div>
+            <div className="text-red-400/70 text-xs mb-4 italic">
+              Warning: These guardians show no mercy.
+            </div>
+            <button
+              onClick={() => setShowCornersUnlock(false)}
+              className="pointer-events-auto px-6 py-2 bg-red-600/50 hover:bg-red-600/70 text-white font-medium rounded-lg transition-colors"
+            >
+              Face Your Doom
+            </button>
           </div>
         </div>
       )}

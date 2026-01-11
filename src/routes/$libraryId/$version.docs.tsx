@@ -27,6 +27,7 @@ export const Route = createFileRoute('/$libraryId/$version/docs')({
     return {
       meta: seo({
         title: `${library.name} Docs`,
+        noindex: library.visible === false,
       }),
     }
   },
@@ -48,9 +49,9 @@ function DocsRoute() {
     <DocsLayout
       name={library.name.replace('TanStack ', '')}
       version={version === 'latest' ? library.latestVersion : version!}
-      colorFrom={library.colorFrom}
-      colorTo={library.colorTo}
-      textColor={library.textColor || ''}
+      colorFrom={library.accentColorFrom ?? library.colorFrom}
+      colorTo={library.accentColorTo ?? library.colorTo}
+      textColor={library.accentTextColor ?? library.textColor ?? ''}
       config={config}
       frameworks={library.frameworks}
       versions={library.availableVersions}

@@ -3,19 +3,17 @@ import { twMerge } from 'tailwind-merge'
 import { CogsIcon } from '~/components/icons/CogsIcon'
 import { config } from './libraries'
 
-const textStyles = 'text-gray-700 dark:text-gray-500'
+const textStyles = 'text-black dark:text-gray-100'
 
 export const configProject = {
   ...config,
   description: `Opinionated tooling to lint, build, test, version, and publish JS/TS packages — minimal config, consistent results.`,
   ogImage: 'https://github.com/tanstack/config/raw/main/media/repo-header.png',
   latestBranch: 'main',
-  bgRadial: 'from-gray-500 via-gray-700/50 to-transparent',
-  textColor: 'text-gray-700',
   featureHighlights: [
     {
       title: 'Intuitive Configuration',
-      icon: <WandSparkles className="text-gray-400" />,
+      icon: <WandSparkles className="text-black dark:text-gray-100" />,
       description: (
         <div>
           TanStack Config offers a seamless and intuitive configuration
@@ -31,7 +29,7 @@ export const configProject = {
     },
     {
       title: 'Vite-Powered Builds',
-      icon: <Zap className="text-gray-500" />,
+      icon: <Zap className="text-black dark:text-gray-100" />,
       description: (
         <div>
           TanStack Config's build configuration harnesses the Vite ecosystem.
@@ -48,7 +46,7 @@ export const configProject = {
     },
     {
       title: 'Effortless Publication',
-      icon: <CogsIcon className="text-gray-700" />,
+      icon: <CogsIcon className="text-black dark:text-gray-100" />,
       description: (
         <div>
           Say goodbye to the complexities of code publishing. This package

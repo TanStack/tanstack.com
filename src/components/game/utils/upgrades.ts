@@ -1,6 +1,9 @@
 // Ship upgrades granted by discovering partner/showcase islands
 
 export type UpgradeType =
+  | 'sailSpeed'
+  | 'turnRate'
+  | 'acceleration'
   | 'sideFireRate'
   | 'frontFireRate'
   | 'cannonRange'
@@ -21,6 +24,54 @@ export interface Upgrade {
 
 // All upgrade tiers - stackable upgrades have multiple tiers
 export const UPGRADES: Upgrade[] = [
+  // Sail Speed tiers (stackable: 1.15x each)
+  {
+    type: 'sailSpeed',
+    tier: 1,
+    name: 'Swift Sails I',
+    description: 'Sail speed +15%',
+    icon: '⚓',
+  },
+  {
+    type: 'sailSpeed',
+    tier: 2,
+    name: 'Swift Sails II',
+    description: 'Sail speed +15%',
+    icon: '⚓',
+  },
+  {
+    type: 'sailSpeed',
+    tier: 3,
+    name: 'Swift Sails III',
+    description: 'Sail speed +15%',
+    icon: '⚓',
+  },
+
+  // Turn Rate tiers (stackable: 1.2x each)
+  {
+    type: 'turnRate',
+    tier: 1,
+    name: 'Nimble Helm I',
+    description: 'Turn rate +20%',
+    icon: '↻',
+  },
+  {
+    type: 'turnRate',
+    tier: 2,
+    name: 'Nimble Helm II',
+    description: 'Turn rate +20%',
+    icon: '↻',
+  },
+
+  // Acceleration (one-time unlock)
+  {
+    type: 'acceleration',
+    tier: 1,
+    name: 'Quick Launch',
+    description: 'Reach max speed 50% faster',
+    icon: '🚀',
+  },
+
   // Side Cannon Fire Rate tiers (stackable: 0.67x each)
   {
     type: 'sideFireRate',
@@ -169,30 +220,43 @@ export const UPGRADES: Upgrade[] = [
   },
 ]
 
-// Upgrade order for partner islands (15 partners)
-// Mix of incremental upgrades and one-time unlocks for good progression
+// Helper to find upgrade by type and tier
+const findUpgrade = (type: UpgradeType, tier: number): Upgrade =>
+  UPGRADES.find((u) => u.type === type && u.tier === tier)!
+
+// Partner upgrade order (15 partners)
+// Varied pacing: speed-weighted early, combat-weighted late
 export const PARTNER_UPGRADE_ORDER: Upgrade[] = [
-  UPGRADES.find((u) => u.type === 'sideFireRate' && u.tier === 1)!,
-  UPGRADES.find((u) => u.type === 'fieldOfView' && u.tier === 1)!,
-  UPGRADES.find((u) => u.type === 'cannonRange' && u.tier === 1)!,
-  UPGRADES.find((u) => u.type === 'maxHealth' && u.tier === 1)!,
-  UPGRADES.find((u) => u.type === 'dualCannons' && u.tier === 1)!,
-  UPGRADES.find((u) => u.type === 'gatlingGuns' && u.tier === 1)!,
-  UPGRADES.find((u) => u.type === 'frontFireRate' && u.tier === 1)!,
-  UPGRADES.find((u) => u.type === 'healthRegen' && u.tier === 1)!,
-  UPGRADES.find((u) => u.type === 'sideFireRate' && u.tier === 2)!,
-  UPGRADES.find((u) => u.type === 'cannonRange' && u.tier === 2)!,
-  UPGRADES.find((u) => u.type === 'maxHealth' && u.tier === 2)!,
-  UPGRADES.find((u) => u.type === 'doubleShot' && u.tier === 1)!,
-  UPGRADES.find((u) => u.type === 'frontFireRate' && u.tier === 2)!,
-  UPGRADES.find((u) => u.type === 'fieldOfView' && u.tier === 2)!,
-  UPGRADES.find((u) => u.type === 'healthRegen' && u.tier === 2)!,
+  findUpgrade('sailSpeed', 1), // 1. Speed
+  findUpgrade('sideFireRate', 1), // 2. Combat
+  findUpgrade('fieldOfView', 1), // 3. Utility
+  findUpgrade('turnRate', 1), // 4. Speed
+  findUpgrade('maxHealth', 1), // 5. Defense
+  findUpgrade('cannonRange', 1), // 6. Combat
+  findUpgrade('sailSpeed', 2), // 7. Speed
+  findUpgrade('dualCannons', 1), // 8. Combat unlock
+  findUpgrade('healthRegen', 1), // 9. Defense
+  findUpgrade('turnRate', 2), // 10. Speed
+  findUpgrade('frontFireRate', 1), // 11. Combat
+  findUpgrade('gatlingGuns', 1), // 12. Combat unlock
+  findUpgrade('sideFireRate', 2), // 13. Combat
+  findUpgrade('doubleShot', 1), // 14. Combat unlock
+  findUpgrade('maxHealth', 2), // 15. Defense
 ]
 
-// Upgrade order for showcase islands (future expansion)
+// Showcase upgrade order (10 showcases)
+// Late-game speed + combat depth
 export const SHOWCASE_UPGRADE_ORDER: Upgrade[] = [
-  UPGRADES.find((u) => u.type === 'maxHealth' && u.tier === 3)!,
-  // Add more showcase-exclusive upgrades here
+  findUpgrade('sailSpeed', 3), // 1. Speed
+  findUpgrade('cannonRange', 2), // 2. Combat
+  findUpgrade('acceleration', 1), // 3. Speed unlock
+  findUpgrade('frontFireRate', 2), // 4. Combat
+  findUpgrade('maxHealth', 3), // 5. Defense
+  findUpgrade('sideFireRate', 3), // 6. Combat
+  findUpgrade('healthRegen', 2), // 7. Defense
+  findUpgrade('frontFireRate', 3), // 8. Combat
+  findUpgrade('fieldOfView', 2), // 9. Utility
+  findUpgrade('cannonRange', 3), // 10. Combat
 ]
 
 // Combined order for easy indexing
@@ -203,6 +267,9 @@ export const UPGRADE_ORDER = [
 
 // Ship stats configuration
 export interface ShipStats {
+  sailSpeed: number // Multiplier on max speed (default 1.0)
+  turnRate: number // Multiplier on turn speed (default 1.0)
+  acceleration: number // Multiplier on speed ramp (default 1.0)
   sideFireRate: number // Side cannon cooldown in ms (lower = faster)
   frontFireRate: number // Front cannon cooldown in ms (lower = faster)
   cannonRange: number // Projectile speed multiplier
@@ -215,6 +282,9 @@ export interface ShipStats {
 }
 
 export const BASE_SHIP_STATS: ShipStats = {
+  sailSpeed: 1.0,
+  turnRate: 1.0,
+  acceleration: 1.0,
   sideFireRate: 2000,
   frontFireRate: 200,
   cannonRange: 0.7,
@@ -231,6 +301,15 @@ export function applyUpgrade(stats: ShipStats, upgrade: Upgrade): ShipStats {
   const newStats = { ...stats }
 
   switch (upgrade.type) {
+    case 'sailSpeed':
+      newStats.sailSpeed = stats.sailSpeed * 1.15
+      break
+    case 'turnRate':
+      newStats.turnRate = stats.turnRate * 1.2
+      break
+    case 'acceleration':
+      newStats.acceleration = stats.acceleration * 1.5
+      break
     case 'sideFireRate':
       newStats.sideFireRate = Math.max(500, stats.sideFireRate * 0.67)
       break
@@ -263,4 +342,19 @@ export function applyUpgrade(stats: ShipStats, upgrade: Upgrade): ShipStats {
   }
 
   return newStats
+}
+
+// Get the highest tier achieved for a given upgrade type
+export function getUpgradeTier(upgrades: Upgrade[], type: UpgradeType): number {
+  const matching = upgrades.filter((u) => u.type === type)
+  if (matching.length === 0) return 0
+  return Math.max(...matching.map((u) => u.tier))
+}
+
+// Check if a one-time unlock has been obtained
+export function hasUnlock(
+  upgrades: Upgrade[],
+  type: 'dualCannons' | 'doubleShot' | 'gatlingGuns' | 'acceleration',
+): boolean {
+  return upgrades.some((u) => u.type === type)
 }

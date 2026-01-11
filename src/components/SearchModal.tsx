@@ -29,10 +29,35 @@ import {
   usePersistFrameworkPreference,
 } from './FrameworkSelect'
 
+/**
+ * Safely decode HTML entities without using innerHTML.
+ * Only decodes common entities that appear in Algolia search results.
+ */
 function decodeHtmlEntities(str: string): string {
-  const textarea = document.createElement('textarea')
-  textarea.innerHTML = str
-  return textarea.value
+  const entities: Record<string, string> = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+    '&apos;': "'",
+    '&#x27;': "'",
+    '&#x2F;': '/',
+    '&#47;': '/',
+    '&nbsp;': ' ',
+    '&#160;': ' ',
+    '&ndash;': '–',
+    '&mdash;': '—',
+    '&hellip;': '…',
+    '&copy;': '©',
+    '&reg;': '®',
+    '&trade;': '™',
+  }
+
+  return str.replace(
+    /&(?:#(?:x[0-9a-fA-F]+|[0-9]+)|[a-zA-Z]+);/g,
+    (match) => entities[match] ?? match,
+  )
 }
 
 // Algolia hit types - our docs-specific shape
@@ -105,15 +130,23 @@ function DecodedHighlight({
   }
 
   // Parse the highlighted string and decode entities while preserving <mark> tags
-  const decoded = decodeHtmlEntities(
-    highlighted
-      .replace(/<mark>/g, '###MARK###')
-      .replace(/<\/mark>/g, '###/MARK###'),
-  )
+  // First, preserve mark tags with placeholders
+  const withPlaceholders = highlighted
+    .replace(/<mark>/g, '###MARK###')
+    .replace(/<\/mark>/g, '###/MARK###')
+
+  // Decode HTML entities
+  const decoded = decodeHtmlEntities(withPlaceholders)
+
+  // Strip any other HTML tags for security (only allow mark tags)
+  const sanitized = decoded.replace(/<[^>]*>/g, '')
+
+  // Restore mark tags
+  const final = sanitized
     .replace(/###MARK###/g, '<mark>')
     .replace(/###\/MARK###/g, '</mark>')
 
-  return <span dangerouslySetInnerHTML={{ __html: decoded }} />
+  return <span dangerouslySetInnerHTML={{ __html: final }} />
 }
 
 const searchClient = liteClient(
@@ -168,49 +201,82 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
   const [selectedFramework, setSelectedFramework] =
     React.useState(getInitialFramework)
 
-  const { items: rawLibraryItems, refine: refineLibrary } = useMenu({
+  // Use useMenu just to get the list of available options and counts
+  // We do NOT use refine() because facet filters don't support OR logic
+  // Instead, we build custom filter strings via Configure component
+  const { items: rawLibraryItems } = useMenu({
     attribute: 'library',
     limit: 50,
   })
 
-  const { items: rawFrameworkItems, refine: refineFramework } = useMenu({
+  const { items: rawFrameworkItems } = useMenu({
     attribute: 'framework',
     limit: 50,
   })
 
-  // Pre-filter by stored framework preference on mount (only if no URL framework)
-  const hasPrefiltered = React.useRef(false)
+  // Auto-select based on current page URL
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   })
-  const hasUrlFramework = pathname.includes('/framework/')
 
+  // Auto-select library from URL on mount
+  const hasAutoSelectedLibrary = React.useRef(false)
   React.useEffect(() => {
-    // Don't pre-filter if URL already specifies a framework (let FrameworkRefinement handle it)
-    if (hasPrefiltered.current || hasUrlFramework) return
-    const storedFramework = getInitialFramework()
-    if (storedFramework && rawFrameworkItems.length > 0) {
-      const item = rawFrameworkItems.find((i) => i.value === storedFramework)
-      if (item && !item.isRefined) {
-        refineFramework(storedFramework)
-        setSelectedFramework(storedFramework)
-        hasPrefiltered.current = true
-      }
+    if (hasAutoSelectedLibrary.current) return
+    const pathParts = pathname.split('/').filter(Boolean)
+    const urlLibrary = libraries.find((l) => l.id === pathParts[0])
+    if (urlLibrary) {
+      setSelectedLibrary(urlLibrary.id)
+      hasAutoSelectedLibrary.current = true
     }
-  }, [rawFrameworkItems, refineFramework, getInitialFramework, hasUrlFramework])
+  }, [pathname])
 
-  // Sort items by their defined order
-  const libraryItems = [...rawLibraryItems].sort((a, b) => {
-    const aIndex = libraries.findIndex((l) => l.id === a.value)
-    const bIndex = libraries.findIndex((l) => l.id === b.value)
-    return aIndex - bIndex
-  })
+  // Auto-select framework from URL or preference on mount
+  const hasAutoSelectedFramework = React.useRef(false)
+  React.useEffect(() => {
+    if (hasAutoSelectedFramework.current) return
 
-  const frameworkItems = [...rawFrameworkItems].sort((a, b) => {
-    const aIndex = frameworkOptions.findIndex((f) => f.value === a.value)
-    const bIndex = frameworkOptions.findIndex((f) => f.value === b.value)
-    return aIndex - bIndex
-  })
+    // First check URL for framework
+    const frameworkMatch = pathname.match(/\/framework\/([^/]+)/)
+    if (frameworkMatch) {
+      setSelectedFramework(frameworkMatch[1])
+      hasAutoSelectedFramework.current = true
+      return
+    }
+
+    // Fall back to stored preference
+    const storedFramework = getInitialFramework()
+    if (storedFramework) {
+      setSelectedFramework(storedFramework)
+      hasAutoSelectedFramework.current = true
+    }
+  }, [pathname, getInitialFramework])
+
+  // Sort items by their defined order and filter out "all" from display
+  const libraryItems = [...rawLibraryItems]
+    .filter((item) => item.value !== 'all')
+    .sort((a, b) => {
+      const aIndex = libraries.findIndex((l) => l.id === a.value)
+      const bIndex = libraries.findIndex((l) => l.id === b.value)
+      return aIndex - bIndex
+    })
+
+  const frameworkItems = [...rawFrameworkItems]
+    .filter((item) => item.value !== 'all')
+    .sort((a, b) => {
+      const aIndex = frameworkOptions.findIndex((f) => f.value === a.value)
+      const bIndex = frameworkOptions.findIndex((f) => f.value === b.value)
+      return aIndex - bIndex
+    })
+
+  // Wrapper functions that just update state (no Algolia refine)
+  const selectLibrary = React.useCallback((value: string) => {
+    setSelectedLibrary(value)
+  }, [])
+
+  const selectFramework = React.useCallback((value: string) => {
+    setSelectedFramework(value)
+  }, [])
 
   return (
     <SearchFiltersContext.Provider
@@ -219,14 +285,65 @@ function SearchFiltersProvider({ children }: { children: React.ReactNode }) {
         selectedFramework,
         setSelectedLibrary,
         setSelectedFramework,
-        refineLibrary,
-        refineFramework,
+        refineLibrary: selectLibrary,
+        refineFramework: selectFramework,
         libraryItems,
         frameworkItems,
       }}
     >
       {children}
     </SearchFiltersContext.Provider>
+  )
+}
+
+// Component that builds dynamic filter strings including "all" library/framework pages
+function DynamicFilters() {
+  const { selectedLibrary, selectedFramework } = useSearchFilters()
+
+  // Build filter string
+  // - Always filter to latest version OR "all" (for core pages)
+  // - When library selected: include that library OR "all" (for core pages)
+  // - When framework selected: include that framework OR "all" (for integration pages)
+  const filterParts: string[] = []
+
+  // Version filter: include latest OR "all" (core pages)
+  filterParts.push('(version:latest OR version:all)')
+
+  if (selectedLibrary) {
+    // Include selected library OR "all" (core pages like /ethos)
+    filterParts.push(`(library:${selectedLibrary} OR library:all)`)
+  }
+
+  if (selectedFramework) {
+    // Include selected framework OR "all" (integration pages, core pages)
+    filterParts.push(`(framework:${selectedFramework} OR framework:all)`)
+  }
+
+  return (
+    <Configure
+      attributesToRetrieve={[
+        'hierarchy.lvl1',
+        'hierarchy.lvl2',
+        'hierarchy.lvl3',
+        'hierarchy.lvl4',
+        'hierarchy.lvl5',
+        'hierarchy.lvl6',
+        'url',
+        'content',
+        'library',
+      ]}
+      attributesToHighlight={[
+        'hierarchy.lvl1',
+        'hierarchy.lvl2',
+        'hierarchy.lvl3',
+        'hierarchy.lvl4',
+        'hierarchy.lvl5',
+        'hierarchy.lvl6',
+        'content',
+      ]}
+      attributesToSnippet={['content:50']}
+      filters={filterParts.join(' AND ')}
+    />
   )
 }
 
@@ -438,38 +555,11 @@ const Hit = ({
 }
 
 function LibraryRefinement() {
-  const subpathname = useRouterState({
-    select: (state) => state.location.pathname.split('/')[1],
-  })
-
   const {
     selectedLibrary,
     setSelectedLibrary,
-    refineLibrary,
     libraryItems: items,
   } = useSearchFilters()
-
-  const hasAutoRefined = React.useRef(false)
-
-  // Auto-refine based on current page
-  React.useEffect(() => {
-    if (hasAutoRefined.current) return
-
-    const library = libraries.find((l) => l.id === subpathname)
-    if (library && items.length > 0) {
-      const item = items.find((i) => i.value === subpathname)
-      if (item && !item.isRefined) {
-        refineLibrary(subpathname)
-        setSelectedLibrary(subpathname)
-        hasAutoRefined.current = true
-      }
-    }
-  }, [items, refineLibrary, subpathname, setSelectedLibrary])
-
-  const handleSelect = (value: string) => {
-    setSelectedLibrary(value)
-    refineLibrary(value)
-  }
 
   const currentLibrary = libraries.find((l) => l.id === selectedLibrary)
 
@@ -494,7 +584,10 @@ function LibraryRefinement() {
         align="start"
         className="max-h-[60vh] w-64 overflow-auto"
       >
-        <DropdownItem onSelect={() => handleSelect('')} className="font-bold">
+        <DropdownItem
+          onSelect={() => setSelectedLibrary('')}
+          className="font-bold"
+        >
           All Libraries
         </DropdownItem>
         {items.map((item) => {
@@ -502,7 +595,7 @@ function LibraryRefinement() {
           return (
             <DropdownItem
               key={item.value}
-              onSelect={() => handleSelect(item.value)}
+              onSelect={() => setSelectedLibrary(item.value)}
               className="justify-between"
             >
               <span className="uppercase font-black [letter-spacing:-.05em]">
@@ -523,48 +616,16 @@ function LibraryRefinement() {
 }
 
 function FrameworkRefinement() {
-  const subpathname = useRouterState({
-    select: (state) => {
-      const path = state.location.pathname
-      const frameworkIndex = path.indexOf('/framework/')
-      if (frameworkIndex !== -1) {
-        return path.split('/')[
-          path.split('/').indexOf('framework') + 1
-        ] as string
-      }
-      return null
-    },
-  })
-
   const {
     selectedFramework,
     setSelectedFramework,
-    refineFramework,
     frameworkItems: items,
   } = useSearchFilters()
 
   const persistFramework = usePersistFrameworkPreference()
-  const hasAutoRefined = React.useRef(false)
-
-  // Auto-refine based on current page
-  React.useEffect(() => {
-    if (hasAutoRefined.current || !subpathname) return
-
-    const framework = frameworkOptions.find((f) => f.value === subpathname)
-    if (framework && items.length > 0) {
-      const item = items.find((i) => i.value === subpathname)
-      if (item && !item.isRefined) {
-        refineFramework(subpathname)
-        setSelectedFramework(subpathname)
-        hasAutoRefined.current = true
-      }
-    }
-  }, [items, refineFramework, subpathname, setSelectedFramework])
 
   const handleSelect = (value: string) => {
     setSelectedFramework(value)
-    refineFramework(value)
-    // Persist the framework preference (localStorage + DB if logged in)
     if (value) {
       persistFramework(value)
     }
@@ -784,30 +845,7 @@ export function SearchModal() {
         >
           <InstantSearch searchClient={searchClient} indexName="tanstack-test">
             <SearchFiltersProvider>
-              <Configure
-                attributesToRetrieve={[
-                  'hierarchy.lvl1',
-                  'hierarchy.lvl2',
-                  'hierarchy.lvl3',
-                  'hierarchy.lvl4',
-                  'hierarchy.lvl5',
-                  'hierarchy.lvl6',
-                  'url',
-                  'content',
-                  'library',
-                ]}
-                attributesToHighlight={[
-                  'hierarchy.lvl1',
-                  'hierarchy.lvl2',
-                  'hierarchy.lvl3',
-                  'hierarchy.lvl4',
-                  'hierarchy.lvl5',
-                  'hierarchy.lvl6',
-                  'content',
-                ]}
-                attributesToSnippet={['content:50']}
-                filters="version:latest"
-              />
+              <DynamicFilters />
               <div className="flex items-center gap-2 px-4 py-3 overflow-visible">
                 <Search className="w-5 h-5 opacity-50 flex-none" />
                 <LibraryRefinement />
@@ -869,39 +907,22 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
     selectedFramework,
     setSelectedLibrary,
     setSelectedFramework,
-    refineLibrary,
-    refineFramework,
     libraryItems,
     frameworkItems,
   } = useSearchFilters()
 
   const persistFramework = usePersistFrameworkPreference()
 
-  const algoliaRefinedLibrary =
-    libraryItems.find((item) => item.isRefined)?.value || null
-  const algoliaRefinedFramework =
-    frameworkItems.find((item) => item.isRefined)?.value || null
-
-  // Use Algolia values when available, fall back to shared state when empty
-  const refinedLibrary =
-    libraryItems.length > 0 ? algoliaRefinedLibrary : selectedLibrary || null
-  const refinedFramework =
-    frameworkItems.length > 0
-      ? algoliaRefinedFramework
-      : selectedFramework || null
+  // Use selected values directly (no longer relying on Algolia's isRefined)
+  const refinedLibrary = selectedLibrary || null
+  const refinedFramework = selectedFramework || null
 
   const clearFramework = () => {
-    if (refinedFramework) {
-      refineFramework(refinedFramework)
-      setSelectedFramework('')
-    }
+    setSelectedFramework('')
   }
 
   const clearLibrary = () => {
-    if (refinedLibrary) {
-      refineLibrary(refinedLibrary)
-      setSelectedLibrary('')
-    }
+    setSelectedLibrary('')
   }
 
   // Infinite scroll with Intersection Observer
@@ -949,7 +970,6 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
                       key={lib.id}
                       onClick={() => {
                         setSelectedLibrary(lib.id)
-                        refineLibrary(lib.id)
                       }}
                       className={twMerge(
                         'px-2 py-1 text-xs font-black uppercase rounded text-white transition-opacity hover:opacity-80',
@@ -978,7 +998,6 @@ function SearchResults({ focusedIndex }: { focusedIndex: number }) {
                       key={fw.value}
                       onClick={() => {
                         setSelectedFramework(fw.value)
-                        refineFramework(fw.value)
                         persistFramework(fw.value)
                       }}
                       className="flex items-center gap-1.5 px-2 py-1 text-xs font-bold rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"

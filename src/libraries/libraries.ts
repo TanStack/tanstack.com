@@ -188,18 +188,22 @@ export const virtual: LibrarySlim = {
 export const ranger: LibrarySlim = {
   id: 'ranger',
   name: 'TanStack Ranger',
-  cardStyles: 'text-slate-500 hover:border-current',
+  cardStyles: 'text-black dark:text-gray-100 hover:border-current',
   to: '/ranger',
   tagline: 'Headless range and multi-range slider utilities.',
   description:
     'Headless, lightweight, and extensible primitives for building range and multi-range sliders.',
-  bgStyle: 'bg-slate-500',
-  borderStyle: 'border-slate-500/50',
-  textStyle: 'text-slate-500',
-  textColor: 'text-gray-700',
-  colorFrom: 'from-gray-500',
-  colorTo: 'to-gray-700',
-  bgRadial: 'from-gray-500 via-gray-700/50 to-transparent',
+  bgStyle: 'bg-black dark:bg-gray-100',
+  borderStyle: 'border-black/50 dark:border-gray-100/50',
+  textStyle: 'text-black dark:text-gray-100',
+  textColor: 'text-black dark:text-gray-100',
+  colorFrom: 'from-black dark:from-gray-100',
+  colorTo: 'to-gray-600 dark:to-gray-400',
+  accentColorFrom: 'from-blue-500',
+  accentColorTo: 'to-blue-700',
+  accentTextColor: 'text-blue-600 dark:text-blue-400',
+  bgRadial:
+    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   badge: undefined,
   repo: 'tanstack/ranger',
   frameworks: ['react'],
@@ -318,19 +322,23 @@ export const ai: LibrarySlim = {
 export const config: LibrarySlim = {
   id: 'config',
   name: 'TanStack Config',
-  cardStyles: 'text-slate-500 hover:border-current',
+  cardStyles: 'text-black dark:text-gray-100 hover:border-current',
   to: '/config',
   tagline:
     'Configuration and tools for publishing and maintaining high-quality JavaScript packages',
   description:
     'Opinionated tooling to lint, build, test, version, and publish JS/TS packages — minimal config, consistent results.',
-  bgStyle: 'bg-slate-500',
-  borderStyle: 'border-slate-500/50',
-  textStyle: 'text-slate-500',
-  textColor: 'text-gray-700',
-  colorFrom: 'from-gray-500',
-  colorTo: 'to-gray-700',
-  bgRadial: 'from-gray-500 via-gray-700/50 to-transparent',
+  bgStyle: 'bg-black dark:bg-gray-100',
+  borderStyle: 'border-black/50 dark:border-gray-100/50',
+  textStyle: 'text-black dark:text-gray-100',
+  textColor: 'text-black dark:text-gray-100',
+  colorFrom: 'from-black dark:from-gray-100',
+  colorTo: 'to-gray-600 dark:to-gray-400',
+  accentColorFrom: 'from-blue-500',
+  accentColorTo: 'to-blue-700',
+  accentTextColor: 'text-blue-600 dark:text-blue-400',
+  bgRadial:
+    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   badge: undefined,
   repo: 'tanstack/config',
   frameworks: [],
@@ -343,20 +351,25 @@ export const config: LibrarySlim = {
 export const devtools: LibrarySlim = {
   id: 'devtools',
   name: 'TanStack Devtools',
-  cardStyles: 'text-slate-400 hover:border-current',
+  cardStyles: 'text-black dark:text-gray-100 hover:border-current',
   to: '/devtools',
   tagline:
     'Centralized devtools panel for TanStack libraries and other custom devtools',
   description:
     'A unified devtools panel that houses all TanStack devtools and allows you to create and integrate your own custom devtools.',
   badge: 'alpha',
-  bgStyle: 'bg-slate-400',
-  borderStyle: 'border-slate-400/50',
-  textStyle: 'text-slate-400',
-  textColor: 'text-slate-600',
-  colorFrom: 'from-slate-400',
-  colorTo: 'to-slate-600',
-  bgRadial: 'from-slate-400 via-slate-600/50 to-transparent',
+  bgStyle: 'bg-black dark:bg-gray-100',
+  borderStyle: 'border-black/50 dark:border-gray-100/50',
+  textStyle: 'text-black dark:text-gray-100',
+  textColor: 'text-black dark:text-gray-100',
+  colorFrom: 'from-black dark:from-gray-100',
+  colorTo: 'to-gray-600 dark:to-gray-400',
+  accentColorFrom: 'from-blue-500',
+  accentColorTo: 'to-blue-700',
+  accentTextColor: 'text-blue-600 dark:text-blue-400',
+  badgeTextStyle: 'text-white dark:text-gray-900',
+  bgRadial:
+    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
   repo: 'tanstack/devtools',
   frameworks: ['react', 'preact', 'solid', 'vanilla'],
   latestVersion: 'v0',
@@ -364,6 +377,37 @@ export const devtools: LibrarySlim = {
   availableVersions: ['v0'],
   ogImage:
     'https://github.com/tanstack/devtools/raw/main/media/repo-header.png',
+}
+
+export const mcp: LibrarySlim = {
+  id: 'mcp',
+  name: 'TanStack MCP',
+  cardStyles: 'text-black dark:text-gray-100 hover:border-current',
+  to: '/mcp',
+  tagline: 'AI-powered access to TanStack documentation',
+  description:
+    'Connect your AI assistant to TanStack documentation. Search docs, fetch pages, and explore the ecosystem programmatically via the Model Context Protocol.',
+  badge: 'alpha',
+  bgStyle: 'bg-black dark:bg-gray-100',
+  borderStyle: 'border-black/50 dark:border-gray-100/50',
+  textStyle: 'text-black dark:text-gray-100',
+  textColor: 'text-black dark:text-gray-100',
+  colorFrom: 'from-black dark:from-gray-100',
+  colorTo: 'to-gray-600 dark:to-gray-400',
+  accentColorFrom: 'from-blue-500',
+  accentColorTo: 'to-blue-700',
+  accentTextColor: 'text-blue-600 dark:text-blue-400',
+  badgeTextStyle: 'text-white dark:text-gray-900',
+  bgRadial:
+    'from-black via-gray-600/50 to-transparent dark:from-gray-100 dark:via-gray-400/50',
+  repo: 'tanstack/tanstack.com',
+  frameworks: [],
+  latestVersion: 'v1',
+  latestBranch: 'main',
+  availableVersions: ['v1'],
+  docsRoot: 'docs/mcp',
+  defaultDocs: 'overview',
+  visible: false,
 }
 
 export const libraries: LibrarySlim[] = [
@@ -380,6 +424,7 @@ export const libraries: LibrarySlim[] = [
   ranger,
   config,
   devtools,
+  mcp,
   {
     id: 'react-charts',
     name: 'React Charts',
@@ -420,7 +465,7 @@ export const librariesByGroup = {
   state: [start, router, query, db, store, ai],
   headlessUI: [table, form],
   performance: [virtual, pacer],
-  tooling: [devtools, config],
+  tooling: [devtools, config, mcp],
 }
 
 export const librariesGroupNamesMap = {
@@ -458,4 +503,5 @@ export const SIDEBAR_LIBRARY_IDS = [
   'pacer',
   'store',
   'devtools',
+  'mcp',
 ] as const satisfies readonly LibraryId[]

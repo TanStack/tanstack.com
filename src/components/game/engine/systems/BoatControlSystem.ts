@@ -7,13 +7,15 @@ import {
 } from '../../utils/collision'
 import { getPointerState } from '../../ui/TouchControls'
 
+import type { ShipStats } from '../../utils/upgrades'
+
 const MIN_BOAT_SPEED = 3
 const MAX_BOAT_SPEED = 10
 const MIN_REVERSE_SPEED = 1.5
 const MAX_REVERSE_SPEED = 5
-const TURN_SPEED = 2.2
+const BASE_TURN_SPEED = 2.2
 const DRAG = 0.96
-const ACCELERATION = 0.12
+const BASE_ACCELERATION = 0.12
 const BOAT_RADIUS = 0.8
 const MAX_COINS = 50
 
@@ -21,6 +23,7 @@ function getMaxSpeed(
   coinsCollected: number,
   isReverse: boolean,
   hasSpeedBoost: boolean,
+  shipStats: ShipStats,
 ): number {
   const ratio = Math.min(coinsCollected / MAX_COINS, 1)
   let speed: number
@@ -29,6 +32,9 @@ function getMaxSpeed(
   } else {
     speed = MIN_BOAT_SPEED + ratio * (MAX_BOAT_SPEED - MIN_BOAT_SPEED)
   }
+  // Apply sail speed upgrade multiplier
+  speed *= shipStats.sailSpeed
+  // Apply speed boost from shop item
   return hasSpeedBoost ? speed * 2 : speed
 }
 
@@ -137,6 +143,7 @@ export class BoatControlSystem {
       isTurningRight,
       islands,
       expandedIslands,
+      showcaseIslands,
       stage,
       rockColliders,
       coinsCollected,
@@ -148,9 +155,11 @@ export class BoatControlSystem {
       fireGatling,
     } = state
 
-    // Combine islands for collision in battle stage (includes partner islands)
+    // Combine islands for collision in battle stage (includes partner and showcase islands)
     const allIslands =
-      stage === 'battle' ? [...islands, ...expandedIslands] : islands
+      stage === 'battle'
+        ? [...islands, ...expandedIslands, ...showcaseIslands]
+        : islands
 
     // Fire gatling while space is held
     if (this.spaceHeld && shipStats.gatlingGuns) {
@@ -162,8 +171,22 @@ export class BoatControlSystem {
     const hasSpeedBoost = !!(
       speedBoostEndTime && Date.now() < speedBoostEndTime
     )
-    const maxForwardSpeed = getMaxSpeed(coinsCollected, false, hasSpeedBoost)
-    const maxReverseSpeed = getMaxSpeed(coinsCollected, true, hasSpeedBoost)
+    const maxForwardSpeed = getMaxSpeed(
+      coinsCollected,
+      false,
+      hasSpeedBoost,
+      shipStats,
+    )
+    const maxReverseSpeed = getMaxSpeed(
+      coinsCollected,
+      true,
+      hasSpeedBoost,
+      shipStats,
+    )
+
+    // Apply upgrade multipliers
+    const turnSpeed = BASE_TURN_SPEED * shipStats.turnRate
+    const acceleration = BASE_ACCELERATION * shipStats.acceleration
 
     const pointer = getPointerState()
 
@@ -171,7 +194,7 @@ export class BoatControlSystem {
     let newVelocity = boatVelocity
 
     if (pointer.active) {
-      newVelocity = Math.min(newVelocity + ACCELERATION, maxForwardSpeed)
+      newVelocity = Math.min(newVelocity + acceleration, maxForwardSpeed)
 
       const targetAngle = getTargetAngleFromPointer(pointer.x, pointer.y)
       const angleDiff = angleDifference(targetAngle, boatRotation)
@@ -186,7 +209,7 @@ export class BoatControlSystem {
           turnMultiplier = 0.2 + 0.8 * (angleDiffDeg / slowThreshold)
         }
 
-        const turnAmount = TURN_SPEED * turnMultiplier * dt
+        const turnAmount = turnSpeed * turnMultiplier * dt
         if (angleDiff > 0) {
           newRotation += Math.min(turnAmount, angleDiff)
         } else {
@@ -195,16 +218,16 @@ export class BoatControlSystem {
       }
     } else {
       if (isTurningLeft) {
-        newRotation += TURN_SPEED * dt
+        newRotation += turnSpeed * dt
       }
       if (isTurningRight) {
-        newRotation -= TURN_SPEED * dt
+        newRotation -= turnSpeed * dt
       }
 
       if (isMovingForward) {
-        newVelocity = Math.min(newVelocity + ACCELERATION, maxForwardSpeed)
+        newVelocity = Math.min(newVelocity + acceleration, maxForwardSpeed)
       } else if (isMovingBackward) {
-        newVelocity = Math.max(newVelocity - ACCELERATION, -maxReverseSpeed)
+        newVelocity = Math.max(newVelocity - acceleration, -maxReverseSpeed)
       } else {
         newVelocity *= DRAG
         if (Math.abs(newVelocity) < 0.01) newVelocity = 0

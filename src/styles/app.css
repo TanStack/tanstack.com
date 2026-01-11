@@ -61,6 +61,10 @@
 /* Safelist for dynamic colors */
 @source inline('{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/{20,30,40,80}');
 @source inline('{hover:{bg-blue-{4,5,6}00,bg-emerald-500,bg-purple-500,bg-pink-500,bg-cyan-500,bg-slate-{4,5}00,bg-twine-700,bg-orange-{5,6,7}00,bg-yellow-500,bg-lime-700,bg-red-500,bg-green-500}/40}');
+/* Black/gray-100 theme colors for ranger, config, devtools, mcp */
+@source inline('dark:text-gray-100 dark:bg-gray-100 dark:border-gray-100/50 dark:from-gray-100 dark:via-gray-400/50 text-black bg-black border-black/50 from-black via-gray-600/50 to-gray-600 to-gray-400 dark:text-gray-900');
+/* Accent colors for docs UI (sidebar, TOC, prev/next) */
+@source inline('from-gray-700 to-gray-900 text-gray-700 dark:text-gray-300');
 
 @layer base {
   *,
@@ -802,6 +806,62 @@ mark {
   100% {
     transform: scale(1);
   }
+}
+
+@property --ship-x {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 70px;
+}
+
+@property --ship-y {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 2.5rem;
+}
+
+@keyframes ship-peek {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1) scaleX(-1);
+  }
+  12% {
+    transform: translateX(calc(-50% - var(--ship-x)))
+      translateY(calc(-1 * var(--ship-y))) scale(1.15) scaleX(-1);
+  }
+  32% {
+    transform: translateX(calc(-50% - var(--ship-x)))
+      translateY(calc(-1 * var(--ship-y))) scale(1.15) scaleX(-1);
+  }
+  35% {
+    transform: translateX(-50%) translateY(0) scale(1) scaleX(-1);
+  }
+}
+
+@keyframes ship-pointer-events {
+  0%,
+  11%,
+  33%,
+  100% {
+    pointer-events: none;
+  }
+  12%,
+  32% {
+    pointer-events: auto;
+  }
+}
+
+.animate-ship-peek {
+  animation: ship-peek 10s ease-in-out infinite;
+  transform: translateX(-50%);
+}
+
+.animate-ship-peek-clickable {
+  animation:
+    ship-peek 10s ease-in-out infinite,
+    ship-pointer-events 10s ease-in-out infinite;
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 /* Dropdown animations */

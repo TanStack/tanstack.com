@@ -1,4 +1,5 @@
 import { Link, MatchRoute, createFileRoute } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { Footer } from '~/components/Footer'
 import { LazySponsorSection } from '~/components/LazySponsorSection'
@@ -121,36 +122,76 @@ function Index() {
   const { recentPosts } = Route.useLoaderData() as {
     recentPosts: BlogFrontMatter[]
   }
+  const [showShip, setShowShip] = useState(false)
 
-  // sponsorsPromise no longer needed - using lazy loading
+  useEffect(() => {
+    if (Math.random() < 0.02) {
+      setShowShip(true)
+    }
+  }, [])
 
   return (
     <>
       <div className="max-w-full z-10 space-y-24">
         <div className="space-y-8">
           <div className="flex flex-col xl:flex-row items-center gap-4 xl:pt-24 xl:justify-center">
-            <BrandContextMenu className="cursor-pointer">
-              <NetlifyImage
-                src="/images/logos/splash-light.png"
-                width={500}
-                height={500}
-                quality={85}
-                className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
-                alt="TanStack Logo"
-                loading="eager"
-                fetchPriority="high"
-              />
-              <NetlifyImage
-                src="/images/logos/splash-dark.png"
-                width={500}
-                height={500}
-                quality={85}
-                className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
-                alt="TanStack Logo"
-                loading="eager"
-                fetchPriority="high"
-              />
-            </BrandContextMenu>
+            <div
+              className="relative [--ship-x:50px] [--ship-y:1.5rem] 
+            lg:[--ship-x:50px] lg:[--ship-y:1.5rem]
+            xl:[--ship-x:80px] xl:[--ship-y:2.5rem]
+            2xl:[--ship-x:90px] 2xl:[--ship-y:3rem]"
+            >
+              {showShip && (
+                <>
+                  {/* Ship behind splash */}
+                  <div className="absolute left-1/3 bottom-[25%] z-0 animate-ship-peek">
+                    <NetlifyImage
+                      src="/images/ship.png"
+                      alt=""
+                      width={80}
+                      height={80}
+                      className="w-16 xl:w-20"
+                    />
+                  </div>
+                  {/* Invisible clickable ship in front */}
+                  <Link
+                    to="/explore"
+                    className="absolute left-1/3 bottom-[25%] z-20 animate-ship-peek-clickable"
+                    title="Explore TanStack"
+                  >
+                    <NetlifyImage
+                      src="/images/ship.png"
+                      alt="Explore TanStack"
+                      width={80}
+                      height={80}
+                      className="w-16 xl:w-20 opacity-0"
+                    />
+                  </Link>
+                </>
+              )}
+              <BrandContextMenu className="cursor-pointer relative z-10">
+                <NetlifyImage
+                  src="/images/logos/splash-light.png"
+                  width={500}
+                  height={500}
+                  quality={85}
+                  className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] dark:hidden"
+                  alt="TanStack Logo"
+                  loading="eager"
+                  fetchPriority="high"
+                />
+                <NetlifyImage
+                  src="/images/logos/splash-dark.png"
+                  width={500}
+                  height={500}
+                  quality={85}
+                  className="w-[300px] pt-8 xl:pt-0 xl:w-[400px] 2xl:w-[500px] hidden dark:block"
+                  alt="TanStack Logo"
+                  loading="eager"
+                  fetchPriority="high"
+                />
+              </BrandContextMenu>
+            </div>
             <div className="flex flex-col items-center gap-6 text-center px-4 xl:text-left xl:items-start">
               <div className="flex gap-2 lg:gap-4 items-center">
                 <h1

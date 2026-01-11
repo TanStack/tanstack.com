@@ -48,6 +48,10 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
       }),
     )
 
+    const now = new Date()
+    const publishDate = new Date(post.published)
+    const isUnpublished = post.draft || publishDate > now
+
     return {
       title: post.title,
       description: post.description,
@@ -56,6 +60,7 @@ const fetchBlogPost = createServerFn({ method: 'GET' })
       authors: post.authors,
       headerImage: post.headerImage,
       filePath,
+      isUnpublished,
     }
   })
 
@@ -81,6 +86,7 @@ export const Route = createFileRoute('/_libraries/blog/$')({
               title: `${loaderData?.title ?? 'Docs'} | TanStack Blog`,
               description: loaderData?.description,
               image: getSocialImageUrl(loaderData?.headerImage),
+              noindex: loaderData?.isUnpublished,
             }),
             {
               name: 'author',

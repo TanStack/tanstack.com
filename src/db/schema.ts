@@ -1001,3 +1001,75 @@ export const showcaseVotesRelations = relations(showcaseVotes, ({ one }) => ({
     references: [users.id],
   }),
 }))
+
+// MCP API Keys table (for authenticating MCP server requests)
+export const mcpApiKeys = pgTable(
+  'mcp_api_keys',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // The hashed API key (SHA-256)
+    keyHash: varchar('key_hash', { length: 64 }).notNull().unique(),
+    // First 8 chars of key for identification (e.g., "mcp_abc1...")
+    keyPrefix: varchar('key_prefix', { length: 12 }).notNull(),
+    // Human-readable name for the key
+    name: varchar('name', { length: 255 }).notNull(),
+    // Optional user association
+    userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
+    // Rate limit tier (requests per minute)
+    rateLimitPerMinute: integer('rate_limit_per_minute').notNull().default(60),
+    // Key state
+    isActive: boolean('is_active').notNull().default(true),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true, mode: 'date' }),
+    expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    keyHashIdx: index('mcp_api_keys_key_hash_idx').on(table.keyHash),
+    userIdIdx: index('mcp_api_keys_user_id_idx').on(table.userId),
+    isActiveIdx: index('mcp_api_keys_is_active_idx').on(table.isActive),
+  }),
+)
+
+export type McpApiKey = InferSelectModel<typeof mcpApiKeys>
+export type NewMcpApiKey = InferInsertModel<typeof mcpApiKeys>
+
+// MCP Rate Limits table (sliding window rate limiting)
+export const mcpRateLimits = pgTable(
+  'mcp_rate_limits',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // Identifier for rate limiting (API key ID or IP address)
+    identifier: varchar('identifier', { length: 255 }).notNull(),
+    // Type of identifier
+    identifierType: varchar('identifier_type', { length: 20 }).notNull(), // 'api_key' or 'ip'
+    // Window start (minute granularity)
+    windowStart: timestamp('window_start', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
+    // Request count in this window
+    requestCount: integer('request_count').notNull().default(1),
+  },
+  (table) => ({
+    identifierWindowUnique: uniqueIndex(
+      'mcp_rate_limits_identifier_window_unique',
+    ).on(table.identifier, table.windowStart),
+    identifierIdx: index('mcp_rate_limits_identifier_idx').on(table.identifier),
+    windowStartIdx: index('mcp_rate_limits_window_start_idx').on(
+      table.windowStart,
+    ),
+  }),
+)
+
+export type McpRateLimit = InferSelectModel<typeof mcpRateLimits>
+export type NewMcpRateLimit = InferInsertModel<typeof mcpRateLimits>
+
+// MCP relations
+export const mcpApiKeysRelations = relations(mcpApiKeys, ({ one }) => ({
+  user: one(users, {
+    fields: [mcpApiKeys.userId],
+    references: [users.id],
+  }),
+}))

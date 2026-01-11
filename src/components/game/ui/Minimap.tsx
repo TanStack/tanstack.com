@@ -16,14 +16,20 @@ function getMinimapSize() {
 }
 
 // AI territory constants (must match AISystem.ts)
-const TERRITORY_LEASH = 60
+import { ROAM_RADIUS, ROAM_LEASH } from '../engine/systems/AISystem'
 
 interface AIShipWithHome extends OtherPlayer {
   homePosition?: [number, number]
 }
 
 export function Minimap() {
-  const { phase, islands, expandedIslands, discoveredIslands } = useGameStore()
+  const {
+    phase,
+    islands,
+    expandedIslands,
+    showcaseIslands,
+    discoveredIslands,
+  } = useGameStore()
   const [minimapSize, setMinimapSize] = useState(getMinimapSize)
   const [boatState, setBoatState] = useState({
     x: 0,
@@ -64,8 +70,8 @@ export function Minimap() {
         .filter((p) => p.isAI)
         .map((ai, i, arr) => {
           const sectorAngle = (i / arr.length) * Math.PI * 2
-          // Match AISystem: 40-75% of world boundary, use midpoint
-          const radius = worldBoundary * 0.575
+          // Match AISystem: 60-85% of world boundary, use midpoint
+          const radius = worldBoundary * 0.725
           return {
             ...ai,
             homePosition: [
@@ -84,8 +90,8 @@ export function Minimap() {
 
   const { width: W, height: H } = minimapSize
 
-  // All islands (core + expanded)
-  const allIslands = [...islands, ...expandedIslands]
+  // All islands (core + expanded + showcase)
+  const allIslands = [...islands, ...expandedIslands, ...showcaseIslands]
 
   // Convert world position to isometric minimap position
   const worldToMinimap = (worldX: number, worldZ: number) => {
@@ -136,7 +142,7 @@ export function Minimap() {
         </defs>
 
         <g clipPath="url(#diamond-clip)">
-          {/* Debug: AI territory leash boundaries */}
+          {/* Debug: AI roam boundaries (larger, dashed) */}
           {debugMode &&
             aiShips.map((ai) => {
               if (!ai.homePosition) return null
@@ -144,15 +150,13 @@ export function Minimap() {
                 ai.homePosition[0],
                 ai.homePosition[1],
               )
-              // Convert leash radius to minimap scale
-              const leashRadiusNormalized =
-                TERRITORY_LEASH / boatState.worldBoundary
-              // Isometric ellipse (squashed vertically)
+              // Convert roam leash radius to minimap scale
+              const leashRadiusNormalized = ROAM_LEASH / boatState.worldBoundary
               const rx = leashRadiusNormalized * (W / 2) * 0.9 * 0.5
               const ry = leashRadiusNormalized * (H / 2) * 0.9 * 0.5
               return (
                 <ellipse
-                  key={`leash-${ai.id}`}
+                  key={`roam-${ai.id}`}
                   cx={homePos.x}
                   cy={homePos.y}
                   rx={rx}
@@ -160,7 +164,36 @@ export function Minimap() {
                   fill="none"
                   stroke={ai.color || '#e74c3c'}
                   strokeWidth={1}
-                  strokeDasharray="3,2"
+                  strokeDasharray="4,2"
+                  opacity={0.3}
+                  transform={`rotate(45, ${homePos.x}, ${homePos.y})`}
+                />
+              )
+            })}
+
+          {/* Debug: AI aggro boundaries (smaller, solid) */}
+          {debugMode &&
+            aiShips.map((ai) => {
+              if (!ai.homePosition) return null
+              const homePos = worldToMinimap(
+                ai.homePosition[0],
+                ai.homePosition[1],
+              )
+              // Aggro distance varies by difficulty, use ROAM_RADIUS as proxy
+              const aggroRadiusNormalized =
+                ROAM_RADIUS / boatState.worldBoundary
+              const rx = aggroRadiusNormalized * (W / 2) * 0.9 * 0.5
+              const ry = aggroRadiusNormalized * (H / 2) * 0.9 * 0.5
+              return (
+                <ellipse
+                  key={`aggro-${ai.id}`}
+                  cx={homePos.x}
+                  cy={homePos.y}
+                  rx={rx}
+                  ry={ry}
+                  fill="none"
+                  stroke={ai.color || '#e74c3c'}
+                  strokeWidth={1}
                   opacity={0.5}
                   transform={`rotate(45, ${homePos.x}, ${homePos.y})`}
                 />
@@ -174,8 +207,10 @@ export function Minimap() {
               island.type === 'library' && island.library
                 ? getLibraryColor(island.library.id)
                 : island.type === 'partner'
-                  ? '#f59e0b'
-                  : '#8b5cf6'
+                  ? '#f59e0b' // Amber for partners
+                  : island.type === 'showcase'
+                    ? '#8b5cf6' // Purple for showcases
+                    : '#8b5cf6'
             const size = (1.5 + island.scale * 1) * scale
 
             return (

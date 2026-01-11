@@ -25,6 +25,7 @@ export type LibraryId =
   | 'ai'
   | 'config'
   | 'devtools'
+  | 'mcp'
   | 'react-charts'
   | 'create-tsrouter-app'
 
@@ -42,6 +43,11 @@ export type LibrarySlim = {
   textColor?: string
   colorFrom: string
   colorTo: string
+  // Accent colors for docs UI (sidebar, TOC, prev/next) - defaults to colorFrom/colorTo if not set
+  accentColorFrom?: string
+  accentColorTo?: string
+  accentTextColor?: string
+  badgeTextStyle?: string
   bgRadial?: string
   badge?: 'new' | 'soon' | 'alpha' | 'beta' | 'fresh' | 'RC'
   repo: string
@@ -63,6 +69,11 @@ export type LibrarySlim = {
   installPath?: string
   corePackageName?: string
   handleRedirects?: (href: string) => void
+  /**
+   * If false, the library is hidden from sidebar navigation and pages have noindex meta tag.
+   * Use for alpha/private libraries not ready for public visibility.
+   * Defaults to true.
+   */
   visible?: boolean
 }
 

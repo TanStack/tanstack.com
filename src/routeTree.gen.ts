@@ -54,6 +54,7 @@ import { Route as LibrariesAdsRouteImport } from './routes/_libraries/ads'
 import { Route as LibrariesAccountRouteImport } from './routes/_libraries/account'
 import { Route as LibraryIdVersionRouteImport } from './routes/$libraryId/$version'
 import { Route as StatsNpmIndexRouteImport } from './routes/stats/npm/index'
+import { Route as ApiMcpIndexRouteImport } from './routes/api/mcp/index'
 import { Route as AdminShowcasesIndexRouteImport } from './routes/admin/showcases.index'
 import { Route as AdminRolesIndexRouteImport } from './routes/admin/roles.index'
 import { Route as AdminNotesIndexRouteImport } from './routes/admin/notes.index'
@@ -66,6 +67,7 @@ import { Route as LibrariesAccountIndexRouteImport } from './routes/_libraries/a
 import { Route as StatsNpmPackagesRouteImport } from './routes/stats/npm/$packages'
 import { Route as ShowcaseEditIdRouteImport } from './routes/showcase/edit.$id'
 import { Route as AuthProviderStartRouteImport } from './routes/auth/$provider/start'
+import { Route as ApiMcpSplatRouteImport } from './routes/api/mcp/$'
 import { Route as ApiGithubWebhookRouteImport } from './routes/api/github/webhook'
 import { Route as ApiDiscordInteractionsRouteImport } from './routes/api/discord/interactions'
 import { Route as ApiAdminSyncRouteImport } from './routes/api/admin/sync'
@@ -80,6 +82,7 @@ import { Route as LibrariesBlogSplatRouteImport } from './routes/_libraries/blog
 import { Route as LibrariesAccountSubmissionsRouteImport } from './routes/_libraries/account/submissions'
 import { Route as LibrariesAccountNotesRouteImport } from './routes/_libraries/account/notes'
 import { Route as LibrariesAccountFeedbackRouteImport } from './routes/_libraries/account/feedback'
+import { Route as LibrariesAccountApiKeysRouteImport } from './routes/_libraries/account/api-keys'
 import { Route as LibraryIdVersionDocsRouteImport } from './routes/$libraryId/$version.docs'
 import { Route as LibrariesVirtualVersionIndexRouteImport } from './routes/_libraries/virtual.$version.index'
 import { Route as LibrariesTableVersionIndexRouteImport } from './routes/_libraries/table.$version.index'
@@ -89,6 +92,7 @@ import { Route as LibrariesRouterVersionIndexRouteImport } from './routes/_libra
 import { Route as LibrariesRangerVersionIndexRouteImport } from './routes/_libraries/ranger.$version.index'
 import { Route as LibrariesQueryVersionIndexRouteImport } from './routes/_libraries/query.$version.index'
 import { Route as LibrariesPacerVersionIndexRouteImport } from './routes/_libraries/pacer.$version.index'
+import { Route as LibrariesMcpVersionIndexRouteImport } from './routes/_libraries/mcp.$version.index'
 import { Route as LibrariesFormVersionIndexRouteImport } from './routes/_libraries/form.$version.index'
 import { Route as LibrariesDevtoolsVersionIndexRouteImport } from './routes/_libraries/devtools.$version.index'
 import { Route as LibrariesDbVersionIndexRouteImport } from './routes/_libraries/db.$version.index'
@@ -331,6 +335,11 @@ const StatsNpmIndexRoute = StatsNpmIndexRouteImport.update({
   path: '/stats/npm/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMcpIndexRoute = ApiMcpIndexRouteImport.update({
+  id: '/api/mcp/',
+  path: '/api/mcp/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminShowcasesIndexRoute = AdminShowcasesIndexRouteImport.update({
   id: '/showcases/',
   path: '/showcases/',
@@ -389,6 +398,11 @@ const ShowcaseEditIdRoute = ShowcaseEditIdRouteImport.update({
 const AuthProviderStartRoute = AuthProviderStartRouteImport.update({
   id: '/auth/$provider/start',
   path: '/auth/$provider/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMcpSplatRoute = ApiMcpSplatRouteImport.update({
+  id: '/api/mcp/$',
+  path: '/api/mcp/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGithubWebhookRoute = ApiGithubWebhookRouteImport.update({
@@ -463,6 +477,11 @@ const LibrariesAccountFeedbackRoute =
     path: '/feedback',
     getParentRoute: () => LibrariesAccountRoute,
   } as any)
+const LibrariesAccountApiKeysRoute = LibrariesAccountApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => LibrariesAccountRoute,
+} as any)
 const LibraryIdVersionDocsRoute = LibraryIdVersionDocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -514,6 +533,12 @@ const LibrariesPacerVersionIndexRoute =
   LibrariesPacerVersionIndexRouteImport.update({
     id: '/pacer/$version/',
     path: '/pacer/$version/',
+    getParentRoute: () => LibrariesRouteRoute,
+  } as any)
+const LibrariesMcpVersionIndexRoute =
+  LibrariesMcpVersionIndexRouteImport.update({
+    id: '/mcp/$version/',
+    path: '/mcp/$version/',
     getParentRoute: () => LibrariesRouteRoute,
   } as any)
 const LibrariesFormVersionIndexRoute =
@@ -655,6 +680,7 @@ export interface FileRoutesByFullPath {
   '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
+  '/account/api-keys': typeof LibrariesAccountApiKeysRoute
   '/account/feedback': typeof LibrariesAccountFeedbackRoute
   '/account/notes': typeof LibrariesAccountNotesRoute
   '/account/submissions': typeof LibrariesAccountSubmissionsRoute
@@ -669,6 +695,7 @@ export interface FileRoutesByFullPath {
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
+  '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -681,6 +708,7 @@ export interface FileRoutesByFullPath {
   '/admin/notes': typeof AdminNotesIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
   '/admin/showcases': typeof AdminShowcasesIndexRoute
+  '/api/mcp': typeof ApiMcpIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -693,6 +721,7 @@ export interface FileRoutesByFullPath {
   '/db/$version': typeof LibrariesDbVersionIndexRoute
   '/devtools/$version': typeof LibrariesDevtoolsVersionIndexRoute
   '/form/$version': typeof LibrariesFormVersionIndexRoute
+  '/mcp/$version': typeof LibrariesMcpVersionIndexRoute
   '/pacer/$version': typeof LibrariesPacerVersionIndexRoute
   '/query/$version': typeof LibrariesQueryVersionIndexRoute
   '/ranger/$version': typeof LibrariesRangerVersionIndexRoute
@@ -747,6 +776,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/showcase': typeof ShowcaseIndexRoute
   '/stats': typeof StatsIndexRoute
+  '/account/api-keys': typeof LibrariesAccountApiKeysRoute
   '/account/feedback': typeof LibrariesAccountFeedbackRoute
   '/account/notes': typeof LibrariesAccountNotesRoute
   '/account/submissions': typeof LibrariesAccountSubmissionsRoute
@@ -761,6 +791,7 @@ export interface FileRoutesByTo {
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
+  '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -773,6 +804,7 @@ export interface FileRoutesByTo {
   '/admin/notes': typeof AdminNotesIndexRoute
   '/admin/roles': typeof AdminRolesIndexRoute
   '/admin/showcases': typeof AdminShowcasesIndexRoute
+  '/api/mcp': typeof ApiMcpIndexRoute
   '/stats/npm': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -785,6 +817,7 @@ export interface FileRoutesByTo {
   '/db/$version': typeof LibrariesDbVersionIndexRoute
   '/devtools/$version': typeof LibrariesDevtoolsVersionIndexRoute
   '/form/$version': typeof LibrariesFormVersionIndexRoute
+  '/mcp/$version': typeof LibrariesMcpVersionIndexRoute
   '/pacer/$version': typeof LibrariesPacerVersionIndexRoute
   '/query/$version': typeof LibrariesQueryVersionIndexRoute
   '/ranger/$version': typeof LibrariesRangerVersionIndexRoute
@@ -846,6 +879,7 @@ export interface FileRoutesById {
   '/showcase/': typeof ShowcaseIndexRoute
   '/stats/': typeof StatsIndexRoute
   '/$libraryId/$version/docs': typeof LibraryIdVersionDocsRouteWithChildren
+  '/_libraries/account/api-keys': typeof LibrariesAccountApiKeysRoute
   '/_libraries/account/feedback': typeof LibrariesAccountFeedbackRoute
   '/_libraries/account/notes': typeof LibrariesAccountNotesRoute
   '/_libraries/account/submissions': typeof LibrariesAccountSubmissionsRoute
@@ -860,6 +894,7 @@ export interface FileRoutesById {
   '/api/admin/sync': typeof ApiAdminSyncRoute
   '/api/discord/interactions': typeof ApiDiscordInteractionsRoute
   '/api/github/webhook': typeof ApiGithubWebhookRoute
+  '/api/mcp/$': typeof ApiMcpSplatRoute
   '/auth/$provider/start': typeof AuthProviderStartRoute
   '/showcase/edit/$id': typeof ShowcaseEditIdRoute
   '/stats/npm/$packages': typeof StatsNpmPackagesRoute
@@ -872,6 +907,7 @@ export interface FileRoutesById {
   '/admin/notes/': typeof AdminNotesIndexRoute
   '/admin/roles/': typeof AdminRolesIndexRoute
   '/admin/showcases/': typeof AdminShowcasesIndexRoute
+  '/api/mcp/': typeof ApiMcpIndexRoute
   '/stats/npm/': typeof StatsNpmIndexRoute
   '/$libraryId/$version/docs/$': typeof LibraryIdVersionDocsSplatRoute
   '/$libraryId/$version/docs/community-resources': typeof LibraryIdVersionDocsCommunityResourcesRoute
@@ -884,6 +920,7 @@ export interface FileRoutesById {
   '/_libraries/db/$version/': typeof LibrariesDbVersionIndexRoute
   '/_libraries/devtools/$version/': typeof LibrariesDevtoolsVersionIndexRoute
   '/_libraries/form/$version/': typeof LibrariesFormVersionIndexRoute
+  '/_libraries/mcp/$version/': typeof LibrariesMcpVersionIndexRoute
   '/_libraries/pacer/$version/': typeof LibrariesPacerVersionIndexRoute
   '/_libraries/query/$version/': typeof LibrariesQueryVersionIndexRoute
   '/_libraries/ranger/$version/': typeof LibrariesRangerVersionIndexRoute
@@ -945,6 +982,7 @@ export interface FileRouteTypes {
     | '/showcase'
     | '/stats'
     | '/$libraryId/$version/docs'
+    | '/account/api-keys'
     | '/account/feedback'
     | '/account/notes'
     | '/account/submissions'
@@ -959,6 +997,7 @@ export interface FileRouteTypes {
     | '/api/admin/sync'
     | '/api/discord/interactions'
     | '/api/github/webhook'
+    | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -971,6 +1010,7 @@ export interface FileRouteTypes {
     | '/admin/notes'
     | '/admin/roles'
     | '/admin/showcases'
+    | '/api/mcp'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -983,6 +1023,7 @@ export interface FileRouteTypes {
     | '/db/$version'
     | '/devtools/$version'
     | '/form/$version'
+    | '/mcp/$version'
     | '/pacer/$version'
     | '/query/$version'
     | '/ranger/$version'
@@ -1037,6 +1078,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/showcase'
     | '/stats'
+    | '/account/api-keys'
     | '/account/feedback'
     | '/account/notes'
     | '/account/submissions'
@@ -1051,6 +1093,7 @@ export interface FileRouteTypes {
     | '/api/admin/sync'
     | '/api/discord/interactions'
     | '/api/github/webhook'
+    | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -1063,6 +1106,7 @@ export interface FileRouteTypes {
     | '/admin/notes'
     | '/admin/roles'
     | '/admin/showcases'
+    | '/api/mcp'
     | '/stats/npm'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -1075,6 +1119,7 @@ export interface FileRouteTypes {
     | '/db/$version'
     | '/devtools/$version'
     | '/form/$version'
+    | '/mcp/$version'
     | '/pacer/$version'
     | '/query/$version'
     | '/ranger/$version'
@@ -1135,6 +1180,7 @@ export interface FileRouteTypes {
     | '/showcase/'
     | '/stats/'
     | '/$libraryId/$version/docs'
+    | '/_libraries/account/api-keys'
     | '/_libraries/account/feedback'
     | '/_libraries/account/notes'
     | '/_libraries/account/submissions'
@@ -1149,6 +1195,7 @@ export interface FileRouteTypes {
     | '/api/admin/sync'
     | '/api/discord/interactions'
     | '/api/github/webhook'
+    | '/api/mcp/$'
     | '/auth/$provider/start'
     | '/showcase/edit/$id'
     | '/stats/npm/$packages'
@@ -1161,6 +1208,7 @@ export interface FileRouteTypes {
     | '/admin/notes/'
     | '/admin/roles/'
     | '/admin/showcases/'
+    | '/api/mcp/'
     | '/stats/npm/'
     | '/$libraryId/$version/docs/$'
     | '/$libraryId/$version/docs/community-resources'
@@ -1173,6 +1221,7 @@ export interface FileRouteTypes {
     | '/_libraries/db/$version/'
     | '/_libraries/devtools/$version/'
     | '/_libraries/form/$version/'
+    | '/_libraries/mcp/$version/'
     | '/_libraries/pacer/$version/'
     | '/_libraries/query/$version/'
     | '/_libraries/ranger/$version/'
@@ -1209,9 +1258,11 @@ export interface RootRouteChildren {
   ApiAdminSyncRoute: typeof ApiAdminSyncRoute
   ApiDiscordInteractionsRoute: typeof ApiDiscordInteractionsRoute
   ApiGithubWebhookRoute: typeof ApiGithubWebhookRoute
+  ApiMcpSplatRoute: typeof ApiMcpSplatRoute
   AuthProviderStartRoute: typeof AuthProviderStartRoute
   ShowcaseEditIdRoute: typeof ShowcaseEditIdRoute
   StatsNpmPackagesRoute: typeof StatsNpmPackagesRoute
+  ApiMcpIndexRoute: typeof ApiMcpIndexRoute
   StatsNpmIndexRoute: typeof StatsNpmIndexRoute
   ApiAuthCallbackProviderRoute: typeof ApiAuthCallbackProviderRoute
 }
@@ -1533,6 +1584,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatsNpmIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mcp/': {
+      id: '/api/mcp/'
+      path: '/api/mcp'
+      fullPath: '/api/mcp'
+      preLoaderRoute: typeof ApiMcpIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/showcases/': {
       id: '/admin/showcases/'
       path: '/showcases'
@@ -1615,6 +1673,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/$provider/start'
       fullPath: '/auth/$provider/start'
       preLoaderRoute: typeof AuthProviderStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mcp/$': {
+      id: '/api/mcp/$'
+      path: '/api/mcp/$'
+      fullPath: '/api/mcp/$'
+      preLoaderRoute: typeof ApiMcpSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/github/webhook': {
@@ -1715,6 +1780,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrariesAccountFeedbackRouteImport
       parentRoute: typeof LibrariesAccountRoute
     }
+    '/_libraries/account/api-keys': {
+      id: '/_libraries/account/api-keys'
+      path: '/api-keys'
+      fullPath: '/account/api-keys'
+      preLoaderRoute: typeof LibrariesAccountApiKeysRouteImport
+      parentRoute: typeof LibrariesAccountRoute
+    }
     '/$libraryId/$version/docs': {
       id: '/$libraryId/$version/docs'
       path: '/docs'
@@ -1776,6 +1848,13 @@ declare module '@tanstack/react-router' {
       path: '/pacer/$version'
       fullPath: '/pacer/$version'
       preLoaderRoute: typeof LibrariesPacerVersionIndexRouteImport
+      parentRoute: typeof LibrariesRouteRoute
+    }
+    '/_libraries/mcp/$version/': {
+      id: '/_libraries/mcp/$version/'
+      path: '/mcp/$version'
+      fullPath: '/mcp/$version'
+      preLoaderRoute: typeof LibrariesMcpVersionIndexRouteImport
       parentRoute: typeof LibrariesRouteRoute
     }
     '/_libraries/form/$version/': {
@@ -1955,6 +2034,7 @@ const LibraryIdRouteRouteWithChildren = LibraryIdRouteRoute._addFileChildren(
 )
 
 interface LibrariesAccountRouteChildren {
+  LibrariesAccountApiKeysRoute: typeof LibrariesAccountApiKeysRoute
   LibrariesAccountFeedbackRoute: typeof LibrariesAccountFeedbackRoute
   LibrariesAccountNotesRoute: typeof LibrariesAccountNotesRoute
   LibrariesAccountSubmissionsRoute: typeof LibrariesAccountSubmissionsRoute
@@ -1962,6 +2042,7 @@ interface LibrariesAccountRouteChildren {
 }
 
 const LibrariesAccountRouteChildren: LibrariesAccountRouteChildren = {
+  LibrariesAccountApiKeysRoute: LibrariesAccountApiKeysRoute,
   LibrariesAccountFeedbackRoute: LibrariesAccountFeedbackRoute,
   LibrariesAccountNotesRoute: LibrariesAccountNotesRoute,
   LibrariesAccountSubmissionsRoute: LibrariesAccountSubmissionsRoute,
@@ -2012,6 +2093,7 @@ interface LibrariesRouteRouteChildren {
   LibrariesDbVersionIndexRoute: typeof LibrariesDbVersionIndexRoute
   LibrariesDevtoolsVersionIndexRoute: typeof LibrariesDevtoolsVersionIndexRoute
   LibrariesFormVersionIndexRoute: typeof LibrariesFormVersionIndexRoute
+  LibrariesMcpVersionIndexRoute: typeof LibrariesMcpVersionIndexRoute
   LibrariesPacerVersionIndexRoute: typeof LibrariesPacerVersionIndexRoute
   LibrariesQueryVersionIndexRoute: typeof LibrariesQueryVersionIndexRoute
   LibrariesRangerVersionIndexRoute: typeof LibrariesRangerVersionIndexRoute
@@ -2049,6 +2131,7 @@ const LibrariesRouteRouteChildren: LibrariesRouteRouteChildren = {
   LibrariesDbVersionIndexRoute: LibrariesDbVersionIndexRoute,
   LibrariesDevtoolsVersionIndexRoute: LibrariesDevtoolsVersionIndexRoute,
   LibrariesFormVersionIndexRoute: LibrariesFormVersionIndexRoute,
+  LibrariesMcpVersionIndexRoute: LibrariesMcpVersionIndexRoute,
   LibrariesPacerVersionIndexRoute: LibrariesPacerVersionIndexRoute,
   LibrariesQueryVersionIndexRoute: LibrariesQueryVersionIndexRoute,
   LibrariesRangerVersionIndexRoute: LibrariesRangerVersionIndexRoute,
@@ -2140,9 +2223,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAdminSyncRoute: ApiAdminSyncRoute,
   ApiDiscordInteractionsRoute: ApiDiscordInteractionsRoute,
   ApiGithubWebhookRoute: ApiGithubWebhookRoute,
+  ApiMcpSplatRoute: ApiMcpSplatRoute,
   AuthProviderStartRoute: AuthProviderStartRoute,
   ShowcaseEditIdRoute: ShowcaseEditIdRoute,
   StatsNpmPackagesRoute: StatsNpmPackagesRoute,
+  ApiMcpIndexRoute: ApiMcpIndexRoute,
   StatsNpmIndexRoute: StatsNpmIndexRoute,
   ApiAuthCallbackProviderRoute: ApiAuthCallbackProviderRoute,
 }

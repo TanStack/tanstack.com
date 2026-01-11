@@ -29,6 +29,7 @@ export const Route = createFileRoute(
         title: ctx.loaderData?.title
           ? `${ctx.loaderData.title} | ${tail}`
           : tail,
+        noindex: library.visible === false,
       }),
     }
   },

@@ -341,8 +341,7 @@ button {
 /* https://github.com/shikijs/twoslash/tree/main/packages/remark-shiki-twoslash#plugin-setup */
 pre {
   /* All code samples get a grey border, twoslash ones get a different color */
-  @apply text-black p-2;
-  @apply overflow-x-auto relative leading-tight;
+  @apply text-black overflow-x-auto relative leading-tight;
 }
 pre.shiki {
   overflow-x: auto;
@@ -370,7 +369,7 @@ pre.shiki div.highlight {
   background-color: #f1f8ff;
 }
 pre.shiki div.line {
-  min-height: 1rem;
+  min-height: auto;
 }
 
 /** Don't show the language identifiers */

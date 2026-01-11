@@ -1,6 +1,5 @@
 export { rehypeParseCommentComponents } from './parseCommentComponents'
 export { rehypeTransformCommentComponents } from './transformCommentComponents'
-export { rehypeTransformFrameworkComponents } from './transformFrameworkComponents'
+export { rehypeTransformFrameworkComponents, transformFrameworkComponent } from './transformFrameworkComponent'
 export { transformTabsComponent } from './transformTabsComponent'
-export { transformFrameworkComponent } from './transformFrameworkComponent'
 export { type MarkdownHeading, rehypeCollectHeadings } from './collectHeadings'

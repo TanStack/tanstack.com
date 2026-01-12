@@ -981,3 +981,8 @@ mark {
 .framework-code-block > .codeblock {
   @apply my-4;
 }
+
+/* Tab content - add padding when it's not just a code block */
+[data-tab]:not(:has(> .codeblock:only-child)) {
+  @apply px-4;
+}

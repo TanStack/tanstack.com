@@ -7,6 +7,7 @@ export type MarkdownHeading = {
   id: string
   text: string
   level: number
+  framework?: string
 }
 
 type HastElement = {
@@ -38,6 +39,14 @@ const isTabsAncestor = (ancestor: HastElement) => {
   return typeof component === 'string' && component.toLowerCase() === 'tabs'
 }
 
+const isFrameworkPanelAncestor = (ancestor: HastElement) => {
+  if (ancestor.type !== 'element') {
+    return false
+  }
+
+  return ancestor.tagName === 'md-framework-panel'
+}
+
 export function rehypeCollectHeadings(initialHeadings?: MarkdownHeading[]) {
   const headings = initialHeadings ?? []
 
@@ -62,10 +71,29 @@ export function rehypeCollectHeadings(initialHeadings?: MarkdownHeading[]) {
         return
       }
 
+      let currentFramework: string | undefined
+
+      const headingDataFramework = node.properties?.['data-framework']
+      if (typeof headingDataFramework === 'string') {
+        currentFramework = headingDataFramework
+      } else if (Array.isArray(ancestors)) {
+        const frameworkPanel = ancestors.find((ancestor) =>
+          isFrameworkPanelAncestor(ancestor as HastElement),
+        ) as HastElement | undefined
+
+        if (frameworkPanel) {
+          const dataFramework = frameworkPanel.properties?.['data-framework']
+          if (typeof dataFramework === 'string') {
+            currentFramework = dataFramework
+          }
+        }
+      }
+
       headings.push({
         id,
         level: Number(node.tagName.substring(1)),
         text: toString(node as any).trim(),
+        framework: currentFramework,
       })
     })
 

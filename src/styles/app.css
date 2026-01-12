@@ -986,6 +986,3 @@ mark {
 [data-tab]:not(:has(> .codeblock:only-child)) {
   @apply px-4;
 }
-
-
-

@@ -21,13 +21,21 @@ type TocProps = {
   currentFramework?: string
 }
 
-export function Toc({ headings, textColor, activeHeadings, currentFramework }: TocProps) {
+export function Toc({
+  headings,
+  textColor,
+  activeHeadings,
+  currentFramework,
+}: TocProps) {
   // Filter headings based on framework scope
   const visibleHeadings = React.useMemo(() => {
     return headings.filter((heading) => {
       console.log(heading)
       if (heading.framework) {
-        return currentFramework && heading.framework === currentFramework.toLowerCase()
+        return (
+          currentFramework &&
+          heading.framework === currentFramework.toLowerCase()
+        )
       }
       // If no framework attribute, always show (not framework-scoped)
       return true

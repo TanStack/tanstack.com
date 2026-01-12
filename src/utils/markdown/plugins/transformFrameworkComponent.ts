@@ -85,7 +85,9 @@ function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
   let firstFramework: string | null = null
   for (const child of children) {
     if (child.type === 'element' && child.tagName === 'h1') {
-      firstFramework = toString(child as any).trim().toLowerCase()
+      firstFramework = toString(child as any)
+        .trim()
+        .toLowerCase()
       break
     }
   }
@@ -130,7 +132,10 @@ function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
       contentNode.tagName &&
       /^h[2-6]$/.test(contentNode.tagName)
     ) {
-      contentNode.properties = (contentNode.properties || {}) as Record<string, unknown>
+      contentNode.properties = (contentNode.properties || {}) as Record<
+        string,
+        unknown
+      >
       contentNode.properties['data-framework'] = currentFramework
     }
 
@@ -210,4 +215,3 @@ export const rehypeTransformFrameworkComponents = () => {
     })
   }
 }
-

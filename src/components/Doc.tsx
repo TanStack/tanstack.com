@@ -61,7 +61,11 @@ export function Doc({
   const { framework: paramsFramework } = useParams({ strict: false })
   const localCurrentFramework = useLocalCurrentFramework()
   const currentFramework = React.useMemo(() => {
-    const fw = frameworkProp || paramsFramework || localCurrentFramework.currentFramework || 'react'
+    const fw =
+      frameworkProp ||
+      paramsFramework ||
+      localCurrentFramework.currentFramework ||
+      'react'
     return typeof fw === 'string' ? fw.toLowerCase() : fw
   }, [frameworkProp, paramsFramework, localCurrentFramework.currentFramework])
 

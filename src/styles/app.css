@@ -761,6 +761,10 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply flex justify-start items-center font-medium;
 }
 
+.markdown-alert .markdown-alert-content {
+  @apply pr-5;
+}
+
 .bg-clip-text {
   @apply print:text-gray-800;
 }

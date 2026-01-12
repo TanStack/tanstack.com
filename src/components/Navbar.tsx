@@ -389,7 +389,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
               return indexA - indexB
             })
         })().map((library, i) => {
-          const [prefix, name] = library.name.split(' ')
+          const [_, name] = library.name.split(' ')
           const isActive = library.to === activeLibrary?.to
 
           return (
@@ -458,10 +458,9 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                         <span
                           className={twMerge(
                             `px-2 py-px uppercase font-black rounded-md text-[.65rem]`,
-                            library.badgeTextStyle ?? 'text-white',
-                            'bg-gradient-to-r',
-                            library.colorFrom,
-                            library.colorTo,
+                            'border-2 bg-transparent',
+                            library.textStyle,
+                            library.borderStyle,
                           )}
                         >
                           {library.badge}
@@ -504,13 +503,11 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                               {library.badge ? (
                                 <span
                                   className={twMerge(
-                                    `px-2 py-px uppercase font-black bg-gray-500/10 dark:bg-gray-500/30 rounded-md text-[.7rem]`,
-                                    library.badgeTextStyle ?? 'text-white',
+                                    `px-2 py-px uppercase font-black rounded-md text-[.6rem]`,
+                                    'border bg-transparent',
+                                    'border-current text-current',
                                     'opacity-90 group-hover:opacity-100 transition-opacity',
-                                    'bg-gradient-to-r',
-                                    library.colorFrom,
-                                    library.colorTo,
-                                    'text-[.6rem]',
+                                    library.textColor,
                                   )}
                                 >
                                   {library.badge}
@@ -669,7 +666,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: (
               <>
                 <span>Feed</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-blue-500 text-blue-500 rounded-md uppercase">
                   Beta
                 </span>
               </>
@@ -701,7 +698,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
             label: (
               <>
                 <span>Learn</span>
-                <span className="px-1.5 py-0.5 text-[.6rem] font-black bg-gradient-to-r from-green-400 to-green-600 text-white rounded-md uppercase">
+                <span className="px-1.5 py-0.5 text-[.6rem] font-black border border-green-500 text-green-500 rounded-md uppercase">
                   NEW
                 </span>
               </>

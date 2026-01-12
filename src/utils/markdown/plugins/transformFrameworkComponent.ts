@@ -1,20 +1,20 @@
 import { toString } from 'hast-util-to-string'
 import { visit } from 'unist-util-visit'
 
-import { isHeading, normalizeComponentName } from './helpers'
+import { normalizeComponentName } from './helpers'
 
 type HastNode = {
   type: string
-  tagName: string
+  tagName?: string
   properties?: Record<string, unknown>
   children?: HastNode[]
+  value?: string
 }
 
 type FrameworkCodeBlock = {
   title: string
   code: string
   language: string
-  preNode: HastNode
 }
 
 type FrameworkExtraction = {
@@ -22,29 +22,14 @@ type FrameworkExtraction = {
   contentByFramework: Record<string, HastNode[]>
 }
 
-// Helper to extract text from nodes (used for code content)
-function extractText(nodes: any[]): string {
-  let text = ''
-  for (const node of nodes) {
-    if (node.type === 'text') {
-      text += node.value
-    } else if (node.type === 'element' && node.children) {
-      text += extractText(node.children)
-    }
-  }
-  return text
-}
-
 /**
  * Extract code block data (language, title, code) from a <pre> element.
- * Extracts title from data-code-title (set by rehypeCodeMeta).
  */
 function extractCodeBlockData(preNode: HastNode): {
   language: string
   title: string
   code: string
 } | null {
-  // Find the <code> child
   const codeNode = preNode.children?.find(
     (c: HastNode) => c.type === 'element' && c.tagName === 'code',
   )
@@ -61,6 +46,7 @@ function extractCodeBlockData(preNode: HastNode): {
     }
   }
 
+  // Extract title from data attributes
   let title = ''
   const props = preNode.properties || {}
   if (typeof props['dataCodeTitle'] === 'string') {
@@ -73,57 +59,93 @@ function extractCodeBlockData(preNode: HastNode): {
     title = props['data-filename']
   }
 
-  // Extract code content
+  // Extract code text
+  const extractText = (nodes: HastNode[]): string => {
+    let text = ''
+    for (const node of nodes) {
+      if (node.type === 'text' && node.value) {
+        text += node.value
+      } else if (node.type === 'element' && node.children) {
+        text += extractText(node.children)
+      }
+    }
+    return text
+  }
   const code = extractText(codeNode.children || [])
 
   return { language, title, code }
 }
 
-/**
- * Extract framework-specific content for framework component.
- * Groups all content (code blocks and general content) by framework headings.
- */
 function extractFrameworkData(node: HastNode): FrameworkExtraction | null {
   const children = node.children ?? []
   const codeBlocksByFramework: Record<string, FrameworkCodeBlock[]> = {}
   const contentByFramework: Record<string, HastNode[]> = {}
 
-  let currentFramework: string | null = null
+  // First pass: find the first H1 to determine the first framework
+  let firstFramework: string | null = null
+  for (const child of children) {
+    if (child.type === 'element' && child.tagName === 'h1') {
+      firstFramework = toString(child as any).trim().toLowerCase()
+      break
+    }
+  }
+
+  // If no H1 found at all, return null
+  if (!firstFramework) {
+    return null
+  }
+
+  // Second pass: collect content
+  let currentFramework: string | null = firstFramework // Start with first framework for content before first H1
+
+  // Initialize the first framework
+  contentByFramework[firstFramework] = []
+  codeBlocksByFramework[firstFramework] = []
 
   for (const child of children) {
-    if (isHeading(child)) {
+    // Check if this is an H1 heading (framework divider)
+    if (child.type === 'element' && child.tagName === 'h1') {
+      // Extract framework name from H1 text
       currentFramework = toString(child as any)
         .trim()
         .toLowerCase()
+
       // Initialize arrays for this framework
       if (currentFramework && !contentByFramework[currentFramework]) {
         contentByFramework[currentFramework] = []
         codeBlocksByFramework[currentFramework] = []
       }
+      // Don't include the H1 itself in content - it's just a divider
       continue
     }
 
-    // Skip if no framework heading found yet
     if (!currentFramework) continue
 
-    // Add all content to contentByFramework
-    contentByFramework[currentFramework].push(child)
+    // Create a shallow copy of the node
+    const contentNode = Object.assign({}, child) as HastNode
 
-    // Look for <pre> elements (code blocks) under current framework
-    if ((child as any).type === 'element' && (child as any).tagName === 'pre') {
-      const codeBlockData = extractCodeBlockData(child)
-      if (!codeBlockData) continue
+    // Mark all headings (h2-h6) with framework attribute so they appear in TOC only for this framework
+    if (
+      contentNode.type === 'element' &&
+      contentNode.tagName &&
+      /^h[2-6]$/.test(contentNode.tagName)
+    ) {
+      contentNode.properties = (contentNode.properties || {}) as Record<string, unknown>
+      contentNode.properties['data-framework'] = currentFramework
+    }
 
-      codeBlocksByFramework[currentFramework].push({
-        title: codeBlockData.title || 'Untitled',
-        code: codeBlockData.code,
-        language: codeBlockData.language,
-        preNode: child,
-      })
+    contentByFramework[currentFramework].push(contentNode)
+
+    // Extract code blocks for this framework
+    if (contentNode.type === 'element' && contentNode.tagName === 'pre') {
+      const codeBlockData = extractCodeBlockData(contentNode)
+      if (codeBlockData) {
+        codeBlocksByFramework[currentFramework].push(codeBlockData)
+      }
     }
   }
 
-  // Return null only if no frameworks found at all
+  // Return null if no frameworks found
   if (Object.keys(contentByFramework).length === 0) {
     return null
   }
@@ -188,3 +210,4 @@ export const rehypeTransformFrameworkComponents = () => {
     })
   }
 }
+

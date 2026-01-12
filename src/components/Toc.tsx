@@ -18,9 +18,21 @@ type TocProps = {
   colorTo?: string
   textColor?: string
   activeHeadings: Array<string>
+  currentFramework?: string
 }
 
-export function Toc({ headings, textColor, activeHeadings }: TocProps) {
+export function Toc({ headings, textColor, activeHeadings, currentFramework }: TocProps) {
+  // Filter headings based on framework scope
+  const visibleHeadings = React.useMemo(() => {
+    return headings.filter((heading) => {
+      console.log(heading)
+      if (heading.framework) {
+        return currentFramework && heading.framework === currentFramework.toLowerCase()
+      }
+      // If no framework attribute, always show (not framework-scoped)
+      return true
+    })
+  }, [headings, currentFramework])
   return (
     <nav className="flex flex-col sticky top-[var(--navbar-height)] max-h-[calc(100dvh-var(--navbar-height))] overflow-hidden">
       <div className="py-1">
@@ -33,7 +45,7 @@ export function Toc({ headings, textColor, activeHeadings }: TocProps) {
           'py-1 flex flex-col overflow-y-auto text-[.6em] lg:text-[.65em] xl:text-[.7em] 2xl:text-[.75em]',
         )}
       >
-        {headings?.map((heading) => (
+        {visibleHeadings?.map((heading) => (
           <li
             key={heading.id}
             className={twMerge('w-full', headingLevels[heading.level])}

@@ -9,6 +9,8 @@ import { renderMarkdown } from '~/utils/markdown'
 import { DocBreadcrumb } from './DocBreadcrumb'
 import { MarkdownContent } from '~/components/markdown'
 import type { ConfigSchema } from '~/utils/config'
+import { useLocalCurrentFramework } from './FrameworkSelect'
+import { useParams } from '@tanstack/react-router'
 
 type DocProps = {
   title: string
@@ -28,6 +30,8 @@ type DocProps = {
   config?: ConfigSchema
   // Footer content rendered after markdown
   footer?: React.ReactNode
+  // Optional framework to use (overrides URL and local storage)
+  framework?: string
 }
 
 export function Doc({
@@ -45,12 +49,21 @@ export function Doc({
   pagePath,
   config,
   footer,
+  framework: frameworkProp,
 }: DocProps) {
   // Extract headings synchronously during render to avoid hydration mismatch
   const { headings, markup } = React.useMemo(
     () => renderMarkdown(content),
     [content],
   )
+
+  // Get current framework from prop, URL params, or local storage
+  const { framework: paramsFramework } = useParams({ strict: false })
+  const localCurrentFramework = useLocalCurrentFramework()
+  const currentFramework = React.useMemo(() => {
+    const fw = frameworkProp || paramsFramework || localCurrentFramework.currentFramework || 'react'
+    return typeof fw === 'string' ? fw.toLowerCase() : fw
+  }, [frameworkProp, paramsFramework, localCurrentFramework.currentFramework])
 
   const isTocVisible = shouldRenderToc && headings.length > 1
 
@@ -170,6 +183,7 @@ export function Doc({
               colorFrom={colorFrom}
               colorTo={colorTo}
               textColor={textColor}
+              currentFramework={currentFramework}
             />
           </div>
         )}

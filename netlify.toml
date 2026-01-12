@@ -2,7 +2,7 @@
   NODE_OPTIONS = "--max-old-space-size=4096"
 
 [build]
-  command = "vite build"
+  command = "vite build && cp src/instrument.server.mjs dist/server"
   publish = "dist/client"
 
 [functions]

@@ -20,6 +20,7 @@ export default defineConfig({
     exclude: ['postgres'],
   },
   build: {
+    sourcemap: process.env.NODE_ENV === 'production',
     rollupOptions: {
       external: (id) => {
         // Externalize postgres from client bundle

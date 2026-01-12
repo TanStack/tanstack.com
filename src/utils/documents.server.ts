@@ -466,22 +466,37 @@ async function fetchApiContentsFs(
   async function getContentsForPath(
     filePath: string,
   ): Promise<Array<GitHubFile>> {
-    const list = await fsp.readdir(filePath, { withFileTypes: true })
-    return list
-      .filter((item) => !dirsAndFilesToIgnore.includes(item.name))
-      .map((item) => {
-        return {
-          name: item.name,
-          path: path.join(filePath, item.name),
-          type: item.isDirectory() ? 'dir' : 'file',
-          _links: {
-            self: path.join(filePath, item.name),
-          },
-        }
-      })
+    try {
+      const list = await fsp.readdir(filePath, { withFileTypes: true })
+      return list
+        .filter((item) => !dirsAndFilesToIgnore.includes(item.name))
+        .map((item) => {
+          return {
+            name: item.name,
+            path: path.join(filePath, item.name),
+            type: item.isDirectory() ? 'dir' : 'file',
+            _links: {
+              self: path.join(filePath, item.name),
+            },
+          }
+        })
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        'code' in error &&
+        error.code === 'ENOENT'
+      ) {
+        return []
+      }
+      throw error
+    }
   }
 
   const data = await getContentsForPath(fsStartPath)
+
+  if (data.length === 0) {
+    return null
+  }
 
   async function buildFileTree(
     nodes: Array<GitHubFile> | undefined,
@@ -539,6 +554,9 @@ async function fetchApiContentsRemote(
   )
 
   if (!res.ok) {
+    if (res.status === 404) {
+      return null
+    }
     throw new Error(
       `Failed to fetch repo contents for ${repo}/${branch}/${startingPath}: Status is ${res.statusText} - ${res.status}`,
     )

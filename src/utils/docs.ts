@@ -103,6 +103,10 @@ export const fetchRepoDirectoryContents = createServerFn({
   .handler(async ({ data: { repo, branch, startingPath } }) => {
     const githubContents = await fetchApiContents(repo, branch, startingPath)
 
+    if (!githubContents) {
+      throw notFound()
+    }
+
     // Cache for 60 minutes on shared cache
     // Revalidate in the background
     setResponseHeader('Cache-Control', 'public, max-age=0, must-revalidate')

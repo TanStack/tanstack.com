@@ -8,13 +8,14 @@ import {
   createFileRoute,
   useLocation,
   getRouteApi,
+  isNotFound,
 } from '@tanstack/react-router'
 
 const docsRouteApi = getRouteApi('/$libraryId/$version/docs')
 
 export const Route = createFileRoute('/$libraryId/$version/docs/$')({
   staleTime: 1000 * 60 * 5,
-  loader: (ctx) => {
+  loader: async (ctx) => {
     const { _splat: docsPath, version, libraryId } = ctx.params
     const library = findLibrary(libraryId)
 
@@ -22,11 +23,21 @@ export const Route = createFileRoute('/$libraryId/$version/docs/$')({
       throw notFound()
     }
 
-    return loadDocs({
-      repo: library.repo,
-      branch: getBranch(library, version),
-      docsPath: `${library.docsRoot || 'docs'}/${docsPath}`,
-    })
+    try {
+      return await loadDocs({
+        repo: library.repo,
+        branch: getBranch(library, version),
+        docsPath: `${library.docsRoot || 'docs'}/${docsPath}`,
+      })
+    } catch (error) {
+      const isNotFoundError =
+        isNotFound(error) ||
+        (error && typeof error === 'object' && 'isNotFound' in error)
+      if (isNotFoundError) {
+        throw notFound()
+      }
+      throw error
+    }
   },
   head: ({ loaderData, params }) => {
     const { libraryId } = params

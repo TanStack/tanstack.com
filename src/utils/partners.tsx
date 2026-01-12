@@ -67,6 +67,8 @@ export function PartnerImage({
           loading="lazy"
           className="w-full dark:hidden"
           width={200}
+          height={100}
+          sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
         />
         <img
           src={config.dark}
@@ -74,6 +76,8 @@ export function PartnerImage({
           loading="lazy"
           className="w-full hidden dark:block"
           width={200}
+          height={100}
+          sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
         />
       </div>
     )
@@ -86,7 +90,9 @@ export function PartnerImage({
         alt={alt}
         className="w-full"
         width={200}
+        height={100}
         loading="lazy"
+        sizes="(max-width: 640px) 80px, (max-width: 1024px) 150px, 200px"
       />
     </div>
   )

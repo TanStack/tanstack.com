@@ -59,7 +59,7 @@ export function Breadcrumbs({
                 <DropdownItem key={`breadcrumb-toc-${heading.id}`} asChild>
                   <Link
                     to="."
-                    hash={`#${heading.id}`}
+                    hash={heading.id}
                     style={{
                       paddingLeft: `${(heading.level - 2) * 0.5 + 0.5}rem`,
                     }}

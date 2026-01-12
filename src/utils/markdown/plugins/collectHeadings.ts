@@ -27,17 +27,14 @@ type VFileData = {
 
 const isTabsAncestor = (ancestor: HastElement) => {
   if (ancestor.type !== 'element') {
-    console.log('skip')
     return false
   }
 
   if (ancestor.tagName !== 'md-comment-component') {
-    console.log('skip')
     return false
   }
 
   const component = ancestor.properties?.['data-component']
-  console.log('dont skip', component)
   return typeof component === 'string' && component.toLowerCase() === 'tabs'
 }
 

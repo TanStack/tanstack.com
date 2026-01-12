@@ -341,11 +341,11 @@ button {
 /* https://github.com/shikijs/twoslash/tree/main/packages/remark-shiki-twoslash#plugin-setup */
 pre {
   /* All code samples get a grey border, twoslash ones get a different color */
-  @apply text-black p-2;
-  @apply overflow-x-auto relative leading-tight;
+  @apply text-black overflow-x-auto relative leading-tight;
 }
 pre.shiki {
   overflow-x: auto;
+  padding: 1rem;
 
   @apply bg-white;
 
@@ -369,7 +369,7 @@ pre.shiki div.highlight {
   background-color: #f1f8ff;
 }
 pre.shiki div.line {
-  min-height: 1rem;
+  min-height: auto;
 }
 
 /** Don't show the language identifiers */
@@ -721,7 +721,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply border-blue-500/90;
 }
 
-.markdown-alert.markdown-alert-note svg {
+.markdown-alert.markdown-alert-note .markdown-alert-title svg {
   @apply fill-blue-500/90;
 }
 
@@ -729,7 +729,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply border-yellow-500/90;
 }
 
-.markdown-alert.markdown-alert-warning svg {
+.markdown-alert.markdown-alert-warning .markdown-alert-title svg {
   @apply fill-yellow-500/90;
 }
 
@@ -737,7 +737,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply border-red-500/90;
 }
 
-.markdown-alert.markdown-alert-caution svg {
+.markdown-alert.markdown-alert-caution .markdown-alert-title svg {
   @apply fill-red-500/90;
 }
 
@@ -745,7 +745,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply border-green-500/90;
 }
 
-.markdown-alert.markdown-alert-tip svg {
+.markdown-alert.markdown-alert-tip .markdown-alert-title svg {
   @apply fill-green-500/90;
 }
 
@@ -753,7 +753,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
   @apply border-purple-500/90;
 }
 
-.markdown-alert.markdown-alert-important svg {
+.markdown-alert.markdown-alert-important .markdown-alert-title svg {
   @apply fill-purple-500/90;
 }
 

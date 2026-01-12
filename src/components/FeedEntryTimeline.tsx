@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { format, formatDistanceToNow } from '~/utils/dates'
-import { Markdown } from '~/components/Markdown'
+import { Markdown } from '~/components/markdown'
 import { Card } from '~/components/Card'
 import { libraries } from '~/libraries'
 import { partners } from '~/utils/partners'

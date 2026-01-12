@@ -14,6 +14,7 @@ export type TabsProps = {
   id: string
   activeSlug?: string
   onTabChange?: (slug: string) => void
+  variant?: string
 }
 
 export function Tabs({

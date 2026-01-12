@@ -1,4 +1,4 @@
-import { useLocalCurrentFramework } from './FrameworkSelect'
+import { useLocalCurrentFramework } from '../FrameworkSelect'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useParams } from '@tanstack/react-router'
 import { create } from 'zustand'

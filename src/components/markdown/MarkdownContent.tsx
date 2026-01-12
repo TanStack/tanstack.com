@@ -2,10 +2,10 @@ import * as React from 'react'
 import { SquarePen } from 'lucide-react'
 import { twMerge } from 'tailwind-merge'
 import { DocTitle } from '~/components/DocTitle'
-import { Markdown } from '~/components/Markdown'
-import { CopyPageDropdown } from './CopyPageDropdown'
-import { DocFeedbackProvider } from './DocFeedbackProvider'
-import { Button } from './Button'
+import { Markdown } from './Markdown'
+import { CopyPageDropdown } from '~/components/CopyPageDropdown'
+import { DocFeedbackProvider } from '~/components/DocFeedbackProvider'
+import { Button } from '~/components/Button'
 
 type MarkdownContentProps = {
   title: string

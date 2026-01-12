@@ -1,9 +1,9 @@
-import * as React from 'react'
-import { useLocalCurrentFramework } from './FrameworkSelect'
+import { useLocalCurrentFramework } from '../FrameworkSelect'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useParams } from '@tanstack/react-router'
 import { Tabs } from './Tabs'
 import type { Framework } from '~/libraries/types'
+import { Children, ReactNode } from 'react'
 
 type CodeBlockMeta = {
   title: string
@@ -11,26 +11,26 @@ type CodeBlockMeta = {
   language: string
 }
 
-type FrameworkCodeBlockProps = {
+type FrameworkContentProps = {
   id: string
   codeBlocksByFramework: Record<string, CodeBlockMeta[]>
   availableFrameworks: string[]
   /** Pre-rendered React children for each framework (from domToReact) */
-  panelsByFramework: Record<string, React.ReactNode>
+  panelsByFramework: Record<string, ReactNode>
 }
 
 /**
- * Renders code blocks for the currently selected framework.
- * - If no blocks for framework: shows nothing
+ * Renders content for the currently selected framework.
+ * - If no content for framework: shows nothing
  * - If 1 code block: shows just the code block (minimal style)
  * - If multiple code blocks: shows as file tabs
  * - If no code blocks but has content: shows the content directly
  */
-export function FrameworkCodeBlock({
+export function FrameworkContent({
   id,
   codeBlocksByFramework,
   panelsByFramework,
-}: FrameworkCodeBlockProps) {
+}: FrameworkContentProps) {
   const { framework: paramsFramework } = useParams({ strict: false })
   const localCurrentFramework = useLocalCurrentFramework()
   const userQuery = useCurrentUserQuery()
@@ -54,12 +54,12 @@ export function FrameworkCodeBlock({
 
   // If no code blocks, just render the content directly
   if (frameworkBlocks.length === 0) {
-    return <div className="framework-code-block">{frameworkPanel}</div>
+    return <div className="framework-content">{frameworkPanel}</div>
   }
 
   // If 1 code block, render minimal style
   if (frameworkBlocks.length === 1) {
-    return <div className="framework-code-block">{frameworkPanel}</div>
+    return <div className="framework-content">{frameworkPanel}</div>
   }
 
   // Multiple code blocks - show as file tabs
@@ -68,10 +68,10 @@ export function FrameworkCodeBlock({
     name: block.title || 'Untitled',
   }))
 
-  const childrenArray = React.Children.toArray(frameworkPanel)
+  const childrenArray = Children.toArray(frameworkPanel)
 
   return (
-    <div className="framework-code-block">
+    <div className="framework-content">
       <Tabs id={`${id}-${normalizedFramework}`} tabs={tabs} variant="files">
         {childrenArray}
       </Tabs>

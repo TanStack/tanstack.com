@@ -1,6 +1,7 @@
 import { createFileRoute, useSearch, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { hasCapability } from '~/db/types'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { getUserStats, getSignupsChartData } from '~/utils/user-stats.server'
 import { getActivityStats, getLoginsChartData } from '~/utils/audit.functions'
@@ -62,7 +63,7 @@ function AdminPage() {
     )
   }
 
-  const canAdmin = capabilities.includes('admin')
+  const canAdmin = hasCapability(capabilities, 'admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">

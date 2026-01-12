@@ -12,6 +12,7 @@ import {
 } from '@tanstack/react-table'
 import { ArrowLeft, Lock, Trash, User, Users } from 'lucide-react'
 import { requireCapability } from '~/utils/auth.server'
+import { hasCapability } from '~/db/types'
 
 export const Route = createFileRoute('/admin/roles/$roleId')({
   beforeLoad: async () => {
@@ -223,7 +224,7 @@ function RoleDetailPage() {
   }
 
   const capabilities = user?.capabilities || []
-  const canAdmin = capabilities.includes('admin')
+  const canAdmin = hasCapability(capabilities, 'admin')
   if (user && !canAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center">

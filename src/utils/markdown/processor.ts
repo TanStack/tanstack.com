@@ -12,6 +12,7 @@ import {
   rehypeCollectHeadings,
   rehypeParseCommentComponents,
   rehypeTransformCommentComponents,
+  rehypeTransformFrameworkComponents,
 } from '~/utils/markdown/plugins'
 import { extractCodeMeta } from '~/utils/markdown/plugins/extractCodeMeta'
 
@@ -39,35 +40,25 @@ export function renderMarkdown(content: string): MarkdownRenderResult {
     .use(rehypeCallouts, {
       theme: 'github',
       props: {
-        containerProps(node: any, type: string) {
-          return {
-            className: `markdown-alert markdown-alert-${type}`,
-            children: node.children,
-          }
-        },
-        titleIconProps() {
-          return {
-            className: 'octicon octicon-info mr-2',
-          }
-        },
-        titleProps() {
-          return {
-            className: 'markdown-alert-title',
-          }
-        },
-        titleTextProps() {
-          return {
-            className: 'markdown-alert-title',
-          }
-        },
-        contentProps() {
-          return {
-            className: 'markdown-alert-content',
-          }
-        },
+        containerProps: (_node: any, type: string) => ({
+          className: `markdown-alert markdown-alert-${type}`,
+        }),
+        titleIconProps: () => ({
+          className: 'octicon octicon-info mr-2',
+        }),
+        titleProps: () => ({
+          className: 'markdown-alert-title',
+        }),
+        titleTextProps: () => ({
+          className: 'markdown-alert-title',
+        }),
+        contentProps: () => ({
+          className: 'markdown-alert-content',
+        }),
       },
     } as any)
     .use(rehypeSlug)
+    .use(rehypeTransformFrameworkComponents)
     .use(rehypeTransformCommentComponents)
     .use(rehypeAutolinkHeadings, {
       behavior: 'wrap',
@@ -76,8 +67,9 @@ export function renderMarkdown(content: string): MarkdownRenderResult {
       },
     })
     .use(() => rehypeCollectHeadings(headings))
+    .use(rehypeStringify)
 
-  const file = processor.use(rehypeStringify).processSync(content)
+  const file = processor.processSync(content)
 
   return {
     markup: String(file),

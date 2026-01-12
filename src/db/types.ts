@@ -186,3 +186,55 @@ export interface Role {
   createdAt: Date
   updatedAt: Date
 }
+
+// ============================================================================
+// Capability Checking Utilities (isomorphic - works on client and server)
+// ============================================================================
+
+/**
+ * Check if user has a specific capability.
+ * Admin capability grants access to all other capabilities.
+ */
+export function hasCapability(
+  capabilities: Capability[],
+  requiredCapability: Capability,
+): boolean {
+  return (
+    capabilities.includes('admin') || capabilities.includes(requiredCapability)
+  )
+}
+
+/**
+ * Check if user has all specified capabilities.
+ * Admin capability grants access to all other capabilities.
+ */
+export function hasAllCapabilities(
+  capabilities: Capability[],
+  requiredCapabilities: Capability[],
+): boolean {
+  if (capabilities.includes('admin')) {
+    return true
+  }
+  return requiredCapabilities.every((cap) => capabilities.includes(cap))
+}
+
+/**
+ * Check if user has any of the specified capabilities.
+ * Admin capability grants access to all other capabilities.
+ */
+export function hasAnyCapability(
+  capabilities: Capability[],
+  requiredCapabilities: Capability[],
+): boolean {
+  if (capabilities.includes('admin')) {
+    return true
+  }
+  return requiredCapabilities.some((cap) => capabilities.includes(cap))
+}
+
+/**
+ * Check if user has admin capability.
+ */
+export function isAdmin(capabilities: Capability[]): boolean {
+  return capabilities.includes('admin')
+}

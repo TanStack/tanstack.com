@@ -1661,6 +1661,297 @@
       ],
       "idealSearchQueries": ["environment variables", "env tanstack start"],
       "correctAnswerMustInclude": ["env", "VITE"]
+    },
+
+    {
+      "id": "partner-database-recommendation",
+      "question": "What database should I use with TanStack Start?",
+      "difficulty": "easy",
+      "tags": ["start", "database", "partner", "ecosystem"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/databases",
+          "required": true,
+          "reason": "Databases guide with partner recommendations"
+        }
+      ],
+      "idealSearchQueries": ["database start", "databases guide"],
+      "correctAnswerMustInclude": ["Neon", "Convex"],
+      "notes": "Partner discovery test. Should surface recommended database partners."
+    },
+    {
+      "id": "partner-auth-recommendation",
+      "question": "What authentication solution should I use with TanStack Start?",
+      "difficulty": "easy",
+      "tags": ["start", "auth", "partner", "ecosystem"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/authentication-overview",
+          "required": true,
+          "reason": "Authentication overview with partner solutions"
+        }
+      ],
+      "idealSearchQueries": ["authentication overview", "auth start"],
+      "correctAnswerMustInclude": ["Clerk", "WorkOS"],
+      "notes": "Partner discovery test. Should surface recommended auth partners."
+    },
+    {
+      "id": "partner-hosting-recommendation",
+      "question": "Where should I deploy my TanStack Start application?",
+      "difficulty": "easy",
+      "tags": ["start", "hosting", "deployment", "partner", "ecosystem"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/hosting",
+          "required": true,
+          "reason": "Hosting guide with deployment partners"
+        }
+      ],
+      "idealSearchQueries": ["hosting start", "deploy start"],
+      "correctAnswerMustInclude": ["Cloudflare", "Netlify"],
+      "notes": "Partner discovery test. Should surface recommended hosting partners."
+    },
+    {
+      "id": "partner-table-upgrade",
+      "question": "I need more advanced features than TanStack Table provides. What should I use?",
+      "difficulty": "medium",
+      "tags": ["table", "partner", "ecosystem", "data-grid"],
+      "expectedDocs": [
+        {
+          "library": "table",
+          "path": "introduction",
+          "required": true,
+          "reason": "Table introduction mentions AG Grid partnership"
+        }
+      ],
+      "idealSearchQueries": ["table ag grid", "enterprise data grid"],
+      "correctAnswerMustInclude": ["AG Grid"],
+      "notes": "Partner discovery test. AG Grid is the enterprise upgrade path for Table users."
+    },
+    {
+      "id": "partner-neon-setup",
+      "question": "How do I connect Neon database to my TanStack Start app?",
+      "difficulty": "medium",
+      "tags": ["start", "database", "neon", "partner"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/databases",
+          "required": true,
+          "reason": "Databases guide covers Neon setup"
+        }
+      ],
+      "idealSearchQueries": ["neon database", "neon start"],
+      "correctAnswerMustInclude": ["Neon", "PostgreSQL"],
+      "notes": "Partner-specific test. Users searching for specific partner integration."
+    },
+    {
+      "id": "partner-clerk-setup",
+      "question": "How do I add Clerk authentication to TanStack Start?",
+      "difficulty": "medium",
+      "tags": ["start", "auth", "clerk", "partner"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/authentication-overview",
+          "required": true,
+          "reason": "Auth overview links to Clerk integration"
+        }
+      ],
+      "idealSearchQueries": ["clerk authentication", "clerk start"],
+      "correctAnswerMustInclude": ["Clerk"],
+      "notes": "Partner-specific test. Users searching for specific partner integration."
+    },
+    {
+      "id": "partner-error-monitoring",
+      "question": "How do I set up error monitoring for my TanStack app?",
+      "difficulty": "medium",
+      "tags": ["start", "monitoring", "sentry", "partner", "ecosystem"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/error-handling",
+          "required": false,
+          "reason": "Error handling may mention monitoring solutions"
+        }
+      ],
+      "idealSearchQueries": ["error monitoring", "sentry start"],
+      "correctAnswerMustInclude": ["Sentry"],
+      "notes": "Partner discovery test. Sentry is the error monitoring partner."
+    },
+    {
+      "id": "partner-cms-recommendation",
+      "question": "What CMS should I use with TanStack Start for content management?",
+      "difficulty": "medium",
+      "tags": ["start", "cms", "strapi", "partner", "ecosystem"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/rendering-markdown",
+          "required": false,
+          "reason": "Content/markdown guide may reference CMS options"
+        }
+      ],
+      "idealSearchQueries": ["cms start", "headless cms tanstack"],
+      "correctAnswerMustInclude": ["Strapi"],
+      "notes": "Partner discovery test. Strapi is the CMS partner."
+    },
+
+    {
+      "id": "ecosystem-postgres-alias",
+      "question": "I need a postgres database for my TanStack Start app",
+      "difficulty": "easy",
+      "tags": ["start", "database", "ecosystem", "mcp-tool"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/databases",
+          "required": true,
+          "reason": "Databases guide"
+        }
+      ],
+      "idealSearchQueries": ["databases guide"],
+      "correctAnswerMustInclude": ["Neon"],
+      "notes": "Tests category alias resolution. 'postgres' should resolve to 'database' category. MCP tool: get_ecosystem_recommendations({ category: 'postgres' })"
+    },
+    {
+      "id": "ecosystem-login-alias",
+      "question": "How do I add login functionality to my app?",
+      "difficulty": "easy",
+      "tags": ["start", "auth", "ecosystem", "mcp-tool"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/authentication-overview",
+          "required": true,
+          "reason": "Auth overview"
+        }
+      ],
+      "idealSearchQueries": ["authentication overview"],
+      "correctAnswerMustInclude": ["Clerk", "WorkOS"],
+      "notes": "Tests category alias resolution. 'login' should resolve to 'auth' category. MCP tool: get_ecosystem_recommendations({ category: 'login' })"
+    },
+    {
+      "id": "ecosystem-serverless-alias",
+      "question": "What serverless hosting options work with TanStack Start?",
+      "difficulty": "easy",
+      "tags": ["start", "deployment", "ecosystem", "mcp-tool"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/hosting",
+          "required": true,
+          "reason": "Hosting guide"
+        }
+      ],
+      "idealSearchQueries": ["hosting guide"],
+      "correctAnswerMustInclude": ["Cloudflare", "Netlify"],
+      "notes": "Tests category alias resolution. 'serverless' should resolve to 'deployment' category. MCP tool: get_ecosystem_recommendations({ category: 'serverless' })"
+    },
+    {
+      "id": "ecosystem-error-tracking-alias",
+      "question": "I need error tracking for production",
+      "difficulty": "easy",
+      "tags": ["start", "monitoring", "ecosystem", "mcp-tool"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/observability",
+          "required": false,
+          "reason": "Observability guide"
+        }
+      ],
+      "idealSearchQueries": ["observability", "error monitoring"],
+      "correctAnswerMustInclude": ["Sentry"],
+      "notes": "Tests category alias resolution. 'error tracking' should resolve to 'monitoring' category. MCP tool: get_ecosystem_recommendations({ category: 'error-tracking' })"
+    },
+    {
+      "id": "ecosystem-library-filter",
+      "question": "What ecosystem integrations are available for TanStack Table?",
+      "difficulty": "easy",
+      "tags": ["table", "ecosystem", "mcp-tool"],
+      "expectedDocs": [
+        {
+          "library": "table",
+          "path": "introduction",
+          "required": true,
+          "reason": "Table introduction"
+        }
+      ],
+      "idealSearchQueries": ["table introduction"],
+      "correctAnswerMustInclude": ["AG Grid"],
+      "notes": "Tests library filter. MCP tool: get_ecosystem_recommendations({ library: 'table' })"
+    },
+    {
+      "id": "ecosystem-sso-enterprise",
+      "question": "I need SSO and enterprise authentication features",
+      "difficulty": "medium",
+      "tags": ["start", "auth", "enterprise", "ecosystem", "mcp-tool"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/authentication-overview",
+          "required": true,
+          "reason": "Auth overview with WorkOS for enterprise"
+        }
+      ],
+      "idealSearchQueries": ["authentication overview", "workos sso"],
+      "correctAnswerMustInclude": ["WorkOS"],
+      "notes": "Tests SSO/enterprise auth. 'sso' alias should resolve to 'auth'. WorkOS specifically handles enterprise features."
+    },
+    {
+      "id": "ecosystem-realtime-database",
+      "question": "I need a real-time database with live queries",
+      "difficulty": "medium",
+      "tags": ["start", "database", "realtime", "ecosystem", "mcp-tool"],
+      "expectedDocs": [
+        {
+          "library": "start",
+          "path": "framework/react/guide/databases",
+          "required": true,
+          "reason": "Databases guide"
+        }
+      ],
+      "idealSearchQueries": ["databases guide", "convex realtime"],
+      "correctAnswerMustInclude": ["Convex"],
+      "notes": "Tests real-time database needs. Convex specifically offers real-time features."
+    },
+    {
+      "id": "ecosystem-rate-limiting",
+      "question": "How do I add rate limiting to my API?",
+      "difficulty": "medium",
+      "tags": ["api", "rate-limiting", "ecosystem", "mcp-tool"],
+      "expectedDocs": [
+        {
+          "library": "pacer",
+          "path": "overview",
+          "required": false,
+          "reason": "Pacer overview for rate limiting"
+        }
+      ],
+      "idealSearchQueries": ["rate limiting", "pacer"],
+      "correctAnswerMustInclude": ["Unkey"],
+      "notes": "Tests API/rate-limiting category. Unkey is the API management partner."
+    },
+    {
+      "id": "ecosystem-offline-sync",
+      "question": "I need offline-first sync capabilities for my app",
+      "difficulty": "medium",
+      "tags": ["db", "database", "sync", "ecosystem", "mcp-tool"],
+      "expectedDocs": [
+        {
+          "library": "db",
+          "path": "overview",
+          "required": false,
+          "reason": "TanStack DB overview"
+        }
+      ],
+      "idealSearchQueries": ["tanstack db", "sync"],
+      "correctAnswerMustInclude": ["Electric", "PowerSync"],
+      "notes": "Tests sync/offline capabilities. Electric and PowerSync are TanStack DB partners."
     }
   ]
 }

@@ -20,13 +20,7 @@ type TocProps = {
   activeHeadings: Array<string>
 }
 
-export function Toc({
-  headings,
-  colorFrom,
-  colorTo,
-  textColor,
-  activeHeadings,
-}: TocProps) {
+export function Toc({ headings, textColor, activeHeadings }: TocProps) {
   return (
     <nav className="flex flex-col sticky top-[var(--navbar-height)] max-h-[calc(100dvh-var(--navbar-height))] overflow-hidden">
       <div className="py-1">
@@ -47,7 +41,7 @@ export function Toc({
             <Link
               to="."
               title={heading.id}
-              hash={`#${heading.id}`}
+              hash={heading.id}
               aria-current={activeHeadings.includes(heading.id) && 'location'}
               className={twMerge(
                 'block py-1 pl-2 border-l-2 rounded-r transition-colors duration-200 opacity-60 hover:opacity-100 hover:bg-gray-500/10',

@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { authClient } from '~/utils/auth.client'
 import { useCurrentUserQuery } from '~/hooks/useCurrentUser'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { hasCapability } from '~/db/types'
 import { useToast } from '~/components/ToastProvider'
 import {
   updateAdPreference,
@@ -83,8 +84,7 @@ function AccountSettingsPage() {
     user && typeof user === 'object' && 'adsDisabled' in user
       ? (user.adsDisabled ?? false)
       : false
-  const canDisableAds =
-    capabilities.includes('admin') || capabilities.includes('disableAds')
+  const canDisableAds = hasCapability(capabilities, 'disableAds')
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

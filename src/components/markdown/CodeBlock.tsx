@@ -5,7 +5,7 @@ import { Copy } from 'lucide-react'
 import type { Mermaid } from 'mermaid'
 import { transformerNotationDiff } from '@shikijs/transformers'
 import { createHighlighter, type HighlighterGeneric } from 'shiki'
-import { Button } from './Button'
+import { Button } from '../Button'
 
 // Language aliases mapping
 const LANG_ALIASES: Record<string, string> = {
@@ -148,10 +148,12 @@ export function CodeBlock({
         normalizedLang === 'mermaid' ? 'plaintext' : normalizedLang
 
       const highlighter = await getHighlighter(langStr)
+      // Trim trailing newlines to prevent empty lines at end of code block
+      const trimmedCode = (code || '').trimEnd()
 
       const htmls = await Promise.all(
         themes.map(async (theme) => {
-          const output = highlighter.codeToHtml(code || '', {
+          const output = highlighter.codeToHtml(trimmedCode, {
             lang: effectiveLang,
             theme,
             transformers: [transformerNotationDiff()],
@@ -159,11 +161,11 @@ export function CodeBlock({
 
           if (lang === 'mermaid') {
             const preAttributes = extractPreAttributes(output)
-            let svgHtml = genSvgMap.get(code || '')
+            let svgHtml = genSvgMap.get(trimmedCode)
             if (!svgHtml) {
               const mermaid = await getMermaid()
-              const { svg } = await mermaid.render('foo', code || '')
-              genSvgMap.set(code || '', svg)
+              const { svg } = await mermaid.render('foo', trimmedCode)
+              genSvgMap.set(trimmedCode, svg)
               svgHtml = svg
             }
             return `<div class='${preAttributes.class} py-4 bg-neutral-50'>${svgHtml}</div>`

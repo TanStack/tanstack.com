@@ -762,7 +762,7 @@ html.dark .shiki.vitesse-dark span[style*='color: #51597D'] {
 }
 
 .markdown-alert .markdown-alert-content {
-    @apply pr-5;
+  @apply pr-5;
 }
 
 .bg-clip-text {

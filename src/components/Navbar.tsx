@@ -507,7 +507,7 @@ export function Navbar({ children }: { children: React.ReactNode }) {
                                     'border bg-transparent',
                                     'border-current text-current',
                                     'opacity-90 group-hover:opacity-100 transition-opacity',
-                                    library.textColor
+                                    library.textColor,
                                   )}
                                 >
                                   {library.badge}

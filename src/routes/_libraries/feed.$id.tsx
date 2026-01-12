@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from '@tanstack/react-router'
 import { Footer } from '~/components/Footer'
 import { seo } from '~/utils/seo'
 import { useCapabilities } from '~/hooks/useCapabilities'
+import { isAdmin } from '~/db/types'
 import * as v from 'valibot'
 import { format, formatDistanceToNow } from '~/utils/dates'
 import { Markdown } from '~/components/markdown'
@@ -91,7 +92,7 @@ function FeedItemPage() {
   const capabilities = useCapabilities()
 
   // Show not found if entry isn't visible (unless admin)
-  if (!entry.showInFeed && !capabilities.includes('admin')) {
+  if (!entry.showInFeed && !isAdmin(capabilities)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

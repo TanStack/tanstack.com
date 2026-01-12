@@ -27,6 +27,10 @@ import {
   getNpmPackageDownloads,
   getNpmPackageDownloadsSchema,
 } from './tools/get-npm-package-downloads'
+import {
+  getEcosystemRecommendations,
+  getEcosystemRecommendationsSchema,
+} from './tools/get-ecosystem-recommendations'
 
 export type McpAuthContext = {
   userId: string
@@ -417,6 +421,41 @@ export function createMcpServer(authContext?: McpAuthContext) {
       try {
         const parsed = getNpmPackageDownloadsSchema.parse(args)
         const result = await getNpmPackageDownloads(parsed)
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    },
+  )
+
+  // ============================================================================
+  // Ecosystem Tools
+  // ============================================================================
+
+  // Register get_ecosystem_recommendations tool
+  server.tool(
+    'get_ecosystem_recommendations',
+    'Get ecosystem integration recommendations (Neon, Clerk, Convex, AG Grid, Netlify, Cloudflare, Sentry, Prisma, Strapi, etc.). Filter by category (database, auth, deployment, monitoring, cms, api, data-grid) or by TanStack library. Supports aliases like postgres→database, login→auth, serverless→deployment. USE THIS TOOL when users ask about: where to host/deploy, which database to use, authentication solutions, error monitoring, CMS options, or any infrastructure/tooling recommendations for TanStack apps.',
+    getEcosystemRecommendationsSchema.shape,
+    async (args) => {
+      try {
+        const parsed = getEcosystemRecommendationsSchema.parse(args)
+        const result = await getEcosystemRecommendations(parsed)
         return {
           content: [
             {

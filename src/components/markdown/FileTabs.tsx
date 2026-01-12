@@ -8,10 +8,10 @@ export type FileTabDefinition = {
 export type FileTabsProps = {
   tabs: Array<FileTabDefinition>
   children: Array<React.ReactNode> | React.ReactNode
-  id: string
 }
 
-export function FileTabs({ tabs, id, children }: FileTabsProps) {
+export function FileTabs({ tabs, children }: FileTabsProps) {
+  const id = React.useId()
   const childrenArray = React.Children.toArray(children)
   const [activeSlug, setActiveSlug] = React.useState(tabs[0]?.slug ?? '')
 

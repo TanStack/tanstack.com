@@ -31,7 +31,6 @@ const usePackageManagerStore = create<{
 }))
 
 type PackageManagerTabsProps = {
-  id: string
   packagesByFramework: Record<string, string[][]>
   mode: InstallMode
   frameworks: Framework[]
@@ -151,7 +150,6 @@ function getInstallCommand(
 }
 
 export function PackageManagerTabs({
-  id,
   packagesByFramework,
   mode,
 }: PackageManagerTabsProps) {
@@ -202,7 +200,6 @@ export function PackageManagerTabs({
   return (
     <div className="package-manager-tabs">
       <Tabs
-        id={id}
         tabs={tabs}
         children={children}
         activeSlug={selectedPackageManager}

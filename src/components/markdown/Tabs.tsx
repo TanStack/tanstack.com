@@ -11,19 +11,17 @@ export type TabDefinition = {
 export type TabsProps = {
   tabs?: Array<TabDefinition>
   children?: Array<React.ReactNode> | React.ReactNode
-  id: string
   activeSlug?: string
   onTabChange?: (slug: string) => void
-  variant?: string
 }
 
 export function Tabs({
   tabs: tabsProp = [],
-  id,
   children: childrenProp,
   activeSlug: controlledActiveSlug,
   onTabChange,
 }: TabsProps) {
+  const id = React.useId()
   const childrenArray = React.Children.toArray(childrenProp)
 
   const params = useParams({ strict: false })

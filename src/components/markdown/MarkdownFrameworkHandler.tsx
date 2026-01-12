@@ -36,8 +36,6 @@ export function handleFrameworkComponent(
     const availableFrameworks = JSON.parse(
       domNode.attribs['data-available-frameworks'] || '[]',
     )
-    const id =
-      attributes.id || `framework-${Math.random().toString(36).slice(2, 9)}`
 
     const panelElements = domNode.children?.filter(
       (child): child is Element =>
@@ -56,7 +54,6 @@ export function handleFrameworkComponent(
     return (
       <React.Suspense fallback={<div>Loading...</div>}>
         <FrameworkContent
-          id={id}
           codeBlocksByFramework={codeBlocksByFramework}
           availableFrameworks={availableFrameworks}
           panelsByFramework={panelsByFramework}

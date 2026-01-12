@@ -12,7 +12,6 @@ type CodeBlockMeta = {
 }
 
 type FrameworkContentProps = {
-  id: string
   codeBlocksByFramework: Record<string, CodeBlockMeta[]>
   availableFrameworks: string[]
   /** Pre-rendered React children for each framework (from domToReact) */
@@ -27,7 +26,6 @@ type FrameworkContentProps = {
  * - If no code blocks but has content: shows the content directly
  */
 export function FrameworkContent({
-  id,
   codeBlocksByFramework,
   panelsByFramework,
 }: FrameworkContentProps) {
@@ -72,9 +70,7 @@ export function FrameworkContent({
 
   return (
     <div className="framework-content">
-      <Tabs id={`${id}-${normalizedFramework}`} tabs={tabs} variant="files">
-        {childrenArray}
-      </Tabs>
+      <Tabs tabs={tabs}>{childrenArray}</Tabs>
     </div>
   )
 }

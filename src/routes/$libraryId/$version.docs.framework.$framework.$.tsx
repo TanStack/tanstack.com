@@ -67,7 +67,7 @@ export const Route = createFileRoute(
 function Docs() {
   const { title, content, filePath } = Route.useLoaderData()
   const { config } = docsRouteApi.useLoaderData()
-  const { version, libraryId } = Route.useParams()
+  const { version, libraryId, framework } = Route.useParams()
   const library = getLibrary(libraryId)
   const branch = getBranch(library, version)
   const location = useLocation()
@@ -89,6 +89,7 @@ function Docs() {
         libraryVersion={version === 'latest' ? library.latestVersion : version}
         pagePath={location.pathname}
         config={config}
+        framework={framework}
       />
     </DocContainer>
   )

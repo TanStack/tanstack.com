@@ -43,15 +43,11 @@ export function handleTabsComponent(
   if (pmMeta) {
     try {
       const { packagesByFramework, mode } = JSON.parse(pmMeta)
-      const id =
-        attributes.id ||
-        `package-manager-tabs-${Math.random().toString(36).slice(2, 9)}`
       const frameworks = Object.keys(packagesByFramework) as Framework[]
 
       return (
         <React.Suspense fallback={<div>Loading...</div>}>
           <PackageManagerTabs
-            id={id}
             packagesByFramework={packagesByFramework}
             mode={mode}
             frameworks={frameworks}
@@ -68,8 +64,6 @@ export function handleTabsComponent(
   if (filesMeta) {
     try {
       const tabs = attributes.tabs || []
-      const id =
-        attributes.id || `files-tabs-${Math.random().toString(36).slice(2, 9)}`
 
       const panelElements = domNode.children?.filter(
         (child): child is Element =>
@@ -82,7 +76,7 @@ export function handleTabsComponent(
 
       return (
         <React.Suspense fallback={<div>Loading...</div>}>
-          <FileTabs id={id} tabs={tabs} children={children as any} />
+          <FileTabs tabs={tabs} children={children as any} />
         </React.Suspense>
       )
     } catch {
@@ -92,7 +86,6 @@ export function handleTabsComponent(
 
   // Handle default tabs variant
   const tabs = attributes.tabs
-  const id = attributes.id || `tabs-${Math.random().toString(36).slice(2, 9)}`
 
   if (!tabs || !Array.isArray(tabs)) {
     return null
@@ -111,7 +104,7 @@ export function handleTabsComponent(
 
   return (
     <React.Suspense fallback={<div>Loading...</div>}>
-      <Tabs id={id} tabs={tabs} children={children as any} />
+      <Tabs tabs={tabs} children={children as any} />
     </React.Suspense>
   )
 }

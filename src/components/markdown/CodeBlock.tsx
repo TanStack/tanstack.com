@@ -15,9 +15,12 @@ const LANG_ALIASES: Record<string, string> = {
   shell: 'bash',
   console: 'bash',
   zsh: 'bash',
+  cmd: 'bash',
   md: 'markdown',
   txt: 'plaintext',
   text: 'plaintext',
+  yml: 'yaml',
+  json5: 'jsonc',
 }
 
 // Lazy highlighter singleton
@@ -40,6 +43,17 @@ async function getHighlighter(language: string) {
         'css',
         'markdown',
         'plaintext',
+        'toml',
+        'yaml',
+        'sql',
+        'diff',
+        'vue',
+        'svelte',
+        'scss',
+        'jsonc',
+        'vue-html',
+        'angular-html',
+        'angular-ts',
       ],
     })
   }
@@ -111,11 +125,7 @@ export function CodeBlock({
   const childElement = props.children as
     | undefined
     | { props?: { className?: string; children?: string } }
-  let lang = childElement?.props?.className?.replace('language-', '')
-
-  if (lang === 'diff') {
-    lang = 'plaintext'
-  }
+  const lang = childElement?.props?.className?.replace('language-', '')
 
   const children = props.children as
     | undefined

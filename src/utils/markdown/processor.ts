@@ -13,14 +13,11 @@ import {
   rehypeParseCommentComponents,
   rehypeTransformCommentComponents,
   rehypeTransformFrameworkComponents,
+  type MarkdownHeading,
 } from '~/utils/markdown/plugins'
 import { extractCodeMeta } from '~/utils/markdown/plugins/extractCodeMeta'
 
-export type MarkdownHeading = {
-  id: string
-  text: string
-  level: number
-}
+export type { MarkdownHeading } from '~/utils/markdown/plugins'
 
 export type MarkdownRenderResult = {
   markup: string

@@ -32,8 +32,7 @@ export const Route = createFileRoute('/_libraries/explore')({
   },
 })
 
-// Loading screen while game assets load
-// TODO: Upgrade to themed loading screen with island silhouette
+// Loading screen while game JS bundle loads
 function LoadingScreen() {
   return (
     <div className="w-full h-[calc(100dvh-var(--navbar-height))] bg-gradient-to-b from-sky-400 to-cyan-600 flex items-center justify-center">
@@ -42,6 +41,7 @@ function LoadingScreen() {
         <p className="text-white text-lg font-medium">
           Preparing your voyage...
         </p>
+        <p className="text-white/60 text-sm mt-2">Loading game engine</p>
       </div>
     </div>
   )

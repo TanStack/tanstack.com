@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { GameEngine } from '../engine/GameEngine'
 
-export function VanillaGameScene() {
+interface VanillaGameSceneProps {
+  onLoadingChange?: (loading: boolean) => void
+}
+
+export function VanillaGameScene({ onLoadingChange }: VanillaGameSceneProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const engineRef = useRef<GameEngine | null>(null)
   const [isReady, setIsReady] = useState(false)
@@ -57,17 +61,24 @@ export function VanillaGameScene() {
     })
     resizeObserver.observe(container)
 
+    onLoadingChange?.(true)
     engine
       .init()
-      .then(() => engine.start())
-      .catch((err) => console.error('GameEngine init failed:', err))
+      .then(() => {
+        engine.start()
+        onLoadingChange?.(false)
+      })
+      .catch((err) => {
+        console.error('GameEngine init failed:', err)
+        onLoadingChange?.(false)
+      })
 
     return () => {
       resizeObserver.disconnect()
       engine.dispose()
       engineRef.current = null
     }
-  }, [isReady])
+  }, [isReady, onLoadingChange])
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100%' }}>

@@ -31,9 +31,9 @@ import {
 } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { SearchButton } from './SearchButton'
-const LazyFeedTicker = React.lazy(() =>
-  import('./FeedTicker').then((m) => ({ default: m.FeedTicker })),
-)
+// const LazyFeedTicker = React.lazy(() =>
+//   import('./FeedTicker').then((m) => ({ default: m.FeedTicker })),
+// )
 import {
   Authenticated,
   Unauthenticated,
@@ -336,9 +336,20 @@ export function Navbar({ children }: { children: React.ReactNode }) {
         </div>
       </div>
       <div className="hidden xl:flex flex-1 justify-end min-w-0">
-        <React.Suspense fallback={null}>
-          <LazyFeedTicker />
-        </React.Suspense>
+        <Link
+          to="/mcp"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md
+            bg-gradient-to-r from-emerald-600 to-teal-700
+            hover:from-emerald-500 hover:to-teal-600
+            text-white text-xs font-medium
+            shadow-sm hover:shadow-md
+            transition-all duration-200"
+        >
+          <span className="px-1 py-px text-[9px] font-bold bg-white/20 rounded uppercase">
+            Alpha
+          </span>
+          <span>Try TanStack MCP</span>
+        </Link>
       </div>
       <div className="flex items-center gap-2">
         <div className="hidden min-[750px]:block">{socialLinks}</div>

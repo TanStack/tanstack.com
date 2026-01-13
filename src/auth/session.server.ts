@@ -244,12 +244,13 @@ export function createOAuthStateCookie(
   state: string,
   isProduction: boolean,
 ): string {
-  // Use SameSite=Strict for OAuth state to prevent CSRF during OAuth flow
-  return `oauth_state=${encodeURIComponent(state)}; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Strict${isProduction ? '; Secure' : ''}`
+  // Use SameSite=Lax to allow the cookie to be sent on OAuth redirects back from providers
+  // Strict would block the cookie since the redirect comes from an external domain (GitHub/Google)
+  return `oauth_state=${encodeURIComponent(state)}; HttpOnly; Path=/; Max-Age=${10 * 60}; SameSite=Lax${isProduction ? '; Secure' : ''}`
 }
 
 export function clearOAuthStateCookie(isProduction: boolean): string {
-  return `oauth_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict${isProduction ? '; Secure' : ''}`
+  return `oauth_state=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${isProduction ? '; Secure' : ''}`
 }
 
 export function getOAuthStateCookie(request: Request): string | null {
